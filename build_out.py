@@ -3,11 +3,11 @@
 (role, register span, pipe, latency) by joining md_SMxx with latencies_SMxx."""
 import json, re, shutil, sys, pathlib
 from collections import defaultdict
+from mdlib import parse_md, strip_comments
 
 ENTRY = re.compile(r"(\w+)(?:\[[^\]]*\])?`\{([^}]*)\}|(\w+)")
 ROLES = {"TRUE": ("read", "write"), "OUTPUT": ("write", "write"), "ANTI": ("write", "read")}  # (column, row)
 
-def strip_comments(text): return re.sub(r"//[^\n]*", "", text)
 
 # ---------- latencies ----------
 
@@ -71,25 +71,6 @@ def parse_latencies(text):
                 rows.append((o, c, rhs.split()))
         tables.append(dict(kind=kind, resource=res, cols=[(o, list(c)) for o, c, _ in col_groups], rows=rows))
     return ops, resources, ranges, tables
-
-# ---------- md ----------
-
-OPERAND = re.compile(r"(?<![/\w])(\w+)(?:\([^)]*\))?\*?:(\w+)")
-
-def parse_md(text):
-    classes = []
-    for m in re.finditer(r'^(ALTERNATE\s+)?CLASS\s+"([^"]+)"(.*?)(?=^(?:ALTERNATE\s+)?CLASS\s+"|\Z)', text, re.S | re.M):
-        alt, name, body = m.groups()
-        sec = lambda s: (re.search(rf"^{s}\b(.*?)(?=^[A-Z_]+\s*$|^[A-Z_]+\b(?=\s)|\Z)", body, re.S | re.M) or [None, ""])[1]
-        fmt = sec("FORMAT")
-        classes.append(dict(
-            cls=name, alternate=bool(alt), text=m.group(0),
-            operands=[(t, n) for t, n in OPERAND.findall(fmt) if t not in {"PREDICATE"}],
-            preds={k: int(v) if re.fullmatch(r"-?\d+", v) else v
-                   for k, v in re.findall(r"^\s*(\w+)\s*=\s*(.+?)\s*;\s*$", sec("PREDICATES"), re.M)},
-            props=dict(re.findall(r"(\w+)\s*=\s*([^;]+?)\s*;", sec("PROPERTIES"))),
-            opcodes=re.findall(r"^\s*([\w.]+)\s*=\s*0b[01]+\s*;", sec("OPCODES"), re.M)))
-    return classes
 
 # ---------- join ----------
 
