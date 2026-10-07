@@ -1,0 +1,391 @@
+CLASS "ldcu_const_RCR_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /SZ_U8_S8_U16_S16_32_64_128("32"):sz /TEXUNPACK("notexunpack"):texunpack
+UniformRegister:URd
+','C:Sa[UImm(5/0*):Sa_bank]*   [UniformRegister("URZ"):URa + SImm(18/0)*:Sa_offset]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"32"))&&((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"32"))&&((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))&&((texunpack == `TEXUNPACK@notexunpack))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))&&((texunpack == `TEXUNPACK@notexunpack))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))&&((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))&&((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))&&((texunpack == `TEXUNPACK@notexunpack))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))&&((texunpack == `TEXUNPACK@notexunpack))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((sz == `SZ_U8_S8_U16_S16_32_64_128@"32")||(sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) :
+ "Invalid instruction combination (reason: .TEXUNPACK only supports 32-bit or 64-bit sizes)"
+INVALID_CONST_ADDR_ERROR
+ (((Sa_bank==0x0)||(Sa_bank==0x1)||(Sa_bank==0x2)||(Sa_bank==0x3)||(Sa_bank==0x4)||(Sa_bank==0x5)||(Sa_bank==0x6)||(Sa_bank==0x7)||(Sa_bank==0x8)||(Sa_bank==0x9)||(Sa_bank==0xa)||(Sa_bank==0xb)||(Sa_bank==0xc)||(Sa_bank==0xd)||(Sa_bank==0xe)||(Sa_bank==0xf)||(Sa_bank==0x10)||(Sa_bank==0x11)||(Sa_bank==0x18)||(Sa_bank==0x19)||(Sa_bank==0x1a)||(Sa_bank==0x1b)||(Sa_bank==0x1c)||(Sa_bank==0x1d)||(Sa_bank==0x1e)||(Sa_bank==0x1f))) :
+ "INVALID_CONST_ADDR_LDC: Banks 18 through 23 are not allowed."
+INVALID_CONST_ADDR_ERROR
+ (((%SHADER_TYPE == $ST_CS))) -> (((Sa_bank==0x0)||(Sa_bank==0x1)||(Sa_bank==0x2)||(Sa_bank==0x3)||(Sa_bank==0x4)||(Sa_bank==0x5)||(Sa_bank==0x6)||(Sa_bank==0x7))) :
+ "INVALID_CONST_ADDR_LDC: Banks 8 through 31 are not allowed in CS."
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@LDCU_CbURaOffs ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + ((((sz==`SZ_U8_S8_U16_S16_32_64_128@"32")) && ((texunpack==`TEXUNPACK@TEXUNPACK)))*32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64")) && ((texunpack==`TEXUNPACK@notexunpack)))*32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64")) && ((texunpack==`TEXUNPACK@TEXUNPACK)))*96 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"128")) && ((texunpack==`TEXUNPACK@notexunpack)))*96);
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_LDCU ;
+
+ ILABEL_URa_SIZE = 32;
+
+OPCODES
+        LDCUudp_pipe =  0b1011110101100;
+        LDCU =  0b1011110101100;
+
+ENCODING
+!ldcu_const_RCR__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_75_73_sz=sz;
+BITS_1_80_80_texunpack=texunpack;
+BITS_8_23_16_Rd=URd;
+
+BITS_8_31_24_Ra=URa;
+BITS_5_58_54_Sa_bank,BITS_17_53_37_Ra_offset =  ConstBankAddress0(Sa_bank,Sa_offset);
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "ldcu_const_RCxR_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /SZ_U8_S8_U16_S16_32_64_128("32"):sz /TEXUNPACK("notexunpack"):texunpack
+UniformRegister:URd
+','CX:Sa[UniformRegister:URa][ZeroUniformRegister("URZ"):URb + SImm(17/0)*:Sa_offset]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URa)!=`UniformRegister@URZ) :
+ "Disallowed uniform register URa"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URb)==`UniformRegister@URZ) :
+ "Disallowed uniform register URb"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"32"))&&((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"32"))&&((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))&&((texunpack == `TEXUNPACK@notexunpack))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))&&((texunpack == `TEXUNPACK@notexunpack))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))&&((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))&&((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))&&((texunpack == `TEXUNPACK@notexunpack))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))&&((texunpack == `TEXUNPACK@notexunpack))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((sz == `SZ_U8_S8_U16_S16_32_64_128@"32")||(sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) :
+ "Invalid instruction combination (reason: .TEXUNPACK only supports 32-bit or 64-bit sizes)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@LDCU_CXb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + ((((sz==`SZ_U8_S8_U16_S16_32_64_128@"32")) && ((texunpack==`TEXUNPACK@TEXUNPACK)))*32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64")) && ((texunpack==`TEXUNPACK@notexunpack)))*32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64")) && ((texunpack==`TEXUNPACK@TEXUNPACK)))*96 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"128")) && ((texunpack==`TEXUNPACK@notexunpack)))*96);
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_LDCU ;
+
+ ILABEL_URa_SIZE = 64;
+
+OPCODES
+        LDCUudp_pipe =  0b1101110101100;
+        LDCU =  0b1101110101100;
+
+ENCODING
+!ldcu_const_RCxR__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_75_73_sz=sz;
+BITS_1_80_80_texunpack=texunpack;
+BITS_8_23_16_Rd=URd;
+BITS_8_31_24_Ra=URa;
+BITS_8_71_64_Ra_URc=URb;
+BITS_17_53_37_Ra_offset=Sa_offset;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "ldcu_ur_offs_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /SZ_U8_S8_U16_S16_32_64_128("32"):sz /TEXUNPACK("notexunpack"):texunpack
+UniformRegister:URd
+',' [ UniformRegister("URZ"):URa + SImm(32/0)*:Sa_offset ]
+',' [!]UniformPredicate:UPp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sa is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"32"))&&((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"32"))&&((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))&&((texunpack == `TEXUNPACK@notexunpack))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))&&((texunpack == `TEXUNPACK@notexunpack))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))&&((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))&&((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))&&((texunpack == `TEXUNPACK@notexunpack))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))&&((texunpack == `TEXUNPACK@notexunpack))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((sz == `SZ_U8_S8_U16_S16_32_64_128@"32")||(sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) :
+ "Invalid instruction combination (reason: .TEXUNPACK only supports 32-bit or 64-bit sizes)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@LDCU_CXbVA ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + ((((sz==`SZ_U8_S8_U16_S16_32_64_128@"32")) && ((texunpack==`TEXUNPACK@TEXUNPACK)))*32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64")) && ((texunpack==`TEXUNPACK@notexunpack)))*32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64")) && ((texunpack==`TEXUNPACK@TEXUNPACK)))*96 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"128")) && ((texunpack==`TEXUNPACK@notexunpack)))*96);
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_LDCU ;
+
+ ILABEL_URa_SIZE = 64;
+
+OPCODES
+        LDCUudp_pipe =  0b1100110101100;
+        LDCU =  0b1100110101100;
+
+ENCODING
+!ldcu_ur_offs__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_75_73_sz=sz;
+BITS_1_80_80_texunpack=texunpack;
+BITS_8_23_16_Rd=URd;
+BITS_8_31_24_Ra=URa;
+BITS_32_69_38_Sa_offset=Sa_offset;
+BITS_3_89_87_Pnz = UPp;
+BITS_1_90_90_memdesc = UPp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "ldcu_ur_offs_optional_upx_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /SZ_U8_S8_U16_S16_32_64_128("32"):sz /TEXUNPACK("notexunpack"):texunpack
+UniformRegister:URd
+',' [ UniformRegister("URZ"):URa + SImm(32/0)*:Sa_offset ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sa is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"32"))&&((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"32"))&&((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))&&((texunpack == `TEXUNPACK@notexunpack))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))&&((texunpack == `TEXUNPACK@notexunpack))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))&&((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))&&((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))&&((texunpack == `TEXUNPACK@notexunpack))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))&&((texunpack == `TEXUNPACK@notexunpack))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((texunpack == `TEXUNPACK@TEXUNPACK))) -> (((sz == `SZ_U8_S8_U16_S16_32_64_128@"32")||(sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) :
+ "Invalid instruction combination (reason: .TEXUNPACK only supports 32-bit or 64-bit sizes)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@LDCU_CXbVA ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + ((((sz==`SZ_U8_S8_U16_S16_32_64_128@"32")) && ((texunpack==`TEXUNPACK@TEXUNPACK)))*32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64")) && ((texunpack==`TEXUNPACK@notexunpack)))*32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64")) && ((texunpack==`TEXUNPACK@TEXUNPACK)))*96 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"128")) && ((texunpack==`TEXUNPACK@notexunpack)))*96);
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_LDCU ;
+
+ ILABEL_URa_SIZE = 64;
+
+OPCODES
+        LDCUudp_pipe =  0b1100110101100;
+        LDCU =  0b1100110101100;
+
+ENCODING
+!ldcu_ur_offs_optional_upx__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_75_73_sz=sz;
+BITS_1_80_80_texunpack=texunpack;
+BITS_8_23_16_Rd=URd;
+BITS_8_31_24_Ra=URa;
+BITS_32_69_38_Sa_offset=Sa_offset;
+BITS_3_89_87_Pnz =* 7;
+BITS_1_90_90_memdesc =*1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

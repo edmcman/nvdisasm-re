@@ -1,0 +1,2745 @@
+CLASS "f2f_f32_downconvert__RCR_RCR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F16F32_E8M7F32_E6M9F32_BF16F32:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] C:Sb[UImm(5/0*):Sb_bank]*   [SImm(17)*:Sb_addr]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+INVALID_CONST_ADDR_SASS_ONLY_ERROR
+ ((Sb_bank <= 17) || (Sb_bank >= 24 && Sb_bank <= 31)) :
+ "Invalid constant bank error"
+MISALIGNED_ADDR_ERROR
+ (Sb_addr & 0x3) == 0 :
+ "Constant offsets must be aligned on a 4B boundary"
+INVALID_CONST_ADDR_ERROR
+ (Sb_bank >= 24 && Sb_bank <= 31) -> (Sb_addr <= 255) :
+ "RTV banks may not use an offset greater than 255"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (%SHADER_TYPE == $ST_CS) -> !(Sb_bank >= 8 && Sb_bank <= 31) :
+ "CS may not use RTV banks"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F_C ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+ MASK_INSTR_PREDICATE = ((dstfmt.srcfmt == `DSTFMT_SRCFMT_F16F32_E8M7F32_E6M9F32_BF16F32@E6M9.F32));
+
+
+OPCODES
+        F2Fmio_pipe =  0b101100000100;
+        F2F =  0b101100000100;
+
+ENCODING
+!f2f_f32_downconvert__RCR_RCR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+
+BITS_5_58_54_Sb_bank,BITS_14_53_40_Sb_offset =  ConstBankAddress2(Sb_bank,Sb_addr);
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sb_invert=Sb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f32_downconvert__RCXR_RCXR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F16F32_E8M7F32_E6M9F32_BF16F32:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] CX:Sb[UniformRegister:URb][UImm(16)*:Sb_offset]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URb)!=`UniformRegister@URZ) :
+ "Disallowed uniform register URb"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F_CXb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+ MASK_INSTR_PREDICATE = ((dstfmt.srcfmt == `DSTFMT_SRCFMT_F16F32_E8M7F32_E6M9F32_BF16F32@E6M9.F32));
+
+ ILABEL_URb_SIZE = 64;
+
+OPCODES
+        F2Fmio_pipe =  0b1101100000100;
+        F2F =  0b1101100000100;
+
+ENCODING
+!f2f_f32_downconvert__RCXR_RCXR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_6_37_32_Ra_URb=URb;
+BITS_14_53_40_Sb_offset=Sb_offset SCALE 4;
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sb_invert=Sb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f32_downconvert__RIR_RIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F16F32_E8M7F32_E6M9F32_BF16F32:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+','F32Imm(64):Sb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F_Imm ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+ MASK_INSTR_PREDICATE = ((dstfmt.srcfmt == `DSTFMT_SRCFMT_F16F32_E8M7F32_E6M9F32_BF16F32@E6M9.F32));
+
+
+OPCODES
+        F2Fmio_pipe =  0b100100000100;
+        F2F =  0b100100000100;
+
+ENCODING
+!f2f_f32_downconvert__RIR_RIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_32_63_32_Ra_offset=Sb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f32_downconvert__RRR_RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F16F32_E8M7F32_E6M9F32_BF16F32:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F_R ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+ MASK_INSTR_PREDICATE = ((dstfmt.srcfmt == `DSTFMT_SRCFMT_F16F32_E8M7F32_E6M9F32_BF16F32@E6M9.F32));
+
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        F2Fmio_pipe =  0b1100000100;
+        F2F =  0b1100000100;
+
+ENCODING
+!f2f_f32_downconvert__RRR_RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_8_39_32_Rb=Rb;
+BITS_1_62_62_Sc_absolute=Rb@absolute;
+BITS_1_63_63_Sb_invert=Rb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f32_downconvert__RUR_RUR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F16F32_E8M7F32_E6M9F32_BF16F32:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] UniformRegister:URb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+ MASK_INSTR_PREDICATE = ((dstfmt.srcfmt == `DSTFMT_SRCFMT_F16F32_E8M7F32_E6M9F32_BF16F32@E6M9.F32));
+
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        F2Fmio_pipe =  0b1110100000100;
+        F2F =  0b1110100000100;
+
+ENCODING
+!f2f_f32_downconvert__RUR_RUR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_6_37_32_Ra_URb=URb;
+BITS_1_62_62_Sc_absolute=URb@absolute;
+BITS_1_63_63_Sb_invert=URb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f32_upconvert__RCR_RCR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] C:Sb[UImm(5/0*):Sb_bank]*   [SImm(17)*:Sb_addr] /HSEL("H0"):hsel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+INVALID_CONST_ADDR_SASS_ONLY_ERROR
+ ((Sb_bank <= 17) || (Sb_bank >= 24 && Sb_bank <= 31)) :
+ "Invalid constant bank error"
+MISALIGNED_ADDR_ERROR
+ (Sb_addr & 0x3) == 0 :
+ "Constant offsets must be aligned on a 4B boundary"
+INVALID_CONST_ADDR_ERROR
+ (Sb_bank >= 24 && Sb_bank <= 31) -> (Sb_addr <= 255) :
+ "RTV banks may not use an offset greater than 255"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (%SHADER_TYPE == $ST_CS) -> !(Sb_bank >= 8 && Sb_bank <= 31) :
+ "CS may not use RTV banks"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((hsel !=`HSEL@INVALID2)&&(hsel !=`HSEL@INVALID3)) :
+ "Invalid hsel field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F_C ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+ MASK_INSTR_PREDICATE = ((dstfmt.srcfmt == `DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9@F32.E6M9));
+
+
+OPCODES
+        F2Fmio_pipe =  0b101100000100;
+        F2F =  0b101100000100;
+
+ENCODING
+!f2f_f32_upconvert__RCR_RCR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+
+BITS_5_58_54_Sb_bank,BITS_14_53_40_Sb_offset =  ConstBankAddress2(Sb_bank,Sb_addr);
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sb_invert=Sb@negate;
+BITS_2_61_60_hsel=hsel;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f32_upconvert__RCXR_RCXR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] CX:Sb[UniformRegister:URb][UImm(16)*:Sb_offset] /HSEL("H0"):hsel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URb)!=`UniformRegister@URZ) :
+ "Disallowed uniform register URb"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((hsel !=`HSEL@INVALID2)&&(hsel !=`HSEL@INVALID3)) :
+ "Invalid hsel field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F_CXb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+ MASK_INSTR_PREDICATE = ((dstfmt.srcfmt == `DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9@F32.E6M9));
+
+ ILABEL_URb_SIZE = 64;
+
+OPCODES
+        F2Fmio_pipe =  0b1101100000100;
+        F2F =  0b1101100000100;
+
+ENCODING
+!f2f_f32_upconvert__RCXR_RCXR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_6_37_32_Ra_URb=URb;
+BITS_14_53_40_Sb_offset=Sb_offset SCALE 4;
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sb_invert=Sb@negate;
+BITS_2_61_60_hsel=hsel;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f32_upconvert__RIR_RIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+','F64Imm(64):Sb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F_Imm ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 16;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+ MASK_INSTR_PREDICATE = ((dstfmt.srcfmt == `DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9@F32.E6M9));
+
+
+OPCODES
+        F2Fmio_pipe =  0b100100000100;
+        F2F =  0b100100000100;
+
+ENCODING
+!f2f_f32_upconvert__RIR_RIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_16_47_32_Sb=Sb convertFloatType(dstfmt.srcfmt == `DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9@F16.BF16 || dstfmt.srcfmt == `DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9@F32.BF16, E8M7Imm, dstfmt.srcfmt == `DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9@F32.E6M9, E6M9Imm, F16Imm);
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f32_upconvert__RRR_RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] Register:Rb /HSEL("H0"):hsel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((hsel !=`HSEL@INVALID2)&&(hsel !=`HSEL@INVALID3)) :
+ "Invalid hsel field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F_R ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+ MASK_INSTR_PREDICATE = ((dstfmt.srcfmt == `DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9@F32.E6M9));
+
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        F2Fmio_pipe =  0b1100000100;
+        F2F =  0b1100000100;
+
+ENCODING
+!f2f_f32_upconvert__RRR_RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_8_39_32_Rb=Rb;
+BITS_1_62_62_Sc_absolute=Rb@absolute;
+BITS_1_63_63_Sb_invert=Rb@negate;
+BITS_2_61_60_hsel=hsel;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f32_upconvert__RUR_RUR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] UniformRegister:URb /HSEL("H0"):hsel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((hsel !=`HSEL@INVALID2)&&(hsel !=`HSEL@INVALID3)) :
+ "Invalid hsel field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+ MASK_INSTR_PREDICATE = ((dstfmt.srcfmt == `DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9@F32.E6M9));
+
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        F2Fmio_pipe =  0b1110100000100;
+        F2F =  0b1110100000100;
+
+ENCODING
+!f2f_f32_upconvert__RUR_RUR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_6_37_32_Ra_URb=URb;
+BITS_1_62_62_Sc_absolute=URb@absolute;
+BITS_1_63_63_Sb_invert=URb@negate;
+BITS_2_61_60_hsel=hsel;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "f2f_f32_upconvert_swap__RCR_RCR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] C:Sb[UImm(5/0*):Sb_bank]*   [SImm(17)*:Sb_addr] /HSEL("H0"):hsel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+INVALID_CONST_ADDR_SASS_ONLY_ERROR
+ ((Sb_bank <= 17) || (Sb_bank >= 24 && Sb_bank <= 31)) :
+ "Invalid constant bank error"
+MISALIGNED_ADDR_ERROR
+ (Sb_addr & 0x3) == 0 :
+ "Constant offsets must be aligned on a 4B boundary"
+INVALID_CONST_ADDR_ERROR
+ (Sb_bank >= 24 && Sb_bank <= 31) -> (Sb_addr <= 255) :
+ "RTV banks may not use an offset greater than 255"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (%SHADER_TYPE == $ST_CS) -> !(Sb_bank >= 8 && Sb_bank <= 31) :
+ "CS may not use RTV banks"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((hsel !=`HSEL@INVALID2)&&(hsel !=`HSEL@INVALID3)) :
+ "Invalid hsel field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F_C ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+ MASK_INSTR_PREDICATE = ((dstfmt.srcfmt == `DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9@F32.E6M9));
+
+
+OPCODES
+        F2Fmio_pipe =  0b101100000100;
+        F2F =  0b101100000100;
+
+ENCODING
+!f2f_f32_upconvert_swap__RCR_RCR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+
+BITS_5_58_54_Sb_bank,BITS_14_53_40_Sb_offset =  ConstBankAddress2(Sb_bank,Sb_addr);
+BITS_2_61_60_hsel=hsel;
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sb_invert=Sb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "f2f_f32_upconvert_swap__RCXR_RCXR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] CX:Sb[UniformRegister:URb][UImm(16)*:Sb_offset] /HSEL("H0"):hsel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URb)!=`UniformRegister@URZ) :
+ "Disallowed uniform register URb"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((hsel !=`HSEL@INVALID2)&&(hsel !=`HSEL@INVALID3)) :
+ "Invalid hsel field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F_CXb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+ MASK_INSTR_PREDICATE = ((dstfmt.srcfmt == `DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9@F32.E6M9));
+
+ ILABEL_URb_SIZE = 64;
+
+OPCODES
+        F2Fmio_pipe =  0b1101100000100;
+        F2F =  0b1101100000100;
+
+ENCODING
+!f2f_f32_upconvert_swap__RCXR_RCXR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_6_37_32_Ra_URb=URb;
+BITS_14_53_40_Sb_offset=Sb_offset SCALE 4;
+BITS_2_61_60_hsel=hsel;
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sb_invert=Sb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "f2f_f32_upconvert_swap__RIR_RIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+','F64Imm(64):Sb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F_Imm ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 16;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+ MASK_INSTR_PREDICATE = ((dstfmt.srcfmt == `DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9@F32.E6M9));
+
+
+OPCODES
+        F2Fmio_pipe =  0b100100000100;
+        F2F =  0b100100000100;
+
+ENCODING
+!f2f_f32_upconvert_swap__RIR_RIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_16_47_32_Sb=Sb convertFloatType(dstfmt.srcfmt == `DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9@F16.BF16 || dstfmt.srcfmt == `DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9@F32.BF16, E8M7Imm, dstfmt.srcfmt == `DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9@F32.E6M9, E6M9Imm, F16Imm);
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "f2f_f32_upconvert_swap__RRR_RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] Register:Rb /HSEL("H0"):hsel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((hsel !=`HSEL@INVALID2)&&(hsel !=`HSEL@INVALID3)) :
+ "Invalid hsel field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F_R ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+ MASK_INSTR_PREDICATE = ((dstfmt.srcfmt == `DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9@F32.E6M9));
+
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        F2Fmio_pipe =  0b1100000100;
+        F2F =  0b1100000100;
+
+ENCODING
+!f2f_f32_upconvert_swap__RRR_RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_8_39_32_Rb=Rb;
+BITS_2_61_60_hsel=hsel;
+BITS_1_62_62_Sc_absolute=Rb@absolute;
+BITS_1_63_63_Sb_invert=Rb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "f2f_f32_upconvert_swap__RUR_RUR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] UniformRegister:URb /HSEL("H0"):hsel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((hsel !=`HSEL@INVALID2)&&(hsel !=`HSEL@INVALID3)) :
+ "Invalid hsel field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+ MASK_INSTR_PREDICATE = ((dstfmt.srcfmt == `DSTFMT_SRCFMT_F32F16_BF16F16_F16BF16_F32BF16_F32E6M9@F32.E6M9));
+
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        F2Fmio_pipe =  0b1110100000100;
+        F2F =  0b1110100000100;
+
+ENCODING
+!f2f_f32_upconvert_swap__RUR_RUR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_6_37_32_Ra_URb=URb;
+BITS_2_61_60_hsel=hsel;
+BITS_1_62_62_Sc_absolute=URb@absolute;
+BITS_1_63_63_Sb_invert=URb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f64_downconvert__RCR_RCR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F16F64_F32F64_BF16F64:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] C:Sb[UImm(5/0*):Sb_bank]*   [SImm(17)*:Sb_addr]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+INVALID_CONST_ADDR_SASS_ONLY_ERROR
+ ((Sb_bank <= 17) || (Sb_bank >= 24 && Sb_bank <= 31)) :
+ "Invalid constant bank error"
+MISALIGNED_ADDR_ERROR
+ (Sb_addr & 0x7) == 0 :
+ "Constant offsets must be aligned on a 8B boundary"
+INVALID_CONST_ADDR_ERROR
+ (Sb_bank >= 24 && Sb_bank <= 31) -> (Sb_addr <= 255) :
+ "RTV banks may not use an offset greater than 255"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (%SHADER_TYPE == $ST_CS) -> !(Sb_bank >= 8 && Sb_bank <= 31) :
+ "CS may not use RTV banks"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_C ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+
+OPCODES
+        F2Fmio_pipe =  0b101100010000;
+        F2F =  0b101100010000;
+
+ENCODING
+!f2f_f64_downconvert__RCR_RCR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+
+BITS_5_58_54_Sb_bank,BITS_14_53_40_Sb_offset =  ConstBankAddress2(Sb_bank,Sb_addr);
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sb_invert=Sb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f64_downconvert__RCXR_RCXR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F16F64_F32F64_BF16F64:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] CX:Sb[UniformRegister:URb][UImm(16)*:Sb_offset]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URb)!=`UniformRegister@URZ) :
+ "Disallowed uniform register URb"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_CXb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+ ILABEL_URb_SIZE = 64;
+
+OPCODES
+        F2Fmio_pipe =  0b1101100010000;
+        F2F =  0b1101100010000;
+
+ENCODING
+!f2f_f64_downconvert__RCXR_RCXR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_6_37_32_Ra_URb=URb;
+BITS_14_53_40_Sb_offset=Sb_offset SCALE 4;
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sb_invert=Sb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f64_downconvert__RIR_RIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F16F64_F32F64_BF16F64:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+','F64Imm(64):Sb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_Imm ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+
+OPCODES
+        F2Fmio_pipe =  0b100100010000;
+        F2F =  0b100100010000;
+
+ENCODING
+!f2f_f64_downconvert__RIR_RIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_32_63_32_Ra_offset=Sb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f64_downconvert__RRR_RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F16F64_F32F64_BF16F64:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-2))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+MISALIGNED_REG_ERROR
+ (((Rb)+((Rb)==`Register@RZ)) % 2) == 0 :
+ "Register Rb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_R ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+ ILABEL_Rb_SIZE = 64;
+
+OPCODES
+        F2Fmio_pipe =  0b1100010000;
+        F2F =  0b1100010000;
+
+ENCODING
+!f2f_f64_downconvert__RRR_RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_8_39_32_Rb=Rb;
+BITS_1_62_62_Sc_absolute=Rb@absolute;
+BITS_1_63_63_Sb_invert=Rb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f64_downconvert__RUR_RUR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F16F64_F32F64_BF16F64:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] UniformRegister:URb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+ ILABEL_URb_SIZE = 64;
+
+OPCODES
+        F2Fmio_pipe =  0b1110100010000;
+        F2F =  0b1110100010000;
+
+ENCODING
+!f2f_f64_downconvert__RUR_RUR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_6_37_32_Ra_URb=URb;
+BITS_1_62_62_Sc_absolute=URb@absolute;
+BITS_1_63_63_Sb_invert=URb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f64_upconvert__R_32I_R_RIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /F64.F32ONLY:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+','F32Imm(64):Sb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_Imm ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+
+OPCODES
+        F2Fmio_pipe =  0b100100010000;
+        F2F =  0b100100010000;
+
+ENCODING
+!f2f_f64_upconvert__R_32I_R_RIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_32_63_32_Ra_offset=Sb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f64_upconvert__R_C16_R_RCR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F64F16_F64BF16:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] C:Sb[UImm(5/0*):Sb_bank]*   [SImm(17)*:Sb_addr] /HSEL("H0"):hsel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+INVALID_CONST_ADDR_SASS_ONLY_ERROR
+ ((Sb_bank <= 17) || (Sb_bank >= 24 && Sb_bank <= 31)) :
+ "Invalid constant bank error"
+MISALIGNED_ADDR_ERROR
+ (Sb_addr & 0x3) == 0 :
+ "Constant offsets must be aligned on a 4B boundary"
+INVALID_CONST_ADDR_ERROR
+ (Sb_bank >= 24 && Sb_bank <= 31) -> (Sb_addr <= 255) :
+ "RTV banks may not use an offset greater than 255"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (%SHADER_TYPE == $ST_CS) -> !(Sb_bank >= 8 && Sb_bank <= 31) :
+ "CS may not use RTV banks"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((hsel !=`HSEL@INVALID2)&&(hsel !=`HSEL@INVALID3)) :
+ "Invalid hsel field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_C ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+
+OPCODES
+        F2Fmio_pipe =  0b101100010000;
+        F2F =  0b101100010000;
+
+ENCODING
+!f2f_f64_upconvert__R_C16_R_RCR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+
+BITS_5_58_54_Sb_bank,BITS_14_53_40_Sb_offset =  ConstBankAddress2(Sb_bank,Sb_addr);
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sb_invert=Sb@negate;
+BITS_2_61_60_hsel=hsel;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f64_upconvert__R_C32_R_RCR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /F64.F32ONLY:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] C:Sb[UImm(5/0*):Sb_bank]*   [SImm(17)*:Sb_addr]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+INVALID_CONST_ADDR_SASS_ONLY_ERROR
+ ((Sb_bank <= 17) || (Sb_bank >= 24 && Sb_bank <= 31)) :
+ "Invalid constant bank error"
+MISALIGNED_ADDR_ERROR
+ (Sb_addr & 0x3) == 0 :
+ "Constant offsets must be aligned on a 4B boundary"
+INVALID_CONST_ADDR_ERROR
+ (Sb_bank >= 24 && Sb_bank <= 31) -> (Sb_addr <= 255) :
+ "RTV banks may not use an offset greater than 255"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (%SHADER_TYPE == $ST_CS) -> !(Sb_bank >= 8 && Sb_bank <= 31) :
+ "CS may not use RTV banks"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_C ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+
+OPCODES
+        F2Fmio_pipe =  0b101100010000;
+        F2F =  0b101100010000;
+
+ENCODING
+!f2f_f64_upconvert__R_C32_R_RCR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+
+BITS_5_58_54_Sb_bank,BITS_14_53_40_Sb_offset =  ConstBankAddress2(Sb_bank,Sb_addr);
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sb_invert=Sb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f64_upconvert__R_CX16_R_RCXR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F64F16_F64BF16:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] CX:Sb[UniformRegister:URb][UImm(16)*:Sb_offset] /HSEL("H0"):hsel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URb)!=`UniformRegister@URZ) :
+ "Disallowed uniform register URb"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((hsel !=`HSEL@INVALID2)&&(hsel !=`HSEL@INVALID3)) :
+ "Invalid hsel field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_CXb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+ ILABEL_URb_SIZE = 64;
+
+OPCODES
+        F2Fmio_pipe =  0b1101100010000;
+        F2F =  0b1101100010000;
+
+ENCODING
+!f2f_f64_upconvert__R_CX16_R_RCXR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_6_37_32_Ra_URb=URb;
+BITS_14_53_40_Sb_offset=Sb_offset SCALE 4;
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sb_invert=Sb@negate;
+BITS_2_61_60_hsel=hsel;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f64_upconvert__R_CX32_R_RCXR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /F64.F32ONLY:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] CX:Sb[UniformRegister:URb][UImm(16)*:Sb_offset]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URb)!=`UniformRegister@URZ) :
+ "Disallowed uniform register URb"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_CXb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+ ILABEL_URb_SIZE = 64;
+
+OPCODES
+        F2Fmio_pipe =  0b1101100010000;
+        F2F =  0b1101100010000;
+
+ENCODING
+!f2f_f64_upconvert__R_CX32_R_RCXR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_6_37_32_Ra_URb=URb;
+BITS_14_53_40_Sb_offset=Sb_offset SCALE 4;
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sb_invert=Sb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f64_upconvert__R_I16_R_RIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F64F16_F64BF16:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+','F64Imm(64):Sb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_Imm ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 16;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+
+OPCODES
+        F2Fmio_pipe =  0b100100010000;
+        F2F =  0b100100010000;
+
+ENCODING
+!f2f_f64_upconvert__R_I16_R_RIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_16_47_32_Sb=Sb convertFloatType(dstfmt.srcfmt == `DSTFMT_SRCFMT_F64F16_F64BF16@F64.BF16, E8M7Imm, F16Imm);
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f64_upconvert__R_R16_R_RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F64F16_F64BF16:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] Register:Rb /HSEL("H0"):hsel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((hsel !=`HSEL@INVALID2)&&(hsel !=`HSEL@INVALID3)) :
+ "Invalid hsel field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_R ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        F2Fmio_pipe =  0b1100010000;
+        F2F =  0b1100010000;
+
+ENCODING
+!f2f_f64_upconvert__R_R16_R_RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_8_39_32_Rb=Rb;
+BITS_1_62_62_Sc_absolute=Rb@absolute;
+BITS_1_63_63_Sb_invert=Rb@negate;
+BITS_2_61_60_hsel=hsel;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f64_upconvert__R_R32_R_RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /F64.F32ONLY:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_R ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        F2Fmio_pipe =  0b1100010000;
+        F2F =  0b1100010000;
+
+ENCODING
+!f2f_f64_upconvert__R_R32_R_RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_8_39_32_Rb=Rb;
+BITS_1_62_62_Sc_absolute=Rb@absolute;
+BITS_1_63_63_Sb_invert=Rb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f64_upconvert__R_UR16_R_RUR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F64F16_F64BF16:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] UniformRegister:URb /HSEL("H0"):hsel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((hsel !=`HSEL@INVALID2)&&(hsel !=`HSEL@INVALID3)) :
+ "Invalid hsel field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        F2Fmio_pipe =  0b1110100010000;
+        F2F =  0b1110100010000;
+
+ENCODING
+!f2f_f64_upconvert__R_UR16_R_RUR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_6_37_32_Ra_URb=URb;
+BITS_1_62_62_Sc_absolute=URb@absolute;
+BITS_1_63_63_Sb_invert=URb@negate;
+BITS_2_61_60_hsel=hsel;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "f2f_f64_upconvert__R_UR32_R_RUR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /F64.F32ONLY:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] UniformRegister:URb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        F2Fmio_pipe =  0b1110100010000;
+        F2F =  0b1110100010000;
+
+ENCODING
+!f2f_f64_upconvert__R_UR32_R_RUR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_6_37_32_Ra_URb=URb;
+BITS_1_62_62_Sc_absolute=URb@absolute;
+BITS_1_63_63_Sb_invert=URb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "f2f_f64_upconvert_swap__R_32I_R_RIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /F64.F32ONLY:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+','F32Imm(64):Sb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_Imm ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+
+OPCODES
+        F2Fmio_pipe =  0b100100010000;
+        F2F =  0b100100010000;
+
+ENCODING
+!f2f_f64_upconvert_swap__R_32I_R_RIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_32_63_32_Ra_offset=Sb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "f2f_f64_upconvert_swap__R_C16_R_RCR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F64F16_F64BF16:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] C:Sb[UImm(5/0*):Sb_bank]*   [SImm(17)*:Sb_addr] /HSEL("H0"):hsel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+INVALID_CONST_ADDR_SASS_ONLY_ERROR
+ ((Sb_bank <= 17) || (Sb_bank >= 24 && Sb_bank <= 31)) :
+ "Invalid constant bank error"
+MISALIGNED_ADDR_ERROR
+ (Sb_addr & 0x3) == 0 :
+ "Constant offsets must be aligned on a 4B boundary"
+INVALID_CONST_ADDR_ERROR
+ (Sb_bank >= 24 && Sb_bank <= 31) -> (Sb_addr <= 255) :
+ "RTV banks may not use an offset greater than 255"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (%SHADER_TYPE == $ST_CS) -> !(Sb_bank >= 8 && Sb_bank <= 31) :
+ "CS may not use RTV banks"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((hsel !=`HSEL@INVALID2)&&(hsel !=`HSEL@INVALID3)) :
+ "Invalid hsel field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_C ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+
+OPCODES
+        F2Fmio_pipe =  0b101100010000;
+        F2F =  0b101100010000;
+
+ENCODING
+!f2f_f64_upconvert_swap__R_C16_R_RCR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+
+BITS_5_58_54_Sb_bank,BITS_14_53_40_Sb_offset =  ConstBankAddress2(Sb_bank,Sb_addr);
+BITS_2_61_60_hsel=hsel;
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sb_invert=Sb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "f2f_f64_upconvert_swap__R_C32_R_RCR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /F64.F32ONLY:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] C:Sb[UImm(5/0*):Sb_bank]*   [SImm(17)*:Sb_addr]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+INVALID_CONST_ADDR_SASS_ONLY_ERROR
+ ((Sb_bank <= 17) || (Sb_bank >= 24 && Sb_bank <= 31)) :
+ "Invalid constant bank error"
+MISALIGNED_ADDR_ERROR
+ (Sb_addr & 0x3) == 0 :
+ "Constant offsets must be aligned on a 4B boundary"
+INVALID_CONST_ADDR_ERROR
+ (Sb_bank >= 24 && Sb_bank <= 31) -> (Sb_addr <= 255) :
+ "RTV banks may not use an offset greater than 255"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (%SHADER_TYPE == $ST_CS) -> !(Sb_bank >= 8 && Sb_bank <= 31) :
+ "CS may not use RTV banks"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_C ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+
+OPCODES
+        F2Fmio_pipe =  0b101100010000;
+        F2F =  0b101100010000;
+
+ENCODING
+!f2f_f64_upconvert_swap__R_C32_R_RCR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+
+BITS_5_58_54_Sb_bank,BITS_14_53_40_Sb_offset =  ConstBankAddress2(Sb_bank,Sb_addr);
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sb_invert=Sb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "f2f_f64_upconvert_swap__R_CX16_R_RCXR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F64F16_F64BF16:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] CX:Sb[UniformRegister:URb][UImm(16)*:Sb_offset] /HSEL("H0"):hsel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URb)!=`UniformRegister@URZ) :
+ "Disallowed uniform register URb"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((hsel !=`HSEL@INVALID2)&&(hsel !=`HSEL@INVALID3)) :
+ "Invalid hsel field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_CXb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+ ILABEL_URb_SIZE = 64;
+
+OPCODES
+        F2Fmio_pipe =  0b1101100010000;
+        F2F =  0b1101100010000;
+
+ENCODING
+!f2f_f64_upconvert_swap__R_CX16_R_RCXR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_6_37_32_Ra_URb=URb;
+BITS_14_53_40_Sb_offset=Sb_offset SCALE 4;
+BITS_2_61_60_hsel=hsel;
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sb_invert=Sb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "f2f_f64_upconvert_swap__R_CX32_R_RCXR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /F64.F32ONLY:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] CX:Sb[UniformRegister:URb][UImm(16)*:Sb_offset]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URb)!=`UniformRegister@URZ) :
+ "Disallowed uniform register URb"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_CXb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+ ILABEL_URb_SIZE = 64;
+
+OPCODES
+        F2Fmio_pipe =  0b1101100010000;
+        F2F =  0b1101100010000;
+
+ENCODING
+!f2f_f64_upconvert_swap__R_CX32_R_RCXR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_6_37_32_Ra_URb=URb;
+BITS_14_53_40_Sb_offset=Sb_offset SCALE 4;
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sb_invert=Sb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "f2f_f64_upconvert_swap__R_I16_R_RIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F64F16_F64BF16:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+','F64Imm(64):Sb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_Imm ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 16;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+
+OPCODES
+        F2Fmio_pipe =  0b100100010000;
+        F2F =  0b100100010000;
+
+ENCODING
+!f2f_f64_upconvert_swap__R_I16_R_RIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_16_47_32_Sb=Sb convertFloatType(dstfmt.srcfmt == `DSTFMT_SRCFMT_F64F16_F64BF16@F64.BF16, E8M7Imm, F16Imm);
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "f2f_f64_upconvert_swap__R_R16_R_RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F64F16_F64BF16:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] Register:Rb /HSEL("H0"):hsel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((hsel !=`HSEL@INVALID2)&&(hsel !=`HSEL@INVALID3)) :
+ "Invalid hsel field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_R ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        F2Fmio_pipe =  0b1100010000;
+        F2F =  0b1100010000;
+
+ENCODING
+!f2f_f64_upconvert_swap__R_R16_R_RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_8_39_32_Rb=Rb;
+BITS_2_61_60_hsel=hsel;
+BITS_1_62_62_Sc_absolute=Rb@absolute;
+BITS_1_63_63_Sb_invert=Rb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "f2f_f64_upconvert_swap__R_R32_R_RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /F64.F32ONLY:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_R ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        F2Fmio_pipe =  0b1100010000;
+        F2F =  0b1100010000;
+
+ENCODING
+!f2f_f64_upconvert_swap__R_R32_R_RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_8_39_32_Rb=Rb;
+BITS_1_62_62_Sc_absolute=Rb@absolute;
+BITS_1_63_63_Sb_invert=Rb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "f2f_f64_upconvert_swap__R_UR16_R_RUR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /DSTFMT_SRCFMT_F64F16_F64BF16:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] UniformRegister:URb /HSEL("H0"):hsel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((hsel !=`HSEL@INVALID2)&&(hsel !=`HSEL@INVALID3)) :
+ "Invalid hsel field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        F2Fmio_pipe =  0b1110100010000;
+        F2F =  0b1110100010000;
+
+ENCODING
+!f2f_f64_upconvert_swap__R_UR16_R_RUR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_6_37_32_Ra_URb=URb;
+BITS_2_61_60_hsel=hsel;
+BITS_1_62_62_Sc_absolute=URb@absolute;
+BITS_1_63_63_Sb_invert=URb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "f2f_f64_upconvert_swap__R_UR32_R_RUR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /F64.F32ONLY:dstfmt.srcfmt /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] UniformRegister:URb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@F2F64_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_FMA64 ;
+
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        F2Fmio_pipe =  0b1110100010000;
+        F2F =  0b1110100010000;
+
+ENCODING
+!f2f_f64_upconvert_swap__R_UR32_R_RUR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=ftz;
+BITS_6_86_84_77_75_dstfmt.srcfmt=*dstfmt.srcfmt;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_6_37_32_Ra_URb=URb;
+BITS_1_62_62_Sc_absolute=URb@absolute;
+BITS_1_63_63_Sb_invert=URb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

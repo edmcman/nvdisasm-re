@@ -1,0 +1,667 @@
+CLASS "call_abs__RCR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ABSONLY:abs /CALL_DEPTH("INC"):depth
+ [!]Predicate("PT"):Pp
+','C:Sa[UImm(5/0*):Sa_bank]*   [SImm(17)*:Sa_addr]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+INVALID_CONST_ADDR_SASS_ONLY_ERROR
+ ((Sa_bank <= 17) || (Sa_bank >= 24 && Sa_bank <= 31)) :
+ "Invalid constant bank error"
+MISALIGNED_ADDR_ERROR
+ (Sa_addr & 0x3) == 0 :
+ "Constant offsets must be aligned on a 4B boundary"
+INVALID_CONST_ADDR_ERROR
+ (Sa_bank >= 24 && Sa_bank <= 31) -> (Sa_addr <= 255) :
+ "RTV banks may not use an offset greater than 255"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (%SHADER_TYPE == $ST_CS) -> !(Sa_bank >= 8 && Sa_bank <= 31) :
+ "CS may not use RTV banks"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ BRANCH_TARGET_INDEX = INDEX(Sa) ;
+ BRANCH_TYPE = BRT_CALL ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@CALL_ABS_C ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+
+OPCODES
+        CALLcbu_pipe =  0b101101000011;
+        CALL =  0b101101000011;
+
+ENCODING
+!call_abs__RCR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_86_86_depth=depth;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+
+BITS_5_58_54_Sb_bank,BITS_14_53_40_Sb_addr =  ConstBankAddress2(Sa_bank,Sa_addr);
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "call_abs__RIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ABSONLY:abs /CALL_DEPTH("INC"):depth
+ [!]Predicate("PT"):Pp
+','UImm(49)*:Sa
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ BRANCH_TARGET_INDEX = INDEX(Sa) ;
+ BRANCH_TYPE = BRT_CALL ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@CALL_ABS_I ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_A_SIZE = 47;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+
+OPCODES
+        CALLcbu_pipe =  0b100101000011;
+        CALL =  0b100101000011;
+
+ENCODING
+!call_abs__RIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_86_86_depth=depth;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_47_80_34_Sb=Sa SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "call_abs__RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ABSONLY:abs /CALL_DEPTH("INC"):depth
+ [!]Predicate("PT"):Pp
+','Register:Ra SImm(50/0)*:Ra_offset
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ BRANCH_TARGET_INDEX = INDEX(Ra) ;
+ BRANCH_TYPE = BRT_CALL ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@CALL_ABS_R ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+ ILABEL_Ra_SIZE = 64;
+
+OPCODES
+        CALLcbu_pipe =  0b1101000011;
+        CALL =  0b1101000011;
+
+ENCODING
+!call_abs__RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_86_86_depth=depth;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_8_31_24_Ra=Ra;
+BITS_48_81_34_sImm=Ra_offset SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "call_abs__URIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ABSONLY:abs /CALL_DEPTH("INC"):depth
+ [!]Predicate("PT"):Pp
+','UniformRegister:URa SImm(50/0)*:Sa_offset
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sa is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ BRANCH_TARGET_INDEX = INDEX(URa) ;
+ BRANCH_TYPE = BRT_CALL ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@CALL_ABS_URa ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+ ILABEL_URa_SIZE = 64;
+
+OPCODES
+        CALLcbu_pipe =  0b1100101000011;
+        CALL =  0b1100101000011;
+
+ENCODING
+!call_abs__URIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_86_86_depth=depth;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_6_29_24_cbu_state=URa;
+BITS_48_81_34_sImm=Sa_offset SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "call_rel__RIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /RelOpt:rel /CALL_DEPTH("INC"):depth
+ [!]Predicate("PT"):Pp
+','RSImm(50)*:Sa
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ BRANCH_TARGET_INDEX = INDEX(Sa) ;
+ BRANCH_TYPE = BRT_CALL ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@CALL_REL_I ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_A_SIZE = 48;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+
+OPCODES
+        CALLcbu_pipe =  0b100101000100;
+        CALL =  0b100101000100;
+
+ENCODING
+!call_rel__RIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_86_86_depth=depth;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_48_81_34_sImm=Sa SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "call_rel__RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /RelOpt:rel /CALL_DEPTH("INC"):depth
+ [!]Predicate("PT"):Pp
+','Register:Ra RSImm(50)*:Ra_offset
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ BRANCH_TARGET_INDEX = INDEX(Ra) ;
+ BRANCH_TYPE = BRT_CALL ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@CALL_REL_R ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+ ILABEL_Ra_SIZE = 64;
+
+OPCODES
+        CALLcbu_pipe =  0b1101000100;
+        CALL =  0b1101000100;
+
+ENCODING
+!call_rel__RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_86_86_depth=depth;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_8_31_24_Ra=Ra;
+BITS_48_81_34_sImm=Ra_offset SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "call_rel__URIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /RelOpt:rel /CALL_DEPTH("INC"):depth
+ [!]Predicate("PT"):Pp
+','UniformRegister:URa RSImm(50)*:Sa_offset
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sa is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ BRANCH_TARGET_INDEX = INDEX(URa) ;
+ BRANCH_TYPE = BRT_CALL ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@CALL_REL_URa ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+ ILABEL_URa_SIZE = 64;
+
+OPCODES
+        CALLcbu_pipe =  0b1100101000100;
+        CALL =  0b1100101000100;
+
+ENCODING
+!call_rel__URIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_86_86_depth=depth;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_6_29_24_cbu_state=URa;
+BITS_48_81_34_sImm=Sa_offset SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "call_rel_imm__RIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /RelOpt:rel /CALL_DEPTH("INC"):depth
+ [!]Predicate("PT"):Pp
+','SImm(50)*:Sa /RelOpt:rel_imm
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ BRANCH_TARGET_INDEX = INDEX(Sa) ;
+ BRANCH_TYPE = BRT_CALL ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@CALL_REL_I ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_A_SIZE = 48;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+
+OPCODES
+        CALLcbu_pipe =  0b100101000100;
+        CALL =  0b100101000100;
+
+ENCODING
+!call_rel_imm__RIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_86_86_depth=depth;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_48_81_34_sImm=Sa SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "call_rel_imm__RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /RelOpt:rel /CALL_DEPTH("INC"):depth
+ [!]Predicate("PT"):Pp
+','Register:Ra SImm(50)*:Ra_offset /RelOpt:rel_imm
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ BRANCH_TARGET_INDEX = INDEX(Ra) ;
+ BRANCH_TYPE = BRT_CALL ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@CALL_REL_R ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+ ILABEL_Ra_SIZE = 64;
+
+OPCODES
+        CALLcbu_pipe =  0b1101000100;
+        CALL =  0b1101000100;
+
+ENCODING
+!call_rel_imm__RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_86_86_depth=depth;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_8_31_24_Ra=Ra;
+BITS_48_81_34_sImm=Ra_offset SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "call_rel_imm__URIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /RelOpt:rel /CALL_DEPTH("INC"):depth
+ [!]Predicate("PT"):Pp
+','UniformRegister:URa SImm(50)*:Sa_offset /RelOpt:rel_imm
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sa is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ BRANCH_TARGET_INDEX = INDEX(URa) ;
+ BRANCH_TYPE = BRT_CALL ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@CALL_REL_URa ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+ ILABEL_URa_SIZE = 64;
+
+OPCODES
+        CALLcbu_pipe =  0b1100101000100;
+        CALL =  0b1100101000100;
+
+ENCODING
+!call_rel_imm__URIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_86_86_depth=depth;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_6_29_24_cbu_state=URa;
+BITS_48_81_34_sImm=Sa_offset SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "call_rel_reg__RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /RelOpt:rel /CALL_DEPTH("INC"):depth
+ [!]Predicate("PT"):Pp
+','Register:Ra
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ BRANCH_TARGET_INDEX = INDEX(Ra) ;
+ BRANCH_TYPE = BRT_CALL ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@CALL_REL_R ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_B_SIZE = 48;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+ ILABEL_Ra_SIZE = 64;
+
+OPCODES
+        CALLcbu_pipe =  0b1101000100;
+        CALL =  0b1101000100;
+
+ENCODING
+!call_rel_reg__RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_86_86_depth=depth;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_8_31_24_Ra=Ra;
+BITS_48_81_34_sImm=*0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "call_rel_reg__URIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /RelOpt:rel /CALL_DEPTH("INC"):depth
+ [!]Predicate("PT"):Pp
+','UniformRegister:URa
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sa is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ BRANCH_TARGET_INDEX = INDEX(URa) ;
+ BRANCH_TYPE = BRT_CALL ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@CALL_REL_URa ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_B_SIZE = 48;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+ ILABEL_URa_SIZE = 64;
+
+OPCODES
+        CALLcbu_pipe =  0b1100101000100;
+        CALL =  0b1100101000100;
+
+ENCODING
+!call_rel_reg__URIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_86_86_depth=depth;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_6_29_24_cbu_state=URa;
+BITS_48_81_34_sImm=*0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

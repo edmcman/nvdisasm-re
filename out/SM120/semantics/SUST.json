@@ -1,0 +1,1486 @@
+[
+ {
+  "cls": "sust_d_r_urc_",
+  "alternate": false,
+  "opcodes": [
+   "SUST"
+  ],
+  "pipes": [
+   "mio_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_RD_SCBD",
+  "sizes": {
+   "ISRC_B_SIZE": "32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@\"64\"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@\"128\"))*96)",
+   "ISRC_C_SIZE": 32,
+   "ISRC_E_SIZE": 32,
+   "ISRC_A_SIZE": "32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64)",
+   "VIRTUAL_QUEUE": "$VQ_SUST",
+   "ILABEL_Ra_SIZE": "32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64)",
+   "ILABEL_Rb_SIZE": "32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@\"64\"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@\"128\"))*96)",
+   "ILABEL_Rc_SIZE": 32,
+   "ILABEL_URc_SIZE": 32,
+   "ILABEL_URe_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "NonZeroRegister",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@\"64\"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@\"128\"))*96))/32)"
+   },
+   {
+    "name": "Rc",
+    "type": "NonZeroRegister",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URc",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URe",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra_with_offset",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "URh",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "barcount",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "nPd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re,Rh}": "2"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV_ELECT`{sBoard}": "ORDERED_ZERO"
+    }
+   ],
+   "PRED:Pu,Pv,Pd,nPd,Pnz": [
+    {
+     "MATH_PRED_NO_FP16_FP64_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FP16_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FMALITE_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "OP_P2R`{PR_PRED}": "1",
+     "OP_R2P`{PR_PRED}": "1",
+     "OP_CSMTEST`{PR_PRED}": "1",
+     "OP_VOTE`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg,Pnz}": "1",
+     "CoupledDispOverlapWithMathOps`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "MIO_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Pg,Ps,Plg,Pnz}": "1",
+     "OP_R2UR_OTHER`{Pg}": "1",
+     "OP_R2UR_COUPLED`{Pg}": "1"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "sust_d_reg_",
+  "alternate": false,
+  "opcodes": [
+   "SUST"
+  ],
+  "pipes": [
+   "mio_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_RD_SCBD",
+  "sizes": {
+   "ISRC_B_SIZE": "32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@\"64\"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@\"128\"))*96)",
+   "ISRC_C_SIZE": 32,
+   "ISRC_E_SIZE": 32,
+   "ISRC_A_SIZE": "32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64)",
+   "VIRTUAL_QUEUE": "$VQ_SUST",
+   "ILABEL_Ra_SIZE": "32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64)",
+   "ILABEL_Rb_SIZE": "32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@\"64\"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@\"128\"))*96)",
+   "ILABEL_Rc_SIZE": 32,
+   "ILABEL_URe_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "NonZeroRegister",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@\"64\"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@\"128\"))*96))/32)"
+   },
+   {
+    "name": "Rc",
+    "type": "NonZeroRegister",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URe",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra_with_offset",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "URh",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "barcount",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "nPd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re,Rh}": "2"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV_ELECT`{sBoard}": "ORDERED_ZERO"
+    }
+   ],
+   "PRED:Pu,Pv,Pd,nPd,Pnz": [
+    {
+     "MATH_PRED_NO_FP16_FP64_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FP16_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FMALITE_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "OP_P2R`{PR_PRED}": "1",
+     "OP_R2P`{PR_PRED}": "1",
+     "OP_CSMTEST`{PR_PRED}": "1",
+     "OP_VOTE`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg,Pnz}": "1",
+     "CoupledDispOverlapWithMathOps`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "MIO_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Pg,Ps,Plg,Pnz}": "1",
+     "OP_R2UR_OTHER`{Pg}": "1",
+     "OP_R2UR_COUPLED`{Pg}": "1"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "sust_d_urc_",
+  "alternate": false,
+  "opcodes": [
+   "SUST"
+  ],
+  "pipes": [
+   "mio_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_RD_SCBD",
+  "sizes": {
+   "ISRC_B_SIZE": "32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@\"64\"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@\"128\"))*96)",
+   "ISRC_C_SIZE": 32,
+   "ISRC_E_SIZE": 32,
+   "ISRC_A_SIZE": "32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64)",
+   "VIRTUAL_QUEUE": "$VQ_SUST",
+   "ILABEL_Ra_SIZE": "32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64)",
+   "ILABEL_Rb_SIZE": "32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@\"64\"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@\"128\"))*96)",
+   "ILABEL_URc_SIZE": 32,
+   "ILABEL_URe_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "NonZeroRegister",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@\"64\"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@\"128\"))*96))/32)"
+   },
+   {
+    "name": "URc",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URe",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra_with_offset",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "URh",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "barcount",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "nPd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re,Rh}": "2"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV_ELECT`{sBoard}": "ORDERED_ZERO"
+    }
+   ],
+   "PRED:Pu,Pv,Pd,nPd,Pnz": [
+    {
+     "MATH_PRED_NO_FP16_FP64_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FP16_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FMALITE_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "OP_P2R`{PR_PRED}": "1",
+     "OP_R2P`{PR_PRED}": "1",
+     "OP_CSMTEST`{PR_PRED}": "1",
+     "OP_VOTE`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg,Pnz}": "1",
+     "CoupledDispOverlapWithMathOps`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "MIO_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Pg,Ps,Plg,Pnz}": "1",
+     "OP_R2UR_OTHER`{Pg}": "1",
+     "OP_R2UR_COUPLED`{Pg}": "1"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "sust_p_r_urc_",
+  "alternate": false,
+  "opcodes": [
+   "SUST"
+  ],
+  "pipes": [
+   "mio_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_RD_SCBD",
+  "sizes": {
+   "ISRC_B_SIZE": "32 + (((rgba==`RGBA@RG))*32 + ((rgba==`RGBA@RGBA))*96)",
+   "ISRC_C_SIZE": 32,
+   "ISRC_E_SIZE": 32,
+   "ISRC_A_SIZE": "32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64)",
+   "VIRTUAL_QUEUE": "$VQ_SUST",
+   "ILABEL_Ra_SIZE": "32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64)",
+   "ILABEL_Rb_SIZE": "32 + (((rgba==`RGBA@RG))*32 + ((rgba==`RGBA@RGBA))*96)",
+   "ILABEL_Rc_SIZE": 32,
+   "ILABEL_URc_SIZE": 32,
+   "ILABEL_URe_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "NonZeroRegister",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + (((rgba==`RGBA@RG))*32 + ((rgba==`RGBA@RGBA))*96))/32)"
+   },
+   {
+    "name": "Rc",
+    "type": "NonZeroRegister",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URc",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URe",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra_with_offset",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "URh",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "barcount",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "nPd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re,Rh}": "2"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV_ELECT`{sBoard}": "ORDERED_ZERO"
+    }
+   ],
+   "PRED:Pu,Pv,Pd,nPd,Pnz": [
+    {
+     "MATH_PRED_NO_FP16_FP64_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FP16_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FMALITE_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "OP_P2R`{PR_PRED}": "1",
+     "OP_R2P`{PR_PRED}": "1",
+     "OP_CSMTEST`{PR_PRED}": "1",
+     "OP_VOTE`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg,Pnz}": "1",
+     "CoupledDispOverlapWithMathOps`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "MIO_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Pg,Ps,Plg,Pnz}": "1",
+     "OP_R2UR_OTHER`{Pg}": "1",
+     "OP_R2UR_COUPLED`{Pg}": "1"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "sust_p_reg_",
+  "alternate": false,
+  "opcodes": [
+   "SUST"
+  ],
+  "pipes": [
+   "mio_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_RD_SCBD",
+  "sizes": {
+   "ISRC_B_SIZE": "32 + (((rgba==`RGBA@RG))*32 + ((rgba==`RGBA@RGBA))*96)",
+   "ISRC_C_SIZE": 32,
+   "ISRC_E_SIZE": 32,
+   "ISRC_A_SIZE": "32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64)",
+   "VIRTUAL_QUEUE": "$VQ_SUST",
+   "ILABEL_Ra_SIZE": "32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64)",
+   "ILABEL_Rb_SIZE": "32 + (((rgba==`RGBA@RG))*32 + ((rgba==`RGBA@RGBA))*96)",
+   "ILABEL_Rc_SIZE": 32,
+   "ILABEL_URe_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "NonZeroRegister",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + (((rgba==`RGBA@RG))*32 + ((rgba==`RGBA@RGBA))*96))/32)"
+   },
+   {
+    "name": "Rc",
+    "type": "NonZeroRegister",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URe",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra_with_offset",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "URh",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "barcount",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "nPd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re,Rh}": "2"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV_ELECT`{sBoard}": "ORDERED_ZERO"
+    }
+   ],
+   "PRED:Pu,Pv,Pd,nPd,Pnz": [
+    {
+     "MATH_PRED_NO_FP16_FP64_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FP16_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FMALITE_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "OP_P2R`{PR_PRED}": "1",
+     "OP_R2P`{PR_PRED}": "1",
+     "OP_CSMTEST`{PR_PRED}": "1",
+     "OP_VOTE`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg,Pnz}": "1",
+     "CoupledDispOverlapWithMathOps`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "MIO_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Pg,Ps,Plg,Pnz}": "1",
+     "OP_R2UR_OTHER`{Pg}": "1",
+     "OP_R2UR_COUPLED`{Pg}": "1"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "sust_p_urc_",
+  "alternate": false,
+  "opcodes": [
+   "SUST"
+  ],
+  "pipes": [
+   "mio_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_RD_SCBD",
+  "sizes": {
+   "ISRC_B_SIZE": "32 + (((rgba==`RGBA@RG))*32 + ((rgba==`RGBA@RGBA))*96)",
+   "ISRC_C_SIZE": 32,
+   "ISRC_E_SIZE": 32,
+   "ISRC_A_SIZE": "32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64)",
+   "VIRTUAL_QUEUE": "$VQ_SUST",
+   "ILABEL_Ra_SIZE": "32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64)",
+   "ILABEL_Rb_SIZE": "32 + (((rgba==`RGBA@RG))*32 + ((rgba==`RGBA@RGBA))*96)",
+   "ILABEL_URc_SIZE": 32,
+   "ILABEL_URe_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "NonZeroRegister",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + (((rgba==`RGBA@RG))*32 + ((rgba==`RGBA@RGBA))*96))/32)"
+   },
+   {
+    "name": "URc",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URe",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra_with_offset",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "URh",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "barcount",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"2D\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"1D_ARRAY\")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@\"2D_ARRAY\")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@\"2D_ARRAY\")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@\"3D\")))*64))/32)"
+   },
+   {
+    "name": "nPd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re,Rh}": "2"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV_ELECT`{sBoard}": "ORDERED_ZERO"
+    }
+   ],
+   "PRED:Pu,Pv,Pd,nPd,Pnz": [
+    {
+     "MATH_PRED_NO_FP16_FP64_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FP16_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FMALITE_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "OP_P2R`{PR_PRED}": "1",
+     "OP_R2P`{PR_PRED}": "1",
+     "OP_CSMTEST`{PR_PRED}": "1",
+     "OP_VOTE`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg,Pnz}": "1",
+     "CoupledDispOverlapWithMathOps`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "MIO_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Pg,Ps,Plg,Pnz}": "1",
+     "OP_R2UR_OTHER`{Pg}": "1",
+     "OP_R2UR_COUPLED`{Pg}": "1"
+    }
+   ]
+  }
+ }
+]

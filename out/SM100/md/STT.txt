@@ -1,0 +1,77 @@
+ALTERNATE CLASS "stt_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /SIZE_ldt:size
+ TMEMC:tmemC[ UniformRegister("URZ"):URc + SImm(32/0)*:Sc_offset ]
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((size !=`SIZE_ldt@INVALID3)&&(size !=`SIZE_ldt@INVALID4)&&(size !=`SIZE_ldt@INVALID5)&&(size !=`SIZE_ldt@INVALID6)&&(size !=`SIZE_ldt@INVALID7)) :
+ "Invalid size field value"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+MISALIGNED_REG_ERROR
+ (((size == `SIZE_ldt@"64")||(size == `SIZE_ldt@"128"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((size == `SIZE_ldt@"64"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `SIZE_ldt@"128"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@STTM ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32 + (((size==`SIZE_ldt@"64"))*32 + ((size==`SIZE_ldt@"128"))*96);
+ ISRC_C_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_TMEM ;
+
+ ILABEL_Rb_SIZE = 32 + (((size==`SIZE_ldt@"64"))*32 + ((size==`SIZE_ldt@"128"))*96);
+ ILABEL_URc_SIZE = 32;
+
+OPCODES
+        STTudp_pipe =  0b1100111101101;
+        STT =  0b1100111101101;
+
+ENCODING
+!stt__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_87_87_82_81_layout=*2;
+BITS_1_80_80_texunpack=*0;
+BITS_3_85_83_vecidx=size;
+BITS_8_71_64_Ra_URc=URc;
+BITS_32_79_72_63_40_Sb_offset=Sc_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

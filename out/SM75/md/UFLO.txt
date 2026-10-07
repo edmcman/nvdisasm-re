@@ -1,0 +1,104 @@
+CLASS "uflo__URURUR_URURUR"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /FMT("S32"):fmt /SH("nosh"):sh
+UniformRegister:URd
+','UniformPredicate("UPT"):UPu
+',' [~] UniformRegister:URb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@UFLO_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+
+OPCODES
+        UFLOudp_pipe =  0b1001010111101;
+        UFLO =  0b1001010111101;
+
+ENCODING
+!uflo__URURUR_URURUR_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_73_73_sz=fmt;
+BITS_1_74_74_tnspB=sh;
+BITS_6_21_16_URd=URd;
+BITS_3_83_81_Pu=UPu;
+BITS_6_37_32_Ra_URb=URb;
+BITS_1_63_63_Sb_negate=URb@invert;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+
+CLASS "uflo__URuIUR_URuIR"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /FMT("S32"):fmt /SH("nosh"):sh
+UniformRegister:URd
+','UniformPredicate("UPT"):UPu
+','UImm(32)*:Sb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@UFLO_Ib ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+
+OPCODES
+        UFLOudp_pipe =  0b1100010111101;
+        UFLO =  0b1100010111101;
+
+ENCODING
+!uflo__URuIUR_URuIR_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_73_73_sz=fmt;
+BITS_1_74_74_tnspB=sh;
+BITS_6_21_16_URd=URd;
+BITS_3_83_81_Pu=UPu;
+BITS_32_63_32_Ra_offset=Sb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+

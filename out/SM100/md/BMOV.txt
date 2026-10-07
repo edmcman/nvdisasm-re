@@ -1,0 +1,524 @@
+CLASS "bmov_clear__Rd"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ONLY32:sz /CLEAR("noclear"):clear
+Register:Rd
+','CBU_STATE:cbu_state
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((clear == `CLEAR@CLEAR))) -> (((cbu_state == `CBU_STATE@B14)||(cbu_state == `CBU_STATE@B15)||(cbu_state == `CBU_STATE@B12)||(cbu_state == `CBU_STATE@B13)||(cbu_state == `CBU_STATE@B10)||(cbu_state == `CBU_STATE@B11)||(cbu_state == `CBU_STATE@B4)||(cbu_state == `CBU_STATE@B5)||(cbu_state == `CBU_STATE@B6)||(cbu_state == `CBU_STATE@B7)||(cbu_state == `CBU_STATE@B0)||(cbu_state == `CBU_STATE@B1)||(cbu_state == `CBU_STATE@B2)||(cbu_state == `CBU_STATE@B3)||(cbu_state == `CBU_STATE@B8)||(cbu_state == `CBU_STATE@B9))) :
+ "Invalid instruction combination (reason: onlyBR)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 5 ;
+ SIDL_NAME = `SIDL_NAMES@BMOV_clear_Rd ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+
+OPCODES
+        BMOVcbu_pipe =  0b1101010101;
+        BMOV =  0b1101010101;
+
+ENCODING
+!bmov_clear__Rd_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_84_84_OR=clear;
+BITS_8_23_16_Rd=Rd;
+BITS_6_29_24_cbu_state=cbu_state;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bmov_clear_barrier_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ONLY32:sz /CLEARONLY:clear
+BD:barReg
+','BD:Ba
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 5 ;
+ SIDL_NAME = `SIDL_NAMES@BMOV_clear_Bd ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+
+OPCODES
+        BMOVcbu_pipe =  0b111101010101;
+        BMOV =  0b111101010101;
+
+ENCODING
+!bmov_clear_barrier__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_84_84_OR=*clear;
+BITS_4_19_16_barReg=barReg;
+BITS_6_29_24_cbu_state=Ba;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bmov_clear_bd__Bd"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ONLY32:sz
+BD:barReg
+','CBU_STATE_NONBAR:cbu_state
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 5 ;
+ SIDL_NAME = `SIDL_NAMES@BMOV_clear_Bd ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+
+OPCODES
+        BMOVcbu_pipe =  0b111101010101;
+        BMOV =  0b111101010101;
+
+ENCODING
+!bmov_clear_bd__Bd_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_84_84_OR=0;
+BITS_4_19_16_barReg=barReg;
+BITS_6_29_24_cbu_state=cbu_state;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bmov_dst64__I"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ONLY64_syncs:sz
+ATEXIT_PCONLY:atexit_pc
+','UImm(57)*:Sb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 5 ;
+ SIDL_NAME = `SIDL_NAMES@BMOV_dst64_I ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = 55;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+
+OPCODES
+        BMOVcbu_pipe =  0b100101010111;
+        BMOV =  0b100101010111;
+
+ENCODING
+!bmov_dst64__I_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_55_80_34_23_16_Sb=Sb SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bmov_dst64__R"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ONLY64_syncs:sz
+ATEXIT_PCONLY:atexit_pc
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-2))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+MISALIGNED_REG_ERROR
+ (((Rb)+((Rb)==`Register@RZ)) % 2) == 0 :
+ "Register Rb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 5 ;
+ SIDL_NAME = `SIDL_NAMES@BMOV_dst64_R ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rb_SIZE = 64;
+
+OPCODES
+        BMOVcbu_pipe =  0b1101010111;
+        BMOV =  0b1101010111;
+
+ENCODING
+!bmov_dst64__R_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_8_39_32_Rb=Rb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bmov_dst64__UR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ONLY64_syncs:sz
+ATEXIT_PCONLY:atexit_pc
+','UniformRegister:URb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 5 ;
+ SIDL_NAME = `SIDL_NAMES@BMOV_dst64_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_URb_SIZE = 64;
+
+OPCODES
+        BMOVcbu_pipe =  0b1110101010111;
+        BMOV =  0b1110101010111;
+
+ENCODING
+!bmov_dst64__UR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_8_39_32_Rb=URb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bmov_pquad__RIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ONLY32:sz /PQUAD("nopquad"):pquad
+CBU_STATE:cbu_state
+','UImm(32)*:Sb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((pquad == `PQUAD@PQUAD))) -> (((cbu_state == `CBU_STATE@MACTIVE))) :
+ "Invalid instruction combination (reason: pquad)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 5 ;
+ SIDL_NAME = `SIDL_NAMES@BMOV_pquad_I ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+
+OPCODES
+        BMOVcbu_pipe =  0b100101010110;
+        BMOV =  0b100101010110;
+
+ENCODING
+!bmov_pquad__RIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_84_84_OR=pquad;
+BITS_6_29_24_cbu_state=cbu_state;
+BITS_32_63_32_Ra_offset=Sb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bmov_pquad__RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ONLY32:sz /PQUAD("nopquad"):pquad
+CBU_STATE:cbu_state
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((pquad == `PQUAD@PQUAD))) -> (((cbu_state == `CBU_STATE@MACTIVE))) :
+ "Invalid instruction combination (reason: pquad)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 5 ;
+ SIDL_NAME = `SIDL_NAMES@BMOV_pquad_R ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        BMOVcbu_pipe =  0b1101010110;
+        BMOV =  0b1101010110;
+
+ENCODING
+!bmov_pquad__RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_84_84_OR=pquad;
+BITS_6_29_24_cbu_state=cbu_state;
+BITS_8_39_32_Rb=Rb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bmov_pquad__RUR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ONLY32:sz /PQUAD("nopquad"):pquad
+CBU_STATE:cbu_state
+','UniformRegister:URb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((pquad == `PQUAD@PQUAD))) -> (((cbu_state == `CBU_STATE@MACTIVE))) :
+ "Invalid instruction combination (reason: pquad)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 5 ;
+ SIDL_NAME = `SIDL_NAMES@BMOV_pquad_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        BMOVcbu_pipe =  0b1110101010110;
+        BMOV =  0b1110101010110;
+
+ENCODING
+!bmov_pquad__RUR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_84_84_OR=pquad;
+BITS_6_29_24_cbu_state=cbu_state;
+BITS_8_39_32_Rb=URb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bmov_pquad_bar__RBR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ONLY32:sz /PQUAD("nopquad"):pquad
+CBU_STATE:cbu_state
+','BD:barReg
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((pquad == `PQUAD@PQUAD))) -> (((cbu_state == `CBU_STATE@MACTIVE))) :
+ "Invalid instruction combination (reason: pquad)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 5 ;
+ SIDL_NAME = `SIDL_NAMES@BMOV_pquad_B ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+
+OPCODES
+        BMOVcbu_pipe =  0b111101010110;
+        BMOV =  0b111101010110;
+
+ENCODING
+!bmov_pquad_bar__RBR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_84_84_OR=pquad;
+BITS_6_29_24_cbu_state=cbu_state;
+BITS_4_19_16_barReg=barReg;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

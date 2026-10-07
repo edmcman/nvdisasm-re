@@ -1,0 +1,411 @@
+CLASS "suquery_r_urc_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BA("noba"):ba /Dim1:dim /UAI("nouai"):uai
+Predicate("PT"):Pu
+','Register:Rd
+',' [ NonZeroRegister:Ra ]
+','COMP_STATUSONLY:queryType
+','NonZeroRegister:Rc
+','UniformRegister:URc
+','UniformRegister:URe
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((dim !=`Dim1@INVALID6)&&(dim !=`Dim1@INVALID7)) :
+ "Invalid dim field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Rc)!=`Register@RZ) :
+ "Disallowed register Rc"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+OOR_REG_ERROR
+ (((URe)==`UniformRegister@URZ)||((URe)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URe is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((dim == `Dim1@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"1D_ARRAY"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"1D_ARRAY"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"1D_ARRAY"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((uai == `UAI@UAI))&&((dim == `Dim1@"2D_ARRAY"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((uai == `UAI@UAI))&&((dim == `Dim1@"2D_ARRAY"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((uai == `UAI@UAI))&&((dim == `Dim1@"2D_ARRAY"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"2D_ARRAY"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"2D_ARRAY"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"2D_ARRAY"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((dim == `Dim1@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((uai == `UAI@UAI))) -> (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D_ARRAY"))) :
+ "Invalid instruction combination (reason: UAI cannot be specified for non-array ParamA values)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@SUQUERY_R_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_E_SIZE = 32;
+ ISRC_A_SIZE = 32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@"2D")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@"1D_ARRAY")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@"2D_ARRAY")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@"2D_ARRAY")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@"3D")))*64);
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@"2D")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@"1D_ARRAY")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@"2D_ARRAY")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@"2D_ARRAY")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@"3D")))*64);
+ ILABEL_Rc_SIZE = 32;
+ ILABEL_URc_SIZE = 32;
+ ILABEL_URe_SIZE = 32;
+
+OPCODES
+        SUQUERYmio_pipe =  0b1110110110011;
+        SUQUERY =  0b1110110110011;
+
+ENCODING
+!suquery_r_urc__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=ba;
+BITS_3_63_61_paramA=dim;
+BITS_1_58_58_uai=uai;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_1_87_87_cas=queryType;
+BITS_8_71_64_Ra_URc=Rc;
+BITS_8_47_40_Re=URc;
+BITS_8_55_48_URe=URe;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "suquery_reg_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BA("noba"):ba /Dim1:dim /UAI("nouai"):uai
+Predicate("PT"):Pu
+','Register:Rd
+',' [ NonZeroRegister:Ra ]
+','COMP_STATUSONLY:queryType
+','NonZeroRegister:Rc
+','UniformRegister("URZ"):URe
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((dim !=`Dim1@INVALID6)&&(dim !=`Dim1@INVALID7)) :
+ "Invalid dim field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Rc)!=`Register@RZ) :
+ "Disallowed register Rc"
+OOR_REG_ERROR
+ (((URe)==`UniformRegister@URZ)||((URe)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URe is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((dim == `Dim1@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"1D_ARRAY"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"1D_ARRAY"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"1D_ARRAY"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((uai == `UAI@UAI))&&((dim == `Dim1@"2D_ARRAY"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((uai == `UAI@UAI))&&((dim == `Dim1@"2D_ARRAY"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((uai == `UAI@UAI))&&((dim == `Dim1@"2D_ARRAY"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"2D_ARRAY"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"2D_ARRAY"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"2D_ARRAY"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((dim == `Dim1@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((uai == `UAI@UAI))) -> (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D_ARRAY"))) :
+ "Invalid instruction combination (reason: UAI cannot be specified for non-array ParamA values)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@SUQUERY_R ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_E_SIZE = 32;
+ ISRC_A_SIZE = 32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@"2D")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@"1D_ARRAY")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@"2D_ARRAY")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@"2D_ARRAY")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@"3D")))*64);
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@"2D")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@"1D_ARRAY")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@"2D_ARRAY")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@"2D_ARRAY")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@"3D")))*64);
+ ILABEL_Rc_SIZE = 32;
+ ILABEL_URe_SIZE = 32;
+
+OPCODES
+        SUQUERYmio_pipe =  0b100110110011;
+        SUQUERY =  0b100110110011;
+
+ENCODING
+!suquery_reg__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=ba;
+BITS_3_63_61_paramA=dim;
+BITS_1_58_58_uai=uai;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_1_87_87_cas=queryType;
+BITS_8_71_64_Ra_URc=Rc;
+BITS_8_55_48_URe=URe;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "suquery_urc_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BA("noba"):ba /Dim1:dim /UAI("nouai"):uai
+Predicate("PT"):Pu
+','Register:Rd
+',' [ NonZeroRegister:Ra ]
+','COMP_STATUSONLY:queryType
+','UniformRegister:URc
+','UniformRegister("URZ"):URe ','UImm(8/0)@:tid8
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((dim !=`Dim1@INVALID6)&&(dim !=`Dim1@INVALID7)) :
+ "Invalid dim field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+OOR_REG_ERROR
+ (((URe)==`UniformRegister@URZ)||((URe)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URe is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((dim == `Dim1@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"1D_ARRAY"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"1D_ARRAY"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"1D_ARRAY"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((uai == `UAI@UAI))&&((dim == `Dim1@"2D_ARRAY"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((uai == `UAI@UAI))&&((dim == `Dim1@"2D_ARRAY"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((uai == `UAI@UAI))&&((dim == `Dim1@"2D_ARRAY"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"2D_ARRAY"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"2D_ARRAY"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((uai == `UAI@nouai))&&((dim == `Dim1@"2D_ARRAY"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((dim == `Dim1@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((uai == `UAI@UAI))) -> (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D_ARRAY"))) :
+ "Invalid instruction combination (reason: UAI cannot be specified for non-array ParamA values)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@SUQUERY_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_E_SIZE = 32;
+ ISRC_A_SIZE = 32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@"2D")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@"1D_ARRAY")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@"2D_ARRAY")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@"2D_ARRAY")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@"3D")))*64);
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32 + ((((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@"2D")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@"1D_ARRAY")))*32 + (((uai==`UAI@UAI)) && ((dim==`Dim1@"2D_ARRAY")))*32 + (((uai==`UAI@nouai)) && ((dim==`Dim1@"2D_ARRAY")))*64 + (((uai==`UAI@nouai) || (uai==`UAI@UAI)) && ((dim==`Dim1@"3D")))*64);
+ ILABEL_URc_SIZE = 32;
+ ILABEL_URe_SIZE = 32;
+
+OPCODES
+        SUQUERYmio_pipe =  0b1111110110011;
+        SUQUERY =  0b1111110110011;
+
+ENCODING
+!suquery_urc__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=ba;
+BITS_3_63_61_paramA=dim;
+BITS_1_58_58_uai=uai;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_1_87_87_cas=queryType;
+BITS_8_47_40_Re=URc;
+BITS_8_55_48_URe=URe;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

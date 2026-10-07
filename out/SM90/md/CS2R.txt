@@ -1,0 +1,60 @@
+CLASS "cs2r_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /QInteger("64"):sz
+Register:Rd
+','SpecialRegister:SRa
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `QInteger@"64"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `QInteger@"64"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+MISALIGNED_REG_ERROR
+ (((sz == `QInteger@"64"))) -> (((((SRa)+((SRa)==`SpecialRegister@SRZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + ((sz==`QInteger@"64"))*32;
+ ISRC_A_SIZE = 32 + ((sz==`QInteger@"64"))*32;
+
+
+OPCODES
+        CS2Rint_pipe =  0b100000000101;
+        CS2R =  0b100000000101;
+
+ENCODING
+!cs2r__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_UPq_not=sz;
+BITS_8_23_16_Rd=Rd;
+BITS_8_79_72_SRa=SRa;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+

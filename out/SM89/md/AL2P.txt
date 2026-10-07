@@ -1,0 +1,127 @@
+CLASS "al2p__RaNonRZ"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /AIO("I"):io /AInteger("32"):sz
+Register:Rd
+','NonZeroRegister:Ra ',' SImm(11)*:Ra_offset
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_VSA)||(%SHADER_TYPE == $ST_VSB)||(%SHADER_TYPE == $ST_GS)||(%SHADER_TYPE == $ST_TS)||(%SHADER_TYPE == $ST_TI)) :
+ "Can only be used with VS, GS, TS, TI"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_GS)+(1<<ISHADER_TI)+(1<<ISHADER_TS)+(1<<ISHADER_VS)+0 ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Ra_SIZE = 32;
+
+OPCODES
+        AL2Pmio_pipe =  0b100100100000;
+        AL2P =  0b100100100000;
+
+ENCODING
+!al2p__RaNonRZ_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_79_79_op=io;
+BITS_2_75_74_iswzA=sz;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=*Ra;
+BITS_11_50_40_Ra_offset=Ra_offset;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "al2p__RaRZ"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /AIO("I"):io /AInteger("32"):sz
+Register:Rd
+','ZeroRegister("RZ"):Ra ',' UImm(10)*:Ra_offset
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_VSA)||(%SHADER_TYPE == $ST_VSB)||(%SHADER_TYPE == $ST_GS)||(%SHADER_TYPE == $ST_TS)||(%SHADER_TYPE == $ST_TI)) :
+ "Can only be used with VS, GS, TS, TI"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)==`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_GS)+(1<<ISHADER_TI)+(1<<ISHADER_TS)+(1<<ISHADER_VS)+0 ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_ADU ;
+
+
+OPCODES
+        AL2Pmio_pipe =  0b100100100000;
+        AL2P =  0b100100100000;
+
+ENCODING
+!al2p__RaRZ_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_79_79_op=io;
+BITS_2_75_74_iswzA=sz;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=*Ra;
+BITS_10_49_40_Ra_offset=Ra_offset;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

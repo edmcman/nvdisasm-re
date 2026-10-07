@@ -1,0 +1,82 @@
+CLASS "gather_bitextract_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /DATASIZE_16_8:datasize /BITSEL:bitsel
+Register:Rd
+','Register:Ra {/REUSE("noreuse"):reuse_src_a}
+','Register:Rb {/REUSE("noreuse"):reuse_src_b}
+','Register:Rc {/REUSE("noreuse"):reuse_src_c}
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((datasize !=`DATASIZE_16_8@INVALID2)&&(datasize !=`DATASIZE_16_8@INVALID3)) :
+ "Invalid datasize field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_3(batch_t,usched_info,reuse_src_a,reuse_src_b,reuse_src_c) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_b, reuse_src_c"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_b==1)||(reuse_src_c==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@GATHER_Rb_Rc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ MASK_INSTR_PREDICATE = (1);
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        __HIR0X1B0int_pipe =  0b1001000001;
+        __HIR0X1B0 =  0b1001000001;
+
+ENCODING
+!gather_bitextract__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=1;
+BITS_2_62_61_datasize=datasize;
+BITS_2_76_75_size=*0;
+BITS_2_54_53_num=*0;
+BITS_1_73_73_sz=bitsel;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_8_71_64_Rc=Rc;
+BITS_4_81_78_mdidx=*0;
+BITS_2_58_57_dstbyte=*0;
+BITS_1_56_56_srchalf=*0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_3(batch_t,usched_info,reuse_src_a,reuse_src_b,reuse_src_c);
+
+
+

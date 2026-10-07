@@ -1,0 +1,102 @@
+CLASS "bssy_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode
+ [!]Predicate("PT"):Pp
+','BD:barReg
+','RSImm(32)*:Sa
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_A_SIZE = 30;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+
+OPCODES
+        BSSYcbu_pipe =  0b100101000101;
+        BSSY =  0b100101000101;
+
+ENCODING
+!bssy__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_89_87_Pnz = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_4_19_16_barReg=barReg;
+BITS_30_63_34_Sa=Sa SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "bssy_rel_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode
+ [!]Predicate("PT"):Pp
+','BD:barReg
+','SImm(32)*:Sa /RelOpt:rel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_A_SIZE = 30;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+
+OPCODES
+        BSSYcbu_pipe =  0b100101000101;
+        BSSY =  0b100101000101;
+
+ENCODING
+!bssy_rel__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_89_87_Pnz = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_4_19_16_barReg=barReg;
+BITS_30_63_34_Sa=Sa SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

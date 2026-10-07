@@ -1,0 +1,69 @@
+ALTERNATE CLASS "hadd2_32i_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /SAT("nosat"):sat
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZ("H1_H0"):iswzA
+','F16Imm(64):Sc ',' F16Imm(64):Sc1
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_2(batch_t,usched_info,reuse_src_a) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzA == `ISWZ@H1_H1)||(iswzA == `ISWZ@H1_H0)||(iswzA == `ISWZ@H0_H0))) :
+ "Invalid instruction combination (reason: .iswzA cannot be .F32)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@HADD2_Imm ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+
+OPCODES
+        HADD2_32Ifp16_pipe =  0b10000110000;
+        HADD2_32I =  0b10000110000;
+
+ENCODING
+!hadd2_32i__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_78_78_merge=0;
+BITS_1_80_80_ftz=ftz;
+BITS_1_77_77_satfinite=sat;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_2_75_74_bop=iswzA;
+BITS_16_63_48_Sc=Sc;
+BITS_16_47_32_Sb=Sc1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_2(batch_t,usched_info,reuse_src_a);
+
+
+

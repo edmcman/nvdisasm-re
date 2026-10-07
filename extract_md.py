@@ -58,9 +58,9 @@ def lz4_chunks(buf):
 
 def is_text(b): return b.isascii() and b.decode().strip().isprintable()
 
-def main(nvdisasm, outdir="out"):
+def main(nvdisasm, outdir="out/raw"):
     binary = pathlib.Path(nvdisasm).read_bytes()
-    out = pathlib.Path(outdir); out.mkdir(exist_ok=True)
+    out = pathlib.Path(outdir); out.mkdir(parents=True, exist_ok=True)
     inv_sbox = binary[INV_SBOX_OFF:INV_SBOX_OFF + 256]
     for r in registrations(binary, nvdisasm):
         off = r["addr"] - DATA_VADDR + DATA_OFF

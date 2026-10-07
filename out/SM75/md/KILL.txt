@@ -1,0 +1,45 @@
+CLASS "kill_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode
+ [!]Predicate("PT"):Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_PS)) :
+ "Can only be used with PS"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ BRANCH_TYPE = BRT_BRANCHOUT ;
+ MIN_WAIT_NEEDED = 1 ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_PS)+0 ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+OPCODES
+        KILLcbu_pipe =  0b100101011011;
+        KILL =  0b100101011011;
+
+ENCODING
+!kill__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_12_11_0_opcode=Opcode;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

@@ -1,0 +1,47 @@
+CLASS "membar_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /MEMBAR_SEM("nomembar_sem"):sem /MEMBAR_SCO:sco /MEMBAR_MMIO("nomembar_mmio"):mmio
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sem !=`MEMBAR_SEM@INVALID3)) :
+ "Invalid sem field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sco !=`MEMBAR_SCO@INVALID4)&&(sco !=`MEMBAR_SCO@INVALID6)&&(sco !=`MEMBAR_SCO@INVALID7)) :
+ "Invalid sco field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MIN_WAIT_NEEDED = 5 ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+OPCODES
+        MEMBARmio_pipe =  0b100110010010;
+        MEMBAR =  0b100110010010;
+
+ENCODING
+!membar__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_12_11_0_opcode=Opcode;
+BITS_2_80_79_sem=sem;
+BITS_3_78_76_dstfmt=sco;
+BITS_1_72_72_e=mmio;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

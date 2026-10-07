@@ -1,0 +1,128 @@
+CLASS "brxu_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /DEPTH("nodepth"):depth /COND("nocond"):cond
+ [!]Predicate("PT"):Pp
+','UniformRegister:URa SImm(58/0)*:UR_offset
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((depth !=`DEPTH@INVALID3)) :
+ "Invalid depth field value"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ BRANCH_TARGET_INDEX = INDEX(URa) ;
+ BRANCH_TYPE = BRT_BRANCH ;
+ MEM_SCBD = NON_BARRIER_INT_INST ;
+ MEM_SCBD_TYPE = BB_ENDING_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+ ILABEL_URa_SIZE = 64;
+
+OPCODES
+        BRXUcbu_pipe =  0b1100101011000;
+        BRXU =  0b1100101011000;
+
+ENCODING
+!brxu__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_86_85_cop=depth;
+BITS_2_33_32_cond=cond;
+BITS_3_89_87_Pnz = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_6_29_24_Sa=URa;
+BITS_56_81_34_23_16_sImm=UR_offset SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "brxu_rel_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /DEPTH("nodepth"):depth /COND("nocond"):cond
+ [!]Predicate("PT"):Pp
+','UniformRegister:URa SImm(58/0)*:UR_offset /RelOpt:rel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((depth !=`DEPTH@INVALID3)) :
+ "Invalid depth field value"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ BRANCH_TARGET_INDEX = INDEX(URa) ;
+ BRANCH_TYPE = BRT_BRANCH ;
+ MEM_SCBD = NON_BARRIER_INT_INST ;
+ MEM_SCBD_TYPE = BB_ENDING_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+ ILABEL_URa_SIZE = 64;
+
+OPCODES
+        BRXUcbu_pipe =  0b1100101011000;
+        BRXU =  0b1100101011000;
+
+ENCODING
+!brxu_rel__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_86_85_cop=depth;
+BITS_2_33_32_cond=cond;
+BITS_3_89_87_Pnz = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_6_29_24_Sa=URa;
+BITS_56_81_34_23_16_sImm=UR_offset SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

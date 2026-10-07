@@ -1,0 +1,299 @@
+CLASS "scatter_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /THREADONLY("THREAD"):mode /ELSIZE:elsize /IDXSIZE:idxtype /EXTRACT_scatter:extract
+Register:Rd
+','Register:Ra {/REUSE("noreuse"):reuse_src_a}
+','Register:Rb {/REUSE("noreuse"):reuse_src_b}
+','Register("RZ"):Rc {/REUSE("noreuse"):reuse_src_c} ','UImm(3)*:vecidx ','UImm(4)*:mask
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_7(batch_t,usched_info,reuse_src_a,reuse_src_b,reuse_src_c) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_b, reuse_src_c"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_b==1)||(reuse_src_c==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype == `IDXSIZE@U4))&&((elsize == `ELSIZE@U8))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype=U4, then #VecIdxU03 <= 3)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype == `IDXSIZE@U2))&&((elsize == `ELSIZE@U8))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype=U2, then #VecIdxU03 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype == `IDXSIZE@U4))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype=U4, then #VecIdxU03 <= 7)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype == `IDXSIZE@U2))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype=U2, then #VecIdxU03 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype == `IDXSIZE@U2))&&((elsize == `ELSIZE@U8))) -> (((extract == `EXTRACT_scatter@EXTR0)||(extract == `EXTRACT_scatter@EXTR2)||(extract == `EXTRACT_scatter@EXTR4)||(extract == `EXTRACT_scatter@EXTR6))) :
+ "Invalid instruction combination (reason: If .elsize=U8 and .idxtype=U2, .extract must be one of: EXTR0, EXTR2, EXTR4, EXTR6 (B0, B1, B2, B3).)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype == `IDXSIZE@U4))&&((elsize == `ELSIZE@U8))) -> (((extract == `EXTRACT_scatter@EXTR0)||(extract == `EXTRACT_scatter@EXTR4))) :
+ "Invalid instruction combination (reason: If .elsize=U8 and .idxtype=U4, .extract must be one of: EXTR0, EXTR4 (H0, H1).)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype == `IDXSIZE@U4))&&((elsize == `ELSIZE@U16))) -> (((extract == `EXTRACT_scatter@EXTR0)||(extract == `EXTRACT_scatter@EXTR2)||(extract == `EXTRACT_scatter@EXTR4)||(extract == `EXTRACT_scatter@EXTR6))) :
+ "Invalid instruction combination (reason: If .elsize is .U16 and .idxtype=U4, .extract must be one of: EXTR0, EXTR2, EXTR4, EXTR6 (B0, B1, B2, B3).)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((elsize == `ELSIZE@U16))) -> (((mask==0)||(mask==1)||(mask==2)||(mask==3))) :
+ "Invalid instruction combination (reason: 16-bit elements cannot have the upper 2 bits of the mask set)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@SCATTER_Rb_Rc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ MASK_INSTR_PREDICATE = (1);
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        SCATTERint_pipe =  0b1000011000;
+        SCATTER =  0b1000011000;
+
+ENCODING
+!scatter__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=elsize;
+BITS_1_73_73_sz=idxtype;
+BITS_3_76_74_iswzA=extract;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_8_71_64_Ra_URc=Rc;
+BITS_3_85_83_vecidx=vecidx;
+BITS_4_80_77_mem=mask;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_7(batch_t,usched_info,reuse_src_a,reuse_src_b,reuse_src_c);
+
+
+
+ALTERNATE CLASS "scatter_combined_idxtype_extract_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /THREADONLY("THREAD"):mode /ELSIZE:elsize /IDXTYPE_EXTRACT:idxtype_extract
+Register:Rd
+','Register:Ra {/REUSE("noreuse"):reuse_src_a}
+','Register:Rb {/REUSE("noreuse"):reuse_src_b}
+','Register("RZ"):Rc {/REUSE("noreuse"):reuse_src_c} ','UImm(3)*:vecidx ','UImm(4)*:mask
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((idxtype_extract !=`IDXTYPE_EXTRACT@INVALID3)&&(idxtype_extract !=`IDXTYPE_EXTRACT@INVALID7)&&(idxtype_extract !=`IDXTYPE_EXTRACT@INVALID11)&&(idxtype_extract !=`IDXTYPE_EXTRACT@INVALID15)) :
+ "Invalid idxtype_extract field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_7(batch_t,usched_info,reuse_src_a,reuse_src_b,reuse_src_c) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_b, reuse_src_c"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_b==1)||(reuse_src_c==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U4_H0))&&((elsize == `ELSIZE@U8))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U4_H0, then #VecIdxU03 <= 3)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U4_H1))&&((elsize == `ELSIZE@U8))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U4_H1, then #VecIdxU03 <= 3)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U4_B0))&&((elsize == `ELSIZE@U8))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U4_B0, then #VecIdxU03 <= 3)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U4_B1))&&((elsize == `ELSIZE@U8))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U4_B1, then #VecIdxU03 <= 3)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U4_B2))&&((elsize == `ELSIZE@U8))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U4_B2, then #VecIdxU03 <= 3)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U4_B3))&&((elsize == `ELSIZE@U8))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U4_B3, then #VecIdxU03 <= 3)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_B0))&&((elsize == `ELSIZE@U8))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U2_B0, then #VecIdxU03 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_B1))&&((elsize == `ELSIZE@U8))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U2_B1, then #VecIdxU03 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_B2))&&((elsize == `ELSIZE@U8))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U2_B2, then #VecIdxU03 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_B3))&&((elsize == `ELSIZE@U8))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U2_B3, then #VecIdxU03 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_N0))&&((elsize == `ELSIZE@U8))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U2_N0, then #VecIdxU03 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_N1))&&((elsize == `ELSIZE@U8))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U2_N1, then #VecIdxU03 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_N2))&&((elsize == `ELSIZE@U8))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U2_N2, then #VecIdxU03 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_N3))&&((elsize == `ELSIZE@U8))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U2_N3, then #VecIdxU03 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_N4))&&((elsize == `ELSIZE@U8))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U2_N4, then #VecIdxU03 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_N5))&&((elsize == `ELSIZE@U8))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U2_N5, then #VecIdxU03 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_N6))&&((elsize == `ELSIZE@U8))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U2_N6, then #VecIdxU03 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_N7))&&((elsize == `ELSIZE@U8))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U8 and idxtype_extract=U2_N7, then #VecIdxU03 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U4_H0))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U4_H0, then #VecIdxU03 <= 7)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U4_H1))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U4_H1, then #VecIdxU03 <= 7)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U4_B0))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U4_B0, then #VecIdxU03 <= 7)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U4_B1))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U4_B1, then #VecIdxU03 <= 7)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U4_B2))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U4_B2, then #VecIdxU03 <= 7)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U4_B3))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U4_B3, then #VecIdxU03 <= 7)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_B0))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U2_B0, then #VecIdxU03 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_B1))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U2_B1, then #VecIdxU03 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_B2))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U2_B2, then #VecIdxU03 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_B3))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U2_B3, then #VecIdxU03 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_N0))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U2_N0, then #VecIdxU03 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_N1))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U2_N1, then #VecIdxU03 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_N2))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U2_N2, then #VecIdxU03 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_N3))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U2_N3, then #VecIdxU03 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_N4))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U2_N4, then #VecIdxU03 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_N5))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U2_N5, then #VecIdxU03 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_N6))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U2_N6, then #VecIdxU03 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxtype_extract == `IDXTYPE_EXTRACT@U2_N7))&&((elsize == `ELSIZE@U16))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If elsize=U16 and idxtype_extract=U2_N7, then #VecIdxU03 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((elsize == `ELSIZE@U8))) -> (((idxtype_extract == `IDXTYPE_EXTRACT@U2_B0)||(idxtype_extract == `IDXTYPE_EXTRACT@U2_B1)||(idxtype_extract == `IDXTYPE_EXTRACT@U2_B2)||(idxtype_extract == `IDXTYPE_EXTRACT@U2_B3)||(idxtype_extract == `IDXTYPE_EXTRACT@U4_H0)||(idxtype_extract == `IDXTYPE_EXTRACT@U4_H1))) :
+ "Invalid instruction combination (reason: If .elsize is .U8, .idxtype_extract must be one of: U2_B0...3 or U4_H0...1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((elsize == `ELSIZE@U16))) -> (((idxtype_extract == `IDXTYPE_EXTRACT@U2_N0)||(idxtype_extract == `IDXTYPE_EXTRACT@U2_N1)||(idxtype_extract == `IDXTYPE_EXTRACT@U2_N2)||(idxtype_extract == `IDXTYPE_EXTRACT@U2_N3)||(idxtype_extract == `IDXTYPE_EXTRACT@U2_N4)||(idxtype_extract == `IDXTYPE_EXTRACT@U2_N5)||(idxtype_extract == `IDXTYPE_EXTRACT@U2_N6)||(idxtype_extract == `IDXTYPE_EXTRACT@U2_N7)||(idxtype_extract == `IDXTYPE_EXTRACT@U4_B0)||(idxtype_extract == `IDXTYPE_EXTRACT@U4_B1)||(idxtype_extract == `IDXTYPE_EXTRACT@U4_B2)||(idxtype_extract == `IDXTYPE_EXTRACT@U4_B3))) :
+ "Invalid instruction combination (reason: If .elsize is .U16, .idxtype_extract must be one of: U2_N0...7 or U4_B0...3)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((elsize == `ELSIZE@U16))) -> (((mask==0)||(mask==1)||(mask==2)||(mask==3))) :
+ "Invalid instruction combination (reason: 16-bit elements cannot have the upper 2 bits of the mask set)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@SCATTER_Rb_Rc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ MASK_INSTR_PREDICATE = (1);
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        SCATTERint_pipe =  0b1000011000;
+        SCATTER =  0b1000011000;
+
+ENCODING
+!scatter_combined_idxtype_extract__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=elsize;
+BITS_4_76_73_idxtype_extract=idxtype_extract;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_8_71_64_Ra_URc=Rc;
+BITS_3_85_83_vecidx=vecidx;
+BITS_4_80_77_mem=mask;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_7(batch_t,usched_info,reuse_src_a,reuse_src_b,reuse_src_c);
+
+
+

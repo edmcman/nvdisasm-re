@@ -1,0 +1,544 @@
+CLASS "ublkcp_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /DST:dst /DST:src /MULTICAST("nomulticast"):multicast /BYTE_MASK("nobyte_mask"):byte_mask /SP2("nosp2"):sp2 /SEQ("noseq"):seq /COUNTED("nocounted"):counted /SEM_ublkcp("WEAK"):sem /SCO("nosco"):sco
+ [ UniformRegister:URb ]
+',' [ UniformRegister:URa ]
+','UniformRegister:URc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_5(sem,sco,0) :
+ "Invalid combination of sem, sco, 0"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_5_illegal_encodings(sem,sco,0) :
+ "Illegal specification of sem, sco, 0"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((src == `DST@G))) -> (((((URa)==`UniformRegister@URZ)||((URa)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((src == `DST@G))) -> (((((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((counted == `COUNTED@nocounted))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((counted == `COUNTED@nocounted))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((src == `DST@G))) -> (((dst == `DST@S))) :
+ "Invalid instruction combination (reason: Source and destination can't both be global)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dst == `DST@G))) -> (((src == `DST@S))) :
+ "Invalid instruction combination (reason: Source and destination can't both be global)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((src == `DST@S))&&((dst == `DST@G))) :
+ "Invalid instruction combination (reason: With .COUNTED, source must be shared and destination must be global)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((multicast == `MULTICAST@MULTICAST))) -> (((src == `DST@G))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((src == `DST@S))) -> (((sp2 == `SP2@nosp2))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((seq == `SEQ@SEQUENCED))) -> (( (DEFINED TABLES_mem_5(sem,sco,0)) && ((TABLES_mem_5(sem,sco,0) != 0)) )) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((byte_mask == `BYTE_MASK@DST_G_BYTE_MASK))) -> (((src == `DST@S))&&((dst == `DST@G))) :
+ "Invalid instruction combination (reason: With .DST_G_BYTE_MASK, source must be shared and destination must be global)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((byte_mask == `BYTE_MASK@DST_G_BYTE_MASK))) -> (((counted == `COUNTED@nocounted))) :
+ "Invalid instruction combination (reason: .COUNTED may not be specified with .DST_G_BYTE_MASK)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UBLKCP ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64 + ((counted==`COUNTED@COUNTED))*64;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32 + ((src==`DST@G))*32;
+ VIRTUAL_QUEUE = $VQ_TMA_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 32 + ((src==`DST@G))*32;
+ ILABEL_URb_SIZE = 64 + ((counted==`COUNTED@COUNTED))*64;
+ ILABEL_URc_SIZE = 32;
+
+OPCODES
+        UBLKCPudp_pipe =  0b1001110111010;
+        UBLKCP =  0b1001110111010;
+
+ENCODING
+!ublkcp__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_73_73_sz=dst;
+BITS_1_74_74_sh=src;
+BITS_1_75_75_input_reg_sz_32_bit75_dist=multicast;
+BITS_1_84_84_OR=byte_mask;
+BITS_2_82_81_cop2=sp2;
+BITS_1_83_83_input_reg_sz_32_dist=seq;
+BITS_1_85_85_ignoreKill=counted;
+BITS_8_39_32_Rb=URb;
+BITS_8_31_24_Ra=URa;
+BITS_8_71_64_Ra_URc=URc;
+BITS_1_76_76_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=*TABLES_mem_5(sem,sco,0);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "ublkcp_desc_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /DST:dst /DST:src /MULTICAST("nomulticast"):multicast /BYTE_MASK("nobyte_mask"):byte_mask /SP2("nosp2"):sp2 /SEQ("noseq"):seq /COUNTED("nocounted"):counted /SEM_ublkcp("WEAK"):sem /SCO("nosco"):sco
+ [ UniformRegister:URb ]
+',' [ UniformRegister:URa ]
+','UniformRegister:URc
+',' TMA:desc[ UniformRegister:URe ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+OOR_REG_ERROR
+ (((URe)==`UniformRegister@URZ)||((URe)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URe is out of range"
+MISALIGNED_REG_ERROR
+ (((URe)+((URe)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URe is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_5(sem,sco,0) :
+ "Invalid combination of sem, sco, 0"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_5_illegal_encodings(sem,sco,0) :
+ "Illegal specification of sem, sco, 0"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((src == `DST@G))) -> (((((URa)==`UniformRegister@URZ)||((URa)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((src == `DST@G))) -> (((((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((counted == `COUNTED@nocounted))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((counted == `COUNTED@nocounted))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((src == `DST@S))&&((dst == `DST@G))) :
+ "Invalid instruction combination (reason: With .COUNTED, source must be shared and destination must be global)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((src == `DST@G))) -> (((dst == `DST@S))) :
+ "Invalid instruction combination (reason: Source and destination can't both be global)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dst == `DST@G))) -> (((src == `DST@S))) :
+ "Invalid instruction combination (reason: Source and destination can't both be global)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((src == `DST@S))) -> (((dst == `DST@G))) :
+ "Invalid instruction combination (reason: Memory descriptor variant cannot specify both .src and .dst as .S)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dst == `DST@S))) -> (((src == `DST@G))) :
+ "Invalid instruction combination (reason: Memory descriptor variant cannot specify both .src and .dst as .S)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((multicast == `MULTICAST@MULTICAST))) -> (((src == `DST@G))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((src == `DST@S))) -> (((sp2 == `SP2@nosp2))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((seq == `SEQ@SEQUENCED))) -> (( (DEFINED TABLES_mem_5(sem,sco,0)) && ((TABLES_mem_5(sem,sco,0) != 0)) )) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((byte_mask == `BYTE_MASK@DST_G_BYTE_MASK))) -> (((src == `DST@S))&&((dst == `DST@G))) :
+ "Invalid instruction combination (reason: With .DST_G_BYTE_MASK, source must be shared and destination must be global)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((byte_mask == `BYTE_MASK@DST_G_BYTE_MASK))) -> (((counted == `COUNTED@nocounted))) :
+ "Invalid instruction combination (reason: .COUNTED may not be specified with .DST_G_BYTE_MASK)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UBLKCP ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64 + ((counted==`COUNTED@COUNTED))*64;
+ ISRC_C_SIZE = 32;
+ ISRC_E_SIZE = 64;
+ ISRC_A_SIZE = 32 + ((src==`DST@G))*32;
+ VIRTUAL_QUEUE = $VQ_TMA_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 32 + ((src==`DST@G))*32;
+ ILABEL_URb_SIZE = 64 + ((counted==`COUNTED@COUNTED))*64;
+ ILABEL_URc_SIZE = 32;
+ ILABEL_URe_SIZE = 64;
+
+OPCODES
+        UBLKCPudp_pipe =  0b1001110111010;
+        UBLKCP =  0b1001110111010;
+
+ENCODING
+!ublkcp_desc__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_73_73_sz=dst;
+BITS_1_74_74_sh=src;
+BITS_1_75_75_input_reg_sz_32_bit75_dist=multicast;
+BITS_1_84_84_OR=byte_mask;
+BITS_2_82_81_cop2=sp2;
+BITS_1_83_83_input_reg_sz_32_dist=seq;
+BITS_1_85_85_ignoreKill=counted;
+BITS_8_39_32_Rb=URb;
+BITS_8_31_24_Ra=URa;
+BITS_8_71_64_Ra_URc=URc;
+BITS_8_47_40_Re=URe;
+BITS_1_76_76_memdesc=1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=*TABLES_mem_5(sem,sco,0);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "ublkcp_desc_one_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ONEONLY:one /DST:dst /DST:src /MULTICAST("nomulticast"):multicast /BYTE_MASK("nobyte_mask"):byte_mask /SP2("nosp2"):sp2 /SEQ("noseq"):seq /COUNTED("nocounted"):counted /SEM_ublkcp("WEAK"):sem /SCO("nosco"):sco
+ [ UniformRegister:URb ]
+',' [ UniformRegister:URa ]
+','UniformRegister:URc
+',' TMA:desc[ UniformRegister:URe ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+OOR_REG_ERROR
+ (((URe)==`UniformRegister@URZ)||((URe)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URe is out of range"
+MISALIGNED_REG_ERROR
+ (((URe)+((URe)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URe is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_5(sem,sco,0) :
+ "Invalid combination of sem, sco, 0"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_5_illegal_encodings(sem,sco,0) :
+ "Illegal specification of sem, sco, 0"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((src == `DST@G))) -> (((((URa)==`UniformRegister@URZ)||((URa)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((src == `DST@G))) -> (((((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((counted == `COUNTED@nocounted))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((counted == `COUNTED@nocounted))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((src == `DST@S))&&((dst == `DST@G))) :
+ "Invalid instruction combination (reason: With .COUNTED, source must be shared and destination must be global)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((src == `DST@G))) -> (((dst == `DST@S))) :
+ "Invalid instruction combination (reason: Source and destination can't both be global)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dst == `DST@G))) -> (((src == `DST@S))) :
+ "Invalid instruction combination (reason: Source and destination can't both be global)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((src == `DST@S))) -> (((dst == `DST@G))) :
+ "Invalid instruction combination (reason: Memory descriptor variant cannot specify both .src and .dst as .S)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dst == `DST@S))) -> (((src == `DST@G))) :
+ "Invalid instruction combination (reason: Memory descriptor variant cannot specify both .src and .dst as .S)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((multicast == `MULTICAST@MULTICAST))) -> (((src == `DST@G))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((src == `DST@S))) -> (((sp2 == `SP2@nosp2))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((seq == `SEQ@SEQUENCED))) -> (( (DEFINED TABLES_mem_5(sem,sco,0)) && ((TABLES_mem_5(sem,sco,0) != 0)) )) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((byte_mask == `BYTE_MASK@DST_G_BYTE_MASK))) -> (((src == `DST@S))&&((dst == `DST@G))) :
+ "Invalid instruction combination (reason: With .DST_G_BYTE_MASK, source must be shared and destination must be global)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((byte_mask == `BYTE_MASK@DST_G_BYTE_MASK))) -> (((counted == `COUNTED@nocounted))) :
+ "Invalid instruction combination (reason: .COUNTED may not be specified with .DST_G_BYTE_MASK)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UBLKCP ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64 + ((counted==`COUNTED@COUNTED))*64;
+ ISRC_C_SIZE = 32;
+ ISRC_E_SIZE = 64;
+ ISRC_A_SIZE = 32 + ((src==`DST@G))*32;
+ VIRTUAL_QUEUE = $VQ_TMA_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 32 + ((src==`DST@G))*32;
+ ILABEL_URb_SIZE = 64 + ((counted==`COUNTED@COUNTED))*64;
+ ILABEL_URc_SIZE = 32;
+ ILABEL_URe_SIZE = 64;
+
+OPCODES
+        UBLKCPudp_pipe =  0b1001110111010;
+        UBLKCP =  0b1001110111010;
+
+ENCODING
+!ublkcp_desc_one__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_73_73_sz=dst;
+BITS_1_74_74_sh=src;
+BITS_1_75_75_input_reg_sz_32_bit75_dist=multicast;
+BITS_1_84_84_OR=byte_mask;
+BITS_2_82_81_cop2=sp2;
+BITS_1_83_83_input_reg_sz_32_dist=seq;
+BITS_1_85_85_ignoreKill=counted;
+BITS_8_39_32_Rb=URb;
+BITS_8_31_24_Ra=URa;
+BITS_8_71_64_Ra_URc=URc;
+BITS_8_47_40_Re=URe;
+BITS_1_76_76_memdesc=1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=*TABLES_mem_5(sem,sco,0);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "ublkcp_one_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ONEONLY:one /DST:dst /DST:src /MULTICAST("nomulticast"):multicast /BYTE_MASK("nobyte_mask"):byte_mask /SP2("nosp2"):sp2 /SEQ("noseq"):seq /COUNTED("nocounted"):counted /SEM_ublkcp("WEAK"):sem /SCO("nosco"):sco
+ [ UniformRegister:URb ]
+',' [ UniformRegister:URa ]
+','UniformRegister:URc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_5(sem,sco,0) :
+ "Invalid combination of sem, sco, 0"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_5_illegal_encodings(sem,sco,0) :
+ "Illegal specification of sem, sco, 0"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((src == `DST@G))) -> (((((URa)==`UniformRegister@URZ)||((URa)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((src == `DST@G))) -> (((((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((counted == `COUNTED@nocounted))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((counted == `COUNTED@nocounted))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((src == `DST@G))) -> (((dst == `DST@S))) :
+ "Invalid instruction combination (reason: Source and destination can't both be global)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dst == `DST@G))) -> (((src == `DST@S))) :
+ "Invalid instruction combination (reason: Source and destination can't both be global)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((src == `DST@S))&&((dst == `DST@G))) :
+ "Invalid instruction combination (reason: With .COUNTED, source must be shared and destination must be global)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((multicast == `MULTICAST@MULTICAST))) -> (((src == `DST@G))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((src == `DST@S))) -> (((sp2 == `SP2@nosp2))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((seq == `SEQ@SEQUENCED))) -> (( (DEFINED TABLES_mem_5(sem,sco,0)) && ((TABLES_mem_5(sem,sco,0) != 0)) )) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((byte_mask == `BYTE_MASK@DST_G_BYTE_MASK))) -> (((src == `DST@S))&&((dst == `DST@G))) :
+ "Invalid instruction combination (reason: With .DST_G_BYTE_MASK, source must be shared and destination must be global)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((byte_mask == `BYTE_MASK@DST_G_BYTE_MASK))) -> (((counted == `COUNTED@nocounted))) :
+ "Invalid instruction combination (reason: .COUNTED may not be specified with .DST_G_BYTE_MASK)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UBLKCP ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64 + ((counted==`COUNTED@COUNTED))*64;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32 + ((src==`DST@G))*32;
+ VIRTUAL_QUEUE = $VQ_TMA_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 32 + ((src==`DST@G))*32;
+ ILABEL_URb_SIZE = 64 + ((counted==`COUNTED@COUNTED))*64;
+ ILABEL_URc_SIZE = 32;
+
+OPCODES
+        UBLKCPudp_pipe =  0b1001110111010;
+        UBLKCP =  0b1001110111010;
+
+ENCODING
+!ublkcp_one__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_73_73_sz=dst;
+BITS_1_74_74_sh=src;
+BITS_1_75_75_input_reg_sz_32_bit75_dist=multicast;
+BITS_1_84_84_OR=byte_mask;
+BITS_2_82_81_cop2=sp2;
+BITS_1_83_83_input_reg_sz_32_dist=seq;
+BITS_1_85_85_ignoreKill=counted;
+BITS_8_39_32_Rb=URb;
+BITS_8_31_24_Ra=URa;
+BITS_8_71_64_Ra_URc=URc;
+BITS_1_76_76_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=*TABLES_mem_5(sem,sco,0);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

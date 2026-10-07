@@ -1,0 +1,325 @@
+CLASS "fchk__RCR_RC"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ChkMode("DIVIDE"):mode
+Predicate:Pu
+',' [-] [||] Register:Ra
+',' [-] [||] C:Sb[UImm(5/0*):Sb_bank]*   [SImm(17)*:Sb_addr]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+INVALID_CONST_ADDR_SASS_ONLY_ERROR
+ ((Sb_bank <= 17) || (Sb_bank >= 24 && Sb_bank <= 31)) :
+ "Invalid constant bank error"
+MISALIGNED_ADDR_ERROR
+ (Sb_addr & 0x3) == 0 :
+ "Constant offsets must be aligned on a 4B boundary"
+INVALID_CONST_ADDR_ERROR
+ (Sb_bank >= 24 && Sb_bank <= 31) -> (Sb_addr <= 255) :
+ "RTV banks may not use an offset greater than 255"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (%SHADER_TYPE == $ST_CS) -> !(Sb_bank >= 8 && Sb_bank <= 31) :
+ "CS may not use RTV banks"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@FCHK_C ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+
+ ILABEL_Ra_SIZE = 32;
+
+OPCODES
+        FCHKmio_pipe =  0b101100000010;
+        FCHK =  0b101100000010;
+
+ENCODING
+!fchk__RCR_RC_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_83_81_Pu=Pu;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+
+BITS_5_58_54_Sc_bank,BITS_14_53_40_Sc_addr =  ConstBankAddress2(Sb_bank,Sb_addr);
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sc_negate=Sb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "fchk__RCxR_RCx"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ChkMode("DIVIDE"):mode
+Predicate:Pu
+',' [-] [||] Register:Ra
+',' [-] [||] CX:Sb[UniformRegister:URb][UImm(16)*:Sb_offset]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URb)!=`UniformRegister@URZ) :
+ "Disallowed uniform register URb"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@FCHK_CXb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = 64;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_URb_SIZE = 64;
+
+OPCODES
+        FCHKmio_pipe =  0b1101100000010;
+        FCHK =  0b1101100000010;
+
+ENCODING
+!fchk__RCxR_RCx_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_83_81_Pu=Pu;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_6_37_32_Ra_URb=URb;
+BITS_14_53_40_Sc_addr=Sb_offset SCALE 4;
+BITS_1_62_62_Sc_absolute=Sb@absolute;
+BITS_1_63_63_Sc_negate=Sb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "fchk__RIR_RI"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ChkMode("DIVIDE"):mode
+Predicate:Pu
+',' [-] [||] Register:Ra
+','F32Imm(64):Sb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@FCHK_Imm ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+
+ ILABEL_Ra_SIZE = 32;
+
+OPCODES
+        FCHKmio_pipe =  0b100100000010;
+        FCHK =  0b100100000010;
+
+ENCODING
+!fchk__RIR_RI_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_83_81_Pu=Pu;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_32_63_32_Ra_offset=Sb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "fchk__RRR_RR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ChkMode("DIVIDE"):mode
+Predicate:Pu
+',' [-] [||] Register:Ra
+',' [-] [||] Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@FCHK_Rb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        FCHKmio_pipe =  0b1100000010;
+        FCHK =  0b1100000010;
+
+ENCODING
+!fchk__RRR_RR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_83_81_Pu=Pu;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_8_39_32_Rb=Rb;
+BITS_1_62_62_Sc_absolute=Rb@absolute;
+BITS_1_63_63_Sc_negate=Rb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "fchk__RUR_RU"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /ChkMode("DIVIDE"):mode
+Predicate:Pu
+',' [-] [||] Register:Ra
+',' [-] [||] UniformRegister:URb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@FCHK_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        FCHKmio_pipe =  0b1110100000010;
+        FCHK =  0b1110100000010;
+
+ENCODING
+!fchk__RUR_RU_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_83_81_Pu=Pu;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_6_37_32_Ra_URb=URb;
+BITS_1_62_62_Sc_absolute=URb@absolute;
+BITS_1_63_63_Sc_negate=URb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

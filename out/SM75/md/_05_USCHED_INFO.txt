@@ -1,0 +1,89 @@
+USCHED_INFO
+    OFF_DECK_DRAIN=0,
+
+
+
+    DRAIN *= 0,
+
+    W1EG=1,
+    WAIT1_END_GROUP=1,
+    W2EG=2,
+    WAIT2_END_GROUP=2,
+    W3EG=3,
+    WAIT3_END_GROUP=3,
+    W4EG=4,
+    WAIT4_END_GROUP=4,
+    W5EG=5,
+    WAIT5_END_GROUP=5,
+    W6EG=6,
+    WAIT6_END_GROUP=6,
+    W7EG=7,
+    WAIT7_END_GROUP=7,
+    W8EG=8,
+    WAIT8_END_GROUP=8,
+    W9EG=9,
+    WAIT9_END_GROUP=9,
+    W10EG=10,
+    WAIT10_END_GROUP=10,
+    W11EG=11,
+    WAIT11_END_GROUP=11,
+    W12EG=12,
+    WAIT12_END_GROUP=12,
+    W13EG=13,
+    WAIT13_END_GROUP=13,
+    W14EG=14,
+    WAIT14_END_GROUP=14,
+    W15EG=15,
+    WAIT15_END_GROUP=15,
+    W1=17,
+    trans1=17,
+    W2=18,
+    trans2=18,
+    W3=19,
+    trans3=19,
+    W4=20,
+    trans4=20,
+    W5=21,
+    trans5=21,
+    W6=22,
+    trans6=22,
+    W7=23,
+    trans7=23,
+    W8=24,
+    trans8=24,
+    W9=25,
+    trans9=25,
+    W10=26,
+    trans10=26,
+    W11=27,
+    trans11=27;
+
+USCHED_INFO_NO_DRAIN "W1EG"=1 , "WAIT1_END_GROUP"=1 , "W2EG"=2 , "WAIT2_END_GROUP"=2 , "W3EG"=3 , "WAIT3_END_GROUP"=3 , "W4EG"=4 , "WAIT4_END_GROUP"=4 , "W5EG"=5 , "WAIT5_END_GROUP"=5 , "W6EG"=6 , "WAIT6_END_GROUP"=6 , "W7EG"=7 , "WAIT7_END_GROUP"=7 , "W8EG"=8 , "WAIT8_END_GROUP"=8 , "W9EG"=9 , "WAIT9_END_GROUP"=9 , "W10EG"=10 , "WAIT10_END_GROUP"=10 , "W11EG"=11 , "WAIT11_END_GROUP"=11 , "W12EG"=12 , "WAIT12_END_GROUP"=12 , "W13EG"=13 , "WAIT13_END_GROUP"=13 , "W14EG"=14 , "WAIT14_END_GROUP"=14 , "W15EG"=15 , "WAIT15_END_GROUP"=15 , "W1"=17 , "WAIT1"=17 , "W2"=18 , "WAIT2"=18 , "W3"=19 , "WAIT3"=19 , "W4"=20 , "WAIT4"=20 , "W5"=21 , "WAIT5"=21 , "W6"=22 , "WAIT6"=22 , "W7"=23 , "WAIT7"=23 , "W8"=24 , "WAIT8"=24 , "W9"=25 , "WAIT9"=25 , "W10"=26 , "WAIT10"=26 , "W11"=27 , "WAIT11"=27;
+
+UniformPredicate "UPT"=7 , "UP6"=6 , "UP4"=4 , "UP5"=5 , "UP2"=2 , "UP3"=3 , "UP0"=0 , "UP1"=1;
+
+VOP "R"=1 , "A"=2 , "RA"=3 , "INVALID0"=0;
+
+VRed2 "SIMD_MRG"=0 , "ACC"=1;
+
+VoteOp "ALL"=0 , "ANY"=1 , "EQ"=2 , "INVALID3"=3;
+
+WEAKONLY "WEAK"=1;
+
+WIDEONLY "WIDE"=1;
+
+XONLY "X"=1;
+
+XORONLY "XOR"=0;
+
+ZDONLY "ZD"=1;
+
+ZeroRegister "RZ"=255;
+
+
+ZeroUniformRegister "URZ"=63;
+
+
+
+
+

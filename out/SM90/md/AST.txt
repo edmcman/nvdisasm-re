@@ -1,0 +1,545 @@
+CLASS "ast_PHYS_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /PHYSONLY:p /ONLY32("32"):sz
+ A:srcAttr[ NonZeroRegister:Ra ]
+','Register:Rb
+','Register("RZ"):Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_VSA)||(%SHADER_TYPE == $ST_VSB)||(%SHADER_TYPE == $ST_GS)||(%SHADER_TYPE == $ST_TS)||(%SHADER_TYPE == $ST_TI)) :
+ "Can only be used with VS, GS, TS, TI"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+UNPREDICTABLE_BEHAVIOR_WARNING
+ (((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_VSA)||(%SHADER_TYPE == $ST_VSB)||(%SHADER_TYPE == $ST_TS)||(%SHADER_TYPE == $ST_TI))) -> ((((Rc)==`Register@RZ))) :
+ "Combination leads to unpredictable behavior"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@AST ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_GS)+(1<<ISHADER_TI)+(1<<ISHADER_TS)+(1<<ISHADER_VS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        ASTmio_pipe =  0b1100100010;
+        AST =  0b1100100010;
+
+ENCODING
+!ast_PHYS__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_77_76_insert=*p;
+BITS_2_75_74_bop=sz;
+BITS_8_31_24_Ra=*Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_8_71_64_Rc=Rc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "ast_UR__LOGICAL_URa"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /AInteger("32"):sz
+ A:srcAttr[ UniformRegister:URa + SImm(11/0)*:URa_offset ]
+','Register:Rb
+','Register("RZ"):Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_VSA)||(%SHADER_TYPE == $ST_VSB)||(%SHADER_TYPE == $ST_GS)||(%SHADER_TYPE == $ST_TS)||(%SHADER_TYPE == $ST_TI)) :
+ "Can only be used with VS, GS, TS, TI"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `AInteger@"64"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `AInteger@"64"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `AInteger@"96"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `AInteger@"96"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `AInteger@"128"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `AInteger@"128"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+UNPREDICTABLE_BEHAVIOR_WARNING
+ (((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_VSA)||(%SHADER_TYPE == $ST_VSB)||(%SHADER_TYPE == $ST_TS)||(%SHADER_TYPE == $ST_TI))) -> ((((Rc)==`Register@RZ))) :
+ "Combination leads to unpredictable behavior"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@AST_URb ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_GS)+(1<<ISHADER_TI)+(1<<ISHADER_TS)+(1<<ISHADER_VS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32 + (((sz==`AInteger@"64"))*32 + ((sz==`AInteger@"96"))*64 + ((sz==`AInteger@"128"))*96);
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Rb_SIZE = 32 + (((sz==`AInteger@"64"))*32 + ((sz==`AInteger@"96"))*64 + ((sz==`AInteger@"128"))*96);
+ ILABEL_Rc_SIZE = 32;
+ ILABEL_URa_SIZE = 32;
+
+OPCODES
+        ASTmio_pipe =  0b1010100100010;
+        AST =  0b1010100100010;
+
+ENCODING
+!ast_UR__LOGICAL_URa_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_77_76_insert=0;
+BITS_2_75_74_bop=sz;
+BITS_6_29_24_Sa=URa;
+BITS_11_50_40_Ra_offset=URa_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_8_71_64_Rc=Rc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "ast_UR__PATCH_RaRZ_URa"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /PONLY:p /AInteger("32"):sz
+ A:srcAttr[ UniformRegister:URa + SImm(11/0)*:URa_offset ]
+','Register:Rb
+','Register("RZ"):Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_TI)) :
+ "Can only be used with TI"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `AInteger@"64"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `AInteger@"64"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `AInteger@"96"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `AInteger@"96"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `AInteger@"128"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `AInteger@"128"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+UNPREDICTABLE_BEHAVIOR_WARNING
+ (((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_VSA)||(%SHADER_TYPE == $ST_VSB)||(%SHADER_TYPE == $ST_TS)||(%SHADER_TYPE == $ST_TI))) -> ((((Rc)==`Register@RZ))) :
+ "Combination leads to unpredictable behavior"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@AST_URb ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_TI)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32 + (((sz==`AInteger@"64"))*32 + ((sz==`AInteger@"96"))*64 + ((sz==`AInteger@"128"))*96);
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Rb_SIZE = 32 + (((sz==`AInteger@"64"))*32 + ((sz==`AInteger@"96"))*64 + ((sz==`AInteger@"128"))*96);
+ ILABEL_Rc_SIZE = 32;
+ ILABEL_URa_SIZE = 32;
+
+OPCODES
+        ASTmio_pipe =  0b1010100100010;
+        AST =  0b1010100100010;
+
+ENCODING
+!ast_UR__PATCH_RaRZ_URa_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_77_76_insert=*p;
+BITS_2_75_74_bop=sz;
+BITS_6_29_24_Sa=URa;
+BITS_11_50_40_Ra_offset=URa_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_8_71_64_Rc=Rc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "ast__LOGICAL_RaRZ"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /AInteger("32"):sz
+ A:srcAttr[ ZeroRegister("RZ"):Ra + UImm(10)*:Ra_offset ]
+','Register:Rb
+','Register("RZ"):Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_VSA)||(%SHADER_TYPE == $ST_VSB)||(%SHADER_TYPE == $ST_GS)||(%SHADER_TYPE == $ST_TS)||(%SHADER_TYPE == $ST_TI)) :
+ "Can only be used with VS, GS, TS, TI"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)==`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `AInteger@"64"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `AInteger@"64"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `AInteger@"96"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `AInteger@"96"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `AInteger@"128"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `AInteger@"128"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+UNPREDICTABLE_BEHAVIOR_WARNING
+ (((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_VSA)||(%SHADER_TYPE == $ST_VSB)||(%SHADER_TYPE == $ST_TS)||(%SHADER_TYPE == $ST_TI))) -> ((((Rc)==`Register@RZ))) :
+ "Combination leads to unpredictable behavior"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@AST ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_GS)+(1<<ISHADER_TI)+(1<<ISHADER_TS)+(1<<ISHADER_VS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32 + (((sz==`AInteger@"64"))*32 + ((sz==`AInteger@"96"))*64 + ((sz==`AInteger@"128"))*96);
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Rb_SIZE = 32 + (((sz==`AInteger@"64"))*32 + ((sz==`AInteger@"96"))*64 + ((sz==`AInteger@"128"))*96);
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        ASTmio_pipe =  0b1100100010;
+        AST =  0b1100100010;
+
+ENCODING
+!ast__LOGICAL_RaRZ_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_77_76_insert=0;
+BITS_2_75_74_bop=sz;
+BITS_8_31_24_Ra=*Ra;
+BITS_10_49_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_8_71_64_Rc=Rc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "ast__PATCH_RaNonRZOffset"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /PONLY:p /AInteger("32"):sz
+ A:srcAttr[ NonZeroRegister:Ra + SImm(11/0)*:Ra_offset ]
+','Register:Rb
+','ZeroRegister("RZ"):Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_TI)) :
+ "Can only be used with TI"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Rc)==`Register@RZ) :
+ "Disallowed register Rc"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `AInteger@"64"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `AInteger@"64"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `AInteger@"96"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `AInteger@"96"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `AInteger@"128"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `AInteger@"128"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+UNPREDICTABLE_BEHAVIOR_WARNING
+ (((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_VSA)||(%SHADER_TYPE == $ST_VSB)||(%SHADER_TYPE == $ST_TS)||(%SHADER_TYPE == $ST_TI))) -> ((((Rc)==`Register@RZ))) :
+ "Combination leads to unpredictable behavior"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@AST ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_TI)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32 + (((sz==`AInteger@"64"))*32 + ((sz==`AInteger@"96"))*64 + ((sz==`AInteger@"128"))*96);
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32 + (((sz==`AInteger@"64"))*32 + ((sz==`AInteger@"96"))*64 + ((sz==`AInteger@"128"))*96);
+
+OPCODES
+        ASTmio_pipe =  0b1100100010;
+        AST =  0b1100100010;
+
+ENCODING
+!ast__PATCH_RaNonRZOffset_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_77_76_insert=*p;
+BITS_2_75_74_bop=sz;
+BITS_8_31_24_Ra=*Ra;
+BITS_11_50_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_8_71_64_Rc=Rc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "ast__PATCH_RaRZ"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /PONLY:p /AInteger("32"):sz
+ A:srcAttr[ ZeroRegister("RZ"):Ra + UImm(10)*:Ra_offset ]
+','Register:Rb
+','Register("RZ"):Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_TI)) :
+ "Can only be used with TI"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)==`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `AInteger@"64"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `AInteger@"64"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `AInteger@"96"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `AInteger@"96"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `AInteger@"128"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `AInteger@"128"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+UNPREDICTABLE_BEHAVIOR_WARNING
+ (((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_VSA)||(%SHADER_TYPE == $ST_VSB)||(%SHADER_TYPE == $ST_TS)||(%SHADER_TYPE == $ST_TI))) -> ((((Rc)==`Register@RZ))) :
+ "Combination leads to unpredictable behavior"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@AST ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_TI)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32 + (((sz==`AInteger@"64"))*32 + ((sz==`AInteger@"96"))*64 + ((sz==`AInteger@"128"))*96);
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Rb_SIZE = 32 + (((sz==`AInteger@"64"))*32 + ((sz==`AInteger@"96"))*64 + ((sz==`AInteger@"128"))*96);
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        ASTmio_pipe =  0b1100100010;
+        AST =  0b1100100010;
+
+ENCODING
+!ast__PATCH_RaRZ_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_77_76_insert=*p;
+BITS_2_75_74_bop=sz;
+BITS_8_31_24_Ra=*Ra;
+BITS_10_49_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_8_71_64_Rc=Rc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

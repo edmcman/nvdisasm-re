@@ -1,0 +1,168 @@
+CLASS "elect_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /IGNORE_KILL("noignore_kill"):ignoreKill
+Predicate:Pu
+','UniformRegister:URd
+',' [~] UniformRegister:URa
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@ELECT ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_URa_SIZE = 32;
+
+OPCODES
+        ELECTcbu_pipe =  0b1100000101111;
+        ELECT =  0b1100000101111;
+
+ENCODING
+!elect__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_85_85_ignoreKill=ignoreKill;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=URd;
+BITS_8_31_24_Ra=URa;
+BITS_1_72_72_e=URa@invert;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+
+CLASS "elect_Pp_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /IGNORE_KILL("noignore_kill"):ignoreKill
+Predicate:Pu
+','UniformRegister:URd
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@ELECT_Pp ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+
+
+OPCODES
+        ELECTcbu_pipe =  0b100000101111;
+        ELECT =  0b100000101111;
+
+ENCODING
+!elect_Pp__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_85_85_ignoreKill=ignoreKill;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=URd;
+BITS_3_89_87_Pnz = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "elect_noURa_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /IGNORE_KILL("noignore_kill"):ignoreKill
+Predicate:Pu
+','UniformRegister:URd
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@ELECT ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+
+OPCODES
+        ELECTcbu_pipe =  0b1100000101111;
+        ELECT =  0b1100000101111;
+
+ENCODING
+!elect_noURa__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_85_85_ignoreKill=ignoreKill;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=URd;
+BITS_8_31_24_Ra=*255;
+BITS_1_72_72_e=*1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+

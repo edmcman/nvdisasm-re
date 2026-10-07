@@ -1,0 +1,255 @@
+CLASS "clmad__RRR_RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /HILO:hilo
+Register:Rd
+','Register:Ra
+','Register:Rb
+','Register:Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-2))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+MISALIGNED_REG_ERROR
+ (((Rb)+((Rb)==`Register@RZ)) % 2) == 0 :
+ "Register Rb is misaligned"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-2))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+MISALIGNED_REG_ERROR
+ (((Rc)+((Rc)==`Register@RZ)) % 2) == 0 :
+ "Register Rc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@CLMAD_Rb_Rc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 64;
+ ISRC_C_SIZE = 64;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_FP64 ;
+
+ ILABEL_Ra_SIZE = 64;
+ ILABEL_Rb_SIZE = 64;
+ ILABEL_Rc_SIZE = 64;
+
+OPCODES
+        CLMADfma64lite_pipe =  0b1000101100;
+        CLMAD =  0b1000101100;
+
+ENCODING
+!clmad__RRR_RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_77_77_ntz=hilo;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_8_71_64_Ra_URc=Rc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "clmad__RRU_RRU"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /HILO:hilo
+Register:Rd
+','Register:Ra
+','Register:Rb
+','UniformRegister:URc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-2))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+MISALIGNED_REG_ERROR
+ (((Rb)+((Rb)==`Register@RZ)) % 2) == 0 :
+ "Register Rb is misaligned"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sc is out of range"
+MISALIGNED_REG_ERROR
+ (((URc)+((URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@CLMAD_Rb_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 64;
+ ISRC_C_SIZE = 64;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_FP64 ;
+
+ ILABEL_Ra_SIZE = 64;
+ ILABEL_Rb_SIZE = 64;
+ ILABEL_URc_SIZE = 64;
+
+OPCODES
+        CLMADfma64lite_pipe =  0b1111000101100;
+        CLMAD =  0b1111000101100;
+
+ENCODING
+!clmad__RRU_RRU_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_77_77_ntz=hilo;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_71_64_Ra_URc=Rb;
+BITS_8_39_32_Rb=URc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "clmad__RUR_RUR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /HILO:hilo
+Register:Rd
+','Register:Ra
+','UniformRegister:URb
+','Register:Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sb is misaligned"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-2))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+MISALIGNED_REG_ERROR
+ (((Rc)+((Rc)==`Register@RZ)) % 2) == 0 :
+ "Register Rc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@CLMAD_URb_Rc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 64;
+ ISRC_C_SIZE = 64;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_FP64 ;
+
+ ILABEL_Ra_SIZE = 64;
+ ILABEL_Rc_SIZE = 64;
+ ILABEL_URb_SIZE = 64;
+
+OPCODES
+        CLMADfma64lite_pipe =  0b1110000101100;
+        CLMAD =  0b1110000101100;
+
+ENCODING
+!clmad__RUR_RUR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_77_77_ntz=hilo;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=URb;
+BITS_8_71_64_Ra_URc=Rc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

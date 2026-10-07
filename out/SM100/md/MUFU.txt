@@ -1,0 +1,524 @@
+CLASS "mufu__RIR_RI"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /MUFU_OP:mufuop
+Register:Rd
+','F64Imm(64):Sb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((mufuop !=`MUFU_OP@INVALID10)&&(mufuop !=`MUFU_OP@INVALID11)&&(mufuop !=`MUFU_OP@INVALID12)&&(mufuop !=`MUFU_OP@INVALID13)&&(mufuop !=`MUFU_OP@INVALID14)&&(mufuop !=`MUFU_OP@INVALID15)) :
+ "Invalid mufuop field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@MUFU_Imm ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+
+
+OPCODES
+        MUFUmio_pipe =  0b100100001000;
+        MUFU =  0b100100001000;
+
+ENCODING
+!mufu__RIR_RI_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_4_77_74_mufuop=mufuop;
+BITS_2_73_72_memType=0;
+BITS_8_23_16_Rd=Rd;
+BITS_32_63_32_Ra_offset=Sb convertFloatType(mufuop == `MUFU_OP@RCP64H || mufuop == `MUFU_OP@RSQ64H, F64Imm, F32Imm);
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "mufu__RRR_RR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /MUFU_OP:mufuop
+Register:Rd
+',' [-] [||] Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((mufuop !=`MUFU_OP@INVALID10)&&(mufuop !=`MUFU_OP@INVALID11)&&(mufuop !=`MUFU_OP@INVALID12)&&(mufuop !=`MUFU_OP@INVALID13)&&(mufuop !=`MUFU_OP@INVALID14)&&(mufuop !=`MUFU_OP@INVALID15)) :
+ "Invalid mufuop field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@MUFU_Rb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        MUFUmio_pipe =  0b1100001000;
+        MUFU =  0b1100001000;
+
+ENCODING
+!mufu__RRR_RR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_4_77_74_mufuop=mufuop;
+BITS_2_73_72_memType=0;
+BITS_8_23_16_Rd=Rd;
+BITS_8_39_32_Rb=Rb;
+BITS_1_62_62_Sc_absolute=Rb@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=Rb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "mufu__RUR_RU"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /MUFU_OP:mufuop
+Register:Rd
+',' [-] [||] UniformRegister:URb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((mufuop !=`MUFU_OP@INVALID10)&&(mufuop !=`MUFU_OP@INVALID11)&&(mufuop !=`MUFU_OP@INVALID12)&&(mufuop !=`MUFU_OP@INVALID13)&&(mufuop !=`MUFU_OP@INVALID14)&&(mufuop !=`MUFU_OP@INVALID15)) :
+ "Invalid mufuop field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@MUFU_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        MUFUmio_pipe =  0b1110100001000;
+        MUFU =  0b1110100001000;
+
+ENCODING
+!mufu__RUR_RU_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_4_77_74_mufuop=mufuop;
+BITS_2_73_72_memType=0;
+BITS_8_23_16_Rd=Rd;
+BITS_8_39_32_Rb=URb;
+BITS_1_62_62_Sc_absolute=URb@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=URb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "mufu_fp16__RI"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH:mufuop /FMT_F16_BF16:fmt
+Register:Rd
+','F64Imm(64):Sb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID6)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID7)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID10)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID11)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID12)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID13)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID14)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID15)) :
+ "Invalid mufuop field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@MUFU_Imm ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 16;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+
+
+OPCODES
+        MUFUmio_pipe =  0b100100001000;
+        MUFU =  0b100100001000;
+
+ENCODING
+!mufu_fp16__RI_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_4_77_74_mufuop=mufuop;
+BITS_2_73_72_memType=*fmt;
+BITS_8_23_16_Rd=Rd;
+BITS_16_47_32_Sb=Sb convertFloatType(fmt == `FMT_F16_BF16@BF16, E8M7Imm, F16Imm);
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "mufu_fp16__RR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH:mufuop /FMT_F16_BF16:fmt
+Register:Rd
+',' [-] [||] Register:Rb /HSEL("H0"):extract
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID6)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID7)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID10)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID11)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID12)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID13)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID14)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID15)) :
+ "Invalid mufuop field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((extract !=`HSEL@INVALID2)&&(extract !=`HSEL@INVALID3)) :
+ "Invalid extract field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@MUFU_Rb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        MUFUmio_pipe =  0b1100001000;
+        MUFU =  0b1100001000;
+
+ENCODING
+!mufu_fp16__RR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_4_77_74_mufuop=mufuop;
+BITS_2_73_72_memType=*fmt;
+BITS_8_23_16_Rd=Rd;
+BITS_8_39_32_Rb=Rb;
+BITS_1_62_62_Sc_absolute=Rb@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=Rb@negate;
+BITS_2_61_60_hsel=extract;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "mufu_fp16__RU"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH:mufuop /FMT_F16_BF16:fmt
+Register:Rd
+',' [-] [||] UniformRegister:URb /HSEL("H0"):extract
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID6)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID7)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID10)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID11)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID12)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID13)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID14)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID15)) :
+ "Invalid mufuop field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((extract !=`HSEL@INVALID2)&&(extract !=`HSEL@INVALID3)) :
+ "Invalid extract field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@MUFU_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        MUFUmio_pipe =  0b1110100001000;
+        MUFU =  0b1110100001000;
+
+ENCODING
+!mufu_fp16__RU_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_4_77_74_mufuop=mufuop;
+BITS_2_73_72_memType=*fmt;
+BITS_8_23_16_Rd=Rd;
+BITS_8_39_32_Rb=URb;
+BITS_1_62_62_Sc_absolute=URb@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=URb@negate;
+BITS_2_61_60_hsel=extract;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "mufu_fp16_swap__RR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH:mufuop /FMT_F16_BF16:fmt
+Register:Rd
+',' [-] [||] Register:Rb /HSEL("H0"):extract
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID6)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID7)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID10)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID11)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID12)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID13)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID14)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID15)) :
+ "Invalid mufuop field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((extract !=`HSEL@INVALID2)&&(extract !=`HSEL@INVALID3)) :
+ "Invalid extract field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@MUFU_Rb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        MUFUmio_pipe =  0b1100001000;
+        MUFU =  0b1100001000;
+
+ENCODING
+!mufu_fp16_swap__RR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_4_77_74_mufuop=mufuop;
+BITS_2_73_72_memType=*fmt;
+BITS_8_23_16_Rd=Rd;
+BITS_8_39_32_Rb=Rb;
+BITS_2_61_60_hsel=extract;
+BITS_1_62_62_Sc_absolute=Rb@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=Rb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "mufu_fp16_swap__RU"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH:mufuop /FMT_F16_BF16:fmt
+Register:Rd
+',' [-] [||] UniformRegister:URb /HSEL("H0"):extract
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID6)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID7)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID10)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID11)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID12)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID13)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID14)&&(mufuop !=`MUFUOP_COS_SIN_EX2_LG2_RCP_RSQ_SQRT_TANH@INVALID15)) :
+ "Invalid mufuop field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((extract !=`HSEL@INVALID2)&&(extract !=`HSEL@INVALID3)) :
+ "Invalid extract field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@MUFU_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_MUFU ;
+
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        MUFUmio_pipe =  0b1110100001000;
+        MUFU =  0b1110100001000;
+
+ENCODING
+!mufu_fp16_swap__RU_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_4_77_74_mufuop=mufuop;
+BITS_2_73_72_memType=*fmt;
+BITS_8_23_16_Rd=Rd;
+BITS_8_39_32_Rb=URb;
+BITS_2_61_60_hsel=extract;
+BITS_1_62_62_Sc_absolute=URb@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=URb@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

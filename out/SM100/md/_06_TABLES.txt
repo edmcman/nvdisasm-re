@@ -1,0 +1,3992 @@
+TABLES
+
+   FixLatDestMap
+         '&' 0 -> 0
+         '&' 1 -> 1
+         '&' 2 -> 2
+         '&' 3 -> 3
+         '&' 4 -> 4
+         '&' 5 -> 5
+         '&' 6 -> 6
+         '&' 7 -> 6
+         '&' 8 -> 7
+         '/' 0 -> 8
+         '/' 1 -> 9
+         '/' 2 -> 10
+         '/' 3 -> 11
+         '/' 4 -> 12
+         '/' 5 -> 13
+         '/' 6 -> 14
+         '/' 7 -> 14
+         '/' 8 -> 7
+         ;
+
+
+
+    VarLatOperandEnc
+         0 -> 0
+         1 -> 1
+         2 -> 2
+         3 -> 3
+         4 -> 4
+         5 -> 5
+         6 -> 6
+         7 -> 7
+         0xffff -> 7
+         ;
+
+    DestPred
+        Predicate@P0 -> 7
+        Predicate@P1 -> 6
+        Predicate@P2 -> 5
+        Predicate@P3 -> 4
+        Predicate@P4 -> 3
+        Predicate@P5 -> 2
+        Predicate@P6 -> 1
+        Predicate@PT -> 0
+        ;
+
+   IntSize
+          Integer@U8 -> 0b0_00
+          Integer@S8 -> 0b1_00
+          Integer@U16 -> 0b0_01
+          Integer@S16 -> 0b1_01
+          Integer@U32 -> 0b0_10
+          Integer@S32 -> 0b1_10
+          Integer@U64 -> 0b0_11
+          Integer@S64 -> 0b1_11
+          ;
+
+   IsSigned16
+          Integer16@U16 -> 0
+          Integer16@S16 -> 1
+   ;
+
+   IsSigned
+          Integer32@U32 -> 0
+          Integer32@S32 -> 1
+          ;
+
+   IsSPASigned
+          IntegerSPA@U32 -> 0
+          IntegerSPA@U24 -> 0
+          IntegerSPA@U16H0 -> 0
+          IntegerSPA@U16H1 -> 0
+          IntegerSPA@S32 -> 1
+          IntegerSPA@S24 -> 1
+          IntegerSPA@S16H0 -> 1
+          IntegerSPA@S16H1 -> 1
+          ;
+
+   IsSPBSigned
+          IntegerSPB@U24 -> 0
+          IntegerSPB@U16H0 -> 0
+          IntegerSPB@S24 -> 1
+          IntegerSPB@S16H0 -> 1
+          ;
+
+   IsSPCSigned
+          IntegerSPC@U32 -> 0
+          IntegerSPC@U24 -> 0
+          IntegerSPC@U16H0 -> 0
+          IntegerSPC@S32 -> 1
+          IntegerSPC@S24 -> 1
+          IntegerSPC@S16H0 -> 1
+          ;
+
+   GetSPExtract
+          IntegerSPC@U32 IntegerSPA@U32 IntegerSPB@U24 -> 0b00_00_000
+          IntegerSPC@U32 IntegerSPA@U32 IntegerSPB@U16H0 -> 0b10_00_000
+          IntegerSPC@U32 IntegerSPA@U24 IntegerSPB@U24 -> 0b00_00_010
+          IntegerSPC@U32 IntegerSPA@U24 IntegerSPB@U16H0 -> 0b10_00_010
+          IntegerSPC@U32 IntegerSPA@U16H0 IntegerSPB@U24 -> 0b00_00_100
+          IntegerSPC@U32 IntegerSPA@U16H0 IntegerSPB@U16H0 -> 0b10_00_100
+          IntegerSPC@U32 IntegerSPA@U16H1 IntegerSPB@U24 -> 0b00_00_110
+          IntegerSPC@U32 IntegerSPA@U16H1 IntegerSPB@U16H0 -> 0b10_00_110
+
+          IntegerSPC@U24 IntegerSPA@U32 IntegerSPB@U24 -> 0b00_01_000
+          IntegerSPC@U24 IntegerSPA@U32 IntegerSPB@U16H0 -> 0b10_01_000
+          IntegerSPC@U24 IntegerSPA@U24 IntegerSPB@U24 -> 0b00_01_010
+          IntegerSPC@U24 IntegerSPA@U24 IntegerSPB@U16H0 -> 0b10_01_010
+          IntegerSPC@U24 IntegerSPA@U16H0 IntegerSPB@U24 -> 0b00_01_100
+          IntegerSPC@U24 IntegerSPA@U16H0 IntegerSPB@U16H0 -> 0b10_01_100
+          IntegerSPC@U24 IntegerSPA@U16H1 IntegerSPB@U24 -> 0b00_01_110
+          IntegerSPC@U24 IntegerSPA@U16H1 IntegerSPB@U16H0 -> 0b10_01_110
+
+          IntegerSPC@U16H0 IntegerSPA@U32 IntegerSPB@U24 -> 0b00_10_000
+          IntegerSPC@U16H0 IntegerSPA@U32 IntegerSPB@U16H0 -> 0b10_10_000
+          IntegerSPC@U16H0 IntegerSPA@U24 IntegerSPB@U24 -> 0b00_10_010
+          IntegerSPC@U16H0 IntegerSPA@U24 IntegerSPB@U16H0 -> 0b10_10_010
+          IntegerSPC@U16H0 IntegerSPA@U16H0 IntegerSPB@U24 -> 0b00_10_100
+          IntegerSPC@U16H0 IntegerSPA@U16H0 IntegerSPB@U16H0 -> 0b10_10_100
+          IntegerSPC@U16H0 IntegerSPA@U16H1 IntegerSPB@U24 -> 0b00_10_110
+          IntegerSPC@U16H0 IntegerSPA@U16H1 IntegerSPB@U16H0 -> 0b10_10_110
+
+          IntegerSPC@S32 IntegerSPA@U32 IntegerSPB@S24 -> 0b01_00_000
+          IntegerSPC@S32 IntegerSPA@U32 IntegerSPB@S16H0 -> 0b11_00_000
+          IntegerSPC@S32 IntegerSPA@U24 IntegerSPB@S24 -> 0b01_00_010
+          IntegerSPC@S32 IntegerSPA@U24 IntegerSPB@S16H0 -> 0b11_00_010
+          IntegerSPC@S32 IntegerSPA@U16H0 IntegerSPB@S24 -> 0b01_00_100
+          IntegerSPC@S32 IntegerSPA@U16H0 IntegerSPB@S16H0 -> 0b11_00_100
+          IntegerSPC@S32 IntegerSPA@U16H1 IntegerSPB@S24 -> 0b01_00_110
+          IntegerSPC@S32 IntegerSPA@U16H1 IntegerSPB@S16H0 -> 0b11_00_110
+
+          IntegerSPC@S32 IntegerSPA@S32 IntegerSPB@U24 -> 0b00_00_001
+          IntegerSPC@S32 IntegerSPA@S32 IntegerSPB@U16H0 -> 0b10_00_001
+          IntegerSPC@S32 IntegerSPA@S24 IntegerSPB@U24 -> 0b00_00_011
+          IntegerSPC@S32 IntegerSPA@S24 IntegerSPB@U16H0 -> 0b10_00_011
+          IntegerSPC@S32 IntegerSPA@S16H0 IntegerSPB@U24 -> 0b00_00_101
+          IntegerSPC@S32 IntegerSPA@S16H0 IntegerSPB@U16H0 -> 0b10_00_101
+          IntegerSPC@S32 IntegerSPA@S16H1 IntegerSPB@U24 -> 0b00_00_111
+          IntegerSPC@S32 IntegerSPA@S16H1 IntegerSPB@U16H0 -> 0b10_00_111
+
+          IntegerSPC@S32 IntegerSPA@S32 IntegerSPB@S24 -> 0b01_00_001
+          IntegerSPC@S32 IntegerSPA@S32 IntegerSPB@S16H0 -> 0b11_00_001
+          IntegerSPC@S32 IntegerSPA@S24 IntegerSPB@S24 -> 0b01_00_011
+          IntegerSPC@S32 IntegerSPA@S24 IntegerSPB@S16H0 -> 0b11_00_011
+          IntegerSPC@S32 IntegerSPA@S16H0 IntegerSPB@S24 -> 0b01_00_101
+          IntegerSPC@S32 IntegerSPA@S16H0 IntegerSPB@S16H0 -> 0b11_00_101
+          IntegerSPC@S32 IntegerSPA@S16H1 IntegerSPB@S24 -> 0b01_00_111
+          IntegerSPC@S32 IntegerSPA@S16H1 IntegerSPB@S16H0 -> 0b11_00_111
+
+          IntegerSPC@S24 IntegerSPA@U32 IntegerSPB@S24 -> 0b01_01_000
+          IntegerSPC@S24 IntegerSPA@U32 IntegerSPB@S16H0 -> 0b11_01_000
+          IntegerSPC@S24 IntegerSPA@U24 IntegerSPB@S24 -> 0b01_01_010
+          IntegerSPC@S24 IntegerSPA@U24 IntegerSPB@S16H0 -> 0b11_01_010
+          IntegerSPC@S24 IntegerSPA@U16H0 IntegerSPB@S24 -> 0b01_01_100
+          IntegerSPC@S24 IntegerSPA@U16H0 IntegerSPB@S16H0 -> 0b11_01_100
+          IntegerSPC@S24 IntegerSPA@U16H1 IntegerSPB@S24 -> 0b01_01_110
+          IntegerSPC@S24 IntegerSPA@U16H1 IntegerSPB@S16H0 -> 0b11_01_110
+
+          IntegerSPC@S24 IntegerSPA@S32 IntegerSPB@U24 -> 0b00_01_001
+          IntegerSPC@S24 IntegerSPA@S32 IntegerSPB@U16H0 -> 0b10_01_001
+          IntegerSPC@S24 IntegerSPA@S24 IntegerSPB@U24 -> 0b00_01_011
+          IntegerSPC@S24 IntegerSPA@S24 IntegerSPB@U16H0 -> 0b10_01_011
+          IntegerSPC@S24 IntegerSPA@S16H0 IntegerSPB@U24 -> 0b00_01_101
+          IntegerSPC@S24 IntegerSPA@S16H0 IntegerSPB@U16H0 -> 0b10_01_101
+          IntegerSPC@S24 IntegerSPA@S16H1 IntegerSPB@U24 -> 0b00_01_111
+          IntegerSPC@S24 IntegerSPA@S16H1 IntegerSPB@U16H0 -> 0b10_01_111
+
+          IntegerSPC@S24 IntegerSPA@S32 IntegerSPB@S24 -> 0b01_01_001
+          IntegerSPC@S24 IntegerSPA@S32 IntegerSPB@S16H0 -> 0b11_01_001
+          IntegerSPC@S24 IntegerSPA@S24 IntegerSPB@S24 -> 0b01_01_011
+          IntegerSPC@S24 IntegerSPA@S24 IntegerSPB@S16H0 -> 0b11_01_011
+          IntegerSPC@S24 IntegerSPA@S16H0 IntegerSPB@S24 -> 0b01_01_101
+          IntegerSPC@S24 IntegerSPA@S16H0 IntegerSPB@S16H0 -> 0b11_01_101
+          IntegerSPC@S24 IntegerSPA@S16H1 IntegerSPB@S24 -> 0b01_01_111
+          IntegerSPC@S24 IntegerSPA@S16H1 IntegerSPB@S16H0 -> 0b11_01_111
+
+          IntegerSPC@S16H0 IntegerSPA@U32 IntegerSPB@S24 -> 0b01_10_000
+          IntegerSPC@S16H0 IntegerSPA@U32 IntegerSPB@S16H0 -> 0b11_10_000
+          IntegerSPC@S16H0 IntegerSPA@U24 IntegerSPB@S24 -> 0b01_10_010
+          IntegerSPC@S16H0 IntegerSPA@U24 IntegerSPB@S16H0 -> 0b11_10_010
+          IntegerSPC@S16H0 IntegerSPA@U16H0 IntegerSPB@S24 -> 0b01_10_100
+          IntegerSPC@S16H0 IntegerSPA@U16H0 IntegerSPB@S16H0 -> 0b11_10_100
+          IntegerSPC@S16H0 IntegerSPA@U16H1 IntegerSPB@S24 -> 0b01_10_110
+          IntegerSPC@S16H0 IntegerSPA@U16H1 IntegerSPB@S16H0 -> 0b11_10_110
+
+          IntegerSPC@S16H0 IntegerSPA@S32 IntegerSPB@U24 -> 0b00_10_001
+          IntegerSPC@S16H0 IntegerSPA@S32 IntegerSPB@U16H0 -> 0b10_10_001
+          IntegerSPC@S16H0 IntegerSPA@S24 IntegerSPB@U24 -> 0b00_10_011
+          IntegerSPC@S16H0 IntegerSPA@S24 IntegerSPB@U16H0 -> 0b10_10_011
+          IntegerSPC@S16H0 IntegerSPA@S16H0 IntegerSPB@U24 -> 0b00_10_101
+          IntegerSPC@S16H0 IntegerSPA@S16H0 IntegerSPB@U16H0 -> 0b10_10_101
+          IntegerSPC@S16H0 IntegerSPA@S16H1 IntegerSPB@U24 -> 0b00_10_111
+          IntegerSPC@S16H0 IntegerSPA@S16H1 IntegerSPB@U16H0 -> 0b10_10_111
+
+          IntegerSPC@S16H0 IntegerSPA@S32 IntegerSPB@S24 -> 0b01_10_001
+          IntegerSPC@S16H0 IntegerSPA@S32 IntegerSPB@S16H0 -> 0b11_10_001
+          IntegerSPC@S16H0 IntegerSPA@S24 IntegerSPB@S24 -> 0b01_10_011
+          IntegerSPC@S16H0 IntegerSPA@S24 IntegerSPB@S16H0 -> 0b11_10_011
+          IntegerSPC@S16H0 IntegerSPA@S16H0 IntegerSPB@S24 -> 0b01_10_101
+          IntegerSPC@S16H0 IntegerSPA@S16H0 IntegerSPB@S16H0 -> 0b11_10_101
+          IntegerSPC@S16H0 IntegerSPA@S16H1 IntegerSPB@S24 -> 0b01_10_111
+          IntegerSPC@S16H0 IntegerSPA@S16H1 IntegerSPB@S16H0 -> 0b11_10_111
+
+
+          IntegerSPC@U32 IntegerSPA@U32 IntegerSPB@S24 -> 0b01_00_000
+          IntegerSPC@U32 IntegerSPA@U32 IntegerSPB@S16H0 -> 0b11_00_000
+          IntegerSPC@U32 IntegerSPA@U24 IntegerSPB@S24 -> 0b01_00_010
+          IntegerSPC@U32 IntegerSPA@U24 IntegerSPB@S16H0 -> 0b11_00_010
+          IntegerSPC@U32 IntegerSPA@U16H0 IntegerSPB@S24 -> 0b01_00_100
+          IntegerSPC@U32 IntegerSPA@U16H0 IntegerSPB@S16H0 -> 0b11_00_100
+          IntegerSPC@U32 IntegerSPA@U16H1 IntegerSPB@S24 -> 0b01_00_110
+          IntegerSPC@U32 IntegerSPA@U16H1 IntegerSPB@S16H0 -> 0b11_00_110
+
+          IntegerSPC@U32 IntegerSPA@S32 IntegerSPB@U24 -> 0b00_00_001
+          IntegerSPC@U32 IntegerSPA@S32 IntegerSPB@U16H0 -> 0b10_00_001
+          IntegerSPC@U32 IntegerSPA@S24 IntegerSPB@U24 -> 0b00_00_011
+          IntegerSPC@U32 IntegerSPA@S24 IntegerSPB@U16H0 -> 0b10_00_011
+          IntegerSPC@U32 IntegerSPA@S16H0 IntegerSPB@U24 -> 0b00_00_101
+          IntegerSPC@U32 IntegerSPA@S16H0 IntegerSPB@U16H0 -> 0b10_00_101
+          IntegerSPC@U32 IntegerSPA@S16H1 IntegerSPB@U24 -> 0b00_00_111
+          IntegerSPC@U32 IntegerSPA@S16H1 IntegerSPB@U16H0 -> 0b10_00_111
+
+          IntegerSPC@U32 IntegerSPA@S32 IntegerSPB@S24 -> 0b01_00_001
+          IntegerSPC@U32 IntegerSPA@S32 IntegerSPB@S16H0 -> 0b11_00_001
+          IntegerSPC@U32 IntegerSPA@S24 IntegerSPB@S24 -> 0b01_00_011
+          IntegerSPC@U32 IntegerSPA@S24 IntegerSPB@S16H0 -> 0b11_00_011
+          IntegerSPC@U32 IntegerSPA@S16H0 IntegerSPB@S24 -> 0b01_00_101
+          IntegerSPC@U32 IntegerSPA@S16H0 IntegerSPB@S16H0 -> 0b11_00_101
+          IntegerSPC@U32 IntegerSPA@S16H1 IntegerSPB@S24 -> 0b01_00_111
+          IntegerSPC@U32 IntegerSPA@S16H1 IntegerSPB@S16H0 -> 0b11_00_111
+
+          IntegerSPC@U24 IntegerSPA@U32 IntegerSPB@S24 -> 0b01_01_000
+          IntegerSPC@U24 IntegerSPA@U32 IntegerSPB@S16H0 -> 0b11_01_000
+          IntegerSPC@U24 IntegerSPA@U24 IntegerSPB@S24 -> 0b01_01_010
+          IntegerSPC@U24 IntegerSPA@U24 IntegerSPB@S16H0 -> 0b11_01_010
+          IntegerSPC@U24 IntegerSPA@U16H0 IntegerSPB@S24 -> 0b01_01_100
+          IntegerSPC@U24 IntegerSPA@U16H0 IntegerSPB@S16H0 -> 0b11_01_100
+          IntegerSPC@U24 IntegerSPA@U16H1 IntegerSPB@S24 -> 0b01_01_110
+          IntegerSPC@U24 IntegerSPA@U16H1 IntegerSPB@S16H0 -> 0b11_01_110
+
+          IntegerSPC@U24 IntegerSPA@S32 IntegerSPB@U24 -> 0b00_01_001
+          IntegerSPC@U24 IntegerSPA@S32 IntegerSPB@U16H0 -> 0b10_01_001
+          IntegerSPC@U24 IntegerSPA@S24 IntegerSPB@U24 -> 0b00_01_011
+          IntegerSPC@U24 IntegerSPA@S24 IntegerSPB@U16H0 -> 0b10_01_011
+          IntegerSPC@U24 IntegerSPA@S16H0 IntegerSPB@U24 -> 0b00_01_101
+          IntegerSPC@U24 IntegerSPA@S16H0 IntegerSPB@U16H0 -> 0b10_01_101
+          IntegerSPC@U24 IntegerSPA@S16H1 IntegerSPB@U24 -> 0b00_01_111
+          IntegerSPC@U24 IntegerSPA@S16H1 IntegerSPB@U16H0 -> 0b10_01_111
+
+          IntegerSPC@U24 IntegerSPA@S32 IntegerSPB@S24 -> 0b01_01_001
+          IntegerSPC@U24 IntegerSPA@S32 IntegerSPB@S16H0 -> 0b11_01_001
+          IntegerSPC@U24 IntegerSPA@S24 IntegerSPB@S24 -> 0b01_01_011
+          IntegerSPC@U24 IntegerSPA@S24 IntegerSPB@S16H0 -> 0b11_01_011
+          IntegerSPC@U24 IntegerSPA@S16H0 IntegerSPB@S24 -> 0b01_01_101
+          IntegerSPC@U24 IntegerSPA@S16H0 IntegerSPB@S16H0 -> 0b11_01_101
+          IntegerSPC@U24 IntegerSPA@S16H1 IntegerSPB@S24 -> 0b01_01_111
+          IntegerSPC@U24 IntegerSPA@S16H1 IntegerSPB@S16H0 -> 0b11_01_111
+
+          IntegerSPC@U16H0 IntegerSPA@U32 IntegerSPB@S24 -> 0b01_10_000
+          IntegerSPC@U16H0 IntegerSPA@U32 IntegerSPB@S16H0 -> 0b11_10_000
+          IntegerSPC@U16H0 IntegerSPA@U24 IntegerSPB@S24 -> 0b01_10_010
+          IntegerSPC@U16H0 IntegerSPA@U24 IntegerSPB@S16H0 -> 0b11_10_010
+          IntegerSPC@U16H0 IntegerSPA@U16H0 IntegerSPB@S24 -> 0b01_10_100
+          IntegerSPC@U16H0 IntegerSPA@U16H0 IntegerSPB@S16H0 -> 0b11_10_100
+          IntegerSPC@U16H0 IntegerSPA@U16H1 IntegerSPB@S24 -> 0b01_10_110
+          IntegerSPC@U16H0 IntegerSPA@U16H1 IntegerSPB@S16H0 -> 0b11_10_110
+
+          IntegerSPC@U16H0 IntegerSPA@S32 IntegerSPB@U24 -> 0b00_10_001
+          IntegerSPC@U16H0 IntegerSPA@S32 IntegerSPB@U16H0 -> 0b10_10_001
+          IntegerSPC@U16H0 IntegerSPA@S24 IntegerSPB@U24 -> 0b00_10_011
+          IntegerSPC@U16H0 IntegerSPA@S24 IntegerSPB@U16H0 -> 0b10_10_011
+          IntegerSPC@U16H0 IntegerSPA@S16H0 IntegerSPB@U24 -> 0b00_10_101
+          IntegerSPC@U16H0 IntegerSPA@S16H0 IntegerSPB@U16H0 -> 0b10_10_101
+          IntegerSPC@U16H0 IntegerSPA@S16H1 IntegerSPB@U24 -> 0b00_10_111
+          IntegerSPC@U16H0 IntegerSPA@S16H1 IntegerSPB@U16H0 -> 0b10_10_111
+
+          IntegerSPC@U16H0 IntegerSPA@S32 IntegerSPB@S24 -> 0b01_10_001
+          IntegerSPC@U16H0 IntegerSPA@S32 IntegerSPB@S16H0 -> 0b11_10_001
+          IntegerSPC@U16H0 IntegerSPA@S24 IntegerSPB@S24 -> 0b01_10_011
+          IntegerSPC@U16H0 IntegerSPA@S24 IntegerSPB@S16H0 -> 0b11_10_011
+          IntegerSPC@U16H0 IntegerSPA@S16H0 IntegerSPB@S24 -> 0b01_10_101
+          IntegerSPC@U16H0 IntegerSPA@S16H0 IntegerSPB@S16H0 -> 0b11_10_101
+          IntegerSPC@U16H0 IntegerSPA@S16H1 IntegerSPB@S24 -> 0b01_10_111
+          IntegerSPC@U16H0 IntegerSPA@S16H1 IntegerSPB@S16H0 -> 0b11_10_111
+
+          IntegerSPC@S32 IntegerSPA@U32 IntegerSPB@U24 -> 0b00_00_000
+          IntegerSPC@S32 IntegerSPA@U32 IntegerSPB@U16H0 -> 0b10_00_000
+          IntegerSPC@S32 IntegerSPA@U24 IntegerSPB@U24 -> 0b00_00_010
+          IntegerSPC@S32 IntegerSPA@U24 IntegerSPB@U16H0 -> 0b10_00_010
+          IntegerSPC@S32 IntegerSPA@U16H0 IntegerSPB@U24 -> 0b00_00_100
+          IntegerSPC@S32 IntegerSPA@U16H0 IntegerSPB@U16H0 -> 0b10_00_100
+          IntegerSPC@S32 IntegerSPA@U16H1 IntegerSPB@U24 -> 0b00_00_110
+          IntegerSPC@S32 IntegerSPA@U16H1 IntegerSPB@U16H0 -> 0b10_00_110
+
+          IntegerSPC@S24 IntegerSPA@U32 IntegerSPB@U24 -> 0b00_01_000
+          IntegerSPC@S24 IntegerSPA@U32 IntegerSPB@U16H0 -> 0b10_01_000
+          IntegerSPC@S24 IntegerSPA@U24 IntegerSPB@U24 -> 0b00_01_010
+          IntegerSPC@S24 IntegerSPA@U24 IntegerSPB@U16H0 -> 0b10_01_010
+          IntegerSPC@S24 IntegerSPA@U16H0 IntegerSPB@U24 -> 0b00_01_100
+          IntegerSPC@S24 IntegerSPA@U16H0 IntegerSPB@U16H0 -> 0b10_01_100
+          IntegerSPC@S24 IntegerSPA@U16H1 IntegerSPB@U24 -> 0b00_01_110
+          IntegerSPC@S24 IntegerSPA@U16H1 IntegerSPB@U16H0 -> 0b10_01_110
+
+          IntegerSPC@S16H0 IntegerSPA@U32 IntegerSPB@U24 -> 0b00_10_000
+          IntegerSPC@S16H0 IntegerSPA@U32 IntegerSPB@U16H0 -> 0b10_10_000
+          IntegerSPC@S16H0 IntegerSPA@U24 IntegerSPB@U24 -> 0b00_10_010
+          IntegerSPC@S16H0 IntegerSPA@U24 IntegerSPB@U16H0 -> 0b10_10_010
+          IntegerSPC@S16H0 IntegerSPA@U16H0 IntegerSPB@U24 -> 0b00_10_100
+          IntegerSPC@S16H0 IntegerSPA@U16H0 IntegerSPB@U16H0 -> 0b10_10_100
+          IntegerSPC@S16H0 IntegerSPA@U16H1 IntegerSPB@U24 -> 0b00_10_110
+          IntegerSPC@S16H0 IntegerSPA@U16H1 IntegerSPB@U16H0 -> 0b10_10_110
+        ;
+
+   IsSameSigned
+          Integer32@U32 Integer32@U32 -> 0
+          Integer32@S32 Integer32@S32 -> 1
+          Integer32@S32 Integer32@U32 -> 0
+          Integer32@U32 Integer32@S32 -> 0
+          ;
+
+   I2I_N_Sizes
+          Integer1632@U16 Integer1632@U16 -> 0b0000
+          Integer1632@S16 Integer1632@U16 -> 0b0010
+          Integer1632@U32 Integer1632@U16 -> 0b0100
+          Integer1632@S32 Integer1632@U16 -> 0b0110
+
+          Integer1632@U16 Integer1632@S16 -> 0b0001
+          Integer1632@S16 Integer1632@S16 -> 0b0011
+          Integer1632@U32 Integer1632@S16 -> 0b0101
+          Integer1632@S32 Integer1632@S16 -> 0b0111
+
+          Integer1632@U16 Integer1632@U32 -> 0b1000
+          Integer1632@S16 Integer1632@U32 -> 0b1010
+          Integer1632@U32 Integer1632@U32 -> 0b1100
+          Integer1632@S32 Integer1632@U32 -> 0b1110
+
+          Integer1632@U16 Integer1632@S32 -> 0b1001
+          Integer1632@S16 Integer1632@S32 -> 0b1011
+          Integer1632@U32 Integer1632@S32 -> 0b1101
+          Integer1632@S32 Integer1632@S32 -> 0b1111
+          ;
+
+Integer8Signed
+          Integer8@U8 -> 0
+          Integer8@S8 -> 1
+          ;
+
+Integer16Signed
+          Integer16@U16 -> 0
+          Integer16@S16 -> 1
+          ;
+
+IntegerSigned
+          Integer@U16 -> 0
+          Integer@S16 -> 1
+          Integer@U8 -> 0
+          Integer@S8 -> 1
+          Integer@U32 -> 0
+          Integer@S32 -> 1
+          Integer@U64 -> 0
+          Integer@S64 -> 1
+          ;
+
+Integer8x8Signed
+          Integer8@U8 Integer8@U8 -> 0
+          Integer8@S8 Integer8@S8 -> 1
+          Integer8@S8 Integer8@U8 -> 0
+          Integer8@U8 Integer8@S8 -> 0
+          ;
+
+Integer16x16Signed
+          Integer16@U16 Integer16@U16 -> 0
+          Integer16@S16 Integer16@S16 -> 1
+          Integer16@S16 Integer16@U16 -> 0
+          Integer16@U16 Integer16@S16 -> 0
+          ;
+
+    PSign
+       PO@noPO 0 0 -> 0b00
+       PO@noPO 0 1 -> 0b01
+       PO@noPO 1 0 -> 0b10
+       PO@noPO 1 1 -> 0b00
+         PO@PO 0 0 -> 0b11
+         PO@PO 0 1 -> 0b11
+         PO@PO 1 0 -> 0b11
+         PO@PO 1 1 -> 0b11
+          ;
+
+    VMode
+        AVRG@noAVRG 0 0 -> 0
+        AVRG@noAVRG 0 1 -> 1
+        AVRG@noAVRG 1 0 -> 2
+        AVRG@noAVRG 1 1 -> 0
+          AVRG@AVRG 0 0 -> 3
+          AVRG@AVRG 0 1 -> 3
+          AVRG@AVRG 1 0 -> 3
+          AVRG@AVRG 1 1 -> 3
+          ;
+
+    PSign32
+        PO@noPO 0 -> 0b00
+        PO@noPO 1 -> 0b10
+          PO@PO 0 -> 0b11
+          PO@PO 1 -> 0b00
+          ;
+
+    PSignFFMA
+          0 0 -> 0
+          0 1 -> 1
+          1 0 -> 1
+          1 1 -> 0
+          ;
+
+    PSignMAD
+       PO@noPO 0 0 0 -> 0b00
+       PO@noPO 1 1 0 -> 0b00
+       PO@noPO 0 0 1 -> 0b01
+       PO@noPO 1 0 0 -> 0b10
+       PO@noPO 0 1 0 -> 0b10
+       PO@noPO 1 1 1 -> 0b01
+       PO@noPO 0 1 1 -> 0b00
+       PO@noPO 1 0 1 -> 0b00
+         PO@PO 0 0 0 -> 0b11
+         PO@PO 0 0 1 -> 0b11
+         PO@PO 0 1 0 -> 0b11
+         PO@PO 0 1 1 -> 0b11
+         PO@PO 1 0 0 -> 0b11
+         PO@PO 1 0 1 -> 0b11
+         PO@PO 1 1 0 -> 0b11
+         PO@PO 1 1 1 -> 0b11
+          ;
+
+    CombineBP
+          1 0 -> 0
+          0 1 -> 1
+          0 0 -> 0
+          1 1 -> 0
+          ;
+
+    RCIConstBank
+          0 -> 0b010
+          1 -> 0b100
+         16 -> 0b110
+          2 -> 0b010
+          3 -> 0b010
+          4 -> 0b010
+          5 -> 0b010
+          6 -> 0b010
+          7 -> 0b010
+          8 -> 0b010
+          9 -> 0b010
+         10 -> 0b010
+         11 -> 0b010
+         12 -> 0b010
+         13 -> 0b010
+         14 -> 0b010
+         15 -> 0b010
+         17 -> 0b010
+         18 -> 0b010
+         19 -> 0b010
+         20 -> 0b010
+         21 -> 0b010
+         22 -> 0b010
+         23 -> 0b010
+         24 -> 0b010
+         25 -> 0b010
+         26 -> 0b010
+         27 -> 0b010
+         28 -> 0b010
+         29 -> 0b010
+         30 -> 0b010
+         31 -> 0b010
+          ;
+
+    CNSConstBank
+          0 -> 0b01
+          1 -> 0b10
+         16 -> 0b11
+          2 -> 0b01
+          3 -> 0b01
+          4 -> 0b01
+          5 -> 0b01
+          6 -> 0b01
+          7 -> 0b01
+          8 -> 0b01
+          9 -> 0b01
+         10 -> 0b01
+         11 -> 0b01
+         12 -> 0b01
+         13 -> 0b01
+         14 -> 0b01
+         15 -> 0b01
+         17 -> 0b01
+         18 -> 0b01
+         19 -> 0b01
+         20 -> 0b01
+         21 -> 0b01
+         22 -> 0b01
+         23 -> 0b01
+         24 -> 0b01
+         25 -> 0b01
+         26 -> 0b01
+         27 -> 0b01
+         28 -> 0b01
+         29 -> 0b01
+         30 -> 0b01
+         31 -> 0b01
+          ;
+
+    LDCNConstBank
+          0 -> 0b000
+          1 -> 0b001
+          2 -> 0b010
+          3 -> 0b011
+          4 -> 0b100
+          5 -> 0b101
+          6 -> 0b110
+         16 -> 0b111
+          7 -> 0b000
+          8 -> 0b000
+          9 -> 0b000
+         10 -> 0b000
+         11 -> 0b000
+         12 -> 0b000
+         13 -> 0b000
+         14 -> 0b000
+         15 -> 0b000
+         17 -> 0b000
+         18 -> 0b000
+         19 -> 0b000
+         20 -> 0b000
+         21 -> 0b000
+         22 -> 0b000
+         23 -> 0b000
+         24 -> 0b000
+         25 -> 0b000
+         26 -> 0b000
+         27 -> 0b000
+         28 -> 0b000
+         29 -> 0b000
+         30 -> 0b000
+         31 -> 0b000
+          ;
+
+    CRegAlignment
+          CInteger@U8 -> 1
+          CInteger@S8 -> 1
+          CInteger@U16 -> 1
+          CInteger@S16 -> 1
+          CInteger@"32" -> 1
+          CInteger@"64" -> 2
+          CInteger@"128" -> 4
+          CInteger@INVALIDSIZE7 -> 1
+          ;
+
+    LDGSizeMask
+          CInteger@U8 -> 0b0000000000_000_0001
+          CInteger@S8 -> 0b0000000000_001_0001
+          CInteger@U16 -> 0b0000000000_010_0001
+          CInteger@S16 -> 0b0000000000_011_0001
+          CInteger@"32" -> 0b0000000000_100_0001
+          CInteger@"64" -> 0b0000000000_101_0011
+          CInteger@"128" -> 0b0000000000_110_1111
+          CInteger@INVALIDSIZE7 -> 0b0000000000_111_0001
+          ;
+
+    BQRegAlignment
+          BQInteger@"64" -> 2
+          BQInteger@"128" -> 4
+          ;
+
+    ARegAlignment
+          AInteger@"32" -> 1
+          AInteger@"64" -> 2
+          AInteger@"96" -> 4
+          AInteger@"128" -> 4
+          ;
+
+    QRegAlignment
+          QInteger@"32" -> 1
+          QInteger@"64" -> 2
+          ;
+    CASRegAlignment
+          CASInteger@"32" -> 1
+          CASInteger@"64" -> 2
+          ;
+
+    CIntSize
+          CInteger@U8 -> 1
+          CInteger@S8 -> 1
+          CInteger@U16 -> 2
+          CInteger@S16 -> 2
+          CInteger@"32" -> 4
+          CInteger@"64" -> 8
+          CInteger@"128" -> 16
+          ;
+
+    Video4ImmSel
+          ASel4@"0000" -> 1
+          ASel4@"1111" -> 1
+          ASel4@"2222" -> 1
+          ASel4@"3333" -> 1
+          ASel4@"3210" -> 1
+          ASel4@"4321" -> 1
+          ASel4@"5432" -> 1
+          ASel4@"6543" -> 1
+          ASel4@"3201" -> 1
+          ASel4@"3012" -> 1
+          ASel4@"0213" -> 1
+          ASel4@"3120" -> 1
+          ASel4@"1230" -> 1
+          ASel4@"2310" -> 1
+          ASel4@INVALIDASEL4E -> 1
+          ASel4@INVALIDASEL4F -> 1
+          ;
+
+    TXQModeDim
+          TXQMode@TEX_HEADER_DIMENSION -> 0b00000_1
+          TXQMode@TEX_HEADER_TEXTURE_TYPE -> 0b00001_0
+          TXQMode@TEX_HEADER_SAMPLER_POS -> 0b00010_1
+          TXQMode@"3" -> 0b00011_0
+          TXQMode@"4" -> 0b00100_0
+          TXQMode@"5" -> 0b00101_0
+          TXQMode@"6" -> 0b00110_0
+          TXQMode@"7" -> 0b00111_0
+          TXQMode@TEX_SAMPLER_FILTER -> 0b01000_0
+          TXQMode@TEX_SAMPLER_LOD -> 0b01001_0
+          TXQMode@TEX_SAMPLER_WRAP -> 0b01010_0
+          TXQMode@TEX_SAMPLER_BORDER_COLOR -> 0b01011_0
+          TXQMode@"12" -> 0b01100_0
+          TXQMode@"13" -> 0b01101_0
+          TXQMode@"14" -> 0b01110_0
+          TXQMode@"15" -> 0b01111_0
+          TXQMode@"16" -> 0b10000_0
+          TXQMode@"17" -> 0b10001_0
+          TXQMode@"18" -> 0b10010_0
+          TXQMode@"19" -> 0b10011_0
+          TXQMode@"20" -> 0b10100_0
+          TXQMode@"21" -> 0b10101_0
+          TXQMode@"22" -> 0b10110_0
+          TXQMode@"23" -> 0b10111_0
+          TXQMode@"24" -> 0b11000_0
+          TXQMode@"25" -> 0b11001_0
+          TXQMode@"26" -> 0b11010_0
+          TXQMode@"27" -> 0b11011_0
+          TXQMode@"28" -> 0b11100_0
+          TXQMode@"29" -> 0b11101_0
+          TXQMode@"30" -> 0b11110_0
+          TXQMode@"31" -> 0b11111_0
+          ;
+
+    abSize
+          CInteger@U8 CInteger@U8 -> 0
+          CInteger@U8 CInteger@S8 -> 1
+          CInteger@U8 CInteger@U16 -> 2
+          CInteger@U8 CInteger@S16 -> 3
+          CInteger@U8 CInteger@"32" -> 4
+
+          CInteger@S8 CInteger@U8 -> 5
+          CInteger@S8 CInteger@S8 -> 6
+          CInteger@S8 CInteger@U16 -> 7
+          CInteger@S8 CInteger@S16 -> 8
+          CInteger@S8 CInteger@"32" -> 9
+
+          CInteger@U16 CInteger@U8 -> 10
+          CInteger@U16 CInteger@S8 -> 11
+          CInteger@U16 CInteger@U16 -> 12
+          CInteger@U16 CInteger@S16 -> 13
+          CInteger@U16 CInteger@"32" -> 14
+
+          CInteger@S16 CInteger@U8 -> 15
+          CInteger@S16 CInteger@S8 -> 16
+          CInteger@S16 CInteger@U16 -> 17
+          CInteger@S16 CInteger@S16 -> 18
+          CInteger@S16 CInteger@"32" -> 19
+
+          CInteger@"32" CInteger@U8 -> 20
+          CInteger@"32" CInteger@S8 -> 21
+          CInteger@"32" CInteger@U16 -> 22
+          CInteger@"32" CInteger@S16 -> 23
+          CInteger@"32" CInteger@"32" -> 24
+          CInteger@"32" CInteger@"64" -> 25
+          CInteger@"32" CInteger@"128" -> 26
+
+          CInteger@"64" CInteger@"32" -> 27
+          CInteger@"64" CInteger@"64" -> 28
+          CInteger@"64" CInteger@"128" -> 29
+
+          CInteger@"128" CInteger@"32" -> 30
+          CInteger@"128" CInteger@"64" -> 31
+
+          CInteger@U8 CInteger@"64" -> 0
+          CInteger@U8 CInteger@"128" -> 0
+          CInteger@S8 CInteger@"64" -> 0
+          CInteger@S8 CInteger@"128" -> 0
+          CInteger@U16 CInteger@"64" -> 0
+          CInteger@U16 CInteger@"128" -> 0
+          CInteger@S16 CInteger@"64" -> 0
+          CInteger@S16 CInteger@"128" -> 0
+          CInteger@"64" CInteger@U8 -> 0
+          CInteger@"64" CInteger@S8 -> 0
+          CInteger@"64" CInteger@U16 -> 0
+          CInteger@"64" CInteger@S16 -> 0
+          CInteger@"128" CInteger@U8 -> 0
+          CInteger@"128" CInteger@S8 -> 0
+          CInteger@"128" CInteger@U16 -> 0
+          CInteger@"128" CInteger@S16 -> 0
+          CInteger@"128" CInteger@"128" -> 0
+          ;
+
+    VFormat8
+          Integer@U8 B1B0@B0 -> 0b0_000
+          Integer@U8 B1B0@B1 -> 0b0_001
+          Integer@U8 B1B0@B2 -> 0b0_010
+          Integer@U8 B1B0@B3 -> 0b0_011
+          Integer@S8 B1B0@B0 -> 0b1_000
+          Integer@S8 B1B0@B1 -> 0b1_001
+          Integer@S8 B1B0@B2 -> 0b1_010
+          Integer@S8 B1B0@B3 -> 0b1_011
+          ;
+
+    VFormat32
+          VInteger32@U32 -> 0b0_110
+          VInteger32@S32 -> 0b1_110
+          6 -> 0b0_111
+          7 -> 0b1_111
+          ;
+
+    VFormatU8
+          U8@U8 B1B0@B0 -> 0b000
+          U8@U8 B1B0@B1 -> 0b001
+          U8@U8 B1B0@B2 -> 0b010
+          U8@U8 B1B0@B3 -> 0b011
+          ;
+
+    VFormatU32
+          U32@U32 -> 0b110
+          U32@INVALIDSEL7 -> 0b111
+          ;
+
+
+
+
+
+
+    VFormat8_N
+          Integer@U8 B1B0@B0 Integer@U8 B1B0@B0 -> 0b0_0_00000
+          Integer@U8 B1B0@B0 Integer@U8 B1B0@B1 -> 0b0_0_00001
+          Integer@U8 B1B0@B0 Integer@U8 B1B0@B2 -> 0b0_0_00010
+          Integer@U8 B1B0@B0 Integer@U8 B1B0@B3 -> 0b0_0_00011
+          Integer@U8 B1B0@B1 Integer@U8 B1B0@B0 -> 0b0_0_00100
+          Integer@U8 B1B0@B1 Integer@U8 B1B0@B1 -> 0b0_0_00101
+          Integer@U8 B1B0@B1 Integer@U8 B1B0@B2 -> 0b0_0_00110
+          Integer@U8 B1B0@B1 Integer@U8 B1B0@B3 -> 0b0_0_00111
+          Integer@U8 B1B0@B2 Integer@U8 B1B0@B0 -> 0b0_0_01000
+          Integer@U8 B1B0@B2 Integer@U8 B1B0@B1 -> 0b0_0_01001
+          Integer@U8 B1B0@B2 Integer@U8 B1B0@B2 -> 0b0_0_01010
+          Integer@U8 B1B0@B2 Integer@U8 B1B0@B3 -> 0b0_0_01011
+          Integer@U8 B1B0@B3 Integer@U8 B1B0@B0 -> 0b0_0_01100
+          Integer@U8 B1B0@B3 Integer@U8 B1B0@B1 -> 0b0_0_01101
+          Integer@U8 B1B0@B3 Integer@U8 B1B0@B2 -> 0b0_0_01110
+          Integer@U8 B1B0@B3 Integer@U8 B1B0@B3 -> 0b0_0_01111
+          Integer@U8 B1B0@B0 Integer@S8 B1B0@B0 -> 0b0_1_00000
+          Integer@U8 B1B0@B0 Integer@S8 B1B0@B1 -> 0b0_1_00001
+          Integer@U8 B1B0@B0 Integer@S8 B1B0@B2 -> 0b0_1_00010
+          Integer@U8 B1B0@B0 Integer@S8 B1B0@B3 -> 0b0_1_00011
+          Integer@U8 B1B0@B1 Integer@S8 B1B0@B0 -> 0b0_1_00100
+          Integer@U8 B1B0@B1 Integer@S8 B1B0@B1 -> 0b0_1_00101
+          Integer@U8 B1B0@B1 Integer@S8 B1B0@B2 -> 0b0_1_00110
+          Integer@U8 B1B0@B1 Integer@S8 B1B0@B3 -> 0b0_1_00111
+          Integer@U8 B1B0@B2 Integer@S8 B1B0@B0 -> 0b0_1_01000
+          Integer@U8 B1B0@B2 Integer@S8 B1B0@B1 -> 0b0_1_01001
+          Integer@U8 B1B0@B2 Integer@S8 B1B0@B2 -> 0b0_1_01010
+          Integer@U8 B1B0@B2 Integer@S8 B1B0@B3 -> 0b0_1_01011
+          Integer@U8 B1B0@B3 Integer@S8 B1B0@B0 -> 0b0_1_01100
+          Integer@U8 B1B0@B3 Integer@S8 B1B0@B1 -> 0b0_1_01101
+          Integer@U8 B1B0@B3 Integer@S8 B1B0@B2 -> 0b0_1_01110
+          Integer@U8 B1B0@B3 Integer@S8 B1B0@B3 -> 0b0_1_01111
+          Integer@S8 B1B0@B0 Integer@U8 B1B0@B0 -> 0b1_0_00000
+          Integer@S8 B1B0@B0 Integer@U8 B1B0@B1 -> 0b1_0_00001
+          Integer@S8 B1B0@B0 Integer@U8 B1B0@B2 -> 0b1_0_00010
+          Integer@S8 B1B0@B0 Integer@U8 B1B0@B3 -> 0b1_0_00011
+          Integer@S8 B1B0@B1 Integer@U8 B1B0@B0 -> 0b1_0_00100
+          Integer@S8 B1B0@B1 Integer@U8 B1B0@B1 -> 0b1_0_00101
+          Integer@S8 B1B0@B1 Integer@U8 B1B0@B2 -> 0b1_0_00110
+          Integer@S8 B1B0@B1 Integer@U8 B1B0@B3 -> 0b1_0_00111
+          Integer@S8 B1B0@B2 Integer@U8 B1B0@B0 -> 0b1_0_01000
+          Integer@S8 B1B0@B2 Integer@U8 B1B0@B1 -> 0b1_0_01001
+          Integer@S8 B1B0@B2 Integer@U8 B1B0@B2 -> 0b1_0_01010
+          Integer@S8 B1B0@B2 Integer@U8 B1B0@B3 -> 0b1_0_01011
+          Integer@S8 B1B0@B3 Integer@U8 B1B0@B0 -> 0b1_0_01100
+          Integer@S8 B1B0@B3 Integer@U8 B1B0@B1 -> 0b1_0_01101
+          Integer@S8 B1B0@B3 Integer@U8 B1B0@B2 -> 0b1_0_01110
+          Integer@S8 B1B0@B3 Integer@U8 B1B0@B3 -> 0b1_0_01111
+          Integer@S8 B1B0@B0 Integer@S8 B1B0@B0 -> 0b1_1_00000
+          Integer@S8 B1B0@B0 Integer@S8 B1B0@B1 -> 0b1_1_00001
+          Integer@S8 B1B0@B0 Integer@S8 B1B0@B2 -> 0b1_1_00010
+          Integer@S8 B1B0@B0 Integer@S8 B1B0@B3 -> 0b1_1_00011
+          Integer@S8 B1B0@B1 Integer@S8 B1B0@B0 -> 0b1_1_00100
+          Integer@S8 B1B0@B1 Integer@S8 B1B0@B1 -> 0b1_1_00101
+          Integer@S8 B1B0@B1 Integer@S8 B1B0@B2 -> 0b1_1_00110
+          Integer@S8 B1B0@B1 Integer@S8 B1B0@B3 -> 0b1_1_00111
+          Integer@S8 B1B0@B2 Integer@S8 B1B0@B0 -> 0b1_1_01000
+          Integer@S8 B1B0@B2 Integer@S8 B1B0@B1 -> 0b1_1_01001
+          Integer@S8 B1B0@B2 Integer@S8 B1B0@B2 -> 0b1_1_01010
+          Integer@S8 B1B0@B2 Integer@S8 B1B0@B3 -> 0b1_1_01011
+          Integer@S8 B1B0@B3 Integer@S8 B1B0@B0 -> 0b1_1_01100
+          Integer@S8 B1B0@B3 Integer@S8 B1B0@B1 -> 0b1_1_01101
+          Integer@S8 B1B0@B3 Integer@S8 B1B0@B2 -> 0b1_1_01110
+          Integer@S8 B1B0@B3 Integer@S8 B1B0@B3 -> 0b1_1_01111
+          ;
+
+    VFormat32_8_N
+          Integer@U32 Integer@U8 B1B0@B0 -> 0b0_0_10000
+          Integer@U32 Integer@U8 B1B0@B1 -> 0b0_0_10001
+          Integer@U32 Integer@U8 B1B0@B2 -> 0b0_0_10010
+          Integer@U32 Integer@U8 B1B0@B3 -> 0b0_0_10011
+          Integer@U32 Integer@S8 B1B0@B0 -> 0b0_1_10000
+          Integer@U32 Integer@S8 B1B0@B1 -> 0b0_1_10001
+          Integer@U32 Integer@S8 B1B0@B2 -> 0b0_1_10010
+          Integer@U32 Integer@S8 B1B0@B3 -> 0b0_1_10011
+          Integer@S32 Integer@U8 B1B0@B0 -> 0b1_0_10000
+          Integer@S32 Integer@U8 B1B0@B1 -> 0b1_0_10001
+          Integer@S32 Integer@U8 B1B0@B2 -> 0b1_0_10010
+          Integer@S32 Integer@U8 B1B0@B3 -> 0b1_0_10011
+          Integer@S32 Integer@S8 B1B0@B0 -> 0b1_1_10000
+          Integer@S32 Integer@S8 B1B0@B1 -> 0b1_1_10001
+          Integer@S32 Integer@S8 B1B0@B2 -> 0b1_1_10010
+          Integer@S32 Integer@S8 B1B0@B3 -> 0b1_1_10011
+          ;
+
+    VFormat8_32_N
+          Integer@U8 B1B0@B0 Integer@U32 -> 0b0_0_10100
+          Integer@U8 B1B0@B1 Integer@U32 -> 0b0_0_10101
+          Integer@U8 B1B0@B2 Integer@U32 -> 0b0_0_10110
+          Integer@U8 B1B0@B3 Integer@U32 -> 0b0_0_10111
+          Integer@U8 B1B0@B0 Integer@S32 -> 0b0_1_10100
+          Integer@U8 B1B0@B1 Integer@S32 -> 0b0_1_10101
+          Integer@U8 B1B0@B2 Integer@S32 -> 0b0_1_10110
+          Integer@U8 B1B0@B3 Integer@S32 -> 0b0_1_10111
+          Integer@S8 B1B0@B0 Integer@U32 -> 0b1_0_10100
+          Integer@S8 B1B0@B1 Integer@U32 -> 0b1_0_10101
+          Integer@S8 B1B0@B2 Integer@U32 -> 0b1_0_10110
+          Integer@S8 B1B0@B3 Integer@U32 -> 0b1_0_10111
+          Integer@S8 B1B0@B0 Integer@S32 -> 0b1_1_10100
+          Integer@S8 B1B0@B1 Integer@S32 -> 0b1_1_10101
+          Integer@S8 B1B0@B2 Integer@S32 -> 0b1_1_10110
+          Integer@S8 B1B0@B3 Integer@S32 -> 0b1_1_10111
+          ;
+
+    ConsecutiveReg8
+          Register@R0 Register@R1 CASInteger@"32" -> 0b0_00000000
+          Register@R1 Register@R2 CASInteger@"32" -> 0b0_00000001
+          Register@R2 Register@R3 CASInteger@"32" -> 0b0_00000010
+          Register@R3 Register@R4 CASInteger@"32" -> 0b0_00000011
+          Register@R4 Register@R5 CASInteger@"32" -> 0b0_00000100
+          Register@R5 Register@R6 CASInteger@"32" -> 0b0_00000101
+          Register@R6 Register@R7 CASInteger@"32" -> 0b0_00000110
+          Register@R7 Register@R8 CASInteger@"32" -> 0b0_00000111
+          Register@R8 Register@R9 CASInteger@"32" -> 0b0_00001000
+          Register@R9 Register@R10 CASInteger@"32" -> 0b0_00001001
+          Register@R10 Register@R11 CASInteger@"32" -> 0b0_00001010
+          Register@R11 Register@R12 CASInteger@"32" -> 0b0_00001011
+          Register@R12 Register@R13 CASInteger@"32" -> 0b0_00001100
+          Register@R13 Register@R14 CASInteger@"32" -> 0b0_00001101
+          Register@R14 Register@R15 CASInteger@"32" -> 0b0_00001110
+          Register@R15 Register@R16 CASInteger@"32" -> 0b0_00001111
+          Register@R16 Register@R17 CASInteger@"32" -> 0b0_00010000
+          Register@R17 Register@R18 CASInteger@"32" -> 0b0_00010001
+          Register@R18 Register@R19 CASInteger@"32" -> 0b0_00010010
+          Register@R19 Register@R20 CASInteger@"32" -> 0b0_00010011
+          Register@R20 Register@R21 CASInteger@"32" -> 0b0_00010100
+          Register@R21 Register@R22 CASInteger@"32" -> 0b0_00010101
+          Register@R22 Register@R23 CASInteger@"32" -> 0b0_00010110
+          Register@R23 Register@R24 CASInteger@"32" -> 0b0_00010111
+          Register@R24 Register@R25 CASInteger@"32" -> 0b0_00011000
+          Register@R25 Register@R26 CASInteger@"32" -> 0b0_00011001
+          Register@R26 Register@R27 CASInteger@"32" -> 0b0_00011010
+          Register@R27 Register@R28 CASInteger@"32" -> 0b0_00011011
+          Register@R28 Register@R29 CASInteger@"32" -> 0b0_00011100
+          Register@R29 Register@R30 CASInteger@"32" -> 0b0_00011101
+          Register@R30 Register@R31 CASInteger@"32" -> 0b0_00011110
+          Register@R31 Register@R32 CASInteger@"32" -> 0b0_00011111
+          Register@R32 Register@R33 CASInteger@"32" -> 0b0_00100000
+          Register@R33 Register@R34 CASInteger@"32" -> 0b0_00100001
+          Register@R34 Register@R35 CASInteger@"32" -> 0b0_00100010
+          Register@R35 Register@R36 CASInteger@"32" -> 0b0_00100011
+          Register@R36 Register@R37 CASInteger@"32" -> 0b0_00100100
+          Register@R37 Register@R38 CASInteger@"32" -> 0b0_00100101
+          Register@R38 Register@R39 CASInteger@"32" -> 0b0_00100110
+          Register@R39 Register@R40 CASInteger@"32" -> 0b0_00100111
+          Register@R40 Register@R41 CASInteger@"32" -> 0b0_00101000
+          Register@R41 Register@R42 CASInteger@"32" -> 0b0_00101001
+          Register@R42 Register@R43 CASInteger@"32" -> 0b0_00101010
+          Register@R43 Register@R44 CASInteger@"32" -> 0b0_00101011
+          Register@R44 Register@R45 CASInteger@"32" -> 0b0_00101100
+          Register@R45 Register@R46 CASInteger@"32" -> 0b0_00101101
+          Register@R46 Register@R47 CASInteger@"32" -> 0b0_00101110
+          Register@R47 Register@R48 CASInteger@"32" -> 0b0_00101111
+          Register@R48 Register@R49 CASInteger@"32" -> 0b0_00110000
+          Register@R49 Register@R50 CASInteger@"32" -> 0b0_00110001
+          Register@R50 Register@R51 CASInteger@"32" -> 0b0_00110010
+          Register@R51 Register@R52 CASInteger@"32" -> 0b0_00110011
+          Register@R52 Register@R53 CASInteger@"32" -> 0b0_00110100
+          Register@R53 Register@R54 CASInteger@"32" -> 0b0_00110101
+          Register@R54 Register@R55 CASInteger@"32" -> 0b0_00110110
+          Register@R55 Register@R56 CASInteger@"32" -> 0b0_00110111
+          Register@R56 Register@R57 CASInteger@"32" -> 0b0_00111000
+          Register@R57 Register@R58 CASInteger@"32" -> 0b0_00111001
+          Register@R58 Register@R59 CASInteger@"32" -> 0b0_00111010
+          Register@R59 Register@R60 CASInteger@"32" -> 0b0_00111011
+          Register@R60 Register@R61 CASInteger@"32" -> 0b0_00111100
+          Register@R61 Register@R62 CASInteger@"32" -> 0b0_00111101
+          Register@R62 Register@R63 CASInteger@"32" -> 0b0_00111110
+          Register@R63 Register@R64 CASInteger@"32" -> 0b0_00111111
+          Register@R64 Register@R65 CASInteger@"32" -> 0b0_01000000
+          Register@R65 Register@R66 CASInteger@"32" -> 0b0_01000001
+          Register@R66 Register@R67 CASInteger@"32" -> 0b0_01000010
+          Register@R67 Register@R68 CASInteger@"32" -> 0b0_01000011
+          Register@R68 Register@R69 CASInteger@"32" -> 0b0_01000100
+          Register@R69 Register@R70 CASInteger@"32" -> 0b0_01000101
+          Register@R70 Register@R71 CASInteger@"32" -> 0b0_01000110
+          Register@R71 Register@R72 CASInteger@"32" -> 0b0_01000111
+          Register@R72 Register@R73 CASInteger@"32" -> 0b0_01001000
+          Register@R73 Register@R74 CASInteger@"32" -> 0b0_01001001
+          Register@R74 Register@R75 CASInteger@"32" -> 0b0_01001010
+          Register@R75 Register@R76 CASInteger@"32" -> 0b0_01001011
+          Register@R76 Register@R77 CASInteger@"32" -> 0b0_01001100
+          Register@R77 Register@R78 CASInteger@"32" -> 0b0_01001101
+          Register@R78 Register@R79 CASInteger@"32" -> 0b0_01001110
+          Register@R79 Register@R80 CASInteger@"32" -> 0b0_01001111
+          Register@R80 Register@R81 CASInteger@"32" -> 0b0_01010000
+          Register@R81 Register@R82 CASInteger@"32" -> 0b0_01010001
+          Register@R82 Register@R83 CASInteger@"32" -> 0b0_01010010
+          Register@R83 Register@R84 CASInteger@"32" -> 0b0_01010011
+          Register@R84 Register@R85 CASInteger@"32" -> 0b0_01010100
+          Register@R85 Register@R86 CASInteger@"32" -> 0b0_01010101
+          Register@R86 Register@R87 CASInteger@"32" -> 0b0_01010110
+          Register@R87 Register@R88 CASInteger@"32" -> 0b0_01010111
+          Register@R88 Register@R89 CASInteger@"32" -> 0b0_01011000
+          Register@R89 Register@R90 CASInteger@"32" -> 0b0_01011001
+          Register@R90 Register@R91 CASInteger@"32" -> 0b0_01011010
+          Register@R91 Register@R92 CASInteger@"32" -> 0b0_01011011
+          Register@R92 Register@R93 CASInteger@"32" -> 0b0_01011100
+          Register@R93 Register@R94 CASInteger@"32" -> 0b0_01011101
+          Register@R94 Register@R95 CASInteger@"32" -> 0b0_01011110
+          Register@R95 Register@R96 CASInteger@"32" -> 0b0_01011111
+          Register@R96 Register@R97 CASInteger@"32" -> 0b0_01100000
+          Register@R97 Register@R98 CASInteger@"32" -> 0b0_01100001
+          Register@R98 Register@R99 CASInteger@"32" -> 0b0_01100010
+          Register@R99 Register@R100 CASInteger@"32" -> 0b0_01100011
+          Register@R100 Register@R101 CASInteger@"32" -> 0b0_01100100
+          Register@R101 Register@R102 CASInteger@"32" -> 0b0_01100101
+          Register@R102 Register@R103 CASInteger@"32" -> 0b0_01100110
+          Register@R103 Register@R104 CASInteger@"32" -> 0b0_01100111
+          Register@R104 Register@R105 CASInteger@"32" -> 0b0_01101000
+          Register@R105 Register@R106 CASInteger@"32" -> 0b0_01101001
+          Register@R106 Register@R107 CASInteger@"32" -> 0b0_01101010
+          Register@R107 Register@R108 CASInteger@"32" -> 0b0_01101011
+          Register@R108 Register@R109 CASInteger@"32" -> 0b0_01101100
+          Register@R109 Register@R110 CASInteger@"32" -> 0b0_01101101
+          Register@R110 Register@R111 CASInteger@"32" -> 0b0_01101110
+          Register@R111 Register@R112 CASInteger@"32" -> 0b0_01101111
+          Register@R112 Register@R113 CASInteger@"32" -> 0b0_01110000
+          Register@R113 Register@R114 CASInteger@"32" -> 0b0_01110001
+          Register@R114 Register@R115 CASInteger@"32" -> 0b0_01110010
+          Register@R115 Register@R116 CASInteger@"32" -> 0b0_01110011
+          Register@R116 Register@R117 CASInteger@"32" -> 0b0_01110100
+          Register@R117 Register@R118 CASInteger@"32" -> 0b0_01110101
+          Register@R118 Register@R119 CASInteger@"32" -> 0b0_01110110
+          Register@R119 Register@R120 CASInteger@"32" -> 0b0_01110111
+          Register@R120 Register@R121 CASInteger@"32" -> 0b0_01111000
+          Register@R121 Register@R122 CASInteger@"32" -> 0b0_01111001
+          Register@R122 Register@R123 CASInteger@"32" -> 0b0_01111010
+          Register@R123 Register@R124 CASInteger@"32" -> 0b0_01111011
+          Register@R124 Register@R125 CASInteger@"32" -> 0b0_01111100
+          Register@R125 Register@R126 CASInteger@"32" -> 0b0_01111101
+          Register@R126 Register@R127 CASInteger@"32" -> 0b0_01111110
+          Register@R127 Register@R128 CASInteger@"32" -> 0b0_01111111
+          Register@R128 Register@R129 CASInteger@"32" -> 0b0_10000000
+          Register@R129 Register@R130 CASInteger@"32" -> 0b0_10000001
+          Register@R130 Register@R131 CASInteger@"32" -> 0b0_10000010
+          Register@R131 Register@R132 CASInteger@"32" -> 0b0_10000011
+          Register@R132 Register@R133 CASInteger@"32" -> 0b0_10000100
+          Register@R133 Register@R134 CASInteger@"32" -> 0b0_10000101
+          Register@R134 Register@R135 CASInteger@"32" -> 0b0_10000110
+          Register@R135 Register@R136 CASInteger@"32" -> 0b0_10000111
+          Register@R136 Register@R137 CASInteger@"32" -> 0b0_10001000
+          Register@R137 Register@R138 CASInteger@"32" -> 0b0_10001001
+          Register@R138 Register@R139 CASInteger@"32" -> 0b0_10001010
+          Register@R139 Register@R140 CASInteger@"32" -> 0b0_10001011
+          Register@R140 Register@R141 CASInteger@"32" -> 0b0_10001100
+          Register@R141 Register@R142 CASInteger@"32" -> 0b0_10001101
+          Register@R142 Register@R143 CASInteger@"32" -> 0b0_10001110
+          Register@R143 Register@R144 CASInteger@"32" -> 0b0_10001111
+          Register@R144 Register@R145 CASInteger@"32" -> 0b0_10010000
+          Register@R145 Register@R146 CASInteger@"32" -> 0b0_10010001
+          Register@R146 Register@R147 CASInteger@"32" -> 0b0_10010010
+          Register@R147 Register@R148 CASInteger@"32" -> 0b0_10010011
+          Register@R148 Register@R149 CASInteger@"32" -> 0b0_10010100
+          Register@R149 Register@R150 CASInteger@"32" -> 0b0_10010101
+          Register@R150 Register@R151 CASInteger@"32" -> 0b0_10010110
+          Register@R151 Register@R152 CASInteger@"32" -> 0b0_10010111
+          Register@R152 Register@R153 CASInteger@"32" -> 0b0_10011000
+          Register@R153 Register@R154 CASInteger@"32" -> 0b0_10011001
+          Register@R154 Register@R155 CASInteger@"32" -> 0b0_10011010
+          Register@R155 Register@R156 CASInteger@"32" -> 0b0_10011011
+          Register@R156 Register@R157 CASInteger@"32" -> 0b0_10011100
+          Register@R157 Register@R158 CASInteger@"32" -> 0b0_10011101
+          Register@R158 Register@R159 CASInteger@"32" -> 0b0_10011110
+          Register@R159 Register@R160 CASInteger@"32" -> 0b0_10011111
+          Register@R160 Register@R161 CASInteger@"32" -> 0b0_10100000
+          Register@R161 Register@R162 CASInteger@"32" -> 0b0_10100001
+          Register@R162 Register@R163 CASInteger@"32" -> 0b0_10100010
+          Register@R163 Register@R164 CASInteger@"32" -> 0b0_10100011
+          Register@R164 Register@R165 CASInteger@"32" -> 0b0_10100100
+          Register@R165 Register@R166 CASInteger@"32" -> 0b0_10100101
+          Register@R166 Register@R167 CASInteger@"32" -> 0b0_10100110
+          Register@R167 Register@R168 CASInteger@"32" -> 0b0_10100111
+          Register@R168 Register@R169 CASInteger@"32" -> 0b0_10101000
+          Register@R169 Register@R170 CASInteger@"32" -> 0b0_10101001
+          Register@R170 Register@R171 CASInteger@"32" -> 0b0_10101010
+          Register@R171 Register@R172 CASInteger@"32" -> 0b0_10101011
+          Register@R172 Register@R173 CASInteger@"32" -> 0b0_10101100
+          Register@R173 Register@R174 CASInteger@"32" -> 0b0_10101101
+          Register@R174 Register@R175 CASInteger@"32" -> 0b0_10101110
+          Register@R175 Register@R176 CASInteger@"32" -> 0b0_10101111
+          Register@R176 Register@R177 CASInteger@"32" -> 0b0_10110000
+          Register@R177 Register@R178 CASInteger@"32" -> 0b0_10110001
+          Register@R178 Register@R179 CASInteger@"32" -> 0b0_10110010
+          Register@R179 Register@R180 CASInteger@"32" -> 0b0_10110011
+          Register@R180 Register@R181 CASInteger@"32" -> 0b0_10110100
+          Register@R181 Register@R182 CASInteger@"32" -> 0b0_10110101
+          Register@R182 Register@R183 CASInteger@"32" -> 0b0_10110110
+          Register@R183 Register@R184 CASInteger@"32" -> 0b0_10110111
+          Register@R184 Register@R185 CASInteger@"32" -> 0b0_10111000
+          Register@R185 Register@R186 CASInteger@"32" -> 0b0_10111001
+          Register@R186 Register@R187 CASInteger@"32" -> 0b0_10111010
+          Register@R187 Register@R188 CASInteger@"32" -> 0b0_10111011
+          Register@R188 Register@R189 CASInteger@"32" -> 0b0_10111100
+          Register@R189 Register@R190 CASInteger@"32" -> 0b0_10111101
+          Register@R190 Register@R191 CASInteger@"32" -> 0b0_10111110
+          Register@R191 Register@R192 CASInteger@"32" -> 0b0_10111111
+          Register@R192 Register@R193 CASInteger@"32" -> 0b0_11000000
+          Register@R193 Register@R194 CASInteger@"32" -> 0b0_11000001
+          Register@R194 Register@R195 CASInteger@"32" -> 0b0_11000010
+          Register@R195 Register@R196 CASInteger@"32" -> 0b0_11000011
+          Register@R196 Register@R197 CASInteger@"32" -> 0b0_11000100
+          Register@R197 Register@R198 CASInteger@"32" -> 0b0_11000101
+          Register@R198 Register@R199 CASInteger@"32" -> 0b0_11000110
+          Register@R199 Register@R200 CASInteger@"32" -> 0b0_11000111
+          Register@R200 Register@R201 CASInteger@"32" -> 0b0_11001000
+          Register@R201 Register@R202 CASInteger@"32" -> 0b0_11001001
+          Register@R202 Register@R203 CASInteger@"32" -> 0b0_11001010
+          Register@R203 Register@R204 CASInteger@"32" -> 0b0_11001011
+          Register@R204 Register@R205 CASInteger@"32" -> 0b0_11001100
+          Register@R205 Register@R206 CASInteger@"32" -> 0b0_11001101
+          Register@R206 Register@R207 CASInteger@"32" -> 0b0_11001110
+          Register@R207 Register@R208 CASInteger@"32" -> 0b0_11001111
+          Register@R208 Register@R209 CASInteger@"32" -> 0b0_11010000
+          Register@R209 Register@R210 CASInteger@"32" -> 0b0_11010001
+          Register@R210 Register@R211 CASInteger@"32" -> 0b0_11010010
+          Register@R211 Register@R212 CASInteger@"32" -> 0b0_11010011
+          Register@R212 Register@R213 CASInteger@"32" -> 0b0_11010100
+          Register@R213 Register@R214 CASInteger@"32" -> 0b0_11010101
+          Register@R214 Register@R215 CASInteger@"32" -> 0b0_11010110
+          Register@R215 Register@R216 CASInteger@"32" -> 0b0_11010111
+          Register@R216 Register@R217 CASInteger@"32" -> 0b0_11011000
+          Register@R217 Register@R218 CASInteger@"32" -> 0b0_11011001
+          Register@R218 Register@R219 CASInteger@"32" -> 0b0_11011010
+          Register@R219 Register@R220 CASInteger@"32" -> 0b0_11011011
+          Register@R220 Register@R221 CASInteger@"32" -> 0b0_11011100
+          Register@R221 Register@R222 CASInteger@"32" -> 0b0_11011101
+          Register@R222 Register@R223 CASInteger@"32" -> 0b0_11011110
+          Register@R223 Register@R224 CASInteger@"32" -> 0b0_11011111
+          Register@R224 Register@R225 CASInteger@"32" -> 0b0_11100000
+          Register@R225 Register@R226 CASInteger@"32" -> 0b0_11100001
+          Register@R226 Register@R227 CASInteger@"32" -> 0b0_11100010
+          Register@R227 Register@R228 CASInteger@"32" -> 0b0_11100011
+          Register@R228 Register@R229 CASInteger@"32" -> 0b0_11100100
+          Register@R229 Register@R230 CASInteger@"32" -> 0b0_11100101
+          Register@R230 Register@R231 CASInteger@"32" -> 0b0_11100110
+          Register@R231 Register@R232 CASInteger@"32" -> 0b0_11100111
+          Register@R232 Register@R233 CASInteger@"32" -> 0b0_11101000
+          Register@R233 Register@R234 CASInteger@"32" -> 0b0_11101001
+          Register@R234 Register@R235 CASInteger@"32" -> 0b0_11101010
+          Register@R235 Register@R236 CASInteger@"32" -> 0b0_11101011
+          Register@R236 Register@R237 CASInteger@"32" -> 0b0_11101100
+          Register@R237 Register@R238 CASInteger@"32" -> 0b0_11101101
+          Register@R238 Register@R239 CASInteger@"32" -> 0b0_11101110
+          Register@R239 Register@R240 CASInteger@"32" -> 0b0_11101111
+          Register@R240 Register@R241 CASInteger@"32" -> 0b0_11110000
+          Register@R241 Register@R242 CASInteger@"32" -> 0b0_11110001
+          Register@R242 Register@R243 CASInteger@"32" -> 0b0_11110010
+          Register@R243 Register@R244 CASInteger@"32" -> 0b0_11110011
+          Register@R244 Register@R245 CASInteger@"32" -> 0b0_11110100
+          Register@R245 Register@R246 CASInteger@"32" -> 0b0_11110101
+          Register@R246 Register@R247 CASInteger@"32" -> 0b0_11110110
+          Register@R247 248 CASInteger@"32" -> 0b0_11110111
+          248 249 CASInteger@"32" -> 0b0_11111000
+          249 250 CASInteger@"32" -> 0b0_11111001
+          250 251 CASInteger@"32" -> 0b0_11111010
+          251 252 CASInteger@"32" -> 0b0_11111011
+          252 253 CASInteger@"32" -> 0b0_11111100
+          253 254 CASInteger@"32" -> 0b0_11111101
+          254 Register@RZ CASInteger@"32" -> 0b0_11111110
+          Register@RZ Register@RZ CASInteger@"32" -> 0b0_11111111
+          Register@R0 Register@R2 CASInteger@"64" -> 0b1_00000000
+          Register@R1 Register@R3 CASInteger@"64" -> 0b1_00000001
+          Register@R2 Register@R4 CASInteger@"64" -> 0b1_00000010
+          Register@R3 Register@R5 CASInteger@"64" -> 0b1_00000011
+          Register@R4 Register@R6 CASInteger@"64" -> 0b1_00000100
+          Register@R5 Register@R7 CASInteger@"64" -> 0b1_00000101
+          Register@R6 Register@R8 CASInteger@"64" -> 0b1_00000110
+          Register@R7 Register@R9 CASInteger@"64" -> 0b1_00000111
+          Register@R8 Register@R10 CASInteger@"64" -> 0b1_00001000
+          Register@R9 Register@R11 CASInteger@"64" -> 0b1_00001001
+          Register@R10 Register@R12 CASInteger@"64" -> 0b1_00001010
+          Register@R11 Register@R13 CASInteger@"64" -> 0b1_00001011
+          Register@R12 Register@R14 CASInteger@"64" -> 0b1_00001100
+          Register@R13 Register@R15 CASInteger@"64" -> 0b1_00001101
+          Register@R14 Register@R16 CASInteger@"64" -> 0b1_00001110
+          Register@R15 Register@R17 CASInteger@"64" -> 0b1_00001111
+          Register@R16 Register@R18 CASInteger@"64" -> 0b1_00010000
+          Register@R17 Register@R19 CASInteger@"64" -> 0b1_00010001
+          Register@R18 Register@R20 CASInteger@"64" -> 0b1_00010010
+          Register@R19 Register@R21 CASInteger@"64" -> 0b1_00010011
+          Register@R20 Register@R22 CASInteger@"64" -> 0b1_00010100
+          Register@R21 Register@R23 CASInteger@"64" -> 0b1_00010101
+          Register@R22 Register@R24 CASInteger@"64" -> 0b1_00010110
+          Register@R23 Register@R25 CASInteger@"64" -> 0b1_00010111
+          Register@R24 Register@R26 CASInteger@"64" -> 0b1_00011000
+          Register@R25 Register@R27 CASInteger@"64" -> 0b1_00011001
+          Register@R26 Register@R28 CASInteger@"64" -> 0b1_00011010
+          Register@R27 Register@R29 CASInteger@"64" -> 0b1_00011011
+          Register@R28 Register@R30 CASInteger@"64" -> 0b1_00011100
+          Register@R29 Register@R31 CASInteger@"64" -> 0b1_00011101
+          Register@R30 Register@R32 CASInteger@"64" -> 0b1_00011110
+          Register@R31 Register@R33 CASInteger@"64" -> 0b1_00011111
+          Register@R32 Register@R34 CASInteger@"64" -> 0b1_00100000
+          Register@R33 Register@R35 CASInteger@"64" -> 0b1_00100001
+          Register@R34 Register@R36 CASInteger@"64" -> 0b1_00100010
+          Register@R35 Register@R37 CASInteger@"64" -> 0b1_00100011
+          Register@R36 Register@R38 CASInteger@"64" -> 0b1_00100100
+          Register@R37 Register@R39 CASInteger@"64" -> 0b1_00100101
+          Register@R38 Register@R40 CASInteger@"64" -> 0b1_00100110
+          Register@R39 Register@R41 CASInteger@"64" -> 0b1_00100111
+          Register@R40 Register@R42 CASInteger@"64" -> 0b1_00101000
+          Register@R41 Register@R43 CASInteger@"64" -> 0b1_00101001
+          Register@R42 Register@R44 CASInteger@"64" -> 0b1_00101010
+          Register@R43 Register@R45 CASInteger@"64" -> 0b1_00101011
+          Register@R44 Register@R46 CASInteger@"64" -> 0b1_00101100
+          Register@R45 Register@R47 CASInteger@"64" -> 0b1_00101101
+          Register@R46 Register@R48 CASInteger@"64" -> 0b1_00101110
+          Register@R47 Register@R49 CASInteger@"64" -> 0b1_00101111
+          Register@R48 Register@R50 CASInteger@"64" -> 0b1_00110000
+          Register@R49 Register@R51 CASInteger@"64" -> 0b1_00110001
+          Register@R50 Register@R52 CASInteger@"64" -> 0b1_00110010
+          Register@R51 Register@R53 CASInteger@"64" -> 0b1_00110011
+          Register@R52 Register@R54 CASInteger@"64" -> 0b1_00110100
+          Register@R53 Register@R55 CASInteger@"64" -> 0b1_00110101
+          Register@R54 Register@R56 CASInteger@"64" -> 0b1_00110110
+          Register@R55 Register@R57 CASInteger@"64" -> 0b1_00110111
+          Register@R56 Register@R58 CASInteger@"64" -> 0b1_00111000
+          Register@R57 Register@R59 CASInteger@"64" -> 0b1_00111001
+          Register@R58 Register@R60 CASInteger@"64" -> 0b1_00111010
+          Register@R59 Register@R61 CASInteger@"64" -> 0b1_00111011
+          Register@R60 Register@R62 CASInteger@"64" -> 0b1_00111100
+          Register@R61 Register@R63 CASInteger@"64" -> 0b1_00111101
+          Register@R62 Register@R64 CASInteger@"64" -> 0b1_00111110
+          Register@R63 Register@R65 CASInteger@"64" -> 0b1_00111111
+          Register@R64 Register@R66 CASInteger@"64" -> 0b1_01000000
+          Register@R65 Register@R67 CASInteger@"64" -> 0b1_01000001
+          Register@R66 Register@R68 CASInteger@"64" -> 0b1_01000010
+          Register@R67 Register@R69 CASInteger@"64" -> 0b1_01000011
+          Register@R68 Register@R70 CASInteger@"64" -> 0b1_01000100
+          Register@R69 Register@R71 CASInteger@"64" -> 0b1_01000101
+          Register@R70 Register@R72 CASInteger@"64" -> 0b1_01000110
+          Register@R71 Register@R73 CASInteger@"64" -> 0b1_01000111
+          Register@R72 Register@R74 CASInteger@"64" -> 0b1_01001000
+          Register@R73 Register@R75 CASInteger@"64" -> 0b1_01001001
+          Register@R74 Register@R76 CASInteger@"64" -> 0b1_01001010
+          Register@R75 Register@R77 CASInteger@"64" -> 0b1_01001011
+          Register@R76 Register@R78 CASInteger@"64" -> 0b1_01001100
+          Register@R77 Register@R79 CASInteger@"64" -> 0b1_01001101
+          Register@R78 Register@R80 CASInteger@"64" -> 0b1_01001110
+          Register@R79 Register@R81 CASInteger@"64" -> 0b1_01001111
+          Register@R80 Register@R82 CASInteger@"64" -> 0b1_01010000
+          Register@R81 Register@R83 CASInteger@"64" -> 0b1_01010001
+          Register@R82 Register@R84 CASInteger@"64" -> 0b1_01010010
+          Register@R83 Register@R85 CASInteger@"64" -> 0b1_01010011
+          Register@R84 Register@R86 CASInteger@"64" -> 0b1_01010100
+          Register@R85 Register@R87 CASInteger@"64" -> 0b1_01010101
+          Register@R86 Register@R88 CASInteger@"64" -> 0b1_01010110
+          Register@R87 Register@R89 CASInteger@"64" -> 0b1_01010111
+          Register@R88 Register@R90 CASInteger@"64" -> 0b1_01011000
+          Register@R89 Register@R91 CASInteger@"64" -> 0b1_01011001
+          Register@R90 Register@R92 CASInteger@"64" -> 0b1_01011010
+          Register@R91 Register@R93 CASInteger@"64" -> 0b1_01011011
+          Register@R92 Register@R94 CASInteger@"64" -> 0b1_01011100
+          Register@R93 Register@R95 CASInteger@"64" -> 0b1_01011101
+          Register@R94 Register@R96 CASInteger@"64" -> 0b1_01011110
+          Register@R95 Register@R97 CASInteger@"64" -> 0b1_01011111
+          Register@R96 Register@R98 CASInteger@"64" -> 0b1_01100000
+          Register@R97 Register@R99 CASInteger@"64" -> 0b1_01100001
+          Register@R98 Register@R100 CASInteger@"64" -> 0b1_01100010
+          Register@R99 Register@R101 CASInteger@"64" -> 0b1_01100011
+          Register@R100 Register@R102 CASInteger@"64" -> 0b1_01100100
+          Register@R101 Register@R103 CASInteger@"64" -> 0b1_01100101
+          Register@R102 Register@R104 CASInteger@"64" -> 0b1_01100110
+          Register@R103 Register@R105 CASInteger@"64" -> 0b1_01100111
+          Register@R104 Register@R106 CASInteger@"64" -> 0b1_01101000
+          Register@R105 Register@R107 CASInteger@"64" -> 0b1_01101001
+          Register@R106 Register@R108 CASInteger@"64" -> 0b1_01101010
+          Register@R107 Register@R109 CASInteger@"64" -> 0b1_01101011
+          Register@R108 Register@R110 CASInteger@"64" -> 0b1_01101100
+          Register@R109 Register@R111 CASInteger@"64" -> 0b1_01101101
+          Register@R110 Register@R112 CASInteger@"64" -> 0b1_01101110
+          Register@R111 Register@R113 CASInteger@"64" -> 0b1_01101111
+          Register@R112 Register@R114 CASInteger@"64" -> 0b1_01110000
+          Register@R113 Register@R115 CASInteger@"64" -> 0b1_01110001
+          Register@R114 Register@R116 CASInteger@"64" -> 0b1_01110010
+          Register@R115 Register@R117 CASInteger@"64" -> 0b1_01110011
+          Register@R116 Register@R118 CASInteger@"64" -> 0b1_01110100
+          Register@R117 Register@R119 CASInteger@"64" -> 0b1_01110101
+          Register@R118 Register@R120 CASInteger@"64" -> 0b1_01110110
+          Register@R119 Register@R121 CASInteger@"64" -> 0b1_01110111
+          Register@R120 Register@R122 CASInteger@"64" -> 0b1_01111000
+          Register@R121 Register@R123 CASInteger@"64" -> 0b1_01111001
+          Register@R122 Register@R124 CASInteger@"64" -> 0b1_01111010
+          Register@R123 Register@R125 CASInteger@"64" -> 0b1_01111011
+          Register@R124 Register@R126 CASInteger@"64" -> 0b1_01111100
+          Register@R125 Register@R127 CASInteger@"64" -> 0b1_01111101
+          Register@R126 Register@R128 CASInteger@"64" -> 0b1_01111110
+          Register@R127 Register@R129 CASInteger@"64" -> 0b1_01111111
+          Register@R128 Register@R130 CASInteger@"64" -> 0b1_10000000
+          Register@R129 Register@R131 CASInteger@"64" -> 0b1_10000001
+          Register@R130 Register@R132 CASInteger@"64" -> 0b1_10000010
+          Register@R131 Register@R133 CASInteger@"64" -> 0b1_10000011
+          Register@R132 Register@R134 CASInteger@"64" -> 0b1_10000100
+          Register@R133 Register@R135 CASInteger@"64" -> 0b1_10000101
+          Register@R134 Register@R136 CASInteger@"64" -> 0b1_10000110
+          Register@R135 Register@R137 CASInteger@"64" -> 0b1_10000111
+          Register@R136 Register@R138 CASInteger@"64" -> 0b1_10001000
+          Register@R137 Register@R139 CASInteger@"64" -> 0b1_10001001
+          Register@R138 Register@R140 CASInteger@"64" -> 0b1_10001010
+          Register@R139 Register@R141 CASInteger@"64" -> 0b1_10001011
+          Register@R140 Register@R142 CASInteger@"64" -> 0b1_10001100
+          Register@R141 Register@R143 CASInteger@"64" -> 0b1_10001101
+          Register@R142 Register@R144 CASInteger@"64" -> 0b1_10001110
+          Register@R143 Register@R145 CASInteger@"64" -> 0b1_10001111
+          Register@R144 Register@R146 CASInteger@"64" -> 0b1_10010000
+          Register@R145 Register@R147 CASInteger@"64" -> 0b1_10010001
+          Register@R146 Register@R148 CASInteger@"64" -> 0b1_10010010
+          Register@R147 Register@R149 CASInteger@"64" -> 0b1_10010011
+          Register@R148 Register@R150 CASInteger@"64" -> 0b1_10010100
+          Register@R149 Register@R151 CASInteger@"64" -> 0b1_10010101
+          Register@R150 Register@R152 CASInteger@"64" -> 0b1_10010110
+          Register@R151 Register@R153 CASInteger@"64" -> 0b1_10010111
+          Register@R152 Register@R154 CASInteger@"64" -> 0b1_10011000
+          Register@R153 Register@R155 CASInteger@"64" -> 0b1_10011001
+          Register@R154 Register@R156 CASInteger@"64" -> 0b1_10011010
+          Register@R155 Register@R157 CASInteger@"64" -> 0b1_10011011
+          Register@R156 Register@R158 CASInteger@"64" -> 0b1_10011100
+          Register@R157 Register@R159 CASInteger@"64" -> 0b1_10011101
+          Register@R158 Register@R160 CASInteger@"64" -> 0b1_10011110
+          Register@R159 Register@R161 CASInteger@"64" -> 0b1_10011111
+          Register@R160 Register@R162 CASInteger@"64" -> 0b1_10100000
+          Register@R161 Register@R163 CASInteger@"64" -> 0b1_10100001
+          Register@R162 Register@R164 CASInteger@"64" -> 0b1_10100010
+          Register@R163 Register@R165 CASInteger@"64" -> 0b1_10100011
+          Register@R164 Register@R166 CASInteger@"64" -> 0b1_10100100
+          Register@R165 Register@R167 CASInteger@"64" -> 0b1_10100101
+          Register@R166 Register@R168 CASInteger@"64" -> 0b1_10100110
+          Register@R167 Register@R169 CASInteger@"64" -> 0b1_10100111
+          Register@R168 Register@R170 CASInteger@"64" -> 0b1_10101000
+          Register@R169 Register@R171 CASInteger@"64" -> 0b1_10101001
+          Register@R170 Register@R172 CASInteger@"64" -> 0b1_10101010
+          Register@R171 Register@R173 CASInteger@"64" -> 0b1_10101011
+          Register@R172 Register@R174 CASInteger@"64" -> 0b1_10101100
+          Register@R173 Register@R175 CASInteger@"64" -> 0b1_10101101
+          Register@R174 Register@R176 CASInteger@"64" -> 0b1_10101110
+          Register@R175 Register@R177 CASInteger@"64" -> 0b1_10101111
+          Register@R176 Register@R178 CASInteger@"64" -> 0b1_10110000
+          Register@R177 Register@R179 CASInteger@"64" -> 0b1_10110001
+          Register@R178 Register@R180 CASInteger@"64" -> 0b1_10110010
+          Register@R179 Register@R181 CASInteger@"64" -> 0b1_10110011
+          Register@R180 Register@R182 CASInteger@"64" -> 0b1_10110100
+          Register@R181 Register@R183 CASInteger@"64" -> 0b1_10110101
+          Register@R182 Register@R184 CASInteger@"64" -> 0b1_10110110
+          Register@R183 Register@R185 CASInteger@"64" -> 0b1_10110111
+          Register@R184 Register@R186 CASInteger@"64" -> 0b1_10111000
+          Register@R185 Register@R187 CASInteger@"64" -> 0b1_10111001
+          Register@R186 Register@R188 CASInteger@"64" -> 0b1_10111010
+          Register@R187 Register@R189 CASInteger@"64" -> 0b1_10111011
+          Register@R188 Register@R190 CASInteger@"64" -> 0b1_10111100
+          Register@R189 Register@R191 CASInteger@"64" -> 0b1_10111101
+          Register@R190 Register@R192 CASInteger@"64" -> 0b1_10111110
+          Register@R191 Register@R193 CASInteger@"64" -> 0b1_10111111
+          Register@R192 Register@R194 CASInteger@"64" -> 0b1_11000000
+          Register@R193 Register@R195 CASInteger@"64" -> 0b1_11000001
+          Register@R194 Register@R196 CASInteger@"64" -> 0b1_11000010
+          Register@R195 Register@R197 CASInteger@"64" -> 0b1_11000011
+          Register@R196 Register@R198 CASInteger@"64" -> 0b1_11000100
+          Register@R197 Register@R199 CASInteger@"64" -> 0b1_11000101
+          Register@R198 Register@R200 CASInteger@"64" -> 0b1_11000110
+          Register@R199 Register@R201 CASInteger@"64" -> 0b1_11000111
+          Register@R200 Register@R202 CASInteger@"64" -> 0b1_11001000
+          Register@R201 Register@R203 CASInteger@"64" -> 0b1_11001001
+          Register@R202 Register@R204 CASInteger@"64" -> 0b1_11001010
+          Register@R203 Register@R205 CASInteger@"64" -> 0b1_11001011
+          Register@R204 Register@R206 CASInteger@"64" -> 0b1_11001100
+          Register@R205 Register@R207 CASInteger@"64" -> 0b1_11001101
+          Register@R206 Register@R208 CASInteger@"64" -> 0b1_11001110
+          Register@R207 Register@R209 CASInteger@"64" -> 0b1_11001111
+          Register@R208 Register@R210 CASInteger@"64" -> 0b1_11010000
+          Register@R209 Register@R211 CASInteger@"64" -> 0b1_11010001
+          Register@R210 Register@R212 CASInteger@"64" -> 0b1_11010010
+          Register@R211 Register@R213 CASInteger@"64" -> 0b1_11010011
+          Register@R212 Register@R214 CASInteger@"64" -> 0b1_11010100
+          Register@R213 Register@R215 CASInteger@"64" -> 0b1_11010101
+          Register@R214 Register@R216 CASInteger@"64" -> 0b1_11010110
+          Register@R215 Register@R217 CASInteger@"64" -> 0b1_11010111
+          Register@R216 Register@R218 CASInteger@"64" -> 0b1_11011000
+          Register@R217 Register@R219 CASInteger@"64" -> 0b1_11011001
+          Register@R218 Register@R220 CASInteger@"64" -> 0b1_11011010
+          Register@R219 Register@R221 CASInteger@"64" -> 0b1_11011011
+          Register@R220 Register@R222 CASInteger@"64" -> 0b1_11011100
+          Register@R221 Register@R223 CASInteger@"64" -> 0b1_11011101
+          Register@R222 Register@R224 CASInteger@"64" -> 0b1_11011110
+          Register@R223 Register@R225 CASInteger@"64" -> 0b1_11011111
+          Register@R224 Register@R226 CASInteger@"64" -> 0b1_11100000
+          Register@R225 Register@R227 CASInteger@"64" -> 0b1_11100001
+          Register@R226 Register@R228 CASInteger@"64" -> 0b1_11100010
+          Register@R227 Register@R229 CASInteger@"64" -> 0b1_11100011
+          Register@R228 Register@R230 CASInteger@"64" -> 0b1_11100100
+          Register@R229 Register@R231 CASInteger@"64" -> 0b1_11100101
+          Register@R230 Register@R232 CASInteger@"64" -> 0b1_11100110
+          Register@R231 Register@R233 CASInteger@"64" -> 0b1_11100111
+          Register@R232 Register@R234 CASInteger@"64" -> 0b1_11101000
+          Register@R233 Register@R235 CASInteger@"64" -> 0b1_11101001
+          Register@R234 Register@R236 CASInteger@"64" -> 0b1_11101010
+          Register@R235 Register@R237 CASInteger@"64" -> 0b1_11101011
+          Register@R236 Register@R238 CASInteger@"64" -> 0b1_11101100
+          Register@R237 Register@R239 CASInteger@"64" -> 0b1_11101101
+          Register@R238 Register@R240 CASInteger@"64" -> 0b1_11101110
+          Register@R239 Register@R241 CASInteger@"64" -> 0b1_11101111
+          Register@R240 Register@R242 CASInteger@"64" -> 0b1_11110000
+          Register@R241 Register@R243 CASInteger@"64" -> 0b1_11110001
+          Register@R242 Register@R244 CASInteger@"64" -> 0b1_11110010
+          Register@R243 Register@R245 CASInteger@"64" -> 0b1_11110011
+          Register@R244 Register@R246 CASInteger@"64" -> 0b1_11110100
+          Register@R245 Register@R247 CASInteger@"64" -> 0b1_11110101
+          Register@R246 248 CASInteger@"64" -> 0b1_11110110
+          Register@R247 249 CASInteger@"64" -> 0b1_11110111
+          248 250 CASInteger@"64" -> 0b1_11111000
+          249 251 CASInteger@"64" -> 0b1_11111001
+          250 252 CASInteger@"64" -> 0b1_11111010
+          251 253 CASInteger@"64" -> 0b1_11111011
+          252 254 CASInteger@"64" -> 0b1_11111100
+          253 Register@RZ CASInteger@"64" -> 0b1_11111101
+          254 Register@RZ CASInteger@"64" -> 0b1_11111110
+          Register@RZ Register@RZ CASInteger@"64" -> 0b1_11111111
+          ;
+
+
+
+    SM5vshlCW
+          CWMode@C UInteger_old@U16 -> 0b0
+          CWMode@C UInteger_old@U8 -> 0b0
+          CWMode@C UInteger_old@U32 -> 0b0
+          CWMode@W UInteger_old@U16 -> 0b1
+          CWMode@W UInteger_old@U8 -> 0b1
+          CWMode@W UInteger_old@U32 -> 0b1
+          ;
+
+    Tex2D4
+          ParamA@"1D" DC@noDC LOD2@LZ -> 0
+          ParamA@"1D" DC@noDC LOD2@noLOD -> 0
+          ParamA@"1D" DC@noDC LOD2@LL -> 0
+          ParamA@"1D" DC@DC LOD2@noLOD -> 0
+          ParamA@"1D" DC@DC LOD2@LZ -> 0
+          ParamA@"1D" DC@DC LOD2@LL -> 0
+          ParamA@"2D" DC@noDC LOD2@noLOD -> 1
+          ParamA@"2D" DC@noDC LOD2@LZ -> 2
+          ParamA@"2D" DC@noDC LOD2@LL -> 3
+          ParamA@"2D" DC@DC LOD2@noLOD -> 4
+          ParamA@"2D" DC@DC LOD2@LZ -> 6
+          ParamA@"2D" DC@DC LOD2@LL -> 5
+          ParamA@"3D" DC@noDC LOD2@noLOD -> 10
+          ParamA@"3D" DC@noDC LOD2@LZ -> 11
+          ParamA@"3D" DC@noDC LOD2@LL -> 0
+          ParamA@"3D" DC@DC LOD2@noLOD -> 0
+          ParamA@"3D" DC@DC LOD2@LZ -> 0
+          ParamA@"3D" DC@DC LOD2@LL -> 0
+          ParamA@CUBE DC@noDC LOD2@noLOD -> 12
+          ParamA@CUBE DC@noDC LOD2@LZ -> 0
+          ParamA@CUBE DC@noDC LOD2@LL -> 13
+          ParamA@CUBE DC@DC LOD2@noLOD -> 0
+          ParamA@CUBE DC@DC LOD2@LZ -> 0
+          ParamA@CUBE DC@DC LOD2@LL -> 0
+          ParamA@ARRAY_1D DC@noDC LOD2@noLOD -> 0
+          ParamA@ARRAY_1D DC@noDC LOD2@LZ -> 0
+          ParamA@ARRAY_1D DC@noDC LOD2@LL -> 0
+          ParamA@ARRAY_1D DC@DC LOD2@noLOD -> 0
+          ParamA@ARRAY_1D DC@DC LOD2@LZ -> 0
+          ParamA@ARRAY_1D DC@DC LOD2@LL -> 0
+          ParamA@ARRAY_2D DC@noDC LOD2@noLOD -> 7
+          ParamA@ARRAY_2D DC@noDC LOD2@LZ -> 8
+          ParamA@ARRAY_2D DC@noDC LOD2@LL -> 0
+          ParamA@ARRAY_2D DC@DC LOD2@noLOD -> 0
+          ParamA@ARRAY_2D DC@DC LOD2@LZ -> 9
+          ParamA@ARRAY_2D DC@DC LOD2@LL -> 0
+          ParamA@ARRAY_3D DC@noDC LOD2@noLOD -> 0
+          ParamA@ARRAY_3D DC@noDC LOD2@LZ -> 0
+          ParamA@ARRAY_3D DC@noDC LOD2@LL -> 0
+          ParamA@ARRAY_3D DC@DC LOD2@noLOD -> 0
+          ParamA@ARRAY_3D DC@DC LOD2@LZ -> 0
+          ParamA@ARRAY_3D DC@DC LOD2@LL -> 0
+          ParamA@CUBEARRAY DC@noDC LOD2@noLOD -> 0
+          ParamA@CUBEARRAY DC@noDC LOD2@LZ -> 0
+          ParamA@CUBEARRAY DC@noDC LOD2@LL -> 0
+          ParamA@CUBEARRAY DC@DC LOD2@noLOD -> 0
+          ParamA@CUBEARRAY DC@DC LOD2@LZ -> 0
+          ParamA@CUBEARRAY DC@DC LOD2@LL -> 0
+          ;
+
+    Tld2D4
+          ParamA@"1D" MS@noMS LOD1@LZ TOFF1@noTOFF -> 0
+          ParamA@"1D" MS@noMS LOD1@LZ TOFF1@AOFFI -> 0
+          ParamA@"1D" MS@noMS LOD1@LL TOFF1@noTOFF -> 1
+          ParamA@"1D" MS@noMS LOD1@LL TOFF1@AOFFI -> 0
+          ParamA@"1D" MS@MS LOD1@LZ TOFF1@noTOFF -> 0
+          ParamA@"1D" MS@MS LOD1@LZ TOFF1@AOFFI -> 0
+          ParamA@"1D" MS@MS LOD1@LL TOFF1@noTOFF -> 0
+          ParamA@"1D" MS@MS LOD1@LL TOFF1@AOFFI -> 0
+          ParamA@"2D" MS@noMS LOD1@LZ TOFF1@noTOFF -> 2
+          ParamA@"2D" MS@noMS LOD1@LZ TOFF1@AOFFI -> 4
+          ParamA@"2D" MS@noMS LOD1@LL TOFF1@noTOFF -> 5
+          ParamA@"2D" MS@noMS LOD1@LL TOFF1@AOFFI -> 12
+          ParamA@"2D" MS@MS LOD1@LZ TOFF1@noTOFF -> 6
+          ParamA@"2D" MS@MS LOD1@LZ TOFF1@AOFFI -> 0
+          ParamA@"2D" MS@MS LOD1@LL TOFF1@noTOFF -> 0
+          ParamA@"2D" MS@MS LOD1@LL TOFF1@AOFFI -> 0
+          ParamA@"3D" MS@noMS LOD1@LZ TOFF1@noTOFF -> 7
+          ParamA@"3D" MS@noMS LOD1@LZ TOFF1@AOFFI -> 0
+          ParamA@"3D" MS@noMS LOD1@LL TOFF1@noTOFF -> 0
+          ParamA@"3D" MS@noMS LOD1@LL TOFF1@AOFFI -> 0
+          ParamA@"3D" MS@MS LOD1@LZ TOFF1@noTOFF -> 0
+          ParamA@"3D" MS@MS LOD1@LZ TOFF1@AOFFI -> 0
+          ParamA@"3D" MS@MS LOD1@LL TOFF1@noTOFF -> 0
+          ParamA@"3D" MS@MS LOD1@LL TOFF1@AOFFI -> 0
+          ParamA@CUBE MS@noMS LOD1@LZ TOFF1@noTOFF -> 0
+          ParamA@CUBE MS@noMS LOD1@LZ TOFF1@AOFFI -> 0
+          ParamA@CUBE MS@noMS LOD1@LL TOFF1@noTOFF -> 0
+          ParamA@CUBE MS@noMS LOD1@LL TOFF1@AOFFI -> 0
+          ParamA@CUBE MS@MS LOD1@LZ TOFF1@noTOFF -> 0
+          ParamA@CUBE MS@MS LOD1@LZ TOFF1@AOFFI -> 0
+          ParamA@CUBE MS@MS LOD1@LL TOFF1@noTOFF -> 0
+          ParamA@CUBE MS@MS LOD1@LL TOFF1@AOFFI -> 0
+          ParamA@ARRAY_1D MS@noMS LOD1@LZ TOFF1@noTOFF -> 0
+          ParamA@ARRAY_1D MS@noMS LOD1@LZ TOFF1@AOFFI -> 0
+          ParamA@ARRAY_1D MS@noMS LOD1@LL TOFF1@noTOFF -> 0
+          ParamA@ARRAY_1D MS@noMS LOD1@LL TOFF1@AOFFI -> 0
+          ParamA@ARRAY_1D MS@MS LOD1@LZ TOFF1@noTOFF -> 0
+          ParamA@ARRAY_1D MS@MS LOD1@LZ TOFF1@AOFFI -> 0
+          ParamA@ARRAY_1D MS@MS LOD1@LL TOFF1@noTOFF -> 0
+          ParamA@ARRAY_1D MS@MS LOD1@LL TOFF1@AOFFI -> 0
+          ParamA@ARRAY_2D MS@noMS LOD1@LZ TOFF1@noTOFF -> 8
+          ParamA@ARRAY_2D MS@noMS LOD1@LZ TOFF1@AOFFI -> 0
+          ParamA@ARRAY_2D MS@noMS LOD1@LL TOFF1@noTOFF -> 0
+          ParamA@ARRAY_2D MS@noMS LOD1@LL TOFF1@AOFFI -> 0
+          ParamA@ARRAY_2D MS@MS LOD1@LZ TOFF1@noTOFF -> 0
+          ParamA@ARRAY_2D MS@MS LOD1@LZ TOFF1@AOFFI -> 0
+          ParamA@ARRAY_2D MS@MS LOD1@LL TOFF1@noTOFF -> 0
+          ParamA@ARRAY_2D MS@MS LOD1@LL TOFF1@AOFFI -> 0
+          ParamA@ARRAY_3D MS@noMS LOD1@LZ TOFF1@noTOFF -> 0
+          ParamA@ARRAY_3D MS@noMS LOD1@LZ TOFF1@AOFFI -> 0
+          ParamA@ARRAY_3D MS@noMS LOD1@LL TOFF1@noTOFF -> 0
+          ParamA@ARRAY_3D MS@noMS LOD1@LL TOFF1@AOFFI -> 0
+          ParamA@ARRAY_3D MS@MS LOD1@LZ TOFF1@noTOFF -> 0
+          ParamA@ARRAY_3D MS@MS LOD1@LZ TOFF1@AOFFI -> 0
+          ParamA@ARRAY_3D MS@MS LOD1@LL TOFF1@noTOFF -> 0
+          ParamA@ARRAY_3D MS@MS LOD1@LL TOFF1@AOFFI -> 0
+          ParamA@CUBEARRAY MS@noMS LOD1@LZ TOFF1@noTOFF -> 0
+          ParamA@CUBEARRAY MS@noMS LOD1@LZ TOFF1@AOFFI -> 0
+          ParamA@CUBEARRAY MS@noMS LOD1@LL TOFF1@noTOFF -> 0
+          ParamA@CUBEARRAY MS@noMS LOD1@LL TOFF1@AOFFI -> 0
+          ParamA@CUBEARRAY MS@MS LOD1@LZ TOFF1@noTOFF -> 0
+          ParamA@CUBEARRAY MS@MS LOD1@LZ TOFF1@AOFFI -> 0
+          ParamA@CUBEARRAY MS@MS LOD1@LL TOFF1@noTOFF -> 0
+          ParamA@CUBEARRAY MS@MS LOD1@LL TOFF1@AOFFI -> 0
+          ;
+
+    LutImm8
+          LOP@AND 0 0 0 -> 0b10000000
+          LOP@AND 0 0 1 -> 0b01000000
+          LOP@AND 0 1 0 -> 0b00100000
+          LOP@AND 0 1 1 -> 0b00010000
+          LOP@AND 1 0 0 -> 0b00001000
+          LOP@AND 1 0 1 -> 0b00000100
+          LOP@AND 1 1 0 -> 0b00000010
+          LOP@AND 1 1 1 -> 0b00000001
+          LOP@OR 0 0 0 -> 0b11111110
+          LOP@OR 0 0 1 -> 0b11111101
+          LOP@OR 0 1 0 -> 0b11111011
+          LOP@OR 0 1 1 -> 0b11110111
+          LOP@OR 1 0 0 -> 0b11101111
+          LOP@OR 1 0 1 -> 0b11011111
+          LOP@OR 1 1 0 -> 0b10111111
+          LOP@OR 1 1 1 -> 0b01111111
+          LOP@XOR 0 0 0 -> 0b10010110
+          LOP@XOR 0 0 1 -> 0b01101001
+          LOP@XOR 0 1 0 -> 0b01101001
+          LOP@XOR 0 1 1 -> 0b10010110
+          LOP@XOR 1 0 0 -> 0b01101001
+          LOP@XOR 1 0 1 -> 0b10010110
+          LOP@XOR 1 1 0 -> 0b10010110
+          LOP@XOR 1 1 1 -> 0b01101001
+          LOP@PASS_B 0 0 0 -> 0b11001100
+          LOP@PASS_B 0 0 1 -> 0b11001100
+          LOP@PASS_B 0 1 0 -> 0b00110011
+          LOP@PASS_B 0 1 1 -> 0b00110011
+          LOP@PASS_B 1 0 0 -> 0b11001100
+          LOP@PASS_B 1 0 1 -> 0b11001100
+          LOP@PASS_B 1 1 0 -> 0b00110011
+          LOP@PASS_B 1 1 1 -> 0b00110011
+          ;
+TABLES_mem_0
+2 2 1 -> 4
+1 2 1 -> 4
+2 1 1 -> 4
+1 1 1 -> 4
+2 4 1 -> 6
+1 4 1 -> 6
+2 3 1 -> 6
+1 3 1 -> 6
+1 0 0 -> 0
+1 5 1 -> 0
+2 2 0 -> 5
+2 1 0 -> 5
+2 4 0 -> 7
+2 3 0 -> 7
+2 5 0 -> 10
+2 5 1 -> 10
+3 4 0 -> 8
+3 1 0 -> 8
+3 2 0 -> 8
+3 3 0 -> 8
+3 5 0 -> 12
+0 0 1 -> 1
+0 1 0 -> 2
+0 1 1 -> 3
+0 2 0 -> 9
+0 2 1 -> 11
+0 3 0 -> 13
+0 3 1 -> 14
+0 4 0 -> 15
+;
+TABLES_mem_0_illegal_encodings
+0 0 1 -> 1
+0 1 0 -> 2
+0 1 1 -> 3
+0 2 0 -> 9
+0 2 1 -> 11
+0 3 0 -> 13
+0 3 1 -> 14
+0 4 0 -> 15
+;
+TABLES_opex_0
+0 0 -> 0
+0 1 -> 1
+1 1 -> 33
+2 1 -> 65
+3 1 -> 97
+4 1 -> 129
+5 1 -> 161
+0 2 -> 2
+1 2 -> 34
+2 2 -> 66
+3 2 -> 98
+4 2 -> 130
+5 2 -> 162
+0 3 -> 3
+1 3 -> 35
+2 3 -> 67
+3 3 -> 99
+4 3 -> 131
+5 3 -> 163
+0 4 -> 4
+1 4 -> 36
+2 4 -> 68
+3 4 -> 100
+4 4 -> 132
+5 4 -> 164
+0 5 -> 5
+1 5 -> 37
+2 5 -> 69
+3 5 -> 101
+4 5 -> 133
+5 5 -> 165
+0 6 -> 6
+1 6 -> 38
+2 6 -> 70
+3 6 -> 102
+4 6 -> 134
+5 6 -> 166
+0 7 -> 7
+1 7 -> 39
+2 7 -> 71
+3 7 -> 103
+4 7 -> 135
+5 7 -> 167
+0 8 -> 8
+1 8 -> 40
+2 8 -> 72
+3 8 -> 104
+4 8 -> 136
+5 8 -> 168
+0 9 -> 9
+1 9 -> 41
+2 9 -> 73
+3 9 -> 105
+4 9 -> 137
+5 9 -> 169
+0 10 -> 10
+1 10 -> 42
+2 10 -> 74
+3 10 -> 106
+4 10 -> 138
+5 10 -> 170
+0 11 -> 11
+1 11 -> 43
+2 11 -> 75
+3 11 -> 107
+4 11 -> 139
+5 11 -> 171
+0 12 -> 12
+1 12 -> 44
+2 12 -> 76
+3 12 -> 108
+4 12 -> 140
+5 12 -> 172
+0 13 -> 13
+1 13 -> 45
+2 13 -> 77
+3 13 -> 109
+4 13 -> 141
+5 13 -> 173
+0 14 -> 14
+1 14 -> 46
+2 14 -> 78
+3 14 -> 110
+4 14 -> 142
+5 14 -> 174
+0 15 -> 15
+1 15 -> 47
+2 15 -> 79
+3 15 -> 111
+4 15 -> 143
+5 15 -> 175
+0 17 -> 17
+1 17 -> 49
+2 17 -> 81
+3 17 -> 113
+4 17 -> 145
+5 17 -> 177
+0 18 -> 18
+1 18 -> 50
+2 18 -> 82
+3 18 -> 114
+4 18 -> 146
+5 18 -> 178
+0 19 -> 19
+1 19 -> 51
+2 19 -> 83
+3 19 -> 115
+4 19 -> 147
+5 19 -> 179
+0 20 -> 20
+1 20 -> 52
+2 20 -> 84
+3 20 -> 116
+4 20 -> 148
+5 20 -> 180
+0 21 -> 21
+1 21 -> 53
+2 21 -> 85
+3 21 -> 117
+4 21 -> 149
+5 21 -> 181
+0 22 -> 22
+1 22 -> 54
+2 22 -> 86
+3 22 -> 118
+4 22 -> 150
+5 22 -> 182
+0 23 -> 23
+1 23 -> 55
+2 23 -> 87
+3 23 -> 119
+4 23 -> 151
+5 23 -> 183
+0 24 -> 24
+1 24 -> 56
+2 24 -> 88
+3 24 -> 120
+4 24 -> 152
+5 24 -> 184
+0 25 -> 25
+1 25 -> 57
+2 25 -> 89
+3 25 -> 121
+4 25 -> 153
+5 25 -> 185
+0 26 -> 26
+1 26 -> 58
+2 26 -> 90
+3 26 -> 122
+4 26 -> 154
+5 26 -> 186
+0 27 -> 27
+1 27 -> 59
+2 27 -> 91
+3 27 -> 123
+4 27 -> 155
+5 27 -> 187
+;
+TABLES_mem_1
+0 0 0 -> 4
+2 2 1 -> 4
+1 2 1 -> 4
+2 1 1 -> 4
+1 1 1 -> 4
+2 4 1 -> 6
+1 4 1 -> 6
+2 3 1 -> 6
+1 3 1 -> 6
+1 0 0 -> 0
+1 5 1 -> 0
+2 2 0 -> 5
+2 1 0 -> 5
+2 4 0 -> 7
+2 3 0 -> 7
+2 5 0 -> 10
+2 5 1 -> 10
+3 4 0 -> 8
+3 1 0 -> 8
+3 2 0 -> 8
+3 3 0 -> 8
+3 5 0 -> 12
+0 0 1 -> 1
+0 1 0 -> 2
+0 1 1 -> 3
+0 2 0 -> 9
+0 2 1 -> 11
+0 3 0 -> 13
+0 3 1 -> 14
+0 4 0 -> 15
+;
+TABLES_mem_1_illegal_encodings
+0 0 1 -> 1
+0 1 0 -> 2
+0 1 1 -> 3
+0 2 0 -> 9
+0 2 1 -> 11
+0 3 0 -> 13
+0 3 1 -> 14
+0 4 0 -> 15
+;
+TABLES_Pnz_0
+0 0 -> 7
+0 1 -> 6
+0 2 -> 5
+0 3 -> 4
+0 4 -> 3
+0 5 -> 2
+0 6 -> 1
+0 7 -> 0
+1 0 -> 15
+1 1 -> 14
+1 2 -> 13
+1 3 -> 12
+1 4 -> 11
+1 5 -> 10
+1 6 -> 9
+1 7 -> 8
+;
+TABLES_mem_2
+2 5 0 -> 10
+2 5 1 -> 10
+0 1 1 -> 3
+1 0 0 -> 0
+1 3 1 -> 6
+3 4 0 -> 8
+0 2 1 -> 11
+2 3 0 -> 7
+3 3 0 -> 8
+2 4 1 -> 6
+0 4 0 -> 15
+2 3 1 -> 6
+0 2 0 -> 9
+1 4 1 -> 6
+3 2 0 -> 8
+1 2 1 -> 4
+2 4 0 -> 7
+0 3 0 -> 13
+3 1 0 -> 8
+0 0 1 -> 1
+0 3 1 -> 14
+0 0 0 -> 4
+1 1 1 -> 4
+2 1 0 -> 5
+3 5 0 -> 12
+2 2 1 -> 4
+2 1 1 -> 4
+2 2 0 -> 5
+1 5 1 -> 0
+0 1 0 -> 2
+;
+TABLES_mem_2_illegal_encodings
+0 1 1 -> 3
+1 0 0 -> 0
+1 3 1 -> 6
+3 4 0 -> 8
+0 2 1 -> 11
+2 3 0 -> 7
+3 3 0 -> 8
+2 4 1 -> 6
+0 4 0 -> 15
+2 3 1 -> 6
+0 2 0 -> 9
+1 4 1 -> 6
+3 2 0 -> 8
+1 2 1 -> 4
+2 4 0 -> 7
+0 3 0 -> 13
+3 1 0 -> 8
+0 0 1 -> 1
+0 3 1 -> 14
+0 0 0 -> 4
+1 1 1 -> 4
+2 1 0 -> 5
+3 5 0 -> 12
+2 2 1 -> 4
+2 1 1 -> 4
+2 2 0 -> 5
+1 5 1 -> 0
+0 1 0 -> 2
+;
+TABLES_opex_1
+0 0 -> 0
+0 1 -> 1
+1 1 -> 33
+2 1 -> 65
+4 1 -> 129
+5 1 -> 161
+0 2 -> 2
+1 2 -> 34
+2 2 -> 66
+4 2 -> 130
+5 2 -> 162
+0 3 -> 3
+1 3 -> 35
+2 3 -> 67
+4 3 -> 131
+5 3 -> 163
+0 4 -> 4
+1 4 -> 36
+2 4 -> 68
+4 4 -> 132
+5 4 -> 164
+0 5 -> 5
+1 5 -> 37
+2 5 -> 69
+4 5 -> 133
+5 5 -> 165
+0 6 -> 6
+1 6 -> 38
+2 6 -> 70
+4 6 -> 134
+5 6 -> 166
+0 7 -> 7
+1 7 -> 39
+2 7 -> 71
+4 7 -> 135
+5 7 -> 167
+0 8 -> 8
+1 8 -> 40
+2 8 -> 72
+4 8 -> 136
+5 8 -> 168
+0 9 -> 9
+1 9 -> 41
+2 9 -> 73
+4 9 -> 137
+5 9 -> 169
+0 10 -> 10
+1 10 -> 42
+2 10 -> 74
+4 10 -> 138
+5 10 -> 170
+0 11 -> 11
+1 11 -> 43
+2 11 -> 75
+4 11 -> 139
+5 11 -> 171
+0 12 -> 12
+1 12 -> 44
+2 12 -> 76
+4 12 -> 140
+5 12 -> 172
+0 13 -> 13
+1 13 -> 45
+2 13 -> 77
+4 13 -> 141
+5 13 -> 173
+0 14 -> 14
+1 14 -> 46
+2 14 -> 78
+4 14 -> 142
+5 14 -> 174
+0 15 -> 15
+1 15 -> 47
+2 15 -> 79
+4 15 -> 143
+5 15 -> 175
+0 17 -> 17
+0 18 -> 18
+0 19 -> 19
+0 20 -> 20
+0 21 -> 21
+0 22 -> 22
+0 23 -> 23
+0 24 -> 24
+0 25 -> 25
+0 26 -> 26
+0 27 -> 27
+;
+TABLES_mem_3
+0 0 0 -> 4
+1 2 1 -> 4
+1 1 1 -> 4
+1 4 1 -> 6
+1 3 1 -> 6
+1 0 0 -> 0
+1 5 1 -> 0
+0 0 1 -> 1
+0 1 0 -> 2
+0 1 1 -> 3
+0 2 0 -> 9
+0 2 1 -> 11
+0 3 0 -> 13
+0 3 1 -> 14
+0 4 0 -> 15
+3 1 0 -> 5
+3 1 1 -> 7
+3 2 0 -> 8
+3 3 0 -> 10
+3 4 0 -> 12
+;
+TABLES_mem_3_illegal_encodings
+0 0 1 -> 1
+0 1 0 -> 2
+0 1 1 -> 3
+0 2 0 -> 9
+0 2 1 -> 11
+0 3 0 -> 13
+0 3 1 -> 14
+0 4 0 -> 15
+3 1 0 -> 5
+3 1 1 -> 7
+3 2 0 -> 8
+3 3 0 -> 10
+3 4 0 -> 12
+;
+TABLES_URc_0
+1 0 -> 0
+2 1 -> 1
+3 2 -> 2
+4 3 -> 3
+5 4 -> 4
+6 5 -> 5
+7 6 -> 6
+8 7 -> 7
+9 8 -> 8
+10 9 -> 9
+11 10 -> 10
+12 11 -> 11
+13 12 -> 12
+14 13 -> 13
+15 14 -> 14
+16 15 -> 15
+17 16 -> 16
+18 17 -> 17
+19 18 -> 18
+20 19 -> 19
+21 20 -> 20
+22 21 -> 21
+23 22 -> 22
+24 23 -> 23
+25 24 -> 24
+26 25 -> 25
+27 26 -> 26
+28 27 -> 27
+29 28 -> 28
+30 29 -> 29
+31 30 -> 30
+32 31 -> 31
+33 32 -> 32
+34 33 -> 33
+35 34 -> 34
+36 35 -> 35
+37 36 -> 36
+38 37 -> 37
+39 38 -> 38
+40 39 -> 39
+41 40 -> 40
+42 41 -> 41
+43 42 -> 42
+44 43 -> 43
+45 44 -> 44
+46 45 -> 45
+47 46 -> 46
+48 47 -> 47
+49 48 -> 48
+50 49 -> 49
+51 50 -> 50
+52 51 -> 51
+53 52 -> 52
+54 53 -> 53
+55 54 -> 54
+56 55 -> 55
+57 56 -> 56
+58 57 -> 57
+59 58 -> 58
+60 59 -> 59
+61 60 -> 60
+62 61 -> 61
+63 62 -> 62
+64 63 -> 63
+65 64 -> 64
+66 65 -> 65
+67 66 -> 66
+68 67 -> 67
+69 68 -> 68
+70 69 -> 69
+71 70 -> 70
+72 71 -> 71
+73 72 -> 72
+74 73 -> 73
+75 74 -> 74
+76 75 -> 75
+77 76 -> 76
+78 77 -> 77
+79 78 -> 78
+80 79 -> 79
+81 80 -> 80
+82 81 -> 81
+83 82 -> 82
+84 83 -> 83
+85 84 -> 84
+86 85 -> 85
+87 86 -> 86
+88 87 -> 87
+89 88 -> 88
+90 89 -> 89
+91 90 -> 90
+92 91 -> 91
+93 92 -> 92
+94 93 -> 93
+95 94 -> 94
+96 95 -> 95
+97 96 -> 96
+98 97 -> 97
+99 98 -> 98
+100 99 -> 99
+101 100 -> 100
+102 101 -> 101
+103 102 -> 102
+104 103 -> 103
+105 104 -> 104
+106 105 -> 105
+107 106 -> 106
+108 107 -> 107
+109 108 -> 108
+110 109 -> 109
+111 110 -> 110
+112 111 -> 111
+113 112 -> 112
+114 113 -> 113
+115 114 -> 114
+116 115 -> 115
+117 116 -> 116
+118 117 -> 117
+119 118 -> 118
+120 119 -> 119
+121 120 -> 120
+122 121 -> 121
+123 122 -> 122
+124 123 -> 123
+125 124 -> 124
+126 125 -> 125
+127 126 -> 126
+128 127 -> 127
+129 128 -> 128
+130 129 -> 129
+131 130 -> 130
+132 131 -> 131
+133 132 -> 132
+134 133 -> 133
+135 134 -> 134
+136 135 -> 135
+137 136 -> 136
+138 137 -> 137
+139 138 -> 138
+140 139 -> 139
+141 140 -> 140
+142 141 -> 141
+143 142 -> 142
+144 143 -> 143
+145 144 -> 144
+146 145 -> 145
+147 146 -> 146
+148 147 -> 147
+149 148 -> 148
+150 149 -> 149
+151 150 -> 150
+152 151 -> 151
+153 152 -> 152
+154 153 -> 153
+155 154 -> 154
+156 155 -> 155
+157 156 -> 156
+158 157 -> 157
+159 158 -> 158
+160 159 -> 159
+161 160 -> 160
+162 161 -> 161
+163 162 -> 162
+164 163 -> 163
+165 164 -> 164
+166 165 -> 165
+167 166 -> 166
+168 167 -> 167
+169 168 -> 168
+170 169 -> 169
+171 170 -> 170
+172 171 -> 171
+173 172 -> 172
+174 173 -> 173
+175 174 -> 174
+176 175 -> 175
+177 176 -> 176
+178 177 -> 177
+179 178 -> 178
+180 179 -> 179
+181 180 -> 180
+182 181 -> 181
+183 182 -> 182
+184 183 -> 183
+185 184 -> 184
+186 185 -> 185
+187 186 -> 186
+188 187 -> 187
+189 188 -> 188
+190 189 -> 189
+191 190 -> 190
+192 191 -> 191
+193 192 -> 192
+194 193 -> 193
+195 194 -> 194
+196 195 -> 195
+197 196 -> 196
+198 197 -> 197
+199 198 -> 198
+200 199 -> 199
+201 200 -> 200
+202 201 -> 201
+203 202 -> 202
+204 203 -> 203
+205 204 -> 204
+206 205 -> 205
+207 206 -> 206
+208 207 -> 207
+209 208 -> 208
+210 209 -> 209
+211 210 -> 210
+212 211 -> 211
+213 212 -> 212
+214 213 -> 213
+215 214 -> 214
+216 215 -> 215
+217 216 -> 216
+218 217 -> 217
+219 218 -> 218
+220 219 -> 219
+221 220 -> 220
+222 221 -> 221
+223 222 -> 222
+224 223 -> 223
+225 224 -> 224
+226 225 -> 225
+227 226 -> 226
+228 227 -> 227
+229 228 -> 228
+230 229 -> 229
+231 230 -> 230
+232 231 -> 231
+233 232 -> 232
+234 233 -> 233
+235 234 -> 234
+236 235 -> 235
+237 236 -> 236
+238 237 -> 237
+239 238 -> 238
+240 239 -> 239
+241 240 -> 240
+242 241 -> 241
+243 242 -> 242
+244 243 -> 243
+245 244 -> 244
+246 245 -> 245
+247 246 -> 246
+248 247 -> 247
+249 248 -> 248
+250 249 -> 249
+251 250 -> 250
+252 251 -> 251
+253 252 -> 252
+254 253 -> 253
+255 254 -> 254
+255 255 -> 255
+;
+TABLES_mem_4
+0 2 2 1 -> 4
+0 1 2 1 -> 4
+0 2 1 1 -> 4
+0 1 1 1 -> 4
+0 2 4 1 -> 6
+0 1 4 1 -> 6
+0 2 3 1 -> 6
+0 1 3 1 -> 6
+0 1 0 0 -> 0
+0 1 5 1 -> 0
+0 2 2 0 -> 5
+0 2 1 0 -> 5
+0 2 4 0 -> 7
+0 2 3 0 -> 7
+0 2 5 0 -> 10
+0 2 5 1 -> 10
+0 3 4 0 -> 8
+0 3 1 0 -> 8
+0 3 2 0 -> 8
+0 3 3 0 -> 8
+0 3 5 0 -> 12
+1 1 5 0 -> 13
+1 2 5 0 -> 14
+1 3 5 0 -> 15
+0 0 0 1 -> 1
+0 0 1 0 -> 2
+0 0 1 1 -> 3
+0 0 2 0 -> 9
+0 0 2 1 -> 11
+;
+TABLES_mem_4_illegal_encodings
+0 0 0 1 -> 1
+0 0 1 0 -> 2
+0 0 1 1 -> 3
+0 0 2 0 -> 9
+0 0 2 1 -> 11
+;
+TABLES_opex_2
+0 0 0 -> 0
+0 1 0 -> 1
+1 1 0 -> 33
+2 1 0 -> 65
+3 1 0 -> 97
+4 1 0 -> 129
+5 1 0 -> 161
+0 2 0 -> 2
+1 2 0 -> 34
+2 2 0 -> 66
+3 2 0 -> 98
+4 2 0 -> 130
+5 2 0 -> 162
+0 3 0 -> 3
+1 3 0 -> 35
+2 3 0 -> 67
+3 3 0 -> 99
+4 3 0 -> 131
+5 3 0 -> 163
+0 4 0 -> 4
+1 4 0 -> 36
+2 4 0 -> 68
+3 4 0 -> 100
+4 4 0 -> 132
+5 4 0 -> 164
+0 5 0 -> 5
+1 5 0 -> 37
+2 5 0 -> 69
+3 5 0 -> 101
+4 5 0 -> 133
+5 5 0 -> 165
+0 6 0 -> 6
+1 6 0 -> 38
+2 6 0 -> 70
+3 6 0 -> 102
+4 6 0 -> 134
+5 6 0 -> 166
+0 7 0 -> 7
+1 7 0 -> 39
+2 7 0 -> 71
+3 7 0 -> 103
+4 7 0 -> 135
+5 7 0 -> 167
+0 8 0 -> 8
+1 8 0 -> 40
+2 8 0 -> 72
+3 8 0 -> 104
+4 8 0 -> 136
+5 8 0 -> 168
+0 9 0 -> 9
+1 9 0 -> 41
+2 9 0 -> 73
+3 9 0 -> 105
+4 9 0 -> 137
+5 9 0 -> 169
+0 10 0 -> 10
+1 10 0 -> 42
+2 10 0 -> 74
+3 10 0 -> 106
+4 10 0 -> 138
+5 10 0 -> 170
+0 11 0 -> 11
+1 11 0 -> 43
+2 11 0 -> 75
+3 11 0 -> 107
+4 11 0 -> 139
+5 11 0 -> 171
+0 12 0 -> 12
+1 12 0 -> 44
+2 12 0 -> 76
+3 12 0 -> 108
+4 12 0 -> 140
+5 12 0 -> 172
+0 13 0 -> 13
+1 13 0 -> 45
+2 13 0 -> 77
+3 13 0 -> 109
+4 13 0 -> 141
+5 13 0 -> 173
+0 14 0 -> 14
+1 14 0 -> 46
+2 14 0 -> 78
+3 14 0 -> 110
+4 14 0 -> 142
+5 14 0 -> 174
+0 15 0 -> 15
+1 15 0 -> 47
+2 15 0 -> 79
+3 15 0 -> 111
+4 15 0 -> 143
+5 15 0 -> 175
+0 17 0 -> 17
+0 17 1 -> 49
+0 18 0 -> 18
+0 18 1 -> 50
+0 19 0 -> 19
+0 19 1 -> 51
+0 20 0 -> 20
+0 20 1 -> 52
+0 21 0 -> 21
+0 21 1 -> 53
+0 22 0 -> 22
+0 22 1 -> 54
+0 23 0 -> 23
+0 23 1 -> 55
+0 24 0 -> 24
+0 24 1 -> 56
+0 25 0 -> 25
+0 25 1 -> 57
+0 26 0 -> 26
+0 26 1 -> 58
+0 27 0 -> 27
+0 27 1 -> 59
+;
+TABLES_URa_0
+0 1 -> 0
+1 2 -> 1
+2 3 -> 2
+3 4 -> 3
+4 5 -> 4
+5 6 -> 5
+6 7 -> 6
+7 8 -> 7
+8 9 -> 8
+9 10 -> 9
+10 11 -> 10
+11 12 -> 11
+12 13 -> 12
+13 14 -> 13
+14 15 -> 14
+15 16 -> 15
+16 17 -> 16
+17 18 -> 17
+18 19 -> 18
+19 20 -> 19
+20 21 -> 20
+21 22 -> 21
+22 23 -> 22
+23 24 -> 23
+24 25 -> 24
+25 26 -> 25
+26 27 -> 26
+27 28 -> 27
+28 29 -> 28
+29 30 -> 29
+30 31 -> 30
+31 32 -> 31
+32 33 -> 32
+33 34 -> 33
+34 35 -> 34
+35 36 -> 35
+36 37 -> 36
+37 38 -> 37
+38 39 -> 38
+39 40 -> 39
+40 41 -> 40
+41 42 -> 41
+42 43 -> 42
+43 44 -> 43
+44 45 -> 44
+45 46 -> 45
+46 47 -> 46
+47 48 -> 47
+48 49 -> 48
+49 50 -> 49
+50 51 -> 50
+51 52 -> 51
+52 53 -> 52
+53 54 -> 53
+54 55 -> 54
+55 56 -> 55
+56 57 -> 56
+57 58 -> 57
+58 59 -> 58
+59 60 -> 59
+60 61 -> 60
+61 62 -> 61
+62 63 -> 62
+63 64 -> 63
+64 65 -> 64
+65 66 -> 65
+66 67 -> 66
+67 68 -> 67
+68 69 -> 68
+69 70 -> 69
+70 71 -> 70
+71 72 -> 71
+72 73 -> 72
+73 74 -> 73
+74 75 -> 74
+75 76 -> 75
+76 77 -> 76
+77 78 -> 77
+78 79 -> 78
+79 80 -> 79
+80 81 -> 80
+81 82 -> 81
+82 83 -> 82
+83 84 -> 83
+84 85 -> 84
+85 86 -> 85
+86 87 -> 86
+87 88 -> 87
+88 89 -> 88
+89 90 -> 89
+90 91 -> 90
+91 92 -> 91
+92 93 -> 92
+93 94 -> 93
+94 95 -> 94
+95 96 -> 95
+96 97 -> 96
+97 98 -> 97
+98 99 -> 98
+99 100 -> 99
+100 101 -> 100
+101 102 -> 101
+102 103 -> 102
+103 104 -> 103
+104 105 -> 104
+105 106 -> 105
+106 107 -> 106
+107 108 -> 107
+108 109 -> 108
+109 110 -> 109
+110 111 -> 110
+111 112 -> 111
+112 113 -> 112
+113 114 -> 113
+114 115 -> 114
+115 116 -> 115
+116 117 -> 116
+117 118 -> 117
+118 119 -> 118
+119 120 -> 119
+120 121 -> 120
+121 122 -> 121
+122 123 -> 122
+123 124 -> 123
+124 125 -> 124
+125 126 -> 125
+126 127 -> 126
+127 128 -> 127
+128 129 -> 128
+129 130 -> 129
+130 131 -> 130
+131 132 -> 131
+132 133 -> 132
+133 134 -> 133
+134 135 -> 134
+135 136 -> 135
+136 137 -> 136
+137 138 -> 137
+138 139 -> 138
+139 140 -> 139
+140 141 -> 140
+141 142 -> 141
+142 143 -> 142
+143 144 -> 143
+144 145 -> 144
+145 146 -> 145
+146 147 -> 146
+147 148 -> 147
+148 149 -> 148
+149 150 -> 149
+150 151 -> 150
+151 152 -> 151
+152 153 -> 152
+153 154 -> 153
+154 155 -> 154
+155 156 -> 155
+156 157 -> 156
+157 158 -> 157
+158 159 -> 158
+159 160 -> 159
+160 161 -> 160
+161 162 -> 161
+162 163 -> 162
+163 164 -> 163
+164 165 -> 164
+165 166 -> 165
+166 167 -> 166
+167 168 -> 167
+168 169 -> 168
+169 170 -> 169
+170 171 -> 170
+171 172 -> 171
+172 173 -> 172
+173 174 -> 173
+174 175 -> 174
+175 176 -> 175
+176 177 -> 176
+177 178 -> 177
+178 179 -> 178
+179 180 -> 179
+180 181 -> 180
+181 182 -> 181
+182 183 -> 182
+183 184 -> 183
+184 185 -> 184
+185 186 -> 185
+186 187 -> 186
+187 188 -> 187
+188 189 -> 188
+189 190 -> 189
+190 191 -> 190
+191 192 -> 191
+192 193 -> 192
+193 194 -> 193
+194 195 -> 194
+195 196 -> 195
+196 197 -> 196
+197 198 -> 197
+198 199 -> 198
+199 200 -> 199
+200 201 -> 200
+201 202 -> 201
+202 203 -> 202
+203 204 -> 203
+204 205 -> 204
+205 206 -> 205
+206 207 -> 206
+207 208 -> 207
+208 209 -> 208
+209 210 -> 209
+210 211 -> 210
+211 212 -> 211
+212 213 -> 212
+213 214 -> 213
+214 215 -> 214
+215 216 -> 215
+216 217 -> 216
+217 218 -> 217
+218 219 -> 218
+219 220 -> 219
+220 221 -> 220
+221 222 -> 221
+222 223 -> 222
+223 224 -> 223
+224 225 -> 224
+225 226 -> 225
+226 227 -> 226
+227 228 -> 227
+228 229 -> 228
+229 230 -> 229
+230 231 -> 230
+231 232 -> 231
+232 233 -> 232
+233 234 -> 233
+234 235 -> 234
+235 236 -> 235
+236 237 -> 236
+237 238 -> 237
+238 239 -> 238
+239 240 -> 239
+240 241 -> 240
+241 242 -> 241
+242 243 -> 242
+243 244 -> 243
+244 245 -> 244
+245 246 -> 245
+246 247 -> 246
+247 248 -> 247
+248 249 -> 248
+249 250 -> 249
+250 251 -> 250
+251 252 -> 251
+252 253 -> 252
+253 254 -> 253
+254 255 -> 254
+255 255 -> 255
+;
+TABLES_op_0
+0 0 0 0 -> 128
+0 0 0 1 -> 64
+0 0 1 0 -> 32
+0 0 1 1 -> 16
+0 1 0 0 -> 8
+0 1 0 1 -> 4
+0 1 1 0 -> 2
+0 1 1 1 -> 1
+1 0 0 0 -> 254
+1 0 0 1 -> 253
+1 0 1 0 -> 251
+1 0 1 1 -> 247
+1 1 0 0 -> 239
+1 1 0 1 -> 223
+1 1 1 0 -> 191
+1 1 1 1 -> 127
+2 0 0 0 -> 150
+2 0 0 1 -> 105
+2 0 1 0 -> 105
+2 0 1 1 -> 150
+2 1 0 0 -> 105
+2 1 0 1 -> 150
+2 1 1 0 -> 150
+2 1 1 1 -> 105
+3 0 0 0 -> 204
+3 0 0 1 -> 204
+3 0 1 0 -> 51
+3 0 1 1 -> 51
+3 1 0 0 -> 204
+3 1 0 1 -> 204
+3 1 1 0 -> 51
+3 1 1 1 -> 51
+;
+TABLES_op_1
+0 0 0 -> 128
+0 0 1 -> 64
+0 1 0 -> 8
+0 1 1 -> 4
+1 0 0 -> 254
+1 0 1 -> 253
+1 1 0 -> 239
+1 1 1 -> 223
+2 0 0 -> 150
+2 0 1 -> 105
+2 1 0 -> 105
+2 1 1 -> 150
+3 0 0 -> 204
+3 0 1 -> 204
+3 1 0 -> 204
+3 1 1 -> 204
+;
+TABLES_op_2
+0 0 0 -> 192
+0 0 1 -> 48
+0 1 0 -> 12
+0 1 1 -> 3
+1 0 0 -> 252
+1 0 1 -> 243
+1 1 0 -> 207
+1 1 1 -> 63
+2 0 0 -> 60
+2 0 1 -> 195
+2 1 0 -> 195
+2 1 1 -> 60
+3 0 0 -> 204
+3 0 1 -> 51
+3 1 0 -> 204
+3 1 1 -> 51
+;
+TABLES_op_3
+0 0 -> 192
+0 1 -> 12
+1 0 -> 252
+1 1 -> 207
+2 0 -> 60
+2 1 -> 195
+3 0 -> 204
+3 1 -> 204
+;
+TABLES_op_4
+0 0 0 0 0 -> 32776
+0 0 0 0 1 -> 16388
+0 0 0 1 0 -> 8194
+0 0 0 1 1 -> 4097
+0 0 1 0 0 -> 2176
+0 0 1 0 1 -> 1088
+0 0 1 1 0 -> 544
+0 0 1 1 1 -> 272
+0 1 0 0 0 -> 60078
+0 1 0 0 1 -> 54621
+0 1 0 1 0 -> 47787
+0 1 0 1 1 -> 30039
+0 1 1 0 0 -> 44778
+0 1 1 0 1 -> 24021
+0 1 1 1 0 -> 43962
+0 1 1 1 1 -> 22389
+0 2 0 0 0 -> 27302
+0 2 0 0 1 -> 38233
+0 2 0 1 0 -> 39593
+0 2 0 1 1 -> 25942
+0 2 1 0 0 -> 42602
+0 2 1 0 1 -> 22933
+0 2 1 1 0 -> 43418
+0 2 1 1 1 -> 22117
+1 0 0 0 0 -> 43146
+1 0 0 0 1 -> 21573
+1 0 0 1 0 -> 41514
+1 0 0 1 1 -> 20757
+1 0 1 0 0 -> 35496
+1 0 1 0 1 -> 17748
+1 0 1 1 0 -> 10914
+1 0 1 1 1 -> 5457
+1 1 0 0 0 -> 65263
+1 1 0 0 1 -> 64991
+1 1 0 1 0 -> 64447
+1 1 0 1 1 -> 63359
+1 1 1 0 0 -> 61438
+1 1 1 0 1 -> 57341
+1 1 1 1 0 -> 49147
+1 1 1 1 1 -> 32759
+1 2 0 0 0 -> 22117
+1 2 0 0 1 -> 43418
+1 2 0 1 0 -> 22933
+1 2 0 1 1 -> 42602
+1 2 1 0 0 -> 25942
+1 2 1 0 1 -> 39593
+1 2 1 1 0 -> 38233
+1 2 1 1 1 -> 27302
+2 0 0 0 0 -> 10370
+2 0 0 0 1 -> 5185
+2 0 0 1 0 -> 33320
+2 0 0 1 1 -> 16660
+2 0 1 0 0 -> 33320
+2 0 1 0 1 -> 16660
+2 0 1 1 0 -> 10370
+2 0 1 1 1 -> 5185
+2 1 0 0 0 -> 48875
+2 1 0 0 1 -> 32215
+2 1 0 1 0 -> 60350
+2 1 0 1 1 -> 55165
+2 1 1 0 0 -> 60350
+2 1 1 0 1 -> 55165
+2 1 1 1 0 -> 48875
+2 1 1 1 1 -> 32215
+2 2 0 0 0 -> 38505
+2 2 0 0 1 -> 27030
+2 2 0 1 0 -> 27030
+2 2 0 1 1 -> 38505
+2 2 1 0 0 -> 27030
+2 2 1 0 1 -> 38505
+2 2 1 1 0 -> 38505
+2 2 1 1 1 -> 27030
+;
+TABLES_op_5
+0 0 0 -> 32776
+0 0 1 -> 8194
+0 1 0 -> 2176
+0 1 1 -> 544
+1 0 0 -> 63631
+1 0 1 -> 61999
+1 1 0 -> 36856
+1 1 1 -> 12274
+2 0 0 -> 10370
+2 0 1 -> 33320
+2 1 0 -> 33320
+2 1 1 -> 10370
+;
+TABLES_URb_0
+0 2 -> 0
+1 3 -> 1
+2 4 -> 2
+3 5 -> 3
+4 6 -> 4
+5 7 -> 5
+6 8 -> 6
+7 9 -> 7
+8 10 -> 8
+9 11 -> 9
+10 12 -> 10
+11 13 -> 11
+12 14 -> 12
+13 15 -> 13
+14 16 -> 14
+15 17 -> 15
+16 18 -> 16
+17 19 -> 17
+18 20 -> 18
+19 21 -> 19
+20 22 -> 20
+21 23 -> 21
+22 24 -> 22
+23 25 -> 23
+24 26 -> 24
+25 27 -> 25
+26 28 -> 26
+27 29 -> 27
+28 30 -> 28
+29 31 -> 29
+30 32 -> 30
+31 33 -> 31
+32 34 -> 32
+33 35 -> 33
+34 36 -> 34
+35 37 -> 35
+36 38 -> 36
+37 39 -> 37
+38 40 -> 38
+39 41 -> 39
+40 42 -> 40
+41 43 -> 41
+42 44 -> 42
+43 45 -> 43
+44 46 -> 44
+45 47 -> 45
+46 48 -> 46
+47 49 -> 47
+48 50 -> 48
+49 51 -> 49
+50 52 -> 50
+51 53 -> 51
+52 54 -> 52
+53 55 -> 53
+54 56 -> 54
+55 57 -> 55
+56 58 -> 56
+57 59 -> 57
+58 60 -> 58
+59 61 -> 59
+60 62 -> 60
+61 63 -> 61
+62 64 -> 62
+63 65 -> 63
+64 66 -> 64
+65 67 -> 65
+66 68 -> 66
+67 69 -> 67
+68 70 -> 68
+69 71 -> 69
+70 72 -> 70
+71 73 -> 71
+72 74 -> 72
+73 75 -> 73
+74 76 -> 74
+75 77 -> 75
+76 78 -> 76
+77 79 -> 77
+78 80 -> 78
+79 81 -> 79
+80 82 -> 80
+81 83 -> 81
+82 84 -> 82
+83 85 -> 83
+84 86 -> 84
+85 87 -> 85
+86 88 -> 86
+87 89 -> 87
+88 90 -> 88
+89 91 -> 89
+90 92 -> 90
+91 93 -> 91
+92 94 -> 92
+93 95 -> 93
+94 96 -> 94
+95 97 -> 95
+96 98 -> 96
+97 99 -> 97
+98 100 -> 98
+99 101 -> 99
+100 102 -> 100
+101 103 -> 101
+102 104 -> 102
+103 105 -> 103
+104 106 -> 104
+105 107 -> 105
+106 108 -> 106
+107 109 -> 107
+108 110 -> 108
+109 111 -> 109
+110 112 -> 110
+111 113 -> 111
+112 114 -> 112
+113 115 -> 113
+114 116 -> 114
+115 117 -> 115
+116 118 -> 116
+117 119 -> 117
+118 120 -> 118
+119 121 -> 119
+120 122 -> 120
+121 123 -> 121
+122 124 -> 122
+123 125 -> 123
+124 126 -> 124
+125 127 -> 125
+126 128 -> 126
+127 129 -> 127
+128 130 -> 128
+129 131 -> 129
+130 132 -> 130
+131 133 -> 131
+132 134 -> 132
+133 135 -> 133
+134 136 -> 134
+135 137 -> 135
+136 138 -> 136
+137 139 -> 137
+138 140 -> 138
+139 141 -> 139
+140 142 -> 140
+141 143 -> 141
+142 144 -> 142
+143 145 -> 143
+144 146 -> 144
+145 147 -> 145
+146 148 -> 146
+147 149 -> 147
+148 150 -> 148
+149 151 -> 149
+150 152 -> 150
+151 153 -> 151
+152 154 -> 152
+153 155 -> 153
+154 156 -> 154
+155 157 -> 155
+156 158 -> 156
+157 159 -> 157
+158 160 -> 158
+159 161 -> 159
+160 162 -> 160
+161 163 -> 161
+162 164 -> 162
+163 165 -> 163
+164 166 -> 164
+165 167 -> 165
+166 168 -> 166
+167 169 -> 167
+168 170 -> 168
+169 171 -> 169
+170 172 -> 170
+171 173 -> 171
+172 174 -> 172
+173 175 -> 173
+174 176 -> 174
+175 177 -> 175
+176 178 -> 176
+177 179 -> 177
+178 180 -> 178
+179 181 -> 179
+180 182 -> 180
+181 183 -> 181
+182 184 -> 182
+183 185 -> 183
+184 186 -> 184
+185 187 -> 185
+186 188 -> 186
+187 189 -> 187
+188 190 -> 188
+189 191 -> 189
+190 192 -> 190
+191 193 -> 191
+192 194 -> 192
+193 195 -> 193
+194 196 -> 194
+195 197 -> 195
+196 198 -> 196
+197 199 -> 197
+198 200 -> 198
+199 201 -> 199
+200 202 -> 200
+201 203 -> 201
+202 204 -> 202
+203 205 -> 203
+204 206 -> 204
+205 207 -> 205
+206 208 -> 206
+207 209 -> 207
+208 210 -> 208
+209 211 -> 209
+210 212 -> 210
+211 213 -> 211
+212 214 -> 212
+213 215 -> 213
+214 216 -> 214
+215 217 -> 215
+216 218 -> 216
+217 219 -> 217
+218 220 -> 218
+219 221 -> 219
+220 222 -> 220
+221 223 -> 221
+222 224 -> 222
+223 225 -> 223
+224 226 -> 224
+225 227 -> 225
+226 228 -> 226
+227 229 -> 227
+228 230 -> 228
+229 231 -> 229
+230 232 -> 230
+231 233 -> 231
+232 234 -> 232
+233 235 -> 233
+234 236 -> 234
+235 237 -> 235
+236 238 -> 236
+237 239 -> 237
+238 240 -> 238
+239 241 -> 239
+240 242 -> 240
+241 243 -> 241
+242 244 -> 242
+243 245 -> 243
+244 246 -> 244
+245 247 -> 245
+246 248 -> 246
+247 249 -> 247
+248 250 -> 248
+249 251 -> 249
+250 252 -> 250
+251 253 -> 251
+252 254 -> 252
+253 255 -> 253
+255 255 -> 255
+254 255 -> 255
+;
+TABLES_opex_3
+0 0 0 0 -> 0
+0 1 0 0 -> 1
+1 1 0 0 -> 33
+2 1 0 0 -> 65
+3 1 0 0 -> 97
+4 1 0 0 -> 129
+5 1 0 0 -> 161
+0 2 0 0 -> 2
+1 2 0 0 -> 34
+2 2 0 0 -> 66
+3 2 0 0 -> 98
+4 2 0 0 -> 130
+5 2 0 0 -> 162
+0 3 0 0 -> 3
+1 3 0 0 -> 35
+2 3 0 0 -> 67
+3 3 0 0 -> 99
+4 3 0 0 -> 131
+5 3 0 0 -> 163
+0 4 0 0 -> 4
+1 4 0 0 -> 36
+2 4 0 0 -> 68
+3 4 0 0 -> 100
+4 4 0 0 -> 132
+5 4 0 0 -> 164
+0 5 0 0 -> 5
+1 5 0 0 -> 37
+2 5 0 0 -> 69
+3 5 0 0 -> 101
+4 5 0 0 -> 133
+5 5 0 0 -> 165
+0 6 0 0 -> 6
+1 6 0 0 -> 38
+2 6 0 0 -> 70
+3 6 0 0 -> 102
+4 6 0 0 -> 134
+5 6 0 0 -> 166
+0 7 0 0 -> 7
+1 7 0 0 -> 39
+2 7 0 0 -> 71
+3 7 0 0 -> 103
+4 7 0 0 -> 135
+5 7 0 0 -> 167
+0 8 0 0 -> 8
+1 8 0 0 -> 40
+2 8 0 0 -> 72
+3 8 0 0 -> 104
+4 8 0 0 -> 136
+5 8 0 0 -> 168
+0 9 0 0 -> 9
+1 9 0 0 -> 41
+2 9 0 0 -> 73
+3 9 0 0 -> 105
+4 9 0 0 -> 137
+5 9 0 0 -> 169
+0 10 0 0 -> 10
+1 10 0 0 -> 42
+2 10 0 0 -> 74
+3 10 0 0 -> 106
+4 10 0 0 -> 138
+5 10 0 0 -> 170
+0 11 0 0 -> 11
+1 11 0 0 -> 43
+2 11 0 0 -> 75
+3 11 0 0 -> 107
+4 11 0 0 -> 139
+5 11 0 0 -> 171
+0 12 0 0 -> 12
+1 12 0 0 -> 44
+2 12 0 0 -> 76
+3 12 0 0 -> 108
+4 12 0 0 -> 140
+5 12 0 0 -> 172
+0 13 0 0 -> 13
+1 13 0 0 -> 45
+2 13 0 0 -> 77
+3 13 0 0 -> 109
+4 13 0 0 -> 141
+5 13 0 0 -> 173
+0 14 0 0 -> 14
+1 14 0 0 -> 46
+2 14 0 0 -> 78
+3 14 0 0 -> 110
+4 14 0 0 -> 142
+5 14 0 0 -> 174
+0 15 0 0 -> 15
+1 15 0 0 -> 47
+2 15 0 0 -> 79
+3 15 0 0 -> 111
+4 15 0 0 -> 143
+5 15 0 0 -> 175
+0 17 0 0 -> 17
+0 17 1 0 -> 49
+0 17 0 1 -> 145
+0 17 1 1 -> 177
+0 18 0 0 -> 18
+0 18 1 0 -> 50
+0 18 0 1 -> 146
+0 18 1 1 -> 178
+0 19 0 0 -> 19
+0 19 1 0 -> 51
+0 19 0 1 -> 147
+0 19 1 1 -> 179
+0 20 0 0 -> 20
+0 20 1 0 -> 52
+0 20 0 1 -> 148
+0 20 1 1 -> 180
+0 21 0 0 -> 21
+0 21 1 0 -> 53
+0 21 0 1 -> 149
+0 21 1 1 -> 181
+0 22 0 0 -> 22
+0 22 1 0 -> 54
+0 22 0 1 -> 150
+0 22 1 1 -> 182
+0 23 0 0 -> 23
+0 23 1 0 -> 55
+0 23 0 1 -> 151
+0 23 1 1 -> 183
+0 24 0 0 -> 24
+0 24 1 0 -> 56
+0 24 0 1 -> 152
+0 24 1 1 -> 184
+0 25 0 0 -> 25
+0 25 1 0 -> 57
+0 25 0 1 -> 153
+0 25 1 1 -> 185
+0 26 0 0 -> 26
+0 26 1 0 -> 58
+0 26 0 1 -> 154
+0 26 1 1 -> 186
+0 27 0 0 -> 27
+0 27 1 0 -> 59
+0 27 0 1 -> 155
+0 27 1 1 -> 187
+;
+TABLES_opex_4
+0 0 0 0 0 -> 0
+0 1 0 0 0 -> 1
+1 1 0 0 0 -> 33
+2 1 0 0 0 -> 65
+3 1 0 0 0 -> 97
+4 1 0 0 0 -> 129
+5 1 0 0 0 -> 161
+0 2 0 0 0 -> 2
+1 2 0 0 0 -> 34
+2 2 0 0 0 -> 66
+3 2 0 0 0 -> 98
+4 2 0 0 0 -> 130
+5 2 0 0 0 -> 162
+0 3 0 0 0 -> 3
+1 3 0 0 0 -> 35
+2 3 0 0 0 -> 67
+3 3 0 0 0 -> 99
+4 3 0 0 0 -> 131
+5 3 0 0 0 -> 163
+0 4 0 0 0 -> 4
+1 4 0 0 0 -> 36
+2 4 0 0 0 -> 68
+3 4 0 0 0 -> 100
+4 4 0 0 0 -> 132
+5 4 0 0 0 -> 164
+0 5 0 0 0 -> 5
+1 5 0 0 0 -> 37
+2 5 0 0 0 -> 69
+3 5 0 0 0 -> 101
+4 5 0 0 0 -> 133
+5 5 0 0 0 -> 165
+0 6 0 0 0 -> 6
+1 6 0 0 0 -> 38
+2 6 0 0 0 -> 70
+3 6 0 0 0 -> 102
+4 6 0 0 0 -> 134
+5 6 0 0 0 -> 166
+0 7 0 0 0 -> 7
+1 7 0 0 0 -> 39
+2 7 0 0 0 -> 71
+3 7 0 0 0 -> 103
+4 7 0 0 0 -> 135
+5 7 0 0 0 -> 167
+0 8 0 0 0 -> 8
+1 8 0 0 0 -> 40
+2 8 0 0 0 -> 72
+3 8 0 0 0 -> 104
+4 8 0 0 0 -> 136
+5 8 0 0 0 -> 168
+0 9 0 0 0 -> 9
+1 9 0 0 0 -> 41
+2 9 0 0 0 -> 73
+3 9 0 0 0 -> 105
+4 9 0 0 0 -> 137
+5 9 0 0 0 -> 169
+0 10 0 0 0 -> 10
+1 10 0 0 0 -> 42
+2 10 0 0 0 -> 74
+3 10 0 0 0 -> 106
+4 10 0 0 0 -> 138
+5 10 0 0 0 -> 170
+0 11 0 0 0 -> 11
+1 11 0 0 0 -> 43
+2 11 0 0 0 -> 75
+3 11 0 0 0 -> 107
+4 11 0 0 0 -> 139
+5 11 0 0 0 -> 171
+0 12 0 0 0 -> 12
+1 12 0 0 0 -> 44
+2 12 0 0 0 -> 76
+3 12 0 0 0 -> 108
+4 12 0 0 0 -> 140
+5 12 0 0 0 -> 172
+0 13 0 0 0 -> 13
+1 13 0 0 0 -> 45
+2 13 0 0 0 -> 77
+3 13 0 0 0 -> 109
+4 13 0 0 0 -> 141
+5 13 0 0 0 -> 173
+0 14 0 0 0 -> 14
+1 14 0 0 0 -> 46
+2 14 0 0 0 -> 78
+3 14 0 0 0 -> 110
+4 14 0 0 0 -> 142
+5 14 0 0 0 -> 174
+0 15 0 0 0 -> 15
+1 15 0 0 0 -> 47
+2 15 0 0 0 -> 79
+3 15 0 0 0 -> 111
+4 15 0 0 0 -> 143
+5 15 0 0 0 -> 175
+0 17 0 0 0 -> 17
+0 17 1 0 0 -> 49
+0 17 0 1 0 -> 81
+0 17 1 1 0 -> 113
+0 17 0 0 1 -> 145
+0 17 1 0 1 -> 177
+0 17 0 1 1 -> 209
+0 17 1 1 1 -> 241
+0 18 0 0 0 -> 18
+0 18 1 0 0 -> 50
+0 18 0 1 0 -> 82
+0 18 1 1 0 -> 114
+0 18 0 0 1 -> 146
+0 18 1 0 1 -> 178
+0 18 0 1 1 -> 210
+0 18 1 1 1 -> 242
+0 19 0 0 0 -> 19
+0 19 1 0 0 -> 51
+0 19 0 1 0 -> 83
+0 19 1 1 0 -> 115
+0 19 0 0 1 -> 147
+0 19 1 0 1 -> 179
+0 19 0 1 1 -> 211
+0 19 1 1 1 -> 243
+0 20 0 0 0 -> 20
+0 20 1 0 0 -> 52
+0 20 0 1 0 -> 84
+0 20 1 1 0 -> 116
+0 20 0 0 1 -> 148
+0 20 1 0 1 -> 180
+0 20 0 1 1 -> 212
+0 20 1 1 1 -> 244
+0 21 0 0 0 -> 21
+0 21 1 0 0 -> 53
+0 21 0 1 0 -> 85
+0 21 1 1 0 -> 117
+0 21 0 0 1 -> 149
+0 21 1 0 1 -> 181
+0 21 0 1 1 -> 213
+0 21 1 1 1 -> 245
+0 22 0 0 0 -> 22
+0 22 1 0 0 -> 54
+0 22 0 1 0 -> 86
+0 22 1 1 0 -> 118
+0 22 0 0 1 -> 150
+0 22 1 0 1 -> 182
+0 22 0 1 1 -> 214
+0 22 1 1 1 -> 246
+0 23 0 0 0 -> 23
+0 23 1 0 0 -> 55
+0 23 0 1 0 -> 87
+0 23 1 1 0 -> 119
+0 23 0 0 1 -> 151
+0 23 1 0 1 -> 183
+0 23 0 1 1 -> 215
+0 23 1 1 1 -> 247
+0 24 0 0 0 -> 24
+0 24 1 0 0 -> 56
+0 24 0 1 0 -> 88
+0 24 1 1 0 -> 120
+0 24 0 0 1 -> 152
+0 24 1 0 1 -> 184
+0 24 0 1 1 -> 216
+0 24 1 1 1 -> 248
+0 25 0 0 0 -> 25
+0 25 1 0 0 -> 57
+0 25 0 1 0 -> 89
+0 25 1 1 0 -> 121
+0 25 0 0 1 -> 153
+0 25 1 0 1 -> 185
+0 25 0 1 1 -> 217
+0 25 1 1 1 -> 249
+0 26 0 0 0 -> 26
+0 26 1 0 0 -> 58
+0 26 0 1 0 -> 90
+0 26 1 1 0 -> 122
+0 26 0 0 1 -> 154
+0 26 1 0 1 -> 186
+0 26 0 1 1 -> 218
+0 26 1 1 1 -> 250
+0 27 0 0 0 -> 27
+0 27 1 0 0 -> 59
+0 27 0 1 0 -> 91
+0 27 1 1 0 -> 123
+0 27 0 0 1 -> 155
+0 27 1 0 1 -> 187
+0 27 0 1 1 -> 219
+0 27 1 1 1 -> 251
+;
+TABLES_opex_5
+0 0 0 0 -> 0
+0 1 0 0 -> 1
+1 1 0 0 -> 33
+2 1 0 0 -> 65
+3 1 0 0 -> 97
+4 1 0 0 -> 129
+5 1 0 0 -> 161
+0 2 0 0 -> 2
+1 2 0 0 -> 34
+2 2 0 0 -> 66
+3 2 0 0 -> 98
+4 2 0 0 -> 130
+5 2 0 0 -> 162
+0 3 0 0 -> 3
+1 3 0 0 -> 35
+2 3 0 0 -> 67
+3 3 0 0 -> 99
+4 3 0 0 -> 131
+5 3 0 0 -> 163
+0 4 0 0 -> 4
+1 4 0 0 -> 36
+2 4 0 0 -> 68
+3 4 0 0 -> 100
+4 4 0 0 -> 132
+5 4 0 0 -> 164
+0 5 0 0 -> 5
+1 5 0 0 -> 37
+2 5 0 0 -> 69
+3 5 0 0 -> 101
+4 5 0 0 -> 133
+5 5 0 0 -> 165
+0 6 0 0 -> 6
+1 6 0 0 -> 38
+2 6 0 0 -> 70
+3 6 0 0 -> 102
+4 6 0 0 -> 134
+5 6 0 0 -> 166
+0 7 0 0 -> 7
+1 7 0 0 -> 39
+2 7 0 0 -> 71
+3 7 0 0 -> 103
+4 7 0 0 -> 135
+5 7 0 0 -> 167
+0 8 0 0 -> 8
+1 8 0 0 -> 40
+2 8 0 0 -> 72
+3 8 0 0 -> 104
+4 8 0 0 -> 136
+5 8 0 0 -> 168
+0 9 0 0 -> 9
+1 9 0 0 -> 41
+2 9 0 0 -> 73
+3 9 0 0 -> 105
+4 9 0 0 -> 137
+5 9 0 0 -> 169
+0 10 0 0 -> 10
+1 10 0 0 -> 42
+2 10 0 0 -> 74
+3 10 0 0 -> 106
+4 10 0 0 -> 138
+5 10 0 0 -> 170
+0 11 0 0 -> 11
+1 11 0 0 -> 43
+2 11 0 0 -> 75
+3 11 0 0 -> 107
+4 11 0 0 -> 139
+5 11 0 0 -> 171
+0 12 0 0 -> 12
+1 12 0 0 -> 44
+2 12 0 0 -> 76
+3 12 0 0 -> 108
+4 12 0 0 -> 140
+5 12 0 0 -> 172
+0 13 0 0 -> 13
+1 13 0 0 -> 45
+2 13 0 0 -> 77
+3 13 0 0 -> 109
+4 13 0 0 -> 141
+5 13 0 0 -> 173
+0 14 0 0 -> 14
+1 14 0 0 -> 46
+2 14 0 0 -> 78
+3 14 0 0 -> 110
+4 14 0 0 -> 142
+5 14 0 0 -> 174
+0 15 0 0 -> 15
+1 15 0 0 -> 47
+2 15 0 0 -> 79
+3 15 0 0 -> 111
+4 15 0 0 -> 143
+5 15 0 0 -> 175
+0 17 0 0 -> 17
+0 17 1 0 -> 49
+0 17 0 1 -> 81
+0 17 1 1 -> 113
+0 18 0 0 -> 18
+0 18 1 0 -> 50
+0 18 0 1 -> 82
+0 18 1 1 -> 114
+0 19 0 0 -> 19
+0 19 1 0 -> 51
+0 19 0 1 -> 83
+0 19 1 1 -> 115
+0 20 0 0 -> 20
+0 20 1 0 -> 52
+0 20 0 1 -> 84
+0 20 1 1 -> 116
+0 21 0 0 -> 21
+0 21 1 0 -> 53
+0 21 0 1 -> 85
+0 21 1 1 -> 117
+0 22 0 0 -> 22
+0 22 1 0 -> 54
+0 22 0 1 -> 86
+0 22 1 1 -> 118
+0 23 0 0 -> 23
+0 23 1 0 -> 55
+0 23 0 1 -> 87
+0 23 1 1 -> 119
+0 24 0 0 -> 24
+0 24 1 0 -> 56
+0 24 0 1 -> 88
+0 24 1 1 -> 120
+0 25 0 0 -> 25
+0 25 1 0 -> 57
+0 25 0 1 -> 89
+0 25 1 1 -> 121
+0 26 0 0 -> 26
+0 26 1 0 -> 58
+0 26 0 1 -> 90
+0 26 1 1 -> 122
+0 27 0 0 -> 27
+0 27 1 0 -> 59
+0 27 0 1 -> 91
+0 27 1 1 -> 123
+;
+TABLES_opex_6
+0 0 -> 0
+;
+TABLES_opex_7
+0 0 0 -> 0
+0 1 0 -> 1
+1 1 0 -> 33
+2 1 0 -> 65
+3 1 0 -> 97
+4 1 0 -> 129
+5 1 0 -> 161
+0 2 0 -> 2
+1 2 0 -> 34
+2 2 0 -> 66
+3 2 0 -> 98
+4 2 0 -> 130
+5 2 0 -> 162
+0 3 0 -> 3
+1 3 0 -> 35
+2 3 0 -> 67
+3 3 0 -> 99
+4 3 0 -> 131
+5 3 0 -> 163
+0 4 0 -> 4
+1 4 0 -> 36
+2 4 0 -> 68
+3 4 0 -> 100
+4 4 0 -> 132
+5 4 0 -> 164
+0 5 0 -> 5
+1 5 0 -> 37
+2 5 0 -> 69
+3 5 0 -> 101
+4 5 0 -> 133
+5 5 0 -> 165
+0 6 0 -> 6
+1 6 0 -> 38
+2 6 0 -> 70
+3 6 0 -> 102
+4 6 0 -> 134
+5 6 0 -> 166
+0 7 0 -> 7
+1 7 0 -> 39
+2 7 0 -> 71
+3 7 0 -> 103
+4 7 0 -> 135
+5 7 0 -> 167
+0 8 0 -> 8
+1 8 0 -> 40
+2 8 0 -> 72
+3 8 0 -> 104
+4 8 0 -> 136
+5 8 0 -> 168
+0 9 0 -> 9
+1 9 0 -> 41
+2 9 0 -> 73
+3 9 0 -> 105
+4 9 0 -> 137
+5 9 0 -> 169
+0 10 0 -> 10
+1 10 0 -> 42
+2 10 0 -> 74
+3 10 0 -> 106
+4 10 0 -> 138
+5 10 0 -> 170
+0 11 0 -> 11
+1 11 0 -> 43
+2 11 0 -> 75
+3 11 0 -> 107
+4 11 0 -> 139
+5 11 0 -> 171
+0 12 0 -> 12
+1 12 0 -> 44
+2 12 0 -> 76
+3 12 0 -> 108
+4 12 0 -> 140
+5 12 0 -> 172
+0 13 0 -> 13
+1 13 0 -> 45
+2 13 0 -> 77
+3 13 0 -> 109
+4 13 0 -> 141
+5 13 0 -> 173
+0 14 0 -> 14
+1 14 0 -> 46
+2 14 0 -> 78
+3 14 0 -> 110
+4 14 0 -> 142
+5 14 0 -> 174
+0 15 0 -> 15
+1 15 0 -> 47
+2 15 0 -> 79
+3 15 0 -> 111
+4 15 0 -> 143
+5 15 0 -> 175
+0 17 0 -> 17
+0 17 1 -> 81
+0 18 0 -> 18
+0 18 1 -> 82
+0 19 0 -> 19
+0 19 1 -> 83
+0 20 0 -> 20
+0 20 1 -> 84
+0 21 0 -> 21
+0 21 1 -> 85
+0 22 0 -> 22
+0 22 1 -> 86
+0 23 0 -> 23
+0 23 1 -> 87
+0 24 0 -> 24
+0 24 1 -> 88
+0 25 0 -> 25
+0 25 1 -> 89
+0 26 0 -> 26
+0 26 1 -> 90
+0 27 0 -> 27
+0 27 1 -> 91
+;
+TABLES_opex_8
+0 0 0 -> 0
+0 1 0 -> 1
+1 1 0 -> 33
+2 1 0 -> 65
+3 1 0 -> 97
+4 1 0 -> 129
+5 1 0 -> 161
+0 2 0 -> 2
+1 2 0 -> 34
+2 2 0 -> 66
+3 2 0 -> 98
+4 2 0 -> 130
+5 2 0 -> 162
+0 3 0 -> 3
+1 3 0 -> 35
+2 3 0 -> 67
+3 3 0 -> 99
+4 3 0 -> 131
+5 3 0 -> 163
+0 4 0 -> 4
+1 4 0 -> 36
+2 4 0 -> 68
+3 4 0 -> 100
+4 4 0 -> 132
+5 4 0 -> 164
+0 5 0 -> 5
+1 5 0 -> 37
+2 5 0 -> 69
+3 5 0 -> 101
+4 5 0 -> 133
+5 5 0 -> 165
+0 6 0 -> 6
+1 6 0 -> 38
+2 6 0 -> 70
+3 6 0 -> 102
+4 6 0 -> 134
+5 6 0 -> 166
+0 7 0 -> 7
+1 7 0 -> 39
+2 7 0 -> 71
+3 7 0 -> 103
+4 7 0 -> 135
+5 7 0 -> 167
+0 8 0 -> 8
+1 8 0 -> 40
+2 8 0 -> 72
+3 8 0 -> 104
+4 8 0 -> 136
+5 8 0 -> 168
+0 9 0 -> 9
+1 9 0 -> 41
+2 9 0 -> 73
+3 9 0 -> 105
+4 9 0 -> 137
+5 9 0 -> 169
+0 10 0 -> 10
+1 10 0 -> 42
+2 10 0 -> 74
+3 10 0 -> 106
+4 10 0 -> 138
+5 10 0 -> 170
+0 11 0 -> 11
+1 11 0 -> 43
+2 11 0 -> 75
+3 11 0 -> 107
+4 11 0 -> 139
+5 11 0 -> 171
+0 12 0 -> 12
+1 12 0 -> 44
+2 12 0 -> 76
+3 12 0 -> 108
+4 12 0 -> 140
+5 12 0 -> 172
+0 13 0 -> 13
+1 13 0 -> 45
+2 13 0 -> 77
+3 13 0 -> 109
+4 13 0 -> 141
+5 13 0 -> 173
+0 14 0 -> 14
+1 14 0 -> 46
+2 14 0 -> 78
+3 14 0 -> 110
+4 14 0 -> 142
+5 14 0 -> 174
+0 15 0 -> 15
+1 15 0 -> 47
+2 15 0 -> 79
+3 15 0 -> 111
+4 15 0 -> 143
+5 15 0 -> 175
+0 17 0 -> 17
+0 17 1 -> 145
+0 18 0 -> 18
+0 18 1 -> 146
+0 19 0 -> 19
+0 19 1 -> 147
+0 20 0 -> 20
+0 20 1 -> 148
+0 21 0 -> 21
+0 21 1 -> 149
+0 22 0 -> 22
+0 22 1 -> 150
+0 23 0 -> 23
+0 23 1 -> 151
+0 24 0 -> 24
+0 24 1 -> 152
+0 25 0 -> 25
+0 25 1 -> 153
+0 26 0 -> 26
+0 26 1 -> 154
+0 27 0 -> 27
+0 27 1 -> 155
+;
+TABLES_opex_9
+0 0 0 0 -> 0
+0 1 0 0 -> 1
+1 1 0 0 -> 33
+2 1 0 0 -> 65
+3 1 0 0 -> 97
+4 1 0 0 -> 129
+5 1 0 0 -> 161
+0 2 0 0 -> 2
+1 2 0 0 -> 34
+2 2 0 0 -> 66
+3 2 0 0 -> 98
+4 2 0 0 -> 130
+5 2 0 0 -> 162
+0 3 0 0 -> 3
+1 3 0 0 -> 35
+2 3 0 0 -> 67
+3 3 0 0 -> 99
+4 3 0 0 -> 131
+5 3 0 0 -> 163
+0 4 0 0 -> 4
+1 4 0 0 -> 36
+2 4 0 0 -> 68
+3 4 0 0 -> 100
+4 4 0 0 -> 132
+5 4 0 0 -> 164
+0 5 0 0 -> 5
+1 5 0 0 -> 37
+2 5 0 0 -> 69
+3 5 0 0 -> 101
+4 5 0 0 -> 133
+5 5 0 0 -> 165
+0 6 0 0 -> 6
+1 6 0 0 -> 38
+2 6 0 0 -> 70
+3 6 0 0 -> 102
+4 6 0 0 -> 134
+5 6 0 0 -> 166
+0 7 0 0 -> 7
+1 7 0 0 -> 39
+2 7 0 0 -> 71
+3 7 0 0 -> 103
+4 7 0 0 -> 135
+5 7 0 0 -> 167
+0 8 0 0 -> 8
+1 8 0 0 -> 40
+2 8 0 0 -> 72
+3 8 0 0 -> 104
+4 8 0 0 -> 136
+5 8 0 0 -> 168
+0 9 0 0 -> 9
+1 9 0 0 -> 41
+2 9 0 0 -> 73
+3 9 0 0 -> 105
+4 9 0 0 -> 137
+5 9 0 0 -> 169
+0 10 0 0 -> 10
+1 10 0 0 -> 42
+2 10 0 0 -> 74
+3 10 0 0 -> 106
+4 10 0 0 -> 138
+5 10 0 0 -> 170
+0 11 0 0 -> 11
+1 11 0 0 -> 43
+2 11 0 0 -> 75
+3 11 0 0 -> 107
+4 11 0 0 -> 139
+5 11 0 0 -> 171
+0 12 0 0 -> 12
+1 12 0 0 -> 44
+2 12 0 0 -> 76
+3 12 0 0 -> 108
+4 12 0 0 -> 140
+5 12 0 0 -> 172
+0 13 0 0 -> 13
+1 13 0 0 -> 45
+2 13 0 0 -> 77
+3 13 0 0 -> 109
+4 13 0 0 -> 141
+5 13 0 0 -> 173
+0 14 0 0 -> 14
+1 14 0 0 -> 46
+2 14 0 0 -> 78
+3 14 0 0 -> 110
+4 14 0 0 -> 142
+5 14 0 0 -> 174
+0 15 0 0 -> 15
+1 15 0 0 -> 47
+2 15 0 0 -> 79
+3 15 0 0 -> 111
+4 15 0 0 -> 143
+5 15 0 0 -> 175
+0 17 0 0 -> 17
+0 17 1 0 -> 81
+0 17 0 1 -> 145
+0 17 1 1 -> 209
+0 18 0 0 -> 18
+0 18 1 0 -> 82
+0 18 0 1 -> 146
+0 18 1 1 -> 210
+0 19 0 0 -> 19
+0 19 1 0 -> 83
+0 19 0 1 -> 147
+0 19 1 1 -> 211
+0 20 0 0 -> 20
+0 20 1 0 -> 84
+0 20 0 1 -> 148
+0 20 1 1 -> 212
+0 21 0 0 -> 21
+0 21 1 0 -> 85
+0 21 0 1 -> 149
+0 21 1 1 -> 213
+0 22 0 0 -> 22
+0 22 1 0 -> 86
+0 22 0 1 -> 150
+0 22 1 1 -> 214
+0 23 0 0 -> 23
+0 23 1 0 -> 87
+0 23 0 1 -> 151
+0 23 1 1 -> 215
+0 24 0 0 -> 24
+0 24 1 0 -> 88
+0 24 0 1 -> 152
+0 24 1 1 -> 216
+0 25 0 0 -> 25
+0 25 1 0 -> 89
+0 25 0 1 -> 153
+0 25 1 1 -> 217
+0 26 0 0 -> 26
+0 26 1 0 -> 90
+0 26 0 1 -> 154
+0 26 1 1 -> 218
+0 27 0 0 -> 27
+0 27 1 0 -> 91
+0 27 0 1 -> 155
+0 27 1 1 -> 219
+;
+TABLES_mem_5
+1 0 0 -> 0
+2 2 0 -> 5
+2 1 0 -> 5
+2 4 0 -> 7
+2 3 0 -> 7
+2 5 0 -> 10
+0 0 1 -> 1
+0 1 0 -> 2
+0 1 1 -> 3
+0 2 0 -> 9
+0 2 1 -> 11
+0 3 0 -> 13
+0 3 1 -> 14
+0 4 0 -> 15
+2 2 1 -> 4
+2 4 1 -> 6
+3 2 0 -> 8
+3 4 0 -> 12
+;
+TABLES_mem_5_illegal_encodings
+0 0 1 -> 1
+0 1 0 -> 2
+0 1 1 -> 3
+0 2 0 -> 9
+0 2 1 -> 11
+0 3 0 -> 13
+0 3 1 -> 14
+0 4 0 -> 15
+2 2 1 -> 4
+2 4 1 -> 6
+3 2 0 -> 8
+3 4 0 -> 12
+;
+
+
+GetPseudoOpRRR
+Register@RZ - -> PSEUDO_OPCODE1@MOV
+- Register@RZ -> PSEUDO_OPCODE1@MOV
+;
+
+GetPseudoOpRIR
+Register@RZ - - -> PSEUDO_OPCODE1@MOV
+- 0 - -> PSEUDO_OPCODE1@MOV
+- 1 Register@RZ -> PSEUDO_OPCODE1@MOV
+- 1 - -> PSEUDO_OPCODE1@IADD
+- 2 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 4 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 8 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 16 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 32 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 64 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 128 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 256 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 512 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 1024 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 2048 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 4096 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 8192 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 16384 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 32768 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 32768 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 131072 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 262144 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 524288 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 1048576 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 2097152 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 4194304 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 8388608 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 16777216 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 33554432 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 67108864 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 134217728 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 268435456 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 536870912 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 1073741824 Register@RZ -> PSEUDO_OPCODE1@SHL
+- 2147483648 Register@RZ -> PSEUDO_OPCODE1@SHL
+;
+
+GetPseudoOpRCR
+Register@RZ - - -> PSEUDO_OPCODE1@MOV
+;
+
+GetPseudoOpRRC
+Register@RZ - - -> PSEUDO_OPCODE1@MOV
+- Register@RZ - -> PSEUDO_OPCODE1@MOV
+;
+
+GetPseudoOpRRI
+Register@RZ - - -> PSEUDO_OPCODE1@MOV
+- Register@RZ - -> PSEUDO_OPCODE1@MOV
+;
+
+

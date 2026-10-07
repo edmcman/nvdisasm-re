@@ -1,0 +1,375 @@
+CLASS "dadd__RRC_RC"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a}
+',' [-] [||] C:Sc[UImm(5/0*):Sc_bank]*   [SImm(17)*:Sc_addr]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+INVALID_CONST_ADDR_SASS_ONLY_ERROR
+ ((Sc_bank <= 17) || (Sc_bank >= 24 && Sc_bank <= 31)) :
+ "Invalid constant bank error"
+MISALIGNED_ADDR_ERROR
+ (Sc_addr & 0x3) == 0 :
+ "Constant offsets must be aligned on a 4B boundary"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (Sc_bank >= 24 && Sc_bank <= 31) -> (Sc_addr <= 255) :
+ "RTV banks may not use an offset greater than 255"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_4(batch_t,usched_info,reuse_src_a) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_EMULATABLE;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@DADD_c ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_C_SIZE = 64;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_REDIRECTABLE ;
+
+OPCODES
+        DADDfma64lite_pipe =  0b11000101001;
+        DADD =  0b11000101001;
+
+ENCODING
+!dadd__RRC_RC_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+
+BITS_5_58_54_Sb_bank,BITS_14_53_40_Sb_addr =  ConstBankAddress2(Sc_bank,Sc_addr);
+BITS_1_62_62_Sb_absolute=Sc@absolute;
+BITS_1_63_63_Sb_negate=Sc@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_8_124_122_109_105_opex=TABLES_opex_4(batch_t,usched_info,reuse_src_a);
+
+
+
+CLASS "dadd__RRCx_RCx"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a}
+',' [-] [||] CX:Sc[UniformRegister:URc][UImm(16)*:Sc_offset]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((URc)+((URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URc)!=`UniformRegister@URZ) :
+ "Disallowed uniform register URc"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_4(batch_t,usched_info,reuse_src_a) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_EMULATABLE;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@DADD_CXc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_C_SIZE = 64;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_REDIRECTABLE ;
+
+OPCODES
+        DADDfma64lite_pipe =  0b1011000101001;
+        DADD =  0b1011000101001;
+
+ENCODING
+!dadd__RRCx_RCx_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_6_37_32_Ra_URb=URc;
+BITS_14_53_40_Sb_addr=Sc_offset SCALE 4;
+BITS_1_62_62_Sb_absolute=Sc@absolute;
+BITS_1_63_63_Sb_negate=Sc@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_8_124_122_109_105_opex=TABLES_opex_4(batch_t,usched_info,reuse_src_a);
+
+
+
+CLASS "dadd__RRR_RR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a}
+',' [-] [||] Register:Rc {/REUSE("noreuse"):reuse_src_c}
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-2))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+MISALIGNED_REG_ERROR
+ (((Rc)+((Rc)==`Register@RZ)) % 2) == 0 :
+ "Register Rc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_3(batch_t,usched_info,reuse_src_a,reuse_src_c) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_c"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_c==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_EMULATABLE;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@DADD_Rc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_C_SIZE = 64;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_REDIRECTABLE ;
+
+OPCODES
+        DADDfma64lite_pipe =  0b1000101001;
+        DADD =  0b1000101001;
+
+ENCODING
+!dadd__RRR_RR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_8_71_64_Rc=Rc;
+BITS_1_74_74_tnspB=Rc@absolute;
+BITS_1_75_75_size=Rc@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_8_124_122_109_105_opex=TABLES_opex_3(batch_t,usched_info,reuse_src_a,reuse_src_c);
+
+
+
+CLASS "dadd__RRU_RU"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a}
+',' [-] [||] UniformRegister:URc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sc is out of range"
+MISALIGNED_REG_ERROR
+ (((URc)+((URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_4(batch_t,usched_info,reuse_src_a) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_EMULATABLE;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@DADD_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_C_SIZE = 64;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_REDIRECTABLE ;
+
+OPCODES
+        DADDfma64lite_pipe =  0b1111000101001;
+        DADD =  0b1111000101001;
+
+ENCODING
+!dadd__RRU_RU_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_6_37_32_Ra_URb=URc;
+BITS_1_62_62_Sb_absolute=URc@absolute;
+BITS_1_63_63_Sb_negate=URc@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_8_124_122_109_105_opex=TABLES_opex_4(batch_t,usched_info,reuse_src_a);
+
+
+
+CLASS "dadd__RRsI_RI"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a}
+','F64Imm(64):Sc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_4(batch_t,usched_info,reuse_src_a) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_EMULATABLE;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@DADD_Imm ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_REDIRECTABLE ;
+
+OPCODES
+        DADDfma64lite_pipe =  0b10000101001;
+        DADD =  0b10000101001;
+
+ENCODING
+!dadd__RRsI_RI_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_32_63_32_Ra_offset=Sc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_8_124_122_109_105_opex=TABLES_opex_4(batch_t,usched_info,reuse_src_a);
+
+
+

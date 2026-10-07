@@ -1,0 +1,474 @@
+CLASS "ui2ip_24__URURUR_UUU"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /DSTFMT_S4_U4:dstfmt /S32ONLY_i2i:srcfmt /SATRELU_ui2ip("nosatrelu_ui2ip"):satrelu
+UniformRegister:URd
+','UniformRegister:URa
+','UniformRegister:URb
+','UniformRegister:URc /ONLY24:extract_limited
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((satrelu !=`SATRELU_ui2ip@INVALID3)) :
+ "Invalid satrelu field value"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((extract_limited == `ONLY24@"24"))) -> (((dstfmt == `DSTFMT_S4_U4@S4)||(dstfmt == `DSTFMT_S4_U4@U4))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dstfmt == `DSTFMT_S4_U4@U4))) -> (((satrelu == `SATRELU_ui2ip@nosatrelu_ui2ip)||(satrelu == `SATRELU_ui2ip@SAT))) :
+ "Invalid instruction combination"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@UI2IP_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 32;
+ ILABEL_URc_SIZE = 32;
+
+OPCODES
+        UI2IPudp_pipe =  0b1001001001111;
+        UI2IP =  0b1001001001111;
+
+ENCODING
+!ui2ip_24__URURUR_UUU_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_78_76_dstfmt=*dstfmt;
+BITS_2_75_74_iswzA=satrelu;
+BITS_8_23_16_Rd=URd;
+BITS_8_31_24_Ra=URa;
+BITS_8_39_32_Rb=URb;
+BITS_8_71_64_Ra_URc=URc;
+BITS_2_73_72_memType=extract_limited;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+
+CLASS "ui2ip_24__URsIUR_URRI"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /DSTFMT_S4_U4:dstfmt /S32ONLY_i2i:srcfmt /SATRELU_ui2ip("nosatrelu_ui2ip"):satrelu
+UniformRegister:URd
+','UniformRegister:URa
+','SImm(32)*:Sb
+','UniformRegister:URc /ONLY24:extract_limited
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((satrelu !=`SATRELU_ui2ip@INVALID3)) :
+ "Invalid satrelu field value"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((extract_limited == `ONLY24@"24"))) -> (((dstfmt == `DSTFMT_S4_U4@S4)||(dstfmt == `DSTFMT_S4_U4@U4))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dstfmt == `DSTFMT_S4_U4@U4))) -> (((satrelu == `SATRELU_ui2ip@nosatrelu_ui2ip)||(satrelu == `SATRELU_ui2ip@SAT))) :
+ "Invalid instruction combination"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@UI2IP_Ib ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URc_SIZE = 32;
+
+OPCODES
+        UI2IPudp_pipe =  0b1100001001111;
+        UI2IP =  0b1100001001111;
+
+ENCODING
+!ui2ip_24__URsIUR_URRI_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_78_76_dstfmt=*dstfmt;
+BITS_2_75_74_iswzA=satrelu;
+BITS_8_23_16_Rd=URd;
+BITS_8_31_24_Ra=URa;
+BITS_32_63_32_Ra_offset=Sb;
+BITS_8_71_64_Ra_URc=URc;
+BITS_2_73_72_memType=extract_limited;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+
+CLASS "ui2ip_28__URURUR_UUU"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /DSTFMT_S2_U2:dstfmt /S32ONLY_i2i:srcfmt /SATRELU_ui2ip("nosatrelu_ui2ip"):satrelu
+UniformRegister:URd
+','UniformRegister:URa
+','UniformRegister:URb
+','UniformRegister:URc /ONLY28:extract_limited
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((satrelu !=`SATRELU_ui2ip@INVALID3)) :
+ "Invalid satrelu field value"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((extract_limited == `ONLY28@"28"))) -> (((dstfmt == `DSTFMT_S2_U2@S2)||(dstfmt == `DSTFMT_S2_U2@U2))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dstfmt == `DSTFMT_S2_U2@U2))) -> (((satrelu == `SATRELU_ui2ip@nosatrelu_ui2ip)||(satrelu == `SATRELU_ui2ip@SAT))) :
+ "Invalid instruction combination"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@UI2IP_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 32;
+ ILABEL_URc_SIZE = 32;
+
+OPCODES
+        UI2IPudp_pipe =  0b1001001001111;
+        UI2IP =  0b1001001001111;
+
+ENCODING
+!ui2ip_28__URURUR_UUU_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_78_76_dstfmt=*dstfmt;
+BITS_2_75_74_iswzA=satrelu;
+BITS_8_23_16_Rd=URd;
+BITS_8_31_24_Ra=URa;
+BITS_8_39_32_Rb=URb;
+BITS_8_71_64_Ra_URc=URc;
+BITS_2_73_72_memType=extract_limited;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+
+CLASS "ui2ip_28__URsIUR_URRI"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /DSTFMT_S2_U2:dstfmt /S32ONLY_i2i:srcfmt /SATRELU_ui2ip("nosatrelu_ui2ip"):satrelu
+UniformRegister:URd
+','UniformRegister:URa
+','SImm(32)*:Sb
+','UniformRegister:URc /ONLY28:extract_limited
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((satrelu !=`SATRELU_ui2ip@INVALID3)) :
+ "Invalid satrelu field value"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((extract_limited == `ONLY28@"28"))) -> (((dstfmt == `DSTFMT_S2_U2@S2)||(dstfmt == `DSTFMT_S2_U2@U2))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dstfmt == `DSTFMT_S2_U2@U2))) -> (((satrelu == `SATRELU_ui2ip@nosatrelu_ui2ip)||(satrelu == `SATRELU_ui2ip@SAT))) :
+ "Invalid instruction combination"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@UI2IP_Ib ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URc_SIZE = 32;
+
+OPCODES
+        UI2IPudp_pipe =  0b1100001001111;
+        UI2IP =  0b1100001001111;
+
+ENCODING
+!ui2ip_28__URsIUR_URRI_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_78_76_dstfmt=*dstfmt;
+BITS_2_75_74_iswzA=satrelu;
+BITS_8_23_16_Rd=URd;
+BITS_8_31_24_Ra=URa;
+BITS_32_63_32_Ra_offset=Sb;
+BITS_8_71_64_Ra_URc=URc;
+BITS_2_73_72_memType=extract_limited;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+
+CLASS "ui2ip__URURUR_UUU"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /DSTFMT_i2i:dstfmt /S32ONLY_i2i:srcfmt /SATRELU_ui2ip("nosatrelu_ui2ip"):satrelu
+UniformRegister:URd
+','UniformRegister:URa
+','UniformRegister:URb
+','UniformRegister:URc /EXTRACT("H0"):extract_limited
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((satrelu !=`SATRELU_ui2ip@INVALID3)) :
+ "Invalid satrelu field value"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((extract_limited == `EXTRACT@H0)||(extract_limited == `EXTRACT@H1))) -> (((dstfmt == `DSTFMT_i2i@S8)||(dstfmt == `DSTFMT_i2i@U8)||(dstfmt == `DSTFMT_i2i@S16)||(dstfmt == `DSTFMT_i2i@U16))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dstfmt == `DSTFMT_i2i@U8)||(dstfmt == `DSTFMT_i2i@U16))) -> (((satrelu == `SATRELU_ui2ip@nosatrelu_ui2ip)||(satrelu == `SATRELU_ui2ip@SAT))) :
+ "Invalid instruction combination"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@UI2IP_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 32;
+ ILABEL_URc_SIZE = 32;
+
+OPCODES
+        UI2IPudp_pipe =  0b1001001001111;
+        UI2IP =  0b1001001001111;
+
+ENCODING
+!ui2ip__URURUR_UUU_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_78_76_dstfmt=*dstfmt;
+BITS_2_75_74_iswzA=satrelu;
+BITS_8_23_16_Rd=URd;
+BITS_8_31_24_Ra=URa;
+BITS_8_39_32_Rb=URb;
+BITS_8_71_64_Ra_URc=URc;
+BITS_2_73_72_memType=extract_limited;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+
+CLASS "ui2ip__URsIUR_URRI"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /DSTFMT_i2i:dstfmt /S32ONLY_i2i:srcfmt /SATRELU_ui2ip("nosatrelu_ui2ip"):satrelu
+UniformRegister:URd
+','UniformRegister:URa
+','SImm(32)*:Sb
+','UniformRegister:URc /EXTRACT("H0"):extract_limited
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((satrelu !=`SATRELU_ui2ip@INVALID3)) :
+ "Invalid satrelu field value"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((extract_limited == `EXTRACT@H0)||(extract_limited == `EXTRACT@H1))) -> (((dstfmt == `DSTFMT_i2i@S8)||(dstfmt == `DSTFMT_i2i@U8)||(dstfmt == `DSTFMT_i2i@S16)||(dstfmt == `DSTFMT_i2i@U16))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dstfmt == `DSTFMT_i2i@U8)||(dstfmt == `DSTFMT_i2i@U16))) -> (((satrelu == `SATRELU_ui2ip@nosatrelu_ui2ip)||(satrelu == `SATRELU_ui2ip@SAT))) :
+ "Invalid instruction combination"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@UI2IP_Ib ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URc_SIZE = 32;
+
+OPCODES
+        UI2IPudp_pipe =  0b1100001001111;
+        UI2IP =  0b1100001001111;
+
+ENCODING
+!ui2ip__URsIUR_URRI_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_78_76_dstfmt=*dstfmt;
+BITS_2_75_74_iswzA=satrelu;
+BITS_8_23_16_Rd=URd;
+BITS_8_31_24_Ra=URa;
+BITS_32_63_32_Ra_offset=Sb;
+BITS_8_71_64_Ra_URc=URc;
+BITS_2_73_72_memType=extract_limited;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+

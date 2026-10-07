@@ -1,0 +1,140 @@
+CLASS "uclea__Imm"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode
+UniformRegister:URd
+','UniformPredicate:UPu
+','UniformRegister:URa
+','UImm(16)*:Sb ','UImm(4)*:constSizeU04
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URd is out of range"
+MISALIGNED_REG_ERROR
+ (((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URd is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_6(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((constSizeU04==0)||(constSizeU04==1)||(constSizeU04==2)||(constSizeU04==3)||(constSizeU04==4)||(constSizeU04==5)||(constSizeU04==6)||(constSizeU04==7)||(constSizeU04==8))) :
+ "Invalid instruction combination (reason: #constSizeU04 cannot be greater than 8)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@UCLEA_Ib ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 16;
+ ISRC_A_SIZE = 64;
+
+ ILABEL_URa_SIZE = 64;
+
+OPCODES
+        UCLEAudp_pipe =  0b1100010111100;
+        UCLEA =  0b1100010111100;
+
+ENCODING
+!uclea__Imm_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_6_21_16_URd=URd;
+BITS_3_83_81_Pu=UPu;
+BITS_6_29_24_cbu_state=URa;
+BITS_16_47_32_Sb=Sb;
+BITS_4_76_73_sz=constSizeU04;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_6(batch_t,usched_info);
+
+
+
+CLASS "uclea__URb"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode
+UniformRegister:URd
+','UniformPredicate:UPu
+','UniformRegister:URa
+','UniformRegister:URb ','UImm(4)*:constSizeU04
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URd is out of range"
+MISALIGNED_REG_ERROR
+ (((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URd is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_6(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((constSizeU04==0)||(constSizeU04==1)||(constSizeU04==2)||(constSizeU04==3)||(constSizeU04==4)||(constSizeU04==5)||(constSizeU04==6)||(constSizeU04==7)||(constSizeU04==8))) :
+ "Invalid instruction combination (reason: #constSizeU04 cannot be greater than 8)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@UCLEA_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 64;
+
+ ILABEL_URa_SIZE = 64;
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        UCLEAudp_pipe =  0b1110010111100;
+        UCLEA =  0b1110010111100;
+
+ENCODING
+!uclea__URb_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_6_21_16_URd=URd;
+BITS_3_83_81_Pu=UPu;
+BITS_6_29_24_cbu_state=URa;
+BITS_6_37_32_Ra_URb=URb;
+BITS_4_76_73_sz=constSizeU04;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_6(batch_t,usched_info);
+
+
+

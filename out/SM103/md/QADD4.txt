@@ -1,0 +1,251 @@
+CLASS "qadd4_rb_imm_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /CDFMT:CDfmt /AFMT:Afmt /SATFINITE("nosatfinite"):SATFINITE
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA_qadd4:iswzA
+','UImm(32)*:Sc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((CDfmt !=`CDFMT@INVALID3)) :
+ "Invalid CDfmt field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_5(batch_t,usched_info,reuse_src_a) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Afmt == `AFMT@E5M2x4)||(Afmt == `AFMT@E4M3x4)||(Afmt == `AFMT@E3M4x4)||(Afmt == `AFMT@E3M2x4)||(Afmt == `AFMT@E2M3x4)||(Afmt == `AFMT@E8x4))) -> (((iswzA == `ISWZA_qadd4@B3210)||(iswzA == `ISWZA_qadd4@B3)||(iswzA == `ISWZA_qadd4@B2)||(iswzA == `ISWZA_qadd4@B1)||(iswzA == `ISWZA_qadd4@B0))) :
+ "Invalid instruction combination (reason: If .Afmt is FP6, FP8, or E8, then .iswzA must be .B3210, .B3, .B2, .B1, or .B0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Afmt == `AFMT@E2M1x4)||(Afmt == `AFMT@E0M3x4))) -> (((iswzA == `ISWZA_qadd4@N7654)||(iswzA == `ISWZA_qadd4@N3210)||(iswzA == `ISWZA_qadd4@N6420))) :
+ "Invalid instruction combination (reason: If .Afmt is FP4, then .iswzA must be .N7654, .N3210, or .N6420)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@QADD4_Imm ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ MASK_INSTR_PREDICATE = ((CDfmt == `CDFMT@E3M4x4)||(Afmt == `AFMT@E3M4x4)||(Afmt == `AFMT@E0M3x4));
+
+ ILABEL_Ra_SIZE = 32;
+
+OPCODES
+        QADD4fp16_pipe =  0b10001111101;
+        QADD4 =  0b10001111101;
+
+ENCODING
+!qadd4_rb_imm__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_89_88_op=CDfmt;
+BITS_3_79_77_Afmt=Afmt;
+BITS_1_90_90_memdesc=SATFINITE;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_3_76_74_iswzA=iswzA;
+BITS_1_72_72_e=Ra@absolute;
+BITS_1_73_73_sz=Ra@negate;
+BITS_32_63_32_Ra_offset=Sc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_5(batch_t,usched_info,reuse_src_a);
+
+
+
+CLASS "qadd4_rc_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /CDFMT:CDfmt /AFMT:Afmt /SATFINITE("nosatfinite"):SATFINITE
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA_qadd4:iswzA
+',' [-] [||] Register:Rc {/REUSE("noreuse"):reuse_src_c} /ISWZC_qadd4:iswzC
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((CDfmt !=`CDFMT@INVALID3)) :
+ "Invalid CDfmt field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzC !=`ISWZC_qadd4@INVALID5)&&(iswzC !=`ISWZC_qadd4@INVALID6)&&(iswzC !=`ISWZC_qadd4@INVALID7)) :
+ "Invalid iswzC field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_4(batch_t,usched_info,reuse_src_a,reuse_src_c) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_c"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_c==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Afmt == `AFMT@E5M2x4)||(Afmt == `AFMT@E4M3x4)||(Afmt == `AFMT@E3M4x4)||(Afmt == `AFMT@E3M2x4)||(Afmt == `AFMT@E2M3x4)||(Afmt == `AFMT@E8x4))) -> (((iswzA == `ISWZA_qadd4@B3210)||(iswzA == `ISWZA_qadd4@B3)||(iswzA == `ISWZA_qadd4@B2)||(iswzA == `ISWZA_qadd4@B1)||(iswzA == `ISWZA_qadd4@B0))) :
+ "Invalid instruction combination (reason: If .Afmt is FP6, FP8, or E8, then .iswzA must be .B3210, .B3, .B2, .B1, or .B0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Afmt == `AFMT@E2M1x4)||(Afmt == `AFMT@E0M3x4))) -> (((iswzA == `ISWZA_qadd4@N7654)||(iswzA == `ISWZA_qadd4@N3210)||(iswzA == `ISWZA_qadd4@N6420))) :
+ "Invalid instruction combination (reason: If .Afmt is FP4, then .iswzA must be .N7654, .N3210, or .N6420)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@QADD4_Rc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ MASK_INSTR_PREDICATE = ((CDfmt == `CDFMT@E3M4x4)||(Afmt == `AFMT@E3M4x4)||(Afmt == `AFMT@E0M3x4));
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        QADD4fp16_pipe =  0b1001111101;
+        QADD4 =  0b1001111101;
+
+ENCODING
+!qadd4_rc__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_89_88_op=CDfmt;
+BITS_3_79_77_Afmt=Afmt;
+BITS_1_90_90_memdesc=SATFINITE;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_3_76_74_iswzA=iswzA;
+BITS_1_72_72_e=Ra@absolute;
+BITS_1_73_73_sz=Ra@negate;
+BITS_8_71_64_Ra_URc=Rc;
+BITS_3_87_85_iswzC=iswzC;
+BITS_1_83_83_nottid0=Rc@absolute;
+BITS_1_84_84_clear=Rc@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_4(batch_t,usched_info,reuse_src_a,reuse_src_c);
+
+
+
+CLASS "qadd4_urc_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /CDFMT:CDfmt /AFMT:Afmt /SATFINITE("nosatfinite"):SATFINITE
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA_qadd4:iswzA
+',' [-] [||] UniformRegister:URc /ISWZC_qadd4:iswzC
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((CDfmt !=`CDFMT@INVALID3)) :
+ "Invalid CDfmt field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzC !=`ISWZC_qadd4@INVALID5)&&(iswzC !=`ISWZC_qadd4@INVALID6)&&(iswzC !=`ISWZC_qadd4@INVALID7)) :
+ "Invalid iswzC field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_5(batch_t,usched_info,reuse_src_a) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Afmt == `AFMT@E5M2x4)||(Afmt == `AFMT@E4M3x4)||(Afmt == `AFMT@E3M4x4)||(Afmt == `AFMT@E3M2x4)||(Afmt == `AFMT@E2M3x4)||(Afmt == `AFMT@E8x4))) -> (((iswzA == `ISWZA_qadd4@B3210)||(iswzA == `ISWZA_qadd4@B3)||(iswzA == `ISWZA_qadd4@B2)||(iswzA == `ISWZA_qadd4@B1)||(iswzA == `ISWZA_qadd4@B0))) :
+ "Invalid instruction combination (reason: If .Afmt is FP6, FP8, or E8, then .iswzA must be .B3210, .B3, .B2, .B1, or .B0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Afmt == `AFMT@E2M1x4)||(Afmt == `AFMT@E0M3x4))) -> (((iswzA == `ISWZA_qadd4@N7654)||(iswzA == `ISWZA_qadd4@N3210)||(iswzA == `ISWZA_qadd4@N6420))) :
+ "Invalid instruction combination (reason: If .Afmt is FP4, then .iswzA must be .N7654, .N3210, or .N6420)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@QADD4_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ MASK_INSTR_PREDICATE = ((CDfmt == `CDFMT@E3M4x4)||(Afmt == `AFMT@E3M4x4)||(Afmt == `AFMT@E0M3x4));
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_URc_SIZE = 32;
+
+OPCODES
+        QADD4fp16_pipe =  0b1111001111101;
+        QADD4 =  0b1111001111101;
+
+ENCODING
+!qadd4_urc__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_89_88_op=CDfmt;
+BITS_3_79_77_Afmt=Afmt;
+BITS_1_90_90_memdesc=SATFINITE;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_3_76_74_iswzA=iswzA;
+BITS_1_72_72_e=Ra@absolute;
+BITS_1_73_73_sz=Ra@negate;
+BITS_8_71_64_Ra_URc=URc;
+BITS_3_87_85_iswzC=iswzC;
+BITS_1_83_83_nottid0=URc@absolute;
+BITS_1_84_84_clear=URc@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_5(batch_t,usched_info,reuse_src_a);
+
+
+

@@ -1,0 +1,181 @@
+[
+ {
+  "cls": "sttm_",
+  "alternate": false,
+  "opcodes": [
+   "STTM"
+  ],
+  "pipes": [
+   "udp_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_RD_SCBD",
+  "sizes": {
+   "ISRC_B_SIZE": "32 + ((((num==`NUM@x2)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*32 + (((num==`NUM@x4)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*96 + (((num==`NUM@x8)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*224 + (((num==`NUM@x16)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*480 + (((num==`NUM@x32)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*992 + (((num==`NUM@x64)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*2016 + (((num==`NUM@x128)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*4064 + (((num==`NUM@x2)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*32 + (((num==`NUM@x4)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*96 + (((num==`NUM@x8)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*224 + (((num==`NUM@x16)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*480 + (((num==`NUM@x32)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*992 + (((num==`NUM@x64)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*2016 + (((num==`NUM@x128)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*4064 + (((num==`NUM@x1)) && ((layout==`LAYOUT@\"16dp128bit\")))*32 + (((num==`NUM@x2)) && ((layout==`LAYOUT@\"16dp128bit\")))*96 + (((num==`NUM@x4)) && ((layout==`LAYOUT@\"16dp128bit\")))*224 + (((num==`NUM@x8)) && ((layout==`LAYOUT@\"16dp128bit\")))*480 + (((num==`NUM@x16)) && ((layout==`LAYOUT@\"16dp128bit\")))*992 + (((num==`NUM@x32)) && ((layout==`LAYOUT@\"16dp128bit\")))*2016 + (((num==`NUM@x64)) && ((layout==`LAYOUT@\"16dp128bit\")))*4064 + (((num==`NUM@x1)) && ((layout==`LAYOUT@\"16dp256bit\")))*96 + (((num==`NUM@x2)) && ((layout==`LAYOUT@\"16dp256bit\")))*224 + (((num==`NUM@x4)) && ((layout==`LAYOUT@\"16dp256bit\")))*480 + (((num==`NUM@x8)) && ((layout==`LAYOUT@\"16dp256bit\")))*992 + (((num==`NUM@x16)) && ((layout==`LAYOUT@\"16dp256bit\")))*2016 + (((num==`NUM@x32)) && ((layout==`LAYOUT@\"16dp256bit\")))*4064)",
+   "ISRC_C_SIZE": 32,
+   "VIRTUAL_QUEUE": "$VQ_TMEM",
+   "ILABEL_Rb_SIZE": "32 + ((((num==`NUM@x2)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*32 + (((num==`NUM@x4)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*96 + (((num==`NUM@x8)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*224 + (((num==`NUM@x16)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*480 + (((num==`NUM@x32)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*992 + (((num==`NUM@x64)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*2016 + (((num==`NUM@x128)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*4064 + (((num==`NUM@x2)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*32 + (((num==`NUM@x4)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*96 + (((num==`NUM@x8)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*224 + (((num==`NUM@x16)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*480 + (((num==`NUM@x32)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*992 + (((num==`NUM@x64)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*2016 + (((num==`NUM@x128)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*4064 + (((num==`NUM@x1)) && ((layout==`LAYOUT@\"16dp128bit\")))*32 + (((num==`NUM@x2)) && ((layout==`LAYOUT@\"16dp128bit\")))*96 + (((num==`NUM@x4)) && ((layout==`LAYOUT@\"16dp128bit\")))*224 + (((num==`NUM@x8)) && ((layout==`LAYOUT@\"16dp128bit\")))*480 + (((num==`NUM@x16)) && ((layout==`LAYOUT@\"16dp128bit\")))*992 + (((num==`NUM@x32)) && ((layout==`LAYOUT@\"16dp128bit\")))*2016 + (((num==`NUM@x64)) && ((layout==`LAYOUT@\"16dp128bit\")))*4064 + (((num==`NUM@x1)) && ((layout==`LAYOUT@\"16dp256bit\")))*96 + (((num==`NUM@x2)) && ((layout==`LAYOUT@\"16dp256bit\")))*224 + (((num==`NUM@x4)) && ((layout==`LAYOUT@\"16dp256bit\")))*480 + (((num==`NUM@x8)) && ((layout==`LAYOUT@\"16dp256bit\")))*992 + (((num==`NUM@x16)) && ((layout==`LAYOUT@\"16dp256bit\")))*2016 + (((num==`NUM@x32)) && ((layout==`LAYOUT@\"16dp256bit\")))*4064)",
+   "ILABEL_URc_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "UPg",
+    "type": "UniformPredicate",
+    "resource": "UPRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "tmemC",
+    "type": "TMEMC",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "URc",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sc_offset",
+    "type": "SImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": "ceil((32 + ((((num==`NUM@x2)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*32 + (((num==`NUM@x4)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*96 + (((num==`NUM@x8)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*224 + (((num==`NUM@x16)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*480 + (((num==`NUM@x32)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*992 + (((num==`NUM@x64)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*2016 + (((num==`NUM@x128)) && ((layout==`LAYOUT@\"16dp32bit_t0_t15\") || (layout==`LAYOUT@\"16dp32bit_t16_t31\")))*4064 + (((num==`NUM@x2)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*32 + (((num==`NUM@x4)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*96 + (((num==`NUM@x8)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*224 + (((num==`NUM@x16)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*480 + (((num==`NUM@x32)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*992 + (((num==`NUM@x64)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*2016 + (((num==`NUM@x128)) && ((layout==`LAYOUT@\"32dp32bit\") || (layout==`LAYOUT@\"16dp64bit\")))*4064 + (((num==`NUM@x1)) && ((layout==`LAYOUT@\"16dp128bit\")))*32 + (((num==`NUM@x2)) && ((layout==`LAYOUT@\"16dp128bit\")))*96 + (((num==`NUM@x4)) && ((layout==`LAYOUT@\"16dp128bit\")))*224 + (((num==`NUM@x8)) && ((layout==`LAYOUT@\"16dp128bit\")))*480 + (((num==`NUM@x16)) && ((layout==`LAYOUT@\"16dp128bit\")))*992 + (((num==`NUM@x32)) && ((layout==`LAYOUT@\"16dp128bit\")))*2016 + (((num==`NUM@x64)) && ((layout==`LAYOUT@\"16dp128bit\")))*4064 + (((num==`NUM@x1)) && ((layout==`LAYOUT@\"16dp256bit\")))*96 + (((num==`NUM@x2)) && ((layout==`LAYOUT@\"16dp256bit\")))*224 + (((num==`NUM@x4)) && ((layout==`LAYOUT@\"16dp256bit\")))*480 + (((num==`NUM@x8)) && ((layout==`LAYOUT@\"16dp256bit\")))*992 + (((num==`NUM@x16)) && ((layout==`LAYOUT@\"16dp256bit\")))*2016 + (((num==`NUM@x32)) && ((layout==`LAYOUT@\"16dp256bit\")))*4064))/32)"
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UPx",
+    "resource": "UPRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "1",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "1",
+     "IMAD_OP`{Ra,Rb,Rc}": "1",
+     "FP16_OPS`{Ra,Rb,Rc}": "1",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "1",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "1",
+     "MIO_SLOW_OPS`{Ra,Rb,Rb2,Rc,Re}": "1",
+     "BRU_OPS`{Ra,Rb,Rc}": "1",
+     "OP_R2UR`{Ra}": "1",
+     "HMMA_OP`{Ra,Rb,Re}": "1",
+     "IMMA_OP`{Ra,Rb,Re}": "1",
+     "DMMA_OP`{Ra,Rb,Re}": "1",
+     "HMMA_OP`{Rc}": "1",
+     "IMMA_OP`{Rc}": "1",
+     "DMMA_OP`{Rc}": "1",
+     "CLMAD_OP`{Ra,Rb,Rc}": "1",
+     "LDTM_STTM_OP`{Ra,Rb,Rc}": "1"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV_ELECT`{sBoard}": "ORDERED_ZERO"
+    }
+   ],
+   "UPRED:UPu,UPv": [
+    {
+     "VECTOR_INST`{UPr,UPq,UPp}": "6",
+     "OP_SYNCS`{UPg}": "6",
+     "UPRED_OPS`{UPr,UPq,UPp}": "4",
+     "OP_UP2UR`{UPR_UPRED}": "4",
+     "OP_UR2UP`{UPR_UPRED}": "11",
+     "UDP_OPS`{UPg}": "9",
+     "OP_BRA_JMP`{UPr,UPq,UPp}": "11",
+     "OP_ULDC`{UPx}": "11",
+     "OP_LDCU`{UPp}": "11",
+     "MMA_OPS`{UPp}": "11"
+    }
+   ]
+  }
+ }
+]

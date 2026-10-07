@@ -1,0 +1,118 @@
+CLASS "jmx_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /DEPTH("nodepth"):depth
+ [!]Predicate("PT"):Pp
+','Register:Ra SImm(50/0)*:Ra_offset
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((depth !=`DEPTH@INVALID3)) :
+ "Invalid depth field value"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ BRANCH_TARGET_INDEX = INDEX(Ra) ;
+ BRANCH_TYPE = BRT_BRANCH ;
+ MIN_WAIT_NEEDED = 1 ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+ ILABEL_Ra_SIZE = 64;
+
+OPCODES
+        JMXcbu_pipe =  0b100101001100;
+        JMX =  0b100101001100;
+
+ENCODING
+!jmx__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_86_85_depth=depth;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_8_31_24_Ra=Ra;
+BITS_48_81_34_sImm=Ra_offset SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "jmx_rel_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /DEPTH("nodepth"):depth
+ [!]Predicate("PT"):Pp
+','Register:Ra SImm(50/0)*:Ra_offset /RelOpt:rel
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((depth !=`DEPTH@INVALID3)) :
+ "Invalid depth field value"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ BRANCH_TARGET_INDEX = INDEX(Ra) ;
+ BRANCH_TYPE = BRT_BRANCH ;
+ MIN_WAIT_NEEDED = 1 ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+ PRED_INDEX = INDEX(Pp) ;
+
+PREDICATES
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_CBU ;
+
+ ILABEL_Ra_SIZE = 64;
+
+OPCODES
+        JMXcbu_pipe =  0b100101001100;
+        JMX =  0b100101001100;
+
+ENCODING
+!jmx_rel__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_86_85_depth=depth;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_8_31_24_Ra=Ra;
+BITS_48_81_34_sImm=Ra_offset SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

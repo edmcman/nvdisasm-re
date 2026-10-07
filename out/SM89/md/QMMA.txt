@@ -1,0 +1,294 @@
+CLASS "qmma_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /SIZE_16816_16832:size /FloatNo64:dstfmt /SRCFMTA:srcFmtA /SRCFMTA:srcFmtB
+Register:Rd
+',' [-] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ROWONLY:row_A
+',' [-] Register:Rb {/REUSE("noreuse"):reuse_src_b} /COLONLY:col_B
+','Register:Rc
+',' [!]UniformPredicate("UPT"):UPp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((size !=`SIZE_16816_16832@INVALID2)&&(size !=`SIZE_16816_16832@INVALID3)) :
+ "Invalid size field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-2))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+MISALIGNED_REG_ERROR
+ (((Rc)+((Rc)==`Register@RZ)) % 2) == 0 :
+ "Register Rc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_8(batch_t,usched_info,reuse_src_a,reuse_src_b) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_b"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_b==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_Pnz_0(UPp@not,UPp) :
+ "Invalid combination of UPp@not, UPp"
+OOR_REG_ERROR
+ (((size == `SIZE_16816_16832@"16816"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((size == `SIZE_16816_16832@"16816"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((size == `SIZE_16816_16832@"16832"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((size == `SIZE_16816_16832@"16832"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((size == `SIZE_16816_16832@"16832"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((size == `SIZE_16816_16832@"16832"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dstfmt == `FloatNo64@F16))&&((size == `SIZE_16816_16832@"16816")||(size == `SIZE_16816_16832@"16832"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dstfmt == `FloatNo64@F16))&&((size == `SIZE_16816_16832@"16816")||(size == `SIZE_16816_16832@"16832"))) -> (((((Rc)+((Rc)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dstfmt == `FloatNo64@F32))&&((size == `SIZE_16816_16832@"16816")||(size == `SIZE_16816_16832@"16832"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dstfmt == `FloatNo64@F32))&&((size == `SIZE_16816_16832@"16816")||(size == `SIZE_16816_16832@"16832"))) -> (((((Rc)+((Rc)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dstfmt == `FloatNo64@F16))&&((size == `SIZE_16816_16832@"16816")||(size == `SIZE_16816_16832@"16832"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dstfmt == `FloatNo64@F16))&&((size == `SIZE_16816_16832@"16816")||(size == `SIZE_16816_16832@"16832"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dstfmt == `FloatNo64@F32))&&((size == `SIZE_16816_16832@"16816")||(size == `SIZE_16816_16832@"16832"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dstfmt == `FloatNo64@F32))&&((size == `SIZE_16816_16832@"16816")||(size == `SIZE_16816_16832@"16832"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@QMMA_Rb_Rc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64 + (((dstfmt==`FloatNo64@F32)) && ((size==`SIZE_16816_16832@"16816") || (size==`SIZE_16816_16832@"16832")))*64;
+ ISRC_B_SIZE = 32 + ((size==`SIZE_16816_16832@"16832"))*32;
+ ISRC_C_SIZE = 64 + (((dstfmt==`FloatNo64@F32)) && ((size==`SIZE_16816_16832@"16816") || (size==`SIZE_16816_16832@"16832")))*64;
+ ISRC_A_SIZE = 64 + ((size==`SIZE_16816_16832@"16832"))*64;
+
+ ILABEL_Ra_SIZE = 64 + ((size==`SIZE_16816_16832@"16832"))*64;
+ ILABEL_Rb_SIZE = 32 + ((size==`SIZE_16816_16832@"16832"))*32;
+ ILABEL_Rc_SIZE = 64 + (((dstfmt==`FloatNo64@F32)) && ((size==`SIZE_16816_16832@"16816") || (size==`SIZE_16816_16832@"16832")))*64;
+
+OPCODES
+        QMMAfp16_pipe =  0b1001111010;
+        QMMA =  0b1001111010;
+
+ENCODING
+!qmma__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_ftz=0;
+BITS_1_81_81_spformat=*0;
+BITS_2_76_75_dstfmt=size;
+BITS_1_77_77_ntz=dstfmt;
+BITS_1_78_78_ofmt=srcFmtA;
+BITS_1_79_79_op=srcFmtB;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=row_A;
+BITS_1_72_72_e=Ra@negate;
+BITS_8_39_32_Rb=Rb;
+BITS_1_74_74_ntz=col_B;
+BITS_1_63_63_Sb_negate=Rb@negate;
+BITS_8_71_64_Rc=Rc;
+BITS_1_50_50_Re_reuse_src_e=*0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_8(batch_t,usched_info,reuse_src_a,reuse_src_b);
+BITS_4_90_87_op=TABLES_Pnz_0(UPp@not,UPp);
+
+
+
+CLASS "qmma_sp_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /SPONLY:sp /SPFORMAT("TID"):spformat /SIZE_16832_16864:size /FloatNo64:dstfmt /SRCFMTA:srcFmtA /SRCFMTA:srcFmtB
+Register:Rd
+',' [-] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ROWONLY:row_A
+',' [-] Register:Rb {/REUSE("noreuse"):reuse_src_b} /COLONLY:col_B
+','Register:Rc
+',' [!]UniformPredicate("UPT"):UPp
+','Register:Re {/REUSE("noreuse"):reuse_src_e} ','UImm(2)*:id
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((size !=`SIZE_16832_16864@INVALID0)&&(size !=`SIZE_16832_16864@INVALID3)) :
+ "Invalid size field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-2))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+MISALIGNED_REG_ERROR
+ (((Rb)+((Rb)==`Register@RZ)) % 2) == 0 :
+ "Register Rb is misaligned"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-2))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+MISALIGNED_REG_ERROR
+ (((Rc)+((Rc)==`Register@RZ)) % 2) == 0 :
+ "Register Rc is misaligned"
+OOR_REG_ERROR
+ (((Re)==`Register@RZ)||(((Re)<=(%MAX_REG_COUNT-1))&&((Re)!=`Register@R254))) :
+ "Register Re is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_8(batch_t,usched_info,reuse_src_a,reuse_src_b) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_b"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_b==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_Pnz_0(UPp@not,UPp) :
+ "Invalid combination of UPp@not, UPp"
+OOR_REG_ERROR
+ (((size == `SIZE_16832_16864@"16832"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((size == `SIZE_16832_16864@"16832"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((size == `SIZE_16832_16864@"16864"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((size == `SIZE_16832_16864@"16864"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((size == `SIZE_16832_16864@"16832"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((size == `SIZE_16832_16864@"16832"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((size == `SIZE_16832_16864@"16864"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((size == `SIZE_16832_16864@"16864"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dstfmt == `FloatNo64@F16))&&((size == `SIZE_16832_16864@"16832")||(size == `SIZE_16832_16864@"16864"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dstfmt == `FloatNo64@F16))&&((size == `SIZE_16832_16864@"16832")||(size == `SIZE_16832_16864@"16864"))) -> (((((Rc)+((Rc)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dstfmt == `FloatNo64@F32))&&((size == `SIZE_16832_16864@"16832")||(size == `SIZE_16832_16864@"16864"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dstfmt == `FloatNo64@F32))&&((size == `SIZE_16832_16864@"16832")||(size == `SIZE_16832_16864@"16864"))) -> (((((Rc)+((Rc)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dstfmt == `FloatNo64@F16))&&((size == `SIZE_16832_16864@"16832")||(size == `SIZE_16832_16864@"16864"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dstfmt == `FloatNo64@F16))&&((size == `SIZE_16832_16864@"16832")||(size == `SIZE_16832_16864@"16864"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dstfmt == `FloatNo64@F32))&&((size == `SIZE_16832_16864@"16832")||(size == `SIZE_16832_16864@"16864"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dstfmt == `FloatNo64@F32))&&((size == `SIZE_16832_16864@"16832")||(size == `SIZE_16832_16864@"16864"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((size == `SIZE_16832_16864@"16832"))) -> (((id==0)||(id==1))) :
+ "Invalid instruction combination (reason: .16832 with 8-bit data requires id2 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((size == `SIZE_16832_16864@"16864"))) -> (((id==0))) :
+ "Invalid instruction combination (reason: .16864 with 8-bit data requires id2 == 0)"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (((size == `SIZE_16832_16864@"16864"))) -> (((reuse_src_b == `REUSE@noreuse))) :
+ "Disallowed specification: 128-bit aligned Rb does not allow .reuse"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@QMMA_Rb_Rc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64 + (((dstfmt==`FloatNo64@F32)) && ((size==`SIZE_16832_16864@"16832") || (size==`SIZE_16832_16864@"16864")))*64;
+ ISRC_B_SIZE = 64 + ((size==`SIZE_16832_16864@"16864"))*64;
+ ISRC_C_SIZE = 64 + (((dstfmt==`FloatNo64@F32)) && ((size==`SIZE_16832_16864@"16832") || (size==`SIZE_16832_16864@"16864")))*64;
+ ISRC_E_SIZE = 32;
+ ISRC_A_SIZE = 64 + ((size==`SIZE_16832_16864@"16864"))*64;
+
+ ILABEL_Ra_SIZE = 64 + ((size==`SIZE_16832_16864@"16864"))*64;
+ ILABEL_Rb_SIZE = 64 + ((size==`SIZE_16832_16864@"16864"))*64;
+ ILABEL_Rc_SIZE = 64 + (((dstfmt==`FloatNo64@F32)) && ((size==`SIZE_16832_16864@"16832") || (size==`SIZE_16832_16864@"16864")))*64;
+ ILABEL_Re_SIZE = 32;
+
+OPCODES
+        QMMAfp16_pipe =  0b1001111010;
+        QMMA =  0b1001111010;
+
+ENCODING
+!qmma_sp__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_ftz=*sp;
+BITS_1_81_81_spformat=spformat;
+BITS_2_76_75_dstfmt=size;
+BITS_1_77_77_ntz=dstfmt;
+BITS_1_78_78_ofmt=srcFmtA;
+BITS_1_79_79_op=srcFmtB;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=row_A;
+BITS_1_72_72_e=Ra@negate;
+BITS_8_39_32_Rb=Rb;
+BITS_1_74_74_ntz=col_B;
+BITS_1_63_63_Sb_negate=Rb@negate;
+BITS_8_71_64_Rc=Rc;
+BITS_8_47_40_Re=Re;
+BITS_1_50_50_Re_reuse_src_e=reuse_src_e;
+BITS_2_49_48_id=id;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_8(batch_t,usched_info,reuse_src_a,reuse_src_b);
+BITS_4_90_87_op=TABLES_Pnz_0(UPp@not,UPp);
+
+
+

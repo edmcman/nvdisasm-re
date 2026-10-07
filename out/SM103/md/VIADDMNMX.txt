@@ -1,0 +1,396 @@
+CLASS "viaddmnmx__RRR_RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FMT_viaddmnmx("S32"):fmt /RELU("norelu"):relu
+Register:Rd
+','Register:Ra {/REUSE("noreuse"):reuse_src_a}
+',' [-] Register:Rb {/REUSE("noreuse"):reuse_src_b}
+','Register:Rc {/REUSE("noreuse"):reuse_src_c}
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_7(batch_t,usched_info,reuse_src_a,reuse_src_b,reuse_src_c) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_b, reuse_src_c"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_b==1)||(reuse_src_c==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((relu == `RELU@RELU))) -> (((fmt == `FMT_viaddmnmx@S32)||(fmt == `FMT_viaddmnmx@S16x2))) :
+ "Invalid instruction combination (reason: .RELU may only be specified if .fmt is a signed data type)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@VIADDMNMX_Rb_Rc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        VIADDMNMXint_pipe =  0b1001000110;
+        VIADDMNMX =  0b1001000110;
+
+ENCODING
+!viaddmnmx__RRR_RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_73_72_memType=fmt;
+BITS_1_76_76_memdesc=relu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_1_63_63_input_reg_sz_32_100_dist=Rb@negate;
+BITS_8_71_64_Ra_URc=Rc;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_7(batch_t,usched_info,reuse_src_a,reuse_src_b,reuse_src_c);
+
+
+
+CLASS "viaddmnmx__RRU_RRU"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FMT_viaddmnmx("S32"):fmt /RELU("norelu"):relu
+Register:Rd
+','Register:Ra {/REUSE("noreuse"):reuse_src_a}
+',' [-] Register:Rb {/REUSE("noreuse"):reuse_src_b}
+','UniformRegister:URc
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_8(batch_t,usched_info,reuse_src_a,reuse_src_b) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_b"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_b==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((relu == `RELU@RELU))) -> (((fmt == `FMT_viaddmnmx@S32)||(fmt == `FMT_viaddmnmx@S16x2))) :
+ "Invalid instruction combination (reason: .RELU may only be specified if .fmt is a signed data type)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@VIADDMNMX_Rb_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_URc_SIZE = 32;
+
+OPCODES
+        VIADDMNMXint_pipe =  0b1111001000110;
+        VIADDMNMX =  0b1111001000110;
+
+ENCODING
+!viaddmnmx__RRU_RRU_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_73_72_memType=fmt;
+BITS_1_76_76_memdesc=relu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_71_64_Ra_URc=Rb;
+BITS_1_75_75_sz=Rb@negate;
+BITS_8_39_32_Rb=URc;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_8(batch_t,usched_info,reuse_src_a,reuse_src_b);
+
+
+
+CLASS "viaddmnmx__RRuI_RRI"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FMT_viaddmnmx("S32"):fmt /RELU("norelu"):relu
+Register:Rd
+','Register:Ra {/REUSE("noreuse"):reuse_src_a}
+',' [-] Register:Rb {/REUSE("noreuse"):reuse_src_b}
+','UImm(32)*:Sc
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_8(batch_t,usched_info,reuse_src_a,reuse_src_b) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_b"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_b==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((relu == `RELU@RELU))) -> (((fmt == `FMT_viaddmnmx@S32)||(fmt == `FMT_viaddmnmx@S16x2))) :
+ "Invalid instruction combination (reason: .RELU may only be specified if .fmt is a signed data type)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@VIADDMNMX_Rb_Ic ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        VIADDMNMXint_pipe =  0b10001000110;
+        VIADDMNMX =  0b10001000110;
+
+ENCODING
+!viaddmnmx__RRuI_RRI_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_73_72_memType=fmt;
+BITS_1_76_76_memdesc=relu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_71_64_Ra_URc=Rb;
+BITS_1_75_75_sz=Rb@negate;
+BITS_32_63_32_Ra_offset=Sc;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_8(batch_t,usched_info,reuse_src_a,reuse_src_b);
+
+
+
+CLASS "viaddmnmx__RUR_RUR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FMT_viaddmnmx("S32"):fmt /RELU("norelu"):relu
+Register:Rd
+','Register:Ra {/REUSE("noreuse"):reuse_src_a}
+',' [-] UniformRegister:URb
+','Register:Rc {/REUSE("noreuse"):reuse_src_c}
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_4(batch_t,usched_info,reuse_src_a,reuse_src_c) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_c"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_c==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((relu == `RELU@RELU))) -> (((fmt == `FMT_viaddmnmx@S32)||(fmt == `FMT_viaddmnmx@S16x2))) :
+ "Invalid instruction combination (reason: .RELU may only be specified if .fmt is a signed data type)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@VIADDMNMX_URb_Rc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rc_SIZE = 32;
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        VIADDMNMXint_pipe =  0b1110001000110;
+        VIADDMNMX =  0b1110001000110;
+
+ENCODING
+!viaddmnmx__RUR_RUR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_73_72_memType=fmt;
+BITS_1_76_76_memdesc=relu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=URb;
+BITS_1_63_63_input_reg_sz_32_100_dist=URb@negate;
+BITS_8_71_64_Ra_URc=Rc;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_4(batch_t,usched_info,reuse_src_a,reuse_src_c);
+
+
+
+CLASS "viaddmnmx__RuIR_RIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FMT_viaddmnmx("S32"):fmt /RELU("norelu"):relu
+Register:Rd
+','Register:Ra {/REUSE("noreuse"):reuse_src_a}
+','UImm(32)*:Sb
+','Register:Rc {/REUSE("noreuse"):reuse_src_c}
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_4(batch_t,usched_info,reuse_src_a,reuse_src_c) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_c"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_c==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((relu == `RELU@RELU))) -> (((fmt == `FMT_viaddmnmx@S32)||(fmt == `FMT_viaddmnmx@S16x2))) :
+ "Invalid instruction combination (reason: .RELU may only be specified if .fmt is a signed data type)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@VIADDMNMX_Ib_Rc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        VIADDMNMXint_pipe =  0b100001000110;
+        VIADDMNMX =  0b100001000110;
+
+ENCODING
+!viaddmnmx__RuIR_RIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_73_72_memType=fmt;
+BITS_1_76_76_memdesc=relu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_32_63_32_Ra_offset=Sb;
+BITS_8_71_64_Ra_URc=Rc;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_4(batch_t,usched_info,reuse_src_a,reuse_src_c);
+
+
+

@@ -1,0 +1,136 @@
+[
+ {
+  "cls": "endcollective_",
+  "alternate": false,
+  "opcodes": [
+   "ENDCOLLECTIVE"
+  ],
+  "pipes": [
+   "cbu_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "VIRTUAL_QUEUE": "$VQ_CBU"
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Ctl",
+    "resource": "CONTROL",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re}": "2"
+    }
+   ]
+  }
+ }
+]

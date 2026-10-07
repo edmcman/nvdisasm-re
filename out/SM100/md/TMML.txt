@@ -1,0 +1,265 @@
+CLASS "tmml_b_noConst_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BONLY:b /LODOnly:lod /DIV__NDV("nodiv__ndv"):div /NODEP("nonodep"):nodep
+Register:Rd2
+','Register:Rd
+','NonZeroRegister:Ra
+','NonZeroRegister:Rb ','TEXPARAMA:paramA ','UImm(4/15)*:wmsk
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((div !=`DIV__NDV@INVALID2)&&(div !=`DIV__NDV@INVALID3)) :
+ "Invalid div field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((paramA !=`TEXPARAMA@INVALID6)) :
+ "Invalid paramA field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((wmsk == 1)||(wmsk == 2)||(wmsk == 3)||(wmsk == 4)||(wmsk == 5)||(wmsk == 6)||(wmsk == 7)||(wmsk == 8)||(wmsk == 9)||(wmsk == 10)||(wmsk == 11)||(wmsk == 12)||(wmsk == 13)||(wmsk == 14)||(wmsk == 15)) :
+ "Invalid wmsk field value"
+OOR_REG_ERROR
+ (((Rd2)==`Register@RZ)||(((Rd2)<=(%MAX_REG_COUNT-1))&&((Rd2)!=`Register@R254))) :
+ "Register Rd2 is out of range"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Rb)!=`Register@RZ) :
+ "Disallowed register Rb"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_1D)||(paramA == `TEXPARAMA@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_1D)||(paramA == `TEXPARAMA@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_1D)||(paramA == `TEXPARAMA@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_2D)||(paramA == `TEXPARAMA@CUBE)||(paramA == `TEXPARAMA@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_2D)||(paramA == `TEXPARAMA@CUBE)||(paramA == `TEXPARAMA@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_2D)||(paramA == `TEXPARAMA@CUBE)||(paramA == `TEXPARAMA@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_CUBE))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_CUBE))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_CUBE))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((wmsk==15))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((wmsk==15))) -> (((((Rd2)+((Rd2)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@TMML_B_noConst ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>=2) ? 64 : 32;
+ IDEST2_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>2) ? (32 + (((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))==4)*32)) : 0;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 32 + (((paramA==`TEXPARAMA@ARRAY_1D) || (paramA==`TEXPARAMA@"2D"))*32 + ((paramA==`TEXPARAMA@ARRAY_2D) || (paramA==`TEXPARAMA@CUBE) || (paramA==`TEXPARAMA@"3D"))*64 + ((paramA==`TEXPARAMA@ARRAY_CUBE))*96);
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32 + (((paramA==`TEXPARAMA@ARRAY_1D) || (paramA==`TEXPARAMA@"2D"))*32 + ((paramA==`TEXPARAMA@ARRAY_2D) || (paramA==`TEXPARAMA@CUBE) || (paramA==`TEXPARAMA@"3D"))*64 + ((paramA==`TEXPARAMA@ARRAY_CUBE))*96);
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        TMMLmio_pipe =  0b1101101010;
+        TMML =  0b1101101010;
+
+ENCODING
+!tmml_b_noConst__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_77_76_barop=div;
+BITS_1_90_90_memdesc=nodep;
+BITS_8_71_64_Ra_URc=Rd2;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_3_63_61_dim=paramA;
+BITS_4_75_72_PixMaskU04=wmsk;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "tmml_urc_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /LODOnly:lod /DIV__NDV("nodiv__ndv"):div /NODEP("nonodep"):nodep
+Register:Rd2
+','Register:Rd
+','NonZeroRegister:Ra
+','Register("RZ"):Rb
+','UniformRegister:URc ','UImm(8/0)@:tid8 ','TEXPARAMA:paramA ','UImm(4/15)*:wmsk
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((div !=`DIV__NDV@INVALID2)&&(div !=`DIV__NDV@INVALID3)) :
+ "Invalid div field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((paramA !=`TEXPARAMA@INVALID6)) :
+ "Invalid paramA field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((wmsk == 1)||(wmsk == 2)||(wmsk == 3)||(wmsk == 4)||(wmsk == 5)||(wmsk == 6)||(wmsk == 7)||(wmsk == 8)||(wmsk == 9)||(wmsk == 10)||(wmsk == 11)||(wmsk == 12)||(wmsk == 13)||(wmsk == 14)||(wmsk == 15)) :
+ "Invalid wmsk field value"
+OOR_REG_ERROR
+ (((Rd2)==`Register@RZ)||(((Rd2)<=(%MAX_REG_COUNT-1))&&((Rd2)!=`Register@R254))) :
+ "Register Rd2 is out of range"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((URc)+((URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_1D)||(paramA == `TEXPARAMA@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_1D)||(paramA == `TEXPARAMA@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_1D)||(paramA == `TEXPARAMA@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_2D)||(paramA == `TEXPARAMA@CUBE)||(paramA == `TEXPARAMA@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_2D)||(paramA == `TEXPARAMA@CUBE)||(paramA == `TEXPARAMA@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_2D)||(paramA == `TEXPARAMA@CUBE)||(paramA == `TEXPARAMA@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_CUBE))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_CUBE))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `TEXPARAMA@ARRAY_CUBE))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((wmsk==15))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((wmsk==15))) -> (((((Rd2)+((Rd2)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@TMML_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>=2) ? 64 : 32;
+ IDEST2_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>2) ? (32 + (((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))==4)*32)) : 0;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 64;
+ ISRC_A_SIZE = 32 + (((paramA==`TEXPARAMA@ARRAY_1D) || (paramA==`TEXPARAMA@"2D"))*32 + ((paramA==`TEXPARAMA@ARRAY_2D) || (paramA==`TEXPARAMA@CUBE) || (paramA==`TEXPARAMA@"3D"))*64 + ((paramA==`TEXPARAMA@ARRAY_CUBE))*96);
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32 + (((paramA==`TEXPARAMA@ARRAY_1D) || (paramA==`TEXPARAMA@"2D"))*32 + ((paramA==`TEXPARAMA@ARRAY_2D) || (paramA==`TEXPARAMA@CUBE) || (paramA==`TEXPARAMA@"3D"))*64 + ((paramA==`TEXPARAMA@ARRAY_CUBE))*96);
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_URc_SIZE = 64;
+
+OPCODES
+        TMMLmio_pipe =  0b1111101101001;
+        TMML =  0b1111101101001;
+
+ENCODING
+!tmml_urc__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_77_76_barop=div;
+BITS_1_90_90_memdesc=nodep;
+BITS_8_71_64_Ra_URc=Rd2;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_8_47_40_Re=URc;
+BITS_3_63_61_dim=paramA;
+BITS_4_75_72_PixMaskU04=wmsk;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

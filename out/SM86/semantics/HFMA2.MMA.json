@@ -1,0 +1,3619 @@
+[
+ {
+  "cls": "hfma2_mma__RCR_norelu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rc_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sb",
+    "type": "C",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sb_bank",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sb_addr",
+    "type": "SImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Rc",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "hfma2_mma__RCR_relu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rc_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sb",
+    "type": "C",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sb_bank",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sb_addr",
+    "type": "SImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Rc",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "hfma2_mma__RCxR_norelu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 64,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rc_SIZE": 32,
+   "ILABEL_URb_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sb",
+    "type": "CX",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "URb",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Sb_offset",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Rc",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "hfma2_mma__RCxR_relu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 64,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rc_SIZE": 32,
+   "ILABEL_URb_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sb",
+    "type": "CX",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "URb",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Sb_offset",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Rc",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "hfma2_mma__RIR_norelu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rc_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sb",
+    "type": "F16Imm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sb1",
+    "type": "F16Imm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Rc",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "hfma2_mma__RIR_relu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rc_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sb",
+    "type": "F16Imm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sb1",
+    "type": "F16Imm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Rc",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "hfma2_mma__RRC_norelu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rb_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sc",
+    "type": "C",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sc_bank",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sc_addr",
+    "type": "SImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "hfma2_mma__RRC_relu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rb_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sc",
+    "type": "C",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sc_bank",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sc_addr",
+    "type": "SImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "hfma2_mma__RRCx_norelu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 64,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rb_SIZE": 32,
+   "ILABEL_URc_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sc",
+    "type": "CX",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "URc",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Sc_offset",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "hfma2_mma__RRCx_relu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 64,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rb_SIZE": 32,
+   "ILABEL_URc_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sc",
+    "type": "CX",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "URc",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Sc_offset",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "hfma2_mma__RRI_norelu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rb_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sc",
+    "type": "F16Imm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sc1",
+    "type": "F16Imm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "hfma2_mma__RRI_relu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rb_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sc",
+    "type": "F16Imm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sc1",
+    "type": "F16Imm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "hfma2_mma__RRR_norelu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rb_SIZE": 32,
+   "ILABEL_Rc_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rc",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "hfma2_mma__RRR_relu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rb_SIZE": 32,
+   "ILABEL_Rc_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rc",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "hfma2_mma__RRU_norelu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rb_SIZE": 32,
+   "ILABEL_URc_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URc",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "hfma2_mma__RRU_relu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rb_SIZE": 32,
+   "ILABEL_URc_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URc",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "hfma2_mma__RUR_norelu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rc_SIZE": 32,
+   "ILABEL_URb_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URb",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rc",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "hfma2_mma__RUR_relu",
+  "alternate": false,
+  "opcodes": [
+   "HFMA2.MMA"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rc_SIZE": 32,
+   "ILABEL_URb_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URb",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rc",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "10",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "10",
+     "IMAD_OP`{Ra,Rb,Rc}": "10",
+     "FP16_OPS`{Ra,Rb,Rc}": "10",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "10",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "6",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "6",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "6",
+     "MIO_SLOW_OPS`{Ra,Rb,Rc}": "7",
+     "BRU_OPS`{Ra,Rb,Rc}": "6",
+     "OP_R2UR`{Ra}": "10",
+     "HMMA_OP`{Ra,Rb,Re}": "11",
+     "IMMA_OP`{Ra,Rb,Re}": "11",
+     "DMMA_OP`{Ra,Rb,Re}": "11",
+     "HMMA_OP`{Rc}": "11",
+     "IMMA_OP`{Rc}": "11",
+     "DMMA_OP`{Rc}": "11",
+     "CLMAD_OP`{Ra,Rb,Rc}": "10"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ }
+]

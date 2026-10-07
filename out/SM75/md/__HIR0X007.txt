@@ -1,0 +1,39 @@
+CLASS "ttuopen_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /DUAL("nodual"):dual
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD;
+ MIN_WAIT_NEEDED = 5 ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ VIRTUAL_QUEUE = $__HIR0X009 ;
+ MASK_INSTR_PREDICATE = (1);
+
+OPCODES
+        __HIR0X007__HIR0X00A_pipe =  0b1111010000;
+        __HIR0X007 =  0b1111010000;
+
+ENCODING
+!__HIR0X01B;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=dual;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

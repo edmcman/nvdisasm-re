@@ -1,0 +1,290 @@
+[
+ {
+  "cls": "ugetnextworkid_",
+  "alternate": false,
+  "opcodes": [
+   "UGETNEXTWORKID"
+  ],
+  "pipes": [
+   "udp_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_RD_SCBD",
+  "sizes": {
+   "ISRC_B_SIZE": 32,
+   "ISRC_A_SIZE": 64,
+   "VIRTUAL_QUEUE": "$VQ_WORKID",
+   "ILABEL_URa_SIZE": 64,
+   "ILABEL_URb_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "UPg",
+    "type": "UniformPredicate",
+    "resource": "UPRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URa",
+    "type": "NonZeroUniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "URb",
+    "type": "NonZeroUniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UPx",
+    "resource": "UPRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV_ELECT`{sBoard}": "ORDERED_ZERO"
+    }
+   ],
+   "UPRED:UPu,UPv": [
+    {
+     "VECTOR_INST`{UPr,UPq,UPp}": "6",
+     "OP_SYNCS`{UPg}": "6",
+     "UPRED_OPS`{UPr,UPq,UPp}": "4",
+     "OP_UP2UR`{UPR_UPRED}": "4",
+     "OP_UR2UP`{UPR_UPRED}": "11",
+     "UDP_OPS`{UPg}": "9",
+     "OP_BRA_JMP`{UPr,UPq,UPp}": "11",
+     "OP_ULDC`{UPx}": "11",
+     "OP_LDCU`{UPp}": "11",
+     "MMA_OPS`{UPp}": "11"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "ugetnextworkid_one_",
+  "alternate": true,
+  "opcodes": [
+   "UGETNEXTWORKID"
+  ],
+  "pipes": [
+   "udp_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_RD_SCBD",
+  "sizes": {
+   "ISRC_B_SIZE": 32,
+   "ISRC_A_SIZE": 64,
+   "VIRTUAL_QUEUE": "$VQ_WORKID",
+   "ILABEL_URa_SIZE": 64,
+   "ILABEL_URb_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "UPg",
+    "type": "UniformPredicate",
+    "resource": "UPRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URa",
+    "type": "NonZeroUniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "URb",
+    "type": "NonZeroUniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UPx",
+    "resource": "UPRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV_ELECT`{sBoard}": "ORDERED_ZERO"
+    }
+   ],
+   "UPRED:UPu,UPv": [
+    {
+     "VECTOR_INST`{UPr,UPq,UPp}": "6",
+     "OP_SYNCS`{UPg}": "6",
+     "UPRED_OPS`{UPr,UPq,UPp}": "4",
+     "OP_UP2UR`{UPR_UPRED}": "4",
+     "OP_UR2UP`{UPR_UPRED}": "11",
+     "UDP_OPS`{UPg}": "9",
+     "OP_BRA_JMP`{UPr,UPq,UPp}": "11",
+     "OP_ULDC`{UPx}": "11",
+     "OP_LDCU`{UPp}": "11",
+     "MMA_OPS`{UPp}": "11"
+    }
+   ]
+  }
+ }
+]

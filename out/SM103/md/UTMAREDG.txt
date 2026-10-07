@@ -1,0 +1,436 @@
+CLASS "utmaredg__UUU"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /TENSORDIM:dim /MODE_utmaredg("TILED"):mode /RedOp:op
+ [ UniformRegister:URb ]
+',' [ UniformRegister:URa ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((dim !=`TENSORDIM@INVALID5)&&(dim !=`TENSORDIM@INVALID6)&&(dim !=`TENSORDIM@INVALID7)) :
+ "Invalid dim field value"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URb is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"1D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"1D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"2D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"2D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"3D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"3D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"4D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-5)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"4D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 8) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"5D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-6)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"5D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 8) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_utmaredg@IM2COL))) -> (((dim == `TENSORDIM@"3D")||(dim == `TENSORDIM@"4D")||(dim == `TENSORDIM@"5D"))) :
+ "Invalid instruction combination (reason: .IM2COL can only be used with .3D, .4D and .5D tensors)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = SINK ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UTMAREDG ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64 + (((dim==`TENSORDIM@"2D"))*32 + ((dim==`TENSORDIM@"3D"))*64 + ((dim==`TENSORDIM@"4D"))*96 + ((dim==`TENSORDIM@"5D"))*128);
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_TMA_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 64;
+ ILABEL_URb_SIZE = 64 + (((dim==`TENSORDIM@"2D"))*32 + ((dim==`TENSORDIM@"3D"))*64 + ((dim==`TENSORDIM@"4D"))*96 + ((dim==`TENSORDIM@"5D"))*128);
+
+OPCODES
+        UTMAREDGudp_pipe =  0b1001110110110;
+        UTMAREDG =  0b1001110110110;
+
+ENCODING
+!utmaredg__UUU_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_81_79_rndMode=dim;
+BITS_1_82_82_memdesc=mode;
+BITS_3_89_87_Pp=op;
+BITS_8_39_32_Rb=URb;
+BITS_8_31_24_Ra=URa;
+BITS_1_76_76_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "utmaredg__UUU_desc"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /TENSORDIM:dim /MODE_utmaredg("TILED"):mode /RedOp:op
+ [ UniformRegister:URb ]
+',' [ UniformRegister:URa ]
+',' TMA:desc[ UniformRegister:URe ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((dim !=`TENSORDIM@INVALID5)&&(dim !=`TENSORDIM@INVALID6)&&(dim !=`TENSORDIM@INVALID7)) :
+ "Invalid dim field value"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URb is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+OOR_REG_ERROR
+ (((URe)==`UniformRegister@URZ)||((URe)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URe is out of range"
+MISALIGNED_REG_ERROR
+ (((URe)+((URe)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URe is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"1D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"1D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"2D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"2D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"3D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"3D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"4D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-5)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"4D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 8) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"5D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-6)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"5D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 8) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_utmaredg@IM2COL))) -> (((dim == `TENSORDIM@"3D")||(dim == `TENSORDIM@"4D")||(dim == `TENSORDIM@"5D"))) :
+ "Invalid instruction combination (reason: .IM2COL can only be used with .3D, .4D and .5D tensors)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = SINK ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UTMAREDG ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64 + (((dim==`TENSORDIM@"2D"))*32 + ((dim==`TENSORDIM@"3D"))*64 + ((dim==`TENSORDIM@"4D"))*96 + ((dim==`TENSORDIM@"5D"))*128);
+ ISRC_E_SIZE = 64;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_TMA_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 64;
+ ILABEL_URb_SIZE = 64 + (((dim==`TENSORDIM@"2D"))*32 + ((dim==`TENSORDIM@"3D"))*64 + ((dim==`TENSORDIM@"4D"))*96 + ((dim==`TENSORDIM@"5D"))*128);
+ ILABEL_URe_SIZE = 64;
+
+OPCODES
+        UTMAREDGudp_pipe =  0b1001110110110;
+        UTMAREDG =  0b1001110110110;
+
+ENCODING
+!utmaredg__UUU_desc_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_81_79_rndMode=dim;
+BITS_1_82_82_memdesc=mode;
+BITS_3_89_87_Pp=op;
+BITS_8_39_32_Rb=URb;
+BITS_8_31_24_Ra=URa;
+BITS_8_47_40_Re=URe;
+BITS_1_76_76_memdesc=1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "utmaredg_one__UUU"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ONEONLY:one /TENSORDIM:dim /MODE_utmaredg("TILED"):mode /RedOp:op
+ [ UniformRegister:URb ]
+',' [ UniformRegister:URa ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((dim !=`TENSORDIM@INVALID5)&&(dim !=`TENSORDIM@INVALID6)&&(dim !=`TENSORDIM@INVALID7)) :
+ "Invalid dim field value"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URb is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"1D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"1D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"2D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"2D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"3D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"3D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"4D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-5)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"4D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 8) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"5D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-6)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"5D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 8) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_utmaredg@IM2COL))) -> (((dim == `TENSORDIM@"3D")||(dim == `TENSORDIM@"4D")||(dim == `TENSORDIM@"5D"))) :
+ "Invalid instruction combination (reason: .IM2COL can only be used with .3D, .4D and .5D tensors)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = SINK ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UTMAREDG ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64 + (((dim==`TENSORDIM@"2D"))*32 + ((dim==`TENSORDIM@"3D"))*64 + ((dim==`TENSORDIM@"4D"))*96 + ((dim==`TENSORDIM@"5D"))*128);
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_TMA_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 64;
+ ILABEL_URb_SIZE = 64 + (((dim==`TENSORDIM@"2D"))*32 + ((dim==`TENSORDIM@"3D"))*64 + ((dim==`TENSORDIM@"4D"))*96 + ((dim==`TENSORDIM@"5D"))*128);
+
+OPCODES
+        UTMAREDGudp_pipe =  0b1001110110110;
+        UTMAREDG =  0b1001110110110;
+
+ENCODING
+!utmaredg_one__UUU_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_81_79_rndMode=dim;
+BITS_1_82_82_memdesc=mode;
+BITS_3_89_87_Pp=op;
+BITS_8_39_32_Rb=URb;
+BITS_8_31_24_Ra=URa;
+BITS_1_76_76_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "utmaredg_one__UUU_desc"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ONEONLY:one /TENSORDIM:dim /MODE_utmaredg("TILED"):mode /RedOp:op
+ [ UniformRegister:URb ]
+',' [ UniformRegister:URa ]
+',' TMA:desc[ UniformRegister:URe ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((dim !=`TENSORDIM@INVALID5)&&(dim !=`TENSORDIM@INVALID6)&&(dim !=`TENSORDIM@INVALID7)) :
+ "Invalid dim field value"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URb is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+OOR_REG_ERROR
+ (((URe)==`UniformRegister@URZ)||((URe)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URe is out of range"
+MISALIGNED_REG_ERROR
+ (((URe)+((URe)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URe is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"1D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"1D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"2D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"2D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"3D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"3D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"4D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-5)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"4D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 8) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((dim == `TENSORDIM@"5D"))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-6)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `TENSORDIM@"5D"))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 8) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_utmaredg@IM2COL))) -> (((dim == `TENSORDIM@"3D")||(dim == `TENSORDIM@"4D")||(dim == `TENSORDIM@"5D"))) :
+ "Invalid instruction combination (reason: .IM2COL can only be used with .3D, .4D and .5D tensors)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = SINK ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UTMAREDG ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64 + (((dim==`TENSORDIM@"2D"))*32 + ((dim==`TENSORDIM@"3D"))*64 + ((dim==`TENSORDIM@"4D"))*96 + ((dim==`TENSORDIM@"5D"))*128);
+ ISRC_E_SIZE = 64;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_TMA_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 64;
+ ILABEL_URb_SIZE = 64 + (((dim==`TENSORDIM@"2D"))*32 + ((dim==`TENSORDIM@"3D"))*64 + ((dim==`TENSORDIM@"4D"))*96 + ((dim==`TENSORDIM@"5D"))*128);
+ ILABEL_URe_SIZE = 64;
+
+OPCODES
+        UTMAREDGudp_pipe =  0b1001110110110;
+        UTMAREDG =  0b1001110110110;
+
+ENCODING
+!utmaredg_one__UUU_desc_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_81_79_rndMode=dim;
+BITS_1_82_82_memdesc=mode;
+BITS_3_89_87_Pp=op;
+BITS_8_39_32_Rb=URb;
+BITS_8_31_24_Ra=URa;
+BITS_8_47_40_Re=URe;
+BITS_1_76_76_memdesc=1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

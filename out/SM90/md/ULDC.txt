@@ -1,0 +1,429 @@
+CLASS "uldc_const__RCR"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /SZ_U8_S8_U16_S16_32_64("32"):sz
+UniformRegister:URd
+','C:Sa[UImm(5/0*):Sa_bank]*   [SImm(17)*:Sa_addr]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64@INVALID6)&&(sz !=`SZ_U8_S8_U16_S16_32_64@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+INVALID_CONST_ADDR_SASS_ONLY_ERROR
+ ((Sa_bank <= 17) || (Sa_bank >= 24 && Sa_bank <= 31)) :
+ "Invalid constant bank error"
+INVALID_CONST_ADDR_ERROR
+ (Sa_bank >= 24 && Sa_bank <= 31) -> (Sa_addr <= 255) :
+ "RTV banks may not use an offset greater than 255"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (%SHADER_TYPE == $ST_CS) -> !(Sa_bank >= 8 && Sa_bank <= 31) :
+ "CS may not use RTV banks"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64@"64"))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64@"64"))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@ULDC_Cb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = (( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32;
+ ISRC_A_SIZE = 32;
+
+
+OPCODES
+        ULDCudp_pipe =  0b101010111001;
+        ULDC =  0b101010111001;
+
+ENCODING
+!uldc_const__RCR_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_75_73_sz=sz;
+BITS_6_21_16_URd=URd;
+
+BITS_5_58_54_Sb_bank,BITS_16_53_38_Ra_offset =  ConstBankAddress0(Sa_bank,Sa_addr);
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+
+CLASS "uldc_const__RCxR"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /SZ_U8_S8_U16_S16_32_64("32"):sz
+UniformRegister:URd
+','CX:Sa[UniformRegister:URa][UImm(16)*:Sa_offset]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64@INVALID6)&&(sz !=`SZ_U8_S8_U16_S16_32_64@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URa)!=`UniformRegister@URZ) :
+ "Disallowed uniform register URa"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64@"64"))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64@"64"))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@ULDC_CXb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = (( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32;
+ ISRC_A_SIZE = 64;
+
+ ILABEL_URa_SIZE = 64;
+
+OPCODES
+        ULDCudp_pipe =  0b1101010111001;
+        ULDC =  0b1101010111001;
+
+ENCODING
+!uldc_const__RCxR_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_75_73_sz=sz;
+BITS_6_21_16_URd=URd;
+BITS_6_29_24_Sa=URa;
+BITS_16_53_38_Ra_offset=Sa_offset;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+
+CLASS "uldc_imm_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /SZ_U8_S8_U16_S16_32_64("32"):sz
+UniformRegister:URd
+',' [ ZeroUniformRegister("URZ"):URa + UImm(32)*:Sa_offset ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64@INVALID6)&&(sz !=`SZ_U8_S8_U16_S16_32_64@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sa is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URa)==`UniformRegister@URZ) :
+ "Disallowed uniform register Sa"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64@"64"))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64@"64"))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@ULDC_CXbVA ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = (( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32;
+ ISRC_A_SIZE = 32;
+
+
+OPCODES
+        ULDCudp_pipe =  0b1100010111000;
+        ULDC =  0b1100010111000;
+
+ENCODING
+!uldc_imm__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_75_73_sz=sz;
+BITS_6_21_16_URd=URd;
+BITS_6_29_24_Sa=*URa;
+BITS_32_69_38_Sa_offset=Sa_offset;
+BITS_3_89_87_Pnz =* 7;
+BITS_1_90_90_input_reg_sz_32_dist =*1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+
+CLASS "uldc_ur_offs_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /SZ_U8_S8_U16_S16_32_64("32"):sz
+UniformRegister:URd
+',' [ NonZeroUniformRegister:URa + SImm(32/0)*:Sa_offset ]
+',' [!]UniformPredicate:UPx
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64@INVALID6)&&(sz !=`SZ_U8_S8_U16_S16_32_64@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sa is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URa)!=`UniformRegister@URZ) :
+ "Disallowed uniform register Sa"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64@"64"))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64@"64"))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@ULDC_CXbVA ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = (( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32;
+ ISRC_A_SIZE = 64;
+
+ ILABEL_URa_SIZE = 64;
+
+OPCODES
+        ULDCudp_pipe =  0b1100010111000;
+        ULDC =  0b1100010111000;
+
+ENCODING
+!uldc_ur_offs__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_75_73_sz=sz;
+BITS_6_21_16_URd=URd;
+BITS_6_29_24_Sa=*URa;
+BITS_32_69_38_Sa_offset=Sa_offset;
+BITS_3_89_87_Pnz = UPx;
+BITS_1_90_90_input_reg_sz_32_dist = UPx@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "uldc_ur_offs_optional_upx_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /SZ_U8_S8_U16_S16_32_64("32"):sz
+UniformRegister:URd
+',' [ NonZeroUniformRegister:URa + SImm(32/0)*:Sa_offset ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64@INVALID6)&&(sz !=`SZ_U8_S8_U16_S16_32_64@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sa is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URa)!=`UniformRegister@URZ) :
+ "Disallowed uniform register Sa"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64@"64"))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64@"64"))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@ULDC_CXbVA ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = (( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32;
+ ISRC_A_SIZE = 64;
+
+ ILABEL_URa_SIZE = 64;
+
+OPCODES
+        ULDCudp_pipe =  0b1100010111000;
+        ULDC =  0b1100010111000;
+
+ENCODING
+!uldc_ur_offs_optional_upx__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_75_73_sz=sz;
+BITS_6_21_16_URd=URd;
+BITS_6_29_24_Sa=*URa;
+BITS_32_69_38_Sa_offset=Sa_offset;
+BITS_3_89_87_Pnz =* 7;
+BITS_1_90_90_input_reg_sz_32_dist =*1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+
+CLASS "uldc_ur_offset_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /SZ_U8_S8_U16_S16_32_64("32"):sz
+UniformRegister:URd
+','C:Sa[UImm(5/0*):Sa_bank]*   [UniformRegister:URa + SImm(17/0)*:Sa_offset]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64@INVALID6)&&(sz !=`SZ_U8_S8_U16_S16_32_64@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64@"64"))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64@"64"))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@ULDC_CbURaOffs ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = (( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_URa_SIZE = 32;
+
+OPCODES
+        ULDCudp_pipe =  0b1101010111011;
+        ULDC =  0b1101010111011;
+
+ENCODING
+!uldc_ur_offset__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_75_73_sz=sz;
+BITS_6_21_16_URd=URd;
+
+BITS_6_29_24_Sa=URa;
+BITS_5_58_54_Sb_bank,BITS_16_53_38_Ra_offset =  ConstBankAddress0(Sa_bank,Sa_offset);
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+

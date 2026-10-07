@@ -1,0 +1,190 @@
+ALTERNATE CLASS "ushl__URURUR_URURUR"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /CWMode("C"):cw
+UniformRegister:URd
+','UniformRegister:URa
+','UniformRegister:URb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_2(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@USHF_URb_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        USHLudp_pipe =  0b1001010011001;
+        USHL =  0b1001010011001;
+
+ENCODING
+!ushl__URURUR_URURUR_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_76_76_memdesc=*0;
+BITS_1_75_75_relu=cw;
+BITS_2_74_73_sz=*3;
+BITS_1_80_80_ftz=*0;
+BITS_6_21_16_URd=URd;
+BITS_6_29_24_cbu_state=URa;
+BITS_6_37_32_Ra_URb=URb;
+BITS_6_69_64_Ra_URc=*63;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_2(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "ushl__URuIUR_URIR"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /CWMode("C"):cw
+UniformRegister:URd
+','UniformRegister:URa
+','UImm(32)*:Sb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_2(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@USHF_Ib_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_URa_SIZE = 32;
+
+OPCODES
+        USHLudp_pipe =  0b1100010011001;
+        USHL =  0b1100010011001;
+
+ENCODING
+!ushl__URuIUR_URIR_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_76_76_memdesc=*0;
+BITS_1_75_75_relu=cw;
+BITS_2_74_73_sz=*3;
+BITS_1_80_80_ftz=*0;
+BITS_6_21_16_URd=URd;
+BITS_6_29_24_cbu_state=URa;
+BITS_32_63_32_Ra_offset=Sb;
+BITS_6_69_64_Ra_URc=*63;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_2(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "ushl_imm_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /CWMode("C"):cw
+UniformRegister:URd
+','UImm(32)*:Sa
+','UniformRegister:URb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_2(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@USHF_URb_Ic ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        USHLudp_pipe =  0b1010010011001;
+        USHL =  0b1010010011001;
+
+ENCODING
+!ushl_imm__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_76_76_memdesc=*0;
+BITS_1_75_75_relu=cw;
+BITS_2_74_73_sz=*3;
+BITS_1_80_80_ftz=*1;
+BITS_6_21_16_URd=URd;
+BITS_32_63_32_Ra_offset=Sa;
+BITS_6_69_64_Ra_URc=URb;
+BITS_6_29_24_cbu_state=*63;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_2(batch_t,usched_info);
+
+
+

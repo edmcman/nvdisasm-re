@@ -7,7 +7,7 @@ All addresses below are specific to that build.
 ## Tooling
 - Ghidra via GhidraMCP. GUI server was at `http://127.0.0.1:33363/` (`set_ghidra_server`). Image base 0x100000, so Ghidra addr = file/objdump addr + 0x100000.
 - GhidraMCP lookups need exact function entry addresses; inner addresses return "No function".
-- `extract_md.py` (`uv run extract_md.py <nvdisasm> [outdir]`) dumps the embedded machine descriptions to `out/`; `build_semantics.py out` writes `out/semantics_SMxx.json`. The CUDA 13.4 output is committed.
+- `uv run extract_md.py <nvdisasm>` dumps the embedded machine descriptions to `out/raw/` (gitignored, monolithic). `python3 build_out.py` lays them out as `out/SMxx/{latencies,patterns}.txt`, `out/SMxx/md/{_NN_SECTION,OPCODE}.txt` and `out/SMxx/semantics/OPCODE.json` (committed).
 
 ## Findings
 - Opcode/operand name strings are ROT13 (`rot13_decode` 0x168cb0); `strings` won't find them. Mnemonics are matched by prefix (`str_after_prefix` 0x11831b).

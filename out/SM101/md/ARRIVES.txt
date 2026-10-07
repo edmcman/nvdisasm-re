@@ -1,0 +1,69 @@
+CLASS "arrives_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /LDGSTSBARONLY:arrive /CInteger_64:sz /BAROP("LEGACY"):barop
+ [ Register("RZ"):Ra + UniformRegister:Ra_URc + SImm(24/0)*:Ra_offset ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((barop !=`BAROP@INVALID3)) :
+ "Invalid barop field value"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((((Ra)==`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRIVES requires that Ra==RZ)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@ARRIVES ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Ra_URc_SIZE = 32;
+
+OPCODES
+        ARRIVESmio_pipe =  0b1100110110000;
+        ARRIVES =  0b1100110110000;
+
+ENCODING
+!arrives__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=arrive;
+BITS_3_75_73_sz=sz;
+BITS_2_77_76_op=barop;
+BITS_8_31_24_Ra=Ra;
+BITS_8_71_64_Ra_URc=Ra_URc;
+BITS_24_63_40_Ra_offset=Ra_offset;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

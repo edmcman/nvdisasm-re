@@ -1,0 +1,1944 @@
+[
+ {
+  "cls": "call_abs__RCR",
+  "alternate": false,
+  "opcodes": [
+   "CALL"
+  ],
+  "pipes": [
+   "cbu_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD",
+  "sizes": {
+   "ISRC_A_SIZE": 32,
+   "VIRTUAL_QUEUE": "$VQ_CBU"
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sa",
+    "type": "C",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sa_bank",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sa_addr",
+    "type": "SImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Ctl",
+    "resource": "CONTROL",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re}": "2"
+    }
+   ],
+   "RPC:Rpc": [
+    {
+     "USETMAXREG_OP`{Rpc}": "9"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "call_abs__RIR",
+  "alternate": false,
+  "opcodes": [
+   "CALL"
+  ],
+  "pipes": [
+   "cbu_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD",
+  "sizes": {
+   "ISRC_A_SIZE": 55,
+   "VIRTUAL_QUEUE": "$VQ_CBU"
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sa",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Ctl",
+    "resource": "CONTROL",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re}": "2"
+    }
+   ],
+   "RPC:Rpc": [
+    {
+     "USETMAXREG_OP`{Rpc}": "9"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "call_abs__RRR",
+  "alternate": false,
+  "opcodes": [
+   "CALL"
+  ],
+  "pipes": [
+   "cbu_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD",
+  "sizes": {
+   "ISRC_A_SIZE": 64,
+   "VIRTUAL_QUEUE": "$VQ_CBU",
+   "ILABEL_Ra_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Ra_offset",
+    "type": "SImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Ctl",
+    "resource": "CONTROL",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re}": "2"
+    }
+   ],
+   "RPC:Rpc": [
+    {
+     "USETMAXREG_OP`{Rpc}": "9"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "call_abs__URIR",
+  "alternate": false,
+  "opcodes": [
+   "CALL"
+  ],
+  "pipes": [
+   "cbu_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD",
+  "sizes": {
+   "ISRC_A_SIZE": 64,
+   "VIRTUAL_QUEUE": "$VQ_CBU",
+   "ILABEL_URa_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URa",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Sa_offset",
+    "type": "SImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Ctl",
+    "resource": "CONTROL",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re}": "2"
+    }
+   ],
+   "RPC:Rpc": [
+    {
+     "USETMAXREG_OP`{Rpc}": "9"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "call_rel__RIR",
+  "alternate": false,
+  "opcodes": [
+   "CALL"
+  ],
+  "pipes": [
+   "cbu_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD",
+  "sizes": {
+   "ISRC_A_SIZE": 56,
+   "VIRTUAL_QUEUE": "$VQ_CBU"
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sa",
+    "type": "RSImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Ctl",
+    "resource": "CONTROL",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re}": "2"
+    }
+   ],
+   "RPC:Rpc": [
+    {
+     "USETMAXREG_OP`{Rpc}": "9"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "call_rel__RRR",
+  "alternate": false,
+  "opcodes": [
+   "CALL"
+  ],
+  "pipes": [
+   "cbu_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD",
+  "sizes": {
+   "ISRC_A_SIZE": 64,
+   "VIRTUAL_QUEUE": "$VQ_CBU",
+   "ILABEL_Ra_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Ra_offset",
+    "type": "RSImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Ctl",
+    "resource": "CONTROL",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re}": "2"
+    }
+   ],
+   "RPC:Rpc": [
+    {
+     "USETMAXREG_OP`{Rpc}": "9"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "call_rel__URIR",
+  "alternate": false,
+  "opcodes": [
+   "CALL"
+  ],
+  "pipes": [
+   "cbu_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD",
+  "sizes": {
+   "ISRC_A_SIZE": 64,
+   "VIRTUAL_QUEUE": "$VQ_CBU",
+   "ILABEL_URa_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URa",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Sa_offset",
+    "type": "RSImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Ctl",
+    "resource": "CONTROL",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re}": "2"
+    }
+   ],
+   "RPC:Rpc": [
+    {
+     "USETMAXREG_OP`{Rpc}": "9"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "call_rel_imm__RIR",
+  "alternate": true,
+  "opcodes": [
+   "CALL"
+  ],
+  "pipes": [
+   "cbu_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD",
+  "sizes": {
+   "ISRC_A_SIZE": 56,
+   "VIRTUAL_QUEUE": "$VQ_CBU"
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sa",
+    "type": "SImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Ctl",
+    "resource": "CONTROL",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re}": "2"
+    }
+   ],
+   "RPC:Rpc": [
+    {
+     "USETMAXREG_OP`{Rpc}": "9"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "call_rel_imm__RRR",
+  "alternate": true,
+  "opcodes": [
+   "CALL"
+  ],
+  "pipes": [
+   "cbu_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD",
+  "sizes": {
+   "ISRC_A_SIZE": 64,
+   "VIRTUAL_QUEUE": "$VQ_CBU",
+   "ILABEL_Ra_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Ra_offset",
+    "type": "SImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Ctl",
+    "resource": "CONTROL",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re}": "2"
+    }
+   ],
+   "RPC:Rpc": [
+    {
+     "USETMAXREG_OP`{Rpc}": "9"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "call_rel_imm__URIR",
+  "alternate": true,
+  "opcodes": [
+   "CALL"
+  ],
+  "pipes": [
+   "cbu_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD",
+  "sizes": {
+   "ISRC_A_SIZE": 64,
+   "VIRTUAL_QUEUE": "$VQ_CBU",
+   "ILABEL_URa_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URa",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Sa_offset",
+    "type": "SImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Ctl",
+    "resource": "CONTROL",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re}": "2"
+    }
+   ],
+   "RPC:Rpc": [
+    {
+     "USETMAXREG_OP`{Rpc}": "9"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "call_rel_reg__RRR",
+  "alternate": true,
+  "opcodes": [
+   "CALL"
+  ],
+  "pipes": [
+   "cbu_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD",
+  "sizes": {
+   "ISRC_B_SIZE": 56,
+   "ISRC_A_SIZE": 64,
+   "VIRTUAL_QUEUE": "$VQ_CBU",
+   "ILABEL_Ra_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Ctl",
+    "resource": "CONTROL",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re}": "2"
+    }
+   ],
+   "RPC:Rpc": [
+    {
+     "USETMAXREG_OP`{Rpc}": "9"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "call_rel_reg__URIR",
+  "alternate": true,
+  "opcodes": [
+   "CALL"
+  ],
+  "pipes": [
+   "cbu_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD",
+  "sizes": {
+   "ISRC_B_SIZE": 56,
+   "ISRC_A_SIZE": 64,
+   "VIRTUAL_QUEUE": "$VQ_CBU",
+   "ILABEL_URa_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pp",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URa",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Ctl",
+    "resource": "CONTROL",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re}": "2"
+    }
+   ],
+   "RPC:Rpc": [
+    {
+     "USETMAXREG_OP`{Rpc}": "9"
+    }
+   ]
+  }
+ }
+]

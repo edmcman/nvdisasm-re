@@ -1,0 +1,107 @@
+ALTERNATE CLASS "upsetp_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /PSETP_BOP0:bop0 /PSETP_BOP0:bop1
+UniformPredicate:UPu
+','UniformPredicate:UPv
+',' [!]UniformPredicate:UPp
+',' [!]UniformPredicate:UPq
+',' [!]UniformPredicate:UPr
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_2(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_op_4(bop0,bop1,UPp@not,UPq@not,UPr@not) :
+ "Invalid combination of bop0, bop1, UPp@not, UPq@not, UPr@not"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@UPLOP3_0 ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+
+
+OPCODES
+        UPSETPudp_pipe =  0b100010011100;
+        UPSETP =  0b100010011100;
+
+ENCODING
+!upsetp__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_83_81_Pu=UPu;
+BITS_3_86_84_cop=UPv;
+BITS_3_89_87_Pp = UPp;
+BITS_3_79_77_Pq = UPq;
+BITS_3_70_68_Pr = UPr;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_2(batch_t,usched_info);
+BITS_16_76_72_66_64_23_16_lop=TABLES_op_4(bop0,bop1,UPp@not,UPq@not,UPr@not);
+
+
+
+ALTERNATE CLASS "upsetp_simple_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /PSETP_BOP0:bop0
+UniformPredicate:UPu
+',' [!]UniformPredicate:UPp
+',' [!]UniformPredicate:UPq
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_2(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_op_5(bop0,UPp@not,UPq@not) :
+ "Invalid combination of bop0, UPp@not, UPq@not"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@UPLOP3_0 ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+
+
+OPCODES
+        UPSETPudp_pipe =  0b100010011100;
+        UPSETP =  0b100010011100;
+
+ENCODING
+!upsetp_simple__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_83_81_Pu=UPu;
+BITS_3_86_84_cop=*7;
+BITS_3_89_87_Pp = UPp;
+BITS_3_79_77_Pq = UPq;
+BITS_3_70_68_Pr =* 7;
+BITS_1_71_71_memdesc =*0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_2(batch_t,usched_info);
+BITS_16_76_72_66_64_23_16_lop=TABLES_op_5(bop0,UPp@not,UPq@not);
+
+
+

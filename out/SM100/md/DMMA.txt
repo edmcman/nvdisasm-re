@@ -1,0 +1,100 @@
+CLASS "dmma_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /SIZE_DMMA:size /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a}
+',' [-] [||] Register:Rb {/REUSE("noreuse"):reuse_src_b}
+',' [-] [||] Register:Rc
+',' [!]UniformPredicate("UPT"):UPp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((size !=`SIZE_DMMA@INVALID1)&&(size !=`SIZE_DMMA@INVALID2)&&(size !=`SIZE_DMMA@INVALID3)) :
+ "Invalid size field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-4))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 4) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-2))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+MISALIGNED_REG_ERROR
+ (((Rb)+((Rb)==`Register@RZ)) % 2) == 0 :
+ "Register Rb is misaligned"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-4))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+MISALIGNED_REG_ERROR
+ (((Rc)+((Rc)==`Register@RZ)) % 4) == 0 :
+ "Register Rc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_5(batch_t,usched_info,reuse_src_a,reuse_src_b) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_b"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_b==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_EMULATABLE;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@DMMA_Rb_Rc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 128;
+ ISRC_B_SIZE = 64;
+ ISRC_C_SIZE = 128;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_DMMA ;
+
+ ILABEL_Ra_SIZE = 64;
+ ILABEL_Rb_SIZE = 64;
+ ILABEL_Rc_SIZE = 128;
+
+OPCODES
+        DMMAfma64lite_pipe =  0b1000111111;
+        DMMA =  0b1000111111;
+
+ENCODING
+!dmma__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_77_76_barop=size;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_8_39_32_Rb=Rb;
+BITS_1_62_62_Sc_absolute=Rb@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=Rb@negate;
+BITS_8_71_64_Ra_URc=Rc;
+BITS_1_74_74_sh=Rc@absolute;
+BITS_1_75_75_input_reg_sz_32_bit75_dist=Rc@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_5(batch_t,usched_info,reuse_src_a,reuse_src_b);
+BITS_4_90_87_op=TABLES_Pnz_0(UPp@not,UPp);
+
+
+

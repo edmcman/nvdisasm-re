@@ -1,0 +1,851 @@
+[
+ {
+  "cls": "uldc_const__RCR",
+  "alternate": false,
+  "opcodes": [
+   "ULDC"
+  ],
+  "pipes": [
+   "udp_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": "(( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32",
+   "ISRC_A_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "UPg",
+    "type": "UniformPredicate",
+    "resource": "UPRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URd",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "write"
+    ],
+    "span": "ceil(((( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32)/32)"
+   },
+   {
+    "name": "Sa",
+    "type": "C",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sa_bank",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sa_addr",
+    "type": "SImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URd2",
+    "resource": "UGPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "UGPR:URd,URd2": [
+    {
+     "UDP_subset`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "MATH_OPS_WITHOUT_RPCMOV_DEPBAR`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "5",
+     "MIO_CBU_OPS_WITHOUT_ELECT`{attr,URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc,Ra_URd}": "5",
+     "OP_ELECT`{attr,URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc,Ra_URd}": "2",
+     "ULDC_VOTEU`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "5",
+     "UMOV_ULEPC`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "RPCMOV_OP`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "HMMA_OP`{URd,URc}": "5",
+     "MOV_OP`{URd}": "5",
+     "DEPBAR_OP`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "3",
+     "OP_TMA`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV_ELECT`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "uldc_const__RCxR",
+  "alternate": false,
+  "opcodes": [
+   "ULDC"
+  ],
+  "pipes": [
+   "udp_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": "(( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32",
+   "ISRC_A_SIZE": 64,
+   "ILABEL_URa_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "UPg",
+    "type": "UniformPredicate",
+    "resource": "UPRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URd",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "write"
+    ],
+    "span": "ceil(((( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32)/32)"
+   },
+   {
+    "name": "Sa",
+    "type": "CX",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "URa",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Sa_offset",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "URd2",
+    "resource": "UGPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "UGPR:URd,URd2": [
+    {
+     "UDP_subset`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "MATH_OPS_WITHOUT_RPCMOV_DEPBAR`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "5",
+     "MIO_CBU_OPS_WITHOUT_ELECT`{attr,URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc,Ra_URd}": "5",
+     "OP_ELECT`{attr,URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc,Ra_URd}": "2",
+     "ULDC_VOTEU`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "5",
+     "UMOV_ULEPC`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "RPCMOV_OP`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "HMMA_OP`{URd,URc}": "5",
+     "MOV_OP`{URd}": "5",
+     "DEPBAR_OP`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "3",
+     "OP_TMA`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV_ELECT`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "uldc_imm_",
+  "alternate": false,
+  "opcodes": [
+   "ULDC"
+  ],
+  "pipes": [
+   "udp_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": "(( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32",
+   "ISRC_A_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "UPg",
+    "type": "UniformPredicate",
+    "resource": "UPRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URd",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "write"
+    ],
+    "span": "ceil(((( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32)/32)"
+   },
+   {
+    "name": "URa",
+    "type": "ZeroUniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sa_offset",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URd2",
+    "resource": "UGPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "UGPR:URd,URd2": [
+    {
+     "UDP_subset`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "MATH_OPS_WITHOUT_RPCMOV_DEPBAR`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "5",
+     "MIO_CBU_OPS_WITHOUT_ELECT`{attr,URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc,Ra_URd}": "5",
+     "OP_ELECT`{attr,URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc,Ra_URd}": "2",
+     "ULDC_VOTEU`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "5",
+     "UMOV_ULEPC`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "RPCMOV_OP`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "HMMA_OP`{URd,URc}": "5",
+     "MOV_OP`{URd}": "5",
+     "DEPBAR_OP`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "3",
+     "OP_TMA`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV_ELECT`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "uldc_ur_offs_",
+  "alternate": false,
+  "opcodes": [
+   "ULDC"
+  ],
+  "pipes": [
+   "udp_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": "(( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32",
+   "ISRC_A_SIZE": 64,
+   "ILABEL_URa_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "UPg",
+    "type": "UniformPredicate",
+    "resource": "UPRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URd",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "write"
+    ],
+    "span": "ceil(((( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32)/32)"
+   },
+   {
+    "name": "URa",
+    "type": "NonZeroUniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Sa_offset",
+    "type": "SImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "UPx",
+    "type": "UniformPredicate",
+    "resource": "UPRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "URd2",
+    "resource": "UGPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "UGPR:URd,URd2": [
+    {
+     "UDP_subset`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "MATH_OPS_WITHOUT_RPCMOV_DEPBAR`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "5",
+     "MIO_CBU_OPS_WITHOUT_ELECT`{attr,URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc,Ra_URd}": "5",
+     "OP_ELECT`{attr,URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc,Ra_URd}": "2",
+     "ULDC_VOTEU`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "5",
+     "UMOV_ULEPC`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "RPCMOV_OP`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "HMMA_OP`{URd,URc}": "5",
+     "MOV_OP`{URd}": "5",
+     "DEPBAR_OP`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "3",
+     "OP_TMA`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV_ELECT`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "uldc_ur_offs_optional_upx_",
+  "alternate": true,
+  "opcodes": [
+   "ULDC"
+  ],
+  "pipes": [
+   "udp_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": "(( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32",
+   "ISRC_A_SIZE": 64,
+   "ILABEL_URa_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "UPg",
+    "type": "UniformPredicate",
+    "resource": "UPRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URd",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "write"
+    ],
+    "span": "ceil(((( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32)/32)"
+   },
+   {
+    "name": "URa",
+    "type": "NonZeroUniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Sa_offset",
+    "type": "SImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "URd2",
+    "resource": "UGPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "UGPR:URd,URd2": [
+    {
+     "UDP_subset`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "MATH_OPS_WITHOUT_RPCMOV_DEPBAR`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "5",
+     "MIO_CBU_OPS_WITHOUT_ELECT`{attr,URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc,Ra_URd}": "5",
+     "OP_ELECT`{attr,URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc,Ra_URd}": "2",
+     "ULDC_VOTEU`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "5",
+     "UMOV_ULEPC`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "RPCMOV_OP`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "HMMA_OP`{URd,URc}": "5",
+     "MOV_OP`{URd}": "5",
+     "DEPBAR_OP`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "3",
+     "OP_TMA`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV_ELECT`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "uldc_ur_offset_",
+  "alternate": false,
+  "opcodes": [
+   "ULDC"
+  ],
+  "pipes": [
+   "udp_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": "(( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32",
+   "ISRC_A_SIZE": 32,
+   "ILABEL_URa_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "UPg",
+    "type": "UniformPredicate",
+    "resource": "UPRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URd",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "write"
+    ],
+    "span": "ceil(((( sz <= 4 ) ? 1 : ( ( sz == 5 ) ? 2 : 4 ))*32)/32)"
+   },
+   {
+    "name": "Sa",
+    "type": "C",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sa_bank",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "URa",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sa_offset",
+    "type": "SImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URd2",
+    "resource": "UGPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "UGPR:URd,URd2": [
+    {
+     "UDP_subset`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "MATH_OPS_WITHOUT_RPCMOV_DEPBAR`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "5",
+     "MIO_CBU_OPS_WITHOUT_ELECT`{attr,URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc,Ra_URd}": "5",
+     "OP_ELECT`{attr,URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc,Ra_URd}": "2",
+     "ULDC_VOTEU`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "5",
+     "UMOV_ULEPC`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "RPCMOV_OP`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2",
+     "HMMA_OP`{URd,URc}": "5",
+     "MOV_OP`{URd}": "5",
+     "DEPBAR_OP`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "3",
+     "OP_TMA`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "2"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV_ELECT`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ }
+]

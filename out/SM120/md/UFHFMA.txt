@@ -1,0 +1,82 @@
+CLASS "ufhfma__UUU"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /DSTFMT_F16_BF16("F16"):mode16 /Round1("RN"):rnd /SAT("nosat"):sat
+UniformRegister:URd
+',' [-] [||] UniformRegister:URa /EXTRACT("H0"):extract_a
+',' [-] [||] UniformRegister:URb /EXTRACT("H0"):extract_b
+',' [-] [||] UniformRegister:URc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@UFFMA_URb_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 32;
+ ILABEL_URc_SIZE = 32;
+
+OPCODES
+        UFHFMAudp_pipe =  0b1001001010101;
+        UFHFMA =  0b1001001010101;
+
+ENCODING
+!ufhfma__UUU_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_81_81_input_reg_sz_32_dist=1;
+BITS_1_82_82_memdesc=mode16;
+BITS_2_80_80_76_76_fmz=*0;
+BITS_2_79_78_stride=rnd;
+BITS_1_77_77_ntz=sat;
+BITS_8_23_16_Rd=URd;
+BITS_8_31_24_Ra=URa;
+BITS_1_83_83_nottid0=extract_a;
+BITS_1_73_73_sz=URa@absolute;
+BITS_1_72_72_e=URa@negate;
+BITS_8_39_32_Rb=URb;
+BITS_1_84_84_clear=extract_b;
+BITS_1_62_62_Sb_absolute=URb@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=URb@negate;
+BITS_8_71_64_Ra_URc=URc;
+BITS_1_74_74_watch=URc@absolute;
+BITS_1_75_75_sz=URc@negate;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+

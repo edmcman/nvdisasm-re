@@ -1,0 +1,675 @@
+CLASS "bgmma_Ra_URb_Rc_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /MMA_SIZE:size /ANDONLY:op /POPCONLY:accum
+Register:Rd
+','Register:Ra
+',' GMMA:gdesc[ UniformRegister:URb ]
+','Register:Rc
+',' [!]UniformPredicate("UPT"):UPp ','OPTIONAL_GSB("nooptional_gsb"):gsb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((size !=`MMA_SIZE@INVALID18)&&(size !=`MMA_SIZE@INVALID19)&&(size !=`MMA_SIZE@INVALID20)&&(size !=`MMA_SIZE@INVALID21)&&(size !=`MMA_SIZE@INVALID22)&&(size !=`MMA_SIZE@INVALID23)&&(size !=`MMA_SIZE@INVALID24)&&(size !=`MMA_SIZE@INVALID25)&&(size !=`MMA_SIZE@INVALID26)&&(size !=`MMA_SIZE@INVALID27)&&(size !=`MMA_SIZE@INVALID28)&&(size !=`MMA_SIZE@INVALID29)&&(size !=`MMA_SIZE@INVALID30)&&(size !=`MMA_SIZE@INVALID31)&&(size !=`MMA_SIZE@INVALID32)&&(size !=`MMA_SIZE@INVALID33)&&(size !=`MMA_SIZE@INVALID34)&&(size !=`MMA_SIZE@INVALID35)&&(size !=`MMA_SIZE@INVALID36)&&(size !=`MMA_SIZE@INVALID37)&&(size !=`MMA_SIZE@INVALID38)&&(size !=`MMA_SIZE@INVALID39)&&(size !=`MMA_SIZE@INVALID40)&&(size !=`MMA_SIZE@INVALID41)&&(size !=`MMA_SIZE@INVALID42)&&(size !=`MMA_SIZE@INVALID43)&&(size !=`MMA_SIZE@INVALID44)&&(size !=`MMA_SIZE@INVALID45)&&(size !=`MMA_SIZE@INVALID46)&&(size !=`MMA_SIZE@INVALID47)&&(size !=`MMA_SIZE@INVALID48)&&(size !=`MMA_SIZE@INVALID49)&&(size !=`MMA_SIZE@INVALID50)&&(size !=`MMA_SIZE@INVALID51)&&(size !=`MMA_SIZE@INVALID52)&&(size !=`MMA_SIZE@INVALID53)&&(size !=`MMA_SIZE@INVALID54)&&(size !=`MMA_SIZE@INVALID55)&&(size !=`MMA_SIZE@INVALID56)&&(size !=`MMA_SIZE@INVALID57)&&(size !=`MMA_SIZE@INVALID58)&&(size !=`MMA_SIZE@INVALID59)&&(size !=`MMA_SIZE@INVALID60)&&(size !=`MMA_SIZE@INVALID61)&&(size !=`MMA_SIZE@INVALID62)&&(size !=`MMA_SIZE@INVALID63)) :
+ "Invalid size field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((gsb !=`OPTIONAL_GSB@INVALID1)&&(gsb !=`OPTIONAL_GSB@INVALID2)&&(gsb !=`OPTIONAL_GSB@INVALID3)&&(gsb !=`OPTIONAL_GSB@INVALID4)&&(gsb !=`OPTIONAL_GSB@INVALID5)&&(gsb !=`OPTIONAL_GSB@INVALID6)) :
+ "Invalid gsb field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-4))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 4) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-4))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 4) == 0 :
+ "Register Ra is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-4))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0 :
+ "Uniform register URb is misaligned"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-4))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+MISALIGNED_REG_ERROR
+ (((Rc)+((Rc)==`Register@RZ)) % 4) == 0 :
+ "Register Rc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_Pnz_0(UPp@not,UPp) :
+ "Invalid combination of UPp@not, UPp"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x8x256")||(size == `MMA_SIZE@"64x16x256")||(size == `MMA_SIZE@"64x24x256")||(size == `MMA_SIZE@"64x32x256")||(size == `MMA_SIZE@"64x48x256")||(size == `MMA_SIZE@"64x64x256")||(size == `MMA_SIZE@"64x80x256")||(size == `MMA_SIZE@"64x96x256")||(size == `MMA_SIZE@"64x112x256")||(size == `MMA_SIZE@"64x128x256")||(size == `MMA_SIZE@"64x144x256")||(size == `MMA_SIZE@"64x160x256")||(size == `MMA_SIZE@"64x176x256")||(size == `MMA_SIZE@"64x192x256")||(size == `MMA_SIZE@"64x208x256")||(size == `MMA_SIZE@"64x224x256")||(size == `MMA_SIZE@"64x240x256")||(size == `MMA_SIZE@"64x256x256"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x8x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x16x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x24x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-12)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x32x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x48x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-24)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x64x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x80x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-40)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x96x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-48)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x112x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-56)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x128x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x144x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-72)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x160x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-80)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x176x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-88)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x192x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-96)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x208x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-104)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x224x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-112)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x240x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-120)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x256x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x8x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x16x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x24x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-12)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x32x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x48x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-24)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x64x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x80x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-40)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x96x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-48)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x112x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-56)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x128x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x144x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-72)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x160x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-80)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x176x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-88)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x192x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-96)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x208x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-104)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x224x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-112)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x240x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-120)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x256x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+
+
+PROPERTIES
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD ;
+ SIDL_NAME = `SIDL_NAMES@BGMMA_Ra_URb_Rc ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ IDEST_SIZE = 128 + (((size==`MMA_SIZE@"64x16x256"))*128 + ((size==`MMA_SIZE@"64x24x256"))*256 + ((size==`MMA_SIZE@"64x32x256"))*384 + ((size==`MMA_SIZE@"64x48x256"))*640 + ((size==`MMA_SIZE@"64x64x256"))*896 + ((size==`MMA_SIZE@"64x80x256"))*1152 + ((size==`MMA_SIZE@"64x96x256"))*1408 + ((size==`MMA_SIZE@"64x112x256"))*1664 + ((size==`MMA_SIZE@"64x128x256"))*1920 + ((size==`MMA_SIZE@"64x144x256"))*2176 + ((size==`MMA_SIZE@"64x160x256"))*2432 + ((size==`MMA_SIZE@"64x176x256"))*2688 + ((size==`MMA_SIZE@"64x192x256"))*2944 + ((size==`MMA_SIZE@"64x208x256"))*3200 + ((size==`MMA_SIZE@"64x224x256"))*3456 + ((size==`MMA_SIZE@"64x240x256"))*3712 + ((size==`MMA_SIZE@"64x256x256"))*3968);
+ ISRC_B_SIZE = 128;
+ ISRC_C_SIZE = 128 + (((size==`MMA_SIZE@"64x16x256"))*128 + ((size==`MMA_SIZE@"64x24x256"))*256 + ((size==`MMA_SIZE@"64x32x256"))*384 + ((size==`MMA_SIZE@"64x48x256"))*640 + ((size==`MMA_SIZE@"64x64x256"))*896 + ((size==`MMA_SIZE@"64x80x256"))*1152 + ((size==`MMA_SIZE@"64x96x256"))*1408 + ((size==`MMA_SIZE@"64x112x256"))*1664 + ((size==`MMA_SIZE@"64x128x256"))*1920 + ((size==`MMA_SIZE@"64x144x256"))*2176 + ((size==`MMA_SIZE@"64x160x256"))*2432 + ((size==`MMA_SIZE@"64x176x256"))*2688 + ((size==`MMA_SIZE@"64x192x256"))*2944 + ((size==`MMA_SIZE@"64x208x256"))*3200 + ((size==`MMA_SIZE@"64x224x256"))*3456 + ((size==`MMA_SIZE@"64x240x256"))*3712 + ((size==`MMA_SIZE@"64x256x256"))*3968);
+ ISRC_A_SIZE = 128;
+ VIRTUAL_QUEUE = $VQ_UMMA ;
+
+ ILABEL_Ra_SIZE = 128;
+ ILABEL_Rc_SIZE = 128 + (((size==`MMA_SIZE@"64x16x256"))*128 + ((size==`MMA_SIZE@"64x24x256"))*256 + ((size==`MMA_SIZE@"64x32x256"))*384 + ((size==`MMA_SIZE@"64x48x256"))*640 + ((size==`MMA_SIZE@"64x64x256"))*896 + ((size==`MMA_SIZE@"64x80x256"))*1152 + ((size==`MMA_SIZE@"64x96x256"))*1408 + ((size==`MMA_SIZE@"64x112x256"))*1664 + ((size==`MMA_SIZE@"64x128x256"))*1920 + ((size==`MMA_SIZE@"64x144x256"))*2176 + ((size==`MMA_SIZE@"64x160x256"))*2432 + ((size==`MMA_SIZE@"64x176x256"))*2688 + ((size==`MMA_SIZE@"64x192x256"))*2944 + ((size==`MMA_SIZE@"64x208x256"))*3200 + ((size==`MMA_SIZE@"64x224x256"))*3456 + ((size==`MMA_SIZE@"64x240x256"))*3712 + ((size==`MMA_SIZE@"64x256x256"))*3968);
+ ILABEL_URb_SIZE = 128;
+
+OPCODES
+        BGMMAmio_pipe =  0b1110111110010;
+        BGMMA =  0b1110111110010;
+
+ENCODING
+!bgmma_Ra_URb_Rc__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_6_58_53_size=size;
+BITS_2_78_77_op=op;
+BITS_1_80_80_UPq_not=accum;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_6_37_32_Ra_URb=URb;
+BITS_8_71_64_Rc=Rc;
+BITS_3_86_84_cop=gsb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+BITS_4_90_87_op=TABLES_Pnz_0(UPp@not,UPp);
+
+
+
+CLASS "bgmma_URa_Rb_Rc_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /MMA_SIZE:size /ANDONLY:op /POPCONLY:accum
+Register:Rd
+',' GMMA:gdesc[ UniformRegister:URa ]
+','Register:Rb
+','Register:Rc
+',' [!]UniformPredicate("UPT"):UPp ','OPTIONAL_GSB("nooptional_gsb"):gsb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((size !=`MMA_SIZE@INVALID18)&&(size !=`MMA_SIZE@INVALID19)&&(size !=`MMA_SIZE@INVALID20)&&(size !=`MMA_SIZE@INVALID21)&&(size !=`MMA_SIZE@INVALID22)&&(size !=`MMA_SIZE@INVALID23)&&(size !=`MMA_SIZE@INVALID24)&&(size !=`MMA_SIZE@INVALID25)&&(size !=`MMA_SIZE@INVALID26)&&(size !=`MMA_SIZE@INVALID27)&&(size !=`MMA_SIZE@INVALID28)&&(size !=`MMA_SIZE@INVALID29)&&(size !=`MMA_SIZE@INVALID30)&&(size !=`MMA_SIZE@INVALID31)&&(size !=`MMA_SIZE@INVALID32)&&(size !=`MMA_SIZE@INVALID33)&&(size !=`MMA_SIZE@INVALID34)&&(size !=`MMA_SIZE@INVALID35)&&(size !=`MMA_SIZE@INVALID36)&&(size !=`MMA_SIZE@INVALID37)&&(size !=`MMA_SIZE@INVALID38)&&(size !=`MMA_SIZE@INVALID39)&&(size !=`MMA_SIZE@INVALID40)&&(size !=`MMA_SIZE@INVALID41)&&(size !=`MMA_SIZE@INVALID42)&&(size !=`MMA_SIZE@INVALID43)&&(size !=`MMA_SIZE@INVALID44)&&(size !=`MMA_SIZE@INVALID45)&&(size !=`MMA_SIZE@INVALID46)&&(size !=`MMA_SIZE@INVALID47)&&(size !=`MMA_SIZE@INVALID48)&&(size !=`MMA_SIZE@INVALID49)&&(size !=`MMA_SIZE@INVALID50)&&(size !=`MMA_SIZE@INVALID51)&&(size !=`MMA_SIZE@INVALID52)&&(size !=`MMA_SIZE@INVALID53)&&(size !=`MMA_SIZE@INVALID54)&&(size !=`MMA_SIZE@INVALID55)&&(size !=`MMA_SIZE@INVALID56)&&(size !=`MMA_SIZE@INVALID57)&&(size !=`MMA_SIZE@INVALID58)&&(size !=`MMA_SIZE@INVALID59)&&(size !=`MMA_SIZE@INVALID60)&&(size !=`MMA_SIZE@INVALID61)&&(size !=`MMA_SIZE@INVALID62)&&(size !=`MMA_SIZE@INVALID63)) :
+ "Invalid size field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((gsb !=`OPTIONAL_GSB@INVALID1)&&(gsb !=`OPTIONAL_GSB@INVALID2)&&(gsb !=`OPTIONAL_GSB@INVALID3)&&(gsb !=`OPTIONAL_GSB@INVALID4)&&(gsb !=`OPTIONAL_GSB@INVALID5)&&(gsb !=`OPTIONAL_GSB@INVALID6)) :
+ "Invalid gsb field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-4))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 4) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-4))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 4) == 0 :
+ "Uniform register URa is misaligned"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-2))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+MISALIGNED_REG_ERROR
+ (((Rb)+((Rb)==`Register@RZ)) % 2) == 0 :
+ "Register Rb is misaligned"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-4))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+MISALIGNED_REG_ERROR
+ (((Rc)+((Rc)==`Register@RZ)) % 4) == 0 :
+ "Register Rc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_Pnz_0(UPp@not,UPp) :
+ "Invalid combination of UPp@not, UPp"
+MISALIGNED_REG_ERROR
+ (((size == `MMA_SIZE@"64x16x256")||(size == `MMA_SIZE@"64x24x256")||(size == `MMA_SIZE@"64x32x256")||(size == `MMA_SIZE@"64x48x256")||(size == `MMA_SIZE@"64x64x256")||(size == `MMA_SIZE@"64x80x256")||(size == `MMA_SIZE@"64x96x256")||(size == `MMA_SIZE@"64x112x256")||(size == `MMA_SIZE@"64x128x256")||(size == `MMA_SIZE@"64x144x256")||(size == `MMA_SIZE@"64x160x256")||(size == `MMA_SIZE@"64x176x256")||(size == `MMA_SIZE@"64x192x256")||(size == `MMA_SIZE@"64x208x256")||(size == `MMA_SIZE@"64x224x256")||(size == `MMA_SIZE@"64x240x256")||(size == `MMA_SIZE@"64x256x256"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x8x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x16x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x24x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-6)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x32x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x48x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-12)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x64x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x80x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-20)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x96x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-24)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x112x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-28)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x128x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x144x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-36)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x160x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-40)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x176x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-44)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x192x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-48)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x208x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-52)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x224x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-56)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x240x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-60)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x256x256"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x8x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x16x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x24x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-12)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x32x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x48x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-24)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x64x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x80x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-40)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x96x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-48)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x112x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-56)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x128x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x144x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-72)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x160x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-80)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x176x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-88)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x192x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-96)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x208x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-104)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x224x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-112)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x240x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-120)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x256x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x8x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x16x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x24x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-12)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x32x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x48x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-24)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x64x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x80x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-40)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x96x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-48)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x112x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-56)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x128x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x144x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-72)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x160x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-80)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x176x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-88)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x192x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-96)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x208x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-104)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x224x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-112)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x240x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-120)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x256x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+
+
+PROPERTIES
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD ;
+ SIDL_NAME = `SIDL_NAMES@BGMMA_URa_Rb_Rc ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ IDEST_SIZE = 128 + (((size==`MMA_SIZE@"64x16x256"))*128 + ((size==`MMA_SIZE@"64x24x256"))*256 + ((size==`MMA_SIZE@"64x32x256"))*384 + ((size==`MMA_SIZE@"64x48x256"))*640 + ((size==`MMA_SIZE@"64x64x256"))*896 + ((size==`MMA_SIZE@"64x80x256"))*1152 + ((size==`MMA_SIZE@"64x96x256"))*1408 + ((size==`MMA_SIZE@"64x112x256"))*1664 + ((size==`MMA_SIZE@"64x128x256"))*1920 + ((size==`MMA_SIZE@"64x144x256"))*2176 + ((size==`MMA_SIZE@"64x160x256"))*2432 + ((size==`MMA_SIZE@"64x176x256"))*2688 + ((size==`MMA_SIZE@"64x192x256"))*2944 + ((size==`MMA_SIZE@"64x208x256"))*3200 + ((size==`MMA_SIZE@"64x224x256"))*3456 + ((size==`MMA_SIZE@"64x240x256"))*3712 + ((size==`MMA_SIZE@"64x256x256"))*3968);
+ ISRC_B_SIZE = 64 + (((size==`MMA_SIZE@"64x16x256"))*64 + ((size==`MMA_SIZE@"64x24x256"))*128 + ((size==`MMA_SIZE@"64x32x256"))*192 + ((size==`MMA_SIZE@"64x48x256"))*320 + ((size==`MMA_SIZE@"64x64x256"))*448 + ((size==`MMA_SIZE@"64x80x256"))*576 + ((size==`MMA_SIZE@"64x96x256"))*704 + ((size==`MMA_SIZE@"64x112x256"))*832 + ((size==`MMA_SIZE@"64x128x256"))*960 + ((size==`MMA_SIZE@"64x144x256"))*1088 + ((size==`MMA_SIZE@"64x160x256"))*1216 + ((size==`MMA_SIZE@"64x176x256"))*1344 + ((size==`MMA_SIZE@"64x192x256"))*1472 + ((size==`MMA_SIZE@"64x208x256"))*1600 + ((size==`MMA_SIZE@"64x224x256"))*1728 + ((size==`MMA_SIZE@"64x240x256"))*1856 + ((size==`MMA_SIZE@"64x256x256"))*1984);
+ ISRC_C_SIZE = 128 + (((size==`MMA_SIZE@"64x16x256"))*128 + ((size==`MMA_SIZE@"64x24x256"))*256 + ((size==`MMA_SIZE@"64x32x256"))*384 + ((size==`MMA_SIZE@"64x48x256"))*640 + ((size==`MMA_SIZE@"64x64x256"))*896 + ((size==`MMA_SIZE@"64x80x256"))*1152 + ((size==`MMA_SIZE@"64x96x256"))*1408 + ((size==`MMA_SIZE@"64x112x256"))*1664 + ((size==`MMA_SIZE@"64x128x256"))*1920 + ((size==`MMA_SIZE@"64x144x256"))*2176 + ((size==`MMA_SIZE@"64x160x256"))*2432 + ((size==`MMA_SIZE@"64x176x256"))*2688 + ((size==`MMA_SIZE@"64x192x256"))*2944 + ((size==`MMA_SIZE@"64x208x256"))*3200 + ((size==`MMA_SIZE@"64x224x256"))*3456 + ((size==`MMA_SIZE@"64x240x256"))*3712 + ((size==`MMA_SIZE@"64x256x256"))*3968);
+ ISRC_A_SIZE = 128;
+ VIRTUAL_QUEUE = $VQ_UMMA ;
+ MASK_INSTR_PREDICATE = (1);
+
+ ILABEL_Rb_SIZE = 64 + (((size==`MMA_SIZE@"64x16x256"))*64 + ((size==`MMA_SIZE@"64x24x256"))*128 + ((size==`MMA_SIZE@"64x32x256"))*192 + ((size==`MMA_SIZE@"64x48x256"))*320 + ((size==`MMA_SIZE@"64x64x256"))*448 + ((size==`MMA_SIZE@"64x80x256"))*576 + ((size==`MMA_SIZE@"64x96x256"))*704 + ((size==`MMA_SIZE@"64x112x256"))*832 + ((size==`MMA_SIZE@"64x128x256"))*960 + ((size==`MMA_SIZE@"64x144x256"))*1088 + ((size==`MMA_SIZE@"64x160x256"))*1216 + ((size==`MMA_SIZE@"64x176x256"))*1344 + ((size==`MMA_SIZE@"64x192x256"))*1472 + ((size==`MMA_SIZE@"64x208x256"))*1600 + ((size==`MMA_SIZE@"64x224x256"))*1728 + ((size==`MMA_SIZE@"64x240x256"))*1856 + ((size==`MMA_SIZE@"64x256x256"))*1984);
+ ILABEL_Rc_SIZE = 128 + (((size==`MMA_SIZE@"64x16x256"))*128 + ((size==`MMA_SIZE@"64x24x256"))*256 + ((size==`MMA_SIZE@"64x32x256"))*384 + ((size==`MMA_SIZE@"64x48x256"))*640 + ((size==`MMA_SIZE@"64x64x256"))*896 + ((size==`MMA_SIZE@"64x80x256"))*1152 + ((size==`MMA_SIZE@"64x96x256"))*1408 + ((size==`MMA_SIZE@"64x112x256"))*1664 + ((size==`MMA_SIZE@"64x128x256"))*1920 + ((size==`MMA_SIZE@"64x144x256"))*2176 + ((size==`MMA_SIZE@"64x160x256"))*2432 + ((size==`MMA_SIZE@"64x176x256"))*2688 + ((size==`MMA_SIZE@"64x192x256"))*2944 + ((size==`MMA_SIZE@"64x208x256"))*3200 + ((size==`MMA_SIZE@"64x224x256"))*3456 + ((size==`MMA_SIZE@"64x240x256"))*3712 + ((size==`MMA_SIZE@"64x256x256"))*3968);
+ ILABEL_URa_SIZE = 128;
+
+OPCODES
+        BGMMAmio_pipe =  0b1010111110010;
+        BGMMA =  0b1010111110010;
+
+ENCODING
+!bgmma_URa_Rb_Rc__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_6_58_53_size=size;
+BITS_2_78_77_op=op;
+BITS_1_80_80_UPq_not=accum;
+BITS_8_23_16_Rd=Rd;
+BITS_6_29_24_Sa=URa;
+BITS_8_39_32_Rb=Rb;
+BITS_8_71_64_Rc=Rc;
+BITS_3_86_84_cop=gsb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+BITS_4_90_87_op=TABLES_Pnz_0(UPp@not,UPp);
+
+
+
+CLASS "bgmma_URa_Rc_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /MMA_SIZE:size /ANDONLY:op /POPCONLY:accum
+Register:Rd
+',' GMMA:gdesc[ UniformRegister:URa ]
+','Register:Rc
+',' [!]UniformPredicate("UPT"):UPp ','OPTIONAL_GSB("nooptional_gsb"):gsb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((size !=`MMA_SIZE@INVALID18)&&(size !=`MMA_SIZE@INVALID19)&&(size !=`MMA_SIZE@INVALID20)&&(size !=`MMA_SIZE@INVALID21)&&(size !=`MMA_SIZE@INVALID22)&&(size !=`MMA_SIZE@INVALID23)&&(size !=`MMA_SIZE@INVALID24)&&(size !=`MMA_SIZE@INVALID25)&&(size !=`MMA_SIZE@INVALID26)&&(size !=`MMA_SIZE@INVALID27)&&(size !=`MMA_SIZE@INVALID28)&&(size !=`MMA_SIZE@INVALID29)&&(size !=`MMA_SIZE@INVALID30)&&(size !=`MMA_SIZE@INVALID31)&&(size !=`MMA_SIZE@INVALID32)&&(size !=`MMA_SIZE@INVALID33)&&(size !=`MMA_SIZE@INVALID34)&&(size !=`MMA_SIZE@INVALID35)&&(size !=`MMA_SIZE@INVALID36)&&(size !=`MMA_SIZE@INVALID37)&&(size !=`MMA_SIZE@INVALID38)&&(size !=`MMA_SIZE@INVALID39)&&(size !=`MMA_SIZE@INVALID40)&&(size !=`MMA_SIZE@INVALID41)&&(size !=`MMA_SIZE@INVALID42)&&(size !=`MMA_SIZE@INVALID43)&&(size !=`MMA_SIZE@INVALID44)&&(size !=`MMA_SIZE@INVALID45)&&(size !=`MMA_SIZE@INVALID46)&&(size !=`MMA_SIZE@INVALID47)&&(size !=`MMA_SIZE@INVALID48)&&(size !=`MMA_SIZE@INVALID49)&&(size !=`MMA_SIZE@INVALID50)&&(size !=`MMA_SIZE@INVALID51)&&(size !=`MMA_SIZE@INVALID52)&&(size !=`MMA_SIZE@INVALID53)&&(size !=`MMA_SIZE@INVALID54)&&(size !=`MMA_SIZE@INVALID55)&&(size !=`MMA_SIZE@INVALID56)&&(size !=`MMA_SIZE@INVALID57)&&(size !=`MMA_SIZE@INVALID58)&&(size !=`MMA_SIZE@INVALID59)&&(size !=`MMA_SIZE@INVALID60)&&(size !=`MMA_SIZE@INVALID61)&&(size !=`MMA_SIZE@INVALID62)&&(size !=`MMA_SIZE@INVALID63)) :
+ "Invalid size field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((gsb !=`OPTIONAL_GSB@INVALID1)&&(gsb !=`OPTIONAL_GSB@INVALID2)&&(gsb !=`OPTIONAL_GSB@INVALID3)&&(gsb !=`OPTIONAL_GSB@INVALID4)&&(gsb !=`OPTIONAL_GSB@INVALID5)&&(gsb !=`OPTIONAL_GSB@INVALID6)) :
+ "Invalid gsb field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-4))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 4) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-4))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 4) == 0 :
+ "Uniform register URa is misaligned"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-4))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+MISALIGNED_REG_ERROR
+ (((Rc)+((Rc)==`Register@RZ)) % 4) == 0 :
+ "Register Rc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_Pnz_0(UPp@not,UPp) :
+ "Invalid combination of UPp@not, UPp"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x8x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x16x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x24x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-12)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x32x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x48x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-24)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x64x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x80x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-40)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x96x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-48)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x112x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-56)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x128x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x144x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-72)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x160x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-80)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x176x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-88)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x192x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-96)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x208x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-104)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x224x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-112)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x240x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-120)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x256x256"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x8x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x16x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x24x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-12)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x32x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x48x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-24)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x64x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x80x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-40)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x96x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-48)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x112x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-56)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x128x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x144x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-72)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x160x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-80)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x176x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-88)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x192x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-96)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x208x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-104)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x224x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-112)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x240x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-120)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((size == `MMA_SIZE@"64x256x256"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+
+
+PROPERTIES
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_BRU_DEPBAR_RD_SCBD ;
+ SIDL_NAME = `SIDL_NAMES@BGMMA_URa_Rc ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ IDEST_SIZE = 128 + (((size==`MMA_SIZE@"64x16x256"))*128 + ((size==`MMA_SIZE@"64x24x256"))*256 + ((size==`MMA_SIZE@"64x32x256"))*384 + ((size==`MMA_SIZE@"64x48x256"))*640 + ((size==`MMA_SIZE@"64x64x256"))*896 + ((size==`MMA_SIZE@"64x80x256"))*1152 + ((size==`MMA_SIZE@"64x96x256"))*1408 + ((size==`MMA_SIZE@"64x112x256"))*1664 + ((size==`MMA_SIZE@"64x128x256"))*1920 + ((size==`MMA_SIZE@"64x144x256"))*2176 + ((size==`MMA_SIZE@"64x160x256"))*2432 + ((size==`MMA_SIZE@"64x176x256"))*2688 + ((size==`MMA_SIZE@"64x192x256"))*2944 + ((size==`MMA_SIZE@"64x208x256"))*3200 + ((size==`MMA_SIZE@"64x224x256"))*3456 + ((size==`MMA_SIZE@"64x240x256"))*3712 + ((size==`MMA_SIZE@"64x256x256"))*3968);
+ ISRC_C_SIZE = 128 + (((size==`MMA_SIZE@"64x16x256"))*128 + ((size==`MMA_SIZE@"64x24x256"))*256 + ((size==`MMA_SIZE@"64x32x256"))*384 + ((size==`MMA_SIZE@"64x48x256"))*640 + ((size==`MMA_SIZE@"64x64x256"))*896 + ((size==`MMA_SIZE@"64x80x256"))*1152 + ((size==`MMA_SIZE@"64x96x256"))*1408 + ((size==`MMA_SIZE@"64x112x256"))*1664 + ((size==`MMA_SIZE@"64x128x256"))*1920 + ((size==`MMA_SIZE@"64x144x256"))*2176 + ((size==`MMA_SIZE@"64x160x256"))*2432 + ((size==`MMA_SIZE@"64x176x256"))*2688 + ((size==`MMA_SIZE@"64x192x256"))*2944 + ((size==`MMA_SIZE@"64x208x256"))*3200 + ((size==`MMA_SIZE@"64x224x256"))*3456 + ((size==`MMA_SIZE@"64x240x256"))*3712 + ((size==`MMA_SIZE@"64x256x256"))*3968);
+ ISRC_A_SIZE = 128;
+ VIRTUAL_QUEUE = $VQ_UMMA ;
+
+ ILABEL_Rc_SIZE = 128 + (((size==`MMA_SIZE@"64x16x256"))*128 + ((size==`MMA_SIZE@"64x24x256"))*256 + ((size==`MMA_SIZE@"64x32x256"))*384 + ((size==`MMA_SIZE@"64x48x256"))*640 + ((size==`MMA_SIZE@"64x64x256"))*896 + ((size==`MMA_SIZE@"64x80x256"))*1152 + ((size==`MMA_SIZE@"64x96x256"))*1408 + ((size==`MMA_SIZE@"64x112x256"))*1664 + ((size==`MMA_SIZE@"64x128x256"))*1920 + ((size==`MMA_SIZE@"64x144x256"))*2176 + ((size==`MMA_SIZE@"64x160x256"))*2432 + ((size==`MMA_SIZE@"64x176x256"))*2688 + ((size==`MMA_SIZE@"64x192x256"))*2944 + ((size==`MMA_SIZE@"64x208x256"))*3200 + ((size==`MMA_SIZE@"64x224x256"))*3456 + ((size==`MMA_SIZE@"64x240x256"))*3712 + ((size==`MMA_SIZE@"64x256x256"))*3968);
+ ILABEL_URa_SIZE = 128;
+
+OPCODES
+        BGMMAmio_pipe =  0b1100111110010;
+        BGMMA =  0b1100111110010;
+
+ENCODING
+!bgmma_URa_Rc__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_6_58_53_size=size;
+BITS_2_78_77_op=op;
+BITS_1_80_80_UPq_not=accum;
+BITS_8_23_16_Rd=Rd;
+BITS_6_29_24_Sa=URa;
+BITS_8_71_64_Rc=Rc;
+BITS_3_86_84_cop=gsb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+BITS_4_90_87_op=TABLES_Pnz_0(UPp@not,UPp);
+
+
+

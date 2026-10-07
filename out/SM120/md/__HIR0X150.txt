@@ -1,0 +1,109 @@
+CLASS "mxqmma_scale_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /SFONLY:sf /ONLY16832:size /F32ONLY_f2fp:dstfmt /__HIR0X152:srcFmtA /__HIR0X152:srcFmtB /__HIR0X151:scalefmt /ONLY1X("1X"):scaleVectorSz
+Register:Rd
+','Register:Ra
+','Register:Rb {/REUSE("noreuse"):reuse_src_b}
+','Register:Rc
+',' [!]UniformPredicate("UPT"):UPp
+','Register:Re
+','Register:Rh {/REUSE("noreuse"):reuse_src_h}
+','UniformRegister:URi
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-4))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 4) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-4))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 4) == 0 :
+ "Register Ra is misaligned"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-2))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+MISALIGNED_REG_ERROR
+ (((Rb)+((Rb)==`Register@RZ)) % 2) == 0 :
+ "Register Rb is misaligned"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-4))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+MISALIGNED_REG_ERROR
+ (((Rc)+((Rc)==`Register@RZ)) % 4) == 0 :
+ "Register Rc is misaligned"
+OOR_REG_ERROR
+ (((Re)==`Register@RZ)||(((Re)<=(%MAX_REG_COUNT-1))&&((Re)!=`Register@R254))) :
+ "Register Re is out of range"
+OOR_REG_ERROR
+ (((Rh)==`Register@RZ)||(((Rh)<=(%MAX_REG_COUNT-1))&&((Rh)!=`Register@R254))) :
+ "Register Rh is out of range"
+OOR_REG_ERROR
+ (((URi)==`UniformRegister@URZ)||((URi)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URi is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_3(batch_t,usched_info,reuse_src_b) :
+ "Invalid combination of batch_t, usched_info, reuse_src_b"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_b==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@__HIR0X150_Rb_Rc_Scale ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 128;
+ ISRC_B_SIZE = 64;
+ ISRC_C_SIZE = 128;
+ ISRC_E_SIZE = 32;
+ ISRC_H_SIZE = 32;
+ ISRC_I_SIZE = 32;
+ ISRC_A_SIZE = 128;
+ MASK_INSTR_PREDICATE = (1);
+
+ ILABEL_Ra_SIZE = 128;
+ ILABEL_Rb_SIZE = 64;
+ ILABEL_Rc_SIZE = 128;
+ ILABEL_Re_SIZE = 32;
+ ILABEL_Rh_SIZE = 32;
+ ILABEL_URi_SIZE = 32;
+
+OPCODES
+        __HIR0X150fp16_pipe =  0b10001111110;
+        __HIR0X150 =  0b10001111110;
+
+ENCODING
+!__HIR0X150_scale__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_8_71_64_Ra_URc=Rc;
+BITS_8_47_40_Re=Re;
+BITS_8_59_52_Rh=Rh;
+BITS_1_51_51_reuse_src_h=reuse_src_h;
+BITS_8_77_73_62_60_URi=URi;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_3(batch_t,usched_info,reuse_src_b);
+BITS_4_90_87_op=TABLES_Pnz_0(UPp@not,UPp);
+
+
+

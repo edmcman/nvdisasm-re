@@ -1,0 +1,305 @@
+[
+ {
+  "cls": "ushr__URIR_URIR",
+  "alternate": true,
+  "opcodes": [
+   "USHR"
+  ],
+  "pipes": [
+   "udp_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_URa_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "UPg",
+    "type": "UniformPredicate",
+    "resource": "UPRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URd",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URa",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URd2",
+    "resource": "UGPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "UGPR:URd,URd2": [
+    {
+     "UDP_subset`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "4",
+     "MATH_OPS_WITHOUT_RPCMOV_DEPBAR`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "12",
+     "MIO_CBU_OPS_WITHOUT_ELECT`{attr,URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc,Ra_URd}": "12",
+     "OP_ELECT`{attr,URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc,Ra_URd}": "8",
+     "ULDC_VOTEU`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "12",
+     "UMOV_ULEPC`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "7",
+     "RPCMOV_OP`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "9",
+     "HMMA_OP`{URd,URc}": "12",
+     "MOV_OP`{URd}": "12",
+     "DEPBAR_OP`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "10",
+     "OP_TMA`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "9"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV_ELECT`{sBoard}": "ORDERED_ZERO"
+    }
+   ],
+   "UPRED:UPu,UPv": [
+    {
+     "VECTOR_INST`{UPr,UPq,UPp}": "6",
+     "OP_SYNCS`{UPg}": "11",
+     "UPRED_OPS`{UPr,UPq,UPp}": "4",
+     "OP_UP2UR`{UPR_UPRED}": "4",
+     "OP_UR2UP`{UPR_UPRED}": "11",
+     "UDP_OPS`{UPg}": "9",
+     "OP_BRA_JMP`{UPr,UPq,UPp}": "11",
+     "OP_ULDC`{UPx}": "11"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "ushr__URURUR_URURUR",
+  "alternate": true,
+  "opcodes": [
+   "USHR"
+  ],
+  "pipes": [
+   "udp_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "ILABEL_URa_SIZE": 32,
+   "ILABEL_URb_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "UPg",
+    "type": "UniformPredicate",
+    "resource": "UPRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URd",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URa",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URb",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "URd2",
+    "resource": "UGPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "UGPR:URd,URd2": [
+    {
+     "UDP_subset`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "4",
+     "MATH_OPS_WITHOUT_RPCMOV_DEPBAR`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "12",
+     "MIO_CBU_OPS_WITHOUT_ELECT`{attr,URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc,Ra_URd}": "12",
+     "OP_ELECT`{attr,URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc,Ra_URd}": "8",
+     "ULDC_VOTEU`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "12",
+     "UMOV_ULEPC`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "7",
+     "RPCMOV_OP`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "9",
+     "HMMA_OP`{URd,URc}": "12",
+     "MOV_OP`{URd}": "12",
+     "DEPBAR_OP`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "10",
+     "OP_TMA`{URa,UR,URb,URc,URe,Ra_URb,Ra_URc,Rb_URc}": "9"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV_ELECT`{sBoard}": "ORDERED_ZERO"
+    }
+   ],
+   "UPRED:UPu,UPv": [
+    {
+     "VECTOR_INST`{UPr,UPq,UPp}": "6",
+     "OP_SYNCS`{UPg}": "11",
+     "UPRED_OPS`{UPr,UPq,UPp}": "4",
+     "OP_UP2UR`{UPR_UPRED}": "4",
+     "OP_UR2UP`{UPR_UPRED}": "11",
+     "UDP_OPS`{UPg}": "9",
+     "OP_BRA_JMP`{UPr,UPq,UPp}": "11",
+     "OP_ULDC`{UPx}": "11"
+    }
+   ]
+  }
+ }
+]

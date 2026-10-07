@@ -1,0 +1,183 @@
+CLASS "stsm__UR_sI_R"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /STSM_SZ:sz /STSM_MODE:mode /LDSM_NUM("1"):num
+ [ Register("RZ"):Ra + UniformRegister:Ra_URc + SImm(24/0)*:Ra_offset ]
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((mode !=`STSM_MODE@INVALID3)) :
+ "Invalid mode field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((num !=`LDSM_NUM@INVALID3)) :
+ "Invalid num field value"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((num == `LDSM_NUM@"2"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((num == `LDSM_NUM@"2"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((num == `LDSM_NUM@"4"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((num == `LDSM_NUM@"4"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `STSM_MODE@M88)||(mode == `STSM_MODE@MT88))) -> (((sz == `STSM_SZ@"16"))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `STSM_MODE@MT168))) -> (((sz == `STSM_SZ@"8"))) :
+ "Invalid instruction combination"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NON_BARRIER_INT_INST ;
+ MEM_SCBD_TYPE = MEM_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@STSM_URc ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32 + (((num==`LDSM_NUM@"2"))*32 + ((num==`LDSM_NUM@"4"))*96);
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Ra_URc_SIZE = 32;
+ ILABEL_Rb_SIZE = 32 + (((num==`LDSM_NUM@"2"))*32 + ((num==`LDSM_NUM@"4"))*96);
+
+OPCODES
+        STSMmio_pipe =  0b1100001000100;
+        STSM =  0b1100001000100;
+
+ENCODING
+!stsm__UR_sI_R_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_75_75_input_reg_sz_32_bit75_dist=sz;
+BITS_2_79_78_stride=mode;
+BITS_2_73_72_memType=num;
+BITS_8_31_24_Ra=Ra;
+BITS_8_71_64_Ra_URc=Ra_URc;
+BITS_24_63_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "stsm__sImmOffset"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /STSM_SZ:sz /STSM_MODE:mode /LDSM_NUM("1"):num
+ [ Register("RZ"):Ra + SImm(24/0)*:Ra_offset ]
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((mode !=`STSM_MODE@INVALID3)) :
+ "Invalid mode field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((num !=`LDSM_NUM@INVALID3)) :
+ "Invalid num field value"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((num == `LDSM_NUM@"2"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((num == `LDSM_NUM@"2"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((num == `LDSM_NUM@"4"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((num == `LDSM_NUM@"4"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `STSM_MODE@M88)||(mode == `STSM_MODE@MT88))) -> (((sz == `STSM_SZ@"16"))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `STSM_MODE@MT168))) -> (((sz == `STSM_SZ@"8"))) :
+ "Invalid instruction combination"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NON_BARRIER_INT_INST ;
+ MEM_SCBD_TYPE = MEM_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@STSM ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32 + (((num==`LDSM_NUM@"2"))*32 + ((num==`LDSM_NUM@"4"))*96);
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32 + (((num==`LDSM_NUM@"2"))*32 + ((num==`LDSM_NUM@"4"))*96);
+
+OPCODES
+        STSMmio_pipe =  0b100001000100;
+        STSM =  0b100001000100;
+
+ENCODING
+!stsm__sImmOffset_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_75_75_input_reg_sz_32_bit75_dist=sz;
+BITS_2_79_78_stride=mode;
+BITS_2_73_72_memType=num;
+BITS_8_31_24_Ra=Ra;
+BITS_24_63_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

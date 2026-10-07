@@ -1,0 +1,236 @@
+CLASS "spmetadata_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /MODE_scatter:mode /ELSIZE:elsize /IDXSIZE_scatter:idxsize
+Register:Rd
+','Register:Rb {/REUSE("noreuse"):reuse_src_b}
+','Register("RZ"):Rc {/REUSE("noreuse"):reuse_src_c} ','UImm(7)*:vecidx ','UImm(4)*:mask ','UImm(3)*:destidx
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((mode !=`MODE_scatter@INVALID3)) :
+ "Invalid mode field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((idxsize !=`IDXSIZE_scatter@INVALID9)&&(idxsize !=`IDXSIZE_scatter@INVALID10)&&(idxsize !=`IDXSIZE_scatter@INVALID11)&&(idxsize !=`IDXSIZE_scatter@INVALID12)&&(idxsize !=`IDXSIZE_scatter@INVALID13)&&(idxsize !=`IDXSIZE_scatter@INVALID14)&&(idxsize !=`IDXSIZE_scatter@INVALID15)) :
+ "Invalid idxsize field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_8(batch_t,usched_info,reuse_src_b,reuse_src_c) :
+ "Invalid combination of batch_t, usched_info, reuse_src_b, reuse_src_c"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_b==1)||(reuse_src_c==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U4_H0))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U8, and idxsize=U4_H0, then #VecIdxU07 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U4_H1))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U8, and idxsize=U4_H1, then #VecIdxU07 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U4_B0))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U8, and idxsize=U4_B0, then #VecIdxU07 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U4_B1))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U8, and idxsize=U4_B1, then #VecIdxU07 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U4_B2))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U8, and idxsize=U4_B2, then #VecIdxU07 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U4_B3))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U8, and idxsize=U4_B3, then #VecIdxU07 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U8))) -> (((vecidx==24)||(vecidx==25)||(vecidx==26)||(vecidx==27)||(vecidx==20)||(vecidx==21)||(vecidx==22)||(vecidx==23)||(vecidx==28)||(vecidx==29)||(vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6)||(vecidx==9)||(vecidx==8)||(vecidx==11)||(vecidx==10)||(vecidx==13)||(vecidx==12)||(vecidx==15)||(vecidx==14)||(vecidx==17)||(vecidx==16)||(vecidx==19)||(vecidx==18)||(vecidx==31)||(vecidx==30))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U8, and idxsize=U8, then #VecIdxU07 <= 31)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U8_H0))) -> (((vecidx==24)||(vecidx==25)||(vecidx==26)||(vecidx==27)||(vecidx==20)||(vecidx==21)||(vecidx==22)||(vecidx==23)||(vecidx==28)||(vecidx==29)||(vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6)||(vecidx==9)||(vecidx==8)||(vecidx==11)||(vecidx==10)||(vecidx==13)||(vecidx==12)||(vecidx==15)||(vecidx==14)||(vecidx==17)||(vecidx==16)||(vecidx==19)||(vecidx==18)||(vecidx==31)||(vecidx==30))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U8, and idxsize=U8_H0, then #VecIdxU07 <= 31)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U8_H1))) -> (((vecidx==24)||(vecidx==25)||(vecidx==26)||(vecidx==27)||(vecidx==20)||(vecidx==21)||(vecidx==22)||(vecidx==23)||(vecidx==28)||(vecidx==29)||(vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6)||(vecidx==9)||(vecidx==8)||(vecidx==11)||(vecidx==10)||(vecidx==13)||(vecidx==12)||(vecidx==15)||(vecidx==14)||(vecidx==17)||(vecidx==16)||(vecidx==19)||(vecidx==18)||(vecidx==31)||(vecidx==30))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U8, and idxsize=U8_H1, then #VecIdxU07 <= 31)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_H0))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U16, and idxsize=U4_H0, then #VecIdxU07 <= 3)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_H1))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U16, and idxsize=U4_H1, then #VecIdxU07 <= 3)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_B0))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U16, and idxsize=U4_B0, then #VecIdxU07 <= 3)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_B1))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U16, and idxsize=U4_B1, then #VecIdxU07 <= 3)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_B2))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U16, and idxsize=U4_B2, then #VecIdxU07 <= 3)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_B3))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U16, and idxsize=U4_B3, then #VecIdxU07 <= 3)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U8))) -> (((vecidx==56)||(vecidx==54)||(vecidx==42)||(vecidx==48)||(vecidx==43)||(vecidx==60)||(vecidx==61)||(vecidx==62)||(vecidx==63)||(vecidx==49)||(vecidx==52)||(vecidx==53)||(vecidx==24)||(vecidx==25)||(vecidx==26)||(vecidx==27)||(vecidx==20)||(vecidx==21)||(vecidx==22)||(vecidx==23)||(vecidx==46)||(vecidx==47)||(vecidx==44)||(vecidx==45)||(vecidx==28)||(vecidx==29)||(vecidx==40)||(vecidx==41)||(vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6)||(vecidx==9)||(vecidx==8)||(vecidx==51)||(vecidx==39)||(vecidx==38)||(vecidx==59)||(vecidx==58)||(vecidx==11)||(vecidx==10)||(vecidx==13)||(vecidx==12)||(vecidx==15)||(vecidx==14)||(vecidx==17)||(vecidx==16)||(vecidx==19)||(vecidx==18)||(vecidx==31)||(vecidx==30)||(vecidx==37)||(vecidx==36)||(vecidx==35)||(vecidx==34)||(vecidx==33)||(vecidx==55)||(vecidx==32)||(vecidx==57)||(vecidx==50))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U16, and idxsize=U8, then #VecIdxU07 <= 63)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U8_H0))) -> (((vecidx==56)||(vecidx==54)||(vecidx==42)||(vecidx==48)||(vecidx==43)||(vecidx==60)||(vecidx==61)||(vecidx==62)||(vecidx==63)||(vecidx==49)||(vecidx==52)||(vecidx==53)||(vecidx==24)||(vecidx==25)||(vecidx==26)||(vecidx==27)||(vecidx==20)||(vecidx==21)||(vecidx==22)||(vecidx==23)||(vecidx==46)||(vecidx==47)||(vecidx==44)||(vecidx==45)||(vecidx==28)||(vecidx==29)||(vecidx==40)||(vecidx==41)||(vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6)||(vecidx==9)||(vecidx==8)||(vecidx==51)||(vecidx==39)||(vecidx==38)||(vecidx==59)||(vecidx==58)||(vecidx==11)||(vecidx==10)||(vecidx==13)||(vecidx==12)||(vecidx==15)||(vecidx==14)||(vecidx==17)||(vecidx==16)||(vecidx==19)||(vecidx==18)||(vecidx==31)||(vecidx==30)||(vecidx==37)||(vecidx==36)||(vecidx==35)||(vecidx==34)||(vecidx==33)||(vecidx==55)||(vecidx==32)||(vecidx==57)||(vecidx==50))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U16, and idxsize=U8_H0, then #VecIdxU07 <= 63)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@THREAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U8_H1))) -> (((vecidx==56)||(vecidx==54)||(vecidx==42)||(vecidx==48)||(vecidx==43)||(vecidx==60)||(vecidx==61)||(vecidx==62)||(vecidx==63)||(vecidx==49)||(vecidx==52)||(vecidx==53)||(vecidx==24)||(vecidx==25)||(vecidx==26)||(vecidx==27)||(vecidx==20)||(vecidx==21)||(vecidx==22)||(vecidx==23)||(vecidx==46)||(vecidx==47)||(vecidx==44)||(vecidx==45)||(vecidx==28)||(vecidx==29)||(vecidx==40)||(vecidx==41)||(vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6)||(vecidx==9)||(vecidx==8)||(vecidx==51)||(vecidx==39)||(vecidx==38)||(vecidx==59)||(vecidx==58)||(vecidx==11)||(vecidx==10)||(vecidx==13)||(vecidx==12)||(vecidx==15)||(vecidx==14)||(vecidx==17)||(vecidx==16)||(vecidx==19)||(vecidx==18)||(vecidx==31)||(vecidx==30)||(vecidx==37)||(vecidx==36)||(vecidx==35)||(vecidx==34)||(vecidx==33)||(vecidx==55)||(vecidx==32)||(vecidx==57)||(vecidx==50))) :
+ "Invalid instruction combination (reason: If mode=THREAD, elsize=U16, and idxsize=U8_H1, then #VecIdxU07 <= 63)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U4_H0))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U8, and idxsize=U4_H0, then #VecIdxU07 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U4_H1))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U8, and idxsize=U4_H1, then #VecIdxU07 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U4_B0))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U8, and idxsize=U4_B0, then #VecIdxU07 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U4_B1))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U8, and idxsize=U4_B1, then #VecIdxU07 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U4_B2))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U8, and idxsize=U4_B2, then #VecIdxU07 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U4_B3))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U8, and idxsize=U4_B3, then #VecIdxU07 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U8))) -> (((vecidx==11)||(vecidx==10)||(vecidx==13)||(vecidx==12)||(vecidx==15)||(vecidx==14)||(vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6)||(vecidx==9)||(vecidx==8))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U8, and idxsize=U8, then #VecIdxU07 <= 15)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U8_H0))) -> (((vecidx==11)||(vecidx==10)||(vecidx==13)||(vecidx==12)||(vecidx==15)||(vecidx==14)||(vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6)||(vecidx==9)||(vecidx==8))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U8, and idxsize=U8_H0, then #VecIdxU07 <= 15)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U8_H1))) -> (((vecidx==11)||(vecidx==10)||(vecidx==13)||(vecidx==12)||(vecidx==15)||(vecidx==14)||(vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6)||(vecidx==9)||(vecidx==8))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U8, and idxsize=U8_H1, then #VecIdxU07 <= 15)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_H0))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U16, and idxsize=U4_H0, then #VecIdxU07 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_H1))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U16, and idxsize=U4_H1, then #VecIdxU07 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_B0))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U16, and idxsize=U4_B0, then #VecIdxU07 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_B1))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U16, and idxsize=U4_B1, then #VecIdxU07 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_B2))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U16, and idxsize=U4_B2, then #VecIdxU07 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_B3))) -> (((vecidx==1)||(vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U16, and idxsize=U4_B3, then #VecIdxU07 <= 1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U8))) -> (((vecidx==24)||(vecidx==25)||(vecidx==26)||(vecidx==27)||(vecidx==20)||(vecidx==21)||(vecidx==22)||(vecidx==23)||(vecidx==28)||(vecidx==29)||(vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6)||(vecidx==9)||(vecidx==8)||(vecidx==11)||(vecidx==10)||(vecidx==13)||(vecidx==12)||(vecidx==15)||(vecidx==14)||(vecidx==17)||(vecidx==16)||(vecidx==19)||(vecidx==18)||(vecidx==31)||(vecidx==30))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U16, and idxsize=U8, then #VecIdxU07 <= 31)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U8_H0))) -> (((vecidx==24)||(vecidx==25)||(vecidx==26)||(vecidx==27)||(vecidx==20)||(vecidx==21)||(vecidx==22)||(vecidx==23)||(vecidx==28)||(vecidx==29)||(vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6)||(vecidx==9)||(vecidx==8)||(vecidx==11)||(vecidx==10)||(vecidx==13)||(vecidx==12)||(vecidx==15)||(vecidx==14)||(vecidx==17)||(vecidx==16)||(vecidx==19)||(vecidx==18)||(vecidx==31)||(vecidx==30))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U16, and idxsize=U8_H0, then #VecIdxU07 <= 31)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@PAIR))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U8_H1))) -> (((vecidx==24)||(vecidx==25)||(vecidx==26)||(vecidx==27)||(vecidx==20)||(vecidx==21)||(vecidx==22)||(vecidx==23)||(vecidx==28)||(vecidx==29)||(vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6)||(vecidx==9)||(vecidx==8)||(vecidx==11)||(vecidx==10)||(vecidx==13)||(vecidx==12)||(vecidx==15)||(vecidx==14)||(vecidx==17)||(vecidx==16)||(vecidx==19)||(vecidx==18)||(vecidx==31)||(vecidx==30))) :
+ "Invalid instruction combination (reason: If mode=PAIR, elsize=U16, and idxsize=U8_H1, then #VecIdxU07 <= 31)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@QUAD))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U8))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6))) :
+ "Invalid instruction combination (reason: If mode=QUAD, elsize=U8, and idxsize=U8, then #VecIdxU07 <= 7)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@QUAD))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U8_H0))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6))) :
+ "Invalid instruction combination (reason: If mode=QUAD, elsize=U8, and idxsize=U8_H0, then #VecIdxU07 <= 7)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@QUAD))&&((elsize == `ELSIZE@U8))&&((idxsize == `IDXSIZE_scatter@U8_H1))) -> (((vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6))) :
+ "Invalid instruction combination (reason: If mode=QUAD, elsize=U8, and idxsize=U8_H1, then #VecIdxU07 <= 7)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@QUAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_H0))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=QUAD, elsize=U16, and idxsize=U4_H0, then #VecIdxU07 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@QUAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_H1))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=QUAD, elsize=U16, and idxsize=U4_H1, then #VecIdxU07 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@QUAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_B0))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=QUAD, elsize=U16, and idxsize=U4_B0, then #VecIdxU07 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@QUAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_B1))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=QUAD, elsize=U16, and idxsize=U4_B1, then #VecIdxU07 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@QUAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_B2))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=QUAD, elsize=U16, and idxsize=U4_B2, then #VecIdxU07 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@QUAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U4_B3))) -> (((vecidx==0))) :
+ "Invalid instruction combination (reason: If mode=QUAD, elsize=U16, and idxsize=U4_B3, then #VecIdxU07 <= 0)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@QUAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U8))) -> (((vecidx==11)||(vecidx==10)||(vecidx==13)||(vecidx==12)||(vecidx==15)||(vecidx==14)||(vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6)||(vecidx==9)||(vecidx==8))) :
+ "Invalid instruction combination (reason: If mode=QUAD, elsize=U16, and idxsize=U8, then #VecIdxU07 <= 15)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@QUAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U8_H0))) -> (((vecidx==11)||(vecidx==10)||(vecidx==13)||(vecidx==12)||(vecidx==15)||(vecidx==14)||(vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6)||(vecidx==9)||(vecidx==8))) :
+ "Invalid instruction combination (reason: If mode=QUAD, elsize=U16, and idxsize=U8_H0, then #VecIdxU07 <= 15)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@QUAD))&&((elsize == `ELSIZE@U16))&&((idxsize == `IDXSIZE_scatter@U8_H1))) -> (((vecidx==11)||(vecidx==10)||(vecidx==13)||(vecidx==12)||(vecidx==15)||(vecidx==14)||(vecidx==1)||(vecidx==0)||(vecidx==3)||(vecidx==2)||(vecidx==5)||(vecidx==4)||(vecidx==7)||(vecidx==6)||(vecidx==9)||(vecidx==8))) :
+ "Invalid instruction combination (reason: If mode=QUAD, elsize=U16, and idxsize=U8_H1, then #VecIdxU07 <= 15)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mode == `MODE_scatter@QUAD))&&((elsize == `ELSIZE@U8))) -> (((idxsize == `IDXSIZE_scatter@U8)||(idxsize == `IDXSIZE_scatter@U8_H0)||(idxsize == `IDXSIZE_scatter@U8_H1))) :
+ "Invalid instruction combination (reason: The combination of mode=QUAD, elsize=U8, and idxsize=U4* is illegal.)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((elsize == `ELSIZE@U8))) -> (((idxsize == `IDXSIZE_scatter@U4_H0)||(idxsize == `IDXSIZE_scatter@U4_H1)||(idxsize == `IDXSIZE_scatter@U8))) :
+ "Invalid instruction combination (reason: If .elsize is .U8, .idxsize must be one of:  U4_H0...1, or U8)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((elsize == `ELSIZE@U16))) -> (((idxsize == `IDXSIZE_scatter@U4_B0)||(idxsize == `IDXSIZE_scatter@U4_B1)||(idxsize == `IDXSIZE_scatter@U4_B2)||(idxsize == `IDXSIZE_scatter@U4_B3)||(idxsize == `IDXSIZE_scatter@U8_H0)||(idxsize == `IDXSIZE_scatter@U8_H1))) :
+ "Invalid instruction combination (reason: If .elsize is .U16, .idxsize must be one of:  U4_B0...3, or U8_H0...1)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((mask==0)||(mask==1)||(mask==2)||(mask==3)||(mask==4)||(mask==5)||(mask==6)||(mask==8)||(mask==9)||(mask==10)||(mask==12))) :
+ "Invalid instruction combination (reason: No more than 2 bits of the mask may be set)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((elsize == `ELSIZE@U16))) -> (((mask==0)||(mask==1)||(mask==2)||(mask==3))) :
+ "Invalid instruction combination (reason: 16-bit elements cannot have the upper 2 bits of the mask set)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((elsize == `ELSIZE@U8))) -> (((destidx==0)||(destidx==1)||(destidx==2)||(destidx==3))) :
+ "Invalid instruction combination (reason: If elsize is U8, #DestU03 must be < 4)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@SPMETADATA_Rb_Rc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ MASK_INSTR_PREDICATE = (1);
+
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        SPMETADATAint_pipe =  0b1000001110;
+        SPMETADATA =  0b1000001110;
+
+ENCODING
+!spmetadata__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_82_81_iswzC=mode;
+BITS_1_72_72_e=elsize;
+BITS_4_76_73_sz=idxsize;
+BITS_8_23_16_Rd=Rd;
+BITS_8_39_32_Rb=Rb;
+BITS_8_71_64_Rc=Rc;
+BITS_7_89_83_vecidx=vecidx;
+BITS_4_80_77_mem=mask;
+BITS_3_63_61_destidx=destidx;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_8_124_122_109_105_opex=TABLES_opex_8(batch_t,usched_info,reuse_src_b,reuse_src_c);
+
+
+

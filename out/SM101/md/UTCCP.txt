@@ -1,0 +1,304 @@
+CLASS "utccp__1CTA"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /OnlyT:dst /SONLY:src /ONLY1CTA("1CTA"):cluster_sz /MODE_128dp256bit_4dp256bit_128dp128bit_2x64dp128bit_lw02_lw13_2x64dp128bit_lw01_lw23_4x32dp128bit("128dp256bit"):mode /SRC_FMT("nosrc_fmt"):src_fmt
+ TMEMB:tmemB[ UniformRegister("URZ"):URa + SImm(32/0)*:Sa_offset ]
+',' UMMAB:gdescB[ UniformRegister:URb ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((mode !=`MODE_128dp256bit_4dp256bit_128dp128bit_2x64dp128bit_lw02_lw13_2x64dp128bit_lw01_lw23_4x32dp128bit@INVALID1)&&(mode !=`MODE_128dp256bit_4dp256bit_128dp128bit_2x64dp128bit_lw02_lw13_2x64dp128bit_lw01_lw23_4x32dp128bit@INVALID7)) :
+ "Invalid mode field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((src_fmt !=`SRC_FMT@INVALID3)) :
+ "Invalid src_fmt field value"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sa is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UTCCP ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_TC_1CTA ;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 64;
+
+OPCODES
+        UTCCPudp_pipe =  0b1100111100111;
+        UTCCP =  0b1100111100111;
+
+ENCODING
+!utccp__1CTA_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_86_86_depth=dst;
+BITS_1_87_87_cas=src;
+BITS_1_85_85_ignoreKill=*cluster_sz;
+BITS_3_88_88_84_83_mode=mode;
+BITS_2_81_80_src_fmt=src_fmt;
+BITS_8_31_24_Ra=URa;
+BITS_32_79_72_63_40_Sb_offset=Sa_offset;
+BITS_8_39_32_Rb=URb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "utccp__2CTA"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /OnlyT:dst /SONLY:src /ONLY2CTA:cluster_sz /MODE_128dp256bit_4dp256bit_128dp128bit_2x64dp128bit_lw02_lw13_2x64dp128bit_lw01_lw23_4x32dp128bit("128dp256bit"):mode /SRC_FMT("nosrc_fmt"):src_fmt
+ TMEMB:tmemB[ UniformRegister("URZ"):URa + SImm(32/0)*:Sa_offset ]
+',' UMMAB:gdescB[ UniformRegister:URb ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((mode !=`MODE_128dp256bit_4dp256bit_128dp128bit_2x64dp128bit_lw02_lw13_2x64dp128bit_lw01_lw23_4x32dp128bit@INVALID1)&&(mode !=`MODE_128dp256bit_4dp256bit_128dp128bit_2x64dp128bit_lw02_lw13_2x64dp128bit_lw01_lw23_4x32dp128bit@INVALID7)) :
+ "Invalid mode field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((src_fmt !=`SRC_FMT@INVALID3)) :
+ "Invalid src_fmt field value"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sa is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UTCCP ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_TC_2CTA ;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 64;
+
+OPCODES
+        UTCCPudp_pipe =  0b1100111100111;
+        UTCCP =  0b1100111100111;
+
+ENCODING
+!utccp__2CTA_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_86_86_depth=dst;
+BITS_1_87_87_cas=src;
+BITS_1_85_85_ignoreKill=*cluster_sz;
+BITS_3_88_88_84_83_mode=mode;
+BITS_2_81_80_src_fmt=src_fmt;
+BITS_8_31_24_Ra=URa;
+BITS_32_79_72_63_40_Sb_offset=Sa_offset;
+BITS_8_39_32_Rb=URb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "utccp_one__1CTA"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ONEONLY:one /OnlyT:dst /SONLY:src /ONLY1CTA("1CTA"):cluster_sz /MODE_128dp256bit_4dp256bit_128dp128bit_2x64dp128bit_lw02_lw13_2x64dp128bit_lw01_lw23_4x32dp128bit("128dp256bit"):mode /SRC_FMT("nosrc_fmt"):src_fmt
+ TMEMB:tmemB[ UniformRegister("URZ"):URa + SImm(32/0)*:Sa_offset ]
+',' UMMAB:gdescB[ UniformRegister:URb ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((mode !=`MODE_128dp256bit_4dp256bit_128dp128bit_2x64dp128bit_lw02_lw13_2x64dp128bit_lw01_lw23_4x32dp128bit@INVALID1)&&(mode !=`MODE_128dp256bit_4dp256bit_128dp128bit_2x64dp128bit_lw02_lw13_2x64dp128bit_lw01_lw23_4x32dp128bit@INVALID7)) :
+ "Invalid mode field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((src_fmt !=`SRC_FMT@INVALID3)) :
+ "Invalid src_fmt field value"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sa is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UTCCP ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_TC_1CTA ;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 64;
+
+OPCODES
+        UTCCPudp_pipe =  0b1100111100111;
+        UTCCP =  0b1100111100111;
+
+ENCODING
+!utccp_one__1CTA_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_86_86_depth=dst;
+BITS_1_87_87_cas=src;
+BITS_1_85_85_ignoreKill=*cluster_sz;
+BITS_3_88_88_84_83_mode=mode;
+BITS_2_81_80_src_fmt=src_fmt;
+BITS_8_31_24_Ra=URa;
+BITS_32_79_72_63_40_Sb_offset=Sa_offset;
+BITS_8_39_32_Rb=URb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "utccp_one__2CTA"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ONEONLY:one /OnlyT:dst /SONLY:src /ONLY2CTA:cluster_sz /MODE_128dp256bit_4dp256bit_128dp128bit_2x64dp128bit_lw02_lw13_2x64dp128bit_lw01_lw23_4x32dp128bit("128dp256bit"):mode /SRC_FMT("nosrc_fmt"):src_fmt
+ TMEMB:tmemB[ UniformRegister("URZ"):URa + SImm(32/0)*:Sa_offset ]
+',' UMMAB:gdescB[ UniformRegister:URb ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((mode !=`MODE_128dp256bit_4dp256bit_128dp128bit_2x64dp128bit_lw02_lw13_2x64dp128bit_lw01_lw23_4x32dp128bit@INVALID1)&&(mode !=`MODE_128dp256bit_4dp256bit_128dp128bit_2x64dp128bit_lw02_lw13_2x64dp128bit_lw01_lw23_4x32dp128bit@INVALID7)) :
+ "Invalid mode field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((src_fmt !=`SRC_FMT@INVALID3)) :
+ "Invalid src_fmt field value"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sa is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UTCCP ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_TC_2CTA ;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 64;
+
+OPCODES
+        UTCCPudp_pipe =  0b1100111100111;
+        UTCCP =  0b1100111100111;
+
+ENCODING
+!utccp_one__2CTA_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_86_86_depth=dst;
+BITS_1_87_87_cas=src;
+BITS_1_85_85_ignoreKill=*cluster_sz;
+BITS_3_88_88_84_83_mode=mode;
+BITS_2_81_80_src_fmt=src_fmt;
+BITS_8_31_24_Ra=URa;
+BITS_32_79_72_63_40_Sb_offset=Sa_offset;
+BITS_8_39_32_Rb=URb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

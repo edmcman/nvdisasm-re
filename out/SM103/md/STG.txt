@@ -1,0 +1,1177 @@
+CLASS "stg_256_memdesc__Ra64"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /EONLY:e /COP("EN"):cop /COP2:cop2 /ONLY256:sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /ORDER("noorder"):order
+DESC:memoryDescriptor[UniformRegister:Ra_URc][NonZeroRegister:Ra /ONLY64:input_reg_sz_64_bit75_dist + SImm(24/0)*:Ra_offset]
+','Register:Rb
+','Register:Rb2
+','UImm(8/255)*:word_mask
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop2 !=`COP2@INVALID3)) :
+ "Invalid cop2 field value"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rb2)==`Register@RZ)||(((Rb2)<=(%MAX_REG_COUNT-1))&&((Rb2)!=`Register@R254))) :
+ "Register Rb2 is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_4(order,sem,sco,private) :
+ "Invalid combination of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_4_illegal_encodings(order,sem,sco,private) :
+ "Illegal specification of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((word_mask==217)||(word_mask==214)||(word_mask==213)||(word_mask==211)||(word_mask==218)||(word_mask==133)||(word_mask==131)||(word_mask==137)||(word_mask==134)||(word_mask==138)||(word_mask==25)||(word_mask==26)||(word_mask==21)||(word_mask==22)||(word_mask==28)||(word_mask==220)||(word_mask==121)||(word_mask==122)||(word_mask==124)||(word_mask==58)||(word_mask==54)||(word_mask==57)||(word_mask==51)||(word_mask==53)||(word_mask==90)||(word_mask==198)||(word_mask==195)||(word_mask==197)||(word_mask==115)||(word_mask==117)||(word_mask==89)||(word_mask==83)||(word_mask==86)||(word_mask==118)||(word_mask==85)||(word_mask==3)||(word_mask==245)||(word_mask==108)||(word_mask==246)||(word_mask==243)||(word_mask==102)||(word_mask==101)||(word_mask==106)||(word_mask==105)||(word_mask==38)||(word_mask==37)||(word_mask==35)||(word_mask==60)||(word_mask==179)||(word_mask==67)||(word_mask==252)||(word_mask==69)||(word_mask==250)||(word_mask==172)||(word_mask==170)||(word_mask==249)||(word_mask==182)||(word_mask==181)||(word_mask==186)||(word_mask==6)||(word_mask==188)||(word_mask==185)||(word_mask==99)||(word_mask==169)||(word_mask==229)||(word_mask==227)||(word_mask==165)||(word_mask==166)||(word_mask==92)||(word_mask==163)||(word_mask==10)||(word_mask==12)||(word_mask==19)||(word_mask==150)||(word_mask==153)||(word_mask==154)||(word_mask==156)||(word_mask==234)||(word_mask==236)||(word_mask==230)||(word_mask==233)||(word_mask==44)||(word_mask==42)||(word_mask==41)||(word_mask==5)||(word_mask==9)||(word_mask==201)||(word_mask==147)||(word_mask==202)||(word_mask==204)||(word_mask==140)||(word_mask==149)||(word_mask==76)||(word_mask==74)||(word_mask==73)||(word_mask==70))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==217)||(word_mask==214)||(word_mask==213)||(word_mask==211)||(word_mask==218)||(word_mask==133)||(word_mask==131)||(word_mask==137)||(word_mask==134)||(word_mask==138)||(word_mask==25)||(word_mask==26)||(word_mask==21)||(word_mask==22)||(word_mask==28)||(word_mask==220)||(word_mask==121)||(word_mask==122)||(word_mask==124)||(word_mask==58)||(word_mask==54)||(word_mask==57)||(word_mask==51)||(word_mask==53)||(word_mask==90)||(word_mask==198)||(word_mask==195)||(word_mask==197)||(word_mask==115)||(word_mask==117)||(word_mask==89)||(word_mask==83)||(word_mask==86)||(word_mask==118)||(word_mask==85)||(word_mask==3)||(word_mask==245)||(word_mask==108)||(word_mask==246)||(word_mask==243)||(word_mask==102)||(word_mask==101)||(word_mask==106)||(word_mask==105)||(word_mask==38)||(word_mask==37)||(word_mask==35)||(word_mask==60)||(word_mask==179)||(word_mask==67)||(word_mask==252)||(word_mask==69)||(word_mask==250)||(word_mask==172)||(word_mask==170)||(word_mask==249)||(word_mask==182)||(word_mask==181)||(word_mask==186)||(word_mask==6)||(word_mask==188)||(word_mask==185)||(word_mask==99)||(word_mask==169)||(word_mask==229)||(word_mask==227)||(word_mask==165)||(word_mask==166)||(word_mask==92)||(word_mask==163)||(word_mask==10)||(word_mask==12)||(word_mask==19)||(word_mask==150)||(word_mask==153)||(word_mask==154)||(word_mask==156)||(word_mask==234)||(word_mask==236)||(word_mask==230)||(word_mask==233)||(word_mask==44)||(word_mask==42)||(word_mask==41)||(word_mask==5)||(word_mask==9)||(word_mask==201)||(word_mask==147)||(word_mask==202)||(word_mask==204)||(word_mask==140)||(word_mask==149)||(word_mask==76)||(word_mask==74)||(word_mask==73)||(word_mask==70))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==151)||(word_mask==215)||(word_mask==155)||(word_mask==126)||(word_mask==157)||(word_mask==158)||(word_mask==190)||(word_mask==43)||(word_mask==251)||(word_mask==61)||(word_mask==62)||(word_mask==238)||(word_mask==110)||(word_mask==135)||(word_mask==235)||(word_mask==199)||(word_mask==139)||(word_mask==174)||(word_mask==119)||(word_mask==87)||(word_mask==171)||(word_mask==206)||(word_mask==27)||(word_mask==222)||(word_mask==23)||(word_mask==46)||(word_mask==173)||(word_mask==45)||(word_mask==29)||(word_mask==253)||(word_mask==107)||(word_mask==183)||(word_mask==254)||(word_mask==187)||(word_mask==7)||(word_mask==219)||(word_mask==189)||(word_mask==203)||(word_mask==142)||(word_mask==141)||(word_mask==39)||(word_mask==77)||(word_mask==75)||(word_mask==109)||(word_mask==125)||(word_mask==71)||(word_mask==91)||(word_mask==103)||(word_mask==93)||(word_mask==167)||(word_mask==205)||(word_mask==94)||(word_mask==221)||(word_mask==78)||(word_mask==11)||(word_mask==13)||(word_mask==59)||(word_mask==14)||(word_mask==55)||(word_mask==30)||(word_mask==247)||(word_mask==123)||(word_mask==231)||(word_mask==237))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==151)||(word_mask==215)||(word_mask==155)||(word_mask==126)||(word_mask==157)||(word_mask==158)||(word_mask==190)||(word_mask==43)||(word_mask==251)||(word_mask==61)||(word_mask==62)||(word_mask==238)||(word_mask==110)||(word_mask==135)||(word_mask==235)||(word_mask==199)||(word_mask==139)||(word_mask==174)||(word_mask==119)||(word_mask==87)||(word_mask==171)||(word_mask==206)||(word_mask==27)||(word_mask==222)||(word_mask==23)||(word_mask==46)||(word_mask==173)||(word_mask==45)||(word_mask==29)||(word_mask==253)||(word_mask==107)||(word_mask==183)||(word_mask==254)||(word_mask==187)||(word_mask==7)||(word_mask==219)||(word_mask==189)||(word_mask==203)||(word_mask==142)||(word_mask==141)||(word_mask==39)||(word_mask==77)||(word_mask==75)||(word_mask==109)||(word_mask==125)||(word_mask==71)||(word_mask==91)||(word_mask==103)||(word_mask==93)||(word_mask==167)||(word_mask==205)||(word_mask==94)||(word_mask==221)||(word_mask==78)||(word_mask==11)||(word_mask==13)||(word_mask==59)||(word_mask==14)||(word_mask==55)||(word_mask==30)||(word_mask==247)||(word_mask==123)||(word_mask==231)||(word_mask==237))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==15)||(word_mask==143)||(word_mask==207)||(word_mask==159)||(word_mask==47)||(word_mask==31)||(word_mask==191)||(word_mask==223)||(word_mask==63)||(word_mask==111)||(word_mask==239)||(word_mask==127)||(word_mask==175)||(word_mask==95)||(word_mask==79)||(word_mask==255))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==15)||(word_mask==143)||(word_mask==207)||(word_mask==159)||(word_mask==47)||(word_mask==31)||(word_mask==191)||(word_mask==223)||(word_mask==63)||(word_mask==111)||(word_mask==239)||(word_mask==127)||(word_mask==175)||(word_mask==95)||(word_mask==79)||(word_mask==255))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==164)||(word_mask==90)||(word_mask==93)||(word_mask==92)||(word_mask==160)||(word_mask==94)||(word_mask==97)||(word_mask==96)||(word_mask==59)||(word_mask==58)||(word_mask==55)||(word_mask==54)||(word_mask==57)||(word_mask==56)||(word_mask==51)||(word_mask==50)||(word_mask==53)||(word_mask==52)||(word_mask==201)||(word_mask==199)||(word_mask==198)||(word_mask==200)||(word_mask==195)||(word_mask==194)||(word_mask==197)||(word_mask==196)||(word_mask==203)||(word_mask==193)||(word_mask==192)||(word_mask==88)||(word_mask==89)||(word_mask==111)||(word_mask==110)||(word_mask==82)||(word_mask==83)||(word_mask==80)||(word_mask==81)||(word_mask==86)||(word_mask==87)||(word_mask==84)||(word_mask==85)||(word_mask==108)||(word_mask==109)||(word_mask==102)||(word_mask==103)||(word_mask==100)||(word_mask==101)||(word_mask==106)||(word_mask==107)||(word_mask==104)||(word_mask==105)||(word_mask==60)||(word_mask==61)||(word_mask==62)||(word_mask==63)||(word_mask==175)||(word_mask==174)||(word_mask==173)||(word_mask==172)||(word_mask==171)||(word_mask==170)||(word_mask==202)||(word_mask==99)||(word_mask==98)||(word_mask==168)||(word_mask==169)||(word_mask==91)||(word_mask==165)||(word_mask==166)||(word_mask==167)||(word_mask==95)||(word_mask==161)||(word_mask==162)||(word_mask==163)||(word_mask==151)||(word_mask==150)||(word_mask==153)||(word_mask==152)||(word_mask==155)||(word_mask==154)||(word_mask==157)||(word_mask==156)||(word_mask==159)||(word_mask==158)||(word_mask==48)||(word_mask==49)||(word_mask==146)||(word_mask==147)||(word_mask==144)||(word_mask==145)||(word_mask==205)||(word_mask==204)||(word_mask==207)||(word_mask==206)||(word_mask==148)||(word_mask==149))) -> (((((Rb2)==`Register@RZ)||((Rb2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==164)||(word_mask==90)||(word_mask==93)||(word_mask==92)||(word_mask==160)||(word_mask==94)||(word_mask==97)||(word_mask==96)||(word_mask==59)||(word_mask==58)||(word_mask==55)||(word_mask==54)||(word_mask==57)||(word_mask==56)||(word_mask==51)||(word_mask==50)||(word_mask==53)||(word_mask==52)||(word_mask==201)||(word_mask==199)||(word_mask==198)||(word_mask==200)||(word_mask==195)||(word_mask==194)||(word_mask==197)||(word_mask==196)||(word_mask==203)||(word_mask==193)||(word_mask==192)||(word_mask==88)||(word_mask==89)||(word_mask==111)||(word_mask==110)||(word_mask==82)||(word_mask==83)||(word_mask==80)||(word_mask==81)||(word_mask==86)||(word_mask==87)||(word_mask==84)||(word_mask==85)||(word_mask==108)||(word_mask==109)||(word_mask==102)||(word_mask==103)||(word_mask==100)||(word_mask==101)||(word_mask==106)||(word_mask==107)||(word_mask==104)||(word_mask==105)||(word_mask==60)||(word_mask==61)||(word_mask==62)||(word_mask==63)||(word_mask==175)||(word_mask==174)||(word_mask==173)||(word_mask==172)||(word_mask==171)||(word_mask==170)||(word_mask==202)||(word_mask==99)||(word_mask==98)||(word_mask==168)||(word_mask==169)||(word_mask==91)||(word_mask==165)||(word_mask==166)||(word_mask==167)||(word_mask==95)||(word_mask==161)||(word_mask==162)||(word_mask==163)||(word_mask==151)||(word_mask==150)||(word_mask==153)||(word_mask==152)||(word_mask==155)||(word_mask==154)||(word_mask==157)||(word_mask==156)||(word_mask==159)||(word_mask==158)||(word_mask==48)||(word_mask==49)||(word_mask==146)||(word_mask==147)||(word_mask==144)||(word_mask==145)||(word_mask==205)||(word_mask==204)||(word_mask==207)||(word_mask==206)||(word_mask==148)||(word_mask==149))) -> (((((Rb2)+((Rb2)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==216)||(word_mask==217)||(word_mask==214)||(word_mask==215)||(word_mask==212)||(word_mask==179)||(word_mask==210)||(word_mask==211)||(word_mask==112)||(word_mask==191)||(word_mask==190)||(word_mask==218)||(word_mask==219)||(word_mask==115)||(word_mask==114)||(word_mask==117)||(word_mask==116)||(word_mask==238)||(word_mask==239)||(word_mask==113)||(word_mask==178)||(word_mask==177)||(word_mask==176)||(word_mask==236)||(word_mask==237)||(word_mask==119)||(word_mask==118)||(word_mask==229)||(word_mask==213)||(word_mask==234)||(word_mask==230)||(word_mask==231)||(word_mask==182)||(word_mask==183)||(word_mask==180)||(word_mask==181)||(word_mask==186)||(word_mask==187)||(word_mask==184)||(word_mask==185)||(word_mask==188)||(word_mask==189)||(word_mask==235)||(word_mask==209)||(word_mask==208)||(word_mask==120)||(word_mask==121)||(word_mask==122)||(word_mask==123)||(word_mask==124)||(word_mask==125)||(word_mask==126)||(word_mask==127)||(word_mask==227)||(word_mask==226)||(word_mask==225)||(word_mask==224)||(word_mask==223)||(word_mask==222)||(word_mask==221)||(word_mask==220)||(word_mask==232)||(word_mask==228)||(word_mask==233))) -> (((((Rb2)==`Register@RZ)||((Rb2)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==216)||(word_mask==217)||(word_mask==214)||(word_mask==215)||(word_mask==212)||(word_mask==179)||(word_mask==210)||(word_mask==211)||(word_mask==112)||(word_mask==191)||(word_mask==190)||(word_mask==218)||(word_mask==219)||(word_mask==115)||(word_mask==114)||(word_mask==117)||(word_mask==116)||(word_mask==238)||(word_mask==239)||(word_mask==113)||(word_mask==178)||(word_mask==177)||(word_mask==176)||(word_mask==236)||(word_mask==237)||(word_mask==119)||(word_mask==118)||(word_mask==229)||(word_mask==213)||(word_mask==234)||(word_mask==230)||(word_mask==231)||(word_mask==182)||(word_mask==183)||(word_mask==180)||(word_mask==181)||(word_mask==186)||(word_mask==187)||(word_mask==184)||(word_mask==185)||(word_mask==188)||(word_mask==189)||(word_mask==235)||(word_mask==209)||(word_mask==208)||(word_mask==120)||(word_mask==121)||(word_mask==122)||(word_mask==123)||(word_mask==124)||(word_mask==125)||(word_mask==126)||(word_mask==127)||(word_mask==227)||(word_mask==226)||(word_mask==225)||(word_mask==224)||(word_mask==223)||(word_mask==222)||(word_mask==221)||(word_mask==220)||(word_mask==232)||(word_mask==228)||(word_mask==233))) -> (((((Rb2)+((Rb2)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==245)||(word_mask==244)||(word_mask==247)||(word_mask==246)||(word_mask==241)||(word_mask==240)||(word_mask==243)||(word_mask==242)||(word_mask==252)||(word_mask==253)||(word_mask==250)||(word_mask==251)||(word_mask==249)||(word_mask==248)||(word_mask==254)||(word_mask==255))) -> (((((Rb2)==`Register@RZ)||((Rb2)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==245)||(word_mask==244)||(word_mask==247)||(word_mask==246)||(word_mask==241)||(word_mask==240)||(word_mask==243)||(word_mask==242)||(word_mask==252)||(word_mask==253)||(word_mask==250)||(word_mask==251)||(word_mask==249)||(word_mask==248)||(word_mask==254)||(word_mask==255))) -> (((((Rb2)+((Rb2)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((word_mask==144)||(word_mask==48)||(word_mask==16)||(word_mask==32)||(word_mask==192)||(word_mask==0)||(word_mask==208)||(word_mask==64)||(word_mask==240)||(word_mask==112)||(word_mask==128)||(word_mask==176)||(word_mask==80)||(word_mask==224)||(word_mask==160)||(word_mask==96))) -> ((((Rb)==`Register@RZ))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((word_mask==11)||(word_mask==10)||(word_mask==13)||(word_mask==12)||(word_mask==15)||(word_mask==14)||(word_mask==1)||(word_mask==0)||(word_mask==3)||(word_mask==2)||(word_mask==5)||(word_mask==4)||(word_mask==7)||(word_mask==6)||(word_mask==9)||(word_mask==8))) -> ((((Rb2)==`Register@RZ))) :
+ "Invalid instruction combination"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NON_BARRIER_INT_INST ;
+ MEM_SCBD_TYPE = MEM_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@STG_256 ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = ((word_mask & 1) + ((word_mask >> 1) & 1) + ((word_mask >> 2) & 1) + ((word_mask >> 3) & 1)) * 32;
+ ISRC_B2_SIZE = (((word_mask >> 4) & 1) + ((word_mask >> 5) & 1) + ((word_mask >> 6) & 1) + ((word_mask >> 7) & 1)) * 32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Ra_SIZE = 64;
+ ILABEL_Ra_URc_SIZE = 64;
+ ILABEL_Rb_SIZE = ((word_mask & 1) + ((word_mask >> 1) & 1) + ((word_mask >> 2) & 1) + ((word_mask >> 3) & 1)) * 32;
+ ILABEL_Rb2_SIZE = (((word_mask >> 4) & 1) + ((word_mask >> 5) & 1) + ((word_mask >> 6) & 1) + ((word_mask >> 7) & 1)) * 32;
+
+OPCODES
+        STGmio_pipe =  0b1100101111111;
+        STG =  0b1100101111111;
+
+ENCODING
+!stg_256_memdesc__Ra64_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_86_84_cop=cop;
+BITS_2_82_81_iswzC=cop2;
+BITS_8_71_64_Ra_URc=Ra_URc;
+BITS_8_31_24_Ra=*Ra;
+BITS_1_75_75_sz=*input_reg_sz_64_bit75_dist;
+BITS_19_58_40_Ra_offset=Ra_offset SCALE 32;
+BITS_8_39_32_Rb=Rb;
+BITS_8_23_16_Rd=Rb2;
+BITS_8_90_88_63_59_word_mask=word_mask;
+BITS_1_76_76_memdesc=1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_4(order,sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "stg_256_uniform__Ra32"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /EONLY:e /COP("EN"):cop /COP2:cop2 /ONLY256:sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /ORDER("noorder"):order
+ [ NonZeroRegister:Ra /U32ONLY:input_reg_sz_32_bit75_dist + UniformRegister:Ra_URc + SImm(24/0)*:Ra_offset ]
+','Register:Rb
+','Register:Rb2
+','UImm(8/255)*:word_mask
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop2 !=`COP2@INVALID3)) :
+ "Invalid cop2 field value"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rb2)==`Register@RZ)||(((Rb2)<=(%MAX_REG_COUNT-1))&&((Rb2)!=`Register@R254))) :
+ "Register Rb2 is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_4(order,sem,sco,private) :
+ "Invalid combination of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_4_illegal_encodings(order,sem,sco,private) :
+ "Illegal specification of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==217)||(word_mask==214)||(word_mask==213)||(word_mask==211)||(word_mask==218)||(word_mask==133)||(word_mask==131)||(word_mask==137)||(word_mask==134)||(word_mask==138)||(word_mask==25)||(word_mask==26)||(word_mask==21)||(word_mask==22)||(word_mask==28)||(word_mask==220)||(word_mask==121)||(word_mask==122)||(word_mask==124)||(word_mask==58)||(word_mask==54)||(word_mask==57)||(word_mask==51)||(word_mask==53)||(word_mask==90)||(word_mask==198)||(word_mask==195)||(word_mask==197)||(word_mask==115)||(word_mask==117)||(word_mask==89)||(word_mask==83)||(word_mask==86)||(word_mask==118)||(word_mask==85)||(word_mask==3)||(word_mask==245)||(word_mask==108)||(word_mask==246)||(word_mask==243)||(word_mask==102)||(word_mask==101)||(word_mask==106)||(word_mask==105)||(word_mask==38)||(word_mask==37)||(word_mask==35)||(word_mask==60)||(word_mask==179)||(word_mask==67)||(word_mask==252)||(word_mask==69)||(word_mask==250)||(word_mask==172)||(word_mask==170)||(word_mask==249)||(word_mask==182)||(word_mask==181)||(word_mask==186)||(word_mask==6)||(word_mask==188)||(word_mask==185)||(word_mask==99)||(word_mask==169)||(word_mask==229)||(word_mask==227)||(word_mask==165)||(word_mask==166)||(word_mask==92)||(word_mask==163)||(word_mask==10)||(word_mask==12)||(word_mask==19)||(word_mask==150)||(word_mask==153)||(word_mask==154)||(word_mask==156)||(word_mask==234)||(word_mask==236)||(word_mask==230)||(word_mask==233)||(word_mask==44)||(word_mask==42)||(word_mask==41)||(word_mask==5)||(word_mask==9)||(word_mask==201)||(word_mask==147)||(word_mask==202)||(word_mask==204)||(word_mask==140)||(word_mask==149)||(word_mask==76)||(word_mask==74)||(word_mask==73)||(word_mask==70))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==217)||(word_mask==214)||(word_mask==213)||(word_mask==211)||(word_mask==218)||(word_mask==133)||(word_mask==131)||(word_mask==137)||(word_mask==134)||(word_mask==138)||(word_mask==25)||(word_mask==26)||(word_mask==21)||(word_mask==22)||(word_mask==28)||(word_mask==220)||(word_mask==121)||(word_mask==122)||(word_mask==124)||(word_mask==58)||(word_mask==54)||(word_mask==57)||(word_mask==51)||(word_mask==53)||(word_mask==90)||(word_mask==198)||(word_mask==195)||(word_mask==197)||(word_mask==115)||(word_mask==117)||(word_mask==89)||(word_mask==83)||(word_mask==86)||(word_mask==118)||(word_mask==85)||(word_mask==3)||(word_mask==245)||(word_mask==108)||(word_mask==246)||(word_mask==243)||(word_mask==102)||(word_mask==101)||(word_mask==106)||(word_mask==105)||(word_mask==38)||(word_mask==37)||(word_mask==35)||(word_mask==60)||(word_mask==179)||(word_mask==67)||(word_mask==252)||(word_mask==69)||(word_mask==250)||(word_mask==172)||(word_mask==170)||(word_mask==249)||(word_mask==182)||(word_mask==181)||(word_mask==186)||(word_mask==6)||(word_mask==188)||(word_mask==185)||(word_mask==99)||(word_mask==169)||(word_mask==229)||(word_mask==227)||(word_mask==165)||(word_mask==166)||(word_mask==92)||(word_mask==163)||(word_mask==10)||(word_mask==12)||(word_mask==19)||(word_mask==150)||(word_mask==153)||(word_mask==154)||(word_mask==156)||(word_mask==234)||(word_mask==236)||(word_mask==230)||(word_mask==233)||(word_mask==44)||(word_mask==42)||(word_mask==41)||(word_mask==5)||(word_mask==9)||(word_mask==201)||(word_mask==147)||(word_mask==202)||(word_mask==204)||(word_mask==140)||(word_mask==149)||(word_mask==76)||(word_mask==74)||(word_mask==73)||(word_mask==70))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==151)||(word_mask==215)||(word_mask==155)||(word_mask==126)||(word_mask==157)||(word_mask==158)||(word_mask==190)||(word_mask==43)||(word_mask==251)||(word_mask==61)||(word_mask==62)||(word_mask==238)||(word_mask==110)||(word_mask==135)||(word_mask==235)||(word_mask==199)||(word_mask==139)||(word_mask==174)||(word_mask==119)||(word_mask==87)||(word_mask==171)||(word_mask==206)||(word_mask==27)||(word_mask==222)||(word_mask==23)||(word_mask==46)||(word_mask==173)||(word_mask==45)||(word_mask==29)||(word_mask==253)||(word_mask==107)||(word_mask==183)||(word_mask==254)||(word_mask==187)||(word_mask==7)||(word_mask==219)||(word_mask==189)||(word_mask==203)||(word_mask==142)||(word_mask==141)||(word_mask==39)||(word_mask==77)||(word_mask==75)||(word_mask==109)||(word_mask==125)||(word_mask==71)||(word_mask==91)||(word_mask==103)||(word_mask==93)||(word_mask==167)||(word_mask==205)||(word_mask==94)||(word_mask==221)||(word_mask==78)||(word_mask==11)||(word_mask==13)||(word_mask==59)||(word_mask==14)||(word_mask==55)||(word_mask==30)||(word_mask==247)||(word_mask==123)||(word_mask==231)||(word_mask==237))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==151)||(word_mask==215)||(word_mask==155)||(word_mask==126)||(word_mask==157)||(word_mask==158)||(word_mask==190)||(word_mask==43)||(word_mask==251)||(word_mask==61)||(word_mask==62)||(word_mask==238)||(word_mask==110)||(word_mask==135)||(word_mask==235)||(word_mask==199)||(word_mask==139)||(word_mask==174)||(word_mask==119)||(word_mask==87)||(word_mask==171)||(word_mask==206)||(word_mask==27)||(word_mask==222)||(word_mask==23)||(word_mask==46)||(word_mask==173)||(word_mask==45)||(word_mask==29)||(word_mask==253)||(word_mask==107)||(word_mask==183)||(word_mask==254)||(word_mask==187)||(word_mask==7)||(word_mask==219)||(word_mask==189)||(word_mask==203)||(word_mask==142)||(word_mask==141)||(word_mask==39)||(word_mask==77)||(word_mask==75)||(word_mask==109)||(word_mask==125)||(word_mask==71)||(word_mask==91)||(word_mask==103)||(word_mask==93)||(word_mask==167)||(word_mask==205)||(word_mask==94)||(word_mask==221)||(word_mask==78)||(word_mask==11)||(word_mask==13)||(word_mask==59)||(word_mask==14)||(word_mask==55)||(word_mask==30)||(word_mask==247)||(word_mask==123)||(word_mask==231)||(word_mask==237))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==15)||(word_mask==143)||(word_mask==207)||(word_mask==159)||(word_mask==47)||(word_mask==31)||(word_mask==191)||(word_mask==223)||(word_mask==63)||(word_mask==111)||(word_mask==239)||(word_mask==127)||(word_mask==175)||(word_mask==95)||(word_mask==79)||(word_mask==255))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==15)||(word_mask==143)||(word_mask==207)||(word_mask==159)||(word_mask==47)||(word_mask==31)||(word_mask==191)||(word_mask==223)||(word_mask==63)||(word_mask==111)||(word_mask==239)||(word_mask==127)||(word_mask==175)||(word_mask==95)||(word_mask==79)||(word_mask==255))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==164)||(word_mask==90)||(word_mask==93)||(word_mask==92)||(word_mask==160)||(word_mask==94)||(word_mask==97)||(word_mask==96)||(word_mask==59)||(word_mask==58)||(word_mask==55)||(word_mask==54)||(word_mask==57)||(word_mask==56)||(word_mask==51)||(word_mask==50)||(word_mask==53)||(word_mask==52)||(word_mask==201)||(word_mask==199)||(word_mask==198)||(word_mask==200)||(word_mask==195)||(word_mask==194)||(word_mask==197)||(word_mask==196)||(word_mask==203)||(word_mask==193)||(word_mask==192)||(word_mask==88)||(word_mask==89)||(word_mask==111)||(word_mask==110)||(word_mask==82)||(word_mask==83)||(word_mask==80)||(word_mask==81)||(word_mask==86)||(word_mask==87)||(word_mask==84)||(word_mask==85)||(word_mask==108)||(word_mask==109)||(word_mask==102)||(word_mask==103)||(word_mask==100)||(word_mask==101)||(word_mask==106)||(word_mask==107)||(word_mask==104)||(word_mask==105)||(word_mask==60)||(word_mask==61)||(word_mask==62)||(word_mask==63)||(word_mask==175)||(word_mask==174)||(word_mask==173)||(word_mask==172)||(word_mask==171)||(word_mask==170)||(word_mask==202)||(word_mask==99)||(word_mask==98)||(word_mask==168)||(word_mask==169)||(word_mask==91)||(word_mask==165)||(word_mask==166)||(word_mask==167)||(word_mask==95)||(word_mask==161)||(word_mask==162)||(word_mask==163)||(word_mask==151)||(word_mask==150)||(word_mask==153)||(word_mask==152)||(word_mask==155)||(word_mask==154)||(word_mask==157)||(word_mask==156)||(word_mask==159)||(word_mask==158)||(word_mask==48)||(word_mask==49)||(word_mask==146)||(word_mask==147)||(word_mask==144)||(word_mask==145)||(word_mask==205)||(word_mask==204)||(word_mask==207)||(word_mask==206)||(word_mask==148)||(word_mask==149))) -> (((((Rb2)==`Register@RZ)||((Rb2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==164)||(word_mask==90)||(word_mask==93)||(word_mask==92)||(word_mask==160)||(word_mask==94)||(word_mask==97)||(word_mask==96)||(word_mask==59)||(word_mask==58)||(word_mask==55)||(word_mask==54)||(word_mask==57)||(word_mask==56)||(word_mask==51)||(word_mask==50)||(word_mask==53)||(word_mask==52)||(word_mask==201)||(word_mask==199)||(word_mask==198)||(word_mask==200)||(word_mask==195)||(word_mask==194)||(word_mask==197)||(word_mask==196)||(word_mask==203)||(word_mask==193)||(word_mask==192)||(word_mask==88)||(word_mask==89)||(word_mask==111)||(word_mask==110)||(word_mask==82)||(word_mask==83)||(word_mask==80)||(word_mask==81)||(word_mask==86)||(word_mask==87)||(word_mask==84)||(word_mask==85)||(word_mask==108)||(word_mask==109)||(word_mask==102)||(word_mask==103)||(word_mask==100)||(word_mask==101)||(word_mask==106)||(word_mask==107)||(word_mask==104)||(word_mask==105)||(word_mask==60)||(word_mask==61)||(word_mask==62)||(word_mask==63)||(word_mask==175)||(word_mask==174)||(word_mask==173)||(word_mask==172)||(word_mask==171)||(word_mask==170)||(word_mask==202)||(word_mask==99)||(word_mask==98)||(word_mask==168)||(word_mask==169)||(word_mask==91)||(word_mask==165)||(word_mask==166)||(word_mask==167)||(word_mask==95)||(word_mask==161)||(word_mask==162)||(word_mask==163)||(word_mask==151)||(word_mask==150)||(word_mask==153)||(word_mask==152)||(word_mask==155)||(word_mask==154)||(word_mask==157)||(word_mask==156)||(word_mask==159)||(word_mask==158)||(word_mask==48)||(word_mask==49)||(word_mask==146)||(word_mask==147)||(word_mask==144)||(word_mask==145)||(word_mask==205)||(word_mask==204)||(word_mask==207)||(word_mask==206)||(word_mask==148)||(word_mask==149))) -> (((((Rb2)+((Rb2)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==216)||(word_mask==217)||(word_mask==214)||(word_mask==215)||(word_mask==212)||(word_mask==179)||(word_mask==210)||(word_mask==211)||(word_mask==112)||(word_mask==191)||(word_mask==190)||(word_mask==218)||(word_mask==219)||(word_mask==115)||(word_mask==114)||(word_mask==117)||(word_mask==116)||(word_mask==238)||(word_mask==239)||(word_mask==113)||(word_mask==178)||(word_mask==177)||(word_mask==176)||(word_mask==236)||(word_mask==237)||(word_mask==119)||(word_mask==118)||(word_mask==229)||(word_mask==213)||(word_mask==234)||(word_mask==230)||(word_mask==231)||(word_mask==182)||(word_mask==183)||(word_mask==180)||(word_mask==181)||(word_mask==186)||(word_mask==187)||(word_mask==184)||(word_mask==185)||(word_mask==188)||(word_mask==189)||(word_mask==235)||(word_mask==209)||(word_mask==208)||(word_mask==120)||(word_mask==121)||(word_mask==122)||(word_mask==123)||(word_mask==124)||(word_mask==125)||(word_mask==126)||(word_mask==127)||(word_mask==227)||(word_mask==226)||(word_mask==225)||(word_mask==224)||(word_mask==223)||(word_mask==222)||(word_mask==221)||(word_mask==220)||(word_mask==232)||(word_mask==228)||(word_mask==233))) -> (((((Rb2)==`Register@RZ)||((Rb2)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==216)||(word_mask==217)||(word_mask==214)||(word_mask==215)||(word_mask==212)||(word_mask==179)||(word_mask==210)||(word_mask==211)||(word_mask==112)||(word_mask==191)||(word_mask==190)||(word_mask==218)||(word_mask==219)||(word_mask==115)||(word_mask==114)||(word_mask==117)||(word_mask==116)||(word_mask==238)||(word_mask==239)||(word_mask==113)||(word_mask==178)||(word_mask==177)||(word_mask==176)||(word_mask==236)||(word_mask==237)||(word_mask==119)||(word_mask==118)||(word_mask==229)||(word_mask==213)||(word_mask==234)||(word_mask==230)||(word_mask==231)||(word_mask==182)||(word_mask==183)||(word_mask==180)||(word_mask==181)||(word_mask==186)||(word_mask==187)||(word_mask==184)||(word_mask==185)||(word_mask==188)||(word_mask==189)||(word_mask==235)||(word_mask==209)||(word_mask==208)||(word_mask==120)||(word_mask==121)||(word_mask==122)||(word_mask==123)||(word_mask==124)||(word_mask==125)||(word_mask==126)||(word_mask==127)||(word_mask==227)||(word_mask==226)||(word_mask==225)||(word_mask==224)||(word_mask==223)||(word_mask==222)||(word_mask==221)||(word_mask==220)||(word_mask==232)||(word_mask==228)||(word_mask==233))) -> (((((Rb2)+((Rb2)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==245)||(word_mask==244)||(word_mask==247)||(word_mask==246)||(word_mask==241)||(word_mask==240)||(word_mask==243)||(word_mask==242)||(word_mask==252)||(word_mask==253)||(word_mask==250)||(word_mask==251)||(word_mask==249)||(word_mask==248)||(word_mask==254)||(word_mask==255))) -> (((((Rb2)==`Register@RZ)||((Rb2)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==245)||(word_mask==244)||(word_mask==247)||(word_mask==246)||(word_mask==241)||(word_mask==240)||(word_mask==243)||(word_mask==242)||(word_mask==252)||(word_mask==253)||(word_mask==250)||(word_mask==251)||(word_mask==249)||(word_mask==248)||(word_mask==254)||(word_mask==255))) -> (((((Rb2)+((Rb2)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((word_mask==144)||(word_mask==48)||(word_mask==16)||(word_mask==32)||(word_mask==192)||(word_mask==0)||(word_mask==208)||(word_mask==64)||(word_mask==240)||(word_mask==112)||(word_mask==128)||(word_mask==176)||(word_mask==80)||(word_mask==224)||(word_mask==160)||(word_mask==96))) -> ((((Rb)==`Register@RZ))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((word_mask==11)||(word_mask==10)||(word_mask==13)||(word_mask==12)||(word_mask==15)||(word_mask==14)||(word_mask==1)||(word_mask==0)||(word_mask==3)||(word_mask==2)||(word_mask==5)||(word_mask==4)||(word_mask==7)||(word_mask==6)||(word_mask==9)||(word_mask==8))) -> ((((Rb2)==`Register@RZ))) :
+ "Invalid instruction combination"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NON_BARRIER_INT_INST ;
+ MEM_SCBD_TYPE = MEM_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@STG_256 ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = ((word_mask & 1) + ((word_mask >> 1) & 1) + ((word_mask >> 2) & 1) + ((word_mask >> 3) & 1)) * 32;
+ ISRC_B2_SIZE = (((word_mask >> 4) & 1) + ((word_mask >> 5) & 1) + ((word_mask >> 6) & 1) + ((word_mask >> 7) & 1)) * 32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Ra_URc_SIZE = 64;
+ ILABEL_Rb_SIZE = ((word_mask & 1) + ((word_mask >> 1) & 1) + ((word_mask >> 2) & 1) + ((word_mask >> 3) & 1)) * 32;
+ ILABEL_Rb2_SIZE = (((word_mask >> 4) & 1) + ((word_mask >> 5) & 1) + ((word_mask >> 6) & 1) + ((word_mask >> 7) & 1)) * 32;
+
+OPCODES
+        STGmio_pipe =  0b1100101111111;
+        STG =  0b1100101111111;
+
+ENCODING
+!stg_256_uniform__Ra32_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_86_84_cop=cop;
+BITS_2_82_81_iswzC=cop2;
+BITS_8_31_24_Ra=*Ra;
+BITS_1_75_75_sz=*input_reg_sz_32_bit75_dist;
+BITS_8_71_64_Ra_URc=Ra_URc;
+BITS_19_58_40_Ra_offset=Ra_offset SCALE 32;
+BITS_8_39_32_Rb=Rb;
+BITS_8_23_16_Rd=Rb2;
+BITS_8_90_88_63_59_word_mask=word_mask;
+BITS_1_76_76_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_4(order,sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "stg_256_uniform__Ra64"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /EONLY:e /COP("EN"):cop /COP2:cop2 /ONLY256:sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /ORDER("noorder"):order
+ [ NonZeroRegister:Ra /ONLY64:input_reg_sz_64_bit75_dist + UniformRegister:Ra_URc + SImm(24/0)*:Ra_offset ]
+','Register:Rb
+','Register:Rb2
+','UImm(8/255)*:word_mask
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop2 !=`COP2@INVALID3)) :
+ "Invalid cop2 field value"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rb2)==`Register@RZ)||(((Rb2)<=(%MAX_REG_COUNT-1))&&((Rb2)!=`Register@R254))) :
+ "Register Rb2 is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_4(order,sem,sco,private) :
+ "Invalid combination of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_4_illegal_encodings(order,sem,sco,private) :
+ "Illegal specification of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==217)||(word_mask==214)||(word_mask==213)||(word_mask==211)||(word_mask==218)||(word_mask==133)||(word_mask==131)||(word_mask==137)||(word_mask==134)||(word_mask==138)||(word_mask==25)||(word_mask==26)||(word_mask==21)||(word_mask==22)||(word_mask==28)||(word_mask==220)||(word_mask==121)||(word_mask==122)||(word_mask==124)||(word_mask==58)||(word_mask==54)||(word_mask==57)||(word_mask==51)||(word_mask==53)||(word_mask==90)||(word_mask==198)||(word_mask==195)||(word_mask==197)||(word_mask==115)||(word_mask==117)||(word_mask==89)||(word_mask==83)||(word_mask==86)||(word_mask==118)||(word_mask==85)||(word_mask==3)||(word_mask==245)||(word_mask==108)||(word_mask==246)||(word_mask==243)||(word_mask==102)||(word_mask==101)||(word_mask==106)||(word_mask==105)||(word_mask==38)||(word_mask==37)||(word_mask==35)||(word_mask==60)||(word_mask==179)||(word_mask==67)||(word_mask==252)||(word_mask==69)||(word_mask==250)||(word_mask==172)||(word_mask==170)||(word_mask==249)||(word_mask==182)||(word_mask==181)||(word_mask==186)||(word_mask==6)||(word_mask==188)||(word_mask==185)||(word_mask==99)||(word_mask==169)||(word_mask==229)||(word_mask==227)||(word_mask==165)||(word_mask==166)||(word_mask==92)||(word_mask==163)||(word_mask==10)||(word_mask==12)||(word_mask==19)||(word_mask==150)||(word_mask==153)||(word_mask==154)||(word_mask==156)||(word_mask==234)||(word_mask==236)||(word_mask==230)||(word_mask==233)||(word_mask==44)||(word_mask==42)||(word_mask==41)||(word_mask==5)||(word_mask==9)||(word_mask==201)||(word_mask==147)||(word_mask==202)||(word_mask==204)||(word_mask==140)||(word_mask==149)||(word_mask==76)||(word_mask==74)||(word_mask==73)||(word_mask==70))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==217)||(word_mask==214)||(word_mask==213)||(word_mask==211)||(word_mask==218)||(word_mask==133)||(word_mask==131)||(word_mask==137)||(word_mask==134)||(word_mask==138)||(word_mask==25)||(word_mask==26)||(word_mask==21)||(word_mask==22)||(word_mask==28)||(word_mask==220)||(word_mask==121)||(word_mask==122)||(word_mask==124)||(word_mask==58)||(word_mask==54)||(word_mask==57)||(word_mask==51)||(word_mask==53)||(word_mask==90)||(word_mask==198)||(word_mask==195)||(word_mask==197)||(word_mask==115)||(word_mask==117)||(word_mask==89)||(word_mask==83)||(word_mask==86)||(word_mask==118)||(word_mask==85)||(word_mask==3)||(word_mask==245)||(word_mask==108)||(word_mask==246)||(word_mask==243)||(word_mask==102)||(word_mask==101)||(word_mask==106)||(word_mask==105)||(word_mask==38)||(word_mask==37)||(word_mask==35)||(word_mask==60)||(word_mask==179)||(word_mask==67)||(word_mask==252)||(word_mask==69)||(word_mask==250)||(word_mask==172)||(word_mask==170)||(word_mask==249)||(word_mask==182)||(word_mask==181)||(word_mask==186)||(word_mask==6)||(word_mask==188)||(word_mask==185)||(word_mask==99)||(word_mask==169)||(word_mask==229)||(word_mask==227)||(word_mask==165)||(word_mask==166)||(word_mask==92)||(word_mask==163)||(word_mask==10)||(word_mask==12)||(word_mask==19)||(word_mask==150)||(word_mask==153)||(word_mask==154)||(word_mask==156)||(word_mask==234)||(word_mask==236)||(word_mask==230)||(word_mask==233)||(word_mask==44)||(word_mask==42)||(word_mask==41)||(word_mask==5)||(word_mask==9)||(word_mask==201)||(word_mask==147)||(word_mask==202)||(word_mask==204)||(word_mask==140)||(word_mask==149)||(word_mask==76)||(word_mask==74)||(word_mask==73)||(word_mask==70))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==151)||(word_mask==215)||(word_mask==155)||(word_mask==126)||(word_mask==157)||(word_mask==158)||(word_mask==190)||(word_mask==43)||(word_mask==251)||(word_mask==61)||(word_mask==62)||(word_mask==238)||(word_mask==110)||(word_mask==135)||(word_mask==235)||(word_mask==199)||(word_mask==139)||(word_mask==174)||(word_mask==119)||(word_mask==87)||(word_mask==171)||(word_mask==206)||(word_mask==27)||(word_mask==222)||(word_mask==23)||(word_mask==46)||(word_mask==173)||(word_mask==45)||(word_mask==29)||(word_mask==253)||(word_mask==107)||(word_mask==183)||(word_mask==254)||(word_mask==187)||(word_mask==7)||(word_mask==219)||(word_mask==189)||(word_mask==203)||(word_mask==142)||(word_mask==141)||(word_mask==39)||(word_mask==77)||(word_mask==75)||(word_mask==109)||(word_mask==125)||(word_mask==71)||(word_mask==91)||(word_mask==103)||(word_mask==93)||(word_mask==167)||(word_mask==205)||(word_mask==94)||(word_mask==221)||(word_mask==78)||(word_mask==11)||(word_mask==13)||(word_mask==59)||(word_mask==14)||(word_mask==55)||(word_mask==30)||(word_mask==247)||(word_mask==123)||(word_mask==231)||(word_mask==237))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==151)||(word_mask==215)||(word_mask==155)||(word_mask==126)||(word_mask==157)||(word_mask==158)||(word_mask==190)||(word_mask==43)||(word_mask==251)||(word_mask==61)||(word_mask==62)||(word_mask==238)||(word_mask==110)||(word_mask==135)||(word_mask==235)||(word_mask==199)||(word_mask==139)||(word_mask==174)||(word_mask==119)||(word_mask==87)||(word_mask==171)||(word_mask==206)||(word_mask==27)||(word_mask==222)||(word_mask==23)||(word_mask==46)||(word_mask==173)||(word_mask==45)||(word_mask==29)||(word_mask==253)||(word_mask==107)||(word_mask==183)||(word_mask==254)||(word_mask==187)||(word_mask==7)||(word_mask==219)||(word_mask==189)||(word_mask==203)||(word_mask==142)||(word_mask==141)||(word_mask==39)||(word_mask==77)||(word_mask==75)||(word_mask==109)||(word_mask==125)||(word_mask==71)||(word_mask==91)||(word_mask==103)||(word_mask==93)||(word_mask==167)||(word_mask==205)||(word_mask==94)||(word_mask==221)||(word_mask==78)||(word_mask==11)||(word_mask==13)||(word_mask==59)||(word_mask==14)||(word_mask==55)||(word_mask==30)||(word_mask==247)||(word_mask==123)||(word_mask==231)||(word_mask==237))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==15)||(word_mask==143)||(word_mask==207)||(word_mask==159)||(word_mask==47)||(word_mask==31)||(word_mask==191)||(word_mask==223)||(word_mask==63)||(word_mask==111)||(word_mask==239)||(word_mask==127)||(word_mask==175)||(word_mask==95)||(word_mask==79)||(word_mask==255))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==15)||(word_mask==143)||(word_mask==207)||(word_mask==159)||(word_mask==47)||(word_mask==31)||(word_mask==191)||(word_mask==223)||(word_mask==63)||(word_mask==111)||(word_mask==239)||(word_mask==127)||(word_mask==175)||(word_mask==95)||(word_mask==79)||(word_mask==255))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==164)||(word_mask==90)||(word_mask==93)||(word_mask==92)||(word_mask==160)||(word_mask==94)||(word_mask==97)||(word_mask==96)||(word_mask==59)||(word_mask==58)||(word_mask==55)||(word_mask==54)||(word_mask==57)||(word_mask==56)||(word_mask==51)||(word_mask==50)||(word_mask==53)||(word_mask==52)||(word_mask==201)||(word_mask==199)||(word_mask==198)||(word_mask==200)||(word_mask==195)||(word_mask==194)||(word_mask==197)||(word_mask==196)||(word_mask==203)||(word_mask==193)||(word_mask==192)||(word_mask==88)||(word_mask==89)||(word_mask==111)||(word_mask==110)||(word_mask==82)||(word_mask==83)||(word_mask==80)||(word_mask==81)||(word_mask==86)||(word_mask==87)||(word_mask==84)||(word_mask==85)||(word_mask==108)||(word_mask==109)||(word_mask==102)||(word_mask==103)||(word_mask==100)||(word_mask==101)||(word_mask==106)||(word_mask==107)||(word_mask==104)||(word_mask==105)||(word_mask==60)||(word_mask==61)||(word_mask==62)||(word_mask==63)||(word_mask==175)||(word_mask==174)||(word_mask==173)||(word_mask==172)||(word_mask==171)||(word_mask==170)||(word_mask==202)||(word_mask==99)||(word_mask==98)||(word_mask==168)||(word_mask==169)||(word_mask==91)||(word_mask==165)||(word_mask==166)||(word_mask==167)||(word_mask==95)||(word_mask==161)||(word_mask==162)||(word_mask==163)||(word_mask==151)||(word_mask==150)||(word_mask==153)||(word_mask==152)||(word_mask==155)||(word_mask==154)||(word_mask==157)||(word_mask==156)||(word_mask==159)||(word_mask==158)||(word_mask==48)||(word_mask==49)||(word_mask==146)||(word_mask==147)||(word_mask==144)||(word_mask==145)||(word_mask==205)||(word_mask==204)||(word_mask==207)||(word_mask==206)||(word_mask==148)||(word_mask==149))) -> (((((Rb2)==`Register@RZ)||((Rb2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==164)||(word_mask==90)||(word_mask==93)||(word_mask==92)||(word_mask==160)||(word_mask==94)||(word_mask==97)||(word_mask==96)||(word_mask==59)||(word_mask==58)||(word_mask==55)||(word_mask==54)||(word_mask==57)||(word_mask==56)||(word_mask==51)||(word_mask==50)||(word_mask==53)||(word_mask==52)||(word_mask==201)||(word_mask==199)||(word_mask==198)||(word_mask==200)||(word_mask==195)||(word_mask==194)||(word_mask==197)||(word_mask==196)||(word_mask==203)||(word_mask==193)||(word_mask==192)||(word_mask==88)||(word_mask==89)||(word_mask==111)||(word_mask==110)||(word_mask==82)||(word_mask==83)||(word_mask==80)||(word_mask==81)||(word_mask==86)||(word_mask==87)||(word_mask==84)||(word_mask==85)||(word_mask==108)||(word_mask==109)||(word_mask==102)||(word_mask==103)||(word_mask==100)||(word_mask==101)||(word_mask==106)||(word_mask==107)||(word_mask==104)||(word_mask==105)||(word_mask==60)||(word_mask==61)||(word_mask==62)||(word_mask==63)||(word_mask==175)||(word_mask==174)||(word_mask==173)||(word_mask==172)||(word_mask==171)||(word_mask==170)||(word_mask==202)||(word_mask==99)||(word_mask==98)||(word_mask==168)||(word_mask==169)||(word_mask==91)||(word_mask==165)||(word_mask==166)||(word_mask==167)||(word_mask==95)||(word_mask==161)||(word_mask==162)||(word_mask==163)||(word_mask==151)||(word_mask==150)||(word_mask==153)||(word_mask==152)||(word_mask==155)||(word_mask==154)||(word_mask==157)||(word_mask==156)||(word_mask==159)||(word_mask==158)||(word_mask==48)||(word_mask==49)||(word_mask==146)||(word_mask==147)||(word_mask==144)||(word_mask==145)||(word_mask==205)||(word_mask==204)||(word_mask==207)||(word_mask==206)||(word_mask==148)||(word_mask==149))) -> (((((Rb2)+((Rb2)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==216)||(word_mask==217)||(word_mask==214)||(word_mask==215)||(word_mask==212)||(word_mask==179)||(word_mask==210)||(word_mask==211)||(word_mask==112)||(word_mask==191)||(word_mask==190)||(word_mask==218)||(word_mask==219)||(word_mask==115)||(word_mask==114)||(word_mask==117)||(word_mask==116)||(word_mask==238)||(word_mask==239)||(word_mask==113)||(word_mask==178)||(word_mask==177)||(word_mask==176)||(word_mask==236)||(word_mask==237)||(word_mask==119)||(word_mask==118)||(word_mask==229)||(word_mask==213)||(word_mask==234)||(word_mask==230)||(word_mask==231)||(word_mask==182)||(word_mask==183)||(word_mask==180)||(word_mask==181)||(word_mask==186)||(word_mask==187)||(word_mask==184)||(word_mask==185)||(word_mask==188)||(word_mask==189)||(word_mask==235)||(word_mask==209)||(word_mask==208)||(word_mask==120)||(word_mask==121)||(word_mask==122)||(word_mask==123)||(word_mask==124)||(word_mask==125)||(word_mask==126)||(word_mask==127)||(word_mask==227)||(word_mask==226)||(word_mask==225)||(word_mask==224)||(word_mask==223)||(word_mask==222)||(word_mask==221)||(word_mask==220)||(word_mask==232)||(word_mask==228)||(word_mask==233))) -> (((((Rb2)==`Register@RZ)||((Rb2)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==216)||(word_mask==217)||(word_mask==214)||(word_mask==215)||(word_mask==212)||(word_mask==179)||(word_mask==210)||(word_mask==211)||(word_mask==112)||(word_mask==191)||(word_mask==190)||(word_mask==218)||(word_mask==219)||(word_mask==115)||(word_mask==114)||(word_mask==117)||(word_mask==116)||(word_mask==238)||(word_mask==239)||(word_mask==113)||(word_mask==178)||(word_mask==177)||(word_mask==176)||(word_mask==236)||(word_mask==237)||(word_mask==119)||(word_mask==118)||(word_mask==229)||(word_mask==213)||(word_mask==234)||(word_mask==230)||(word_mask==231)||(word_mask==182)||(word_mask==183)||(word_mask==180)||(word_mask==181)||(word_mask==186)||(word_mask==187)||(word_mask==184)||(word_mask==185)||(word_mask==188)||(word_mask==189)||(word_mask==235)||(word_mask==209)||(word_mask==208)||(word_mask==120)||(word_mask==121)||(word_mask==122)||(word_mask==123)||(word_mask==124)||(word_mask==125)||(word_mask==126)||(word_mask==127)||(word_mask==227)||(word_mask==226)||(word_mask==225)||(word_mask==224)||(word_mask==223)||(word_mask==222)||(word_mask==221)||(word_mask==220)||(word_mask==232)||(word_mask==228)||(word_mask==233))) -> (((((Rb2)+((Rb2)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==245)||(word_mask==244)||(word_mask==247)||(word_mask==246)||(word_mask==241)||(word_mask==240)||(word_mask==243)||(word_mask==242)||(word_mask==252)||(word_mask==253)||(word_mask==250)||(word_mask==251)||(word_mask==249)||(word_mask==248)||(word_mask==254)||(word_mask==255))) -> (((((Rb2)==`Register@RZ)||((Rb2)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==245)||(word_mask==244)||(word_mask==247)||(word_mask==246)||(word_mask==241)||(word_mask==240)||(word_mask==243)||(word_mask==242)||(word_mask==252)||(word_mask==253)||(word_mask==250)||(word_mask==251)||(word_mask==249)||(word_mask==248)||(word_mask==254)||(word_mask==255))) -> (((((Rb2)+((Rb2)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((word_mask==144)||(word_mask==48)||(word_mask==16)||(word_mask==32)||(word_mask==192)||(word_mask==0)||(word_mask==208)||(word_mask==64)||(word_mask==240)||(word_mask==112)||(word_mask==128)||(word_mask==176)||(word_mask==80)||(word_mask==224)||(word_mask==160)||(word_mask==96))) -> ((((Rb)==`Register@RZ))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((word_mask==11)||(word_mask==10)||(word_mask==13)||(word_mask==12)||(word_mask==15)||(word_mask==14)||(word_mask==1)||(word_mask==0)||(word_mask==3)||(word_mask==2)||(word_mask==5)||(word_mask==4)||(word_mask==7)||(word_mask==6)||(word_mask==9)||(word_mask==8))) -> ((((Rb2)==`Register@RZ))) :
+ "Invalid instruction combination"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NON_BARRIER_INT_INST ;
+ MEM_SCBD_TYPE = MEM_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@STG_256 ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = ((word_mask & 1) + ((word_mask >> 1) & 1) + ((word_mask >> 2) & 1) + ((word_mask >> 3) & 1)) * 32;
+ ISRC_B2_SIZE = (((word_mask >> 4) & 1) + ((word_mask >> 5) & 1) + ((word_mask >> 6) & 1) + ((word_mask >> 7) & 1)) * 32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Ra_SIZE = 64;
+ ILABEL_Ra_URc_SIZE = 64;
+ ILABEL_Rb_SIZE = ((word_mask & 1) + ((word_mask >> 1) & 1) + ((word_mask >> 2) & 1) + ((word_mask >> 3) & 1)) * 32;
+ ILABEL_Rb2_SIZE = (((word_mask >> 4) & 1) + ((word_mask >> 5) & 1) + ((word_mask >> 6) & 1) + ((word_mask >> 7) & 1)) * 32;
+
+OPCODES
+        STGmio_pipe =  0b1100101111111;
+        STG =  0b1100101111111;
+
+ENCODING
+!stg_256_uniform__Ra64_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_86_84_cop=cop;
+BITS_2_82_81_iswzC=cop2;
+BITS_8_31_24_Ra=*Ra;
+BITS_1_75_75_sz=*input_reg_sz_64_bit75_dist;
+BITS_8_71_64_Ra_URc=Ra_URc;
+BITS_19_58_40_Ra_offset=Ra_offset SCALE 32;
+BITS_8_39_32_Rb=Rb;
+BITS_8_23_16_Rd=Rb2;
+BITS_8_90_88_63_59_word_mask=word_mask;
+BITS_1_76_76_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_4(order,sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "stg_256_uniform__RaRZ"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /EONLY:e /COP("EN"):cop /COP2:cop2 /ONLY256:sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /ORDER("noorder"):order
+ [ ZeroRegister("RZ"):Ra + UniformRegister:Ra_URc + SImm(24/0)*:Ra_offset ]
+','Register:Rb
+','Register:Rb2
+','UImm(8/255)*:word_mask
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop2 !=`COP2@INVALID3)) :
+ "Invalid cop2 field value"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)==`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rb2)==`Register@RZ)||(((Rb2)<=(%MAX_REG_COUNT-1))&&((Rb2)!=`Register@R254))) :
+ "Register Rb2 is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_4(order,sem,sco,private) :
+ "Invalid combination of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_4_illegal_encodings(order,sem,sco,private) :
+ "Illegal specification of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==217)||(word_mask==214)||(word_mask==213)||(word_mask==211)||(word_mask==218)||(word_mask==133)||(word_mask==131)||(word_mask==137)||(word_mask==134)||(word_mask==138)||(word_mask==25)||(word_mask==26)||(word_mask==21)||(word_mask==22)||(word_mask==28)||(word_mask==220)||(word_mask==121)||(word_mask==122)||(word_mask==124)||(word_mask==58)||(word_mask==54)||(word_mask==57)||(word_mask==51)||(word_mask==53)||(word_mask==90)||(word_mask==198)||(word_mask==195)||(word_mask==197)||(word_mask==115)||(word_mask==117)||(word_mask==89)||(word_mask==83)||(word_mask==86)||(word_mask==118)||(word_mask==85)||(word_mask==3)||(word_mask==245)||(word_mask==108)||(word_mask==246)||(word_mask==243)||(word_mask==102)||(word_mask==101)||(word_mask==106)||(word_mask==105)||(word_mask==38)||(word_mask==37)||(word_mask==35)||(word_mask==60)||(word_mask==179)||(word_mask==67)||(word_mask==252)||(word_mask==69)||(word_mask==250)||(word_mask==172)||(word_mask==170)||(word_mask==249)||(word_mask==182)||(word_mask==181)||(word_mask==186)||(word_mask==6)||(word_mask==188)||(word_mask==185)||(word_mask==99)||(word_mask==169)||(word_mask==229)||(word_mask==227)||(word_mask==165)||(word_mask==166)||(word_mask==92)||(word_mask==163)||(word_mask==10)||(word_mask==12)||(word_mask==19)||(word_mask==150)||(word_mask==153)||(word_mask==154)||(word_mask==156)||(word_mask==234)||(word_mask==236)||(word_mask==230)||(word_mask==233)||(word_mask==44)||(word_mask==42)||(word_mask==41)||(word_mask==5)||(word_mask==9)||(word_mask==201)||(word_mask==147)||(word_mask==202)||(word_mask==204)||(word_mask==140)||(word_mask==149)||(word_mask==76)||(word_mask==74)||(word_mask==73)||(word_mask==70))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==217)||(word_mask==214)||(word_mask==213)||(word_mask==211)||(word_mask==218)||(word_mask==133)||(word_mask==131)||(word_mask==137)||(word_mask==134)||(word_mask==138)||(word_mask==25)||(word_mask==26)||(word_mask==21)||(word_mask==22)||(word_mask==28)||(word_mask==220)||(word_mask==121)||(word_mask==122)||(word_mask==124)||(word_mask==58)||(word_mask==54)||(word_mask==57)||(word_mask==51)||(word_mask==53)||(word_mask==90)||(word_mask==198)||(word_mask==195)||(word_mask==197)||(word_mask==115)||(word_mask==117)||(word_mask==89)||(word_mask==83)||(word_mask==86)||(word_mask==118)||(word_mask==85)||(word_mask==3)||(word_mask==245)||(word_mask==108)||(word_mask==246)||(word_mask==243)||(word_mask==102)||(word_mask==101)||(word_mask==106)||(word_mask==105)||(word_mask==38)||(word_mask==37)||(word_mask==35)||(word_mask==60)||(word_mask==179)||(word_mask==67)||(word_mask==252)||(word_mask==69)||(word_mask==250)||(word_mask==172)||(word_mask==170)||(word_mask==249)||(word_mask==182)||(word_mask==181)||(word_mask==186)||(word_mask==6)||(word_mask==188)||(word_mask==185)||(word_mask==99)||(word_mask==169)||(word_mask==229)||(word_mask==227)||(word_mask==165)||(word_mask==166)||(word_mask==92)||(word_mask==163)||(word_mask==10)||(word_mask==12)||(word_mask==19)||(word_mask==150)||(word_mask==153)||(word_mask==154)||(word_mask==156)||(word_mask==234)||(word_mask==236)||(word_mask==230)||(word_mask==233)||(word_mask==44)||(word_mask==42)||(word_mask==41)||(word_mask==5)||(word_mask==9)||(word_mask==201)||(word_mask==147)||(word_mask==202)||(word_mask==204)||(word_mask==140)||(word_mask==149)||(word_mask==76)||(word_mask==74)||(word_mask==73)||(word_mask==70))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==151)||(word_mask==215)||(word_mask==155)||(word_mask==126)||(word_mask==157)||(word_mask==158)||(word_mask==190)||(word_mask==43)||(word_mask==251)||(word_mask==61)||(word_mask==62)||(word_mask==238)||(word_mask==110)||(word_mask==135)||(word_mask==235)||(word_mask==199)||(word_mask==139)||(word_mask==174)||(word_mask==119)||(word_mask==87)||(word_mask==171)||(word_mask==206)||(word_mask==27)||(word_mask==222)||(word_mask==23)||(word_mask==46)||(word_mask==173)||(word_mask==45)||(word_mask==29)||(word_mask==253)||(word_mask==107)||(word_mask==183)||(word_mask==254)||(word_mask==187)||(word_mask==7)||(word_mask==219)||(word_mask==189)||(word_mask==203)||(word_mask==142)||(word_mask==141)||(word_mask==39)||(word_mask==77)||(word_mask==75)||(word_mask==109)||(word_mask==125)||(word_mask==71)||(word_mask==91)||(word_mask==103)||(word_mask==93)||(word_mask==167)||(word_mask==205)||(word_mask==94)||(word_mask==221)||(word_mask==78)||(word_mask==11)||(word_mask==13)||(word_mask==59)||(word_mask==14)||(word_mask==55)||(word_mask==30)||(word_mask==247)||(word_mask==123)||(word_mask==231)||(word_mask==237))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==151)||(word_mask==215)||(word_mask==155)||(word_mask==126)||(word_mask==157)||(word_mask==158)||(word_mask==190)||(word_mask==43)||(word_mask==251)||(word_mask==61)||(word_mask==62)||(word_mask==238)||(word_mask==110)||(word_mask==135)||(word_mask==235)||(word_mask==199)||(word_mask==139)||(word_mask==174)||(word_mask==119)||(word_mask==87)||(word_mask==171)||(word_mask==206)||(word_mask==27)||(word_mask==222)||(word_mask==23)||(word_mask==46)||(word_mask==173)||(word_mask==45)||(word_mask==29)||(word_mask==253)||(word_mask==107)||(word_mask==183)||(word_mask==254)||(word_mask==187)||(word_mask==7)||(word_mask==219)||(word_mask==189)||(word_mask==203)||(word_mask==142)||(word_mask==141)||(word_mask==39)||(word_mask==77)||(word_mask==75)||(word_mask==109)||(word_mask==125)||(word_mask==71)||(word_mask==91)||(word_mask==103)||(word_mask==93)||(word_mask==167)||(word_mask==205)||(word_mask==94)||(word_mask==221)||(word_mask==78)||(word_mask==11)||(word_mask==13)||(word_mask==59)||(word_mask==14)||(word_mask==55)||(word_mask==30)||(word_mask==247)||(word_mask==123)||(word_mask==231)||(word_mask==237))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==15)||(word_mask==143)||(word_mask==207)||(word_mask==159)||(word_mask==47)||(word_mask==31)||(word_mask==191)||(word_mask==223)||(word_mask==63)||(word_mask==111)||(word_mask==239)||(word_mask==127)||(word_mask==175)||(word_mask==95)||(word_mask==79)||(word_mask==255))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==15)||(word_mask==143)||(word_mask==207)||(word_mask==159)||(word_mask==47)||(word_mask==31)||(word_mask==191)||(word_mask==223)||(word_mask==63)||(word_mask==111)||(word_mask==239)||(word_mask==127)||(word_mask==175)||(word_mask==95)||(word_mask==79)||(word_mask==255))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==164)||(word_mask==90)||(word_mask==93)||(word_mask==92)||(word_mask==160)||(word_mask==94)||(word_mask==97)||(word_mask==96)||(word_mask==59)||(word_mask==58)||(word_mask==55)||(word_mask==54)||(word_mask==57)||(word_mask==56)||(word_mask==51)||(word_mask==50)||(word_mask==53)||(word_mask==52)||(word_mask==201)||(word_mask==199)||(word_mask==198)||(word_mask==200)||(word_mask==195)||(word_mask==194)||(word_mask==197)||(word_mask==196)||(word_mask==203)||(word_mask==193)||(word_mask==192)||(word_mask==88)||(word_mask==89)||(word_mask==111)||(word_mask==110)||(word_mask==82)||(word_mask==83)||(word_mask==80)||(word_mask==81)||(word_mask==86)||(word_mask==87)||(word_mask==84)||(word_mask==85)||(word_mask==108)||(word_mask==109)||(word_mask==102)||(word_mask==103)||(word_mask==100)||(word_mask==101)||(word_mask==106)||(word_mask==107)||(word_mask==104)||(word_mask==105)||(word_mask==60)||(word_mask==61)||(word_mask==62)||(word_mask==63)||(word_mask==175)||(word_mask==174)||(word_mask==173)||(word_mask==172)||(word_mask==171)||(word_mask==170)||(word_mask==202)||(word_mask==99)||(word_mask==98)||(word_mask==168)||(word_mask==169)||(word_mask==91)||(word_mask==165)||(word_mask==166)||(word_mask==167)||(word_mask==95)||(word_mask==161)||(word_mask==162)||(word_mask==163)||(word_mask==151)||(word_mask==150)||(word_mask==153)||(word_mask==152)||(word_mask==155)||(word_mask==154)||(word_mask==157)||(word_mask==156)||(word_mask==159)||(word_mask==158)||(word_mask==48)||(word_mask==49)||(word_mask==146)||(word_mask==147)||(word_mask==144)||(word_mask==145)||(word_mask==205)||(word_mask==204)||(word_mask==207)||(word_mask==206)||(word_mask==148)||(word_mask==149))) -> (((((Rb2)==`Register@RZ)||((Rb2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==164)||(word_mask==90)||(word_mask==93)||(word_mask==92)||(word_mask==160)||(word_mask==94)||(word_mask==97)||(word_mask==96)||(word_mask==59)||(word_mask==58)||(word_mask==55)||(word_mask==54)||(word_mask==57)||(word_mask==56)||(word_mask==51)||(word_mask==50)||(word_mask==53)||(word_mask==52)||(word_mask==201)||(word_mask==199)||(word_mask==198)||(word_mask==200)||(word_mask==195)||(word_mask==194)||(word_mask==197)||(word_mask==196)||(word_mask==203)||(word_mask==193)||(word_mask==192)||(word_mask==88)||(word_mask==89)||(word_mask==111)||(word_mask==110)||(word_mask==82)||(word_mask==83)||(word_mask==80)||(word_mask==81)||(word_mask==86)||(word_mask==87)||(word_mask==84)||(word_mask==85)||(word_mask==108)||(word_mask==109)||(word_mask==102)||(word_mask==103)||(word_mask==100)||(word_mask==101)||(word_mask==106)||(word_mask==107)||(word_mask==104)||(word_mask==105)||(word_mask==60)||(word_mask==61)||(word_mask==62)||(word_mask==63)||(word_mask==175)||(word_mask==174)||(word_mask==173)||(word_mask==172)||(word_mask==171)||(word_mask==170)||(word_mask==202)||(word_mask==99)||(word_mask==98)||(word_mask==168)||(word_mask==169)||(word_mask==91)||(word_mask==165)||(word_mask==166)||(word_mask==167)||(word_mask==95)||(word_mask==161)||(word_mask==162)||(word_mask==163)||(word_mask==151)||(word_mask==150)||(word_mask==153)||(word_mask==152)||(word_mask==155)||(word_mask==154)||(word_mask==157)||(word_mask==156)||(word_mask==159)||(word_mask==158)||(word_mask==48)||(word_mask==49)||(word_mask==146)||(word_mask==147)||(word_mask==144)||(word_mask==145)||(word_mask==205)||(word_mask==204)||(word_mask==207)||(word_mask==206)||(word_mask==148)||(word_mask==149))) -> (((((Rb2)+((Rb2)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==216)||(word_mask==217)||(word_mask==214)||(word_mask==215)||(word_mask==212)||(word_mask==179)||(word_mask==210)||(word_mask==211)||(word_mask==112)||(word_mask==191)||(word_mask==190)||(word_mask==218)||(word_mask==219)||(word_mask==115)||(word_mask==114)||(word_mask==117)||(word_mask==116)||(word_mask==238)||(word_mask==239)||(word_mask==113)||(word_mask==178)||(word_mask==177)||(word_mask==176)||(word_mask==236)||(word_mask==237)||(word_mask==119)||(word_mask==118)||(word_mask==229)||(word_mask==213)||(word_mask==234)||(word_mask==230)||(word_mask==231)||(word_mask==182)||(word_mask==183)||(word_mask==180)||(word_mask==181)||(word_mask==186)||(word_mask==187)||(word_mask==184)||(word_mask==185)||(word_mask==188)||(word_mask==189)||(word_mask==235)||(word_mask==209)||(word_mask==208)||(word_mask==120)||(word_mask==121)||(word_mask==122)||(word_mask==123)||(word_mask==124)||(word_mask==125)||(word_mask==126)||(word_mask==127)||(word_mask==227)||(word_mask==226)||(word_mask==225)||(word_mask==224)||(word_mask==223)||(word_mask==222)||(word_mask==221)||(word_mask==220)||(word_mask==232)||(word_mask==228)||(word_mask==233))) -> (((((Rb2)==`Register@RZ)||((Rb2)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==216)||(word_mask==217)||(word_mask==214)||(word_mask==215)||(word_mask==212)||(word_mask==179)||(word_mask==210)||(word_mask==211)||(word_mask==112)||(word_mask==191)||(word_mask==190)||(word_mask==218)||(word_mask==219)||(word_mask==115)||(word_mask==114)||(word_mask==117)||(word_mask==116)||(word_mask==238)||(word_mask==239)||(word_mask==113)||(word_mask==178)||(word_mask==177)||(word_mask==176)||(word_mask==236)||(word_mask==237)||(word_mask==119)||(word_mask==118)||(word_mask==229)||(word_mask==213)||(word_mask==234)||(word_mask==230)||(word_mask==231)||(word_mask==182)||(word_mask==183)||(word_mask==180)||(word_mask==181)||(word_mask==186)||(word_mask==187)||(word_mask==184)||(word_mask==185)||(word_mask==188)||(word_mask==189)||(word_mask==235)||(word_mask==209)||(word_mask==208)||(word_mask==120)||(word_mask==121)||(word_mask==122)||(word_mask==123)||(word_mask==124)||(word_mask==125)||(word_mask==126)||(word_mask==127)||(word_mask==227)||(word_mask==226)||(word_mask==225)||(word_mask==224)||(word_mask==223)||(word_mask==222)||(word_mask==221)||(word_mask==220)||(word_mask==232)||(word_mask==228)||(word_mask==233))) -> (((((Rb2)+((Rb2)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((word_mask==245)||(word_mask==244)||(word_mask==247)||(word_mask==246)||(word_mask==241)||(word_mask==240)||(word_mask==243)||(word_mask==242)||(word_mask==252)||(word_mask==253)||(word_mask==250)||(word_mask==251)||(word_mask==249)||(word_mask==248)||(word_mask==254)||(word_mask==255))) -> (((((Rb2)==`Register@RZ)||((Rb2)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((word_mask==245)||(word_mask==244)||(word_mask==247)||(word_mask==246)||(word_mask==241)||(word_mask==240)||(word_mask==243)||(word_mask==242)||(word_mask==252)||(word_mask==253)||(word_mask==250)||(word_mask==251)||(word_mask==249)||(word_mask==248)||(word_mask==254)||(word_mask==255))) -> (((((Rb2)+((Rb2)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((word_mask==144)||(word_mask==48)||(word_mask==16)||(word_mask==32)||(word_mask==192)||(word_mask==0)||(word_mask==208)||(word_mask==64)||(word_mask==240)||(word_mask==112)||(word_mask==128)||(word_mask==176)||(word_mask==80)||(word_mask==224)||(word_mask==160)||(word_mask==96))) -> ((((Rb)==`Register@RZ))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((word_mask==11)||(word_mask==10)||(word_mask==13)||(word_mask==12)||(word_mask==15)||(word_mask==14)||(word_mask==1)||(word_mask==0)||(word_mask==3)||(word_mask==2)||(word_mask==5)||(word_mask==4)||(word_mask==7)||(word_mask==6)||(word_mask==9)||(word_mask==8))) -> ((((Rb2)==`Register@RZ))) :
+ "Invalid instruction combination"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NON_BARRIER_INT_INST ;
+ MEM_SCBD_TYPE = MEM_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@STG_256 ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = ((word_mask & 1) + ((word_mask >> 1) & 1) + ((word_mask >> 2) & 1) + ((word_mask >> 3) & 1)) * 32;
+ ISRC_B2_SIZE = (((word_mask >> 4) & 1) + ((word_mask >> 5) & 1) + ((word_mask >> 6) & 1) + ((word_mask >> 7) & 1)) * 32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Ra_URc_SIZE = 64;
+ ILABEL_Rb_SIZE = ((word_mask & 1) + ((word_mask >> 1) & 1) + ((word_mask >> 2) & 1) + ((word_mask >> 3) & 1)) * 32;
+ ILABEL_Rb2_SIZE = (((word_mask >> 4) & 1) + ((word_mask >> 5) & 1) + ((word_mask >> 6) & 1) + ((word_mask >> 7) & 1)) * 32;
+
+OPCODES
+        STGmio_pipe =  0b1100101111111;
+        STG =  0b1100101111111;
+
+ENCODING
+!stg_256_uniform__RaRZ_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_86_84_cop=cop;
+BITS_2_82_81_iswzC=cop2;
+BITS_8_31_24_Ra=*Ra;
+BITS_8_71_64_Ra_URc=Ra_URc;
+BITS_19_58_40_Ra_offset=Ra_offset SCALE 32;
+BITS_8_39_32_Rb=Rb;
+BITS_8_23_16_Rd=Rb2;
+BITS_8_90_88_63_59_word_mask=word_mask;
+BITS_1_76_76_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_4(order,sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "stg__sImmOffset"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /E("noe"):e /COP("EN"):cop /SZ_U8_S8_U16_S16_32_64_128("32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /ORDER("noorder"):order
+ [ NonZeroRegister:Ra + SImm(24/0)*:Ra_offset ]
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_4(order,sem,sco,private) :
+ "Invalid combination of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_4_illegal_encodings(order,sem,sco,private) :
+ "Illegal specification of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (((e == `E@noe))) -> ((((Ra)!=`Register@RZ))) :
+ "Disallowed register"
+OOR_REG_ERROR
+ (((e == `E@E))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((e == `E@E))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (((e == `E@E))) -> ((((Ra)!=`Register@RZ))) :
+ "Disallowed register"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NON_BARRIER_INT_INST ;
+ MEM_SCBD_TYPE = MEM_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@STG ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = 32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@"128"))*96);
+ ISRC_A_SIZE = 32 + ((e==`E@E))*32;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Ra_SIZE = 32 + ((e==`E@E))*32;
+ ILABEL_Rb_SIZE = 32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@"128"))*96);
+
+OPCODES
+        STGmio_pipe =  0b1110000110;
+        STG =  0b1110000110;
+
+ENCODING
+!stg__sImmOffset_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=e;
+BITS_3_86_84_cop=cop;
+BITS_3_75_73_sz=sz;
+BITS_8_31_24_Ra=*Ra;
+BITS_24_63_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_1_76_76_memdesc=*0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_4(order,sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "stg__uImmOffset"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /E("noe"):e /COP("EN"):cop /SZ_U8_S8_U16_S16_32_64_128("32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /ORDER("noorder"):order
+ [ ZeroRegister("RZ"):Ra + UImm(24/0)*:Ra_offset ]
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)==`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_4(order,sem,sco,private) :
+ "Invalid combination of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_4_illegal_encodings(order,sem,sco,private) :
+ "Illegal specification of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NON_BARRIER_INT_INST ;
+ MEM_SCBD_TYPE = MEM_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@STG ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = 32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@"128"))*96);
+ ISRC_A_SIZE = 32 + ((e==`E@E))*32;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Rb_SIZE = 32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@"128"))*96);
+
+OPCODES
+        STGmio_pipe =  0b1110000110;
+        STG =  0b1110000110;
+
+ENCODING
+!stg__uImmOffset_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=e;
+BITS_3_86_84_cop=cop;
+BITS_3_75_73_sz=sz;
+BITS_8_31_24_Ra=*Ra;
+BITS_24_63_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_1_76_76_memdesc=*0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_4(order,sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "stg_memdesc__Ra64"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /EONLY:e /COP("EN"):cop /SZ_U8_S8_U16_S16_32_64_128("32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /ORDER("noorder"):order
+DESC:memoryDescriptor[UniformRegister:Ra_URc][Register:Ra /ONLY64:input_reg_sz_64_dist + SImm(24/0)*:Ra_offset]
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_4(order,sem,sco,private) :
+ "Invalid combination of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_4_illegal_encodings(order,sem,sco,private) :
+ "Illegal specification of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NON_BARRIER_INT_INST ;
+ MEM_SCBD_TYPE = MEM_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@STG_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = 32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@"128"))*96);
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Ra_SIZE = 64;
+ ILABEL_Ra_URc_SIZE = 64;
+ ILABEL_Rb_SIZE = 32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@"128"))*96);
+
+OPCODES
+        STGmio_pipe =  0b1100110000110;
+        STG =  0b1100110000110;
+
+ENCODING
+!stg_memdesc__Ra64_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=e;
+BITS_3_86_84_cop=cop;
+BITS_3_75_73_sz=sz;
+BITS_8_71_64_Ra_URc=Ra_URc;
+BITS_8_31_24_Ra=Ra;
+BITS_1_90_90_memdesc=*input_reg_sz_64_dist;
+BITS_24_63_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_1_76_76_memdesc=1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_4(order,sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "stg_uniform__Ra32"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /E("noe"):e /COP("EN"):cop /SZ_U8_S8_U16_S16_32_64_128("32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /ORDER("noorder"):order
+ [ Register:Ra /U32ONLY:input_reg_sz_32_dist + UniformRegister:Ra_URc + SImm(24/0)*:Ra_offset ]
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_4(order,sem,sco,private) :
+ "Invalid combination of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_4_illegal_encodings(order,sem,sco,private) :
+ "Illegal specification of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((e == `E@E))) -> (((((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((e == `E@E))) -> (((((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NON_BARRIER_INT_INST ;
+ MEM_SCBD_TYPE = MEM_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@STG_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = 32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@"128"))*96);
+ ISRC_A_SIZE = 32 + ((e==`E@E))*32;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Ra_URc_SIZE = 32 + ((e==`E@E))*32;
+ ILABEL_Rb_SIZE = 32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@"128"))*96);
+
+OPCODES
+        STGmio_pipe =  0b1100110000110;
+        STG =  0b1100110000110;
+
+ENCODING
+!stg_uniform__Ra32_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=e;
+BITS_3_86_84_cop=cop;
+BITS_3_75_73_sz=sz;
+BITS_8_31_24_Ra=Ra;
+BITS_1_90_90_memdesc=*input_reg_sz_32_dist;
+BITS_8_71_64_Ra_URc=Ra_URc;
+BITS_24_63_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_1_76_76_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_4(order,sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "stg_uniform__Ra64"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /EONLY:e /COP("EN"):cop /SZ_U8_S8_U16_S16_32_64_128("32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /ORDER("noorder"):order
+ [ NonZeroRegister:Ra /ONLY64:input_reg_sz_64_dist + UniformRegister:Ra_URc + SImm(24/0)*:Ra_offset ]
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_4(order,sem,sco,private) :
+ "Invalid combination of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_4_illegal_encodings(order,sem,sco,private) :
+ "Illegal specification of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((e == `EONLY@E))) -> (((((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((e == `EONLY@E))) -> (((((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NON_BARRIER_INT_INST ;
+ MEM_SCBD_TYPE = MEM_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@STG_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = 32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@"128"))*96);
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Ra_SIZE = 64;
+ ILABEL_Ra_URc_SIZE = 64;
+ ILABEL_Rb_SIZE = 32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@"128"))*96);
+
+OPCODES
+        STGmio_pipe =  0b1100110000110;
+        STG =  0b1100110000110;
+
+ENCODING
+!stg_uniform__Ra64_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=e;
+BITS_3_86_84_cop=cop;
+BITS_3_75_73_sz=sz;
+BITS_8_31_24_Ra=Ra;
+BITS_1_90_90_memdesc=*input_reg_sz_64_dist;
+BITS_8_71_64_Ra_URc=Ra_URc;
+BITS_24_63_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_1_76_76_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_4(order,sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "stg_uniform__RaRZ"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /E("noe"):e /COP("EN"):cop /SZ_U8_S8_U16_S16_32_64_128("32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /ORDER("noorder"):order
+ [ ZeroRegister("RZ"):Ra + UniformRegister:Ra_URc + SImm(24/0)*:Ra_offset ]
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)==`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_4(order,sem,sco,private) :
+ "Invalid combination of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_4_illegal_encodings(order,sem,sco,private) :
+ "Illegal specification of order, sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((e == `E@E))) -> (((((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((e == `E@E))) -> (((((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NON_BARRIER_INT_INST ;
+ MEM_SCBD_TYPE = MEM_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@STG_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ ISRC_B_SIZE = 32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@"128"))*96);
+ ISRC_A_SIZE = 32 + ((e==`E@E))*32;
+ VIRTUAL_QUEUE = $VQ_AGU ;
+
+ ILABEL_Ra_URc_SIZE = 32 + ((e==`E@E))*32;
+ ILABEL_Rb_SIZE = 32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@"128"))*96);
+
+OPCODES
+        STGmio_pipe =  0b1100110000110;
+        STG =  0b1100110000110;
+
+ENCODING
+!stg_uniform__RaRZ_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=e;
+BITS_3_86_84_cop=cop;
+BITS_3_75_73_sz=sz;
+BITS_8_31_24_Ra=Ra;
+BITS_8_71_64_Ra_URc=Ra_URc;
+BITS_24_63_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_1_76_76_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_4(order,sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

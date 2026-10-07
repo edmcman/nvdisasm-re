@@ -1,0 +1,518 @@
+CLASS "ublkred_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /DST:dst /SONLY_ublkred:src /RedOp:op /COUNTED("nocounted"):counted /SIZE("U32"):sz /SEM_ublkcp("WEAK"):sem /SCO("nosco"):sco
+ [ UniformRegister:URb ]
+',' [ UniformRegister:URa ]
+','UniformRegister:URc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((src !=`SONLY_ublkred@INVALID0)) :
+ "Invalid src field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SIZE@INVALID9)&&(sz !=`SIZE@INVALID10)&&(sz !=`SIZE@INVALID11)&&(sz !=`SIZE@INVALID12)&&(sz !=`SIZE@INVALID13)&&(sz !=`SIZE@INVALID14)&&(sz !=`SIZE@INVALID15)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_5(sem,sco,0) :
+ "Invalid combination of sem, sco, 0"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_5_illegal_encodings(sem,sco,0) :
+ "Illegal specification of sem, sco, 0"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((counted == `COUNTED@nocounted))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((counted == `COUNTED@nocounted))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((dst == `DST@G))) :
+ "Invalid instruction combination (reason: When .COUNTED is specified, .dst must be .G)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dst == `DST@S))) -> (((sz == `SIZE@U32)||(sz == `SIZE@S32)||(sz == `SIZE@U64))) :
+ "Invalid instruction combination (reason: When .dst is .S, .sz is limited to .U32, .S32 and .U64)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@U64))&&((dst == `DST@S))) -> (((op == `RedOp@ADD))) :
+ "Invalid instruction combination (reason: When .dst is .S and .sz is .U64, .op can only be .ADD)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@S32)||(sz == `SIZE@U64))) -> (((op == `RedOp@ADD)||(op == `RedOp@MIN)||(op == `RedOp@MAX)||(op == `RedOp@AND)||(op == `RedOp@OR)||(op == `RedOp@XOR))) :
+ "Invalid instruction combination (reason: When .sz is .U64 or .S32, .op cannot be .INC or .DEC)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@S64))) -> (((op == `RedOp@MIN)||(op == `RedOp@MAX))) :
+ "Invalid instruction combination (reason: When .sz is .S64, .op can only be .MIN or .MAX)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@F16.RN)||(sz == `SIZE@BF16.RN))) -> (((op == `RedOp@ADD)||(op == `RedOp@MIN)||(op == `RedOp@MAX))) :
+ "Invalid instruction combination (reason: When .sz is .F16.RN or .BF16.RN, .op can only be .MIN, .MAX or .ADD)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@F32.RN)||(sz == `SIZE@F32.FTZ.RN)||(sz == `SIZE@F64.RN))) -> (((op == `RedOp@ADD))) :
+ "Invalid instruction combination (reason: When .sz is .F32.RN, .F64.RN or .F32.FTZ.RN, .op can only be .ADD)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UBLKRED ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64 + ((counted==`COUNTED@COUNTED))*64;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_TMA_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 64 + ((counted==`COUNTED@COUNTED))*64;
+ ILABEL_URc_SIZE = 32;
+
+OPCODES
+        UBLKREDudp_pipe =  0b1001110111011;
+        UBLKRED =  0b1001110111011;
+
+ENCODING
+!ublkred__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_73_73_sz=dst;
+BITS_1_74_74_sh=src;
+BITS_3_89_87_Pnz=op;
+BITS_1_85_85_ignoreKill=counted;
+BITS_4_84_81_sz=sz;
+BITS_8_39_32_Rb=URb;
+BITS_8_31_24_Ra=URa;
+BITS_8_71_64_Ra_URc=URc;
+BITS_1_76_76_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=*TABLES_mem_5(sem,sco,0);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "ublkred_desc_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /DST:dst /SONLY_ublkred:src /RedOp:op /COUNTED("nocounted"):counted /SIZE("U32"):sz /SEM_ublkcp("WEAK"):sem /SCO("nosco"):sco
+ [ UniformRegister:URb ]
+',' [ UniformRegister:URa ]
+','UniformRegister:URc
+',' TMA:desc[ UniformRegister:URe ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((src !=`SONLY_ublkred@INVALID0)) :
+ "Invalid src field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SIZE@INVALID9)&&(sz !=`SIZE@INVALID10)&&(sz !=`SIZE@INVALID11)&&(sz !=`SIZE@INVALID12)&&(sz !=`SIZE@INVALID13)&&(sz !=`SIZE@INVALID14)&&(sz !=`SIZE@INVALID15)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+OOR_REG_ERROR
+ (((URe)==`UniformRegister@URZ)||((URe)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URe is out of range"
+MISALIGNED_REG_ERROR
+ (((URe)+((URe)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URe is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_5(sem,sco,0) :
+ "Invalid combination of sem, sco, 0"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_5_illegal_encodings(sem,sco,0) :
+ "Illegal specification of sem, sco, 0"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((counted == `COUNTED@nocounted))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((counted == `COUNTED@nocounted))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((dst == `DST@G))) :
+ "Invalid instruction combination (reason: When .COUNTED is specified, .dst must be .G)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dst == `DST@S))) -> (((sz == `SIZE@U32)||(sz == `SIZE@S32)||(sz == `SIZE@U64))) :
+ "Invalid instruction combination (reason: When .dst is .S, .sz is limited to .U32, .S32 and .U64)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@U64))&&((dst == `DST@S))) -> (((op == `RedOp@ADD))) :
+ "Invalid instruction combination (reason: When .dst is .S and .sz is .U64, .op can only be .ADD)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@S32)||(sz == `SIZE@U64))) -> (((op == `RedOp@ADD)||(op == `RedOp@MIN)||(op == `RedOp@MAX)||(op == `RedOp@AND)||(op == `RedOp@OR)||(op == `RedOp@XOR))) :
+ "Invalid instruction combination (reason: When .sz is .U64 or .S32, .op cannot be .INC or .DEC)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@S64))) -> (((op == `RedOp@MIN)||(op == `RedOp@MAX))) :
+ "Invalid instruction combination (reason: When .sz is .S64, .op can only be .MIN or .MAX)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@F16.RN)||(sz == `SIZE@BF16.RN))) -> (((op == `RedOp@ADD)||(op == `RedOp@MIN)||(op == `RedOp@MAX))) :
+ "Invalid instruction combination (reason: When .sz is .F16.RN or .BF16.RN, .op can only be .MIN, .MAX or .ADD)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@F32.RN)||(sz == `SIZE@F32.FTZ.RN)||(sz == `SIZE@F64.RN))) -> (((op == `RedOp@ADD))) :
+ "Invalid instruction combination (reason: When .sz is .F32.RN, .F64.RN or .F32.FTZ.RN, .op can only be .ADD)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dst == `DST@G))) :
+ "Invalid instruction combination (reason: Memory descriptor variant cannot specify both .src and .dst as .S)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UBLKRED ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64 + ((counted==`COUNTED@COUNTED))*64;
+ ISRC_C_SIZE = 32;
+ ISRC_E_SIZE = 64;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_TMA_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 64 + ((counted==`COUNTED@COUNTED))*64;
+ ILABEL_URc_SIZE = 32;
+ ILABEL_URe_SIZE = 64;
+
+OPCODES
+        UBLKREDudp_pipe =  0b1001110111011;
+        UBLKRED =  0b1001110111011;
+
+ENCODING
+!ublkred_desc__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_73_73_sz=dst;
+BITS_1_74_74_sh=src;
+BITS_3_89_87_Pnz=op;
+BITS_1_85_85_ignoreKill=counted;
+BITS_4_84_81_sz=sz;
+BITS_8_39_32_Rb=URb;
+BITS_8_31_24_Ra=URa;
+BITS_8_71_64_Ra_URc=URc;
+BITS_8_47_40_Re=URe;
+BITS_1_76_76_memdesc=1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=*TABLES_mem_5(sem,sco,0);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "ublkred_desc_one_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ONEONLY:one /DST:dst /SONLY_ublkred:src /RedOp:op /COUNTED("nocounted"):counted /SIZE("U32"):sz /SEM_ublkcp("WEAK"):sem /SCO("nosco"):sco
+ [ UniformRegister:URb ]
+',' [ UniformRegister:URa ]
+','UniformRegister:URc
+',' TMA:desc[ UniformRegister:URe ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((src !=`SONLY_ublkred@INVALID0)) :
+ "Invalid src field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SIZE@INVALID9)&&(sz !=`SIZE@INVALID10)&&(sz !=`SIZE@INVALID11)&&(sz !=`SIZE@INVALID12)&&(sz !=`SIZE@INVALID13)&&(sz !=`SIZE@INVALID14)&&(sz !=`SIZE@INVALID15)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+OOR_REG_ERROR
+ (((URe)==`UniformRegister@URZ)||((URe)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URe is out of range"
+MISALIGNED_REG_ERROR
+ (((URe)+((URe)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URe is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_5(sem,sco,0) :
+ "Invalid combination of sem, sco, 0"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_5_illegal_encodings(sem,sco,0) :
+ "Illegal specification of sem, sco, 0"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((counted == `COUNTED@nocounted))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((counted == `COUNTED@nocounted))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((dst == `DST@G))) :
+ "Invalid instruction combination (reason: When .COUNTED is specified, .dst must be .G)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dst == `DST@S))) -> (((sz == `SIZE@U32)||(sz == `SIZE@S32)||(sz == `SIZE@U64))) :
+ "Invalid instruction combination (reason: When .dst is .S, .sz is limited to .U32, .S32 and .U64)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@U64))&&((dst == `DST@S))) -> (((op == `RedOp@ADD))) :
+ "Invalid instruction combination (reason: When .dst is .S and .sz is .U64, .op can only be .ADD)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@S32)||(sz == `SIZE@U64))) -> (((op == `RedOp@ADD)||(op == `RedOp@MIN)||(op == `RedOp@MAX)||(op == `RedOp@AND)||(op == `RedOp@OR)||(op == `RedOp@XOR))) :
+ "Invalid instruction combination (reason: When .sz is .U64 or .S32, .op cannot be .INC or .DEC)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@S64))) -> (((op == `RedOp@MIN)||(op == `RedOp@MAX))) :
+ "Invalid instruction combination (reason: When .sz is .S64, .op can only be .MIN or .MAX)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@F16.RN)||(sz == `SIZE@BF16.RN))) -> (((op == `RedOp@ADD)||(op == `RedOp@MIN)||(op == `RedOp@MAX))) :
+ "Invalid instruction combination (reason: When .sz is .F16.RN or .BF16.RN, .op can only be .MIN, .MAX or .ADD)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@F32.RN)||(sz == `SIZE@F32.FTZ.RN)||(sz == `SIZE@F64.RN))) -> (((op == `RedOp@ADD))) :
+ "Invalid instruction combination (reason: When .sz is .F32.RN, .F64.RN or .F32.FTZ.RN, .op can only be .ADD)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dst == `DST@G))) :
+ "Invalid instruction combination (reason: Memory descriptor variant cannot specify both .src and .dst as .S)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UBLKRED ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64 + ((counted==`COUNTED@COUNTED))*64;
+ ISRC_C_SIZE = 32;
+ ISRC_E_SIZE = 64;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_TMA_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 64 + ((counted==`COUNTED@COUNTED))*64;
+ ILABEL_URc_SIZE = 32;
+ ILABEL_URe_SIZE = 64;
+
+OPCODES
+        UBLKREDudp_pipe =  0b1001110111011;
+        UBLKRED =  0b1001110111011;
+
+ENCODING
+!ublkred_desc_one__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_73_73_sz=dst;
+BITS_1_74_74_sh=src;
+BITS_3_89_87_Pnz=op;
+BITS_1_85_85_ignoreKill=counted;
+BITS_4_84_81_sz=sz;
+BITS_8_39_32_Rb=URb;
+BITS_8_31_24_Ra=URa;
+BITS_8_71_64_Ra_URc=URc;
+BITS_8_47_40_Re=URe;
+BITS_1_76_76_memdesc=1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=*TABLES_mem_5(sem,sco,0);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "ublkred_one_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ONEONLY:one /DST:dst /SONLY_ublkred:src /RedOp:op /COUNTED("nocounted"):counted /SIZE("U32"):sz /SEM_ublkcp("WEAK"):sem /SCO("nosco"):sco
+ [ UniformRegister:URb ]
+',' [ UniformRegister:URa ]
+','UniformRegister:URc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((src !=`SONLY_ublkred@INVALID0)) :
+ "Invalid src field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SIZE@INVALID9)&&(sz !=`SIZE@INVALID10)&&(sz !=`SIZE@INVALID11)&&(sz !=`SIZE@INVALID12)&&(sz !=`SIZE@INVALID13)&&(sz !=`SIZE@INVALID14)&&(sz !=`SIZE@INVALID15)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_5(sem,sco,0) :
+ "Invalid combination of sem, sco, 0"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_5_illegal_encodings(sem,sco,0) :
+ "Illegal specification of sem, sco, 0"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((counted == `COUNTED@nocounted))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((counted == `COUNTED@nocounted))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((((URb)==`UniformRegister@URZ)||((URb)<=%MAX_UNIFORM_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((counted == `COUNTED@COUNTED))) -> (((dst == `DST@G))) :
+ "Invalid instruction combination (reason: When .COUNTED is specified, .dst must be .G)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dst == `DST@S))) -> (((sz == `SIZE@U32)||(sz == `SIZE@S32)||(sz == `SIZE@U64))) :
+ "Invalid instruction combination (reason: When .dst is .S, .sz is limited to .U32, .S32 and .U64)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@U64))&&((dst == `DST@S))) -> (((op == `RedOp@ADD))) :
+ "Invalid instruction combination (reason: When .dst is .S and .sz is .U64, .op can only be .ADD)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@S32)||(sz == `SIZE@U64))) -> (((op == `RedOp@ADD)||(op == `RedOp@MIN)||(op == `RedOp@MAX)||(op == `RedOp@AND)||(op == `RedOp@OR)||(op == `RedOp@XOR))) :
+ "Invalid instruction combination (reason: When .sz is .U64 or .S32, .op cannot be .INC or .DEC)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@S64))) -> (((op == `RedOp@MIN)||(op == `RedOp@MAX))) :
+ "Invalid instruction combination (reason: When .sz is .S64, .op can only be .MIN or .MAX)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@F16.RN)||(sz == `SIZE@BF16.RN))) -> (((op == `RedOp@ADD)||(op == `RedOp@MIN)||(op == `RedOp@MAX))) :
+ "Invalid instruction combination (reason: When .sz is .F16.RN or .BF16.RN, .op can only be .MIN, .MAX or .ADD)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((sz == `SIZE@F32.RN)||(sz == `SIZE@F32.FTZ.RN)||(sz == `SIZE@F64.RN))) -> (((op == `RedOp@ADD))) :
+ "Invalid instruction combination (reason: When .sz is .F32.RN, .F64.RN or .F32.FTZ.RN, .op can only be .ADD)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UBLKRED ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64 + ((counted==`COUNTED@COUNTED))*64;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_TMA_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 64 + ((counted==`COUNTED@COUNTED))*64;
+ ILABEL_URc_SIZE = 32;
+
+OPCODES
+        UBLKREDudp_pipe =  0b1001110111011;
+        UBLKRED =  0b1001110111011;
+
+ENCODING
+!ublkred_one__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_73_73_sz=dst;
+BITS_1_74_74_sh=src;
+BITS_3_89_87_Pnz=op;
+BITS_1_85_85_ignoreKill=counted;
+BITS_4_84_81_sz=sz;
+BITS_8_39_32_Rb=URb;
+BITS_8_31_24_Ra=URa;
+BITS_8_71_64_Ra_URc=URc;
+BITS_1_76_76_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=*TABLES_mem_5(sem,sco,0);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

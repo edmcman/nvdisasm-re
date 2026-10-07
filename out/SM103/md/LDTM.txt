@@ -1,0 +1,299 @@
+CLASS "ldtm_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /LAYOUT("32dp32bit"):layout /NUM("x1"):num /PACK("nopack"):pack
+Register:Rd
+',' TMEMB:tmemB[ UniformRegister("URZ"):URb + SImm(32/0)*:Sb_offset ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((layout !=`LAYOUT@INVALID6)&&(layout !=`LAYOUT@INVALID7)) :
+ "Invalid layout field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((num == `NUM@x64))) -> (((layout == `LAYOUT@"16dp128bit")||(layout == `LAYOUT@"32dp32bit")||(layout == `LAYOUT@"16dp64bit")||(layout == `LAYOUT@"16dp32bit_t0_t15")||(layout == `LAYOUT@"16dp32bit_t16_t31"))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((num == `NUM@x128))) -> (((layout == `LAYOUT@"32dp32bit")||(layout == `LAYOUT@"16dp64bit")||(layout == `LAYOUT@"16dp32bit_t0_t15")||(layout == `LAYOUT@"16dp32bit_t16_t31"))) :
+ "Invalid instruction combination"
+MISALIGNED_REG_ERROR
+ (((layout == `LAYOUT@"16dp128bit"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+MISALIGNED_REG_ERROR
+ (((layout == `LAYOUT@"16dp256bit"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+MISALIGNED_REG_ERROR
+ (((num == `NUM@x2)||(num == `NUM@x4)||(num == `NUM@x8)||(num == `NUM@x16)||(num == `NUM@x32)||(num == `NUM@x64)||(num == `NUM@x128))&&((layout == `LAYOUT@"32dp32bit")||(layout == `LAYOUT@"16dp64bit")||(layout == `LAYOUT@"16dp32bit_t0_t15")||(layout == `LAYOUT@"16dp32bit_t16_t31"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((num == `NUM@x2))&&((layout == `LAYOUT@"16dp32bit_t0_t15")||(layout == `LAYOUT@"16dp32bit_t16_t31"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x4))&&((layout == `LAYOUT@"16dp32bit_t0_t15")||(layout == `LAYOUT@"16dp32bit_t16_t31"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x8))&&((layout == `LAYOUT@"16dp32bit_t0_t15")||(layout == `LAYOUT@"16dp32bit_t16_t31"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x16))&&((layout == `LAYOUT@"16dp32bit_t0_t15")||(layout == `LAYOUT@"16dp32bit_t16_t31"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x32))&&((layout == `LAYOUT@"16dp32bit_t0_t15")||(layout == `LAYOUT@"16dp32bit_t16_t31"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x64))&&((layout == `LAYOUT@"16dp32bit_t0_t15")||(layout == `LAYOUT@"16dp32bit_t16_t31"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x128))&&((layout == `LAYOUT@"16dp32bit_t0_t15")||(layout == `LAYOUT@"16dp32bit_t16_t31"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x2))&&((layout == `LAYOUT@"32dp32bit")||(layout == `LAYOUT@"16dp64bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x4))&&((layout == `LAYOUT@"32dp32bit")||(layout == `LAYOUT@"16dp64bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x8))&&((layout == `LAYOUT@"32dp32bit")||(layout == `LAYOUT@"16dp64bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x16))&&((layout == `LAYOUT@"32dp32bit")||(layout == `LAYOUT@"16dp64bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x32))&&((layout == `LAYOUT@"32dp32bit")||(layout == `LAYOUT@"16dp64bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x64))&&((layout == `LAYOUT@"32dp32bit")||(layout == `LAYOUT@"16dp64bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x128))&&((layout == `LAYOUT@"32dp32bit")||(layout == `LAYOUT@"16dp64bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x1))&&((layout == `LAYOUT@"16dp128bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x2))&&((layout == `LAYOUT@"16dp128bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x4))&&((layout == `LAYOUT@"16dp128bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x8))&&((layout == `LAYOUT@"16dp128bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x16))&&((layout == `LAYOUT@"16dp128bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x32))&&((layout == `LAYOUT@"16dp128bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x64))&&((layout == `LAYOUT@"16dp128bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x1))&&((layout == `LAYOUT@"16dp256bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x2))&&((layout == `LAYOUT@"16dp256bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x4))&&((layout == `LAYOUT@"16dp256bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x8))&&((layout == `LAYOUT@"16dp256bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x16))&&((layout == `LAYOUT@"16dp256bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM@x32))&&((layout == `LAYOUT@"16dp256bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@LDTM ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ IDEST_SIZE = 32 + ((((num==`NUM@x2)) && ((layout==`LAYOUT@"16dp32bit_t0_t15") || (layout==`LAYOUT@"16dp32bit_t16_t31")))*32 + (((num==`NUM@x4)) && ((layout==`LAYOUT@"16dp32bit_t0_t15") || (layout==`LAYOUT@"16dp32bit_t16_t31")))*96 + (((num==`NUM@x8)) && ((layout==`LAYOUT@"16dp32bit_t0_t15") || (layout==`LAYOUT@"16dp32bit_t16_t31")))*224 + (((num==`NUM@x16)) && ((layout==`LAYOUT@"16dp32bit_t0_t15") || (layout==`LAYOUT@"16dp32bit_t16_t31")))*480 + (((num==`NUM@x32)) && ((layout==`LAYOUT@"16dp32bit_t0_t15") || (layout==`LAYOUT@"16dp32bit_t16_t31")))*992 + (((num==`NUM@x64)) && ((layout==`LAYOUT@"16dp32bit_t0_t15") || (layout==`LAYOUT@"16dp32bit_t16_t31")))*2016 + (((num==`NUM@x128)) && ((layout==`LAYOUT@"16dp32bit_t0_t15") || (layout==`LAYOUT@"16dp32bit_t16_t31")))*4064 + (((num==`NUM@x2)) && ((layout==`LAYOUT@"32dp32bit") || (layout==`LAYOUT@"16dp64bit")))*32 + (((num==`NUM@x4)) && ((layout==`LAYOUT@"32dp32bit") || (layout==`LAYOUT@"16dp64bit")))*96 + (((num==`NUM@x8)) && ((layout==`LAYOUT@"32dp32bit") || (layout==`LAYOUT@"16dp64bit")))*224 + (((num==`NUM@x16)) && ((layout==`LAYOUT@"32dp32bit") || (layout==`LAYOUT@"16dp64bit")))*480 + (((num==`NUM@x32)) && ((layout==`LAYOUT@"32dp32bit") || (layout==`LAYOUT@"16dp64bit")))*992 + (((num==`NUM@x64)) && ((layout==`LAYOUT@"32dp32bit") || (layout==`LAYOUT@"16dp64bit")))*2016 + (((num==`NUM@x128)) && ((layout==`LAYOUT@"32dp32bit") || (layout==`LAYOUT@"16dp64bit")))*4064 + (((num==`NUM@x1)) && ((layout==`LAYOUT@"16dp128bit")))*32 + (((num==`NUM@x2)) && ((layout==`LAYOUT@"16dp128bit")))*96 + (((num==`NUM@x4)) && ((layout==`LAYOUT@"16dp128bit")))*224 + (((num==`NUM@x8)) && ((layout==`LAYOUT@"16dp128bit")))*480 + (((num==`NUM@x16)) && ((layout==`LAYOUT@"16dp128bit")))*992 + (((num==`NUM@x32)) && ((layout==`LAYOUT@"16dp128bit")))*2016 + (((num==`NUM@x64)) && ((layout==`LAYOUT@"16dp128bit")))*4064 + (((num==`NUM@x1)) && ((layout==`LAYOUT@"16dp256bit")))*96 + (((num==`NUM@x2)) && ((layout==`LAYOUT@"16dp256bit")))*224 + (((num==`NUM@x4)) && ((layout==`LAYOUT@"16dp256bit")))*480 + (((num==`NUM@x8)) && ((layout==`LAYOUT@"16dp256bit")))*992 + (((num==`NUM@x16)) && ((layout==`LAYOUT@"16dp256bit")))*2016 + (((num==`NUM@x32)) && ((layout==`LAYOUT@"16dp256bit")))*4064);
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_TMEM ;
+
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        LDTMudp_pipe =  0b1100111101110;
+        LDTM =  0b1100111101110;
+
+ENCODING
+!ldtm__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_87_87_82_81_layout=layout;
+BITS_3_85_83_vecidx=num;
+BITS_1_80_80_ftz=pack;
+BITS_8_23_16_Rd=Rd;
+BITS_8_39_32_Rb=URb;
+BITS_32_79_72_63_40_Sb_offset=Sb_offset;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "ldtm_stat_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /STATONLY:stat /LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31("32dp32bit"):layout /NUM_x2_x4_x8_x16_x32_x64_x128:num /FUNC:rowop /FMT_ldtm("U32"):fmt /NAN("nonan"):nan
+Register:Rd2
+','Register:Rd
+',' TMEMB:tmemB[ UniformRegister("URZ"):URb + SImm(32/0)*:Sb_offset ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((layout !=`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@INVALID0)&&(layout !=`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@INVALID1)&&(layout !=`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@INVALID3)&&(layout !=`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@INVALID6)&&(layout !=`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@INVALID7)) :
+ "Invalid layout field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((num !=`NUM_x2_x4_x8_x16_x32_x64_x128@INVALID0)) :
+ "Invalid num field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((fmt !=`FMT_ldtm@INVALID3)) :
+ "Invalid fmt field value"
+OOR_REG_ERROR
+ (((Rd2)==`Register@RZ)||(((Rd2)<=(%MAX_REG_COUNT-1))&&((Rd2)!=`Register@R254))) :
+ "Register Rd2 is out of range"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+MISALIGNED_REG_ERROR
+ (((num == `NUM_x2_x4_x8_x16_x32_x64_x128@x2)||(num == `NUM_x2_x4_x8_x16_x32_x64_x128@x4)||(num == `NUM_x2_x4_x8_x16_x32_x64_x128@x8)||(num == `NUM_x2_x4_x8_x16_x32_x64_x128@x16)||(num == `NUM_x2_x4_x8_x16_x32_x64_x128@x32)||(num == `NUM_x2_x4_x8_x16_x32_x64_x128@x64)||(num == `NUM_x2_x4_x8_x16_x32_x64_x128@x128))&&((layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"32dp32bit")||(layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t0_t15")||(layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t16_t31"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((num == `NUM_x2_x4_x8_x16_x32_x64_x128@x2))&&((layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t0_t15")||(layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t16_t31"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM_x2_x4_x8_x16_x32_x64_x128@x4))&&((layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t0_t15")||(layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t16_t31"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM_x2_x4_x8_x16_x32_x64_x128@x8))&&((layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t0_t15")||(layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t16_t31"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM_x2_x4_x8_x16_x32_x64_x128@x16))&&((layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t0_t15")||(layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t16_t31"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM_x2_x4_x8_x16_x32_x64_x128@x32))&&((layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t0_t15")||(layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t16_t31"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM_x2_x4_x8_x16_x32_x64_x128@x64))&&((layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t0_t15")||(layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t16_t31"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM_x2_x4_x8_x16_x32_x64_x128@x128))&&((layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t0_t15")||(layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t16_t31"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM_x2_x4_x8_x16_x32_x64_x128@x2))&&((layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"32dp32bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM_x2_x4_x8_x16_x32_x64_x128@x4))&&((layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"32dp32bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM_x2_x4_x8_x16_x32_x64_x128@x8))&&((layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"32dp32bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM_x2_x4_x8_x16_x32_x64_x128@x16))&&((layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"32dp32bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM_x2_x4_x8_x16_x32_x64_x128@x32))&&((layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"32dp32bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM_x2_x4_x8_x16_x32_x64_x128@x64))&&((layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"32dp32bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((num == `NUM_x2_x4_x8_x16_x32_x64_x128@x128))&&((layout == `LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"32dp32bit"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((fmt == `FMT_ldtm@U32)||(fmt == `FMT_ldtm@S32))) -> (((rowop == `FUNC@MAX)||(rowop == `FUNC@MIN))) :
+ "Invalid instruction combination (reason: .U32 and .S32 only allow .MAX or .MIN)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((fmt == `FMT_ldtm@U32)||(fmt == `FMT_ldtm@S32))) -> (((nan == `NAN@nonan))) :
+ "Invalid instruction combination (reason: .NAN only allowed with .F32)"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((((Rd)!=`Register@RZ))) :
+ "Disallowed specification: Rd must not be RZ for LDTM.STAT"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@LDTM_STAT ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ IDEST_SIZE = 64 + ((((num==`NUM_x2_x4_x8_x16_x32_x64_x128@x4)) && ((layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t0_t15") || (layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t16_t31")))*64 + (((num==`NUM_x2_x4_x8_x16_x32_x64_x128@x8)) && ((layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t0_t15") || (layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t16_t31")))*192 + (((num==`NUM_x2_x4_x8_x16_x32_x64_x128@x16)) && ((layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t0_t15") || (layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t16_t31")))*448 + (((num==`NUM_x2_x4_x8_x16_x32_x64_x128@x32)) && ((layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t0_t15") || (layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t16_t31")))*960 + (((num==`NUM_x2_x4_x8_x16_x32_x64_x128@x64)) && ((layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t0_t15") || (layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t16_t31")))*1984 + (((num==`NUM_x2_x4_x8_x16_x32_x64_x128@x128)) && ((layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t0_t15") || (layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"16dp32bit_t16_t31")))*4032 + (((num==`NUM_x2_x4_x8_x16_x32_x64_x128@x4)) && ((layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"32dp32bit")))*64 + (((num==`NUM_x2_x4_x8_x16_x32_x64_x128@x8)) && ((layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"32dp32bit")))*192 + (((num==`NUM_x2_x4_x8_x16_x32_x64_x128@x16)) && ((layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"32dp32bit")))*448 + (((num==`NUM_x2_x4_x8_x16_x32_x64_x128@x32)) && ((layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"32dp32bit")))*960 + (((num==`NUM_x2_x4_x8_x16_x32_x64_x128@x64)) && ((layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"32dp32bit")))*1984 + (((num==`NUM_x2_x4_x8_x16_x32_x64_x128@x128)) && ((layout==`LAYOUT_32dp32bit_16dp32bit_t0_t15_16dp32bit_t16_t31@"32dp32bit")))*4032);
+ IDEST2_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_TMEM ;
+
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        LDTMudp_pipe =  0b1010111101110;
+        LDTM =  0b1010111101110;
+
+ENCODING
+!ldtm_stat__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_87_87_82_81_layout=layout;
+BITS_3_85_83_vecidx=num;
+BITS_1_80_80_ftz=*0;
+BITS_2_67_66_rowop=rowop;
+BITS_2_65_64_ofmt=fmt;
+BITS_1_68_68_nan=nan;
+BITS_8_31_24_Ra=Rd2;
+BITS_8_23_16_Rd=Rd;
+BITS_8_39_32_Rb=URb;
+BITS_32_79_72_63_40_Sb_offset=Sb_offset;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=7;
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

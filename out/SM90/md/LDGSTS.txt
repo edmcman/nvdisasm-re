@@ -1,0 +1,703 @@
+CLASS "ldgsts__RR32U"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /EONLY_ldgsts:e /LOC("ACCESS"):loc /COP("EN"):cop /SP2("nosp2"):sp2 /SZ_32_64_128("32"):sz /FILLCTRL("nofillctrl"):fc /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private
+ [ Register("RZ"):Rb + SImm(20/0)*:Rb_offset ]
+',' [ Register:Ra /U32ONLY:input_reg_sz_32_dist + UniformRegister("URZ"):Ra_URc + SImm(12/0)*:Ra_offset ]
+',' [!]Predicate("PT"):Pnz
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_32_64_128@INVALID0)&&(sz !=`SZ_32_64_128@INVALID1)&&(sz !=`SZ_32_64_128@INVALID2)&&(sz !=`SZ_32_64_128@INVALID3)&&(sz !=`SZ_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_3(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_3_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((loc == `LOC@BYPASS))) -> (((sz == `SZ_32_64_128@"128"))) :
+ "Invalid instruction combination (reason: If BYPASS is specified, size must be 128)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@LDGSTS_RRU ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_AGU_UNORDERED_WR ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Ra_URc_SIZE = 64;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        LDGSTSmio_pipe =  0b1111110101110;
+        LDGSTS =  0b1111110101110;
+
+ENCODING
+!ldgsts__RR32U_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_81_81_loc=loc;
+BITS_3_86_84_cop=cop;
+BITS_2_72_71_sp2=sp2;
+BITS_3_75_73_sz=sz;
+BITS_1_82_82_fc=fc;
+BITS_8_23_16_Rd=Rb;
+BITS_20_63_44_Rb_offset=Rb_offset;
+BITS_8_31_24_Ra=Ra;
+BITS_1_70_70_input_reg_sz_32_dist=*input_reg_sz_32_dist;
+BITS_6_69_64_Ra_URc=Ra_URc;
+BITS_12_43_32_Ra_offset=Ra_offset;
+BITS_3_89_87_Pnz = Pnz;
+BITS_1_90_90_input_reg_sz_32_dist = Pnz@not;
+BITS_1_76_76_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_3(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "ldgsts__RR64U"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /EONLY_ldgsts:e /LOC("ACCESS"):loc /COP("EN"):cop /SP2("nosp2"):sp2 /SZ_32_64_128("32"):sz /FILLCTRL("nofillctrl"):fc /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private
+ [ Register("RZ"):Rb + SImm(20/0)*:Rb_offset ]
+',' [ Register:Ra /ONLY64:input_reg_sz_64_dist + UniformRegister("URZ"):Ra_URc + SImm(12/0)*:Ra_offset ]
+',' [!]Predicate("PT"):Pnz
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_32_64_128@INVALID0)&&(sz !=`SZ_32_64_128@INVALID1)&&(sz !=`SZ_32_64_128@INVALID2)&&(sz !=`SZ_32_64_128@INVALID3)&&(sz !=`SZ_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_3(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_3_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((loc == `LOC@BYPASS))) -> (((sz == `SZ_32_64_128@"128"))) :
+ "Invalid instruction combination (reason: If BYPASS is specified, size must be 128)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@LDGSTS_RRU ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_AGU_UNORDERED_WR ;
+
+ ILABEL_Ra_SIZE = 64;
+ ILABEL_Ra_URc_SIZE = 64;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        LDGSTSmio_pipe =  0b1111110101110;
+        LDGSTS =  0b1111110101110;
+
+ENCODING
+!ldgsts__RR64U_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_81_81_loc=loc;
+BITS_3_86_84_cop=cop;
+BITS_2_72_71_sp2=sp2;
+BITS_3_75_73_sz=sz;
+BITS_1_82_82_fc=fc;
+BITS_8_23_16_Rd=Rb;
+BITS_20_63_44_Rb_offset=Rb_offset;
+BITS_8_31_24_Ra=Ra;
+BITS_1_70_70_input_reg_sz_32_dist=*input_reg_sz_64_dist;
+BITS_6_69_64_Ra_URc=Ra_URc;
+BITS_12_43_32_Ra_offset=Ra_offset;
+BITS_3_89_87_Pnz = Pnz;
+BITS_1_90_90_input_reg_sz_32_dist = Pnz@not;
+BITS_1_76_76_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_3(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "ldgsts__RUR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /EONLY_ldgsts:e /LOC("ACCESS"):loc /COP("EN"):cop /SP2("nosp2"):sp2 /SZ_32_64_128("32"):sz /FILLCTRL("nofillctrl"):fc /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private
+ [ Register("RZ"):Rb + UniformRegister:Rb_URc + SImm(20/0)*:Rb_offset ]
+',' [ Register:Ra /ONLY64:input_reg_sz_64_dist + SImm(12/0)*:Ra_offset ]
+',' [!]Predicate("PT"):Pnz
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_32_64_128@INVALID0)&&(sz !=`SZ_32_64_128@INVALID1)&&(sz !=`SZ_32_64_128@INVALID2)&&(sz !=`SZ_32_64_128@INVALID3)&&(sz !=`SZ_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rb_URc)==`UniformRegister@URZ)||((Rb_URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_3(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_3_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((loc == `LOC@BYPASS))) -> (((sz == `SZ_32_64_128@"128"))) :
+ "Invalid instruction combination (reason: If BYPASS is specified, size must be 128)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@LDGSTS_RUR ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_AGU_UNORDERED_WR ;
+
+ ILABEL_Ra_SIZE = 64;
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_Rb_URc_SIZE = 32;
+
+OPCODES
+        LDGSTSmio_pipe =  0b1110110101110;
+        LDGSTS =  0b1110110101110;
+
+ENCODING
+!ldgsts__RUR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_81_81_loc=loc;
+BITS_3_86_84_cop=cop;
+BITS_2_72_71_sp2=sp2;
+BITS_3_75_73_sz=sz;
+BITS_1_82_82_fc=fc;
+BITS_8_23_16_Rd=Rb;
+BITS_6_69_64_Ra_URc=Rb_URc;
+BITS_20_63_44_Rb_offset=Rb_offset;
+BITS_8_31_24_Ra=Ra;
+BITS_1_70_70_input_reg_sz_32_dist=*input_reg_sz_64_dist;
+BITS_12_43_32_Ra_offset=Ra_offset;
+BITS_3_89_87_Pnz = Pnz;
+BITS_1_90_90_input_reg_sz_32_dist = Pnz@not;
+BITS_1_76_76_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_3(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "ldgsts__desc_RRU"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /EONLY_ldgsts:e /LOC("ACCESS"):loc /COP("EN"):cop /SP2("nosp2"):sp2 /SZ_32_64_128("32"):sz /FILLCTRL("nofillctrl"):fc /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private
+ [ Register("RZ"):Rb + SImm(20/0)*:Rb_offset ]
+','DESC:memoryDescriptor[UniformRegister:Ra_URc][Register:Ra /ONLY64:input_reg_sz_64_dist + SImm(12/0)*:Ra_offset]
+',' [!]Predicate("PT"):Pnz
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_32_64_128@INVALID0)&&(sz !=`SZ_32_64_128@INVALID1)&&(sz !=`SZ_32_64_128@INVALID2)&&(sz !=`SZ_32_64_128@INVALID3)&&(sz !=`SZ_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_3(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_3_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((loc == `LOC@BYPASS))) -> (((sz == `SZ_32_64_128@"128"))) :
+ "Invalid instruction combination (reason: If BYPASS is specified, size must be 128)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@LDGSTS_RRU ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_AGU_UNORDERED_WR ;
+
+ ILABEL_Ra_SIZE = 64;
+ ILABEL_Ra_URc_SIZE = 64;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        LDGSTSmio_pipe =  0b1111110101110;
+        LDGSTS =  0b1111110101110;
+
+ENCODING
+!ldgsts__desc_RRU_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_81_81_loc=loc;
+BITS_3_86_84_cop=cop;
+BITS_2_72_71_sp2=sp2;
+BITS_3_75_73_sz=sz;
+BITS_1_82_82_fc=fc;
+BITS_8_23_16_Rd=Rb;
+BITS_20_63_44_Rb_offset=Rb_offset;
+BITS_6_69_64_Ra_URc=Ra_URc;
+BITS_8_31_24_Ra=Ra;
+BITS_1_70_70_input_reg_sz_32_dist=*input_reg_sz_64_dist;
+BITS_12_43_32_Ra_offset=Ra_offset;
+BITS_3_89_87_Pnz = Pnz;
+BITS_1_90_90_input_reg_sz_32_dist = Pnz@not;
+BITS_1_76_76_memdesc=1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_3(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "ldgsts_memdesc_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /EONLY_ldgsts:e /LOC("ACCESS"):loc /COP("EN"):cop /SP2("nosp2"):sp2 /SZ_32_64_128("32"):sz /FILLCTRL("nofillctrl"):fc /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private
+ [ Register("RZ"):Rb + UniformRegister:Rb_URc + SImm(20/0)*:Rb_offset ]
+','DESC:memoryDescriptor[UniformRegister:Ra_URd][Register:Ra /ONLY64:input_reg_sz_64_dist + SImm(12/0)*:Ra_offset]
+',' [!]Predicate("PT"):Pnz
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_32_64_128@INVALID0)&&(sz !=`SZ_32_64_128@INVALID1)&&(sz !=`SZ_32_64_128@INVALID2)&&(sz !=`SZ_32_64_128@INVALID3)&&(sz !=`SZ_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rb_URc)==`UniformRegister@URZ)||((Rb_URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((Rb_URc)+((Rb_URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_3(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_3_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_URc_0(Ra_URd,Rb_URc) :
+ "Invalid combination of Ra_URd, Rb_URc"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((loc == `LOC@BYPASS))) -> (((sz == `SZ_32_64_128@"128"))) :
+ "Invalid instruction combination (reason: If BYPASS is specified, size must be 128)"
+ILLEGAL_INSTR_PARAM_ERROR
+ ((((Rb_URc)!=`UniformRegister@URZ))) :
+ "ILLEGAL_INSTR_PARAM: URc cannot be URZ"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@LDGSTS_RUR ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_AGU_UNORDERED_WR ;
+
+ ILABEL_Ra_SIZE = 64;
+ ILABEL_Ra_URd_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_Rb_URc_SIZE = 64;
+
+OPCODES
+        LDGSTSmio_pipe =  0b1110110101110;
+        LDGSTS =  0b1110110101110;
+
+ENCODING
+!ldgsts_memdesc__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_81_81_loc=loc;
+BITS_3_86_84_cop=cop;
+BITS_2_72_71_sp2=sp2;
+BITS_3_75_73_sz=sz;
+BITS_1_82_82_fc=fc;
+BITS_8_23_16_Rd=Rb;
+BITS_20_63_44_Rb_offset=Rb_offset;
+BITS_8_31_24_Ra=Ra;
+BITS_1_70_70_input_reg_sz_32_dist=*input_reg_sz_64_dist;
+BITS_12_43_32_Ra_offset=Ra_offset;
+BITS_3_89_87_Pnz = Pnz;
+BITS_1_90_90_input_reg_sz_32_dist = Pnz@not;
+BITS_1_76_76_memdesc=1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_3(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+BITS_6_69_64_Ra_URc=TABLES_URc_0(Ra_URd,Rb_URc);
+
+
+
+ALTERNATE CLASS "ldgsts_no_ra__RRU"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /EONLY_ldgsts:e /LOC("ACCESS"):loc /COP("EN"):cop /SP2("nosp2"):sp2 /SZ_32_64_128("32"):sz /FILLCTRL("nofillctrl"):fc /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private
+ [ Register("RZ"):Rb + SImm(20/0)*:Rb_offset ]
+',' [ ZeroRegister("RZ"):Ra + UniformRegister("URZ"):Ra_URc + SImm(12/0)*:Ra_offset ]
+',' [!]Predicate("PT"):Pnz
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_32_64_128@INVALID0)&&(sz !=`SZ_32_64_128@INVALID1)&&(sz !=`SZ_32_64_128@INVALID2)&&(sz !=`SZ_32_64_128@INVALID3)&&(sz !=`SZ_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)==`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_3(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_3_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((loc == `LOC@BYPASS))) -> (((sz == `SZ_32_64_128@"128"))) :
+ "Invalid instruction combination (reason: If BYPASS is specified, size must be 128)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@LDGSTS_RRU ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_AGU_UNORDERED_WR ;
+
+ ILABEL_Ra_URc_SIZE = 64;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        LDGSTSmio_pipe =  0b1111110101110;
+        LDGSTS =  0b1111110101110;
+
+ENCODING
+!ldgsts_no_ra__RRU_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_81_81_loc=loc;
+BITS_3_86_84_cop=cop;
+BITS_2_72_71_sp2=sp2;
+BITS_3_75_73_sz=sz;
+BITS_1_82_82_fc=fc;
+BITS_8_23_16_Rd=Rb;
+BITS_20_63_44_Rb_offset=Rb_offset;
+BITS_8_31_24_Ra=Ra;
+BITS_6_69_64_Ra_URc=Ra_URc;
+BITS_12_43_32_Ra_offset=Ra_offset;
+BITS_3_89_87_Pnz = Pnz;
+BITS_1_90_90_input_reg_sz_32_dist = Pnz@not;
+BITS_1_76_76_memdesc=0;
+BITS_1_70_70_input_reg_sz_32_dist=1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_3(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "ldgsts_no_ra__RUR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /EONLY_ldgsts:e /LOC("ACCESS"):loc /COP("EN"):cop /SP2("nosp2"):sp2 /SZ_32_64_128("32"):sz /FILLCTRL("nofillctrl"):fc /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private
+ [ Register("RZ"):Rb + UniformRegister:Rb_URc + SImm(20/0)*:Rb_offset ]
+',' [ ZeroRegister("RZ"):Ra + SImm(12/0)*:Ra_offset ]
+',' [!]Predicate("PT"):Pnz
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_32_64_128@INVALID0)&&(sz !=`SZ_32_64_128@INVALID1)&&(sz !=`SZ_32_64_128@INVALID2)&&(sz !=`SZ_32_64_128@INVALID3)&&(sz !=`SZ_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rb_URc)==`UniformRegister@URZ)||((Rb_URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)==`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_3(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_3_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((loc == `LOC@BYPASS))) -> (((sz == `SZ_32_64_128@"128"))) :
+ "Invalid instruction combination (reason: If BYPASS is specified, size must be 128)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@LDGSTS_RUR ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_AGU_UNORDERED_WR ;
+
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_Rb_URc_SIZE = 32;
+
+OPCODES
+        LDGSTSmio_pipe =  0b1110110101110;
+        LDGSTS =  0b1110110101110;
+
+ENCODING
+!ldgsts_no_ra__RUR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_81_81_loc=loc;
+BITS_3_86_84_cop=cop;
+BITS_2_72_71_sp2=sp2;
+BITS_3_75_73_sz=sz;
+BITS_1_82_82_fc=fc;
+BITS_8_23_16_Rd=Rb;
+BITS_6_69_64_Ra_URc=Rb_URc;
+BITS_20_63_44_Rb_offset=Rb_offset;
+BITS_8_31_24_Ra=Ra;
+BITS_12_43_32_Ra_offset=Ra_offset;
+BITS_3_89_87_Pnz = Pnz;
+BITS_1_90_90_input_reg_sz_32_dist = Pnz@not;
+BITS_1_76_76_memdesc=0;
+BITS_1_70_70_input_reg_sz_32_dist=*1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_3(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

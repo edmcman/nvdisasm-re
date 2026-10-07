@@ -1,0 +1,1016 @@
+CLASS "atomg__RaNonRZ"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /E("noe"):e /ATOMGOP:op /COP("EN"):cop /SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN("U32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private
+Predicate:Pu
+','Register:Rd
+',' [ NonZeroRegister:Ra + SImm(24/0)*:Ra_offset ]
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((op !=`ATOMGOP@INVALID10)&&(op !=`ATOMGOP@INVALID11)&&(op !=`ATOMGOP@INVALID12)&&(op !=`ATOMGOP@INVALID13)&&(op !=`ATOMGOP@INVALID14)&&(op !=`ATOMGOP@INVALID15)) :
+ "Invalid op field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID7)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID8)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID9)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID10)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID11)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID12)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID13)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID14)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID15)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_0(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_0_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (((e == `E@noe))) -> ((((Ra)!=`Register@RZ))) :
+ "Disallowed register"
+OOR_REG_ERROR
+ (((e == `E@E))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((e == `E@E))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (((e == `E@E))) -> ((((Ra)!=`Register@RZ))) :
+ "Disallowed register"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@ADD))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F32.FTZ.RN)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F16x2.RN)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) :
+ "Invalid instruction combination (reason: ADD)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@MIN)||(op == `ATOMGOP@MAX))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F16x2.RN))) :
+ "Invalid instruction combination (reason: MIN_MAX)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@DEC)||(op == `ATOMGOP@INC))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32"))) :
+ "Invalid instruction combination (reason: INC_DEC)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@AND)||(op == `ATOMGOP@XOR)||(op == `ATOMGOP@OR)||(op == `ATOMGOP@EXCH))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64"))) :
+ "Invalid instruction combination (reason: AND_OR_XOR_EXCH)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@SAFEADD))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64"))) :
+ "Invalid instruction combination (reason: SAFEADD requres 64-bit size)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@SAFEADD))) -> (( (DEFINED TABLES_mem_0(sem,sco,private)) && ((TABLES_mem_0(sem,sco,private) != 10)&&(TABLES_mem_0(sem,sco,private) != 12)) )) :
+ "Invalid instruction combination (reason: ATOMG.SAFEADD does not allow .SYS)"
+OOR_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@ATOMG ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+ ISRC_B_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+ ISRC_A_SIZE = 32 + ((e==`E@E))*32;
+ VIRTUAL_QUEUE = $VQ_AGU_UNORDERED_WR ;
+
+ ILABEL_Ra_SIZE = 32 + ((e==`E@E))*32;
+ ILABEL_Rb_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+
+OPCODES
+        ATOMGmio_pipe =  0b1110101000;
+        ATOMG =  0b1110101000;
+
+ENCODING
+!atomg__RaNonRZ_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=e;
+BITS_4_90_87_op=op;
+BITS_3_86_84_cop=cop;
+BITS_4_76_73_sz=sz;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=*Ra;
+BITS_24_63_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_0(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "atomg__RaRZ"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /E("noe"):e /ATOMGOP:op /COP("EN"):cop /SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN("U32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private
+Predicate:Pu
+','Register:Rd
+',' [ ZeroRegister("RZ"):Ra + UImm(24/0)*:Ra_offset ]
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((op !=`ATOMGOP@INVALID10)&&(op !=`ATOMGOP@INVALID11)&&(op !=`ATOMGOP@INVALID12)&&(op !=`ATOMGOP@INVALID13)&&(op !=`ATOMGOP@INVALID14)&&(op !=`ATOMGOP@INVALID15)) :
+ "Invalid op field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID7)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID8)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID9)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID10)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID11)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID12)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID13)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID14)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID15)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)==`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_0(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_0_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@ADD))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F32.FTZ.RN)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F16x2.RN)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) :
+ "Invalid instruction combination (reason: ADD)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@MIN)||(op == `ATOMGOP@MAX))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F16x2.RN))) :
+ "Invalid instruction combination (reason: MIN_MAX)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@DEC)||(op == `ATOMGOP@INC))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32"))) :
+ "Invalid instruction combination (reason: INC_DEC)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@AND)||(op == `ATOMGOP@XOR)||(op == `ATOMGOP@OR)||(op == `ATOMGOP@EXCH))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64"))) :
+ "Invalid instruction combination (reason: AND_OR_XOR_EXCH)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@SAFEADD))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64"))) :
+ "Invalid instruction combination (reason: SAFEADD requres 64-bit size)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@SAFEADD))) -> (( (DEFINED TABLES_mem_0(sem,sco,private)) && ((TABLES_mem_0(sem,sco,private) != 10)&&(TABLES_mem_0(sem,sco,private) != 12)) )) :
+ "Invalid instruction combination (reason: ATOMG.SAFEADD does not allow .SYS)"
+OOR_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@ATOMG ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+ ISRC_B_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+ ISRC_A_SIZE = 32 + ((e==`E@E))*32;
+ VIRTUAL_QUEUE = $VQ_AGU_UNORDERED_WR ;
+
+ ILABEL_Rb_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+
+OPCODES
+        ATOMGmio_pipe =  0b1110101000;
+        ATOMG =  0b1110101000;
+
+ENCODING
+!atomg__RaRZ_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=e;
+BITS_4_90_87_op=op;
+BITS_3_86_84_cop=cop;
+BITS_4_76_73_sz=sz;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=*Ra;
+BITS_24_63_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_0(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "atomg_cas__RaNonRZ"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /E("noe"):e /CAS:cas /COP("EN"):cop /ATOMCASSZ("U32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private
+Predicate:Pu
+','Register:Rd
+',' [ NonZeroRegister:Ra + SImm(24/0)*:Ra_offset ]
+','Register:Rb
+','Register:Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`ATOMCASSZ@INVALID3)&&(sz !=`ATOMCASSZ@INVALID4)&&(sz !=`ATOMCASSZ@INVALID5)&&(sz !=`ATOMCASSZ@INVALID6)&&(sz !=`ATOMCASSZ@INVALID7)&&(sz !=`ATOMCASSZ@INVALID8)&&(sz !=`ATOMCASSZ@INVALID9)&&(sz !=`ATOMCASSZ@INVALID10)&&(sz !=`ATOMCASSZ@INVALID11)&&(sz !=`ATOMCASSZ@INVALID12)&&(sz !=`ATOMCASSZ@INVALID13)&&(sz !=`ATOMCASSZ@INVALID14)&&(sz !=`ATOMCASSZ@INVALID15)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_0(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_0_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `ATOMCASSZ@U64)||(sz == `ATOMCASSZ@"64"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `ATOMCASSZ@U64)||(sz == `ATOMCASSZ@"64"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (((e == `E@noe))) -> ((((Ra)!=`Register@RZ))) :
+ "Disallowed register"
+OOR_REG_ERROR
+ (((e == `E@E))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((e == `E@E))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ (((e == `E@E))) -> ((((Ra)!=`Register@RZ))) :
+ "Disallowed register"
+OOR_REG_ERROR
+ (((sz == `ATOMCASSZ@U64)||(sz == `ATOMCASSZ@"64"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `ATOMCASSZ@U64)||(sz == `ATOMCASSZ@"64"))) -> (((((Rc)+((Rc)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `ATOMCASSZ@U64)||(sz == `ATOMCASSZ@"64"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `ATOMCASSZ@U64)||(sz == `ATOMCASSZ@"64"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@ATOMG_CAS ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + ((sz==`ATOMCASSZ@U64) || (sz==`ATOMCASSZ@"64"))*32;
+ ISRC_B_SIZE = 32 + ((sz==`ATOMCASSZ@U64) || (sz==`ATOMCASSZ@"64"))*32;
+ ISRC_C_SIZE = 32 + ((sz==`ATOMCASSZ@U64) || (sz==`ATOMCASSZ@"64"))*32;
+ ISRC_A_SIZE = 32 + ((e==`E@E))*32;
+ VIRTUAL_QUEUE = $VQ_AGU_UNORDERED_WR ;
+
+ ILABEL_Ra_SIZE = 32 + ((e==`E@E))*32;
+ ILABEL_Rb_SIZE = 32 + ((sz==`ATOMCASSZ@U64) || (sz==`ATOMCASSZ@"64"))*32;
+ ILABEL_Rc_SIZE = 32 + ((sz==`ATOMCASSZ@U64) || (sz==`ATOMCASSZ@"64"))*32;
+
+OPCODES
+        ATOMGmio_pipe =  0b1110101001;
+        ATOMG =  0b1110101001;
+
+ENCODING
+!atomg_cas__RaNonRZ_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=e;
+BITS_3_86_84_cop=cop;
+BITS_4_76_73_sz=sz;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=*Ra;
+BITS_24_63_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_8_71_64_Rc=Rc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_0(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "atomg_cas__RaRZ"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /E("noe"):e /CAS:cas /COP("EN"):cop /ATOMCASSZ("U32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private
+Predicate:Pu
+','Register:Rd
+',' [ ZeroRegister("RZ"):Ra + UImm(24/0)*:Ra_offset ]
+','Register:Rb
+','Register:Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`ATOMCASSZ@INVALID3)&&(sz !=`ATOMCASSZ@INVALID4)&&(sz !=`ATOMCASSZ@INVALID5)&&(sz !=`ATOMCASSZ@INVALID6)&&(sz !=`ATOMCASSZ@INVALID7)&&(sz !=`ATOMCASSZ@INVALID8)&&(sz !=`ATOMCASSZ@INVALID9)&&(sz !=`ATOMCASSZ@INVALID10)&&(sz !=`ATOMCASSZ@INVALID11)&&(sz !=`ATOMCASSZ@INVALID12)&&(sz !=`ATOMCASSZ@INVALID13)&&(sz !=`ATOMCASSZ@INVALID14)&&(sz !=`ATOMCASSZ@INVALID15)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)==`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_0(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_0_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `ATOMCASSZ@U64)||(sz == `ATOMCASSZ@"64"))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `ATOMCASSZ@U64)||(sz == `ATOMCASSZ@"64"))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `ATOMCASSZ@U64)||(sz == `ATOMCASSZ@"64"))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `ATOMCASSZ@U64)||(sz == `ATOMCASSZ@"64"))) -> (((((Rc)+((Rc)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `ATOMCASSZ@U64)||(sz == `ATOMCASSZ@"64"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `ATOMCASSZ@U64)||(sz == `ATOMCASSZ@"64"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@ATOMG_CAS ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + ((sz==`ATOMCASSZ@U64) || (sz==`ATOMCASSZ@"64"))*32;
+ ISRC_B_SIZE = 32 + ((sz==`ATOMCASSZ@U64) || (sz==`ATOMCASSZ@"64"))*32;
+ ISRC_C_SIZE = 32 + ((sz==`ATOMCASSZ@U64) || (sz==`ATOMCASSZ@"64"))*32;
+ ISRC_A_SIZE = 32 + ((e==`E@E))*32;
+ VIRTUAL_QUEUE = $VQ_AGU_UNORDERED_WR ;
+
+ ILABEL_Rb_SIZE = 32 + ((sz==`ATOMCASSZ@U64) || (sz==`ATOMCASSZ@"64"))*32;
+ ILABEL_Rc_SIZE = 32 + ((sz==`ATOMCASSZ@U64) || (sz==`ATOMCASSZ@"64"))*32;
+
+OPCODES
+        ATOMGmio_pipe =  0b1110101001;
+        ATOMG =  0b1110101001;
+
+ENCODING
+!atomg_cas__RaRZ_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=e;
+BITS_3_86_84_cop=cop;
+BITS_4_76_73_sz=sz;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=*Ra;
+BITS_24_63_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_8_71_64_Rc=Rc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_0(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "atomg_uniform__Ra32"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /E("noe"):e /ATOMGOP:op /COP("EN"):cop /SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN("U32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private
+Predicate:Pu
+','Register:Rd
+',' [ NonZeroRegister:Ra /U32ONLY:input_reg_sz_32_dist + UniformRegister:Ra_URc + SImm(24/0)*:Ra_offset ]
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((op !=`ATOMGOP@INVALID10)&&(op !=`ATOMGOP@INVALID11)&&(op !=`ATOMGOP@INVALID12)&&(op !=`ATOMGOP@INVALID13)&&(op !=`ATOMGOP@INVALID14)&&(op !=`ATOMGOP@INVALID15)) :
+ "Invalid op field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID7)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID8)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID9)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID10)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID11)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID12)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID13)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID14)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID15)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_0(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_0_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((e == `E@E))) -> (((((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((e == `E@E))) -> (((((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@ADD))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F32.FTZ.RN)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F16x2.RN)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) :
+ "Invalid instruction combination (reason: ADD)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@MIN)||(op == `ATOMGOP@MAX))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F16x2.RN))) :
+ "Invalid instruction combination (reason: MIN_MAX)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@DEC)||(op == `ATOMGOP@INC))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32"))) :
+ "Invalid instruction combination (reason: INC_DEC)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@AND)||(op == `ATOMGOP@XOR)||(op == `ATOMGOP@OR)||(op == `ATOMGOP@EXCH))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64"))) :
+ "Invalid instruction combination (reason: AND_OR_XOR_EXCH)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@SAFEADD))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64"))) :
+ "Invalid instruction combination (reason: SAFEADD requres 64-bit size)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@SAFEADD))) -> (( (DEFINED TABLES_mem_0(sem,sco,private)) && ((TABLES_mem_0(sem,sco,private) != 10)&&(TABLES_mem_0(sem,sco,private) != 12)) )) :
+ "Invalid instruction combination (reason: ATOMG.SAFEADD does not allow .SYS)"
+OOR_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@ATOMG_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+ ISRC_B_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+ ISRC_A_SIZE = 32 + ((e==`E@E))*32;
+ VIRTUAL_QUEUE = $VQ_AGU_UNORDERED_WR ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Ra_URc_SIZE = 32 + ((e==`E@E))*32;
+ ILABEL_Rb_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+
+OPCODES
+        ATOMGmio_pipe =  0b1100110101000;
+        ATOMG =  0b1100110101000;
+
+ENCODING
+!atomg_uniform__Ra32_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=e;
+BITS_4_90_87_op=op;
+BITS_3_86_84_cop=cop;
+BITS_4_76_73_sz=sz;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=*Ra;
+BITS_1_70_70_input_reg_sz_32_dist=*input_reg_sz_32_dist;
+BITS_6_69_64_Ra_URc=Ra_URc;
+BITS_24_63_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_1_71_71_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_0(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "atomg_uniform__Ra64"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /EONLY:e /ATOMGOP:op /COP("EN"):cop /SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN("U32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private
+Predicate:Pu
+','Register:Rd
+',' [ NonZeroRegister:Ra /ONLY64:input_reg_sz_64_dist + UniformRegister:Ra_URc + SImm(24/0)*:Ra_offset ]
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((op !=`ATOMGOP@INVALID10)&&(op !=`ATOMGOP@INVALID11)&&(op !=`ATOMGOP@INVALID12)&&(op !=`ATOMGOP@INVALID13)&&(op !=`ATOMGOP@INVALID14)&&(op !=`ATOMGOP@INVALID15)) :
+ "Invalid op field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID7)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID8)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID9)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID10)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID11)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID12)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID13)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID14)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID15)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_0(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_0_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((e == `EONLY@E))) -> (((((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((e == `EONLY@E))) -> (((((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@ADD))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F32.FTZ.RN)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F16x2.RN)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) :
+ "Invalid instruction combination (reason: ADD)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@MIN)||(op == `ATOMGOP@MAX))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F16x2.RN))) :
+ "Invalid instruction combination (reason: MIN_MAX)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@DEC)||(op == `ATOMGOP@INC))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32"))) :
+ "Invalid instruction combination (reason: INC_DEC)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@AND)||(op == `ATOMGOP@XOR)||(op == `ATOMGOP@OR)||(op == `ATOMGOP@EXCH))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64"))) :
+ "Invalid instruction combination (reason: AND_OR_XOR_EXCH)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@SAFEADD))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64"))) :
+ "Invalid instruction combination (reason: SAFEADD requres 64-bit size)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@SAFEADD))) -> (( (DEFINED TABLES_mem_0(sem,sco,private)) && ((TABLES_mem_0(sem,sco,private) != 10)&&(TABLES_mem_0(sem,sco,private) != 12)) )) :
+ "Invalid instruction combination (reason: ATOMG.SAFEADD does not allow .SYS)"
+OOR_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@ATOMG_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+ ISRC_B_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_AGU_UNORDERED_WR ;
+
+ ILABEL_Ra_SIZE = 64;
+ ILABEL_Ra_URc_SIZE = 64;
+ ILABEL_Rb_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+
+OPCODES
+        ATOMGmio_pipe =  0b1100110101000;
+        ATOMG =  0b1100110101000;
+
+ENCODING
+!atomg_uniform__Ra64_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=e;
+BITS_4_90_87_op=op;
+BITS_3_86_84_cop=cop;
+BITS_4_76_73_sz=sz;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=*Ra;
+BITS_1_70_70_input_reg_sz_32_dist=*input_reg_sz_64_dist;
+BITS_6_69_64_Ra_URc=Ra_URc;
+BITS_24_63_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_1_71_71_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_0(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "atomg_uniform__RaRZ"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /E("noe"):e /ATOMGOP:op /COP("EN"):cop /SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN("U32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private
+Predicate:Pu
+','Register:Rd
+',' [ ZeroRegister("RZ"):Ra + UniformRegister:Ra_URc + SImm(24/0)*:Ra_offset ]
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((op !=`ATOMGOP@INVALID10)&&(op !=`ATOMGOP@INVALID11)&&(op !=`ATOMGOP@INVALID12)&&(op !=`ATOMGOP@INVALID13)&&(op !=`ATOMGOP@INVALID14)&&(op !=`ATOMGOP@INVALID15)) :
+ "Invalid op field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID7)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID8)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID9)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID10)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID11)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID12)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID13)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID14)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID15)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)==`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_0(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_0_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((e == `E@E))) -> (((((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((e == `E@E))) -> (((((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@ADD))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F32.FTZ.RN)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F16x2.RN)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) :
+ "Invalid instruction combination (reason: ADD)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@MIN)||(op == `ATOMGOP@MAX))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F16x2.RN))) :
+ "Invalid instruction combination (reason: MIN_MAX)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@DEC)||(op == `ATOMGOP@INC))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32"))) :
+ "Invalid instruction combination (reason: INC_DEC)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@AND)||(op == `ATOMGOP@XOR)||(op == `ATOMGOP@OR)||(op == `ATOMGOP@EXCH))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64"))) :
+ "Invalid instruction combination (reason: AND_OR_XOR_EXCH)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@SAFEADD))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64"))) :
+ "Invalid instruction combination (reason: SAFEADD requres 64-bit size)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@SAFEADD))) -> (( (DEFINED TABLES_mem_0(sem,sco,private)) && ((TABLES_mem_0(sem,sco,private) != 10)&&(TABLES_mem_0(sem,sco,private) != 12)) )) :
+ "Invalid instruction combination (reason: ATOMG.SAFEADD does not allow .SYS)"
+OOR_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@ATOMG_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+ ISRC_B_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+ ISRC_A_SIZE = 32 + ((e==`E@E))*32;
+ VIRTUAL_QUEUE = $VQ_AGU_UNORDERED_WR ;
+
+ ILABEL_Ra_URc_SIZE = 32 + ((e==`E@E))*32;
+ ILABEL_Rb_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+
+OPCODES
+        ATOMGmio_pipe =  0b1100110101000;
+        ATOMG =  0b1100110101000;
+
+ENCODING
+!atomg_uniform__RaRZ_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=e;
+BITS_4_90_87_op=op;
+BITS_3_86_84_cop=cop;
+BITS_4_76_73_sz=sz;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=*Ra;
+BITS_6_69_64_Ra_URc=Ra_URc;
+BITS_24_63_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_1_71_71_memdesc=0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_0(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "atomg_uniform__memdesc"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /EONLY:e /ATOMGOP:op /COP("EN"):cop /SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN("U32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private
+Predicate:Pu
+','Register:Rd
+
+/EXP_DESC("noexp_desc"):e_desc
+','DESC:memoryDescriptor[UniformRegister:Ra_URc][NonZeroRegister:Ra /ONLY64:input_reg_sz_64_dist + SImm(24/0)*:Ra_offset]
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((op !=`ATOMGOP@INVALID10)&&(op !=`ATOMGOP@INVALID11)&&(op !=`ATOMGOP@INVALID12)&&(op !=`ATOMGOP@INVALID13)&&(op !=`ATOMGOP@INVALID14)&&(op !=`ATOMGOP@INVALID15)) :
+ "Invalid op field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID7)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID8)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID9)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID10)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID11)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID12)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID13)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID14)&&(sz !=`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@INVALID15)) :
+ "Invalid sz field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra_URc)==`UniformRegister@URZ)||((Ra_URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra_URc)+((Ra_URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-2))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+MISALIGNED_REG_ERROR
+ (((Ra)+((Ra)==`Register@RZ)) % 2) == 0 :
+ "Register Ra is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_0(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_0_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@ADD))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F32.FTZ.RN)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F16x2.RN)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) :
+ "Invalid instruction combination (reason: ADD)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@MIN)||(op == `ATOMGOP@MAX))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F16x2.RN))) :
+ "Invalid instruction combination (reason: MIN_MAX)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@DEC)||(op == `ATOMGOP@INC))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32"))) :
+ "Invalid instruction combination (reason: INC_DEC)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@AND)||(op == `ATOMGOP@XOR)||(op == `ATOMGOP@OR)||(op == `ATOMGOP@EXCH))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"32")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S32)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64"))) :
+ "Invalid instruction combination (reason: AND_OR_XOR_EXCH)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@SAFEADD))) -> (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64"))) :
+ "Invalid instruction combination (reason: SAFEADD requres 64-bit size)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((op == `ATOMGOP@SAFEADD))) -> (( (DEFINED TABLES_mem_0(sem,sco,private)) && ((TABLES_mem_0(sem,sco,private) != 10)&&(TABLES_mem_0(sem,sco,private) != 12)) )) :
+ "Invalid instruction combination (reason: ATOMG.SAFEADD does not allow .SYS)"
+OOR_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64")||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64)||(sz == `SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@ATOMG_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+ ISRC_B_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_AGU_UNORDERED_WR ;
+
+ ILABEL_Ra_SIZE = 64;
+ ILABEL_Ra_URc_SIZE = 64;
+ ILABEL_Rb_SIZE = 32 + ((sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@U64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@"64") || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@S64) || (sz==`SZ_U32_32_S32_U64_64_S64_F32FTZRN_F16x2RN_F64RN@F64.RN))*32;
+
+OPCODES
+        ATOMGmio_pipe =  0b1100110101000;
+        ATOMG =  0b1100110101000;
+
+ENCODING
+!atomg_uniform__memdesc_unused;
+
+BITS_1_101_101_e_desc=e_desc;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=e;
+BITS_4_90_87_op=op;
+BITS_3_86_84_cop=cop;
+BITS_4_76_73_sz=sz;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_6_69_64_Ra_URc=Ra_URc;
+BITS_8_31_24_Ra=*Ra;
+BITS_1_70_70_input_reg_sz_32_dist=*input_reg_sz_64_dist;
+BITS_24_63_40_Ra_offset=Ra_offset;
+BITS_8_39_32_Rb=Rb;
+BITS_1_71_71_memdesc=1;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_0(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

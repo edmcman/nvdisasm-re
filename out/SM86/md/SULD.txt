@@ -1,0 +1,966 @@
+CLASS "suld_d_imm_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /DOnly:d /BA("noba"):ba /Dim1:dim /COP("EN"):cop /SZ_U8_S8_U16_S16_32_64_128("32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /Clamp1("NEAR"):clamp
+Predicate("PT"):Pu
+','Register:Rd
+',' [ NonZeroRegister:Ra ]
+','UImm(5)*:bank5 ','UImm(16)*:tsPtrIdx
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((dim !=`Dim1@INVALID6)&&(dim !=`Dim1@INVALID7)) :
+ "Invalid dim field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((clamp !=`Clamp1@INVALID3)) :
+ "Invalid clamp field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_1(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_1_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@SULD_D_I ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@"128"))*96);
+ ISRC_A_SIZE = 32 + (((dim==`Dim1@"1D_ARRAY") || (dim==`Dim1@"2D"))*32 + ((dim==`Dim1@"2D_ARRAY") || (dim==`Dim1@"3D"))*64);
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32 + (((dim==`Dim1@"1D_ARRAY") || (dim==`Dim1@"2D"))*32 + ((dim==`Dim1@"2D_ARRAY") || (dim==`Dim1@"3D"))*64);
+
+OPCODES
+        SULDmio_pipe =  0b101110011001;
+        SULD =  0b101110011001;
+
+ENCODING
+!suld_d_imm__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=ba;
+BITS_3_63_61_destidx=dim;
+BITS_3_86_84_cop=cop;
+BITS_3_75_73_sz=sz;
+BITS_2_60_59_clamp=clamp;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_5_58_54_Sc_bank=bank5;
+BITS_14_53_40_Sc_addr=tsPtrIdx MULTIPLY 4 SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_1(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "suld_d_reg_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /DOnly:d /BA("noba"):ba /Dim1:dim /COP("EN"):cop /SZ_U8_S8_U16_S16_32_64_128("32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /Clamp1("NEAR"):clamp
+Predicate("PT"):Pu
+','Register:Rd
+',' [ NonZeroRegister:Ra ]
+','NonZeroRegister:Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((dim !=`Dim1@INVALID6)&&(dim !=`Dim1@INVALID7)) :
+ "Invalid dim field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((clamp !=`Clamp1@INVALID3)) :
+ "Invalid clamp field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Rc)!=`Register@RZ) :
+ "Disallowed register Rc"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_1(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_1_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@SULD_D_R ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@"128"))*96);
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32 + (((dim==`Dim1@"1D_ARRAY") || (dim==`Dim1@"2D"))*32 + ((dim==`Dim1@"2D_ARRAY") || (dim==`Dim1@"3D"))*64);
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32 + (((dim==`Dim1@"1D_ARRAY") || (dim==`Dim1@"2D"))*32 + ((dim==`Dim1@"2D_ARRAY") || (dim==`Dim1@"3D"))*64);
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        SULDmio_pipe =  0b100110011010;
+        SULD =  0b100110011010;
+
+ENCODING
+!suld_d_reg__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=ba;
+BITS_3_63_61_destidx=dim;
+BITS_3_86_84_cop=cop;
+BITS_3_75_73_sz=sz;
+BITS_2_60_59_clamp=clamp;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_71_64_Rc=Rc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_1(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "suld_d_tid_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /DOnly:d /BA("noba"):ba /Dim1:dim /COP("EN"):cop /SZ_U8_S8_U16_S16_32_64_128("32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /Clamp1("NEAR"):clamp
+Predicate("PT"):Pu
+','Register:Rd
+',' [ NonZeroRegister:Ra ]
+','UImm(5)*:bank5 ','UImm(6)*:hdrtblbase6 ','UImm(8)*:tid8
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((dim !=`Dim1@INVALID6)&&(dim !=`Dim1@INVALID7)) :
+ "Invalid dim field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((clamp !=`Clamp1@INVALID3)) :
+ "Invalid clamp field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_1(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_1_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@SULD_D_TID ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@"128"))*96);
+ ISRC_A_SIZE = 32 + (((dim==`Dim1@"1D_ARRAY") || (dim==`Dim1@"2D"))*32 + ((dim==`Dim1@"2D_ARRAY") || (dim==`Dim1@"3D"))*64);
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32 + (((dim==`Dim1@"1D_ARRAY") || (dim==`Dim1@"2D"))*32 + ((dim==`Dim1@"2D_ARRAY") || (dim==`Dim1@"3D"))*64);
+
+OPCODES
+        SULDmio_pipe =  0b11110011001;
+        SULD =  0b11110011001;
+
+ENCODING
+!suld_d_tid__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=ba;
+BITS_3_63_61_destidx=dim;
+BITS_3_86_84_cop=cop;
+BITS_3_75_73_sz=sz;
+BITS_2_60_59_clamp=clamp;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_5_58_54_Sc_bank=bank5;
+BITS_6_45_40_hdrtblbase6=hdrtblbase6;
+BITS_8_53_46_tid8=tid8;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_1(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "suld_d_urc_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /DOnly:d /BA("noba"):ba /Dim1:dim /COP("EN"):cop /SZ_U8_S8_U16_S16_32_64_128("32"):sz /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /Clamp1("NEAR"):clamp
+Predicate("PT"):Pu
+','Register:Rd
+',' [ NonZeroRegister:Ra ]
+','UniformRegister:URc ','UImm(8)*:tid8
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((dim !=`Dim1@INVALID6)&&(dim !=`Dim1@INVALID7)) :
+ "Invalid dim field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((sz !=`SZ_U8_S8_U16_S16_32_64_128@INVALID7)) :
+ "Invalid sz field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((clamp !=`Clamp1@INVALID3)) :
+ "Invalid clamp field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_1(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_1_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"64"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((sz == `SZ_U8_S8_U16_S16_32_64_128@"128"))) -> (((((Rd)+((Rd)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@SULD_D_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + (((sz==`SZ_U8_S8_U16_S16_32_64_128@"64"))*32 + ((sz==`SZ_U8_S8_U16_S16_32_64_128@"128"))*96);
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32 + (((dim==`Dim1@"1D_ARRAY") || (dim==`Dim1@"2D"))*32 + ((dim==`Dim1@"2D_ARRAY") || (dim==`Dim1@"3D"))*64);
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32 + (((dim==`Dim1@"1D_ARRAY") || (dim==`Dim1@"2D"))*32 + ((dim==`Dim1@"2D_ARRAY") || (dim==`Dim1@"3D"))*64);
+ ILABEL_URc_SIZE = 32;
+
+OPCODES
+        SULDmio_pipe =  0b1111110011001;
+        SULD =  0b1111110011001;
+
+ENCODING
+!suld_d_urc__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_72_72_e=ba;
+BITS_3_63_61_destidx=dim;
+BITS_3_86_84_cop=cop;
+BITS_3_75_73_sz=sz;
+BITS_2_60_59_clamp=clamp;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_6_45_40_hdrtblbase6=URc;
+BITS_8_53_46_tid8=tid8;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_1(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "suld_p_imm_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /PONLY:p /Dim1:dim /COP("EN"):cop /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /RGBA("RGBA"):rgba /Clamp1("NEAR"):clamp
+Predicate("PT"):Pu
+','Register:Rd
+',' [ NonZeroRegister:Ra ]
+','UImm(5)*:bank5 ','UImm(16)*:tsPtrIdx
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((dim !=`Dim1@INVALID6)&&(dim !=`Dim1@INVALID7)) :
+ "Invalid dim field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((rgba !=`RGBA@INVALID0)&&(rgba !=`RGBA@INVALID2)&&(rgba !=`RGBA@INVALID4)&&(rgba !=`RGBA@INVALID5)&&(rgba !=`RGBA@INVALID6)&&(rgba !=`RGBA@INVALID7)&&(rgba !=`RGBA@INVALID8)&&(rgba !=`RGBA@INVALID9)&&(rgba !=`RGBA@INVALID10)&&(rgba !=`RGBA@INVALID11)&&(rgba !=`RGBA@INVALID12)&&(rgba !=`RGBA@INVALID13)&&(rgba !=`RGBA@INVALID14)) :
+ "Invalid rgba field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((clamp !=`Clamp1@INVALID3)) :
+ "Invalid clamp field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_1(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_1_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((rgba == `RGBA@RG))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((rgba == `RGBA@RG))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((rgba == `RGBA@RGBA))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((rgba == `RGBA@RGBA))) -> (((((Rd)+((Rd)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@SULD_P_I ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + (((rgba==`RGBA@RG))*32 + ((rgba==`RGBA@RGBA))*96);
+ ISRC_A_SIZE = 32 + (((dim==`Dim1@"1D_ARRAY") || (dim==`Dim1@"2D"))*32 + ((dim==`Dim1@"2D_ARRAY") || (dim==`Dim1@"3D"))*64);
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32 + (((dim==`Dim1@"1D_ARRAY") || (dim==`Dim1@"2D"))*32 + ((dim==`Dim1@"2D_ARRAY") || (dim==`Dim1@"3D"))*64);
+
+OPCODES
+        SULDmio_pipe =  0b101110010111;
+        SULD =  0b101110010111;
+
+ENCODING
+!suld_p_imm__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_63_61_destidx=dim;
+BITS_3_86_84_cop=cop;
+BITS_4_75_72_PixMaskU04=rgba;
+BITS_2_60_59_clamp=clamp;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_5_58_54_Sc_bank=bank5;
+BITS_14_53_40_Sc_addr=tsPtrIdx MULTIPLY 4 SCALE 4;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_1(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "suld_p_reg_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /PONLY:p /Dim1:dim /COP("EN"):cop /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /RGBA("RGBA"):rgba /Clamp1("NEAR"):clamp
+Predicate("PT"):Pu
+','Register:Rd
+',' [ NonZeroRegister:Ra ]
+','NonZeroRegister:Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((dim !=`Dim1@INVALID6)&&(dim !=`Dim1@INVALID7)) :
+ "Invalid dim field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((rgba !=`RGBA@INVALID0)&&(rgba !=`RGBA@INVALID2)&&(rgba !=`RGBA@INVALID4)&&(rgba !=`RGBA@INVALID5)&&(rgba !=`RGBA@INVALID6)&&(rgba !=`RGBA@INVALID7)&&(rgba !=`RGBA@INVALID8)&&(rgba !=`RGBA@INVALID9)&&(rgba !=`RGBA@INVALID10)&&(rgba !=`RGBA@INVALID11)&&(rgba !=`RGBA@INVALID12)&&(rgba !=`RGBA@INVALID13)&&(rgba !=`RGBA@INVALID14)) :
+ "Invalid rgba field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((clamp !=`Clamp1@INVALID3)) :
+ "Invalid clamp field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Rc)!=`Register@RZ) :
+ "Disallowed register Rc"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_1(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_1_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((rgba == `RGBA@RG))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((rgba == `RGBA@RG))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((rgba == `RGBA@RGBA))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((rgba == `RGBA@RGBA))) -> (((((Rd)+((Rd)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@SULD_P_R ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + (((rgba==`RGBA@RG))*32 + ((rgba==`RGBA@RGBA))*96);
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32 + (((dim==`Dim1@"1D_ARRAY") || (dim==`Dim1@"2D"))*32 + ((dim==`Dim1@"2D_ARRAY") || (dim==`Dim1@"3D"))*64);
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32 + (((dim==`Dim1@"1D_ARRAY") || (dim==`Dim1@"2D"))*32 + ((dim==`Dim1@"2D_ARRAY") || (dim==`Dim1@"3D"))*64);
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        SULDmio_pipe =  0b100110011000;
+        SULD =  0b100110011000;
+
+ENCODING
+!suld_p_reg__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_63_61_destidx=dim;
+BITS_3_86_84_cop=cop;
+BITS_4_75_72_PixMaskU04=rgba;
+BITS_2_60_59_clamp=clamp;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_71_64_Rc=Rc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_1(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "suld_p_tid_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /PONLY:p /Dim1:dim /COP("EN"):cop /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /RGBA("RGBA"):rgba /Clamp1("NEAR"):clamp
+Predicate("PT"):Pu
+','Register:Rd
+',' [ NonZeroRegister:Ra ]
+','UImm(5)*:bank5 ','UImm(6)*:hdrtblbase6 ','UImm(8)*:tid8
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((dim !=`Dim1@INVALID6)&&(dim !=`Dim1@INVALID7)) :
+ "Invalid dim field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((rgba !=`RGBA@INVALID0)&&(rgba !=`RGBA@INVALID2)&&(rgba !=`RGBA@INVALID4)&&(rgba !=`RGBA@INVALID5)&&(rgba !=`RGBA@INVALID6)&&(rgba !=`RGBA@INVALID7)&&(rgba !=`RGBA@INVALID8)&&(rgba !=`RGBA@INVALID9)&&(rgba !=`RGBA@INVALID10)&&(rgba !=`RGBA@INVALID11)&&(rgba !=`RGBA@INVALID12)&&(rgba !=`RGBA@INVALID13)&&(rgba !=`RGBA@INVALID14)) :
+ "Invalid rgba field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((clamp !=`Clamp1@INVALID3)) :
+ "Invalid clamp field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_1(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_1_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((rgba == `RGBA@RG))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((rgba == `RGBA@RG))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((rgba == `RGBA@RGBA))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((rgba == `RGBA@RGBA))) -> (((((Rd)+((Rd)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@SULD_P_TID ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + (((rgba==`RGBA@RG))*32 + ((rgba==`RGBA@RGBA))*96);
+ ISRC_A_SIZE = 32 + (((dim==`Dim1@"1D_ARRAY") || (dim==`Dim1@"2D"))*32 + ((dim==`Dim1@"2D_ARRAY") || (dim==`Dim1@"3D"))*64);
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32 + (((dim==`Dim1@"1D_ARRAY") || (dim==`Dim1@"2D"))*32 + ((dim==`Dim1@"2D_ARRAY") || (dim==`Dim1@"3D"))*64);
+
+OPCODES
+        SULDmio_pipe =  0b11110010111;
+        SULD =  0b11110010111;
+
+ENCODING
+!suld_p_tid__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_63_61_destidx=dim;
+BITS_3_86_84_cop=cop;
+BITS_4_75_72_PixMaskU04=rgba;
+BITS_2_60_59_clamp=clamp;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_5_58_54_Sc_bank=bank5;
+BITS_6_45_40_hdrtblbase6=hdrtblbase6;
+BITS_8_53_46_tid8=tid8;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_1(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "suld_p_urc_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /PONLY:p /Dim1:dim /COP("EN"):cop /SEM("WEAK"):sem /SCO("nosco"):sco /PRIVATE("noprivate"):private /RGBA("RGBA"):rgba /Clamp1("NEAR"):clamp
+Predicate("PT"):Pu
+','Register:Rd
+',' [ NonZeroRegister:Ra ]
+','UniformRegister:URc ','UImm(8)*:tid8
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((dim !=`Dim1@INVALID6)&&(dim !=`Dim1@INVALID7)) :
+ "Invalid dim field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((rgba !=`RGBA@INVALID0)&&(rgba !=`RGBA@INVALID2)&&(rgba !=`RGBA@INVALID4)&&(rgba !=`RGBA@INVALID5)&&(rgba !=`RGBA@INVALID6)&&(rgba !=`RGBA@INVALID7)&&(rgba !=`RGBA@INVALID8)&&(rgba !=`RGBA@INVALID9)&&(rgba !=`RGBA@INVALID10)&&(rgba !=`RGBA@INVALID11)&&(rgba !=`RGBA@INVALID12)&&(rgba !=`RGBA@INVALID13)&&(rgba !=`RGBA@INVALID14)) :
+ "Invalid rgba field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((clamp !=`Clamp1@INVALID3)) :
+ "Invalid clamp field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_mem_1(sem,sco,private) :
+ "Invalid combination of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_ERROR
+ !DEFINED TABLES_mem_1_illegal_encodings(sem,sco,private) :
+ "Illegal specification of sem, sco, private"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"1D_ARRAY")||(dim == `Dim1@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((dim == `Dim1@"2D_ARRAY")||(dim == `Dim1@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((rgba == `RGBA@RG))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((rgba == `RGBA@RG))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((rgba == `RGBA@RGBA))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((rgba == `RGBA@RGBA))) -> (((((Rd)+((Rd)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@SULD_P_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + (((rgba==`RGBA@RG))*32 + ((rgba==`RGBA@RGBA))*96);
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32 + (((dim==`Dim1@"1D_ARRAY") || (dim==`Dim1@"2D"))*32 + ((dim==`Dim1@"2D_ARRAY") || (dim==`Dim1@"3D"))*64);
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32 + (((dim==`Dim1@"1D_ARRAY") || (dim==`Dim1@"2D"))*32 + ((dim==`Dim1@"2D_ARRAY") || (dim==`Dim1@"3D"))*64);
+ ILABEL_URc_SIZE = 32;
+
+OPCODES
+        SULDmio_pipe =  0b1111110010111;
+        SULD =  0b1111110010111;
+
+ENCODING
+!suld_p_urc__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_63_61_destidx=dim;
+BITS_3_86_84_cop=cop;
+BITS_4_75_72_PixMaskU04=rgba;
+BITS_2_60_59_clamp=clamp;
+BITS_3_83_81_Pu=Pu;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_6_45_40_hdrtblbase6=URc;
+BITS_8_53_46_tid8=tid8;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_4_80_77_mem=TABLES_mem_1(sem,sco,private);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

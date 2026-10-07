@@ -30,20 +30,31 @@ computes `Rd = Ra*Sb + Rc`.
 ## Usage
 
 ```sh
-uv run extract_md.py /path/to/nvdisasm   # -> out/{md,latencies,patterns}_SMxx.txt
-python3 build_semantics.py out           # -> out/semantics_SMxx.json
+uv run extract_md.py /path/to/nvdisasm   # -> out/raw/{md,latencies,patterns}_SMxx.txt (gitignored)
+python3 build_out.py                     # -> out/SMxx/...
 ```
 
 `extract_md.py` needs `objdump` and pulls in `lz4` through its inline uv script metadata.
 The offsets are specific to the CUDA 13.4 build (V13.4.92); other builds will need new
 addresses (see `AGENTS.md`).
 
-The generated `out/` from CUDA 13.4 is committed, so you can use the data without
-running anything.
+The generated output from CUDA 13.4 is committed, so you can browse it without
+running anything:
 
-## `semantics_SMxx.json`
+```
+out/SM80/latencies.txt            connectors, operation sets, latency tables
+out/SM80/patterns.txt
+out/SM80/md/_00_ARCHITECTURE.txt  md preamble, one file per top-level section
+...                               (REGISTERS, TABLES, OPERATION PREDICATES, ...)
+out/SM80/md/FFMA.txt              every CLASS definition for FFMA
+out/SM80/semantics/FFMA.json      operand semantics for those classes
+```
 
-One record per instruction class:
+Each md is split losslessly: the files together contain every line of the original.
+
+## `semantics/<OPCODE>.json`
+
+A list with one record per instruction class:
 
 ```json
 {

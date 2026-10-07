@@ -1,0 +1,166 @@
+ALTERNATE CLASS "vote_vtg_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /VOP:vtgmode
+UImm(28)*:Sa
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_VSA)||(%SHADER_TYPE == $ST_VSB)||(%SHADER_TYPE == $ST_GS)||(%SHADER_TYPE == $ST_TS)||(%SHADER_TYPE == $ST_TI)) :
+ "Can only be used with VS, GS, TS, TI"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((vtgmode !=`VOP@INVALID0)) :
+ "Invalid vtgmode field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_2(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MIN_WAIT_NEEDED = 0 ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_GS)+(1<<ISHADER_TI)+(1<<ISHADER_TS)+(1<<ISHADER_VS)+0 ;
+
+PREDICATES
+ ISRC_A_SIZE = 28;
+
+
+OPCODES
+        VOTE_VTGfe_pipe =  0b100000001101;
+        VOTE_VTG =  0b100000001101;
+
+ENCODING
+!vote_vtg__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_63_62_vtgmode=vtgmode;
+BITS_3_78_76_dstfmt=*0;
+BITS_2_75_74_iswzA=*0;
+BITS_3_83_81_Pu=*7;
+BITS_3_86_84_cop=*7;
+BITS_28_59_32_Sa=Sa;
+BITS_3_89_87_Pp =* 7;
+BITS_1_90_90_input_reg_sz_32_dist =*0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_8_124_122_109_105_opex=TABLES_opex_2(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "vote_vtg_bop_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /VOP:vtgmode /CCMP:ccmp /Bop:bop
+Predicate:Pu
+','Predicate:Pv
+','UImm(28)*:Sa
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_VSA)||(%SHADER_TYPE == $ST_VSB)||(%SHADER_TYPE == $ST_GS)||(%SHADER_TYPE == $ST_TS)||(%SHADER_TYPE == $ST_TI)) :
+ "Can only be used with VS, GS, TS, TI"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((vtgmode !=`VOP@INVALID0)) :
+ "Invalid vtgmode field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((bop !=`Bop@INVALID3)) :
+ "Invalid bop field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_2(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MIN_WAIT_NEEDED = 0 ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_GS)+(1<<ISHADER_TI)+(1<<ISHADER_TS)+(1<<ISHADER_VS)+0 ;
+
+PREDICATES
+ ISRC_A_SIZE = 28;
+
+
+OPCODES
+        VOTE_VTGfe_pipe =  0b100000001101;
+        VOTE_VTG =  0b100000001101;
+
+ENCODING
+!vote_vtg_bop__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_63_62_vtgmode=vtgmode;
+BITS_3_78_76_dstfmt=ccmp;
+BITS_2_75_74_iswzA=bop;
+BITS_3_83_81_Pu=Pu;
+BITS_3_86_84_cop=Pv;
+BITS_28_59_32_Sa=Sa;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_input_reg_sz_32_dist = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_8_124_122_109_105_opex=TABLES_opex_2(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "vote_vtg_cmp_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /VOP:vtgmode /CCMP:ccmp
+Predicate:Pu
+','UImm(28)*:Sa
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_VSA)||(%SHADER_TYPE == $ST_VSB)||(%SHADER_TYPE == $ST_GS)||(%SHADER_TYPE == $ST_TS)||(%SHADER_TYPE == $ST_TI)) :
+ "Can only be used with VS, GS, TS, TI"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((vtgmode !=`VOP@INVALID0)) :
+ "Invalid vtgmode field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_2(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MIN_WAIT_NEEDED = 0 ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_GS)+(1<<ISHADER_TI)+(1<<ISHADER_TS)+(1<<ISHADER_VS)+0 ;
+
+PREDICATES
+ ISRC_A_SIZE = 28;
+
+
+OPCODES
+        VOTE_VTGfe_pipe =  0b100000001101;
+        VOTE_VTG =  0b100000001101;
+
+ENCODING
+!vote_vtg_cmp__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_63_62_vtgmode=vtgmode;
+BITS_3_78_76_dstfmt=ccmp;
+BITS_2_75_74_iswzA=*0;
+BITS_3_83_81_Pu=Pu;
+BITS_3_86_84_cop=*7;
+BITS_28_59_32_Sa=Sa;
+BITS_3_89_87_Pp =* 7;
+BITS_1_90_90_input_reg_sz_32_dist =*0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_8_124_122_109_105_opex=TABLES_opex_2(batch_t,usched_info);
+
+
+

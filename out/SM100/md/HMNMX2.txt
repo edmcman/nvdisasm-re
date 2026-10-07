@@ -1,0 +1,1140 @@
+CLASS "hmnmx2__RIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /OFMT_F16_V2_BF16_V2("F16_V2"):ofmt /FTZ("noftz"):ftz /NAN("nonan"):nan /XORSIGN("noxorsign"):xorsign
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA("H1_H0"):iswzA
+','F64Imm(64):Sb ',' F64Imm(64):Sb1
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((ofmt !=`OFMT_F16_V2_BF16_V2@INVALID1)&&(ofmt !=`OFMT_F16_V2_BF16_V2@INVALID3)) :
+ "Invalid ofmt field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzA !=`ISWZA@INVALID1)) :
+ "Invalid iswzA field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_2(batch_t,usched_info,reuse_src_a) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2))) -> (((ftz == `FTZ@noftz))) :
+ "Invalid instruction combination (reason: If .ofmt is .BF16_V2 then .FTZ may not be specified)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzA == `ISWZA@H1_H0)||(iswzA == `ISWZA@H0_H0)||(iswzA == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzA cannot be .F32)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@HMNMX2_Ib ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+
+OPCODES
+        HMNMX2fp16_pipe =  0b100001000000;
+        HMNMX2 =  0b100001000000;
+
+ENCODING
+!hmnmx2__RIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_85_85_78_78_ofmt=ofmt;
+BITS_1_80_80_texunpack=ftz;
+BITS_1_81_81_input_reg_sz_32_dist=nan;
+BITS_1_82_82_memdesc=xorsign;
+BITS_1_65_65_isA=0;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_2_75_74_sz=iswzA;
+BITS_16_63_48_Sc=Sb convertFloatType(ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2, E8M7Imm, F16Imm);
+BITS_16_47_32_Sb=Sb1 convertFloatType(ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2, E8M7Imm, F16Imm);
+BITS_3_89_87_Pnz = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_2(batch_t,usched_info,reuse_src_a);
+
+
+
+CLASS "hmnmx2__RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /OFMT_F16_V2_BF16_V2("F16_V2"):ofmt /FTZ("noftz"):ftz /NAN("nonan"):nan /XORSIGN("noxorsign"):xorsign
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA("H1_H0"):iswzA
+',' [-] [||] Register:Rb {/REUSE("noreuse"):reuse_src_b} /ISWZA("H1_H0"):iswzB
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((ofmt !=`OFMT_F16_V2_BF16_V2@INVALID1)&&(ofmt !=`OFMT_F16_V2_BF16_V2@INVALID3)) :
+ "Invalid ofmt field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzA !=`ISWZA@INVALID1)) :
+ "Invalid iswzA field value"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzB !=`ISWZA@INVALID1)) :
+ "Invalid iswzB field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_5(batch_t,usched_info,reuse_src_a,reuse_src_b) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_b"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_b==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2))) -> (((ftz == `FTZ@noftz))) :
+ "Invalid instruction combination (reason: If .ofmt is .BF16_V2 then .FTZ may not be specified)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzA == `ISWZA@H1_H0)||(iswzA == `ISWZA@H0_H0)||(iswzA == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzA cannot be .F32)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzB == `ISWZA@H1_H0)||(iswzB == `ISWZA@H0_H0)||(iswzB == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzB cannot be .F32)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@HMNMX2_Rb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        HMNMX2fp16_pipe =  0b1001000000;
+        HMNMX2 =  0b1001000000;
+
+ENCODING
+!hmnmx2__RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_85_85_78_78_ofmt=ofmt;
+BITS_1_80_80_texunpack=ftz;
+BITS_1_81_81_input_reg_sz_32_dist=nan;
+BITS_1_82_82_memdesc=xorsign;
+BITS_1_65_65_isA=0;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_2_75_74_sz=iswzA;
+BITS_8_39_32_Rb=Rb;
+BITS_1_62_62_Sc_absolute=Rb@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=Rb@negate;
+BITS_2_61_60_hsel=iswzB;
+BITS_3_89_87_Pnz = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_5(batch_t,usched_info,reuse_src_a,reuse_src_b);
+
+
+
+CLASS "hmnmx2__RUR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /OFMT_F16_V2_BF16_V2("F16_V2"):ofmt /FTZ("noftz"):ftz /NAN("nonan"):nan /XORSIGN("noxorsign"):xorsign
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA("H1_H0"):iswzA
+',' [-] [||] UniformRegister:URb /ISWZA("H1_H0"):iswzB
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((ofmt !=`OFMT_F16_V2_BF16_V2@INVALID1)&&(ofmt !=`OFMT_F16_V2_BF16_V2@INVALID3)) :
+ "Invalid ofmt field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzA !=`ISWZA@INVALID1)) :
+ "Invalid iswzA field value"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzB !=`ISWZA@INVALID1)) :
+ "Invalid iswzB field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_2(batch_t,usched_info,reuse_src_a) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2))) -> (((ftz == `FTZ@noftz))) :
+ "Invalid instruction combination (reason: If .ofmt is .BF16_V2 then .FTZ may not be specified)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzA == `ISWZA@H1_H0)||(iswzA == `ISWZA@H0_H0)||(iswzA == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzA cannot be .F32)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzB == `ISWZA@H1_H0)||(iswzB == `ISWZA@H0_H0)||(iswzB == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzB cannot be .F32)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@HMNMX2_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        HMNMX2fp16_pipe =  0b1110001000000;
+        HMNMX2 =  0b1110001000000;
+
+ENCODING
+!hmnmx2__RUR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_85_85_78_78_ofmt=ofmt;
+BITS_1_80_80_texunpack=ftz;
+BITS_1_81_81_input_reg_sz_32_dist=nan;
+BITS_1_82_82_memdesc=xorsign;
+BITS_1_65_65_isA=0;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_2_75_74_sz=iswzA;
+BITS_8_39_32_Rb=URb;
+BITS_1_62_62_Sc_absolute=URb@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=URb@negate;
+BITS_2_61_60_hsel=iswzB;
+BITS_3_89_87_Pnz = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_2(batch_t,usched_info,reuse_src_a);
+
+
+
+ALTERNATE CLASS "hmnmx2_fixed__RIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /OFMT_F16_V2_BF16_V2("F16_V2"):ofmt /FTZ("noftz"):ftz /NAN("nonan"):nan /XORSIGN("noxorsign"):xorsign
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA("H1_H0"):iswzA
+','F64Imm(64):Sb ',' F64Imm(64):Sb1
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((ofmt !=`OFMT_F16_V2_BF16_V2@INVALID1)&&(ofmt !=`OFMT_F16_V2_BF16_V2@INVALID3)) :
+ "Invalid ofmt field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzA !=`ISWZA@INVALID1)) :
+ "Invalid iswzA field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_2(batch_t,usched_info,reuse_src_a) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2))) -> (((ftz == `FTZ@noftz))) :
+ "Invalid instruction combination (reason: If .ofmt is .BF16_V2 then .FTZ may not be specified)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzA == `ISWZA@H1_H0)||(iswzA == `ISWZA@H0_H0)||(iswzA == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzA cannot be .F32)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@HMNMX2_Ib ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+
+OPCODES
+        HMNMX2fp16_pipe =  0b100001000000;
+        HMNMX2 =  0b100001000000;
+
+ENCODING
+!hmnmx2_fixed__RIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_85_85_78_78_ofmt=ofmt;
+BITS_1_80_80_texunpack=ftz;
+BITS_1_81_81_input_reg_sz_32_dist=nan;
+BITS_1_82_82_memdesc=xorsign;
+BITS_1_65_65_isA=0;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_2_75_74_sz=iswzA;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_16_63_48_Sc=Sb convertFloatType(ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2, E8M7Imm, F16Imm);
+BITS_16_47_32_Sb=Sb1 convertFloatType(ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2, E8M7Imm, F16Imm);
+BITS_3_89_87_Pnz = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_2(batch_t,usched_info,reuse_src_a);
+
+
+
+ALTERNATE CLASS "hmnmx2_fixed__RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /OFMT_F16_V2_BF16_V2("F16_V2"):ofmt /FTZ("noftz"):ftz /NAN("nonan"):nan /XORSIGN("noxorsign"):xorsign
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA("H1_H0"):iswzA
+',' [-] [||] Register:Rb {/REUSE("noreuse"):reuse_src_b} /ISWZA("H1_H0"):iswzB
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((ofmt !=`OFMT_F16_V2_BF16_V2@INVALID1)&&(ofmt !=`OFMT_F16_V2_BF16_V2@INVALID3)) :
+ "Invalid ofmt field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzA !=`ISWZA@INVALID1)) :
+ "Invalid iswzA field value"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzB !=`ISWZA@INVALID1)) :
+ "Invalid iswzB field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_5(batch_t,usched_info,reuse_src_a,reuse_src_b) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_b"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_b==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2))) -> (((ftz == `FTZ@noftz))) :
+ "Invalid instruction combination (reason: If .ofmt is .BF16_V2 then .FTZ may not be specified)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzA == `ISWZA@H1_H0)||(iswzA == `ISWZA@H0_H0)||(iswzA == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzA cannot be .F32)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzB == `ISWZA@H1_H0)||(iswzB == `ISWZA@H0_H0)||(iswzB == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzB cannot be .F32)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@HMNMX2_Rb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        HMNMX2fp16_pipe =  0b1001000000;
+        HMNMX2 =  0b1001000000;
+
+ENCODING
+!hmnmx2_fixed__RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_85_85_78_78_ofmt=ofmt;
+BITS_1_80_80_texunpack=ftz;
+BITS_1_81_81_input_reg_sz_32_dist=nan;
+BITS_1_82_82_memdesc=xorsign;
+BITS_1_65_65_isA=0;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_2_75_74_sz=iswzA;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_8_39_32_Rb=Rb;
+BITS_2_61_60_hsel=iswzB;
+BITS_1_62_62_Sc_absolute=Rb@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=Rb@negate;
+BITS_3_89_87_Pnz = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_5(batch_t,usched_info,reuse_src_a,reuse_src_b);
+
+
+
+ALTERNATE CLASS "hmnmx2_fixed__RUR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /OFMT_F16_V2_BF16_V2("F16_V2"):ofmt /FTZ("noftz"):ftz /NAN("nonan"):nan /XORSIGN("noxorsign"):xorsign
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA("H1_H0"):iswzA
+',' [-] [||] UniformRegister:URb /ISWZA("H1_H0"):iswzB
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((ofmt !=`OFMT_F16_V2_BF16_V2@INVALID1)&&(ofmt !=`OFMT_F16_V2_BF16_V2@INVALID3)) :
+ "Invalid ofmt field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzA !=`ISWZA@INVALID1)) :
+ "Invalid iswzA field value"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzB !=`ISWZA@INVALID1)) :
+ "Invalid iswzB field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_2(batch_t,usched_info,reuse_src_a) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2))) -> (((ftz == `FTZ@noftz))) :
+ "Invalid instruction combination (reason: If .ofmt is .BF16_V2 then .FTZ may not be specified)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzA == `ISWZA@H1_H0)||(iswzA == `ISWZA@H0_H0)||(iswzA == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzA cannot be .F32)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzB == `ISWZA@H1_H0)||(iswzB == `ISWZA@H0_H0)||(iswzB == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzB cannot be .F32)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@HMNMX2_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        HMNMX2fp16_pipe =  0b1110001000000;
+        HMNMX2 =  0b1110001000000;
+
+ENCODING
+!hmnmx2_fixed__RUR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_85_85_78_78_ofmt=ofmt;
+BITS_1_80_80_texunpack=ftz;
+BITS_1_81_81_input_reg_sz_32_dist=nan;
+BITS_1_82_82_memdesc=xorsign;
+BITS_1_65_65_isA=0;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_2_75_74_sz=iswzA;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_8_39_32_Rb=URb;
+BITS_2_61_60_hsel=iswzB;
+BITS_1_62_62_Sc_absolute=URb@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=URb@negate;
+BITS_3_89_87_Pnz = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_2(batch_t,usched_info,reuse_src_a);
+
+
+
+CLASS "hmnmx2_pred__RIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /OFMT_F16_V2_BF16_V2("F16_V2"):ofmt /FTZ("noftz"):ftz /NAN("nonan"):nan /XORSIGN("noxorsign"):xorsign /IS_AONLY:isA
+Register:Rd
+','Predicate:Pu
+','Predicate:Pv
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA("H1_H0"):iswzA
+','F64Imm(64):Sb ',' F64Imm(64):Sb1
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((ofmt !=`OFMT_F16_V2_BF16_V2@INVALID1)&&(ofmt !=`OFMT_F16_V2_BF16_V2@INVALID3)) :
+ "Invalid ofmt field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzA !=`ISWZA@INVALID1)) :
+ "Invalid iswzA field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_2(batch_t,usched_info,reuse_src_a) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2))) -> (((ftz == `FTZ@noftz))) :
+ "Invalid instruction combination (reason: If .ofmt is .BF16_V2 then .FTZ may not be specified)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzA == `ISWZA@H1_H0)||(iswzA == `ISWZA@H0_H0)||(iswzA == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzA cannot be .F32)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@HMNMX2_Ib ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+
+OPCODES
+        HMNMX2fp16_pipe =  0b100001000000;
+        HMNMX2 =  0b100001000000;
+
+ENCODING
+!hmnmx2_pred__RIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_85_85_78_78_ofmt=ofmt;
+BITS_1_80_80_texunpack=ftz;
+BITS_1_81_81_input_reg_sz_32_dist=nan;
+BITS_1_82_82_memdesc=xorsign;
+BITS_1_65_65_isA=*isA;
+BITS_8_23_16_Rd=Rd;
+BITS_3_68_66_Pu=Pu;
+BITS_3_71_69_Pv=Pv;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_2_75_74_sz=iswzA;
+BITS_16_63_48_Sc=Sb convertFloatType(ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2, E8M7Imm, F16Imm);
+BITS_16_47_32_Sb=Sb1 convertFloatType(ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2, E8M7Imm, F16Imm);
+BITS_3_89_87_Pnz = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_2(batch_t,usched_info,reuse_src_a);
+
+
+
+CLASS "hmnmx2_pred__RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /OFMT_F16_V2_BF16_V2("F16_V2"):ofmt /FTZ("noftz"):ftz /NAN("nonan"):nan /XORSIGN("noxorsign"):xorsign /IS_AONLY:isA
+Register:Rd
+','Predicate:Pu
+','Predicate:Pv
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA("H1_H0"):iswzA
+',' [-] [||] Register:Rb {/REUSE("noreuse"):reuse_src_b} /ISWZA("H1_H0"):iswzB
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((ofmt !=`OFMT_F16_V2_BF16_V2@INVALID1)&&(ofmt !=`OFMT_F16_V2_BF16_V2@INVALID3)) :
+ "Invalid ofmt field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzA !=`ISWZA@INVALID1)) :
+ "Invalid iswzA field value"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzB !=`ISWZA@INVALID1)) :
+ "Invalid iswzB field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_5(batch_t,usched_info,reuse_src_a,reuse_src_b) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_b"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_b==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2))) -> (((ftz == `FTZ@noftz))) :
+ "Invalid instruction combination (reason: If .ofmt is .BF16_V2 then .FTZ may not be specified)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzA == `ISWZA@H1_H0)||(iswzA == `ISWZA@H0_H0)||(iswzA == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzA cannot be .F32)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzB == `ISWZA@H1_H0)||(iswzB == `ISWZA@H0_H0)||(iswzB == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzB cannot be .F32)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@HMNMX2_Rb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        HMNMX2fp16_pipe =  0b1001000000;
+        HMNMX2 =  0b1001000000;
+
+ENCODING
+!hmnmx2_pred__RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_85_85_78_78_ofmt=ofmt;
+BITS_1_80_80_texunpack=ftz;
+BITS_1_81_81_input_reg_sz_32_dist=nan;
+BITS_1_82_82_memdesc=xorsign;
+BITS_1_65_65_isA=*isA;
+BITS_8_23_16_Rd=Rd;
+BITS_3_68_66_Pu=Pu;
+BITS_3_71_69_Pv=Pv;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_2_75_74_sz=iswzA;
+BITS_8_39_32_Rb=Rb;
+BITS_1_62_62_Sc_absolute=Rb@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=Rb@negate;
+BITS_2_61_60_hsel=iswzB;
+BITS_3_89_87_Pnz = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_5(batch_t,usched_info,reuse_src_a,reuse_src_b);
+
+
+
+CLASS "hmnmx2_pred__RUR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /OFMT_F16_V2_BF16_V2("F16_V2"):ofmt /FTZ("noftz"):ftz /NAN("nonan"):nan /XORSIGN("noxorsign"):xorsign /IS_AONLY:isA
+Register:Rd
+','Predicate:Pu
+','Predicate:Pv
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA("H1_H0"):iswzA
+',' [-] [||] UniformRegister:URb /ISWZA("H1_H0"):iswzB
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((ofmt !=`OFMT_F16_V2_BF16_V2@INVALID1)&&(ofmt !=`OFMT_F16_V2_BF16_V2@INVALID3)) :
+ "Invalid ofmt field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzA !=`ISWZA@INVALID1)) :
+ "Invalid iswzA field value"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzB !=`ISWZA@INVALID1)) :
+ "Invalid iswzB field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_2(batch_t,usched_info,reuse_src_a) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2))) -> (((ftz == `FTZ@noftz))) :
+ "Invalid instruction combination (reason: If .ofmt is .BF16_V2 then .FTZ may not be specified)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzA == `ISWZA@H1_H0)||(iswzA == `ISWZA@H0_H0)||(iswzA == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzA cannot be .F32)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzB == `ISWZA@H1_H0)||(iswzB == `ISWZA@H0_H0)||(iswzB == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzB cannot be .F32)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@HMNMX2_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        HMNMX2fp16_pipe =  0b1110001000000;
+        HMNMX2 =  0b1110001000000;
+
+ENCODING
+!hmnmx2_pred__RUR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_85_85_78_78_ofmt=ofmt;
+BITS_1_80_80_texunpack=ftz;
+BITS_1_81_81_input_reg_sz_32_dist=nan;
+BITS_1_82_82_memdesc=xorsign;
+BITS_1_65_65_isA=*isA;
+BITS_8_23_16_Rd=Rd;
+BITS_3_68_66_Pu=Pu;
+BITS_3_71_69_Pv=Pv;
+BITS_8_31_24_Ra=Ra;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_2_75_74_sz=iswzA;
+BITS_8_39_32_Rb=URb;
+BITS_1_62_62_Sc_absolute=URb@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=URb@negate;
+BITS_2_61_60_hsel=iswzB;
+BITS_3_89_87_Pnz = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_2(batch_t,usched_info,reuse_src_a);
+
+
+
+ALTERNATE CLASS "hmnmx2_pred_fixed__RIR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /OFMT_F16_V2_BF16_V2("F16_V2"):ofmt /FTZ("noftz"):ftz /NAN("nonan"):nan /XORSIGN("noxorsign"):xorsign /IS_AONLY:isA
+Register:Rd
+','Predicate:Pu
+','Predicate:Pv
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA("H1_H0"):iswzA
+','F64Imm(64):Sb ',' F64Imm(64):Sb1
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((ofmt !=`OFMT_F16_V2_BF16_V2@INVALID1)&&(ofmt !=`OFMT_F16_V2_BF16_V2@INVALID3)) :
+ "Invalid ofmt field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzA !=`ISWZA@INVALID1)) :
+ "Invalid iswzA field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_2(batch_t,usched_info,reuse_src_a) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2))) -> (((ftz == `FTZ@noftz))) :
+ "Invalid instruction combination (reason: If .ofmt is .BF16_V2 then .FTZ may not be specified)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzA == `ISWZA@H1_H0)||(iswzA == `ISWZA@H0_H0)||(iswzA == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzA cannot be .F32)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@HMNMX2_Ib ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+
+OPCODES
+        HMNMX2fp16_pipe =  0b100001000000;
+        HMNMX2 =  0b100001000000;
+
+ENCODING
+!hmnmx2_pred_fixed__RIR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_85_85_78_78_ofmt=ofmt;
+BITS_1_80_80_texunpack=ftz;
+BITS_1_81_81_input_reg_sz_32_dist=nan;
+BITS_1_82_82_memdesc=xorsign;
+BITS_1_65_65_isA=*isA;
+BITS_8_23_16_Rd=Rd;
+BITS_3_68_66_Pu=Pu;
+BITS_3_71_69_Pv=Pv;
+BITS_8_31_24_Ra=Ra;
+BITS_2_75_74_sz=iswzA;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_16_63_48_Sc=Sb convertFloatType(ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2, E8M7Imm, F16Imm);
+BITS_16_47_32_Sb=Sb1 convertFloatType(ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2, E8M7Imm, F16Imm);
+BITS_3_89_87_Pnz = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_2(batch_t,usched_info,reuse_src_a);
+
+
+
+ALTERNATE CLASS "hmnmx2_pred_fixed__RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /OFMT_F16_V2_BF16_V2("F16_V2"):ofmt /FTZ("noftz"):ftz /NAN("nonan"):nan /XORSIGN("noxorsign"):xorsign /IS_AONLY:isA
+Register:Rd
+','Predicate:Pu
+','Predicate:Pv
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA("H1_H0"):iswzA
+',' [-] [||] Register:Rb {/REUSE("noreuse"):reuse_src_b} /ISWZA("H1_H0"):iswzB
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((ofmt !=`OFMT_F16_V2_BF16_V2@INVALID1)&&(ofmt !=`OFMT_F16_V2_BF16_V2@INVALID3)) :
+ "Invalid ofmt field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzA !=`ISWZA@INVALID1)) :
+ "Invalid iswzA field value"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzB !=`ISWZA@INVALID1)) :
+ "Invalid iswzB field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_5(batch_t,usched_info,reuse_src_a,reuse_src_b) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_b"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_b==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2))) -> (((ftz == `FTZ@noftz))) :
+ "Invalid instruction combination (reason: If .ofmt is .BF16_V2 then .FTZ may not be specified)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzA == `ISWZA@H1_H0)||(iswzA == `ISWZA@H0_H0)||(iswzA == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzA cannot be .F32)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzB == `ISWZA@H1_H0)||(iswzB == `ISWZA@H0_H0)||(iswzB == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzB cannot be .F32)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@HMNMX2_Rb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        HMNMX2fp16_pipe =  0b1001000000;
+        HMNMX2 =  0b1001000000;
+
+ENCODING
+!hmnmx2_pred_fixed__RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_85_85_78_78_ofmt=ofmt;
+BITS_1_80_80_texunpack=ftz;
+BITS_1_81_81_input_reg_sz_32_dist=nan;
+BITS_1_82_82_memdesc=xorsign;
+BITS_1_65_65_isA=*isA;
+BITS_8_23_16_Rd=Rd;
+BITS_3_68_66_Pu=Pu;
+BITS_3_71_69_Pv=Pv;
+BITS_8_31_24_Ra=Ra;
+BITS_2_75_74_sz=iswzA;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_8_39_32_Rb=Rb;
+BITS_2_61_60_hsel=iswzB;
+BITS_1_62_62_Sc_absolute=Rb@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=Rb@negate;
+BITS_3_89_87_Pnz = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_5(batch_t,usched_info,reuse_src_a,reuse_src_b);
+
+
+
+ALTERNATE CLASS "hmnmx2_pred_fixed__RUR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /OFMT_F16_V2_BF16_V2("F16_V2"):ofmt /FTZ("noftz"):ftz /NAN("nonan"):nan /XORSIGN("noxorsign"):xorsign /IS_AONLY:isA
+Register:Rd
+','Predicate:Pu
+','Predicate:Pv
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA("H1_H0"):iswzA
+',' [-] [||] UniformRegister:URb /ISWZA("H1_H0"):iswzB
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((ofmt !=`OFMT_F16_V2_BF16_V2@INVALID1)&&(ofmt !=`OFMT_F16_V2_BF16_V2@INVALID3)) :
+ "Invalid ofmt field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzA !=`ISWZA@INVALID1)) :
+ "Invalid iswzA field value"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzB !=`ISWZA@INVALID1)) :
+ "Invalid iswzB field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_2(batch_t,usched_info,reuse_src_a) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ofmt == `OFMT_F16_V2_BF16_V2@BF16_V2))) -> (((ftz == `FTZ@noftz))) :
+ "Invalid instruction combination (reason: If .ofmt is .BF16_V2 then .FTZ may not be specified)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzA == `ISWZA@H1_H0)||(iswzA == `ISWZA@H0_H0)||(iswzA == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzA cannot be .F32)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((iswzB == `ISWZA@H1_H0)||(iswzB == `ISWZA@H0_H0)||(iswzB == `ISWZA@H1_H1))) :
+ "Invalid instruction combination (reason: .iswzB cannot be .F32)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@HMNMX2_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 32;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        HMNMX2fp16_pipe =  0b1110001000000;
+        HMNMX2 =  0b1110001000000;
+
+ENCODING
+!hmnmx2_pred_fixed__RUR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_85_85_78_78_ofmt=ofmt;
+BITS_1_80_80_texunpack=ftz;
+BITS_1_81_81_input_reg_sz_32_dist=nan;
+BITS_1_82_82_memdesc=xorsign;
+BITS_1_65_65_isA=*isA;
+BITS_8_23_16_Rd=Rd;
+BITS_3_68_66_Pu=Pu;
+BITS_3_71_69_Pv=Pv;
+BITS_8_31_24_Ra=Ra;
+BITS_2_75_74_sz=iswzA;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_8_39_32_Rb=URb;
+BITS_2_61_60_hsel=iswzB;
+BITS_1_62_62_Sc_absolute=URb@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=URb@negate;
+BITS_3_89_87_Pnz = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_2(batch_t,usched_info,reuse_src_a);
+
+
+

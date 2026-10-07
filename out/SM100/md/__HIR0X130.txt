@@ -1,0 +1,876 @@
+CLASS "utcmxqmma_1cta_scale__A_gdesc"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ONLY1CTA("1CTA"):cluster_sz
+ UMMAA:gdescA[ UniformRegister:URa ] /REUSE_A("noreuse_a"):reuse_a /KEEP_A("nokeep_a"):keep_a
+',' UMMAB:gdescB[ UniformRegister:URb ]
+',' TMEMC:tmemC[ UniformRegister:URc ]
+',' TMEME:tmemE[ UniformRegister:URe ]
+',' UMMA:idesc[ UniformRegister:URh ]
+',' TMEMI:tmemI[ UniformRegister:URi ]
+',' [!]UniformPredicate:UPp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sb is misaligned"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+OOR_REG_ERROR
+ (((URe)==`UniformRegister@URZ)||((URe)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URe is out of range"
+MISALIGNED_REG_ERROR
+ (((URe)+((URe)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URe is misaligned"
+OOR_REG_ERROR
+ (((URh)==`UniformRegister@URZ)||((URh)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URh is out of range"
+OOR_REG_ERROR
+ (((URi)==`UniformRegister@URZ)||((URi)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URi is out of range"
+MISALIGNED_REG_ERROR
+ (((URi)+((URi)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URi is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_URa_0(URe,URh) :
+ "Invalid combination of URe, URh"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UTCMMA_G_SCALE ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64;
+ ISRC_C_SIZE = 32;
+ ISRC_E_SIZE = 64;
+ ISRC_H_SIZE = 32;
+ ISRC_I_SIZE = 64;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_TC_1CTA ;
+ MASK_INSTR_PREDICATE = (1);
+
+ ILABEL_URa_SIZE = 64;
+ ILABEL_URb_SIZE = 64;
+ ILABEL_URc_SIZE = 32;
+ ILABEL_URe_SIZE = 64;
+ ILABEL_URh_SIZE = 32;
+ ILABEL_URi_SIZE = 64;
+
+OPCODES
+        __HIR0X130udp_pipe =  0b1110111101010;
+        __HIR0X130 =  0b1110111101010;
+
+ENCODING
+!__HIR0X132;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_85_85_ignoreKill=*cluster_sz;
+BITS_3_73_72_63_63_opType=3;
+BITS_8_31_24_Ra=URa;
+BITS_1_86_86_depth=reuse_a;
+BITS_1_84_84_OR=keep_a;
+BITS_8_39_32_Rb=URb;
+BITS_8_71_64_Ra_URc=URc;
+BITS_8_55_48_URe=URi;
+BITS_3_89_87_Pnz = UPp;
+BITS_1_90_90_memdesc = UPp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_47_40_Re=TABLES_URa_0(URe,URh);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "utcmxqmma_1cta_scale__A_tmem"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ONLY1CTA("1CTA"):cluster_sz
+ TMEMA:tmemA[ UniformRegister:URa ] /REUSE_A("noreuse_a"):reuse_a /KEEP_A("nokeep_a"):keep_a
+',' UMMAB:gdescB[ UniformRegister:URb ]
+',' TMEMC:tmemC[ UniformRegister:URc ]
+',' TMEME:tmemE[ UniformRegister:URe ]
+',' UMMA:idesc[ UniformRegister:URh ]
+',' TMEMI:tmemI[ UniformRegister:URi ]
+',' [!]UniformPredicate:UPp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sb is misaligned"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+OOR_REG_ERROR
+ (((URe)==`UniformRegister@URZ)||((URe)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URe is out of range"
+MISALIGNED_REG_ERROR
+ (((URe)+((URe)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URe is misaligned"
+OOR_REG_ERROR
+ (((URh)==`UniformRegister@URZ)||((URh)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URh is out of range"
+OOR_REG_ERROR
+ (((URi)==`UniformRegister@URZ)||((URi)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URi is out of range"
+MISALIGNED_REG_ERROR
+ (((URi)+((URi)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URi is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_URa_0(URe,URh) :
+ "Invalid combination of URe, URh"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UTCMMA_T_SCALE ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64;
+ ISRC_C_SIZE = 32;
+ ISRC_E_SIZE = 64;
+ ISRC_H_SIZE = 32;
+ ISRC_I_SIZE = 64;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_TC_1CTA ;
+ MASK_INSTR_PREDICATE = (1);
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 64;
+ ILABEL_URc_SIZE = 32;
+ ILABEL_URe_SIZE = 64;
+ ILABEL_URh_SIZE = 32;
+ ILABEL_URi_SIZE = 64;
+
+OPCODES
+        __HIR0X130udp_pipe =  0b1111111101010;
+        __HIR0X130 =  0b1111111101010;
+
+ENCODING
+!__HIR0X134;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_85_85_ignoreKill=*cluster_sz;
+BITS_3_73_72_63_63_opType=3;
+BITS_8_31_24_Ra=URa;
+BITS_1_86_86_depth=reuse_a;
+BITS_1_84_84_OR=keep_a;
+BITS_8_39_32_Rb=URb;
+BITS_8_71_64_Ra_URc=URc;
+BITS_8_55_48_URe=URi;
+BITS_3_89_87_Pnz = UPp;
+BITS_1_90_90_memdesc = UPp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_47_40_Re=TABLES_URa_0(URe,URh);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "utcmxqmma_1cta_scale_one__A_gdesc"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ONEONLY:one /ONLY1CTA("1CTA"):cluster_sz
+ UMMAA:gdescA[ UniformRegister:URa ] /REUSE_A("noreuse_a"):reuse_a /KEEP_A("nokeep_a"):keep_a
+',' UMMAB:gdescB[ UniformRegister:URb ]
+',' TMEMC:tmemC[ UniformRegister:URc ]
+',' TMEME:tmemE[ UniformRegister:URe ]
+',' UMMA:idesc[ UniformRegister:URh ]
+',' TMEMI:tmemI[ UniformRegister:URi ]
+',' [!]UniformPredicate:UPp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sb is misaligned"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+OOR_REG_ERROR
+ (((URe)==`UniformRegister@URZ)||((URe)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URe is out of range"
+MISALIGNED_REG_ERROR
+ (((URe)+((URe)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URe is misaligned"
+OOR_REG_ERROR
+ (((URh)==`UniformRegister@URZ)||((URh)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URh is out of range"
+OOR_REG_ERROR
+ (((URi)==`UniformRegister@URZ)||((URi)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URi is out of range"
+MISALIGNED_REG_ERROR
+ (((URi)+((URi)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URi is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_URa_0(URe,URh) :
+ "Invalid combination of URe, URh"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UTCMMA_G_SCALE ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64;
+ ISRC_C_SIZE = 32;
+ ISRC_E_SIZE = 64;
+ ISRC_H_SIZE = 32;
+ ISRC_I_SIZE = 64;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_TC_1CTA ;
+ MASK_INSTR_PREDICATE = (1);
+
+ ILABEL_URa_SIZE = 64;
+ ILABEL_URb_SIZE = 64;
+ ILABEL_URc_SIZE = 32;
+ ILABEL_URe_SIZE = 64;
+ ILABEL_URh_SIZE = 32;
+ ILABEL_URi_SIZE = 64;
+
+OPCODES
+        __HIR0X130udp_pipe =  0b1110111101010;
+        __HIR0X130 =  0b1110111101010;
+
+ENCODING
+!__HIR0X136;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_85_85_ignoreKill=*cluster_sz;
+BITS_3_73_72_63_63_opType=3;
+BITS_8_31_24_Ra=URa;
+BITS_1_86_86_depth=reuse_a;
+BITS_1_84_84_OR=keep_a;
+BITS_8_39_32_Rb=URb;
+BITS_8_71_64_Ra_URc=URc;
+BITS_8_55_48_URe=URi;
+BITS_3_89_87_Pnz = UPp;
+BITS_1_90_90_memdesc = UPp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_47_40_Re=TABLES_URa_0(URe,URh);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "utcmxqmma_1cta_scale_one__A_tmem"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ONEONLY:one /ONLY1CTA("1CTA"):cluster_sz
+ TMEMA:tmemA[ UniformRegister:URa ] /REUSE_A("noreuse_a"):reuse_a /KEEP_A("nokeep_a"):keep_a
+',' UMMAB:gdescB[ UniformRegister:URb ]
+',' TMEMC:tmemC[ UniformRegister:URc ]
+',' TMEME:tmemE[ UniformRegister:URe ]
+',' UMMA:idesc[ UniformRegister:URh ]
+',' TMEMI:tmemI[ UniformRegister:URi ]
+',' [!]UniformPredicate:UPp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sb is misaligned"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+OOR_REG_ERROR
+ (((URe)==`UniformRegister@URZ)||((URe)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URe is out of range"
+MISALIGNED_REG_ERROR
+ (((URe)+((URe)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URe is misaligned"
+OOR_REG_ERROR
+ (((URh)==`UniformRegister@URZ)||((URh)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URh is out of range"
+OOR_REG_ERROR
+ (((URi)==`UniformRegister@URZ)||((URi)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URi is out of range"
+MISALIGNED_REG_ERROR
+ (((URi)+((URi)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URi is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_URa_0(URe,URh) :
+ "Invalid combination of URe, URh"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UTCMMA_T_SCALE ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64;
+ ISRC_C_SIZE = 32;
+ ISRC_E_SIZE = 64;
+ ISRC_H_SIZE = 32;
+ ISRC_I_SIZE = 64;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_TC_1CTA ;
+ MASK_INSTR_PREDICATE = (1);
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 64;
+ ILABEL_URc_SIZE = 32;
+ ILABEL_URe_SIZE = 64;
+ ILABEL_URh_SIZE = 32;
+ ILABEL_URi_SIZE = 64;
+
+OPCODES
+        __HIR0X130udp_pipe =  0b1111111101010;
+        __HIR0X130 =  0b1111111101010;
+
+ENCODING
+!__HIR0X138;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_85_85_ignoreKill=*cluster_sz;
+BITS_3_73_72_63_63_opType=3;
+BITS_8_31_24_Ra=URa;
+BITS_1_86_86_depth=reuse_a;
+BITS_1_84_84_OR=keep_a;
+BITS_8_39_32_Rb=URb;
+BITS_8_71_64_Ra_URc=URc;
+BITS_8_55_48_URe=URi;
+BITS_3_89_87_Pnz = UPp;
+BITS_1_90_90_memdesc = UPp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_47_40_Re=TABLES_URa_0(URe,URh);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "utcmxqmma_2cta_scale__A_gdesc"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ONLY2CTA:cluster_sz
+ UMMAA:gdescA[ UniformRegister:URa ] /REUSE_A("noreuse_a"):reuse_a /KEEP_A("nokeep_a"):keep_a
+',' UMMAB:gdescB[ UniformRegister:URb ]
+',' TMEMC:tmemC[ UniformRegister:URc ]
+',' TMEME:tmemE[ UniformRegister:URe ]
+',' UMMA:idesc[ UniformRegister:URh ]
+',' TMEMI:tmemI[ UniformRegister:URi ]
+',' [!]UniformPredicate:UPp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sb is misaligned"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+OOR_REG_ERROR
+ (((URe)==`UniformRegister@URZ)||((URe)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URe is out of range"
+MISALIGNED_REG_ERROR
+ (((URe)+((URe)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URe is misaligned"
+OOR_REG_ERROR
+ (((URh)==`UniformRegister@URZ)||((URh)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URh is out of range"
+OOR_REG_ERROR
+ (((URi)==`UniformRegister@URZ)||((URi)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URi is out of range"
+MISALIGNED_REG_ERROR
+ (((URi)+((URi)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URi is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_URa_0(URe,URh) :
+ "Invalid combination of URe, URh"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UTCMMA_G_SCALE ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64;
+ ISRC_C_SIZE = 32;
+ ISRC_E_SIZE = 64;
+ ISRC_H_SIZE = 32;
+ ISRC_I_SIZE = 64;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_TC_2CTA ;
+ MASK_INSTR_PREDICATE = (1);
+
+ ILABEL_URa_SIZE = 64;
+ ILABEL_URb_SIZE = 64;
+ ILABEL_URc_SIZE = 32;
+ ILABEL_URe_SIZE = 64;
+ ILABEL_URh_SIZE = 32;
+ ILABEL_URi_SIZE = 64;
+
+OPCODES
+        __HIR0X130udp_pipe =  0b1110111101010;
+        __HIR0X130 =  0b1110111101010;
+
+ENCODING
+!__HIR0X13A;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_85_85_ignoreKill=*cluster_sz;
+BITS_3_73_72_63_63_opType=3;
+BITS_8_31_24_Ra=URa;
+BITS_1_86_86_depth=reuse_a;
+BITS_1_84_84_OR=keep_a;
+BITS_8_39_32_Rb=URb;
+BITS_8_71_64_Ra_URc=URc;
+BITS_8_55_48_URe=URi;
+BITS_3_89_87_Pnz = UPp;
+BITS_1_90_90_memdesc = UPp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_47_40_Re=TABLES_URa_0(URe,URh);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "utcmxqmma_2cta_scale__A_tmem"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ONLY2CTA:cluster_sz
+ TMEMA:tmemA[ UniformRegister:URa ] /REUSE_A("noreuse_a"):reuse_a /KEEP_A("nokeep_a"):keep_a
+',' UMMAB:gdescB[ UniformRegister:URb ]
+',' TMEMC:tmemC[ UniformRegister:URc ]
+',' TMEME:tmemE[ UniformRegister:URe ]
+',' UMMA:idesc[ UniformRegister:URh ]
+',' TMEMI:tmemI[ UniformRegister:URi ]
+',' [!]UniformPredicate:UPp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sb is misaligned"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+OOR_REG_ERROR
+ (((URe)==`UniformRegister@URZ)||((URe)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URe is out of range"
+MISALIGNED_REG_ERROR
+ (((URe)+((URe)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URe is misaligned"
+OOR_REG_ERROR
+ (((URh)==`UniformRegister@URZ)||((URh)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URh is out of range"
+OOR_REG_ERROR
+ (((URi)==`UniformRegister@URZ)||((URi)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URi is out of range"
+MISALIGNED_REG_ERROR
+ (((URi)+((URi)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URi is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_URa_0(URe,URh) :
+ "Invalid combination of URe, URh"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UTCMMA_T_SCALE ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64;
+ ISRC_C_SIZE = 32;
+ ISRC_E_SIZE = 64;
+ ISRC_H_SIZE = 32;
+ ISRC_I_SIZE = 64;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_TC_2CTA ;
+ MASK_INSTR_PREDICATE = (1);
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 64;
+ ILABEL_URc_SIZE = 32;
+ ILABEL_URe_SIZE = 64;
+ ILABEL_URh_SIZE = 32;
+ ILABEL_URi_SIZE = 64;
+
+OPCODES
+        __HIR0X130udp_pipe =  0b1111111101010;
+        __HIR0X130 =  0b1111111101010;
+
+ENCODING
+!__HIR0X13C;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_85_85_ignoreKill=*cluster_sz;
+BITS_3_73_72_63_63_opType=3;
+BITS_8_31_24_Ra=URa;
+BITS_1_86_86_depth=reuse_a;
+BITS_1_84_84_OR=keep_a;
+BITS_8_39_32_Rb=URb;
+BITS_8_71_64_Ra_URc=URc;
+BITS_8_55_48_URe=URi;
+BITS_3_89_87_Pnz = UPp;
+BITS_1_90_90_memdesc = UPp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_47_40_Re=TABLES_URa_0(URe,URh);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "utcmxqmma_2cta_scale_one__A_gdesc"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ONEONLY:one /ONLY2CTA:cluster_sz
+ UMMAA:gdescA[ UniformRegister:URa ] /REUSE_A("noreuse_a"):reuse_a /KEEP_A("nokeep_a"):keep_a
+',' UMMAB:gdescB[ UniformRegister:URb ]
+',' TMEMC:tmemC[ UniformRegister:URc ]
+',' TMEME:tmemE[ UniformRegister:URe ]
+',' UMMA:idesc[ UniformRegister:URh ]
+',' TMEMI:tmemI[ UniformRegister:URi ]
+',' [!]UniformPredicate:UPp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sb is misaligned"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+OOR_REG_ERROR
+ (((URe)==`UniformRegister@URZ)||((URe)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URe is out of range"
+MISALIGNED_REG_ERROR
+ (((URe)+((URe)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URe is misaligned"
+OOR_REG_ERROR
+ (((URh)==`UniformRegister@URZ)||((URh)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URh is out of range"
+OOR_REG_ERROR
+ (((URi)==`UniformRegister@URZ)||((URi)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URi is out of range"
+MISALIGNED_REG_ERROR
+ (((URi)+((URi)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URi is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_URa_0(URe,URh) :
+ "Invalid combination of URe, URh"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UTCMMA_G_SCALE ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64;
+ ISRC_C_SIZE = 32;
+ ISRC_E_SIZE = 64;
+ ISRC_H_SIZE = 32;
+ ISRC_I_SIZE = 64;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_TC_2CTA ;
+ MASK_INSTR_PREDICATE = (1);
+
+ ILABEL_URa_SIZE = 64;
+ ILABEL_URb_SIZE = 64;
+ ILABEL_URc_SIZE = 32;
+ ILABEL_URe_SIZE = 64;
+ ILABEL_URh_SIZE = 32;
+ ILABEL_URi_SIZE = 64;
+
+OPCODES
+        __HIR0X130udp_pipe =  0b1110111101010;
+        __HIR0X130 =  0b1110111101010;
+
+ENCODING
+!__HIR0X13E;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_85_85_ignoreKill=*cluster_sz;
+BITS_3_73_72_63_63_opType=3;
+BITS_8_31_24_Ra=URa;
+BITS_1_86_86_depth=reuse_a;
+BITS_1_84_84_OR=keep_a;
+BITS_8_39_32_Rb=URb;
+BITS_8_71_64_Ra_URc=URc;
+BITS_8_55_48_URe=URi;
+BITS_3_89_87_Pnz = UPp;
+BITS_1_90_90_memdesc = UPp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_47_40_Re=TABLES_URa_0(URe,URh);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "utcmxqmma_2cta_scale_one__A_tmem"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ONEONLY:one /ONLY2CTA:cluster_sz
+ TMEMA:tmemA[ UniformRegister:URa ] /REUSE_A("noreuse_a"):reuse_a /KEEP_A("nokeep_a"):keep_a
+',' UMMAB:gdescB[ UniformRegister:URb ]
+',' TMEMC:tmemC[ UniformRegister:URc ]
+',' TMEME:tmemE[ UniformRegister:URe ]
+',' UMMA:idesc[ UniformRegister:URh ]
+',' TMEMI:tmemI[ UniformRegister:URi ]
+',' [!]UniformPredicate:UPp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register Sb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register Sb is misaligned"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+OOR_REG_ERROR
+ (((URe)==`UniformRegister@URZ)||((URe)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URe is out of range"
+MISALIGNED_REG_ERROR
+ (((URe)+((URe)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URe is misaligned"
+OOR_REG_ERROR
+ (((URh)==`UniformRegister@URZ)||((URh)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URh is out of range"
+OOR_REG_ERROR
+ (((URi)==`UniformRegister@URZ)||((URi)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URi is out of range"
+MISALIGNED_REG_ERROR
+ (((URi)+((URi)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URi is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_URa_0(URe,URh) :
+ "Invalid combination of URe, URh"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@UTCMMA_T_SCALE ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 64;
+ ISRC_C_SIZE = 32;
+ ISRC_E_SIZE = 64;
+ ISRC_H_SIZE = 32;
+ ISRC_I_SIZE = 64;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_TC_2CTA ;
+ MASK_INSTR_PREDICATE = (1);
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 64;
+ ILABEL_URc_SIZE = 32;
+ ILABEL_URe_SIZE = 64;
+ ILABEL_URh_SIZE = 32;
+ ILABEL_URi_SIZE = 64;
+
+OPCODES
+        __HIR0X130udp_pipe =  0b1111111101010;
+        __HIR0X130 =  0b1111111101010;
+
+ENCODING
+!__HIR0X140;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_85_85_ignoreKill=*cluster_sz;
+BITS_3_73_72_63_63_opType=3;
+BITS_8_31_24_Ra=URa;
+BITS_1_86_86_depth=reuse_a;
+BITS_1_84_84_OR=keep_a;
+BITS_8_39_32_Rb=URb;
+BITS_8_71_64_Ra_URc=URc;
+BITS_8_55_48_URe=URi;
+BITS_3_89_87_Pnz = UPp;
+BITS_1_90_90_memdesc = UPp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_47_40_Re=TABLES_URa_0(URe,URh);
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

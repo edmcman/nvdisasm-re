@@ -1,0 +1,1305 @@
+[
+ {
+  "cls": "clmad__RCR_RCR",
+  "alternate": false,
+  "opcodes": [
+   "CLMAD"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_EMULATABLE",
+  "sizes": {
+   "IDEST_SIZE": 64,
+   "ISRC_B_SIZE": 64,
+   "ISRC_C_SIZE": 64,
+   "ISRC_A_SIZE": 64,
+   "VIRTUAL_QUEUE": "$VQ_REDIRECTABLE",
+   "ILABEL_Ra_SIZE": 64,
+   "ILABEL_Rc_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Sb",
+    "type": "C",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sb_bank",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sb_addr",
+    "type": "SImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Rc",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "wr",
+    "type": "WR",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "dst_wr_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "12",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "12",
+     "IMAD_OP`{Ra,Rb,Rc}": "12",
+     "FP16_OPS`{Ra,Rb,Rc}": "12",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "12",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "12",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "12",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "8",
+     "MIO_SLOW_OPS`{Ra,Rb,Rb2,Rc}": "9",
+     "BRU_OPS`{Ra,Rb,Rc}": "8",
+     "OP_R2UR`{Ra}": "12",
+     "HMMA_QMMA_OP`{Ra,Rb,Re}": "13",
+     "IMMA_OP`{Ra,Rb,Re}": "13",
+     "DMMA_OP`{Ra,Rb,Re}": "13",
+     "HMMA_QMMA_OP`{Rc}": "13",
+     "IMMA_OP`{Rc}": "13",
+     "DMMA_OP`{Rc}": "13",
+     "CLMAD_OP`{Ra,Rb,Rc}": "8"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "clmad__RCxR_RCxR",
+  "alternate": false,
+  "opcodes": [
+   "CLMAD"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_EMULATABLE",
+  "sizes": {
+   "IDEST_SIZE": 64,
+   "ISRC_B_SIZE": 64,
+   "ISRC_C_SIZE": 64,
+   "ISRC_A_SIZE": 64,
+   "VIRTUAL_QUEUE": "$VQ_REDIRECTABLE",
+   "ILABEL_Ra_SIZE": 64,
+   "ILABEL_Rc_SIZE": 64,
+   "ILABEL_URb_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Sb",
+    "type": "CX",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "URb",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Sb_offset",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Rc",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "wr",
+    "type": "WR",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "dst_wr_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "12",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "12",
+     "IMAD_OP`{Ra,Rb,Rc}": "12",
+     "FP16_OPS`{Ra,Rb,Rc}": "12",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "12",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "12",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "12",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "8",
+     "MIO_SLOW_OPS`{Ra,Rb,Rb2,Rc}": "9",
+     "BRU_OPS`{Ra,Rb,Rc}": "8",
+     "OP_R2UR`{Ra}": "12",
+     "HMMA_QMMA_OP`{Ra,Rb,Re}": "13",
+     "IMMA_OP`{Ra,Rb,Re}": "13",
+     "DMMA_OP`{Ra,Rb,Re}": "13",
+     "HMMA_QMMA_OP`{Rc}": "13",
+     "IMMA_OP`{Rc}": "13",
+     "DMMA_OP`{Rc}": "13",
+     "CLMAD_OP`{Ra,Rb,Rc}": "8"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "clmad__RRC_RRC",
+  "alternate": false,
+  "opcodes": [
+   "CLMAD"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_EMULATABLE",
+  "sizes": {
+   "IDEST_SIZE": 64,
+   "ISRC_B_SIZE": 64,
+   "ISRC_C_SIZE": 64,
+   "ISRC_A_SIZE": 64,
+   "VIRTUAL_QUEUE": "$VQ_REDIRECTABLE",
+   "ILABEL_Ra_SIZE": 64,
+   "ILABEL_Rb_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Sc",
+    "type": "C",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sc_bank",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sc_addr",
+    "type": "SImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "wr",
+    "type": "WR",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "dst_wr_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "12",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "12",
+     "IMAD_OP`{Ra,Rb,Rc}": "12",
+     "FP16_OPS`{Ra,Rb,Rc}": "12",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "12",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "12",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "12",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "8",
+     "MIO_SLOW_OPS`{Ra,Rb,Rb2,Rc}": "9",
+     "BRU_OPS`{Ra,Rb,Rc}": "8",
+     "OP_R2UR`{Ra}": "12",
+     "HMMA_QMMA_OP`{Ra,Rb,Re}": "13",
+     "IMMA_OP`{Ra,Rb,Re}": "13",
+     "DMMA_OP`{Ra,Rb,Re}": "13",
+     "HMMA_QMMA_OP`{Rc}": "13",
+     "IMMA_OP`{Rc}": "13",
+     "DMMA_OP`{Rc}": "13",
+     "CLMAD_OP`{Ra,Rb,Rc}": "8"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "clmad__RRCx_RRCx",
+  "alternate": false,
+  "opcodes": [
+   "CLMAD"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_EMULATABLE",
+  "sizes": {
+   "IDEST_SIZE": 64,
+   "ISRC_B_SIZE": 64,
+   "ISRC_C_SIZE": 64,
+   "ISRC_A_SIZE": 64,
+   "VIRTUAL_QUEUE": "$VQ_REDIRECTABLE",
+   "ILABEL_Ra_SIZE": 64,
+   "ILABEL_Rb_SIZE": 64,
+   "ILABEL_URc_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Sc",
+    "type": "CX",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "URc",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Sc_offset",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "wr",
+    "type": "WR",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "dst_wr_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "12",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "12",
+     "IMAD_OP`{Ra,Rb,Rc}": "12",
+     "FP16_OPS`{Ra,Rb,Rc}": "12",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "12",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "12",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "12",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "8",
+     "MIO_SLOW_OPS`{Ra,Rb,Rb2,Rc}": "9",
+     "BRU_OPS`{Ra,Rb,Rc}": "8",
+     "OP_R2UR`{Ra}": "12",
+     "HMMA_QMMA_OP`{Ra,Rb,Re}": "13",
+     "IMMA_OP`{Ra,Rb,Re}": "13",
+     "DMMA_OP`{Ra,Rb,Re}": "13",
+     "HMMA_QMMA_OP`{Rc}": "13",
+     "IMMA_OP`{Rc}": "13",
+     "DMMA_OP`{Rc}": "13",
+     "CLMAD_OP`{Ra,Rb,Rc}": "8"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "clmad__RRR_RRR",
+  "alternate": false,
+  "opcodes": [
+   "CLMAD"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_EMULATABLE",
+  "sizes": {
+   "IDEST_SIZE": 64,
+   "ISRC_B_SIZE": 64,
+   "ISRC_C_SIZE": 64,
+   "ISRC_A_SIZE": 64,
+   "VIRTUAL_QUEUE": "$VQ_REDIRECTABLE",
+   "ILABEL_Ra_SIZE": 64,
+   "ILABEL_Rb_SIZE": 64,
+   "ILABEL_Rc_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Rc",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "wr",
+    "type": "WR",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "dst_wr_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "12",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "12",
+     "IMAD_OP`{Ra,Rb,Rc}": "12",
+     "FP16_OPS`{Ra,Rb,Rc}": "12",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "12",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "12",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "12",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "8",
+     "MIO_SLOW_OPS`{Ra,Rb,Rb2,Rc}": "9",
+     "BRU_OPS`{Ra,Rb,Rc}": "8",
+     "OP_R2UR`{Ra}": "12",
+     "HMMA_QMMA_OP`{Ra,Rb,Re}": "13",
+     "IMMA_OP`{Ra,Rb,Re}": "13",
+     "DMMA_OP`{Ra,Rb,Re}": "13",
+     "HMMA_QMMA_OP`{Rc}": "13",
+     "IMMA_OP`{Rc}": "13",
+     "DMMA_OP`{Rc}": "13",
+     "CLMAD_OP`{Ra,Rb,Rc}": "8"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "clmad__RRU_RRU",
+  "alternate": false,
+  "opcodes": [
+   "CLMAD"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_EMULATABLE",
+  "sizes": {
+   "IDEST_SIZE": 64,
+   "ISRC_B_SIZE": 64,
+   "ISRC_C_SIZE": 64,
+   "ISRC_A_SIZE": 64,
+   "VIRTUAL_QUEUE": "$VQ_REDIRECTABLE",
+   "ILABEL_Ra_SIZE": 64,
+   "ILABEL_Rb_SIZE": 64,
+   "ILABEL_URc_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "URc",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "wr",
+    "type": "WR",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "dst_wr_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "12",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "12",
+     "IMAD_OP`{Ra,Rb,Rc}": "12",
+     "FP16_OPS`{Ra,Rb,Rc}": "12",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "12",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "12",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "12",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "8",
+     "MIO_SLOW_OPS`{Ra,Rb,Rb2,Rc}": "9",
+     "BRU_OPS`{Ra,Rb,Rc}": "8",
+     "OP_R2UR`{Ra}": "12",
+     "HMMA_QMMA_OP`{Ra,Rb,Re}": "13",
+     "IMMA_OP`{Ra,Rb,Re}": "13",
+     "DMMA_OP`{Ra,Rb,Re}": "13",
+     "HMMA_QMMA_OP`{Rc}": "13",
+     "IMMA_OP`{Rc}": "13",
+     "DMMA_OP`{Rc}": "13",
+     "CLMAD_OP`{Ra,Rb,Rc}": "8"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "clmad__RUR_RUR",
+  "alternate": false,
+  "opcodes": [
+   "CLMAD"
+  ],
+  "pipes": [
+   "fma64lite_pipe"
+  ],
+  "inst_type": "INST_TYPE_COUPLED_EMULATABLE",
+  "sizes": {
+   "IDEST_SIZE": 64,
+   "ISRC_B_SIZE": 64,
+   "ISRC_C_SIZE": 64,
+   "ISRC_A_SIZE": 64,
+   "VIRTUAL_QUEUE": "$VQ_REDIRECTABLE",
+   "ILABEL_Ra_SIZE": 64,
+   "ILABEL_Rc_SIZE": 64,
+   "ILABEL_URb_SIZE": 64
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "URb",
+    "type": "UniformRegister",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "Rc",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "wr",
+    "type": "WR",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "dst_wr_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "pm_pred",
+    "type": "PM_PRED",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 2
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "FXU_OPS`{Ra,Rb,Rc}": "12",
+     "FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "12",
+     "IMAD_OP`{Ra,Rb,Rc}": "12",
+     "FP16_OPS`{Ra,Rb,Rc}": "12",
+     "FP16_ALU_OPS`{Ra,Rb,Rc}": "12",
+     "FMALITE_OPS`{Ra,Rb,Rc}": "12",
+     "HFMA2MMA_OP`{Ra,Rb,Rc}": "12",
+     "MIO_FAST_OPS`{Ra_with_offset,barname,barcount,Ra,Rb,Rc}": "8",
+     "MIO_SLOW_OPS`{Ra,Rb,Rb2,Rc}": "9",
+     "BRU_OPS`{Ra,Rb,Rc}": "8",
+     "OP_R2UR`{Ra}": "12",
+     "HMMA_QMMA_OP`{Ra,Rb,Re}": "13",
+     "IMMA_OP`{Ra,Rb,Re}": "13",
+     "DMMA_OP`{Ra,Rb,Re}": "13",
+     "HMMA_QMMA_OP`{Rc}": "13",
+     "IMMA_OP`{Rc}": "13",
+     "DMMA_OP`{Rc}": "13",
+     "CLMAD_OP`{Ra,Rb,Rc}": "8"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ]
+  }
+ }
+]

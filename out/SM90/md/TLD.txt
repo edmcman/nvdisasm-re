@@ -1,0 +1,2406 @@
+CLASS "tld_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /F16RM("nof16rm"):f16rm /LODLC_LL_LZ:lodlc /AOFFI("noaoffi"):aoffi /COP("EN"):cop /MS("noms"):ms /CL("nocl"):cl /NODEP("nonodep"):nodep
+Predicate("PT"):Pu
+','Register:Rd2
+','Register:Rd
+','NonZeroRegister:Ra
+','Register("RZ"):Rb
+','UImm(5)*:bank5 ','UImm(16)*:tsPtrIdx ','PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D:paramA ','UImm(4/15)*:wmsk
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((f16rm !=`F16RM@INVALID3)) :
+ "Invalid f16rm field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((lodlc !=`LODLC_LL_LZ@INVALID0)&&(lodlc !=`LODLC_LL_LZ@INVALID2)&&(lodlc !=`LODLC_LL_LZ@INVALID4)&&(lodlc !=`LODLC_LL_LZ@INVALID5)&&(lodlc !=`LODLC_LL_LZ@INVALID6)&&(lodlc !=`LODLC_LL_LZ@INVALID7)) :
+ "Invalid lodlc field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID3)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID6)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID7)) :
+ "Invalid paramA field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((wmsk == 1)||(wmsk == 2)||(wmsk == 3)||(wmsk == 4)||(wmsk == 5)||(wmsk == 6)||(wmsk == 7)||(wmsk == 8)||(wmsk == 9)||(wmsk == 10)||(wmsk == 11)||(wmsk == 12)||(wmsk == 13)||(wmsk == 14)||(wmsk == 15)) :
+ "Invalid wmsk field value"
+OOR_REG_ERROR
+ (((Rd2)==`Register@RZ)||(((Rd2)<=(%MAX_REG_COUNT-1))&&((Rd2)!=`Register@R254))) :
+ "Register Rd2 is out of range"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ms == `MS@MS))) -> (((cl == `CL@nocl))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) :
+ "Invalid instruction combination (reason: MS)"
+OOR_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: AOFFI)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: AOFFI_MS)"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)+((Rd2)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@TLD ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>=2) ? (32 + ((f16rm==0)*32)) : 32;
+ IDEST2_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>2) ? (32 + (((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))==4)*(f16rm==0)*32)) : 0;
+ ISRC_B_SIZE = ((aoffi==`AOFFI@AOFFI)*32 + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1))*32 + (ms==`MS@MS)*32);
+ ISRC_A_SIZE = ((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3)))*32;
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        TLDmio_pipe =  0b101101100110;
+        TLD =  0b101101100110;
+
+ENCODING
+!tld__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_60_60_scr=0;
+BITS_1_59_59_b=0;
+BITS_2_80_79_sem=f16rm;
+BITS_3_89_87_Pnz=lodlc;
+BITS_1_76_76_memdesc=aoffi;
+BITS_3_86_84_cop=cop;
+BITS_1_78_78_mode=ms;
+BITS_1_77_77_ntz=cl;
+BITS_1_90_90_input_reg_sz_32_dist=nodep;
+BITS_3_83_81_Pu=Pu;
+BITS_8_71_64_Rc=Rd2;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_5_58_54_Sb_bank=bank5;
+BITS_14_53_40_Sb_offset=tsPtrIdx MULTIPLY 4 SCALE 4;
+BITS_3_63_61_destidx=paramA;
+BITS_4_75_72_PixMaskU04=wmsk;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "tld_b_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BONLY:b /F16RM("nof16rm"):f16rm /LODLC_LL_LZ:lodlc /AOFFI("noaoffi"):aoffi /COP("EN"):cop /MS("noms"):ms /CL("nocl"):cl /NODEP("nonodep"):nodep
+Predicate("PT"):Pu
+','Register:Rd2
+','Register:Rd
+','NonZeroRegister:Ra
+','NonZeroRegister:Rb
+','UImm(5)*:bank5 ','UImm(16)*:tsPtrIdx ','PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D:paramA ','UImm(4/15)*:wmsk
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((f16rm !=`F16RM@INVALID3)) :
+ "Invalid f16rm field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((lodlc !=`LODLC_LL_LZ@INVALID0)&&(lodlc !=`LODLC_LL_LZ@INVALID2)&&(lodlc !=`LODLC_LL_LZ@INVALID4)&&(lodlc !=`LODLC_LL_LZ@INVALID5)&&(lodlc !=`LODLC_LL_LZ@INVALID6)&&(lodlc !=`LODLC_LL_LZ@INVALID7)) :
+ "Invalid lodlc field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID3)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID6)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID7)) :
+ "Invalid paramA field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((wmsk == 1)||(wmsk == 2)||(wmsk == 3)||(wmsk == 4)||(wmsk == 5)||(wmsk == 6)||(wmsk == 7)||(wmsk == 8)||(wmsk == 9)||(wmsk == 10)||(wmsk == 11)||(wmsk == 12)||(wmsk == 13)||(wmsk == 14)||(wmsk == 15)) :
+ "Invalid wmsk field value"
+OOR_REG_ERROR
+ (((Rd2)==`Register@RZ)||(((Rd2)<=(%MAX_REG_COUNT-1))&&((Rd2)!=`Register@R254))) :
+ "Register Rd2 is out of range"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Rb)!=`Register@RZ) :
+ "Disallowed register Rb"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ms == `MS@MS))) -> (((cl == `CL@nocl))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) :
+ "Invalid instruction combination (reason: MS)"
+OOR_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: AOFFI)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: AOFFI_MS)"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)+((Rd2)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@TLD ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>=2) ? (32 + ((f16rm==0)*32)) : 32;
+ IDEST2_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>2) ? (32 + (((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))==4)*(f16rm==0)*32)) : 0;
+ ISRC_B_SIZE = (32 + (aoffi==`AOFFI@AOFFI)*32 + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1))*32 + (ms==`MS@MS)*32);
+ ISRC_A_SIZE = ((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3)))*32;
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        TLDmio_pipe =  0b101101100110;
+        TLD =  0b101101100110;
+
+ENCODING
+!tld_b__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_60_60_scr=0;
+BITS_1_59_59_b=*b;
+BITS_2_80_79_sem=f16rm;
+BITS_3_89_87_Pnz=lodlc;
+BITS_1_76_76_memdesc=aoffi;
+BITS_3_86_84_cop=cop;
+BITS_1_78_78_mode=ms;
+BITS_1_77_77_ntz=cl;
+BITS_1_90_90_input_reg_sz_32_dist=nodep;
+BITS_3_83_81_Pu=Pu;
+BITS_8_71_64_Rc=Rd2;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_5_58_54_Sb_bank=bank5;
+BITS_14_53_40_Sb_offset=tsPtrIdx MULTIPLY 4 SCALE 4;
+BITS_3_63_61_destidx=paramA;
+BITS_4_75_72_PixMaskU04=wmsk;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "tld_b_noConst_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BONLY:b /F16RM("nof16rm"):f16rm /LODLC_LL_LZ:lodlc /AOFFI("noaoffi"):aoffi /COP("EN"):cop /MS("noms"):ms /CL("nocl"):cl /NODEP("nonodep"):nodep
+Predicate("PT"):Pu
+','Register:Rd2
+','Register:Rd
+','NonZeroRegister:Ra
+','NonZeroRegister:Rb ','PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D:paramA ','UImm(4/15)*:wmsk
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((f16rm !=`F16RM@INVALID3)) :
+ "Invalid f16rm field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((lodlc !=`LODLC_LL_LZ@INVALID0)&&(lodlc !=`LODLC_LL_LZ@INVALID2)&&(lodlc !=`LODLC_LL_LZ@INVALID4)&&(lodlc !=`LODLC_LL_LZ@INVALID5)&&(lodlc !=`LODLC_LL_LZ@INVALID6)&&(lodlc !=`LODLC_LL_LZ@INVALID7)) :
+ "Invalid lodlc field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID3)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID6)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID7)) :
+ "Invalid paramA field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((wmsk == 1)||(wmsk == 2)||(wmsk == 3)||(wmsk == 4)||(wmsk == 5)||(wmsk == 6)||(wmsk == 7)||(wmsk == 8)||(wmsk == 9)||(wmsk == 10)||(wmsk == 11)||(wmsk == 12)||(wmsk == 13)||(wmsk == 14)||(wmsk == 15)) :
+ "Invalid wmsk field value"
+OOR_REG_ERROR
+ (((Rd2)==`Register@RZ)||(((Rd2)<=(%MAX_REG_COUNT-1))&&((Rd2)!=`Register@R254))) :
+ "Register Rd2 is out of range"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Rb)!=`Register@RZ) :
+ "Disallowed register Rb"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ms == `MS@MS))) -> (((cl == `CL@nocl))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) :
+ "Invalid instruction combination (reason: MS)"
+OOR_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: AOFFI)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: AOFFI_MS)"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)+((Rd2)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@TLD_B_noConst ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>=2) ? (32 + ((f16rm==0)*32)) : 32;
+ IDEST2_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>2) ? (32 + (((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))==4)*(f16rm==0)*32)) : 0;
+ ISRC_B_SIZE = (32 + (aoffi==`AOFFI@AOFFI)*32 + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1))*32 + (ms==`MS@MS)*32);
+ ISRC_A_SIZE = ((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3)))*32;
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        TLDmio_pipe =  0b1101100111;
+        TLD =  0b1101100111;
+
+ENCODING
+!tld_b_noConst__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_60_60_scr=0;
+BITS_1_59_59_b=b;
+BITS_2_80_79_sem=f16rm;
+BITS_3_89_87_Pnz=lodlc;
+BITS_1_76_76_memdesc=aoffi;
+BITS_3_86_84_cop=cop;
+BITS_1_78_78_mode=ms;
+BITS_1_77_77_ntz=cl;
+BITS_1_90_90_input_reg_sz_32_dist=nodep;
+BITS_3_83_81_Pu=Pu;
+BITS_8_71_64_Rc=Rd2;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_3_63_61_destidx=paramA;
+BITS_4_75_72_PixMaskU04=wmsk;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "tld_b_tid_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BONLY:b /F16RM("nof16rm"):f16rm /LODLC_LL_LZ:lodlc /AOFFI("noaoffi"):aoffi /COP("EN"):cop /MS("noms"):ms /CL("nocl"):cl /NODEP("nonodep"):nodep
+Predicate("PT"):Pu
+','Register:Rd2
+','Register:Rd
+','NonZeroRegister:Ra
+','NonZeroRegister:Rb
+','UImm(5)*:bank5 ','UImm(6)*:hdrtblbase6 ','UImm(8)*:tid8 ','PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D:paramA ','UImm(4/15)*:wmsk
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((f16rm !=`F16RM@INVALID3)) :
+ "Invalid f16rm field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((lodlc !=`LODLC_LL_LZ@INVALID0)&&(lodlc !=`LODLC_LL_LZ@INVALID2)&&(lodlc !=`LODLC_LL_LZ@INVALID4)&&(lodlc !=`LODLC_LL_LZ@INVALID5)&&(lodlc !=`LODLC_LL_LZ@INVALID6)&&(lodlc !=`LODLC_LL_LZ@INVALID7)) :
+ "Invalid lodlc field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID3)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID6)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID7)) :
+ "Invalid paramA field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((wmsk == 1)||(wmsk == 2)||(wmsk == 3)||(wmsk == 4)||(wmsk == 5)||(wmsk == 6)||(wmsk == 7)||(wmsk == 8)||(wmsk == 9)||(wmsk == 10)||(wmsk == 11)||(wmsk == 12)||(wmsk == 13)||(wmsk == 14)||(wmsk == 15)) :
+ "Invalid wmsk field value"
+OOR_REG_ERROR
+ (((Rd2)==`Register@RZ)||(((Rd2)<=(%MAX_REG_COUNT-1))&&((Rd2)!=`Register@R254))) :
+ "Register Rd2 is out of range"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Rb)!=`Register@RZ) :
+ "Disallowed register Rb"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ms == `MS@MS))) -> (((cl == `CL@nocl))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) :
+ "Invalid instruction combination (reason: MS)"
+OOR_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: AOFFI)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)+((Rb)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: AOFFI_MS)"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)+((Rd2)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@TLD_B ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>=2) ? (32 + ((f16rm==0)*32)) : 32;
+ IDEST2_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>2) ? (32 + (((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))==4)*(f16rm==0)*32)) : 0;
+ ISRC_B_SIZE = (32 + (aoffi==`AOFFI@AOFFI)*32 + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1))*32 + (ms==`MS@MS)*32);
+ ISRC_A_SIZE = ((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3)))*32;
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        TLDmio_pipe =  0b101101101000;
+        TLD =  0b101101101000;
+
+ENCODING
+!tld_b_tid__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_60_60_scr=0;
+BITS_1_59_59_b=b;
+BITS_2_80_79_sem=f16rm;
+BITS_3_89_87_Pnz=lodlc;
+BITS_1_76_76_memdesc=aoffi;
+BITS_3_86_84_cop=cop;
+BITS_1_78_78_mode=ms;
+BITS_1_77_77_ntz=cl;
+BITS_1_90_90_input_reg_sz_32_dist=nodep;
+BITS_3_83_81_Pu=Pu;
+BITS_8_71_64_Rc=Rd2;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_5_58_54_Sb_bank=bank5;
+BITS_6_45_40_hdrtblbase6=hdrtblbase6;
+BITS_8_53_46_tid8=tid8;
+BITS_3_63_61_destidx=paramA;
+BITS_4_75_72_PixMaskU04=wmsk;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "tld_scr_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /SCRONLY:scr /F16RM("nof16rm"):f16rm /LODLC_LL_LZ:lodlc /AOFFI("noaoffi"):aoffi /COP("EN"):cop /MS("noms"):ms /CL("nocl"):cl /NODEP("nonodep"):nodep
+Predicate("PT"):Pu
+','Register:Rd2
+','Register:Rd
+','NonZeroRegister:Ra
+','Register("RZ"):Rb
+','UImm(5)*:bank5 ','UImm(16)*:tsPtrIdx ','PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D:paramA ','UImm(4/15)*:wmsk
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@CUBE)*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3) + ((paramA==`TEXPARAMA@ARRAY_CUBE)*4))) + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1)) + (aoffi==`AOFFI@AOFFI) + (ms==`MS@MS))<=4) :
+ "More than 4 coordinates are not allowed for .SCR"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((f16rm !=`F16RM@INVALID3)) :
+ "Invalid f16rm field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((lodlc !=`LODLC_LL_LZ@INVALID0)&&(lodlc !=`LODLC_LL_LZ@INVALID2)&&(lodlc !=`LODLC_LL_LZ@INVALID4)&&(lodlc !=`LODLC_LL_LZ@INVALID5)&&(lodlc !=`LODLC_LL_LZ@INVALID6)&&(lodlc !=`LODLC_LL_LZ@INVALID7)) :
+ "Invalid lodlc field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID3)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID6)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID7)) :
+ "Invalid paramA field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((wmsk == 1)||(wmsk == 2)||(wmsk == 3)||(wmsk == 4)||(wmsk == 5)||(wmsk == 6)||(wmsk == 7)||(wmsk == 8)||(wmsk == 9)||(wmsk == 10)||(wmsk == 11)||(wmsk == 12)||(wmsk == 13)||(wmsk == 14)||(wmsk == 15)) :
+ "Invalid wmsk field value"
+OOR_REG_ERROR
+ (((Rd2)==`Register@RZ)||(((Rd2)<=(%MAX_REG_COUNT-1))&&((Rd2)!=`Register@R254))) :
+ "Register Rd2 is out of range"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ms == `MS@MS))) -> (((cl == `CL@nocl))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) :
+ "Invalid instruction combination (reason: MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY2D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LL__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LL_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LL__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LL_AOFFI_)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LL__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LL_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LL_AOFFI_MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 3D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY2D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY2D_LZ__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY2D_LZ_AOFFI_)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LZ__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LZ_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LZ_AOFFI_MS)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LZ__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LZ_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LZ_AOFFI_MS)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)==`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ__)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ__MS)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ_AOFFI_MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 3D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 3D_LZ__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 3D_LZ_AOFFI_)"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)+((Rd2)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@TLD ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>=2) ? (32 + ((f16rm==0)*32)) : 32;
+ IDEST2_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>2) ? (32 + (((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))==4)*(f16rm==0)*32)) : 0;
+ ISRC_B_SIZE = ((((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3))) + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1)) + (aoffi==`AOFFI@AOFFI) + (ms==`MS@MS))==4) ? 64 : 32;
+ ISRC_A_SIZE = ((((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3))) + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1)) + (aoffi==`AOFFI@AOFFI) + (ms==`MS@MS))>2) ? 64 : 32;
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        TLDmio_pipe =  0b101101100110;
+        TLD =  0b101101100110;
+
+ENCODING
+!tld_scr__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_60_60_scr=*scr;
+BITS_1_59_59_b=0;
+BITS_2_80_79_sem=f16rm;
+BITS_3_89_87_Pnz=lodlc;
+BITS_1_76_76_memdesc=aoffi;
+BITS_3_86_84_cop=cop;
+BITS_1_78_78_mode=ms;
+BITS_1_77_77_ntz=cl;
+BITS_1_90_90_input_reg_sz_32_dist=nodep;
+BITS_3_83_81_Pu=Pu;
+BITS_8_71_64_Rc=Rd2;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_5_58_54_Sb_bank=bank5;
+BITS_14_53_40_Sb_offset=tsPtrIdx MULTIPLY 4 SCALE 4;
+BITS_3_63_61_destidx=paramA;
+BITS_4_75_72_PixMaskU04=wmsk;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "tld_scr_b_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /SCRONLY:scr /BONLY:b /F16RM("nof16rm"):f16rm /LODLC_LL_LZ:lodlc /AOFFI("noaoffi"):aoffi /COP("EN"):cop /MS("noms"):ms /CL("nocl"):cl /NODEP("nonodep"):nodep
+Predicate("PT"):Pu
+','Register:Rd2
+','Register:Rd
+','NonZeroRegister:Ra
+','NonZeroRegister:Rb
+','UImm(5)*:bank5 ','UImm(16)*:tsPtrIdx ','PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D:paramA ','UImm(4/15)*:wmsk
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@CUBE)*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3) + ((paramA==`TEXPARAMA@ARRAY_CUBE)*4))) + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1)) + (aoffi==`AOFFI@AOFFI) + (ms==`MS@MS) + 1)<=4) :
+ "More than 4 coordinates are not allowed for .SCR"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((f16rm !=`F16RM@INVALID3)) :
+ "Invalid f16rm field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((lodlc !=`LODLC_LL_LZ@INVALID0)&&(lodlc !=`LODLC_LL_LZ@INVALID2)&&(lodlc !=`LODLC_LL_LZ@INVALID4)&&(lodlc !=`LODLC_LL_LZ@INVALID5)&&(lodlc !=`LODLC_LL_LZ@INVALID6)&&(lodlc !=`LODLC_LL_LZ@INVALID7)) :
+ "Invalid lodlc field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID3)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID6)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID7)) :
+ "Invalid paramA field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((wmsk == 1)||(wmsk == 2)||(wmsk == 3)||(wmsk == 4)||(wmsk == 5)||(wmsk == 6)||(wmsk == 7)||(wmsk == 8)||(wmsk == 9)||(wmsk == 10)||(wmsk == 11)||(wmsk == 12)||(wmsk == 13)||(wmsk == 14)||(wmsk == 15)) :
+ "Invalid wmsk field value"
+OOR_REG_ERROR
+ (((Rd2)==`Register@RZ)||(((Rd2)<=(%MAX_REG_COUNT-1))&&((Rd2)!=`Register@R254))) :
+ "Register Rd2 is out of range"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Rb)!=`Register@RZ) :
+ "Disallowed register Rb"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ms == `MS@MS))) -> (((cl == `CL@nocl))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) :
+ "Invalid instruction combination (reason: MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LL__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LL_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY2D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LZ__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LZ_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LZ__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LZ_AOFFI_)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ_AOFFI_MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 3D_LZ__)"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)+((Rd2)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@TLD ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>=2) ? (32 + ((f16rm==0)*32)) : 32;
+ IDEST2_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>2) ? (32 + (((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))==4)*(f16rm==0)*32)) : 0;
+ ISRC_B_SIZE = ((((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3))) + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1)) + (aoffi==`AOFFI@AOFFI) + (ms==`MS@MS) + 1)==4) ? 64 : 32;
+ ISRC_A_SIZE = ((((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3))) + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1)) + (aoffi==`AOFFI@AOFFI) + (ms==`MS@MS) + 1)>2) ? 64 : 32;
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        TLDmio_pipe =  0b101101100110;
+        TLD =  0b101101100110;
+
+ENCODING
+!tld_scr_b__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_60_60_scr=*scr;
+BITS_1_59_59_b=*b;
+BITS_2_80_79_sem=f16rm;
+BITS_3_89_87_Pnz=lodlc;
+BITS_1_76_76_memdesc=aoffi;
+BITS_3_86_84_cop=cop;
+BITS_1_78_78_mode=ms;
+BITS_1_77_77_ntz=cl;
+BITS_1_90_90_input_reg_sz_32_dist=nodep;
+BITS_3_83_81_Pu=Pu;
+BITS_8_71_64_Rc=Rd2;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_5_58_54_Sb_bank=bank5;
+BITS_14_53_40_Sb_offset=tsPtrIdx MULTIPLY 4 SCALE 4;
+BITS_3_63_61_destidx=paramA;
+BITS_4_75_72_PixMaskU04=wmsk;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "tld_scr_b_noConst_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /SCRONLY:scr /BONLY:b /F16RM("nof16rm"):f16rm /LODLC_LL_LZ:lodlc /AOFFI("noaoffi"):aoffi /COP("EN"):cop /MS("noms"):ms /CL("nocl"):cl /NODEP("nonodep"):nodep
+Predicate("PT"):Pu
+','Register:Rd2
+','Register:Rd
+','NonZeroRegister:Ra
+','NonZeroRegister:Rb ','PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D:paramA ','UImm(4/15)*:wmsk
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@CUBE)*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3) + ((paramA==`TEXPARAMA@ARRAY_CUBE)*4))) + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1)) + (aoffi==`AOFFI@AOFFI) + (ms==`MS@MS) + 1)<=4) :
+ "More than 4 coordinates are not allowed for .SCR"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((f16rm !=`F16RM@INVALID3)) :
+ "Invalid f16rm field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((lodlc !=`LODLC_LL_LZ@INVALID0)&&(lodlc !=`LODLC_LL_LZ@INVALID2)&&(lodlc !=`LODLC_LL_LZ@INVALID4)&&(lodlc !=`LODLC_LL_LZ@INVALID5)&&(lodlc !=`LODLC_LL_LZ@INVALID6)&&(lodlc !=`LODLC_LL_LZ@INVALID7)) :
+ "Invalid lodlc field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID3)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID6)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID7)) :
+ "Invalid paramA field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((wmsk == 1)||(wmsk == 2)||(wmsk == 3)||(wmsk == 4)||(wmsk == 5)||(wmsk == 6)||(wmsk == 7)||(wmsk == 8)||(wmsk == 9)||(wmsk == 10)||(wmsk == 11)||(wmsk == 12)||(wmsk == 13)||(wmsk == 14)||(wmsk == 15)) :
+ "Invalid wmsk field value"
+OOR_REG_ERROR
+ (((Rd2)==`Register@RZ)||(((Rd2)<=(%MAX_REG_COUNT-1))&&((Rd2)!=`Register@R254))) :
+ "Register Rd2 is out of range"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Rb)!=`Register@RZ) :
+ "Disallowed register Rb"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ms == `MS@MS))) -> (((cl == `CL@nocl))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) :
+ "Invalid instruction combination (reason: MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LL__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LL_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY2D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LZ__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LZ_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LZ__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LZ_AOFFI_)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ_AOFFI_MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 3D_LZ__)"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)+((Rd2)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@TLD_B_noConst ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>=2) ? (32 + ((f16rm==0)*32)) : 32;
+ IDEST2_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>2) ? (32 + (((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))==4)*(f16rm==0)*32)) : 0;
+ ISRC_B_SIZE = ((((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3))) + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1)) + (aoffi==`AOFFI@AOFFI) + (ms==`MS@MS) + 1)==4) ? 64 : 32;
+ ISRC_A_SIZE = ((((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3))) + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1)) + (aoffi==`AOFFI@AOFFI) + (ms==`MS@MS) + 1)>2) ? 64 : 32;
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        TLDmio_pipe =  0b1101100111;
+        TLD =  0b1101100111;
+
+ENCODING
+!tld_scr_b_noConst__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_60_60_scr=*scr;
+BITS_1_59_59_b=b;
+BITS_2_80_79_sem=f16rm;
+BITS_3_89_87_Pnz=lodlc;
+BITS_1_76_76_memdesc=aoffi;
+BITS_3_86_84_cop=cop;
+BITS_1_78_78_mode=ms;
+BITS_1_77_77_ntz=cl;
+BITS_1_90_90_input_reg_sz_32_dist=nodep;
+BITS_3_83_81_Pu=Pu;
+BITS_8_71_64_Rc=Rd2;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_3_63_61_destidx=paramA;
+BITS_4_75_72_PixMaskU04=wmsk;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "tld_scr_b_tid_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /SCRONLY:scr /BONLY:b /F16RM("nof16rm"):f16rm /LODLC_LL_LZ:lodlc /AOFFI("noaoffi"):aoffi /COP("EN"):cop /MS("noms"):ms /CL("nocl"):cl /NODEP("nonodep"):nodep
+Predicate("PT"):Pu
+','Register:Rd2
+','Register:Rd
+','NonZeroRegister:Ra
+','NonZeroRegister:Rb
+','UImm(5)*:bank5 ','UImm(6)*:hdrtblbase6 ','UImm(8)*:tid8 ','PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D:paramA ','UImm(4/15)*:wmsk
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@CUBE)*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3) + ((paramA==`TEXPARAMA@ARRAY_CUBE)*4))) + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1)) + (aoffi==`AOFFI@AOFFI) + (ms==`MS@MS) + 1)<=4) :
+ "More than 4 coordinates are not allowed for .SCR"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((f16rm !=`F16RM@INVALID3)) :
+ "Invalid f16rm field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((lodlc !=`LODLC_LL_LZ@INVALID0)&&(lodlc !=`LODLC_LL_LZ@INVALID2)&&(lodlc !=`LODLC_LL_LZ@INVALID4)&&(lodlc !=`LODLC_LL_LZ@INVALID5)&&(lodlc !=`LODLC_LL_LZ@INVALID6)&&(lodlc !=`LODLC_LL_LZ@INVALID7)) :
+ "Invalid lodlc field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID3)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID6)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID7)) :
+ "Invalid paramA field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((wmsk == 1)||(wmsk == 2)||(wmsk == 3)||(wmsk == 4)||(wmsk == 5)||(wmsk == 6)||(wmsk == 7)||(wmsk == 8)||(wmsk == 9)||(wmsk == 10)||(wmsk == 11)||(wmsk == 12)||(wmsk == 13)||(wmsk == 14)||(wmsk == 15)) :
+ "Invalid wmsk field value"
+OOR_REG_ERROR
+ (((Rd2)==`Register@RZ)||(((Rd2)<=(%MAX_REG_COUNT-1))&&((Rd2)!=`Register@R254))) :
+ "Register Rd2 is out of range"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Rb)!=`Register@RZ) :
+ "Disallowed register Rb"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ms == `MS@MS))) -> (((cl == `CL@nocl))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) :
+ "Invalid instruction combination (reason: MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LL__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LL_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY2D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LZ__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LZ_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LZ__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LZ_AOFFI_)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ_AOFFI_MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 3D_LZ__)"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)+((Rd2)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@TLD_B ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>=2) ? (32 + ((f16rm==0)*32)) : 32;
+ IDEST2_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>2) ? (32 + (((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))==4)*(f16rm==0)*32)) : 0;
+ ISRC_B_SIZE = ((((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3))) + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1)) + (aoffi==`AOFFI@AOFFI) + (ms==`MS@MS) + 1)==4) ? 64 : 32;
+ ISRC_A_SIZE = ((((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3))) + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1)) + (aoffi==`AOFFI@AOFFI) + (ms==`MS@MS) + 1)>2) ? 64 : 32;
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        TLDmio_pipe =  0b101101101000;
+        TLD =  0b101101101000;
+
+ENCODING
+!tld_scr_b_tid__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_60_60_scr=*scr;
+BITS_1_59_59_b=b;
+BITS_2_80_79_sem=f16rm;
+BITS_3_89_87_Pnz=lodlc;
+BITS_1_76_76_memdesc=aoffi;
+BITS_3_86_84_cop=cop;
+BITS_1_78_78_mode=ms;
+BITS_1_77_77_ntz=cl;
+BITS_1_90_90_input_reg_sz_32_dist=nodep;
+BITS_3_83_81_Pu=Pu;
+BITS_8_71_64_Rc=Rd2;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_5_58_54_Sb_bank=bank5;
+BITS_6_45_40_hdrtblbase6=hdrtblbase6;
+BITS_8_53_46_tid8=tid8;
+BITS_3_63_61_destidx=paramA;
+BITS_4_75_72_PixMaskU04=wmsk;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "tld_scr_urc_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /SCRONLY:scr /F16RM("nof16rm"):f16rm /LODLC_LL_LZ:lodlc /AOFFI("noaoffi"):aoffi /COP("EN"):cop /MS("noms"):ms /CL("nocl"):cl /NODEP("nonodep"):nodep
+Predicate("PT"):Pu
+','Register:Rd2
+','Register:Rd
+','NonZeroRegister:Ra
+','Register("RZ"):Rb
+','NonZeroUniformRegister:URc ','UImm(8)*:tid8 ','PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D:paramA ','UImm(4/15)*:wmsk
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@CUBE)*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3) + ((paramA==`TEXPARAMA@ARRAY_CUBE)*4))) + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1)) + (aoffi==`AOFFI@AOFFI) + (ms==`MS@MS))<=4) :
+ "More than 4 coordinates are not allowed for .SCR"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((f16rm !=`F16RM@INVALID3)) :
+ "Invalid f16rm field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((lodlc !=`LODLC_LL_LZ@INVALID0)&&(lodlc !=`LODLC_LL_LZ@INVALID2)&&(lodlc !=`LODLC_LL_LZ@INVALID4)&&(lodlc !=`LODLC_LL_LZ@INVALID5)&&(lodlc !=`LODLC_LL_LZ@INVALID6)&&(lodlc !=`LODLC_LL_LZ@INVALID7)) :
+ "Invalid lodlc field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID3)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID6)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID7)) :
+ "Invalid paramA field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((wmsk == 1)||(wmsk == 2)||(wmsk == 3)||(wmsk == 4)||(wmsk == 5)||(wmsk == 6)||(wmsk == 7)||(wmsk == 8)||(wmsk == 9)||(wmsk == 10)||(wmsk == 11)||(wmsk == 12)||(wmsk == 13)||(wmsk == 14)||(wmsk == 15)) :
+ "Invalid wmsk field value"
+OOR_REG_ERROR
+ (((Rd2)==`Register@RZ)||(((Rd2)<=(%MAX_REG_COUNT-1))&&((Rd2)!=`Register@R254))) :
+ "Register Rd2 is out of range"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((URc)+((URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URc)!=`UniformRegister@URZ) :
+ "Disallowed uniform register URc"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ms == `MS@MS))) -> (((cl == `CL@nocl))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) :
+ "Invalid instruction combination (reason: MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY2D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LL__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LL_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LL__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LL_AOFFI_)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LL__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LL_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LL_AOFFI_MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LL))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 3D_LL__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY2D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY2D_LZ__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY2D_LZ_AOFFI_)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LZ__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LZ_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: ARRAY1D_LZ_AOFFI_MS)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LZ__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LZ_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 2D_LZ_AOFFI_MS)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)==`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ__)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ__MS)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ_AOFFI_)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"1D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 1D_LZ_AOFFI_MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 3D_LZ__)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 3D_LZ__MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))&&((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)&&((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Ra)!=`Register@RZ))&&(((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: 3D_LZ_AOFFI_)"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)+((Rd2)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@TLD_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>=2) ? (32 + ((f16rm==0)*32)) : 32;
+ IDEST2_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>2) ? (32 + (((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))==4)*(f16rm==0)*32)) : 0;
+ ISRC_B_SIZE = ((((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3))) + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1)) + (aoffi==`AOFFI@AOFFI) + (ms==`MS@MS))==4) ? 64 : 32;
+ ISRC_C_SIZE = 64;
+ ISRC_A_SIZE = ((((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3))) + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1)) + (aoffi==`AOFFI@AOFFI) + (ms==`MS@MS))>2) ? 64 : 32;
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_URc_SIZE = 64;
+
+OPCODES
+        TLDmio_pipe =  0b1111101100110;
+        TLD =  0b1111101100110;
+
+ENCODING
+!tld_scr_urc__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_60_60_scr=*scr;
+BITS_1_59_59_b=*0;
+BITS_2_80_79_sem=f16rm;
+BITS_3_89_87_Pnz=lodlc;
+BITS_1_76_76_memdesc=aoffi;
+BITS_3_86_84_cop=cop;
+BITS_1_78_78_mode=ms;
+BITS_1_77_77_ntz=cl;
+BITS_1_90_90_input_reg_sz_32_dist=nodep;
+BITS_3_83_81_Pu=Pu;
+BITS_8_71_64_Rc=Rd2;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_6_45_40_hdrtblbase6=URc;
+BITS_8_53_46_tid8=tid8;
+BITS_3_63_61_destidx=paramA;
+BITS_4_75_72_PixMaskU04=wmsk;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "tld_urc_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /F16RM("nof16rm"):f16rm /LODLC_LL_LZ:lodlc /AOFFI("noaoffi"):aoffi /COP("EN"):cop /MS("noms"):ms /CL("nocl"):cl /NODEP("nonodep"):nodep
+Predicate("PT"):Pu
+','Register:Rd2
+','Register:Rd
+','NonZeroRegister:Ra
+','Register("RZ"):Rb
+','NonZeroUniformRegister:URc ','UImm(8)*:tid8 ','PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D:paramA ','UImm(4/15)*:wmsk
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((f16rm !=`F16RM@INVALID3)) :
+ "Invalid f16rm field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((lodlc !=`LODLC_LL_LZ@INVALID0)&&(lodlc !=`LODLC_LL_LZ@INVALID2)&&(lodlc !=`LODLC_LL_LZ@INVALID4)&&(lodlc !=`LODLC_LL_LZ@INVALID5)&&(lodlc !=`LODLC_LL_LZ@INVALID6)&&(lodlc !=`LODLC_LL_LZ@INVALID7)) :
+ "Invalid lodlc field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((cop !=`COP@INVALID6)&&(cop !=`COP@INVALID7)) :
+ "Invalid cop field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID3)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID6)&&(paramA !=`PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@INVALID7)) :
+ "Invalid paramA field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((wmsk == 1)||(wmsk == 2)||(wmsk == 3)||(wmsk == 4)||(wmsk == 5)||(wmsk == 6)||(wmsk == 7)||(wmsk == 8)||(wmsk == 9)||(wmsk == 10)||(wmsk == 11)||(wmsk == 12)||(wmsk == 13)||(wmsk == 14)||(wmsk == 15)) :
+ "Invalid wmsk field value"
+OOR_REG_ERROR
+ (((Rd2)==`Register@RZ)||(((Rd2)<=(%MAX_REG_COUNT-1))&&((Rd2)!=`Register@R254))) :
+ "Register Rd2 is out of range"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((Ra)!=`Register@RZ) :
+ "Disallowed register Ra"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((URc)+((URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URc)!=`UniformRegister@URZ) :
+ "Disallowed uniform register URc"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((ms == `MS@MS))) -> (((cl == `CL@nocl))&&((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))&&((lodlc == `LODLC_LL_LZ@LZ))) :
+ "Invalid instruction combination (reason: MS)"
+OOR_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"2D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-3)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))) -> (((((Ra)+((Ra)==`Register@RZ)) % 4) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_2D)||(paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@"3D"))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+OOR_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((paramA == `PARAMA_ARRAY_2D_ARRAY_1D_2D_1D_3D@ARRAY_1D))) -> ((((Ra)!=`Register@RZ))) :
+ "Invalid instruction combination"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@noms))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: AOFFI)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@noaoffi))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: MS)"
+OOR_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> (((((Rb)+((Rb)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((aoffi == `AOFFI@AOFFI))&&((ms == `MS@MS))&&((lodlc == `LODLC_LL_LZ@LZ))) -> ((((Rb)!=`Register@RZ))) :
+ "Invalid instruction combination (reason: AOFFI_MS)"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==3)||(wmsk==5)||(wmsk==6)||(wmsk==7)||(wmsk==9)||(wmsk==10)||(wmsk==11)||(wmsk==12)||(wmsk==13)||(wmsk==14)||(wmsk==15))) -> (((((Rd)+((Rd)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((f16rm == `F16RM@nof16rm))&&((wmsk==15))) -> (((((Rd2)+((Rd2)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@TLD_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>=2) ? (32 + ((f16rm==0)*32)) : 32;
+ IDEST2_SIZE = ((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))>2) ? (32 + (((((wmsk)&0x1) + ((wmsk>>1)&0x1) + ((wmsk>>2)&0x1) + ((wmsk>>3)&0x1))==4)*(f16rm==0)*32)) : 0;
+ ISRC_B_SIZE = ((aoffi==`AOFFI@AOFFI)*32 + (((lodlc==`LODLC@LB)*1 + (lodlc==`LODLC@LL)*1 + (lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*2) - ((lodlc==`LODLC@LC)*1 + (lodlc==`LODLC@"LC.FDV")*1 + (lodlc==`LODLC@"LB.LC")*1))*32 + (ms==`MS@MS)*32);
+ ISRC_C_SIZE = 64;
+ ISRC_A_SIZE = ((((paramA==`TEXPARAMA@"1D")*1) + ((paramA==`TEXPARAMA@"2D")*2) + ((paramA==`TEXPARAMA@"3D")*3) + ((paramA==`TEXPARAMA@ARRAY_1D)*2) + ((paramA==`TEXPARAMA@ARRAY_2D)*3)))*32;
+ VIRTUAL_QUEUE = $VQ_TEX ;
+
+ ILABEL_Ra_SIZE = 32;
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_URc_SIZE = 64;
+
+OPCODES
+        TLDmio_pipe =  0b1111101100110;
+        TLD =  0b1111101100110;
+
+ENCODING
+!tld_urc__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_60_60_scr=0;
+BITS_1_59_59_b=*0;
+BITS_2_80_79_sem=f16rm;
+BITS_3_89_87_Pnz=lodlc;
+BITS_1_76_76_memdesc=aoffi;
+BITS_3_86_84_cop=cop;
+BITS_1_78_78_mode=ms;
+BITS_1_77_77_ntz=cl;
+BITS_1_90_90_input_reg_sz_32_dist=nodep;
+BITS_3_83_81_Pu=Pu;
+BITS_8_71_64_Rc=Rd2;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_6_45_40_hdrtblbase6=URc;
+BITS_8_53_46_tid8=tid8;
+BITS_3_63_61_destidx=paramA;
+BITS_4_75_72_PixMaskU04=wmsk;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

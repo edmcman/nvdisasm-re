@@ -1,0 +1,926 @@
+[
+ {
+  "cls": "shfl__RII",
+  "alternate": false,
+  "opcodes": [
+   "SHFL"
+  ],
+  "pipes": [
+   "mio_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_RD_WR_SCBD",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 5,
+   "ISRC_C_SIZE": 13,
+   "ISRC_A_SIZE": 32,
+   "VIRTUAL_QUEUE": "$VQ_AGU",
+   "ILABEL_Ra_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pu",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Sc",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "wr",
+    "type": "WR",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "dst_wr_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "nPd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re}": "2"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ],
+   "PRED:Pu,Pv,Pd,nPd,Pnz": [
+    {
+     "MATH_PRED_NO_FP16_FP64_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FP16_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FMALITE_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "OP_P2R`{PR_PRED}": "1",
+     "OP_R2P`{PR_PRED}": "1",
+     "OP_CSMTEST`{PR_PRED}": "1",
+     "OP_VOTE`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg,Pnz}": "1",
+     "CoupledDispOverlapWithMathOps`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "MIO_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Pg,Ps,Plg,Pnz}": "1",
+     "OP_R2UR`{Pg}": "1"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "shfl__RIR",
+  "alternate": false,
+  "opcodes": [
+   "SHFL"
+  ],
+  "pipes": [
+   "mio_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_RD_WR_SCBD",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 5,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "VIRTUAL_QUEUE": "$VQ_AGU",
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rc_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pu",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "Rc",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "wr",
+    "type": "WR",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "dst_wr_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "nPd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re}": "2"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ],
+   "PRED:Pu,Pv,Pd,nPd,Pnz": [
+    {
+     "MATH_PRED_NO_FP16_FP64_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FP16_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FMALITE_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "OP_P2R`{PR_PRED}": "1",
+     "OP_R2P`{PR_PRED}": "1",
+     "OP_CSMTEST`{PR_PRED}": "1",
+     "OP_VOTE`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg,Pnz}": "1",
+     "CoupledDispOverlapWithMathOps`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "MIO_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Pg,Ps,Plg,Pnz}": "1",
+     "OP_R2UR`{Pg}": "1"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "shfl__RRI",
+  "alternate": false,
+  "opcodes": [
+   "SHFL"
+  ],
+  "pipes": [
+   "mio_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_RD_WR_SCBD",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 13,
+   "ISRC_A_SIZE": 32,
+   "VIRTUAL_QUEUE": "$VQ_AGU",
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rb_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pu",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Sc",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "wr",
+    "type": "WR",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "dst_wr_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "nPd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re}": "2"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ],
+   "PRED:Pu,Pv,Pd,nPd,Pnz": [
+    {
+     "MATH_PRED_NO_FP16_FP64_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FP16_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FMALITE_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "OP_P2R`{PR_PRED}": "1",
+     "OP_R2P`{PR_PRED}": "1",
+     "OP_CSMTEST`{PR_PRED}": "1",
+     "OP_VOTE`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg,Pnz}": "1",
+     "CoupledDispOverlapWithMathOps`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "MIO_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Pg,Ps,Plg,Pnz}": "1",
+     "OP_R2UR`{Pg}": "1"
+    }
+   ]
+  }
+ },
+ {
+  "cls": "shfl__RRR",
+  "alternate": false,
+  "opcodes": [
+   "SHFL"
+  ],
+  "pipes": [
+   "mio_pipe"
+  ],
+  "inst_type": "INST_TYPE_DECOUPLED_RD_WR_SCBD",
+  "sizes": {
+   "IDEST_SIZE": 32,
+   "ISRC_B_SIZE": 32,
+   "ISRC_C_SIZE": 32,
+   "ISRC_A_SIZE": 32,
+   "VIRTUAL_QUEUE": "$VQ_AGU",
+   "ILABEL_Ra_SIZE": 32,
+   "ILABEL_Rb_SIZE": 32,
+   "ILABEL_Rc_SIZE": 32
+  },
+  "operands": [
+   {
+    "name": "Pg",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pu",
+    "type": "Predicate",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rd",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ra",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rb",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Rc",
+    "type": "Register",
+    "resource": "GPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "req",
+    "type": "REQ",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "req_bit_set",
+    "type": "BITSET",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "rd",
+    "type": "RD",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "src_rel_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "wr",
+    "type": "WR",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "dst_wr_sb",
+    "type": "UImm",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "usched_info",
+    "type": "USCHED_INFO",
+    "resource": null,
+    "role": null,
+    "span": null
+   },
+   {
+    "name": "batch_t",
+    "type": "BATCH_T",
+    "resource": null,
+    "role": null,
+    "span": null
+   }
+  ],
+  "implicit": [
+   {
+    "name": "Pa",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pb",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pc",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Pd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Plg",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "Ps",
+    "resource": "PRED",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "UR",
+    "resource": "UGPR",
+    "role": [
+     "read"
+    ],
+    "span": 1
+   },
+   {
+    "name": "nPd",
+    "resource": "PRED",
+    "role": [
+     "write"
+    ],
+    "span": 1
+   },
+   {
+    "name": "sBoard",
+    "resource": "SCOREBOARD",
+    "role": [
+     "read",
+     "write"
+    ],
+    "span": 1
+   }
+  ],
+  "true_latency": {
+   "GPR:Rd,Rd2": [
+    {
+     "ALL_OPS`{Ra,Rb,Rc,Re}": "2"
+    }
+   ],
+   "SCOREBOARD:sBoard": [
+    {
+     "ALL_OPS_WITH_BMOV`{sBoard}": "ORDERED_ZERO"
+    }
+   ],
+   "PRED:Pu,Pv,Pd,nPd,Pnz": [
+    {
+     "MATH_PRED_NO_FP16_FP64_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FP16_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "FMALITE_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "OP_P2R`{PR_PRED}": "1",
+     "OP_R2P`{PR_PRED}": "1",
+     "OP_CSMTEST`{PR_PRED}": "1",
+     "OP_VOTE`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg,Pnz}": "1",
+     "CoupledDispOverlapWithMathOps`{Pr,Pq,Pp,Pa,Pb,Pc,Ps,Plg}": "1",
+     "MIO_OPS`{Pr,Pq,Pp,Pa,Pb,Pc,Pg,Ps,Plg,Pnz}": "1",
+     "OP_R2UR`{Pg}": "1"
+    }
+   ]
+  }
+ }
+]
