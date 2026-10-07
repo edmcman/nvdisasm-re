@@ -33,6 +33,14 @@ def main(ldefs, lang_id, *opts):
             ins = PseudoInstruction(addr, lang.parse(buf, ctx, False), buf, ctx)
             out = {"text": str(ins)}
             if "--pcode" in opts: out["pcode"] = [str(op) for op in ins.getPcode()]
+            if "--dataflow" in opts:
+                ops = ins.getPcode()
+                def node(v):
+                    return {"space": str(v.getAddress().getAddressSpace().getName()),
+                            "offset": int(v.getOffset()), "size": int(v.getSize())}
+                out["ops"] = [{"op": str(op.getMnemonic()),
+                               "inputs": [node(v) for v in op.getInputs()],
+                               "output": node(op.getOutput()) if op.getOutput() else None} for op in ops]
         except Exception as e:
             out = {"error": str(e).splitlines()[0]}
         print(json.dumps(out), flush=False)

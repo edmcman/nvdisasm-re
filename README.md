@@ -120,9 +120,25 @@ matched, which md conventions `nvdisasm` honours, and its printing quirks) are l
 
 `python3 -m sass.gen_sleigh SM75 SM80 ...` generates a SLEIGH spec per architecture
 (`sass_smXX.slaspec`, not committed: run the generator first) and `sass.ldefs` with languages `SASS:LE:64:smXX`. Ghidra
-compiles the `.sla` on first use. The decoder is display-only for now: no p-code semantics
-yet. Predicates print glued to the mnemonic (`@P0:IMAD ...`) because SLEIGH can't put a
-space there, and float immediates print as raw bits.
+compiles the `.sla` on first use. Tier A p-code records register reads and writes from
+the md roles and spans, applies instruction guards, and emits branch/call/return operations.
+Written operands receive opaque `sass_<OPC>` operations; instruction values and memory
+effects still need hand-written semantics. Predicates print glued to the mnemonic
+(`@P0:IMAD ...`) because SLEIGH can't put a space there, and float immediates print as raw bits.
+Computed 64-bit immediates may print as negative hexadecimal; the comparison tool checks
+their bits modulo 2^64 for `MOV.64`, `UMOV.64`, and `MOV64IUR`.
+
+Modifier-dependent spans are exact, including zero and non-power-of-two counts, and
+are selected inside per-class semantic subtables. Shared display fields and positive bit
+constraints keep compiled languages below Ghidra's 16 MiB decompressed `.sla` limit.
+Operand types identify register resources: an immediate with a register-like latency
+connector (such as IPA's attribute offset) is not treated as a register. Spans extending
+past the register bank use a sink so unusual words still decode; their dataflow is undefined.
+
+Set `SASS_SLEIGH_OUT` to generate and test in a scratch language directory. Copy
+`sass_common.sinc`, `sass.pspec`, and `sass.cspec` there before generation. Register
+dataflow can be checked with `python3 tests/test_dataflow.py SM89`, or with
+`SASS_DATAFLOW=1 python3 -m pytest tests/test_dataflow.py` (requires pyghidra).
 
 ### Testing against nvdisasm
 

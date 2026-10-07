@@ -6,15 +6,26 @@ values and becomes one subtable constructor guarded by those conditions on the e
 
 usage: python3 -m sass.gen_sleigh SM89 [SM90 ...]
 """
-import itertools, re, sys
+import itertools, json, math, re, sys
+import mdlib
 from collections import defaultdict
 from pathlib import Path
-from sass import ir, pydecode
+from sass import ir, mdexpr, pydecode
 from sass.pydecode import IMM, PREFIX, NoMatch, resolve, sext, value_text
 
-OUT = Path(__file__).resolve().parent.parent / "processor" / "SASS" / "data" / "languages"
+OUT = Path(__import__("os").environ.get("SASS_SLEIGH_OUT") or
+           Path(__file__).resolve().parent.parent / "processor" / "SASS" / "data" / "languages")
 MAX_ENUM_BITS = 12
 PH = "\x00{}\x00"  # placeholder for a value symbol inside a rendered template
+
+# register file -> (register-space offset, element bytes, count, zero/true register index, its name)
+REG_FILES = {"R": (0x0000, 4, 256, 255, "RZ"), "UR": (0x0400, 4, 64, 63, "URZ"),
+             "P": (0x0800, 1, 8, 7, "PT"), "UP": (0x0808, 1, 8, 7, "UPT")}
+RESOURCE_FILE = {"GPR": "R", "UGPR": "UR", "PRED": "P", "UPRED": "UP"}
+ENUM_FILE = {"Register": "R", "NonZeroRegister": "R", "ZeroRegister": "R",
+             "UniformRegister": "UR", "NonZeroUniformRegister": "UR", "ZeroUniformRegister": "UR",
+             "Predicate": "P", "UniformPredicate": "UP"}
+SPANS = tuple(range(1, 9))
 
 # ---------- fields and constraints ----------
 
@@ -48,13 +59,17 @@ def member(gen, f, values):
     ps = pieces(f)
     if len(ps) == 1:
         tok, lo, hi, _ = ps[0]
-        name = gen.field(tok, lo, hi)
-        missing = sorted(set(range(universe)) - values)
-        runs = intervals(sorted(values))
-        if len(missing) <= len(runs) and hi - lo < 8:  # `!=` splits into many states on wide fields
-            return [[lit(tok, f"{name}!={v}")] for v in missing]
-        return [[lit(tok, f"{name}={a}" if a == b else f"({name}>{a - 1} & {name}<{b + 1})" if a else f"{name}<{b + 1}")
-                 for a, b in runs]]
+        # Cover intervals with aligned power-of-two blocks. Each block constrains
+        # only its fixed high bits; inequalities expand into many decision states.
+        terms = []
+        for a, b in intervals(sorted(values)):
+            while a <= b:
+                size = min(a & -a if a else universe, 1 << ((b - a + 1).bit_length() - 1))
+                shift = size.bit_length() - 1
+                name = gen.field(tok, lo + shift, hi)
+                terms.append(lit(tok, f"{name}={a >> shift}"))
+                a += size
+        return [terms]
     if (factored := product_split(f, values)) is not None:  # S = S1 x S2 x ...: one small clause per piece
         out = []
         for (tok, lo, hi, n), vs in zip(ps, factored):
@@ -83,6 +98,19 @@ def intervals(vs):
         if runs and runs[-1][1] == v - 1: runs[-1][1] = v
         else: runs.append([v, v])
     return runs
+
+def span_boxes(combos):
+    """Disjoint Cartesian rectangles covering exactly the given modifier tuples."""
+    if not combos or not combos[0]:
+        return [()] if combos else []
+    tails = defaultdict(set)
+    for head, *tail in combos:
+        tails[head].add(tuple(tail))
+    groups = defaultdict(set)
+    for head, tail in tails.items():
+        groups[frozenset(tail)].add(head)
+    return [(frozenset(heads),) + box for tail, heads in groups.items()
+            for box in span_boxes(sorted(tail))]
 
 def pattern(clauses, refs=()):
     """SLEIGH pattern: DNF over cross-token clauses, each term `(lo-group ; hi-group)`; refs are extra operands:
@@ -122,9 +150,16 @@ class Gen:
         self.arch = ir.load(archname)
         self.fields = {}              # (tok, lo, hi, kind) -> name
         self.attach = {}              # field name -> names list
+        self.name_fields = {}         # (token range, names) -> shared display field
         self.tables = {}              # constructor text -> subtable name
         self.table_lines = []
         self.skipped = []
+        self.attach_vars = {}         # field name -> register names
+        self.spans = {file: {1} for file in REG_FILES}
+        self.pcodeops = set()
+        md = mdlib.load_classes(mdlib.OUT / archname)
+        self.props = {c["cls"]: c["props"] for c in md}
+        self.roles = {r["cls"]: r for p in (mdlib.OUT / archname / "semantics").glob("*.json") for r in json.loads(p.read_text())}
 
     def field(self, tok, lo, hi, kind=""):
         name = f"{tok}{lo}_{hi}{kind}"
@@ -132,14 +167,22 @@ class Gen:
         return name
 
     def subtable(self, prefix, constructors):
-        """Dedupe identical subtables; constructors are (display, pattern, action) triples."""
+        """Dedupe identical subtables; constructors are (display, pattern, action[, semantics]) tuples."""
         key = (prefix, tuple(constructors))
         if key not in self.tables:
             name = f"{prefix}{len(self.tables)}"
             self.tables[key] = name
-            for disp, pat, action in constructors:
-                self.table_lines.append(f"{name}: {disp} is {pat}{action} {{ }}")
+            for disp, pat, action, *sem in constructors:
+                self.table_lines.append(f"{name}: {disp} is {pat}{action} {{ {sem[0] if sem else ''} }}")
         return self.tables[key]
+
+    def name_field(self, tok, lo, hi, names):
+        key = (tok, lo, hi, tuple(names))
+        if key not in self.name_fields:
+            fname = self.field(tok, lo, hi, f"_{len(self.attach)}")
+            self.attach[fname] = names
+            self.name_fields[key] = fname
+        return self.name_fields[key]
 
     # --- operand value sources ---
 
@@ -198,8 +241,7 @@ class Gen:
                 if len(pieces(f)) == 1:
                     tok, lo, hi, _ = pieces(f)[0]
                     names = [text(v * scale, widths) for v in range(1 << f.width)]
-                    fname = self.field(tok, lo, hi, f"_{len(self.attach)}")
-                    self.attach[fname] = names
+                    fname = self.name_field(tok, lo, hi, names)
                     return fname, [(tok, fname)]
                 return self.enum_table([(eq(self, f, v), text(v * scale, widths)) for v in range(1 << f.width)])
             case ("field", f, scale):
@@ -236,6 +278,19 @@ class Gen:
         if m["rel"]: expr = f"inst_next + ({expr})"
         name = self.subtable("n", [("t", pattern([], refs), f" [ t = {expr}; ]")])
         return name, [("sub", name)]
+
+    def branch_target(self, k, a):
+        """Invisible subtable exporting a relative branch's destination (display keeps its own symbol)."""
+        _, f, scale = self.source(k, a.name)
+        refs, expr, shift = [], None, 0
+        for tok, lo, hi, n in reversed(pieces(f)):
+            fname = self.field(tok, lo, hi, "u")
+            refs.append((tok, fname))
+            expr = fname if expr is None else f"({fname} << {shift}) | {expr}"
+            shift += n
+        sb = 1 << (f.width - 1)
+        return self.subtable("b", [("t", pattern([], refs), f" [ t = inst_next + ((({expr}) ^ {sb}) - {sb}) * {scale}; ]",
+                                    "export *[ram]:8 t;")])
 
     # --- rendering ---
 
@@ -385,10 +440,145 @@ class Gen:
         g = self.guard(k)
         disp = (f"^{g}^" if g else "") + mnem_disp
         if item_syms: disp += " " + "^".join(item_syms)
-        pat = pattern(clauses, refs)
+        sem, srefs = self.semantics(k, g)
+        pat = pattern(clauses, refs + srefs)
         if pat is None: raise NoMatch("unsatisfiable")
         subs = [s for s in [g] + item_syms if s]
-        return f":{disp} is {pat}" + "".join(f" & {s}" for s in subs) + " { }", pattern(clauses)
+        return f":{disp} is {pat}" + "".join(f" & {s}" for s in subs) + f" {{ {sem} }}", pattern(clauses)
+
+    # ---------- semantics ----------
+
+    def regfield(self, tok, lo, hi, file, span):
+        """Field alias attached to register views, with sinks for bank overflow."""
+        name = self.field(tok, lo, hi, f"_{file}{span}")
+        self.spans[file].add(span)
+        if name not in self.attach_vars:
+            n = REG_FILES[file][2]
+            self.attach_vars[name] = [reg_name(file, i, span) if i + span <= n else f"SINK{REG_FILES[file][1] * span}"
+                                      for i in range(1 << (hi - lo + 1))]
+        return name
+
+    def regsem(self, f, file, span, write, values=None):
+        """Invisible subtable exporting operand register(s); RZ/URZ read as 0 (PT/UPT as 1), writes are dropped."""
+        _, size, n, zero, _ = REG_FILES[file]
+        nbytes = size * span
+        self.spans[file].add(span)
+        special = (f"export SINK{nbytes};" if write
+                   else f"ZERO{nbytes} = zext(0:8); export ZERO{nbytes};" if nbytes > 256  # SLEIGH temporary-size cap
+                   else f"local zero:{nbytes} = zext(0:8); export zero;" if nbytes > 8
+                   else f"export {1 if file in ('P', 'UP') else 0}:{nbytes};")
+        if values is not None:
+            cons = []
+            for raw, index in values.items():
+                body = special if index == zero else f"export {reg_name(file, index, span) if 0 <= index and index + span <= n else f'SINK{nbytes}'};"
+                cons.append(('""', pattern(eq(self, f, raw)), "", body))
+            return self.subtable("r", cons)
+        (tok, lo, hi, _), = pieces(f)
+        var = self.regfield(tok, lo, hi, file, span)
+        cons = [('""', pattern([], [(tok, var)]), "", f"export {var};"),
+                ('""', pattern(eq(self, f, zero)), "", special)]
+        return self.subtable("r", cons)
+
+    def reg_operands(self, k):
+        """(record, register file, source field) for register operands with md roles."""
+        gname = next((a.name for a in k.format if a.kind == "guard"), None)
+        for o in self.roles.get(k.name, {}).get("operands", []):
+            file, src = RESOURCE_FILE.get(o["resource"]), self.source(k, o["name"])
+            if (o["name"] != gname and file and ENUM_FILE.get(o["type"]) == file
+                    and o["role"] and src):
+                yield o, file, src[1]
+
+    def span_variants(self, k):
+        """(fixed spans for expression-sized operands, clauses) per distinct span signature."""
+        exprs = {o["name"]: o["span"] for o, _, _ in self.reg_operands(k) if isinstance(o["span"], str)}
+        if not exprs: return [({}, [])]
+        fields = {}
+        for e in exprs.values():
+            for v in sorted(mdexpr.free_vars(self.arch, e)):
+                src = self.source(k, v)
+                if not src or src[0] != "field":
+                    raise ValueError(f"{k.name}: unsupported span dependency {v}")
+                fields[v] = src
+        count = math.prod(1 << src[1].width for src in fields.values())
+        if count > 1 << 20:
+            raise ValueError(f"{k.name}: span expression needs {count} modifier combinations")
+        combos = itertools.product(*(range(1 << src[1].width) for src in fields.values()))
+        groups = defaultdict(list)
+        for combo in combos:
+            vals = {v: x * src[2] for (v, src), x in zip(fields.items(), combo)}
+            sig = tuple((n, int(mdexpr.evaluate(e, self.arch, vals))) for n, e in exprs.items())
+            if any(s < 0 or s > 256 for _, s in sig):
+                raise ValueError(f"{k.name}: unsupported register spans {sig}")
+            groups[sig].append(combo)
+        if len(groups) == 1: return [(dict(next(iter(groups))), [])]
+        out = []
+        for sig, cs in groups.items():
+            if len(fields) == 1:
+                ((_, (_, f, _)),) = fields.items()
+                clauses = member(self, f, {c[0] for c in cs})
+            else:
+                proj = [set(c[i] for c in cs) for i in range(len(fields))]
+                if len(cs) == math.prod(map(len, proj)):  # a product of per-field sets
+                    clauses = [cl for (_, src), vs in zip(fields.items(), proj) for cl in member(self, src[1], vs)]
+                else:
+                    # Partition into exact Cartesian rectangles, merging values
+                    # whose remaining modifier combinations are identical.
+                    for box in span_boxes(cs):
+                        clauses = [cl for (_, src), vs in zip(fields.items(), box)
+                                   for cl in member(self, src[1], vs)]
+                        out.append((dict(sig), clauses))
+                    continue
+            out.append((dict(sig), clauses))
+        return out
+
+    def semantics(self, k, guard):
+        # Keep span decisions under their class rather than duplicating root
+        # constructors: otherwise SLEIGH mixes modifiers from unrelated opcodes
+        # into the global instruction decision tree.
+        variants = self.span_variants(k)
+        if len(variants) == 1:
+            return self.fixed_semantics(k, guard, variants[0][0])
+        cons = []
+        for fixed, clauses in variants:
+            body, refs = self.fixed_semantics(k, None, fixed)
+            cons.append(('""', pattern(clauses, refs), "", body))
+        table = self.subtable("s", cons)
+        body = f"build {guard}; " if guard else ""
+        return body + f"build {table};", [("sub", table)]
+
+    def fixed_semantics(self, k, guard, spans):
+        """Tier A p-code: guard, one opaque pcodeop per written register operand, and control flow."""
+        refs, body = [], [f"build {guard};"] if guard else []
+        props = self.props.get(k.name, {})
+        ins, outs, regs = [], [], {}
+        for o, file, f in self.reg_operands(k):  # the guard predicate is handled by `build guard`
+            span = o["span"] if isinstance(o["span"], int) else spans[o["name"]]
+            if span == 0: continue
+            src = self.source(k, o["name"])
+            values = (self.table_values(f, src[2], src[3]) if src[0] == "table"
+                      else {v: v * src[2] for v in range(1 << f.width)}
+                      if len(pieces(f)) != 1 or src[2] != 1 else None)
+            for role in o["role"]:
+                sym = self.regsem(f, file, span, role == "write", values)
+                refs.append(("sub", sym)); regs[o["name"]] = sym
+                (outs if role == "write" else ins).append((o["name"], sym))
+        op = "sass_" + re.sub(r"\W", "_", k.mnemonic)
+        for name, sym in outs:
+            fn = op if len(outs) == 1 else f"{op}_{name}"
+            self.pcodeops.add(fn); body.append(f"{sym} = {fn}({', '.join(s for _, s in ins)});")
+        if not outs:
+            self.pcodeops.add(op); body.append(f"{op}({', '.join(s for _, s in ins)});")
+        tgt = re.fullmatch(r"INDEX\((\w+)\)", props.get("BRANCH_TARGET_INDEX", ""))
+        tgt = tgt and tgt[1]
+        dest = None
+        if tgt in regs: dest = f"[{regs[tgt]}]"
+        elif tgt and k.operand_types.get(tgt) and k.operand_types[tgt].type == "RSImm" and self.source(k, tgt):
+            dest = self.branch_target(k, k.operand_types[tgt]); refs.append(("sub", dest))
+        match props.get("BRANCH_TYPE"), dest:
+            case "BRT_BRANCH", str(d): body.append(f"goto {d};")
+            case "BRT_CALL", str(d): body.append(f"call {d};")
+            case "BRT_RETURN" | "BRT_BRANCHOUT" | "BRT_BRANCH", _: body.append(f"return {dest if dest and dest.startswith('[') else '[0:8]'};")
+        return " ".join(body), refs
 
     def guard(self, k):
         g = next((a for a in k.format if a.kind == "guard"), None)
@@ -399,13 +589,18 @@ class Gen:
         _, f, _ = src
         (tok, lo, hi, _), = pieces(f)
         names = [value_text(self.arch, g, {g.name: v}, {})[0] for v in range(1 << f.width)]
-        fname = self.field(tok, lo, hi, f"_{len(self.attach)}")
-        self.attach[fname] = names
+        fname = self.name_field(tok, lo, hi, names)
         dv = self.arch.enums[g.type][g.default]
         neg = negsrc[1] if negsrc else None
-        cons = [('""', pattern(eq(self, f, dv) + (eq(self, neg, 0) if neg else [])), "")]
-        cons.append((f'"@"^{fname}^":"', pattern(eq(self, neg, 0) if neg else [], [(tok, fname)]), ""))
-        if neg: cons.append((f'"@!"^{fname}^":"', pattern(eq(self, neg, 1), [(tok, fname)]), ""))
+        pvar = self.regfield(tok, lo, hi, ENUM_FILE[g.type], 1)
+        always = eq(self, f, dv)
+        cons = [('""', pattern(always + (eq(self, neg, 0) if neg else [])), "", "")]
+        cons.append((f'"@"^{fname}^":"', pattern(eq(self, neg, 0) if neg else [], [(tok, fname), (tok, pvar)]), "",
+                     f"if ({pvar} == 0) goto inst_next;"))
+        if neg:
+            cons.append((f'"@!"^{fname}^":"', pattern(always + eq(self, neg, 1), [(tok, fname)]), "", "goto inst_next;"))
+            cons.append((f'"@!"^{fname}^":"', pattern(eq(self, neg, 1), [(tok, fname), (tok, pvar)]), "",
+                         f"if ({pvar} != 0) goto inst_next;"))
         return self.subtable("g", cons)
 
     def class_constraints(self, k):
@@ -476,7 +671,7 @@ class Gen:
         toks = defaultdict(set)
         for (tok, lo, hi, kind), name in self.fields.items(): toks[tok].add((lo, hi, kind, name))
         out = [f"# Generated by sass/gen_sleigh.py from out/{self.arch.name}/md -- do not edit.",
-               '@include "sass_common.sinc"', ""]
+               '@include "sass_common.sinc"', ""] + register_defs(self.spans) + [""]
         for tok, tname in (("l", "lo"), ("h", "hi")):
             out.append(f"define token {tname}(64)")
             out.append(f"  {tok}any = (0, 63)")
@@ -485,8 +680,30 @@ class Gen:
             out.append(";")
         for fname, names in self.attach.items():
             out.append(f"attach names [ {fname} ] [ " + " ".join(f'"{n}"' for n in names) + " ];")
+        for fname, names in self.attach_vars.items():
+            out.append(f"attach variables [ {fname} ] [ " + " ".join(names) + " ];")
+        out += [f"define pcodeop {op};" for op in sorted(self.pcodeops)]
         out += [""] + self.table_lines + [""] + cons
         return "\n".join(out) + "\n"
+
+def reg_name(file, i, span):
+    base = REG_FILES[file][4] if i == REG_FILES[file][3] else f"{file}{i}"
+    return base if span == 1 else f"{file}{i}_{REG_FILES[file][1] * 8 * span}"
+
+def register_defs(spans=None):
+    """Each file as single registers plus overlapping 2/4/8-register views starting at every index."""
+    spans = spans or {file: set(SPANS if size == 4 else (1,)) for file, (_, size, *_) in REG_FILES.items()}
+    out = []
+    for file, (base, size, n, _, _) in REG_FILES.items():
+        for span in sorted(spans[file]):
+            for phase in range(span):
+                names = [reg_name(file, i, span) for i in range(phase, n - span + 1, span)]
+                if names: out.append(f"define register offset={base + size * phase:#x} size={size * span} [ {' '.join(names)} ];")
+    sizes = sorted({REG_FILES[file][1] * s for file, ss in spans.items() for s in ss})
+    out += [f"define register offset=0x10000 size={n} [ SINK{n} ];" for n in sizes]
+    out += [f"define register offset={0x20000 + n * 0x1000} size={n} [ ZERO{n} ];"
+            for n in sizes if n > 256]
+    return out
 
 def can_default(arch, a):
     return default_value(arch, a) is not None

@@ -11,7 +11,7 @@ import compare, oracle
 from sass import pydecode
 
 ROOT = Path(__file__).resolve().parent.parent
-LDEFS = ROOT / "processor" / "SASS" / "data" / "languages" / "sass.ldefs"
+LDEFS = Path(os.environ.get("SASS_SLEIGH_OUT", ROOT / "processor" / "SASS" / "data" / "languages")) / "sass.ldefs"
 GHIDRA_PY = os.environ.get("GHIDRA_PY", os.path.expanduser("~/.config/ghidra/ghidra_12.1.4_PUBLIC/venv/bin/python3"))
 
 def loose(text):
@@ -20,12 +20,17 @@ def loose(text):
     guard, rest = (text.split(" ", 1) + [""])[:2] if text.startswith("@") else ("", text)
     mnem, _, ops = rest.partition(" ")
     ops = re.sub(r"\s+", "", ops)
+    # SLEIGH's computed display values are signed int64. These instruction
+    # immediates represent the same bits whether printed signed or unsigned.
+    if re.match(r"(?:(?:U?MOV)\.64|MOV64IUR)(?:\.|$)", mnem):
+        ops = re.sub(r"(?:^|(?<=,))(-?0x[0-9a-fA-F]+)(?=$|\.)",
+                     lambda m: hex(int(m[1], 16) & ((1 << 64) - 1)), ops)
     return f"{guard} {mnem} {ops}".strip()
 
-def ghidra(arch, words_addrs):
+def ghidra(arch, words_addrs, *opts):
     lang = f"SASS:LE:64:{arch.lower()}"
     inp = "".join(f"{a:x} {w.hex()}\n" for w, a in words_addrs)
-    p = subprocess.run([GHIDRA_PY, str(ROOT / "tests" / "ghidra_decode.py"), str(LDEFS), lang],
+    p = subprocess.run([GHIDRA_PY, str(ROOT / "tests" / "ghidra_decode.py"), str(LDEFS), lang, *opts],
                        input=inp, capture_output=True, text=True, cwd="/")
     lines = [json.loads(l) for l in p.stdout.splitlines() if l.startswith("{")]
     if len(lines) != len(words_addrs): raise RuntimeError(p.stderr[-3000:])
