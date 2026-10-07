@@ -81,6 +81,77 @@ A list with one record per instruction class:
   such as scoreboards.
 - Roles apply to the whole opcode set, so conditional operands aren't distinguished.
 
+## Decoding SASS from the machine descriptions
+
+The `md` files are complete enough to decode instructions. `sass/` turns them into two
+disassemblers, both checked against `nvdisasm` itself.
+
+### Reference decoder (`sass/pydecode.py`)
+
+A pure-Python decoder that reproduces `nvdisasm`'s text exactly:
+
+```sh
+python3 -m sass.pydecode kernel.cubin                    # arch from the ELF header, every .text.* section
+python3 -m sass.pydecode --arch SM89 code.bin            # raw instruction binary
+python3 -m sass.pydecode --arch SM89 0278050004000000000f000000e20f00 47790000f02700000000800300ea0f00
+```
+
+```
+        /*0000*/  MOV R5, 0x4 ;                        /* 0278050004000000000f000000e20f00 */
+        /*0010*/  BRA 0x2810 ;                         /* 47790000f02700000000800300ea0f00 */
+```
+
+It runs on the committed `out/` files with no dependencies. `--float-hex` prints float
+immediates as raw bits, the way the Ghidra decoder does. From Python:
+
+```python
+from sass import pydecode
+d = pydecode.decode("SM89", bytes.fromhex("247210ffff00000002008e0700e40f10"), addr=0)
+d.text        # 'IMAD.MOV.U32 R16, RZ, RZ, R2.reuse'
+d.klass.name  # 'imad_pseudo__RRR_RRR' (the md CLASS that matched)
+d.env         # decoded field values, e.g. d.env["Rd"] == 16
+```
+
+Words that don't decode raise `pydecode.NoMatch`. The rules it implements (how classes are
+matched, which md conventions `nvdisasm` honours, and its printing quirks) are listed in
+[`AGENTS.md`](AGENTS.md#decoding-sass-tests).
+
+### Ghidra processor (`processor/SASS/`)
+
+`python3 -m sass.gen_sleigh SM75 SM80 ...` generates a SLEIGH spec per architecture
+(`sass_smXX.slaspec`, not committed: run the generator first) and `sass.ldefs` with languages `SASS:LE:64:smXX`. Ghidra
+compiles the `.sla` on first use. The decoder is display-only for now: no p-code semantics
+yet. Predicates print glued to the mnemonic (`@P0:IMAD ...`) because SLEIGH can't put a
+space there, and float immediates print as raw bits.
+
+### Testing against nvdisasm
+
+The tests use `nvdisasm -b SMxx` as an oracle, over three corpora:
+
+- **real**: every instruction in the cubins inside the CUDA libraries (`cuobjdump -xelf`
+  of cuBLASLt, cuSPARSE, ...), about 3–6M unique words per architecture
+- **synthetic**: 64 random words per md class that satisfy its encoding constraints
+- **mutated**: real words with one or two bits flipped
+
+```sh
+python3 tests/compare.py SM89 real 0             # pydecode vs nvdisasm (0 = whole corpus)
+python3 tests/compare_ghidra.py SM89 synthetic 0 # Ghidra (generated SLEIGH) vs pydecode
+uv run --with pytest python -m pytest tests -k pydecode   # per-class ratchet vs tests/baseline/
+```
+
+`nvdisasm` results are cached in `.cache/oracle.sqlite`. The paths to `nvdisasm`, the CUDA
+libraries and Ghidra are set at the top of `tests/oracle.py`, `tests/corpus.py` and
+`tests/compare_ghidra.py`, and the first two can be overridden with `NVDISASM`.
+
+Current results (CUDA 13.4 `nvdisasm`):
+
+- pydecode matches `nvdisasm` on every real word for all eight architectures that have
+  cubins (about 38M words), and on all synthetic and mutated words except 17 SM75
+  HMMA words. Some valid encodings print as blank lines in `nvdisasm`; the cause is
+  still unknown, so those are excluded from the counts.
+- The generated SLEIGH matches pydecode on every SM75 and SM89 word in all three corpora.
+  The other architectures are still being run.
+
 ## Other findings
 
 - Opcode and operand names inside the binary are ROT13-obfuscated, so `strings` finds none.

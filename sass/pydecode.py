@@ -1,5 +1,11 @@
-"""Reference SASS decoder driven by the machine-description IR."""
-import math, re, struct
+"""Reference SASS decoder driven by the machine-description IR.
+
+usage: python3 -m sass.pydecode [--arch SMxx] [--float-hex] INPUT...
+INPUT is a cubin (arch from its ELF header, every .text.* section), a raw instruction binary,
+or 32-digit hex instruction words.
+"""
+import argparse, math, re, struct, sys
+from pathlib import Path
 from collections import defaultdict
 from dataclasses import dataclass
 from functools import cache
@@ -7,6 +13,7 @@ from sass import ir
 
 IMM = re.compile(r"(?P<rel>R)?(?P<signed>S|U)Imm|(?P<float>F(?:16|32|64))Imm")
 PREFIX = {"C": "c", "CX": "cx", "A": "a", "DESC": "desc"}
+FLOAT_HEX = False  # SLEIGH can only display float immediates as raw bits
 FLAG_FMT = {"not": "!{}", "negate": "-{}", "invert": "~{}", "absolute": "|{}|"}
 
 class NoMatch(Exception): pass
@@ -129,7 +136,7 @@ def value_text(arch, atom, env, widths):
         v = v or 0
         always = dflt.endswith("*") or "PRINT" in opts  # e.g. UImm(5/0*) bank, UImm(n/0/PRINT)
         is_default = dflt != "" and not always and v == int(dflt, 0)
-        if m["float"]: return fmt_float(v, env.get(("__fmt", atom.name), m["float"])), is_default
+        if m["float"]: return (hexs(v) if FLOAT_HEX else fmt_float(v, env.get(("__fmt", atom.name), m["float"]))), is_default
         if m["rel"]: return sext(v, n), is_default
         return hexs(sext(v, n) if m["signed"] == "S" else v), is_default
     if atom.type == "BITSET":
@@ -148,7 +155,21 @@ def wrap(t, on):
     for f in sorted(on, key=lambda f: f != "absolute"): t = FLAG_FMT[f].format(t)
     return t
 
+class View:
+    """Concrete operand values for render(); sass/gen_sleigh.py substitutes a symbolic view."""
+    def __init__(self, arch, env, widths): self.arch, self.env, self.widths = arch, env, widths
+    def value(self, a, item): return value_text(self.arch, a, self.env, self.widths)
+    def flag(self, name, attr, item): return bool(self.env.get((name, attr)))
+    def raw(self, name, item): return self.env.get(name, 0)
+    def target(self, a, off): return hexs(self.env["__addr"] + 16 + off)
+
 def render(arch, k, env, widths):
+    guard, items = render_items(k, View(arch, env, widths))
+    ops = [o for o in items[1:] if o]
+    return guard + items[0] + (" " + ", ".join(ops) if ops else "")
+
+def render_items(k, view):
+    """(guard text, [mnemonic+modifiers, operand item, ...]); empty items are operands omitted as defaults."""
     items, flags, guard, omitted = [[k.mnemonic]], [], "", []
     hide_desc = skipping = False
     last = span = None  # span: an operand whose flags enclose it plus its directly following modifiers
@@ -172,14 +193,14 @@ def render(arch, k, env, widths):
         match a.kind:
             case "flag": flags.append(a)
             case "guard":
-                t, _ = value_text(arch, a, env, widths)
-                neg = any(env.get((a.name, f.name)) for f in flags)
+                t, _ = view.value(a, 0)
+                neg = any(view.flag(a.name, f.name, 0) for f in flags)
                 guard = "" if t == a.default and not neg else f"@{'!' if neg else ''}{t} "
                 flags = []
             case "opcode" | "lbrace" | "rbrace": pass
-            case "mod" if a.type == "EXP_DESC": hide_desc = env.get(a.name, 0) == 0
+            case "mod" if a.type == "EXP_DESC": hide_desc = view.raw(a.name, len(items) - 1) == 0
             case "mod":
-                t, dflt = value_text(arch, a, env, widths)
+                t, dflt = view.value(a, len(items) - 1)
                 if not dflt:
                     if last == "omitted": items[-1].append(omitted[-1])  # a modifier keeps its default operand: [RZ.X8]
                     items[-1].append("." + t)
@@ -198,9 +219,9 @@ def render(arch, k, env, widths):
                 skipping = True
             case "operand":
                 if len(items) == 1: items.append([])
-                t, dflt = value_text(arch, a, env, widths)
-                if a.type == "RSImm": t = hexs(env["__addr"] + 16 + t)
-                on = [f.name for f in flags if env.get((a.name, f.name))]
+                t, dflt = view.value(a, len(items) - 1)
+                if a.type == "RSImm": t = view.target(a, t)
+                on = [f.name for f in flags if view.flag(a.name, f.name, len(items) - 1)]
                 flags = []
                 if dflt and not on:
                     omitted.append(t)
@@ -215,9 +236,7 @@ def render(arch, k, env, widths):
                 items[-1].append(" " + t if last == "operand" else t)
         last = a.kind
     close_span()
-    ops = [re.sub(r"\[\+|\+\]", lambda m: m[0].replace("+", ""), "".join(i)) for i in items[1:]]
-    ops = [o for o in ops if o]
-    return guard + "".join(items[0]) + (" " + ", ".join(ops) if ops else "")
+    return guard, ["".join(items[0])] + [re.sub(r"\[\+|\+\]", lambda m: m[0].replace("+", ""), "".join(i)) for i in items[1:]]
 
 @cache
 def index(archname):
@@ -264,3 +283,36 @@ def apply_aliases(arch, k, env, widths):
         env[name], env[("__type", name)] = resolve(arch, row), etype
         active |= env[name] != 0
     return active
+
+def listing(arch, words, base=0):
+    for i, w in enumerate(words):
+        addr = base + 16 * i
+        try: text = decode(arch, w, addr).text + " ;"
+        except NoMatch as e: text = f"<illegal: {e}>"
+        print(f"        /*{addr:04x}*/  {text:<60} /* {w.hex()} */")
+
+def main(argv=None):
+    from sass import cubin
+    p = argparse.ArgumentParser(description="Decode SASS with the md-driven reference decoder.")
+    p.add_argument("--arch", help="SM75 ... SM120 (required unless the input is a cubin)")
+    p.add_argument("--float-hex", action="store_true", help="print float immediates as raw bits, like the SLEIGH decoder")
+    p.add_argument("inputs", nargs="+")
+    a = p.parse_args(argv)
+    global FLOAT_HEX
+    FLOAT_HEX = a.float_hex
+    hexwords = [bytes.fromhex(i) for i in a.inputs if not Path(i).is_file()]
+    if hexwords:  # consecutive words, like a raw binary
+        listing(a.arch or p.error("--arch is required for hex words"), hexwords)
+    for path in map(Path, a.inputs):
+        if not path.is_file(): continue
+        data = path.read_bytes()
+        if not cubin.is_elf(data):
+            listing(a.arch or p.error("--arch is required for raw binaries"), cubin.words(data))
+            continue
+        arch = a.arch or cubin.elf_arch(data)
+        for name, body in cubin.text_sections(data).items():
+            print(f"{name}:  // {arch}")
+            listing(arch, cubin.words(body))
+
+if __name__ == "__main__":
+    main()

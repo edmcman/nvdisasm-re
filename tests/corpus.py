@@ -1,6 +1,7 @@
 """Instruction-word corpora: real (from cubins), synthetic (per class), mutated (bit flips)."""
-import random, struct, subprocess
+import random, subprocess
 from pathlib import Path
+from sass.cubin import elf_arch, text_words
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / ".cache" / "cubins"
@@ -9,24 +10,6 @@ LIBS = [Path("/usr/local/cuda/lib64") / n for n in
         ("libcublasLt.so", "libcusparse.so", "libcusolver.so", "libcurand.so", "libcufft.so")]
 LOOSE = [*Path.home().glob("Downloads/*.cubin"), *Path.home().glob(".triton/cache/*/*.cubin"),
          *(ROOT / "tests" / "kernels" / "build").glob("*.cubin")]
-
-def sections(data):
-    shoff, = struct.unpack_from("<Q", data, 0x28)
-    entsize, num, strndx = struct.unpack_from("<HHH", data, 0x3a)
-    hdrs = [struct.unpack_from("<IIQQQQIIQQ", data, shoff + i * entsize) for i in range(num)]
-    strtab = hdrs[strndx][4]
-    name = lambda o: data[strtab + o:data.index(b"\0", strtab + o)].decode()
-    return {name(h[0]): data[h[4]:h[4] + h[5]] for h in hdrs if h[1] != 8}  # skip NOBITS
-
-def elf_arch(data):
-    flags, = struct.unpack_from("<I", data, 0x30)
-    sm = (flags >> 8 if data[8] >= 8 else flags) & 0xff
-    return f"SM{sm}"
-
-def text_words(data):
-    for name, body in sections(data).items():
-        if name.startswith(".text."):
-            yield from (body[i:i + 16] for i in range(0, len(body) - 15, 16))
 
 def extract(lib):
     out = CACHE / lib.name
