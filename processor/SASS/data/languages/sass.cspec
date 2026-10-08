@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <compiler_spec>
   <data_organization><pointer_size value="8"/></data_organization>
-  <global><range space="ram"/></global>
-  <stackpointer register="R1" space="ram"/>
+  <global><range space="ram"/><range space="cbank"/><range space="shared"/></global>
+  <stackpointer register="R1" space="localmem"/>
   <default_proto>
     <prototype name="__kernel" extrapop="0" stackshift="0">
       <input/><output/>

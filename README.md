@@ -118,12 +118,22 @@ matched, which md conventions `nvdisasm` honours, and its printing quirks) are l
 
 ### Ghidra processor (`processor/SASS/`)
 
+`python3 -m sass.build_languages` generates and compiles all nine languages in
+`processor/SASS/data/languages/`. Copy the complete processor directory into
+Ghidra's `Ghidra/Processors/` directory and restart Ghidra after updating it.
+Keep the generated `.sla` and `.slaspec` files together with the matching shared
+definitions and compiler spec: mixing older languages with a newer compiler
+spec can fail at import with `Unknown register: R1`.
+
 `python3 -m sass.gen_sleigh SM75 SM80 ...` generates a SLEIGH spec per architecture
 (`sass_smXX.slaspec`, not committed: run the generator first) and `sass.ldefs` with languages `SASS:LE:64:smXX`. Ghidra
-compiles the `.sla` on first use. Tier A p-code records register reads and writes from
-the md roles and spans, applies instruction guards, and emits branch/call/return operations.
-Written operands receive opaque `sass_<OPC>` operations; instruction values and memory
-effects still need hand-written semantics. Predicates print glued to the mnemonic
+compiles the `.sla` on first use. P-code preserves exact register effects and raw
+instruction bits for every class. Tier B adds native integer, move, memory and
+control-flow overrides plus runtime primitives for floating-point and warp
+operations. Unsupported variants retain explicit opaque calls. Operand values,
+coverage, runtime interfaces and verification commands are documented in
+[`processor/SASS/semantics/README.md`](processor/SASS/semantics/README.md).
+Predicates print glued to the mnemonic
 (`@P0:IMAD ...`) because SLEIGH can't put a space there, and float immediates print as raw bits.
 Computed 64-bit immediates may print as negative hexadecimal; the comparison tool checks
 their bits modulo 2^64 for `MOV.64`, `UMOV.64`, and `MOV64IUR`.

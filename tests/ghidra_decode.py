@@ -13,10 +13,13 @@ def load_language(ldefs, lang_id):
     from java.io import File
     from generic.jar import ResourceFile
     from ghidra.app.plugin.processors.sleigh import SleighLanguageProvider
-    from ghidra.program.model.lang import LanguageID
+    from ghidra.program.model.lang import LanguageID, CompilerSpecID
     ctor = SleighLanguageProvider.class_.getDeclaredConstructor(ResourceFile.class_)
     ctor.setAccessible(True)  # package-private; avoids installing the processor into Ghidra
-    return ctor.newInstance(ResourceFile(File(ldefs))).getLanguage(LanguageID(lang_id))
+    lang = ctor.newInstance(ResourceFile(File(ldefs))).getLanguage(LanguageID(lang_id))
+    # Importers also load the compiler spec; decoding alone misses stale-register failures.
+    lang.getCompilerSpecByID(CompilerSpecID('default'))
+    return lang
 
 def main(ldefs, lang_id, *opts):
     pyghidra.start(install_dir=GHIDRA)

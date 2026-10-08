@@ -1,0 +1,1712 @@
+{
+  "SM100": {
+    "classes": 978,
+    "hardware_verified": false,
+    "opaque_tier_b": {
+      "iabs__RUR_UR": "unsupported class shape",
+      "iadd3_noimm__RUR_RUR": "unsupported class shape",
+      "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
+      "imad__RRU_RRU": "unsupported class shape",
+      "imad__RUR_RUR": "unsupported class shape",
+      "imad_hi__RRU_RRU": "unsupported class shape",
+      "imad_hi__RUR_RUR": "unsupported class shape",
+      "imad_hi_x__RRU_RRU": "unsupported class shape",
+      "imad_hi_x__RUR_RUR": "unsupported class shape",
+      "imad_wide__RRU_RRU": "unsupported class shape",
+      "imad_wide__RUR_RUR": "unsupported class shape",
+      "imad_wide_x__RRU_RRU": "unsupported class shape",
+      "imad_wide_x__RUR_RUR": "unsupported class shape",
+      "imad_x__RRU_RRU": "unsupported class shape",
+      "imad_x__RUR_RUR": "unsupported class shape",
+      "imnmx__RUR_RUR": "unsupported class shape",
+      "isetp__RUR_RUR_EX": "unsupported class shape",
+      "isetp__RUR_RUR_noEX": "unsupported class shape",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "ldg_256_memdesc__Ra64": "unsupported class shape",
+      "ldg_256_uniform__Ra32": "unsupported class shape",
+      "ldg_256_uniform__Ra64": "unsupported class shape",
+      "ldg_256_uniform__RaRZ": "unsupported class shape",
+      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
+      "lop3_lut__RUR_RUR": "unsupported class shape",
+      "mov__RR": "unsupported class shape",
+      "mov__RU": "unsupported class shape",
+      "mov_indexedRF_IRFd__Ib": "unsupported class shape",
+      "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "mov_indexedRF_Rd_": "unsupported class shape",
+      "mov_nonconformity__RU": "unsupported class shape",
+      "sel__RUR_RUR": "unsupported class shape",
+      "shf__RRU_RRU": "unsupported class shape",
+      "shf__RUR_RUR": "unsupported class shape",
+      "stg_256_memdesc__Ra64": "unsupported class shape",
+      "stg_256_uniform__Ra32": "unsupported class shape",
+      "stg_256_uniform__Ra64": "unsupported class shape",
+      "stg_256_uniform__RaRZ": "unsupported class shape"
+    },
+    "status": {
+      "native": 84,
+      "opaque": 786,
+      "primitive": 108
+    },
+    "tier_b": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 4
+      },
+      "BSSY": {
+        "primitive": 2
+      },
+      "BSYNC": {
+        "primitive": 2
+      },
+      "CALL": {
+        "native": 6
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 24
+      },
+      "FADD": {
+        "primitive": 3
+      },
+      "FFMA": {
+        "primitive": 5
+      },
+      "FMUL": {
+        "primitive": 3
+      },
+      "FSETP": {
+        "primitive": 3
+      },
+      "I2F": {
+        "primitive": 24
+      },
+      "IABS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "IADD3": {
+        "native": 4,
+        "opaque": 2
+      },
+      "IMAD": {
+        "native": 17,
+        "opaque": 12
+      },
+      "IMNMX": {
+        "native": 2,
+        "opaque": 1
+      },
+      "ISETP": {
+        "native": 4,
+        "opaque": 2
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 5,
+        "opaque": 4
+      },
+      "LDL": {
+        "native": 4
+      },
+      "LDS": {
+        "native": 3
+      },
+      "LEA": {
+        "native": 4,
+        "opaque": 16
+      },
+      "LOP3": {
+        "native": 2,
+        "opaque": 1
+      },
+      "MOV": {
+        "native": 1,
+        "opaque": 6
+      },
+      "MUFU": {
+        "primitive": 6
+      },
+      "PRMT": {
+        "primitive": 5
+      },
+      "RET": {
+        "native": 4
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 2,
+        "opaque": 1
+      },
+      "SHF": {
+        "native": 3,
+        "opaque": 2
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 5,
+        "opaque": 4
+      },
+      "STL": {
+        "native": 4
+      },
+      "STS": {
+        "native": 3
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    }
+  },
+  "SM101": {
+    "classes": 904,
+    "hardware_verified": false,
+    "opaque_tier_b": {
+      "iabs__RUR_UR": "unsupported class shape",
+      "iadd3_noimm__RUR_RUR": "unsupported class shape",
+      "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
+      "imad__RRU_RRU": "unsupported class shape",
+      "imad__RUR_RUR": "unsupported class shape",
+      "imad_hi__RRU_RRU": "unsupported class shape",
+      "imad_hi__RUR_RUR": "unsupported class shape",
+      "imad_hi_x__RRU_RRU": "unsupported class shape",
+      "imad_hi_x__RUR_RUR": "unsupported class shape",
+      "imad_wide__RRU_RRU": "unsupported class shape",
+      "imad_wide__RUR_RUR": "unsupported class shape",
+      "imad_wide_x__RRU_RRU": "unsupported class shape",
+      "imad_wide_x__RUR_RUR": "unsupported class shape",
+      "imad_x__RRU_RRU": "unsupported class shape",
+      "imad_x__RUR_RUR": "unsupported class shape",
+      "imnmx__RUR_RUR": "unsupported class shape",
+      "isetp__RUR_RUR_EX": "unsupported class shape",
+      "isetp__RUR_RUR_noEX": "unsupported class shape",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "ldg_256_memdesc__Ra64": "unsupported class shape",
+      "ldg_256_uniform__Ra32": "unsupported class shape",
+      "ldg_256_uniform__Ra64": "unsupported class shape",
+      "ldg_256_uniform__RaRZ": "unsupported class shape",
+      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
+      "lop3_lut__RUR_RUR": "unsupported class shape",
+      "mov__RR": "unsupported class shape",
+      "mov__RU": "unsupported class shape",
+      "mov_indexedRF_IRFd__Ib": "unsupported class shape",
+      "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "mov_indexedRF_Rd_": "unsupported class shape",
+      "mov_nonconformity__RU": "unsupported class shape",
+      "sel__RUR_RUR": "unsupported class shape",
+      "shf__RRU_RRU": "unsupported class shape",
+      "shf__RUR_RUR": "unsupported class shape",
+      "stg_256_memdesc__Ra64": "unsupported class shape",
+      "stg_256_uniform__Ra32": "unsupported class shape",
+      "stg_256_uniform__Ra64": "unsupported class shape",
+      "stg_256_uniform__RaRZ": "unsupported class shape"
+    },
+    "status": {
+      "native": 84,
+      "opaque": 712,
+      "primitive": 108
+    },
+    "tier_b": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 4
+      },
+      "BSSY": {
+        "primitive": 2
+      },
+      "BSYNC": {
+        "primitive": 2
+      },
+      "CALL": {
+        "native": 6
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 24
+      },
+      "FADD": {
+        "primitive": 3
+      },
+      "FFMA": {
+        "primitive": 5
+      },
+      "FMUL": {
+        "primitive": 3
+      },
+      "FSETP": {
+        "primitive": 3
+      },
+      "I2F": {
+        "primitive": 24
+      },
+      "IABS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "IADD3": {
+        "native": 4,
+        "opaque": 2
+      },
+      "IMAD": {
+        "native": 17,
+        "opaque": 12
+      },
+      "IMNMX": {
+        "native": 2,
+        "opaque": 1
+      },
+      "ISETP": {
+        "native": 4,
+        "opaque": 2
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 5,
+        "opaque": 4
+      },
+      "LDL": {
+        "native": 4
+      },
+      "LDS": {
+        "native": 3
+      },
+      "LEA": {
+        "native": 4,
+        "opaque": 16
+      },
+      "LOP3": {
+        "native": 2,
+        "opaque": 1
+      },
+      "MOV": {
+        "native": 1,
+        "opaque": 6
+      },
+      "MUFU": {
+        "primitive": 6
+      },
+      "PRMT": {
+        "primitive": 5
+      },
+      "RET": {
+        "native": 4
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 2,
+        "opaque": 1
+      },
+      "SHF": {
+        "native": 3,
+        "opaque": 2
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 5,
+        "opaque": 4
+      },
+      "STL": {
+        "native": 4
+      },
+      "STS": {
+        "native": 3
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    }
+  },
+  "SM103": {
+    "classes": 974,
+    "hardware_verified": false,
+    "opaque_tier_b": {
+      "iabs__RUR_UR": "unsupported class shape",
+      "iadd3_noimm__RUR_RUR": "unsupported class shape",
+      "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
+      "imad__RRU_RRU": "unsupported class shape",
+      "imad__RUR_RUR": "unsupported class shape",
+      "imad_hi__RRU_RRU": "unsupported class shape",
+      "imad_hi__RUR_RUR": "unsupported class shape",
+      "imad_hi_x__RRU_RRU": "unsupported class shape",
+      "imad_hi_x__RUR_RUR": "unsupported class shape",
+      "imad_wide__RRU_RRU": "unsupported class shape",
+      "imad_wide__RUR_RUR": "unsupported class shape",
+      "imad_wide_x__RRU_RRU": "unsupported class shape",
+      "imad_wide_x__RUR_RUR": "unsupported class shape",
+      "imad_x__RRU_RRU": "unsupported class shape",
+      "imad_x__RUR_RUR": "unsupported class shape",
+      "imnmx__RUR_RUR": "unsupported class shape",
+      "isetp__RUR_RUR_EX": "unsupported class shape",
+      "isetp__RUR_RUR_noEX": "unsupported class shape",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "ldg_256_memdesc__Ra64": "unsupported class shape",
+      "ldg_256_uniform__Ra32": "unsupported class shape",
+      "ldg_256_uniform__Ra64": "unsupported class shape",
+      "ldg_256_uniform__RaRZ": "unsupported class shape",
+      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
+      "lop3_lut__RUR_RUR": "unsupported class shape",
+      "mov__RR": "unsupported class shape",
+      "mov__RU": "unsupported class shape",
+      "mov_indexedRF_IRFd__Ib": "unsupported class shape",
+      "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "mov_indexedRF_Rd_": "unsupported class shape",
+      "mov_nonconformity__RU": "unsupported class shape",
+      "sel__RUR_RUR": "unsupported class shape",
+      "shf__RRU_RRU": "unsupported class shape",
+      "shf__RUR_RUR": "unsupported class shape",
+      "stg_256_memdesc__Ra64": "unsupported class shape",
+      "stg_256_uniform__Ra32": "unsupported class shape",
+      "stg_256_uniform__Ra64": "unsupported class shape",
+      "stg_256_uniform__RaRZ": "unsupported class shape"
+    },
+    "status": {
+      "native": 84,
+      "opaque": 779,
+      "primitive": 111
+    },
+    "tier_b": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 4
+      },
+      "BSSY": {
+        "primitive": 2
+      },
+      "BSYNC": {
+        "primitive": 2
+      },
+      "CALL": {
+        "native": 6
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 24
+      },
+      "FADD": {
+        "primitive": 3
+      },
+      "FFMA": {
+        "primitive": 5
+      },
+      "FMUL": {
+        "primitive": 3
+      },
+      "FSETP": {
+        "primitive": 3
+      },
+      "I2F": {
+        "primitive": 24
+      },
+      "IABS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "IADD3": {
+        "native": 4,
+        "opaque": 2
+      },
+      "IMAD": {
+        "native": 17,
+        "opaque": 12
+      },
+      "IMNMX": {
+        "native": 2,
+        "opaque": 1
+      },
+      "ISETP": {
+        "native": 4,
+        "opaque": 2
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 5,
+        "opaque": 4
+      },
+      "LDL": {
+        "native": 4
+      },
+      "LDS": {
+        "native": 3
+      },
+      "LEA": {
+        "native": 4,
+        "opaque": 16
+      },
+      "LOP3": {
+        "native": 2,
+        "opaque": 1
+      },
+      "MOV": {
+        "native": 1,
+        "opaque": 6
+      },
+      "MUFU": {
+        "primitive": 9
+      },
+      "PRMT": {
+        "primitive": 5
+      },
+      "RET": {
+        "native": 4
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 2,
+        "opaque": 1
+      },
+      "SHF": {
+        "native": 3,
+        "opaque": 2
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 5,
+        "opaque": 4
+      },
+      "STL": {
+        "native": 4
+      },
+      "STS": {
+        "native": 3
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    }
+  },
+  "SM120": {
+    "classes": 1015,
+    "hardware_verified": false,
+    "opaque_tier_b": {
+      "iabs__RUR_UR": "unsupported class shape",
+      "iadd3_noimm__RUR_RUR": "unsupported class shape",
+      "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
+      "imad__RRU_RRU": "unsupported class shape",
+      "imad__RUR_RUR": "unsupported class shape",
+      "imad_hi__RRU_RRU": "unsupported class shape",
+      "imad_hi__RUR_RUR": "unsupported class shape",
+      "imad_hi_x__RRU_RRU": "unsupported class shape",
+      "imad_hi_x__RUR_RUR": "unsupported class shape",
+      "imad_wide__RRU_RRU": "unsupported class shape",
+      "imad_wide__RUR_RUR": "unsupported class shape",
+      "imad_wide_x__RRU_RRU": "unsupported class shape",
+      "imad_wide_x__RUR_RUR": "unsupported class shape",
+      "imad_x__RRU_RRU": "unsupported class shape",
+      "imad_x__RUR_RUR": "unsupported class shape",
+      "imnmx_64__RIR_RsIR": "unsupported class shape",
+      "imnmx_64__RRR_RRR": "unsupported class shape",
+      "imnmx_64__RUR_RUR": "unsupported class shape",
+      "imnmx__RIR_RsIR": "unsupported class shape",
+      "imnmx__RRR_RRR": "unsupported class shape",
+      "imnmx__RUR_RUR": "unsupported class shape",
+      "isetp_64__RUR_RUR_EX": "unsupported class shape",
+      "isetp_64__RUR_RUR_noEX": "unsupported class shape",
+      "isetp_64__RsIR_RIR_EX": "unsupported class shape",
+      "isetp_64__RsIR_RIR_noEX": "unsupported class shape",
+      "isetp__RUR_RUR_EX": "unsupported class shape",
+      "isetp__RUR_RUR_noEX": "unsupported class shape",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "ldg_256_memdesc__Ra64": "unsupported class shape",
+      "ldg_256_rml2_memdesc__Ra64": "unsupported class shape",
+      "ldg_256_rml2_uniform__Ra32": "unsupported class shape",
+      "ldg_256_rml2_uniform__Ra64": "unsupported class shape",
+      "ldg_256_rml2_uniform__RaRZ": "unsupported class shape",
+      "ldg_256_uniform__Ra32": "unsupported class shape",
+      "ldg_256_uniform__Ra64": "unsupported class shape",
+      "ldg_256_uniform__RaRZ": "unsupported class shape",
+      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
+      "lop3_lut__RUR_RUR": "unsupported class shape",
+      "mov_64__RR": "unsupported class shape",
+      "mov_64__RU": "unsupported class shape",
+      "mov__RR": "unsupported class shape",
+      "mov__RU": "unsupported class shape",
+      "mov_indexedRF_IRFd__Ib": "unsupported class shape",
+      "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "mov_indexedRF_Rd_": "unsupported class shape",
+      "mov_nonconformity__RU": "unsupported class shape",
+      "sel_64__RUR": "unsupported class shape",
+      "sel__RUR_RUR": "unsupported class shape",
+      "shf__RRU_RRU": "unsupported class shape",
+      "shf__RUR_RUR": "unsupported class shape",
+      "stg_256_memdesc__Ra64": "unsupported class shape",
+      "stg_256_uniform__Ra32": "unsupported class shape",
+      "stg_256_uniform__Ra64": "unsupported class shape",
+      "stg_256_uniform__RaRZ": "unsupported class shape"
+    },
+    "status": {
+      "native": 87,
+      "opaque": 820,
+      "primitive": 108
+    },
+    "tier_b": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 4
+      },
+      "BSSY": {
+        "primitive": 2
+      },
+      "BSYNC": {
+        "primitive": 2
+      },
+      "CALL": {
+        "native": 6
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 24
+      },
+      "FADD": {
+        "primitive": 3
+      },
+      "FFMA": {
+        "primitive": 5
+      },
+      "FMUL": {
+        "primitive": 3
+      },
+      "FSETP": {
+        "primitive": 3
+      },
+      "I2F": {
+        "primitive": 24
+      },
+      "IABS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "IADD3": {
+        "native": 4,
+        "opaque": 2
+      },
+      "IMAD": {
+        "native": 17,
+        "opaque": 12
+      },
+      "IMNMX": {
+        "opaque": 6
+      },
+      "ISETP": {
+        "native": 6,
+        "opaque": 6
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 5,
+        "opaque": 8
+      },
+      "LDL": {
+        "native": 4
+      },
+      "LDS": {
+        "native": 3
+      },
+      "LEA": {
+        "native": 4,
+        "opaque": 16
+      },
+      "LOP3": {
+        "native": 2,
+        "opaque": 1
+      },
+      "MOV": {
+        "native": 2,
+        "opaque": 8
+      },
+      "MUFU": {
+        "primitive": 6
+      },
+      "PRMT": {
+        "primitive": 5
+      },
+      "RET": {
+        "native": 4
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 4,
+        "opaque": 2
+      },
+      "SHF": {
+        "native": 3,
+        "opaque": 2
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 5,
+        "opaque": 4
+      },
+      "STL": {
+        "native": 4
+      },
+      "STS": {
+        "native": 3
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    }
+  },
+  "SM75": {
+    "classes": 903,
+    "hardware_verified": false,
+    "opaque_tier_b": {
+      "iabs__RUR_UR": "unsupported class shape",
+      "iadd3_noimm__RUR_RUR": "unsupported class shape",
+      "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
+      "imad__RRU_RRU": "unsupported class shape",
+      "imad__RUR_RUR": "unsupported class shape",
+      "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
+      "imad_hi__RRU_RRU": "unsupported class shape",
+      "imad_hi__RUR_RUR": "unsupported class shape",
+      "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
+      "imad_hi_x__RRU_RRU": "unsupported class shape",
+      "imad_hi_x__RUR_RUR": "unsupported class shape",
+      "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
+      "imad_wide__RRU_RRU": "unsupported class shape",
+      "imad_wide__RUR_RUR": "unsupported class shape",
+      "imad_wide_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
+      "imad_wide_x__RRU_RRU": "unsupported class shape",
+      "imad_wide_x__RUR_RUR": "unsupported class shape",
+      "imad_x__RRU_RRU": "unsupported class shape",
+      "imad_x__RUR_RUR": "unsupported class shape",
+      "imnmx__RUR_RUR": "unsupported class shape",
+      "isetp__RUR_RUR": "unsupported class shape",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_noimm__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_x__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm_x__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
+      "lop3_lut__RUR_RUR": "unsupported class shape",
+      "mov__RR": "unsupported class shape",
+      "mov__RU": "unsupported class shape",
+      "sel__RUR_RUR": "unsupported class shape",
+      "shf__RRU_RRU": "unsupported class shape",
+      "shf__RUR_RUR": "unsupported class shape"
+    },
+    "status": {
+      "native": 132,
+      "opaque": 625,
+      "primitive": 146
+    },
+    "tier_b": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 1
+      },
+      "BSSY": {
+        "primitive": 1
+      },
+      "BSYNC": {
+        "primitive": 1
+      },
+      "CALL": {
+        "native": 7
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 30
+      },
+      "FADD": {
+        "primitive": 5
+      },
+      "FFMA": {
+        "primitive": 9
+      },
+      "FMUL": {
+        "primitive": 5
+      },
+      "FSETP": {
+        "primitive": 5
+      },
+      "I2F": {
+        "primitive": 40
+      },
+      "IABS": {
+        "native": 4,
+        "opaque": 1
+      },
+      "IADD3": {
+        "native": 8,
+        "opaque": 2
+      },
+      "IMAD": {
+        "native": 39,
+        "opaque": 16
+      },
+      "IMNMX": {
+        "native": 4,
+        "opaque": 1
+      },
+      "ISETP": {
+        "native": 4,
+        "opaque": 1
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 10
+      },
+      "LDL": {
+        "native": 3
+      },
+      "LDS": {
+        "native": 6
+      },
+      "LEA": {
+        "native": 8,
+        "opaque": 24
+      },
+      "LOP3": {
+        "native": 4,
+        "opaque": 1
+      },
+      "MOV": {
+        "native": 3,
+        "opaque": 2
+      },
+      "MUFU": {
+        "primitive": 10
+      },
+      "PRMT": {
+        "primitive": 9
+      },
+      "RET": {
+        "native": 4
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 4,
+        "opaque": 1
+      },
+      "SHF": {
+        "native": 7,
+        "opaque": 2
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 5
+      },
+      "STL": {
+        "native": 3
+      },
+      "STS": {
+        "native": 3
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    }
+  },
+  "SM80": {
+    "classes": 967,
+    "hardware_verified": false,
+    "opaque_tier_b": {
+      "iabs__RUR_UR": "unsupported class shape",
+      "iadd3_noimm__RUR_RUR": "unsupported class shape",
+      "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
+      "imad__RRU_RRU": "unsupported class shape",
+      "imad__RUR_RUR": "unsupported class shape",
+      "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
+      "imad_hi__RRU_RRU": "unsupported class shape",
+      "imad_hi__RUR_RUR": "unsupported class shape",
+      "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
+      "imad_hi_x__RRU_RRU": "unsupported class shape",
+      "imad_hi_x__RUR_RUR": "unsupported class shape",
+      "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
+      "imad_wide__RRU_RRU": "unsupported class shape",
+      "imad_wide__RUR_RUR": "unsupported class shape",
+      "imad_wide_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
+      "imad_wide_x__RRU_RRU": "unsupported class shape",
+      "imad_wide_x__RUR_RUR": "unsupported class shape",
+      "imad_x__RRU_RRU": "unsupported class shape",
+      "imad_x__RUR_RUR": "unsupported class shape",
+      "imnmx__RUR_RUR": "unsupported class shape",
+      "isetp__RUR_RUR_EX": "unsupported class shape",
+      "isetp__RUR_RUR_noEX": "unsupported class shape",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_noimm__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_x__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm_x__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
+      "lop3_lut__RUR_RUR": "unsupported class shape",
+      "mov__RR": "unsupported class shape",
+      "mov__RU": "unsupported class shape",
+      "mov_indexedRF_IRFd__Cb": "unsupported class shape",
+      "mov_indexedRF_IRFd__Ib": "unsupported class shape",
+      "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "mov_indexedRF_Rd_": "unsupported class shape",
+      "sel__RUR_RUR": "unsupported class shape",
+      "shf__RRU_RRU": "unsupported class shape",
+      "shf__RUR_RUR": "unsupported class shape"
+    },
+    "status": {
+      "native": 134,
+      "opaque": 687,
+      "primitive": 146
+    },
+    "tier_b": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 3
+      },
+      "BSSY": {
+        "primitive": 1
+      },
+      "BSYNC": {
+        "primitive": 1
+      },
+      "CALL": {
+        "native": 7
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 30
+      },
+      "FADD": {
+        "primitive": 5
+      },
+      "FFMA": {
+        "primitive": 9
+      },
+      "FMUL": {
+        "primitive": 5
+      },
+      "FSETP": {
+        "primitive": 5
+      },
+      "I2F": {
+        "primitive": 40
+      },
+      "IABS": {
+        "native": 4,
+        "opaque": 1
+      },
+      "IADD3": {
+        "native": 8,
+        "opaque": 2
+      },
+      "IMAD": {
+        "native": 39,
+        "opaque": 16
+      },
+      "IMNMX": {
+        "native": 4,
+        "opaque": 1
+      },
+      "ISETP": {
+        "native": 8,
+        "opaque": 2
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 6
+      },
+      "LDL": {
+        "native": 4
+      },
+      "LDS": {
+        "native": 3
+      },
+      "LEA": {
+        "native": 8,
+        "opaque": 24
+      },
+      "LOP3": {
+        "native": 4,
+        "opaque": 1
+      },
+      "MOV": {
+        "native": 3,
+        "opaque": 6
+      },
+      "MUFU": {
+        "primitive": 10
+      },
+      "PRMT": {
+        "primitive": 9
+      },
+      "RET": {
+        "native": 4
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 4,
+        "opaque": 1
+      },
+      "SHF": {
+        "native": 7,
+        "opaque": 2
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 6
+      },
+      "STL": {
+        "native": 4
+      },
+      "STS": {
+        "native": 3
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    }
+  },
+  "SM86": {
+    "classes": 1004,
+    "hardware_verified": false,
+    "opaque_tier_b": {
+      "iabs__RUR_UR": "unsupported class shape",
+      "iadd3_noimm__RUR_RUR": "unsupported class shape",
+      "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
+      "imad__RRU_RRU": "unsupported class shape",
+      "imad__RUR_RUR": "unsupported class shape",
+      "imad_hi__RRU_RRU": "unsupported class shape",
+      "imad_hi__RUR_RUR": "unsupported class shape",
+      "imad_hi_x__RRU_RRU": "unsupported class shape",
+      "imad_hi_x__RUR_RUR": "unsupported class shape",
+      "imad_wide__RRU_RRU": "unsupported class shape",
+      "imad_wide__RUR_RUR": "unsupported class shape",
+      "imad_wide_x__RRU_RRU": "unsupported class shape",
+      "imad_wide_x__RUR_RUR": "unsupported class shape",
+      "imad_x__RRU_RRU": "unsupported class shape",
+      "imad_x__RUR_RUR": "unsupported class shape",
+      "imnmx__RUR_RUR": "unsupported class shape",
+      "isetp__RUR_RUR_EX": "unsupported class shape",
+      "isetp__RUR_RUR_noEX": "unsupported class shape",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_noimm__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_x__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm_x__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
+      "lop3_lut__RUR_RUR": "unsupported class shape",
+      "mov__RR": "unsupported class shape",
+      "mov__RU": "unsupported class shape",
+      "mov_indexedRF_IRFd__Cb": "unsupported class shape",
+      "mov_indexedRF_IRFd__Ib": "unsupported class shape",
+      "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "mov_indexedRF_Rd_": "unsupported class shape",
+      "sel__RUR_RUR": "unsupported class shape",
+      "shf__RRU_RRU": "unsupported class shape",
+      "shf__RUR_RUR": "unsupported class shape"
+    },
+    "status": {
+      "native": 138,
+      "opaque": 720,
+      "primitive": 146
+    },
+    "tier_b": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 3
+      },
+      "BSSY": {
+        "primitive": 1
+      },
+      "BSYNC": {
+        "primitive": 1
+      },
+      "CALL": {
+        "native": 7
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 30
+      },
+      "FADD": {
+        "primitive": 5
+      },
+      "FFMA": {
+        "primitive": 9
+      },
+      "FMUL": {
+        "primitive": 5
+      },
+      "FSETP": {
+        "primitive": 5
+      },
+      "I2F": {
+        "primitive": 40
+      },
+      "IABS": {
+        "native": 4,
+        "opaque": 1
+      },
+      "IADD3": {
+        "native": 8,
+        "opaque": 2
+      },
+      "IMAD": {
+        "native": 43,
+        "opaque": 12
+      },
+      "IMNMX": {
+        "native": 4,
+        "opaque": 1
+      },
+      "ISETP": {
+        "native": 8,
+        "opaque": 2
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 6
+      },
+      "LDL": {
+        "native": 4
+      },
+      "LDS": {
+        "native": 3
+      },
+      "LEA": {
+        "native": 8,
+        "opaque": 24
+      },
+      "LOP3": {
+        "native": 4,
+        "opaque": 1
+      },
+      "MOV": {
+        "native": 3,
+        "opaque": 6
+      },
+      "MUFU": {
+        "primitive": 10
+      },
+      "PRMT": {
+        "primitive": 9
+      },
+      "RET": {
+        "native": 4
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 4,
+        "opaque": 1
+      },
+      "SHF": {
+        "native": 7,
+        "opaque": 2
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 6
+      },
+      "STL": {
+        "native": 4
+      },
+      "STS": {
+        "native": 3
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    }
+  },
+  "SM89": {
+    "classes": 1054,
+    "hardware_verified": false,
+    "opaque_tier_b": {
+      "iabs__RUR_UR": "unsupported class shape",
+      "iadd3_noimm__RUR_RUR": "unsupported class shape",
+      "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
+      "imad__RRU_RRU": "unsupported class shape",
+      "imad__RUR_RUR": "unsupported class shape",
+      "imad_hi__RRU_RRU": "unsupported class shape",
+      "imad_hi__RUR_RUR": "unsupported class shape",
+      "imad_hi_x__RRU_RRU": "unsupported class shape",
+      "imad_hi_x__RUR_RUR": "unsupported class shape",
+      "imad_wide__RRU_RRU": "unsupported class shape",
+      "imad_wide__RUR_RUR": "unsupported class shape",
+      "imad_wide_x__RRU_RRU": "unsupported class shape",
+      "imad_wide_x__RUR_RUR": "unsupported class shape",
+      "imad_x__RRU_RRU": "unsupported class shape",
+      "imad_x__RUR_RUR": "unsupported class shape",
+      "imnmx__RUR_RUR": "unsupported class shape",
+      "isetp__RUR_RUR_EX": "unsupported class shape",
+      "isetp__RUR_RUR_noEX": "unsupported class shape",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "ldg_256_memdesc__Ra64": "unsupported class shape",
+      "ldg_256_uniform__Ra32": "unsupported class shape",
+      "ldg_256_uniform__Ra64": "unsupported class shape",
+      "ldg_256_uniform__RaRZ": "unsupported class shape",
+      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_noimm__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_x__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm_x__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
+      "lop3_lut__RUR_RUR": "unsupported class shape",
+      "mov__RR": "unsupported class shape",
+      "mov__RU": "unsupported class shape",
+      "mov_indexedRF_IRFd__Cb": "unsupported class shape",
+      "mov_indexedRF_IRFd__Ib": "unsupported class shape",
+      "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "mov_indexedRF_Rd_": "unsupported class shape",
+      "sel__RUR_RUR": "unsupported class shape",
+      "shf__RRU_RRU": "unsupported class shape",
+      "shf__RUR_RUR": "unsupported class shape",
+      "stg_256_memdesc__Ra64": "unsupported class shape",
+      "stg_256_uniform__Ra32": "unsupported class shape",
+      "stg_256_uniform__Ra64": "unsupported class shape",
+      "stg_256_uniform__RaRZ": "unsupported class shape"
+    },
+    "status": {
+      "native": 138,
+      "opaque": 770,
+      "primitive": 146
+    },
+    "tier_b": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 3
+      },
+      "BSSY": {
+        "primitive": 1
+      },
+      "BSYNC": {
+        "primitive": 1
+      },
+      "CALL": {
+        "native": 7
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 30
+      },
+      "FADD": {
+        "primitive": 5
+      },
+      "FFMA": {
+        "primitive": 9
+      },
+      "FMUL": {
+        "primitive": 5
+      },
+      "FSETP": {
+        "primitive": 5
+      },
+      "I2F": {
+        "primitive": 40
+      },
+      "IABS": {
+        "native": 4,
+        "opaque": 1
+      },
+      "IADD3": {
+        "native": 8,
+        "opaque": 2
+      },
+      "IMAD": {
+        "native": 43,
+        "opaque": 12
+      },
+      "IMNMX": {
+        "native": 4,
+        "opaque": 1
+      },
+      "ISETP": {
+        "native": 8,
+        "opaque": 2
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 6,
+        "opaque": 4
+      },
+      "LDL": {
+        "native": 4
+      },
+      "LDS": {
+        "native": 3
+      },
+      "LEA": {
+        "native": 8,
+        "opaque": 24
+      },
+      "LOP3": {
+        "native": 4,
+        "opaque": 1
+      },
+      "MOV": {
+        "native": 3,
+        "opaque": 6
+      },
+      "MUFU": {
+        "primitive": 10
+      },
+      "PRMT": {
+        "primitive": 9
+      },
+      "RET": {
+        "native": 4
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 4,
+        "opaque": 1
+      },
+      "SHF": {
+        "native": 7,
+        "opaque": 2
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 6,
+        "opaque": 4
+      },
+      "STL": {
+        "native": 4
+      },
+      "STS": {
+        "native": 3
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    }
+  },
+  "SM90": {
+    "classes": 1173,
+    "hardware_verified": false,
+    "opaque_tier_b": {
+      "iabs__RUR_UR": "unsupported class shape",
+      "iadd3_noimm__RUR_RUR": "unsupported class shape",
+      "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
+      "imad__RRU_RRU": "unsupported class shape",
+      "imad__RUR_RUR": "unsupported class shape",
+      "imad_hi__RRU_RRU": "unsupported class shape",
+      "imad_hi__RUR_RUR": "unsupported class shape",
+      "imad_hi_x__RRU_RRU": "unsupported class shape",
+      "imad_hi_x__RUR_RUR": "unsupported class shape",
+      "imad_wide__RRU_RRU": "unsupported class shape",
+      "imad_wide__RUR_RUR": "unsupported class shape",
+      "imad_wide_x__RRU_RRU": "unsupported class shape",
+      "imad_wide_x__RUR_RUR": "unsupported class shape",
+      "imad_x__RRU_RRU": "unsupported class shape",
+      "imad_x__RUR_RUR": "unsupported class shape",
+      "imnmx__RUR_RUR": "unsupported class shape",
+      "isetp__RUR_RUR_EX": "unsupported class shape",
+      "isetp__RUR_RUR_noEX": "unsupported class shape",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
+      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
+      "lea_hi_noimm__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
+      "lea_hi_noimm_x__RCR_RCR": "unsupported class shape",
+      "lea_hi_noimm_x__RCxR_RCxR": "unsupported class shape",
+      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
+      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm__RUR_RUR": "unsupported class shape",
+      "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
+      "lop3_lut__RUR_RUR": "unsupported class shape",
+      "mov__RR": "unsupported class shape",
+      "mov__RU": "unsupported class shape",
+      "mov_indexedRF_IRFd__Cb": "unsupported class shape",
+      "mov_indexedRF_IRFd__Ib": "unsupported class shape",
+      "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "mov_indexedRF_Rd_": "unsupported class shape",
+      "sel__RUR_RUR": "unsupported class shape",
+      "shf__RRU_RRU": "unsupported class shape",
+      "shf__RUR_RUR": "unsupported class shape"
+    },
+    "status": {
+      "native": 137,
+      "opaque": 880,
+      "primitive": 156
+    },
+    "tier_b": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 4
+      },
+      "BSSY": {
+        "primitive": 1
+      },
+      "BSYNC": {
+        "primitive": 1
+      },
+      "CALL": {
+        "native": 7
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 40
+      },
+      "FADD": {
+        "primitive": 5
+      },
+      "FFMA": {
+        "primitive": 9
+      },
+      "FMUL": {
+        "primitive": 5
+      },
+      "FSETP": {
+        "primitive": 5
+      },
+      "I2F": {
+        "primitive": 40
+      },
+      "IABS": {
+        "native": 4,
+        "opaque": 1
+      },
+      "IADD3": {
+        "native": 8,
+        "opaque": 2
+      },
+      "IMAD": {
+        "native": 43,
+        "opaque": 12
+      },
+      "IMNMX": {
+        "native": 4,
+        "opaque": 1
+      },
+      "ISETP": {
+        "native": 8,
+        "opaque": 2
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 5
+      },
+      "LDL": {
+        "native": 4
+      },
+      "LDS": {
+        "native": 3
+      },
+      "LEA": {
+        "native": 8,
+        "opaque": 24
+      },
+      "LOP3": {
+        "native": 4,
+        "opaque": 1
+      },
+      "MOV": {
+        "native": 3,
+        "opaque": 6
+      },
+      "MUFU": {
+        "primitive": 10
+      },
+      "PRMT": {
+        "primitive": 9
+      },
+      "RET": {
+        "native": 4
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 4,
+        "opaque": 1
+      },
+      "SHF": {
+        "native": 7,
+        "opaque": 2
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 5
+      },
+      "STL": {
+        "native": 4
+      },
+      "STS": {
+        "native": 3
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,174 @@
+{
+  "compiler_spec_load": {
+    "architectures": [
+      "SM75",
+      "SM80",
+      "SM86",
+      "SM89",
+      "SM90",
+      "SM100",
+      "SM101",
+      "SM103",
+      "SM120"
+    ],
+    "passed": 9,
+    "source": "installed processor (repository symlink)",
+    "stack_pointer": "R1"
+  },
+  "cpu_arithmetic": {
+    "random_vectors": 1000,
+    "reference": "host float add/mul and libm fmaf",
+    "tests": 4
+  },
+  "dataflow": {
+    "SM100": {
+      "passed": 11356,
+      "total": 11356
+    },
+    "SM101": {
+      "passed": 10218,
+      "total": 10218
+    },
+    "SM103": {
+      "passed": 11262,
+      "total": 11262
+    },
+    "SM120": {
+      "passed": 11662,
+      "total": 11662
+    },
+    "SM75": {
+      "passed": 10325,
+      "total": 10325
+    },
+    "SM80": {
+      "passed": 10233,
+      "total": 10233
+    },
+    "SM86": {
+      "passed": 10663,
+      "total": 10663
+    },
+    "SM89": {
+      "passed": 11214,
+      "total": 11214
+    },
+    "SM90": {
+      "passed": 13119,
+      "total": 13119
+    }
+  },
+  "dataflow_sm89_extended": {
+    "passed": 30714,
+    "total": 30714
+  },
+  "date": "2026-10-07",
+  "decode_samples": {
+    "SM100": {
+      "passed": 1960,
+      "total": 1960
+    },
+    "SM101": {
+      "passed": 1963,
+      "total": 1963
+    },
+    "SM103": {
+      "passed": 1961,
+      "total": 1961
+    },
+    "SM120": {
+      "passed": 1972,
+      "total": 1972
+    },
+    "SM75": {
+      "passed": 1996,
+      "total": 1996
+    },
+    "SM80": {
+      "passed": 1999,
+      "total": 1999
+    },
+    "SM86": {
+      "passed": 1999,
+      "total": 1999
+    },
+    "SM90": {
+      "passed": 1988,
+      "total": 1988
+    }
+  },
+  "decode_sm89": {
+    "mutated": {
+      "passed": 17826,
+      "total": 17826
+    },
+    "real": {
+      "passed": 20000,
+      "total": 20000
+    },
+    "synthetic": {
+      "passed": 85727,
+      "total": 85727
+    }
+  },
+  "gpu": {
+    "compiled_families": 11,
+    "execution": "skipped: cuInit CUDA status 100 (no device)",
+    "hardware_verified": false,
+    "target_mnemonics_confirmed": true
+  },
+  "language_build": {
+    "SM100": 6568473,
+    "SM101": 6348498,
+    "SM103": 6571706,
+    "SM120": 12338210,
+    "SM75": 12235361,
+    "SM80": 12330521,
+    "SM86": 12455026,
+    "SM89": 12716758,
+    "SM90": 14478871
+  },
+  "pytest": {
+    "passed": 8,
+    "skip_reason": "opt-in Ghidra wrapper; integration fixtures run separately across all nine languages",
+    "skipped": 1
+  },
+  "semantics": {
+    "SM100": {
+      "passed": 226,
+      "total": 226
+    },
+    "SM101": {
+      "passed": 226,
+      "total": 226
+    },
+    "SM103": {
+      "passed": 226,
+      "total": 226
+    },
+    "SM120": {
+      "passed": 226,
+      "total": 226
+    },
+    "SM75": {
+      "passed": 230,
+      "total": 230
+    },
+    "SM80": {
+      "passed": 231,
+      "total": 231
+    },
+    "SM86": {
+      "passed": 231,
+      "total": 231
+    },
+    "SM89": {
+      "passed": 231,
+      "total": 231
+    },
+    "SM90": {
+      "passed": 229,
+      "total": 229
+    }
+  }
+}

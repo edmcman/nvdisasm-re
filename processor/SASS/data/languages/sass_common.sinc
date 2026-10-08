@@ -4,6 +4,9 @@ define endian=little;
 define alignment=16;
 
 define space ram      type=ram_space      size=8 default;
+define space cbank    type=ram_space size=8;
+define space shared   type=ram_space size=8;
+define space localmem type=ram_space size=8;
 define space register type=register_space size=4;
 
 define register offset=0x1000 size=8 [ PC ];
