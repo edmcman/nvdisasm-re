@@ -14,7 +14,7 @@ class UnsupportedSemantics(NotImplementedError): pass
 
 class Runtime:
     def __init__(self, language_dir, sm, context=None, handlers=None):
-        self.sm=sm;self.handlers=handlers or {};self.generators={}
+        self.sm=sm;self.handlers=handlers or {}
         self.language_dir=Path(language_dir);self.context=context or {};self.events=[];self.manifests={}
 
     def manifest(self,sm):
@@ -27,12 +27,9 @@ class Runtime:
         if name in self.handlers:return self.handlers[name](args,size,self.context)
         sm=self.sm
         if name.startswith('sass_opaque_'):
-            from sass import pydecode
-            lo,hi,*values=args
-            decoded=pydecode.decode('SM'+str(sm),(lo|(hi<<64)).to_bytes(16,'little'))
-            raise UnsupportedSemantics(f'{name} ({decoded.klass.name}, decoded={decoded.env})')
+            raise UnsupportedSemantics(f'{name}{tuple(args)}')
         if name=='sass_operand_value':
-            ordinal,index,lo,hi,*children=args;k=ir.load('SM'+str(sm)).classes[ordinal]
+            ordinal,index,*children=args;k=ir.load('SM'+str(sm)).classes[ordinal]
             atom=list(k.operand_types.values())[index]
             # Stateful operands are provided by the execution environment rather
             # than given a made-up bank/descriptor layout.
@@ -47,43 +44,22 @@ class Runtime:
                 if label.startswith('INVALID'):raise UnsupportedSemantics('memory control '+label)
             self.events.append(dict(op=k.mnemonic,controls=controls));return 0
         if not name.startswith('sass_prim_'):raise UnsupportedSemantics(name)
-        ordinal,lo,hi,*values=args;arch=ir.load('SM'+str(sm));k=arch.classes[ordinal]
-        row=self.manifest(sm)[k.name]
-        from sass import pydecode,mdexpr
-        env,_=pydecode.decode_env(arch,k,lo|(hi<<64))
-        for variant in row.get('variants',[]):
-            if all(variant['spans'].get(n)==int(mdexpr.evaluate(expr,arch,env)) for n,expr in self.span_expressions(sm,k).items()):
-                row=dict(row,inputs=variant['inputs'],outputs=list(variant['outputs']),output_sizes=variant['outputs']);break
-        if len(values)!=len(row['inputs']):raise UnsupportedSemantics('primitive input ABI mismatch '+k.name)
-        v=dict(zip(row['inputs'],values))
+        ordinal,*values=args;arch=ir.load('SM'+str(sm));k=arch.classes[ordinal]
+        variants=self.manifest(sm)[k.name]['variants']
+        if len(variants)!=1:raise UnsupportedSemantics('primitive with modifier-dependent register spans '+k.name)
+        inputs,outputs=variants[0]['inputs'],variants[0]['outputs']
+        if len(values)!=len(inputs):raise UnsupportedSemantics('primitive input ABI mismatch '+k.name)
+        v=dict(zip(inputs,values))
         # Multi-destination operations return a low-to-high byte bundle. All
         # inputs are evaluated before that bundle is assigned to registers.
         suffix=name[len('sass_prim_'+k.mnemonic):].lstrip('_')
         if suffix:return self.execute(arch,k,v,suffix,size)
         offset=0;result=0
-        for dest in row['outputs']:
-            if 'output_sizes' in row:width=row['output_sizes'][dest]
-            else:
-                atom=k.operand_types[dest]
-                width=1 if 'Predicate' in atom.type else 4
-                record=next(o for o in self.generator(sm).roles[k.name]['operands'] if o['name']==dest)
-                span=record.get('span') or 1
-                if isinstance(span,str):span=int(mdexpr.evaluate(span,arch,env))
-                width*=span
-            part=self.execute(arch,k,v,dest,width)
-            result|=(part&((1<<(width*8))-1))<<offset
+        for dest,width in outputs.items():
+            result|=(self.execute(arch,k,v,dest,width)&((1<<(width*8))-1))<<offset
             offset+=width*8
-        if not row['outputs']:self.execute(arch,k,v,'',0)
+        if not outputs:self.execute(arch,k,v,'',0)
         return result
-
-    def generator(self,sm):
-        if sm not in self.generators:
-            from sass.gen_sleigh import Gen
-            self.generators[sm]=Gen('SM'+str(sm))
-        return self.generators[sm]
-
-    def span_expressions(self,sm,k):
-        return {o['name']:o['span'] for o,_,_ in self.generator(sm).reg_operands(k) if isinstance(o['span'],str)}
 
     def execute(self,arch,k,v,dest,size):
         op=k.mnemonic
@@ -113,14 +89,14 @@ class Runtime:
             if fmz=='nofmz_hfma2':fmz='nofmz'
             if fmz not in ('nofmz','FTZ'):raise UnsupportedSemantics(op+' '+fmz)
             flush=fmz=='FTZ' or ftz=='FTZ';sat=label('sat','nosat')=='SAT'
-            a=floating(32,'Ra','Sa');b=floating(32,*(('Rc','Sc') if op=='FADD' else ('Rb','Sb')))
+            a=floating(32,'Ra','Sa');b=floating(32,*(('Rc','Sc','URc') if op=='FADD' else ('Rb','Sb','URb')))
             inputs=[a,b]
-            if op=='FFMA':inputs.append(floating(32,'Rc','Sc'))
+            if op=='FFMA':inputs.append(floating(32,'Rc','Sc','URc'))
             scale=label('scale','noscale');exponent={'noscale':0,'D2':-1,'D4':-2,'D8':-3,'M2':1,'M4':2,'M8':3}.get(scale)
             if exponent is None:raise UnsupportedSemantics(op+' scale '+scale)
             return softfloat.arithmetic({'FADD':'add','FMUL':'mul','FFMA':'fma'}[op],inputs,32,rnd,flush,sat,exponent)
         if op=='FSETP':
-            flush=label('ftz','noftz')=='FTZ';a=softfloat.unpack(floating(32,'Ra','Sa'),32,flush);b=softfloat.unpack(floating(32,'Rb','Sb'),32,flush)
+            flush=label('ftz','noftz')=='FTZ';a=softfloat.unpack(floating(32,'Ra','Sa'),32,flush);b=softfloat.unpack(floating(32,'Rb','Sb','URb'),32,flush)
             cmp=label('fcomp');unordered=a[0]=='nan' or b[0]=='nan'
             def numeric(x):return (-math.inf if x[1] else math.inf) if x[0]=='inf' else x[2]
             comparisons={'LT':lambda x,y:x<y,'EQ':lambda x,y:x==y,'LE':lambda x,y:x<=y,'GT':lambda x,y:x>y,'NE':lambda x,y:x!=y,'GE':lambda x,y:x>=y}

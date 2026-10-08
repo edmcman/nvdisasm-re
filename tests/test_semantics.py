@@ -7,7 +7,7 @@ from pathlib import Path
 sys.path[:0]=[str(Path(__file__).parent),str(Path(__file__).parent.parent)]
 from semantic_cases import encode
 from compare_ghidra import GHIDRA_PY,LDEFS,ROOT
-from sass import ir
+from sass import ir,softfloat
 
 
 def cases(sm):
@@ -121,6 +121,50 @@ def cases(sm):
     add('bssy_',{}, {},dict(error='synchronization context required'))
     add('bsync_',{}, {},dict(__events=1),context={'synchronization':{'bsync':True}})
     add('mov__RI',dict(Rd=3,Sb=5,PixMaskU04=1),{},dict(error='sass_opaque_MOV'))
+    # Native fp32 p-code (round to nearest, .FTZ, .SAT, FMUL scale) and the
+    # directed-rounding primitive fallback, against the exact softfloat model.
+    def nan32(x):return x&0x7f800000==0x7f800000 and x&0x7fffff
+    def ghidra_underflow(op,inputs,k=0):
+        # Ghidra 12.1.4 FloatFormat.getEncoding returns zero when a result lies
+        # strictly between half and one minimum subnormal (its "XXX ... round up"
+        # branch); IEEE round-to-nearest gives the minimum subnormal.
+        from fractions import Fraction
+        parts=[softfloat.unpack(x) for x in inputs]
+        if any(kind!='finite' and kind!='zero' for kind,_,_ in parts):return False
+        a,b=parts[0][2],parts[1][2];v=abs(a*b*Fraction(2)**k+(parts[2][2] if op=='fma' else 0) if op!='add' else a+b)
+        return Fraction(1,2)*Fraction(2)**-149<v<Fraction(2)**-149
+    edges=[0,0x80000000,1,0x80000001,0x007fffff,0x00800000,0x3f800000,0xbf800000,0x7f7fffff,0xff7fffff,0x7f800000,0xff800000,0x3effffff,0x4b800001]
+    floats=edges+[rng.getrandbits(32)&0xbfffffff for _ in range(10)]+[rng.getrandbits(32) for _ in range(10)]
+    vectors=[(floats[i],floats[(i*7+3)%len(floats)],floats[(i*5+1)%len(floats)]) for i in range(len(floats))]
+    for x,y,z in vectors:
+        for rnd in ('RN','RZ','RM','RP'):
+            for flush in (False,True):
+                for sat in (False,True):
+                    extra=dict(rnd=rnd,sat='SAT' if sat else 'nosat')
+                    for op,cls,fields,inputs in [('add','fadd__RRR_RR',dict(Rd=8,Ra=2,Rc=4,**({'ftz':'FTZ'} if flush else {})),[x,y]),
+                                                 ('mul','fmul__RRR_RR',dict(Rd=8,Ra=2,Rb=4,**({'fmz':'FTZ'} if flush else {})),[x,y]),
+                                                 ('fma','ffma__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,**({'fmz':'FTZ'} if flush else {})),[x,y,z])]:
+                        want=softfloat.arithmetic(op,inputs,32,rnd,flush,sat)
+                        if nan32(want) or (rnd=='RN' and ghidra_underflow(op,inputs)):continue
+                        add(cls,dict(fields,**extra),dict(R2=x,R4=y,R6=z),dict(R8=want))
+    for scale,k in [('D2',-1),('D8',-3),('M2',1),('M8',3)]:
+        for x,y,_ in vectors:
+            want=softfloat.arithmetic('mul',[x,y],32,'RN',False,False,k)
+            if not (nan32(want) or ghidra_underflow('mul',[x,y],k)):add('fmul__RRR_RR',dict(Rd=8,Ra=2,Rb=4,scale=scale),dict(R2=x,R4=y),dict(R8=want))
+    add('fadd__RRR_RR',dict(Rd=8,Ra=2,Rc=4),dict(R2=0x3f800000,R4=0x40000000),dict(R8=0x40400000,__max_ops=2))
+    add('fadd__RRR_RR',dict(Rd=8,Ra=2,Rc=4,rnd='RZ'),dict(R2=0x3f800000,R4=0x33800001),dict(R8=0x3f800000))
+    for a,c in [(0x3f800000,0x40000000),(0x40000000,0x3f800000),(0x3f800000,0x3f800000),(0x7fc00000,0x3f800000),(0x3f800000,0xffc00000),(0x00000001,0)]:
+        for flush in (False,True):
+            fa,fc=(softfloat.unpack(v,32,flush) for v in (a,c))
+            unordered=fa[0]=='nan' or fc[0]=='nan'
+            if not unordered:fa,fc=fa[2],fc[2]
+            base={'LT':lambda:fa<fc,'EQ':lambda:fa==fc,'LE':lambda:fa<=fc,'GT':lambda:fa>fc,'NE':lambda:fa!=fc,'GE':lambda:fa>=fc}
+            for cmp in ['LT','EQ','LE','GT','NE','GE','LTU','EQU','LEU','GTU','NEU','GEU','NUM','NAN','T','F']:
+                b0=cmp.removesuffix('U')
+                result=(True if cmp=='T' else False if cmp=='F' else not unordered if cmp=='NUM' else unordered if cmp=='NAN'
+                        else (unordered and cmp.endswith('U')) or (not unordered and base[b0]()))
+                add('fsetp__RRR_RRR',dict(Pu=0,Pv=1,Pp='PT',Ra=2,Rb=4,fcomp=cmp,bop='AND',**({'ftz':'FTZ'} if flush else {})),
+                    dict(R2=a,R4=c),dict(P0=int(result),P1=int(not result)))
     # Exhaust the selector domains changed by decode-time specialization. The
     # references calculate results from bit truth tables and integer arithmetic.
     x,y,z=0x81234567,0x76543210,0xa5a5f0f0

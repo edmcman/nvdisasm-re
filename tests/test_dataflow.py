@@ -28,10 +28,11 @@ def expected(g, d, optimized=False):
             if all((lut>>v&1)==(lut>>(v^(1<<bit))&1) for v in range(8)):
                 unused.update(names)
         if d.env.get('Pu')==7:unused.add('Pp')
-    if optimized and d.klass.mnemonic=='ISETP':
-        operand=d.klass.operand_types.get('icmp')
-        if operand and d.env.get('icmp') in {g.arch.enums[operand.type].get(n) for n in ('F','T')}:
-            unused.update(('Ra','Sa','Rb','Sb'))
+    if optimized and d.klass.mnemonic in ('ISETP','FSETP'):
+        name='icmp' if d.klass.mnemonic=='ISETP' else 'fcomp'
+        operand=d.klass.operand_types.get(name)
+        if operand and d.env.get(name) in {g.arch.enums[operand.type].get(n) for n in ('F','T')}:
+            unused.update(('Ra','Sa','Rb','Sb','URb'))
     # An unused compound value also drops reads of its address registers.
     for atom in d.klass.format:
         if atom.name not in unused or atom.type not in ('C','CX','A','DESC'):continue
@@ -90,7 +91,7 @@ def check(arch, n=2000):
         if 'error' in result:
             failures.append(f'{d.klass.name}: {result["error"]}')
         elif (got := actual(result['ops'])) != (want := expected(g, d,
-                optimized=not any((op.get('userop') or '').startswith('sass_opaque_') for op in result['ops']))):
+                optimized=not any((op.get('userop') or '').startswith(('sass_opaque_','sass_prim_')) for op in result['ops']))):
             failures.append(f'{d.klass.name} {w.hex()} {d.text}: '
                             f'reads missing={sorted(want[0]-got[0])} extra={sorted(got[0]-want[0])}; '
                             f'writes missing={sorted(want[1]-got[1])} extra={sorted(got[1]-want[1])}')

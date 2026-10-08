@@ -25,14 +25,14 @@ def constrain_banks(b):
             if span>1:b.allow(name,lambda v,z=zero,s=span:v==z or v<max(0,z-s+1))
 
 
-def dispatch(b):
+def dispatch(b,fallback='opaque'):
     import re
     from sass.gen_sleigh import pattern
     from sass.semantic import prune_unused_values
     native=' '.join(prune_unused_values(b.body))
     names=set(re.findall(r'\b\w+\b',native))
     refs=[r for r in b.refs if r[1] in names]
-    fallback=' '.join(b.call())
+    fallback=' '.join(b.call(fallback))
     fallback_names=set(re.findall(r'\b\w+\b',fallback))
     fallback_refs=[r for r in b.refs if r[1] in fallback_names]
     constructors=[]
@@ -49,12 +49,12 @@ def dispatch(b):
 def emit(b):
     op=b.k.mnemonic
     if op not in REGISTRY:return 'opaque','outside implemented operation families'
-    if op in PRIMITIVES:
+    fn=globals().get('emit_'+op)
+    if op in PRIMITIVES and not (fn and fn(b,check=True)):
         constrain_banks(b)
         b.body+=b.call('prim')
         dispatch(b)
         return 'primitive','runtime validates selectors; unsupported combinations raise'
-    fn=globals().get('emit_'+op)
     if fn is None:return 'opaque','class variant not yet described by a native override'
     if not fn(b,check=True):return 'opaque',getattr(b,'unsupported_reason','unsupported class shape')
     constrain_banks(b)
@@ -62,6 +62,9 @@ def emit(b):
         if '@' in name and name.split('@')[1] not in ('absolute','negate','invert','not'):
             b.allow(name,lambda v:v==0)
     fn(b,check=False)
+    if op in PRIMITIVES:
+        dispatch(b,'prim')
+        return 'native','decode-time selector guards fall back to runtime primitives'
     dispatch(b)
     return 'native','decode-time selector guards retain complete opaque fallbacks'
 
@@ -271,6 +274,99 @@ def comparison(b,a,c,name='icmp'):
 def combine(b,cond,p):
     require(b,'bop',['AND','OR','XOR']);en=b.g.arch.enums[b.k.operand_types['bop'].type]
     return b.select('bop',{en[label]:f'{cond} {oper} {p}' for label,oper in [('AND','&'),('OR','|'),('XOR','^')] if label in en},1)
+
+
+# Native fp32 p-code covers round-to-nearest with .FTZ/.SAT; directed rounding,
+# .FMZ, and other selectors fall back to sass_prim_*.
+FLUSH='{0} & (0x80000000 | (0x7fffffff * zext(({0} & 0x7f800000) != 0)))'
+SATURATE=('if (!nan(r) && (0:4 f< r)) goto <positive>; r = 0; goto <saturated>; '
+          '<positive> if (r f<= 0x3f800000:4) goto <saturated>; r = 0x3f800000; <saturated> ')
+SCALES={'noscale':0,'D2':-1,'D4':-2,'D8':-3,'M2':1,'M4':2,'M8':3}
+
+def enum_cases(b,name,labels):
+    """{label: value} for the labels of selector `name` this class can encode; {None: None} if absent."""
+    if name not in b.values:return {None:None}
+    en=b.g.arch.enums[b.k.operand_types[name].type]
+    require(b,name,[l for l in labels if l in en])
+    return {l:en[l] for l in labels if l in en}
+
+def float_inputs(b,names):
+    """Operand symbols after |x|/-x flags and, under .FTZ, denormal flushing."""
+    mode='fmz' if 'fmz' in b.values else 'ftz'
+    flush=enum_cases(b,mode,['FTZ','noftz','nofmz','nofmz_hfma2'])
+    out=[]
+    for name in names:
+        v=b.flag(name,True)
+        out.append(v if flush=={None:None} else
+                   b.select(mode,{value:FLUSH.format(v) if label=='FTZ' else v for label,value in flush.items()},4))
+    return mode,flush,out
+
+def float_result(b,mode,flush,core,extra=None):
+    """Select the body computing r per (.FTZ, .SAT[, extra]) and assign it to Rd."""
+    require(b,'rnd',['RN'])
+    sat=enum_cases(b,'sat',['SAT','nosat'])
+    extra=extra or (None,{None:''})
+    names=tuple(n for n,c in ((mode,flush),('sat',sat),(extra[0],extra[1])) if n and c!={None:None})
+    cases={}
+    for fl,fv in flush.items():
+        for sl,sv in sat.items():
+            for el,ev in extra[1].items():
+                code=core(el)+(f' r = {FLUSH.format("r")};' if fl=='FTZ' else '')+(' '+SATURATE if sl=='SAT' else ' ')+'export r;'
+                key=tuple(v for n,v in ((mode,fv),('sat',sv),(extra[0],ev)) if n in names)
+                cases[key]=code
+    table=b.select_code(names,cases)
+    b.body.append(f'{b.outputs["Rd"].symbol} = {table};')
+
+def float_shape(b,*groups):
+    names=operands(b,*groups)
+    return all(names) and 'Rd' in b.outputs and b.outputs['Rd'].size==4 and all(b.values[n].size==4 for n in names) and names
+
+def emit_FADD(b,check=False):
+    names=float_shape(b,'Ra/Sa','Rc/Sc/URc')
+    if check:return bool(names)
+    mode,flush,(a,c)=float_inputs(b,names)
+    float_result(b,mode,flush,lambda _:f'local r:4 = {a} f+ {c};')
+
+def emit_FMUL(b,check=False):
+    names=float_shape(b,'Ra/Sa','Rb/Sb/URb')
+    if check:return bool(names)
+    mode,flush,(a,c)=float_inputs(b,names)
+    scale=enum_cases(b,'scale',list(SCALES))
+    # The exact product of two fp32 values fits in fp64, so scaling there and
+    # narrowing once rounds exactly as hardware does.
+    def core(label):
+        k=SCALES[label] if label else 0
+        if not k:return f'local r:4 = {a} f* {c};'
+        return f'local r:4 = float2float((float2float({a}) f* float2float({c})) f* {(1023+k)<<52:#x}:8);'
+    float_result(b,mode,flush,core,('scale',scale) if scale!={None:None} else None)
+
+def emit_FFMA(b,check=False):
+    names=float_shape(b,'Ra/Sa','Rb/Sb/URb','Rc/Sc/URc')
+    if check:return bool(names)
+    mode,flush,(a,c,d)=float_inputs(b,names)
+    # The fp32 product is exact in fp64, so only the fp64 sum and the final
+    # narrowing round: this double rounding can differ from hardware's single
+    # rounding in rare midpoint cases. Readability wins over that last bit.
+    core=lambda _:(f'local x:8 = float2float({a}); local y:8 = float2float({c}); local z:8 = float2float({d}); '
+                   'local r:4 = float2float(x f* y f+ z);')
+    float_result(b,mode,flush,core)
+
+def emit_FSETP(b,check=False):
+    names=operands(b,'Ra/Sa','Rb/Sb/URb')
+    if check:return all(names) and 'fcomp' in b.values and 'Pu' in b.outputs and all(b.values[n].size==4 for n in names)
+    _,_,(x,y)=float_inputs(b,names)
+    unordered=f'(nan({x}) || nan({y}))'
+    ordered={'LT':f'{x} f< {y}','EQ':f'{x} f== {y}','LE':f'{x} f<= {y}','GT':f'{y} f< {x}',
+             'NE':f'!{unordered} && ({x} f!= {y})','GE':f'{y} f<= {x}'}
+    tests={**ordered,**{l+'U':f'{unordered} || ({e})' for l,e in ordered.items() if l!='NE'},
+           'NEU':f'{x} f!= {y}','NUM':f'!{unordered}','NAN':unordered,'T':'1:1','F':'0:1'}
+    en=enum_cases(b,'fcomp',list(tests))
+    cond=b.select_code(('fcomp',),{(v,):f'local t:1 = {tests[l]}; export t;' for l,v in en.items()})
+    if 'bop' not in b.values:
+        b.body.append(f'{b.outputs["Pu"].symbol} = {cond};');return
+    pv=b.flag('Pp');yes=combine(b,cond,pv);no=combine(b,b.expression(1,f'!{cond}').symbol,pv)
+    yes=b.local(1,yes).symbol;no=b.local(1,no).symbol
+    for name,out in b.outputs.items():b.body.append(f'{out.symbol} = {yes if name=="Pu" else no};')
 
 
 def emit_ISETP(b,check=False):

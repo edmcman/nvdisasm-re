@@ -1,8 +1,8 @@
 """Operand values for p-code, independent of assembly display.
 
-The opaque ABI is (raw lo, raw hi, register and immediate inputs...).
-Primitive calls add the class ordinal and decoded scalar inputs. Scheduling and
-scalar operands without value semantics remain recoverable from the lossless raw words.
+The opaque ABI is (register and immediate inputs...).
+Primitive calls add the class ordinal and decoded scalar inputs. Modifiers and
+scheduling operands without value semantics stay in the instruction bytes.
 The coverage manifest records names and widths in that order. Unknown stateful
 operands are explicit runtime primitives, never fabricated constants.
 """
@@ -123,9 +123,6 @@ class Builder:
                 self.values[atom.name] = self.compound(atom)
                 self.inventory.append(dict(name=atom.name, type=atom.type,
                                            kind=self.values[atom.name].kind, bytes=self.values[atom.name].size))
-        # Raw instruction bits also retain scheduling operands, reserved bits, and
-        # latency-only implicit resource annotations without pretending they are registers.
-        self.raw = [self.raw_token(t) for t in 'lh']
 
     def local(self, size, expr, kind='value'):
         name = f'sv{self.serial}'; self.serial += 1
@@ -144,14 +141,6 @@ class Builder:
         table=self.g.subtable('value',[('""',pattern([],refs),'',f'local t:{size} = {expr}; export t;')])
         self.refs.append(('sub',table))
         return Value(table,size,kind)
-
-    def raw_token(self, tok):
-        from sass.gen_sleigh import pattern
-        field = self.g.field(tok, 0, 63, '_sem')
-        sym = self.g.subtable('v', [('t', pattern([], [(tok, field)]),
-                                  f' [ t = inst_start * 0 + {field}; ]', 'export *[const]:8 t;')])
-        self.refs.append(('sub', sym))
-        return Value(sym, 8)
 
     def scalar(self, name, atom=None, size=None):
         from sass.gen_sleigh import pieces, pattern, eq, default_value
@@ -229,7 +218,6 @@ class Builder:
         name = atom.name if atom else 'unknown'
         index = list(self.k.operand_types).index(name) if name in self.k.operand_types else 0
         args = [f'{self.k.order}:4', f'{index}:4']
-        args += [self.raw_token(t).symbol for t in 'lh']
         fn = 'sass_operand_value'; self.g.pcodeops.add(fn)
         return self.expression(size, f'{fn}({", ".join(args)})', 'runtime-primitive')
 
@@ -274,7 +262,6 @@ class Builder:
         # Child operands remain explicit inputs to the callback in FORMAT order.
         index=list(self.k.operand_types).index(name)
         args=[f'{self.k.order}:4',f'{index}:4']
-        args += [self.raw_token(t).symbol for t in 'lh']
         start=self.k.format.index(atom)+1
         for child in self.k.format[start:]:
             if child.kind=='lit' and child.name==',':break
@@ -404,7 +391,7 @@ class Builder:
     def call(self, prefix='opaque'):
         stem='sass_'+prefix+'_'+re.sub(r'\W','_',self.k.mnemonic)
         args=[] if prefix=='opaque' else [f'{self.k.order}:4']
-        args += [v.symbol for v in self.raw]+[v.symbol for n,v in self.values.items() if prefix!='opaque' or self.opaque_input(n,v)]
+        args += [v.symbol for n,v in self.values.items() if prefix!='opaque' or self.opaque_input(n,v)]
         self.g.pcodeops.add(stem)
         if not self.outputs:
             return [f'{stem}({", ".join(args)});']

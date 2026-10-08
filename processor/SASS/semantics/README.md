@@ -24,11 +24,8 @@ selected table; discarded predicate results do not generate calculations.
 Shared value tables are evaluated only when used, and only reachable tables are
 emitted. The build fails on unused-temporary diagnostics.
 
-Every opaque call retains both raw 64-bit instruction halves and the register
-inputs. This permits lossless decoding of scalar operands, scheduling hints,
-and reserved bits without adding thousands of duplicated scalar templates to
-languages without value semantics. Instruction primitive calls also carry decoded scalars and
-attributes. Dynamic constant pointers (CX), descriptors, attribute memory, and
+Opaque calls pass register inputs and decoded immediates. Instruction primitive
+calls also carry decoded modifiers and attributes. Dynamic constant pointers (CX), descriptors, attribute memory, and
 unencoded stateful operands use `sass_operand_value`. A context provider must
 supply their values; the implementation does not invent their address layouts.
 Latency-only implicit resources are annotations, not guessed fixed registers.
@@ -47,7 +44,7 @@ the runtime and are generated rather than committed.
 still choose an opaque fallback. It does not mean every encoding in the class
 has value semantics. `primitive` means the runtime validates and executes the
 operation or rejects an unsupported selector/context. `opaque` means the md's
-register effects and raw word are preserved without asserting a result.
+register effects, registers and immediates are passed without asserting a result.
 The coverage ledger's architecture-wide `hardware_verified` flag remains false:
 GPU comparisons currently cover the 23 whole-kernel SM89 fixtures recorded in
 [verification.json](verification.json), rather than every class and selector.
@@ -73,7 +70,17 @@ and supported BRA/EXIT/CALL/RET forms. Common supported restrictions include:
 - CALL handles NOINC forms and RET handles absolute NODEC forms. Branch-stack
   changes and reconvergence-sensitive variants require additional state.
 
-Runtime primitives cover FADD/FMUL/FFMA, FSETP, F2I/I2F, PRMT, SHFL/VOTE,
+FADD/FMUL/FFMA/FSETP are native p-code (`f+`, `f*`, `f<`, `nan`, ...) for
+round-to-nearest, including .FTZ (denormal inputs/results flushed to signed zero),
+.SAT and FMUL scale (computed in fp64, exact). FFMA computes `a*b` exactly in
+fp64 and narrows the fp64 sum: a deliberate double rounding that can differ
+from hardware in rare midpoint cases, chosen for readable decompiler output.
+Directed rounding (.RM/.RP/.RZ) and .FMZ fall back to `sass_prim_*`.
+Ghidra 12.1.4's emulator flushes results strictly between half and one minimum
+subnormal to zero (`FloatFormat.getEncoding`, the `n < 0` branch); the p-code is
+IEEE, and the tests exclude that band.
+
+Runtime primitives cover the float fallbacks, F2I/I2F, PRMT, SHFL/VOTE,
 and synchronization events. Floating arithmetic uses exact rational values
 with one IEEE rounding step; FTZ, saturation, and directed rounding are explicit.
 Conversion results for NaN, infinity, or out-of-range inputs and FMZ/NTZ modes
@@ -93,11 +100,11 @@ as reference conventions; GPU checks are needed to establish SASS equivalence.
 
 ## Runtime ABI
 
-Opaque: `sass_opaque_OPCODE(raw_lo:u64, raw_hi:u64, inputs...)`, where inputs are the
-register operands and decoded immediates in operand order. The SM comes from the language.
-The class can be decoded from the raw word, allowing identical class templates
-to share p-code. Primitive:
-`sass_prim_OPCODE(class_ordinal:u32, raw_lo:u64, raw_hi:u64, inputs...)`.
+Opaque: `sass_opaque_OPCODE(inputs...)`, where inputs are the register operands
+and decoded immediates in operand order. Modifiers, scheduling hints and reserved
+bits are not arguments; they remain in the instruction bytes at the call's address.
+Primitive: `sass_prim_OPCODE(class_ordinal:u32, inputs...)`, where inputs include
+the decoded modifiers.
 The runtime architecture comes from the loaded language. Input order and output
 widths come from the detailed class manifest. Multiple
 outputs return one byte bundle in manifest order, first output in the low bytes.
