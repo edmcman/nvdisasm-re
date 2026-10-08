@@ -1,0 +1,8 @@
+.version 8.7
+.target sm_100
+.address_size 64
+.visible .entry sub_u64(.param .u64 a, .param .u64 b, .param .u64 out) {
+.reg .b64 %r<3>; .reg .b64 %rd<1>;
+ld.param.u64 %r0, [a]; ld.param.u64 %r1, [b]; ld.param.u64 %rd0, [out];
+sub.u64 %r2, %r0, %r1; st.global.u64 [%rd0], %r2; ret;
+}
