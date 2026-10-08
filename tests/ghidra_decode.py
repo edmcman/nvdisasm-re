@@ -42,6 +42,8 @@ def main(ldefs, lang_id, *opts):
                     return {"space": str(v.getAddress().getAddressSpace().getName()),
                             "offset": int(v.getOffset()), "size": int(v.getSize())}
                 out["ops"] = [{"op": str(op.getMnemonic()),
+                               "userop": str(lang.getUserDefinedOpName(int(op.getInput(0).getOffset())))
+                               if str(op.getMnemonic()) == 'CALLOTHER' else None,
                                "inputs": [node(v) for v in op.getInputs()],
                                "output": node(op.getOutput()) if op.getOutput() else None} for op in ops]
         except Exception as e:

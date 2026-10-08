@@ -128,7 +128,7 @@ spec can fail at import with `Unknown register: R1`.
 `python3 -m sass.gen_sleigh SM75 SM80 ...` generates a SLEIGH spec per architecture
 (`sass_smXX.slaspec`, not committed: run the generator first) and `sass.ldefs` with languages `SASS:LE:64:smXX`. Ghidra
 compiles the `.sla` on first use. P-code preserves exact register effects and raw
-instruction bits for every class. Tier B adds native integer, move, memory and
+instruction bits for every class. Instruction semantics add native integer, move, memory and
 control-flow overrides plus runtime primitives for floating-point and warp
 operations. Unsupported variants retain explicit opaque calls. Operand values,
 coverage, runtime interfaces and verification commands are documented in

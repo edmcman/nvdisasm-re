@@ -93,6 +93,8 @@ def main(ldefs,langid):
                 data=bytes(state.getVar(Varnode(sp.getAddress(mem['address']),mem['size']),reason))
                 memories.append(dict(mem,hex=data.hex()))
             out=dict(text=str(ins),registers=registers,memory=memories,counter=int(thread.getCounter().getOffset()),events=runtime.events)
+            if request.get('inspect_pcode'):
+                out['pcode_ops']=[str(op.getMnemonic()) for op in ins.getPcode()]
         except Exception as error:out={'error':runtime.last_error or str(error)}
         print(json.dumps(out),flush=True)
 

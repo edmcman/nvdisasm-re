@@ -1,6 +1,6 @@
-"""Tier A register dataflow against md roles and exact spans.
+"""Register dataflow against md roles and exact spans.
 
-SASS_SLEIGH_OUT=/tmp/sass-phase4 python3 tests/test_dataflow.py SM89 [N]
+SASS_SLEIGH_OUT=/tmp/sass-semantics python3 tests/test_dataflow.py SM89 [N]
 Integration pytest is opt-in with SASS_DATAFLOW=1 (requires compiled languages and pyghidra).
 """
 import os
@@ -15,8 +15,26 @@ from sass import mdexpr, pydecode
 from sass.gen_sleigh import ENUM_FILE, REG_FILES, RESOURCE_FILE, Gen
 
 
-def expected(g, d):
+def expected(g, d, optimized=False):
     reads, writes = set(), set()
+    unused=set()
+    if optimized and d.klass.mnemonic=='LOP3' and 'imm8' in d.env:
+        lut=d.env['imm8']
+        for bit,names in [(2,('Ra','Sa')),(1,('Rb','Sb')),(0,('Rc','Sc'))]:
+            # A truth table reads an input only if toggling it changes a result.
+            if all((lut>>v&1)==(lut>>(v^(1<<bit))&1) for v in range(8)):
+                unused.update(names)
+        if d.env.get('Pu')==7:unused.add('Pp')
+    if optimized and d.klass.mnemonic=='ISETP':
+        operand=d.klass.operand_types.get('icmp')
+        if operand and d.env.get('icmp') in {g.arch.enums[operand.type].get(n) for n in ('F','T')}:
+            unused.update(('Ra','Sa','Rb','Sb'))
+    # An unused compound value also drops reads of its address registers.
+    for atom in d.klass.format:
+        if atom.name not in unused or atom.type not in ('C','CX','A','DESC'):continue
+        for child in d.klass.format[d.klass.format.index(atom)+1:]:
+            if child.kind=='lit' and child.name==',':break
+            if child.kind=='operand':unused.add(child.name)
     guard = next((a for a in d.klass.format if a.kind == 'guard'), None)
     for o in g.roles.get(d.klass.name, {}).get('operands', []):
         file = ENUM_FILE.get(o['type'])
@@ -30,7 +48,14 @@ def expected(g, d):
         if index == zero or index + span > count: continue
         cells = set(range(base + size * index, base + size * (index + span)))
         for role in o['role']:
-            (writes if role == 'write' else reads).update(cells)
+            if role=='read' and o['name'] in unused:continue
+            needed=cells
+            if optimized and role=='read' and o['name']=='Rb' and d.klass.mnemonic in ('STG','STS','STL'):
+                atom=d.klass.operand_types.get('sz');enums=g.arch.enums.get(atom.type,{}) if atom else {}
+                width=next((width for label,width in [('U8',1),('S8',1),('U16',2),('S16',2)]
+                            if enums.get(label)==d.env.get('sz')),None)
+                if width:needed=set(range(base+size*index,base+size*index+width))
+            (writes if role == 'write' else reads).update(needed)
     if guard:
         file = ENUM_FILE[guard.type]
         base, size, _, zero, _ = REG_FILES[file]
@@ -61,7 +86,8 @@ def check(arch, n=2000):
     for (w, d), result in zip(todo, results):
         if 'error' in result:
             failures.append(f'{d.klass.name}: {result["error"]}')
-        elif (got := actual(result['ops'])) != (want := expected(g, d)):
+        elif (got := actual(result['ops'])) != (want := expected(g, d,
+                optimized=not any((op.get('userop') or '').startswith('sass_opaque_') for op in result['ops']))):
             failures.append(f'{d.klass.name} {w.hex()} {d.text}: '
                             f'reads missing={sorted(want[0]-got[0])} extra={sorted(got[0]-want[0])}; '
                             f'writes missing={sorted(want[1]-got[1])} extra={sorted(got[1]-want[1])}')

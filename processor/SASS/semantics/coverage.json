@@ -2,7 +2,7 @@
   "SM100": {
     "classes": 978,
     "hardware_verified": false,
-    "opaque_tier_b": {
+    "opaque_operations": {
       "iabs__RUR_UR": "unsupported class shape",
       "iadd3_noimm__RUR_RUR": "unsupported class shape",
       "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
@@ -44,12 +44,8 @@
       "lea_lo_noimm__RUR_RUR": "unsupported class shape",
       "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
       "lop3_lut__RUR_RUR": "unsupported class shape",
-      "mov__RR": "unsupported class shape",
-      "mov__RU": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
-      "mov_indexedRF_Rd_": "unsupported class shape",
-      "mov_nonconformity__RU": "unsupported class shape",
       "sel__RUR_RUR": "unsupported class shape",
       "shf__RRU_RRU": "unsupported class shape",
       "shf__RUR_RUR": "unsupported class shape",
@@ -58,12 +54,7 @@
       "stg_256_uniform__Ra64": "unsupported class shape",
       "stg_256_uniform__RaRZ": "unsupported class shape"
     },
-    "status": {
-      "native": 84,
-      "opaque": 786,
-      "primitive": 108
-    },
-    "tier_b": {
+    "operations": {
       "BAR": {
         "primitive": 26
       },
@@ -146,8 +137,8 @@
         "opaque": 1
       },
       "MOV": {
-        "native": 1,
-        "opaque": 6
+        "native": 5,
+        "opaque": 2
       },
       "MUFU": {
         "primitive": 6
@@ -185,12 +176,17 @@
       "VOTE": {
         "primitive": 1
       }
+    },
+    "status": {
+      "native": 88,
+      "opaque": 782,
+      "primitive": 108
     }
   },
   "SM101": {
     "classes": 904,
     "hardware_verified": false,
-    "opaque_tier_b": {
+    "opaque_operations": {
       "iabs__RUR_UR": "unsupported class shape",
       "iadd3_noimm__RUR_RUR": "unsupported class shape",
       "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
@@ -232,12 +228,8 @@
       "lea_lo_noimm__RUR_RUR": "unsupported class shape",
       "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
       "lop3_lut__RUR_RUR": "unsupported class shape",
-      "mov__RR": "unsupported class shape",
-      "mov__RU": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
-      "mov_indexedRF_Rd_": "unsupported class shape",
-      "mov_nonconformity__RU": "unsupported class shape",
       "sel__RUR_RUR": "unsupported class shape",
       "shf__RRU_RRU": "unsupported class shape",
       "shf__RUR_RUR": "unsupported class shape",
@@ -246,12 +238,7 @@
       "stg_256_uniform__Ra64": "unsupported class shape",
       "stg_256_uniform__RaRZ": "unsupported class shape"
     },
-    "status": {
-      "native": 84,
-      "opaque": 712,
-      "primitive": 108
-    },
-    "tier_b": {
+    "operations": {
       "BAR": {
         "primitive": 26
       },
@@ -334,8 +321,8 @@
         "opaque": 1
       },
       "MOV": {
-        "native": 1,
-        "opaque": 6
+        "native": 5,
+        "opaque": 2
       },
       "MUFU": {
         "primitive": 6
@@ -373,12 +360,17 @@
       "VOTE": {
         "primitive": 1
       }
+    },
+    "status": {
+      "native": 88,
+      "opaque": 708,
+      "primitive": 108
     }
   },
   "SM103": {
     "classes": 974,
     "hardware_verified": false,
-    "opaque_tier_b": {
+    "opaque_operations": {
       "iabs__RUR_UR": "unsupported class shape",
       "iadd3_noimm__RUR_RUR": "unsupported class shape",
       "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
@@ -420,12 +412,8 @@
       "lea_lo_noimm__RUR_RUR": "unsupported class shape",
       "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
       "lop3_lut__RUR_RUR": "unsupported class shape",
-      "mov__RR": "unsupported class shape",
-      "mov__RU": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
-      "mov_indexedRF_Rd_": "unsupported class shape",
-      "mov_nonconformity__RU": "unsupported class shape",
       "sel__RUR_RUR": "unsupported class shape",
       "shf__RRU_RRU": "unsupported class shape",
       "shf__RUR_RUR": "unsupported class shape",
@@ -434,12 +422,7 @@
       "stg_256_uniform__Ra64": "unsupported class shape",
       "stg_256_uniform__RaRZ": "unsupported class shape"
     },
-    "status": {
-      "native": 84,
-      "opaque": 779,
-      "primitive": 111
-    },
-    "tier_b": {
+    "operations": {
       "BAR": {
         "primitive": 26
       },
@@ -522,8 +505,8 @@
         "opaque": 1
       },
       "MOV": {
-        "native": 1,
-        "opaque": 6
+        "native": 5,
+        "opaque": 2
       },
       "MUFU": {
         "primitive": 9
@@ -561,12 +544,17 @@
       "VOTE": {
         "primitive": 1
       }
+    },
+    "status": {
+      "native": 88,
+      "opaque": 775,
+      "primitive": 111
     }
   },
   "SM120": {
     "classes": 1015,
     "hardware_verified": false,
-    "opaque_tier_b": {
+    "opaque_operations": {
       "iabs__RUR_UR": "unsupported class shape",
       "iadd3_noimm__RUR_RUR": "unsupported class shape",
       "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
@@ -621,14 +609,8 @@
       "lea_lo_noimm__RUR_RUR": "unsupported class shape",
       "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
       "lop3_lut__RUR_RUR": "unsupported class shape",
-      "mov_64__RR": "unsupported class shape",
-      "mov_64__RU": "unsupported class shape",
-      "mov__RR": "unsupported class shape",
-      "mov__RU": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
-      "mov_indexedRF_Rd_": "unsupported class shape",
-      "mov_nonconformity__RU": "unsupported class shape",
       "sel_64__RUR": "unsupported class shape",
       "sel__RUR_RUR": "unsupported class shape",
       "shf__RRU_RRU": "unsupported class shape",
@@ -638,12 +620,7 @@
       "stg_256_uniform__Ra64": "unsupported class shape",
       "stg_256_uniform__RaRZ": "unsupported class shape"
     },
-    "status": {
-      "native": 87,
-      "opaque": 820,
-      "primitive": 108
-    },
-    "tier_b": {
+    "operations": {
       "BAR": {
         "primitive": 26
       },
@@ -725,8 +702,8 @@
         "opaque": 1
       },
       "MOV": {
-        "native": 2,
-        "opaque": 8
+        "native": 8,
+        "opaque": 2
       },
       "MUFU": {
         "primitive": 6
@@ -764,12 +741,17 @@
       "VOTE": {
         "primitive": 1
       }
+    },
+    "status": {
+      "native": 93,
+      "opaque": 814,
+      "primitive": 108
     }
   },
   "SM75": {
     "classes": 903,
     "hardware_verified": false,
-    "opaque_tier_b": {
+    "opaque_operations": {
       "iabs__RUR_UR": "unsupported class shape",
       "iadd3_noimm__RUR_RUR": "unsupported class shape",
       "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
@@ -818,18 +800,11 @@
       "lea_lo_noimm__RUR_RUR": "unsupported class shape",
       "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
       "lop3_lut__RUR_RUR": "unsupported class shape",
-      "mov__RR": "unsupported class shape",
-      "mov__RU": "unsupported class shape",
       "sel__RUR_RUR": "unsupported class shape",
       "shf__RRU_RRU": "unsupported class shape",
       "shf__RUR_RUR": "unsupported class shape"
     },
-    "status": {
-      "native": 132,
-      "opaque": 625,
-      "primitive": 146
-    },
-    "tier_b": {
+    "operations": {
       "BAR": {
         "primitive": 26
       },
@@ -911,8 +886,7 @@
         "opaque": 1
       },
       "MOV": {
-        "native": 3,
-        "opaque": 2
+        "native": 5
       },
       "MUFU": {
         "primitive": 10
@@ -949,12 +923,17 @@
       "VOTE": {
         "primitive": 1
       }
+    },
+    "status": {
+      "native": 134,
+      "opaque": 623,
+      "primitive": 146
     }
   },
   "SM80": {
     "classes": 967,
     "hardware_verified": false,
-    "opaque_tier_b": {
+    "opaque_operations": {
       "iabs__RUR_UR": "unsupported class shape",
       "iadd3_noimm__RUR_RUR": "unsupported class shape",
       "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
@@ -1004,22 +983,14 @@
       "lea_lo_noimm__RUR_RUR": "unsupported class shape",
       "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
       "lop3_lut__RUR_RUR": "unsupported class shape",
-      "mov__RR": "unsupported class shape",
-      "mov__RU": "unsupported class shape",
       "mov_indexedRF_IRFd__Cb": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
-      "mov_indexedRF_Rd_": "unsupported class shape",
       "sel__RUR_RUR": "unsupported class shape",
       "shf__RRU_RRU": "unsupported class shape",
       "shf__RUR_RUR": "unsupported class shape"
     },
-    "status": {
-      "native": 134,
-      "opaque": 687,
-      "primitive": 146
-    },
-    "tier_b": {
+    "operations": {
       "BAR": {
         "primitive": 26
       },
@@ -1101,8 +1072,8 @@
         "opaque": 1
       },
       "MOV": {
-        "native": 3,
-        "opaque": 6
+        "native": 6,
+        "opaque": 3
       },
       "MUFU": {
         "primitive": 10
@@ -1139,12 +1110,17 @@
       "VOTE": {
         "primitive": 1
       }
+    },
+    "status": {
+      "native": 137,
+      "opaque": 684,
+      "primitive": 146
     }
   },
   "SM86": {
     "classes": 1004,
     "hardware_verified": false,
-    "opaque_tier_b": {
+    "opaque_operations": {
       "iabs__RUR_UR": "unsupported class shape",
       "iadd3_noimm__RUR_RUR": "unsupported class shape",
       "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
@@ -1190,22 +1166,14 @@
       "lea_lo_noimm__RUR_RUR": "unsupported class shape",
       "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
       "lop3_lut__RUR_RUR": "unsupported class shape",
-      "mov__RR": "unsupported class shape",
-      "mov__RU": "unsupported class shape",
       "mov_indexedRF_IRFd__Cb": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
-      "mov_indexedRF_Rd_": "unsupported class shape",
       "sel__RUR_RUR": "unsupported class shape",
       "shf__RRU_RRU": "unsupported class shape",
       "shf__RUR_RUR": "unsupported class shape"
     },
-    "status": {
-      "native": 138,
-      "opaque": 720,
-      "primitive": 146
-    },
-    "tier_b": {
+    "operations": {
       "BAR": {
         "primitive": 26
       },
@@ -1287,8 +1255,8 @@
         "opaque": 1
       },
       "MOV": {
-        "native": 3,
-        "opaque": 6
+        "native": 6,
+        "opaque": 3
       },
       "MUFU": {
         "primitive": 10
@@ -1325,12 +1293,17 @@
       "VOTE": {
         "primitive": 1
       }
+    },
+    "status": {
+      "native": 141,
+      "opaque": 717,
+      "primitive": 146
     }
   },
   "SM89": {
     "classes": 1054,
     "hardware_verified": false,
-    "opaque_tier_b": {
+    "opaque_operations": {
       "iabs__RUR_UR": "unsupported class shape",
       "iadd3_noimm__RUR_RUR": "unsupported class shape",
       "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
@@ -1380,12 +1353,9 @@
       "lea_lo_noimm__RUR_RUR": "unsupported class shape",
       "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
       "lop3_lut__RUR_RUR": "unsupported class shape",
-      "mov__RR": "unsupported class shape",
-      "mov__RU": "unsupported class shape",
       "mov_indexedRF_IRFd__Cb": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
-      "mov_indexedRF_Rd_": "unsupported class shape",
       "sel__RUR_RUR": "unsupported class shape",
       "shf__RRU_RRU": "unsupported class shape",
       "shf__RUR_RUR": "unsupported class shape",
@@ -1394,12 +1364,7 @@
       "stg_256_uniform__Ra64": "unsupported class shape",
       "stg_256_uniform__RaRZ": "unsupported class shape"
     },
-    "status": {
-      "native": 138,
-      "opaque": 770,
-      "primitive": 146
-    },
-    "tier_b": {
+    "operations": {
       "BAR": {
         "primitive": 26
       },
@@ -1482,8 +1447,8 @@
         "opaque": 1
       },
       "MOV": {
-        "native": 3,
-        "opaque": 6
+        "native": 6,
+        "opaque": 3
       },
       "MUFU": {
         "primitive": 10
@@ -1521,12 +1486,17 @@
       "VOTE": {
         "primitive": 1
       }
+    },
+    "status": {
+      "native": 141,
+      "opaque": 767,
+      "primitive": 146
     }
   },
   "SM90": {
     "classes": 1173,
     "hardware_verified": false,
-    "opaque_tier_b": {
+    "opaque_operations": {
       "iabs__RUR_UR": "unsupported class shape",
       "iadd3_noimm__RUR_RUR": "unsupported class shape",
       "iadd3_x_noimm__RUR_RUR": "unsupported class shape",
@@ -1572,22 +1542,14 @@
       "lea_lo_noimm__RUR_RUR": "unsupported class shape",
       "lea_lo_noimm_x__RUR_RUR": "unsupported class shape",
       "lop3_lut__RUR_RUR": "unsupported class shape",
-      "mov__RR": "unsupported class shape",
-      "mov__RU": "unsupported class shape",
       "mov_indexedRF_IRFd__Cb": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
-      "mov_indexedRF_Rd_": "unsupported class shape",
       "sel__RUR_RUR": "unsupported class shape",
       "shf__RRU_RRU": "unsupported class shape",
       "shf__RUR_RUR": "unsupported class shape"
     },
-    "status": {
-      "native": 137,
-      "opaque": 880,
-      "primitive": 156
-    },
-    "tier_b": {
+    "operations": {
       "BAR": {
         "primitive": 26
       },
@@ -1669,8 +1631,8 @@
         "opaque": 1
       },
       "MOV": {
-        "native": 3,
-        "opaque": 6
+        "native": 6,
+        "opaque": 3
       },
       "MUFU": {
         "primitive": 10
@@ -1707,6 +1669,11 @@
       "VOTE": {
         "primitive": 1
       }
+    },
+    "status": {
+      "native": 140,
+      "opaque": 877,
+      "primitive": 156
     }
   }
 }

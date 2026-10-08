@@ -26,12 +26,16 @@ def main():
         spec=a.output/f'sass_{arch.lower()}.slaspec'
         fd,tmp=tempfile.mkstemp(prefix=spec.stem+'-',suffix='.sla',dir=a.output);os.close(fd)
         try:
-            process=subprocess.run([str(a.sleigh),str(spec),tmp],capture_output=True,text=True)
+            process=subprocess.run([str(a.sleigh),'-t','-e',str(spec),tmp],capture_output=True,text=True)
             if process.returncode:raise RuntimeError(process.stdout+process.stderr)
+            diagnostics=process.stdout+process.stderr
+            if any(message in diagnostics for message in ('Temporary is written but not read',
+                       'operations wrote to temporaries that were not read','read before written')):
+                raise RuntimeError(diagnostics)
             size=len(zlib.decompress(Path(tmp).read_bytes()[4:]))
             if size>=LIMIT:raise RuntimeError(f'{arch}: decompressed SLA is {size}, limit {LIMIT}')
             os.replace(tmp,spec.with_suffix('.sla'))
-            results.append(dict(arch=arch,decompressed_bytes=size))
+            results.append(dict(arch=arch,decompressed_bytes=size,dead_temporaries=0))
             print(f'{arch}: compiled, {size} decompressed bytes',flush=True)
         finally:
             if Path(tmp).exists():Path(tmp).unlink()

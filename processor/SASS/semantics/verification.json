@@ -22,90 +22,55 @@
   },
   "dataflow": {
     "SM100": {
-      "passed": 11356,
-      "total": 11356
+      "passed": 12856,
+      "total": 12856
     },
     "SM101": {
       "passed": 10218,
       "total": 10218
     },
     "SM103": {
-      "passed": 11262,
-      "total": 11262
+      "passed": 12762,
+      "total": 12762
     },
     "SM120": {
-      "passed": 11662,
-      "total": 11662
+      "passed": 13162,
+      "total": 13162
     },
     "SM75": {
-      "passed": 10325,
-      "total": 10325
+      "passed": 11825,
+      "total": 11825
     },
     "SM80": {
-      "passed": 10233,
-      "total": 10233
+      "passed": 11733,
+      "total": 11733
     },
     "SM86": {
-      "passed": 10663,
-      "total": 10663
+      "passed": 12163,
+      "total": 12163
     },
     "SM89": {
-      "passed": 11214,
-      "total": 11214
+      "passed": 12714,
+      "total": 12714
     },
     "SM90": {
-      "passed": 13119,
-      "total": 13119
+      "passed": 14619,
+      "total": 14619
     }
-  },
-  "dataflow_sm89_extended": {
-    "passed": 30714,
-    "total": 30714
   },
   "date": "2026-10-07",
-  "decode_samples": {
-    "SM100": {
-      "passed": 1960,
-      "total": 1960
-    },
-    "SM101": {
-      "passed": 1963,
-      "total": 1963
-    },
-    "SM103": {
-      "passed": 1961,
-      "total": 1961
-    },
-    "SM120": {
-      "passed": 1972,
-      "total": 1972
-    },
-    "SM75": {
-      "passed": 1996,
-      "total": 1996
-    },
-    "SM80": {
-      "passed": 1999,
-      "total": 1999
-    },
-    "SM86": {
-      "passed": 1999,
-      "total": 1999
-    },
-    "SM90": {
-      "passed": 1988,
-      "total": 1988
-    }
+  "dead_temporaries": {
+    "SM100": 0,
+    "SM101": 0,
+    "SM103": 0,
+    "SM120": 0,
+    "SM75": 0,
+    "SM80": 0,
+    "SM86": 0,
+    "SM89": 0,
+    "SM90": 0
   },
   "decode_sm89": {
-    "mutated": {
-      "passed": 17826,
-      "total": 17826
-    },
-    "real": {
-      "passed": 20000,
-      "total": 20000
-    },
     "synthetic": {
       "passed": 85727,
       "total": 85727
@@ -116,7 +81,7 @@
     "compiled_families": 11,
     "device": "NVIDIA GeForce RTX 4070 Laptop GPU",
     "driver_version": "580.178.04",
-    "execution": "passed",
+    "execution": "passed after p-code simplification",
     "families": [
       {
         "family": "iadd3",
@@ -170,57 +135,143 @@
     "target_mnemonics_confirmed": true
   },
   "language_build": {
-    "SM100": 6568473,
-    "SM101": 6348498,
-    "SM103": 6571706,
-    "SM120": 12338210,
-    "SM75": 12235361,
-    "SM80": 12330521,
-    "SM86": 12455026,
-    "SM89": 12716758,
-    "SM90": 14478871
+    "SM100": 7062546,
+    "SM101": 6843179,
+    "SM103": 7069524,
+    "SM120": 12824873,
+    "SM75": 13116220,
+    "SM80": 13260523,
+    "SM86": 13379692,
+    "SM89": 13634500,
+    "SM90": 15479568
+  },
+  "pcode_reduction": [
+    {
+      "after": 1,
+      "before": 15,
+      "instruction": "MOV R3, 0x5"
+    },
+    {
+      "after": 1,
+      "before": 3,
+      "instruction": "MOV R3, R2"
+    },
+    {
+      "after": 2,
+      "before": 43,
+      "instruction": "IADD3 R8, R2, R4, R6"
+    },
+    {
+      "after": 2,
+      "before": 30,
+      "instruction": "IMAD.U32 R8, R2, R4, R6"
+    },
+    {
+      "after": 3,
+      "before": 100,
+      "instruction": "LOP3.LUT R8, R2, R4, R6, 0x96, PT"
+    },
+    {
+      "after": 7,
+      "before": 68,
+      "instruction": "SHF.R.W.U32 R8, R2, R4, R6"
+    }
+  ],
+  "previous_validation": {
+    "dataflow_sm89_extended": {
+      "passed": 30714,
+      "total": 30714
+    },
+    "decode_samples": {
+      "SM100": {
+        "passed": 1960,
+        "total": 1960
+      },
+      "SM101": {
+        "passed": 1963,
+        "total": 1963
+      },
+      "SM103": {
+        "passed": 1961,
+        "total": 1961
+      },
+      "SM120": {
+        "passed": 1972,
+        "total": 1972
+      },
+      "SM75": {
+        "passed": 1996,
+        "total": 1996
+      },
+      "SM80": {
+        "passed": 1999,
+        "total": 1999
+      },
+      "SM86": {
+        "passed": 1999,
+        "total": 1999
+      },
+      "SM90": {
+        "passed": 1988,
+        "total": 1988
+      }
+    },
+    "decode_sm89_samples": {
+      "mutated": {
+        "passed": 17826,
+        "total": 17826
+      },
+      "real": {
+        "passed": 20000,
+        "total": 20000
+      }
+    }
   },
   "pytest": {
     "passed": 8,
-    "skip_reason": "opt-in Ghidra wrapper; integration fixtures run separately across all nine languages",
-    "skipped": 1
+    "skip_reason": "opt-in integration wrappers; execution and dataflow suites run separately across all nine architectures",
+    "skipped": 2
   },
   "semantics": {
     "SM100": {
-      "passed": 226,
-      "total": 226
+      "passed": 776,
+      "total": 776
     },
     "SM101": {
-      "passed": 226,
-      "total": 226
+      "passed": 776,
+      "total": 776
     },
     "SM103": {
-      "passed": 226,
-      "total": 226
+      "passed": 776,
+      "total": 776
     },
     "SM120": {
-      "passed": 226,
-      "total": 226
+      "passed": 776,
+      "total": 776
     },
     "SM75": {
-      "passed": 230,
-      "total": 230
+      "passed": 684,
+      "total": 684
     },
     "SM80": {
-      "passed": 231,
-      "total": 231
+      "passed": 781,
+      "total": 781
     },
     "SM86": {
-      "passed": 231,
-      "total": 231
+      "passed": 781,
+      "total": 781
     },
     "SM89": {
-      "passed": 231,
-      "total": 231
+      "passed": 781,
+      "total": 781
     },
     "SM90": {
-      "passed": 229,
-      "total": 229
+      "passed": 779,
+      "total": 779
     }
+  },
+  "workspace_regenerated": {
+    "compiled_languages_match_tested_build": true,
+    "directory": "processor/SASS/data/languages"
   }
 }

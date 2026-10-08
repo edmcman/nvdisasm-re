@@ -2,19 +2,19 @@
 import argparse,json
 from collections import Counter
 from pathlib import Path
-from sass.tierb import TIER_B
+from sass.operations import OPERATION_FAMILIES
 
 def summarize(directory):
     out={}
     for path in sorted(Path(directory).glob('sass_sm*_coverage.json')):
         rows=json.loads(path.read_text());arch=path.stem.split('_')[1].upper()
         families={}
-        for op in sorted(TIER_B):
+        for op in sorted(OPERATION_FAMILIES):
             group=[r for r in rows if r['opcode']==op]
             families[op]=dict(Counter(r['status'] for r in group))
             if not group:families[op]={'absent':0}
-        out[arch]=dict(classes=len(rows),status=dict(Counter(r['status'] for r in rows)),tier_b=families,
-                      opaque_tier_b={r['cls']:r['reason'] for r in rows if r['opcode'] in TIER_B and r['status']=='opaque'},hardware_verified=False)
+        out[arch]=dict(classes=len(rows),status=dict(Counter(r['status'] for r in rows)),operations=families,
+                      opaque_operations={r['cls']:r['reason'] for r in rows if r['opcode'] in OPERATION_FAMILIES and r['status']=='opaque'},hardware_verified=False)
     return out
 
 if __name__=='__main__':

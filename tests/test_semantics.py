@@ -21,6 +21,7 @@ def cases(sm):
             # results. Its convention is intentionally an explicit fallback.
             expected=dict(error='sass_opaque_IMNMX')
         request=dict(word=encode(sm,cls,**fields),registers=registers,observe=[n for n in expected if not n.startswith("__")],**extras)
+        if '__max_ops' in expected:request['inspect_pcode']=True
         out.append((cls,request,expected))
     rng=random.Random(7)
     for i in range(20):
@@ -35,7 +36,15 @@ def cases(sm):
         add('imnmx__RRR_RRR',dict(Rd=rd,Ra=2,Rb=4,Pp=0,fmt='U32'),dict(regs,P0=1),{f'R{rd}':min(a,b)})
         add('lop3_lut__RRR_RRR',dict(common,imm8=0x96,Pp='PT'),regs,{f'R{rd}':a^b^c})
         add('lea_lo_noimm__RRR_RRR',dict(Rd=rd,Ra=2,Rb=4,scaleU5=i%8),regs,{f'R{rd}':((a<<(i%8))+b)&0xffffffff})
-    add('mov__RI',dict(Rd=3,Sb=0xdeadbeef,PixMaskU04=15),{},dict(R3=0xdeadbeef))
+    add('mov__RI',dict(Rd=3,Sb=0xdeadbeef,PixMaskU04=15),{},dict(R3=0xdeadbeef,__max_ops=1))
+    add('mov__RR',dict(Rd=3,Rb=2,PixMaskU04=15),dict(R2=0xdeadbeef),dict(R3=0xdeadbeef,__max_ops=1))
+    add('mov__RR',dict(Rd=2,Rb=2,PixMaskU04=15),dict(R2=0xdeadbeef),dict(R2=0xdeadbeef))
+    for cls,fields,registers,result,limit in [
+        ('iadd3_noimm__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6),dict(R2=1,R4=2,R6=3),6,2),
+        ('imad__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,fmt='U32'),dict(R2=2,R4=3,R6=4),10,2),
+        ('lop3_lut__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,imm8=0x96,Pp='PT'),dict(R2=1,R4=2,R6=4),7,3),
+        ('shf__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,fmt='U32',dir='R',cw='W',hilo='LO'),dict(R2=3,R4=1,R6=2),1,8)]:
+        add(cls,fields,registers,dict(R8=result,__max_ops=limit))
     add('mov__RI',dict(Rd=3,Sb=5,PixMaskU04=15,Pg=0),dict(P0=0,R3=9),dict(R3=9))
     add('mov__RI',dict(Rd='RZ',Sb=5,PixMaskU04=15),{},dict(RZ=0,PT=1))
     add('imad_wide__RRR_RRR',dict(Rd='RZ',Ra=2,Rb=4,Rc=6,fmt='U32'),dict(R2=3,R4=4,R6=5,R7=1),dict(RZ=0,PT=1))
@@ -95,6 +104,37 @@ def cases(sm):
     add('bssy_',{}, {},dict(error='synchronization context required'))
     add('bsync_',{}, {},dict(__events=1),context={'synchronization':{'bsync':True}})
     add('mov__RI',dict(Rd=3,Sb=5,PixMaskU04=1),{},dict(error='sass_opaque_MOV'))
+    # Exhaust the selector domains changed by decode-time specialization. The
+    # references calculate results from bit truth tables and integer arithmetic.
+    x,y,z=0x81234567,0x76543210,0xa5a5f0f0
+    for lut in range(256):
+        result=sum(((lut >> (((x>>i&1)<<2)|((y>>i&1)<<1)|(z>>i&1)))&1)<<i for i in range(32))
+        add('lop3_lut__RRR_RRR',dict(Rd=2,Ra=2,Rb=4,Rc=6,imm8=lut,Pp='PT'),
+            dict(R2=x,R4=y,R6=z),dict(R2=result))
+    for fmt in ('U32','S32','U64','S64'):
+        for direction in ('L','R'):
+            for mode in ('C','W'):
+                for half in ('LO','HI'):
+                    for shift in (0,31,32,63,64,65):
+                        width=32 if fmt.endswith('32') else 64
+                        count=min(shift,width) if mode=='C' else shift&(width-1)
+                        value=(z<<32)|x
+                        if direction=='R' and fmt.startswith('S') and value>>63:value-=1<<64
+                        value=(value<<count if direction=='L' else value>>count)&0xffffffffffffffff
+                        result=(value>>(32 if half=='HI' else 0))&0xffffffff
+                        add('shf__RRR_RRR',dict(Rd=2,Ra=2,Rb=4,Rc=6,fmt=fmt,dir=direction,cw=mode,hilo=half),
+                            dict(R2=x,R4=shift,R6=z),dict(R2=result))
+    for fmt in ('U32','S32'):
+        left=x if fmt=='U32' else x-(1<<32);right=y
+        comparisons={'F':False,'LT':left<right,'EQ':left==right,'LE':left<=right,
+                     'GT':left>right,'NE':left!=right,'GE':left>=right,'T':True}
+        for operation,condition in comparisons.items():
+            for bop in ('AND','OR','XOR'):
+                for predicate in (0,1):
+                    def combine(v):
+                        return int((v and predicate) if bop=='AND' else (v or predicate) if bop=='OR' else bool(v)^bool(predicate))
+                    add('isetp__RRR_RRR_noEX',dict(Pu=0,Pv=1,Ra=2,Rb=4,Pp=0,icmp=operation,bop=bop,fmt=fmt),
+                        dict(R2=x,R4=y,P0=predicate),dict(P0=combine(condition),P1=combine(not condition)))
     return out
 
 
@@ -114,6 +154,9 @@ def run(sm='SM89'):
             if '__counter' in expected:ok=ok and result.get('counter')==expected['__counter']
             if '__memory' in expected:ok=ok and bool(result.get('memory')) and result['memory'][0]['hex']==expected['__memory']
             if '__events' in expected:ok=ok and len(result.get('events',[]))==expected['__events']
+            if '__max_ops' in expected:
+                ops=result.get('pcode_ops',[])
+                ok=ok and bool(ops) and len(ops)<=expected['__max_ops'] and not set(ops)&{'CBRANCH','CALLOTHER'}
             if not ok:failures.append((cls,expected,result))
     print(f'{sm}: semantics {len(todo)-len(failures)}/{len(todo)}')
     for failure in failures[:20]:print(failure)

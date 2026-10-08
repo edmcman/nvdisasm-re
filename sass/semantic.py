@@ -2,13 +2,26 @@
 
 The opaque ABI is (SM, raw lo, raw hi, register inputs...).
 Primitive calls add the class ordinal and decoded scalar inputs. Scheduling and
-non-Tier-B scalar operands remain recoverable from the lossless raw words.
+scalar operands without value semantics remain recoverable from the lossless raw words.
 The coverage manifest records names and widths in that order. Unknown stateful
 operands are explicit runtime primitives, never fabricated constants.
 """
 from dataclasses import dataclass
 import re
 from sass import mdexpr, pydecode
+
+
+def prune_unused_values(lines):
+    """Remove unused operand materialization, including its dependency chain."""
+    lines=list(lines)
+    while True:
+        names=re.findall(r'\b\w+\b',' '.join(lines))
+        dead=[]
+        for i,line in enumerate(lines):
+            match=re.fullmatch(r'local (\w+):\d+ = .*;',line)
+            if match and names.count(match[1])==1:dead.append(i)
+        if not dead:return lines
+        lines=[line for i,line in enumerate(lines) if i not in dead]
 
 
 @dataclass(frozen=True)
@@ -25,9 +38,11 @@ class Builder:
         self.body = [f'build {guard};'] if guard else []
         self.refs, self.values, self.outputs, self.inventory = [], {}, {}, []
         self.selector_guards = {}
+        self.native_constraints = []
+        self.native_supported = True
         self.serial = 0
-        from sass.tierb import TIER_B
-        self.decode_values = klass.mnemonic in TIER_B
+        from sass.operations import OPERATION_FAMILIES
+        self.decode_values = klass.mnemonic in OPERATION_FAMILIES
         self.guard_name = next((a.name for a in klass.format if a.kind == 'guard'), None)
         roles = {o['name']: o for o in gen.roles.get(klass.name, {}).get('operands', [])}
         for atom in klass.operand_types.values():
@@ -113,10 +128,20 @@ class Builder:
         else:self.body.append(f'local {name}:{size} = {expr};')
         return Value(name, size, kind)
 
+    def expression(self, size, expr, kind='value'):
+        """Reusable value calculation; emitted only when an instruction uses it."""
+        from sass.gen_sleigh import pattern
+        names=set(re.findall(r'\b\w+\b',expr))
+        refs=[r for r in self.refs if r[1] in names]
+        table=self.g.subtable('value',[('""',pattern([],refs),'',f'local t:{size} = {expr}; export t;')])
+        self.refs.append(('sub',table))
+        return Value(table,size,kind)
+
     def raw_token(self, tok):
         from sass.gen_sleigh import pattern
         field = self.g.field(tok, 0, 63, '_sem')
-        sym = self.g.subtable('v', [('""', pattern([], [(tok, field)]), '', f'local t:8 = {field}; export t;')])
+        sym = self.g.subtable('v', [('t', pattern([], [(tok, field)]),
+                                  f' [ t = inst_start * 0 + {field}; ]', 'export *[const]:8 t;')])
         self.refs.append(('sub', sym))
         return Value(sym, 8)
 
@@ -152,15 +177,20 @@ class Builder:
             refs.append((tok, field))
             expr = field if expr is None else f'({field} << {shift}) | ({expr})'
             shift += width
-        if atom and atom.type in ('SImm', 'RSImm') and f.width < size * 8:
-            expr = f'(({expr}) << {size*8-f.width}) s>> {size*8-f.width}'
+        if atom and atom.type in ('SImm', 'RSImm') and f.width < 64:
+            sign=1 << (f.width-1)
+            expr=f'(({expr}) ^ {sign}) - {sign}'
         if src[2] != 1: expr = f'({expr}) * {src[2]}'
         if atom and atom.type == 'F64Imm': expr = f'({expr}) << 32'
         # convertFloatType is resolved by a separate format subtable.
         conv = next((r[3] for _, r in self.k.rules if r[0]=='op' and r[1]==name and r[3]), None)
         if conv:
             return self.converted_immediate(atom, src, size, conv)
-        sym = self.g.subtable('v', [('""', pattern([], refs), '', f'local t:{size} = {expr}; export t;')])
+        # These expressions depend only on instruction bits, not machine state.
+        # A constructor action exports a constant without runtime COPY/shift ops.
+        # Anchor the computed operand to this instruction. Ghidra 12.1's native
+        # compiler crashes on a computed export without an instruction anchor.
+        sym = self.g.subtable('v', [('t', pattern([], refs), f' [ t = inst_start * 0 + ({expr}); ]', f'export *[const]:{size} t;')])
         self.refs.append(('sub', sym))
         return Value(sym, size, 'decoded')
 
@@ -183,7 +213,7 @@ class Builder:
             clauses=[c for s,v in zip(sources,combo) for c in eq(self.g,s[1],v)]
             # F16/E8M7/E6M9 are packed 16-bit values, F64 supplies its high word.
             val=f'({expr}) << 32' if kind=='F64' else expr
-            cons.append(('""',pattern(clauses,rawrefs),'',f'local t:{size} = {val}; export t;'))
+            cons.append(('t',pattern(clauses,rawrefs),f' [ t = inst_start * 0 + ({val}); ]',f'export *[const]:{size} t;'))
         sym=self.g.subtable('v',cons);self.refs.append(('sub',sym))
         return Value(sym,size,'float-bits')
 
@@ -193,7 +223,7 @@ class Builder:
         args = [f'{int(self.g.arch.name[2:])}:4', f'{self.k.order}:4', f'{index}:4']
         args += [self.raw_token(t).symbol for t in 'lh']
         fn = 'sass_operand_value'; self.g.pcodeops.add(fn)
-        return self.local(size, f'{fn}({", ".join(args)})', 'runtime-primitive')
+        return self.expression(size, f'{fn}({", ".join(args)})', 'runtime-primitive')
 
     def source_size(self, name):
         # Latency ISRC sizes can describe a pointer register (CX uses UR pairs),
@@ -209,8 +239,8 @@ class Builder:
         if self.k.mnemonic=='MOV':
             rd=next((o for o in self.g.roles.get(self.k.name,{}).get('operands',[]) if o['name']=='Rd'),{})
             if isinstance(rd.get('span'),int):return 4*rd['span']
-        from sass.tierb import TIER_B
-        if self.k.mnemonic in TIER_B:return 4
+        from sass.operations import OPERATION_FAMILIES
+        if self.k.mnemonic in OPERATION_FAMILIES:return 4
         match = re.match(r'S([abcde])$', name, re.I)
         expr = self.g.sizes.get(self.k.name, {}).get('ISRC_'+match[1].upper()+'_SIZE',32) if match else 32
         if isinstance(expr, int): return max(1,(expr+7)//8)
@@ -222,15 +252,14 @@ class Builder:
         name = atom.name
         if atom.type=='C' and self.k.mnemonic=='LDC' and name+'_bank' in self.values and 'Ra' in self.values:
             # LDC's compound operand is an address, not an eagerly loaded scalar.
-            bank=self.cast(name+'_bank',8);base=self.cast('Ra',8)
-            off=self.cast('Ra_offset',8,True) if 'Ra_offset' in self.values else '0:8'
-            pointer=self.local(8,f'{base} + {off}')
-            low=self.local(4,f'{pointer.symbol}:4')
-            return self.local(8,f'({bank} << 32) | zext({low.symbol})','constant-address')
+            bank=self.values[name+'_bank'].symbol;base=self.values['Ra'].symbol
+            off=self.values['Ra_offset'].symbol if 'Ra_offset' in self.values else '0:4'
+            pointer=self.expression(4,f'{base}:4 + {off}')
+            return self.expression(8,f'(zext({bank}) << 32) | zext({pointer.symbol})','constant-address')
         if atom.type == 'C' and name+'_bank' in self.values and name+'_addr' in self.values:
-            bank=self.cast(name+'_bank',8); off=self.cast(name+'_addr',4)
-            addr=self.local(8,f'({bank} << 32) | zext({off})')
-            return self.local(self.source_size(name),f'*[cbank]:{self.source_size(name)} {addr.symbol}','constant-load')
+            bank=self.values[name+'_bank'].symbol;off=self.values[name+'_addr'].symbol
+            addr=self.expression(8,f'(zext({bank}) << 32) | zext({off})')
+            return self.expression(self.source_size(name),f'*[cbank]:{self.source_size(name)} {addr.symbol}','constant-load')
         if atom.type == 'SpecialRegister':
             return self.unknown(atom)
         # Stateful descriptors, attribute memory, dynamic-bank pointers, etc.
@@ -238,13 +267,13 @@ class Builder:
         index=list(self.k.operand_types).index(name)
         args=[f'{int(self.g.arch.name[2:])}:4',f'{self.k.order}:4',f'{index}:4']
         args += [self.raw_token(t).symbol for t in 'lh']
-        atoms=list(self.k.operand_types.values()); start=atoms.index(atom)+1
-        for child in atoms[start:]:
-            if child.name.startswith(name+'_') or child.type in ('UniformRegister','Register','UImm','SImm'):
-                if child.name in self.values: args.append(self.values[child.name].symbol)
-            else: break
+        start=self.k.format.index(atom)+1
+        for child in self.k.format[start:]:
+            if child.kind=='lit' and child.name==',':break
+            if child.kind=='operand' and child.name in self.values:
+                args.append(self.values[child.name].symbol)
         fn='sass_operand_value';self.g.pcodeops.add(fn)
-        return self.local(self.source_size(name),f'{fn}({", ".join(args)})','runtime-primitive')
+        return self.expression(self.source_size(name),f'{fn}({", ".join(args)})','runtime-primitive')
 
     def cast(self, name, size, signed=False):
         v=self.values[name]
@@ -265,12 +294,83 @@ class Builder:
                 expr={'negate':f'-{sym}','invert':f'~{sym}','not':f'!{sym}',
                       'absolute':f'abs({sym})'}.get(attr)
                 if attr=='absolute':
-                    tmp=self.local(v.size,sym);self.body += [f'if ({bit.symbol} == 0 || {tmp.symbol} s>= 0) goto <abs{self.serial}>;',
-                       f'{tmp.symbol} = -{tmp.symbol};',f'<abs{self.serial}>'];sym=tmp.symbol;continue
-            tmp=self.local(v.size,sym);label=f'flag{self.serial}'
-            self.body += [f'if ({bit.symbol} == 0) goto <{label}>;',f'{tmp.symbol} = {expr};',f'<{label}>']
-            sym=tmp.symbol
+                    code=f'local t:{v.size} = {sym}; if (t s>= 0) goto <positive>; t = -t; <positive> export t;'
+                    sym=self.select_code((name+'@'+attr,),{(0,):f'local t:{v.size} = {sym}; export t;', (1,):code})
+                    continue
+            sym=self.select(name+'@'+attr,{0:sym,1:expr},v.size)
         return sym
+
+    def select_code(self, names, cases):
+        """Share small decode-time choices without multiplying root constructors."""
+        from sass.gen_sleigh import pattern
+        constructors=[]
+        for values,code in cases.items():
+            clauses=[];valid=True
+            for name,value in zip(names,values):
+                key=tuple(name.split('@',1)) if '@' in name else name
+                constraint=self.g.values_where(self.k,key,lambda v:v==value)
+                if constraint is None:
+                    valid &= int(self.values[name].symbol.split(':')[0],0)==value
+                else:clauses+=constraint
+            if not valid or not pattern(clauses):continue
+            symbols=set(re.findall(r'\b\w+\b',code))
+            refs=[r for r in self.refs if r[1] in symbols]
+            # A selected register view is an alias, not a value to snapshot.
+            # The parent calculation captures inputs when overlap requires it.
+            alias=re.fullmatch(r'local t:\d+ = (\w+); export t;',code)
+            if alias and any(ref==alias[1] for _,ref in refs):code=f'export {alias[1]};'
+            constructors.append(('""',pattern(clauses,refs),'',code))
+        table=self.g.subtable('select',constructors)
+        self.refs.append(('sub',table))
+        return table
+
+    def select(self, name, expressions, size):
+        """Choose an expression at decode time, exporting its runtime value."""
+        from sass.gen_sleigh import pattern
+        if any(re.search(r'\b(?:sv\d+|SEMTMP\w+)\b',expr) for expr in expressions.values()):
+            # Compound operands may already have evaluated a stateful load.
+            # Keep those locals in this constructor instead of crossing scopes.
+            result=self.local(size,next(iter(expressions.values())))
+            end=f'selectdone{self.serial}'
+            for value,expr in expressions.items():
+                skip=f'selectskip{self.serial}';self.serial+=1
+                self.body += [f'if ({self.values[name].symbol} != {value}) goto <{skip}>;',
+                              f'{result.symbol} = {expr};',f'goto <{end}>;',f'<{skip}>']
+            self.body.append(f'<{end}>')
+            return result.symbol
+        key=tuple(name.split('@',1)) if '@' in name else name
+        constructors=[]
+        for value,expr in expressions.items():
+            clauses=self.g.values_where(self.k,key,lambda v:v==value)
+            if clauses is None:
+                current=self.values[name].symbol
+                if int(current.split(':')[0],0)!=value:continue
+                clauses=[]
+            pat=pattern(clauses)
+            if not pat:continue
+            names=set(re.findall(r'\b\w+\b',expr))
+            refs=[r for r in self.refs if r[1] in names]
+            code=f'export {expr};' if re.fullmatch(r'\w+',expr) and any(ref==expr for _,ref in refs) else f'local t:{size} = {expr}; export t;'
+            constructors.append(('""',pattern(clauses,refs),'',code))
+        table=self.g.subtable('select',constructors)
+        self.refs.append(('sub',table))
+        return table
+
+    def allow(self, name, test):
+        """Restrict a native constructor using decoded instruction bits."""
+        key = tuple(name.split('@',1)) if '@' in name else name
+        clauses = self.g.values_where(self.k,key,test)
+        if clauses is None:
+            value = self.values.get(name)
+            if value and re.fullmatch(r'(?:0x[0-9a-f]+|\d+):\d+',value.symbol):
+                self.native_supported &= test(int(value.symbol.split(':')[0],0))
+            else:
+                raise ValueError(f'{self.k.name}: native selector {name} is not static')
+        else:
+            self.native_constraints += clauses
+
+    def reject(self):
+        self.native_supported = False
 
     def bank_guards(self):
         # A wide view containing the hardwired zero slot cannot be written as
@@ -322,14 +422,14 @@ class Builder:
         row['flow']={n:v for n,v in self.g.props.get(self.k.name,{}).items() if n.startswith('BRANCH_')}
         variant=dict(spans=self.spans,inputs=list(self.values),outputs={n:v.size for n,v in self.outputs.items()})
         if variant not in row.setdefault('variants',[]):row['variants'].append(variant)
-        body=' '.join(self.body)
+        body=' '.join(prune_unused_values(self.body))
         names=set(re.findall(r'\b\w+\b',body))
         return body,[r for r in self.refs if r[1] in names]
 
 
 def emit(gen,klass,guard,spans):
-    from sass import tierb
+    from sass import operations
     b=Builder(gen,klass,guard,spans)
-    status,reason=tierb.emit(b)
+    status,reason=operations.emit(b)
     if status=='opaque':b.body += b.call()
     return b.finish(status,reason)

@@ -1,4 +1,4 @@
-"""CPU implementations of named Tier B primitives.
+"""CPU implementations of named instruction primitives.
 
 Unknown operations fail explicitly. This is single-thread/explicit-warp context,
 not an implementation of CUDA's warp scheduler or memory concurrency model.

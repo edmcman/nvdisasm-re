@@ -1,4 +1,4 @@
-"""CUDA Driver API oracle for scalar Tier B p-code fixtures (SM89).
+"""CUDA Driver API oracle for scalar p-code fixtures (SM89).
 
 Compiles and checks target mnemonics even with --compile-only. Execution compares
 GPU results to Ghidra's actual p-code for the corresponding scalar instruction;
@@ -55,9 +55,9 @@ class Driver:
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--compile-only',action='store_true');p.add_argument('--require-gpu',action='store_true');p.add_argument('--output',default='/tmp/sass-gpu-oracle');a=p.parse_args()
-    out=Path(a.output);out.mkdir(parents=True,exist_ok=True);cubin=out/'sem_tierb.cubin'
-    subprocess.run([os.environ.get('NVCC','/usr/local/cuda/bin/nvcc'),'--allow-unsupported-compiler','-diag-suppress=177','-cubin','-arch=sm_89',str(ROOT/'tests/kernels/sem_tierb.cu'),'-o',str(cubin)],check=True)
-    sass=subprocess.check_output([os.environ.get('CUOBJDUMP','/usr/local/cuda/bin/cuobjdump'),'-sass',str(cubin)],text=True);(out/'sem_tierb.sass').write_text(sass)
+    out=Path(a.output);out.mkdir(parents=True,exist_ok=True);cubin=out/'scalar_semantics.cubin'
+    subprocess.run([os.environ.get('NVCC','/usr/local/cuda/bin/nvcc'),'--allow-unsupported-compiler','-diag-suppress=177','-cubin','-arch=sm_89',str(ROOT/'tests/kernels/scalar_semantics.cu'),'-o',str(cubin)],check=True)
+    sass=subprocess.check_output([os.environ.get('CUOBJDUMP','/usr/local/cuda/bin/cuobjdump'),'-sass',str(cubin)],text=True);(out/'scalar_semantics.sass').write_text(sass)
     for family,(mnemonic,_,_) in SPECS.items():
         match=re.search(r'Function : sem_'+family+r'\b(.*?)(?=Function :|\Z)',sass,re.S)
         if not match or not re.search(r'\b'+mnemonic+r'(?:\.|\s)',match[1]):raise RuntimeError('compiler did not emit '+mnemonic+' for '+family)

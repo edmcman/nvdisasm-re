@@ -1,8 +1,8 @@
-# Operand values and Tier B
+# Operand values and instruction semantics
 
-The generator preserves register spans and predicates for every class. Tier B
-adds executable scalar values and native overrides or named runtime primitives
-for the original 36 opcode families. This is a single-instruction execution
+The generator preserves register spans and predicates for every class. Value semantics
+add executable scalar values and native overrides or named runtime primitives
+for 36 opcode families. This is a single-instruction execution
 model. It does not implement a CUDA kernel loader, warp scheduler, or concurrent
 memory model.
 
@@ -15,10 +15,19 @@ use exact md spans and true/zero-register behavior. Constant operands load from
 `cbank` at `(bank << 32) | uint32(offset)`; LDC forms calculate an address before
 loading. `ram`, `shared`, and `localmem` are separate spaces.
 
+Encoded constants, register modifiers, signedness, comparisons, shift modes and
+memory widths are selected during decoding. Supported native instructions emit
+their calculation directly; unsupported selectors choose an opaque constructor.
+For example, immediate and register MOV emit one operation, and ordinary IMAD
+and IADD3 emit two. LOP3 truth tables simplify to the boolean expression for the
+selected table; discarded predicate results do not generate calculations.
+Shared value tables are evaluated only when used, and only reachable tables are
+emitted. The build fails on unused-temporary diagnostics.
+
 Every opaque call retains both raw 64-bit instruction halves and the register
 inputs. This permits lossless decoding of scalar operands, scheduling hints,
 and reserved bits without adding thousands of duplicated scalar templates to
-languages outside Tier B. Tier B primitive calls also carry decoded scalars and
+languages without value semantics. Instruction primitive calls also carry decoded scalars and
 attributes. Dynamic constant pointers (CX), descriptors, attribute memory, and
 unencoded stateful operands use `sass_operand_value`. A context provider must
 supply their values; the implementation does not invent their address layouts.
@@ -105,11 +114,12 @@ bank offsets have not been inferred into the placeholder compiler prototype.
 ## Build and verification
 
 ```sh
-export SASS_SLEIGH_OUT=/tmp/sass-tierb
-python3 -m sass.build_languages --output /tmp/sass-tierb
+export SASS_SLEIGH_OUT=/tmp/sass-semantics
+python3 -m sass.build_languages --output /tmp/sass-semantics
 # Finish compilation before parallel Ghidra tests. The build command writes
-# compiled files atomically and checks the 16 MiB decompressed size limit.
-python3 -m sass.coverage /tmp/sass-tierb --output processor/SASS/semantics/coverage.json
+# compiled files atomically, checks the 16 MiB decompressed size limit, and
+# rejects unused-temporary diagnostics.
+python3 -m sass.coverage /tmp/sass-semantics --output processor/SASS/semantics/coverage.json
 python3 -m unittest discover -s tests -p test_semantics_cpu.py
 python3 tests/test_semantics.py SM89
 python3 tests/test_dataflow.py SM89 20000
