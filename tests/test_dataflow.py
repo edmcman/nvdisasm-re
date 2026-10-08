@@ -68,6 +68,12 @@ def expected(g, d, optimized=False):
     return reads, writes
 
 
+def expected_flow(g, d):
+    """Ghidra flow type implied by the md BRANCH_TYPE (predicated forms may also fall through)."""
+    kind = g.props.get(d.klass.name, {}).get('BRANCH_TYPE', 'BRT_NONE')
+    return {'jump': kind == 'BRT_BRANCH', 'call': kind == 'BRT_CALL', 'terminal': kind in ('BRT_RETURN', 'BRT_BRANCHOUT')}
+
+
 def actual(ops):
     reads, writes = set(), set()
     for op in ops:
@@ -90,12 +96,14 @@ def check(arch, n=2000):
     for (w, d), result in zip(todo, results):
         if 'error' in result:
             failures.append(f'{d.klass.name}: {result["error"]}')
+        elif (flow := result['flow']) != (want_flow := expected_flow(g, d)):
+            failures.append(f'{d.klass.name} {w.hex()} {d.text}: flow {flow}, md {want_flow}')
         elif (got := actual(result['ops'])) != (want := expected(g, d,
                 optimized=not any((op.get('userop') or '').startswith(('sass_opaque_','sass_prim_')) for op in result['ops']))):
             failures.append(f'{d.klass.name} {w.hex()} {d.text}: '
                             f'reads missing={sorted(want[0]-got[0])} extra={sorted(got[0]-want[0])}; '
                             f'writes missing={sorted(want[1]-got[1])} extra={sorted(got[1]-want[1])}')
-    print(f'{arch}: register dataflow {len(todo)-len(failures)}/{len(todo)}')
+    print(f'{arch}: register dataflow and control flow {len(todo)-len(failures)}/{len(todo)}')
     assert not failures, '\n'.join(failures[:20])
 
 

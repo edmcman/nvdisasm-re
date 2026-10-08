@@ -38,6 +38,8 @@ def main(ldefs, lang_id, *opts):
             if "--pcode" in opts: out["pcode"] = [str(op) for op in ins.getPcode()]
             if "--dataflow" in opts:
                 ops = ins.getPcode()
+                flow = ins.getFlowType()
+                out["flow"] = {"jump": bool(flow.isJump()), "call": bool(flow.isCall()), "terminal": bool(flow.isTerminal())}
                 def node(v):
                     return {"space": str(v.getAddress().getAddressSpace().getName()),
                             "offset": int(v.getOffset()), "size": int(v.getSize())}

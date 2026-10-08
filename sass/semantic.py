@@ -388,13 +388,36 @@ class Builder:
         return value.kind=='register' or bool(atom and atom.kind=='operand' and pydecode.IMM.match(atom.type)
                                               and value.kind not in ('default','runtime-primitive'))
 
+    def flow(self):
+        """(md BRANCH_TYPE, direct target subtable or None) for branch classes; (None, None) otherwise."""
+        props=self.g.props.get(self.k.name,{})
+        kind=props.get('BRANCH_TYPE','BRT_NONE')
+        if kind=='BRT_NONE':return None,None
+        if self.outputs:raise ValueError(f'{self.k.name}: branch class with register outputs')
+        index=re.fullmatch(r'INDEX\((\w+)\)',props.get('BRANCH_TARGET_INDEX',''))
+        atom=self.k.operand_types.get(index[1]) if index else None
+        if atom is None or atom.type not in ('RSImm','UImm') or not self.g.source(self.k,atom.name):return kind,None
+        target=self.g.branch_target(self.k,atom)
+        self.refs.append(('sub',target))
+        return kind,target
+
     def call(self, prefix='opaque'):
         stem='sass_'+prefix+'_'+re.sub(r'\W','_',self.k.mnemonic)
         args=[] if prefix=='opaque' else [f'{self.k.order}:4']
         args += [v.symbol for n,v in self.values.items() if prefix!='opaque' or self.opaque_input(n,v)]
         self.g.pcodeops.add(stem)
+        call=f'{stem}({", ".join(args)})'
+        kind,target=self.flow()
+        if kind:
+            # Branch classes write no registers. The call yields what is not
+            # modelled (the taken condition, or an indirect destination), so
+            # every fallback keeps its md control-flow edges.
+            if kind in ('BRT_BRANCH','BRT_CALL') and target is None:
+                return [f'local dest:8 = {call};',f'{"goto" if kind=="BRT_BRANCH" else "call"} [dest];']
+            flow={'BRT_BRANCH':f'goto {target};','BRT_CALL':f'call {target};'}.get(kind,'return [0:8];')
+            return [f'local taken:1 = {call};','if (taken == 0) goto <untaken>;',flow,'<untaken>']
         if not self.outputs:
-            return [f'{stem}({", ".join(args)});']
+            return [f'{call};']
         # One result bundle avoids duplicating the complete input ABI for each
         # destination and evaluates stateful primitives exactly once.
         if len(self.outputs)==1:

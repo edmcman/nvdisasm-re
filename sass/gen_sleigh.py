@@ -285,7 +285,7 @@ class Gen:
         return name, [("sub", name)]
 
     def branch_target(self, k, a):
-        """Invisible subtable exporting a relative branch's destination (display keeps its own symbol)."""
+        """Invisible subtable exporting a branch's destination (display keeps its own symbol)."""
         _, f, scale = self.source(k, a.name)
         refs, expr, shift = [], None, 0
         for tok, lo, hi, n in reversed(pieces(f)):
@@ -294,8 +294,9 @@ class Gen:
             expr = fname if expr is None else f"({fname} << {shift}) | {expr}"
             shift += n
         sb = 1 << (f.width - 1)
-        return self.subtable("b", [("t", pattern([], refs), f" [ t = inst_next + ((({expr}) ^ {sb}) - {sb}) * {scale}; ]",
-                                    "export *[ram]:8 t;")])
+        # RSImm targets are relative to the next instruction; UImm targets are absolute.
+        value = f"inst_next + ((({expr}) ^ {sb}) - {sb}) * {scale}" if a.type == "RSImm" else f"inst_start * 0 + ({expr}) * {scale}"
+        return self.subtable("b", [("t", pattern([], refs), f" [ t = {value}; ]", "export *[ram]:8 t;")])
 
     # --- rendering ---
 

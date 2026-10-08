@@ -73,10 +73,17 @@ def require(b,name,labels):
     if name not in b.values:return
     atom=b.k.operand_types.get(name)
     if not atom or atom.type not in b.g.arch.enums:return
+    labels=[l for l in labels if l is not None]
     b.selector_guards[name]=list(labels)
     vals={b.g.arch.enums[atom.type][x] for x in labels if x in b.g.arch.enums[atom.type]}
     if not vals:b.reject();return
     b.allow(name,lambda v:v in vals)
+
+
+def default(b,name):
+    """The md default label of a selector, whose spelling varies by architecture."""
+    atom=b.k.operand_types.get(name)
+    return atom.default if atom else None
 
 
 def operands(b,*groups):
@@ -416,7 +423,7 @@ emit_CS2R=emit_S2R
 
 def emit_BRA(b,check=False):
     if check:return 'sImm' in b.values and 'Pp' in b.values
-    require(b,'depth',['nodepth']);require(b,'cond',['nocond','U'])
+    require(b,'depth',[default(b,'depth')]);require(b,'cond',[default(b,'cond'),'U'])
     if any(n in b.values for n in ('URb','UPq')):b.reject()
     atom=b.k.operand_types['sImm'];target=b.g.branch_target(b.k,atom);b.refs.append(('sub',target))
     b.body.append(f'if ({b.flag("Pp")} != 0) goto {target};')
