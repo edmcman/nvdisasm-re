@@ -7,9 +7,10 @@ from dataclasses import dataclass
 
 OPERATION_FAMILIES = set('IADD3 IMAD LOP3 SHF LEA IABS IMNMX ISETP SEL PRMT MOV S2R CS2R LDC FADD FMUL FFMA FSETP F2I I2F I2FP MUFU LDG STG LDS STS LDL STL BRA EXIT CALL RET BSSY BSYNC BAR SHFL VOTE ULDC NOP'.split())
 ALIASES = dict(UIADD3='IADD3', UIMAD='IMAD', USHF='SHF', ULEA='LEA',
-               UISETP='ISETP', ULOP3='LOP3', USEL='SEL', UMOV='MOV', VIADD='IADD')
+               UISETP='ISETP', ULOP3='LOP3', USEL='SEL', UMOV='MOV', VIADD='IADD',
+               **{'HFMA2.MMA':'HFMA2_MMA'})
 OPERATION_FAMILIES.update(ALIASES)
-OPERATION_FAMILIES.update(('IADD','FSEL','FMNMX'))
+OPERATION_FAMILIES.update(('IADD','FSEL','FMNMX','DADD','DMUL','DFMA','DSETP','HADD2','HFMA2'))
 
 PRIMITIVES = set('FADD FMUL FFMA FSETP F2I I2F I2FP MUFU PRMT SHFL VOTE BAR BSSY BSYNC'.split())
 
@@ -378,9 +379,131 @@ def float_result(b,mode,flush,core,extra=None):
     table=b.select_code(names,cases)
     b.body.append(f'{output(b).symbol} = {table};')
 
-def float_shape(b,*groups):
+def float_shape(b,*groups,size=4):
     names=operands(b,*groups)
-    return all(names) and output(b) is not None and output(b).size==4 and all(b.values[n].size==4 for n in names) and names
+    return all(names) and output(b) is not None and output(b).size==size and all(b.values[n].size==size for n in names) and names
+
+
+def double_arithmetic(b,groups,operator,check):
+    names=float_shape(b,*groups,size=8)
+    if check:return bool(names)
+    require(b,'rnd',['RN'])
+    inputs=[b.flag(n,True) for n in names]
+    if operator=='fma':
+        # Binary128 holds the exact product of two binary64 inputs (106 bits).
+        # The sum rounds at 113 bits before narrowing: rare midpoint cases can
+        # still double-round, as with the fp32 FFMA implementation.
+        a,c,d=[b.local(16,f'float2float({v})').symbol for v in inputs]
+        result=f'float2float({a} f* {c} f+ {d})'
+    else:result=f'{inputs[0]} {operator} {inputs[1]}'
+    b.body.append(f'{output(b).symbol} = {result};')
+
+
+def emit_DADD(b,check=False):
+    return double_arithmetic(b,('Ra/Sa','Rc/Sc/URc'),'f+',check)
+
+
+def emit_DMUL(b,check=False):
+    return double_arithmetic(b,('Ra/Sa','Rb/Sb/URb'),'f*',check)
+
+
+def emit_DFMA(b,check=False):
+    return double_arithmetic(b,('Ra/Sa','Rb/Sb/URb','Rc/Sc/URc'),'fma',check)
+
+
+def half_shape(b,fma):
+    names=operands(b,'Ra/Sa',*(['Rb/Sb/URb','Rc/Sc/URc'] if fma else ['Rc/Sc/URc']))
+    if not all(names) or output(b) is None or output(b).size!=4:return None
+    for name in names:
+        if name+'1' in b.values:
+            if b.values[name].size not in (2,8) or b.values[name+'1'].size!=b.values[name].size:return None
+        elif b.values[name].size!=4:return None
+    return names
+
+
+def half_inputs(b,name,swizzle):
+    if name+'1' in b.values:
+        # Immediate lanes are printed high first, matching their encoded halves.
+        return [b.expression(2,f'{b.values[n].symbol}:2').symbol if b.values[n].size!=2 else b.values[n].symbol
+                for n in (name+'1',name)]
+    value=b.values[name].symbol
+    for attr,expr in [('absolute',lambda v:f'{v} & 0x7fff7fff'),('negate',lambda v:f'{v} ^ 0x80008000')]:
+        key=name+'@'+attr
+        if key in b.values:value=b.select(key,{0:value,1:expr(value)},4)
+    modes=enum_cases(b,swizzle,['H1_H0','H0_H0','H1_H1'])
+    lanes=[]
+    for lane in (0,1):
+        cases={}
+        for label,v in modes.items():
+            index=0 if label=='H0_H0' else 1 if label=='H1_H1' else lane
+            code=f'local h:2 = {value}:2;' if index==0 else f'local shifted:4 = {value} >> 16; local h:2 = shifted:2;'
+            cases[(v,) if swizzle in b.values else ()]=code+' export h;'
+        lanes.append(b.select_code((swizzle,) if swizzle in b.values else (),cases))
+    return lanes
+
+
+def half_arithmetic(b,fma,check):
+    names=half_shape(b,fma)
+    if check:return bool(names)
+    require(b,'ofmt',['F16_V2'])
+    require(b,'ftz',['noftz']);require(b,'fmz',['nofmz'])
+    satname='satrelu' if 'satrelu' in b.values else 'sat'
+    saturate=enum_cases(b,satname,['nosat','SAT'])
+    bswz='iswzB' if 'iswzB' in b.values else 'iswzC_as_B'
+    cswz='iswzC' if 'iswzC' in b.values else 'iswzB_as_C'
+    swizzles=['iswzA',bswz,cswz] if fma else ['iswzA','iswzB' if 'iswzB' in b.values else 'iswzB_as_C']
+    inputs=[half_inputs(b,n,s) for n,s in zip(names,swizzles)]
+    results=[]
+    for lane in (0,1):
+        # Binary128 holds the exact finite binary16 product AND sum, even at
+        # opposite exponent extremes. Narrowing rounds only once to binary16.
+        width=16 if fma else 8
+        values=[b.expression(width,f'float2float({v[lane]})').symbol for v in inputs]
+        core=f'{values[0]} f* {values[1]} f+ {values[2]}' if fma else f'{values[0]} f+ {values[1]}'
+        cases={}
+        for label,v in saturate.items():
+            code=f'local r:2 = float2float({core}); '
+            if label=='SAT':
+                code+=('if (!nan(r) && (0:2 f< r)) goto <positive>; r = 0; goto <saturated>; '
+                       '<positive> if (r f<= 0x3c00:2) goto <saturated>; r = 0x3c00; <saturated> ')
+            code+='export r;'
+            cases[(v,) if satname in b.values else ()]=code
+        results.append(b.local(2,b.select_code((satname,) if satname in b.values else (),cases)).symbol)
+    b.body.append(f'{output(b).symbol} = zext({results[0]}) | (zext({results[1]}) << 16);')
+
+
+def emit_HADD2(b,check=False):return half_arithmetic(b,False,check)
+
+
+def emit_HFMA2(b,check=False):return half_arithmetic(b,True,check)
+
+
+def emit_HFMA2_MMA(b,check=False):
+    if check:return all(n in b.values for n in ('Ra','Rb','Sc','Sc1')) and output(b) is not None and output(b).size==4
+    # Establish only the constant move used by the compiler. Other MMA forms
+    # need separate hardware evidence rather than assuming ordinary fused math.
+    require(b,'fmz',['nofmz']);require(b,'satrelu',['nosat']);require(b,'sat',['nosat'])
+    for name,negate in [('Ra',1),('Rb',0)]:
+        b.allow(name,lambda v:v==255)
+        key=name+'@negate'
+        if key in b.values:b.allow(key,lambda v,n=negate:v==n)
+        elif negate:b.reject()
+    # The SM89 zero-source MMA form preserves finite bits and signed zero, but
+    # canonicalizes either signaling/quiet NaN to positive 0x7fff per half.
+    # Resolve this from encoded immediates so the move stays one p-code COPY.
+    def canonicalize(expr):
+        # Constructor actions support arithmetic/bit operations, not comparisons.
+        # The additions carry only for an all-one exponent / nonzero mantissa.
+        isnan=f'((((({expr}) & 0x7c00) + 0x400) >> 15) * (((({expr}) & 0x3ff) + 0x3ff) >> 10))'
+        return f'({expr}) * (1 - ({isnan})) + 0x7fff * ({isnan})'
+    from sass.gen_sleigh import pattern,pieces
+    refs=[];lanes=[]
+    for name in ('Sc1','Sc'):
+        token,low,high,width,=pieces(b.g.source(b.k,name)[1])[0]
+        field=b.g.field(token,low,high,'_sem');refs.append((token,field));lanes.append(canonicalize(field))
+    expr=f'({lanes[0]}) | (({lanes[1]}) << 16)'
+    table=b.g.subtable('halfmove',[('t',pattern([],refs),f' [ t = inst_start * 0 + ({expr}); ]','export *[const]:4 t;')])
+    b.refs.append(('sub',table));b.body.append(f'{output(b).symbol} = {table};')
 
 def emit_FADD(b,check=False):
     names=float_shape(b,'Ra/Sa','Rc/Sc/URc')
@@ -447,16 +570,26 @@ def emit_FMNMX(b,check=False):
 
 
 def emit_FSETP(b,check=False):
-    names=operands(b,'Ra/Sa','Rb/Sb/URb')
-    if check:return all(names) and 'fcomp' in b.values and output(b,'Pu') is not None and all(b.values[n].size==4 for n in names)
-    _,_,(x,y)=float_inputs(b,names)
+    return float_compare(b,4,check)
+
+
+def emit_DSETP(b,check=False):
+    return float_compare(b,8,check)
+
+
+def float_compare(b,size,check):
+    selector='fcomp' if size==4 else 'test'
+    names=operands(b,'Ra/Sa','Rb/Sb/URb' if size==4 else 'Rc/Sc/URc')
+    if check:return all(names) and selector in b.values and output(b,'Pu') is not None and all(b.values[n].size==size for n in names)
+    if size==4:_,_,(x,y)=float_inputs(b,names)
+    else:x,y=[b.flag(n,True) for n in names]
     unordered=f'(nan({x}) || nan({y}))'
     ordered={'LT':f'{x} f< {y}','EQ':f'{x} f== {y}','LE':f'{x} f<= {y}','GT':f'{y} f< {x}',
              'NE':f'!{unordered} && ({x} f!= {y})','GE':f'{y} f<= {x}'}
     tests={**ordered,**{l+'U':f'{unordered} || ({e})' for l,e in ordered.items() if l!='NE'},
            'NEU':f'{x} f!= {y}','NUM':f'!{unordered}','NAN':unordered,'T':'1:1','F':'0:1'}
-    en=enum_cases(b,'fcomp',list(tests))
-    cond=b.select_code(('fcomp',),{(v,):f'local t:1 = {tests[l]}; export t;' for l,v in en.items()})
+    en=enum_cases(b,selector,list(tests))
+    cond=b.select_code((selector,),{(v,):f'local t:1 = {tests[l]}; export t;' for l,v in en.items()})
     if 'bop' not in b.values:
         b.body.append(f'{output(b,"Pu").symbol} = {cond};');return
     pv=b.flag(operands(b,'Pp')[0]);yes=combine(b,cond,pv);no=combine(b,b.expression(1,f'!{cond}').symbol,pv)

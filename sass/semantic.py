@@ -224,6 +224,7 @@ class Builder:
     def source_size(self, name):
         # Latency ISRC sizes can describe a pointer register (CX uses UR pairs),
         # rather than the value fetched through it. Use the consuming data format.
+        if self.k.mnemonic in ('DADD','DMUL','DFMA','DSETP'):return 8
         atom=self.k.operand_types.get('srcfmt')
         if atom:
             widths={int(m[1]) for label in self.g.arch.enums.get(atom.type,{})

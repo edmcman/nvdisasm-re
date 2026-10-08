@@ -2,7 +2,7 @@
 
 The generator preserves register spans and predicates for every class. Value semantics
 add executable scalar values and native overrides or named runtime primitives
-for 51 opcode families. The test harness can load cubin text and run independent
+for 58 opcode families. The test harness can load cubin text and run independent
 threads as whole kernels. The general Ghidra loader, warp scheduler, and
 concurrent memory model remain separate work.
 
@@ -46,7 +46,7 @@ has value semantics. `primitive` means the runtime validates and executes the
 operation or rejects an unsupported selector/context. `opaque` means the md's
 register effects, registers and immediates are passed without asserting a result.
 The coverage ledger's architecture-wide `hardware_verified` flag remains false:
-GPU comparisons currently cover the 28 whole-kernel SM89 fixtures recorded in
+GPU comparisons currently cover the 43 whole-kernel SM89 fixtures recorded in
 [verification.json](verification.json), rather than every class and selector.
 
 IMAD.HI adds the 64-bit addend before selecting the high word; IMAD.WIDE
@@ -94,6 +94,30 @@ Directed rounding (.RM/.RP/.RZ) and .FMZ fall back to `sass_prim_*`.
 Ghidra 12.1.4's emulator flushes results strictly between half and one minimum
 subnormal to zero (`FloatFormat.getEncoding`, the `n < 0` branch); the p-code is
 IEEE, and the tests exclude that band.
+
+DADD/DMUL/DFMA are native for round-to-nearest, with 64-bit register pairs,
+uniform inputs, high-word immediates, constant-bank loads, and source absolute/negate
+modifiers. DFMA uses a 16-byte binary128 intermediate: the product is exact,
+but the wide sum followed by narrowing can double-round in rare midpoint cases.
+Directed rounding remains opaque. DSETP shares the ordered/unordered FP32
+comparison logic and combines complementary results with AND/OR/XOR; MIN/MAX
+selectors retain opaque fallbacks. Dynamic constant operands still require an
+explicit operand provider. The same Ghidra underflow limitation applies to FP64.
+
+HADD2/HFMA2 implement packed FP16 under RN, including per-lane absolute/negate,
+H1_H0/H0_H0/H1_H1 selection, saturation, register/uniform inputs, separate lane
+immediates, and constant-bank values. HFMA2 uses binary128 for an exact finite
+half product and sum before a single rounding to half; HADD2 widens to fp64.
+Both results are captured before writing an overlapping destination. An
+unmodified H0_H0 source reads only its low two bytes in optimized p-code.
+FP32/BF16/E6M9 formats, FP32 inputs, H0_NH1, FTZ/FMZ, and RELU remain opaque.
+The minimum-subnormal Ghidra emulator limitation also applies to FP16.
+
+The `HFMA2.MMA Rd, -RZ, RZ, imm_hi, imm_lo` form is a native constant move
+under nofmz/nosat. Hardware shows it preserves finite bits, signed zero,
+infinities, and denormals, while canonicalizing each NaN half to `0x7fff`.
+This transform is evaluated from encoded immediates at decode time, so the
+move emits one COPY. Other MMA forms retain opaque fallbacks.
 
 Runtime primitives cover the float fallbacks, F2I/I2F, PRMT, SHFL/VOTE,
 and synchronization events. Floating arithmetic uses exact rational values
@@ -158,12 +182,12 @@ not a Python reimplementation of the instruction dispatcher. `GHIDRA_PY`
 selects the pyghidra Python interpreter. In a restricted environment, set
 `XDG_CONFIG_HOME` and `XDG_CACHE_HOME` to writable scratch directories.
 
-The CUDA Driver API oracle compiles 28 SM89 kernels and executes their actual
+The CUDA Driver API oracle compiles 43 SM89 kernels and executes their actual
 `.text` through Ghidra's normal instruction stepping, from the prologue through
 EXIT. It compares 128 random/edge input vectors per kernel (four blocks of 32),
 including NaNs, infinities, denormals, signed zero, and integer boundaries.
 Target mnemonics must both appear in cuobjdump output and execute in the emulator.
-All 3,584 output comparisons passed on the RTX 4070 Laptop GPU.
+All 5,504 output comparisons passed on the RTX 4070 Laptop GPU.
 
 The cubin's PARAM_CBANK and KPARAM_INFO records supply parameter offsets and
 sizes. For these SM89 kernels, bank 0 parameters begin at 0x160, with the two
@@ -174,16 +198,21 @@ cells private to each thread, so no cross-thread communication is modeled.
 Kernel PC bounds and an instruction budget reject fallthrough and infinite loops.
 
 Coverage includes integer arithmetic, IMAD low/high/wide, LOP3, SHF, LEA,
-predicates/selects, PRMT, FADD/FMUL/FFMA, FSEL, FMNMX, FSETP, F2I.TRUNC.NTZ, I2FP, moves,
+predicates/selects, PRMT, HADD2/HFMA2 and the MMA constant move, DADD/DMUL/DFMA/DSETP, FADD/FMUL/FFMA, FSEL, FMNMX, FSETP, F2I.TRUNC.NTZ, I2FP, moves,
 uniform/ordinary constant loads, global/shared/local loads and stores, and
 predicated branching with BSSY/BSYNC. FADD.FTZ, FMUL.RZ and FFMA.SAT have dedicated
 fixtures. FSEL and FMNMX min/max have dedicated fixtures, including FMNMX.FTZ
-and mixed NaN/signed-zero/denormal pairs.
+and mixed NaN/signed-zero/denormal pairs. FP16 has ordinary/saturating and
+broadcast/modifier fixtures; MMA move constants include signed zero, negative
+signaling/quiet NaNs, denormals, and infinities. Seven fixtures replace one
+arithmetic word in the compiled kernel to request SASS modes directly; scheduling
+bits and compiled prologues remain intact. The manifest records these patches.
 SM89 F2I.TRUNC.NTZ to S32 maps NaN to zero and clamps infinities/overflow;
 other NTZ combinations still reject until verified.
 
 Floating results are bit-exact except that two NaNs compare equal regardless
-of payload/sign. FTZ and saturation have no additional numeric tolerance.
+of payload/sign (independently for each packed half). MMA move constants are
+compared bit-exactly, including NaN canonicalization. FTZ and saturation have no additional numeric tolerance.
 MUFU approximations, warp collectives, device calls/returns, barrier reductions,
 and cross-thread memory ordering remain outside this hardware validation.
 The loop fixture explicitly acknowledges BSSY/BSYNC events; this verifies its

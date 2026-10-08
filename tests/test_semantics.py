@@ -226,6 +226,137 @@ def cases(sm):
                         else (unordered and cmp.endswith('U')) or (not unordered and base[b0]()))
                 add('fsetp__RRR_RRR',dict(Pu=0,Pv=1,Pp='PT',Ra=2,Rb=4,fcomp=cmp,bop='AND',**({'ftz':'FTZ'} if flush else {})),
                     dict(R2=a,R4=c),dict(P0=int(result),P1=int(not result)))
+    # FP64 pairs, overlap, modifiers, and exact rational arithmetic references.
+    def pair(name,bits):
+        prefix='UR' if name.startswith('UR') else 'R';index=int(name[len(prefix):])
+        return {name:bits&0xffffffff,f'{prefix}{index+1}':bits>>32}
+    edges64=[0,1<<63,1,(1<<63)|1,0x000fffffffffffff,0x0010000000000000,
+             0x3ff0000000000000,0xbff0000000000000,0x7fefffffffffffff,
+             0x7ff0000000000000,0xfff0000000000000,0x3ff0000000000001]
+    values64=edges64+[rng.getrandbits(64) for _ in range(30)]
+    vectors64=[(v,values64[(i*7+3)%len(values64)],values64[(i*5+1)%len(values64)]) for i,v in enumerate(values64)]
+    # This cancellation needs an exact wide product, rather than fp64 multiply/add.
+    vectors64 += [(0x3ff0000000000001,0x3feffffffffffffe,0xbff0000000000000),
+                  (0x7fefffffffffffff,0x4000000000000000,0xffefffffffffffff)]
+    from fractions import Fraction
+    for i,(x,y,z) in enumerate(vectors64):
+        regs={**pair('R2',x),**pair('R4',y),**pair('R6',z)}
+        for op,cls,fields,inputs in [
+            ('add','dadd__RRR_RR',dict(Rd=2,Ra=2,Rc=4),[x,y]),
+            ('mul','dmul__RRR_RR',dict(Rd=2,Ra=2,Rb=4),[x,y]),
+            ('fma','dfma__RRR_RRR',dict(Rd=2,Ra=2,Rb=4,Rc=6),[x,y,z])]:
+            if i%3==0:
+                fields.update({'Ra@absolute':1,'Ra@negate':1})
+                inputs[0]=(inputs[0]&((1<<63)-1))|(1<<63)
+            want=softfloat.arithmetic(op,inputs,64)
+            kind=softfloat.unpack(want,64)[0]
+            if kind=='nan':continue
+            parts=[softfloat.unpack(v,64) for v in inputs]
+            if all(p[0]=='finite' for p in parts):
+                exact=abs(parts[0][2]+parts[1][2] if op=='add' else
+                          parts[0][2]*parts[1][2]+(parts[2][2] if op=='fma' else 0))
+                if Fraction(2)**-1075<exact<Fraction(2)**-1074:continue # Ghidra underflow bug
+            add(cls,fields,regs,dict(pair('R2',want),__native=True))
+    for cls,fields in [('dadd__RRR_RR',dict(Rd=8,Ra=2,Rc=4)),
+                       ('dmul__RRR_RR',dict(Rd=8,Ra=2,Rb=4)),
+                       ('dfma__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6))]:
+        for rnd in ('RM','RP','RZ'):
+            add(cls,dict(fields,rnd=rnd),{},dict(error='sass_opaque_'+classes[cls].mnemonic))
+    for cls,fields,regs in [
+        ('dadd__RRU_RU',dict(Rd=8,Ra=2,URc=4),{**pair('R2',0x3ff0000000000000),**pair('UR4',0x4000000000000000)}),
+        ('dadd__RRsI_RI',dict(Rd=8,Ra=2,Sc=0x40000000),pair('R2',0x3ff0000000000000)),
+        ('dadd__RRC_RC',dict(Rd=8,Ra=2,Sc_bank=0,Sc_addr=0x100),pair('R2',0x3ff0000000000000))]:
+        add(cls,fields,regs,dict(pair('R8',0x4008000000000000),__native=True),
+            memory=[dict(space='cbank',address=0x100,hex='0000000000000040')])
+    for cls,fields in [
+        ('dmul__RCR_RC',dict(Rd=8,Ra=2,Sb_bank=0,Sb_addr=0x100)),
+        ('dfma__RCR_RCR',dict(Rd=8,Ra=2,Sb_bank=0,Sb_addr=0x100,Rc=4))]:
+        result=0x4008000000000000 if cls.startswith('dfma') else 0x4000000000000000
+        add(cls,fields,{**pair('R2',0x3ff0000000000000),**pair('R4',0x3ff0000000000000)},
+            dict(pair('R8',result),__native=True),memory=[dict(space='cbank',address=0x100,hex='0000000000000040')])
+    add('dadd__RRR_RR',dict(Rd=8,Ra=2,Rc=4,Pg=0),dict(pair('R2',0x3ff0000000000000),P0=0,R8=7,R9=9),dict(R8=7,R9=9))
+    add('dadd__RRR_RR',dict(Rd=8,Ra='RZ',Rc=4),pair('R4',0x4000000000000000),dict(pair('R8',0x4000000000000000),__native=True))
+    add('dadd__RRR_RR',dict(Rd=8,Ra=254,Rc=4),{},dict(error='sass_opaque_DADD'))
+    add('dsetp__RRC_RC',dict(Pu=0,Pv=1,Pp='PT',Ra=2,Sc_bank=0,Sc_addr=0x100,test='LT',bop='AND'),
+        pair('R2',0x3ff0000000000000),dict(P0=1,P1=0,__native=True),memory=[dict(space='cbank',address=0x100,hex='0000000000000040')])
+    import math,struct
+    for a,c in [(0,1<<63),(1,0),(0x7ff0000000000000,0x3ff0000000000000),
+                (0x7ff8000000000000,0),(0,0x7ff0000000000001),(0x3ff0000000000000,0x4000000000000000)]:
+        fa,fc=[struct.unpack('<d',v.to_bytes(8,'little'))[0] for v in (a,c)]
+        unordered=math.isnan(fa) or math.isnan(fc)
+        base={'LT':fa<fc,'EQ':fa==fc,'LE':fa<=fc,'GT':fa>fc,'NE':fa!=fc,'GE':fa>=fc}
+        for cmp in ['LT','EQ','LE','GT','NE','GE','LTU','EQU','LEU','GTU','NEU','GEU','NUM','NAN']:
+            result=not unordered if cmp=='NUM' else unordered if cmp=='NAN' else (unordered and cmp.endswith('U')) or (not unordered and base[cmp.removesuffix('U')])
+            for bop in ('AND','OR','XOR'):
+                for p in (0,1):
+                    combine=lambda v:(v&p) if bop=='AND' else (v|p) if bop=='OR' else (v^p)
+                    add('dsetp__RRR_RR',dict(Pu=0,Pv=1,Pp=0,Ra=2,Rc=4,test=cmp,bop=bop),
+                        dict(pair('R2',a),**pair('R4',c),P0=p),dict(P0=combine(int(result)),P1=combine(int(not result)),__native=True))
+    for cmp in ('MIN','MAX'):
+        add('dsetp__RRR_RR',dict(test=cmp),{},dict(error='sass_opaque_DSETP'))
+    # Packed FP16 lanes: modifiers act on both sign bits before broadcasting.
+    def half_lanes(value,swizzle='H1_H0',absolute=False,negate=False):
+        if absolute:value &= 0x7fff7fff
+        if negate:value ^= 0x80008000
+        lo,hi=value&0xffff,value>>16
+        return [lo,lo] if swizzle=='H0_H0' else [hi,hi] if swizzle=='H1_H1' else [lo,hi]
+    def half_reference(op,inputs,sat=False):
+        result=0
+        for lane in (0,1):
+            xs=[v[lane] for v in inputs];want=softfloat.arithmetic(op,xs,16,sat=sat)
+            if softfloat.unpack(want,16)[0]=='nan':return None
+            parts=[softfloat.unpack(v,16) for v in xs]
+            if not sat and all(v[0] in ('zero','finite') for v in parts):
+                exact=abs(parts[0][2]+parts[1][2] if op=='add' else parts[0][2]*parts[1][2]+parts[2][2])
+                if Fraction(2)**-25<exact<Fraction(2)**-24:return None # Ghidra minimum-subnormal bug
+            result |= want<<(16*lane)
+        return result
+    packed=[0,0x80008000,0x00010001,0x80010001,0x03ff0400,0x3c004000,
+            0xbc00c000,0x7bfffbff,0x7c003c00,0x3c007e00,0x3c014001]
+    packed += [rng.getrandbits(32) for _ in range(15)]
+    for i,x in enumerate(packed):
+        y,z=packed[(i*7+3)%len(packed)],packed[(i*5+1)%len(packed)]
+        for swizzle in ('H1_H0','H0_H0','H1_H1'):
+            for absolute,negate in ((0,0),(1,0),(0,1),(1,1)):
+                for sat in (False,True):
+                    for op,cls,fields,inputs in [
+                        ('add','hadd2__RR',dict(Rd=2,Ra=2,Rc=4,iswzA=swizzle,iswzB_as_C=swizzle,sat='SAT' if sat else 'nosat'),
+                         [half_lanes(x,swizzle,absolute,negate),half_lanes(y,swizzle)]),
+                        ('fma','hfma2__RRR',dict(Rd=2,Ra=2,Rb=4,Rc=6,iswzA=swizzle,iswzB=swizzle,iswzC=swizzle,
+                          **{('satrelu' if 'satrelu' in classes['hfma2__RRR'].operand_types else 'sat'):'SAT' if sat else 'nosat'}),
+                         [half_lanes(x,swizzle,absolute,negate),half_lanes(y,swizzle),half_lanes(z,swizzle)])]:
+                        fields.update({'Ra@absolute':absolute,'Ra@negate':negate})
+                        want=half_reference(op,inputs,sat)
+                        if want is not None:add(cls,fields,dict(R2=x,R4=y,R6=z),dict(R2=want,__native=True))
+    # Distinct broadcasts on each input and asymmetric immediate/constant lanes.
+    from itertools import product
+    x,y,z=0x3c004000,0x42004400,0x38003c00
+    for a,b,c in product(('H1_H0','H0_H0','H1_H1'),repeat=3):
+        want=half_reference('fma',[half_lanes(x,a),half_lanes(y,b),half_lanes(z,c)])
+        add('hfma2__RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,iswzA=a,iswzB=b,iswzC=c),dict(R2=x,R4=y,R6=z),dict(R8=want,__native=True))
+    for cls,fields,inputs in [
+        ('hadd2__RI',dict(Rd=8,Ra=2,Sc=y>>16,Sc1=y&0xffff),[half_lanes(x),half_lanes(y)]),
+        ('hfma2__RIR',dict(Rd=8,Ra=2,Sb=y>>16,Sb1=y&0xffff,Rc=6),[half_lanes(x),half_lanes(y),half_lanes(z)]),
+        ('hfma2__RRI',dict(Rd=8,Ra=2,Rb=4,Sc=z>>16,Sc1=z&0xffff),[half_lanes(x),half_lanes(y),half_lanes(z)]),
+        ('hadd2__RC',dict(Rd=8,Ra=2,Sc_bank=0,Sc_addr=0x100),[half_lanes(x),half_lanes(y)]),
+        ('hfma2__RCR',dict(Rd=8,Ra=2,Sb_bank=0,Sb_addr=0x100,Rc=6),[half_lanes(x),half_lanes(y),half_lanes(z)]),
+        ('hfma2__RRC',dict(Rd=8,Ra=2,Rb=4,Sc_bank=0,Sc_addr=0x104),[half_lanes(x),half_lanes(y),half_lanes(z)]),
+        ('hadd2__RU',dict(Rd=8,Ra=2,URc=4),[half_lanes(x),half_lanes(y)]),
+        ('hfma2__RRU',dict(Rd=8,Ra=2,Rb=4,URc=6),[half_lanes(x),half_lanes(y),half_lanes(z)])]:
+        want=half_reference('fma' if cls.startswith('hfma') else 'add',inputs)
+        add(cls,fields,dict(R2=x,R4=y,R6=z,UR4=y,UR6=z),dict(R8=want,__native=True),
+            memory=[dict(space='cbank',address=0x100,hex=(y.to_bytes(4,'little')+z.to_bytes(4,'little')).hex())])
+    add('hadd2__RR',dict(Rd=8,Ra=2,Rc=4,ftz='FTZ'),{},dict(error='sass_opaque_HADD2'))
+    add('hfma2__RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,fmz='FMZ'),{},dict(error='sass_opaque_HFMA2'))
+    for cls,fields in [('hadd2_F32__RR',dict(Rd=8,Ra=2,Rc=4)),
+                       ('hfma2__RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,ofmt='F32'))]:
+        add(cls,fields,{},dict(error='sass_opaque_'+('HADD2' if cls.startswith('hadd') else 'HFMA2')))
+    if 'hfma2_mma__RRI_norelu' in classes:
+        for bits in (0x3c004000,0x80000000,0x7e017d01,0x000103ff):
+            canonical=lambda h:0x7fff if h&0x7c00==0x7c00 and h&0x3ff else h
+            want=canonical(bits&0xffff)|(canonical(bits>>16)<<16)
+            add('hfma2_mma__RRI_norelu',dict(Rd=8,Ra='RZ',Rb='RZ',Sc=bits>>16,Sc1=bits&0xffff,**{'Ra@negate':1}),{},dict(R8=want,__max_ops=1))
+        add('hfma2_mma__RRI_norelu',dict(Rd=8,Ra=2,Rb='RZ',Sc=0x3c00,Sc1=0x4000,**{'Ra@negate':1}),{},dict(error='sass_opaque_HFMA2_MMA'))
     # Exhaust the selector domains changed by decode-time specialization. The
     # references calculate results from bit truth tables and integer arithmetic.
     x,y,z=0x81234567,0x76543210,0xa5a5f0f0

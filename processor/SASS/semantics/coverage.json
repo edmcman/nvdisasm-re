@@ -8,6 +8,14 @@
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
       "fmnmx_pred__RRR_RRR": "unsupported class shape",
       "fmnmx_pred__RUR_RUR": "unsupported class shape",
+      "hadd2_F32__RI": "unsupported class shape",
+      "hadd2_F32__RR": "class selectors have no supported native combination",
+      "hadd2_F32__RU": "class selectors have no supported native combination",
+      "hfma2_relu__RIR": "class selectors have no supported native combination",
+      "hfma2_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_relu__RRR": "class selectors have no supported native combination",
+      "hfma2_relu__RRU": "class selectors have no supported native combination",
+      "hfma2_relu__RUR": "class selectors have no supported native combination",
       "iadd3_x_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd3_x_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd3_x_noimm__RUR_RUR": "class selectors have no supported native combination",
@@ -115,6 +123,18 @@
       "CS2R": {
         "native": 1
       },
+      "DADD": {
+        "native": 3
+      },
+      "DFMA": {
+        "native": 5
+      },
+      "DMUL": {
+        "native": 3
+      },
+      "DSETP": {
+        "native": 3
+      },
       "EXIT": {
         "native": 1
       },
@@ -139,6 +159,17 @@
       },
       "FSETP": {
         "native": 3
+      },
+      "HADD2": {
+        "native": 3,
+        "opaque": 3
+      },
+      "HFMA2": {
+        "native": 5,
+        "opaque": 5
+      },
+      "HFMA2.MMA": {
+        "absent": 0
       },
       "I2F": {
         "primitive": 24
@@ -271,8 +302,8 @@
       }
     },
     "status": {
-      "native": 126,
-      "opaque": 757,
+      "native": 148,
+      "opaque": 735,
       "primitive": 95
     }
   },
@@ -285,6 +316,14 @@
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
       "fmnmx_pred__RRR_RRR": "unsupported class shape",
       "fmnmx_pred__RUR_RUR": "unsupported class shape",
+      "hadd2_F32__RI": "unsupported class shape",
+      "hadd2_F32__RR": "class selectors have no supported native combination",
+      "hadd2_F32__RU": "class selectors have no supported native combination",
+      "hfma2_relu__RIR": "class selectors have no supported native combination",
+      "hfma2_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_relu__RRR": "class selectors have no supported native combination",
+      "hfma2_relu__RRU": "class selectors have no supported native combination",
+      "hfma2_relu__RUR": "class selectors have no supported native combination",
       "iadd3_x_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd3_x_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd3_x_noimm__RUR_RUR": "class selectors have no supported native combination",
@@ -389,6 +428,18 @@
       "CS2R": {
         "native": 1
       },
+      "DADD": {
+        "native": 3
+      },
+      "DFMA": {
+        "native": 5
+      },
+      "DMUL": {
+        "native": 3
+      },
+      "DSETP": {
+        "native": 3
+      },
       "EXIT": {
         "native": 1
       },
@@ -413,6 +464,17 @@
       },
       "FSETP": {
         "native": 3
+      },
+      "HADD2": {
+        "native": 3,
+        "opaque": 3
+      },
+      "HFMA2": {
+        "native": 5,
+        "opaque": 5
+      },
+      "HFMA2.MMA": {
+        "absent": 0
       },
       "I2F": {
         "primitive": 24
@@ -544,8 +606,8 @@
       }
     },
     "status": {
-      "native": 120,
-      "opaque": 691,
+      "native": 142,
+      "opaque": 669,
       "primitive": 93
     }
   },
@@ -558,6 +620,14 @@
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
       "fmnmx_pred__RRR_RRR": "unsupported class shape",
       "fmnmx_pred__RUR_RUR": "unsupported class shape",
+      "hadd2_F32__RI": "unsupported class shape",
+      "hadd2_F32__RR": "class selectors have no supported native combination",
+      "hadd2_F32__RU": "class selectors have no supported native combination",
+      "hfma2_relu__RIR": "class selectors have no supported native combination",
+      "hfma2_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_relu__RRR": "class selectors have no supported native combination",
+      "hfma2_relu__RRU": "class selectors have no supported native combination",
+      "hfma2_relu__RUR": "class selectors have no supported native combination",
       "iadd3_x_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd3_x_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd3_x_noimm__RUR_RUR": "class selectors have no supported native combination",
@@ -665,6 +735,18 @@
       "CS2R": {
         "native": 1
       },
+      "DADD": {
+        "native": 3
+      },
+      "DFMA": {
+        "native": 5
+      },
+      "DMUL": {
+        "native": 3
+      },
+      "DSETP": {
+        "native": 3
+      },
       "EXIT": {
         "native": 1
       },
@@ -689,6 +771,17 @@
       },
       "FSETP": {
         "native": 3
+      },
+      "HADD2": {
+        "native": 3,
+        "opaque": 3
+      },
+      "HFMA2": {
+        "native": 5,
+        "opaque": 5
+      },
+      "HFMA2.MMA": {
+        "absent": 0
       },
       "I2F": {
         "primitive": 24
@@ -821,8 +914,8 @@
       }
     },
     "status": {
-      "native": 126,
-      "opaque": 750,
+      "native": 148,
+      "opaque": 728,
       "primitive": 98
     }
   },
@@ -835,6 +928,14 @@
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
       "fmnmx_pred__RRR_RRR": "unsupported class shape",
       "fmnmx_pred__RUR_RUR": "unsupported class shape",
+      "hadd2_F32__RI": "unsupported class shape",
+      "hadd2_F32__RR": "class selectors have no supported native combination",
+      "hadd2_F32__RU": "class selectors have no supported native combination",
+      "hfma2_relu__RIR": "class selectors have no supported native combination",
+      "hfma2_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_relu__RRR": "class selectors have no supported native combination",
+      "hfma2_relu__RRU": "class selectors have no supported native combination",
+      "hfma2_relu__RUR": "class selectors have no supported native combination",
       "iadd3_x_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd3_x_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd3_x_noimm__RUR_RUR": "class selectors have no supported native combination",
@@ -970,6 +1071,18 @@
       "CS2R": {
         "native": 1
       },
+      "DADD": {
+        "native": 3
+      },
+      "DFMA": {
+        "native": 5
+      },
+      "DMUL": {
+        "native": 3
+      },
+      "DSETP": {
+        "native": 3
+      },
       "EXIT": {
         "native": 1
       },
@@ -994,6 +1107,17 @@
       },
       "FSETP": {
         "native": 3
+      },
+      "HADD2": {
+        "native": 3,
+        "opaque": 3
+      },
+      "HFMA2": {
+        "native": 5,
+        "opaque": 5
+      },
+      "HFMA2.MMA": {
+        "absent": 0
       },
       "I2F": {
         "primitive": 24
@@ -1126,8 +1250,8 @@
       }
     },
     "status": {
-      "native": 135,
-      "opaque": 787,
+      "native": 157,
+      "opaque": 765,
       "primitive": 93
     }
   },
@@ -1262,6 +1386,18 @@
       "CS2R": {
         "native": 1
       },
+      "DADD": {
+        "native": 5
+      },
+      "DFMA": {
+        "native": 9
+      },
+      "DMUL": {
+        "native": 5
+      },
+      "DSETP": {
+        "native": 5
+      },
       "EXIT": {
         "native": 1
       },
@@ -1285,6 +1421,15 @@
       },
       "FSETP": {
         "native": 5
+      },
+      "HADD2": {
+        "native": 5
+      },
+      "HFMA2": {
+        "native": 9
+      },
+      "HFMA2.MMA": {
+        "absent": 0
       },
       "I2F": {
         "primitive": 40
@@ -1415,8 +1560,8 @@
       }
     },
     "status": {
-      "native": 168,
-      "opaque": 622,
+      "native": 206,
+      "opaque": 584,
       "primitive": 113
     }
   },
@@ -1426,6 +1571,32 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
+      "hfma2_mma__RCR_norelu": "unsupported class shape",
+      "hfma2_mma__RCR_relu": "unsupported class shape",
+      "hfma2_mma__RCxR_norelu": "unsupported class shape",
+      "hfma2_mma__RCxR_relu": "unsupported class shape",
+      "hfma2_mma__RIR_norelu": "unsupported class shape",
+      "hfma2_mma__RIR_relu": "unsupported class shape",
+      "hfma2_mma__RRC_norelu": "unsupported class shape",
+      "hfma2_mma__RRC_relu": "unsupported class shape",
+      "hfma2_mma__RRCx_norelu": "unsupported class shape",
+      "hfma2_mma__RRCx_relu": "unsupported class shape",
+      "hfma2_mma__RRI_relu": "class selectors have no supported native combination",
+      "hfma2_mma__RRR_norelu": "unsupported class shape",
+      "hfma2_mma__RRR_relu": "unsupported class shape",
+      "hfma2_mma__RRU_norelu": "unsupported class shape",
+      "hfma2_mma__RRU_relu": "unsupported class shape",
+      "hfma2_mma__RUR_norelu": "unsupported class shape",
+      "hfma2_mma__RUR_relu": "unsupported class shape",
+      "hfma2_relu__RCR": "class selectors have no supported native combination",
+      "hfma2_relu__RCxR": "class selectors have no supported native combination",
+      "hfma2_relu__RIR": "class selectors have no supported native combination",
+      "hfma2_relu__RRC": "class selectors have no supported native combination",
+      "hfma2_relu__RRCx": "class selectors have no supported native combination",
+      "hfma2_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_relu__RRR": "class selectors have no supported native combination",
+      "hfma2_relu__RRU": "class selectors have no supported native combination",
+      "hfma2_relu__RUR": "class selectors have no supported native combination",
       "iadd3_x_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd3_x_noimm__RCR_RCR": "class selectors have no supported native combination",
       "iadd3_x_noimm__RCxR_RCxR": "class selectors have no supported native combination",
@@ -1553,6 +1724,18 @@
       "CS2R": {
         "native": 1
       },
+      "DADD": {
+        "native": 5
+      },
+      "DFMA": {
+        "native": 9
+      },
+      "DMUL": {
+        "native": 5
+      },
+      "DSETP": {
+        "native": 5
+      },
       "EXIT": {
         "native": 1
       },
@@ -1576,6 +1759,17 @@
       },
       "FSETP": {
         "native": 5
+      },
+      "HADD2": {
+        "native": 5
+      },
+      "HFMA2": {
+        "native": 9,
+        "opaque": 9
+      },
+      "HFMA2.MMA": {
+        "native": 1,
+        "opaque": 17
       },
       "I2F": {
         "primitive": 40
@@ -1708,8 +1902,8 @@
       }
     },
     "status": {
-      "native": 174,
-      "opaque": 680,
+      "native": 213,
+      "opaque": 641,
       "primitive": 113
     }
   },
@@ -1719,6 +1913,37 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
+      "hadd2_F32__RC": "class selectors have no supported native combination",
+      "hadd2_F32__RCx": "class selectors have no supported native combination",
+      "hadd2_F32__RI": "unsupported class shape",
+      "hadd2_F32__RR": "class selectors have no supported native combination",
+      "hadd2_F32__RU": "class selectors have no supported native combination",
+      "hfma2_mma__RCR_norelu": "unsupported class shape",
+      "hfma2_mma__RCR_relu": "unsupported class shape",
+      "hfma2_mma__RCxR_norelu": "unsupported class shape",
+      "hfma2_mma__RCxR_relu": "unsupported class shape",
+      "hfma2_mma__RIR_norelu": "unsupported class shape",
+      "hfma2_mma__RIR_relu": "unsupported class shape",
+      "hfma2_mma__RRC_norelu": "unsupported class shape",
+      "hfma2_mma__RRC_relu": "unsupported class shape",
+      "hfma2_mma__RRCx_norelu": "unsupported class shape",
+      "hfma2_mma__RRCx_relu": "unsupported class shape",
+      "hfma2_mma__RRI_relu": "class selectors have no supported native combination",
+      "hfma2_mma__RRR_norelu": "unsupported class shape",
+      "hfma2_mma__RRR_relu": "unsupported class shape",
+      "hfma2_mma__RRU_norelu": "unsupported class shape",
+      "hfma2_mma__RRU_relu": "unsupported class shape",
+      "hfma2_mma__RUR_norelu": "unsupported class shape",
+      "hfma2_mma__RUR_relu": "unsupported class shape",
+      "hfma2_relu__RCR": "class selectors have no supported native combination",
+      "hfma2_relu__RCxR": "class selectors have no supported native combination",
+      "hfma2_relu__RIR": "class selectors have no supported native combination",
+      "hfma2_relu__RRC": "class selectors have no supported native combination",
+      "hfma2_relu__RRCx": "class selectors have no supported native combination",
+      "hfma2_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_relu__RRR": "class selectors have no supported native combination",
+      "hfma2_relu__RRU": "class selectors have no supported native combination",
+      "hfma2_relu__RUR": "class selectors have no supported native combination",
       "iadd3_x_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd3_x_noimm__RCR_RCR": "class selectors have no supported native combination",
       "iadd3_x_noimm__RCxR_RCxR": "class selectors have no supported native combination",
@@ -1844,6 +2069,18 @@
       "CS2R": {
         "native": 1
       },
+      "DADD": {
+        "native": 5
+      },
+      "DFMA": {
+        "native": 9
+      },
+      "DMUL": {
+        "native": 5
+      },
+      "DSETP": {
+        "native": 5
+      },
       "EXIT": {
         "native": 1
       },
@@ -1867,6 +2104,18 @@
       },
       "FSETP": {
         "native": 5
+      },
+      "HADD2": {
+        "native": 5,
+        "opaque": 5
+      },
+      "HFMA2": {
+        "native": 9,
+        "opaque": 9
+      },
+      "HFMA2.MMA": {
+        "native": 1,
+        "opaque": 17
       },
       "I2F": {
         "primitive": 40
@@ -1999,8 +2248,8 @@
       }
     },
     "status": {
-      "native": 176,
-      "opaque": 709,
+      "native": 215,
+      "opaque": 670,
       "primitive": 119
     }
   },
@@ -2010,6 +2259,37 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
+      "hadd2_F32__RC": "class selectors have no supported native combination",
+      "hadd2_F32__RCx": "class selectors have no supported native combination",
+      "hadd2_F32__RI": "unsupported class shape",
+      "hadd2_F32__RR": "class selectors have no supported native combination",
+      "hadd2_F32__RU": "class selectors have no supported native combination",
+      "hfma2_mma__RCR_norelu": "unsupported class shape",
+      "hfma2_mma__RCR_relu": "unsupported class shape",
+      "hfma2_mma__RCxR_norelu": "unsupported class shape",
+      "hfma2_mma__RCxR_relu": "unsupported class shape",
+      "hfma2_mma__RIR_norelu": "unsupported class shape",
+      "hfma2_mma__RIR_relu": "unsupported class shape",
+      "hfma2_mma__RRC_norelu": "unsupported class shape",
+      "hfma2_mma__RRC_relu": "unsupported class shape",
+      "hfma2_mma__RRCx_norelu": "unsupported class shape",
+      "hfma2_mma__RRCx_relu": "unsupported class shape",
+      "hfma2_mma__RRI_relu": "class selectors have no supported native combination",
+      "hfma2_mma__RRR_norelu": "unsupported class shape",
+      "hfma2_mma__RRR_relu": "unsupported class shape",
+      "hfma2_mma__RRU_norelu": "unsupported class shape",
+      "hfma2_mma__RRU_relu": "unsupported class shape",
+      "hfma2_mma__RUR_norelu": "unsupported class shape",
+      "hfma2_mma__RUR_relu": "unsupported class shape",
+      "hfma2_relu__RCR": "class selectors have no supported native combination",
+      "hfma2_relu__RCxR": "class selectors have no supported native combination",
+      "hfma2_relu__RIR": "class selectors have no supported native combination",
+      "hfma2_relu__RRC": "class selectors have no supported native combination",
+      "hfma2_relu__RRCx": "class selectors have no supported native combination",
+      "hfma2_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_relu__RRR": "class selectors have no supported native combination",
+      "hfma2_relu__RRU": "class selectors have no supported native combination",
+      "hfma2_relu__RUR": "class selectors have no supported native combination",
       "iadd3_x_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd3_x_noimm__RCR_RCR": "class selectors have no supported native combination",
       "iadd3_x_noimm__RCxR_RCxR": "class selectors have no supported native combination",
@@ -2143,6 +2423,18 @@
       "CS2R": {
         "native": 1
       },
+      "DADD": {
+        "native": 5
+      },
+      "DFMA": {
+        "native": 9
+      },
+      "DMUL": {
+        "native": 5
+      },
+      "DSETP": {
+        "native": 5
+      },
       "EXIT": {
         "native": 1
       },
@@ -2166,6 +2458,18 @@
       },
       "FSETP": {
         "native": 5
+      },
+      "HADD2": {
+        "native": 5,
+        "opaque": 5
+      },
+      "HFMA2": {
+        "native": 9,
+        "opaque": 9
+      },
+      "HFMA2.MMA": {
+        "native": 1,
+        "opaque": 17
       },
       "I2F": {
         "primitive": 40
@@ -2298,8 +2602,8 @@
       }
     },
     "status": {
-      "native": 176,
-      "opaque": 759,
+      "native": 215,
+      "opaque": 720,
       "primitive": 119
     }
   },
@@ -2314,6 +2618,38 @@
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
       "fmnmx_pred__RRR_RRR": "unsupported class shape",
       "fmnmx_pred__RUR_RUR": "unsupported class shape",
+      "hadd2_F32__RC": "class selectors have no supported native combination",
+      "hadd2_F32__RCx": "class selectors have no supported native combination",
+      "hadd2_F32__RI": "unsupported class shape",
+      "hadd2_F32__RR": "class selectors have no supported native combination",
+      "hadd2_F32__RU": "class selectors have no supported native combination",
+      "hfma2_mma__RCR": "unsupported class shape",
+      "hfma2_mma__RCxR": "unsupported class shape",
+      "hfma2_mma__RIR": "unsupported class shape",
+      "hfma2_mma__RRC": "unsupported class shape",
+      "hfma2_mma__RRCx": "unsupported class shape",
+      "hfma2_mma__RRI": "class selectors have no supported native combination",
+      "hfma2_mma__RRR": "unsupported class shape",
+      "hfma2_mma__RRU": "unsupported class shape",
+      "hfma2_mma__RUR": "unsupported class shape",
+      "hfma2_mma_relu__RCR": "unsupported class shape",
+      "hfma2_mma_relu__RCxR": "unsupported class shape",
+      "hfma2_mma_relu__RIR": "unsupported class shape",
+      "hfma2_mma_relu__RRC": "unsupported class shape",
+      "hfma2_mma_relu__RRCx": "unsupported class shape",
+      "hfma2_mma_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_mma_relu__RRR": "unsupported class shape",
+      "hfma2_mma_relu__RRU": "unsupported class shape",
+      "hfma2_mma_relu__RUR": "unsupported class shape",
+      "hfma2_relu__RCR": "class selectors have no supported native combination",
+      "hfma2_relu__RCxR": "class selectors have no supported native combination",
+      "hfma2_relu__RIR": "class selectors have no supported native combination",
+      "hfma2_relu__RRC": "class selectors have no supported native combination",
+      "hfma2_relu__RRCx": "class selectors have no supported native combination",
+      "hfma2_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_relu__RRR": "class selectors have no supported native combination",
+      "hfma2_relu__RRU": "class selectors have no supported native combination",
+      "hfma2_relu__RUR": "class selectors have no supported native combination",
       "iadd3_x_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd3_x_noimm__RCR_RCR": "class selectors have no supported native combination",
       "iadd3_x_noimm__RCxR_RCxR": "class selectors have no supported native combination",
@@ -2441,6 +2777,18 @@
       "CS2R": {
         "native": 1
       },
+      "DADD": {
+        "native": 5
+      },
+      "DFMA": {
+        "native": 9
+      },
+      "DMUL": {
+        "native": 5
+      },
+      "DSETP": {
+        "native": 5
+      },
       "EXIT": {
         "native": 1
       },
@@ -2465,6 +2813,17 @@
       },
       "FSETP": {
         "native": 5
+      },
+      "HADD2": {
+        "native": 5,
+        "opaque": 5
+      },
+      "HFMA2": {
+        "native": 9,
+        "opaque": 9
+      },
+      "HFMA2.MMA": {
+        "opaque": 18
       },
       "I2F": {
         "primitive": 40
@@ -2597,8 +2956,8 @@
       }
     },
     "status": {
-      "native": 178,
-      "opaque": 866,
+      "native": 216,
+      "opaque": 828,
       "primitive": 129
     }
   }

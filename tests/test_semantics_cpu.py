@@ -41,4 +41,28 @@ class SoftFloatTests(unittest.TestCase):
         self.assertEqual(softfloat.pack(Fraction(65504),16),0x7bff)
         self.assertEqual(softfloat.unpack(0x3ff0000000000000,64)[2],1)
 
+    def test_host_fp64(self):
+        rng=random.Random(64)
+        lib=ctypes.CDLL('libm.so.6');lib.fma.argtypes=[ctypes.c_double]*3;lib.fma.restype=ctypes.c_double
+        for _ in range(1000):
+            xs=[rng.getrandbits(64) for _ in range(3)]
+            a,b,c=[struct.unpack('<d',x.to_bytes(8,'little'))[0] for x in xs]
+            if not all(map(math.isfinite,(a,b,c))):continue
+            for op,reference in [('add',a+b),('mul',a*b),('fma',lib.fma(a,b,c))]:
+                expected=int.from_bytes(struct.pack('<d',reference),'little')
+                self.assertEqual(softfloat.arithmetic(op,xs if op=='fma' else xs[:2],64),expected)
+
+    def test_host_fp16(self):
+        rng=random.Random(16)
+        for _ in range(1000):
+            xs=[rng.getrandbits(16) for _ in range(3)]
+            a,b,c=[struct.unpack('<e',x.to_bytes(2,'little'))[0] for x in xs]
+            if not all(map(math.isfinite,(a,b,c))):continue
+            # Half inputs/products are exact in the host double. These random
+            # cases independently check narrowing, overflow and signed zero.
+            for op,reference in [('add',a+b),('fma',a*b+c)]:
+                try:expected=int.from_bytes(struct.pack('<e',reference),'little')
+                except OverflowError:expected=0xfc00 if reference<0 else 0x7c00
+                self.assertEqual(softfloat.arithmetic(op,xs if op=='fma' else xs[:2],16),expected)
+
 if __name__=='__main__':unittest.main()

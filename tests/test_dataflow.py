@@ -54,6 +54,20 @@ def expected(g, d, optimized=False):
         for role in o['role']:
             if role=='read' and o['name'] in unused:continue
             needed=cells
+            if optimized and role=='read' and span==1 and d.klass.mnemonic in ('HADD2','HFMA2'):
+                # An unmodified low-half broadcast can export the two-byte
+                # register slice directly. Modified inputs still read the word;
+                # two-register CX address inputs retain the entire pointer.
+                selectors={'Ra':('iswzA',),'Rb':('iswzB','iswzC_as_B'),
+                           'URb':('iswzB','iswzC_as_B'),'Rc':('iswzC','iswzB_as_C'),
+                           'URc':('iswzC','iswzB_as_C')}
+                if d.klass.mnemonic=='HADD2':selectors.update(Rc=('iswzB','iswzB_as_C'),URc=('iswzB','iswzB_as_C'))
+                selector=next((s for s in selectors.get(o['name'],()) if s in d.klass.operand_types),None)
+                if selector:
+                    atom=d.klass.operand_types[selector]
+                    if d.env.get(selector)==g.arch.enums[atom.type].get('H0_H0') and not any(
+                            d.env.get((o['name'],attr),0) for attr in ('absolute','negate')):
+                        needed=set(range(base+size*index,base+size*index+2))
             if optimized and role=='read' and o['name']=='Rb' and d.klass.mnemonic in ('STG','STS','STL'):
                 atom=d.klass.operand_types.get('sz');enums=g.arch.enums.get(atom.type,{}) if atom else {}
                 width=next((width for label,width in [('U8',1),('S8',1),('U16',2),('S16',2)]
