@@ -21,18 +21,18 @@ def expected(g, d, optimized=False):
     if optimized and d.klass.mnemonic in ('LDG','STG','LDL','STL') and d.env.get('e_desc')==0:
         # Implicit pointer forms use their address registers directly.
         unused.update(('Ra_URb','Ra_URc'))
-    if optimized and d.klass.mnemonic=='LOP3' and 'imm8' in d.env:
+    if optimized and d.klass.mnemonic in ('LOP3','ULOP3') and 'imm8' in d.env:
         lut=d.env['imm8']
-        for bit,names in [(2,('Ra','Sa')),(1,('Rb','Sb')),(0,('Rc','Sc'))]:
+        for bit,names in [(2,('Ra','Sa','URa')),(1,('Rb','Sb','URb')),(0,('Rc','Sc','URc'))]:
             # A truth table reads an input only if toggling it changes a result.
             if all((lut>>v&1)==(lut>>(v^(1<<bit))&1) for v in range(8)):
                 unused.update(names)
-        if d.env.get('Pu')==7:unused.add('Pp')
-    if optimized and d.klass.mnemonic in ('ISETP','FSETP'):
-        name='icmp' if d.klass.mnemonic=='ISETP' else 'fcomp'
+        if d.env.get('Pu',d.env.get('UPu'))==7:unused.update(('Pp','UPp'))
+    if optimized and d.klass.mnemonic in ('ISETP','UISETP','FSETP'):
+        name='icmp' if d.klass.mnemonic in ('ISETP','UISETP') else 'fcomp'
         operand=d.klass.operand_types.get(name)
         if operand and d.env.get(name) in {g.arch.enums[operand.type].get(n) for n in ('F','T')}:
-            unused.update(('Ra','Sa','Rb','Sb','URb'))
+            unused.update(('Ra','Sa','Rb','Sb','URa','URb'))
     # An unused compound value also drops reads of its address registers.
     for atom in d.klass.format:
         if atom.name not in unused or atom.type not in ('C','CX','A','DESC'):continue

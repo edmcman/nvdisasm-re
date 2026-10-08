@@ -2,7 +2,7 @@
 
 The generator preserves register spans and predicates for every class. Value semantics
 add executable scalar values and native overrides or named runtime primitives
-for 39 opcode families. The test harness can load cubin text and run independent
+for 51 opcode families. The test harness can load cubin text and run independent
 threads as whole kernels. The general Ghidra loader, warp scheduler, and
 concurrent memory model remain separate work.
 
@@ -46,7 +46,7 @@ has value semantics. `primitive` means the runtime validates and executes the
 operation or rejects an unsupported selector/context. `opaque` means the md's
 register effects, registers and immediates are passed without asserting a result.
 The coverage ledger's architecture-wide `hardware_verified` flag remains false:
-GPU comparisons currently cover the 23 whole-kernel SM89 fixtures recorded in
+GPU comparisons currently cover the 28 whole-kernel SM89 fixtures recorded in
 [verification.json](verification.json), rather than every class and selector.
 
 IMAD.HI adds the 64-bit addend before selecting the high word; IMAD.WIDE
@@ -69,6 +69,21 @@ and supported BRA/EXIT/CALL/RET forms. Common supported restrictions include:
   modes, and 256-bit memory variants retain opaque calls.
 - CALL handles NOINC forms and RET handles absolute NODEC forms. Branch-stack
   changes and reconvergence-sensitive variants require additional state.
+
+Mixed ordinary/uniform register forms of IMAD, IADD3, ISETP and low LEA use the
+same native calculations. UIADD3, UIMAD, USHF, ULEA, UISETP, ULOP3, USEL and
+UMOV reuse those emitters with uniform register and predicate names. Ordinary
+32-bit IADD and VIADD are native; packed/saturating VIADD and carry modes retain
+opaque fallbacks. Uniform wide views follow the same zero-slot restrictions.
+PRMT emits native byte selection for IDX (including sign replication), F4E,
+B4E, RC8, RC16, ECL and ECR, in SASS source order: data A, selector, data B.
+
+FSEL selects the modified floating input, with optional .FTZ. FMNMX implements
+ordinary min/max, including .FTZ: a numeric input wins over NaN, two NaNs yield
+`0x7fffffff`, and equal signed zeros yield -0 for min or +0 for max. Predicate
+true selects min; false selects max. .NAN, .XORSIGN and predicate-result .IS_A forms remain opaque. The GPU checks
+compare FSEL and ordinary FMNMX (including FMNMX.FTZ) bits exactly on SM89.
+FSEL.FTZ and other architectures have emulator coverage.
 
 FADD/FMUL/FFMA/FSETP are native p-code (`f+`, `f*`, `f<`, `nan`, ...) for
 round-to-nearest, including .FTZ (denormal inputs/results flushed to signed zero),
@@ -143,12 +158,12 @@ not a Python reimplementation of the instruction dispatcher. `GHIDRA_PY`
 selects the pyghidra Python interpreter. In a restricted environment, set
 `XDG_CONFIG_HOME` and `XDG_CACHE_HOME` to writable scratch directories.
 
-The CUDA Driver API oracle compiles 23 SM89 kernels and executes their actual
+The CUDA Driver API oracle compiles 28 SM89 kernels and executes their actual
 `.text` through Ghidra's normal instruction stepping, from the prologue through
 EXIT. It compares 128 random/edge input vectors per kernel (four blocks of 32),
 including NaNs, infinities, denormals, signed zero, and integer boundaries.
 Target mnemonics must both appear in cuobjdump output and execute in the emulator.
-All 2,944 output comparisons passed on the RTX 4070 Laptop GPU.
+All 3,584 output comparisons passed on the RTX 4070 Laptop GPU.
 
 The cubin's PARAM_CBANK and KPARAM_INFO records supply parameter offsets and
 sizes. For these SM89 kernels, bank 0 parameters begin at 0x160, with the two
@@ -159,10 +174,11 @@ cells private to each thread, so no cross-thread communication is modeled.
 Kernel PC bounds and an instruction budget reject fallthrough and infinite loops.
 
 Coverage includes integer arithmetic, IMAD low/high/wide, LOP3, SHF, LEA,
-predicates/selects, PRMT, FADD/FMUL/FFMA, FSETP, F2I.TRUNC.NTZ, I2FP, moves,
+predicates/selects, PRMT, FADD/FMUL/FFMA, FSEL, FMNMX, FSETP, F2I.TRUNC.NTZ, I2FP, moves,
 uniform/ordinary constant loads, global/shared/local loads and stores, and
 predicated branching with BSSY/BSYNC. FADD.FTZ, FMUL.RZ and FFMA.SAT have dedicated
-fixtures. PRMT uses SASS operand order: data A, selector, data B.
+fixtures. FSEL and FMNMX min/max have dedicated fixtures, including FMNMX.FTZ
+and mixed NaN/signed-zero/denormal pairs.
 SM89 F2I.TRUNC.NTZ to S32 maps NaN to zero and clamps infinities/overflow;
 other NTZ combinations still reject until verified.
 

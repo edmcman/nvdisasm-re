@@ -11,7 +11,9 @@ from sass import ir,softfloat
 
 
 def cases(sm):
-    available={k.name for k in ir.load(sm).classes};out=[]
+    arch=ir.load(sm)
+    classes={k.name:k for k in arch.classes if not k.alternate}
+    available=set(classes);out=[]
     def add(cls,fields,registers,expected,**extras):
         if cls not in available:return
         if sm in ('SM75','SM80') and cls in ('imad_wide__RRC_RRC','imad_hi__RRC_RRC'):
@@ -21,7 +23,7 @@ def cases(sm):
             # results. Its convention is intentionally an explicit fallback.
             expected=dict(error='sass_opaque_IMNMX')
         request=dict(word=encode(sm,cls,**fields),registers=registers,observe=[n for n in expected if not n.startswith("__")],**extras)
-        if '__max_ops' in expected:request['inspect_pcode']=True
+        if '__max_ops' in expected or '__native' in expected:request['inspect_pcode']=True
         out.append((cls,request,expected))
     rng=random.Random(7)
     for i in range(20):
@@ -36,6 +38,65 @@ def cases(sm):
         add('imnmx__RRR_RRR',dict(Rd=rd,Ra=2,Rb=4,Pp=0,fmt='U32'),dict(regs,P0=1),{f'R{rd}':min(a,b)})
         add('lop3_lut__RRR_RRR',dict(common,imm8=0x96,Pp='PT'),regs,{f'R{rd}':a^b^c})
         add('lea_lo_noimm__RRR_RRR',dict(Rd=rd,Ra=2,Rb=4,scaleU5=i%8),regs,{f'R{rd}':((a<<(i%8))+b)&0xffffffff})
+    # Mixed register banks and uniform aliases retain original md operand names.
+    for i in range(12):
+        a,b,c=[rng.getrandbits(32) for _ in range(3)]
+        regs=dict(R2=a,R4=b,R6=c,UR2=a,UR4=b,UR6=c)
+        add('imad__RUR_RUR',dict(Rd=2,Ra=2,URb=4,Rc=6,fmt='U32'),regs,dict(R2=(a*b+c)&0xffffffff))
+        add('imad__RRU_RRU',dict(Rd=2,Ra=2,Rb=4,URc=6,fmt='U32'),regs,dict(R2=(a*b+c)&0xffffffff))
+        add('iadd3_noimm__RUR_RUR',dict(Rd=2,Ra=2,URb=4,Rc=6),regs,dict(R2=(a+b+c)&0xffffffff))
+        add('lea_lo_noimm__RUR_RUR',dict(Rd=2,Ra=2,URb=4,scaleU5=3),regs,dict(R2=((a<<3)+b)&0xffffffff))
+        add('isetp__RUR_RUR_noEX',dict(Pu=0,Pv=1,Ra=2,URb=4,Pp='PT',icmp='LT',bop='AND',fmt='U32'),regs,dict(P0=int(a<b),P1=int(a>=b)))
+        common=dict(URd=2,URa=2,URb=4,URc=6)
+        add('uiadd3__URURUR_URURUR',common,regs,dict(UR2=(a+b+c)&0xffffffff,__max_ops=2))
+        add('uimad__URURUR_URURUR',dict(common,fmt='U32'),regs,dict(UR2=(a*b+c)&0xffffffff,__max_ops=2))
+        add('ulop3_lut__URURUR_URURUR',dict(common,imm8=0x96,UPp='UPT'),regs,dict(UR2=a^b^c))
+        add('ulea_lo_noimm__URURUR_URURUR',dict(URd=2,URa=2,URb=4,scaleU5=3),regs,dict(UR2=((a<<3)+b)&0xffffffff))
+        add('ushf__URURUR_URURUR',dict(common,fmt='U32',dir='R',cw='W',hilo='LO'),regs,dict(UR2=(((c<<32)|a)>>(b&31))&0xffffffff))
+        add('uisetp__URURUR_URURUR',dict(UPu=0,UPv=1,URa=2,URb=4,UPp=0,icmp='LT',bop='AND',fmt='U32'),dict(regs,UP0=1),dict(UP0=int(a<b),UP1=int(a>=b)))
+        add('usel__URURUR_UUU',dict(URd=2,URa=2,URb=4,UPp=0),dict(regs,UP0=i&1),dict(UR2=a if i&1 else b))
+        add('umov__UR',dict(URd=2,URb=4),regs,dict(UR2=b,__max_ops=1))
+        add('umov__UI',dict(URd=2,Sb=b),{},dict(UR2=b,__max_ops=1))
+        if 'viadd__RRR_RRR' in classes:
+            fmt=arch.enums[classes['viadd__RRR_RRR'].operand_types['fmt'].type]
+            add('viadd__RRR_RRR',dict(Rd=2,Ra=2,Rb=4,fmt='U32' if 'U32' in fmt else '32'),regs,dict(R2=(a+b)&0xffffffff))
+        add('iadd_noimm__RRR_RRR',dict(Rd=2,Ra=2,Rb=4),regs,dict(R2=(a+b)&0xffffffff))
+    for cls,fields,expected in [
+        ('uiadd3_x__URURUR_URURUR',dict(URd=8,URa=2,URb=4,URc=6),'sass_opaque_UIADD3'),
+        ('uimad_x__URURUR_URURUR',dict(URd=8,URa=2,URb=4,URc=6),'sass_opaque_UIMAD'),
+        ('ulea_lo_noimm_x__URURUR_URURUR',dict(URd=8,URa=2,URb=4,scaleU5=3),'sass_opaque_ULEA')]:
+        add(cls,fields,{},dict(error=expected))
+    # Exhaust every byte selector, including sign replication and overlapping Rd.
+    for mode in ('IDX','F4E','B4E','RC8','RC16','ECL','ECR'):
+        for selector in range(16):
+            a,c=0x80ff017f,0x55aa0081;data=a|(c<<32);want=0
+            sel=selector*0x1111 if mode=='IDX' else selector
+            for i in range(4):
+                pick=(sel>>(4*i)&15) if mode=='IDX' else dict(F4E=(sel&3)+i,B4E=((sel&3)-i)&7,RC8=sel&3,RC16=((sel&1)*2)+(i&1),ECL=max(i,sel&3),ECR=min(i,sel&3))[mode]
+                byte=data>>(8*(pick&7))&255
+                if mode=='IDX' and pick&8:byte=255 if byte&128 else 0
+                want|=byte<<(8*i)
+            add('prmt__RRR_RRR',dict(Rd=2,Ra=2,Rb=4,Rc=6,pmode=mode),dict(R2=a,R4=sel,R6=c),dict(R2=want,__native=True))
+    import struct,math
+    edges=[0,0x80000000,1,0x80000001,0x007fffff,0x3f800000,0xbf800000,0x7f800000,0xff800000,0x7fc00000,0x7f800001,0xffc01234]
+    for a in edges:
+        for c in edges:
+            for pred in (0,1):
+                for ftz in (False,True):
+                    def flush(v):return v&0x80000000 if ftz and v&0x7f800000==0 else v
+                    x,y=flush(a),flush(c)
+                    fields=dict(Rd=2,Ra=2,Rb=4,Pp=0,**({'ftz':'FTZ'} if ftz else {}))
+                    regs=dict(R2=a,R4=c,P0=pred)
+                    add('fsel__RRR_RRR',fields,regs,dict(R2=x if pred else y,**({'__native':True} if a==c==0 else {})))
+                    xf,yf=[struct.unpack('<f',v.to_bytes(4,'little'))[0] for v in (x,y)]
+                    if math.isnan(xf):want=0x7fffffff if math.isnan(yf) else y
+                    elif math.isnan(yf):want=x
+                    elif xf==yf==0:want=(x|y) if pred else (x&y)
+                    else:want=x if (xf<yf)==bool(pred) else y
+                    add('fmnmx__RRR_RRR',fields,regs,dict(R2=want,**({'__native':True} if a==c==0 else {})))
+    add('fmnmx_pred__RRR_RRR',dict(Rd=8,Pu=0,Ra=2,Rb=4,Pp='PT'),{},dict(error='sass_opaque_FMNMX'))
+    if 'nan' in classes['fmnmx__RRR_RRR'].operand_types:
+        add('fmnmx__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Pp='PT',nan='NAN'),{},dict(error='sass_opaque_FMNMX'))
     add('mov__RI',dict(Rd=3,Sb=0xdeadbeef,PixMaskU04=15),{},dict(R3=0xdeadbeef,__max_ops=1))
     add('mov__RR',dict(Rd=3,Rb=2,PixMaskU04=15),dict(R2=0xdeadbeef),dict(R3=0xdeadbeef,__max_ops=1))
     add('mov__RR',dict(Rd=2,Rb=2,PixMaskU04=15),dict(R2=0xdeadbeef),dict(R2=0xdeadbeef))
@@ -222,6 +283,9 @@ def run(sm='SM89'):
             if '__counter' in expected:ok=ok and result.get('counter')==expected['__counter']
             if '__memory' in expected:ok=ok and bool(result.get('memory')) and result['memory'][0]['hex']==expected['__memory']
             if '__events' in expected:ok=ok and len(result.get('events',[]))==expected['__events']
+            if '__native' in expected:
+                ops=result.get('pcode_ops',[])
+                ok=ok and bool(ops) and 'CALLOTHER' not in ops
             if '__max_ops' in expected:
                 ops=result.get('pcode_ops',[])
                 ok=ok and bool(ops) and len(ops)<=expected['__max_ops'] and not set(ops)&{'CBRANCH','CALLOTHER'}

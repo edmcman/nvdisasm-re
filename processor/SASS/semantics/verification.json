@@ -22,40 +22,40 @@
   },
   "dataflow": {
     "SM100": {
-      "passed": 30856,
-      "total": 30856
+      "passed": 12856,
+      "total": 12856
     },
     "SM101": {
       "passed": 10218,
       "total": 10218
     },
     "SM103": {
-      "passed": 30762,
-      "total": 30762
+      "passed": 12762,
+      "total": 12762
     },
     "SM120": {
-      "passed": 31162,
-      "total": 31162
+      "passed": 13162,
+      "total": 13162
     },
     "SM75": {
-      "passed": 29825,
-      "total": 29825
+      "passed": 11825,
+      "total": 11825
     },
     "SM80": {
-      "passed": 29733,
-      "total": 29733
+      "passed": 11733,
+      "total": 11733
     },
     "SM86": {
-      "passed": 30163,
-      "total": 30163
+      "passed": 12163,
+      "total": 12163
     },
     "SM89": {
-      "passed": 30714,
-      "total": 30714
+      "passed": 12714,
+      "total": 12714
     },
     "SM90": {
-      "passed": 32619,
-      "total": 32619
+      "passed": 14619,
+      "total": 14619
     }
   },
   "dataflow_corpus": {
@@ -83,11 +83,11 @@
   "gpu": {
     "architecture": "SM89",
     "block_size": 32,
-    "compiled_kernels": 23,
-    "cubin_sha256": "d89502590279ed192c533eae6023ffa856e89296321cef964c58680a42d542b7",
+    "compiled_kernels": 28,
+    "cubin_sha256": "6e4e4822c4c38c0f94b90b99b005508dfa8ec6c271d7a80075b2458398d9871a",
     "device": "NVIDIA GeForce RTX 4070 Laptop GPU",
     "driver_version": "580.178.04",
-    "emulated_instructions": 93784,
+    "emulated_instructions": 104492,
     "exclusions": [
       "warp collectives",
       "cross-thread shared memory and memory ordering",
@@ -357,6 +357,92 @@
       {
         "executed_mnemonics": [
           "EXIT",
+          "FSEL",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "ISETP.NE.U32.AND",
+          "LDG.E",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "fsel",
+        "passed": 128,
+        "steps": 2560
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "FMNMX",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "fmin",
+        "passed": 128,
+        "steps": 2048
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "FMNMX",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "fmax",
+        "passed": 128,
+        "steps": 2048
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "FMNMX.FTZ",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "fmin_ftz",
+        "passed": 128,
+        "steps": 2048
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "FMNMX.FTZ",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "fmax_ftz",
+        "passed": 128,
+        "steps": 2048
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
           "I2FP.F32.S32",
           "IMAD",
           "IMAD.WIDE.U32",
@@ -482,7 +568,7 @@
         ],
         "family": "branch",
         "passed": 128,
-        "steps": 4568
+        "steps": 4524
       },
       {
         "executed_mnemonics": [
@@ -503,10 +589,10 @@
         "steps": 1920
       }
     ],
-    "floating_tolerance": "bit-exact except NaN payload/sign",
+    "floating_tolerance": "bit-exact FSEL/FMNMX; other floating arithmetic except NaN payload/sign",
     "hardware_verified": true,
     "mode": "whole-kernel",
-    "passed": 2944,
+    "passed": 3584,
     "sandbox": "disabled for CUDA device access",
     "scope": "compiled whole kernels from entry through EXIT; tested scalar selectors and independent threads",
     "seed": 1,
@@ -720,41 +806,100 @@
   },
   "semantics": {
     "SM100": {
-      "passed": 782,
-      "total": 782
+      "passed": 4173,
+      "total": 4173
     },
     "SM101": {
-      "passed": 782,
-      "total": 782
+      "passed": 4161,
+      "total": 4161
     },
     "SM103": {
-      "passed": 782,
-      "total": 782
+      "passed": 4173,
+      "total": 4173
     },
     "SM120": {
-      "passed": 782,
-      "total": 782
+      "passed": 4185,
+      "total": 4185
     },
     "SM75": {
-      "passed": 697,
-      "total": 697
+      "passed": 4062,
+      "total": 4062
     },
     "SM80": {
-      "passed": 794,
-      "total": 794
+      "passed": 4172,
+      "total": 4172
     },
     "SM86": {
-      "passed": 795,
-      "total": 795
+      "passed": 4173,
+      "total": 4173
     },
     "SM89": {
-      "passed": 801,
-      "total": 801
+      "passed": 4179,
+      "total": 4179
     },
     "SM90": {
-      "passed": 791,
-      "total": 791
+      "passed": 4182,
+      "total": 4182
     }
+  },
+  "sleigh_build": [
+    {
+      "arch": "SM75",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 6208948
+    },
+    {
+      "arch": "SM80",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 7216722
+    },
+    {
+      "arch": "SM86",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 7353363
+    },
+    {
+      "arch": "SM89",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 7611053
+    },
+    {
+      "arch": "SM90",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 8465905
+    },
+    {
+      "arch": "SM100",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 6364097
+    },
+    {
+      "arch": "SM101",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 6164406
+    },
+    {
+      "arch": "SM103",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 6373157
+    },
+    {
+      "arch": "SM120",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 6528865
+    }
+  ],
+  "step2": {
+    "dataflow_real_sample_per_arch": 2000,
+    "date": "2026-10-08",
+    "emulation_only": "uniform aliases on other architectures; FSEL.FTZ",
+    "fallbacks": [
+      "carry modes",
+      "packed/saturating VIADD",
+      "FMNMX.NAN/.XORSIGN/.IS_A"
+    ],
+    "hardware_scope": "SM89 FSEL and FMNMX ordinary min/max including FMNMX.FTZ; exact bits",
+    "operation_families": 51
   },
   "workspace_regenerated": {
     "compiled_languages_match_tested_build": true,

@@ -6,6 +6,11 @@ This module does not equate PTX syntax with undocumented SASS variants.
 from dataclasses import dataclass
 
 OPERATION_FAMILIES = set('IADD3 IMAD LOP3 SHF LEA IABS IMNMX ISETP SEL PRMT MOV S2R CS2R LDC FADD FMUL FFMA FSETP F2I I2F I2FP MUFU LDG STG LDS STS LDL STL BRA EXIT CALL RET BSSY BSYNC BAR SHFL VOTE ULDC NOP'.split())
+ALIASES = dict(UIADD3='IADD3', UIMAD='IMAD', USHF='SHF', ULEA='LEA',
+               UISETP='ISETP', ULOP3='LOP3', USEL='SEL', UMOV='MOV', VIADD='IADD')
+OPERATION_FAMILIES.update(ALIASES)
+OPERATION_FAMILIES.update(('IADD','FSEL','FMNMX'))
+
 PRIMITIVES = set('FADD FMUL FFMA FSETP F2I I2F I2FP MUFU PRMT SHFL VOTE BAR BSSY BSYNC'.split())
 
 @dataclass(frozen=True)
@@ -49,7 +54,7 @@ def dispatch(b,fallback='opaque'):
 def emit(b):
     op=b.k.mnemonic
     if op not in REGISTRY:return 'opaque','outside implemented operation families'
-    fn=globals().get('emit_'+op)
+    fn=globals().get('emit_'+ALIASES.get(op,op))
     if op in PRIMITIVES and not (fn and fn(b,check=True)):
         constrain_banks(b)
         b.body+=b.call('prim')
@@ -61,10 +66,14 @@ def emit(b):
     for name in b.values:
         if '@' in name and name.split('@')[1] not in ('absolute','negate','invert','not'):
             b.allow(name,lambda v:v==0)
+    initial_body=list(b.body)
     fn(b,check=False)
     if op in PRIMITIVES:
         dispatch(b,'prim')
         return 'native','decode-time selector guards fall back to runtime primitives'
+    if not b.native_supported:
+        b.body=initial_body
+        return 'opaque','class selectors have no supported native combination'
     dispatch(b)
     return 'native','decode-time selector guards retain complete opaque fallbacks'
 
@@ -87,14 +96,21 @@ def default(b,name):
 
 
 def operands(b,*groups):
-    return [next((n for n in group.split('/') if n in b.values),None) for group in groups]
+    # Keep original md names so selector constraints and attribute lookup use the
+    # actual encoding, including mixed ordinary/uniform register classes.
+    return [next((n for n in group.split('/')+['U'+n for n in group.split('/')]
+                  if n in b.values),None) for group in groups]
+
+
+def output(b,name='Rd'):
+    return b.outputs.get(name,b.outputs.get('U'+name))
 
 
 def emit_MOV(b,check=False):
     src=operands(b,'Sb/Sa/Ra/Rb/URa/URb')[0]
-    if check:return src is not None and 'Rd' in b.outputs
+    if check:return src is not None and output(b) is not None
     if 'PixMaskU04' in b.values:b.allow('PixMaskU04',lambda v:v==15)
-    dst=b.outputs['Rd'];b.body.append(f'{dst.symbol} = {b.cast(src,dst.size)};')
+    dst=output(b);b.body.append(f'{dst.symbol} = {b.cast(src,dst.size)};')
 
 def emit_NOP(b,check=False):
     return not b.outputs if check else None
@@ -114,38 +130,39 @@ def emit_ULDC(b,check=False):
 
 def emit_IABS(b,check=False):
     src=operands(b,'Sb/Rb/Ra')[0]
-    if check:return src is not None and 'Rd' in b.outputs and b.outputs['Rd'].size==4
+    if check:return src is not None and output(b) is not None and output(b).size==4
     v=b.flag(src);t=b.local(4,v)
-    b.body += [f'if ({t.symbol} s>= 0) goto <nonnegative>;',f'{t.symbol} = -{t.symbol};','<nonnegative>',f'{b.outputs["Rd"].symbol} = {t.symbol};']
+    b.body += [f'if ({t.symbol} s>= 0) goto <nonnegative>;',f'{t.symbol} = -{t.symbol};','<nonnegative>',f'{output(b).symbol} = {t.symbol};']
 
 
 def emit_SEL(b,check=False):
     a,c,p=operands(b,'Ra/Sa','Rb/Sb','Pp')
-    if check:return all((a,c,p)) and 'Rd' in b.outputs
+    if check:return all((a,c,p)) and output(b) is not None
     av,cv,pv=b.flag(a),b.flag(c),b.flag(p)
-    t=b.local(b.outputs['Rd'].size,av)
-    b.body += [f'if ({pv} != 0) goto <selected>;',f'{t.symbol} = {cv};','<selected>',f'{b.outputs["Rd"].symbol} = {t.symbol};']
+    t=b.local(output(b).size,av)
+    b.body += [f'if ({pv} != 0) goto <selected>;',f'{t.symbol} = {cv};','<selected>',f'{output(b).symbol} = {t.symbol};']
 
 
 def emit_IMAD(b,check=False):
     a,c,d=operands(b,'Ra/Sa','Rb/Sb','Rc/Sc')
     if check:
-        if not (all((a,c,d)) and 'Rd' in b.outputs and all(b.values[n].size<=8 for n in (a,c,d))):return False
+        if not (all((a,c,d)) and output(b) is not None and all(b.values[n].size<=8 for n in (a,c,d))):return False
         mode=b.k.operand_types.get('wide')
         labels=b.g.arch.enums.get(mode.type,{}) if mode else {}
         if set(labels)&{'HI','WIDE'} and b.k.operand_types[d].type in ('C','CX') and b.values[d].size<8:
             b.unsupported_reason='32-bit constant addend extension for HI/WIDE is unverified'
             return False
         return True
+    if 'X' in b.values:b.reject()
     if 'x' in b.values:require(b,'x',['nox','NOX']) # unresolved carry modes stay opaque
-    if any(n in b.values for n in ('Pp','Pq')):b.reject()
+    if any(n in b.values for n in ('Pp','Pq','UPp','UPq')):b.reject()
     require(b,'fmt',['U32','S32'])
     for name in b.outputs:
-        if name!='Rd':
+        if name not in ('Rd','URd'):
             b.allow(name,lambda v:v==7)
     aa,bb=b.flag(a),b.flag(c)
     wide=b.k.operand_types.get('wide');labels=b.g.arch.enums.get(wide.type,{}) if wide else {}
-    mode=next(iter(labels),'LO');rd=b.outputs['Rd']
+    mode=next(iter(labels),'LO');rd=output(b)
     if mode=='LO':
         # Low-word multiplication and addition are independent of signedness.
         product=b.local(4,f'{aa} * {bb}')
@@ -164,28 +181,39 @@ def emit_IMAD(b,check=False):
         result=b.local(8,f'{product.symbol} + {rc}')
         if mode=='HI':result=b.local(8,f'{result.symbol} >> 32')
     for name,out in b.outputs.items():
-        if name=='Rd':b.body.append(f'{out.symbol} = {result.symbol}{":4" if result.size>out.size else ""};')
+        if name in ('Rd','URd'):b.body.append(f'{out.symbol} = {result.symbol}{":4" if result.size>out.size else ""};')
 
 
 def emit_IADD3(b,check=False):
     a,c,d=operands(b,'Ra/Sa','Rb/Sb','Rc/Sc')
-    if check:return all((a,c,d)) and 'Rd' in b.outputs and all(b.values[n].size==4 for n in (a,c,d))
+    if check:return all((a,c,d)) and output(b) is not None and all(b.values[n].size==4 for n in (a,c,d))
     # .X's carry-input convention is deliberately not guessed.
-    if any(n in b.values for n in ('Pp','Pq')):b.reject()
+    if 'X' in b.values:b.reject()
+    if any(n in b.values for n in ('Pp','Pq','UPp','UPq')):b.reject()
     aa,bb,cc=(b.flag(n) for n in (a,c,d))
     first=b.local(4,f'{aa} + {bb}')
     total=b.local(4,f'{first.symbol} + {cc}')
     # Predicate/carry conventions require independent SASS evidence. Only PT
     # destinations are handled here; other cases go through the complete fallback.
     for name,out in b.outputs.items():
-        if name!='Rd':
+        if name not in ('Rd','URd'):
             b.allow(name,lambda v:v==7)
-    b.body.append(f'{b.outputs["Rd"].symbol} = {total.symbol};')
+    b.body.append(f'{output(b).symbol} = {total.symbol};')
+
+
+def emit_IADD(b,check=False):
+    a,c=operands(b,'Ra/Sa','Rb/Sb')
+    if check:return all((a,c)) and output(b) is not None and output(b).size==4 and all(b.values[n].size==4 for n in (a,c))
+    require(b,'fmt',['32','_32','U32','S32']);require(b,'isat',[default(b,'isat')])
+    if any(n in b.values for n in ('X','Pp','UPp')):b.reject()
+    for name in b.outputs:
+        if name not in ('Rd','URd'):b.allow(name,lambda v:v==7)
+    b.body.append(f'{output(b).symbol} = {b.flag(a)} + {b.flag(c)};')
 
 
 def emit_LOP3(b,check=False):
     a,c,d,p=operands(b,'Ra/Sa','Rb/Sb','Rc/Sc','Pp');lut=operands(b,'imm8')[0]
-    if check:return all((a,c,d,lut)) and 'Rd' in b.outputs
+    if check:return all((a,c,d,lut)) and output(b) is not None
     require(b,'pop',['POR','PAND'])
     av,bv,cv=(b.flag(n) for n in (a,c,d))
     def logic(bits,inputs):
@@ -204,8 +232,8 @@ def emit_LOP3(b,check=False):
         if high==full:return f'({v}) | ({lo})'
         return f'(({v}) & ({hi})) | (~({v}) & ({lo}))'
     result=b.select(lut,{v:logic(v,(av,bv,cv)) for v in range(256)},4)
-    rd=b.outputs['Rd'].symbol
-    predicate=next((name for name in b.outputs if name!='Rd'),None)
+    rd=output(b).symbol
+    predicate=next((name for name in b.outputs if name not in ('Rd','URd')),None)
     plain=f'{rd} = {result};'
     if predicate is None:
         b.body.append(plain);return
@@ -232,9 +260,35 @@ def emit_LOP3(b,check=False):
     b.refs.append(('sub',table));b.body.append(f'build {table};')
 
 
+def emit_PRMT(b,check=False):
+    a,selector,c=operands(b,'Ra/Sa','Rb/Sb','Rc/Sc')
+    if check:return all((a,selector,c)) and output(b) is not None and output(b).size==4 and all(b.values[n].size==4 for n in (a,selector,c))
+    modes=enum_cases(b,'pmode',['IDX','F4E','B4E','RC8','RC16','ECL','ECR'])
+    data=b.expression(8,f'zext({b.flag(a)}) | (zext({b.flag(c)}) << 32)')
+    sel=b.flag(selector);cases={}
+    for mode,value in modes.items():
+        code='local r:4 = 0; '
+        for i in range(4):
+            pick={'IDX':f'({sel} >> {4*i}) & 15', 'F4E':f'({sel} & 3) + {i}',
+                  'B4E':f'(({sel} & 3) - {i}) & 7', 'RC8':f'{sel} & 3',
+                  'RC16':f'(({sel} & 1) * 2) + {i&1}',
+                  'ECL':f'{sel} & 3', 'ECR':f'{sel} & 3'}[mode]
+            code+=f'local p{i}:4 = {pick}; '
+            if mode in ('ECL','ECR'):
+                oper='>=' if mode=='ECL' else '<='
+                code+=f'if (p{i} {oper} {i}) goto <pick{i}>; p{i} = {i}; <pick{i}> '
+            code+=f'local chunk{i}:8 = {data.symbol} >> ((p{i} & 7) * 8); local byte{i}:4 = chunk{i}:4 & 255; '
+            if mode=='IDX':
+                code+=f'if ((p{i} & 8) == 0) goto <signbyte{i}>; byte{i} = 255 * zext((byte{i} & 128) != 0); <signbyte{i}> '
+            code+=f'r = r | (byte{i} << {8*i}); '
+        cases[(value,)]=code+'export r;'
+    result=b.select_code(('pmode',),cases)
+    b.body.append(f'{output(b).symbol} = {result};')
+
+
 def emit_SHF(b,check=False):
     a,c,d=operands(b,'Ra/Sa','Rb/Sb','Rc/Sc')
-    if check:return all((a,c,d)) and 'Rd' in b.outputs
+    if check:return all((a,c,d)) and output(b) is not None
     require(b,'fmt',['U32','S32','U64','S64']);require(b,'dir',['L','R']);require(b,'cw',['C','W']);require(b,'hilo',['LO','HI'])
     av,shift,cv=(b.flag(n) for n in (a,c,d))
     enums={n:b.g.arch.enums[b.k.operand_types[n].type] for n in ('fmt','dir','cw','hilo')}
@@ -260,7 +314,7 @@ def emit_SHF(b,check=False):
                 code+='export t;'
                 cases[(enums['fmt'][fmt],enums['dir'][direction],enums['hilo'][half])]=code
     result=b.select_code(('fmt','dir','hilo'),cases)
-    b.body.append(f'{b.outputs["Rd"].symbol} = {result}:4;')
+    b.body.append(f'{output(b).symbol} = {result}:4;')
 
 
 def comparison(b,a,c,name='icmp'):
@@ -322,11 +376,11 @@ def float_result(b,mode,flush,core,extra=None):
                 key=tuple(v for n,v in ((mode,fv),('sat',sv),(extra[0],ev)) if n in names)
                 cases[key]=code
     table=b.select_code(names,cases)
-    b.body.append(f'{b.outputs["Rd"].symbol} = {table};')
+    b.body.append(f'{output(b).symbol} = {table};')
 
 def float_shape(b,*groups):
     names=operands(b,*groups)
-    return all(names) and 'Rd' in b.outputs and b.outputs['Rd'].size==4 and all(b.values[n].size==4 for n in names) and names
+    return all(names) and output(b) is not None and output(b).size==4 and all(b.values[n].size==4 for n in names) and names
 
 def emit_FADD(b,check=False):
     names=float_shape(b,'Ra/Sa','Rc/Sc/URc')
@@ -358,9 +412,43 @@ def emit_FFMA(b,check=False):
                    'local r:4 = float2float(x f* y f+ z);')
     float_result(b,mode,flush,core)
 
+def emit_FSEL(b,check=False):
+    names=float_shape(b,'Ra/Sa','Rb/Sb')
+    p=operands(b,'Pp')[0]
+    if check:return bool(names and p) and set(b.outputs)=={'Rd'}
+    _,_,(a,c)=float_inputs(b,names)
+    result=b.local(4,a)
+    b.body += [f'if ({b.flag(p)} != 0) goto <selected>;',f'{result.symbol} = {c};',
+               '<selected>',f'{output(b).symbol} = {result.symbol};']
+
+
+def emit_FMNMX(b,check=False):
+    names=float_shape(b,'Ra/Sa','Rb/Sb')
+    p=operands(b,'Pp')[0]
+    if check:return bool(names and p) and set(b.outputs)=={'Rd'}
+    # .NAN and .XORSIGN require separate hardware evidence.
+    require(b,'nan',['nonan']);require(b,'xorsign',['noxorsign'])
+    _,_,(a,c)=float_inputs(b,names)
+    predicate=b.flag(p)
+    # Numeric input wins over NaN. Equal signed zeros use OR for min and AND
+    # for max; this preserves -0 for min and +0 for max in either source order.
+    result=b.local(4,c)
+    b.body += [f'if (!nan({a})) goto <numeric_a>;',
+               f'if (!nan({c})) goto <minmaxdone>;',
+               f'{result.symbol} = 0x7fffffff;','goto <minmaxdone>;',
+               '<numeric_a>',f'if (nan({c})) goto <choosea>;',
+               f'if ((({a} | {c}) & 0x7fffffff) != 0) goto <compare>;',
+               f'if ({predicate} == 0) goto <maxzero>;',
+               f'{result.symbol} = {a} | {c};','goto <minmaxdone>;',
+               '<maxzero>',f'{result.symbol} = {a} & {c};','goto <minmaxdone>;',
+               '<compare>',f'if (({a} f< {c}) != {predicate}) goto <minmaxdone>;',
+               '<choosea>',f'{result.symbol} = {a};','<minmaxdone>',
+               f'{output(b).symbol} = {result.symbol};']
+
+
 def emit_FSETP(b,check=False):
     names=operands(b,'Ra/Sa','Rb/Sb/URb')
-    if check:return all(names) and 'fcomp' in b.values and 'Pu' in b.outputs and all(b.values[n].size==4 for n in names)
+    if check:return all(names) and 'fcomp' in b.values and output(b,'Pu') is not None and all(b.values[n].size==4 for n in names)
     _,_,(x,y)=float_inputs(b,names)
     unordered=f'(nan({x}) || nan({y}))'
     ordered={'LT':f'{x} f< {y}','EQ':f'{x} f== {y}','LE':f'{x} f<= {y}','GT':f'{y} f< {x}',
@@ -370,16 +458,16 @@ def emit_FSETP(b,check=False):
     en=enum_cases(b,'fcomp',list(tests))
     cond=b.select_code(('fcomp',),{(v,):f'local t:1 = {tests[l]}; export t;' for l,v in en.items()})
     if 'bop' not in b.values:
-        b.body.append(f'{b.outputs["Pu"].symbol} = {cond};');return
-    pv=b.flag('Pp');yes=combine(b,cond,pv);no=combine(b,b.expression(1,f'!{cond}').symbol,pv)
+        b.body.append(f'{output(b,"Pu").symbol} = {cond};');return
+    pv=b.flag(operands(b,'Pp')[0]);yes=combine(b,cond,pv);no=combine(b,b.expression(1,f'!{cond}').symbol,pv)
     yes=b.local(1,yes).symbol;no=b.local(1,no).symbol
-    for name,out in b.outputs.items():b.body.append(f'{out.symbol} = {yes if name=="Pu" else no};')
+    for name,out in b.outputs.items():b.body.append(f'{out.symbol} = {yes if name in ("Pu","UPu") else no};')
 
 
 def emit_ISETP(b,check=False):
     a,c,p=operands(b,'Ra/Sa','Rb/Sb','Pp')
     if check:return all((a,c,p)) and 'icmp' in b.values and 'bop' in b.values and b.values[a].size==b.values[c].size
-    if 'ex' in b.values or 'Pr' in b.values:b.reject()
+    if 'ex' in b.values or any(n in b.values for n in ('Pr','UPr')):b.reject()
     require(b,'fmt',['U32','S32'])
     cond=comparison(b,b.flag(a),b.flag(c)); pv=b.flag(p)
     yes=combine(b,cond,pv)
@@ -388,34 +476,35 @@ def emit_ISETP(b,check=False):
     no=combine(b,inv.symbol,pv)
     # Capture both results before either destination overwrites a predicate input.
     yes=b.local(1,yes).symbol;no=b.local(1,no).symbol
-    for name,out in b.outputs.items():b.body.append(f'{out.symbol} = {yes if name=="Pu" else no};')
+    for name,out in b.outputs.items():b.body.append(f'{out.symbol} = {yes if name in ("Pu","UPu") else no};')
 
 
 def emit_IMNMX(b,check=False):
     a,c,p=operands(b,'Ra/Sa','Rb/Sb','Pp')
-    if check:return all((a,c,p)) and 'Rd' in b.outputs and all(b.values[n].size==4 for n in (a,c)) and b.outputs['Rd'].size==4 and set(b.outputs)=={'Rd'}
+    if check:return all((a,c,p)) and output(b) is not None and all(b.values[n].size==4 for n in (a,c)) and output(b).size==4 and set(b.outputs)=={'Rd'}
     require(b,'fmt',['U32','S32']); av,cv,pv=b.flag(a),b.flag(c),b.flag(p)
     fmt=b.k.operand_types.get('fmt');formats=b.g.arch.enums.get(fmt.type,{}) if fmt else {}
     less=b.local(1,b.select('fmt',{value:f'{av} {"s<" if label=="S32" else "<"} {cv}' for label,value in formats.items()},1) if formats else f'{av} < {cv}')
     res=b.local(4,cv)
-    b.body += [f'if ({less.symbol} != {pv}) goto <minselected>;',f'{res.symbol} = {av};','<minselected>',f'{b.outputs["Rd"].symbol} = {res.symbol};']
+    b.body += [f'if ({less.symbol} != {pv}) goto <minselected>;',f'{res.symbol} = {av};','<minselected>',f'{output(b).symbol} = {res.symbol};']
 
 
 def emit_LEA(b,check=False):
     a,c=operands(b,'Ra','Rb/Sb');scale=operands(b,'scaleU5')[0]
-    if check:return all((a,c,scale)) and 'Rd' in b.outputs and 'LO' in b.g.arch.enums.get(b.k.operand_types['hilo'].type,{})
+    if check:return all((a,c,scale)) and output(b) is not None and 'LO' in b.g.arch.enums.get(b.k.operand_types['hilo'].type,{})
+    if 'X' in b.values:b.reject()
     require(b,'hilo',['LO']);require(b,'sx32',['nosx32','NOSX32'])
-    if any(n in b.values for n in ('Pp','Pr','Rc','Sc')):b.reject()
+    if any(n in b.values for n in ('Pp','Pr','Rc','Sc','UPp','UPr','URc')):b.reject()
     for name in b.outputs:
-        if name!='Rd':b.allow(name,lambda v:v==7)
+        if name not in ('Rd','URd'):b.allow(name,lambda v:v==7)
     t=b.local(8,f'(zext({b.flag(a)}) << {b.values[scale].symbol}) + zext({b.flag(c)})')
-    b.body.append(f'{b.outputs["Rd"].symbol} = {t.symbol}:4;')
+    b.body.append(f'{output(b).symbol} = {t.symbol}:4;')
 
 
 def emit_S2R(b,check=False):
     src=b.g.source(b.k,'SRa')
-    if check:return 'Rd' in b.outputs and src and src[0]=='field' and src[2]==1
-    out=b.outputs['Rd'];sr=b.g.specialsem(src[1],out.size);b.refs.append(('sub',sr))
+    if check:return output(b) is not None and src and src[0]=='field' and src[2]==1
+    out=output(b);sr=b.g.specialsem(src[1],out.size);b.refs.append(('sub',sr))
     b.body.append(f'{out.symbol} = {sr};')
 
 emit_CS2R=emit_S2R
@@ -460,7 +549,7 @@ def emit_RET(b,check=False):
 
 def memory(b,op,check):
     load=op.startswith('LD');space='cbank' if op=='LDC' else 'shared' if op in ('LDS','STS') else 'localmem' if op in ('LDL','STL') else 'ram'
-    if check:return ('sz' in b.values and 'Ra' in b.values and ('Rd' in b.outputs if load else 'Rb' in b.values)
+    if check:return ('sz' in b.values and 'Ra' in b.values and (output(b) is not None if load else 'Rb' in b.values)
                      and bool(set(b.g.arch.enums[b.k.operand_types['sz'].type]) & {'U8','S8','U16','S16','32','64','128'}))
     if any(n in b.values for n in ('Rd2','Rb2')):b.reject()
     if 'memoryDescriptor' in b.values:
@@ -475,7 +564,7 @@ def memory(b,op,check):
         b.allow('Pnz',lambda v:v==7)
     # Predicate-result variants are not assumed to mean successful/nonzero loads.
     for name in b.outputs:
-        if name!='Rd':b.allow(name,lambda v:v==7)
+        if name not in ('Rd','URd'):b.allow(name,lambda v:v==7)
     base=b.values['Ra'];off=operands(b,'Ra_offset/Sa_offset')[0]
     base_expr=base.symbol if base.size==8 else f'zext({base.symbol})'
     if 'stride' in b.values:
@@ -496,7 +585,7 @@ def memory(b,op,check):
     controls=[b.values[n].symbol for n in ('sem','sco','cop','cop2','private') if n in b.values]
     b.body.append(f'{fn}({b.k.order}:4'+(' , '+', '.join(controls) if controls else '')+');')
     atom=b.k.operand_types['sz'];en=b.g.arch.enums[atom.type]
-    result=b.outputs['Rd'] if load else b.values['Rb']
+    result=output(b) if load else b.values['Rb']
     cases={}
     for label,width,signed in [('U8',1,False),('S8',1,True),('U16',2,False),('S16',2,True),('32',4,False),('64',8,False),('128',16,False)]:
         if label not in en or width>result.size:continue

@@ -15,6 +15,8 @@ SPECS={
  'lop3':('LOP3',), 'shf':('SHF',), 'iabs':('IABS',), 'imnmx':('IMNMX',),
  'prmt':('PRMT',), 'fadd':('FADD',), 'fmul':('FMUL',), 'ffma':('FFMA',),
  'isetp':('ISETP',), 'sel':('ISETP',), 'fsetp':('FSETP',), 'f2i':('F2I',),
+ 'fsel':('FSEL',), 'fmin':('FMNMX',), 'fmax':('FMNMX',),
+ 'fmin_ftz':('FMNMX.FTZ',), 'fmax_ftz':('FMNMX.FTZ',),
  'i2f':('I2FP',), 'fadd_ftz':('FADD.FTZ',), 'fmul_rz':('FMUL.RZ',),
  'ffma_sat':('FFMA.SAT',), 'shared':('LDS','STS'), 'local':('LDL','STL'),
  'branch':('BRA','BSSY','BSYNC'), 'ldc':('LDC',)}
@@ -96,6 +98,11 @@ def main():
             edges=[0,0xffffffff,0x80000000,0x7fffffff,0x7f800000,0xff800000,0x7fc00000,1,
                    0x007fffff,0x00800000,0x3f800000,0xbf800000,0x7f7fffff,0x80000001]
             vectors[:len(edges)]=[[x,x,x] for x in edges]
+            if family in ('fsel','fmin','fmax','fmin_ftz','fmax_ftz'):
+                pairs=[(0,0x80000000),(0x80000000,0),(0x7fc00000,0x3f800000),
+                       (0x3f800000,0x7fc00000),(0x7f800001,0xff800001),
+                       (1,0),(0x80000001,0),(0x007fffff,0x80000001)]
+                vectors[len(edges):len(edges)+2*len(pairs)]=[[x,y,p] for x,y in pairs for p in (0,1)]
             data=b''.join(struct.pack('<III',*v) for v in vectors)
             gpu=driver.run(cubin,family,data)
             fixtures.append((family,vectors,gpu));requests.append(kernel_request(cubin.read_bytes(),family,data))
@@ -123,7 +130,7 @@ def main():
                                 executed_mnemonics=sorted(executed)))
         (out/'results.json').write_text(json.dumps(dict(mode='whole-kernel',architecture='SM89',
             seed=1,threads_per_kernel=128,results=results,exclusions=['warp communication','cross-thread shared memory',
-            'MUFU approximation'],floating_tolerance='bit-exact except NaN payload/sign'),indent=2)+'\n')
+            'MUFU approximation'],floating_tolerance='bit-exact FSEL/FMNMX; other floating arithmetic except NaN payload/sign'),indent=2)+'\n')
     finally:driver.close()
 
 if __name__=='__main__':main()
