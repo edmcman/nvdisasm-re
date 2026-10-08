@@ -7,7 +7,7 @@ from sass.operations import OPERATION_FAMILIES
 def summarize(directory):
     out={}
     for path in sorted(Path(directory).glob('sass_sm*_coverage.json')):
-        rows=json.loads(path.read_text());arch=path.stem.split('_')[1].upper()
+        rows=json.loads(path.read_text());arch=path.stem.removeprefix('sass_').removesuffix('_coverage').upper()
         families={}
         for op in sorted(OPERATION_FAMILIES):
             group=[r for r in rows if r['opcode']==op]

@@ -1,6 +1,6 @@
 """Execute actual generated p-code against independent scalar references.
 
-Usage: SASS_SLEIGH_OUT=... python3 tests/test_semantics.py SM89
+Usage: SASS_SLEIGH_OUT=... python3 tests/test_semantics.py SM89 [exact|readable]
 """
 import json,os,random,subprocess,sys
 from pathlib import Path
@@ -10,7 +10,7 @@ from compare_ghidra import GHIDRA_PY,LDEFS,ROOT
 from sass import ir,softfloat
 
 
-def cases(sm):
+def cases(sm,fp='exact'):
     arch=ir.load(sm)
     classes={k.name:k for k in arch.classes if not k.alternate}
     available=set(classes);out=[]
@@ -180,8 +180,8 @@ def cases(sm):
     add('bssy_',{}, {},dict(error='synchronization context required'))
     add('bsync_',{}, {},dict(__events=1),context={'synchronization':{'bsync':True}})
     add('mov__RI',dict(Rd=3,Sb=5,PixMaskU04=1),{},dict(error='sass_opaque_MOV'))
-    # Native fp32 p-code (round to nearest, .FTZ, .SAT, FMUL scale) and the
-    # directed-rounding primitive fallback, against the exact softfloat model.
+    # Native fp32 p-code (every rounding mode, .FTZ, .SAT, FMUL scale) against
+    # the exact softfloat model.
     def nan32(x):return x&0x7f800000==0x7f800000 and x&0x7fffff
     def ghidra_underflow(op,inputs,k=0):
         # Ghidra 12.1.4 FloatFormat.getEncoding returns zero when a result lies
@@ -205,13 +205,30 @@ def cases(sm):
                                                  ('fma','ffma__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,**({'fmz':'FTZ'} if flush else {})),[x,y,z])]:
                         want=softfloat.arithmetic(op,inputs,32,rnd,flush,sat)
                         if nan32(want) or (rnd=='RN' and ghidra_underflow(op,inputs)):continue
-                        add(cls,dict(fields,**extra),dict(R2=x,R4=y,R6=z),dict(R8=want))
+                        add(cls,dict(fields,**extra),dict(R2=x,R4=y,R6=z),dict(R8=want,__native=True))
     for scale,k in [('D2',-1),('D8',-3),('M2',1),('M8',3)]:
         for x,y,_ in vectors:
-            want=softfloat.arithmetic('mul',[x,y],32,'RN',False,False,k)
-            if not (nan32(want) or ghidra_underflow('mul',[x,y],k)):add('fmul__RRR_RR',dict(Rd=8,Ra=2,Rb=4,scale=scale),dict(R2=x,R4=y),dict(R8=want))
+          for rnd in ('RN','RZ','RM','RP'):
+            want=softfloat.arithmetic('mul',[x,y],32,rnd,False,False,k)
+            if not (nan32(want) or rnd=='RN' and ghidra_underflow('mul',[x,y],k)):
+                add('fmul__RRR_RR',dict(Rd=8,Ra=2,Rb=4,scale=scale,rnd=rnd),dict(R2=x,R4=y),dict(R8=want,__native=True))
     add('fadd__RRR_RR',dict(Rd=8,Ra=2,Rc=4),dict(R2=0x3f800000,R4=0x40000000),dict(R8=0x40400000,__max_ops=2))
     add('fadd__RRR_RR',dict(Rd=8,Ra=2,Rc=4,rnd='RZ'),dict(R2=0x3f800000,R4=0x33800001),dict(R8=0x3f800000))
+    # Directed fp32 cases whose residual lies below fp64 precision, and exact
+    # cancellations whose zero sign depends on the rounding mode.
+    for op,cls,fields,inputs in [
+        ('add','fadd__RRR_RR',dict(Rd=8,Ra=2,Rc=4),[0x3f800000,1]),
+        ('add','fadd__RRR_RR',dict(Rd=8,Ra=2,Rc=4),[0x3f800000,0x80000001]),
+        ('add','fadd__RRR_RR',dict(Rd=8,Ra=2,Rc=4),[0x7f7fffff,0x7f7fffff]),
+        ('add','fadd__RRR_RR',dict(Rd=8,Ra=2,Rc=4),[0x3f800000,0xbf800000]),
+        ('add','fadd__RRR_RR',dict(Rd=8,Ra=2,Rc=4),[0,0x80000000]),
+        ('fma','ffma__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6),[0x3f800000,0x3f800000,0xbf800000]),
+        ('fma','ffma__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6),[0x3f800001,0x3f800001,0x80000001]),
+        ('fma','ffma__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6),[0x80000000,0x3f800000,0]),
+        ('mul','fmul__RRR_RR',dict(Rd=8,Ra=2,Rb=4),[0x00800000,0x3f000001])]:
+        for rnd in ('RN','RZ','RM','RP'):
+            add(cls,dict(fields,rnd=rnd),dict(zip(('R2','R4','R6'),inputs)),
+                dict(R8=softfloat.arithmetic(op,inputs,32,rnd),__native=True))
     for a,c in [(0x3f800000,0x40000000),(0x40000000,0x3f800000),(0x3f800000,0x3f800000),(0x7fc00000,0x3f800000),(0x3f800000,0xffc00000),(0x00000001,0)]:
         for flush in (False,True):
             fa,fc=(softfloat.unpack(v,32,flush) for v in (a,c))
@@ -246,20 +263,27 @@ def cases(sm):
             if i%3==0:
                 fields.update({'Ra@absolute':1,'Ra@negate':1})
                 inputs[0]=(inputs[0]&((1<<63)-1))|(1<<63)
-            want=softfloat.arithmetic(op,inputs,64)
-            kind=softfloat.unpack(want,64)[0]
-            if kind=='nan':continue
-            parts=[softfloat.unpack(v,64) for v in inputs]
-            if all(p[0]=='finite' for p in parts):
-                exact=abs(parts[0][2]+parts[1][2] if op=='add' else
-                          parts[0][2]*parts[1][2]+(parts[2][2] if op=='fma' else 0))
-                if Fraction(2)**-1075<exact<Fraction(2)**-1074:continue # Ghidra underflow bug
-            add(cls,fields,regs,dict(pair('R2',want),__native=True))
-    for cls,fields in [('dadd__RRR_RR',dict(Rd=8,Ra=2,Rc=4)),
-                       ('dmul__RRR_RR',dict(Rd=8,Ra=2,Rb=4)),
-                       ('dfma__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6))]:
-        for rnd in ('RM','RP','RZ'):
-            add(cls,dict(fields,rnd=rnd),{},dict(error='sass_opaque_'+classes[cls].mnemonic))
+            for rnd in ('RN','RZ','RM','RP'):
+                want=softfloat.arithmetic(op,inputs,64,rnd)
+                kind=softfloat.unpack(want,64)[0]
+                if kind=='nan':continue
+                parts=[softfloat.unpack(v,64) for v in inputs]
+                if rnd=='RN' and all(p[0]=='finite' for p in parts):
+                    exact=abs(parts[0][2]+parts[1][2] if op=='add' else
+                              parts[0][2]*parts[1][2]+(parts[2][2] if op=='fma' else 0))
+                    if Fraction(2)**-1075<exact<Fraction(2)**-1074:continue # Ghidra underflow bug
+                add(cls,dict(fields,rnd=rnd),regs,dict(pair('R2',want),__native=True))
+    # Directed rounding: residual carries the sign below the wide sum's precision,
+    # and an exact cancellation is -0 under RM.
+    for op,cls,fields,inputs in [
+        ('add','dadd__RRR_RR',dict(Rd=2,Ra=2,Rc=4),[0x3ff0000000000000,1]),
+        ('add','dadd__RRR_RR',dict(Rd=2,Ra=2,Rc=4),[0x3ff0000000000000,(1<<63)|1]),
+        ('add','dadd__RRR_RR',dict(Rd=2,Ra=2,Rc=4),[0x3ff0000000000000,0xbff0000000000000]),
+        ('fma','dfma__RRR_RRR',dict(Rd=2,Ra=2,Rb=4,Rc=6),[0x3ff0000000000000,0x3ff0000000000000,0xbff0000000000000]),
+        ('fma','dfma__RRR_RRR',dict(Rd=2,Ra=2,Rb=4,Rc=6),[0x3ff0000000000001,0x3ff0000000000001,(1<<63)|1])]:
+        regs={**pair('R2',inputs[0]),**pair('R4',inputs[1]),**pair('R6',inputs[-1])}
+        for rnd in ('RN','RZ','RM','RP'):
+            add(cls,dict(fields,rnd=rnd),regs,dict(pair('R2',softfloat.arithmetic(op,inputs,64,rnd)),__native=True))
     for cls,fields,regs in [
         ('dadd__RRU_RU',dict(Rd=8,Ra=2,URc=4),{**pair('R2',0x3ff0000000000000),**pair('UR4',0x4000000000000000)}),
         ('dadd__RRsI_RI',dict(Rd=8,Ra=2,Sc=0x40000000),pair('R2',0x3ff0000000000000)),
@@ -464,13 +488,91 @@ def cases(sm):
         word=encode(sm,cls,**fields)
         request=dict(kernel=dict(name=name,code=word,threads=1,max_steps=4),output=dict(address=0x200000000))
         out.append((name,request,dict(error=message)))
+    if fp=='readable':
+        out=[c for c in out if c[0] not in classes or classes[c[0]].mnemonic not in READABLE_FLOATS]
+        readable_cases(sm,add,classes,rng)
     return out
 
 
-def run(sm='SM89'):
-    todo=cases(sm)
+# Classes whose readable lowering differs from the exact one.
+READABLE_FLOATS={'FADD','FMUL','FFMA','DADD','DMUL','DFMA','HADD2','HFMA2','FSEL','FMNMX','FSETP'}
+
+def readable_reference(op,inputs,width,sat=False,scale=0):
+    """Unfused round-to-nearest formula without flushing; None where a NaN or
+    Ghidra's minimum-subnormal underflow band makes the comparison meaningless."""
+    from fractions import Fraction
+    def step(op,xs,sat):
+        parts=[softfloat.unpack(x,width) for x in xs]
+        if all(k in ('zero','finite') for k,_,_ in parts):
+            v=abs(parts[0][2]*parts[1][2] if op=='mul' else parts[0][2]+parts[1][2])
+            tiny=Fraction(2)**(1-(1<<(softfloat.FORMATS[width][0]-1))+1-softfloat.FORMATS[width][1])
+            if tiny/2<v<tiny:return None
+        return softfloat.arithmetic(op,xs,width,sat=sat)
+    two={32:0x3f800000,64:0x3ff0000000000000}
+    if op=='fma':steps=[('mul',inputs[:2]),('add',[None,inputs[2]])]
+    else:steps=[(op,inputs)]
+    if scale:steps.append(('mul',[None,two[width]+(scale<<softfloat.FORMATS[width][1])]))
+    value=None
+    for i,(o,xs) in enumerate(steps):
+        value=step(o,[value if x is None else x for x in xs],sat and i==len(steps)-1)
+        if value is None or softfloat.unpack(value,width)[0]=='nan':return None
+    return value
+
+def readable_cases(sm,add,classes,rng):
+    import struct
+    edges=[0,0x80000000,1,0x80000001,0x007fffff,0x00800000,0x3f800000,0xbf800000,0x7f7fffff,0x7f800000,0x3effffff,0x4b800001]
+    floats=edges+[rng.getrandbits(32)&0xbfffffff for _ in range(10)]+[rng.getrandbits(32) for _ in range(6)]
+    vectors=[(floats[i],floats[(i*7+3)%len(floats)],floats[(i*5+1)%len(floats)]) for i in range(len(floats))]
+    for i,(x,y,z) in enumerate(vectors):
+        rnd=('RN','RZ','RM','RP')[i%4]
+        for flush in (False,True):
+            for sat in (False,True):
+                extra=dict(rnd=rnd,sat='SAT' if sat else 'nosat')
+                for op,cls,fields,inputs in [('add','fadd__RRR_RR',dict(Rd=8,Ra=2,Rc=4,**({'ftz':'FTZ'} if flush else {})),[x,y]),
+                                             ('mul','fmul__RRR_RR',dict(Rd=8,Ra=2,Rb=4,**({'fmz':'FMZ'} if flush else {})),[x,y]),
+                                             ('fma','ffma__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,**({'fmz':'FTZ'} if flush else {})),[x,y,z])]:
+                    want=readable_reference(op,inputs,32,sat)
+                    if want is not None:add(cls,dict(fields,**extra),dict(R2=x,R4=y,R6=z),dict(R8=want,__native=True))
+        for scale,k in [('D2',-1),('M8',3)]:
+            want=readable_reference('mul',[x,y],32,scale=k)
+            if want is not None:add('fmul__RRR_RR',dict(Rd=8,Ra=2,Rb=4,scale=scale,rnd=rnd),dict(R2=x,R4=y),dict(R8=want,__native=True))
+    # The plain formula is one operation per arithmetic operator, plus the result copy.
+    add('ffma__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,rnd='RZ'),dict(R2=0x3fc00000,R4=0x40000000,R6=0xbf800000),dict(R8=0x40000000,__max_ops=3))
+    add('fadd__RRR_RR',dict(Rd=8,Ra=2,Rc=4,ftz='FTZ'),dict(R2=0x3f800000,R4=0x40000000),dict(R8=0x40400000,__max_ops=2))
+    def pair(name,bits):return {name:bits&0xffffffff,f'R{int(name[1:])+1}':bits>>32}
+    values64=[0,1<<63,1,0x0010000000000000,0x3ff0000000000000,0xbff0000000000000,0x7fefffffffffffff,
+              0x3ff0000000000001]+[rng.getrandbits(64) for _ in range(16)]
+    for i,x in enumerate(values64):
+        y,z=values64[(i*7+3)%len(values64)],values64[(i*5+1)%len(values64)]
+        for op,cls,fields,inputs in [('add','dadd__RRR_RR',dict(Rd=2,Ra=2,Rc=4),[x,y]),
+                                     ('mul','dmul__RRR_RR',dict(Rd=2,Ra=2,Rb=4),[x,y]),
+                                     ('fma','dfma__RRR_RRR',dict(Rd=2,Ra=2,Rb=4,Rc=6),[x,y,z])]:
+            want=readable_reference(op,inputs,64)
+            if want is not None:
+                add(cls,dict(fields,rnd=('RN','RZ','RM','RP')[i%4]),{**pair('R2',x),**pair('R4',y),**pair('R6',z)},dict(pair('R2',want),__native=True))
+    packed=[0x3c004000,0x00010001,0x7bfffbff,0xbc00c000]+[rng.getrandbits(32) for _ in range(10)]
+    for i,x in enumerate(packed):
+        y,z=packed[(i*7+3)%len(packed)],packed[(i*5+1)%len(packed)]
+        for op,cls,fields,inputs in [('add','hadd2__RR',dict(Rd=2,Ra=2,Rc=4,ftz='FTZ'),[x,y]),
+                                     ('fma','hfma2__RRR',dict(Rd=2,Ra=2,Rb=4,Rc=6,fmz='FMZ'),[x,y,z])]:
+            lanes=[readable_reference(op,[v>>(16*lane)&0xffff for v in inputs],16) for lane in (0,1)]
+            if None not in lanes:add(cls,fields,dict(R2=x,R4=y,R6=z),dict(R2=lanes[0]|lanes[1]<<16,__native=True))
+    def f32(v):return struct.unpack('<f',v.to_bytes(4,'little'))[0]
+    for a,c in [(1,0x80000001),(0x3f800000,0x40000000),(0x40000000,0x3f800000),(0,0x80000000),(0x007fffff,0x00000001)]:
+        for pred in (0,1):
+            fields=dict(Rd=2,Ra=2,Rb=4,Pp=0,ftz='FTZ')
+            add('fsel__RRR_RRR',fields,dict(R2=a,R4=c,P0=pred),dict(R2=a if pred else c,__native=True))
+            nan={'nan':'NAN'} if 'nan' in classes['fmnmx__RRR_RRR'].operand_types else {}
+            add('fmnmx__RRR_RRR',dict(fields,**nan),dict(R2=a,R4=c,P0=pred),dict(R2=a if (f32(a)<f32(c))==bool(pred) else c,__native=True))
+        add('fsetp__RRR_RRR',dict(Pu=0,Pv=1,Pp='PT',Ra=2,Rb=4,fcomp='LT',bop='AND',ftz='FTZ'),
+            dict(R2=a,R4=c),dict(P0=int(f32(a)<f32(c)),P1=int(not f32(a)<f32(c)),__native=True))
+
+
+def run(sm='SM89',fp='exact'):
+    from sass.gen_sleigh import variant
+    todo=cases(sm,fp)
     inp=''.join(json.dumps(request)+'\n' for _,request,_ in todo)
-    process=subprocess.run([GHIDRA_PY,str(ROOT/'tests/ghidra_emulate.py'),str(LDEFS),f'SASS:LE:64:{sm.lower()}'],input=inp,capture_output=True,text=True)
+    process=subprocess.run([GHIDRA_PY,str(ROOT/'tests/ghidra_emulate.py'),str(LDEFS),f'SASS:LE:64:{variant(sm,fp)}'],input=inp,capture_output=True,text=True)
     results=[json.loads(line) for line in process.stdout.splitlines() if line.startswith('{')]
     if len(results)!=len(todo):raise RuntimeError(process.stderr[-2500:])
     failures=[]
@@ -490,14 +592,14 @@ def run(sm='SM89'):
                 ops=result.get('pcode_ops',[])
                 ok=ok and bool(ops) and len(ops)<=expected['__max_ops'] and not set(ops)&{'CBRANCH','CALLOTHER'}
             if not ok:failures.append((cls,expected,result))
-    print(f'{sm}: semantics {len(todo)-len(failures)}/{len(todo)}')
+    print(f'{variant(sm,fp)}: semantics {len(todo)-len(failures)}/{len(todo)}')
     for failure in failures[:20]:print(failure)
     assert not failures
 
 def test_semantics():
     import pytest
     if os.environ.get('SASS_SEMANTICS')!='1':pytest.skip('set SASS_SEMANTICS=1 for Ghidra integration')
-    run(os.environ.get('SASS_TEST_ARCH','SM89'))
+    for fp in ('exact','readable'):run(os.environ.get('SASS_TEST_ARCH','SM89'),fp)
 
 
 def test_semantics_gpu():
@@ -511,4 +613,4 @@ def test_semantics_gpu():
     subprocess.run([sys.executable,str(ROOT/'tests/carry_semantics.py'),'--require-gpu'],check=True)
 
 
-if __name__=='__main__':run(sys.argv[1] if len(sys.argv)>1 else 'SM89')
+if __name__=='__main__':run(sys.argv[1] if len(sys.argv)>1 else 'SM89',sys.argv[2] if len(sys.argv)>2 else 'exact')

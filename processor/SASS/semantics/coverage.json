@@ -249,6 +249,256 @@
       "primitive": 95
     }
   },
+  "SM100_READABLE": {
+    "classes": 978,
+    "hardware_verified": false,
+    "opaque_operations": {
+      "bra_uniform_": "class selectors have no supported native combination",
+      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "fmnmx_pred__RIR_RIR": "unsupported class shape",
+      "fmnmx_pred__RRR_RRR": "unsupported class shape",
+      "fmnmx_pred__RUR_RUR": "unsupported class shape",
+      "hadd2_F32__RI": "unsupported class shape",
+      "hadd2_F32__RR": "class selectors have no supported native combination",
+      "hadd2_F32__RU": "class selectors have no supported native combination",
+      "hfma2_relu__RIR": "class selectors have no supported native combination",
+      "hfma2_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_relu__RRR": "class selectors have no supported native combination",
+      "hfma2_relu__RRU": "class selectors have no supported native combination",
+      "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "iadd_x_xor_imm__RIR_RIR": "class selectors have no supported native combination",
+      "iadd_x_xor_noimm__RRR_RRR": "class selectors have no supported native combination",
+      "iadd_x_xor_noimm__RUR_RUR": "class selectors have no supported native combination",
+      "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
+      "isetp__RUR_RUR_EX": "class selectors have no supported native combination",
+      "isetp__RsIR_RIR_EX": "class selectors have no supported native combination",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "ldg_256_memdesc__Ra64": "unsupported class shape",
+      "ldg_256_uniform__Ra32": "unsupported class shape",
+      "ldg_256_uniform__Ra64": "unsupported class shape",
+      "ldg_256_uniform__RaRZ": "unsupported class shape",
+      "ldg_memdesc__Ra64": "class selectors have no supported native combination",
+      "ldg_uniform__Ra32": "class selectors have no supported native combination",
+      "ldg_uniform__Ra64": "class selectors have no supported native combination",
+      "ldl_memdesc_": "class selectors have no supported native combination",
+      "ldl_uniform_": "class selectors have no supported native combination",
+      "lds_uniform_": "class selectors have no supported native combination",
+      "mov_indexedRF_IRFd__Ib": "unsupported class shape",
+      "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "ret__REL": "class selectors have no supported native combination",
+      "ret__REL_UR": "class selectors have no supported native combination",
+      "stg_256_memdesc__Ra64": "unsupported class shape",
+      "stg_256_uniform__Ra32": "unsupported class shape",
+      "stg_256_uniform__Ra64": "unsupported class shape",
+      "stg_256_uniform__RaRZ": "unsupported class shape",
+      "stg_memdesc__Ra64": "class selectors have no supported native combination",
+      "stg_uniform__Ra32": "class selectors have no supported native combination",
+      "stg_uniform__Ra64": "class selectors have no supported native combination",
+      "stl_memdesc_": "class selectors have no supported native combination",
+      "stl_uniform_": "class selectors have no supported native combination",
+      "sts_uniform_": "class selectors have no supported native combination",
+      "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
+      "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination"
+    },
+    "operations": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 2,
+        "opaque": 2
+      },
+      "BSSY": {
+        "primitive": 2
+      },
+      "BSYNC": {
+        "primitive": 2
+      },
+      "CALL": {
+        "native": 6
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "DADD": {
+        "native": 3
+      },
+      "DFMA": {
+        "native": 5
+      },
+      "DMUL": {
+        "native": 3
+      },
+      "DSETP": {
+        "native": 3
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 24
+      },
+      "FADD": {
+        "native": 3
+      },
+      "FFMA": {
+        "native": 5
+      },
+      "FMNMX": {
+        "native": 3,
+        "opaque": 3
+      },
+      "FMUL": {
+        "native": 3
+      },
+      "FSEL": {
+        "native": 3
+      },
+      "FSETP": {
+        "native": 3
+      },
+      "HADD2": {
+        "native": 3,
+        "opaque": 3
+      },
+      "HFMA2": {
+        "native": 5,
+        "opaque": 5
+      },
+      "HFMA2.MMA": {
+        "absent": 0
+      },
+      "I2F": {
+        "primitive": 24
+      },
+      "I2FP": {
+        "primitive": 6
+      },
+      "IABS": {
+        "native": 3
+      },
+      "IADD": {
+        "native": 3,
+        "opaque": 3
+      },
+      "IADD3": {
+        "native": 6
+      },
+      "IMAD": {
+        "native": 29
+      },
+      "IMNMX": {
+        "native": 3
+      },
+      "ISETP": {
+        "native": 3,
+        "opaque": 3
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 2,
+        "opaque": 7
+      },
+      "LDL": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "LEA": {
+        "native": 20
+      },
+      "LOP3": {
+        "native": 3
+      },
+      "MOV": {
+        "native": 5,
+        "opaque": 2
+      },
+      "MUFU": {
+        "primitive": 6
+      },
+      "NOP": {
+        "native": 1
+      },
+      "PRMT": {
+        "native": 5
+      },
+      "RET": {
+        "native": 2,
+        "opaque": 2
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 3
+      },
+      "SHF": {
+        "native": 5
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 2,
+        "opaque": 7
+      },
+      "STL": {
+        "native": 2,
+        "opaque": 2
+      },
+      "STS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "UIADD3": {
+        "native": 4
+      },
+      "UIMAD": {
+        "native": 10
+      },
+      "UISETP": {
+        "native": 2,
+        "opaque": 2
+      },
+      "ULDC": {
+        "absent": 0
+      },
+      "ULEA": {
+        "native": 14
+      },
+      "ULOP3": {
+        "native": 2
+      },
+      "UMOV": {
+        "native": 2
+      },
+      "USEL": {
+        "native": 2
+      },
+      "USHF": {
+        "native": 3
+      },
+      "VIADD": {
+        "native": 3
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    },
+    "status": {
+      "native": 200,
+      "opaque": 683,
+      "primitive": 95
+    }
+  },
   "SM101": {
     "classes": 904,
     "hardware_verified": false,
@@ -495,7 +745,503 @@
       "primitive": 93
     }
   },
+  "SM101_READABLE": {
+    "classes": 904,
+    "hardware_verified": false,
+    "opaque_operations": {
+      "bra_uniform_": "class selectors have no supported native combination",
+      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "fmnmx_pred__RIR_RIR": "unsupported class shape",
+      "fmnmx_pred__RRR_RRR": "unsupported class shape",
+      "fmnmx_pred__RUR_RUR": "unsupported class shape",
+      "hadd2_F32__RI": "unsupported class shape",
+      "hadd2_F32__RR": "class selectors have no supported native combination",
+      "hadd2_F32__RU": "class selectors have no supported native combination",
+      "hfma2_relu__RIR": "class selectors have no supported native combination",
+      "hfma2_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_relu__RRR": "class selectors have no supported native combination",
+      "hfma2_relu__RRU": "class selectors have no supported native combination",
+      "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
+      "isetp__RUR_RUR_EX": "class selectors have no supported native combination",
+      "isetp__RsIR_RIR_EX": "class selectors have no supported native combination",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "ldg_256_memdesc__Ra64": "unsupported class shape",
+      "ldg_256_uniform__Ra32": "unsupported class shape",
+      "ldg_256_uniform__Ra64": "unsupported class shape",
+      "ldg_256_uniform__RaRZ": "unsupported class shape",
+      "ldg_memdesc__Ra64": "class selectors have no supported native combination",
+      "ldg_uniform__Ra32": "class selectors have no supported native combination",
+      "ldg_uniform__Ra64": "class selectors have no supported native combination",
+      "ldl_memdesc_": "class selectors have no supported native combination",
+      "ldl_uniform_": "class selectors have no supported native combination",
+      "lds_uniform_": "class selectors have no supported native combination",
+      "mov_indexedRF_IRFd__Ib": "unsupported class shape",
+      "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "ret__REL": "class selectors have no supported native combination",
+      "ret__REL_UR": "class selectors have no supported native combination",
+      "stg_256_memdesc__Ra64": "unsupported class shape",
+      "stg_256_uniform__Ra32": "unsupported class shape",
+      "stg_256_uniform__Ra64": "unsupported class shape",
+      "stg_256_uniform__RaRZ": "unsupported class shape",
+      "stg_memdesc__Ra64": "class selectors have no supported native combination",
+      "stg_uniform__Ra32": "class selectors have no supported native combination",
+      "stg_uniform__Ra64": "class selectors have no supported native combination",
+      "stl_memdesc_": "class selectors have no supported native combination",
+      "stl_uniform_": "class selectors have no supported native combination",
+      "sts_uniform_": "class selectors have no supported native combination",
+      "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
+      "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination"
+    },
+    "operations": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 2,
+        "opaque": 2
+      },
+      "BSSY": {
+        "primitive": 2
+      },
+      "BSYNC": {
+        "primitive": 2
+      },
+      "CALL": {
+        "native": 6
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "DADD": {
+        "native": 3
+      },
+      "DFMA": {
+        "native": 5
+      },
+      "DMUL": {
+        "native": 3
+      },
+      "DSETP": {
+        "native": 3
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 24
+      },
+      "FADD": {
+        "native": 3
+      },
+      "FFMA": {
+        "native": 5
+      },
+      "FMNMX": {
+        "native": 3,
+        "opaque": 3
+      },
+      "FMUL": {
+        "native": 3
+      },
+      "FSEL": {
+        "native": 3
+      },
+      "FSETP": {
+        "native": 3
+      },
+      "HADD2": {
+        "native": 3,
+        "opaque": 3
+      },
+      "HFMA2": {
+        "native": 5,
+        "opaque": 5
+      },
+      "HFMA2.MMA": {
+        "absent": 0
+      },
+      "I2F": {
+        "primitive": 24
+      },
+      "I2FP": {
+        "primitive": 4
+      },
+      "IABS": {
+        "native": 3
+      },
+      "IADD": {
+        "absent": 0
+      },
+      "IADD3": {
+        "native": 6
+      },
+      "IMAD": {
+        "native": 29
+      },
+      "IMNMX": {
+        "native": 3
+      },
+      "ISETP": {
+        "native": 3,
+        "opaque": 3
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 2,
+        "opaque": 7
+      },
+      "LDL": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "LEA": {
+        "native": 20
+      },
+      "LOP3": {
+        "native": 3
+      },
+      "MOV": {
+        "native": 5,
+        "opaque": 2
+      },
+      "MUFU": {
+        "primitive": 6
+      },
+      "NOP": {
+        "native": 1
+      },
+      "PRMT": {
+        "native": 5
+      },
+      "RET": {
+        "native": 2,
+        "opaque": 2
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 3
+      },
+      "SHF": {
+        "native": 5
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 2,
+        "opaque": 7
+      },
+      "STL": {
+        "native": 2,
+        "opaque": 2
+      },
+      "STS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "UIADD3": {
+        "native": 4
+      },
+      "UIMAD": {
+        "native": 10
+      },
+      "UISETP": {
+        "native": 2,
+        "opaque": 2
+      },
+      "ULDC": {
+        "absent": 0
+      },
+      "ULEA": {
+        "native": 14
+      },
+      "ULOP3": {
+        "native": 2
+      },
+      "UMOV": {
+        "native": 2
+      },
+      "USEL": {
+        "native": 2
+      },
+      "USHF": {
+        "native": 3
+      },
+      "VIADD": {
+        "absent": 0
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    },
+    "status": {
+      "native": 194,
+      "opaque": 617,
+      "primitive": 93
+    }
+  },
   "SM103": {
+    "classes": 974,
+    "hardware_verified": false,
+    "opaque_operations": {
+      "bra_uniform_": "class selectors have no supported native combination",
+      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "fmnmx_pred__RIR_RIR": "unsupported class shape",
+      "fmnmx_pred__RRR_RRR": "unsupported class shape",
+      "fmnmx_pred__RUR_RUR": "unsupported class shape",
+      "hadd2_F32__RI": "unsupported class shape",
+      "hadd2_F32__RR": "class selectors have no supported native combination",
+      "hadd2_F32__RU": "class selectors have no supported native combination",
+      "hfma2_relu__RIR": "class selectors have no supported native combination",
+      "hfma2_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_relu__RRR": "class selectors have no supported native combination",
+      "hfma2_relu__RRU": "class selectors have no supported native combination",
+      "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "iadd_x_xor_imm__RIR_RIR": "class selectors have no supported native combination",
+      "iadd_x_xor_noimm__RRR_RRR": "class selectors have no supported native combination",
+      "iadd_x_xor_noimm__RUR_RUR": "class selectors have no supported native combination",
+      "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
+      "isetp__RUR_RUR_EX": "class selectors have no supported native combination",
+      "isetp__RsIR_RIR_EX": "class selectors have no supported native combination",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "ldg_256_memdesc__Ra64": "unsupported class shape",
+      "ldg_256_uniform__Ra32": "unsupported class shape",
+      "ldg_256_uniform__Ra64": "unsupported class shape",
+      "ldg_256_uniform__RaRZ": "unsupported class shape",
+      "ldg_memdesc__Ra64": "class selectors have no supported native combination",
+      "ldg_uniform__Ra32": "class selectors have no supported native combination",
+      "ldg_uniform__Ra64": "class selectors have no supported native combination",
+      "ldl_memdesc_": "class selectors have no supported native combination",
+      "ldl_uniform_": "class selectors have no supported native combination",
+      "lds_uniform_": "class selectors have no supported native combination",
+      "mov_indexedRF_IRFd__Ib": "unsupported class shape",
+      "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "ret__REL": "class selectors have no supported native combination",
+      "ret__REL_UR": "class selectors have no supported native combination",
+      "stg_256_memdesc__Ra64": "unsupported class shape",
+      "stg_256_uniform__Ra32": "unsupported class shape",
+      "stg_256_uniform__Ra64": "unsupported class shape",
+      "stg_256_uniform__RaRZ": "unsupported class shape",
+      "stg_memdesc__Ra64": "class selectors have no supported native combination",
+      "stg_uniform__Ra32": "class selectors have no supported native combination",
+      "stg_uniform__Ra64": "class selectors have no supported native combination",
+      "stl_memdesc_": "class selectors have no supported native combination",
+      "stl_uniform_": "class selectors have no supported native combination",
+      "sts_uniform_": "class selectors have no supported native combination",
+      "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
+      "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination"
+    },
+    "operations": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 2,
+        "opaque": 2
+      },
+      "BSSY": {
+        "primitive": 2
+      },
+      "BSYNC": {
+        "primitive": 2
+      },
+      "CALL": {
+        "native": 6
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "DADD": {
+        "native": 3
+      },
+      "DFMA": {
+        "native": 5
+      },
+      "DMUL": {
+        "native": 3
+      },
+      "DSETP": {
+        "native": 3
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 24
+      },
+      "FADD": {
+        "native": 3
+      },
+      "FFMA": {
+        "native": 5
+      },
+      "FMNMX": {
+        "native": 3,
+        "opaque": 3
+      },
+      "FMUL": {
+        "native": 3
+      },
+      "FSEL": {
+        "native": 3
+      },
+      "FSETP": {
+        "native": 3
+      },
+      "HADD2": {
+        "native": 3,
+        "opaque": 3
+      },
+      "HFMA2": {
+        "native": 5,
+        "opaque": 5
+      },
+      "HFMA2.MMA": {
+        "absent": 0
+      },
+      "I2F": {
+        "primitive": 24
+      },
+      "I2FP": {
+        "primitive": 6
+      },
+      "IABS": {
+        "native": 3
+      },
+      "IADD": {
+        "native": 3,
+        "opaque": 3
+      },
+      "IADD3": {
+        "native": 6
+      },
+      "IMAD": {
+        "native": 29
+      },
+      "IMNMX": {
+        "native": 3
+      },
+      "ISETP": {
+        "native": 3,
+        "opaque": 3
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 2,
+        "opaque": 7
+      },
+      "LDL": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "LEA": {
+        "native": 20
+      },
+      "LOP3": {
+        "native": 3
+      },
+      "MOV": {
+        "native": 5,
+        "opaque": 2
+      },
+      "MUFU": {
+        "primitive": 9
+      },
+      "NOP": {
+        "native": 1
+      },
+      "PRMT": {
+        "native": 5
+      },
+      "RET": {
+        "native": 2,
+        "opaque": 2
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 3
+      },
+      "SHF": {
+        "native": 5
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 2,
+        "opaque": 7
+      },
+      "STL": {
+        "native": 2,
+        "opaque": 2
+      },
+      "STS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "UIADD3": {
+        "native": 4
+      },
+      "UIMAD": {
+        "native": 10
+      },
+      "UISETP": {
+        "native": 2,
+        "opaque": 2
+      },
+      "ULDC": {
+        "absent": 0
+      },
+      "ULEA": {
+        "native": 14
+      },
+      "ULOP3": {
+        "native": 2
+      },
+      "UMOV": {
+        "native": 2
+      },
+      "USEL": {
+        "native": 2
+      },
+      "USHF": {
+        "native": 3
+      },
+      "VIADD": {
+        "native": 3
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    },
+    "status": {
+      "native": 200,
+      "opaque": 676,
+      "primitive": 98
+    }
+  },
+  "SM103_READABLE": {
     "classes": 974,
     "hardware_verified": false,
     "opaque_operations": {
@@ -1021,7 +1767,514 @@
       "primitive": 93
     }
   },
+  "SM120_READABLE": {
+    "classes": 1015,
+    "hardware_verified": false,
+    "opaque_operations": {
+      "bra_uniform_": "class selectors have no supported native combination",
+      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "fmnmx_pred__RIR_RIR": "unsupported class shape",
+      "fmnmx_pred__RRR_RRR": "unsupported class shape",
+      "fmnmx_pred__RUR_RUR": "unsupported class shape",
+      "hadd2_F32__RI": "unsupported class shape",
+      "hadd2_F32__RR": "class selectors have no supported native combination",
+      "hadd2_F32__RU": "class selectors have no supported native combination",
+      "hfma2_relu__RIR": "class selectors have no supported native combination",
+      "hfma2_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_relu__RRR": "class selectors have no supported native combination",
+      "hfma2_relu__RRU": "class selectors have no supported native combination",
+      "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "iadd_64_imm__RsIR_RIR": "unsupported class shape",
+      "iadd_64_noimm__RRR_RRR": "unsupported class shape",
+      "iadd_64_noimm__RUR_RUR": "unsupported class shape",
+      "iadd_64_x_imm__RIR_RIR": "unsupported class shape",
+      "iadd_64_x_noimm__RRR_RRR": "unsupported class shape",
+      "iadd_64_x_noimm__RUR_RUR": "unsupported class shape",
+      "iadd_x_imm__RIR_RIR": "class selectors have no supported native combination",
+      "iadd_x_noimm__RRR_RRR": "class selectors have no supported native combination",
+      "iadd_x_noimm__RUR_RUR": "class selectors have no supported native combination",
+      "imnmx_64__RIR_RsIR": "unsupported class shape",
+      "imnmx_64__RRR_RRR": "unsupported class shape",
+      "imnmx_64__RUR_RUR": "unsupported class shape",
+      "imnmx__RIR_RsIR": "unsupported class shape",
+      "imnmx__RRR_RRR": "unsupported class shape",
+      "imnmx__RUR_RUR": "unsupported class shape",
+      "isetp_64__RRR_RRR_EX": "class selectors have no supported native combination",
+      "isetp_64__RRR_RRR_noEX": "class selectors have no supported native combination",
+      "isetp_64__RUR_RUR_EX": "class selectors have no supported native combination",
+      "isetp_64__RUR_RUR_noEX": "class selectors have no supported native combination",
+      "isetp_64__RsIR_RIR_EX": "unsupported class shape",
+      "isetp_64__RsIR_RIR_noEX": "unsupported class shape",
+      "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
+      "isetp__RUR_RUR_EX": "class selectors have no supported native combination",
+      "isetp__RsIR_RIR_EX": "class selectors have no supported native combination",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "ldg_256_memdesc__Ra64": "unsupported class shape",
+      "ldg_256_rml2_memdesc__Ra64": "unsupported class shape",
+      "ldg_256_rml2_uniform__Ra32": "unsupported class shape",
+      "ldg_256_rml2_uniform__Ra64": "unsupported class shape",
+      "ldg_256_rml2_uniform__RaRZ": "unsupported class shape",
+      "ldg_256_uniform__Ra32": "unsupported class shape",
+      "ldg_256_uniform__Ra64": "unsupported class shape",
+      "ldg_256_uniform__RaRZ": "unsupported class shape",
+      "ldg_memdesc__Ra64": "class selectors have no supported native combination",
+      "ldg_uniform__Ra32": "class selectors have no supported native combination",
+      "ldg_uniform__Ra64": "class selectors have no supported native combination",
+      "ldl_memdesc_": "class selectors have no supported native combination",
+      "ldl_uniform_": "class selectors have no supported native combination",
+      "lds_uniform_": "class selectors have no supported native combination",
+      "mov_indexedRF_IRFd__Ib": "unsupported class shape",
+      "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "ret__REL": "class selectors have no supported native combination",
+      "ret__REL_UR": "class selectors have no supported native combination",
+      "stg_256_memdesc__Ra64": "unsupported class shape",
+      "stg_256_uniform__Ra32": "unsupported class shape",
+      "stg_256_uniform__Ra64": "unsupported class shape",
+      "stg_256_uniform__RaRZ": "unsupported class shape",
+      "stg_memdesc__Ra64": "class selectors have no supported native combination",
+      "stg_uniform__Ra32": "class selectors have no supported native combination",
+      "stg_uniform__Ra64": "class selectors have no supported native combination",
+      "stl_memdesc_": "class selectors have no supported native combination",
+      "stl_uniform_": "class selectors have no supported native combination",
+      "sts_uniform_": "class selectors have no supported native combination",
+      "uisetp_64__URURUR_URURUR": "class selectors have no supported native combination",
+      "uisetp_64__URsIUR_URIR": "unsupported class shape",
+      "uisetp_64_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
+      "uisetp_64_optional_upr__URsIUR_URIR": "unsupported class shape",
+      "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
+      "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination"
+    },
+    "operations": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 2,
+        "opaque": 2
+      },
+      "BSSY": {
+        "primitive": 2
+      },
+      "BSYNC": {
+        "primitive": 2
+      },
+      "CALL": {
+        "native": 6
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "DADD": {
+        "native": 3
+      },
+      "DFMA": {
+        "native": 5
+      },
+      "DMUL": {
+        "native": 3
+      },
+      "DSETP": {
+        "native": 3
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 24
+      },
+      "FADD": {
+        "native": 3
+      },
+      "FFMA": {
+        "native": 5
+      },
+      "FMNMX": {
+        "native": 3,
+        "opaque": 3
+      },
+      "FMUL": {
+        "native": 3
+      },
+      "FSEL": {
+        "native": 3
+      },
+      "FSETP": {
+        "native": 3
+      },
+      "HADD2": {
+        "native": 3,
+        "opaque": 3
+      },
+      "HFMA2": {
+        "native": 5,
+        "opaque": 5
+      },
+      "HFMA2.MMA": {
+        "absent": 0
+      },
+      "I2F": {
+        "primitive": 24
+      },
+      "I2FP": {
+        "primitive": 4
+      },
+      "IABS": {
+        "native": 3
+      },
+      "IADD": {
+        "native": 3,
+        "opaque": 9
+      },
+      "IADD3": {
+        "native": 6
+      },
+      "IMAD": {
+        "native": 29
+      },
+      "IMNMX": {
+        "opaque": 6
+      },
+      "ISETP": {
+        "native": 3,
+        "opaque": 9
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 2,
+        "opaque": 11
+      },
+      "LDL": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "LEA": {
+        "native": 20
+      },
+      "LOP3": {
+        "native": 3
+      },
+      "MOV": {
+        "native": 8,
+        "opaque": 2
+      },
+      "MUFU": {
+        "primitive": 6
+      },
+      "NOP": {
+        "native": 1
+      },
+      "PRMT": {
+        "native": 5
+      },
+      "RET": {
+        "native": 2,
+        "opaque": 2
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 6
+      },
+      "SHF": {
+        "native": 5
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 2,
+        "opaque": 7
+      },
+      "STL": {
+        "native": 2,
+        "opaque": 2
+      },
+      "STS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "UIADD3": {
+        "native": 4
+      },
+      "UIMAD": {
+        "native": 14
+      },
+      "UISETP": {
+        "native": 2,
+        "opaque": 6
+      },
+      "ULDC": {
+        "absent": 0
+      },
+      "ULEA": {
+        "native": 14
+      },
+      "ULOP3": {
+        "native": 2
+      },
+      "UMOV": {
+        "native": 4
+      },
+      "USEL": {
+        "native": 4
+      },
+      "USHF": {
+        "native": 3
+      },
+      "VIADD": {
+        "native": 3
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    },
+    "status": {
+      "native": 211,
+      "opaque": 711,
+      "primitive": 93
+    }
+  },
   "SM75": {
+    "classes": 903,
+    "hardware_verified": false,
+    "opaque_operations": {
+      "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
+      "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
+      "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
+      "imad_wide_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
+      "isetp__RCR_RCR": "class selectors have no supported native combination",
+      "isetp__RCxR_RCxR": "class selectors have no supported native combination",
+      "isetp__RRR_RRR": "class selectors have no supported native combination",
+      "isetp__RUR_RUR": "class selectors have no supported native combination",
+      "isetp__RsIR_RIR": "class selectors have no supported native combination",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "ldg_uniform__Ra32": "class selectors have no supported native combination",
+      "ldg_uniform__Ra64": "class selectors have no supported native combination",
+      "ldg_uniform__RaRZ": "class selectors have no supported native combination",
+      "ldg_zd_uniform__Ra32": "class selectors have no supported native combination",
+      "ldg_zd_uniform__Ra64": "class selectors have no supported native combination",
+      "ldg_zd_uniform__RaRZ": "class selectors have no supported native combination",
+      "ldl_uniform_": "class selectors have no supported native combination",
+      "lds_uniform_": "class selectors have no supported native combination",
+      "lds_zd_uniform_": "class selectors have no supported native combination",
+      "ret__REL": "class selectors have no supported native combination",
+      "ret__REL_UR": "class selectors have no supported native combination",
+      "stg_uniform__Ra32": "class selectors have no supported native combination",
+      "stg_uniform__Ra64": "class selectors have no supported native combination",
+      "stg_uniform__RaRZ": "class selectors have no supported native combination",
+      "stl_uniform_": "class selectors have no supported native combination",
+      "sts_uniform_": "class selectors have no supported native combination",
+      "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
+      "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination",
+      "uldc_const__RCxR": "unsupported class shape",
+      "uldc_imm_": "unsupported class shape",
+      "uldc_ur_offs_": "unsupported class shape",
+      "uldc_ur_offset_": "unsupported class shape"
+    },
+    "operations": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 1
+      },
+      "BSSY": {
+        "primitive": 1
+      },
+      "BSYNC": {
+        "primitive": 1
+      },
+      "CALL": {
+        "native": 7
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "DADD": {
+        "native": 5
+      },
+      "DFMA": {
+        "native": 9
+      },
+      "DMUL": {
+        "native": 5
+      },
+      "DSETP": {
+        "native": 5
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 30
+      },
+      "FADD": {
+        "native": 5
+      },
+      "FFMA": {
+        "native": 9
+      },
+      "FMNMX": {
+        "native": 5
+      },
+      "FMUL": {
+        "native": 5
+      },
+      "FSEL": {
+        "native": 5
+      },
+      "FSETP": {
+        "native": 5
+      },
+      "HADD2": {
+        "native": 5
+      },
+      "HFMA2": {
+        "native": 9
+      },
+      "HFMA2.MMA": {
+        "absent": 0
+      },
+      "I2F": {
+        "primitive": 40
+      },
+      "I2FP": {
+        "absent": 0
+      },
+      "IABS": {
+        "native": 5
+      },
+      "IADD": {
+        "absent": 0
+      },
+      "IADD3": {
+        "native": 10
+      },
+      "IMAD": {
+        "native": 51,
+        "opaque": 4
+      },
+      "IMNMX": {
+        "native": 5
+      },
+      "ISETP": {
+        "opaque": 5
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 4,
+        "opaque": 6
+      },
+      "LDL": {
+        "native": 2,
+        "opaque": 1
+      },
+      "LDS": {
+        "native": 4,
+        "opaque": 2
+      },
+      "LEA": {
+        "native": 32
+      },
+      "LOP3": {
+        "native": 5
+      },
+      "MOV": {
+        "native": 5
+      },
+      "MUFU": {
+        "primitive": 10
+      },
+      "NOP": {
+        "native": 1
+      },
+      "PRMT": {
+        "native": 9
+      },
+      "RET": {
+        "native": 2,
+        "opaque": 2
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 5
+      },
+      "SHF": {
+        "native": 9
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 2,
+        "opaque": 3
+      },
+      "STL": {
+        "native": 2,
+        "opaque": 1
+      },
+      "STS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "UIADD3": {
+        "native": 4
+      },
+      "UIMAD": {
+        "native": 10
+      },
+      "UISETP": {
+        "native": 2,
+        "opaque": 2
+      },
+      "ULDC": {
+        "native": 1,
+        "opaque": 4
+      },
+      "ULEA": {
+        "native": 14
+      },
+      "ULOP3": {
+        "native": 2
+      },
+      "UMOV": {
+        "native": 2
+      },
+      "USEL": {
+        "native": 2
+      },
+      "USHF": {
+        "native": 3
+      },
+      "VIADD": {
+        "absent": 0
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    },
+    "status": {
+      "native": 280,
+      "opaque": 510,
+      "primitive": 113
+    }
+  },
+  "SM75_READABLE": {
     "classes": 903,
     "hardware_verified": false,
     "opaque_operations": {
@@ -1515,7 +2768,534 @@
       "primitive": 113
     }
   },
+  "SM80_READABLE": {
+    "classes": 967,
+    "hardware_verified": false,
+    "opaque_operations": {
+      "bra_uniform_": "class selectors have no supported native combination",
+      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "hfma2_mma__RCR_norelu": "unsupported class shape",
+      "hfma2_mma__RCR_relu": "unsupported class shape",
+      "hfma2_mma__RCxR_norelu": "unsupported class shape",
+      "hfma2_mma__RCxR_relu": "unsupported class shape",
+      "hfma2_mma__RIR_norelu": "unsupported class shape",
+      "hfma2_mma__RIR_relu": "unsupported class shape",
+      "hfma2_mma__RRC_norelu": "unsupported class shape",
+      "hfma2_mma__RRC_relu": "unsupported class shape",
+      "hfma2_mma__RRCx_norelu": "unsupported class shape",
+      "hfma2_mma__RRCx_relu": "unsupported class shape",
+      "hfma2_mma__RRI_relu": "class selectors have no supported native combination",
+      "hfma2_mma__RRR_norelu": "unsupported class shape",
+      "hfma2_mma__RRR_relu": "unsupported class shape",
+      "hfma2_mma__RRU_norelu": "unsupported class shape",
+      "hfma2_mma__RRU_relu": "unsupported class shape",
+      "hfma2_mma__RUR_norelu": "unsupported class shape",
+      "hfma2_mma__RUR_relu": "unsupported class shape",
+      "hfma2_relu__RCR": "class selectors have no supported native combination",
+      "hfma2_relu__RCxR": "class selectors have no supported native combination",
+      "hfma2_relu__RIR": "class selectors have no supported native combination",
+      "hfma2_relu__RRC": "class selectors have no supported native combination",
+      "hfma2_relu__RRCx": "class selectors have no supported native combination",
+      "hfma2_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_relu__RRR": "class selectors have no supported native combination",
+      "hfma2_relu__RRU": "class selectors have no supported native combination",
+      "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
+      "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
+      "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
+      "imad_wide_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
+      "isetp__RCR_RCR_EX": "class selectors have no supported native combination",
+      "isetp__RCxR_RCxR_EX": "class selectors have no supported native combination",
+      "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
+      "isetp__RUR_RUR_EX": "class selectors have no supported native combination",
+      "isetp__RsIR_RIR_EX": "class selectors have no supported native combination",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "ldg_uniform__Ra32": "class selectors have no supported native combination",
+      "ldg_uniform__Ra64": "class selectors have no supported native combination",
+      "ldg_uniform__RaRZ": "class selectors have no supported native combination",
+      "ldl_uniform_": "class selectors have no supported native combination",
+      "lds_uniform_": "class selectors have no supported native combination",
+      "mov_indexedRF_IRFd__Cb": "unsupported class shape",
+      "mov_indexedRF_IRFd__Ib": "unsupported class shape",
+      "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "ret__REL": "class selectors have no supported native combination",
+      "ret__REL_UR": "class selectors have no supported native combination",
+      "stg_uniform__Ra32": "class selectors have no supported native combination",
+      "stg_uniform__Ra64": "class selectors have no supported native combination",
+      "stg_uniform__RaRZ": "class selectors have no supported native combination",
+      "stl_uniform_": "class selectors have no supported native combination",
+      "sts_uniform_": "class selectors have no supported native combination",
+      "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
+      "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination",
+      "uldc_const__RCxR": "unsupported class shape",
+      "uldc_imm_": "unsupported class shape",
+      "uldc_ur_offs_": "unsupported class shape",
+      "uldc_ur_offset_": "unsupported class shape"
+    },
+    "operations": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 1,
+        "opaque": 2
+      },
+      "BSSY": {
+        "primitive": 1
+      },
+      "BSYNC": {
+        "primitive": 1
+      },
+      "CALL": {
+        "native": 7
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "DADD": {
+        "native": 5
+      },
+      "DFMA": {
+        "native": 9
+      },
+      "DMUL": {
+        "native": 5
+      },
+      "DSETP": {
+        "native": 5
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 30
+      },
+      "FADD": {
+        "native": 5
+      },
+      "FFMA": {
+        "native": 9
+      },
+      "FMNMX": {
+        "native": 5
+      },
+      "FMUL": {
+        "native": 5
+      },
+      "FSEL": {
+        "native": 5
+      },
+      "FSETP": {
+        "native": 5
+      },
+      "HADD2": {
+        "native": 5
+      },
+      "HFMA2": {
+        "native": 9,
+        "opaque": 9
+      },
+      "HFMA2.MMA": {
+        "native": 1,
+        "opaque": 17
+      },
+      "I2F": {
+        "primitive": 40
+      },
+      "I2FP": {
+        "absent": 0
+      },
+      "IABS": {
+        "native": 5
+      },
+      "IADD": {
+        "absent": 0
+      },
+      "IADD3": {
+        "native": 10
+      },
+      "IMAD": {
+        "native": 51,
+        "opaque": 4
+      },
+      "IMNMX": {
+        "native": 5
+      },
+      "ISETP": {
+        "native": 5,
+        "opaque": 5
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 3,
+        "opaque": 3
+      },
+      "LDL": {
+        "native": 3,
+        "opaque": 1
+      },
+      "LDS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "LEA": {
+        "native": 32
+      },
+      "LOP3": {
+        "native": 5
+      },
+      "MOV": {
+        "native": 6,
+        "opaque": 3
+      },
+      "MUFU": {
+        "primitive": 10
+      },
+      "NOP": {
+        "native": 1
+      },
+      "PRMT": {
+        "native": 9
+      },
+      "RET": {
+        "native": 2,
+        "opaque": 2
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 5
+      },
+      "SHF": {
+        "native": 9
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 3,
+        "opaque": 3
+      },
+      "STL": {
+        "native": 3,
+        "opaque": 1
+      },
+      "STS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "UIADD3": {
+        "native": 4
+      },
+      "UIMAD": {
+        "native": 10
+      },
+      "UISETP": {
+        "native": 2,
+        "opaque": 2
+      },
+      "ULDC": {
+        "native": 1,
+        "opaque": 4
+      },
+      "ULEA": {
+        "native": 14
+      },
+      "ULOP3": {
+        "native": 2
+      },
+      "UMOV": {
+        "native": 2
+      },
+      "USEL": {
+        "native": 2
+      },
+      "USHF": {
+        "native": 3
+      },
+      "VIADD": {
+        "absent": 0
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    },
+    "status": {
+      "native": 287,
+      "opaque": 567,
+      "primitive": 113
+    }
+  },
   "SM86": {
+    "classes": 1004,
+    "hardware_verified": false,
+    "opaque_operations": {
+      "bra_uniform_": "class selectors have no supported native combination",
+      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "hadd2_F32__RC": "class selectors have no supported native combination",
+      "hadd2_F32__RCx": "class selectors have no supported native combination",
+      "hadd2_F32__RI": "unsupported class shape",
+      "hadd2_F32__RR": "class selectors have no supported native combination",
+      "hadd2_F32__RU": "class selectors have no supported native combination",
+      "hfma2_mma__RCR_norelu": "unsupported class shape",
+      "hfma2_mma__RCR_relu": "unsupported class shape",
+      "hfma2_mma__RCxR_norelu": "unsupported class shape",
+      "hfma2_mma__RCxR_relu": "unsupported class shape",
+      "hfma2_mma__RIR_norelu": "unsupported class shape",
+      "hfma2_mma__RIR_relu": "unsupported class shape",
+      "hfma2_mma__RRC_norelu": "unsupported class shape",
+      "hfma2_mma__RRC_relu": "unsupported class shape",
+      "hfma2_mma__RRCx_norelu": "unsupported class shape",
+      "hfma2_mma__RRCx_relu": "unsupported class shape",
+      "hfma2_mma__RRI_relu": "class selectors have no supported native combination",
+      "hfma2_mma__RRR_norelu": "unsupported class shape",
+      "hfma2_mma__RRR_relu": "unsupported class shape",
+      "hfma2_mma__RRU_norelu": "unsupported class shape",
+      "hfma2_mma__RRU_relu": "unsupported class shape",
+      "hfma2_mma__RUR_norelu": "unsupported class shape",
+      "hfma2_mma__RUR_relu": "unsupported class shape",
+      "hfma2_relu__RCR": "class selectors have no supported native combination",
+      "hfma2_relu__RCxR": "class selectors have no supported native combination",
+      "hfma2_relu__RIR": "class selectors have no supported native combination",
+      "hfma2_relu__RRC": "class selectors have no supported native combination",
+      "hfma2_relu__RRCx": "class selectors have no supported native combination",
+      "hfma2_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_relu__RRR": "class selectors have no supported native combination",
+      "hfma2_relu__RRU": "class selectors have no supported native combination",
+      "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "isetp__RCR_RCR_EX": "class selectors have no supported native combination",
+      "isetp__RCxR_RCxR_EX": "class selectors have no supported native combination",
+      "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
+      "isetp__RUR_RUR_EX": "class selectors have no supported native combination",
+      "isetp__RsIR_RIR_EX": "class selectors have no supported native combination",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "ldg_uniform__Ra32": "class selectors have no supported native combination",
+      "ldg_uniform__Ra64": "class selectors have no supported native combination",
+      "ldg_uniform__RaRZ": "class selectors have no supported native combination",
+      "ldl_uniform_": "class selectors have no supported native combination",
+      "lds_uniform_": "class selectors have no supported native combination",
+      "mov_indexedRF_IRFd__Cb": "unsupported class shape",
+      "mov_indexedRF_IRFd__Ib": "unsupported class shape",
+      "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "ret__REL": "class selectors have no supported native combination",
+      "ret__REL_UR": "class selectors have no supported native combination",
+      "stg_uniform__Ra32": "class selectors have no supported native combination",
+      "stg_uniform__Ra64": "class selectors have no supported native combination",
+      "stg_uniform__RaRZ": "class selectors have no supported native combination",
+      "stl_uniform_": "class selectors have no supported native combination",
+      "sts_uniform_": "class selectors have no supported native combination",
+      "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
+      "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination",
+      "uldc_const__RCxR": "unsupported class shape",
+      "uldc_imm_": "unsupported class shape",
+      "uldc_ur_offs_": "unsupported class shape",
+      "uldc_ur_offset_": "unsupported class shape"
+    },
+    "operations": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 1,
+        "opaque": 2
+      },
+      "BSSY": {
+        "primitive": 1
+      },
+      "BSYNC": {
+        "primitive": 1
+      },
+      "CALL": {
+        "native": 7
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "DADD": {
+        "native": 5
+      },
+      "DFMA": {
+        "native": 9
+      },
+      "DMUL": {
+        "native": 5
+      },
+      "DSETP": {
+        "native": 5
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 30
+      },
+      "FADD": {
+        "native": 5
+      },
+      "FFMA": {
+        "native": 9
+      },
+      "FMNMX": {
+        "native": 5
+      },
+      "FMUL": {
+        "native": 5
+      },
+      "FSEL": {
+        "native": 5
+      },
+      "FSETP": {
+        "native": 5
+      },
+      "HADD2": {
+        "native": 5,
+        "opaque": 5
+      },
+      "HFMA2": {
+        "native": 9,
+        "opaque": 9
+      },
+      "HFMA2.MMA": {
+        "native": 1,
+        "opaque": 17
+      },
+      "I2F": {
+        "primitive": 40
+      },
+      "I2FP": {
+        "primitive": 6
+      },
+      "IABS": {
+        "native": 5
+      },
+      "IADD": {
+        "absent": 0
+      },
+      "IADD3": {
+        "native": 10
+      },
+      "IMAD": {
+        "native": 55
+      },
+      "IMNMX": {
+        "native": 5
+      },
+      "ISETP": {
+        "native": 5,
+        "opaque": 5
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 3,
+        "opaque": 3
+      },
+      "LDL": {
+        "native": 3,
+        "opaque": 1
+      },
+      "LDS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "LEA": {
+        "native": 32
+      },
+      "LOP3": {
+        "native": 5
+      },
+      "MOV": {
+        "native": 6,
+        "opaque": 3
+      },
+      "MUFU": {
+        "primitive": 10
+      },
+      "NOP": {
+        "native": 1
+      },
+      "PRMT": {
+        "native": 9
+      },
+      "RET": {
+        "native": 2,
+        "opaque": 2
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 5
+      },
+      "SHF": {
+        "native": 9
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 3,
+        "opaque": 3
+      },
+      "STL": {
+        "native": 3,
+        "opaque": 1
+      },
+      "STS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "UIADD3": {
+        "native": 4
+      },
+      "UIMAD": {
+        "native": 10
+      },
+      "UISETP": {
+        "native": 2,
+        "opaque": 2
+      },
+      "ULDC": {
+        "native": 1,
+        "opaque": 4
+      },
+      "ULEA": {
+        "native": 14
+      },
+      "ULOP3": {
+        "native": 2
+      },
+      "UMOV": {
+        "native": 2
+      },
+      "USEL": {
+        "native": 2
+      },
+      "USHF": {
+        "native": 3
+      },
+      "VIADD": {
+        "absent": 0
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    },
+    "status": {
+      "native": 291,
+      "opaque": 594,
+      "primitive": 119
+    }
+  },
+  "SM86_READABLE": {
     "classes": 1004,
     "hardware_verified": false,
     "opaque_operations": {
@@ -2051,7 +3831,551 @@
       "primitive": 119
     }
   },
+  "SM89_READABLE": {
+    "classes": 1054,
+    "hardware_verified": false,
+    "opaque_operations": {
+      "bra_uniform_": "class selectors have no supported native combination",
+      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "hadd2_F32__RC": "class selectors have no supported native combination",
+      "hadd2_F32__RCx": "class selectors have no supported native combination",
+      "hadd2_F32__RI": "unsupported class shape",
+      "hadd2_F32__RR": "class selectors have no supported native combination",
+      "hadd2_F32__RU": "class selectors have no supported native combination",
+      "hfma2_mma__RCR_norelu": "unsupported class shape",
+      "hfma2_mma__RCR_relu": "unsupported class shape",
+      "hfma2_mma__RCxR_norelu": "unsupported class shape",
+      "hfma2_mma__RCxR_relu": "unsupported class shape",
+      "hfma2_mma__RIR_norelu": "unsupported class shape",
+      "hfma2_mma__RIR_relu": "unsupported class shape",
+      "hfma2_mma__RRC_norelu": "unsupported class shape",
+      "hfma2_mma__RRC_relu": "unsupported class shape",
+      "hfma2_mma__RRCx_norelu": "unsupported class shape",
+      "hfma2_mma__RRCx_relu": "unsupported class shape",
+      "hfma2_mma__RRI_relu": "class selectors have no supported native combination",
+      "hfma2_mma__RRR_norelu": "unsupported class shape",
+      "hfma2_mma__RRR_relu": "unsupported class shape",
+      "hfma2_mma__RRU_norelu": "unsupported class shape",
+      "hfma2_mma__RRU_relu": "unsupported class shape",
+      "hfma2_mma__RUR_norelu": "unsupported class shape",
+      "hfma2_mma__RUR_relu": "unsupported class shape",
+      "hfma2_relu__RCR": "class selectors have no supported native combination",
+      "hfma2_relu__RCxR": "class selectors have no supported native combination",
+      "hfma2_relu__RIR": "class selectors have no supported native combination",
+      "hfma2_relu__RRC": "class selectors have no supported native combination",
+      "hfma2_relu__RRCx": "class selectors have no supported native combination",
+      "hfma2_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_relu__RRR": "class selectors have no supported native combination",
+      "hfma2_relu__RRU": "class selectors have no supported native combination",
+      "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "isetp__RCR_RCR_EX": "class selectors have no supported native combination",
+      "isetp__RCxR_RCxR_EX": "class selectors have no supported native combination",
+      "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
+      "isetp__RUR_RUR_EX": "class selectors have no supported native combination",
+      "isetp__RsIR_RIR_EX": "class selectors have no supported native combination",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "ldg_256_memdesc__Ra64": "unsupported class shape",
+      "ldg_256_uniform__Ra32": "unsupported class shape",
+      "ldg_256_uniform__Ra64": "unsupported class shape",
+      "ldg_256_uniform__RaRZ": "unsupported class shape",
+      "ldg_uniform__Ra32": "class selectors have no supported native combination",
+      "ldg_uniform__Ra64": "class selectors have no supported native combination",
+      "ldg_uniform__RaRZ": "class selectors have no supported native combination",
+      "ldl_uniform_": "class selectors have no supported native combination",
+      "lds_uniform_": "class selectors have no supported native combination",
+      "mov_indexedRF_IRFd__Cb": "unsupported class shape",
+      "mov_indexedRF_IRFd__Ib": "unsupported class shape",
+      "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "ret__REL": "class selectors have no supported native combination",
+      "ret__REL_UR": "class selectors have no supported native combination",
+      "stg_256_memdesc__Ra64": "unsupported class shape",
+      "stg_256_uniform__Ra32": "unsupported class shape",
+      "stg_256_uniform__Ra64": "unsupported class shape",
+      "stg_256_uniform__RaRZ": "unsupported class shape",
+      "stg_uniform__Ra32": "class selectors have no supported native combination",
+      "stg_uniform__Ra64": "class selectors have no supported native combination",
+      "stg_uniform__RaRZ": "class selectors have no supported native combination",
+      "stl_uniform_": "class selectors have no supported native combination",
+      "sts_uniform_": "class selectors have no supported native combination",
+      "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
+      "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination",
+      "uldc_const__RCxR": "unsupported class shape",
+      "uldc_imm_": "unsupported class shape",
+      "uldc_ur_offs_": "unsupported class shape",
+      "uldc_ur_offset_": "unsupported class shape"
+    },
+    "operations": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 1,
+        "opaque": 2
+      },
+      "BSSY": {
+        "primitive": 1
+      },
+      "BSYNC": {
+        "primitive": 1
+      },
+      "CALL": {
+        "native": 7
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "DADD": {
+        "native": 5
+      },
+      "DFMA": {
+        "native": 9
+      },
+      "DMUL": {
+        "native": 5
+      },
+      "DSETP": {
+        "native": 5
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 30
+      },
+      "FADD": {
+        "native": 5
+      },
+      "FFMA": {
+        "native": 9
+      },
+      "FMNMX": {
+        "native": 5
+      },
+      "FMUL": {
+        "native": 5
+      },
+      "FSEL": {
+        "native": 5
+      },
+      "FSETP": {
+        "native": 5
+      },
+      "HADD2": {
+        "native": 5,
+        "opaque": 5
+      },
+      "HFMA2": {
+        "native": 9,
+        "opaque": 9
+      },
+      "HFMA2.MMA": {
+        "native": 1,
+        "opaque": 17
+      },
+      "I2F": {
+        "primitive": 40
+      },
+      "I2FP": {
+        "primitive": 6
+      },
+      "IABS": {
+        "native": 5
+      },
+      "IADD": {
+        "absent": 0
+      },
+      "IADD3": {
+        "native": 10
+      },
+      "IMAD": {
+        "native": 55
+      },
+      "IMNMX": {
+        "native": 5
+      },
+      "ISETP": {
+        "native": 5,
+        "opaque": 5
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 3,
+        "opaque": 7
+      },
+      "LDL": {
+        "native": 3,
+        "opaque": 1
+      },
+      "LDS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "LEA": {
+        "native": 32
+      },
+      "LOP3": {
+        "native": 5
+      },
+      "MOV": {
+        "native": 6,
+        "opaque": 3
+      },
+      "MUFU": {
+        "primitive": 10
+      },
+      "NOP": {
+        "native": 1
+      },
+      "PRMT": {
+        "native": 9
+      },
+      "RET": {
+        "native": 2,
+        "opaque": 2
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 5
+      },
+      "SHF": {
+        "native": 9
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 3,
+        "opaque": 7
+      },
+      "STL": {
+        "native": 3,
+        "opaque": 1
+      },
+      "STS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "UIADD3": {
+        "native": 4
+      },
+      "UIMAD": {
+        "native": 10
+      },
+      "UISETP": {
+        "native": 2,
+        "opaque": 2
+      },
+      "ULDC": {
+        "native": 1,
+        "opaque": 4
+      },
+      "ULEA": {
+        "native": 14
+      },
+      "ULOP3": {
+        "native": 2
+      },
+      "UMOV": {
+        "native": 2
+      },
+      "USEL": {
+        "native": 2
+      },
+      "USHF": {
+        "native": 3
+      },
+      "VIADD": {
+        "absent": 0
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    },
+    "status": {
+      "native": 291,
+      "opaque": 644,
+      "primitive": 119
+    }
+  },
   "SM90": {
+    "classes": 1173,
+    "hardware_verified": false,
+    "opaque_operations": {
+      "bra_uniform_": "class selectors have no supported native combination",
+      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "fmnmx_pred__RCR_RCR": "unsupported class shape",
+      "fmnmx_pred__RCxR_RCxR": "unsupported class shape",
+      "fmnmx_pred__RIR_RIR": "unsupported class shape",
+      "fmnmx_pred__RRR_RRR": "unsupported class shape",
+      "fmnmx_pred__RUR_RUR": "unsupported class shape",
+      "hadd2_F32__RC": "class selectors have no supported native combination",
+      "hadd2_F32__RCx": "class selectors have no supported native combination",
+      "hadd2_F32__RI": "unsupported class shape",
+      "hadd2_F32__RR": "class selectors have no supported native combination",
+      "hadd2_F32__RU": "class selectors have no supported native combination",
+      "hfma2_mma__RCR": "unsupported class shape",
+      "hfma2_mma__RCxR": "unsupported class shape",
+      "hfma2_mma__RIR": "unsupported class shape",
+      "hfma2_mma__RRC": "unsupported class shape",
+      "hfma2_mma__RRCx": "unsupported class shape",
+      "hfma2_mma__RRI": "class selectors have no supported native combination",
+      "hfma2_mma__RRR": "unsupported class shape",
+      "hfma2_mma__RRU": "unsupported class shape",
+      "hfma2_mma__RUR": "unsupported class shape",
+      "hfma2_mma_relu__RCR": "unsupported class shape",
+      "hfma2_mma_relu__RCxR": "unsupported class shape",
+      "hfma2_mma_relu__RIR": "unsupported class shape",
+      "hfma2_mma_relu__RRC": "unsupported class shape",
+      "hfma2_mma_relu__RRCx": "unsupported class shape",
+      "hfma2_mma_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_mma_relu__RRR": "unsupported class shape",
+      "hfma2_mma_relu__RRU": "unsupported class shape",
+      "hfma2_mma_relu__RUR": "unsupported class shape",
+      "hfma2_relu__RCR": "class selectors have no supported native combination",
+      "hfma2_relu__RCxR": "class selectors have no supported native combination",
+      "hfma2_relu__RIR": "class selectors have no supported native combination",
+      "hfma2_relu__RRC": "class selectors have no supported native combination",
+      "hfma2_relu__RRCx": "class selectors have no supported native combination",
+      "hfma2_relu__RRI": "class selectors have no supported native combination",
+      "hfma2_relu__RRR": "class selectors have no supported native combination",
+      "hfma2_relu__RRU": "class selectors have no supported native combination",
+      "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "isetp__RCR_RCR_EX": "class selectors have no supported native combination",
+      "isetp__RCxR_RCxR_EX": "class selectors have no supported native combination",
+      "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
+      "isetp__RUR_RUR_EX": "class selectors have no supported native combination",
+      "isetp__RsIR_RIR_EX": "class selectors have no supported native combination",
+      "ldc_ur__URRzI": "unsupported class shape",
+      "ldc_ur__URnonRzI": "unsupported class shape",
+      "ldg_memdesc__Ra64": "class selectors have no supported native combination",
+      "ldg_uniform__Ra32": "class selectors have no supported native combination",
+      "ldg_uniform__Ra64": "class selectors have no supported native combination",
+      "ldl_memdesc_": "class selectors have no supported native combination",
+      "ldl_uniform_": "class selectors have no supported native combination",
+      "lds_uniform_": "class selectors have no supported native combination",
+      "mov_indexedRF_IRFd__Cb": "unsupported class shape",
+      "mov_indexedRF_IRFd__Ib": "unsupported class shape",
+      "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "ret__REL": "class selectors have no supported native combination",
+      "ret__REL_UR": "class selectors have no supported native combination",
+      "stg_memdesc__Ra64": "class selectors have no supported native combination",
+      "stg_uniform__Ra32": "class selectors have no supported native combination",
+      "stg_uniform__Ra64": "class selectors have no supported native combination",
+      "stl_memdesc_": "class selectors have no supported native combination",
+      "stl_uniform_": "class selectors have no supported native combination",
+      "sts_uniform_": "class selectors have no supported native combination",
+      "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
+      "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination",
+      "uldc_const__RCxR": "unsupported class shape",
+      "uldc_imm_": "unsupported class shape",
+      "uldc_ur_offs_": "unsupported class shape",
+      "uldc_ur_offset_": "unsupported class shape"
+    },
+    "operations": {
+      "BAR": {
+        "primitive": 26
+      },
+      "BRA": {
+        "native": 2,
+        "opaque": 2
+      },
+      "BSSY": {
+        "primitive": 1
+      },
+      "BSYNC": {
+        "primitive": 1
+      },
+      "CALL": {
+        "native": 7
+      },
+      "CS2R": {
+        "native": 1
+      },
+      "DADD": {
+        "native": 5
+      },
+      "DFMA": {
+        "native": 9
+      },
+      "DMUL": {
+        "native": 5
+      },
+      "DSETP": {
+        "native": 5
+      },
+      "EXIT": {
+        "native": 1
+      },
+      "F2I": {
+        "primitive": 40
+      },
+      "FADD": {
+        "native": 5
+      },
+      "FFMA": {
+        "native": 9
+      },
+      "FMNMX": {
+        "native": 5,
+        "opaque": 5
+      },
+      "FMUL": {
+        "native": 5
+      },
+      "FSEL": {
+        "native": 5
+      },
+      "FSETP": {
+        "native": 5
+      },
+      "HADD2": {
+        "native": 5,
+        "opaque": 5
+      },
+      "HFMA2": {
+        "native": 9,
+        "opaque": 9
+      },
+      "HFMA2.MMA": {
+        "opaque": 18
+      },
+      "I2F": {
+        "primitive": 40
+      },
+      "I2FP": {
+        "primitive": 6
+      },
+      "IABS": {
+        "native": 5
+      },
+      "IADD": {
+        "absent": 0
+      },
+      "IADD3": {
+        "native": 10
+      },
+      "IMAD": {
+        "native": 55
+      },
+      "IMNMX": {
+        "native": 5
+      },
+      "ISETP": {
+        "native": 5,
+        "opaque": 5
+      },
+      "LDC": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDG": {
+        "native": 2,
+        "opaque": 3
+      },
+      "LDL": {
+        "native": 2,
+        "opaque": 2
+      },
+      "LDS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "LEA": {
+        "native": 32
+      },
+      "LOP3": {
+        "native": 5
+      },
+      "MOV": {
+        "native": 6,
+        "opaque": 3
+      },
+      "MUFU": {
+        "primitive": 10
+      },
+      "NOP": {
+        "native": 1
+      },
+      "PRMT": {
+        "native": 9
+      },
+      "RET": {
+        "native": 2,
+        "opaque": 2
+      },
+      "S2R": {
+        "native": 1
+      },
+      "SEL": {
+        "native": 5
+      },
+      "SHF": {
+        "native": 9
+      },
+      "SHFL": {
+        "primitive": 4
+      },
+      "STG": {
+        "native": 2,
+        "opaque": 3
+      },
+      "STL": {
+        "native": 2,
+        "opaque": 2
+      },
+      "STS": {
+        "native": 2,
+        "opaque": 1
+      },
+      "UIADD3": {
+        "native": 4
+      },
+      "UIMAD": {
+        "native": 10
+      },
+      "UISETP": {
+        "native": 2,
+        "opaque": 2
+      },
+      "ULDC": {
+        "native": 1,
+        "opaque": 4
+      },
+      "ULEA": {
+        "native": 14
+      },
+      "ULOP3": {
+        "native": 2
+      },
+      "UMOV": {
+        "native": 2
+      },
+      "USEL": {
+        "native": 2
+      },
+      "USHF": {
+        "native": 3
+      },
+      "VIADD": {
+        "native": 5
+      },
+      "VOTE": {
+        "primitive": 1
+      }
+    },
+    "status": {
+      "native": 292,
+      "opaque": 752,
+      "primitive": 129
+    }
+  },
+  "SM90_READABLE": {
     "classes": 1173,
     "hardware_verified": false,
     "opaque_operations": {

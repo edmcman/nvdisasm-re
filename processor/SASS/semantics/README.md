@@ -46,7 +46,7 @@ has value semantics. `primitive` means the runtime validates and executes the
 operation or rejects an unsupported selector/context. `opaque` means the md's
 register effects, registers and immediates are passed without asserting a result.
 The coverage ledger's architecture-wide `hardware_verified` flag remains false:
-GPU comparisons currently cover the 43 whole-kernel SM89 fixtures recorded in
+GPU comparisons currently cover the 60 whole-kernel SM89 fixtures recorded in
 [verification.json](verification.json), rather than every class and selector.
 
 IMAD.HI adds the 64-bit addend before selecting the high word; IMAD.WIDE
@@ -94,21 +94,50 @@ true selects min; false selects max. .NAN, .XORSIGN and predicate-result .IS_A f
 compare FSEL and ordinary FMNMX (including FMNMX.FTZ) bits exactly on SM89.
 FSEL.FTZ and other architectures have emulator coverage.
 
-FADD/FMUL/FFMA/FSETP are native p-code (`f+`, `f*`, `f<`, `nan`, ...) for
-round-to-nearest, including .FTZ (denormal inputs/results flushed to signed zero),
-.SAT and FMUL scale (computed in fp64, exact). FFMA computes `a*b` exactly in
-fp64 and narrows the fp64 sum: a deliberate double rounding that can differ
-from hardware in rare midpoint cases, chosen for readable decompiler output.
-Directed rounding (.RM/.RP/.RZ) and .FMZ fall back to `sass_prim_*`.
+## Exact and readable floating point
+
+Every architecture has two languages. `SASS:LE:64:smXX` (exact) models hardware
+results; `SASS:LE:64:smXX_readable` writes the plain formula for decompiler
+reading. They decode and display identically, and have the same register
+dataflow. Only floating-point value semantics differ. ELF opinions select the
+exact language; choose the readable one explicitly. `sass/fpops.py` holds both
+lowerings. `python3 -m sass.build_languages --fp=exact|readable` limits a
+build to one mode; both are built by default.
+
+The readable lowering uses native-width `f+`/`f*` (FFMA is `a f* b f+ c`, one
+operation per operator plus a copy). It treats every rounding mode as
+round-to-nearest, and drops FTZ/FMZ flushing, fused single rounding, and the
+FMNMX NaN/signed-zero rules (including .NAN). SAT, absolute and negate remain.
+As a result, FADD/FMUL/FFMA/DADD/DMUL/DFMA with .RM/.RP/.RZ or .FMZ, HADD2/HFMA2
+.FTZ/.FMZ, and FMNMX.NAN are native in this lowering. Its tests compare against
+the unfused round-to-nearest formula, bit for bit.
+
+FADD/FMUL/FFMA/FSETP are native exact p-code (`f+`, `f*`, `f<`, `nan`, ...) for
+every rounding mode, .FTZ (denormal inputs/results flushed to signed zero),
+.SAT and FMUL scale (computed in fp64, exact). Under round-to-nearest, FFMA
+computes `a*b` exactly in fp64 and narrows the fp64 sum. This deliberate double
+rounding can differ from hardware in rare midpoint cases.
+
+Directed rounding (.RM/.RP/.RZ) computes the result in the doubled width: fp64
+for fp32, binary128 for fp64. It keeps the exact residual: a TwoSum error for
+sums, zero for the exact products. It narrows with round-to-nearest, then moves
+the encoding by one ulp when the residual's sign calls for it. Under RM, an
+exact cancellation gives -0 unless both addends are +0. The corrected result is
+exact, and it also undoes Ghidra's underflow error described below.
+`sass_prim_*` remains the fallback for .FMZ and unknown selectors.
+
 Ghidra 12.1.4's emulator flushes results strictly between half and one minimum
-subnormal to zero (`FloatFormat.getEncoding`, the `n < 0` branch); the p-code is
-IEEE, and the tests exclude that band.
+subnormal to zero (`FloatFormat.getEncoding`, the `n < 0` branch). The p-code
+itself is IEEE, so the round-to-nearest tests exclude that band. Its binary128
+comparisons also order NaN operands, so the directed-rounding code tests
+`nan()` explicitly.
 
 DADD/DMUL/DFMA are native for round-to-nearest, with 64-bit register pairs,
 uniform inputs, high-word immediates, constant-bank loads, and source absolute/negate
 modifiers. DFMA uses a 16-byte binary128 intermediate: the product is exact,
-but the wide sum followed by narrowing can double-round in rare midpoint cases.
-Directed rounding remains opaque. DSETP shares the ordered/unordered FP32
+but under round-to-nearest the wide sum followed by narrowing can double-round
+in rare midpoint cases. Directed rounding uses the exact residual correction
+above. DSETP shares the ordered/unordered FP32
 comparison logic and combines complementary results with AND/OR/XOR; MIN/MAX
 selectors retain opaque fallbacks. Dynamic constant operands still require an
 explicit operand provider. The same Ghidra underflow limitation applies to FP64.
@@ -191,12 +220,12 @@ not a Python reimplementation of the instruction dispatcher. `GHIDRA_PY`
 selects the pyghidra Python interpreter. In a restricted environment, set
 `XDG_CONFIG_HOME` and `XDG_CACHE_HOME` to writable scratch directories.
 
-The CUDA Driver API oracle compiles 43 SM89 kernels and executes their actual
+The CUDA Driver API oracle compiles 60 SM89 kernels and executes their actual
 `.text` through Ghidra's normal instruction stepping, from the prologue through
 EXIT. It compares 128 random/edge input vectors per kernel (four blocks of 32),
 including NaNs, infinities, denormals, signed zero, and integer boundaries.
 Target mnemonics must both appear in cuobjdump output and execute in the emulator.
-All 5,504 output comparisons passed on the RTX 4070 Laptop GPU.
+All 7,680 output comparisons passed on the RTX 4070 Laptop GPU.
 
 `tests/carry_semantics.py --require-gpu` adds 210 patched SM89 whole-kernel
 variants (26,880 comparisons) for IADD3, LEA and IMAD carry chains, including
@@ -218,8 +247,10 @@ Kernel PC bounds and an instruction budget reject fallthrough and infinite loops
 Coverage includes integer arithmetic, IMAD low/high/wide, LOP3, SHF, LEA,
 predicates/selects, PRMT, HADD2/HFMA2 and the MMA constant move, DADD/DMUL/DFMA/DSETP, FADD/FMUL/FFMA, FSEL, FMNMX, FSETP, F2I.TRUNC.NTZ, I2FP, moves,
 uniform/ordinary constant loads, global/shared/local loads and stores, and
-predicated branching with BSSY/BSYNC. FADD.FTZ, FMUL.RZ and FFMA.SAT have dedicated
-fixtures. FSEL and FMNMX min/max have dedicated fixtures, including FMNMX.FTZ
+predicated branching with BSSY/BSYNC. FADD.FTZ and FFMA.SAT have dedicated
+fixtures. Directed rounding has eighteen: .RZ/.RM/.RP for each of
+FADD/FMUL/FFMA/DADD/DMUL/DFMA. Each uses edge vectors whose residual lies below
+the wide format's precision, exact cancellations, and overflow. FSEL and FMNMX min/max have dedicated fixtures, including FMNMX.FTZ
 and mixed NaN/signed-zero/denormal pairs. FP16 has ordinary/saturating and
 broadcast/modifier fixtures; MMA move constants include signed zero, negative
 signaling/quiet NaNs, denormals, and infinities. Seven fixtures replace one

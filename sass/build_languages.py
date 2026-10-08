@@ -1,7 +1,8 @@
 """Generate and compile SASS languages, enforcing Ghidra's packed-data limit."""
 import argparse,json,os,shutil,subprocess,tempfile,zlib
+from itertools import product
 from pathlib import Path
-from sass import gen_sleigh,coverage
+from sass import gen_sleigh,coverage,fpops
 
 ARCHES=['SM75','SM80','SM86','SM89','SM90','SM100','SM101','SM103','SM120']
 LIMIT=16*1024*1024
@@ -11,6 +12,7 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument('architectures',nargs='*',metavar='SMxx')
     p.add_argument('--output',type=Path,default=gen_sleigh.OUT)
+    p.add_argument('--fp',choices=fpops.MODES,action='append',help='floating-point lowering (default: all)')
     install=Path(os.environ.get('GHIDRA_INSTALL_DIR',str(Path.home()/'Ghidra/ghidra_12.1.4_PUBLIC')))
     launcher='sleigh.bat' if os.name=='nt' else 'sleigh'
     p.add_argument('--sleigh',type=Path,default=install/'support'/launcher)
@@ -21,10 +23,11 @@ def main():
     source=Path(__file__).resolve().parents[1]/'processor/SASS/data/languages'
     for name in ('sass_common.sinc','sass.pspec','sass.cspec'):
         if (a.output/name).resolve()!=(source/name).resolve():shutil.copyfile(source/name,a.output/name)
-    gen_sleigh.OUT=a.output;gen_sleigh.main(architectures)
+    gen_sleigh.OUT=a.output;modes=a.fp or fpops.MODES
+    for fp in modes:gen_sleigh.main(architectures,fp)
     results=[]
-    for arch in architectures:
-        spec=a.output/f'sass_{arch.lower()}.slaspec'
+    for arch,fp in product(architectures,modes):
+        name=gen_sleigh.variant(arch,fp);spec=a.output/f'sass_{name}.slaspec'
         fd,tmp=tempfile.mkstemp(prefix=spec.stem+'-',suffix='.sla',dir=a.output);os.close(fd)
         try:
             process=subprocess.run([str(a.sleigh),'-t','-e',str(spec),tmp],capture_output=True,text=True)
@@ -34,10 +37,10 @@ def main():
                        'operations wrote to temporaries that were not read','read before written')):
                 raise RuntimeError(diagnostics)
             size=len(zlib.decompress(Path(tmp).read_bytes()[4:]))
-            if size>=LIMIT:raise RuntimeError(f'{arch}: decompressed SLA is {size}, limit {LIMIT}')
+            if size>=LIMIT:raise RuntimeError(f'{name}: decompressed SLA is {size}, limit {LIMIT}')
             os.replace(tmp,spec.with_suffix('.sla'))
-            results.append(dict(arch=arch,decompressed_bytes=size,dead_temporaries=0))
-            print(f'{arch}: compiled, {size} decompressed bytes',flush=True)
+            results.append(dict(arch=arch,fp=fp,decompressed_bytes=size,dead_temporaries=0))
+            print(f'{name}: compiled, {size} decompressed bytes',flush=True)
         finally:
             if Path(tmp).exists():Path(tmp).unlink()
     (a.output/'build-results.json').write_text(json.dumps(results,indent=2)+'\n')

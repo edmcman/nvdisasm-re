@@ -1,6 +1,6 @@
 """Register dataflow against md roles and exact spans.
 
-SASS_SLEIGH_OUT=/tmp/sass-semantics python3 tests/test_dataflow.py SM89 [N]
+SASS_SLEIGH_OUT=/tmp/sass-semantics python3 tests/test_dataflow.py SM89 [N] [exact|readable]
 Integration pytest is opt-in with SASS_DATAFLOW=1 (requires compiled languages and pyghidra).
 """
 import os
@@ -98,14 +98,14 @@ def actual(ops):
     return reads, writes
 
 
-def check(arch, n=2000):
-    g = Gen(arch)
+def check(arch, n=2000, fp='exact'):
+    g = Gen(arch, fp)
     words = list(synth.synthetic(arch, 8)) + compare.sample(arch, 'real', n)
     todo = []
     for w in words:
         try: todo.append((w, pydecode.decode(arch, w)))
         except pydecode.NoMatch: pass
-    results = compare_ghidra.ghidra(arch, [(w, 0) for w, _ in todo], '--dataflow')
+    results = compare_ghidra.ghidra(arch, [(w, 0) for w, _ in todo], '--dataflow', fp=fp)
     failures = []
     for (w, d), result in zip(todo, results):
         if 'error' in result:
@@ -117,7 +117,7 @@ def check(arch, n=2000):
             failures.append(f'{d.klass.name} {w.hex()} {d.text}: '
                             f'reads missing={sorted(want[0]-got[0])} extra={sorted(got[0]-want[0])}; '
                             f'writes missing={sorted(want[1]-got[1])} extra={sorted(got[1]-want[1])}')
-    print(f'{arch}: register dataflow and control flow {len(todo)-len(failures)}/{len(todo)}')
+    print(f'{arch} {fp}: register dataflow and control flow {len(todo)-len(failures)}/{len(todo)}')
     assert not failures, '\n'.join(failures[:20])
 
 
@@ -125,8 +125,8 @@ def test_dataflow():
     import pytest
     if os.environ.get('SASS_DATAFLOW') != '1':
         pytest.skip('set SASS_DATAFLOW=1 for Ghidra integration')
-    check(os.environ.get('SASS_TEST_ARCH', 'SM89'))
+    for fp in ('exact', 'readable'): check(os.environ.get('SASS_TEST_ARCH', 'SM89'), fp=fp)
 
 
 if __name__ == '__main__':
-    check(sys.argv[1], int(sys.argv[2]) if len(sys.argv) > 2 else 2000)
+    check(sys.argv[1], int(sys.argv[2]) if len(sys.argv) > 2 else 2000, sys.argv[3] if len(sys.argv) > 3 else 'exact')

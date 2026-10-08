@@ -21,41 +21,81 @@
     "tests": 6
   },
   "dataflow": {
-    "SM100": {
-      "passed": 12856,
-      "total": 12856
+    "exact": {
+      "SM100": {
+        "passed": 12856,
+        "total": 12856
+      },
+      "SM101": {
+        "passed": 10218,
+        "total": 10218
+      },
+      "SM103": {
+        "passed": 12762,
+        "total": 12762
+      },
+      "SM120": {
+        "passed": 13162,
+        "total": 13162
+      },
+      "SM75": {
+        "passed": 11825,
+        "total": 11825
+      },
+      "SM80": {
+        "passed": 11733,
+        "total": 11733
+      },
+      "SM86": {
+        "passed": 12163,
+        "total": 12163
+      },
+      "SM89": {
+        "passed": 12714,
+        "total": 12714
+      },
+      "SM90": {
+        "passed": 14619,
+        "total": 14619
+      }
     },
-    "SM101": {
-      "passed": 10218,
-      "total": 10218
-    },
-    "SM103": {
-      "passed": 12762,
-      "total": 12762
-    },
-    "SM120": {
-      "passed": 13162,
-      "total": 13162
-    },
-    "SM75": {
-      "passed": 11825,
-      "total": 11825
-    },
-    "SM80": {
-      "passed": 11733,
-      "total": 11733
-    },
-    "SM86": {
-      "passed": 12163,
-      "total": 12163
-    },
-    "SM89": {
-      "passed": 12714,
-      "total": 12714
-    },
-    "SM90": {
-      "passed": 14619,
-      "total": 14619
+    "readable": {
+      "SM100": {
+        "passed": 12856,
+        "total": 12856
+      },
+      "SM101": {
+        "passed": 10218,
+        "total": 10218
+      },
+      "SM103": {
+        "passed": 12762,
+        "total": 12762
+      },
+      "SM120": {
+        "passed": 13162,
+        "total": 13162
+      },
+      "SM75": {
+        "passed": 11825,
+        "total": 11825
+      },
+      "SM80": {
+        "passed": 11733,
+        "total": 11733
+      },
+      "SM86": {
+        "passed": 12163,
+        "total": 12163
+      },
+      "SM89": {
+        "passed": 12714,
+        "total": 12714
+      },
+      "SM90": {
+        "passed": 14619,
+        "total": 14619
+      }
     }
   },
   "dataflow_corpus": {
@@ -65,30 +105,64 @@
   "date": "2026-10-08",
   "dead_temporaries": {
     "SM100": 0,
+    "SM100_readable": 0,
     "SM101": 0,
+    "SM101_readable": 0,
     "SM103": 0,
+    "SM103_readable": 0,
     "SM120": 0,
+    "SM120_readable": 0,
     "SM75": 0,
+    "SM75_readable": 0,
     "SM80": 0,
+    "SM80_readable": 0,
     "SM86": 0,
+    "SM86_readable": 0,
     "SM89": 0,
-    "SM90": 0
+    "SM89_readable": 0,
+    "SM90": 0,
+    "SM90_readable": 0
   },
   "decode_sm89": {
+    "readable": {
+      "passed": 20000,
+      "source": "tests/compare_ghidra.py SM89 real 20000 --fp readable (exact: same sample 20000/20000)",
+      "total": 20000
+    },
     "synthetic": {
       "passed": 19992,
       "source": "tests/compare_ghidra.py SM89 synthetic (default 2,000-word sample plus generated class cases)",
       "total": 19992
     }
   },
+  "fp_modes": {
+    "date": "2026-10-08",
+    "exact": "directed rounding native: RN-wide result, TwoSum/exact-product residual, RN narrowing, one-ulp encoding correction; RM exact-cancellation zero sign",
+    "fallbacks": [
+      ".FMZ (exact)",
+      "FMNMX .NAN (exact)",
+      "HADD2/HFMA2 FTZ/FMZ (exact)"
+    ],
+    "hardware_scope": "SM89 .RZ/.RM/.RP for FADD/FMUL/FFMA/DADD/DMUL/DFMA, 128 vectors each incl. sub-precision residuals, cancellations, overflow",
+    "languages": [
+      "SASS:LE:64:smXX (exact)",
+      "SASS:LE:64:smXX_readable"
+    ],
+    "limitations": [
+      "round-to-nearest FFMA/DFMA keep rare midpoint double rounding in exact mode",
+      "hardware validation limited to SM89"
+    ],
+    "readable": "native-width f+/f*; rounding modes as RN; no FTZ/FMZ, fusion, or FMNMX NaN/signed-zero rules; SAT and abs/neg kept",
+    "readable_reference": "unfused round-to-nearest softfloat formula, bit-exact"
+  },
   "gpu": {
     "architecture": "SM89",
     "block_size": 32,
-    "compiled_kernels": 43,
-    "cubin_sha256": "d1355b04f177d3ea56f88e20125fdbfcf87f5b6b2292c0249ea3e6f6973f935f",
+    "compiled_kernels": 60,
+    "cubin_sha256": "1f52751ebf70848e6ec2d7ca0e79384a1e9da5d68fcb8965170ce15ec5859c73",
     "device": "NVIDIA GeForce RTX 4070 Laptop GPU",
     "driver_version": "580.178.04",
-    "emulated_instructions": 133192,
+    "emulated_instructions": 170384,
     "exclusions": [
       "warp collectives",
       "cross-thread shared memory and memory ordering",
@@ -112,7 +186,28 @@
         ],
         "family": "iadd3",
         "passed": 128,
-        "steps": 2432
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
       },
       {
         "executed_mnemonics": [
@@ -129,7 +224,28 @@
         ],
         "family": "imad",
         "passed": 128,
-        "steps": 2432
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
       },
       {
         "executed_mnemonics": [
@@ -146,7 +262,29 @@
         ],
         "family": "imad_hi",
         "passed": 128,
-        "steps": 2560
+        "steps": 2560,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288,
+          304
+        ]
       },
       {
         "executed_mnemonics": [
@@ -163,7 +301,28 @@
         ],
         "family": "lop3",
         "passed": 128,
-        "steps": 2432
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
       },
       {
         "executed_mnemonics": [
@@ -180,7 +339,28 @@
         ],
         "family": "shf",
         "passed": 128,
-        "steps": 2432
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
       },
       {
         "executed_mnemonics": [
@@ -196,7 +376,22 @@
         ],
         "family": "iabs",
         "passed": 128,
-        "steps": 1664
+        "steps": 1664,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192
+        ]
       },
       {
         "executed_mnemonics": [
@@ -213,7 +408,25 @@
         ],
         "family": "imnmx",
         "passed": 128,
-        "steps": 2048
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
       },
       {
         "executed_mnemonics": [
@@ -230,7 +443,25 @@
         ],
         "family": "dadd",
         "passed": 128,
-        "steps": 2048
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
       },
       {
         "executed_mnemonics": [
@@ -247,7 +478,25 @@
         ],
         "family": "dmul",
         "passed": 128,
-        "steps": 2048
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
       },
       {
         "executed_mnemonics": [
@@ -264,7 +513,28 @@
         ],
         "family": "dfma",
         "passed": 128,
-        "steps": 2432
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
       },
       {
         "executed_mnemonics": [
@@ -282,7 +552,27 @@
         ],
         "family": "dsetp",
         "passed": 128,
-        "steps": 2304
+        "steps": 2304,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272
+        ]
       },
       {
         "executed_mnemonics": [
@@ -299,7 +589,25 @@
         ],
         "family": "hadd2",
         "passed": 128,
-        "steps": 2048
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
       },
       {
         "executed_mnemonics": [
@@ -316,7 +624,28 @@
         ],
         "family": "hfma2",
         "passed": 128,
-        "steps": 2432
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
       },
       {
         "executed_mnemonics": [
@@ -333,7 +662,25 @@
         ],
         "family": "hadd2_sat",
         "passed": 128,
-        "steps": 2048
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
       },
       {
         "executed_mnemonics": [
@@ -350,7 +697,28 @@
         ],
         "family": "hfma2_sat",
         "passed": 128,
-        "steps": 2432
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
       },
       {
         "executed_mnemonics": [
@@ -365,7 +733,19 @@
         ],
         "family": "hfma2_move",
         "passed": 128,
-        "steps": 1280
+        "steps": 1280,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144
+        ]
       },
       {
         "executed_mnemonics": [
@@ -380,7 +760,19 @@
         ],
         "family": "hfma2_move_zero",
         "passed": 128,
-        "steps": 1280
+        "steps": 1280,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144
+        ]
       },
       {
         "executed_mnemonics": [
@@ -395,7 +787,19 @@
         ],
         "family": "hfma2_move_nan",
         "passed": 128,
-        "steps": 1280
+        "steps": 1280,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144
+        ]
       },
       {
         "executed_mnemonics": [
@@ -410,7 +814,19 @@
         ],
         "family": "hfma2_move_denorm",
         "passed": 128,
-        "steps": 1280
+        "steps": 1280,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144
+        ]
       },
       {
         "executed_mnemonics": [
@@ -425,7 +841,19 @@
         ],
         "family": "hfma2_move_inf",
         "passed": 128,
-        "steps": 1280
+        "steps": 1280,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144
+        ]
       },
       {
         "executed_mnemonics": [
@@ -442,7 +870,25 @@
         ],
         "family": "hadd2_lanes",
         "passed": 128,
-        "steps": 2048
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
       },
       {
         "executed_mnemonics": [
@@ -459,7 +905,28 @@
         ],
         "family": "hfma2_lanes",
         "passed": 128,
-        "steps": 2432
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
       },
       {
         "executed_mnemonics": [
@@ -476,7 +943,28 @@
         ],
         "family": "prmt",
         "passed": 128,
-        "steps": 2432
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
       },
       {
         "executed_mnemonics": [
@@ -494,7 +982,25 @@
         ],
         "family": "fadd",
         "passed": 128,
-        "steps": 2048
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
       },
       {
         "executed_mnemonics": [
@@ -512,7 +1018,25 @@
         ],
         "family": "fmul",
         "passed": 128,
-        "steps": 2048
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
       },
       {
         "executed_mnemonics": [
@@ -530,7 +1054,28 @@
         ],
         "family": "ffma",
         "passed": 128,
-        "steps": 2432
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
       },
       {
         "executed_mnemonics": [
@@ -548,7 +1093,26 @@
         ],
         "family": "isetp",
         "passed": 128,
-        "steps": 2176
+        "steps": 2176,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256
+        ]
       },
       {
         "executed_mnemonics": [
@@ -565,7 +1129,28 @@
         ],
         "family": "sel",
         "passed": 128,
-        "steps": 2432
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
       },
       {
         "executed_mnemonics": [
@@ -583,7 +1168,26 @@
         ],
         "family": "fsetp",
         "passed": 128,
-        "steps": 2176
+        "steps": 2176,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256
+        ]
       },
       {
         "executed_mnemonics": [
@@ -599,7 +1203,22 @@
         ],
         "family": "f2i",
         "passed": 128,
-        "steps": 1664
+        "steps": 1664,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192
+        ]
       },
       {
         "executed_mnemonics": [
@@ -617,7 +1236,29 @@
         ],
         "family": "fsel",
         "passed": 128,
-        "steps": 2560
+        "steps": 2560,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288,
+          304
+        ]
       },
       {
         "executed_mnemonics": [
@@ -634,7 +1275,25 @@
         ],
         "family": "fmin",
         "passed": 128,
-        "steps": 2048
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
       },
       {
         "executed_mnemonics": [
@@ -651,7 +1310,25 @@
         ],
         "family": "fmax",
         "passed": 128,
-        "steps": 2048
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
       },
       {
         "executed_mnemonics": [
@@ -668,7 +1345,25 @@
         ],
         "family": "fmin_ftz",
         "passed": 128,
-        "steps": 2048
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
       },
       {
         "executed_mnemonics": [
@@ -685,7 +1380,25 @@
         ],
         "family": "fmax_ftz",
         "passed": 128,
-        "steps": 2048
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
       },
       {
         "executed_mnemonics": [
@@ -701,7 +1414,22 @@
         ],
         "family": "i2f",
         "passed": 128,
-        "steps": 1664
+        "steps": 1664,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192
+        ]
       },
       {
         "executed_mnemonics": [
@@ -719,25 +1447,25 @@
         ],
         "family": "fadd_ftz",
         "passed": 128,
-        "steps": 2048
-      },
-      {
-        "executed_mnemonics": [
-          "EXIT",
-          "FMUL.RZ",
-          "IADD3",
-          "IMAD",
-          "IMAD.WIDE.U32",
-          "LDG.E",
-          "LEA",
-          "MOV",
-          "S2R",
-          "STG.E",
-          "ULDC.64"
-        ],
-        "family": "fmul_rz",
-        "passed": 128,
-        "steps": 2048
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
       },
       {
         "executed_mnemonics": [
@@ -755,7 +1483,28 @@
         ],
         "family": "ffma_sat",
         "passed": 128,
-        "steps": 2432
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
       },
       {
         "executed_mnemonics": [
@@ -772,7 +1521,23 @@
         ],
         "family": "shared",
         "passed": 128,
-        "steps": 1792
+        "steps": 1792,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208
+        ]
       },
       {
         "executed_mnemonics": [
@@ -794,7 +1559,352 @@
         ],
         "family": "local",
         "passed": 128,
-        "steps": 43904
+        "steps": 43904,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288,
+          304,
+          320,
+          336,
+          352,
+          368,
+          384,
+          400,
+          416,
+          432,
+          448,
+          464,
+          480,
+          496,
+          512,
+          528,
+          544,
+          560,
+          576,
+          592,
+          608,
+          624,
+          640,
+          656,
+          672,
+          688,
+          704,
+          720,
+          736,
+          752,
+          768,
+          784,
+          800,
+          816,
+          832,
+          848,
+          864,
+          880,
+          896,
+          912,
+          928,
+          944,
+          960,
+          976,
+          992,
+          1008,
+          1024,
+          1040,
+          1056,
+          1072,
+          1088,
+          1104,
+          1120,
+          1136,
+          1152,
+          1168,
+          1184,
+          1200,
+          1216,
+          1232,
+          1248,
+          1264,
+          1280,
+          1296,
+          1312,
+          1328,
+          1344,
+          1360,
+          1376,
+          1392,
+          1408,
+          1424,
+          1440,
+          1456,
+          1472,
+          1488,
+          1504,
+          1520,
+          1536,
+          1552,
+          1568,
+          1584,
+          1600,
+          1616,
+          1632,
+          1648,
+          1664,
+          1680,
+          1696,
+          1712,
+          1728,
+          1744,
+          1760,
+          1776,
+          1792,
+          1808,
+          1824,
+          1840,
+          1856,
+          1872,
+          1888,
+          1904,
+          1920,
+          1936,
+          1952,
+          1968,
+          1984,
+          2000,
+          2016,
+          2032,
+          2048,
+          2064,
+          2080,
+          2096,
+          2112,
+          2128,
+          2144,
+          2160,
+          2176,
+          2192,
+          2208,
+          2224,
+          2240,
+          2256,
+          2272,
+          2288,
+          2304,
+          2320,
+          2336,
+          2352,
+          2368,
+          2384,
+          2400,
+          2416,
+          2432,
+          2448,
+          2464,
+          2480,
+          2496,
+          2512,
+          2528,
+          2544,
+          2560,
+          2576,
+          2592,
+          2608,
+          2624,
+          2640,
+          2656,
+          2672,
+          2688,
+          2704,
+          2720,
+          2736,
+          2752,
+          2768,
+          2784,
+          2800,
+          2816,
+          2832,
+          2848,
+          2864,
+          2880,
+          2896,
+          2912,
+          2928,
+          2944,
+          2960,
+          2976,
+          2992,
+          3008,
+          3024,
+          3040,
+          3056,
+          3072,
+          3088,
+          3104,
+          3120,
+          3136,
+          3152,
+          3168,
+          3184,
+          3200,
+          3216,
+          3232,
+          3248,
+          3264,
+          3280,
+          3296,
+          3312,
+          3328,
+          3344,
+          3360,
+          3376,
+          3392,
+          3408,
+          3424,
+          3440,
+          3456,
+          3472,
+          3488,
+          3504,
+          3520,
+          3536,
+          3552,
+          3568,
+          3584,
+          3600,
+          3616,
+          3632,
+          3648,
+          3664,
+          3680,
+          3696,
+          3712,
+          3728,
+          3744,
+          3760,
+          3776,
+          3792,
+          3808,
+          3824,
+          3840,
+          3856,
+          3872,
+          3888,
+          3904,
+          3920,
+          3936,
+          3952,
+          3968,
+          3984,
+          4000,
+          4016,
+          4032,
+          4048,
+          4064,
+          4080,
+          4096,
+          4112,
+          4128,
+          4144,
+          4160,
+          4176,
+          4192,
+          4208,
+          4224,
+          4240,
+          4256,
+          4272,
+          4288,
+          4304,
+          4320,
+          4336,
+          4352,
+          4368,
+          4384,
+          4400,
+          4416,
+          4432,
+          4448,
+          4464,
+          4480,
+          4496,
+          4512,
+          4528,
+          4544,
+          4560,
+          4576,
+          4592,
+          4608,
+          4624,
+          4640,
+          4656,
+          4672,
+          4688,
+          4704,
+          4720,
+          4736,
+          4752,
+          4768,
+          4784,
+          4800,
+          4816,
+          4832,
+          4848,
+          4864,
+          4880,
+          4896,
+          4912,
+          4928,
+          4944,
+          4960,
+          4976,
+          4992,
+          5008,
+          5024,
+          5040,
+          5056,
+          5072,
+          5088,
+          5104,
+          5120,
+          5136,
+          5152,
+          5168,
+          5184,
+          5200,
+          5216,
+          5232,
+          5248,
+          5264,
+          5280,
+          5296,
+          5312,
+          5328,
+          5344,
+          5360,
+          5376,
+          5392,
+          5408,
+          5424,
+          5440,
+          5456,
+          5472
+        ]
       },
       {
         "executed_mnemonics": [
@@ -815,7 +1925,36 @@
         ],
         "family": "branch",
         "passed": 128,
-        "steps": 4552
+        "steps": 4624,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288,
+          304,
+          320,
+          336,
+          352,
+          368,
+          384,
+          400,
+          416
+        ]
       },
       {
         "executed_mnemonics": [
@@ -833,13 +1972,687 @@
         ],
         "family": "ldc",
         "passed": 128,
-        "steps": 1920
+        "steps": 1920,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "FADD.RZ",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LEA",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "fadd_rz",
+        "passed": 128,
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "FADD.RM",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LEA",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "fadd_rm",
+        "passed": 128,
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "FADD.RP",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LEA",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "fadd_rp",
+        "passed": 128,
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "FMUL.RZ",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LEA",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "fmul_rz",
+        "passed": 128,
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "FMUL.RM",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LEA",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "fmul_rm",
+        "passed": 128,
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "FMUL.RP",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LEA",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "fmul_rp",
+        "passed": 128,
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "FFMA.RZ",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LEA",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "ffma_rz",
+        "passed": 128,
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "FFMA.RM",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LEA",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "ffma_rm",
+        "passed": 128,
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "FFMA.RP",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LEA",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "ffma_rp",
+        "passed": 128,
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "DADD.RZ",
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E.64",
+          "MOV",
+          "S2R",
+          "STG.E.64",
+          "ULDC.64"
+        ],
+        "family": "dadd_rz",
+        "passed": 128,
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "DADD.RM",
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E.64",
+          "MOV",
+          "S2R",
+          "STG.E.64",
+          "ULDC.64"
+        ],
+        "family": "dadd_rm",
+        "passed": 128,
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "DADD.RP",
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E.64",
+          "MOV",
+          "S2R",
+          "STG.E.64",
+          "ULDC.64"
+        ],
+        "family": "dadd_rp",
+        "passed": 128,
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "DMUL.RZ",
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E.64",
+          "MOV",
+          "S2R",
+          "STG.E.64",
+          "ULDC.64"
+        ],
+        "family": "dmul_rz",
+        "passed": 128,
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "DMUL.RM",
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E.64",
+          "MOV",
+          "S2R",
+          "STG.E.64",
+          "ULDC.64"
+        ],
+        "family": "dmul_rm",
+        "passed": 128,
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "DMUL.RP",
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E.64",
+          "MOV",
+          "S2R",
+          "STG.E.64",
+          "ULDC.64"
+        ],
+        "family": "dmul_rp",
+        "passed": 128,
+        "steps": 2048,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "DFMA.RZ",
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E.64",
+          "MOV",
+          "S2R",
+          "STG.E.64",
+          "ULDC.64"
+        ],
+        "family": "dfma_rz",
+        "passed": 128,
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "DFMA.RM",
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E.64",
+          "MOV",
+          "S2R",
+          "STG.E.64",
+          "ULDC.64"
+        ],
+        "family": "dfma_rm",
+        "passed": 128,
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "DFMA.RP",
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E.64",
+          "MOV",
+          "S2R",
+          "STG.E.64",
+          "ULDC.64"
+        ],
+        "family": "dfma_rp",
+        "passed": 128,
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
+        ]
       }
     ],
     "floating_tolerance": "MMA move constants and FSEL/FMNMX exact bits; other floats except NaN payload/sign, independently per half",
     "hardware_verified": true,
     "mode": "whole-kernel",
-    "passed": 5504,
+    "passed": 7680,
     "patched_fixtures": [
       "hadd2_lanes",
       "hfma2_lanes",
@@ -917,15 +2730,24 @@
     "source": "cubin PARAM_CBANK and KPARAM_INFO"
   },
   "language_build": {
-    "SM100": 7846799,
-    "SM101": 7646824,
-    "SM103": 7855892,
-    "SM120": 8020514,
-    "SM75": 8596266,
-    "SM80": 9606755,
-    "SM86": 9762826,
-    "SM89": 10020102,
-    "SM90": 10873950
+    "SM100": 8612362,
+    "SM100_readable": 7739659,
+    "SM101": 8412548,
+    "SM101_readable": 7539181,
+    "SM103": 8621436,
+    "SM103_readable": 7748750,
+    "SM120": 8786465,
+    "SM120_readable": 7913529,
+    "SM75": 9900107,
+    "SM75_readable": 8436328,
+    "SM80": 10910364,
+    "SM80_readable": 9444712,
+    "SM86": 11066350,
+    "SM86_readable": 9600648,
+    "SM89": 11323581,
+    "SM89_readable": 9857974,
+    "SM90": 12179148,
+    "SM90_readable": 10712118
   },
   "pcode_reduction": [
     {
@@ -1378,6 +3200,97 @@
         }
       ]
     },
+    "before_fp_modes": {
+      "dataflow": {
+        "SM100": {
+          "passed": 12856,
+          "total": 12856
+        },
+        "SM101": {
+          "passed": 10218,
+          "total": 10218
+        },
+        "SM103": {
+          "passed": 12762,
+          "total": 12762
+        },
+        "SM120": {
+          "passed": 13162,
+          "total": 13162
+        },
+        "SM75": {
+          "passed": 11825,
+          "total": 11825
+        },
+        "SM80": {
+          "passed": 11733,
+          "total": 11733
+        },
+        "SM86": {
+          "passed": 12163,
+          "total": 12163
+        },
+        "SM89": {
+          "passed": 12714,
+          "total": 12714
+        },
+        "SM90": {
+          "passed": 14619,
+          "total": 14619
+        }
+      },
+      "gpu_kernels": 43,
+      "gpu_passed": 5504,
+      "language_build": {
+        "SM100": 7846799,
+        "SM101": 7646824,
+        "SM103": 7855892,
+        "SM120": 8020514,
+        "SM75": 8596266,
+        "SM80": 9606755,
+        "SM86": 9762826,
+        "SM89": 10020102,
+        "SM90": 10873950
+      },
+      "semantics": {
+        "SM100": {
+          "passed": 8981,
+          "total": 8981
+        },
+        "SM101": {
+          "passed": 8969,
+          "total": 8969
+        },
+        "SM103": {
+          "passed": 8981,
+          "total": 8981
+        },
+        "SM120": {
+          "passed": 8993,
+          "total": 8993
+        },
+        "SM75": {
+          "passed": 8876,
+          "total": 8876
+        },
+        "SM80": {
+          "passed": 8991,
+          "total": 8991
+        },
+        "SM86": {
+          "passed": 8993,
+          "total": 8993
+        },
+        "SM89": {
+          "passed": 8999,
+          "total": 8999
+        },
+        "SM90": {
+          "passed": 8997,
+          "total": 8997
+        }
+      }
+    },
     "before_phase5": {
       "dataflow": {
         "SM100": {
@@ -1517,88 +3430,191 @@
     }
   },
   "semantics": {
-    "SM100": {
-      "passed": 8981,
-      "total": 8981
+    "exact": {
+      "SM100": {
+        "passed": 9811,
+        "total": 9811
+      },
+      "SM101": {
+        "passed": 9799,
+        "total": 9799
+      },
+      "SM103": {
+        "passed": 9811,
+        "total": 9811
+      },
+      "SM120": {
+        "passed": 9823,
+        "total": 9823
+      },
+      "SM75": {
+        "passed": 9706,
+        "total": 9706
+      },
+      "SM80": {
+        "passed": 9821,
+        "total": 9821
+      },
+      "SM86": {
+        "passed": 9823,
+        "total": 9823
+      },
+      "SM89": {
+        "passed": 9829,
+        "total": 9829
+      },
+      "SM90": {
+        "passed": 9827,
+        "total": 9827
+      }
     },
-    "SM101": {
-      "passed": 8969,
-      "total": 8969
-    },
-    "SM103": {
-      "passed": 8981,
-      "total": 8981
-    },
-    "SM120": {
-      "passed": 8993,
-      "total": 8993
-    },
-    "SM75": {
-      "passed": 8876,
-      "total": 8876
-    },
-    "SM80": {
-      "passed": 8991,
-      "total": 8991
-    },
-    "SM86": {
-      "passed": 8993,
-      "total": 8993
-    },
-    "SM89": {
-      "passed": 8999,
-      "total": 8999
-    },
-    "SM90": {
-      "passed": 8997,
-      "total": 8997
+    "readable": {
+      "SM100": {
+        "passed": 4986,
+        "total": 4986
+      },
+      "SM101": {
+        "passed": 4974,
+        "total": 4974
+      },
+      "SM103": {
+        "passed": 4986,
+        "total": 4986
+      },
+      "SM120": {
+        "passed": 4998,
+        "total": 4998
+      },
+      "SM75": {
+        "passed": 4878,
+        "total": 4878
+      },
+      "SM80": {
+        "passed": 4992,
+        "total": 4992
+      },
+      "SM86": {
+        "passed": 4993,
+        "total": 4993
+      },
+      "SM89": {
+        "passed": 4999,
+        "total": 4999
+      },
+      "SM90": {
+        "passed": 4996,
+        "total": 4996
+      }
     }
   },
   "sleigh_build": [
     {
       "arch": "SM75",
       "dead_temporaries": 0,
-      "decompressed_bytes": 8596266
+      "decompressed_bytes": 9900107,
+      "fp": "exact"
+    },
+    {
+      "arch": "SM75",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 8436328,
+      "fp": "readable"
     },
     {
       "arch": "SM80",
       "dead_temporaries": 0,
-      "decompressed_bytes": 9606755
+      "decompressed_bytes": 10910364,
+      "fp": "exact"
+    },
+    {
+      "arch": "SM80",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 9444712,
+      "fp": "readable"
     },
     {
       "arch": "SM86",
       "dead_temporaries": 0,
-      "decompressed_bytes": 9762826
+      "decompressed_bytes": 11066350,
+      "fp": "exact"
+    },
+    {
+      "arch": "SM86",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 9600648,
+      "fp": "readable"
     },
     {
       "arch": "SM89",
       "dead_temporaries": 0,
-      "decompressed_bytes": 10020102
+      "decompressed_bytes": 11323581,
+      "fp": "exact"
+    },
+    {
+      "arch": "SM89",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 9857974,
+      "fp": "readable"
     },
     {
       "arch": "SM90",
       "dead_temporaries": 0,
-      "decompressed_bytes": 10873950
+      "decompressed_bytes": 12179148,
+      "fp": "exact"
+    },
+    {
+      "arch": "SM90",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 10712118,
+      "fp": "readable"
     },
     {
       "arch": "SM100",
       "dead_temporaries": 0,
-      "decompressed_bytes": 7846799
+      "decompressed_bytes": 8612362,
+      "fp": "exact"
+    },
+    {
+      "arch": "SM100",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 7739659,
+      "fp": "readable"
     },
     {
       "arch": "SM101",
       "dead_temporaries": 0,
-      "decompressed_bytes": 7646824
+      "decompressed_bytes": 8412548,
+      "fp": "exact"
+    },
+    {
+      "arch": "SM101",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 7539181,
+      "fp": "readable"
     },
     {
       "arch": "SM103",
       "dead_temporaries": 0,
-      "decompressed_bytes": 7855892
+      "decompressed_bytes": 8621436,
+      "fp": "exact"
+    },
+    {
+      "arch": "SM103",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 7748750,
+      "fp": "readable"
     },
     {
       "arch": "SM120",
       "dead_temporaries": 0,
-      "decompressed_bytes": 8020514
+      "decompressed_bytes": 8786465,
+      "fp": "exact"
+    },
+    {
+      "arch": "SM120",
+      "dead_temporaries": 0,
+      "decompressed_bytes": 7913529,
+      "fp": "readable"
     }
   ],
   "step2": {

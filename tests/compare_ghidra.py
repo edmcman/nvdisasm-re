@@ -1,6 +1,6 @@
 """Differential decode: generated SLEIGH (via Ghidra) vs pydecode in SLEIGH display mode.
 
-usage: python3 tests/compare_ghidra.py SM89 [real|synthetic|mutated] [N] [--show K]
+usage: python3 tests/compare_ghidra.py SM89 [real|synthetic|mutated] [N] [--show K] [--fp exact|readable]
 """
 import argparse, json, os, re, subprocess, sys
 from collections import Counter, defaultdict
@@ -27,8 +27,9 @@ def loose(text):
                      lambda m: hex(int(m[1], 16) & ((1 << 64) - 1)), ops)
     return f"{guard} {mnem} {ops}".strip()
 
-def ghidra(arch, words_addrs, *opts):
-    lang = f"SASS:LE:64:{arch.lower()}"
+def ghidra(arch, words_addrs, *opts, fp="exact"):
+    from sass.gen_sleigh import variant
+    lang = f"SASS:LE:64:{variant(arch, fp)}"
     inp = "".join(f"{a:x} {w.hex()}\n" for w, a in words_addrs)
     p = subprocess.run([GHIDRA_PY, str(ROOT / "tests" / "ghidra_decode.py"), str(LDEFS), lang, *opts],
                        input=inp, capture_output=True, text=True, cwd="/")
@@ -40,6 +41,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("arch"); p.add_argument("source", nargs="?", default="real")
     p.add_argument("n", nargs="?", type=int, default=20000); p.add_argument("--show", type=int, default=2)
+    p.add_argument("--fp", choices=("exact", "readable"), default="exact")
     a = p.parse_args()
     words = compare.sample(a.arch, a.source, a.n)
     res = oracle.Oracle().disasm(a.arch, words)
@@ -48,7 +50,7 @@ def main():
     for w in words:
         try: d = pydecode.decode(a.arch, w, res[w].addr); todo.append((w, res[w].addr, d.klass.name, d.text))
         except pydecode.NoMatch: pass
-    got = ghidra(a.arch, [(w, addr) for w, addr, _, _ in todo])
+    got = ghidra(a.arch, [(w, addr) for w, addr, _, _ in todo], fp=a.fp)
     stat, groups = Counter(), defaultdict(list)
     for (w, addr, cls, exp), g in zip(todo, got):
         s = "error" if "error" in g else "ok" if loose(g["text"]) == loose(exp) else "mismatch"

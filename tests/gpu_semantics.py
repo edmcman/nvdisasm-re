@@ -23,12 +23,14 @@ SPECS={
  'isetp':('ISETP',), 'sel':('ISETP',), 'fsetp':('FSETP',), 'f2i':('F2I',),
  'fsel':('FSEL',), 'fmin':('FMNMX',), 'fmax':('FMNMX',),
  'fmin_ftz':('FMNMX.FTZ',), 'fmax_ftz':('FMNMX.FTZ',),
- 'i2f':('I2FP',), 'fadd_ftz':('FADD.FTZ',), 'fmul_rz':('FMUL.RZ',),
+ 'i2f':('I2FP',), 'fadd_ftz':('FADD.FTZ',),
  'ffma_sat':('FFMA.SAT',), 'shared':('LDS','STS'), 'local':('LDL','STL'),
- 'branch':('BRA','BSSY','BSYNC'), 'ldc':('LDC',)}
+ 'branch':('BRA','BSSY','BSYNC'), 'ldc':('LDC',),
+ **{f'{op}_{mode}':(f'{op.upper()}.{mode.upper()}',) for op in ('fadd','fmul','ffma','dadd','dmul','dfma') for mode in ('rz','rm','rp')}}
+ROUNDED={family for family in SPECS if family[-3:] in ('_rz','_rm','_rp')}
 HALF_FLOAT_OUTPUTS={'hadd2','hfma2','hadd2_sat','hfma2_sat','hadd2_lanes','hfma2_lanes'}
-DOUBLE_FAMILIES={'dadd','dmul','dfma','dsetp'}
-FLOAT_OUTPUTS={'dadd','dmul','dfma','fadd','fmul','ffma','i2f','fadd_ftz','fmul_rz','ffma_sat'}
+DOUBLE_FAMILIES={'dadd','dmul','dfma','dsetp'}|{f for f in ROUNDED if f.startswith('d')}
+FLOAT_OUTPUTS={'dadd','dmul','dfma','fadd','fmul','ffma','i2f','fadd_ftz','ffma_sat'}|ROUNDED
 
 
 
@@ -169,6 +171,14 @@ def main():
                        (0x3ff0000000000001,0x3feffffffffffffe,0xbff0000000000000),
                        (0x7fefffffffffffff,0x4000000000000000,0xffefffffffffffff)]
                 vectors[len(edges64):len(edges64)+len(pairs)]=pairs
+            if family in ROUNDED:
+                # Residuals below the wide format's precision, exact cancellation
+                # (zero sign) and overflow, per format.
+                one,tiny,top=(0x3ff0000000000000,1,0x7fefffffffffffff) if family in DOUBLE_FAMILIES else (0x3f800000,1,0x7f7fffff)
+                sign=1<<(63 if family in DOUBLE_FAMILIES else 31)
+                pairs=[(one,tiny,one|sign),(one,tiny|sign,tiny),(one,one|sign,one),(one|sign,one,tiny|sign),
+                       (top,top,top|sign),(top|sign,top,top),(one+1,one+1,tiny|sign),(0,sign,0)]
+                vectors[64:64+len(pairs)]=[list(v) for v in pairs]
             data=b''.join(struct.pack('<QQQ' if family in DOUBLE_FAMILIES else '<III',*v) for v in vectors)
             gpu=driver.run(cubin,family,data)
             fixtures.append((family,vectors,gpu));requests.append(kernel_request(cubin.read_bytes(),family,data))

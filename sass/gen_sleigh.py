@@ -4,7 +4,7 @@ Display reuses pydecode.render_items() symbolically: for every FORMAT item, each
 conditions that change its shape (operand at default, flag set, ...) is rendered once with placeholder
 values and becomes one subtable constructor guarded by those conditions on the encoding.
 
-usage: python3 -m sass.gen_sleigh SM89 [SM90 ...]
+usage: python3 -m sass.gen_sleigh SM89 [SM90 ...] [--fp=exact|readable]
 """
 import itertools, json, math, re, sys
 import mdlib
@@ -147,8 +147,9 @@ def group(groups):
 # ---------- generator ----------
 
 class Gen:
-    def __init__(self, archname):
+    def __init__(self, archname, fp="exact"):
         self.arch = ir.load(archname)
+        self.fp = fp
         self.fields = {}              # (tok, lo, hi, kind) -> name
         self.attach = {}              # field name -> names list
         self.name_fields = {}         # (token range, names) -> shared display field
@@ -774,7 +775,7 @@ LDEFS = """<?xml version="1.0" encoding="UTF-8"?>
 """
 LANG = """  <language processor="SASS" endian="little" size="64" variant="{v}" version="1.1"
             slafile="sass_{v}.sla" processorspec="sass.pspec" id="SASS:LE:64:{v}">
-    <description>NVIDIA SASS {V} (from nvdisasm machine description)</description>
+    <description>NVIDIA SASS {V}{D} (from nvdisasm machine description)</description>
     <compiler name="default" spec="sass.cspec" id="default"/>
   </language>
 """
@@ -793,22 +794,32 @@ def sm_bits(sm, shift):
     for i in range(8): bits[31 - shift - i] = str(sm >> i & 1)
     return "0b " + " ".join("".join(bits[j:j + 4]) for j in range(0, 32, 4))
 
+def variant(arch, fp="exact"):
+    """Language variant: exact float semantics keep the plain smXX name."""
+    return arch.lower() + ("" if fp == "exact" else "_" + fp)
+
 def write_ldefs():
     variants = sorted(p.stem.removeprefix("sass_") for p in OUT.glob("sass_sm*.slaspec"))
-    (OUT / "sass.ldefs").write_text(LDEFS.format("".join(LANG.format(v=v, V=v.upper()) for v in variants)))
+    (OUT / "sass.ldefs").write_text(LDEFS.format("".join(
+        LANG.format(v=v, V=v.split("_")[0].upper(), D="".join(f" {m} floating point" for m in v.split("_")[1:]))
+        for v in variants)))
+    # Loaders pick the exact language; readable ones are chosen explicitly.
     (OUT / "sass.opinion").write_text(OPINION.format("".join(
         f'    <constraint primary="190" processor="SASS" endian="little" size="64" variant="{v}" secondary="{sm_bits(int(v[2:]), shift)}"/>\n'
-        for v in variants for shift in (0, 8))))
+        for v in variants if "_" not in v for shift in (0, 8))))
 
-def main(archs):
+def main(archs, fp="exact"):
     for arch in archs:
-        g = Gen(arch)
+        g = Gen(arch, fp)
         text = g.slaspec()
-        (OUT / f"sass_{arch.lower()}.slaspec").write_text(text)
-        (OUT / f"sass_{arch.lower()}_coverage.json").write_text(json.dumps(list(g.coverage.values()), indent=2) + "\n")
-        print(f"{arch}: {text.count(chr(10))} lines, {len(g.tables)} subtables, {len(g.skipped)} skipped")
+        (OUT / f"sass_{variant(arch, fp)}.slaspec").write_text(text)
+        (OUT / f"sass_{variant(arch, fp)}_coverage.json").write_text(json.dumps(list(g.coverage.values()), indent=2) + "\n")
+        print(f"{variant(arch, fp)}: {text.count(chr(10))} lines, {len(g.tables)} subtables, {len(g.skipped)} skipped")
         for name, why in g.skipped[:10]: print("   skipped", name, why)
     write_ldefs()
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    from sass.fpops import MODES
+    fp = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--fp=")), "exact")
+    if fp not in MODES: sys.exit(f"--fp must be one of {MODES}")
+    main([a for a in sys.argv[1:] if not a.startswith("--fp=")], fp)

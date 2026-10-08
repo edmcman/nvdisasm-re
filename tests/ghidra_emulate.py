@@ -22,7 +22,7 @@ def main(ldefs,langid):
     from ghidra.program.model.mem import ByteMemBufferImpl
     from ghidra.app.util import PseudoInstruction
     from ghidra.program.model.pcode import Varnode
-    lang=load_language(ldefs,langid);space=lang.getDefaultSpace();runtime=Runtime(Path(ldefs).parent,int(langid.rsplit(':sm',1)[1]))
+    lang=load_language(ldefs,langid);space=lang.getDefaultSpace();variant=langid.rsplit(':',1)[1];arch=variant.split('_')[0].upper();runtime=Runtime(Path(ldefs).parent,int(arch[2:]),variant=variant)
     reason=PcodeExecutorStatePiece.Reason.INSPECT
     definition=jpype.JClass('ghidra.pcode.exec.PcodeUseropLibrary$PcodeUseropDefinition')
     refs=[]
@@ -96,7 +96,7 @@ def main(ldefs,langid):
             else:
                 if int(thread.getCounter().getOffset())!=0:
                     raise RuntimeError(f'kernel instruction limit ({max_steps}) at {current_pc:#x}, thread {lane}')
-            last=pydecode.decode(langid.rsplit(':',1)[1].upper(),code[last_pc-base:last_pc-base+16])
+            last=pydecode.decode(arch,code[last_pc-base:last_pc-base+16])
             if last.klass.mnemonic!='EXIT':raise RuntimeError('kernel terminated without EXIT')
             out=request['output'];offset=int(out['address'])+lane*int(out.get('stride',4));size=int(out.get('size',4))
             outputs.append(bytes(state.getVar(Varnode(space.getAddress(offset),size),reason)).hex())

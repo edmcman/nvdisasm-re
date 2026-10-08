@@ -23,7 +23,6 @@ KERNEL(fmax_ftz, asm("max.ftz.f32 %0,%1,%2;":"=r"(r):"r"(a),"r"(b)))
 KERNEL(f2i, asm("cvt.rzi.s32.f32 %0,%1;":"=r"(r):"r"(a)))
 KERNEL(i2f, asm("cvt.rn.f32.s32 %0,%1;":"=r"(r):"r"(a)))
 KERNEL(fadd_ftz, asm("add.rn.ftz.f32 %0,%1,%2;":"=r"(r):"r"(a),"r"(b)))
-KERNEL(fmul_rz, asm("mul.rz.f32 %0,%1,%2;":"=r"(r):"r"(a),"r"(b)))
 KERNEL(ffma_sat, asm("fma.rn.sat.f32 %0,%1,%2,%3;":"=r"(r):"r"(a),"r"(b),"r"(c)))
 KERNEL(shared, __shared__ uint32_t cell[32]; unsigned offset=threadIdx.x; unsigned addr=__cvta_generic_to_shared(&cell[offset]); asm volatile("st.volatile.shared.u32 [%1],%2; ld.volatile.shared.u32 %0,[%1];":"=r"(r):"r"(addr),"r"(a):"memory"))
 KERNEL(local, volatile uint32_t cell[256]; for (unsigned j=0;j<256;++j) cell[j]=a+j*b; r=cell[c&255])
@@ -61,3 +60,14 @@ HALF_MOVE_FIXTURE(hfma2_move_zero)
 HALF_MOVE_FIXTURE(hfma2_move_nan)
 HALF_MOVE_FIXTURE(hfma2_move_denorm)
 HALF_MOVE_FIXTURE(hfma2_move_inf)
+// Directed rounding in every fp32/fp64 arithmetic family.
+#define ROUNDED(mode) \
+KERNEL(fadd_##mode, asm("add." #mode ".f32 %0,%1,%2;":"=r"(r):"r"(a),"r"(b))) \
+KERNEL(fmul_##mode, asm("mul." #mode ".f32 %0,%1,%2;":"=r"(r):"r"(a),"r"(b))) \
+KERNEL(ffma_##mode, asm("fma." #mode ".f32 %0,%1,%2,%3;":"=r"(r):"r"(a),"r"(b),"r"(c))) \
+DOUBLE_KERNEL(dadd_##mode, asm("add." #mode ".f64 %0,%1,%2;":"=d"(r):"d"(a),"d"(b))) \
+DOUBLE_KERNEL(dmul_##mode, asm("mul." #mode ".f64 %0,%1,%2;":"=d"(r):"d"(a),"d"(b))) \
+DOUBLE_KERNEL(dfma_##mode, asm("fma." #mode ".f64 %0,%1,%2,%3;":"=d"(r):"d"(a),"d"(b),"d"(c)))
+ROUNDED(rz)
+ROUNDED(rm)
+ROUNDED(rp)

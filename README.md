@@ -153,7 +153,11 @@ Ghidra 12.1.4.
 
 3. Restart Ghidra. Import raw SASS instruction bytes using **Raw Binary**, then
    choose **SASS**, **little endian**, **64 bit**, and the matching variant (such
-   as `sm89`, language ID `SASS:LE:64:sm89`). Each instruction is 16 bytes. Use the
+   as `sm89`, language ID `SASS:LE:64:sm89`). Each architecture also has a
+   `smXX_readable` variant. It writes floating-point arithmetic as the plain
+   formula (`a f* b f+ c`), ignoring rounding modes, denormal flushing, fused
+   rounding and NaN/signed-zero selection. The default variant computes
+   hardware-exact results. Each instruction is 16 bytes. Use the
    kernel's extracted `.text.*` bytes and its code address; importing a whole cubin
    as raw bytes includes ELF headers and other sections. This module supplies the
    processor languages; it does not install a CUDA cubin loader or populate kernel
@@ -161,7 +165,8 @@ Ghidra 12.1.4.
    and supported instruction semantics in the decompiler.
 
 `python3 -m sass.gen_sleigh SM75 SM80 ...` generates a SLEIGH spec per architecture
-(`sass_smXX.slaspec`, not committed: run the generator first) and `sass.ldefs` with languages `SASS:LE:64:smXX`. Ghidra
+(`sass_smXX.slaspec`, not committed: run the generator first) and `sass.ldefs` with languages `SASS:LE:64:smXX`
+(`--fp=readable` writes `sass_smXX_readable.slaspec`, language `SASS:LE:64:smXX_readable`). Ghidra
 compiles the `.sla` on first use. P-code preserves register reads and writes for every
 class. Instruction semantics add native integer, move, memory, control-flow and
 floating-point overrides, plus runtime primitives for other floating-point and warp
@@ -190,9 +195,9 @@ dataflow can be checked with `python3 tests/test_dataflow.py SM89`, or with
 
 ### GPU semantics oracle
 
-`python3 tests/gpu_semantics.py --require-gpu` compiles 43 SM89 CUDA kernels,
+`python3 tests/gpu_semantics.py --require-gpu` compiles 60 SM89 CUDA kernels,
 runs them on the GPU, then executes the same kernel text in Ghidra's p-code
-emulator. It checks 5,504 random/edge output values, including address setup,
+emulator. It checks 7,680 random/edge output values, including address setup,
 constant parameters, memory operations, predication, and loops. Seven fixtures
 patch one arithmetic word to select specific FP16 lane or MMA modes; both the
 GPU and emulator execute the resulting cubin. See

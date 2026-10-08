@@ -13,13 +13,13 @@ class UnsupportedSemantics(NotImplementedError): pass
 
 
 class Runtime:
-    def __init__(self, language_dir, sm, context=None, handlers=None):
-        self.sm=sm;self.handlers=handlers or {}
+    def __init__(self, language_dir, sm, context=None, handlers=None, variant=None):
+        self.sm=sm;self.handlers=handlers or {};self.variant=variant or f'sm{sm}'
         self.language_dir=Path(language_dir);self.context=context or {};self.events=[];self.manifests={}
 
     def manifest(self,sm):
         if sm not in self.manifests:
-            rows=json.loads((self.language_dir/f'sass_sm{sm}_coverage.json').read_text())
+            rows=json.loads((self.language_dir/f'sass_{self.variant}_coverage.json').read_text())
             self.manifests[sm]={r['cls']:r for r in rows}
         return self.manifests[sm]
 

@@ -4,6 +4,8 @@ Unsupported selector combinations decode to complete-input opaque operations.
 This module does not equate PTX syntax with undocumented SASS variants.
 """
 from dataclasses import dataclass
+from itertools import product
+from sass import fpops
 
 OPERATION_FAMILIES = set('IADD3 IMAD LOP3 SHF LEA IABS IMNMX ISETP SEL PRMT MOV S2R CS2R LDC FADD FMUL FFMA FSETP F2I I2F I2FP MUFU LDG STG LDS STS LDL STL BRA EXIT CALL RET BSSY BSYNC BAR SHFL VOTE ULDC NOP'.split())
 ALIASES = dict(UIADD3='IADD3', UIMAD='IMAD', USHF='SHF', ULEA='LEA',
@@ -389,12 +391,8 @@ def combine(b,cond,p):
     return b.select('bop',{en[label]:f'{cond} {oper} {p}' for label,oper in [('AND','&'),('OR','|'),('XOR','^')] if label in en},1)
 
 
-# Native fp32 p-code covers round-to-nearest with .FTZ/.SAT; directed rounding,
-# .FMZ, and other selectors fall back to sass_prim_*.
-FLUSH='{0} & (0x80000000 | (0x7fffffff * zext(({0} & 0x7f800000) != 0)))'
-SATURATE=('if (!nan(r) && (0:4 f< r)) goto <positive>; r = 0; goto <saturated>; '
-          '<positive> if (r f<= 0x3f800000:4) goto <saturated>; r = 0x3f800000; <saturated> ')
 SCALES={'noscale':0,'D2':-1,'D4':-2,'D8':-3,'M2':1,'M4':2,'M8':3}
+FLUSH_LABELS=['FTZ','FMZ','noftz','nofmz','nofmz_hfma2']
 
 def enum_cases(b,name,labels):
     """{label: value} for the labels of selector `name` this class can encode; {None: None} if absent."""
@@ -404,58 +402,58 @@ def enum_cases(b,name,labels):
     return {l:en[l] for l in labels if l in en}
 
 def float_inputs(b,names):
-    """Operand symbols after |x|/-x flags and, under .FTZ, denormal flushing."""
+    """Operand symbols after |x|/-x flags and, under exact .FTZ, denormal flushing."""
     mode='fmz' if 'fmz' in b.values else 'ftz'
+    if fpops.readable(b):
+        enum_cases(b,mode,FLUSH_LABELS)
+        return mode,{None:None},[b.flag(n,True) for n in names]
     flush=enum_cases(b,mode,['FTZ','noftz','nofmz','nofmz_hfma2'])
     out=[]
     for name in names:
         v=b.flag(name,True)
         out.append(v if flush=={None:None} else
-                   b.select(mode,{value:FLUSH.format(v) if label=='FTZ' else v for label,value in flush.items()},4))
+                   b.select(mode,{value:fpops.flush(v) if label=='FTZ' else v for label,value in flush.items()},4))
     return mode,flush,out
 
-def float_result(b,mode,flush,core,extra=None):
-    """Select the body computing r per (.FTZ, .SAT[, extra]) and assign it to Rd."""
-    require(b,'rnd',['RN'])
-    sat=enum_cases(b,'sat',['SAT','nosat'])
-    extra=extra or (None,{None:''})
-    names=tuple(n for n,c in ((mode,flush),('sat',sat),(extra[0],extra[1])) if n and c!={None:None})
+def float_result(b,mode,flush,core,extra=None,size=4):
+    """Select the body computing r per (.FTZ, .SAT, rounding[, extra]) and assign it to Rd.
+
+    core(rounding label, extra label) leaves the unflushed result in r."""
+    rnd=enum_cases(b,'rnd',fpops.ROUNDING)
+    if fpops.readable(b):rnd={None:None}
+    selectors=[(n,c) for n,c in ((mode,flush),('sat',enum_cases(b,'sat',['SAT','nosat'])),('rnd',rnd),extra or (None,{None:None}))
+               if n and c!={None:None}]
     cases={}
-    for fl,fv in flush.items():
-        for sl,sv in sat.items():
-            for el,ev in extra[1].items():
-                code=core(el)+(f' r = {FLUSH.format("r")};' if fl=='FTZ' else '')+(' '+SATURATE if sl=='SAT' else ' ')+'export r;'
-                key=tuple(v for n,v in ((mode,fv),('sat',sv),(extra[0],ev)) if n in names)
-                cases[key]=code
-    table=b.select_code(names,cases)
+    for combo in product(*(c.items() for _,c in selectors)):
+        label={n:l for (n,_),(l,_) in zip(selectors,combo)}
+        code=(core(label.get('rnd','RN'),label.get(extra and extra[0]))+
+              (f' r = {fpops.flush("r",size)};' if label.get(mode)=='FTZ' else '')+
+              (' '+fpops.saturate(size) if label.get('sat')=='SAT' else ' ')+'export r;')
+        cases[tuple(v for _,v in combo)]=code
+    table=b.select_code(tuple(n for n,_ in selectors),cases)
     b.body.append(f'{output(b).symbol} = {table};')
+
+def arithmetic(b,op,xs,size,rnd,scale=0):
+    return fpops.arithmetic(op,xs,size,rnd,scale,exact=not fpops.readable(b))
 
 def float_shape(b,*groups,size=4):
     names=operands(b,*groups)
     return all(names) and output(b) is not None and output(b).size==size and all(b.values[n].size==size for n in names) and names
 
 
-def double_arithmetic(b,groups,operator,check):
+def double_arithmetic(b,groups,op,check):
     names=float_shape(b,*groups,size=8)
     if check:return bool(names)
-    require(b,'rnd',['RN'])
     inputs=[b.flag(n,True) for n in names]
-    if operator=='fma':
-        # Binary128 holds the exact product of two binary64 inputs (106 bits).
-        # The sum rounds at 113 bits before narrowing: rare midpoint cases can
-        # still double-round, as with the fp32 FFMA implementation.
-        a,c,d=[b.local(16,f'float2float({v})').symbol for v in inputs]
-        result=f'float2float({a} f* {c} f+ {d})'
-    else:result=f'{inputs[0]} {operator} {inputs[1]}'
-    b.body.append(f'{output(b).symbol} = {result};')
+    float_result(b,'ftz',{None:None},lambda rnd,_:arithmetic(b,op,inputs,8,rnd),size=8)
 
 
 def emit_DADD(b,check=False):
-    return double_arithmetic(b,('Ra/Sa','Rc/Sc/URc'),'f+',check)
+    return double_arithmetic(b,('Ra/Sa','Rc/Sc/URc'),'add',check)
 
 
 def emit_DMUL(b,check=False):
-    return double_arithmetic(b,('Ra/Sa','Rb/Sb/URb'),'f*',check)
+    return double_arithmetic(b,('Ra/Sa','Rb/Sb/URb'),'mul',check)
 
 
 def emit_DFMA(b,check=False):
@@ -497,7 +495,9 @@ def half_arithmetic(b,fma,check):
     names=half_shape(b,fma)
     if check:return bool(names)
     require(b,'ofmt',['F16_V2'])
-    require(b,'ftz',['noftz']);require(b,'fmz',['nofmz'])
+    if fpops.readable(b):
+        for name in ('ftz','fmz'):enum_cases(b,name,FLUSH_LABELS)
+    else:require(b,'ftz',['noftz']);require(b,'fmz',['nofmz'])
     satname='satrelu' if 'satrelu' in b.values else 'sat'
     saturate=enum_cases(b,satname,['nosat','SAT'])
     bswz='iswzB' if 'iswzB' in b.values else 'iswzC_as_B'
@@ -505,19 +505,18 @@ def half_arithmetic(b,fma,check):
     swizzles=['iswzA',bswz,cswz] if fma else ['iswzA','iswzB' if 'iswzB' in b.values else 'iswzB_as_C']
     inputs=[half_inputs(b,n,s) for n,s in zip(names,swizzles)]
     results=[]
+    op='fma' if fma else 'add'
     for lane in (0,1):
-        # Binary128 holds the exact finite binary16 product AND sum, even at
-        # opposite exponent extremes. Narrowing rounds only once to binary16.
-        width=16 if fma else 8
-        values=[b.expression(width,f'float2float({v[lane]})').symbol for v in inputs]
-        core=f'{values[0]} f* {values[1]} f+ {values[2]}' if fma else f'{values[0]} f+ {values[1]}'
+        if fpops.readable(b):core=fpops.arithmetic(op,[v[lane] for v in inputs],2,exact=False)
+        else:
+            # Binary128 holds the exact finite binary16 product AND sum, even at
+            # opposite exponent extremes. Narrowing rounds only once to binary16.
+            width=16 if fma else 8
+            values=[b.expression(width,f'float2float({v[lane]})').symbol for v in inputs]
+            core=f'local r:2 = float2float({values[0]} f* {values[1]} f+ {values[2]});' if fma else f'local r:2 = float2float({values[0]} f+ {values[1]});'
         cases={}
         for label,v in saturate.items():
-            code=f'local r:2 = float2float({core}); '
-            if label=='SAT':
-                code+=('if (!nan(r) && (0:2 f< r)) goto <positive>; r = 0; goto <saturated>; '
-                       '<positive> if (r f<= 0x3c00:2) goto <saturated>; r = 0x3c00; <saturated> ')
-            code+='export r;'
+            code=core+' '+(fpops.saturate(2) if label=='SAT' else '')+'export r;'
             cases[(v,) if satname in b.values else ()]=code
         results.append(b.local(2,b.select_code((satname,) if satname in b.values else (),cases)).symbol)
     b.body.append(f'{output(b).symbol} = zext({results[0]}) | (zext({results[1]}) << 16);')
@@ -559,32 +558,22 @@ def emit_HFMA2_MMA(b,check=False):
 def emit_FADD(b,check=False):
     names=float_shape(b,'Ra/Sa','Rc/Sc/URc')
     if check:return bool(names)
-    mode,flush,(a,c)=float_inputs(b,names)
-    float_result(b,mode,flush,lambda _:f'local r:4 = {a} f+ {c};')
+    mode,flush,xs=float_inputs(b,names)
+    float_result(b,mode,flush,lambda rnd,_:arithmetic(b,'add',xs,4,rnd))
 
 def emit_FMUL(b,check=False):
     names=float_shape(b,'Ra/Sa','Rb/Sb/URb')
     if check:return bool(names)
-    mode,flush,(a,c)=float_inputs(b,names)
+    mode,flush,xs=float_inputs(b,names)
     scale=enum_cases(b,'scale',list(SCALES))
-    # The exact product of two fp32 values fits in fp64, so scaling there and
-    # narrowing once rounds exactly as hardware does.
-    def core(label):
-        k=SCALES[label] if label else 0
-        if not k:return f'local r:4 = {a} f* {c};'
-        return f'local r:4 = float2float((float2float({a}) f* float2float({c})) f* {(1023+k)<<52:#x}:8);'
-    float_result(b,mode,flush,core,('scale',scale) if scale!={None:None} else None)
+    float_result(b,mode,flush,lambda rnd,label:arithmetic(b,'mul',xs,4,rnd,SCALES[label] if label else 0),
+                 ('scale',scale) if scale!={None:None} else None)
 
 def emit_FFMA(b,check=False):
     names=float_shape(b,'Ra/Sa','Rb/Sb/URb','Rc/Sc/URc')
     if check:return bool(names)
-    mode,flush,(a,c,d)=float_inputs(b,names)
-    # The fp32 product is exact in fp64, so only the fp64 sum and the final
-    # narrowing round: this double rounding can differ from hardware's single
-    # rounding in rare midpoint cases. Readability wins over that last bit.
-    core=lambda _:(f'local x:8 = float2float({a}); local y:8 = float2float({c}); local z:8 = float2float({d}); '
-                   'local r:4 = float2float(x f* y f+ z);')
-    float_result(b,mode,flush,core)
+    mode,flush,xs=float_inputs(b,names)
+    float_result(b,mode,flush,lambda rnd,_:arithmetic(b,'fma',xs,4,rnd))
 
 def emit_FSEL(b,check=False):
     names=float_shape(b,'Ra/Sa','Rb/Sb')
@@ -600,10 +589,17 @@ def emit_FMNMX(b,check=False):
     names=float_shape(b,'Ra/Sa','Rb/Sb')
     p=operands(b,'Pp')[0]
     if check:return bool(names and p) and set(b.outputs)=={'Rd'}
-    # .NAN and .XORSIGN require separate hardware evidence.
-    require(b,'nan',['nonan']);require(b,'xorsign',['noxorsign'])
+    # .XORSIGN changes the formula; exact .NAN requires hardware evidence.
+    require(b,'xorsign',['noxorsign'])
     _,_,(a,c)=float_inputs(b,names)
     predicate=b.flag(p)
+    if fpops.readable(b):
+        enum_cases(b,'nan',['nonan','NAN'])
+        result=b.local(4,c)
+        b.body += [f'if (({a} f< {c}) != {predicate}) goto <minmaxdone>;',f'{result.symbol} = {a};',
+                   '<minmaxdone>',f'{output(b).symbol} = {result.symbol};']
+        return
+    require(b,'nan',['nonan'])
     # Numeric input wins over NaN. Equal signed zeros use OR for min and AND
     # for max; this preserves -0 for min and +0 for max in either source order.
     result=b.local(4,c)
