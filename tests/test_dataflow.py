@@ -18,6 +18,9 @@ from sass.gen_sleigh import ENUM_FILE, REG_FILES, RESOURCE_FILE, Gen
 def expected(g, d, optimized=False):
     reads, writes = set(), set()
     unused=set()
+    if optimized and d.klass.mnemonic in ('LDG','STG','LDL','STL') and d.env.get('e_desc')==0:
+        # Implicit pointer forms use their address registers directly.
+        unused.update(('Ra_URb','Ra_URc'))
     if optimized and d.klass.mnemonic=='LOP3' and 'imm8' in d.env:
         lut=d.env['imm8']
         for bit,names in [(2,('Ra','Sa')),(1,('Rb','Sb')),(0,('Rc','Sc'))]:

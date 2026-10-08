@@ -2,9 +2,9 @@
 
 The generator preserves register spans and predicates for every class. Value semantics
 add executable scalar values and native overrides or named runtime primitives
-for 36 opcode families. This is a single-instruction execution
-model. It does not implement a CUDA kernel loader, warp scheduler, or concurrent
-memory model.
+for 39 opcode families. The test harness can load cubin text and run independent
+threads as whole kernels. The general Ghidra loader, warp scheduler, and
+concurrent memory model remain separate work.
 
 `sass/semantic.py` builds operand values independently of assembly display.
 Encoded immediates retain their size, sign and scale; multi-field operands and
@@ -49,13 +49,12 @@ has value semantics. `primitive` means the runtime validates and executes the
 operation or rejects an unsupported selector/context. `opaque` means the md's
 register effects and raw word are preserved without asserting a result.
 The coverage ledger's architecture-wide `hardware_verified` flag remains false:
-GPU comparisons currently cover the 11 scalar SM89 fixtures recorded in
+GPU comparisons currently cover the 23 whole-kernel SM89 fixtures recorded in
 [verification.json](verification.json), rather than every class and selector.
 
 IMAD.HI adds the 64-bit addend before selecting the high word; IMAD.WIDE
 writes the whole sum. The CUDA mad.hi lowering places its scalar addend in
-the upper register of that pair. The GPU oracle supplies the matching pair
-rather than treating it as a 32-bit addend. Constant-bank widths are class
+the upper register of that pair. The whole-kernel oracle executes that compiler lowering directly. Constant-bank widths are class
 specific; SM75/80 HI/WIDE forms with 32-bit constant addends stay opaque
 until their extension convention is established.
 
@@ -82,7 +81,7 @@ whose conventions are unconfirmed raise `UnsupportedSemantics`. NaN results
 are canonical quiet NaNs; GPU payload selection is not verified. PRMT implements
 IDX and the six specialized modes.
 
-S2R/CS2R require a special-register context. SHFL/VOTE require explicit 32-lane
+S2R/CS2R copy named special registers; the launch environment seeds their values. SHFL/VOTE require explicit 32-lane
 values, predicates, active mask, and lane index. Inactive shuffle sources
 are rejected because their values are undefined. BAR/BSSY/BSYNC require an
 explicit synchronization event context; recording an acknowledged event is
@@ -94,22 +93,25 @@ as reference conventions; GPU checks are needed to establish SASS equivalence.
 
 ## Runtime ABI
 
-Opaque: `sass_opaque_OPCODE(SM:u32, raw_lo:u64, raw_hi:u64, register_inputs...)`.
+Opaque: `sass_opaque_OPCODE(raw_lo:u64, raw_hi:u64, inputs...)`, where inputs are the
+register operands and decoded immediates in operand order. The SM comes from the language.
 The class can be decoded from the raw word, allowing identical class templates
 to share p-code. Primitive:
-`sass_prim_OPCODE(SM:u32, class_ordinal:u32, raw_lo:u64, raw_hi:u64, inputs...)`.
-Input order and output widths come from the detailed class manifest. Multiple
+`sass_prim_OPCODE(class_ordinal:u32, raw_lo:u64, raw_hi:u64, inputs...)`.
+The runtime architecture comes from the loaded language. Input order and output
+widths come from the detailed class manifest. Multiple
 outputs return one byte bundle in manifest order, first output in the low bytes.
 All inputs are evaluated before assigning any output. Sinks discard writes to
 zero/true registers and register-bank overflow views.
 
-`Runtime(..., handlers={name: callback})` permits environment implementations;
+`Runtime(language_dir, sm, handlers={name: callback})` permits environment implementations;
 callbacks receive `(arguments, output_bytes, context)`. Without a handler,
 unknown operations raise with the decoded class and values. The JSON-line
-Ghidra harness accepts `context.special` keyed by numeric special-register id,
+Ghidra harness accepts named special-register values in `registers`,
 `context.operands` keyed by `class.operand`, `context.warp`, and
 `context.synchronization`. Memory initialization is explicit. Kernel parameter
-bank offsets have not been inferred into the placeholder compiler prototype.
+bank offsets are read from cubin metadata by the test harness; the general
+Ghidra loader and compiler prototype remain Phase 6 work.
 
 ## Build and verification
 
@@ -134,16 +136,39 @@ not a Python reimplementation of the instruction dispatcher. `GHIDRA_PY`
 selects the pyghidra Python interpreter. In a restricted environment, set
 `XDG_CONFIG_HOME` and `XDG_CACHE_HOME` to writable scratch directories.
 
-The CUDA Driver API oracle compiles 11 scalar families for SM89, confirms each
-target mnemonic in its kernel, and compares GPU results to corresponding
-Ghidra instruction fixtures. It checks random and edge-case vectors; only NaN
-payload differences are normalized. It is not full-kernel emulation. Use `NVCC`
-and `CUOBJDUMP` to select toolkit binaries. With no GPU, normal invocation prints
-an explicit skip; `--require-gpu` fails. MUFU, synchronization, descriptor
-layouts, and remaining variants require separate hardware/context validation.
+The CUDA Driver API oracle compiles 23 SM89 kernels and executes their actual
+`.text` through Ghidra's normal instruction stepping, from the prologue through
+EXIT. It compares 128 random/edge input vectors per kernel (four blocks of 32),
+including NaNs, infinities, denormals, signed zero, and integer boundaries.
+Target mnemonics must both appear in cuobjdump output and execute in the emulator.
+All 2,944 output comparisons passed on the RTX 4070 Laptop GPU.
+
+The cubin's PARAM_CBANK and KPARAM_INFO records supply parameter offsets and
+sizes. For these SM89 kernels, bank 0 parameters begin at 0x160, with the two
+64-bit pointers at 0x160 and 0x168. Actual constant sections are loaded into
+`cbank`; launch dimensions and named TID/CTAID special registers are seeded.
+A fresh emulator per thread isolates local memory. Shared-memory fixtures use
+cells private to each thread, so no cross-thread communication is modeled.
+Kernel PC bounds and an instruction budget reject fallthrough and infinite loops.
+
+Coverage includes integer arithmetic, IMAD low/high/wide, LOP3, SHF, LEA,
+predicates/selects, PRMT, FADD/FMUL/FFMA, FSETP, F2I.TRUNC.NTZ, I2FP, moves,
+uniform/ordinary constant loads, global/shared/local loads and stores, and
+predicated branching with BSSY/BSYNC. FADD.FTZ, FMUL.RZ and FFMA.SAT have dedicated
+fixtures. PRMT uses SASS operand order: data A, selector, data B.
+SM89 F2I.TRUNC.NTZ to S32 maps NaN to zero and clamps infinities/overflow;
+other NTZ combinations still reject until verified.
+
+Floating results are bit-exact except that two NaNs compare equal regardless
+of payload/sign. FTZ and saturation have no additional numeric tolerance.
+MUFU approximations, warp collectives, device calls/returns, barrier reductions,
+and cross-thread memory ordering remain outside this hardware validation.
+The loop fixture explicitly acknowledges BSSY/BSYNC events; this verifies its
+per-thread result without asserting a warp scheduler.
+
+Use `NVCC` and `CUOBJDUMP` to select toolkit binaries. Without a GPU, normal
+invocation prints an explicit skip; `--require-gpu` fails. The opt-in pytest
+entry point is `SASS_GPU=1 python3 -m pytest tests -k semantics_gpu`.
+CUDA device access requires running outside the restricted sandbox here.
 
 Recorded results for this implementation are in [verification.json](verification.json).
-GPU execution passed 1,408 comparisons across all 11 scalar families on an
-RTX 4070 Laptop GPU (SM89). CUDA device access requires running the oracle
-outside the sandbox in this environment. These results cover the tested
-selectors; NaN payload differences are normalized.

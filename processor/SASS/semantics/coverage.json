@@ -94,6 +94,9 @@
       "I2F": {
         "primitive": 24
       },
+      "I2FP": {
+        "primitive": 6
+      },
       "IABS": {
         "native": 2,
         "opaque": 1
@@ -143,6 +146,9 @@
       "MUFU": {
         "primitive": 6
       },
+      "NOP": {
+        "native": 1
+      },
       "PRMT": {
         "primitive": 5
       },
@@ -173,14 +179,17 @@
       "STS": {
         "native": 3
       },
+      "ULDC": {
+        "absent": 0
+      },
       "VOTE": {
         "primitive": 1
       }
     },
     "status": {
-      "native": 88,
-      "opaque": 782,
-      "primitive": 108
+      "native": 89,
+      "opaque": 775,
+      "primitive": 114
     }
   },
   "SM101": {
@@ -278,6 +287,9 @@
       "I2F": {
         "primitive": 24
       },
+      "I2FP": {
+        "primitive": 4
+      },
       "IABS": {
         "native": 2,
         "opaque": 1
@@ -327,6 +339,9 @@
       "MUFU": {
         "primitive": 6
       },
+      "NOP": {
+        "native": 1
+      },
       "PRMT": {
         "primitive": 5
       },
@@ -357,14 +372,17 @@
       "STS": {
         "native": 3
       },
+      "ULDC": {
+        "absent": 0
+      },
       "VOTE": {
         "primitive": 1
       }
     },
     "status": {
-      "native": 88,
-      "opaque": 708,
-      "primitive": 108
+      "native": 89,
+      "opaque": 703,
+      "primitive": 112
     }
   },
   "SM103": {
@@ -462,6 +480,9 @@
       "I2F": {
         "primitive": 24
       },
+      "I2FP": {
+        "primitive": 6
+      },
       "IABS": {
         "native": 2,
         "opaque": 1
@@ -511,6 +532,9 @@
       "MUFU": {
         "primitive": 9
       },
+      "NOP": {
+        "native": 1
+      },
       "PRMT": {
         "primitive": 5
       },
@@ -541,14 +565,17 @@
       "STS": {
         "native": 3
       },
+      "ULDC": {
+        "absent": 0
+      },
       "VOTE": {
         "primitive": 1
       }
     },
     "status": {
-      "native": 88,
-      "opaque": 775,
-      "primitive": 111
+      "native": 89,
+      "opaque": 768,
+      "primitive": 117
     }
   },
   "SM120": {
@@ -660,6 +687,9 @@
       "I2F": {
         "primitive": 24
       },
+      "I2FP": {
+        "primitive": 4
+      },
       "IABS": {
         "native": 2,
         "opaque": 1
@@ -708,6 +738,9 @@
       "MUFU": {
         "primitive": 6
       },
+      "NOP": {
+        "native": 1
+      },
       "PRMT": {
         "primitive": 5
       },
@@ -738,14 +771,17 @@
       "STS": {
         "native": 3
       },
+      "ULDC": {
+        "absent": 0
+      },
       "VOTE": {
         "primitive": 1
       }
     },
     "status": {
-      "native": 93,
-      "opaque": 814,
-      "primitive": 108
+      "native": 94,
+      "opaque": 809,
+      "primitive": 112
     }
   },
   "SM75": {
@@ -802,7 +838,11 @@
       "lop3_lut__RUR_RUR": "unsupported class shape",
       "sel__RUR_RUR": "unsupported class shape",
       "shf__RRU_RRU": "unsupported class shape",
-      "shf__RUR_RUR": "unsupported class shape"
+      "shf__RUR_RUR": "unsupported class shape",
+      "uldc_const__RCxR": "unsupported class shape",
+      "uldc_imm_": "unsupported class shape",
+      "uldc_ur_offs_": "unsupported class shape",
+      "uldc_ur_offset_": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -843,6 +883,9 @@
       },
       "I2F": {
         "primitive": 40
+      },
+      "I2FP": {
+        "absent": 0
       },
       "IABS": {
         "native": 4,
@@ -891,6 +934,9 @@
       "MUFU": {
         "primitive": 10
       },
+      "NOP": {
+        "native": 1
+      },
       "PRMT": {
         "primitive": 9
       },
@@ -920,13 +966,17 @@
       "STS": {
         "native": 3
       },
+      "ULDC": {
+        "native": 1,
+        "opaque": 4
+      },
       "VOTE": {
         "primitive": 1
       }
     },
     "status": {
-      "native": 134,
-      "opaque": 623,
+      "native": 136,
+      "opaque": 621,
       "primitive": 146
     }
   },
@@ -988,7 +1038,11 @@
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
       "sel__RUR_RUR": "unsupported class shape",
       "shf__RRU_RRU": "unsupported class shape",
-      "shf__RUR_RUR": "unsupported class shape"
+      "shf__RUR_RUR": "unsupported class shape",
+      "uldc_const__RCxR": "unsupported class shape",
+      "uldc_imm_": "unsupported class shape",
+      "uldc_ur_offs_": "unsupported class shape",
+      "uldc_ur_offset_": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -1029,6 +1083,9 @@
       },
       "I2F": {
         "primitive": 40
+      },
+      "I2FP": {
+        "absent": 0
       },
       "IABS": {
         "native": 4,
@@ -1078,6 +1135,9 @@
       "MUFU": {
         "primitive": 10
       },
+      "NOP": {
+        "native": 1
+      },
       "PRMT": {
         "primitive": 9
       },
@@ -1107,13 +1167,17 @@
       "STS": {
         "native": 3
       },
+      "ULDC": {
+        "native": 1,
+        "opaque": 4
+      },
       "VOTE": {
         "primitive": 1
       }
     },
     "status": {
-      "native": 137,
-      "opaque": 684,
+      "native": 139,
+      "opaque": 682,
       "primitive": 146
     }
   },
@@ -1171,7 +1235,11 @@
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
       "sel__RUR_RUR": "unsupported class shape",
       "shf__RRU_RRU": "unsupported class shape",
-      "shf__RUR_RUR": "unsupported class shape"
+      "shf__RUR_RUR": "unsupported class shape",
+      "uldc_const__RCxR": "unsupported class shape",
+      "uldc_imm_": "unsupported class shape",
+      "uldc_ur_offs_": "unsupported class shape",
+      "uldc_ur_offset_": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -1212,6 +1280,9 @@
       },
       "I2F": {
         "primitive": 40
+      },
+      "I2FP": {
+        "primitive": 6
       },
       "IABS": {
         "native": 4,
@@ -1261,6 +1332,9 @@
       "MUFU": {
         "primitive": 10
       },
+      "NOP": {
+        "native": 1
+      },
       "PRMT": {
         "primitive": 9
       },
@@ -1290,14 +1364,18 @@
       "STS": {
         "native": 3
       },
+      "ULDC": {
+        "native": 1,
+        "opaque": 4
+      },
       "VOTE": {
         "primitive": 1
       }
     },
     "status": {
-      "native": 141,
-      "opaque": 717,
-      "primitive": 146
+      "native": 143,
+      "opaque": 709,
+      "primitive": 152
     }
   },
   "SM89": {
@@ -1362,7 +1440,11 @@
       "stg_256_memdesc__Ra64": "unsupported class shape",
       "stg_256_uniform__Ra32": "unsupported class shape",
       "stg_256_uniform__Ra64": "unsupported class shape",
-      "stg_256_uniform__RaRZ": "unsupported class shape"
+      "stg_256_uniform__RaRZ": "unsupported class shape",
+      "uldc_const__RCxR": "unsupported class shape",
+      "uldc_imm_": "unsupported class shape",
+      "uldc_ur_offs_": "unsupported class shape",
+      "uldc_ur_offset_": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -1403,6 +1485,9 @@
       },
       "I2F": {
         "primitive": 40
+      },
+      "I2FP": {
+        "primitive": 6
       },
       "IABS": {
         "native": 4,
@@ -1453,6 +1538,9 @@
       "MUFU": {
         "primitive": 10
       },
+      "NOP": {
+        "native": 1
+      },
       "PRMT": {
         "primitive": 9
       },
@@ -1483,14 +1571,18 @@
       "STS": {
         "native": 3
       },
+      "ULDC": {
+        "native": 1,
+        "opaque": 4
+      },
       "VOTE": {
         "primitive": 1
       }
     },
     "status": {
-      "native": 141,
-      "opaque": 767,
-      "primitive": 146
+      "native": 143,
+      "opaque": 759,
+      "primitive": 152
     }
   },
   "SM90": {
@@ -1547,7 +1639,11 @@
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
       "sel__RUR_RUR": "unsupported class shape",
       "shf__RRU_RRU": "unsupported class shape",
-      "shf__RUR_RUR": "unsupported class shape"
+      "shf__RUR_RUR": "unsupported class shape",
+      "uldc_const__RCxR": "unsupported class shape",
+      "uldc_imm_": "unsupported class shape",
+      "uldc_ur_offs_": "unsupported class shape",
+      "uldc_ur_offset_": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -1588,6 +1684,9 @@
       },
       "I2F": {
         "primitive": 40
+      },
+      "I2FP": {
+        "primitive": 6
       },
       "IABS": {
         "native": 4,
@@ -1637,6 +1736,9 @@
       "MUFU": {
         "primitive": 10
       },
+      "NOP": {
+        "native": 1
+      },
       "PRMT": {
         "primitive": 9
       },
@@ -1666,14 +1768,18 @@
       "STS": {
         "native": 3
       },
+      "ULDC": {
+        "native": 1,
+        "opaque": 4
+      },
       "VOTE": {
         "primitive": 1
       }
     },
     "status": {
-      "native": 140,
-      "opaque": 877,
-      "primitive": 156
+      "native": 142,
+      "opaque": 869,
+      "primitive": 162
     }
   }
 }

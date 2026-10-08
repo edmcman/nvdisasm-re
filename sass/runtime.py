@@ -13,8 +13,8 @@ class UnsupportedSemantics(NotImplementedError): pass
 
 
 class Runtime:
-    def __init__(self, language_dir, context=None, handlers=None):
-        self.handlers=handlers or {};self.generators={}
+    def __init__(self, language_dir, sm, context=None, handlers=None):
+        self.sm=sm;self.handlers=handlers or {};self.generators={}
         self.language_dir=Path(language_dir);self.context=context or {};self.events=[];self.manifests={}
 
     def manifest(self,sm):
@@ -25,13 +25,14 @@ class Runtime:
 
     def call(self,name,args,size):
         if name in self.handlers:return self.handlers[name](args,size,self.context)
+        sm=self.sm
         if name.startswith('sass_opaque_'):
             from sass import pydecode
-            sm,lo,hi,*values=args
+            lo,hi,*values=args
             decoded=pydecode.decode('SM'+str(sm),(lo|(hi<<64)).to_bytes(16,'little'))
             raise UnsupportedSemantics(f'{name} ({decoded.klass.name}, decoded={decoded.env})')
         if name=='sass_operand_value':
-            sm,ordinal,index,lo,hi,*children=args;k=ir.load('SM'+str(sm)).classes[ordinal]
+            ordinal,index,lo,hi,*children=args;k=ir.load('SM'+str(sm)).classes[ordinal]
             atom=list(k.operand_types.values())[index]
             # Stateful operands are provided by the execution environment rather
             # than given a made-up bank/descriptor layout.
@@ -39,19 +40,14 @@ class Runtime:
             key=k.name+'.'+atom.name
             if key not in supplied:raise UnsupportedSemantics('operand '+key)
             return int(supplied[key])
-        if name=='sass_read_special':
-            sm,index=args
-            values=self.context.get('special',{})
-            if str(index) not in values:raise UnsupportedSemantics('special register '+str(index))
-            return int(values[str(index)])
         if name=='sass_memory_order':
-            sm,ordinal,*controls=args;k=ir.load('SM'+str(sm)).classes[ordinal]
+            ordinal,*controls=args;k=ir.load('SM'+str(sm)).classes[ordinal]
             for key,value in zip((n for n in ('sem','sco','cop','cop2','private') if n in k.operand_types),controls):
                 atom=k.operand_types[key];label=ir.load('SM'+str(sm)).rev_enums[atom.type].get(value,'INVALID')
                 if label.startswith('INVALID'):raise UnsupportedSemantics('memory control '+label)
             self.events.append(dict(op=k.mnemonic,controls=controls));return 0
         if not name.startswith('sass_prim_'):raise UnsupportedSemantics(name)
-        sm,ordinal,lo,hi,*values=args;arch=ir.load('SM'+str(sm));k=arch.classes[ordinal]
+        ordinal,lo,hi,*values=args;arch=ir.load('SM'+str(sm));k=arch.classes[ordinal]
         row=self.manifest(sm)[k.name]
         from sass import pydecode,mdexpr
         env,_=pydecode.decode_env(arch,k,lo|(hi<<64))
@@ -138,7 +134,7 @@ class Runtime:
             if dest=='Pv':result=not result
             pred=bool(integer('Pp'));bop=label('bop','AND')
             return int({'AND':lambda:result and pred,'OR':lambda:result or pred,'XOR':lambda:result!=pred}[bop]())
-        if op in ('F2I','I2F'):
+        if op in ('F2I','I2F','I2FP'):
             src=label('srcfmt');dst=label('dstfmt');n,bits=get('Sb','Rb','Ra','Sa')
             if not src or not dst:raise UnsupportedSemantics(op+' format')
             match=lambda s:re.fullmatch(r'([FUS])(8|16|32|64)',s)
@@ -150,10 +146,21 @@ class Runtime:
             bits=bits>>shift&((1<<sw)-1)
             rnd=label('rnd','RN');rnd={'ROUND':'RN','FLOOR':'RM','CEIL':'RP','TRUNC':'RZ'}.get(rnd,rnd)
             if op=='F2I':
-                if label('ntz','nontz') not in ('nontz','NOTZ','noNTZ'):raise UnsupportedSemantics('NTZ conversion')
+                ntz=label('ntz','nontz')
                 if v.get(n+'@absolute'):bits&=(1<<(sw-1))-1
                 if v.get(n+'@negate'):bits^=1<<(sw-1)
-                result=softfloat.float_to_int(bits,sw,dw,df[1]=='S',rnd,label('ftz','noftz')=='FTZ')
+                ftz=label('ftz','noftz')=='FTZ'
+                if ntz=='NTZ':
+                    # Measured SM89 F2I.TRUNC.NTZ: NaNs become zero, infinities
+                    # and finite overflow clamp to the signed destination range.
+                    if (arch.name,sw,dw,df[1],rnd)!=('SM89',32,32,'S','RZ'):
+                        raise UnsupportedSemantics('unverified NTZ conversion')
+                    kind,sign,value=softfloat.unpack(bits,sw,ftz)
+                    lo,hi=-(1<<31),(1<<31)-1
+                    result=0 if kind=='nan' else (lo if sign else hi) if kind=='inf' else max(lo,min(hi,softfloat.round_integer(value,rnd)))
+                elif ntz in ('nontz','NOTZ','noNTZ'):
+                    result=softfloat.float_to_int(bits,sw,dw,df[1]=='S',rnd,ftz)
+                else:raise UnsupportedSemantics('NTZ conversion '+ntz)
                 if df[1]=='S' and dw<size*8 and result>>(dw-1):result-=1<<dw
             else:
                 if sf[1]=='S' and bits>>(sw-1):bits-=1<<sw
@@ -163,7 +170,7 @@ class Runtime:
             return result&((1<<(size*8))-1)
         if op=='PRMT':
             mode=label('pmode','IDX')
-            a=integer('Ra');b=integer('Rb','Sb');selector=integer('Rc','Sc');data=a|(b<<32);out=0
+            a=integer('Ra');selector=integer('Rb','Sb');b=integer('Rc','Sc');data=a|(b<<32);out=0
             for i in range(4):
                 pick=selector>>(i*4)&15 if mode=='IDX' else {'F4E':lambda:(selector&3)+i, 'B4E':lambda:((selector&3)-i)&7, 'RC8':lambda:selector&3, 'RC16':lambda:((selector&1)*2)+(i&1), 'ECL':lambda:max(i,selector&3), 'ECR':lambda:min(i,selector&3)}[mode]()
                 byte=data>>((pick&7)*8)&255

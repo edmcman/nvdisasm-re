@@ -21,6 +21,7 @@ PH = "\x00{}\x00"  # placeholder for a value symbol inside a rendered template
 # register file -> (register-space offset, element bytes, count, zero/true register index, its name)
 REG_FILES = {"R": (0x0000, 4, 256, 255, "RZ"), "UR": (0x0400, 4, 64, 63, "URZ"),
              "P": (0x0800, 1, 8, 7, "PT"), "UP": (0x0808, 1, 8, 7, "UPT")}
+SPECIAL_BASE = 0x3000  # SpecialRegister file, named from the md enum
 RESOURCE_FILE = {"GPR": "R", "UGPR": "UR", "PRED": "P", "UPRED": "UP"}
 ENUM_FILE = {"Register": "R", "NonZeroRegister": "R", "ZeroRegister": "R",
              "UniformRegister": "UR", "NonZeroUniformRegister": "UR", "ZeroUniformRegister": "UR",
@@ -156,6 +157,7 @@ class Gen:
         self.skipped = []
         self.attach_vars = {}         # field name -> register names
         self.spans = {file: {1} for file in REG_FILES}
+        self.special_spans = set()
         self.pcodeops = set()
         md = mdlib.load_classes(mdlib.OUT / archname)
         self.props = {c["cls"]: c["props"] for c in md}
@@ -482,6 +484,47 @@ class Gen:
                 ('""', pattern(eq(self, f, zero)), "", special)]
         return self.subtable("r", cons)
 
+    def special_name(self, i, span):
+        name = self.arch.rev_enums["SpecialRegister"][i]
+        return name if span == 1 else f"{name}_{32 * span}"
+
+    def specialsem(self, f, nbytes):
+        """Invisible subtable exporting the special register view f selects; SRZ reads as 0."""
+        span, count = nbytes // 4, len(self.arch.rev_enums["SpecialRegister"])
+        self.special_spans.add(span)
+        (tok, lo, hi, _), = pieces(f)
+        var = self.field(tok, lo, hi, f"_SR{span}")
+        self.attach_vars[var] = [self.special_name(i, span) if i + span <= count else "_" for i in range(1 << (hi - lo + 1))]
+        return self.subtable("r", [('""', pattern([], [(tok, var)]), "", f"export {var};"),
+                                   ('""', pattern(eq(self, f, self.arch.enums["SpecialRegister"]["SRZ"])), "", f"export 0:{nbytes};")])
+
+    def special_defs(self):
+        count = len(self.arch.rev_enums.get("SpecialRegister", ()))
+        return [f"define register offset={SPECIAL_BASE + 4 * phase:#x} size={4 * span} [ "
+                + " ".join(self.special_name(i, span) for i in range(phase, count - span + 1, span)) + " ];"
+                for span in sorted(self.special_spans) for phase in range(span)]
+
+    def dynregsem(self, k, name, f, file, mapping):
+        """Read subtable choosing this operand's view from its own span fields, widened to its widest view."""
+        variants = self.span_variants(k, {name})
+        nbytes = REG_FILES[file][1] * max(spans[name] for spans, _ in variants)
+        # Wider views exceed SLEIGH's temporary cap; one internal register per
+        # operand name keeps several wide inputs of one instruction distinct.
+        if nbytes > 256:
+            t = f"DYN_{name}_{nbytes}"; self.temporaries[t] = nbytes
+            widen = lambda v: f"{t} = zext({v}); export {t};"
+        else: widen = lambda v: f"local t:{nbytes} = zext({v}); export t;"
+        cons = []
+        for spans, clauses in variants:
+            span = spans[name]
+            size = REG_FILES[file][1] * span
+            if not span: body, refs = (widen("0:8") if nbytes > 8 else f"export 0:{nbytes};"), []
+            else:
+                sym = self.regsem(f, file, span, False, mapping)
+                body, refs = (f"export {sym};" if size == nbytes else widen(sym)), [("sub", sym)]
+            cons.append(('""', pattern(clauses, refs), "", body))
+        return self.subtable("r", cons), nbytes
+
     def reg_operands(self, k):
         """(record, register file, source field) for register operands with md roles."""
         gname = next((a.name for a in k.format if a.kind == "guard"), None)
@@ -491,9 +534,16 @@ class Gen:
                     and o["role"] and src):
                 yield o, file, src[1]
 
-    def span_variants(self, k):
+    def dynamic_inputs(self, k):
+        """Expression-sized read-only operands of opaque classes, sized by their own subtables."""
+        from sass.operations import REGISTRY
+        if k.mnemonic in REGISTRY: return set()
+        return {o["name"] for o, _, _ in self.reg_operands(k) if isinstance(o["span"], str) and o["role"] == ["read"]}
+
+    def span_variants(self, k, names=None):
         """(fixed spans for expression-sized operands, clauses) per distinct span signature."""
-        exprs = {o["name"]: o["span"] for o, _, _ in self.reg_operands(k) if isinstance(o["span"], str)}
+        names = names or {o["name"] for o, _, _ in self.reg_operands(k)} - self.dynamic_inputs(k)
+        exprs = {o["name"]: o["span"] for o, _, _ in self.reg_operands(k) if isinstance(o["span"], str) and o["name"] in names}
         if not exprs: return [({}, [])]
         fields = {}
         for e in exprs.values():
@@ -659,7 +709,7 @@ class Gen:
         toks = defaultdict(set)
         for (tok, lo, hi, kind), name in self.fields.items(): toks[tok].add((lo, hi, kind, name))
         out = [f"# Generated by sass/gen_sleigh.py from out/{self.arch.name}/md -- do not edit.",
-               '@include "sass_common.sinc"', ""] + register_defs(self.spans) + [
+               '@include "sass_common.sinc"', ""] + register_defs(self.spans) + self.special_defs() + [
                    f'define register offset={0x1000000+i*0x10000:#x} size={size} [ {name} ];'
                    for i,(name,size) in enumerate(sorted(self.temporaries.items()))] + [""]
         for tok, tname in (("l", "lo"), ("h", "hi")):

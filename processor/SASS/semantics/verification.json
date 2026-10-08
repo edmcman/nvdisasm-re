@@ -22,41 +22,45 @@
   },
   "dataflow": {
     "SM100": {
-      "passed": 12856,
-      "total": 12856
+      "passed": 30856,
+      "total": 30856
     },
     "SM101": {
       "passed": 10218,
       "total": 10218
     },
     "SM103": {
-      "passed": 12762,
-      "total": 12762
+      "passed": 30762,
+      "total": 30762
     },
     "SM120": {
-      "passed": 13162,
-      "total": 13162
+      "passed": 31162,
+      "total": 31162
     },
     "SM75": {
-      "passed": 11825,
-      "total": 11825
+      "passed": 29825,
+      "total": 29825
     },
     "SM80": {
-      "passed": 11733,
-      "total": 11733
+      "passed": 29733,
+      "total": 29733
     },
     "SM86": {
-      "passed": 12163,
-      "total": 12163
+      "passed": 30163,
+      "total": 30163
     },
     "SM89": {
-      "passed": 12714,
-      "total": 12714
+      "passed": 30714,
+      "total": 30714
     },
     "SM90": {
-      "passed": 14619,
-      "total": 14619
+      "passed": 32619,
+      "total": 32619
     }
+  },
+  "dataflow_corpus": {
+    "real_words_requested_per_architecture": 20000,
+    "synthetic_words_per_class": 8
   },
   "date": "2026-10-07",
   "dead_temporaries": {
@@ -78,72 +82,463 @@
   },
   "gpu": {
     "architecture": "SM89",
-    "compiled_families": 11,
+    "block_size": 32,
+    "compiled_kernels": 23,
+    "cubin_sha256": "d89502590279ed192c533eae6023ffa856e89296321cef964c58680a42d542b7",
     "device": "NVIDIA GeForce RTX 4070 Laptop GPU",
     "driver_version": "580.178.04",
-    "execution": "passed after p-code simplification",
+    "emulated_instructions": 93784,
+    "exclusions": [
+      "warp collectives",
+      "cross-thread shared memory and memory ordering",
+      "MUFU approximation",
+      "device calls/returns",
+      "barrier reductions"
+    ],
+    "execution": "passed",
     "families": [
       {
+        "executed_mnemonics": [
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
         "family": "iadd3",
-        "passed": 128
+        "passed": 128,
+        "steps": 2432
       },
       {
+        "executed_mnemonics": [
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LEA",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
         "family": "imad",
-        "passed": 128
+        "passed": 128,
+        "steps": 2432
       },
       {
+        "executed_mnemonics": [
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.HI.U32",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
         "family": "imad_hi",
-        "passed": 128
+        "passed": 128,
+        "steps": 2560
       },
       {
+        "executed_mnemonics": [
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LOP3.LUT",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
         "family": "lop3",
-        "passed": 128
+        "passed": 128,
+        "steps": 2432
       },
       {
+        "executed_mnemonics": [
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "MOV",
+          "S2R",
+          "SHF.R.W.U32",
+          "STG.E",
+          "ULDC.64"
+        ],
         "family": "shf",
-        "passed": 128
+        "passed": 128,
+        "steps": 2432
       },
       {
+        "executed_mnemonics": [
+          "EXIT",
+          "IABS",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
         "family": "iabs",
-        "passed": 128
+        "passed": 128,
+        "steps": 1664
       },
       {
+        "executed_mnemonics": [
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "IMNMX.U32",
+          "LDG.E",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
         "family": "imnmx",
-        "passed": 128
+        "passed": 128,
+        "steps": 2048
       },
       {
+        "executed_mnemonics": [
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "MOV",
+          "PRMT",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
         "family": "prmt",
-        "passed": 128
+        "passed": 128,
+        "steps": 2432
       },
       {
+        "executed_mnemonics": [
+          "EXIT",
+          "FADD",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LEA",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
         "family": "fadd",
-        "passed": 128
+        "passed": 128,
+        "steps": 2048
       },
       {
+        "executed_mnemonics": [
+          "EXIT",
+          "FMUL",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LEA",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
         "family": "fmul",
-        "passed": 128
+        "passed": 128,
+        "steps": 2048
       },
       {
+        "executed_mnemonics": [
+          "EXIT",
+          "FFMA",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LEA",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
         "family": "ffma",
-        "passed": 128
+        "passed": 128,
+        "steps": 2432
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "ISETP.GE.U32.AND",
+          "LDG.E",
+          "MOV",
+          "S2R",
+          "SEL",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "isetp",
+        "passed": 128,
+        "steps": 2176
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "ISETP.NE.U32.AND",
+          "LDG.E",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "sel",
+        "passed": 128,
+        "steps": 2432
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "FSETP.GEU.AND",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "MOV",
+          "S2R",
+          "SEL",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "fsetp",
+        "passed": 128,
+        "steps": 2176
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "F2I.TRUNC.NTZ",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "f2i",
+        "passed": 128,
+        "steps": 1664
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "I2FP.F32.S32",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "i2f",
+        "passed": 128,
+        "steps": 1664
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "FADD.FTZ",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LEA",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "fadd_ftz",
+        "passed": 128,
+        "steps": 2048
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "FMUL.RZ",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LEA",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "fmul_rz",
+        "passed": 128,
+        "steps": 2048
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "FFMA.SAT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LEA",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "ffma_sat",
+        "passed": 128,
+        "steps": 2432
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LDS",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "STS",
+          "ULDC.64"
+        ],
+        "family": "shared",
+        "passed": 128,
+        "steps": 1792
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.IADD",
+          "IMAD.MOV.U32",
+          "IMAD.SHL.U32",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LDL",
+          "LOP3.LUT",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "STL.128",
+          "ULDC.64"
+        ],
+        "family": "local",
+        "passed": 128,
+        "steps": 43904
+      },
+      {
+        "executed_mnemonics": [
+          "BRA",
+          "BSSY",
+          "BSYNC",
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "ISETP.GE.U32.AND",
+          "LDG.E",
+          "LOP3.LUT",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "branch",
+        "passed": 128,
+        "steps": 4568
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDC",
+          "LDG.E",
+          "LOP3.LUT",
+          "MOV",
+          "S2R",
+          "SHF.L.U32",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "ldc",
+        "passed": 128,
+        "steps": 1920
       }
     ],
+    "floating_tolerance": "bit-exact except NaN payload/sign",
     "hardware_verified": true,
-    "passed": 1408,
+    "mode": "whole-kernel",
+    "passed": 2944,
     "sandbox": "disabled for CUDA device access",
-    "scope": "11 scalar fixtures with tested selectors; NaN payload differences normalized",
-    "target_mnemonics_confirmed": true
+    "scope": "compiled whole kernels from entry through EXIT; tested scalar selectors and independent threads",
+    "seed": 1,
+    "target_mnemonics_confirmed": true,
+    "target_mnemonics_executed": true,
+    "threads_per_kernel": 128
+  },
+  "kernel_abi": {
+    "architecture": "SM89",
+    "general_ghidra_loader": "pending Phase 6",
+    "parameter_bank": 0,
+    "parameter_base": 352,
+    "pointer_offsets": [
+      0,
+      8
+    ],
+    "pointer_sizes": [
+      8,
+      8
+    ],
+    "source": "cubin PARAM_CBANK and KPARAM_INFO"
   },
   "language_build": {
-    "SM100": 7062546,
-    "SM101": 6843179,
-    "SM103": 7069524,
-    "SM120": 12824873,
-    "SM75": 13116220,
-    "SM80": 13260523,
-    "SM86": 13379692,
-    "SM89": 13634500,
-    "SM90": 15479568
+    "SM100": 5589845,
+    "SM101": 5387946,
+    "SM103": 5602147,
+    "SM120": 5729439,
+    "SM75": 5250012,
+    "SM80": 6250638,
+    "SM86": 6394880,
+    "SM89": 6677198,
+    "SM90": 7739510
   },
   "pcode_reduction": [
     {
@@ -178,6 +573,95 @@
     }
   ],
   "previous_validation": {
+    "before_phase5": {
+      "dataflow": {
+        "SM100": {
+          "passed": 12856,
+          "total": 12856
+        },
+        "SM101": {
+          "passed": 10218,
+          "total": 10218
+        },
+        "SM103": {
+          "passed": 12762,
+          "total": 12762
+        },
+        "SM120": {
+          "passed": 13162,
+          "total": 13162
+        },
+        "SM75": {
+          "passed": 11825,
+          "total": 11825
+        },
+        "SM80": {
+          "passed": 11733,
+          "total": 11733
+        },
+        "SM86": {
+          "passed": 12163,
+          "total": 12163
+        },
+        "SM89": {
+          "passed": 12714,
+          "total": 12714
+        },
+        "SM90": {
+          "passed": 14619,
+          "total": 14619
+        }
+      },
+      "language_build": {
+        "SM100": 7062546,
+        "SM101": 6843179,
+        "SM103": 7069524,
+        "SM120": 12824873,
+        "SM75": 13116220,
+        "SM80": 13260523,
+        "SM86": 13379692,
+        "SM89": 13634500,
+        "SM90": 15479568
+      },
+      "semantics": {
+        "SM100": {
+          "passed": 776,
+          "total": 776
+        },
+        "SM101": {
+          "passed": 776,
+          "total": 776
+        },
+        "SM103": {
+          "passed": 776,
+          "total": 776
+        },
+        "SM120": {
+          "passed": 776,
+          "total": 776
+        },
+        "SM75": {
+          "passed": 684,
+          "total": 684
+        },
+        "SM80": {
+          "passed": 781,
+          "total": 781
+        },
+        "SM86": {
+          "passed": 781,
+          "total": 781
+        },
+        "SM89": {
+          "passed": 781,
+          "total": 781
+        },
+        "SM90": {
+          "passed": 779,
+          "total": 779
+        }
+      }
+    },
     "dataflow_sm89_extended": {
       "passed": 30714,
       "total": 30714
@@ -228,50 +712,53 @@
     }
   },
   "pytest": {
-    "passed": 8,
-    "skip_reason": "opt-in integration wrappers; execution and dataflow suites run separately across all nine architectures",
-    "skipped": 2
+    "deselected": 9,
+    "deselected_reason": "pydecode tests; decode IR unchanged, full Ghidra SM89 synthetic suite run separately",
+    "passed": 15,
+    "skip_reason": "opt-in execution/dataflow/GPU wrappers; all run separately",
+    "skipped": 3
   },
   "semantics": {
     "SM100": {
-      "passed": 776,
-      "total": 776
+      "passed": 782,
+      "total": 782
     },
     "SM101": {
-      "passed": 776,
-      "total": 776
+      "passed": 782,
+      "total": 782
     },
     "SM103": {
-      "passed": 776,
-      "total": 776
+      "passed": 782,
+      "total": 782
     },
     "SM120": {
-      "passed": 776,
-      "total": 776
+      "passed": 782,
+      "total": 782
     },
     "SM75": {
-      "passed": 684,
-      "total": 684
+      "passed": 697,
+      "total": 697
     },
     "SM80": {
-      "passed": 781,
-      "total": 781
+      "passed": 794,
+      "total": 794
     },
     "SM86": {
-      "passed": 781,
-      "total": 781
+      "passed": 795,
+      "total": 795
     },
     "SM89": {
-      "passed": 781,
-      "total": 781
+      "passed": 801,
+      "total": 801
     },
     "SM90": {
-      "passed": 779,
-      "total": 779
+      "passed": 791,
+      "total": 791
     }
   },
   "workspace_regenerated": {
     "compiled_languages_match_tested_build": true,
-    "directory": "processor/SASS/data/languages"
+    "directory": "processor/SASS/data/languages",
+    "tested_directory": "processor/SASS/data/languages"
   }
 }

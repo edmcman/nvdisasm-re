@@ -150,6 +150,15 @@ Set `SASS_SLEIGH_OUT` to generate and test in a scratch language directory. Copy
 dataflow can be checked with `python3 tests/test_dataflow.py SM89`, or with
 `SASS_DATAFLOW=1 python3 -m pytest tests/test_dataflow.py` (requires pyghidra).
 
+### GPU semantics oracle
+
+`python3 tests/gpu_semantics.py --require-gpu` compiles 23 SM89 CUDA kernels,
+runs them on the GPU, then executes the same kernel text in Ghidra's p-code
+emulator. It checks 2,944 random/edge output values, including address setup,
+constant parameters, memory operations, predication, and loops. See
+[semantic coverage and limitations](processor/SASS/semantics/README.md) for the
+verified modes and excluded warp/concurrency operations.
+
 ### Testing against nvdisasm
 
 The tests use `nvdisasm -b SMxx` as an oracle, over three corpora:

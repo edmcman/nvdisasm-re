@@ -41,8 +41,8 @@ def encode(archname,classname,**values):
         if isinstance(value,str):value=arch.enums[k.operand_types[name].type][value]
         if key in decoded.env and decoded.env[key]!=value:
             if isinstance(value,int) and value<0:
-                source=next((f for f,r in k.rules if r[0]=='op' and r[1]==name),None)
-                if source and decoded.env[key]==value%(1<<source.width):continue
+                source=next(((f,r[2]) for f,r in k.rules if r[0]=='op' and r[1]==name),None)
+                if source and decoded.env[key]==value%((1<<source[0].width)*source[1]):continue
             raise ValueError((name,value,decoded.env[key]))
     return data.hex()
 

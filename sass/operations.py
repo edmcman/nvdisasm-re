@@ -5,8 +5,8 @@ This module does not equate PTX syntax with undocumented SASS variants.
 """
 from dataclasses import dataclass
 
-OPERATION_FAMILIES = set('IADD3 IMAD LOP3 SHF LEA IABS IMNMX ISETP SEL PRMT MOV S2R CS2R LDC FADD FMUL FFMA FSETP F2I I2F MUFU LDG STG LDS STS LDL STL BRA EXIT CALL RET BSSY BSYNC BAR SHFL VOTE'.split())
-PRIMITIVES = set('FADD FMUL FFMA FSETP F2I I2F MUFU PRMT SHFL VOTE BAR BSSY BSYNC'.split())
+OPERATION_FAMILIES = set('IADD3 IMAD LOP3 SHF LEA IABS IMNMX ISETP SEL PRMT MOV S2R CS2R LDC FADD FMUL FFMA FSETP F2I I2F I2FP MUFU LDG STG LDS STS LDL STL BRA EXIT CALL RET BSSY BSYNC BAR SHFL VOTE ULDC NOP'.split())
+PRIMITIVES = set('FADD FMUL FFMA FSETP F2I I2F I2FP MUFU PRMT SHFL VOTE BAR BSSY BSYNC'.split())
 
 @dataclass(frozen=True)
 class Override:
@@ -85,6 +85,21 @@ def emit_MOV(b,check=False):
     if check:return src is not None and 'Rd' in b.outputs
     if 'PixMaskU04' in b.values:b.allow('PixMaskU04',lambda v:v==15)
     dst=b.outputs['Rd'];b.body.append(f'{dst.symbol} = {b.cast(src,dst.size)};')
+
+def emit_NOP(b,check=False):
+    return not b.outputs if check else None
+
+def emit_ULDC(b,check=False):
+    if check:return 'URd' in b.outputs and all(n in b.values for n in ('Sa_bank','Sa_addr','sz')) and b.k.operand_types['Sa'].type=='C'
+    bank=b.values['Sa_bank'].symbol;offset=b.values['Sa_addr'].symbol
+    addr=b.expression(8,f'(zext({bank}) << 32) | zext({offset})')
+    result=b.outputs['URd'];en=b.g.arch.enums[b.k.operand_types['sz'].type];cases={}
+    for label,width,signed in [('U8',1,False),('S8',1,True),('U16',2,False),('S16',2,True),('32',4,False),('64',8,False)]:
+        if label not in en or width>result.size:continue
+        expr='v' if width==result.size else f'{"sext" if signed else "zext"}(v)'
+        cases[(en[label],)]=f'local v:{width} = *[cbank]:{width} {addr.symbol}; local t:{result.size} = {expr}; export t;'
+    b.allow('sz',lambda v:(v,) in cases)
+    table=b.select_code(('sz',),cases);b.body.append(f'{result.symbol} = {table};')
 
 
 def emit_IABS(b,check=False):
@@ -295,9 +310,10 @@ def emit_LEA(b,check=False):
 
 
 def emit_S2R(b,check=False):
-    if check:return 'SRa' in b.values and 'Rd' in b.outputs
-    fn='sass_read_special';b.g.pcodeops.add(fn);out=b.outputs['Rd']
-    b.body.append(f'{out.symbol} = {fn}({int(b.g.arch.name[2:])}:4, {b.values["SRa"].symbol});')
+    src=b.g.source(b.k,'SRa')
+    if check:return 'Rd' in b.outputs and src and src[0]=='field' and src[2]==1
+    out=b.outputs['Rd'];sr=b.g.specialsem(src[1],out.size);b.refs.append(('sub',sr))
+    b.body.append(f'{out.symbol} = {sr};')
 
 emit_CS2R=emit_S2R
 
@@ -343,8 +359,13 @@ def memory(b,op,check):
     load=op.startswith('LD');space='cbank' if op=='LDC' else 'shared' if op in ('LDS','STS') else 'localmem' if op in ('LDL','STL') else 'ram'
     if check:return ('sz' in b.values and 'Ra' in b.values and ('Rd' in b.outputs if load else 'Rb' in b.values)
                      and bool(set(b.g.arch.enums[b.k.operand_types['sz'].type]) & {'U8','S8','U16','S16','32','64','128'}))
-    if any(n in b.values for n in ('memoryDescriptor','Rd2','Rb2','Ra_URb','Ra_URc')):b.reject()
-    if 'stride' in b.values:require(b,'stride',['X1','1','nostride'])
+    if any(n in b.values for n in ('Rd2','Rb2')):b.reject()
+    if 'memoryDescriptor' in b.values:
+        # The implicit descriptor form emitted for ordinary CUDA global pointers
+        # addresses ram directly. Explicit descriptors need a resource model.
+        if 'e_desc' not in b.values:b.reject()
+        else:b.allow('e_desc',lambda v:v==0)
+    elif any(n in b.values for n in ('Ra_URb','Ra_URc')):b.reject()
     if 'ad' in b.values:require(b,'ad',['IA'])
     if 'sp2' in b.values:require(b,'sp2',['nosp2'])
     if 'Pnz' in b.values:
@@ -354,6 +375,12 @@ def memory(b,op,check):
         if name!='Rd':b.allow(name,lambda v:v==7)
     base=b.values['Ra'];off=operands(b,'Ra_offset/Sa_offset')[0]
     base_expr=base.symbol if base.size==8 else f'zext({base.symbol})'
+    if 'stride' in b.values:
+        en=b.g.arch.enums[b.k.operand_types['stride'].type]
+        factors={en[label]:f'{factor}:8' for label,factor in [('X1',1),('X4',4),('X8',8),('X16',16)] if label in en}
+        b.allow('stride',lambda v:v in factors)
+        factor=b.select('stride',factors,8)
+        base_expr=f'({base_expr} * {factor})'
     offset=b.values[off] if off else None
     off_expr=(offset.symbol if offset.size==8 else f'sext({offset.symbol})') if offset else '0:8'
     addr=b.expression(8,f'{base_expr} + {off_expr}')
@@ -364,7 +391,7 @@ def memory(b,op,check):
         addr=b.expression(8,f'(zext({b.values[bank].symbol}) << 32) | zext({low.symbol})')
     fn='sass_memory_order';b.g.pcodeops.add(fn)
     controls=[b.values[n].symbol for n in ('sem','sco','cop','cop2','private') if n in b.values]
-    b.body.append(f'{fn}({int(b.g.arch.name[2:])}:4, {b.k.order}:4'+(' , '+', '.join(controls) if controls else '')+');')
+    b.body.append(f'{fn}({b.k.order}:4'+(' , '+', '.join(controls) if controls else '')+');')
     atom=b.k.operand_types['sz'];en=b.g.arch.enums[atom.type]
     result=b.outputs['Rd'] if load else b.values['Rb']
     cases={}

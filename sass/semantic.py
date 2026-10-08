@@ -1,6 +1,6 @@
 """Operand values for p-code, independent of assembly display.
 
-The opaque ABI is (SM, raw lo, raw hi, register inputs...).
+The opaque ABI is (raw lo, raw hi, register and immediate inputs...).
 Primitive calls add the class ordinal and decoded scalar inputs. Scheduling and
 scalar operands without value semantics remain recoverable from the lossless raw words.
 The coverage manifest records names and widths in that order. Unknown stateful
@@ -50,6 +50,13 @@ class Builder:
             name, file = atom.name, ENUM_FILE.get(atom.type)
             record = roles.get(name, {})
             if file:
+                if name in gen.dynamic_inputs(klass):
+                    src = gen.source(klass, name)
+                    sym, size = gen.dynregsem(klass, name, src[1], file, gen.table_values(src[1], src[2], src[3]) if src[0] == 'table' else None)
+                    self.refs.append(('sub', sym))
+                    self.values[name] = Value(sym, size, 'register')
+                    self.inventory.append(dict(name=name, type=atom.type, kind='register', bytes=size))
+                    continue
                 span = record.get('span') or 1
                 if isinstance(span, str): span = spans[name]
                 # A computed zero span is genuinely absent, not a one-register access.
@@ -86,7 +93,8 @@ class Builder:
                     self.values[name] = Value(sym, size, 'register')
                 self.inventory.append(dict(name=name, type=atom.type, kind='register', bytes=size))
             elif atom.type not in ('C', 'CX', 'A', 'DESC'):
-                if not self.decode_values or atom.type=='REUSE':
+                immediate = atom.kind=='operand' and pydecode.IMM.match(atom.type)
+                if not (self.decode_values or immediate) or atom.type=='REUSE':
                     self.inventory.append(dict(name=name,type=atom.type,kind='raw-instruction'))
                     continue
                 self.values[name] = self.scalar(name, atom)
@@ -220,7 +228,7 @@ class Builder:
     def unknown(self, atom, size=4):
         name = atom.name if atom else 'unknown'
         index = list(self.k.operand_types).index(name) if name in self.k.operand_types else 0
-        args = [f'{int(self.g.arch.name[2:])}:4', f'{self.k.order}:4', f'{index}:4']
+        args = [f'{self.k.order}:4', f'{index}:4']
         args += [self.raw_token(t).symbol for t in 'lh']
         fn = 'sass_operand_value'; self.g.pcodeops.add(fn)
         return self.expression(size, f'{fn}({", ".join(args)})', 'runtime-primitive')
@@ -265,7 +273,7 @@ class Builder:
         # Stateful descriptors, attribute memory, dynamic-bank pointers, etc.
         # Child operands remain explicit inputs to the callback in FORMAT order.
         index=list(self.k.operand_types).index(name)
-        args=[f'{int(self.g.arch.name[2:])}:4',f'{self.k.order}:4',f'{index}:4']
+        args=[f'{self.k.order}:4',f'{index}:4']
         args += [self.raw_token(t).symbol for t in 'lh']
         start=self.k.format.index(atom)+1
         for child in self.k.format[start:]:
@@ -388,11 +396,15 @@ class Builder:
             conditions.append(f'{index.symbol} != {zero} && {index.symbol} >= {max(0,zero-span+1)}')
         return conditions
 
+    def opaque_input(self, name, value):
+        atom=self.k.operand_types.get(name)
+        return value.kind=='register' or bool(atom and atom.kind=='operand' and pydecode.IMM.match(atom.type)
+                                              and value.kind not in ('default','runtime-primitive'))
+
     def call(self, prefix='opaque'):
         stem='sass_'+prefix+'_'+re.sub(r'\W','_',self.k.mnemonic)
-        args=[f'{int(self.g.arch.name[2:])}:4']
-        if prefix!='opaque':args.append(f'{self.k.order}:4')
-        args += [v.symbol for v in self.raw]+[v.symbol for v in self.values.values() if prefix!='opaque' or v.kind=='register']
+        args=[] if prefix=='opaque' else [f'{self.k.order}:4']
+        args += [v.symbol for v in self.raw]+[v.symbol for n,v in self.values.items() if prefix!='opaque' or self.opaque_input(n,v)]
         self.g.pcodeops.add(stem)
         if not self.outputs:
             return [f'{stem}({", ".join(args)});']
