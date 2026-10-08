@@ -56,12 +56,10 @@ specific; SM75/80 HI/WIDE forms with 32-bit constant addends stay opaque
 until their extension convention is established.
 
 Native overrides cover ordinary MOV, IABS, SEL, IMAD low/high/wide, IADD3,
-LOP3, SHF, low LEA, IMNMX, ordinary ISETP, S2R/CS2R, basic memory operations,
+LOP3, SHF, LEA low/high/extended, IMNMX, ordinary ISETP, S2R/CS2R, basic memory operations,
 and supported BRA/EXIT/CALL/RET forms. Common supported restrictions include:
 
-- Carry/predicate-result conventions that are not established remain opaque:
-  IADD3 .X, non-PT carry destinations, IMAD carry variants, LEA high/extended
-  forms, ISETP .EX, and SM120's extra IMNMX predicate operands/results.
+- ISETP .EX and SM120's extra IMNMX predicate operands/results remain opaque.
 - Wide views containing the hardwired zero slot, except views starting at the
   zero register itself, remain opaque. This avoids writing ordinary backing
   storage for a zero-register component.
@@ -70,11 +68,22 @@ and supported BRA/EXIT/CALL/RET forms. Common supported restrictions include:
 - CALL handles NOINC forms and RET handles absolute NODEC forms. Branch-stack
   changes and reconvergence-sensitive variants require additional state.
 
-Mixed ordinary/uniform register forms of IMAD, IADD3, ISETP and low LEA use the
+Mixed ordinary/uniform register forms of IMAD, IADD3, ISETP and LEA use the
 same native calculations. UIADD3, UIMAD, USHF, ULEA, UISETP, ULOP3, USEL and
 UMOV reuse those emitters with uniform register and predicate names. Ordinary
 32-bit IADD and VIADD are native; packed/saturating VIADD and carry modes retain
 opaque fallbacks. Uniform wide views follow the same zero-slot restrictions.
+Native IADD3.X adds both predicate inputs to the complemented 32-bit operands.
+Ordinary negation retains its 33-bit +1, including the carry from negating zero.
+IADD3 predicate outputs indicate a sum at least 2^32 and 2^33; the first output
+wins if both destinations name the same predicate. LEA computes the shifted
+low/high word before applying negate/complement and adds its predicate for .X.
+IMAD.X adds one predicate; HI/WIDE carry indicates unsigned overflow of the
+full 64-bit product and pair addend, including signed product bit patterns.
+These operations capture input predicates before writing overlapping outputs.
+IADD3/LEA encodings modifying both Ra and Rb retain opaque fallbacks. Discarded
+carry outputs preserve compact arithmetic. Uniform aliases share these emitters.
+
 PRMT emits native byte selection for IDX (including sign replication), F4E,
 B4E, RC8, RC16, ECL and ECR, in SASS source order: data A, selector, data B.
 
@@ -188,6 +197,15 @@ EXIT. It compares 128 random/edge input vectors per kernel (four blocks of 32),
 including NaNs, infinities, denormals, signed zero, and integer boundaries.
 Target mnemonics must both appear in cuobjdump output and execute in the emulator.
 All 5,504 output comparisons passed on the RTX 4070 Laptop GPU.
+
+`tests/carry_semantics.py --require-gpu` adds 210 patched SM89 whole-kernel
+variants (26,880 comparisons) for IADD3, LEA and IMAD carry chains, including
+aliased IADD3 outputs, predicate inversion, negate/complement,
+shift boundaries and signed/unsigned full-width overflow. Independent integer
+references and actual Ghidra execution must both match the GPU. The probe checks
+compiler slot/register assignments before replacing eight reserved BAR slots
+and a placeholder arithmetic instruction; compiled addressing and EXIT remain.
+Other architectures are checked in the emulator, without hardware evidence.
 
 The cubin's PARAM_CBANK and KPARAM_INFO records supply parameter offsets and
 sizes. For these SM89 kernels, bank 0 parameters begin at 0x160, with the two

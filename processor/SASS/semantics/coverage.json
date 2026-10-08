@@ -16,25 +16,9 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "iadd3_x_imm__RIR_RIR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RRR_RRR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RUR_RUR": "class selectors have no supported native combination",
       "iadd_x_xor_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RUR_RUR": "class selectors have no supported native combination",
-      "imad_hi_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_hi_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_hi_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_hi_x__RsIR_RIR": "class selectors have no supported native combination",
-      "imad_wide_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_wide_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_wide_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_wide_x__RsIR_RIR": "class selectors have no supported native combination",
-      "imad_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_x__RRsI_RRI": "class selectors have no supported native combination",
-      "imad_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_x__RsIR_RIR": "class selectors have no supported native combination",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
       "isetp__RUR_RUR_EX": "class selectors have no supported native combination",
       "isetp__RsIR_RIR_EX": "class selectors have no supported native combination",
@@ -50,23 +34,6 @@
       "ldl_memdesc_": "class selectors have no supported native combination",
       "ldl_uniform_": "class selectors have no supported native combination",
       "lds_uniform_": "class selectors have no supported native combination",
-      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
-      "lea_lo_imm_x__RuIR_RIR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RRR_RRR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RUR_RUR": "class selectors have no supported native combination",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
@@ -81,27 +48,8 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uiadd3_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uiadd3_x__URsIUR_RIR": "class selectors have no supported native combination",
-      "uimad_wide_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_wide_x__URsIUR_URIUR": "class selectors have no supported native combination",
-      "uimad_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_x__URURsI_URURI": "class selectors have no supported native combination",
-      "uimad_x__URsIUR_URIUR": "class selectors have no supported native combination",
       "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
-      "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination",
-      "ulea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_imm_sx32__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_sx32_x__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm_x__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_noimm__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_lo_imm_x__URuIUR_URIUR": "class selectors have no supported native combination",
-      "ulea_lo_noimm_x__URURUR_URURUR": "class selectors have no supported native combination"
+      "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination"
     },
     "operations": {
       "BAR": {
@@ -185,12 +133,10 @@
         "opaque": 3
       },
       "IADD3": {
-        "native": 3,
-        "opaque": 3
+        "native": 6
       },
       "IMAD": {
-        "native": 16,
-        "opaque": 13
+        "native": 29
       },
       "IMNMX": {
         "native": 3
@@ -216,8 +162,7 @@
         "opaque": 1
       },
       "LEA": {
-        "native": 3,
-        "opaque": 17
+        "native": 20
       },
       "LOP3": {
         "native": 3
@@ -264,12 +209,10 @@
         "opaque": 1
       },
       "UIADD3": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "UIMAD": {
-        "native": 5,
-        "opaque": 5
+        "native": 10
       },
       "UISETP": {
         "native": 2,
@@ -279,8 +222,7 @@
         "absent": 0
       },
       "ULEA": {
-        "native": 2,
-        "opaque": 12
+        "native": 14
       },
       "ULOP3": {
         "native": 2
@@ -302,8 +244,8 @@
       }
     },
     "status": {
-      "native": 148,
-      "opaque": 735,
+      "native": 200,
+      "opaque": 683,
       "primitive": 95
     }
   },
@@ -324,22 +266,6 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "iadd3_x_imm__RIR_RIR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RRR_RRR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RUR_RUR": "class selectors have no supported native combination",
-      "imad_hi_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_hi_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_hi_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_hi_x__RsIR_RIR": "class selectors have no supported native combination",
-      "imad_wide_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_wide_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_wide_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_wide_x__RsIR_RIR": "class selectors have no supported native combination",
-      "imad_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_x__RRsI_RRI": "class selectors have no supported native combination",
-      "imad_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_x__RsIR_RIR": "class selectors have no supported native combination",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
       "isetp__RUR_RUR_EX": "class selectors have no supported native combination",
       "isetp__RsIR_RIR_EX": "class selectors have no supported native combination",
@@ -355,23 +281,6 @@
       "ldl_memdesc_": "class selectors have no supported native combination",
       "ldl_uniform_": "class selectors have no supported native combination",
       "lds_uniform_": "class selectors have no supported native combination",
-      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
-      "lea_lo_imm_x__RuIR_RIR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RRR_RRR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RUR_RUR": "class selectors have no supported native combination",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
@@ -386,27 +295,8 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uiadd3_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uiadd3_x__URsIUR_RIR": "class selectors have no supported native combination",
-      "uimad_wide_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_wide_x__URsIUR_URIUR": "class selectors have no supported native combination",
-      "uimad_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_x__URURsI_URURI": "class selectors have no supported native combination",
-      "uimad_x__URsIUR_URIUR": "class selectors have no supported native combination",
       "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
-      "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination",
-      "ulea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_imm_sx32__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_sx32_x__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm_x__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_noimm__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_lo_imm_x__URuIUR_URIUR": "class selectors have no supported native combination",
-      "ulea_lo_noimm_x__URURUR_URURUR": "class selectors have no supported native combination"
+      "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination"
     },
     "operations": {
       "BAR": {
@@ -489,12 +379,10 @@
         "absent": 0
       },
       "IADD3": {
-        "native": 3,
-        "opaque": 3
+        "native": 6
       },
       "IMAD": {
-        "native": 16,
-        "opaque": 13
+        "native": 29
       },
       "IMNMX": {
         "native": 3
@@ -520,8 +408,7 @@
         "opaque": 1
       },
       "LEA": {
-        "native": 3,
-        "opaque": 17
+        "native": 20
       },
       "LOP3": {
         "native": 3
@@ -568,12 +455,10 @@
         "opaque": 1
       },
       "UIADD3": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "UIMAD": {
-        "native": 5,
-        "opaque": 5
+        "native": 10
       },
       "UISETP": {
         "native": 2,
@@ -583,8 +468,7 @@
         "absent": 0
       },
       "ULEA": {
-        "native": 2,
-        "opaque": 12
+        "native": 14
       },
       "ULOP3": {
         "native": 2
@@ -606,8 +490,8 @@
       }
     },
     "status": {
-      "native": 142,
-      "opaque": 669,
+      "native": 194,
+      "opaque": 617,
       "primitive": 93
     }
   },
@@ -628,25 +512,9 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "iadd3_x_imm__RIR_RIR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RRR_RRR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RUR_RUR": "class selectors have no supported native combination",
       "iadd_x_xor_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RUR_RUR": "class selectors have no supported native combination",
-      "imad_hi_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_hi_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_hi_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_hi_x__RsIR_RIR": "class selectors have no supported native combination",
-      "imad_wide_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_wide_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_wide_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_wide_x__RsIR_RIR": "class selectors have no supported native combination",
-      "imad_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_x__RRsI_RRI": "class selectors have no supported native combination",
-      "imad_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_x__RsIR_RIR": "class selectors have no supported native combination",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
       "isetp__RUR_RUR_EX": "class selectors have no supported native combination",
       "isetp__RsIR_RIR_EX": "class selectors have no supported native combination",
@@ -662,23 +530,6 @@
       "ldl_memdesc_": "class selectors have no supported native combination",
       "ldl_uniform_": "class selectors have no supported native combination",
       "lds_uniform_": "class selectors have no supported native combination",
-      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
-      "lea_lo_imm_x__RuIR_RIR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RRR_RRR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RUR_RUR": "class selectors have no supported native combination",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
@@ -693,27 +544,8 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uiadd3_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uiadd3_x__URsIUR_RIR": "class selectors have no supported native combination",
-      "uimad_wide_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_wide_x__URsIUR_URIUR": "class selectors have no supported native combination",
-      "uimad_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_x__URURsI_URURI": "class selectors have no supported native combination",
-      "uimad_x__URsIUR_URIUR": "class selectors have no supported native combination",
       "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
-      "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination",
-      "ulea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_imm_sx32__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_sx32_x__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm_x__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_noimm__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_lo_imm_x__URuIUR_URIUR": "class selectors have no supported native combination",
-      "ulea_lo_noimm_x__URURUR_URURUR": "class selectors have no supported native combination"
+      "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination"
     },
     "operations": {
       "BAR": {
@@ -797,12 +629,10 @@
         "opaque": 3
       },
       "IADD3": {
-        "native": 3,
-        "opaque": 3
+        "native": 6
       },
       "IMAD": {
-        "native": 16,
-        "opaque": 13
+        "native": 29
       },
       "IMNMX": {
         "native": 3
@@ -828,8 +658,7 @@
         "opaque": 1
       },
       "LEA": {
-        "native": 3,
-        "opaque": 17
+        "native": 20
       },
       "LOP3": {
         "native": 3
@@ -876,12 +705,10 @@
         "opaque": 1
       },
       "UIADD3": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "UIMAD": {
-        "native": 5,
-        "opaque": 5
+        "native": 10
       },
       "UISETP": {
         "native": 2,
@@ -891,8 +718,7 @@
         "absent": 0
       },
       "ULEA": {
-        "native": 2,
-        "opaque": 12
+        "native": 14
       },
       "ULOP3": {
         "native": 2
@@ -914,8 +740,8 @@
       }
     },
     "status": {
-      "native": 148,
-      "opaque": 728,
+      "native": 200,
+      "opaque": 676,
       "primitive": 98
     }
   },
@@ -936,9 +762,6 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "iadd3_x_imm__RIR_RIR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RRR_RRR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RUR_RUR": "class selectors have no supported native combination",
       "iadd_64_imm__RsIR_RIR": "unsupported class shape",
       "iadd_64_noimm__RRR_RRR": "unsupported class shape",
       "iadd_64_noimm__RUR_RUR": "unsupported class shape",
@@ -948,19 +771,6 @@
       "iadd_x_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd_x_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd_x_noimm__RUR_RUR": "class selectors have no supported native combination",
-      "imad_hi_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_hi_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_hi_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_hi_x__RsIR_RIR": "class selectors have no supported native combination",
-      "imad_wide_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_wide_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_wide_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_wide_x__RsIR_RIR": "class selectors have no supported native combination",
-      "imad_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_x__RRsI_RRI": "class selectors have no supported native combination",
-      "imad_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_x__RsIR_RIR": "class selectors have no supported native combination",
       "imnmx_64__RIR_RsIR": "unsupported class shape",
       "imnmx_64__RRR_RRR": "unsupported class shape",
       "imnmx_64__RUR_RUR": "unsupported class shape",
@@ -992,23 +802,6 @@
       "ldl_memdesc_": "class selectors have no supported native combination",
       "ldl_uniform_": "class selectors have no supported native combination",
       "lds_uniform_": "class selectors have no supported native combination",
-      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
-      "lea_lo_imm_x__RuIR_RIR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RRR_RRR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RUR_RUR": "class selectors have no supported native combination",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
@@ -1023,33 +816,12 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uiadd3_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uiadd3_x__URsIUR_RIR": "class selectors have no supported native combination",
-      "uimad_hi_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_hi_x__URsIUR_URIUR": "class selectors have no supported native combination",
-      "uimad_wide_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_wide_x__URsIUR_URIUR": "class selectors have no supported native combination",
-      "uimad_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_x__URURsI_URURI": "class selectors have no supported native combination",
-      "uimad_x__URsIUR_URIUR": "class selectors have no supported native combination",
       "uisetp_64__URURUR_URURUR": "class selectors have no supported native combination",
       "uisetp_64__URsIUR_URIR": "unsupported class shape",
       "uisetp_64_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
       "uisetp_64_optional_upr__URsIUR_URIR": "unsupported class shape",
       "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
-      "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination",
-      "ulea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_imm_sx32__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_sx32_x__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm_x__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_noimm__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_lo_imm_x__URuIUR_URIUR": "class selectors have no supported native combination",
-      "ulea_lo_noimm_x__URURUR_URURUR": "class selectors have no supported native combination"
+      "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination"
     },
     "operations": {
       "BAR": {
@@ -1133,12 +905,10 @@
         "opaque": 9
       },
       "IADD3": {
-        "native": 3,
-        "opaque": 3
+        "native": 6
       },
       "IMAD": {
-        "native": 16,
-        "opaque": 13
+        "native": 29
       },
       "IMNMX": {
         "opaque": 6
@@ -1164,8 +934,7 @@
         "opaque": 1
       },
       "LEA": {
-        "native": 3,
-        "opaque": 17
+        "native": 20
       },
       "LOP3": {
         "native": 3
@@ -1212,12 +981,10 @@
         "opaque": 1
       },
       "UIADD3": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "UIMAD": {
-        "native": 7,
-        "opaque": 7
+        "native": 14
       },
       "UISETP": {
         "native": 2,
@@ -1227,8 +994,7 @@
         "absent": 0
       },
       "ULEA": {
-        "native": 2,
-        "opaque": 12
+        "native": 14
       },
       "ULOP3": {
         "native": 2
@@ -1250,8 +1016,8 @@
       }
     },
     "status": {
-      "native": 157,
-      "opaque": 765,
+      "native": 211,
+      "opaque": 711,
       "primitive": 93
     }
   },
@@ -1259,38 +1025,10 @@
     "classes": 903,
     "hardware_verified": false,
     "opaque_operations": {
-      "iadd3_x_imm__RIR_RIR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RCR_RCR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RCxR_RCxR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RRR_RRR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RUR_RUR": "class selectors have no supported native combination",
       "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_hi_x__RCR_RCR": "class selectors have no supported native combination",
-      "imad_hi_x__RCxR_RCxR": "class selectors have no supported native combination",
       "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_hi_x__RRCx_RRCx": "class selectors have no supported native combination",
-      "imad_hi_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_hi_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_hi_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_hi_x__RsIR_RIR": "class selectors have no supported native combination",
       "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_wide_x__RCR_RCR": "class selectors have no supported native combination",
-      "imad_wide_x__RCxR_RCxR": "class selectors have no supported native combination",
       "imad_wide_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_wide_x__RRCx_RRCx": "class selectors have no supported native combination",
-      "imad_wide_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_wide_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_wide_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_wide_x__RsIR_RIR": "class selectors have no supported native combination",
-      "imad_x__RCR_RCR": "class selectors have no supported native combination",
-      "imad_x__RCxR_RCxR": "class selectors have no supported native combination",
-      "imad_x__RRC_RRC": "class selectors have no supported native combination",
-      "imad_x__RRCx_RRCx": "class selectors have no supported native combination",
-      "imad_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_x__RRsI_RRI": "class selectors have no supported native combination",
-      "imad_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_x__RsIR_RIR": "class selectors have no supported native combination",
       "isetp__RCR_RCR": "class selectors have no supported native combination",
       "isetp__RCxR_RCxR": "class selectors have no supported native combination",
       "isetp__RRR_RRR": "class selectors have no supported native combination",
@@ -1307,33 +1045,6 @@
       "ldl_uniform_": "class selectors have no supported native combination",
       "lds_uniform_": "class selectors have no supported native combination",
       "lds_zd_uniform_": "class selectors have no supported native combination",
-      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_noimm__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_x__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm_x__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
-      "lea_lo_imm_x__RuIR_RIR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RCR_RCR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RCxR_RCxR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RRR_RRR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RUR_RUR": "class selectors have no supported native combination",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
@@ -1341,31 +1052,12 @@
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uiadd3_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uiadd3_x__URsIUR_RIR": "class selectors have no supported native combination",
-      "uimad_wide_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_wide_x__URsIUR_URIUR": "class selectors have no supported native combination",
-      "uimad_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_x__URURsI_URURI": "class selectors have no supported native combination",
-      "uimad_x__URsIUR_URIUR": "class selectors have no supported native combination",
       "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
       "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination",
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
-      "uldc_ur_offset_": "unsupported class shape",
-      "ulea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_imm_sx32__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_sx32_x__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm_x__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_noimm__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_lo_imm_x__URuIUR_URIUR": "class selectors have no supported native combination",
-      "ulea_lo_noimm_x__URURUR_URURUR": "class selectors have no supported native combination"
+      "uldc_ur_offset_": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -1444,12 +1136,11 @@
         "absent": 0
       },
       "IADD3": {
-        "native": 5,
-        "opaque": 5
+        "native": 10
       },
       "IMAD": {
-        "native": 28,
-        "opaque": 27
+        "native": 51,
+        "opaque": 4
       },
       "IMNMX": {
         "native": 5
@@ -1474,8 +1165,7 @@
         "opaque": 2
       },
       "LEA": {
-        "native": 5,
-        "opaque": 27
+        "native": 32
       },
       "LOP3": {
         "native": 5
@@ -1521,12 +1211,10 @@
         "opaque": 1
       },
       "UIADD3": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "UIMAD": {
-        "native": 5,
-        "opaque": 5
+        "native": 10
       },
       "UISETP": {
         "native": 2,
@@ -1537,8 +1225,7 @@
         "opaque": 4
       },
       "ULEA": {
-        "native": 2,
-        "opaque": 12
+        "native": 14
       },
       "ULOP3": {
         "native": 2
@@ -1560,8 +1247,8 @@
       }
     },
     "status": {
-      "native": 206,
-      "opaque": 584,
+      "native": 280,
+      "opaque": 510,
       "primitive": 113
     }
   },
@@ -1597,38 +1284,10 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "iadd3_x_imm__RIR_RIR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RCR_RCR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RCxR_RCxR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RRR_RRR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RUR_RUR": "class selectors have no supported native combination",
       "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_hi_x__RCR_RCR": "class selectors have no supported native combination",
-      "imad_hi_x__RCxR_RCxR": "class selectors have no supported native combination",
       "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_hi_x__RRCx_RRCx": "class selectors have no supported native combination",
-      "imad_hi_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_hi_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_hi_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_hi_x__RsIR_RIR": "class selectors have no supported native combination",
       "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_wide_x__RCR_RCR": "class selectors have no supported native combination",
-      "imad_wide_x__RCxR_RCxR": "class selectors have no supported native combination",
       "imad_wide_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_wide_x__RRCx_RRCx": "class selectors have no supported native combination",
-      "imad_wide_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_wide_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_wide_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_wide_x__RsIR_RIR": "class selectors have no supported native combination",
-      "imad_x__RCR_RCR": "class selectors have no supported native combination",
-      "imad_x__RCxR_RCxR": "class selectors have no supported native combination",
-      "imad_x__RRC_RRC": "class selectors have no supported native combination",
-      "imad_x__RRCx_RRCx": "class selectors have no supported native combination",
-      "imad_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_x__RRsI_RRI": "class selectors have no supported native combination",
-      "imad_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_x__RsIR_RIR": "class selectors have no supported native combination",
       "isetp__RCR_RCR_EX": "class selectors have no supported native combination",
       "isetp__RCxR_RCxR_EX": "class selectors have no supported native combination",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
@@ -1641,33 +1300,6 @@
       "ldg_uniform__RaRZ": "class selectors have no supported native combination",
       "ldl_uniform_": "class selectors have no supported native combination",
       "lds_uniform_": "class selectors have no supported native combination",
-      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_noimm__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_x__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm_x__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
-      "lea_lo_imm_x__RuIR_RIR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RCR_RCR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RCxR_RCxR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RRR_RRR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RUR_RUR": "class selectors have no supported native combination",
       "mov_indexedRF_IRFd__Cb": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
@@ -1678,31 +1310,12 @@
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uiadd3_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uiadd3_x__URsIUR_RIR": "class selectors have no supported native combination",
-      "uimad_wide_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_wide_x__URsIUR_URIUR": "class selectors have no supported native combination",
-      "uimad_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_x__URURsI_URURI": "class selectors have no supported native combination",
-      "uimad_x__URsIUR_URIUR": "class selectors have no supported native combination",
       "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
       "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination",
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
-      "uldc_ur_offset_": "unsupported class shape",
-      "ulea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_imm_sx32__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_sx32_x__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm_x__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_noimm__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_lo_imm_x__URuIUR_URIUR": "class selectors have no supported native combination",
-      "ulea_lo_noimm_x__URURUR_URURUR": "class selectors have no supported native combination"
+      "uldc_ur_offset_": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -1784,12 +1397,11 @@
         "absent": 0
       },
       "IADD3": {
-        "native": 5,
-        "opaque": 5
+        "native": 10
       },
       "IMAD": {
-        "native": 28,
-        "opaque": 27
+        "native": 51,
+        "opaque": 4
       },
       "IMNMX": {
         "native": 5
@@ -1815,8 +1427,7 @@
         "opaque": 1
       },
       "LEA": {
-        "native": 5,
-        "opaque": 27
+        "native": 32
       },
       "LOP3": {
         "native": 5
@@ -1863,12 +1474,10 @@
         "opaque": 1
       },
       "UIADD3": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "UIMAD": {
-        "native": 5,
-        "opaque": 5
+        "native": 10
       },
       "UISETP": {
         "native": 2,
@@ -1879,8 +1488,7 @@
         "opaque": 4
       },
       "ULEA": {
-        "native": 2,
-        "opaque": 12
+        "native": 14
       },
       "ULOP3": {
         "native": 2
@@ -1902,8 +1510,8 @@
       }
     },
     "status": {
-      "native": 213,
-      "opaque": 641,
+      "native": 287,
+      "opaque": 567,
       "primitive": 113
     }
   },
@@ -1944,36 +1552,6 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "iadd3_x_imm__RIR_RIR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RCR_RCR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RCxR_RCxR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RRR_RRR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RUR_RUR": "class selectors have no supported native combination",
-      "imad_hi_x__RCR_RCR": "class selectors have no supported native combination",
-      "imad_hi_x__RCxR_RCxR": "class selectors have no supported native combination",
-      "imad_hi_x__RRC_RRC": "class selectors have no supported native combination",
-      "imad_hi_x__RRCx_RRCx": "class selectors have no supported native combination",
-      "imad_hi_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_hi_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_hi_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_hi_x__RsIR_RIR": "class selectors have no supported native combination",
-      "imad_wide_x__RCR_RCR": "class selectors have no supported native combination",
-      "imad_wide_x__RCxR_RCxR": "class selectors have no supported native combination",
-      "imad_wide_x__RRC_RRC": "class selectors have no supported native combination",
-      "imad_wide_x__RRCx_RRCx": "class selectors have no supported native combination",
-      "imad_wide_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_wide_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_wide_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_wide_x__RsIR_RIR": "class selectors have no supported native combination",
-      "imad_x__RCR_RCR": "class selectors have no supported native combination",
-      "imad_x__RCxR_RCxR": "class selectors have no supported native combination",
-      "imad_x__RRC_RRC": "class selectors have no supported native combination",
-      "imad_x__RRCx_RRCx": "class selectors have no supported native combination",
-      "imad_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_x__RRsI_RRI": "class selectors have no supported native combination",
-      "imad_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_x__RsIR_RIR": "class selectors have no supported native combination",
       "isetp__RCR_RCR_EX": "class selectors have no supported native combination",
       "isetp__RCxR_RCxR_EX": "class selectors have no supported native combination",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
@@ -1986,33 +1564,6 @@
       "ldg_uniform__RaRZ": "class selectors have no supported native combination",
       "ldl_uniform_": "class selectors have no supported native combination",
       "lds_uniform_": "class selectors have no supported native combination",
-      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_noimm__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_x__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm_x__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
-      "lea_lo_imm_x__RuIR_RIR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RCR_RCR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RCxR_RCxR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RRR_RRR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RUR_RUR": "class selectors have no supported native combination",
       "mov_indexedRF_IRFd__Cb": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
@@ -2023,31 +1574,12 @@
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uiadd3_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uiadd3_x__URsIUR_RIR": "class selectors have no supported native combination",
-      "uimad_wide_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_wide_x__URsIUR_URIUR": "class selectors have no supported native combination",
-      "uimad_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_x__URURsI_URURI": "class selectors have no supported native combination",
-      "uimad_x__URsIUR_URIUR": "class selectors have no supported native combination",
       "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
       "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination",
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
-      "uldc_ur_offset_": "unsupported class shape",
-      "ulea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_imm_sx32__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_sx32_x__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm_x__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_noimm__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_lo_imm_x__URuIUR_URIUR": "class selectors have no supported native combination",
-      "ulea_lo_noimm_x__URURUR_URURUR": "class selectors have no supported native combination"
+      "uldc_ur_offset_": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -2130,12 +1662,10 @@
         "absent": 0
       },
       "IADD3": {
-        "native": 5,
-        "opaque": 5
+        "native": 10
       },
       "IMAD": {
-        "native": 30,
-        "opaque": 25
+        "native": 55
       },
       "IMNMX": {
         "native": 5
@@ -2161,8 +1691,7 @@
         "opaque": 1
       },
       "LEA": {
-        "native": 5,
-        "opaque": 27
+        "native": 32
       },
       "LOP3": {
         "native": 5
@@ -2209,12 +1738,10 @@
         "opaque": 1
       },
       "UIADD3": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "UIMAD": {
-        "native": 5,
-        "opaque": 5
+        "native": 10
       },
       "UISETP": {
         "native": 2,
@@ -2225,8 +1752,7 @@
         "opaque": 4
       },
       "ULEA": {
-        "native": 2,
-        "opaque": 12
+        "native": 14
       },
       "ULOP3": {
         "native": 2
@@ -2248,8 +1774,8 @@
       }
     },
     "status": {
-      "native": 215,
-      "opaque": 670,
+      "native": 291,
+      "opaque": 594,
       "primitive": 119
     }
   },
@@ -2290,36 +1816,6 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "iadd3_x_imm__RIR_RIR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RCR_RCR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RCxR_RCxR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RRR_RRR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RUR_RUR": "class selectors have no supported native combination",
-      "imad_hi_x__RCR_RCR": "class selectors have no supported native combination",
-      "imad_hi_x__RCxR_RCxR": "class selectors have no supported native combination",
-      "imad_hi_x__RRC_RRC": "class selectors have no supported native combination",
-      "imad_hi_x__RRCx_RRCx": "class selectors have no supported native combination",
-      "imad_hi_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_hi_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_hi_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_hi_x__RsIR_RIR": "class selectors have no supported native combination",
-      "imad_wide_x__RCR_RCR": "class selectors have no supported native combination",
-      "imad_wide_x__RCxR_RCxR": "class selectors have no supported native combination",
-      "imad_wide_x__RRC_RRC": "class selectors have no supported native combination",
-      "imad_wide_x__RRCx_RRCx": "class selectors have no supported native combination",
-      "imad_wide_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_wide_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_wide_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_wide_x__RsIR_RIR": "class selectors have no supported native combination",
-      "imad_x__RCR_RCR": "class selectors have no supported native combination",
-      "imad_x__RCxR_RCxR": "class selectors have no supported native combination",
-      "imad_x__RRC_RRC": "class selectors have no supported native combination",
-      "imad_x__RRCx_RRCx": "class selectors have no supported native combination",
-      "imad_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_x__RRsI_RRI": "class selectors have no supported native combination",
-      "imad_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_x__RsIR_RIR": "class selectors have no supported native combination",
       "isetp__RCR_RCR_EX": "class selectors have no supported native combination",
       "isetp__RCxR_RCxR_EX": "class selectors have no supported native combination",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
@@ -2336,33 +1832,6 @@
       "ldg_uniform__RaRZ": "class selectors have no supported native combination",
       "ldl_uniform_": "class selectors have no supported native combination",
       "lds_uniform_": "class selectors have no supported native combination",
-      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_noimm__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_x__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm_x__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
-      "lea_lo_imm_x__RuIR_RIR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RCR_RCR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RCxR_RCxR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RRR_RRR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RUR_RUR": "class selectors have no supported native combination",
       "mov_indexedRF_IRFd__Cb": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
@@ -2377,31 +1846,12 @@
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uiadd3_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uiadd3_x__URsIUR_RIR": "class selectors have no supported native combination",
-      "uimad_wide_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_wide_x__URsIUR_URIUR": "class selectors have no supported native combination",
-      "uimad_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_x__URURsI_URURI": "class selectors have no supported native combination",
-      "uimad_x__URsIUR_URIUR": "class selectors have no supported native combination",
       "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
       "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination",
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
-      "uldc_ur_offset_": "unsupported class shape",
-      "ulea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_imm_sx32__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_sx32_x__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm_x__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_noimm__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_lo_imm_x__URuIUR_URIUR": "class selectors have no supported native combination",
-      "ulea_lo_noimm_x__URURUR_URURUR": "class selectors have no supported native combination"
+      "uldc_ur_offset_": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -2484,12 +1934,10 @@
         "absent": 0
       },
       "IADD3": {
-        "native": 5,
-        "opaque": 5
+        "native": 10
       },
       "IMAD": {
-        "native": 30,
-        "opaque": 25
+        "native": 55
       },
       "IMNMX": {
         "native": 5
@@ -2515,8 +1963,7 @@
         "opaque": 1
       },
       "LEA": {
-        "native": 5,
-        "opaque": 27
+        "native": 32
       },
       "LOP3": {
         "native": 5
@@ -2563,12 +2010,10 @@
         "opaque": 1
       },
       "UIADD3": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "UIMAD": {
-        "native": 5,
-        "opaque": 5
+        "native": 10
       },
       "UISETP": {
         "native": 2,
@@ -2579,8 +2024,7 @@
         "opaque": 4
       },
       "ULEA": {
-        "native": 2,
-        "opaque": 12
+        "native": 14
       },
       "ULOP3": {
         "native": 2
@@ -2602,8 +2046,8 @@
       }
     },
     "status": {
-      "native": 215,
-      "opaque": 720,
+      "native": 291,
+      "opaque": 644,
       "primitive": 119
     }
   },
@@ -2650,36 +2094,6 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "iadd3_x_imm__RIR_RIR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RCR_RCR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RCxR_RCxR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RRR_RRR": "class selectors have no supported native combination",
-      "iadd3_x_noimm__RUR_RUR": "class selectors have no supported native combination",
-      "imad_hi_x__RCR_RCR": "class selectors have no supported native combination",
-      "imad_hi_x__RCxR_RCxR": "class selectors have no supported native combination",
-      "imad_hi_x__RRC_RRC": "class selectors have no supported native combination",
-      "imad_hi_x__RRCx_RRCx": "class selectors have no supported native combination",
-      "imad_hi_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_hi_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_hi_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_hi_x__RsIR_RIR": "class selectors have no supported native combination",
-      "imad_wide_x__RCR_RCR": "class selectors have no supported native combination",
-      "imad_wide_x__RCxR_RCxR": "class selectors have no supported native combination",
-      "imad_wide_x__RRC_RRC": "class selectors have no supported native combination",
-      "imad_wide_x__RRCx_RRCx": "class selectors have no supported native combination",
-      "imad_wide_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_wide_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_wide_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_wide_x__RsIR_RIR": "class selectors have no supported native combination",
-      "imad_x__RCR_RCR": "class selectors have no supported native combination",
-      "imad_x__RCxR_RCxR": "class selectors have no supported native combination",
-      "imad_x__RRC_RRC": "class selectors have no supported native combination",
-      "imad_x__RRCx_RRCx": "class selectors have no supported native combination",
-      "imad_x__RRR_RRR": "class selectors have no supported native combination",
-      "imad_x__RRU_RRU": "class selectors have no supported native combination",
-      "imad_x__RRsI_RRI": "class selectors have no supported native combination",
-      "imad_x__RUR_RUR": "class selectors have no supported native combination",
-      "imad_x__RsIR_RIR": "class selectors have no supported native combination",
       "isetp__RCR_RCR_EX": "class selectors have no supported native combination",
       "isetp__RCxR_RCxR_EX": "class selectors have no supported native combination",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
@@ -2693,33 +2107,6 @@
       "ldl_memdesc_": "class selectors have no supported native combination",
       "ldl_uniform_": "class selectors have no supported native combination",
       "lds_uniform_": "class selectors have no supported native combination",
-      "lea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_sx32_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "lea_hi_imm_x__RuIR_RIR": "unsupported class shape",
-      "lea_hi_noimm__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_sx32_x__RUR_RUR": "unsupported class shape",
-      "lea_hi_noimm_x__RCR_RCR": "unsupported class shape",
-      "lea_hi_noimm_x__RCxR_RCxR": "unsupported class shape",
-      "lea_hi_noimm_x__RRR_RRR": "unsupported class shape",
-      "lea_hi_noimm_x__RUR_RUR": "unsupported class shape",
-      "lea_lo_imm_x__RuIR_RIR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RCR_RCR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RCxR_RCxR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RRR_RRR": "class selectors have no supported native combination",
-      "lea_lo_noimm_x__RUR_RUR": "class selectors have no supported native combination",
       "mov_indexedRF_IRFd__Cb": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
@@ -2731,31 +2118,12 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uiadd3_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uiadd3_x__URsIUR_RIR": "class selectors have no supported native combination",
-      "uimad_wide_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_wide_x__URsIUR_URIUR": "class selectors have no supported native combination",
-      "uimad_x__URURUR_URURUR": "class selectors have no supported native combination",
-      "uimad_x__URURsI_URURI": "class selectors have no supported native combination",
-      "uimad_x__URsIUR_URIUR": "class selectors have no supported native combination",
       "uisetp_optional_upr__URURUR_URURUR": "class selectors have no supported native combination",
       "uisetp_optional_upr__URsIUR_URIR": "class selectors have no supported native combination",
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
-      "uldc_ur_offset_": "unsupported class shape",
-      "ulea_hi_imm__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_imm_sx32__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_sx32_x__RuIR_URIUR": "unsupported class shape",
-      "ulea_hi_imm_x__RRuI_RRI": "unsupported class shape",
-      "ulea_hi_imm_x__RuIR_URIR": "unsupported class shape",
-      "ulea_hi_noimm__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_sx32_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_hi_noimm_x__URURUR_URURUR": "unsupported class shape",
-      "ulea_lo_imm_x__URuIUR_URIUR": "class selectors have no supported native combination",
-      "ulea_lo_noimm_x__URURUR_URURUR": "class selectors have no supported native combination"
+      "uldc_ur_offset_": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -2838,12 +2206,10 @@
         "absent": 0
       },
       "IADD3": {
-        "native": 5,
-        "opaque": 5
+        "native": 10
       },
       "IMAD": {
-        "native": 30,
-        "opaque": 25
+        "native": 55
       },
       "IMNMX": {
         "native": 5
@@ -2869,8 +2235,7 @@
         "opaque": 1
       },
       "LEA": {
-        "native": 5,
-        "opaque": 27
+        "native": 32
       },
       "LOP3": {
         "native": 5
@@ -2917,12 +2282,10 @@
         "opaque": 1
       },
       "UIADD3": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "UIMAD": {
-        "native": 5,
-        "opaque": 5
+        "native": 10
       },
       "UISETP": {
         "native": 2,
@@ -2933,8 +2296,7 @@
         "opaque": 4
       },
       "ULEA": {
-        "native": 2,
-        "opaque": 12
+        "native": 14
       },
       "ULOP3": {
         "native": 2
@@ -2956,8 +2318,8 @@
       }
     },
     "status": {
-      "native": 216,
-      "opaque": 828,
+      "native": 292,
+      "opaque": 752,
       "primitive": 129
     }
   }

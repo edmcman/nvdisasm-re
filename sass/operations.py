@@ -144,6 +144,40 @@ def emit_SEL(b,check=False):
     b.body += [f'if ({pv} != 0) goto <selected>;',f'{t.symbol} = {cv};','<selected>',f'{output(b).symbol} = {t.symbol};']
 
 
+def carry_choice(b,fast,slow,predicates):
+    """Keep compact arithmetic when all carry destinations are discarded."""
+    import re
+    from sass.gen_sleigh import pattern
+    predicates=[n for n in predicates if n in b.outputs]
+    if not predicates:b.body+=fast;return
+    clauses=[]
+    for name in predicates:clauses+=b.g.values_where(b.k,name,lambda v:v==7)
+    constructors=[]
+    for constraints,lines in [(clauses,fast),([],slow)]:
+        code=' '.join(lines);names=set(re.findall(r'\b\w+\b',code))
+        refs=[r for r in b.refs if r[1] in names]
+        constructors.append(('""',pattern(constraints,refs),'',code))
+    table=b.g.subtable('carry',constructors);b.refs.append(('sub',table));b.body.append(f'build {table};')
+
+
+def modified_word(b,name,symbol=None):
+    """Unsigned 33-bit addend; negate retains the +1 carry even for -0."""
+    value=symbol or b.values[name].symbol
+    if name+'@negate' in b.values:
+        return b.select(name+'@negate',{0:f'zext({value})',1:f'zext(~{value}) + 1:8'},8)
+    if name+'@invert' in b.values:
+        return b.select(name+'@invert',{0:f'zext({value})',1:f'zext(~{value})'},8)
+    return b.expression(8,f'zext({value})').symbol
+
+
+def exclusive_modifiers(b,a,c,attribute):
+    keys=[n+'@'+attribute for n in (a,c)]
+    if all(n in b.values for n in keys):
+        clauses=[b.g.values_where(b.k,tuple(n.split('@')),lambda v:v==0) for n in keys]
+        if all(len(c)==1 for c in clauses):b.native_constraints.append(clauses[0][0]+clauses[1][0])
+        else:b.allow(keys[0],lambda v:v==0)
+
+
 def emit_IMAD(b,check=False):
     a,c,d=operands(b,'Ra/Sa','Rb/Sb','Rc/Sc')
     if check:
@@ -154,22 +188,25 @@ def emit_IMAD(b,check=False):
             b.unsupported_reason='32-bit constant addend extension for HI/WIDE is unverified'
             return False
         return True
-    if 'X' in b.values:b.reject()
-    if 'x' in b.values:require(b,'x',['nox','NOX']) # unresolved carry modes stay opaque
-    if any(n in b.values for n in ('Pp','Pq','UPp','UPq')):b.reject()
+    extended='X' in b.values
+    if 'x' in b.values:require(b,'x',['nox','NOX'])
+    if any(n in b.values for n in ('Pq','UPq')):b.reject()
+    carryin=operands(b,'Pp')[0]
+    if bool(carryin)!=extended:b.reject()
     require(b,'fmt',['U32','S32'])
     for name in b.outputs:
-        if name not in ('Rd','URd'):
-            b.allow(name,lambda v:v==7)
+        if name not in ('Rd','URd','Pu','UPu'):b.reject()
     aa,bb=b.flag(a),b.flag(c)
     wide=b.k.operand_types.get('wide');labels=b.g.arch.enums.get(wide.type,{}) if wide else {}
     mode=next(iter(labels),'LO');rd=output(b)
+    initial=len(b.body)
     if mode=='LO':
         # Low-word multiplication and addition are independent of signedness.
         product=b.local(4,f'{aa} * {bb}')
         addend=b.flag(d)
         if b.values[d].size>4:addend=b.local(4,f'{addend}:4').symbol
         result=b.local(4,f'{product.symbol} + {addend}')
+        if extended:result=b.local(4,f'{result.symbol} + zext({b.flag(carryin)})')
     else:
         fmt=b.k.operand_types.get('fmt');formats=b.g.arch.enums.get(fmt.type,{}) if fmt else {}
         x=b.select('fmt',{value:f'{"sext" if label=="S32" else "zext"}({aa})'
@@ -179,27 +216,41 @@ def emit_IMAD(b,check=False):
         product=b.local(8,f'{x} * {y}')
         rc=b.flag(d)
         if b.values[d].size<8:rc=b.local(8,f'zext({rc})').symbol
-        result=b.local(8,f'{product.symbol} + {rc}')
+        summed=b.local(8,f'{product.symbol} + {rc}')
+        result=b.local(8,f'{summed.symbol} + zext({b.flag(carryin)})') if extended else summed
+        full=result
         if mode=='HI':result=b.local(8,f'{result.symbol} >> 32')
-    for name,out in b.outputs.items():
-        if name in ('Rd','URd'):b.body.append(f'{out.symbol} = {result.symbol}{":4" if result.size>out.size else ""};')
+    fast=b.body[initial:]+[f'{rd.symbol} = {result.symbol}{":4" if result.size>rd.size else ""};']
+    b.body=b.body[:initial]
+    if mode=='LO':b.body+=fast;return
+    predicate=output(b,'Pu')
+    if predicate:
+        overflow=f'({summed.symbol} < {product.symbol})'
+        if extended:overflow+=f' || ({full.symbol} < {summed.symbol})'
+        slow=fast[:-1]+[f'local cout:1 = {overflow};',fast[-1],f'{predicate.symbol} = cout;']
+        carry_choice(b,fast,slow,['Pu','UPu'])
+    else:b.body+=fast
 
 
 def emit_IADD3(b,check=False):
     a,c,d=operands(b,'Ra/Sa','Rb/Sb','Rc/Sc')
     if check:return all((a,c,d)) and output(b) is not None and all(b.values[n].size==4 for n in (a,c,d))
-    # .X's carry-input convention is deliberately not guessed.
-    if 'X' in b.values:b.reject()
-    if any(n in b.values for n in ('Pp','Pq','UPp','UPq')):b.reject()
+    extended='X' in b.values
+    p,q=operands(b,'Pp','Pq')
+    if extended and not (p and q) or not extended and (p or q):b.reject()
+    exclusive_modifiers(b,a,c,'invert' if extended else 'negate')
     aa,bb,cc=(b.flag(n) for n in (a,c,d))
-    first=b.local(4,f'{aa} + {bb}')
-    total=b.local(4,f'{first.symbol} + {cc}')
-    # Predicate/carry conventions require independent SASS evidence. Only PT
-    # destinations are handled here; other cases go through the complete fallback.
-    for name,out in b.outputs.items():
-        if name not in ('Rd','URd'):
-            b.allow(name,lambda v:v==7)
-    b.body.append(f'{output(b).symbol} = {total.symbol};')
+    fast=[f'local first:4 = {aa} + {bb};',f'local total:4 = first + {cc};']
+    if extended:fast += [f'total = total + zext({b.flag(p)}) + zext({b.flag(q)});']
+    fast += [f'{output(b).symbol} = total;']
+    av,bv,cv=[modified_word(b,n) for n in (a,c,d)]
+    slow=[f'local total:8 = {av} + {bv} + {cv}'+(f' + zext({b.flag(p)}) + zext({b.flag(q)})' if extended else '')+';',
+          'local cout1:1 = total >= 0x100000000:8; local cout2:1 = total >= 0x200000000:8;',
+          f'{output(b).symbol} = total:4;']
+    # Hardware gives Pu priority when the two predicate destinations alias.
+    for name in ('Pv','UPv','Pu','UPu'):
+        if name in b.outputs:slow.append(f'{b.outputs[name].symbol} = {"cout1" if name.endswith("u") else "cout2"};')
+    carry_choice(b,fast,slow,['Pu','UPu','Pv','UPv'])
 
 
 def emit_IADD(b,check=False):
@@ -624,14 +675,31 @@ def emit_IMNMX(b,check=False):
 
 def emit_LEA(b,check=False):
     a,c=operands(b,'Ra','Rb/Sb');scale=operands(b,'scaleU5')[0]
-    if check:return all((a,c,scale)) and output(b) is not None and 'LO' in b.g.arch.enums.get(b.k.operand_types['hilo'].type,{})
-    if 'X' in b.values:b.reject()
-    require(b,'hilo',['LO']);require(b,'sx32',['nosx32','NOSX32'])
-    if any(n in b.values for n in ('Pp','Pr','Rc','Sc','UPp','UPr','URc')):b.reject()
-    for name in b.outputs:
-        if name not in ('Rd','URd'):b.allow(name,lambda v:v==7)
-    t=b.local(8,f'(zext({b.flag(a)}) << {b.values[scale].symbol}) + zext({b.flag(c)})')
-    b.body.append(f'{output(b).symbol} = {t.symbol}:4;')
+    if check:return all((a,c,scale)) and output(b) is not None and 'hilo' in b.values and all(b.values[n].size==4 for n in (a,c))
+    extended='X' in b.values;p=operands(b,'Pp')[0]
+    if bool(p)!=extended or any(n in b.values for n in ('Pr','UPr')):b.reject()
+    require(b,'hilo',['LO','HI']);require(b,'sx32',['nosx32','NOSX32','SX32'])
+    exclusive_modifiers(b,a,c,'invert' if extended else 'negate')
+    mode=next(iter(b.g.arch.enums[b.k.operand_types['hilo'].type]))
+    shift=b.values[scale].symbol
+    if mode=='HI':
+        if 'sx32' in b.values:source=b.expression(8,f'sext({b.values[a].symbol})').symbol
+        else:
+            high=operands(b,'Rc/Sc')[0]
+            if not high or b.values[high].size!=4:b.reject();return
+            source=b.expression(8,f'(zext({b.values[high].symbol}) << 32) | zext({b.values[a].symbol})').symbol
+        shifted=b.expression(8,f'({source} << {shift}) >> 32').symbol
+        word=b.expression(4,f'{shifted}:4').symbol
+    else:word=b.expression(4,f'{b.values[a].symbol} << {shift}').symbol
+    av,bv=modified_word(b,a,word),modified_word(b,c)
+    slow=[f'local total:8 = {av} + {bv}'+(f' + zext({b.flag(p)})' if extended else '')+';',
+          'local cout:1 = total >= 0x100000000:8;',f'{output(b).symbol} = total:4;']
+    for name in ('Pu','UPu'):
+        if name in b.outputs:slow.append(f'{b.outputs[name].symbol} = cout;')
+    # With discarded carry, low-word arithmetic retains ordinary compact code.
+    af=b.select(a+'@negate',{0:word,1:f'-{word}'},4) if a+'@negate' in b.values else b.select(a+'@invert',{0:word,1:f'~{word}'},4) if a+'@invert' in b.values else word
+    fast=[f'local total:4 = {af} + {b.flag(c)}'+(f' + zext({b.flag(p)})' if extended else '')+';',f'{output(b).symbol} = total;']
+    carry_choice(b,fast,slow,['Pu','UPu'])
 
 
 def emit_S2R(b,check=False):

@@ -76,8 +76,9 @@
   },
   "decode_sm89": {
     "synthetic": {
-      "passed": 85727,
-      "total": 85727
+      "passed": 19992,
+      "source": "tests/compare_ghidra.py SM89 synthetic (default 2,000-word sample plus generated class cases)",
+      "total": 19992
     }
   },
   "gpu": {
@@ -855,6 +856,51 @@
     "target_mnemonics_executed": true,
     "threads_per_kernel": 128
   },
+  "gpu_carry": {
+    "architecture": "SM89",
+    "class_variant_counts": {
+      "iadd3_noimm__RRR_RRR": 13,
+      "iadd3_x_noimm__RRR_RRR": 19,
+      "imad_hi__RRR_RRR": 4,
+      "imad_hi_x__RRR_RRR": 8,
+      "imad_wide__RRR_RRR": 6,
+      "imad_wide_x__RRR_RRR": 12,
+      "imad_x__RRR_RRR": 4,
+      "lea_hi_noimm__RRR_RRR": 24,
+      "lea_hi_noimm_sx32__RRR_RRR": 24,
+      "lea_hi_noimm_sx32_x__RRR_RRR": 24,
+      "lea_hi_noimm_x__RRR_RRR": 24,
+      "lea_lo_noimm__RRR_RRR": 24,
+      "lea_lo_noimm_x__RRR_RRR": 24
+    },
+    "compiler_template_sha256": "495ad79745d1a80b20d1aa58a2d809e31d4027655aba2a30e0216357fc7b2493",
+    "coverage": [
+      "result words and carry outputs",
+      "negate/complement",
+      "predicate-input inversion",
+      "aliased IADD3 outputs",
+      "signed/unsigned full-width overflow",
+      "shift boundaries"
+    ],
+    "device": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "exit_verified": true,
+    "hardware_verified": true,
+    "limitations": [
+      "SM89 hardware only",
+      "uniform aliases validated in emulator",
+      "input/output overlap validated in emulator"
+    ],
+    "mode": "patched whole-kernel",
+    "note": "eight BAR slots and the placeholder arithmetic word replaced; compiled prologue/addressing/EXIT preserved",
+    "passed": 26880,
+    "references": "independent integer arithmetic and Ghidra PcodeEmulator, both compared to GPU",
+    "script": "tests/carry_semantics.py",
+    "seed": 44,
+    "target_executed": true,
+    "target_offset": 320,
+    "threads_per_variant": 128,
+    "variants": 210
+  },
   "kernel_abi": {
     "architecture": "SM89",
     "general_ghidra_loader": "pending Phase 6",
@@ -871,15 +917,15 @@
     "source": "cubin PARAM_CBANK and KPARAM_INFO"
   },
   "language_build": {
-    "SM100": 7632442,
-    "SM101": 7432272,
-    "SM103": 7641479,
-    "SM120": 7797032,
-    "SM75": 8253180,
-    "SM80": 9263942,
-    "SM86": 9412328,
-    "SM89": 9669620,
-    "SM90": 10523444
+    "SM100": 7846799,
+    "SM101": 7646824,
+    "SM103": 7855892,
+    "SM120": 8020514,
+    "SM75": 8596266,
+    "SM80": 9606755,
+    "SM86": 9762826,
+    "SM89": 10020102,
+    "SM90": 10873950
   },
   "pcode_reduction": [
     {
@@ -914,6 +960,144 @@
     }
   ],
   "previous_validation": {
+    "before_carry": {
+      "dataflow": {
+        "SM100": {
+          "passed": 12856,
+          "total": 12856
+        },
+        "SM101": {
+          "passed": 10218,
+          "total": 10218
+        },
+        "SM103": {
+          "passed": 12762,
+          "total": 12762
+        },
+        "SM120": {
+          "passed": 13162,
+          "total": 13162
+        },
+        "SM75": {
+          "passed": 11825,
+          "total": 11825
+        },
+        "SM80": {
+          "passed": 11733,
+          "total": 11733
+        },
+        "SM86": {
+          "passed": 12163,
+          "total": 12163
+        },
+        "SM89": {
+          "passed": 12714,
+          "total": 12714
+        },
+        "SM90": {
+          "passed": 14619,
+          "total": 14619
+        }
+      },
+      "decode_sm89": {
+        "synthetic": {
+          "passed": 85727,
+          "total": 85727
+        }
+      },
+      "pytest": {
+        "deselected": 9,
+        "deselected_reason": "pydecode tests; decode IR unchanged, full Ghidra SM89 synthetic suite run separately",
+        "passed": 15,
+        "skip_reason": "opt-in execution/dataflow/GPU wrappers; all run separately",
+        "skipped": 3
+      },
+      "semantics": {
+        "SM100": {
+          "passed": 6074,
+          "total": 6074
+        },
+        "SM101": {
+          "passed": 6062,
+          "total": 6062
+        },
+        "SM103": {
+          "passed": 6074,
+          "total": 6074
+        },
+        "SM120": {
+          "passed": 6086,
+          "total": 6086
+        },
+        "SM75": {
+          "passed": 5969,
+          "total": 5969
+        },
+        "SM80": {
+          "passed": 6084,
+          "total": 6084
+        },
+        "SM86": {
+          "passed": 6086,
+          "total": 6086
+        },
+        "SM89": {
+          "passed": 6092,
+          "total": 6092
+        },
+        "SM90": {
+          "passed": 6090,
+          "total": 6090
+        }
+      },
+      "sleigh_build": [
+        {
+          "arch": "SM75",
+          "dead_temporaries": 0,
+          "decompressed_bytes": 8253180
+        },
+        {
+          "arch": "SM80",
+          "dead_temporaries": 0,
+          "decompressed_bytes": 9263942
+        },
+        {
+          "arch": "SM86",
+          "dead_temporaries": 0,
+          "decompressed_bytes": 9412328
+        },
+        {
+          "arch": "SM89",
+          "dead_temporaries": 0,
+          "decompressed_bytes": 9669620
+        },
+        {
+          "arch": "SM90",
+          "dead_temporaries": 0,
+          "decompressed_bytes": 10523444
+        },
+        {
+          "arch": "SM100",
+          "dead_temporaries": 0,
+          "decompressed_bytes": 7632442
+        },
+        {
+          "arch": "SM101",
+          "dead_temporaries": 0,
+          "decompressed_bytes": 7432272
+        },
+        {
+          "arch": "SM103",
+          "dead_temporaries": 0,
+          "decompressed_bytes": 7641479
+        },
+        {
+          "arch": "SM120",
+          "dead_temporaries": 0,
+          "decompressed_bytes": 7797032
+        }
+      ]
+    },
     "before_fp16": {
       "cpu_arithmetic": {
         "random_vectors_per_precision": 1000,
@@ -1332,96 +1516,89 @@
       }
     }
   },
-  "pytest": {
-    "deselected": 9,
-    "deselected_reason": "pydecode tests; decode IR unchanged, full Ghidra SM89 synthetic suite run separately",
-    "passed": 15,
-    "skip_reason": "opt-in execution/dataflow/GPU wrappers; all run separately",
-    "skipped": 3
-  },
   "semantics": {
     "SM100": {
-      "passed": 6074,
-      "total": 6074
+      "passed": 8981,
+      "total": 8981
     },
     "SM101": {
-      "passed": 6062,
-      "total": 6062
+      "passed": 8969,
+      "total": 8969
     },
     "SM103": {
-      "passed": 6074,
-      "total": 6074
+      "passed": 8981,
+      "total": 8981
     },
     "SM120": {
-      "passed": 6086,
-      "total": 6086
+      "passed": 8993,
+      "total": 8993
     },
     "SM75": {
-      "passed": 5969,
-      "total": 5969
+      "passed": 8876,
+      "total": 8876
     },
     "SM80": {
-      "passed": 6084,
-      "total": 6084
+      "passed": 8991,
+      "total": 8991
     },
     "SM86": {
-      "passed": 6086,
-      "total": 6086
+      "passed": 8993,
+      "total": 8993
     },
     "SM89": {
-      "passed": 6092,
-      "total": 6092
+      "passed": 8999,
+      "total": 8999
     },
     "SM90": {
-      "passed": 6090,
-      "total": 6090
+      "passed": 8997,
+      "total": 8997
     }
   },
   "sleigh_build": [
     {
       "arch": "SM75",
       "dead_temporaries": 0,
-      "decompressed_bytes": 8253180
+      "decompressed_bytes": 8596266
     },
     {
       "arch": "SM80",
       "dead_temporaries": 0,
-      "decompressed_bytes": 9263942
+      "decompressed_bytes": 9606755
     },
     {
       "arch": "SM86",
       "dead_temporaries": 0,
-      "decompressed_bytes": 9412328
+      "decompressed_bytes": 9762826
     },
     {
       "arch": "SM89",
       "dead_temporaries": 0,
-      "decompressed_bytes": 9669620
+      "decompressed_bytes": 10020102
     },
     {
       "arch": "SM90",
       "dead_temporaries": 0,
-      "decompressed_bytes": 10523444
+      "decompressed_bytes": 10873950
     },
     {
       "arch": "SM100",
       "dead_temporaries": 0,
-      "decompressed_bytes": 7632442
+      "decompressed_bytes": 7846799
     },
     {
       "arch": "SM101",
       "dead_temporaries": 0,
-      "decompressed_bytes": 7432272
+      "decompressed_bytes": 7646824
     },
     {
       "arch": "SM103",
       "dead_temporaries": 0,
-      "decompressed_bytes": 7641479
+      "decompressed_bytes": 7855892
     },
     {
       "arch": "SM120",
       "dead_temporaries": 0,
-      "decompressed_bytes": 7797032
+      "decompressed_bytes": 8020514
     }
   ],
   "step2": {
@@ -1476,6 +1653,31 @@
       "hfma2_move_inf",
       "hfma2_move_nan",
       "hfma2_move_zero"
+    ]
+  },
+  "step5": {
+    "carry_conventions": {
+      "IADD3": "unary carry thresholds 2^32/2^33; Pu wins aliased outputs; two predicate inputs for .X",
+      "IMAD": "HI/WIDE unsigned 64-bit overflow of product plus pair addend plus predicate",
+      "LEA": "shifted selected word modified before addition; one predicate input for .X"
+    },
+    "date": "2026-10-08",
+    "fallbacks": [
+      "IADD3/LEA with both Ra and Rb modified",
+      "SM75/80 HI/WIDE constant addends declared 32 bits",
+      "ISETP.EX",
+      "SM120 extra IMNMX predicates"
+    ],
+    "limitations": [
+      "hardware evidence limited to SM89; other architectures checked in the emulator"
+    ],
+    "native_scope": "IADD3 ordinary/.X predicate results; LEA LO/HI/SX32 ordinary/.X; IMAD LO/HI/WIDE .X and HI/WIDE carry; uniform aliases",
+    "preserves": "compact arithmetic when carry destinations are discarded; inputs captured before overlapping outputs",
+    "tests": [
+      "tests/test_semantics.py",
+      "tests/test_dataflow.py",
+      "tests/carry_semantics.py",
+      "tests/gpu_semantics.py"
     ]
   },
   "workspace_regenerated": {

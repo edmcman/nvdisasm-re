@@ -61,11 +61,9 @@ def cases(sm):
             fmt=arch.enums[classes['viadd__RRR_RRR'].operand_types['fmt'].type]
             add('viadd__RRR_RRR',dict(Rd=2,Ra=2,Rb=4,fmt='U32' if 'U32' in fmt else '32'),regs,dict(R2=(a+b)&0xffffffff))
         add('iadd_noimm__RRR_RRR',dict(Rd=2,Ra=2,Rb=4),regs,dict(R2=(a+b)&0xffffffff))
-    for cls,fields,expected in [
-        ('uiadd3_x__URURUR_URURUR',dict(URd=8,URa=2,URb=4,URc=6),'sass_opaque_UIADD3'),
-        ('uimad_x__URURUR_URURUR',dict(URd=8,URa=2,URb=4,URc=6),'sass_opaque_UIMAD'),
-        ('ulea_lo_noimm_x__URURUR_URURUR',dict(URd=8,URa=2,URb=4,scaleU5=3),'sass_opaque_ULEA')]:
-        add(cls,fields,{},dict(error=expected))
+    add('uiadd3_x__URURUR_URURUR',dict(URd=8,URa=2,URb=4,URc=6,UPp='UPT',UPq='UPT'),{},dict(UR8=2,__native=True))
+    add('uimad_x__URURUR_URURUR',dict(URd=8,URa=2,URb=4,URc=6,UPp='UPT'),{},dict(UR8=1,__native=True))
+    add('ulea_lo_noimm_x__URURUR_URURUR',dict(URd=8,URa=2,URb=4,scaleU5=3,UPp='UPT'),{},dict(UR8=1,__native=True))
     # Exhaust every byte selector, including sign replication and overlapping Rd.
     for mode in ('IDX','F4E','B4E','RC8','RC16','ECL','ECR'):
         for selector in range(16):
@@ -357,6 +355,77 @@ def cases(sm):
             want=canonical(bits&0xffff)|(canonical(bits>>16)<<16)
             add('hfma2_mma__RRI_norelu',dict(Rd=8,Ra='RZ',Rb='RZ',Sc=bits>>16,Sc1=bits&0xffff,**{'Ra@negate':1}),{},dict(R8=want,__max_ops=1))
         add('hfma2_mma__RRI_norelu',dict(Rd=8,Ra=2,Rb='RZ',Sc=0x3c00,Sc1=0x4000,**{'Ra@negate':1}),{},dict(error='sass_opaque_HFMA2_MMA'))
+    # Carry references use full unsigned sums, retaining negate's +1 and the
+    # high product/addend. Overlapping predicate destinations capture inputs.
+    mask=0xffffffff;mask64=(1<<64)-1
+    carry_vectors=[(0,0,0),(0xffffffff,0xffffffff,0xffffffff),(0x80000000,0x80000000,0),
+                   (0xffffffff,1,0),(0,0xffffffff,1)]
+    carry_vectors += [tuple(rng.getrandbits(32) for _ in range(3)) for _ in range(12)]
+    from itertools import product
+    for a,b,c in carry_vectors:
+        for ext in (False,True):
+            for flags in (0,1,2,4,5,6):
+                xs=[a,b,c]
+                attrs={n+'@'+('invert' if ext else 'negate'):flags>>i&1 for i,n in enumerate(('Ra','Rb','Rc'))}
+                for i in range(3):
+                    if flags>>i&1:xs[i]=mask-xs[i]+(0 if ext else 1)
+                for p,q in (product((0,1),repeat=2) if ext else [(0,0)]):
+                    total=sum(xs)+p+q
+                    cls='iadd3_x_noimm__RRR_RRR' if ext else 'iadd3_noimm__RRR_RRR'
+                    fields=dict(Rd=2,Pu=0,Pv=1,Ra=2,Rb=4,Rc=6,**attrs)
+                    if ext:fields.update(Pp=0,Pq=1)
+                    add(cls,fields,dict(R2=a,R4=b,R6=c,P0=p,P1=q),dict(R2=total&mask,P0=int(total>mask),P1=int(total>0x1ffffffff),__native=True))
+        total=a+b+c+1
+        add('uiadd3_x__URURUR_URURUR',dict(URd=2,UPu=0,UPv=1,URa=2,URb=4,URc=6,UPp=0,UPq=1),
+            dict(UR2=a,UR4=b,UR6=c,UP0=1,UP1=0),dict(UR2=total&mask,UP0=int(total>mask),UP1=int(total>0x1ffffffff),__native=True))
+        total=((((c<<32)|a)<<5)>>32&mask)+b+1
+        add('ulea_hi_noimm_x__URURUR_URURUR',dict(URd=2,UPu=0,URa=2,URb=4,URc=6,scaleU5=5,UPp=0),
+            dict(UR2=a,UR4=b,UR6=c,UP0=1),dict(UR2=total&mask,UP0=int(total>mask),__native=True))
+        total=a*b+((b<<32)|c)+1
+        add('uimad_wide_x__URURUR_URURUR',dict(URd=2,UPu=0,URa=2,URb=4,URc=6,UPp=0,fmt='U32'),
+            dict(UR2=a,UR4=b,UR6=c,UR7=b,UP0=1),dict(UR2=total&mask,UR3=total>>32&mask,UP0=int(total>mask64),__native=True))
+        for ext in (False,True):
+            cls='iadd3_x_noimm__RRR_RRR' if ext else 'iadd3_noimm__RRR_RRR'
+            fields=dict(Rd=2,Pu=0,Pv=0,Ra=2,Rb=4,Rc=6)
+            if ext:fields.update(Pp=0,Pq=1)
+            total=a+b+c+(1 if ext else 0)
+            add(cls,fields,dict(R2=a,R4=b,R6=c,P0=1,P1=0),dict(R2=total&mask,P0=int(total>mask),__native=True))
+        for cls in ('lea_lo_noimm__RRR_RRR','lea_lo_noimm_x__RRR_RRR','lea_hi_noimm__RRR_RRR',
+                    'lea_hi_noimm_x__RRR_RRR','lea_hi_noimm_sx32__RRR_RRR','lea_hi_noimm_sx32_x__RRR_RRR'):
+            ext='_x__' in cls;hi='_hi_' in cls;sx='_sx32' in cls
+            for shift in (0,1,5,31):
+                for flags in (0,1,2):
+                    source=((a-(1<<32) if a>>31 else a) if sx else (c<<32)|a) if hi else a
+                    word=((source<<shift)>>(32 if hi else 0))&mask
+                    if flags&1:word=mask-word+(0 if ext else 1)
+                    bv=mask-b+(0 if ext else 1) if flags&2 else b
+                    for p in ((0,1) if ext else (0,)):
+                        total=word+bv+p
+                        fields=dict(Rd=2,Pu=0,Ra=2,Rb=4,scaleU5=shift,
+                                    **{'Ra@'+('invert' if ext else 'negate'):flags&1,'Rb@'+('invert' if ext else 'negate'):flags>>1})
+                        if hi and not sx:fields['Rc']=6
+                        if ext:fields['Pp']=0
+                        add(cls,fields,dict(R2=a,R4=b,R6=c,P0=p),dict(R2=total&mask,P0=int(total>mask),__native=True))
+        for mode in ('LO','HI','WIDE'):
+            for ext in (False,True):
+                if mode=='LO' and not ext:continue
+                cls=('imad'+('_'+mode.lower() if mode!='LO' else '')+('_x' if ext else '')+'__RRR_RRR')
+                for fmt in ('U32','S32'):
+                    av=a-(1<<32) if fmt=='S32' and a>>31 else a
+                    bv=b-(1<<32) if fmt=='S32' and b>>31 else b
+                    prod=(av*bv)&mask64
+                    for invert in ((0,1) if ext else (0,)):
+                        addend=(b<<32)|c if mode!='LO' else c
+                        if invert:addend^=mask64 if mode!='LO' else mask
+                        for p in ((0,1) if ext else (0,)):
+                            total=prod+addend+p
+                            fields=dict(Rd=8,Ra=2,Rb=4,Rc=6,fmt=fmt)
+                            if mode!='LO':fields['Pu']=0
+                            if ext:fields.update(Pp=0,**{'Rc@invert':invert})
+                            expected=dict(R8=(total>>(32 if mode=='HI' else 0))&mask,__native=True)
+                            if mode=='WIDE':expected['R9']=total>>32&mask
+                            if mode!='LO':expected['P0']=int(total>mask64)
+                            add(cls,fields,dict(R2=a,R4=b,R6=c,R7=b,P0=p),expected)
     # Exhaust the selector domains changed by decode-time specialization. The
     # references calculate results from bit truth tables and integer arithmetic.
     x,y,z=0x81234567,0x76543210,0xa5a5f0f0
@@ -439,6 +508,7 @@ def test_semantics_gpu():
     except (OSError,RuntimeError) as error:pytest.skip(str(error))
     driver.close()
     subprocess.run([sys.executable,str(ROOT/'tests/gpu_semantics.py'),'--require-gpu'],check=True)
+    subprocess.run([sys.executable,str(ROOT/'tests/carry_semantics.py'),'--require-gpu'],check=True)
 
 
 if __name__=='__main__':run(sys.argv[1] if len(sys.argv)>1 else 'SM89')
