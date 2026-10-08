@@ -132,7 +132,8 @@ Ghidra 12.1.4.
    ```
 
    To build only selected architectures, pass them as arguments, for example
-   `python3 -m sass.build_languages SM89 SM90`. For another platform or compiler
+   `python3 -m sass.build_languages SM89 SM90`. The default uses Ghidra's
+   `support/sleigh` launcher (`support/sleigh.bat` on Windows). For another compiler
    location, pass `--sleigh /path/to/sleigh` (or `sleigh.exe`). The build generates
    `.slaspec`, `.sla`, `sass.ldefs`, and coverage manifests in
    `processor/SASS/data/languages/`, and checks compiler diagnostics and Ghidra's

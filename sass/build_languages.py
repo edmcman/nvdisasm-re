@@ -12,10 +12,11 @@ def main():
     p.add_argument('architectures',nargs='*',metavar='SMxx')
     p.add_argument('--output',type=Path,default=gen_sleigh.OUT)
     install=Path(os.environ.get('GHIDRA_INSTALL_DIR',str(Path.home()/'Ghidra/ghidra_12.1.4_PUBLIC')))
-    p.add_argument('--sleigh',type=Path,default=install/'Ghidra/Features/Decompiler/os/linux_x86_64/sleigh')
+    launcher='sleigh.bat' if os.name=='nt' else 'sleigh'
+    p.add_argument('--sleigh',type=Path,default=install/'support'/launcher)
     a=p.parse_args();architectures=a.architectures or ARCHES
     if any(arch not in ARCHES for arch in architectures):p.error('supported architectures: '+', '.join(ARCHES))
-    if not a.sleigh.is_file():p.error('native SLEIGH compiler not found; set --sleigh')
+    if not a.sleigh.is_file():p.error('SLEIGH compiler launcher not found; set --sleigh')
     a.output.mkdir(parents=True,exist_ok=True)
     source=Path(__file__).resolve().parents[1]/'processor/SASS/data/languages'
     for name in ('sass_common.sinc','sass.pspec','sass.cspec'):
