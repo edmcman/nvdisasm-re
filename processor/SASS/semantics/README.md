@@ -39,7 +39,9 @@ still choose an opaque fallback. It does not mean every encoding in the class
 has value semantics. `primitive` means the runtime validates and executes the
 operation or rejects an unsupported selector/context. `opaque` means the md's
 register effects and raw word are preserved without asserting a result.
-`hardware_verified` remains false until GPU comparisons actually run.
+The coverage ledger's architecture-wide `hardware_verified` flag remains false:
+GPU comparisons currently cover the 11 scalar SM89 fixtures recorded in
+[verification.json](verification.json), rather than every class and selector.
 
 IMAD.HI adds the 64-bit addend before selecting the high word; IMAD.WIDE
 writes the whole sum. The CUDA mad.hi lowering places its scalar addend in
@@ -131,5 +133,7 @@ an explicit skip; `--require-gpu` fails. MUFU, synchronization, descriptor
 layouts, and remaining variants require separate hardware/context validation.
 
 Recorded results for this implementation are in [verification.json](verification.json).
-GPU compilation is recorded separately from execution; the latter remains skipped
-because this session has no CUDA device.
+GPU execution passed 1,408 comparisons across all 11 scalar families on an
+RTX 4070 Laptop GPU (SM89). CUDA device access requires running the oracle
+outside the sandbox in this environment. These results cover the tested
+selectors; NaN payload differences are normalized.

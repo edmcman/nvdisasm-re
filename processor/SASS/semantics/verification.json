@@ -112,9 +112,61 @@
     }
   },
   "gpu": {
+    "architecture": "SM89",
     "compiled_families": 11,
-    "execution": "skipped: cuInit CUDA status 100 (no device)",
-    "hardware_verified": false,
+    "device": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "driver_version": "580.178.04",
+    "execution": "passed",
+    "families": [
+      {
+        "family": "iadd3",
+        "passed": 128
+      },
+      {
+        "family": "imad",
+        "passed": 128
+      },
+      {
+        "family": "imad_hi",
+        "passed": 128
+      },
+      {
+        "family": "lop3",
+        "passed": 128
+      },
+      {
+        "family": "shf",
+        "passed": 128
+      },
+      {
+        "family": "iabs",
+        "passed": 128
+      },
+      {
+        "family": "imnmx",
+        "passed": 128
+      },
+      {
+        "family": "prmt",
+        "passed": 128
+      },
+      {
+        "family": "fadd",
+        "passed": 128
+      },
+      {
+        "family": "fmul",
+        "passed": 128
+      },
+      {
+        "family": "ffma",
+        "passed": 128
+      }
+    ],
+    "hardware_verified": true,
+    "passed": 1408,
+    "sandbox": "disabled for CUDA device access",
+    "scope": "11 scalar fixtures with tested selectors; NaN payload differences normalized",
     "target_mnemonics_confirmed": true
   },
   "language_build": {
