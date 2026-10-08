@@ -29,8 +29,10 @@ def constrain_banks(b):
     for name,value in {**b.values,**b.outputs}.items():
         atom=b.k.operand_types.get(name);file=ENUM_FILE.get(atom.type) if atom else None
         if value.kind=='register' and file in ('R','UR'):
-            span=value.size//REG_FILES[file][1];zero=REG_FILES[file][3]
-            if span>1:b.allow(name,lambda v,z=zero,s=span:v==z or v<max(0,z-s+1))
+            span=value.size//REG_FILES[file][1];zero=b.g.register_zero(b.k,name)
+            limit=b.g.register_limit(b.k,name)
+            if span>1 or file=='UR':
+                b.allow(name,lambda v,z=zero,s=span,n=limit:v==z or v<max(0,n-s+1))
 
 
 def dispatch(b,fallback='opaque'):

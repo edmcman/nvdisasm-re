@@ -64,6 +64,14 @@ def cases(sm,fp='exact'):
     add('uiadd3_x__URURUR_URURUR',dict(URd=8,URa=2,URb=4,URc=6,UPp='UPT',UPq='UPT'),{},dict(UR8=2,__native=True))
     add('uimad_x__URURUR_URURUR',dict(URd=8,URa=2,URb=4,URc=6,UPp='UPT'),{},dict(UR8=1,__native=True))
     add('ulea_lo_noimm_x__URURUR_URURUR',dict(URd=8,URa=2,URb=4,scaleU5=3,UPp='UPT'),{},dict(UR8=1,__native=True))
+    # URZ is 63 in SM75-SM90 but 255 in SM100+, where 63 is the ordinary UR63
+    # (ptxas emits UIMAD.WIDE.U32 ..., URZ with the eight-bit encoding).
+    a,b,c=0x9abcdef1,0x87654321,0x13579bdf
+    urz=dict(UR4=a,UR5=b)
+    add('uimad_wide__URURUR_URURUR',dict(URd=2,URa=4,URb=5,URc='URZ',fmt='U32'),urz,dict(UR2=a*b&0xffffffff,UR3=a*b>>32,__native=True))
+    add('uiadd3__URURUR_URURUR',dict(URd=2,URa=4,URb=5,URc='URZ'),urz,dict(UR2=(a+b)&0xffffffff,__native=True))
+    if arch.enums['UniformRegister']['URZ']!=63:
+        add('uiadd3__URURUR_URURUR',dict(URd=2,URa=4,URb=5,URc=63),dict(urz,UR63=c),dict(UR2=(a+b+c)&0xffffffff,__native=True))
     # Exhaust every byte selector, including sign replication and overlapping Rd.
     for mode in ('IDX','F4E','B4E','RC8','RC16','ECL','ECR'):
         for selector in range(16):

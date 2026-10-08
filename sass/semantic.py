@@ -379,9 +379,10 @@ class Builder:
             file=ENUM_FILE.get(atom.type) if atom else None
             if value.kind!='register' or file not in ('R','UR'):continue
             element=REG_FILES[file][1];span=value.size//element
-            if span<=1:continue
-            index=self.scalar(name,atom);zero=REG_FILES[file][3]
-            conditions.append(f'{index.symbol} != {zero} && {index.symbol} >= {max(0,zero-span+1)}')
+            if span<=1 and file!='UR':continue
+            index=self.scalar(name,atom);zero=self.g.register_zero(self.k,name)
+            limit=self.g.register_limit(self.k,name)
+            conditions.append(f'{index.symbol} != {zero} && {index.symbol} >= {max(0,limit-span+1)}')
         return conditions
 
     def opaque_input(self, name, value):

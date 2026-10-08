@@ -49,6 +49,7 @@ def expected(g, d, optimized=False):
         if isinstance(span, str): span = int(mdexpr.evaluate(span, g.arch, d.env))
         index = d.env[o['name']]
         base, size, count, zero, _ = REG_FILES[file]
+        zero = g.register_zero(d.klass, o['name'])
         if index == zero or index + span > count: continue
         cells = set(range(base + size * index, base + size * (index + span)))
         for role in o['role']:

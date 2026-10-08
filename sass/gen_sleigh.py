@@ -19,7 +19,7 @@ MAX_ENUM_BITS = 12
 PH = "\x00{}\x00"  # placeholder for a value symbol inside a rendered template
 
 # register file -> (register-space offset, element bytes, count, zero/true register index, its name)
-REG_FILES = {"R": (0x0000, 4, 256, 255, "RZ"), "UR": (0x0400, 4, 64, 63, "URZ"),
+REG_FILES = {"R": (0x0000, 4, 256, 255, "RZ"), "UR": (0x0400, 4, 64, 255, "URZ"),
              "P": (0x0800, 1, 8, 7, "PT"), "UP": (0x0808, 1, 8, 7, "UPT")}
 SPECIAL_BASE = 0x3000  # SpecialRegister file, named from the md enum
 RESOURCE_FILE = {"GPR": "R", "UGPR": "UR", "PRED": "P", "UPRED": "UP"}
@@ -467,7 +467,8 @@ class Gen:
 
     def regsem(self, f, file, span, write, values=None):
         """Invisible subtable exporting operand register(s); RZ/URZ read as 0 (PT/UPT as 1), writes are dropped."""
-        _, size, n, zero, _ = REG_FILES[file]
+        _, size, n, _, _ = REG_FILES[file]
+        zero = self.zero_index(file, None if values is not None else f.width)
         nbytes = size * span
         self.spans[file].add(span)
         special = (f"export SINK{nbytes};" if write
@@ -485,6 +486,23 @@ class Gen:
         cons = [('""', pattern([], [(tok, var)]), "", f"export {var};"),
                 ('""', pattern(eq(self, f, zero)), "", special)]
         return self.subtable("r", cons)
+
+    def zero_index(self, file, width=None):
+        """Zero/true register index; a field narrower than the enum truncates it."""
+        if file != 'UR': return REG_FILES[file][3]
+        # Uniform zero is encoded as 63 in six-bit fields and 255 in the
+        # newer eight-bit fields. UR63 is ordinary storage in the latter.
+        zero = self.arch.enums['UniformRegister']['URZ']
+        return zero if width is None else zero & ((1 << width) - 1)
+
+    def register_zero(self, k, name):
+        src = self.source(k, name)
+        return self.zero_index(ENUM_FILE[k.operand_types[name].type],
+                               src[1].width if src and src[0] != 'table' else None)
+
+    def register_limit(self, k, name):
+        file = ENUM_FILE[k.operand_types[name].type]
+        return min(REG_FILES[file][2], self.register_zero(k, name))
 
     def special_name(self, i, span):
         name = self.arch.rev_enums["SpecialRegister"][i]
@@ -741,6 +759,10 @@ def register_defs(spans=None):
             for phase in range(span):
                 names = [reg_name(file, i, span) for i in range(phase, n - span + 1, span)]
                 if names: out.append(f"define register offset={base + size * phase:#x} size={size * span} [ {' '.join(names)} ];")
+        # Hardwired zero may have an encoding outside the ordinary bank.
+        zero = REG_FILES[file][3]
+        if zero >= n:
+            out.append(f"define register offset={base + size * zero:#x} size={size} [ {REG_FILES[file][4]} ];")
     sizes = sorted({REG_FILES[file][1] * s for file, ss in spans.items() for s in ss})
     out += [f"define register offset=0x10000 size={n} [ SINK{n} ];" for n in sizes]
     out += [f"define register offset={0x20000 + n * 0x1000} size={n} [ ZERO{n} ];"

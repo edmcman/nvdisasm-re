@@ -111,12 +111,15 @@ def main(ldefs,langid):
             thread.overrideCounter(addr)
             runtime.context=request.get('context',{});runtime.events=[];runtime.last_error=None
             # Initialize architectural registers, so tests may also inspect untouched ones.
-            for file,count,size in (('R',256,4),('UR',64,4),('P',8,1),('UP',8,1)):
+            from sass.gen_sleigh import REG_FILES
+            for file,(_,size,count,zero,zero_name) in REG_FILES.items():
                 for i in range(count):
-                    name=('RZ' if file=='R' else 'URZ' if file=='UR' else 'PT' if file=='P' else 'UPT') if i==count-1 else file+str(i)
+                    name=zero_name if i==zero else file+str(i)
                     reg=lang.getRegister(name)
                     initial=1 if name in ('PT','UPT') else 0
                     state.setVar(reg,jpype.JArray(jpype.JByte)(initial.to_bytes(size,'little')))
+                if zero>=count:
+                    state.setVar(lang.getRegister(zero_name),jpype.JArray(jpype.JByte)(bytes(size)))
             for name,value in request.get('registers',{}).items():
                 reg=lang.getRegister(name);size=int(reg.getMinimumByteSize());value=int(value)&((1<<(size*8))-1)
                 if name in ('RZ','URZ'):value=0
