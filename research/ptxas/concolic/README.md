@@ -87,6 +87,12 @@ Stopping (SIGINT/SIGTERM or deadline) checkpoints workers and kills child proces
 `--resume` retries interrupted leases once. The PTX IR logger and the COP/ORI loggers are specific to
 CUDA 13.0.88 (checked by hash).
 
+`catalogue.jsonl` is maintained during the campaign: it is rebuilt from SQLite on
+startup/resume, updated with each five-second status report when new forms appear,
+and updated at shutdown. Each line contains one unique form per architecture, its
+normalized signature, compiler hash and paths to a witness PTX source and cubin.
+Atomic replacement lets readers inspect a complete snapshot while generation runs.
+
 `status.json` also records AFL-style statistics under `afl`: live corpus size,
 pending entries (never scheduled), favored entries, pending favored entries and
 corpus size by architecture. Counts sum the worker/target corpora; copies shared

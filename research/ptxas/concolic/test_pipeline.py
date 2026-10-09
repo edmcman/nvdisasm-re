@@ -10,6 +10,38 @@ from semantic_cases import encode
 from pipeline import Coordinator, SCHEMA, afl_statistics
 
 
+def test_forms_export_is_live_deduplicated_and_restored_on_resume(tmp_path):
+    import io, json, sqlite3, time
+    from types import SimpleNamespace
+    db = sqlite3.connect(':memory:'); db.executescript(SCHEMA)
+    (tmp_path / 'sources').mkdir()
+    config = dict(architectures=['SM75'], compiler='test-compiler')
+    coordinator = Coordinator(tmp_path, db, config)
+    path = tmp_path / 'catalogue.jsonl'
+    assert path.read_text() == ''
+    coordinator.candidate(b'.entry k() { ret; }', 'seed')
+    ck = db.execute('SELECT cache_key FROM compilations').fetchone()[0]
+    form = dict(opcode='EXIT', operands=[])
+    msg = dict(cache_key=ck, state='decoded', rc=0, diagnostics='', arch='SM75',
+               forms={'form-hash': form}, sequences=[])
+    publisher = SimpleNamespace(stdin=io.StringIO())
+    with path.open() as previous_snapshot:
+        coordinator.compiled(msg, publisher)
+        coordinator.status({}, {}, time.monotonic(), 'running')
+        assert previous_snapshot.read() == ''  # replacement preserves existing readers
+    coordinator.compiled(msg, publisher)
+    coordinator.status({}, {}, time.monotonic(), 'running')
+    rows = [json.loads(line) for line in path.read_text().splitlines()]
+    assert len(rows) == 1 and rows[0]['signature'] == form
+    assert Path(rows[0]['ptx']).read_bytes() == b'.entry k() { ret; }'
+    assert rows[0]['cubin'].endswith('/kernel.cubin')
+    assert rows[0]['compiler'] == config['compiler']
+    path.write_text('stale export\n')
+    Coordinator(tmp_path, db, config)
+    assert [json.loads(line) for line in path.read_text().splitlines()] == rows
+    db.close()
+
+
 def test_afl_corpus_statistics_survive_rotation_and_resume(tmp_path):
     import json, sqlite3
     contexts = {

@@ -168,6 +168,25 @@ class Coordinator:
                              if status_path.exists() else {})
         # Newest target: it accepts the most instructions, so its rejections are mostly target-independent.
         self.probe = config['architectures'][-1]
+        self.forms_dirty = True
+        self.export_forms()
+
+    def export_forms(self):
+        """Publish a complete, deduplicated snapshot; interrupted writes leave the
+        previous file intact. Rebuild from SQLite on resume, not from an old export."""
+        if not self.forms_dirty: return
+        output_path = self.root / 'catalogue.jsonl'
+        temporary = output_path.with_suffix('.jsonl.tmp')
+        rows = self.db.execute('''SELECT f.arch,f.hash,f.signature,c.directory,s.source
+            FROM forms f JOIN compilations c ON c.cache_key=f.witness
+            JOIN candidates s ON s.key=c.key
+            WHERE c.state='decoded' ORDER BY f.arch,f.hash''')
+        with temporary.open('w') as output:
+            for arch,h,form,directory,source in rows:
+                output.write(canonical(dict(architecture=arch,hash=h,signature=json.loads(form),
+                    cubin=str(Path(directory)/'kernel.cubin'),ptx=source,compiler=self.config['compiler']))+'\n')
+        temporary.replace(output_path)
+        self.forms_dirty = False
 
     def candidate(self, data, origin):
         data = bytes(data)
@@ -229,8 +248,10 @@ class Coordinator:
         if state == 'decoded':
             new = 0
             for h, form in msg['forms'].items():
-                new += self.db.execute('INSERT OR IGNORE INTO forms VALUES(?,?,?,?)',
+                inserted = self.db.execute('INSERT OR IGNORE INTO forms VALUES(?,?,?,?)',
                           (msg['arch'],h,canonical(form),ck)).rowcount
+                new += inserted
+                self.forms_dirty |= bool(inserted)
             for sequence in msg['sequences']:
                 new += self.db.execute('INSERT OR IGNORE INTO sequences VALUES(?,?,?,?)',
                           (msg['arch'],digest(sequence),canonical(sequence),ck)).rowcount
@@ -244,6 +265,7 @@ class Coordinator:
         self.db.commit()
 
     def status(self, activity, processes, start, phase):
+        self.export_forms()
         elapsed = time.monotonic()-start
         result = dict(phase=phase,elapsed_seconds=round(elapsed,2),received=self.received,
            token_duplicates=self.duplicates,cache_hits=self.cache_hits,activity=activity,
@@ -433,11 +455,6 @@ def main():
         db.commit()
         status=coordinator.status(activity,processes,start,'stopped')
         print(canonical(status),flush=True)
-        # Export only fully decoded, validated lowering witnesses.
-        with (root/'catalogue.jsonl').open('w') as output:
-            for arch,h,form,ck in db.execute('SELECT * FROM forms ORDER BY arch,hash'):
-                witness=db.execute('SELECT c.directory,s.source FROM compilations c JOIN candidates s USING(key) WHERE cache_key=?',(ck,)).fetchone()
-                output.write(canonical(dict(architecture=arch,hash=h,signature=json.loads(form),cubin=str(Path(witness[0])/'kernel.cubin'),ptx=witness[1],compiler=config['compiler']))+'\n')
         server.close(); socket_path.unlink(missing_ok=True); db.close()
 
 if __name__=='__main__': main()
