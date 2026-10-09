@@ -1,0 +1,242 @@
+{
+ "0x2": {
+  "name": "add",
+  "evidence": "add.cc+addc.u32; add.ftz.sat.f32; add.rn.f16; add.rn.f32; add.rn.f64; add.s64; add.sat.s32; add.u32; clz.b32; sub.cc+subc.u32; sub.f32; sub.sat.s32; sub.u32"
+ },
+ "0x4": {
+  "name": "add.rnd",
+  "evidence": "add.rz.f32: rounding mode as trailing immediate"
+ },
+ "0x5": {
+  "name": "add.cp",
+  "evidence": "64-bit add/sub splitter (0xa31040): six operands, carry predicate out/in; UIADD3/UIADD3.X after allocation"
+ },
+ "0x7": {
+  "name": "addc",
+  "evidence": "add.cc+addc.u32; sub.cc+subc.u32"
+ },
+ "0xa": {
+  "name": "and",
+  "evidence": "and.b32; and.b64; testp.finite.f32"
+ },
+ "0xc": {
+  "name": "addr",
+  "evidence": "symbol address (ld/st/atom of state spaces; cvta-like)"
+ },
+ "0x10": {
+  "name": "atom",
+  "evidence": "atom.global.add.u32; atom.global.cas.b32; atom.shared.exch.b32; red.global.add.f32"
+ },
+ "0x12": {
+  "name": "bar",
+  "evidence": "bar.sync"
+ },
+ "0x14": {
+  "name": "bfe",
+  "evidence": "bfe.s32; bfe.u32; brev.b32"
+ },
+ "0x15": {
+  "name": "bfi",
+  "evidence": "bfe.s32; bfe.u32; bfi.b32"
+ },
+ "0x18": {
+  "name": "bmsk",
+  "evidence": "bmsk.clamp.b32"
+ },
+ "0x24": {
+  "name": "sel",
+  "evidence": "selp.b32; slct.u32.s32; testp.finite.f32"
+ },
+ "0x26": {
+  "name": "cos",
+  "evidence": "cos.approx.f32"
+ },
+ "0x33": {
+  "name": "dp",
+  "evidence": "dp2a.lo.u32.u32; dp4a.u32.u32"
+ },
+ "0x3c": {
+  "name": "cvt.f2f",
+  "evidence": "cvt.f32.f16; cvt.f64.f32; cvt.rn.f16.f32; cvt.rn.f32.f64; cvt.rni.f32.f32"
+ },
+ "0x3d": {
+  "name": "cvt.f2pk",
+  "evidence": "cvt.rn.bf16x2.f32; cvt.rn.f16x2.f32"
+ },
+ "0x3e": {
+  "name": "cvt.f2i",
+  "evidence": "cvt.rni.u64.f64; cvt.rzi.s32.f32"
+ },
+ "0x43": {
+  "name": "flo",
+  "evidence": "bfind.shiftamt.s32; bfind.u32; clz.b32"
+ },
+ "0x45": {
+  "name": "fns",
+  "evidence": "fns.b32"
+ },
+ "0x4e": {
+  "name": "cvt.i2f",
+  "evidence": "cvt.rn.f32.s32; cvt.rn.f32.u64"
+ },
+ "0x4f": {
+  "name": "cvt.i2i",
+  "evidence": "cvt.s32.s8; cvt.s64.s32; cvt.u64.u32; shl.b64"
+ },
+ "0x5f": {
+  "name": "bra",
+  "evidence": "bra"
+ },
+ "0x6c": {
+  "name": "lop3",
+  "evidence": "copysign.f32; lop3.b32"
+ },
+ "0x6e": {
+  "name": "mad",
+  "evidence": "fma.rn.f32; fma.rn.f64; mad.cc+madc.lo.u32; mad.lo.u32; mad.rn.f32"
+ },
+ "0x71": {
+  "name": "mad24",
+  "evidence": "mad24.lo.u32"
+ },
+ "0x73": {
+  "name": "mad.hi",
+  "evidence": "mad.hi.u32"
+ },
+ "0x75": {
+  "name": "madc",
+  "evidence": "mad.cc+madc.lo.u32"
+ },
+ "0x78": {
+  "name": "max",
+  "evidence": "max.s32"
+ },
+ "0x79": {
+  "name": "max.nan",
+  "evidence": "max.NaN.f32"
+ },
+ "0x7c": {
+  "name": "membar",
+  "evidence": "fence.acq_rel.gpu; membar.gl"
+ },
+ "0x7e": {
+  "name": "min",
+  "evidence": "min.f32; min.f64; min.s64; min.u32"
+ },
+ "0x82": {
+  "name": "mov",
+  "evidence": "abs.*, neg.* (with |x| / -x modifiers), mov.*"
+ },
+ "0x85": {
+  "name": "hi32",
+  "evidence": "popc.b64 high word"
+ },
+ "0x86": {
+  "name": "lo32",
+  "evidence": "cvt.u32.u64 and popc.b64 low word"
+ },
+ "0x8b": {
+  "name": "mul",
+  "evidence": "mul.lo.u32; mul.lo.u64; mul.rn.f32; mul.rn.f64"
+ },
+ "0x8d": {
+  "name": "mul.wide",
+  "evidence": "mul.wide.s32; mul.wide.u32"
+ },
+ "0x8e": {
+  "name": "mul24",
+  "evidence": "mul24.lo.u32"
+ },
+ "0x8f": {
+  "name": "mul.hi",
+  "evidence": "mul.hi.s32; mul.hi.u32; mul.hi.u64"
+ },
+ "0x95": {
+  "name": "not",
+  "evidence": "not.b32; sub.cc+subc.u32"
+ },
+ "0x97": {
+  "name": "or",
+  "evidence": "or.b32"
+ },
+ "0xa2": {
+  "name": "popc",
+  "evidence": "popc.b32"
+ },
+ "0xa6": {
+  "name": "prmt",
+  "evidence": "prmt.b32"
+ },
+ "0xb7": {
+  "name": "ld",
+  "evidence": "ld.global.nc.u32; ld.global.u32; ld.local.u32; ld.shared.u32"
+ },
+ "0xba": {
+  "name": "redux",
+  "evidence": "redux.sync.add.u32"
+ },
+ "0xc4": {
+  "name": "sad",
+  "evidence": "sad.u32"
+ },
+ "0xc9": {
+  "name": "setp",
+  "evidence": "bra; cnot.b32; set.lt.u32.u32; setp.eq.s64; setp.lt.f32; setp.lt.u32; setp.ltu.f64; testp.finite.f32"
+ },
+ "0xd1": {
+  "name": "szext",
+  "evidence": "szext.clamp.s32"
+ },
+ "0xd2": {
+  "name": "shf",
+  "evidence": "shf.l.wrap.b32; shf.r.clamp.b32"
+ },
+ "0xd3": {
+  "name": "shfl",
+  "evidence": "shfl.sync.bfly.b32"
+ },
+ "0xd5": {
+  "name": "shl",
+  "evidence": "shl.b32; shl.b64"
+ },
+ "0xd6": {
+  "name": "shr",
+  "evidence": "shr.s32; shr.u32"
+ },
+ "0xd7": {
+  "name": "sin",
+  "evidence": "sin.approx.f32"
+ },
+ "0xf2": {
+  "name": "tanh",
+  "evidence": "tanh.approx.f32"
+ },
+ "0x10e": {
+  "name": "hadd2",
+  "evidence": "add.rn.bf16x2; add.rn.f16x2"
+ },
+ "0x110": {
+  "name": "pack64",
+  "evidence": "mad.wide.u32: joins two 32-bit halves"
+ },
+ "0x111": {
+  "name": "pack16x2",
+  "evidence": "add.rn.bf16x2; add.rn.f16x2; cvt.rn.bf16x2.f32; cvt.rn.f16x2.f32; fma.rn.f16x2; fma.rn.relu.f16x2"
+ },
+ "0x117": {
+  "name": "hfma2",
+  "evidence": "fma.rn.f16x2; fma.rn.relu.f16x2"
+ },
+ "0x11b": {
+  "name": "vote",
+  "evidence": "activemask.b32; vote.sync.ballot.b32"
+ },
+ "0x120": {
+  "name": "st",
+  "evidence": "atom.shared.exch.b32; ld.const.u32; ld.local.u32; ld.shared.u32; mov.u32 %ctaid.x; mov.u32 %laneid; mov.u32 %tid.x; mov.u64 %clock64; st.shared.u32"
+ },
+ "0x122": {
+  "name": "xor",
+  "evidence": "xor.b32"
+ }
+}

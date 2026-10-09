@@ -495,8 +495,31 @@ walks the IR:
 - vreg descriptor `*(ctx+0x58)[id]`: class +0x40 (2 UP, 3 UR, 6 R; checked
   against final SASS), physical register +0x44 (-1 before allocation).
 
+**Opcode names in bulk.** `research/ptxas/ori_opcodes.py OUT` compiles 146
+single-instruction kernels (one PTX instruction between typed parameter loads
+and a store), dumps the IR before `OriCheckInitialProgram`, and subtracts a
+baseline with the same signature. `research/ptxas/ori_opnames.json` holds the
+60 resulting names, each with its evidence; the printer loads it. Type field:
+6 f32, 7 f16, 9 s64, 10 u64/b64, 11 s32, 12 u32/b32, 19 f64, 20 pred,
+26 condition code (`add.cc` result). abs/neg are `mov` with modifier
+0x40000000/0x80000000. PTX `add.cc`/`addc` become `add` (t26 result) and op
+0x7 (carry from that value); the 64-bit splitter's op 0x5 carries through a
+predicate instead. div/rem/rcp/sqrt/ex2/lg2 are already expanded (25-440 ops)
+when the first phase runs; opcodes seen only there (0x5d, 0xa4, 0xa8, 0xb4,
+0x9f, 0x6f, ...) remain unnamed, as do structural ops 0x48, 0x61 (label),
+0x34, 0x36, 0xbc.
+
+**No ORI name table.** The release binary has no string table indexed by ORI
+opcode. SASS-level name tables exist: the static 773-entry table at
+`0x29fe300`, and runtime InstructionInfo tables at `+0x1058` (constructors
+`0x7a5d10`, `0x7c5410`, `0xbe7390`; the third-party wiki's "IR opcode enum")
+and `+0x3060` (`0x7cb560`, `0x896d50`), built during `ScheduleInstructions`.
+Read live after scheduling, none names the IR's opcodes (e.g. ORI 0x5, the
+UIADD3 carry add, reads SGXT / F2I; 0x82 mov reads HSET2 / LDT). No lowercase
+or ROT13 PTX-style opcode strings exist.
+
 ORI opcodes have their own numbering, not the 773-entry SASS name table.
-Evidence so far: 2 add, 5 add-with-carry (`UIADD3`/`.X` after allocation,
+Earlier evidence: 2 add, 5 add-with-carry (`UIADD3`/`.X` after allocation,
 carry in a class-2 vreg = UP0), 0x82 mov (with a memory modifier, a load),
 0x120 st, 0xb7 four-register constant load (LDCU.128), 0xc3 descriptor/
 constant load (LDCU.64 desc, LDC R1), 0x109 move to a pair half.

@@ -11,6 +11,7 @@ ORI_PHASES: comma-separated phase names, 'all', or 'list' (print phase order onl
 ORI_WHEN: before | after | both (default both).
 ORI_RAW: print every opcode as op_<hex>.
 """
+import json
 import os
 import gdb
 
@@ -23,8 +24,9 @@ EXEC_RET = 0xC6508F
 KIND = {1: '%', 2: 'sym', 3: 'k3_', 4: 'lbl', 5: 'const', 6: 'imm', 7: 'none'}
 # Virtual register class (descriptor+0x40) -> physical file, checked against final SASS.
 REGFILE = {2: 'UP', 3: 'UR', 6: 'R'}
-# Opcode names backed by traced lowering evidence only (ptxas-finalizer-notes.md).
-OPNAME = {} if os.environ.get('ORI_RAW') else {0x2: 'add', 0x5: 'addc', 0x82: 'mov', 0x120: 'st'}
+# Evidence-backed opcode names (ori_opnames.json, produced with ori_opcodes.py).
+OPNAME = {} if os.environ.get('ORI_RAW') else {
+    int(op, 16): v['name'] for op, v in json.load(open(os.path.join(os.path.dirname(__file__), 'ori_opnames.json'))).items()}
 
 inf = gdb.selected_inferior()
 u32 = lambda a: int.from_bytes(inf.read_memory(a, 4).tobytes(), 'little')
