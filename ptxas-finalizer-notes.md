@@ -98,8 +98,10 @@ Before serialization, `dispatch_ori_instruction_to_encoder` (`0x18f1be0`)
 invokes `dispatch_intermediate_stream_encoder` (`0x17aa010`), whose directory
 is `0x23a6940`. The earlier IADD3 has the same register values. Its operands
 were built by `materialize_converted_instruction_operands` (`0x1bbbdc0`),
-called by `dispatch_ori_opcode_conversion` (`0x9ed2d0`) during
-`run_convert_unsupported_ops_phase` (`0x9f3340`).
+called by `dispatch_ori_opcode_conversion` (`0x9ed2d0`) from
+`merc_convert_instruction` (`0x9f3340`), the per-instruction step of phase
+141 MercConverter (see "ConvertUnsupportedOps vs MercConverter"; this function
+was previously misnamed `run_convert_unsupported_ops_phase`).
 
 The materializer iterates a tree of typed operand nodes: kind1 becomes a
 general-register operand (kind2), kind2 becomes a predicate operand (kind1).
@@ -433,7 +435,7 @@ UIMAD.WIDE case is `sass_opaque_UIMAD`.
 ## Lowering-table survey (2026-10-08)
 
 ptxas has no data table for PTX/ORI→SASS lowering. Conversion is code:
-`dispatch_ori_opcode_conversion` (`0x9ed2d0`) is a ~240-case switch on the
+`dispatch_ori_opcode_conversion` (`0x9ed2d0`, MercConverter) is a ~240-case switch on the
 internal opcode (`insn+0x48 & ~0x3000`) calling per-family handlers, e.g.
 `lower_wide_integer_operations` (`0xa36360`, cases 2/3/5/7 add-like, 6 mul,
 10/0x95/0x97/0x122, 0x24, 0x62...). Statically initialized data found:
@@ -600,6 +602,38 @@ Earlier evidence: 2 add, 5 add-with-carry (`UIADD3`/`.X` after allocation,
 carry in a class-2 vreg = UP0), 0x82 mov (with a memory modifier, a load),
 0x120 st, 0xb7 four-register constant load (LDCU.128), 0xc3 descriptor/
 constant load (LDCU.64 desc, LDC R1), 0x109 move to a pair half.
+
+## ConvertUnsupportedOps vs MercConverter (2026-10-09)
+
+Phase numbers come from the execute jump table at `0x22bbeb8` (indexed like
+the name table `0x22bd0c0`); a phase object's vtable slot 0 is `execute`.
+Two distinct conversions exist:
+
+- **Phase 5 ConvertUnsupportedOps** (vtable `0x22bd690`, execute `0xc60a20`):
+  ORI→ORI legalization before register allocation (phase 122). It tail-calls
+  arch object `ctx+0x640` slot 0; gdb on sm_100 resolves it to
+  `convert_unsupported_ops_sm100` (`0x7060a0`). That calls
+  `convert_unsupported_ops_generic` (`0xaed3c0`, one switch over ~110 ORI
+  opcodes, emitting replacement ORI through `0x92e720`/`0x934630`, removing
+  originals through `0x9253c0`). It then applies SM100 fixes (memory-op flags on
+  0xf3/0x46, special/system-value operands rewritten into ORI 0xab/0xc9).
+- **Phase 141 MercConverter** (vtable `0x22bebd0`, execute `0xc60300` ->
+  `run_merc_converter_phase` `0x9f3760`): ORI→Mercury target classes after
+  allocation and scheduling; it logs "After MercConverter". It is gated by
+  `ctx+0x570` bit 0x10 and builds a converter by arch code
+  `(ctx+0x630)+0x174` (0x6001, 0x7001-0x7005, 0x8000, 0x9000-0x9005; gdb:
+  sm_100 = 0x9000, vtable `0x21f73f0`; sm_120 = 0x9004, vtable `0x229c670`).
+  For each instruction, `merc_convert_instruction` (`0x9f3340`) optionally runs
+  `convert_ori_instruction_sequence` (config+0x576 bit 0x20, set on both),
+  queued post-lowering `0x9ef5e0`, then `dispatch_ori_opcode_conversion`.
+  Cases call shared handlers or converter vtable slots (add family 2/3/4/5/7 ->
+  slot 0, 0x82/0xa9 -> 0xe8, 0xb7/0x120 -> 0x120), or start a class directly
+  (0x94 -> 0x2d NOP). Failure starts class 0xffff. Builder classes are the
+  finalizer directory indices (IADD3 family 0xc, IMAD 0x20, NOP 0x2d).
+
+Later Merc phases: MercEncodeAndDecode (142), MercExpandInstructions,
+MercGenerateWARs1/2, MercGenerateOpex, MercGenerateSassUCode. Whether 142 is the
+intermediate-ELF round trip is unverified.
 
 ## Remaining investigation
 
