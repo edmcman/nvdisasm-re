@@ -535,6 +535,57 @@ Byte matching library functions to the executable fails (0 of ~58,000): the
 library uses frame pointers and PIC, so a function-to-source map needs
 structural matching (e.g. Ghidra BSim / Version Tracking).
 
+**Where ORI is built.** All initial ORI instructions are created, before the
+first phase, by `build_ori_for_function` (`0xc173e0`, 17 KB) and the per-
+instruction selector `select_ori_instructions` (`0xc0eb10`, 34 KB), called
+from `run_kernel_backend` (`0x7fbb70`), which then calls `run_optimizer_phases`
+(`0x7fb6c0`) -> `dispatch_phase_list` (`0xc64f70`). The selector's input is
+an intermediate IR with its own 222-opcode enum (opcode at node+8, `< 0xde`),
+not PTX parser IDs and not SASS. `dag_opcode_to_ori_opcode` (`0x22b4b60`,
+`ushort[222]`) maps 127 input opcodes one-to-one to ORI opcodes (118 distinct);
+0 entries are lowered by the selector's switch. Verified on `sub_u64`: input
+60 -> 0x120 st, 24 -> 0xbc ret, 71 -> 0x82 mov, 74 -> 0xc addr; inputs 44, 38,
+95, 41 (param loads, sub) have 0 entries. The table is the third-party wiki's
+`isel_slot` column; its SASS names for those 222 indices do not fit the input
+(the parameter loads trace as F2F_X, POPC, BREAK, STS, CALL), so the wiki's
+names for that enum are wrong.
+
+**The input IR is the COP DAG.** Its nodes are built before
+`build_ori_for_function`, on the front-end path `compile_ptx_module` ->
+`compile_ptx_function_unit` -> `compile_ptx_function_backend` ->
+`lower_ptx_function_definition` -> `lower_ptx_function_body_to_ocg` ->
+`consume_ptx_body_event` -> `lower_ptx_instruction_to_ocg` (`0x62e890`,
+118 KB, one PTX instruction at a time; the same path handles `.pragma`) ->
+`cop_dag_create_node` (`0xa2f6d0`: allocates a 0xb8-byte node, opcode at +8,
+sequence id at +0x24, links it into a per-function list) -> per-class
+constructors (`0xae7b20`, `0xae7c60`, `0xae7d40`, vtables `0x229e558`,
+`0x229e608`, `0x229e6b8`). String-anchored matching
+(`research/ptxas/lib_functions.py` + `match_by_strings.py`, 826 pairs over
+132 source files) places `lower_ptx_instruction_to_ocg`,
+`consume_ptx_body_event` and `handle_knob_pragma` in `ptxOptimize.c` (8, 1 and
+4 unique shared strings), `cop_dag_create_node` in `cop_dag_interface.cpp`
+(call propagation), `build_ori_for_function` in `ori_construct_inst.cpp` and
+`dispatch_phase_list` in `ori_dispatch.cpp`. Pipeline: PTX parser
+(`ptx_parser.c`) -> PTX IR (`ptxIR.c`) -> COP DAG (`ptxOptimize.c` via
+`cop_dag_interface.cpp`) -> ORI (`ori_construct_inst.cpp`, table + selector)
+-> 157 ORI phases -> Mercury -> SASS.
+
+**COP DAG printer.** `research/ptxas/dag_print.py` (gdb) records the DAG
+context passed to `cop_dag_create_node` and, at `build_ori_for_function`,
+walks its node list (`ctx+0x478`, nodes linked through `+0x48`). Node: +0
+vtable (class), +8 opcode, +0x18 type (ORI codes), +0x20 basic block, +0x24
+id, +0x99 operand count; operands are 0x28-byte records from +0xa8 {vtable
+0x229e468, type, -, source node at +0x18, component select at +0x20, default
+0xff03020100}; constant nodes (vtable 0x229e500, op 38) keep {kind, value} at
++0xa8, symbol nodes (vtable 0x229e558) a symbol pointer. Names: NVIDIA's
+switch in `cop_nv_common.cpp` names 103 opcodes (`research/ptxas/dag_opnames.json`,
+with the 127 DAG->ORI mappings); its 223-entry fallback table holds only
+"???" in this build, even at run time. Observed roles (not named by NVIDIA):
+38 constant, 41 memory-space symbol, 43 PTX register/variable, 44 param-space
+symbol, 45 special register, 95 symbol+offset access (parameter load or
+address), 8 branch target label. The DAG still refers to PTX registers (op 43)
+across blocks rather than being fully SSA.
+
 **No ORI name table.** The release binary has no string table indexed by ORI
 opcode. SASS-level name tables exist: the static 773-entry table at
 `0x29fe300`, and runtime InstructionInfo tables at `+0x1058` (constructors
