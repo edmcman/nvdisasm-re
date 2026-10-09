@@ -48,8 +48,11 @@ Uniform special registers (`%ctaid.x`, `%clock64`) give uniform-operand forms.
   LibAFL has no AFL deterministic stage, and its RedQueen cannot rebuild a region-only input,
   so neither is used.
 - **Concolic workers**: SymQEMU over native ptxas with only the region symbolic, 30 s per run.
-  One job per decoded (kernel, target); dispatch rotates through the targets. Outputs are
-  compiled once for the job's target and only accepted ones are submitted.
+  One job per decoded (kernel, target); dispatch rotates through the targets. Every output is
+  broadcast to the mutation workers, which evaluate it in that target's context: it joins their
+  corpus only with new coverage (edges or PTX/SASS facts), and a compiling one is submitted to
+  the catalogue under its concolic origin. In a 75 s check, 153 of 411 distinct outputs entered
+  corpora.
 - **Coordinator** (`pipeline.py`): candidates arrive on a Unix socket; dedup, SQLite
   catalogue, compilation cache, leases. A candidate is compiled for the newest target first;
   a rejection naming no target is recorded for the others without compiling them. Accepted

@@ -117,18 +117,12 @@ def concolic_worker(jobs, events, config, stop, index):
         result = bounded([config['symqemu'], config['ptxas'], '-arch=' + job['target'],
                           '-o', '/dev/null', str(source)], directory / 'solver.log', 30, stop, events, env)
         # Enumerate completed solver output once per execution; never poll directories to
-        # communicate between generators. Most outputs take a lexer error branch, so only those
-        # ptxas accepts for the job's target are submitted.
-        outputs = [path for path in sorted(generated.iterdir()) if path.is_file()]
-        accepted = 0
-        for path in outputs:
-            if stop.is_set(): break
-            check = bounded([config['ptxas'], '-arch=' + job['target'], '-o', '/dev/null', str(path)],
-                            directory / 'check.log', 3, stop, events)
-            if check['rc'] == 0:
-                events.put(dict(kind='candidate', origin=f'concolic:{index}:{job["arch"]}:{job["key"]}', data=path.read_bytes()))
-                accepted += 1
-        result.update(kind='concolic_done', cache_key=job['cache_key'], generated=len(outputs), candidates=accepted)
+        # communicate between generators. The mutation workers evaluate every output: it joins
+        # their corpus with new coverage and reaches the catalogue if it compiles.
+        outputs = [str(path) for path in sorted(generated.iterdir()) if path.is_file()]
+        events.put(dict(kind='concolic_outputs', target=job['target'], paths=outputs,
+                        origin=f'concolic:{index}:{job["arch"]}:{job["key"]}'))
+        result.update(kind='concolic_done', cache_key=job['cache_key'], generated=len(outputs))
         write_json(directory / 'result.json', result); events.put(result)
 
 def replay_worker(jobs, events, config, stop):
@@ -238,7 +232,7 @@ class Coordinator:
             if new: self.db.execute('INSERT OR IGNORE INTO replays(cache_key) VALUES(?)',(ck,))
             row = self.db.execute('SELECT key,target FROM compilations WHERE cache_key=?',(ck,)).fetchone()
             key,target = row; source = self.db.execute('SELECT source FROM candidates WHERE key=?',(key,)).fetchone()[0]
-            publisher.stdin.write(canonical([target,source])+'\n'); publisher.stdin.flush()
+            publisher.stdin.write(canonical([target,source,None])+'\n'); publisher.stdin.flush()
             if instruction_region(Path(source).read_bytes()):
                 self.db.execute('INSERT OR IGNORE INTO concolic(cache_key,key,directory) VALUES(?,?,?)',
                                 (ck,key,str(self.root/'concolic'/ck)))
@@ -291,7 +285,7 @@ def main():
     if args.n<1 or args.m<0 or args.duration<1 or not arches or any(a not in TARGETS for a in arches): p.error('invalid workers, duration or architectures')
     root=args.output.resolve(); tools=args.tools.resolve(); application=str(args.application.resolve())
     compiler=args.ptxas.resolve()
-    config=dict(candidate_key='name_key-2',mutation_input='ptx-region-1',concolic_jobs='per-arch-1',compile_probe='newest-1',ptxas=str(compiler),compiler=hashlib.sha256(compiler.read_bytes()).hexdigest(),architectures=arches,
+    config=dict(candidate_key='name_key-2',mutation_input='ptx-region-1',concolic_jobs='per-arch-2',compile_probe='newest-1',ptxas=str(compiler),compiler=hashlib.sha256(compiler.read_bytes()).hexdigest(),architectures=arches,
                 qemu=str(tools/'AFLplusplus/afl-qemu-trace'),symqemu=str(tools/'symqemu/build/symqemu-x86_64'))
     version=subprocess.check_output([str(compiler),'--version']).decode()
     if config['compiler'] != VERIFIED_COMPILER: p.error('IR logger addresses require verified CUDA 13.0.88 compiler hash')
@@ -348,7 +342,7 @@ def main():
                ','.join(str(d.resolve()) for d in dictionaries),','.join(TARGETS[a] for a in arches)],stdout=subprocess.DEVNULL,env=env)
     # Replay previously accepted cases through LLMP on resume; no directory polling.
     for target,source in db.execute("SELECT DISTINCT c.target,s.source FROM compilations c JOIN candidates s USING(key) WHERE c.state='decoded'"):
-        publisher.stdin.write(canonical([target,source])+'\n')
+        publisher.stdin.write(canonical([target,source,None])+'\n')
     publisher.stdin.flush()
     reported=start
     def handle(msg):
@@ -365,6 +359,9 @@ def main():
         elif kind=='replayed':
             db.execute('UPDATE replays SET state=?,owner=NULL,diagnostics=? WHERE cache_key=?',
                        (msg['state'],msg['diagnostics'],msg['cache_key'])); db.commit(); busy.pop('replay',None)
+        elif kind=='concolic_outputs':
+            publisher.stdin.writelines(canonical([msg['target'],path,msg['origin']])+'\n' for path in msg['paths'])
+            publisher.stdin.flush()
         elif kind=='concolic_done':
             state='running' if msg['interrupted'] else 'completed'
             db.execute('UPDATE concolic SET state=?,result=? WHERE cache_key=?',(state,canonical(msg),msg['cache_key'])); db.commit()

@@ -2,7 +2,7 @@
 use std::{borrow::Cow, collections::HashSet, env, fs, io::{BufRead, Write}, os::unix::net::UnixStream,
           path::PathBuf, process::Command, sync::mpsc, time::{Duration, Instant}};
 use libafl::{Error, HasMetadata, corpus::{Corpus, HasCurrentCorpusId, InMemoryCorpus, InMemoryOnDiskCorpus}, events::SimpleEventManager,
-    executors::{ExitKind, StdChildArgs, forkserver::ForkserverExecutor},
+    executors::{ExitKind, HasObservers, StdChildArgs, forkserver::ForkserverExecutor},
     feedback_or, feedbacks::{ConstFeedback, MaxMapFeedback, TimeFeedback}, fuzzer::{Evaluator, Fuzzer, StdFuzzer},
     inputs::{HasMutatorBytes, HasTargetBytes}, monitors::SimpleMonitor,
     mutators::{BytesDeleteMutator, HavocScheduledMutator, MutationResult, Mutator, Tokens, havoc_mutations, tokens_mutations},
@@ -12,7 +12,7 @@ use libafl::{Error, HasMetadata, corpus::{Corpus, HasCurrentCorpusId, InMemoryCo
              power::StdPowerMutationalStage},
     state::{HasCorpus, HasCurrentTestcase, HasExecutions, StdState}};
 use libafl_bolts::{Named, StdTargetArgs, current_nanos, rands::StdRand,
-    shmem::{ShMem, ShMemProvider, UnixShMemProvider}, tuples::{Merge, tuple_list},
+    shmem::{ShMem, ShMemProvider, UnixShMemProvider}, tuples::{Handled, Merge, tuple_list},
     llmp::{LlmpConnection, LlmpClient, Tag}};
 mod features;
 mod input;
@@ -118,7 +118,8 @@ fn worker(args: &[String]) {
     let targets: Vec<_> = args[6].split(',').collect();
     let worker_dir = root.join("mutation").join(index); fs::create_dir_all(&worker_dir).unwrap();
     let mut epoch = 0; let mut total = 0u64;
-    let mut broadcasts = Vec::<(String, PathBuf)>::new(); let mut imported = HashSet::new();
+    // (target, file, origin): no origin = an accepted case, a concolic origin = an output to evaluate.
+    let mut broadcasts = Vec::<(String, PathBuf, Option<String>)>::new(); let mut imported = HashSet::new();
     while !stopped() {
         let arch = targets[(index.parse::<usize>().unwrap() + epoch) % targets.len()];
         let checkpoint = worker_dir.join(format!("{arch}.state"));
@@ -149,8 +150,10 @@ fn worker(args: &[String]) {
         let mut fuzzer = StdFuzzer::new(scheduler, feedback, objective);
         // Trim: delete region bytes while the edge map is unchanged, replacing the entry.
         let trim = StdTMinMutationalStage::new(Counted(BytesDeleteMutator::new()), ObserverEqualityFactory::new(&edges), TRIM_RUNS);
-        let compiled = Compiled { output: worker_dir.join("current.cubin"), origin: format!("mutation:{index}:{arch}"),
+        let own_origin = format!("mutation:{index}:{arch}");
+        let compiled = Compiled { output: worker_dir.join("current.cubin"), origin: own_origin.clone(),
                                   tx: Some(tx.clone()), submitted: HashSet::new(), map };
+        let compiled_handle = compiled.handle();
         let ptxas = |output: &PathBuf| ForkserverExecutor::builder().program(&args[3])
             .env("AFL_QEMU_MAP_SIZE", features::EDGES.to_string())
             .coverage_map_size(features::EDGES + features::SLOTS).arg(&args[4]).arg(format!("-arch={arch}")).arg("-o").arg(output);
@@ -178,14 +181,22 @@ fn worker(args: &[String]) {
         let epoch_start = Instant::now(); let mut saved = Instant::now(); let mut reported = Instant::now();
         while epoch_start.elapsed() < Duration::from_secs(60) && !stopped() {
             while let Some((_, tag, bytes)) = client.recv_buf().unwrap() {
-                if tag == TAG { let msg: (String, PathBuf) = serde_json::from_slice(bytes).unwrap(); broadcasts.push(msg); }
+                if tag == TAG { broadcasts.push(serde_json::from_slice(bytes).unwrap()); }
             }
-            for (target, path) in &broadcasts {
-                if target == arch && imported.insert((target.clone(), path.clone())) {
+            for (target, path, origin) in &broadcasts {
+                if target != arch || !imported.insert((target.clone(), path.clone())) { continue; }
+                let Some(input) = PtxInput::parse(&fs::read(path).unwrap()) else { continue };
+                match origin {
                     // Accepted cases enter scheduling even without new compiler coverage; executing
                     // them records the coverage metadata the minimizing scheduler needs.
-                    if let Some(input) = PtxInput::parse(&fs::read(path).unwrap()) {
-                        fuzzer.add_input(&mut state, &mut executor, &mut mgr, input).unwrap();
+                    None => { fuzzer.add_input(&mut state, &mut executor, &mut mgr, input).unwrap(); }
+                    // Concolic outputs join the corpus only with new coverage; compiling ones are
+                    // submitted under their own origin.
+                    Some(origin) => {
+                        executor.observers_mut()[&compiled_handle].origin = origin.clone();
+                        let result = fuzzer.evaluate_input(&mut state, &mut executor, &mut mgr, &input);
+                        executor.observers_mut()[&compiled_handle].origin = own_origin.clone();
+                        if let Err(e) = result { if stopped() { break; } panic!("{e:?}"); }
                     }
                 }
             }
