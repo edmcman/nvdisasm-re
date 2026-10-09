@@ -1,0 +1,88 @@
+#!/usr/bin/python3
+"""Bound the AFL++ SymQEMU worker and preserve its input and diagnostics."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import signal
+import subprocess
+import sys
+import time
+
+
+def main():
+    binary = os.environ["PTX_SYMQEMU_BINARY"]
+    root = Path(os.environ["PTX_SYMQEMU_LOG_DIR"])
+    root.mkdir(parents=True, exist_ok=True)
+    work = root / f"{time.time_ns()}-{os.getpid()}"
+    work.mkdir()
+    input_file = os.environ.get("SYMCC_INPUT_FILE")
+    digest = None
+    worker_env = os.environ.copy()
+    symbolic_range = None
+    if input_file:
+        data = Path(input_file).read_bytes()
+        (work / "input.ptx").write_bytes(data)
+        digest = hashlib.sha256(data).hexdigest()
+        scope = worker_env.get("PTX_SYMBOLIC_SCOPE", "instruction")
+        marker = b"// BEGIN_INSTRUCTION\n"
+        position = data.find(marker)
+        if scope != "file" and position >= 0:
+            begin = position + len(marker)
+            end = data.find(b"// END_INSTRUCTION", begin)
+            if end >= begin:
+                if scope == "opcode":
+                    token = re.match(rb"[a-zA-Z0-9_]+", data[begin:end])
+                    if token:
+                        end = begin + len(token.group())
+                worker_env.update(PTX_SYMBOLIC_BEGIN=str(begin), PTX_SYMBOLIC_END=str(end))
+        elif scope == "instruction":
+            # AFL may move or remove the comment markers in a valid kernel.
+            for key in ("PTX_SYMBOLIC_BEGIN", "PTX_SYMBOLIC_END", "PTX_OPCODE_DOMAIN"):
+                worker_env.pop(key, None)
+        if "PTX_SYMBOLIC_BEGIN" in worker_env:
+            symbolic_range = [int(worker_env["PTX_SYMBOLIC_BEGIN"]), int(worker_env["PTX_SYMBOLIC_END"])]
+    output = Path(os.environ["SYMCC_OUTPUT_DIR"])
+    previous = {p.name for p in output.iterdir() if p.is_file()}
+    started = time.monotonic()
+    timed_out = False
+    with (work / "worker.log").open("wb") as log:
+        child = subprocess.Popen([binary, *sys.argv[1:]], stdout=log,
+                                 stderr=subprocess.STDOUT, start_new_session=True, env=worker_env)
+        try:
+            rc = child.wait(timeout=float(os.environ.get("PTX_SYMQEMU_TIMEOUT", "30")))
+        except subprocess.TimeoutExpired:
+            timed_out = True
+            os.killpg(child.pid, signal.SIGKILL)
+            rc = child.wait()
+    generated = []
+    for path in sorted(output.iterdir()):
+        if path.is_file() and path.name not in previous:
+            data = path.read_bytes()
+            (work / path.name).write_bytes(data)
+            record = {"name": path.name, "sha256": hashlib.sha256(data).hexdigest()}
+            if os.environ.get("PTX_VALIDATE_GENERATED") == "1":
+                # Replay natively before AFL++ imports this candidate.
+                native_args = [str(work / path.name) if arg == input_file else arg
+                               for arg in sys.argv[1:]]
+                try:
+                    native = subprocess.run(native_args, capture_output=True, timeout=3)
+                    record.update(accepted=native.returncode == 0, native_returncode=native.returncode)
+                    (work / f"{path.name}.compile.log").write_bytes(native.stdout + native.stderr)
+                except subprocess.TimeoutExpired:
+                    record.update(accepted=False, native_returncode=None)
+                if not record["accepted"]:
+                    path.unlink()
+            generated.append(record)
+    (work / "result.json").write_text(json.dumps({
+        "argv": [binary, *sys.argv[1:]], "input_sha256": digest,
+        "elapsed_seconds": time.monotonic() - started, "returncode": rc,
+        "timed_out": timed_out, "generated": generated,
+        "symbolic_range": symbolic_range,
+    }, indent=2) + "\n")
+    return 124 if timed_out else (128 - rc if rc < 0 else rc)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

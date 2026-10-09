@@ -1,0 +1,55 @@
+diff --git a/src/backends/qsym/Runtime.cpp b/src/backends/qsym/Runtime.cpp
+index 650787b..be3c7f5 100644
+--- a/src/backends/qsym/Runtime.cpp
++++ b/src/backends/qsym/Runtime.cpp
+@@ -134,7 +134,22 @@ public:
+     inputs_[offset] = value;
+   }
+ 
++  void assumePtxDomain(qsym::ExprRef expression) {
++    addConstraint(expression, true, false);
++  }
++
+   void saveValues(const std::string &suffix) override {
++    // QSYM's optimistic solves can omit assumptions; keep this corpus in-domain.
++    const char *begin = getenv("PTX_SYMBOLIC_BEGIN");
++    if (getenv("PTX_OPCODE_DOMAIN") != nullptr && begin != nullptr) {
++      auto values = getConcreteValues();
++      size_t start = strtoull(begin, nullptr, 10);
++      if (values.size() < start + 3)
++        return;
++      std::string token(values.begin() + start, values.begin() + start + 3);
++      if (token != "add" && token != "sub")
++        return;
++    }
+     if (auto handler = g_test_case_handler) {
+       auto values = getConcreteValues();
+       // The test-case handler may be instrumented, so let's call it with
+@@ -326,6 +341,27 @@ void _sym_push_path_constraint(SymExpr constraint, int taken,
+ 
+ SymExpr _sym_get_input_byte(size_t offset, uint8_t value) {
+   g_enhanced_solver->pushInputByte(offset, value);
++  // PTX experiment: keep the scaffold concrete; symbolize [begin, end).
++  static const char *begin = getenv("PTX_SYMBOLIC_BEGIN");
++  static const char *end = getenv("PTX_SYMBOLIC_END");
++  if (begin != nullptr && end != nullptr &&
++      (offset < strtoull(begin, nullptr, 10) ||
++       offset >= strtoull(end, nullptr, 10)))
++    return nullptr;
++  static bool domainAdded = false;
++  if (!domainAdded && getenv("PTX_OPCODE_DOMAIN") != nullptr &&
++      begin != nullptr && offset == strtoull(begin, nullptr, 10) + 2) {
++    size_t start = strtoull(begin, nullptr, 10);
++    auto token = g_expr_builder->createConcat(
++        g_expr_builder->createRead(start),
++        g_expr_builder->createConcat(g_expr_builder->createRead(start + 1),
++                                    g_expr_builder->createRead(start + 2)));
++    auto domain = g_expr_builder->createLOr(
++        g_expr_builder->createEqual(token, g_expr_builder->createConstant(0x616464, 24)),
++        g_expr_builder->createEqual(token, g_expr_builder->createConstant(0x737562, 24)));
++    g_enhanced_solver->assumePtxDomain(domain);
++    domainAdded = true;
++  }
+   return registerExpression(g_expr_builder->createRead(offset));
+ }
+ 

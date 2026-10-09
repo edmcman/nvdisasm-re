@@ -1,0 +1,83 @@
+{
+  "corpus_by_origin": {
+    "regular_afl": 17,
+    "seed": 1,
+    "concolic": 1
+  },
+  "unique_native_accepted": 19,
+  "unique_native_rejected": 0,
+  "solver_candidates": 1156,
+  "solver_accepted_including_duplicates": 31,
+  "workers": [
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 5.66831146099139
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 4.505604728939943
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 9.606447275960818
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 5.735679407021962
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 9.52804335707333
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 6.052612958941609
+    },
+    {
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 7.239400387043133
+    }
+  ],
+  "ir_dumps": [
+    {
+      "directory": "/tmp/ptx-concolic/replay-hybrid-03/cases/7924b8ad77da4f4d",
+      "gdb_returncodes": {
+        "ptx": 0,
+        "cop": 0,
+        "ori": 0
+      },
+      "ptx_instructions": 7,
+      "ori_phase_snapshots": 314
+    },
+    {
+      "directory": "/tmp/ptx-concolic/replay-hybrid-03/cases/c836b737d6627cfa",
+      "gdb_returncodes": {
+        "ptx": 0,
+        "cop": 0,
+        "ori": 0
+      },
+      "ptx_instructions": 7,
+      "ori_phase_snapshots": 314
+    },
+    {
+      "directory": "/tmp/ptx-concolic/replay-hybrid-03/cases/feb4a8c2351e0f22",
+      "gdb_returncodes": {
+        "ptx": 0,
+        "cop": 0,
+        "ori": 0
+      },
+      "ptx_instructions": 7,
+      "ori_phase_snapshots": 314
+    }
+  ],
+  "run_directory": "/tmp/ptx-concolic/afl-hybrid-03",
+  "replay_directory": "/tmp/ptx-concolic/replay-hybrid-03",
+  "observation": "Unrestricted opcode search retained mostly whitespace, operand and scaffold variations; no broad opcode coverage established."
+}
