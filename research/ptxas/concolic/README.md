@@ -19,6 +19,15 @@ python3 research/ptxas/concolic/run.py --output /tmp/ptx-concolic/run-01 --durat
 Build prerequisites are listed in `build.sh`; `afl-qemu-trace`, SymQEMU and LibAFL
 (rev `70259b66`, `libafl/Cargo.lock`) are pinned.
 
+The default `ptx.dict` includes all 139 opcode roots from the PTX ISA 9.4 reserved
+instruction table and instruction headings (including `fabric`, absent from the table),
+plus documented qualified instruction names. It retains the original type, register,
+modifier and complete-statement suggestions. Source:
+[NVIDIA PTX ISA](https://docs.nvidia.com/cuda/parallel-thread-execution/#instruction-statements).
+These are mutation tokens; newer and target-specific names may be rejected by the
+CUDA 13.0.88 compiler or the seed's PTX version. It does not enumerate every modifier
+combination or supply a valid operand scaffold for every opcode.
+
 ## Seeds and the instruction region
 
 Only the bytes between the `BEGIN_INSTRUCTION` and `END_INSTRUCTION` comments (line `//` or
@@ -78,6 +87,19 @@ Stopping (SIGINT/SIGTERM or deadline) checkpoints workers and kills child proces
 `--resume` retries interrupted leases once. The PTX IR logger and the COP/ORI loggers are specific to
 CUDA 13.0.88 (checked by hash).
 
+`status.json` also records AFL-style statistics under `afl`: live corpus size,
+pending entries (never scheduled), favored entries, pending favored entries and
+corpus size by architecture. Counts sum the worker/target corpora; copies shared
+between workers are counted separately. `afl.contexts` retains each worker/target's
+latest snapshot across target rotations and resume, including queue cycles, recent
+executions per second, covered QEMU edge slots, edge-map density and covered PTX/SASS
+feature slots. Coverage is reported per context because workers can cover the same
+slots. These are map occupancy counts, not exact counts of compiler branches or forms.
+Workers report at startup, about once per second between fuzz stages, and before
+checkpointing at a target change or shutdown. The console summary includes corpus
+counts and campaign execution rate every five seconds. Execution counts include
+seed/import evaluation, calibration and trimming as well as havoc.
+
 ## Findings
 
 - **What made mutation work.** Whole-file byte havoc almost never yields valid PTX (17,068
@@ -90,10 +112,12 @@ CUDA 13.0.88 (checked by hash).
   1,103 valid (5%), but only 2 distinct new kernels (`or`/`xor` with 0) and no new forms.
   SymQEMU flips one branch per output; in the lexer most flips take an error path, and the
   valid ones are mostly cosmetic. Concolic is worth at most one worker.
-- **The dictionary bounds the vocabulary.** New instructions are the whole statements in
+- **The dictionary bounds the vocabulary.** In the measured run, new instructions were
+  the whole statements in
   `ptx.dict` (`add`, `sub`, `mul.lo`, `and`, `or`, `xor`, `shl`, `mov`, `setp`, `selp`),
   recombined with other operands, immediates, aliasing and types. A larger list of whole
-  statements is the direct way to reach more opcodes.
+  statements is the direct way to reach more opcodes. The default dictionary now also
+  contains the full documented opcode vocabulary, allowing token swaps across hash buckets.
 - **ptxas lexes with flex and parses with bison** (`fatal flex scanner internal error`). Opcodes
   and target names are identifiers looked up with `strcmp` in a hash table, so only
   bucket-mates are compared: `add` vs `cctl`, `fns`, `_mma`, `vmax2`; `st` vs nothing.

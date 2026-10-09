@@ -7,6 +7,30 @@ from corpus import instruction_region, name_key, token_key
 import os, subprocess, pytest
 from forms import decode_section, digest
 from semantic_cases import encode
+from pipeline import Coordinator, SCHEMA, afl_statistics
+
+
+def test_afl_corpus_statistics_survive_rotation_and_resume(tmp_path):
+    import json, sqlite3
+    contexts = {
+        '0:sm_75': dict(worker='0', arch='sm_75', corpus_size=10, pending=3, favored=4, pending_favored=1, covered_edges=20),
+        '0:sm_110': dict(worker='0', arch='sm_110', corpus_size=7, pending=2, favored=3, pending_favored=2, covered_edges=15),
+        '1:sm_75': dict(worker='1', arch='sm_75', corpus_size=8, pending=4, favored=2, pending_favored=1, covered_edges=18),
+    }
+    stats = afl_statistics(contexts)
+    assert stats['corpus_size'] == 25
+    assert stats['corpus_by_arch'] == {'SM75': 18, 'SM101': 7}
+    assert stats['pending'] == 9 and stats['pending_favored'] == 4
+    assert 'covered_edges' not in stats  # overlapping coverage is not additive
+    (tmp_path / 'status.json').write_text(json.dumps(dict(afl=stats)))
+    db = sqlite3.connect(':memory:'); db.executescript(SCHEMA)
+    coordinator = Coordinator(tmp_path, db, dict(architectures=['SM75', 'SM101']))
+    # Revisiting a context replaces its snapshot; inactive contexts remain counted.
+    coordinator.afl_contexts['0:sm_75'] = dict(contexts['0:sm_75'], corpus_size=12)
+    resumed = afl_statistics(coordinator.afl_contexts)
+    assert resumed['corpus_size'] == 27
+    assert resumed['contexts']['0:sm_110']['covered_edges'] == 15
+    db.close()
 
 PTX = b'.entry k() { add.u32 %r1, %r2, 3; st.global.u32 [%rd0], "a b"; }'
 

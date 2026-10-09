@@ -1,13 +1,14 @@
 //! Local compiler lowering enumeration. No crash or vulnerability objective.
 use std::{borrow::Cow, collections::HashSet, env, fs, io::{BufRead, Write}, os::unix::net::UnixStream,
           path::PathBuf, process::Command, sync::mpsc, time::{Duration, Instant}};
-use libafl::{Error, HasMetadata, corpus::{Corpus, HasCurrentCorpusId, InMemoryCorpus, InMemoryOnDiskCorpus}, events::SimpleEventManager,
+use libafl::{Error, HasMetadata, HasNamedMetadata, corpus::{Corpus, HasCurrentCorpusId, InMemoryCorpus, InMemoryOnDiskCorpus}, events::SimpleEventManager,
     executors::{ExitKind, HasObservers, StdChildArgs, forkserver::ForkserverExecutor},
-    feedback_or, feedbacks::{ConstFeedback, MaxMapFeedback, TimeFeedback}, fuzzer::{Evaluator, Fuzzer, StdFuzzer},
+    feedback_or, feedbacks::{ConstFeedback, MapFeedbackMetadata, MaxMapFeedback, TimeFeedback}, fuzzer::{Evaluator, Fuzzer, StdFuzzer},
     inputs::{HasMutatorBytes, HasTargetBytes}, monitors::SimpleMonitor,
     mutators::{BytesDeleteMutator, HavocScheduledMutator, MutationResult, Mutator, Tokens, havoc_mutations, tokens_mutations},
     observers::{CanTrack, HitcountsMapObserver, Observer, StdMapObserver, TimeObserver},
-    schedulers::{IndexesLenTimeMinimizerScheduler, StdWeightedScheduler, powersched::PowerSchedule},
+    schedulers::{IndexesLenTimeMinimizerScheduler, StdWeightedScheduler, minimizer::IsFavoredMetadata,
+                 powersched::{PowerSchedule, SchedulerMetadata}},
     stages::{ClosureStage, IfStage, ObserverEqualityFactory, StdTMinMutationalStage, calibrate::CalibrationStage,
              power::StdPowerMutationalStage},
     state::{HasCorpus, HasCurrentTestcase, HasExecutions, StdState}};
@@ -79,6 +80,32 @@ impl<I: HasTargetBytes + HasMutatorBytes, S> Observer<I, S> for Compiled {
 }
 
 type State = StdState<InMemoryOnDiskCorpus<PtxInput>, PtxInput, StdRand, InMemoryCorpus<PtxInput>>;
+
+/// Snapshot the scheduler's actual corpus and accumulated feedback, rather than queue files
+/// (trimming replaces entries and can leave filenames that do not reflect the live corpus).
+fn activity(state: &State, worker: &str, arch: &str, epoch: usize, executions: u64,
+            executions_per_second: f64) -> serde_json::Value {
+    let (mut pending, mut favored, mut pending_favored) = (0, 0, 0);
+    for id in state.corpus().ids() {
+        let testcase = state.corpus().get(id).unwrap().borrow();
+        let is_pending = testcase.scheduled_count() == 0;
+        let is_favored = testcase.has_metadata::<IsFavoredMetadata>();
+        pending += usize::from(is_pending);
+        favored += usize::from(is_favored);
+        pending_favored += usize::from(is_pending && is_favored);
+    }
+    let history = &state.named_metadata::<MapFeedbackMetadata<u8>>("edges").unwrap().history_map;
+    let covered_edges = history[..history.len().min(features::EDGES)].iter().filter(|&&v| v != 0).count();
+    let covered_features = history.iter().skip(features::EDGES).filter(|&&v| v != 0).count();
+    let queue_cycles = state.metadata::<SchedulerMetadata>().unwrap().queue_cycles();
+    serde_json::json!({"kind":"activity", "worker":worker, "arch":arch, "epoch":epoch,
+        "executions":executions, "context_executions":state.executions(),
+        "executions_per_second":executions_per_second, "corpus_size":state.corpus().count(),
+        "pending":pending, "favored":favored, "pending_favored":pending_favored,
+        "queue_cycles":queue_cycles, "covered_edges":covered_edges,
+        "edge_map_density_percent":100.0 * covered_edges as f64 / features::EDGES as f64,
+        "covered_features":covered_features})
+}
 
 /// AFL++ trims an entry when it is first fuzzed.
 fn first_scheduling<Z, E, EM>(_: &mut Z, _: &mut E, state: &mut State, _: &mut EM) -> Result<bool, Error> {
@@ -159,6 +186,7 @@ fn worker(args: &[String]) {
             .coverage_map_size(features::EDGES + features::SLOTS).arg(&args[4]).arg(format!("-arch={arch}")).arg("-o").arg(output);
         let mut executor = ptxas(&compiled.output).shmem_provider(&mut sp).timeout(Duration::from_secs(2))
             .arg_input_file(worker_dir.join("current.ptx")).build(tuple_list!(edges, time, compiled)).unwrap();
+        let initial_executions = *state.executions();
         if state.corpus().count() == 0 {
             // Every marked seed is queued, as AFL++ does; files without markers are not mutated.
             for seed in fs::read_dir(root.join("seeds")).unwrap() {
@@ -179,6 +207,8 @@ fn worker(args: &[String]) {
         // Trim first; calibration then measures the replacement and gives it scheduler metadata.
         let mut stages = tuple_list!(IfStage::new(first_scheduling, tuple_list!(trim, orphan)), calibration, havoc);
         let epoch_start = Instant::now(); let mut saved = Instant::now(); let mut reported = Instant::now();
+        let mut last_executions = *state.executions();
+        tx.send(activity(&state, index, arch, epoch, total + *state.executions() - initial_executions, 0.0)).unwrap();
         while epoch_start.elapsed() < Duration::from_secs(60) && !stopped() {
             while let Some((_, tag, bytes)) = client.recv_buf().unwrap() {
                 if tag == TAG { broadcasts.push(serde_json::from_slice(bytes).unwrap()); }
@@ -201,15 +231,15 @@ fn worker(args: &[String]) {
                 }
             }
             if state.corpus().count() == 0 { std::thread::sleep(Duration::from_millis(100)); continue; }
-            let before = *state.executions();
             // SIGUSR1 interrupts the forkserver wait; that is a stop request, not a failure.
             if let Err(e) = fuzzer.fuzz_one(&mut stages, &mut executor, &mut state, &mut mgr) {
                 if stopped() { break; }
                 panic!("{e:?}");
             }
-            total += *state.executions() - before;
             if reported.elapsed() >= Duration::from_secs(1) {
-                tx.send(serde_json::json!({"kind":"activity", "worker":index, "arch":arch, "executions":total, "context_executions":state.executions(), "epoch":epoch})).unwrap();
+                let rate = (*state.executions() - last_executions) as f64 / reported.elapsed().as_secs_f64();
+                tx.send(activity(&state, index, arch, epoch, total + *state.executions() - initial_executions, rate)).unwrap();
+                last_executions = *state.executions();
                 reported = Instant::now();
             }
             if saved.elapsed() >= Duration::from_secs(5) {
@@ -218,6 +248,9 @@ fn worker(args: &[String]) {
             }
         }
         fs::write(&checkpoint, postcard::to_allocvec(&state).unwrap()).unwrap();
+        total += *state.executions() - initial_executions;
+        let rate = (*state.executions() - last_executions) as f64 / reported.elapsed().as_secs_f64().max(0.001);
+        tx.send(activity(&state, index, arch, epoch, total, rate)).unwrap();
         epoch += 1;
     }
 }

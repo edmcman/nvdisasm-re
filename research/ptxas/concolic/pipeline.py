@@ -161,6 +161,11 @@ class Coordinator:
     def __init__(self, root, db, config):
         self.root,self.db,self.config = root,db,config
         self.duplicates = 0; self.received = 0; self.cache_hits = 0; self.concolic_turn = 0
+        # Keep the latest snapshot for every worker/target, including inactive targets
+        # between rotations and checkpointed corpora from an earlier invocation.
+        status_path = root / 'status.json'
+        self.afl_contexts = (json.loads(status_path.read_text()).get('afl', {}).get('contexts', {})
+                             if status_path.exists() else {})
         # Newest target: it accepts the most instructions, so its rejections are mostly target-independent.
         self.probe = config['architectures'][-1]
 
@@ -252,8 +257,21 @@ class Coordinator:
            concolic_states=dict(self.db.execute('SELECT state,count(*) FROM concolic GROUP BY state')))
         result['mutations_per_second'] = round(result['mutations']/max(elapsed,.01),2)
         result['candidates_per_second'] = round(self.received/max(elapsed,.01),2)
+        result['afl'] = afl_statistics(self.afl_contexts)
         write_json(self.root/'status.json',result)
         return result
+
+def afl_statistics(contexts):
+    """Corpus entries are summed, not deduplicated across workers. Coverage stays per
+    context: summing map counts would double-count shared edges and feature slots."""
+    result = {name: sum(c.get(name, 0) for c in contexts.values())
+              for name in ('corpus_size', 'pending', 'favored', 'pending_favored')}
+    result['corpus_by_arch'] = {}
+    for context in contexts.values():
+        arch = next((a for a, target in TARGETS.items() if target == context['arch']), context['arch'])
+        result['corpus_by_arch'][arch] = result['corpus_by_arch'].get(arch, 0) + context.get('corpus_size', 0)
+    result['contexts'] = contexts
+    return result
 
 def socket_reader(server, events, stop):
     def read(connection):
@@ -348,7 +366,9 @@ def main():
     def handle(msg):
         kind=msg['kind']
         if kind=='candidate': coordinator.candidate(msg['data'],msg['origin'])
-        elif kind=='activity': activity[msg['worker']]=msg
+        elif kind=='activity':
+            activity[msg['worker']]=msg
+            coordinator.afl_contexts[msg['worker'] + ':' + msg['arch']] = msg
         elif kind=='child':
             if msg['active']: child_groups.add(msg['pid'])
             else: child_groups.discard(msg['pid'])
@@ -378,7 +398,9 @@ def main():
             except queue.Empty: pass
             if time.monotonic()-reported>5:
                 status=coordinator.status(activity,processes,start,'running')
-                print(canonical({k:status[k] for k in ('elapsed_seconds','mutations','accepted_by_arch','forms_by_arch','replay_states')}),flush=True)
+                summary = {k:status[k] for k in ('elapsed_seconds','mutations','mutations_per_second','accepted_by_arch','forms_by_arch','replay_states')}
+                summary['afl'] = {k:v for k,v in status['afl'].items() if k != 'contexts'}
+                print(canonical(summary),flush=True)
                 reported=time.monotonic()
             dead=[name for name,child in processes.items() if (child.poll() is not None if isinstance(child,subprocess.Popen) else not child.is_alive())]
             if dead: raise RuntimeError('campaign worker exited unexpectedly: '+','.join(dead))
