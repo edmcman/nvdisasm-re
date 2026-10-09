@@ -4,5 +4,5 @@
 .visible .entry add_s32(.param .s32 a, .param .s32 b, .param .u64 out) {
 .reg .b32 %r<3>; .reg .b64 %rd<1>;
 ld.param.s32 %r0, [a]; ld.param.s32 %r1, [b]; ld.param.u64 %rd0, [out];
-add.s32 %r2, %r0, %r1; st.global.s32 [%rd0], %r2; ret;
+/* BEGIN_INSTRUCTION */ add.s32 %r2, %r0, %r1; /* END_INSTRUCTION */ st.global.s32 [%rd0], %r2; ret;
 }

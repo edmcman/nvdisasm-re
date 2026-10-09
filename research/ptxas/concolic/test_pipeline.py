@@ -3,7 +3,8 @@ import sys
 from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE), str(HERE.parents[2]), str(HERE.parents[2] / 'tests')]
-from corpus import name_key, token_key
+from corpus import instruction_region, name_key, token_key
+import os, subprocess, pytest
 from forms import decode_section, digest
 from semantic_cases import encode
 
@@ -13,6 +14,7 @@ def test_tokens():
     assert token_key(PTX) == token_key(PTX.replace(b', ', b' ,\n\t').replace(b'{', b'{ // note\n /* x */'))
     assert token_key(PTX) != token_key(PTX.replace(b'"a b"', b'"a  b"'))
     assert token_key(PTX) != token_key(PTX.replace(b'%r1, %r2', b'%r1, %r 2'))
+    assert token_key(PTX) == token_key(PTX.replace(b'add.u32 ', b'\x1aadd.u32\x1a\x1a'))
 
 KERNEL = b""".version 8.7
 .target sm_75
@@ -67,4 +69,31 @@ def test_predicates():
 def test_data_constants_and_selectors():
     same((IMM, dict(Rd=1, Ra=2, Sb=5)), (IMM, dict(Rd=1, Ra=2, Sb=0x1234)))
     differ((LOP, dict(Rd=1, Ra=2, Rb=3, imm8=0x96)), (LOP, dict(Rd=1, Ra=2, Rb=3, imm8=0xe8)))
-    differ(('lop3_lut__RuIR_RIR', dict(Rd=1, Ra=2, Sb=5, imm8=0x96)), ('lop3_lut__RuIR_RIR', dict(Rd=1, Ra=2, Sb=6, imm8=0x96)))
+    same(('lop3_lut__RuIR_RIR', dict(Rd=1, Ra=2, Sb=5, imm8=0x96)), ('lop3_lut__RuIR_RIR', dict(Rd=1, Ra=2, Sb=22222, imm8=0x96)))
+    differ(('lop3_lut__RuIR_RIR', dict(Rd=1, Ra=2, Sb=5, imm8=0x96)), ('lop3_lut__RuIR_RIR', dict(Rd=1, Ra=2, Sb=5, imm8=0xfe)))
+    differ(('shf__RRuI_RRI', dict(Rd=1, Ra=2, Rb=3, Sc=5)), ('shf__RRuI_RRI', dict(Rd=1, Ra=2, Rb=3, Sc=6)))  # shift count
+
+
+APP = Path(os.environ.get('PTX_SASS_GEN', '/tmp/ptx-concolic/libafl-target/release/ptx-sass-gen'))
+REGION_CASES = [
+    b'a\n// BEGIN_INSTRUCTION\nadd.u32 %r2, %r0, %r1;\n// END_INSTRUCTION\nb\n',
+    b'ld; /* BEGIN_INSTRUCTION */ add; /* END_INSTRUCTION */ st;',
+    b'x // y /* BEGIN_INSTRUCTION */\nadd;\n/* END_INSTRUCTION */',
+    b'/* BEGIN_INSTRUCTION */ add; // END_INSTRUCTION\n',
+    b'/* END_INSTRUCTION */ add; /* BEGIN_INSTRUCTION */',
+    b'/* BEGIN_INSTRUCTION add; /* END_INSTRUCTION */',
+    b'BEGIN_INSTRUCTION add; END_INSTRUCTION',
+    b'add.u32 %r2, %r0, %r1;',
+]
+
+@pytest.mark.skipif(not APP.exists(), reason='ptx-sass-gen not built')
+def test_region_parsers_agree(tmp_path):
+    """The concolic worker (Python) and the mutators (Rust) must use the same instruction region."""
+    files = [*HERE.parent.glob('*.ptx'), *HERE.glob('*.ptx')]
+    for i, case in enumerate(REGION_CASES):
+        files.append(tmp_path / f'{i}.ptx'); files[-1].write_bytes(case)
+    for f in files:
+        rust = subprocess.run([APP, '--region', f], capture_output=True, text=True, check=True).stdout.split()
+        python = instruction_region(f.read_bytes())
+        assert rust == (['none'] if python is None else [str(python[0]), str(python[1])]), f
+    assert all(instruction_region(f.read_bytes()) for f in [*HERE.parent.glob('*.ptx'), HERE / 'generic_sm75.ptx'])

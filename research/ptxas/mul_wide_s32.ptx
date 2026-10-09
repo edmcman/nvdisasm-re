@@ -4,5 +4,5 @@
 .visible .entry mul_wide_s32(.param .s32 a, .param .s32 b, .param .u64 out) {
 .reg .b32 %r<2>; .reg .b64 %rd<2>;
 ld.param.u32 %r0, [a]; ld.param.u32 %r1, [b]; ld.param.u64 %rd0, [out];
-mul.wide.s32 %rd1, %r0, %r1; st.global.u64 [%rd0], %rd1; ret;
+/* BEGIN_INSTRUCTION */ mul.wide.s32 %rd1, %r0, %r1; /* END_INSTRUCTION */ st.global.u64 [%rd0], %rd1; ret;
 }

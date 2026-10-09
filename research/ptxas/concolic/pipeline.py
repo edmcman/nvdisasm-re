@@ -8,6 +8,7 @@ import multiprocessing as mp
 import os
 from pathlib import Path
 import queue
+import re
 import signal
 import socket
 import sqlite3
@@ -19,9 +20,13 @@ import time
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 sys.path.insert(0, str(REPO))
-from corpus import name_key, sass_key
+from corpus import instruction_region, name_key, sass_key
 from forms import ARCHITECTURES, TARGETS, canonical, decode_cubin, digest
 VERIFIED_COMPILER = 'daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2'
+# Deferred forkserver: first instruction of the input-independent driver call that later
+# fopen()s the PTX file (runs once, single-threaded, nothing touches input/output earlier).
+# Skips ~60% of each native run; 6.5x mutation throughput under QEMU.
+FORKSERVER_ENTRY = '0x4428e0'
 
 SCHEMA = '''
 PRAGMA journal_mode=WAL;
@@ -34,7 +39,7 @@ CREATE TABLE IF NOT EXISTS forms(arch TEXT, hash TEXT, signature TEXT, witness T
 CREATE TABLE IF NOT EXISTS sequences(arch TEXT, hash TEXT, signature TEXT, witness TEXT, PRIMARY KEY(arch,hash));
 CREATE TABLE IF NOT EXISTS replays(cache_key TEXT PRIMARY KEY, state TEXT DEFAULT 'pending',
  owner TEXT, retries INTEGER DEFAULT 0, diagnostics TEXT);
-CREATE TABLE IF NOT EXISTS concolic(key TEXT PRIMARY KEY, cache_key TEXT, state TEXT DEFAULT 'pending',
+CREATE TABLE IF NOT EXISTS concolic(cache_key TEXT PRIMARY KEY, key TEXT, state TEXT DEFAULT 'pending',
  owner TEXT, retries INTEGER DEFAULT 0, directory TEXT, result TEXT);
 CREATE TABLE IF NOT EXISTS metadata(key TEXT PRIMARY KEY, value TEXT);
 '''
@@ -94,7 +99,7 @@ def analysis_worker(jobs, events, config, stop):
         events.put(result)
 
 def concolic_worker(jobs, events, config, stop, index):
-    # Independently bounded, whole-file symbolic compiler execution.
+    # Independently bounded symbolic compiler execution; only the instruction region is symbolic.
     while not stop.is_set():
         try: job = jobs.get(timeout=.2)
         except queue.Empty: continue
@@ -102,21 +107,28 @@ def concolic_worker(jobs, events, config, stop, index):
         source = directory / 'input.ptx'; source.write_bytes(Path(job['source']).read_bytes())
         generated = directory / 'generated'; generated.mkdir(exist_ok=True)
         env = os.environ.copy()
-        for name in ('PTX_OPCODE_DOMAIN','PTX_SYMBOLIC_BEGIN','PTX_SYMBOLIC_END','PTX_SYMBOLIC_SCOPE',
+        for name in ('PTX_OPCODE_DOMAIN','PTX_SYMBOLIC_SCOPE',
                      'SYMCC_NO_SYMBOLIC_INPUT','SYMCC_MEMORY_INPUT','AFL_CUSTOM_MUTATOR_LIBRARY',
                      'AFL_CUSTOM_MUTATOR_ONLY'):
             env.pop(name, None)
-        env.update(SYMCC_INPUT_FILE=str(source), SYMCC_OUTPUT_DIR=str(generated))
+        begin, end = instruction_region(source.read_bytes())
+        env.update(SYMCC_INPUT_FILE=str(source), SYMCC_OUTPUT_DIR=str(generated),
+                   PTX_SYMBOLIC_BEGIN=str(begin), PTX_SYMBOLIC_END=str(end))
         result = bounded([config['symqemu'], config['ptxas'], '-arch=' + job['target'],
                           '-o', '/dev/null', str(source)], directory / 'solver.log', 30, stop, events, env)
-        # Enumerate completed solver output once per execution; never poll directories
-        # to communicate between generators or run native validation here.
-        count = 0
-        for path in sorted(generated.iterdir()):
-            if path.is_file():
-                events.put(dict(kind='candidate', origin=f'concolic:{index}:{job["key"]}', data=path.read_bytes()))
-                count += 1
-        result.update(kind='concolic_done', key=job['key'], candidates=count)
+        # Enumerate completed solver output once per execution; never poll directories to
+        # communicate between generators. Most outputs take a lexer error branch, so only those
+        # ptxas accepts for the job's target are submitted.
+        outputs = [path for path in sorted(generated.iterdir()) if path.is_file()]
+        accepted = 0
+        for path in outputs:
+            if stop.is_set(): break
+            check = bounded([config['ptxas'], '-arch=' + job['target'], '-o', '/dev/null', str(path)],
+                            directory / 'check.log', 3, stop, events)
+            if check['rc'] == 0:
+                events.put(dict(kind='candidate', origin=f'concolic:{index}:{job["arch"]}:{job["key"]}', data=path.read_bytes()))
+                accepted += 1
+        result.update(kind='concolic_done', cache_key=job['cache_key'], generated=len(outputs), candidates=accepted)
         write_json(directory / 'result.json', result); events.put(result)
 
 def replay_worker(jobs, events, config, stop):
@@ -154,7 +166,9 @@ def recover(db):
 class Coordinator:
     def __init__(self, root, db, config):
         self.root,self.db,self.config = root,db,config
-        self.duplicates = 0; self.received = 0; self.cache_hits = 0
+        self.duplicates = 0; self.received = 0; self.cache_hits = 0; self.concolic_turn = 0
+        # Newest target: it accepts the most instructions, so its rejections are mostly target-independent.
+        self.probe = config['architectures'][-1]
 
     def candidate(self, data, origin):
         data = bytes(data)
@@ -167,12 +181,14 @@ class Coordinator:
         else:
             path = self.root/'sources'/f'{key}.ptx'; path.write_bytes(data)
             self.db.execute('INSERT INTO candidates VALUES(?,?,?)',(key,str(path),time.time()))
+        # Only the probe target is compiled at first; see compiled() for the others.
         for arch in self.config['architectures']:
             ck = digest([self.config['compiler'],['-arch='+TARGETS[arch]],arch,key])
             directory = self.root/'cases'/ck
             changed = self.db.execute('INSERT OR IGNORE INTO compilations '
-                '(cache_key,key,arch,target,compiler,options,directory) VALUES(?,?,?,?,?,?,?)',
-                (ck,key,arch,TARGETS[arch],self.config['compiler'],canonical(['-arch='+TARGETS[arch]]),str(directory))).rowcount
+                '(cache_key,key,arch,target,compiler,options,directory,state) VALUES(?,?,?,?,?,?,?,?)',
+                (ck,key,arch,TARGETS[arch],self.config['compiler'],canonical(['-arch='+TARGETS[arch]]),str(directory),
+                 'pending' if arch == self.probe else 'waiting')).rowcount
             self.cache_hits += not changed
         self.db.commit()
 
@@ -185,13 +201,16 @@ class Coordinator:
                "FROM replays r JOIN compilations c USING(cache_key) JOIN candidates s USING(key) "
                "WHERE r.state='pending' ORDER BY s.first_seen,c.arch LIMIT 1").fetchone()
         else:
-            row = self.db.execute("SELECT c.cache_key,c.key,c.arch,c.target,l.directory,s.source "
-               "FROM concolic l JOIN compilations c USING(cache_key) JOIN candidates s USING(key) "
-               "WHERE l.state='pending' ORDER BY s.first_seen LIMIT 1").fetchone()
+            # Concolic jobs rotate through the architectures, oldest kernel first within each.
+            arches = self.config['architectures']; row = None
+            for i in range(len(arches)):
+                arch = arches[(self.concolic_turn + i) % len(arches)]
+                row = self.db.execute("SELECT c.cache_key,c.key,c.arch,c.target,l.directory,s.source "
+                   "FROM concolic l JOIN compilations c USING(cache_key) JOIN candidates s ON s.key=c.key "
+                   "WHERE l.state='pending' AND c.arch=? ORDER BY s.first_seen LIMIT 1",(arch,)).fetchone()
+                if row: self.concolic_turn += i + 1; break
         if not row: return None
-        key = row[1] if table == 'concolic' else row[0]
-        column = 'key' if table == 'concolic' else 'cache_key'
-        self.db.execute(f"UPDATE {table} SET state='running',owner=? WHERE {column}=? AND state='pending'",(owner,key))
+        self.db.execute(f"UPDATE {table} SET state='running',owner=? WHERE cache_key=? AND state='pending'",(owner,row[0]))
         self.db.commit()
         return dict(zip(('cache_key','key','arch','target','directory','source'),row))
 
@@ -199,6 +218,15 @@ class Coordinator:
         ck = msg['cache_key']; state = msg['state']
         self.db.execute('UPDATE compilations SET state=?,rc=?,diagnostics=?,encoding=?,decoder_arch=?,owner=NULL WHERE cache_key=?',
              (state,msg['rc'],msg['diagnostics'],msg.get('encoding'),msg.get('elf_arch'),ck))
+        if msg['arch'] == self.probe and state != 'running':
+            # A syntax or semantic rejection that names no target fails everywhere: record it for
+            # the other targets without compiling. Anything else releases them.
+            key = self.db.execute('SELECT key FROM compilations WHERE cache_key=?',(ck,)).fetchone()[0]
+            if state == 'rejected' and not re.search(r'sm_\d|\.target|compute_\d', msg['diagnostics']):
+                self.db.execute("UPDATE compilations SET state='rejected',diagnostics=? WHERE key=? AND state='waiting'",
+                                (f'inferred from {self.probe}: '+msg['diagnostics'],key))
+            else:
+                self.db.execute("UPDATE compilations SET state='pending' WHERE key=? AND state='waiting'",(key,))
         if state == 'decoded':
             new = 0
             for h, form in msg['forms'].items():
@@ -211,8 +239,9 @@ class Coordinator:
             row = self.db.execute('SELECT key,target FROM compilations WHERE cache_key=?',(ck,)).fetchone()
             key,target = row; source = self.db.execute('SELECT source FROM candidates WHERE key=?',(key,)).fetchone()[0]
             publisher.stdin.write(canonical([target,source])+'\n'); publisher.stdin.flush()
-            self.db.execute('INSERT OR IGNORE INTO concolic(key,cache_key,directory) VALUES(?,?,?)',
-                            (key,ck,str(self.root/'concolic'/key)))
+            if instruction_region(Path(source).read_bytes()):
+                self.db.execute('INSERT OR IGNORE INTO concolic(cache_key,key,directory) VALUES(?,?,?)',
+                                (ck,key,str(self.root/'concolic'/ck)))
         self.db.commit()
 
     def status(self, activity, processes, start, phase):
@@ -254,7 +283,6 @@ def main():
     p.add_argument('--seed',type=Path,action='append')
     p.add_argument('--architectures',default=','.join(ARCHITECTURES))
     p.add_argument('--dictionary',type=Path,action='append')
-    p.add_argument('--cmplog',action='store_true',help='RedQueen on each new corpus entry (halves mutation throughput)')
     p.add_argument('--resume',action='store_true')
     p.add_argument('--tools',type=Path,default=Path('/tmp/ptx-concolic'))
     p.add_argument('--ptxas',type=Path,default=Path('/usr/local/cuda-13.0/bin/ptxas'))
@@ -263,7 +291,7 @@ def main():
     if args.n<1 or args.m<0 or args.duration<1 or not arches or any(a not in TARGETS for a in arches): p.error('invalid workers, duration or architectures')
     root=args.output.resolve(); tools=args.tools.resolve(); application=str(args.application.resolve())
     compiler=args.ptxas.resolve()
-    config=dict(candidate_key='name_key-1',ptxas=str(compiler),compiler=hashlib.sha256(compiler.read_bytes()).hexdigest(),architectures=arches,
+    config=dict(candidate_key='name_key-2',mutation_input='ptx-region-1',concolic_jobs='per-arch-1',compile_probe='newest-1',ptxas=str(compiler),compiler=hashlib.sha256(compiler.read_bytes()).hexdigest(),architectures=arches,
                 qemu=str(tools/'AFLplusplus/afl-qemu-trace'),symqemu=str(tools/'symqemu/build/symqemu-x86_64'))
     version=subprocess.check_output([str(compiler),'--version']).decode()
     if config['compiler'] != VERIFIED_COMPILER: p.error('IR logger addresses require verified CUDA 13.0.88 compiler hash')
@@ -312,12 +340,12 @@ def main():
     for i in range(args.m):
         name=f'concolic{i}'; jobs=ctx.Queue(); queues[name]=jobs
         child=ctx.Process(target=concolic_worker,args=(jobs,events,config,stop,i)); child.start(); processes[name]=child
-    env=os.environ.copy()
+    env=dict(os.environ,AFL_ENTRYPOINT=FORKSERVER_ENTRY)
     for key in ('AFL_CUSTOM_MUTATOR_LIBRARY','AFL_CUSTOM_MUTATOR_ONLY','PTX_OPCODE_DOMAIN','PTX_SYMBOLIC_BEGIN','PTX_SYMBOLIC_END'):
         env.pop(key,None)
     for i in range(args.n):
         launch(f'mutation{i}',[application,'--worker',str(root),str(i),str(port),config['qemu'],config['ptxas'],
-               ','.join(str(d.resolve()) for d in dictionaries),','.join(TARGETS[a] for a in arches),str(int(args.cmplog))],stdout=subprocess.DEVNULL,env=env)
+               ','.join(str(d.resolve()) for d in dictionaries),','.join(TARGETS[a] for a in arches)],stdout=subprocess.DEVNULL,env=env)
     # Replay previously accepted cases through LLMP on resume; no directory polling.
     for target,source in db.execute("SELECT DISTINCT c.target,s.source FROM compilations c JOIN candidates s USING(key) WHERE c.state='decoded'"):
         publisher.stdin.write(canonical([target,source])+'\n')
@@ -339,9 +367,9 @@ def main():
                        (msg['state'],msg['diagnostics'],msg['cache_key'])); db.commit(); busy.pop('replay',None)
         elif kind=='concolic_done':
             state='running' if msg['interrupted'] else 'completed'
-            db.execute('UPDATE concolic SET state=?,result=? WHERE key=?',(state,canonical(msg),msg['key'])); db.commit()
+            db.execute('UPDATE concolic SET state=?,result=? WHERE cache_key=?',(state,canonical(msg),msg['cache_key'])); db.commit()
             for name,job in list(busy.items()):
-                if name.startswith('concolic') and job['key']==msg['key']: del busy[name]
+                if name.startswith('concolic') and job['cache_key']==msg['cache_key']: del busy[name]
     try:
         while not stop.is_set() and time.monotonic()-start<args.duration:
             for name,jobs in queues.items():
@@ -382,8 +410,7 @@ def main():
         # Running leases remain running and are recovered once on next invocation.
         for name,job in busy.items():
             table='compilations' if name.startswith('analysis') else 'concolic' if name.startswith('concolic') else 'replays'
-            column='key' if table=='concolic' else 'cache_key'
-            db.execute(f"UPDATE {table} SET state='running' WHERE {column}=? AND state='pending'",(job[column],))
+            db.execute(f"UPDATE {table} SET state='running' WHERE cache_key=? AND state='pending'",(job['cache_key'],))
         db.commit()
         status=coordinator.status(activity,processes,start,'stopped')
         print(canonical(status),flush=True)

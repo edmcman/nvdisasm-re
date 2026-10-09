@@ -5,6 +5,6 @@
 .reg .b32 %r<4>; .reg .b64 %rd<3>;
 ld.param.u32 %r0, [a]; ld.param.u32 %r1, [b];
 ld.param.u64 %rd1, [c]; ld.param.u64 %rd0, [out];
-mad.wide.u32 %rd2, %r0, %r1, %rd1;
+/* BEGIN_INSTRUCTION */ mad.wide.u32 %rd2, %r0, %r1, %rd1; /* END_INSTRUCTION */
 st.global.u64 [%rd0], %rd2; ret;
 }

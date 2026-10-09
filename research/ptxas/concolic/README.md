@@ -15,29 +15,53 @@ python3 research/ptxas/concolic/run.py --output /tmp/ptx-concolic/run-01 --durat
 `run.py` builds and runs `libafl/` (`ptx-sass-gen`). Options:
 `--n 8` mutation workers, `--m 1` concolic workers, `--duration` seconds,
 `--seed FILE` (repeatable; default `generic_sm75.ptx` plus `../*.ptx`),
-`--architectures SM75,...`, `--dictionary FILE` (repeatable; default `ptx.dict`),
-`--cmplog`, `--resume`. Build prerequisites are listed in `build.sh`; `afl-qemu-trace`,
-SymQEMU and LibAFL (rev `70259b66`, `libafl/Cargo.lock`) are pinned.
+`--architectures SM75,...`, `--dictionary FILE` (repeatable; default `ptx.dict`), `--resume`.
+Build prerequisites are listed in `build.sh`; `afl-qemu-trace`, SymQEMU and LibAFL
+(rev `70259b66`, `libafl/Cargo.lock`) are pinned.
+
+## Seeds and the instruction region
+
+Only the bytes between the `BEGIN_INSTRUCTION` and `END_INSTRUCTION` comments (line `//` or
+inline `/* */`) are mutated or symbolic; the rest of the file is fixed. `libafl/src/input.rs`
+(`PtxInput`, used by every byte mutator) and `corpus.instruction_region` (concolic) implement
+the same rule, checked by `test_region_parsers_agree`. `generic_sm75.ptx` declares registers
+of every width, defines a few inputs from special registers (`%tid.x`, `%tid.y`, `%ctaid.x`,
+`%clock64`, `%globaltimer`: opaque, so never folded into the instruction) and stores `%r2`
+so a result is not deleted as dead code. Its SASS is 4-5 instructions on every target.
+Uniform special registers (`%ctaid.x`, `%clock64`) give uniform-operand forms.
 
 ## Architecture
 
 - **Mutation workers** (Rust, `libafl/src/main.rs`): LibAFL forkserver over
-  `afl-qemu-trace ptxas`, edge-coverage feedback, havoc + dictionary mutations. Each
-  rotates through the architecture targets every 60 s with a separate saved
-  state per target. ptxas writes its `-o` file only on success; an observer submits every
-  input that left one behind, including inputs run inside other stages.
-- **Concolic workers**: SymQEMU over native ptxas, whole file symbolic, 30 s per run.
-  Solver outputs are submitted unvalidated.
+  `afl-qemu-trace ptxas`, deferred to `0x4428e0` (`FORKSERVER_ENTRY`; skips ptxas's
+  input-independent startup, 6.5x throughput). Per entry: trim on first scheduling
+  (LibAFL's `StdTMinMutationalStage`), calibration, then power-scheduled havoc + dictionary
+  tokens with AFL++'s stack depth; scheduling is AFL++'s (favored minimal entries per edge,
+  `explore` schedule). Each worker rotates through the targets every 60 s with a saved state per
+  target. ptxas writes its `-o` file only on success: an observer submits every input that
+  left one and marks its facts in feature slots past qemu's edges (`features.rs`: PTX
+  mnemonic, opcode, modifiers, operand shape, and SASS opcodes; compiling files only), so a
+  new opcode counts like a new edge.
+- **LibAFL workarounds** (rev `70259b66`): the minimizer records a trimmed entry as its own
+  parent (a `ClosureStage` clears it), retries skipped mutations without counting them
+  (`Counted` wrapper), and needs every entry's edge indexes (`non_metadata_removing` scheduler).
+  LibAFL has no AFL deterministic stage, and its RedQueen cannot rebuild a region-only input,
+  so neither is used.
+- **Concolic workers**: SymQEMU over native ptxas with only the region symbolic, 30 s per run.
+  One job per decoded (kernel, target); dispatch rotates through the targets. Outputs are
+  compiled once for the job's target and only accepted ones are submitted.
 - **Coordinator** (`pipeline.py`): candidates arrive on a Unix socket; dedup, SQLite
-  catalogue, compilation cache, leases. Accepted cases are broadcast to the mutation workers over
-  LibAFL LLMP. Two analysis workers compile for every target and decode with the
-  repository md decoder (`forms.py`); one replay worker captures PTX IR, COP DAG and ORI
-  through the GDB loggers for cases with a new form or sequence.
-- **Identity**: candidates are keyed by `corpus.name_key`, which ignores whitespace,
-  comments and consistent renaming of names the file binds (declarations, labels,
-  register families), but keeps opcodes, modifiers, strings, `.target` and any bound name
-  also used as a mnemonic. SASS forms (`forms.signature`) abstract register numbering,
-  labels and recognized data immediates; LOP3 tables, shift counts and unknown literals stay literal.
+  catalogue, compilation cache, leases. A candidate is compiled for the newest target first;
+  a rejection naming no target is recorded for the others without compiling them. Accepted
+  cases are broadcast to the mutation workers over LibAFL LLMP. Two analysis workers compile
+  and decode with the repository md decoder (`forms.py`); one replay worker captures PTX IR,
+  COP DAG and ORI through the GDB loggers for cases with a new form or sequence.
+- **Identity**: candidates are keyed by `corpus.name_key`, which ignores whitespace (ptxas
+  also skips `\x1a`), comments and consistent renaming of names the file binds (declarations,
+  labels, register families), but keeps opcodes, modifiers, literals, strings, `.target` and
+  any bound name also used as a mnemonic. SASS forms (`forms.signature`) abstract register
+  numbering, labels and recognized data immediates (including LOP3's operand); LOP3 truth
+  tables, shift counts and unknown literals stay literal.
 - **SM101** is compiled as `sm_110` (CUDA 13 rename) and decoded with the SM101 md; the
   ELF reports `SM110`. Checked against nvdisasm 13.4 on the generic seed.
 
@@ -46,51 +70,55 @@ SymQEMU and LibAFL (rev `70259b66`, `libafl/Cargo.lock`) are pinned.
 `catalogue.sqlite` (candidates, observations, compilations, forms, sequences, replays,
 concolic leases), `catalogue.jsonl` (exported validated forms), `status.json`,
 `sources/<key>.ptx` (first spelling), `cases/<cache key>/` (cubin, `sass.txt`,
-`normalized.json`, `ir/`), `concolic/<key>/`, `mutation/<worker>/<target>.state`, `logs/`.
+`normalized.json`, `ir/`), `concolic/<cache key>/`, `mutation/<worker>/{<target>.state,queue/<target>/}`, `logs/`.
 Stopping (SIGINT/SIGTERM or deadline) checkpoints workers and kills child process groups;
 `--resume` retries interrupted leases once. The PTX IR logger and the COP/ORI loggers are specific to
 CUDA 13.0.88 (checked by hash).
 
 ## Findings
 
-- **Byte mutation rarely yields valid PTX.** Without CmpLog, 17,068 mutations over 2
-  minutes produced 1 compiling file. Mutating only a valid seed, about 1 in 200–400 compiles
-  regardless of havoc stack depth. Coverage feedback also fills the queue with
-  rejected inputs, since parse errors produce new coverage.
+- **What made mutation work.** Whole-file byte havoc almost never yields valid PTX (17,068
+  executions, 1 compiling file), and coverage feedback fills the queue with parse errors. Plain
+  AFL++ did better through `trim` and deterministic bit flips but found no new instructions.
+  Restricting mutation to the instruction region, a minimal scaffold, AFL++ scheduling, the
+  deferred forkserver and PTX/SASS feature slots together give, in 3 minutes on 8 workers
+  (all nine targets): ~110,000 executions, 115 distinct compiling kernels, 294 new forms.
+- **Fuzzing vs concolic** (same run, 8 + 8 workers): concolic ran 148 jobs, 22,071 outputs,
+  1,103 valid (5%), but only 2 distinct new kernels (`or`/`xor` with 0) and no new forms.
+  SymQEMU flips one branch per output; in the lexer most flips take an error path, and the
+  valid ones are mostly cosmetic. Concolic is worth at most one worker.
+- **The dictionary bounds the vocabulary.** New instructions are the whole statements in
+  `ptx.dict` (`add`, `sub`, `mul.lo`, `and`, `or`, `xor`, `shl`, `mov`, `setp`, `selp`),
+  recombined with other operands, immediates, aliasing and types. A larger list of whole
+  statements is the direct way to reach more opcodes.
 - **ptxas lexes with flex and parses with bison** (`fatal flex scanner internal error`). Opcodes
   and target names are identifiers looked up with `strcmp` in a hash table, so only
   bucket-mates are compared: `add` vs `cctl`, `fns`, `_mma`, `vmax2`; `st` vs nothing.
-  Types and modifiers (`.u32`, `.global`) are matched by the flex DFA, never compared.
-- **CmpLog** (`--cmplog`; qemuafl logs the first two pointer arguments of every call) raised
-  compiling mutants from ~0 to ~4.5% on the generic seed. They were
-  almost all renamed identifiers and whitespace: no new instructions or forms. It halves mutation throughput, so it is off by default. RedQueen runs on an entry's
-  first scheduling; LibAFL's example waits for the second, which short campaigns never reach.
-- **Concolic** produced all new forms so far (e.g. SM100 `UIADD3`/`UIADD3.X` uniform carry,
-  `FADD`/`IMAD`/`MOV` constant-bank variants). Each run submits hundreds of candidates at
-  once, ×9 targets, which outpaces two analysis workers; the backlog persists for `--resume`.
-- Seeds with `.target sm_100` are incompatible in sm_75–sm_90 contexts, so workers there
-  have only the generic seed as a valid parent.
-- `dict/harvest.py` builds `ptx-strcmp.dict` (815 tokens: opcodes, special registers,
-  targets, options) from the operands of ptxas `strcmp` calls (LD_PRELOAD `strcmp_log.c`)
-  over all seeds and targets. It is not a default: in an A/B (generic seed only, 4 workers,
-  no concolic, no CmpLog, 3 min, 2 runs per arm, ~9,800 executions each) both arms found
-  0–2 compiling non-seed mutants, all degenerate (kernel deleted, or `.version` and a
-  mangled `.target` only). Havoc places tokens at arbitrary byte offsets, so an opcode
-  rarely lands in an opcode position with a compatible operand list.
+  Types and modifiers (`.u32`, `.global`) are matched by the flex DFA. CmpLog (removed)
+  therefore offered few opcode swaps; it raised compiling mutants to ~4.5% before region
+  restriction, almost all renames.
+- **Scaffold side effects.** ptxas optimizes the whole kernel, so inputs derived from
+  parameters, unused `.local`/`.shared` arrays and extra stores change their own lowering
+  with every region edit; most "new" forms from such a scaffold were scaffold artifacts.
+  Uninitialized inputs all lower to one register (`IADD3 R3, R0, R0`).
+- `dict/harvest.py` builds `ptx-strcmp.dict` (815 tokens) from the operands of ptxas `strcmp`
+  calls (LD_PRELOAD `strcmp_log.c`). It showed no benefit in an A/B under whole-file
+  mutation (both arms 0-2 degenerate mutants) and is not a default.
 
-Baseline (blocking AFL++ + SymQEMU custom mutator, SM100 only,
-`/tmp/ptx-concolic/hour-01`): 559 executions in 390 s, 33 queue entries. Two-minute LibAFL
-validation (8 + 1 workers, all targets, before CmpLog): 17,068 mutations (141/s), 146 forms,
-28 IR replays captured; resume preserved the catalogue.
+Baseline (blocking AFL++ + SymQEMU custom mutator, SM100 only, `/tmp/ptx-concolic/hour-01`):
+559 executions in 390 s, 33 queue entries.
 
 ## Tests
 
 ```sh
 uv run --with pytest python -m pytest research/ptxas/concolic
+cargo test --release --manifest-path research/ptxas/concolic/libafl/Cargo.toml
 ```
 
-Covers candidate keys (whitespace, strings, token boundaries, binding renames, mnemonic
-safety) and form normalization (register renaming, aliasing, RZ, predicates, data
+Rust tests cover marker parsing, scaffold invariance under 1,000 havoc mutations, and PTX/SASS facts.
+
+Covers candidate keys (whitespace, `\x1a`, strings, token boundaries, binding renames, mnemonic
+safety), Rust/Python region agreement, and form normalization (register renaming, aliasing, RZ, predicates, data
 immediates, LOP3 tables, unknown literals) on SM89 words built with `tests/semantic_cases.encode`.
 
 ## Historical

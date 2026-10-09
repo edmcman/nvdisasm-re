@@ -4,11 +4,12 @@ import json
 import re
 import struct
 
-# Preserve quoted strings and token boundaries; omit comments and whitespace.
+# Preserve quoted strings and token boundaries; omit comments and whitespace (ptxas also
+# skips \x1a, ASCII SUB, as a separator).
 # Never rewrite the source passed to ptxas or SymQEMU.
 TOKEN = re.compile(
     rb'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|'
-    rb'//[^\r\n]*|/\*[\s\S]*?\*/|\s+|'
+    rb'//[^\r\n]*|/\*[\s\S]*?\*/|[\s\x1a]+|'
     rb'\.?[A-Za-z_$%][A-Za-z0-9_$%]*|'
     rb'0[xXfFdD][0-9A-Fa-f]+|\d+(?:\.\d*)?(?:[eE][+-]?\d+)?|'
     rb'\.\d+(?:[eE][+-]?\d+)?|[\s\S]'
@@ -20,7 +21,7 @@ NAME = re.compile(rb"[A-Za-z_$%][A-Za-z0-9_$%]*\Z")
 
 def tokens(data):
     return [m.group() for m in TOKEN.finditer(data)
-            if not m.group().isspace() and not m.group().startswith((b"//", b"/*"))]
+            if m.group().strip(b" \t\r\n\v\f\x1a") and not m.group().startswith((b"//", b"/*"))]
 
 
 def digest(tokens):
@@ -55,6 +56,27 @@ def name_key(data):
         if family: return names.setdefault(family, b"\0%d" % len(names)) + tok[len(family):]
         return names.setdefault(tok, b"\0%d" % len(names)) if tok in bound else tok
     return digest([rename(tok) for tok in t])
+
+
+def comment(data, marker):
+    """Span of the single-line // or /* */ comment containing marker."""
+    at = data.find(marker)
+    if at < 0: return None
+    line = data.rfind(b"\n", 0, at) + 1
+    block, slash = data.rfind(b"/*", line, at), data.rfind(b"//", line, at)
+    if block > slash:
+        close = data.find(b"*/", at)
+        return None if close < 0 else (block, close + 2)
+    if slash >= 0:
+        newline = data.find(b"\n", at)
+        return slash, len(data) if newline < 0 else newline + 1
+    return None
+
+
+def instruction_region(data):
+    """[begin, end) between the BEGIN_INSTRUCTION and END_INSTRUCTION comments, as libafl/src/input.rs."""
+    begin, end = comment(data, b"BEGIN_INSTRUCTION"), comment(data, b"END_INSTRUCTION")
+    return (begin[1], end[0]) if begin and end and begin[1] <= end[0] else None
 
 
 def sass_key(cubin):

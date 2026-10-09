@@ -11,7 +11,8 @@ ARCHITECTURES = ('SM75','SM80','SM86','SM89','SM90','SM100','SM101','SM103','SM1
 TARGETS = {a: 'sm_' + ('110' if a == 'SM101' else a[2:]) for a in ARCHITECTURES}
 # Only established arithmetic data operands are abstracted. Shift counts, LUTs,
 # address literals and unknown conventions stay literal.
-DATA_OPS = {'MOV','UMOV','MOV64I','MOV64IUR','IADD','IADD3','UIADD3','IMAD','UIMAD',
+# LOP3's Sb is a data immediate; its truth table (imm8) is not in DATA_NAMES and stays literal.
+DATA_OPS = {'MOV','UMOV','MOV64I','MOV64IUR','IADD','IADD3','UIADD3','IMAD','UIMAD','LOP3','ULOP3',
             'FADD','FMUL','FFMA','DADD','DMUL','DFMA','HADD2','HFMA2','FSEL','FMNMX'}
 DATA_NAMES = {'Sa','Sb','Sc','sImm','uImm','fImm','dImm','imm','imm32','imm64',
               'fImmH0','fImmH1','SbH0','SbH1','ScH0','ScH1'}
