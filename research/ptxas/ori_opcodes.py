@@ -143,26 +143,24 @@ def ops(text):
     return out
 
 
-def main(outdir):
+def run_corpus(outdir, jobs, bases):
+    """jobs: name -> (body, ptx, base key); bases: base key -> ptx. Writes ori_opcodes.json/.md."""
     outdir = Path(outdir)
-    jobs = {name: (dt, srcs, spec_body(name, dt, srcs)) for name, dt, srcs in SPECS}
-    jobs.update(BODIES)
-    sigs = {(dt, tuple(srcs)) for dt, srcs, _ in jobs.values()}
-    tasks = {('base', s): kernel(s[0], list(s[1]), '') for s in sigs}
-    tasks.update({('insn', n): kernel(dt, srcs, body) for n, (dt, srcs, body) in jobs.items()})
+    tasks = {('base', k): ptx for k, ptx in bases.items()}
+    tasks.update({('insn', n): ptx for n, (_, ptx, _) in jobs.items()})
 
     def go(item):
         key, ptx = item
-        work = outdir / 'work' / re.sub(r'[^\w.+-]', '_', '_'.join(map(str, key)))
+        work = outdir / 'work' / re.sub(r'[^\w.+-]', '_', '_'.join(map(str, key)))[:150]
         work.mkdir(parents=True, exist_ok=True)
         return key, ori(ptx, work)
 
     with ThreadPoolExecutor(int(os.environ.get('JOBS', '16'))) as pool:
         results = dict(pool.map(go, tasks.items()))
     table = {}
-    for name, (dt, srcs, body) in jobs.items():
+    for name, (body, _, base) in jobs.items():
         text, err = results[('insn', name)]
-        ref = collections.Counter(o[:4] for o in ops(results[('base', (dt, tuple(srcs)))][0]))
+        ref = collections.Counter(o[:4] for o in ops(results[('base', base)][0]))
         extra = []
         for o in ops(text):
             if ref[o[:4]]: ref[o[:4]] -= 1
@@ -177,6 +175,14 @@ def main(outdir):
     (outdir / 'ori_opcodes.md').write_text('\n'.join(lines) + '\n')
     print(f'{len(table)} instructions, {len(byop)} distinct ORI opcodes; '
           f'{sum(bool(r["errors"]) for r in table.values())} with compile errors')
+    return table
+
+
+def main(outdir):
+    jobs = {name: (dt, srcs, spec_body(name, dt, srcs)) for name, dt, srcs in SPECS}
+    jobs.update(BODIES)
+    run_corpus(outdir, {n: (body, kernel(dt, srcs, body), (dt, tuple(srcs))) for n, (dt, srcs, body) in jobs.items()},
+               {(dt, tuple(srcs)): kernel(dt, srcs, '') for dt, srcs, _ in jobs.values()})
 
 
 if __name__ == '__main__':

@@ -492,8 +492,13 @@ walks the IR:
   4 label, 5 constant, 6 immediate, 7 absent/discard), low 24 bits = id;
   modifier word: 0x80000000 negate, 0x20000000 complement, 0x0100000N memory
   in space N (2 param, 3 global), 0x02040000/0x04000000 appear on pair halves;
-- vreg descriptor `*(ctx+0x58)[id]`: class +0x40 (2 UP, 3 UR, 6 R; checked
-  against final SASS), physical register +0x44 (-1 before allocation).
+- vreg descriptor `*(ctx+0x58)[id]`: class +0x40 (2 UP, 3 UR, 5 P, 6 R,
+  9 fixed system values whose number is their own id; checked against final
+  SASS), physical register +0x44 (-1 before allocation);
+- type +0x4c: 1 none, 6 f32 (also any 32-bit constant-bank load), 7 f16,
+  9 s64, 10 u64/b64, 11 s32 (also sign-agnostic 32-bit add/mul.lo/mad.lo),
+  12 u32/b32, 19 f64, 20 pred, 26 condition code, 31 bf16; 28 seen only on
+  multimem f16x2. The printer shows these names (`ORI_RAW=1` keeps tN).
 
 **Opcode names in bulk.** `research/ptxas/ori_opcodes.py OUT` compiles 146
 single-instruction kernels (one PTX instruction between typed parameter loads
@@ -508,6 +513,27 @@ predicate instead. div/rem/rcp/sqrt/ex2/lg2 are already expanded (25-440 ops)
 when the first phase runs; opcodes seen only there (0x5d, 0xa4, 0xa8, 0xb4,
 0x9f, 0x6f, ...) remain unnamed, as do structural ops 0x48, 0x61 (label),
 0x34, 0x36, 0xbc.
+
+**Registry-driven corpus.** `research/ptxas/ori_table_corpus.py TSV OUT` builds
+kernels from ptxas's PTX instruction registry (`instruction_table.tsv`, 1,410
+forms of 268 PTX opcodes, from GrigoryEvko/crucible-notes): every register
+operand is loaded and stored, missing modifiers are found by trial compile.
+368 forms (127 PTX names) compile; the run confirmed all earlier names and
+added 20, for 79 in `ori_opnames.json`. That registry's `index` is a third
+numbering (PTX parser IDs, e.g. add 0x30, mov 0x6e), and no static array maps
+it to ORI opcodes.
+
+**libnvptxcompiler_static.a** (same CUDA 13.0 install) has hashed symbol names
+(`libnvptxcompiler_static_<sha1>`) but each of its 392 members keeps its source
+file (STT_FILE): 128 `ori_*.cpp` (per architecture, `ori_mercury_converter_sm*`,
+`ori_expand`, `ori_knobs`, `ori_display`), `cop_*` (DAG front end), `mercury_*`,
+`finalizer_*`, `elfw_*`, `ptx_parser.c`, ... The executable keeps only two
+source names. `ori_display.cpp` holds only small inline stubs and a vfprintf
+wrapper (no ORI printer). The library also contains the old COP/DAG IR printer
+(`<<< UNKNOWN DAG_OP=%s >>>`, ARB-style opcodes), absent from the executable.
+Byte matching library functions to the executable fails (0 of ~58,000): the
+library uses frame pointers and PIC, so a function-to-source map needs
+structural matching (e.g. Ghidra BSim / Version Tracking).
 
 **No ORI name table.** The release binary has no string table indexed by ORI
 opcode. SASS-level name tables exist: the static 773-entry table at

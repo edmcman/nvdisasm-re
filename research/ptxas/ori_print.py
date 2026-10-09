@@ -9,7 +9,7 @@ are compiled out), so this walks the IR from the phase dispatch loop instead.
 
 ORI_PHASES: comma-separated phase names, 'all', or 'list' (print phase order only).
 ORI_WHEN: before | after | both (default both).
-ORI_RAW: print every opcode as op_<hex>.
+ORI_RAW: print every opcode as op_<hex> and every type as tN (used by ori_opcodes.py).
 """
 import json
 import os
@@ -23,7 +23,12 @@ EXEC_RET = 0xC6508F
 # 0x0100000N memory in space N.
 KIND = {1: '%', 2: 'sym', 3: 'k3_', 4: 'lbl', 5: 'const', 6: 'imm', 7: 'none'}
 # Virtual register class (descriptor+0x40) -> physical file, checked against final SASS.
-REGFILE = {2: 'UP', 3: 'UR', 6: 'R'}
+REGFILE = {2: 'UP', 3: 'UR', 5: 'P', 6: 'R', 9: 'SV'}  # SV: fixed system-value vregs (id = own number)
+# Type field (insn+0x4c) from the opcode corpora; 32-bit sign-agnostic ops (add, mul.lo) use s32,
+# and constant-bank loads use f32 for any 32-bit value.
+# 1 (control/void) prints nothing; unlisted codes print as tN.
+TYPE = {} if os.environ.get('ORI_RAW') else {1: '', 6: 'f32', 7: 'f16', 9: 's64', 10: 'u64', 11: 's32', 12: 'u32', 19: 'f64', 20: 'pred',
+        26: 'cc', 31: 'bf16'}
 # Evidence-backed opcode names (ori_opnames.json, produced with ori_opcodes.py).
 OPNAME = {} if os.environ.get('ORI_RAW') else {
     int(op, 16): v['name'] for op, v in json.load(open(os.path.join(os.path.dirname(__file__), 'ori_opnames.json'))).items()}
@@ -69,7 +74,8 @@ def dump(ctx, label):
         uses = [operand(ctx, w, m) for w, m in words if not w >> 31]
         name = OPNAME.get(op & 0xFFFFCFFF, f'op_{op & 0xFFFFCFFF:x}')
         flags = f'/{op & 0x3000:x}' if op & 0x3000 else ''
-        emit(f'  {", ".join(defs) + " = " if defs else ""}{name}{flags}.t{ty} {", ".join(uses)}')
+        tyname = TYPE.get(ty, f't{ty}')
+        emit(f'  {", ".join(defs) + " = " if defs else ""}{name}{flags}{"." + tyname if tyname else ""} {", ".join(uses)}')
         insn = u64(insn + 8)
 
 

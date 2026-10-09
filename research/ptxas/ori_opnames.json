@@ -5,7 +5,7 @@
  },
  "0x4": {
   "name": "add.rnd",
-  "evidence": "add.rz.f32: rounding mode as trailing immediate"
+  "evidence": "add.rz.f32: rounding mode as trailing immediate; add.f32.f16, sub.f32.f16 (mixed precision)"
  },
  "0x5": {
   "name": "add.cp",
@@ -43,6 +43,10 @@
   "name": "bmsk",
   "evidence": "bmsk.clamp.b32"
  },
+ "0x1a": {
+  "name": "trap",
+  "evidence": "trap; brkpt"
+ },
  "0x24": {
   "name": "sel",
   "evidence": "selp.b32; slct.u32.s32; testp.finite.f32"
@@ -51,9 +55,21 @@
   "name": "cos",
   "evidence": "cos.approx.f32"
  },
+ "0x27": {
+  "name": "cp.async.commit",
+  "evidence": "cp.async.commit_group; cp.async.bulk.commit_group"
+ },
+ "0x28": {
+  "name": "cp.async.wait",
+  "evidence": "cp.async.wait_group; cp.async.wait_all; cp.async.bulk.wait_group"
+ },
  "0x33": {
   "name": "dp",
   "evidence": "dp2a.lo.u32.u32; dp4a.u32.u32"
+ },
+ "0x3b": {
+  "name": "ex2.h",
+  "evidence": "ex2.approx.f16; ex2.approx.f16x2; ex2.approx.ftz.bf16x2"
  },
  "0x3c": {
   "name": "cvt.f2f",
@@ -95,17 +111,33 @@
   "name": "mad",
   "evidence": "fma.rn.f32; fma.rn.f64; mad.cc+madc.lo.u32; mad.lo.u32; mad.rn.f32"
  },
+ "0x6f": {
+  "name": "fma.mixed",
+  "evidence": "fma.rn.f32.f16"
+ },
+ "0x70": {
+  "name": "mad.wide",
+  "evidence": "optimizer fusion of mul.wide.u32 + add.u64 -> IMAD.WIDE.U32 R2, R13, 0x4, R2 (saxpy example)"
+ },
  "0x71": {
   "name": "mad24",
   "evidence": "mad24.lo.u32"
+ },
+ "0x72": {
+  "name": "madc.lo",
+  "evidence": "madc.lo.s32; madc.lo.u64"
  },
  "0x73": {
   "name": "mad.hi",
   "evidence": "mad.hi.u32"
  },
+ "0x74": {
+  "name": "mad24.hi",
+  "evidence": "mad24.hi.s32"
+ },
  "0x75": {
-  "name": "madc",
-  "evidence": "mad.cc+madc.lo.u32"
+  "name": "madc.hi",
+  "evidence": "madc.hi.s32; madc.hi.u64 (madc.lo is 0x72)"
  },
  "0x78": {
   "name": "max",
@@ -114,6 +146,10 @@
  "0x79": {
   "name": "max.nan",
   "evidence": "max.NaN.f32"
+ },
+ "0x7a": {
+  "name": "mbarrier.inval",
+  "evidence": "mbarrier.inval.b64"
  },
  "0x7c": {
   "name": "membar",
@@ -151,6 +187,10 @@
   "name": "mul.hi",
   "evidence": "mul.hi.s32; mul.hi.u32; mul.hi.u64"
  },
+ "0x90": {
+  "name": "mul24.hi",
+  "evidence": "mul24.hi.s32"
+ },
  "0x95": {
   "name": "not",
   "evidence": "not.b32; sub.cc+subc.u32"
@@ -175,13 +215,33 @@
   "name": "redux",
   "evidence": "redux.sync.add.u32"
  },
+ "0xbc": {
+  "name": "ret",
+  "evidence": "ret (also the final instruction of every kernel)"
+ },
+ "0xbe": {
+  "name": "exit",
+  "evidence": "guarded early return: @p bra to ret -> @P0 EXIT (saxpy example)"
+ },
+ "0xc3": {
+  "name": "rdsv",
+  "evidence": "system values: S2R SR_TID.X, S2UR SR_CTAID.X, LDC c[0x0][0x360] (%ntid.x), LDC R1 c[0x37c] (stack), LDCU.64 memory descriptor"
+ },
  "0xc4": {
   "name": "sad",
   "evidence": "sad.u32"
  },
+ "0xc7": {
+  "name": "slct",
+  "evidence": "slct.{b32,b64,f32,f64,s32}.{s32,f32}"
+ },
  "0xc9": {
   "name": "setp",
   "evidence": "bra; cnot.b32; set.lt.u32.u32; setp.eq.s64; setp.lt.f32; setp.lt.u32; setp.ltu.f64; testp.finite.f32"
+ },
+ "0xca": {
+  "name": "set.bop",
+  "evidence": "set.lt.and.<dtype>.<stype>"
  },
  "0xd1": {
   "name": "szext",
@@ -211,6 +271,10 @@
   "name": "tanh",
   "evidence": "tanh.approx.f32"
  },
+ "0xf8": {
+  "name": "pmevent",
+  "evidence": "pmevent; pmevent.mask"
+ },
  "0x10e": {
   "name": "hadd2",
   "evidence": "add.rn.bf16x2; add.rn.f16x2"
@@ -227,9 +291,21 @@
   "name": "hfma2",
   "evidence": "fma.rn.f16x2; fma.rn.relu.f16x2"
  },
+ "0x118": {
+  "name": "hmax2",
+  "evidence": "max.f16x2; max.bf16x2"
+ },
+ "0x119": {
+  "name": "hmin2",
+  "evidence": "min.f16x2; min.bf16x2"
+ },
  "0x11b": {
   "name": "vote",
   "evidence": "activemask.b32; vote.sync.ballot.b32"
+ },
+ "0x11d": {
+  "name": "hset2",
+  "evidence": "set[.and].<dtype>.{f16x2,bf16x2}"
  },
  "0x120": {
   "name": "st",
@@ -238,5 +314,17 @@
  "0x122": {
   "name": "xor",
   "evidence": "xor.b32"
+ },
+ "0x127": {
+  "name": "getctarank",
+  "evidence": "getctarank.s32/s64"
+ },
+ "0x128": {
+  "name": "mapa",
+  "evidence": "mapa.s32/s64"
+ },
+ "0x12e": {
+  "name": "barrier.cluster",
+  "evidence": "barrier.cluster.arrive; barrier.cluster.wait"
  }
 }
