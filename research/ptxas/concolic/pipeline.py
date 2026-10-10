@@ -326,7 +326,7 @@ def main():
     p.add_argument('--dictionary',type=Path,action='append')
     p.add_argument('--resume',action='store_true')
     p.add_argument('--no-redqueen',action='store_true',help='disable native CmpLog/colorization RedQueen stages')
-    p.add_argument('--synthetic-opcodes',action='store_true',help='try registry-wide virtual opcode comparisons through RedQueen')
+    p.add_argument('--synthetic-opcodes',action=argparse.BooleanOptionalAction,default=True,help='try registry-wide virtual opcode comparisons through RedQueen (default: enabled)')
     p.add_argument('--tools',type=Path,default=Path(__file__).resolve().parent/'tools')
     p.add_argument('--ptxas',type=Path,default=Path('/usr/local/cuda-13.0/bin/ptxas'))
     args=p.parse_args()
@@ -393,7 +393,7 @@ def main():
         launch(f'mutation{i}',[application,'--worker',str(root),str(i),str(port),config['qemu'],config['ptxas'],
                ','.join(str(d.resolve()) for d in dictionaries),','.join(TARGETS[a] for a in arches),
                *(['--no-redqueen'] if args.no_redqueen else []),
-               *(['--synthetic-opcodes'] if args.synthetic_opcodes else [])],stdout=subprocess.DEVNULL,env=env)
+               '--synthetic-opcodes' if args.synthetic_opcodes else '--no-synthetic-opcodes'],stdout=subprocess.DEVNULL,env=env)
     # Replay previously accepted cases through LLMP on resume; no directory polling.
     for target,source in db.execute("SELECT DISTINCT c.target,s.source FROM compilations c JOIN candidates s USING(key) WHERE c.state='decoded'"):
         publisher.stdin.write(canonical([target,source,None])+'\n')

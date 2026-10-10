@@ -144,7 +144,7 @@ fn worker(args: &[String]) {
     // The coordinator owns the campaign deadline and stops workers with SIGUSR1.
     let root = PathBuf::from(&args[0]); let index = &args[1];
     let redqueen_enabled = !args.iter().any(|arg| arg == "--no-redqueen");
-    let synthetic_opcodes = args.iter().any(|arg| arg == "--synthetic-opcodes");
+    let synthetic_opcodes = !args.iter().any(|arg| arg == "--no-synthetic-opcodes");
     let stopped = || STOP.load(std::sync::atomic::Ordering::Relaxed);
     let mut client = LlmpClient::create_attach_to_tcp(UnixShMemProvider::new().unwrap(), args[2].parse().unwrap()).unwrap();
     let (tx, rx) = mpsc::channel::<serde_json::Value>();

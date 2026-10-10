@@ -184,13 +184,14 @@ the first AFL++ hybrid run.
 
 ## Synthetic opcode comparisons
 
-`--synthetic-opcodes` enables an additional RedQueen stage before native colorization.
+Synthetic opcode comparisons enable an additional RedQueen stage before native colorization
+by default; `--no-synthetic-opcodes` disables it (`--synthetic-opcodes` explicitly enables it).
 It presents virtual string comparisons between instruction-head tokens and the pinned
 compiler's extracted registry, independent of the compiler's selected hash bucket.
 The registry contains 252 names and 150 roots. This first implementation replaces only
 same-length roots; it preserves modifiers, operands, comments and the fixed scaffold.
-Different operand conventions can still make a replacement invalid. The option is off
-by default and works independently of `--no-redqueen`.
+Different operand conventions can still make a replacement invalid. The option works
+independently of `--no-redqueen`.
 
 Virtual comparisons use a separate metadata map and stable sites beyond the QEMU map;
 they do not claim that the compiler executed those comparisons. Candidates run through
