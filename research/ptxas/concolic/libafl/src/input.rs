@@ -34,6 +34,8 @@ impl PtxInput {
     /// [begin, end) of the region in the file; the concolic worker uses the same span.
     pub fn span(&self) -> (usize, usize) { (self.prefix.len(), self.prefix.len() + self.region.len()) }
     pub fn bytes(&self) -> Vec<u8> { [&self.prefix[..], &self.region, &self.suffix].concat() }
+    /// Fixed scaffold bytes (declarations, stores); mutators draw operand names from them.
+    pub fn scaffold(&self) -> Vec<u8> { [&self.prefix[..], &self.suffix].concat() }
     pub fn with_region(&self, region: Vec<u8>) -> Self {
         Self { prefix: self.prefix.clone(), region, suffix: self.suffix.clone() }
     }

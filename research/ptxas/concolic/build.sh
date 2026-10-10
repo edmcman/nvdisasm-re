@@ -39,6 +39,7 @@ export PATH="$tool_dir/venv/bin:$PATH"
 # afl-qemu-trace is the LibAFL forkserver target. The historical AFL++ custom-mutator
 # adapter (afl-symqemu-adapter.patch, custom_mutators/symqemu) is no longer built.
 checkout "$tool_dir/AFLplusplus" https://github.com/AFLplusplus/AFLplusplus.git dbaf11913c1b2702dee5b4d3dcfffd52f1defe50
+apply_once "$tool_dir/AFLplusplus" "$experiment_dir/afl-map-size.patch"
 make -C "$tool_dir/AFLplusplus" -j8 afl-fuzz afl-showmap afl-tmin
 git -C "$tool_dir/AFLplusplus" submodule update --init --depth 1 qemu_mode/qemuafl
 apply_once "$tool_dir/AFLplusplus/qemu_mode/qemuafl" "$experiment_dir/qemu-ijon-quiet.patch"

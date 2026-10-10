@@ -365,7 +365,7 @@ PTX_PREFIX_TRACE=/tmp/prefix.jsonl gdb -q -batch \
 
 ### Parser recognition feedback
 
-`--parser-recognition` adds opt-in coverage at successful registered-opcode lookups
+`--parser-recognition` (default on; `--no-parser-recognition` disables) adds coverage at successful registered-opcode lookups
 and dedicated lexer keyword/type actions. It replaces the broad transition experiment.
 There is no active character-transition hook: the obsolete `--lexer-transitions` option
 is removed, and checkpoints made with it enabled are rejected because the slot meanings

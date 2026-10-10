@@ -21,7 +21,7 @@ import time
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
 sys.path.insert(0, str(REPO))
-from corpus import instruction_region, name_key, sass_key
+from corpus import heads, instruction_region, name_key, sass_key, tokens
 from forms import ARCHITECTURES, TARGETS, canonical, decode_cubin, digest
 VERIFIED_COMPILER = 'daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2'
 # Deferred forkserver: first instruction of the input-independent driver call that later
@@ -86,6 +86,8 @@ def analysis_worker(jobs, events, config, stop):
         if result['interrupted']: result['state'] = 'running'
         elif result['rc'] != 0:
             result['state'] = ('incompatible' if 'higher than default SM version' in result['diagnostics'] else 'rejected')
+        elif not config['sass']:
+            result['state'] = 'accepted'
         else:
             try:
                 data = output.read_bytes(); result['encoding'] = sass_key(data)
@@ -162,6 +164,9 @@ class Coordinator:
     def __init__(self, root, db, config):
         self.root,self.db,self.config = root,db,config
         self.duplicates = 0; self.received = 0; self.cache_hits = 0; self.concolic_turn = 0
+        registry = json.loads((HERE/'opcode_registry.json').read_text())
+        self.opcode_names = set(registry['names']) | set(registry['roots'])
+        self.ptx_opcodes = {}  # arch -> registered opcodes (and roots) in accepted instruction regions
         # Keep the latest snapshot for every worker/target, including inactive targets
         # between rotations and checkpointed corpora from an earlier invocation.
         status_path = root / 'status.json'
@@ -211,6 +216,10 @@ class Coordinator:
             self.cache_hits += not changed
         self.db.commit()
 
+    def note_opcodes(self, arch, data):
+        span = instruction_region(data)
+        if span: self.ptx_opcodes.setdefault(arch,set()).update(h.decode() for h in heads(tokens(data[span[0]:span[1]])) if h.decode() in self.opcode_names)
+
     def job(self, table, owner):
         if table == 'compilations':
             row = self.db.execute("SELECT c.cache_key,c.key,c.arch,c.target,c.directory,s.source "
@@ -246,19 +255,21 @@ class Coordinator:
                                 (f'inferred from {self.probe}: '+msg['diagnostics'],key))
             else:
                 self.db.execute("UPDATE compilations SET state='pending' WHERE key=? AND state='waiting'",(key,))
-        if state == 'decoded':
-            new = 0
-            for h, form in msg['forms'].items():
-                inserted = self.db.execute('INSERT OR IGNORE INTO forms VALUES(?,?,?,?)',
-                          (msg['arch'],h,canonical(form),ck)).rowcount
-                new += inserted
-                self.forms_dirty |= bool(inserted)
-            for sequence in msg['sequences']:
-                new += self.db.execute('INSERT OR IGNORE INTO sequences VALUES(?,?,?,?)',
-                          (msg['arch'],digest(sequence),canonical(sequence),ck)).rowcount
-            if new: self.db.execute('INSERT OR IGNORE INTO replays(cache_key) VALUES(?)',(ck,))
+        if state in ('decoded', 'accepted'):
+            if state == 'decoded':
+                new = 0
+                for h, form in msg['forms'].items():
+                    inserted = self.db.execute('INSERT OR IGNORE INTO forms VALUES(?,?,?,?)',
+                              (msg['arch'],h,canonical(form),ck)).rowcount
+                    new += inserted
+                    self.forms_dirty |= bool(inserted)
+                for sequence in msg['sequences']:
+                    new += self.db.execute('INSERT OR IGNORE INTO sequences VALUES(?,?,?,?)',
+                              (msg['arch'],digest(sequence),canonical(sequence),ck)).rowcount
+                if new: self.db.execute('INSERT OR IGNORE INTO replays(cache_key) VALUES(?)',(ck,))
             row = self.db.execute('SELECT key,target FROM compilations WHERE cache_key=?',(ck,)).fetchone()
             key,target = row; source = self.db.execute('SELECT source FROM candidates WHERE key=?',(key,)).fetchone()[0]
+            self.note_opcodes(msg['arch'], Path(source).read_bytes())
             publisher.stdin.write(canonical([target,source,None])+'\n'); publisher.stdin.flush()
             if instruction_region(Path(source).read_bytes()):
                 self.db.execute('INSERT OR IGNORE INTO concolic(cache_key,key,directory) VALUES(?,?,?)',
@@ -278,7 +289,8 @@ class Coordinator:
            token_duplicates=self.duplicates,cache_hits=self.cache_hits,activity=activity,
            mutations=sum(a['executions'] for a in activity.values()),
            worker_exit_codes={name:p.poll() if isinstance(p,subprocess.Popen) else p.exitcode for name,p in processes.items()},
-           accepted_by_arch=dict(self.db.execute("SELECT arch,count(*) FROM compilations WHERE state='decoded' GROUP BY arch")),
+           accepted_by_arch=dict(self.db.execute("SELECT arch,count(*) FROM compilations WHERE state IN ('decoded','accepted') GROUP BY arch")),
+           ptx_opcodes_by_arch={a:len(s) for a,s in sorted(self.ptx_opcodes.items())},
            forms_total=sum(forms_by_arch.values()),forms_by_arch=forms_by_arch,
            opcodes_by_arch=opcodes_by_arch,
            sequences_by_arch=dict(self.db.execute('SELECT arch,count(*) FROM sequences GROUP BY arch')),
@@ -329,9 +341,11 @@ def main():
     p.add_argument('--architectures',default=','.join(ARCHITECTURES))
     p.add_argument('--dictionary',type=Path,action='append')
     p.add_argument('--resume',action='store_true')
+    p.add_argument('--sass',action=argparse.BooleanOptionalAction,default=False,help='decode the cubins, catalogue SASS forms and replay IR, and use SASS facts as feedback; off by default (PTX acceptance only)')
+    p.add_argument('--stable-edges',action=argparse.BooleanOptionalAction,default=True,help='address-hashed qemu edge ids (AFL_QEMU_OLD_COVERAGE), identical in every worker; needed for queue sync (QEMU is built with a 1 MiB map for this, see afl-map-size.patch)')
     p.add_argument('--no-redqueen',action='store_true',help='disable native CmpLog/colorization RedQueen stages')
     p.add_argument('--token-substitution',action=argparse.BooleanOptionalAction,default=True,help='try one-token substitutions within lexer token classes and registered opcodes (default: enabled)')
-    p.add_argument('--parser-recognition',action='store_true',help='reward registered opcode matches and dedicated keyword/type tokens')
+    p.add_argument('--parser-recognition',action=argparse.BooleanOptionalAction,default=True,help='reward registered opcode matches and dedicated keyword/type tokens')
     p.add_argument('--tools',type=Path,default=Path(__file__).resolve().parent/'tools')
     p.add_argument('--ptxas',type=Path,default=Path('/usr/local/cuda-13.0/bin/ptxas'))
     args=p.parse_args()
@@ -339,7 +353,7 @@ def main():
     if args.n<1 or args.m<0 or args.duration<1 or not arches or any(a not in TARGETS for a in arches): p.error('invalid workers, duration or architectures')
     root=args.output.resolve(); tools=args.tools.resolve(); application=str(args.application.resolve())
     compiler=args.ptxas.resolve()
-    config=dict(candidate_key='name_key-2',mutation_input='ptx-region-1',concolic_jobs='per-arch-2',compile_probe='newest-1',ptxas=str(compiler),compiler=hashlib.sha256(compiler.read_bytes()).hexdigest(),architectures=arches,
+    config=dict(candidate_key='name_key-2',mutation_input='ptx-region-1',concolic_jobs='per-arch-2',compile_probe='newest-1',ptxas=str(compiler),compiler=hashlib.sha256(compiler.read_bytes()).hexdigest(),architectures=arches,sass=args.sass,
                 qemu=str(tools/'AFLplusplus/afl-qemu-trace'),symqemu=str(tools/'symqemu/build/symqemu-x86_64'))
     version=subprocess.check_output([str(compiler),'--version']).decode()
     if config['compiler'] != VERIFIED_COMPILER: p.error('IR logger addresses require verified CUDA 13.0.88 compiler hash')
@@ -398,23 +412,24 @@ def main():
     for i in range(2):
         name=f'analysis{i}'; jobs=ctx.Queue(); queues[name]=jobs
         child=ctx.Process(target=analysis_worker,args=(jobs,events,config,stop)); child.start(); processes[name]=child
-    name='replay'; jobs=ctx.Queue(); queues[name]=jobs
-    child=ctx.Process(target=replay_worker,args=(jobs,events,config,stop)); child.start(); processes[name]=child
+    if args.sass:
+        name='replay'; jobs=ctx.Queue(); queues[name]=jobs
+        child=ctx.Process(target=replay_worker,args=(jobs,events,config,stop)); child.start(); processes[name]=child
     for i in range(args.m):
         name=f'concolic{i}'; jobs=ctx.Queue(); queues[name]=jobs
         child=ctx.Process(target=concolic_worker,args=(jobs,events,config,stop,i)); child.start(); processes[name]=child
-    env=dict(os.environ,AFL_ENTRYPOINT=FORKSERVER_ENTRY)
+    env=dict(os.environ,AFL_ENTRYPOINT=FORKSERVER_ENTRY,**({'AFL_QEMU_OLD_COVERAGE':'1'} if args.stable_edges else {}))
     for key in ('AFL_CUSTOM_MUTATOR_LIBRARY','AFL_CUSTOM_MUTATOR_ONLY','PTX_OPCODE_DOMAIN','PTX_SYMBOLIC_BEGIN','PTX_SYMBOLIC_END',
                 '___AFL_EINS_ZWEI_POLIZEI___','__AFL_CMPLOG_SHM_ID','AFL_QEMU_IJON'):
         env.pop(key,None)
     for i in range(args.n):
         launch(f'mutation{i}',[application,'--worker',str(root),str(i),str(port),config['qemu'],config['ptxas'],
                ','.join(str(d.resolve()) for d in dictionaries),','.join(TARGETS[a] for a in arches),
-               *(['--no-redqueen'] if args.no_redqueen else []),
+               '--substitution-workers',str(min(4,max(1,args.n//6))),*(['--no-redqueen'] if args.no_redqueen else []),*(['--sass'] if args.sass else []),
                '--token-substitution' if args.token_substitution else '--no-token-substitution',
                *(['--parser-recognition'] if args.parser_recognition else [])],stdout=subprocess.DEVNULL,env=env)
     # Replay previously accepted cases through LLMP on resume; no directory polling.
-    for target,source in db.execute("SELECT DISTINCT c.target,s.source FROM compilations c JOIN candidates s USING(key) WHERE c.state='decoded'"):
+    for target,source in db.execute("SELECT DISTINCT c.target,s.source FROM compilations c JOIN candidates s USING(key) WHERE c.state IN ('decoded','accepted')"):
         publisher.stdin.write(canonical([target,source,None])+'\n')
     publisher.stdin.flush()
     reported=start
@@ -455,7 +470,7 @@ def main():
                 status=coordinator.status(activity,processes,start,'running')
                 summary = {k:status[k] for k in ('elapsed_seconds','received','mutations','mutations_per_second',
                     'accepted_by_arch','forms_total','forms_by_arch','opcodes_by_arch',
-                    'sequences_by_arch','replay_states','concolic_states')}
+                    'sequences_by_arch','replay_states','concolic_states','ptx_opcodes_by_arch')}
                 summary['afl'] = {k:v for k,v in status['afl'].items() if k != 'contexts'}
                 print(canonical(summary),flush=True)
                 reported=time.monotonic()

@@ -7,7 +7,7 @@ use libafl::{Error, HasMetadata, HasNamedMetadata, corpus::{Corpus, HasCurrentCo
     inputs::{HasMutatorBytes, HasTargetBytes}, monitors::SimpleMonitor,
     mutators::{BytesDeleteMutator, HavocScheduledMutator, MutationResult, Mutator, Tokens, havoc_mutations, tokens_mutations},
     observers::{CanTrack, HitcountsMapObserver, Observer, StdMapObserver, TimeObserver},
-    schedulers::{IndexesLenTimeMinimizerScheduler, StdWeightedScheduler, minimizer::IsFavoredMetadata,
+    schedulers::{IndexesLenTimeMinimizerScheduler, WeightedScheduler, minimizer::IsFavoredMetadata,
                  powersched::{PowerSchedule, SchedulerMetadata}},
     stages::{ClosureStage, IfStage, ObserverEqualityFactory, StdTMinMutationalStage, calibrate::CalibrationStage,
              mutational::MultiMutationalStage,
@@ -20,7 +20,9 @@ use libafl_bolts::{Named, StdTargetArgs, current_nanos, rands::StdRand,
 mod features;
 mod input;
 mod redqueen;
+mod structured;
 mod tokens;
+mod weight;
 mod token_probe;
 mod lexer;
 mod lexer_probe;
@@ -68,29 +70,62 @@ fn main() {
 /// are marked in the coverage map's feature slots (see features.rs).
 #[derive(serde::Serialize, serde::Deserialize)]
 struct Compiled { output: PathBuf, origin: String, #[serde(skip)] tx: Option<mpsc::Sender<serde_json::Value>>,
-                  #[serde(skip)] submitted: HashSet<Vec<u8>>, #[serde(skip)] map: Option<std::ptr::NonNull<u8>>, #[serde(skip)] feature_offset: usize }
+                  #[serde(skip)] submitted: HashSet<Vec<u8>>, #[serde(skip)] map: Option<std::ptr::NonNull<u8>>, #[serde(skip)] feature_offset: usize, #[serde(skip)] sass: bool }
 impl Named for Compiled {
     fn name(&self) -> &Cow<'static, str> { static NAME: Cow<'static, str> = Cow::Borrowed("compiled"); &NAME }
 }
-impl<I: HasTargetBytes + HasMutatorBytes, S> Observer<I, S> for Compiled {
+impl<I: HasTargetBytes + HasMutatorBytes, S: HasNamedMetadata> Observer<I, S> for Compiled {
     fn pre_exec(&mut self, _: &mut S, _: &I) -> Result<(), Error> { let _ = fs::remove_file(&self.output); Ok(()) }
-    fn post_exec(&mut self, _: &mut S, input: &I, _: &ExitKind) -> Result<(), Error> {
+    fn post_exec(&mut self, state: &mut S, input: &I, _: &ExitKind) -> Result<(), Error> {
         let bytes = input.target_bytes();
         let cubin = fs::read(&self.output).ok();
         if let Some(tx) = &self.tx && cubin.is_some() && self.submitted.insert(bytes.to_vec()) {
             let _ = tx.send(serde_json::json!({"kind":"candidate", "origin":self.origin, "data":&*bytes}));
         }
         if let (Some(map), Some(cubin)) = (self.map, &cubin) {
-            let slots = features::ptx(input.mutator_bytes()).into_iter().chain(features::sass(cubin));
+            let sass = if self.sass { features::sass(cubin) } else { vec![] };
+            let slots = features::ptx(input.mutator_bytes()).into_iter().chain(sass);
             // The edge observer has already reset and classified this shared map for the run;
             // feature slots lie past the qemu edges, so only this observer writes them.
             for slot in slots { unsafe { *map.as_ptr().add(slot + self.feature_offset) = 1; } }
+        }
+        if let (Some(map), true) = (self.map, cause_audit()) {
+            let run = unsafe { std::slice::from_raw_parts(map.as_ptr(), features::EDGES + self.feature_offset + features::SLOTS) };
+            if let Ok(history) = state.named_metadata::<MapFeedbackMetadata<u8>>("edges") { record_cause(run, &history.history_map, self.feature_offset); }
         }
         Ok(())
     }
 }
 
+fn cause_audit() -> bool {
+    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *ON.get_or_init(|| env::var_os("PTX_CAUSE_AUDIT").is_some())
+}
+
+/// Execution counts by exact cause: bit 2r is "r holds an index never seen before", bit 2r+1 is "r holds
+/// a higher hit-count bucket for a seen index", over regions r = 0 qemu edges, 1 parser recognition
+/// (IJON set), 2 IJON max/min, 3 PTX/SASS features. Mask 0 is an uninteresting execution.
+static CAUSES: [std::sync::atomic::AtomicU64; 256] = [const { std::sync::atomic::AtomicU64::new(0) }; 256];
+
+fn record_cause(run: &[u8], history: &[u8], feature_offset: usize) {
+    let bounds = [0, features::EDGES, features::EDGES + lexer::SLOTS.min(feature_offset), features::EDGES + feature_offset, run.len()];
+    let mut mask = 0;
+    for r in 0..4 {
+        for i in bounds[r]..bounds[r + 1].min(run.len()).min(history.len()) {
+            if run[i] > history[i] { mask |= 1 << (2 * r + usize::from(history[i] != 0)); }
+        }
+    }
+    CAUSES[mask].fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+}
+
 type State = StdState<InMemoryOnDiskCorpus<PtxInput>, PtxInput, StdRand, InMemoryCorpus<PtxInput>>;
+
+fn causes() -> serde_json::Value {
+    serde_json::Value::Object(CAUSES.iter().enumerate().filter_map(|(mask, n)| {
+        let n = n.load(std::sync::atomic::Ordering::Relaxed);
+        (n > 0).then(|| (format!("{mask:08b}"), n.into()))
+    }).collect())
+}
 
 /// Snapshot the scheduler's actual corpus and accumulated feedback, rather than queue files
 /// (trimming replaces entries and can leave filenames that do not reflect the live corpus).
@@ -119,7 +154,7 @@ fn activity(state: &State, worker: &str, arch: &str, epoch: usize, executions: u
         "pending":pending, "favored":favored, "pending_favored":pending_favored,
         "queue_cycles":queue_cycles, "covered_edges":covered_edges,
         "edge_map_density_percent":100.0 * covered_edges as f64 / features::EDGES as f64,
-        "covered_features":covered_features, "covered_parser_recognitions":covered_parser_recognitions, "redqueen":rq, "token_substitution":substitution})
+        "causes":causes(), "covered_features":covered_features, "covered_parser_recognitions":covered_parser_recognitions, "redqueen":rq, "token_substitution":substitution})
 }
 
 /// AFL++ trims an entry when it is first fuzzed.
@@ -139,6 +174,25 @@ impl<I, S, M: Mutator<I, S>> Mutator<I, S> for Counted<M> {
     fn post_exec(&mut self, state: &mut S, id: Option<libafl::corpus::CorpusId>) -> Result<(), Error> { self.0.post_exec(state, id) }
 }
 
+/// Worker roles, by index: `0..substitution` run token substitution (each entry belongs to the one
+/// whose index equals its region hash modulo `substitution`), worker `substitution` runs RedQueen on
+/// every entry it schedules, and the rest only run havoc. Roles with deterministic work sync faster, as
+/// AFL's main node does; discoveries reach everyone through queue sync.
+fn runs_substitution(state: &State, worker_index: usize, substitution: usize) -> Result<bool, Error> {
+    use std::hash::{Hash, Hasher};
+    let mut hasher = std::collections::hash_map::DefaultHasher::new();
+    state.current_input_cloned()?.region.hash(&mut hasher);
+    Ok(worker_index < substitution && hasher.finish() as usize % substitution == worker_index)
+}
+fn runs_redqueen(worker_index: usize, substitution: usize) -> bool { worker_index == substitution }
+fn is_main(worker_index: usize, substitution: usize) -> bool { worker_index <= substitution }
+
+/// Peer entries evaluated per sync pass, so fuzzing continues between passes.
+const SYNC_BATCH: usize = 5000;
+/// As in AFL, the main node syncs more often than secondaries.
+const MAIN_SYNC: Duration = Duration::from_secs(2);
+const SECONDARY_SYNC: Duration = Duration::from_secs(6);
+
 /// Minimization attempts per entry (LibAFL's counterpart of AFL's trim).
 const TRIM_RUNS: usize = 64;
 /// HAVOC_STACK_POW2 in AFL++ config.h: 2..16 stacked mutations.
@@ -151,7 +205,10 @@ fn worker(args: &[String]) {
     let root = PathBuf::from(&args[0]); let index = &args[1];
     let redqueen_enabled = !args.iter().any(|arg| arg == "--no-redqueen");
     let substitution_enabled = !args.iter().any(|arg| arg == "--no-token-substitution");
+    let substitution_workers: usize = args.iter().position(|a| a == "--substitution-workers").map_or(usize::MAX, |i| args[i + 1].parse().unwrap());
+    let worker_index: usize = index.parse().unwrap();
     let vocabulary = std::rc::Rc::new(tokens::Vocabulary::load(std::path::Path::new(&args[4])));
+    let sass_enabled = args.iter().any(|arg| arg == "--sass");
     let lexer_enabled = args.iter().any(|arg| arg == "--parser-recognition");
     let feature_offset = lexer::feature_offset(lexer_enabled);
     let map_size = features::EDGES + feature_offset + features::SLOTS;
@@ -175,7 +232,7 @@ fn worker(args: &[String]) {
         let mut shmem = sp.new_shmem(map_size).unwrap();
         let map = std::ptr::NonNull::new(shmem.as_mut_ptr());
         unsafe { shmem.write_to_env("__AFL_SHM_ID").unwrap(); }
-        let edges = unsafe { HitcountsMapObserver::new(StdMapObserver::new("edges", &mut shmem[..])) }.track_indices();
+        let edges = unsafe { HitcountsMapObserver::new(StdMapObserver::new("edges", &mut shmem[..])) }.track_indices().track_novelties();
         let colorization = ColorizationStage::new(&edges);
         let time = TimeObserver::new("time");
         let map_feedback = MaxMapFeedback::new(&edges);
@@ -199,13 +256,13 @@ fn worker(args: &[String]) {
         // inputs stay in the corpus but compete with compiling ones that cover the backend.
         // Keep every entry's edge indexes: trim replaces entries and re-scores them against all others.
         let scheduler = IndexesLenTimeMinimizerScheduler::non_metadata_removing(&edges,
-            StdWeightedScheduler::with_schedule(&mut state, &edges, Some(PowerSchedule::explore())));
+            WeightedScheduler::<_, weight::RarityScore, _>::with_schedule(&mut state, &edges, Some(PowerSchedule::explore())));
         let mut fuzzer = StdFuzzer::new(scheduler, feedback, objective);
         // Trim: delete region bytes while the edge map is unchanged, replacing the entry.
         let trim = StdTMinMutationalStage::new(Counted(BytesDeleteMutator::new()), ObserverEqualityFactory::new(&edges), TRIM_RUNS);
         let own_origin = format!("mutation:{index}:{arch}");
         let compiled = Compiled { output: worker_dir.join("current.cubin"), origin: own_origin.clone(),
-                                  tx: Some(tx.clone()), submitted: HashSet::new(), map, feature_offset };
+                                  tx: Some(tx.clone()), submitted: HashSet::new(), map, feature_offset, sass: sass_enabled };
         let compiled_handle = compiled.handle();
         let lexer_config = lexer_enabled.then(|| lexer::config(&worker_dir));
         let ptxas = |output: &PathBuf| {
@@ -242,7 +299,7 @@ fn worker(args: &[String]) {
             }
         }
         let mut executor = redqueen::Stoppable(executor);
-        let havoc = StdPowerMutationalStage::new(HavocScheduledMutator::with_max_stack_pow(havoc_mutations().merge(tokens_mutations()), HAVOC_STACK_POW2));
+        let havoc = StdPowerMutationalStage::new(HavocScheduledMutator::with_max_stack_pow(havoc_mutations().merge(tokens_mutations()).merge(structured::mutations(vocabulary.clone())), HAVOC_STACK_POW2));
         // LibAFL's minimizer records the replacement as its own parent, which makes calibration
         // re-borrow the entry while it holds it; an entry trimmed in place has no parent.
         let orphan = ClosureStage::new(|_: &mut _, _: &mut _, state: &mut State, _: &mut _| -> Result<(), Error> {
@@ -254,7 +311,7 @@ fn worker(args: &[String]) {
         // Trim first; calibration then measures the replacement and gives it scheduler metadata.
         let rq_first = move |_: &mut _, _: &mut _, state: &mut State, _: &mut _| -> Result<bool, Error> {
             Ok(redqueen_enabled && !stopped() && state.current_testcase()?.scheduled_count() == 0
-               && !state.current_input_cloned()?.region.is_empty())
+               && !state.current_input_cloned()?.region.is_empty() && runs_redqueen(worker_index, substitution_workers))
         };
         let rq_prepare = ClosureStage::new(|_: &mut _, _: &mut _, state: &mut State, _: &mut _| -> Result<(), Error> {
             let _ = state.metadata_map_mut().remove::<TaintMetadata>();
@@ -270,7 +327,7 @@ fn worker(args: &[String]) {
         });
         let rq = MultiMutationalStage::new(redqueen::RegionRedQueen::new());
         let substitution_first = move |_: &mut _, _: &mut _, state: &mut State, _: &mut _| -> Result<bool, Error> {
-            Ok(substitution_enabled && !stopped() && state.current_testcase()?.scheduled_count() == 0)
+            Ok(substitution_enabled && !stopped() && state.current_testcase()?.scheduled_count() == 0 && runs_substitution(state, worker_index, substitution_workers)?)
         };
         let substitution_origin = format!("token-substitution:{index}:{arch}");
         let substitution_begin_handle = compiled_handle.clone();
@@ -286,6 +343,7 @@ fn worker(args: &[String]) {
         let mut stages = tuple_list!(IfStage::new(first_scheduling, tuple_list!(trim, orphan)), calibration,
             IfStage::new(substitution_first, tuple_list!(substitution_begin, substitution, substitution_end)),
             IfStage::new(rq_first, tuple_list!(rq_prepare, colorization, rq_trace, rq)), havoc);
+        let mut synced = HashSet::<std::ffi::OsString>::new(); let mut synced_at = Instant::now();
         let epoch_start = Instant::now(); let mut saved = Instant::now(); let mut reported = Instant::now();
         let mut last_executions = *state.executions();
         tx.send(activity(&state, index, arch, epoch, total + *state.executions() - initial_executions, 0.0, lexer_enabled)).unwrap();
@@ -312,6 +370,21 @@ fn worker(args: &[String]) {
                         let result = fuzzer.evaluate_input(&mut state, &mut executor, &mut mgr, &input);
                         executor.observers_mut()[&compiled_handle].origin = own_origin.clone();
                         if let Err(e) = result { if stopped() { break; } panic!("{e:?}"); }
+                    }
+                }
+            }
+            // AFL-style sync: each queue file name not yet seen (they are content hashes, so an entry held by many peers is run once) is run here and kept only with new
+            // coverage. Edge ids are address hashes (AFL_QEMU_OLD_COVERAGE), so every worker's coverage agrees.
+            if synced_at.elapsed() >= if is_main(worker_index, substitution_workers) { MAIN_SYNC } else { SECONDARY_SYNC } && state.corpus().count() > 0 {
+                synced_at = Instant::now();
+                let peers = fs::read_dir(root.join("mutation")).unwrap().flatten().filter(|d| d.file_name().to_string_lossy() != **index);
+                let fresh: Vec<_> = peers.filter_map(|d| fs::read_dir(d.path().join("queue").join(arch)).ok()).flatten().flatten()
+                    .filter(|f| !f.file_name().to_string_lossy().starts_with('.') && synced.insert(f.file_name())).take(SYNC_BATCH)
+                    .filter_map(|f| fs::read(f.path()).ok()).collect();
+                for input in fresh.iter().filter_map(|bytes| PtxInput::parse(bytes)) {
+                    if let Err(e) = fuzzer.evaluate_input(&mut state, &mut executor, &mut mgr, &input) {
+                        if stopped() { break; }
+                        panic!("{e:?}");
                     }
                 }
             }
