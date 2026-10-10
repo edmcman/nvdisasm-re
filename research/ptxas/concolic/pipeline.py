@@ -267,12 +267,19 @@ class Coordinator:
     def status(self, activity, processes, start, phase):
         self.export_forms()
         elapsed = time.monotonic()-start
+        forms_by_arch = dict(self.db.execute('SELECT arch,count(*) FROM forms GROUP BY arch'))
+        opcodes_by_arch = {}
+        for arch, opcode, count in self.db.execute(
+                "SELECT arch,json_extract(signature,'$.opcode'),count(*) FROM forms "
+                "GROUP BY arch,json_extract(signature,'$.opcode')"):
+            opcodes_by_arch[arch] = opcodes_by_arch.get(arch, 0) + 1
         result = dict(phase=phase,elapsed_seconds=round(elapsed,2),received=self.received,
            token_duplicates=self.duplicates,cache_hits=self.cache_hits,activity=activity,
            mutations=sum(a['executions'] for a in activity.values()),
            worker_exit_codes={name:p.poll() if isinstance(p,subprocess.Popen) else p.exitcode for name,p in processes.items()},
            accepted_by_arch=dict(self.db.execute("SELECT arch,count(*) FROM compilations WHERE state='decoded' GROUP BY arch")),
-           forms_by_arch=dict(self.db.execute('SELECT arch,count(*) FROM forms GROUP BY arch')),
+           forms_total=sum(forms_by_arch.values()),forms_by_arch=forms_by_arch,
+           opcodes_by_arch=opcodes_by_arch,
            sequences_by_arch=dict(self.db.execute('SELECT arch,count(*) FROM sequences GROUP BY arch')),
            compilation_states=dict(self.db.execute('SELECT state,count(*) FROM compilations GROUP BY state')),
            replay_states=dict(self.db.execute('SELECT state,count(*) FROM replays GROUP BY state')),
@@ -420,7 +427,9 @@ def main():
             except queue.Empty: pass
             if time.monotonic()-reported>5:
                 status=coordinator.status(activity,processes,start,'running')
-                summary = {k:status[k] for k in ('elapsed_seconds','mutations','mutations_per_second','accepted_by_arch','forms_by_arch','replay_states')}
+                summary = {k:status[k] for k in ('elapsed_seconds','received','mutations','mutations_per_second',
+                    'accepted_by_arch','forms_total','forms_by_arch','opcodes_by_arch',
+                    'sequences_by_arch','replay_states','concolic_states')}
                 summary['afl'] = {k:v for k,v in status['afl'].items() if k != 'contexts'}
                 print(canonical(summary),flush=True)
                 reported=time.monotonic()

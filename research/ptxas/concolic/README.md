@@ -102,8 +102,10 @@ executions per second, covered QEMU edge slots, edge-map density and covered PTX
 feature slots. Coverage is reported per context because workers can cover the same
 slots. These are map occupancy counts, not exact counts of compiler branches or forms.
 Workers report at startup, about once per second between fuzz stages, and before
-checkpointing at a target change or shutdown. The console summary includes corpus
-counts and campaign execution rate every five seconds. Execution counts include
+checkpointing at a target change or shutdown. Every five seconds the console summary
+includes mutation and candidate rates, accepted compilations, total and per-architecture
+form counts, per-architecture opcode counts, sequence counts, and replay/concolic states.
+Execution counts include
 seed/import evaluation, calibration and trimming as well as havoc.
 
 ## Findings
