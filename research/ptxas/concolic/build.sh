@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Build pinned tools in /tmp by default. Requires network access.
+# Build pinned tools in ./tools by default. Requires network access.
 set -euo pipefail
 experiment_dir=$(cd -- "$(dirname -- "$0")" && pwd)
-tool_dir=${1:-/tmp/ptx-concolic}
+tool_dir=${1:-$experiment_dir/tools}
 mkdir -p "$tool_dir"
 tool_dir=$(cd -- "$tool_dir" && pwd)
 export UV_CACHE_DIR="$tool_dir/uv-cache"

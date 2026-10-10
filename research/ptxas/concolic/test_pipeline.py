@@ -130,7 +130,7 @@ def test_data_constants_and_selectors():
     differ(('shf__RRuI_RRI', dict(Rd=1, Ra=2, Rb=3, Sc=5)), ('shf__RRuI_RRI', dict(Rd=1, Ra=2, Rb=3, Sc=6)))  # shift count
 
 
-APP = Path(os.environ.get('PTX_SASS_GEN', '/tmp/ptx-concolic/libafl-target/release/ptx-sass-gen'))
+APP = Path(os.environ.get('PTX_SASS_GEN', HERE / 'tools' / 'libafl-target' / 'release' / 'ptx-sass-gen'))
 REGION_CASES = [
     b'a\n// BEGIN_INSTRUCTION\nadd.u32 %r2, %r0, %r1;\n// END_INSTRUCTION\nb\n',
     b'ld; /* BEGIN_INSTRUCTION */ add; /* END_INSTRUCTION */ st;',

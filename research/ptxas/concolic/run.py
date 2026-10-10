@@ -6,6 +6,6 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-target = os.environ.get('CARGO_TARGET_DIR', '/tmp/ptx-concolic/libafl-target')
+target = os.environ.get('CARGO_TARGET_DIR', str(HERE / 'tools' / 'libafl-target'))
 os.execvp('cargo', ['cargo', 'run', '--release', '--quiet', '--manifest-path', str(HERE / 'libafl' / 'Cargo.toml'),
                     '--target-dir', target, '--', *sys.argv[1:]])

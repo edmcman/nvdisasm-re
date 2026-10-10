@@ -8,8 +8,8 @@ no crash or vulnerability objective.
 ## Run
 
 ```sh
-bash research/ptxas/concolic/build.sh /tmp/ptx-concolic     # pinned tools, needs network
-python3 research/ptxas/concolic/run.py --output /tmp/ptx-concolic/run-01 --duration 120
+bash research/ptxas/concolic/build.sh     # pinned tools into research/ptxas/concolic/tools, needs network
+python3 research/ptxas/concolic/run.py --output research/ptxas/concolic/tools/run-01 --duration 120
 ```
 
 `run.py` builds and runs `libafl/` (`ptx-sass-gen`). Options:

@@ -12,7 +12,7 @@ HERE = Path(__file__).resolve().parent
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--tools", type=Path, default=Path("/tmp/ptx-concolic"))
+    parser.add_argument("--tools", type=Path, default=HERE / "tools")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--ptxas", type=Path, default=Path("/usr/local/cuda-13.0/bin/ptxas"))
     parser.add_argument("--seconds", type=int, default=60)

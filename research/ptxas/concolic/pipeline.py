@@ -318,7 +318,7 @@ def main():
     p.add_argument('--architectures',default=','.join(ARCHITECTURES))
     p.add_argument('--dictionary',type=Path,action='append')
     p.add_argument('--resume',action='store_true')
-    p.add_argument('--tools',type=Path,default=Path('/tmp/ptx-concolic'))
+    p.add_argument('--tools',type=Path,default=Path(__file__).resolve().parent/'tools')
     p.add_argument('--ptxas',type=Path,default=Path('/usr/local/cuda-13.0/bin/ptxas'))
     args=p.parse_args()
     arches=[a.upper() for a in args.architectures.split(',')]
