@@ -45,10 +45,10 @@ where E: Executor<EM, I, S, Z> {
 
 /// AflppRedQueen only accesses metadata and the current ID, but its pinned signature
 /// also requires HasCorpus<BytesInput>. Keep that unused corpus separate from PTX state.
-struct ByteState<'a> { state: &'a mut State, corpus: InMemoryCorpus<BytesInput> }
+struct ByteState<'a> { state: &'a mut State, corpus: InMemoryCorpus<BytesInput>, metadata: Option<SerdeAnyMap> }
 impl HasMetadata for ByteState<'_> {
-    fn metadata_map(&self) -> &SerdeAnyMap { self.state.metadata_map() }
-    fn metadata_map_mut(&mut self) -> &mut SerdeAnyMap { self.state.metadata_map_mut() }
+    fn metadata_map(&self) -> &SerdeAnyMap { self.metadata.as_ref().unwrap_or_else(|| self.state.metadata_map()) }
+    fn metadata_map_mut(&mut self) -> &mut SerdeAnyMap { match &mut self.metadata { Some(map) => map, None => self.state.metadata_map_mut() } }
 }
 impl HasRand for ByteState<'_> {
     type Rand = StdRand;
@@ -78,13 +78,58 @@ impl Named for RegionRedQueen {
 impl MultiMutator<PtxInput, State> for RegionRedQueen {
     fn multi_mutate(&mut self, state: &mut State, input: &PtxInput, max: Option<usize>) -> Result<Vec<PtxInput>, Error> {
         if crate::STOP.load(std::sync::atomic::Ordering::Relaxed) { return Ok(Vec::new()); }
-        let mut view = ByteState { state, corpus: InMemoryCorpus::new() };
+        let mut view = ByteState { state, corpus: InMemoryCorpus::new(), metadata: None };
         let generated = self.0.multi_mutate(&mut view, &BytesInput::new(input.region.clone()), max)?;
         stats(view.state).candidates += generated.len() as u64;
         Ok(generated.into_iter().map(|bytes| input.with_region(bytes.into())).collect())
     }
     fn multi_post_exec(&mut self, state: &mut State, id: Option<CorpusId>) -> Result<(), Error> {
         if id.is_some() { stats(state).admitted += 1; }
+        Ok(())
+    }
+}
+
+// Separate metadata keeps old Stats checkpoint records readable and prevents
+// virtual comparisons or harvested targets leaking into normal CmpLog/havoc.
+#[derive(Debug, Default, Clone, serde::Serialize, serde::Deserialize)]
+pub struct OpcodeStats {
+    pub attempts: u64,
+    pub comparison_sites: u64,
+    pub raw_candidates: u64,
+    pub candidates: u64,
+    pub admitted: u64,
+}
+libafl_bolts::impl_serdeany!(OpcodeStats);
+
+pub struct OpcodeRedQueen(AflppRedQueen);
+impl OpcodeRedQueen { pub fn new() -> Self { Self(AflppRedQueen::with_cmplog_options(true, true)) } }
+impl Named for OpcodeRedQueen {
+    fn name(&self) -> &Cow<'static, str> { static NAME: Cow<'static, str> = Cow::Borrowed("opcode_redqueen"); &NAME }
+}
+impl MultiMutator<PtxInput, State> for OpcodeRedQueen {
+    fn multi_mutate(&mut self, state: &mut State, input: &PtxInput, max: Option<usize>) -> Result<Vec<PtxInput>, Error> {
+        if crate::STOP.load(std::sync::atomic::Ordering::Relaxed) { return Ok(Vec::new()); }
+        let comparisons = crate::opcode_cmp::comparisons(&input.region);
+        let sites = comparisons.headers.len();
+        if sites == 0 { return Ok(Vec::new()); }
+        let mut metadata = SerdeAnyMap::new();
+        metadata.insert(comparisons);
+        metadata.insert(TaintMetadata::new(input.region.clone(), vec![0..input.region.len()]));
+        let mut view = ByteState { state, corpus: InMemoryCorpus::new(), metadata: Some(metadata) };
+        let generated = self.0.multi_mutate(&mut view, &BytesInput::new(input.region.clone()), None)?;
+        let raw = generated.len();
+        let spans = crate::opcode_cmp::spans(&input.region);
+        let mut seen = std::collections::HashSet::new();
+        let candidates: Vec<_> = generated.into_iter().map(Vec::<u8>::from)
+            .filter(|bytes| crate::opcode_cmp::valid_replacement(&input.region, bytes, &spans) && seen.insert(bytes.clone()))
+            .take(max.unwrap_or(usize::MAX)).map(|bytes| input.with_region(bytes)).collect();
+        let stats = view.state.metadata_or_insert_with(OpcodeStats::default);
+        stats.attempts += 1; stats.comparison_sites += sites as u64;
+        stats.raw_candidates += raw as u64; stats.candidates += candidates.len() as u64;
+        Ok(candidates)
+    }
+    fn multi_post_exec(&mut self, state: &mut State, id: Option<CorpusId>) -> Result<(), Error> {
+        if id.is_some() { state.metadata_or_insert_with(OpcodeStats::default).admitted += 1; }
         Ok(())
     }
 }
@@ -146,6 +191,26 @@ mod tests {
             assert!(restored.metadata::<Stats>().unwrap().candidates > 0);
             drop(restored); drop(state); std::fs::remove_dir_all(root).unwrap();
         }
+    }
+
+    #[test]
+    fn virtual_opcode_comparisons_use_redqueen_and_preserve_other_tokens() {
+        let seed = PtxInput::parse(b"head /* BEGIN_INSTRUCTION */add: @!%p0 add.u32 %r2, add, %r1; // sub\n/* END_INSTRUCTION */tail").unwrap();
+        let root = std::env::temp_dir().join(format!("ptx-opcode-rq-unit-{}", std::process::id()));
+        let mut state = state(&root, &seed);
+        // No dictionary or real CmpLog records are needed. Keep existing metadata
+        // intact, including the coverage-based colorization's frozen opcode.
+        state.add_metadata(TaintMetadata::new(seed.region.clone(), vec![]));
+        let candidates = OpcodeRedQueen::new().multi_mutate(&mut state, &seed, None).unwrap();
+        assert!(candidates.iter().any(|c| c.region.starts_with(b"add: @!%p0 sub.u32")));
+        assert!(candidates.iter().all(|c| c.region.ends_with(b" %r2, add, %r1; // sub\n")));
+        assert!(candidates.iter().all(|c| c.bytes().starts_with(b"head /* BEGIN_INSTRUCTION */") && c.bytes().ends_with(b"/* END_INSTRUCTION */tail")));
+        assert!(!state.has_metadata::<AflppCmpValuesMetadata>());
+        assert!(!state.has_metadata::<Tokens>());
+        assert!(state.metadata::<TaintMetadata>().unwrap().ranges().is_empty());
+        let restored: State = postcard::from_bytes(&postcard::to_allocvec(&state).unwrap()).unwrap();
+        assert_eq!(restored.metadata::<OpcodeStats>().unwrap().candidates, candidates.len() as u64);
+        drop(restored); drop(state); std::fs::remove_dir_all(root).unwrap();
     }
 
     #[test]

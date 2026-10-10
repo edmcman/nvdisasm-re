@@ -17,7 +17,7 @@ python3 research/ptxas/concolic/run.py --output research/ptxas/concolic/tools/ru
 `--seed FILE` (repeatable; default `generic_sm75.ptx` plus `../*.ptx`),
 `--architectures SM75,...`, `--dictionary FILE` (repeatable; default `ptx.dict`), `--resume`.
 RedQueen comparison-guided mutations are enabled by default; `--no-redqueen` disables
-them without changing the campaign's compiler or architecture identity.
+the native CmpLog/colorization stages without changing the campaign's compiler or architecture identity.
 Build prerequisites are listed in `build.sh`; `afl-qemu-trace`, SymQEMU and LibAFL
 (rev `70259b66`, `libafl/Cargo.lock`) are pinned.
 
@@ -181,3 +181,52 @@ false-arm mask in symbolic conditional moves) and `symcc-ptx-input.patch` (optio
 symbolic byte interval, historical `{add, sub}` restriction) remain applied; the
 concolic worker clears their restricting environment variables. `first-run.json` records
 the first AFL++ hybrid run.
+
+## Synthetic opcode comparisons
+
+`--synthetic-opcodes` enables an additional RedQueen stage before native colorization.
+It presents virtual string comparisons between instruction-head tokens and the pinned
+compiler's extracted registry, independent of the compiler's selected hash bucket.
+The registry contains 252 names and 150 roots. This first implementation replaces only
+same-length roots; it preserves modifiers, operands, comments and the fixed scaffold.
+Different operand conventions can still make a replacement invalid. The option is off
+by default and works independently of `--no-redqueen`.
+
+Virtual comparisons use a separate metadata map and stable sites beyond the QEMU map;
+they do not claim that the compiler executed those comparisons. Candidates run through
+ordinary compilation and coverage feedback. Activity records `opcode_redqueen` counters
+(`attempts`, `comparison_sites`, `raw_candidates`, filtered `candidates`, corpus `admitted`),
+and catalogue observations use `synthetic-opcode:<worker>:<target>` origins.
+
+A focused single-pass trial on `synthetic_add.ptx`, with no dictionary or havoc, yielded:
+
+| Stage | Candidates | Accepted | Accepted PTX roots |
+| --- | ---: | ---: | --- |
+| Native QEMU CmpLog/RedQueen | 1,961 | 449 | add |
+| Synthetic opcode RedQueen | 39 | 6 | div, max, min, rem, shr, sub |
+
+All six preserve `.u32 %r2, %r0, %r1`. This establishes discovery beyond the seed's
+hash bucket; it is not an equal-time campaign benchmark. Counts include duplicate native
+candidates. The compact evidence is in `synthetic-opcodes-first-run.json`.
+A 45-second SM75 pipeline run also completed with nine synthetic-stage attempts and
+23 corpus admissions; havoc remained enabled in that integration check.
+
+Reproduce the focused trial (OUTPUT must be a new directory):
+
+```sh
+cargo run --release --offline --manifest-path research/ptxas/concolic/libafl/Cargo.toml \
+  --target-dir research/ptxas/concolic/tools/libafl-target -- \
+  --opcode-cmp-probe research/ptxas/concolic/synthetic_add.ptx /tmp/ptx-opcode-probe
+```
+
+Refresh the registry with the pinned compiler (GDB needs ptrace access):
+
+```sh
+PTX_OPCODE_REGISTRY=/tmp/opcode_registry.json gdb -q -batch \
+  -ex 'source research/ptxas/concolic/opcode_cmp_registry.py' \
+  --args /usr/local/cuda-13.0/bin/ptxas -arch=sm_75 -o /dev/null \
+  research/ptxas/concolic/synthetic_add.ptx
+```
+
+The extractor verifies the compiler SHA256 before reading its table. Review the output
+before replacing `opcode_registry.json` and rebuilding the Rust worker.

@@ -325,7 +325,8 @@ def main():
     p.add_argument('--architectures',default=','.join(ARCHITECTURES))
     p.add_argument('--dictionary',type=Path,action='append')
     p.add_argument('--resume',action='store_true')
-    p.add_argument('--no-redqueen',action='store_true',help='disable comparison-guided mutation stages')
+    p.add_argument('--no-redqueen',action='store_true',help='disable native CmpLog/colorization RedQueen stages')
+    p.add_argument('--synthetic-opcodes',action='store_true',help='try registry-wide virtual opcode comparisons through RedQueen')
     p.add_argument('--tools',type=Path,default=Path(__file__).resolve().parent/'tools')
     p.add_argument('--ptxas',type=Path,default=Path('/usr/local/cuda-13.0/bin/ptxas'))
     args=p.parse_args()
@@ -352,6 +353,7 @@ def main():
     db.execute("INSERT OR REPLACE INTO metadata VALUES('config',?)",(canonical(config),))
     db.execute("INSERT OR REPLACE INTO metadata VALUES('compiler_version',?)",(version,))
     db.execute("INSERT OR REPLACE INTO metadata VALUES('redqueen',?)",(canonical(not args.no_redqueen),)); db.commit(); recover(db)
+    db.execute("INSERT OR REPLACE INTO metadata VALUES('synthetic_opcodes',?)",(canonical(args.synthetic_opcodes),)); db.commit()
     coordinator=Coordinator(root,db,config)
     dictionaries=args.dictionary or [HERE/'ptx.dict']
     seeds=args.seed or [HERE/'generic_sm75.ptx',*sorted(HERE.parent.glob('*.ptx'))]
@@ -390,7 +392,8 @@ def main():
     for i in range(args.n):
         launch(f'mutation{i}',[application,'--worker',str(root),str(i),str(port),config['qemu'],config['ptxas'],
                ','.join(str(d.resolve()) for d in dictionaries),','.join(TARGETS[a] for a in arches),
-               *(['--no-redqueen'] if args.no_redqueen else [])],stdout=subprocess.DEVNULL,env=env)
+               *(['--no-redqueen'] if args.no_redqueen else []),
+               *(['--synthetic-opcodes'] if args.synthetic_opcodes else [])],stdout=subprocess.DEVNULL,env=env)
     # Replay previously accepted cases through LLMP on resume; no directory polling.
     for target,source in db.execute("SELECT DISTINCT c.target,s.source FROM compilations c JOIN candidates s USING(key) WHERE c.state='decoded'"):
         publisher.stdin.write(canonical([target,source,None])+'\n')

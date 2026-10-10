@@ -1,0 +1,79 @@
+{
+  "architecture": "SM75",
+  "arms": {
+    "baseline": {
+      "accepted": 449,
+      "accepted_opcode_roots": [
+        "add"
+      ],
+      "candidates": 1961,
+      "witnesses": []
+    },
+    "synthetic": {
+      "accepted": 6,
+      "accepted_opcode_roots": [
+        "div",
+        "max",
+        "min",
+        "rem",
+        "shr",
+        "sub"
+      ],
+      "candidates": 39,
+      "witnesses": [
+        {
+          "opcode_roots": [
+            "div"
+          ],
+          "region": " div.u32 %r2, %r0, %r1; "
+        },
+        {
+          "opcode_roots": [
+            "max"
+          ],
+          "region": " max.u32 %r2, %r0, %r1; "
+        },
+        {
+          "opcode_roots": [
+            "min"
+          ],
+          "region": " min.u32 %r2, %r0, %r1; "
+        },
+        {
+          "opcode_roots": [
+            "rem"
+          ],
+          "region": " rem.u32 %r2, %r0, %r1; "
+        },
+        {
+          "opcode_roots": [
+            "shr"
+          ],
+          "region": " shr.u32 %r2, %r0, %r1; "
+        },
+        {
+          "opcode_roots": [
+            "sub"
+          ],
+          "region": " sub.u32 %r2, %r0, %r1; "
+        }
+      ]
+    }
+  },
+  "baseline_stats": {
+    "admitted": 0,
+    "attempts": 0,
+    "candidates": 1961,
+    "comparison_sites": 17369
+  },
+  "compiler_sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+  "dictionary": false,
+  "havoc": false,
+  "synthetic_stats": {
+    "admitted": 0,
+    "attempts": 1,
+    "candidates": 39,
+    "comparison_sites": 39,
+    "raw_candidates": 133
+  }
+}

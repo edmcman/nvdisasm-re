@@ -20,6 +20,8 @@ use libafl_bolts::{Named, StdTargetArgs, current_nanos, rands::StdRand,
 mod features;
 mod input;
 mod redqueen;
+mod opcode_cmp;
+mod opcode_probe;
 use input::PtxInput;
 
 static STOP: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
@@ -45,6 +47,8 @@ fn main() {
             Some((begin, end)) => println!("{begin} {end}"),
             None => println!("none"),
         }
+    } else if args.get(1).is_some_and(|x| x == "--opcode-cmp-probe") {
+        opcode_probe::run(std::path::Path::new(&args[2]), std::path::Path::new(&args[3]));
     } else if args.get(1).is_some_and(|x| x == "--worker") {
         worker(&args[2..]);
     } else {
@@ -102,13 +106,14 @@ fn activity(state: &State, worker: &str, arch: &str, epoch: usize, executions: u
     let covered_features = history.iter().skip(features::EDGES).filter(|&&v| v != 0).count();
     let queue_cycles = state.metadata::<SchedulerMetadata>().unwrap().queue_cycles();
     let rq = state.metadata_map().get::<redqueen::Stats>().cloned().unwrap_or_default();
+    let opcode_rq = state.metadata_map().get::<redqueen::OpcodeStats>().cloned().unwrap_or_default();
     serde_json::json!({"kind":"activity", "worker":worker, "arch":arch, "epoch":epoch,
         "executions":executions, "context_executions":state.executions(),
         "executions_per_second":executions_per_second, "corpus_size":state.corpus().count(),
         "pending":pending, "favored":favored, "pending_favored":pending_favored,
         "queue_cycles":queue_cycles, "covered_edges":covered_edges,
         "edge_map_density_percent":100.0 * covered_edges as f64 / features::EDGES as f64,
-        "covered_features":covered_features, "redqueen":rq})
+        "covered_features":covered_features, "redqueen":rq, "opcode_redqueen":opcode_rq})
 }
 
 /// AFL++ trims an entry when it is first fuzzed.
@@ -139,6 +144,7 @@ fn worker(args: &[String]) {
     // The coordinator owns the campaign deadline and stops workers with SIGUSR1.
     let root = PathBuf::from(&args[0]); let index = &args[1];
     let redqueen_enabled = !args.iter().any(|arg| arg == "--no-redqueen");
+    let synthetic_opcodes = args.iter().any(|arg| arg == "--synthetic-opcodes");
     let stopped = || STOP.load(std::sync::atomic::Ordering::Relaxed);
     let mut client = LlmpClient::create_attach_to_tcp(UnixShMemProvider::new().unwrap(), args[2].parse().unwrap()).unwrap();
     let (tx, rx) = mpsc::channel::<serde_json::Value>();
@@ -245,7 +251,22 @@ fn worker(args: &[String]) {
             Ok(())
         });
         let rq = MultiMutationalStage::new(redqueen::RegionRedQueen::new());
+        let opcode_first = move |_: &mut _, _: &mut _, state: &mut State, _: &mut _| -> Result<bool, Error> {
+            Ok(synthetic_opcodes && !stopped() && state.current_testcase()?.scheduled_count() == 0)
+        };
+        let opcode_origin = format!("synthetic-opcode:{index}:{arch}");
+        let opcode_begin_handle = compiled_handle.clone();
+        let opcode_begin = ClosureStage::new(move |_: &mut _, executor: &mut redqueen::Stoppable<_>, _: &mut _, _: &mut _| -> Result<(), Error> {
+            executor.observers_mut()[&opcode_begin_handle].origin = opcode_origin.clone(); Ok(())
+        });
+        let reset_origin = own_origin.clone();
+        let opcode_end_handle = compiled_handle.clone();
+        let opcode_end = ClosureStage::new(move |_: &mut _, executor: &mut redqueen::Stoppable<_>, _: &mut _, _: &mut _| -> Result<(), Error> {
+            executor.observers_mut()[&opcode_end_handle].origin = reset_origin.clone(); Ok(())
+        });
+        let opcode_rq = MultiMutationalStage::new(redqueen::OpcodeRedQueen::new());
         let mut stages = tuple_list!(IfStage::new(first_scheduling, tuple_list!(trim, orphan)), calibration,
+            IfStage::new(opcode_first, tuple_list!(opcode_begin, opcode_rq, opcode_end)),
             IfStage::new(rq_first, tuple_list!(rq_prepare, colorization, rq_trace, rq)), havoc);
         let epoch_start = Instant::now(); let mut saved = Instant::now(); let mut reported = Instant::now();
         let mut last_executions = *state.executions();
