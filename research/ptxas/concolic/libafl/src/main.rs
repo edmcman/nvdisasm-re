@@ -20,8 +20,8 @@ use libafl_bolts::{Named, StdTargetArgs, current_nanos, rands::StdRand,
 mod features;
 mod input;
 mod redqueen;
-mod opcode_cmp;
-mod opcode_probe;
+mod tokens;
+mod token_probe;
 mod lexer;
 mod lexer_probe;
 use input::PtxInput;
@@ -51,8 +51,8 @@ fn main() {
         }
     } else if args.get(1).is_some_and(|x| x == "--recognition-probe") {
         lexer_probe::run(std::path::Path::new(&args[2]), std::path::Path::new(&args[3]));
-    } else if args.get(1).is_some_and(|x| x == "--opcode-cmp-probe") {
-        opcode_probe::run(std::path::Path::new(&args[2]), std::path::Path::new(&args[3]));
+    } else if args.get(1).is_some_and(|x| x == "--token-probe") {
+        token_probe::run(std::path::Path::new(&args[2]), std::path::Path::new(&args[3]));
     } else if args.get(1).is_some_and(|x| x == "--worker") {
         worker(&args[2..]);
     } else {
@@ -112,14 +112,14 @@ fn activity(state: &State, worker: &str, arch: &str, epoch: usize, executions: u
     let covered_features = history.iter().skip(feature_start).filter(|&&v| v != 0).count();
     let queue_cycles = state.metadata::<SchedulerMetadata>().unwrap().queue_cycles();
     let rq = state.metadata_map().get::<redqueen::Stats>().cloned().unwrap_or_default();
-    let opcode_rq = state.metadata_map().get::<redqueen::OpcodeStats>().cloned().unwrap_or_default();
+    let substitution = state.metadata_map().get::<tokens::Stats>().cloned().unwrap_or_default();
     serde_json::json!({"kind":"activity", "worker":worker, "arch":arch, "epoch":epoch,
         "executions":executions, "context_executions":state.executions(),
         "executions_per_second":executions_per_second, "corpus_size":state.corpus().count(),
         "pending":pending, "favored":favored, "pending_favored":pending_favored,
         "queue_cycles":queue_cycles, "covered_edges":covered_edges,
         "edge_map_density_percent":100.0 * covered_edges as f64 / features::EDGES as f64,
-        "covered_features":covered_features, "covered_parser_recognitions":covered_parser_recognitions, "redqueen":rq, "opcode_redqueen":opcode_rq})
+        "covered_features":covered_features, "covered_parser_recognitions":covered_parser_recognitions, "redqueen":rq, "token_substitution":substitution})
 }
 
 /// AFL++ trims an entry when it is first fuzzed.
@@ -150,7 +150,8 @@ fn worker(args: &[String]) {
     // The coordinator owns the campaign deadline and stops workers with SIGUSR1.
     let root = PathBuf::from(&args[0]); let index = &args[1];
     let redqueen_enabled = !args.iter().any(|arg| arg == "--no-redqueen");
-    let synthetic_opcodes = !args.iter().any(|arg| arg == "--no-synthetic-opcodes");
+    let substitution_enabled = !args.iter().any(|arg| arg == "--no-token-substitution");
+    let vocabulary = std::rc::Rc::new(tokens::Vocabulary::load(std::path::Path::new(&args[4])));
     let lexer_enabled = args.iter().any(|arg| arg == "--parser-recognition");
     let feature_offset = lexer::feature_offset(lexer_enabled);
     let map_size = features::EDGES + feature_offset + features::SLOTS;
@@ -233,8 +234,8 @@ fn worker(args: &[String]) {
         } else { None };
         let initial_executions = *state.executions();
         if state.corpus().count() == 0 {
-            // Every marked seed is queued, as AFL++ does; files without markers are not mutated.
-            for seed in fs::read_dir(root.join("seeds")).unwrap() {
+            // Every marked seed for this target is queued, as AFL++ does; files without markers are not mutated.
+            for seed in fs::read_dir(root.join("seeds").join(arch)).unwrap() {
                 if let Some(input) = PtxInput::parse(&fs::read(seed.unwrap().path()).unwrap()) {
                     fuzzer.add_input(&mut state, &mut executor, &mut mgr, input).unwrap();
                 }
@@ -268,22 +269,22 @@ fn worker(args: &[String]) {
             Ok(())
         });
         let rq = MultiMutationalStage::new(redqueen::RegionRedQueen::new());
-        let opcode_first = move |_: &mut _, _: &mut _, state: &mut State, _: &mut _| -> Result<bool, Error> {
-            Ok(synthetic_opcodes && !stopped() && state.current_testcase()?.scheduled_count() == 0)
+        let substitution_first = move |_: &mut _, _: &mut _, state: &mut State, _: &mut _| -> Result<bool, Error> {
+            Ok(substitution_enabled && !stopped() && state.current_testcase()?.scheduled_count() == 0)
         };
-        let opcode_origin = format!("synthetic-opcode:{index}:{arch}");
-        let opcode_begin_handle = compiled_handle.clone();
-        let opcode_begin = ClosureStage::new(move |_: &mut _, executor: &mut redqueen::Stoppable<_>, _: &mut _, _: &mut _| -> Result<(), Error> {
-            executor.observers_mut()[&opcode_begin_handle].origin = opcode_origin.clone(); Ok(())
+        let substitution_origin = format!("token-substitution:{index}:{arch}");
+        let substitution_begin_handle = compiled_handle.clone();
+        let substitution_begin = ClosureStage::new(move |_: &mut _, executor: &mut redqueen::Stoppable<_>, _: &mut _, _: &mut _| -> Result<(), Error> {
+            executor.observers_mut()[&substitution_begin_handle].origin = substitution_origin.clone(); Ok(())
         });
         let reset_origin = own_origin.clone();
-        let opcode_end_handle = compiled_handle.clone();
-        let opcode_end = ClosureStage::new(move |_: &mut _, executor: &mut redqueen::Stoppable<_>, _: &mut _, _: &mut _| -> Result<(), Error> {
-            executor.observers_mut()[&opcode_end_handle].origin = reset_origin.clone(); Ok(())
+        let substitution_end_handle = compiled_handle.clone();
+        let substitution_end = ClosureStage::new(move |_: &mut _, executor: &mut redqueen::Stoppable<_>, _: &mut _, _: &mut _| -> Result<(), Error> {
+            executor.observers_mut()[&substitution_end_handle].origin = reset_origin.clone(); Ok(())
         });
-        let opcode_rq = MultiMutationalStage::new(redqueen::OpcodeRedQueen::new());
+        let substitution = MultiMutationalStage::new(tokens::TokenSubstitution(vocabulary.clone()));
         let mut stages = tuple_list!(IfStage::new(first_scheduling, tuple_list!(trim, orphan)), calibration,
-            IfStage::new(opcode_first, tuple_list!(opcode_begin, opcode_rq, opcode_end)),
+            IfStage::new(substitution_first, tuple_list!(substitution_begin, substitution, substitution_end)),
             IfStage::new(rq_first, tuple_list!(rq_prepare, colorization, rq_trace, rq)), havoc);
         let epoch_start = Instant::now(); let mut saved = Instant::now(); let mut reported = Instant::now();
         let mut last_executions = *state.executions();

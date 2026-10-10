@@ -14,14 +14,19 @@ python3 research/ptxas/concolic/run.py --output research/ptxas/concolic/tools/ru
 
 `run.py` builds and runs `libafl/` (`ptx-sass-gen`). Options:
 `--n 8` mutation workers, `--m 1` concolic workers, `--duration` seconds,
-`--seed FILE` (repeatable; default `generic_sm75.ptx` plus `../*.ptx`),
-`--architectures SM75,...`, `--dictionary FILE` (repeatable; default `ptx.dict`), `--resume`.
+`--seed FILE` (repeatable, given to every target; default `generic_sm75.ptx` with its `.target` set to each architecture's target),
+`--architectures SM75,...`, `--dictionary FILE` (repeatable; default `dict/ptx-lexer.dict`), `--resume`.
 RedQueen comparison-guided mutations are enabled by default; `--no-redqueen` disables
 the native CmpLog/colorization stages without changing the campaign's compiler or architecture identity.
 Build prerequisites are listed in `build.sh`; `afl-qemu-trace`, SymQEMU and LibAFL
 (rev `70259b66`, `libafl/Cargo.lock`) are pinned.
 
-The default `ptx.dict` includes all 139 opcode roots from the PTX ISA 9.4 reserved
+The default `dict/ptx-lexer.dict` is generated from the pinned compiler: its 485 reserved
+lexer spellings plus registered opcode names (see "Compiler-derived dictionary"). In repeated
+trials it performed the same as `ptx.dict`; it is the default because it is reproducible from the
+compiler rather than maintained by hand.
+
+The previous default `ptx.dict` includes all 139 opcode roots from the PTX ISA 9.4 reserved
 instruction table and instruction headings (including `fabric`, absent from the table),
 plus documented qualified instruction names. It retains the original type, register,
 modifier and complete-statement suggestions. Source:
@@ -182,42 +187,86 @@ symbolic byte interval, historical `{add, sub}` restriction) remain applied; the
 concolic worker clears their restricting environment variables. `first-run.json` records
 the first AFL++ hybrid run.
 
-## Synthetic opcode comparisons
+## Token substitution
 
-Synthetic opcode comparisons enable an additional RedQueen stage before native colorization
-by default; `--no-synthetic-opcodes` disables it (`--synthetic-opcodes` explicitly enables it).
-It presents virtual string comparisons between instruction-head tokens and the pinned
-compiler's extracted registry, independent of the compiler's selected hash bucket.
-The registry contains 252 names and 150 roots. This first implementation replaces only
-same-length roots; it preserves modifiers, operands, comments and the fixed scaffold.
-Different operand conventions can still make a replacement invalid. The option works
-independently of `--no-redqueen`.
+Before native colorization, each new corpus entry gets one-token substitutions within parser
+token classes (`libafl/src/tokens.rs`). This is enabled by default; `--no-token-substitution`
+disables it. The worker reads the lexer automaton from the pinned compiler, as
+`lexer_vocab.py` does (see "Compiler-derived dictionary"). It lexes the instruction region
+with longest match and backup. A reserved token is replaced by every other spelling whose
+lexer action returns the same parser token, for example `.rn` by `.rz` or `.u32` by `.s32`.
+An identifier is replaced only at a statement head (after `;`, `{`, `}`, a label or a
+`@p`/`@!p` guard, and not a label itself), by every registered opcode name in
+`opcode_registry.json` (252 full names such as `mul.lo`). Other identifiers, numbers,
+punctuation, comments and the fixed scaffold are never changed. Replacements may change
+length. On load, every class spelling must lex alone to an action of its own class.
+The Rust lexer matches `lexer_vocab.lex` on all the seed files (an ignored test that needs
+the pinned compiler); the Python lexer is checked against ptxas under GDB.
 
-Virtual comparisons use a separate metadata map and stable sites beyond the QEMU map;
-they do not claim that the compiler executed those comparisons. Candidates run through
-ordinary compilation and coverage feedback. Activity records `opcode_redqueen` counters
-(`attempts`, `comparison_sites`, `raw_candidates`, filtered `candidates`, corpus `admitted`),
-and catalogue observations use `synthetic-opcode:<worker>:<target>` origins.
+Candidates run through ordinary compilation and coverage feedback. Activity records
+`token_substitution` counters (`attempts`, `slots`, `candidates`, corpus `admitted`).
+Catalogue observations use `token-substitution:<worker>:<target>` origins.
+This replaces the synthetic opcode RedQueen stage, which presented virtual string
+comparisons with same-length registry roots. Its evidence remains in
+`synthetic-opcodes-first-run.json`, and its counters remain deserializable in old checkpoints.
 
-A focused single-pass trial on `synthetic_add.ptx`, with no dictionary or havoc, yielded:
+`--token-probe SEED OUT` compiles every candidate of a seed for the seed's own `.target`
+with real ptxas. It uses no fuzzing or QEMU, and OUT must be a new directory.
+`token-probe-first-run.json` contains:
 
-| Stage | Candidates | Accepted | Accepted PTX roots |
-| --- | ---: | ---: | --- |
-| Native QEMU CmpLog/RedQueen | 1,961 | 449 | add |
-| Synthetic opcode RedQueen | 39 | 6 | div, max, min, rem, shr, sub |
+| Seed region | Class | Candidates | Accepted |
+| --- | --- | ---: | --- |
+| `add.u32 %r2, %r0, %r1;` (SM75) | opcode | 251 | addc div max min mul.hi mul.lo mul24.hi mul24.lo rem shr sub subc |
+| | type 275 | 37 | .s32 .f16x2 .f32 |
+| `mad.wide.u32 %rd2, %r0, %r1, %rd1;` (SM90) | opcode | 251 | none |
+| | type 275 | 37 | .s32 |
 
-All six preserve `.u32 %r2, %r0, %r1`. This establishes discovery beyond the seed's
-hash bucket; it is not an equal-time campaign benchmark. Counts include duplicate native
-candidates. The compact evidence is in `synthetic-opcodes-first-run.json`.
-A 45-second SM75 pipeline run also completed with nine synthetic-stage attempts and
-23 corpus admissions; havoc remained enabled in that integration check.
+The earlier same-length stage accepted six roots on the same `add` seed. Operand
+conventions bound one-token substitution: no other opcode accepts the wide `mad` operands
+unchanged.
 
-Reproduce the focused trial (OUTPUT must be a new directory):
+Campaign comparison, under the same conditions as the dictionary comparison below (SM75,
+5 minutes, three concurrent arms with 8 workers each, no concolic workers, per-target seed),
+in `token-substitution-first-run.json`:
+
+| Arm | Mutations | Accepted | Forms | Sequences | Region opcodes |
+| --- | ---: | ---: | ---: | ---: | --- |
+| `ptx.dict` | 140,198 | 85 | 9 | 6 | mov |
+| `ptx-lexer.dict` | 140,948 | 75 | 9 | 6 | mov |
+| `ptx-lexer.dict` + token substitution | 145,947 | 105 | 31 | 28 | abs bfind brev clz cnot mov neg not popc |
+
+The stage made 25,518 candidates over 99 attempts. 1,216 entered the corpus, and 51
+catalogued candidates originate from it. It also found `.f16x2`. Execution rate was unchanged.
+The removed same-length stage reached 21 forms and five opcodes in the corresponding arm.
+
+Dictionary control with token substitution on in every arm (same conditions,
+`dictionary-control-first-run.json`):
+
+| Dictionary | Mutations | Accepted | Forms | Sequences | Additional region vocabulary |
+| --- | ---: | ---: | ---: | ---: | --- |
+| none (empty file) | 143,448 | 96 | 39 | 32 | `alloca`, `.pred` |
+| `ptx.dict` | 141,259 | 117 | 39 | 36 | `alloca`, `bar.arrive`, `bar.cta.arrive`, `barrier.arrive`, `barrier.cta.arrive`, `.f16x2` |
+| `ptx-lexer.dict` | 130,206 | 151 | 47 | 45 | `alloca`, `.b64 .u64 .e5m2x2 .f16x2` |
+
+All three reached `abs bfind brev clz cnot mov neg not popc`. Five such rounds
+(`dictionary-repeats.json`; the table is round 1):
+
+| Dictionary | Forms per round | Mean ± sd | Sequences mean ± sd | Distinct forms, all rounds |
+| --- | --- | --- | --- | ---: |
+| none | 39 30 36 40 34 | 35.8 ± 4.0 | 33.6 ± 3.6 | 55 |
+| `ptx.dict` | 39 35 37 32 49 | 38.4 ± 6.5 | 34.2 ± 3.7 | 60 |
+| `ptx-lexer.dict` | 47 41 43 28 37 | 39.2 ± 7.2 | 35.4 ± 5.5 | 61 |
+
+Paired by round, a dictionary adds +2.6 (`ptx.dict`) or +3.4 (`ptx-lexer.dict`) forms over
+none, with paired standard deviations of 8–9. `ptx-lexer.dict` minus `ptx.dict` is
++0.8 ± 8.6. The sign changes between rounds. Execution rates match. With token substitution,
+the dictionary has no measurable effect in five-minute SM75 runs, and the two dictionaries
+are indistinguishable. Any real difference is smaller than about four forms.
 
 ```sh
 cargo run --release --offline --manifest-path research/ptxas/concolic/libafl/Cargo.toml \
   --target-dir research/ptxas/concolic/tools/libafl-target -- \
-  --opcode-cmp-probe research/ptxas/concolic/synthetic_add.ptx /tmp/ptx-opcode-probe
+  --token-probe research/ptxas/concolic/synthetic_add.ptx /tmp/ptx-token-probe
 ```
 
 Refresh the registry with the pinned compiler (GDB needs ptrace access):
@@ -358,7 +407,7 @@ cargo run --release --offline --manifest-path research/ptxas/concolic/libafl/Car
 ```
 
 Evidence is in `parser-recognition-first-run.json`. A 10-second SM75 pipeline run
-with native RedQueen and synthetic opcode comparisons disabled completed successfully,
+with native RedQueen and the (since replaced) synthetic opcode comparisons disabled completed successfully,
 then resumed for five seconds with recognition coverage intact. Changing the flag on
 resume and loading an obsolete transition-feedback checkpoint both fail explicitly.
 All ten Rust tests, including the real-QEMU tests, pass. This verifies endpoint recognition
@@ -366,3 +415,58 @@ feedback, not intermediate prefix progress or a campaign discovery-rate improvem
 Runtime map enumeration or symbolic modeling of lexer table loads is the next step for
 vocabulary-independent intermediate progress. The old transition experiment remains
 recorded in `lexer-transitions-first-run.json` as historical evidence, not an active mode.
+
+### Compiler-derived dictionary
+
+`lexer_vocab.py` reads the pinned compiler's flex `-F` lexer table: start-state pointers at
+`0x203c020` (index 1 is the normal start condition), transition entries
+`{u32 check, i32 next}` at `state + 8*c`, next state `state + 8*next`, accept action at
+`state - 4`. Only reserved actions 60..526 are vocabulary. The walk follows only states from
+which a reserved accept is reachable. Generic identifier actions 528/529 therefore never
+contribute, although their states lie on keyword prefixes. That subgraph is acyclic:
+467 actions and 485 strings.
+Each action handler ends with `mov $token,%eax; jmp 0x7211d6`. This groups the strings into
+96 parser-token classes, for example rounding 288, type 275 and cache 290.
+`lexer_vocab.json` records those classes. `dict/ptx-lexer.dict` adds the registry names
+and roots from `opcode_registry.json`, because opcode names are identifiers to the lexer.
+
+```sh
+python3 research/ptxas/concolic/lexer_vocab.py /usr/local/cuda-13.0/bin/ptxas \
+  research/ptxas/concolic/lexer_vocab.json research/ptxas/concolic/dict/ptx-lexer.dict
+```
+
+The extractor writes nothing unless all of these hold:
+- the qualified-names action table above reproduces;
+- the reserved subgraph has no cycle;
+- every handler matches the pattern;
+- `.rq`, `.rx`, `.blorp`, `.r`, `banana`, `papaya` and `%r1` are absent;
+- the string count is 400–600.
+
+`lexer_vocab.lex` replays the automaton with longest match and backup. Comment actions
+544/545 read through `*/` or a newline themselves. `lexer_vocab_check.py FILE...` compares
+it with the real lexer under GDB. ptxas lexes 919 actions of built-in PTX before each file,
+and each file's actions must then match as one contiguous run. All ten `../*.ptx` seeds
+and `instruction.ptx` match exactly.
+
+`measure_vocab.py RUN...` reports, per architecture of each catalogue, the accepted
+instruction regions' registered statement-head opcodes and reserved tokens by class, along
+with forms, sequences and first-observation origins. It counts no identifiers other than
+registry heads.
+
+Comparison, 5 minutes on SM75: three arms run concurrently, each with 8 mutation workers,
+no concolic workers and the default per-target seed. The SM75 region is `mov.b32 %r2, %r0;`.
+Native RedQueen is on. The counts are for accepted instruction regions
+(`vocab-dictionary-first-run.json`). Forms include about six scaffold forms.
+
+| Arm | Mutations | Accepted | Forms | Sequences | Region opcodes | Reserved tokens |
+| --- | ---: | ---: | ---: | ---: | --- | --- |
+| `ptx.dict` | 145,738 | 66 | 9 | 6 | mov | `.b32 .f32 .s32 .u32` |
+| `ptx-lexer.dict` | 150,126 | 58 | 9 | 6 | mov | `.b32 .f32 .s32 .u32` |
+| `ptx-lexer.dict` + synthetic opcodes | 136,204 | 148 | 21 | 21 | abs clz mov neg not | `.b32 .f32 .s32 .u32` |
+
+The compiler-derived dictionary performs the same as `ptx.dict`. Neither reaches a new
+opcode. Both reach only the same-length `mov` types, which `TokenReplace` can place.
+The synthetic stage contributed 42 accepted inputs, four new same-length opcodes and
+more than twice the forms. Random dictionary placement and stacked havoc limit discovery,
+not vocabulary. Therefore, by the decision rule, the class substitution stage is justified.
+This is one short trial per arm on one region.

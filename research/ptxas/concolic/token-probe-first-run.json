@@ -1,0 +1,54 @@
+{
+ "compiler_sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+ "probes": {
+  "probe-add": {
+   "classes": {
+    "275": {
+     "accepted": [
+      "add.s32 %r2, %r0, %r1;",
+      "add.f16x2 %r2, %r0, %r1;",
+      "add.f32 %r2, %r0, %r1;"
+     ],
+     "candidates": 37
+    },
+    "opcode": {
+     "accepted": [
+      "addc.u32 %r2, %r0, %r1;",
+      "div.u32 %r2, %r0, %r1;",
+      "max.u32 %r2, %r0, %r1;",
+      "min.u32 %r2, %r0, %r1;",
+      "mul.hi.u32 %r2, %r0, %r1;",
+      "mul.lo.u32 %r2, %r0, %r1;",
+      "mul24.hi.u32 %r2, %r0, %r1;",
+      "mul24.lo.u32 %r2, %r0, %r1;",
+      "rem.u32 %r2, %r0, %r1;",
+      "shr.u32 %r2, %r0, %r1;",
+      "sub.u32 %r2, %r0, %r1;",
+      "subc.u32 %r2, %r0, %r1;"
+     ],
+     "candidates": 251
+    }
+   },
+   "region": " add.u32 %r2, %r0, %r1; ",
+   "seed": "synthetic_add.ptx",
+   "target": "sm_75"
+  },
+  "probe-mad": {
+   "classes": {
+    "275": {
+     "accepted": [
+      "mad.wide.s32 %rd2, %r0, %r1, %rd1;"
+     ],
+     "candidates": 37
+    },
+    "opcode": {
+     "accepted": [],
+     "candidates": 251
+    }
+   },
+   "region": " mad.wide.u32 %rd2, %r0, %r1, %rd1; ",
+   "seed": "../mad_wide_u32.ptx retargeted to sm_90",
+   "target": "sm_90"
+  }
+ }
+}

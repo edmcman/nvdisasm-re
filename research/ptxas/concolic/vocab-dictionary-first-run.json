@@ -1,0 +1,90 @@
+{
+ "compiler_sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+ "architecture": "SM75",
+ "duration_seconds": 300,
+ "workers": 8,
+ "concolic_workers": 0,
+ "concurrent": true,
+ "seeds": "generic_sm75.ptx retargeted per architecture (default)",
+ "arms": {
+  "vocab-ptxdict": "ptx.dict, --no-synthetic-opcodes",
+  "vocab-lexdict": "dict/ptx-lexer.dict, --no-synthetic-opcodes",
+  "vocab-lexdict-synth": "dict/ptx-lexer.dict, --synthetic-opcodes"
+ },
+ "runs": {
+  "vocab-ptxdict": {
+   "accepted": 66,
+   "accepted_by_origin": {
+    "seed": 1,
+    "mutation": 65
+   },
+   "forms": 9,
+   "sequences": 6,
+   "opcodes": [
+    "mov"
+   ],
+   "reserved_total": 4,
+   "reserved": {
+    "275": [
+     ".b32",
+     ".f32",
+     ".s32",
+     ".u32"
+    ]
+   },
+   "mutations": 145738,
+   "elapsed_seconds": 300.38
+  },
+  "vocab-lexdict": {
+   "accepted": 58,
+   "accepted_by_origin": {
+    "seed": 1,
+    "mutation": 57
+   },
+   "forms": 9,
+   "sequences": 6,
+   "opcodes": [
+    "mov"
+   ],
+   "reserved_total": 4,
+   "reserved": {
+    "275": [
+     ".b32",
+     ".f32",
+     ".s32",
+     ".u32"
+    ]
+   },
+   "mutations": 150126,
+   "elapsed_seconds": 300.43
+  },
+  "vocab-lexdict-synth": {
+   "accepted": 148,
+   "accepted_by_origin": {
+    "seed": 1,
+    "mutation": 105,
+    "synthetic-opcode": 42
+   },
+   "forms": 21,
+   "sequences": 21,
+   "opcodes": [
+    "abs",
+    "clz",
+    "mov",
+    "neg",
+    "not"
+   ],
+   "reserved_total": 4,
+   "reserved": {
+    "275": [
+     ".b32",
+     ".f32",
+     ".s32",
+     ".u32"
+    ]
+   },
+   "mutations": 136204,
+   "elapsed_seconds": 300.41
+  }
+ }
+}

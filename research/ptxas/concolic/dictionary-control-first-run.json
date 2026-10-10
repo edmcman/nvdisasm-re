@@ -1,0 +1,140 @@
+{
+ "compiler_sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+ "architecture": "SM75",
+ "duration_seconds": 300,
+ "workers": 8,
+ "concolic_workers": 0,
+ "concurrent": true,
+ "token_substitution": true,
+ "arms": {
+  "dict-none": "empty dictionary",
+  "dict-ptx": "ptx.dict",
+  "dict-lexer": "dict/ptx-lexer.dict"
+ },
+ "runs": {
+  "dict-none": {
+   "accepted": 96,
+   "accepted_by_origin": {
+    "seed": 1,
+    "mutation": 51,
+    "token-substitution": 44
+   },
+   "forms": 39,
+   "sequences": 32,
+   "opcodes": [
+    "abs",
+    "alloca",
+    "bfind",
+    "brev",
+    "clz",
+    "cnot",
+    "mov",
+    "neg",
+    "not",
+    "popc"
+   ],
+   "reserved_total": 5,
+   "reserved": {
+    "275": [
+     ".b32",
+     ".f32",
+     ".pred",
+     ".s32",
+     ".u32"
+    ]
+   },
+   "mutations": 143448,
+   "token_substitution": {
+    "attempts": 94,
+    "slots": 169,
+    "candidates": 24874,
+    "admitted": 1318
+   }
+  },
+  "dict-ptx": {
+   "accepted": 117,
+   "accepted_by_origin": {
+    "seed": 1,
+    "mutation": 70,
+    "token-substitution": 46
+   },
+   "forms": 39,
+   "sequences": 36,
+   "opcodes": [
+    "abs",
+    "alloca",
+    "bar.arrive",
+    "bar.cta.arrive",
+    "barrier.arrive",
+    "barrier.cta.arrive",
+    "bfind",
+    "brev",
+    "clz",
+    "cnot",
+    "mov",
+    "neg",
+    "not",
+    "popc"
+   ],
+   "reserved_total": 5,
+   "reserved": {
+    "275": [
+     ".b32",
+     ".f16x2",
+     ".f32",
+     ".s32",
+     ".u32"
+    ]
+   },
+   "mutations": 141259,
+   "token_substitution": {
+    "attempts": 91,
+    "slots": 164,
+    "candidates": 24642,
+    "admitted": 1358
+   }
+  },
+  "dict-lexer": {
+   "accepted": 151,
+   "accepted_by_origin": {
+    "seed": 1,
+    "mutation": 65,
+    "token-substitution": 85
+   },
+   "forms": 47,
+   "sequences": 45,
+   "opcodes": [
+    "abs",
+    "alloca",
+    "bfind",
+    "brev",
+    "clz",
+    "cnot",
+    "mov",
+    "neg",
+    "not",
+    "popc"
+   ],
+   "reserved_total": 8,
+   "reserved": {
+    "275": [
+     ".b32",
+     ".b64",
+     ".e5m2x2",
+     ".f16x2",
+     ".f32",
+     ".s32",
+     ".u32",
+     ".u64"
+    ]
+   },
+   "mutations": 130206,
+   "token_substitution": {
+    "attempts": 76,
+    "slots": 141,
+    "candidates": 21057,
+    "admitted": 1362
+   }
+  }
+ }
+}

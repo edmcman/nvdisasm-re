@@ -1,0 +1,111 @@
+{
+ "compiler_sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+ "architecture": "SM75",
+ "duration_seconds": 300,
+ "workers": 8,
+ "concolic_workers": 0,
+ "token_substitution": true,
+ "design": "5 rounds; each round runs the three arms concurrently",
+ "arms": {
+  "none": "empty dictionary",
+  "ptx": "ptx.dict",
+  "lexer": "dict/ptx-lexer.dict"
+ },
+ "rounds": {
+  "none-r1": {
+   "forms": 39,
+   "seq": 32,
+   "acc": 96,
+   "mut": 143448
+  },
+  "none-r2": {
+   "forms": 30,
+   "seq": 29,
+   "acc": 149,
+   "mut": 146803
+  },
+  "none-r3": {
+   "forms": 36,
+   "seq": 34,
+   "acc": 140,
+   "mut": 140729
+  },
+  "none-r4": {
+   "forms": 40,
+   "seq": 39,
+   "acc": 135,
+   "mut": 139153
+  },
+  "none-r5": {
+   "forms": 34,
+   "seq": 34,
+   "acc": 86,
+   "mut": 144621
+  },
+  "ptx-r1": {
+   "forms": 39,
+   "seq": 36,
+   "acc": 117,
+   "mut": 141259
+  },
+  "ptx-r2": {
+   "forms": 35,
+   "seq": 34,
+   "acc": 111,
+   "mut": 144227
+  },
+  "ptx-r3": {
+   "forms": 37,
+   "seq": 33,
+   "acc": 107,
+   "mut": 142477
+  },
+  "ptx-r4": {
+   "forms": 32,
+   "seq": 29,
+   "acc": 137,
+   "mut": 143675
+  },
+  "ptx-r5": {
+   "forms": 49,
+   "seq": 39,
+   "acc": 144,
+   "mut": 138545
+  },
+  "lexer-r1": {
+   "forms": 47,
+   "seq": 45,
+   "acc": 151,
+   "mut": 130206
+  },
+  "lexer-r2": {
+   "forms": 41,
+   "seq": 32,
+   "acc": 130,
+   "mut": 145151
+  },
+  "lexer-r3": {
+   "forms": 43,
+   "seq": 32,
+   "acc": 123,
+   "mut": 141148
+  },
+  "lexer-r4": {
+   "forms": 28,
+   "seq": 34,
+   "acc": 93,
+   "mut": 142680
+  },
+  "lexer-r5": {
+   "forms": 37,
+   "seq": 34,
+   "acc": 101,
+   "mut": 144419
+  }
+ },
+ "union_forms": {
+  "none": 55,
+  "ptx": 60,
+  "lexer": 61
+ }
+}

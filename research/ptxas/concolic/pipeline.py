@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import queue
 import re
+import shutil
 import signal
 import socket
 import sqlite3
@@ -315,6 +316,9 @@ def socket_reader(server, events, stop):
         threading.Thread(target=read,args=(connection,),daemon=True).start()
 
 
+def generic_seed(data, target):
+    return re.sub(rb'^\.target sm_\d+$',b'.target '+target.encode(),data,count=1,flags=re.M)
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--application',required=True,type=Path)
@@ -326,7 +330,7 @@ def main():
     p.add_argument('--dictionary',type=Path,action='append')
     p.add_argument('--resume',action='store_true')
     p.add_argument('--no-redqueen',action='store_true',help='disable native CmpLog/colorization RedQueen stages')
-    p.add_argument('--synthetic-opcodes',action=argparse.BooleanOptionalAction,default=True,help='try registry-wide virtual opcode comparisons through RedQueen (default: enabled)')
+    p.add_argument('--token-substitution',action=argparse.BooleanOptionalAction,default=True,help='try one-token substitutions within lexer token classes and registered opcodes (default: enabled)')
     p.add_argument('--parser-recognition',action='store_true',help='reward registered opcode matches and dedicated keyword/type tokens')
     p.add_argument('--tools',type=Path,default=Path(__file__).resolve().parent/'tools')
     p.add_argument('--ptxas',type=Path,default=Path('/usr/local/cuda-13.0/bin/ptxas'))
@@ -361,12 +365,18 @@ def main():
     db.execute("INSERT OR REPLACE INTO metadata VALUES('config',?)",(canonical(config),))
     db.execute("INSERT OR REPLACE INTO metadata VALUES('compiler_version',?)",(version,))
     db.execute("INSERT OR REPLACE INTO metadata VALUES('redqueen',?)",(canonical(not args.no_redqueen),)); db.commit(); recover(db)
-    db.execute("INSERT OR REPLACE INTO metadata VALUES('synthetic_opcodes',?)",(canonical(args.synthetic_opcodes),)); db.commit()
+    db.execute("INSERT OR REPLACE INTO metadata VALUES('token_substitution',?)",(canonical(args.token_substitution),)); db.commit()
     coordinator=Coordinator(root,db,config)
-    dictionaries=args.dictionary or [HERE/'ptx.dict']
-    seeds=args.seed or [HERE/'generic_sm75.ptx',*sorted(HERE.parent.glob('*.ptx'))]
-    for i,seed in enumerate(seeds):
-        data=seed.read_bytes(); (root/'seeds'/f'{i:03d}.ptx').write_bytes(data); coordinator.candidate(data,'seed:'+str(seed))
+    dictionaries=args.dictionary or [HERE/'dict'/'ptx-lexer.dict']
+    # Default: the generic seed retargeted to each architecture; explicit seeds go to every target.
+    generic=HERE/'generic_sm75.ptx'
+    seeds={TARGETS[a]:[(f'{generic}@{TARGETS[a]}',generic_seed(generic.read_bytes(),TARGETS[a]))] if not args.seed
+           else [(str(s),s.read_bytes()) for s in args.seed] for a in arches}
+    shutil.rmtree(root/'seeds')
+    for target,files in seeds.items():
+        (root/'seeds'/target).mkdir(parents=True)
+        for i,(_,data) in enumerate(files): (root/'seeds'/target/f'{i:03d}.ptx').write_bytes(data)
+    for name,data in dict(sum(seeds.values(),[])).items(): coordinator.candidate(data,'seed:'+name)
     ctx=mp.get_context('spawn'); events=ctx.Queue(); stop=ctx.Event()
     def stopping(*_): stop.set()
     signal.signal(signal.SIGINT,stopping); signal.signal(signal.SIGTERM,stopping)
@@ -401,7 +411,7 @@ def main():
         launch(f'mutation{i}',[application,'--worker',str(root),str(i),str(port),config['qemu'],config['ptxas'],
                ','.join(str(d.resolve()) for d in dictionaries),','.join(TARGETS[a] for a in arches),
                *(['--no-redqueen'] if args.no_redqueen else []),
-               '--synthetic-opcodes' if args.synthetic_opcodes else '--no-synthetic-opcodes',
+               '--token-substitution' if args.token_substitution else '--no-token-substitution',
                *(['--parser-recognition'] if args.parser_recognition else [])],stdout=subprocess.DEVNULL,env=env)
     # Replay previously accepted cases through LLMP on resume; no directory polling.
     for target,source in db.execute("SELECT DISTINCT c.target,s.source FROM compilations c JOIN candidates s USING(key) WHERE c.state='decoded'"):
