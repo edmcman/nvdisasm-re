@@ -231,3 +231,138 @@ PTX_OPCODE_REGISTRY=/tmp/opcode_registry.json gdb -q -batch \
 
 The extractor verifies the compiler SHA256 before reading its table. Review the output
 before replacing `opcode_registry.json` and rebuilding the Rust worker.
+
+### Generic map query trace
+
+`map_trace.py` probes lookup `0x426d60`, selecting tables with string hash
+`0x427630` and strcmp equality `0x4277b0`. It records queries, return addresses,
+and the union of observed resident keys. `map-trace-first-run.json` contains four
+successful compiler runs: integer add, float add, predicates/carry/cache/branch
+modifiers, and wide mad. The broad sample used labels `L_probe`/`L_done`,
+`setp.eq.u32`, `@%p0 add.cc.u32`, `addc.u32`, `shl.b32`, `ld.global.ca.u32`,
+`st.global.wb.u32`, `bra.uni`, and `%tid.x`.
+
+The instruction lookup callers are `0x46c6a8` and `0x46c7bc`; the secondary table
+is queried at `0x46c7da` (empty in these runs). They receive roots such as `add`,
+`setp`, `ld`, and qualified names such as `mad.wide`. No separate queries for
+`u32`, `f32`, `rn`, `eq`, `cc`, `global`, `ca`, `wb`, or `uni` were observed.
+A hook on this lookup therefore covers registered qualified instruction names,
+but these observations do not support using it for arbitrary type/modifier tokens.
+
+Other string tables handle CLI options, architecture names, ROT13 internal settings,
+texture-reference categories, internal metadata names, register declaration prefixes
+(`%r<`), function names and ELF sections/symbols. Most of these queries are unrelated
+to the mutable instruction region. Integer-key, pointer-key, and structured-key map
+callbacks also occur and are counted separately; the tracer does not decode them.
+
+```sh
+PTX_MAP_TRACE=/tmp/map.json gdb -q -batch \
+  -ex 'source research/ptxas/concolic/map_trace.py' \
+  --args /usr/local/cuda-13.0/bin/ptxas -arch=sm_75 -o /dev/null \
+  research/ptxas/concolic/synthetic_add.ptx
+```
+
+### Qualified names and suffix parsing
+
+`prefix_trace.py` records lexer actions/semantic values and parser reductions;
+`prefix-trace-first-run.json` contains successful float, wide-mad and broad sample runs.
+Addresses are native addresses in the pinned CUDA 13.0.88 binary.
+
+The lexer is `0x720f00`: initial-state pointers are at `0x203c020`, character
+transitions at `0x720f4d`/`0x720f7d`/`0x720fde`, accepting action selection at
+`0x720f81`, and action dispatch at `0x720fc7` through `0x203a5a8`.
+This is a generated table-driven lexer, not a series of string hash lookups.
+Suffix recognition produces numeric enums or type objects before the parser sees them.
+
+| Text | Lexer action | Action address | Returned token |
+| --- | ---: | --- | ---: |
+| `mad.wide` | 528 | `0x723e6f` | 258 (identifier) |
+| `.u32` | 258 | `0x724981` | 275 (type) |
+| `.f32` | 279 | `0x724651` | 275 (type) |
+| `.rn` | 160 | `0x721249` | 288 (rounding; value 1) |
+| `.eq` | 74 | `0x722b86` | 320 (comparison; value 1) |
+| `.cc` | 112 | `0x7236df` | 359 (value 1) |
+| `.global` | 66 | `0x722be3` | 303 |
+| `.ca` | 148 | `0x72135d` | 290 (cache; value 1) |
+| `.wb` | 153 | `0x7212ea` | 290 (cache; value 6) |
+| `.uni` | 193 | `0x7231c7` | 325 (value 1) |
+
+`mad.wide.u32` is tokenized as the identifier `mad.wide`, then the type `.u32`.
+`add.rn.f32` is identifier `add`, rounding `.rn`, then type `.f32`.
+Thus some dotted components belong to the lookup name while others have dedicated
+lexer rules. The exact boundary depends on the lexer rule, not a universal dot split.
+
+Parser entry is `0x4ce6b0`, lexer return site `0x4ced17`, token translation table
+`0x1d15fa0`, and reduction-action dispatch `0x4ce7b0` via `0x1d10a68`.
+Observed instruction suffix reductions include:
+
+- Rounding: rule 426 at `0x4d0f07`, writes high nibble of parsing context +`0x25d`.
+- Cache mode: rule 430 at `0x4d0ce5`, writes bits 3–6 at context +`0x25e`.
+- Carry: rule 406 at `0x4d10fc`, writes bit 4 at context +`0x25b`.
+- Type: rule 373 at `0x4d5b9f`, calls `0x4a9e30` to process the type object.
+
+The parsing context in those cases is loaded from the parser's caller context +`0x448`.
+For suffix feedback, the character automaton or token boundary is the relevant hook;
+a generic map hook alone misses these tokens. Token-group alternatives could be derived
+from the lexer automaton and grouped by returned token without a hand-written PTX list,
+but automaton extraction and that mutation hook are not yet implemented.
+
+```sh
+PTX_PREFIX_TRACE=/tmp/prefix.jsonl gdb -q -batch \
+  -ex 'source research/ptxas/concolic/prefix_trace.py' \
+  --args /usr/local/cuda-13.0/bin/ptxas -arch=sm_100 -o /dev/null \
+  research/ptxas/add_f32.ptx
+```
+
+### Parser recognition feedback
+
+`--parser-recognition` adds opt-in coverage at successful registered-opcode lookups
+and dedicated lexer keyword/type actions. It replaces the broad transition experiment.
+There is no active character-transition hook: the obsolete `--lexer-transitions` option
+is removed, and checkpoints made with it enabled are rejected because the slot meanings
+changed. Old campaigns with transition feedback disabled retain their original layout.
+
+Opcode recognition is recorded at `0x46c6b4`, after either opcode-table lookup succeeded.
+EAX contains the stable opcode ID; misses bypass the site. Thus a known opcode with
+invalid operands can earn feedback before compilation succeeds. Reserved-token recognition
+records the selected lexer action ID at dedicated action handlers. Generic identifier
+rules 528/529, numeric/string rules and scanner fallback machinery are excluded.
+The audited reserved-token partition includes modifiers, types, built-in register names
+and some declaration keywords; this is recognition, not final instruction validation.
+
+`recognition_hooks.py` extracts the 467 reserved-token handler addresses from the pinned
+compiler's action table, then adds the successful opcode-lookup site. It uses no PTX
+spelling inventory. `parser-recognition.ijon` is the generated configuration, embedded
+in the Rust worker. Refresh it with:
+
+```sh
+python3 research/ptxas/concolic/recognition_hooks.py /usr/local/cuda-13.0/bin/ptxas \
+  research/ptxas/concolic/parser-recognition.ijon
+```
+
+Ordinary edges retain their 1 MiB map. IJON follows with 64 KiB set coverage plus its
+unused 4 KiB max/min reservation; accepted PTX/SASS features follow that reservation.
+Activity reports `covered_parser_recognitions`. The flag is persisted and cannot change
+on resume. `qemu-ijon-quiet.patch` gates upstream runtime logging behind `AFL_DEBUG`.
+
+The real-QEMU probe asserts that unknown `banana`/`papaya` opcodes, renamed operands,
+and an unknown `.blorp` suffix add no recognition coverage relative to an empty region.
+`sub.u32 %r2;` is rejected for operand mismatch but earns the same recognition as valid
+`sub.u32 %r2, %r0, %r1;`. Unknown `.rq` and `.rx` spellings have the same recognition map,
+whereas `.rn` and `.rz` differ. All repeated maps are byte-identical.
+
+```sh
+cargo run --release --offline --manifest-path research/ptxas/concolic/libafl/Cargo.toml \
+  --target-dir research/ptxas/concolic/tools/libafl-target -- \
+  --recognition-probe research/ptxas/concolic/synthetic_add.ptx /tmp/ptx-recognition-probe
+```
+
+Evidence is in `parser-recognition-first-run.json`. A 10-second SM75 pipeline run
+with native RedQueen and synthetic opcode comparisons disabled completed successfully,
+then resumed for five seconds with recognition coverage intact. Changing the flag on
+resume and loading an obsolete transition-feedback checkpoint both fail explicitly.
+All ten Rust tests, including the real-QEMU tests, pass. This verifies endpoint recognition
+feedback, not intermediate prefix progress or a campaign discovery-rate improvement.
+Runtime map enumeration or symbolic modeling of lexer table loads is the next step for
+vocabulary-independent intermediate progress. The old transition experiment remains
+recorded in `lexer-transitions-first-run.json` as historical evidence, not an active mode.

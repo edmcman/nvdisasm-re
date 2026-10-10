@@ -41,6 +41,7 @@ export PATH="$tool_dir/venv/bin:$PATH"
 checkout "$tool_dir/AFLplusplus" https://github.com/AFLplusplus/AFLplusplus.git dbaf11913c1b2702dee5b4d3dcfffd52f1defe50
 make -C "$tool_dir/AFLplusplus" -j8 afl-fuzz afl-showmap afl-tmin
 git -C "$tool_dir/AFLplusplus" submodule update --init --depth 1 qemu_mode/qemuafl
+apply_once "$tool_dir/AFLplusplus/qemu_mode/qemuafl" "$experiment_dir/qemu-ijon-quiet.patch"
 (cd "$tool_dir/AFLplusplus/qemu_mode" && NO_CHECKOUT=1 ./build_qemu_support.sh)
 
 checkout "$tool_dir/symqemu" https://github.com/eurecom-s3/symqemu.git 6e37dd2c3bace02997f358a7fb5d2b23bf4a5b59

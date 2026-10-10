@@ -22,6 +22,8 @@ mod input;
 mod redqueen;
 mod opcode_cmp;
 mod opcode_probe;
+mod lexer;
+mod lexer_probe;
 use input::PtxInput;
 
 static STOP: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
@@ -47,6 +49,8 @@ fn main() {
             Some((begin, end)) => println!("{begin} {end}"),
             None => println!("none"),
         }
+    } else if args.get(1).is_some_and(|x| x == "--recognition-probe") {
+        lexer_probe::run(std::path::Path::new(&args[2]), std::path::Path::new(&args[3]));
     } else if args.get(1).is_some_and(|x| x == "--opcode-cmp-probe") {
         opcode_probe::run(std::path::Path::new(&args[2]), std::path::Path::new(&args[3]));
     } else if args.get(1).is_some_and(|x| x == "--worker") {
@@ -64,7 +68,7 @@ fn main() {
 /// are marked in the coverage map's feature slots (see features.rs).
 #[derive(serde::Serialize, serde::Deserialize)]
 struct Compiled { output: PathBuf, origin: String, #[serde(skip)] tx: Option<mpsc::Sender<serde_json::Value>>,
-                  #[serde(skip)] submitted: HashSet<Vec<u8>>, #[serde(skip)] map: Option<std::ptr::NonNull<u8>> }
+                  #[serde(skip)] submitted: HashSet<Vec<u8>>, #[serde(skip)] map: Option<std::ptr::NonNull<u8>>, #[serde(skip)] feature_offset: usize }
 impl Named for Compiled {
     fn name(&self) -> &Cow<'static, str> { static NAME: Cow<'static, str> = Cow::Borrowed("compiled"); &NAME }
 }
@@ -80,7 +84,7 @@ impl<I: HasTargetBytes + HasMutatorBytes, S> Observer<I, S> for Compiled {
             let slots = features::ptx(input.mutator_bytes()).into_iter().chain(features::sass(cubin));
             // The edge observer has already reset and classified this shared map for the run;
             // feature slots lie past the qemu edges, so only this observer writes them.
-            for slot in slots { unsafe { *map.as_ptr().add(slot) = 1; } }
+            for slot in slots { unsafe { *map.as_ptr().add(slot + self.feature_offset) = 1; } }
         }
         Ok(())
     }
@@ -91,7 +95,7 @@ type State = StdState<InMemoryOnDiskCorpus<PtxInput>, PtxInput, StdRand, InMemor
 /// Snapshot the scheduler's actual corpus and accumulated feedback, rather than queue files
 /// (trimming replaces entries and can leave filenames that do not reflect the live corpus).
 fn activity(state: &State, worker: &str, arch: &str, epoch: usize, executions: u64,
-            executions_per_second: f64) -> serde_json::Value {
+            executions_per_second: f64, lexer_enabled: bool) -> serde_json::Value {
     let (mut pending, mut favored, mut pending_favored) = (0, 0, 0);
     for id in state.corpus().ids() {
         let testcase = state.corpus().get(id).unwrap().borrow();
@@ -103,7 +107,9 @@ fn activity(state: &State, worker: &str, arch: &str, epoch: usize, executions: u
     }
     let history = &state.named_metadata::<MapFeedbackMetadata<u8>>("edges").unwrap().history_map;
     let covered_edges = history[..history.len().min(features::EDGES)].iter().filter(|&&v| v != 0).count();
-    let covered_features = history.iter().skip(features::EDGES).filter(|&&v| v != 0).count();
+    let feature_start = features::EDGES + lexer::feature_offset(lexer_enabled);
+    let covered_parser_recognitions = history.iter().skip(features::EDGES).take(if lexer_enabled { lexer::SLOTS } else { 0 }).filter(|&&v| v != 0).count();
+    let covered_features = history.iter().skip(feature_start).filter(|&&v| v != 0).count();
     let queue_cycles = state.metadata::<SchedulerMetadata>().unwrap().queue_cycles();
     let rq = state.metadata_map().get::<redqueen::Stats>().cloned().unwrap_or_default();
     let opcode_rq = state.metadata_map().get::<redqueen::OpcodeStats>().cloned().unwrap_or_default();
@@ -113,7 +119,7 @@ fn activity(state: &State, worker: &str, arch: &str, epoch: usize, executions: u
         "pending":pending, "favored":favored, "pending_favored":pending_favored,
         "queue_cycles":queue_cycles, "covered_edges":covered_edges,
         "edge_map_density_percent":100.0 * covered_edges as f64 / features::EDGES as f64,
-        "covered_features":covered_features, "redqueen":rq, "opcode_redqueen":opcode_rq})
+        "covered_features":covered_features, "covered_parser_recognitions":covered_parser_recognitions, "redqueen":rq, "opcode_redqueen":opcode_rq})
 }
 
 /// AFL++ trims an entry when it is first fuzzed.
@@ -145,6 +151,9 @@ fn worker(args: &[String]) {
     let root = PathBuf::from(&args[0]); let index = &args[1];
     let redqueen_enabled = !args.iter().any(|arg| arg == "--no-redqueen");
     let synthetic_opcodes = !args.iter().any(|arg| arg == "--no-synthetic-opcodes");
+    let lexer_enabled = args.iter().any(|arg| arg == "--parser-recognition");
+    let feature_offset = lexer::feature_offset(lexer_enabled);
+    let map_size = features::EDGES + feature_offset + features::SLOTS;
     let stopped = || STOP.load(std::sync::atomic::Ordering::Relaxed);
     let mut client = LlmpClient::create_attach_to_tcp(UnixShMemProvider::new().unwrap(), args[2].parse().unwrap()).unwrap();
     let (tx, rx) = mpsc::channel::<serde_json::Value>();
@@ -162,7 +171,7 @@ fn worker(args: &[String]) {
         let arch = targets[(index.parse::<usize>().unwrap() + epoch) % targets.len()];
         let checkpoint = worker_dir.join(format!("{arch}.state"));
         let mut sp = UnixShMemProvider::new().unwrap();
-        let mut shmem = sp.new_shmem(features::EDGES + features::SLOTS).unwrap();
+        let mut shmem = sp.new_shmem(map_size).unwrap();
         let map = std::ptr::NonNull::new(shmem.as_mut_ptr());
         unsafe { shmem.write_to_env("__AFL_SHM_ID").unwrap(); }
         let edges = unsafe { HitcountsMapObserver::new(StdMapObserver::new("edges", &mut shmem[..])) }.track_indices();
@@ -177,6 +186,10 @@ fn worker(args: &[String]) {
         } else { // The coverage corpus, rejected inputs included, is kept on disk for inspection.
                  StdState::new(StdRand::with_seed(current_nanos()), InMemoryOnDiskCorpus::no_meta(worker_dir.join("queue").join(arch)).unwrap(),
                    InMemoryCorpus::<PtxInput>::new(), &mut feedback, &mut objective).unwrap() };
+        assert!(!state.metadata_map().get::<lexer::Config>().is_some_and(|c| c.0), "Obsolete transition-feedback checkpoint: use a new campaign");
+        let previous_lexer = state.metadata_map().get::<lexer::RecognitionConfig>().map_or(false, |c| c.0);
+        assert!(!checkpoint.exists() || previous_lexer == lexer_enabled, "Cannot change parser recognition coverage on resume");
+        state.metadata_map_mut().insert(lexer::RecognitionConfig(lexer_enabled));
         if !state.has_metadata::<Tokens>() {
             state.add_metadata(Tokens::new().add_from_files(args[5].split(',')).unwrap());
         }
@@ -191,11 +204,15 @@ fn worker(args: &[String]) {
         let trim = StdTMinMutationalStage::new(Counted(BytesDeleteMutator::new()), ObserverEqualityFactory::new(&edges), TRIM_RUNS);
         let own_origin = format!("mutation:{index}:{arch}");
         let compiled = Compiled { output: worker_dir.join("current.cubin"), origin: own_origin.clone(),
-                                  tx: Some(tx.clone()), submitted: HashSet::new(), map };
+                                  tx: Some(tx.clone()), submitted: HashSet::new(), map, feature_offset };
         let compiled_handle = compiled.handle();
-        let ptxas = |output: &PathBuf| ForkserverExecutor::builder().program(&args[3])
+        let lexer_config = lexer_enabled.then(|| lexer::config(&worker_dir));
+        let ptxas = |output: &PathBuf| {
+            let builder = ForkserverExecutor::builder().program(&args[3])
             .env("AFL_QEMU_MAP_SIZE", features::EDGES.to_string())
-            .coverage_map_size(features::EDGES + features::SLOTS).arg(&args[4]).arg(format!("-arch={arch}")).arg("-o").arg(output);
+            .coverage_map_size(map_size).arg(&args[4]).arg(format!("-arch={arch}")).arg("-o").arg(output);
+            if let Some(path) = &lexer_config { builder.env("AFL_QEMU_IJON", path) } else { builder }
+        };
         let mut executor = ptxas(&compiled.output).shmem_provider(&mut sp).timeout(Duration::from_secs(2))
             .arg_input_file(worker_dir.join("current.ptx")).build(tuple_list!(edges, time, compiled)).unwrap();
         // The backing shared memory outlives every observer reference and tracer.
@@ -270,7 +287,7 @@ fn worker(args: &[String]) {
             IfStage::new(rq_first, tuple_list!(rq_prepare, colorization, rq_trace, rq)), havoc);
         let epoch_start = Instant::now(); let mut saved = Instant::now(); let mut reported = Instant::now();
         let mut last_executions = *state.executions();
-        tx.send(activity(&state, index, arch, epoch, total + *state.executions() - initial_executions, 0.0)).unwrap();
+        tx.send(activity(&state, index, arch, epoch, total + *state.executions() - initial_executions, 0.0, lexer_enabled)).unwrap();
         while epoch_start.elapsed() < Duration::from_secs(60) && !stopped() {
             while let Some((_, tag, bytes)) = client.recv_buf().unwrap() {
                 if tag == TAG { broadcasts.push(serde_json::from_slice(bytes).unwrap()); }
@@ -305,7 +322,7 @@ fn worker(args: &[String]) {
             }
             if reported.elapsed() >= Duration::from_secs(1) {
                 let rate = (*state.executions() - last_executions) as f64 / reported.elapsed().as_secs_f64();
-                tx.send(activity(&state, index, arch, epoch, total + *state.executions() - initial_executions, rate)).unwrap();
+                tx.send(activity(&state, index, arch, epoch, total + *state.executions() - initial_executions, rate, lexer_enabled)).unwrap();
                 last_executions = *state.executions();
                 reported = Instant::now();
             }
@@ -317,7 +334,7 @@ fn worker(args: &[String]) {
         fs::write(&checkpoint, postcard::to_allocvec(&state).unwrap()).unwrap();
         total += *state.executions() - initial_executions;
         let rate = (*state.executions() - last_executions) as f64 / reported.elapsed().as_secs_f64().max(0.001);
-        tx.send(activity(&state, index, arch, epoch, total, rate)).unwrap();
+        tx.send(activity(&state, index, arch, epoch, total, rate, lexer_enabled)).unwrap();
         epoch += 1;
     }
 }

@@ -1,0 +1,570 @@
+{
+  "checks": {
+    "arbitrary_names_no_new_recognition": true,
+    "checkpoint_resume": true,
+    "known_opcode_bad_operands_rewarded": true,
+    "mode_change_on_resume_rejected": true,
+    "obsolete_transition_checkpoint_rejected": true,
+    "recognized_rounding_modes_distinguished": true,
+    "repeat_maps_identical": true,
+    "unknown_suffixes_no_distinct_recognition": true,
+    "unknown_type_not_rewarded": true
+  },
+  "compiler_sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+  "integration": {
+    "architecture": "SM75",
+    "context_executions": 1564,
+    "covered_edges": 40570,
+    "covered_features": 12,
+    "covered_parser_recognitions": 13,
+    "initial_duration_seconds": 10,
+    "mutation_worker_exit_code": 0,
+    "native_redqueen": true,
+    "phase": "stopped",
+    "resume_duration_seconds": 5,
+    "synthetic_opcodes": false
+  },
+  "mode": "registered-opcodes-and-reserved-tokens",
+  "runs": [
+    {
+      "accepted": true,
+      "arm": "baseline",
+      "case": "empty",
+      "edges": 35331,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 0
+    },
+    {
+      "accepted": true,
+      "arm": "baseline",
+      "case": "empty",
+      "edges": 35331,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "banana",
+      "edges": 4403,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "banana",
+      "edges": 4403,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "papaya",
+      "edges": 4403,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "papaya",
+      "edges": 4403,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "renamed",
+      "edges": 4491,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "renamed",
+      "edges": 4491,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "unknown_suffix",
+      "edges": 5039,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "unknown_suffix",
+      "edges": 5039,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 1
+    },
+    {
+      "accepted": true,
+      "arm": "baseline",
+      "case": "sub_valid",
+      "edges": 38857,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 0
+    },
+    {
+      "accepted": true,
+      "arm": "baseline",
+      "case": "sub_valid",
+      "edges": 38857,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "sub_bad_operands",
+      "edges": 4406,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "sub_bad_operands",
+      "edges": 4406,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "sub_bad_suffix",
+      "edges": 5036,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "sub_bad_suffix",
+      "edges": 5036,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 1
+    },
+    {
+      "accepted": true,
+      "arm": "baseline",
+      "case": "rn",
+      "edges": 38409,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 0
+    },
+    {
+      "accepted": true,
+      "arm": "baseline",
+      "case": "rn",
+      "edges": 38409,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 1
+    },
+    {
+      "accepted": true,
+      "arm": "baseline",
+      "case": "rz",
+      "edges": 38293,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 0
+    },
+    {
+      "accepted": true,
+      "arm": "baseline",
+      "case": "rz",
+      "edges": 38293,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 1
+    },
+    {
+      "accepted": true,
+      "arm": "baseline",
+      "case": "rm",
+      "edges": 38294,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 0
+    },
+    {
+      "accepted": true,
+      "arm": "baseline",
+      "case": "rm",
+      "edges": 38294,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 1
+    },
+    {
+      "accepted": true,
+      "arm": "baseline",
+      "case": "rp",
+      "edges": 38297,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 0
+    },
+    {
+      "accepted": true,
+      "arm": "baseline",
+      "case": "rp",
+      "edges": 38297,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "rq",
+      "edges": 5157,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "rq",
+      "edges": 5157,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "rx",
+      "edges": 5157,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "rx",
+      "edges": 5157,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "bad_type",
+      "edges": 5041,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "baseline",
+      "case": "bad_type",
+      "edges": 5041,
+      "exit": "Ok",
+      "recognitions": 0,
+      "repeat": 1
+    },
+    {
+      "accepted": true,
+      "arm": "recognition",
+      "case": "empty",
+      "edges": 35331,
+      "exit": "Ok",
+      "recognitions": 12,
+      "repeat": 0
+    },
+    {
+      "accepted": true,
+      "arm": "recognition",
+      "case": "empty",
+      "edges": 35331,
+      "exit": "Ok",
+      "recognitions": 12,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "banana",
+      "edges": 4403,
+      "exit": "Ok",
+      "recognitions": 12,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "banana",
+      "edges": 4403,
+      "exit": "Ok",
+      "recognitions": 12,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "papaya",
+      "edges": 4403,
+      "exit": "Ok",
+      "recognitions": 12,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "papaya",
+      "edges": 4403,
+      "exit": "Ok",
+      "recognitions": 12,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "renamed",
+      "edges": 4489,
+      "exit": "Ok",
+      "recognitions": 12,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "renamed",
+      "edges": 4489,
+      "exit": "Ok",
+      "recognitions": 12,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "unknown_suffix",
+      "edges": 5037,
+      "exit": "Ok",
+      "recognitions": 12,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "unknown_suffix",
+      "edges": 5037,
+      "exit": "Ok",
+      "recognitions": 12,
+      "repeat": 1
+    },
+    {
+      "accepted": true,
+      "arm": "recognition",
+      "case": "sub_valid",
+      "edges": 38857,
+      "exit": "Ok",
+      "recognitions": 13,
+      "repeat": 0
+    },
+    {
+      "accepted": true,
+      "arm": "recognition",
+      "case": "sub_valid",
+      "edges": 38857,
+      "exit": "Ok",
+      "recognitions": 13,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "sub_bad_operands",
+      "edges": 4404,
+      "exit": "Ok",
+      "recognitions": 13,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "sub_bad_operands",
+      "edges": 4404,
+      "exit": "Ok",
+      "recognitions": 13,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "sub_bad_suffix",
+      "edges": 5050,
+      "exit": "Ok",
+      "recognitions": 13,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "sub_bad_suffix",
+      "edges": 5050,
+      "exit": "Ok",
+      "recognitions": 13,
+      "repeat": 1
+    },
+    {
+      "accepted": true,
+      "arm": "recognition",
+      "case": "rn",
+      "edges": 38409,
+      "exit": "Ok",
+      "recognitions": 15,
+      "repeat": 0
+    },
+    {
+      "accepted": true,
+      "arm": "recognition",
+      "case": "rn",
+      "edges": 38409,
+      "exit": "Ok",
+      "recognitions": 15,
+      "repeat": 1
+    },
+    {
+      "accepted": true,
+      "arm": "recognition",
+      "case": "rz",
+      "edges": 38293,
+      "exit": "Ok",
+      "recognitions": 15,
+      "repeat": 0
+    },
+    {
+      "accepted": true,
+      "arm": "recognition",
+      "case": "rz",
+      "edges": 38293,
+      "exit": "Ok",
+      "recognitions": 15,
+      "repeat": 1
+    },
+    {
+      "accepted": true,
+      "arm": "recognition",
+      "case": "rm",
+      "edges": 38294,
+      "exit": "Ok",
+      "recognitions": 15,
+      "repeat": 0
+    },
+    {
+      "accepted": true,
+      "arm": "recognition",
+      "case": "rm",
+      "edges": 38294,
+      "exit": "Ok",
+      "recognitions": 15,
+      "repeat": 1
+    },
+    {
+      "accepted": true,
+      "arm": "recognition",
+      "case": "rp",
+      "edges": 38297,
+      "exit": "Ok",
+      "recognitions": 15,
+      "repeat": 0
+    },
+    {
+      "accepted": true,
+      "arm": "recognition",
+      "case": "rp",
+      "edges": 38297,
+      "exit": "Ok",
+      "recognitions": 15,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "rq",
+      "edges": 5157,
+      "exit": "Ok",
+      "recognitions": 14,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "rq",
+      "edges": 5157,
+      "exit": "Ok",
+      "recognitions": 14,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "rx",
+      "edges": 5157,
+      "exit": "Ok",
+      "recognitions": 14,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "rx",
+      "edges": 5157,
+      "exit": "Ok",
+      "recognitions": 14,
+      "repeat": 1
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "bad_type",
+      "edges": 5057,
+      "exit": "Ok",
+      "recognitions": 14,
+      "repeat": 0
+    },
+    {
+      "accepted": false,
+      "arm": "recognition",
+      "case": "bad_type",
+      "edges": 5057,
+      "exit": "Ok",
+      "recognitions": 14,
+      "repeat": 1
+    }
+  ]
+}

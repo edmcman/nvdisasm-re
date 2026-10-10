@@ -1,0 +1,15 @@
+diff --git a/accel/tcg/tcg-runtime.c b/accel/tcg/tcg-runtime.c
+index 7bc317f..a834c4d 100644
+--- a/accel/tcg/tcg-runtime.c
++++ b/accel/tcg/tcg-runtime.c
+@@ -51,7 +51,9 @@ void HELPER(ijon_func_call)(target_ulong var_addr, target_ulong var_len, target_
+   uint64_t buf = 0;
+   memcpy(&buf, (const void *)var_addr, var_len);
+   ijon_dispatch(itype, idx, buf);
+-  fprintf(stderr, "trigger ijon: addr=0x%016" PRIx64 " tag=%s value %ld\n", var_addr, ijon_to_str(itype), buf);
++  static int ijon_debug = -1;
++  if (ijon_debug == -1) ijon_debug = getenv("AFL_DEBUG") != NULL;
++  if (ijon_debug) fprintf(stderr, "trigger ijon: addr=0x%016" PRIx64 " tag=%s value %ld\n", var_addr, ijon_to_str(itype), buf);
+ }
+ 
+ void HELPER(afl_entry_routine)(CPUArchState *env) {
