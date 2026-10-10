@@ -10,6 +10,8 @@ use libafl::{Error, HasMetadata, HasNamedMetadata, corpus::{Corpus, HasCurrentCo
     schedulers::{IndexesLenTimeMinimizerScheduler, StdWeightedScheduler, minimizer::IsFavoredMetadata,
                  powersched::{PowerSchedule, SchedulerMetadata}},
     stages::{ClosureStage, IfStage, ObserverEqualityFactory, StdTMinMutationalStage, calibrate::CalibrationStage,
+             mutational::MultiMutationalStage,
+             colorization::{ColorizationStage, TaintMetadata},
              power::StdPowerMutationalStage},
     state::{HasCorpus, HasCurrentTestcase, HasExecutions, StdState}};
 use libafl_bolts::{Named, StdTargetArgs, current_nanos, rands::StdRand,
@@ -17,6 +19,7 @@ use libafl_bolts::{Named, StdTargetArgs, current_nanos, rands::StdRand,
     llmp::{LlmpConnection, LlmpClient, Tag}};
 mod features;
 mod input;
+mod redqueen;
 use input::PtxInput;
 
 static STOP: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
@@ -98,13 +101,14 @@ fn activity(state: &State, worker: &str, arch: &str, epoch: usize, executions: u
     let covered_edges = history[..history.len().min(features::EDGES)].iter().filter(|&&v| v != 0).count();
     let covered_features = history.iter().skip(features::EDGES).filter(|&&v| v != 0).count();
     let queue_cycles = state.metadata::<SchedulerMetadata>().unwrap().queue_cycles();
+    let rq = state.metadata_map().get::<redqueen::Stats>().cloned().unwrap_or_default();
     serde_json::json!({"kind":"activity", "worker":worker, "arch":arch, "epoch":epoch,
         "executions":executions, "context_executions":state.executions(),
         "executions_per_second":executions_per_second, "corpus_size":state.corpus().count(),
         "pending":pending, "favored":favored, "pending_favored":pending_favored,
         "queue_cycles":queue_cycles, "covered_edges":covered_edges,
         "edge_map_density_percent":100.0 * covered_edges as f64 / features::EDGES as f64,
-        "covered_features":covered_features})
+        "covered_features":covered_features, "redqueen":rq})
 }
 
 /// AFL++ trims an entry when it is first fuzzed.
@@ -134,6 +138,7 @@ fn worker(args: &[String]) {
     // root, index, broker port, qemu, compiler, comma-separated dictionaries, comma-separated targets.
     // The coordinator owns the campaign deadline and stops workers with SIGUSR1.
     let root = PathBuf::from(&args[0]); let index = &args[1];
+    let redqueen_enabled = !args.iter().any(|arg| arg == "--no-redqueen");
     let stopped = || STOP.load(std::sync::atomic::Ordering::Relaxed);
     let mut client = LlmpClient::create_attach_to_tcp(UnixShMemProvider::new().unwrap(), args[2].parse().unwrap()).unwrap();
     let (tx, rx) = mpsc::channel::<serde_json::Value>();
@@ -155,6 +160,7 @@ fn worker(args: &[String]) {
         let map = std::ptr::NonNull::new(shmem.as_mut_ptr());
         unsafe { shmem.write_to_env("__AFL_SHM_ID").unwrap(); }
         let edges = unsafe { HitcountsMapObserver::new(StdMapObserver::new("edges", &mut shmem[..])) }.track_indices();
+        let colorization = ColorizationStage::new(&edges);
         let time = TimeObserver::new("time");
         let map_feedback = MaxMapFeedback::new(&edges);
         let calibration = CalibrationStage::new(&map_feedback);
@@ -186,6 +192,22 @@ fn worker(args: &[String]) {
             .coverage_map_size(features::EDGES + features::SLOTS).arg(&args[4]).arg(format!("-arch={arch}")).arg("-o").arg(output);
         let mut executor = ptxas(&compiled.output).shmem_provider(&mut sp).timeout(Duration::from_secs(2))
             .arg_input_file(worker_dir.join("current.ptx")).build(tuple_list!(edges, time, compiled)).unwrap();
+        // The backing shared memory outlives every observer reference and tracer.
+        let mut cmp_shmem = redqueen_enabled.then(|| sp.new_shmem(redqueen::MAP_SIZE).unwrap());
+        let mut cmplog = if let Some(cmp_shmem) = &mut cmp_shmem {
+            cmp_shmem.fill(0);
+            let cmp_id = cmp_shmem.id().to_string();
+            let observer = libafl_targets::cmps::observers::AflppCmpLogObserver::new("cmplog",
+                unsafe { libafl_targets::cmps::AflppCmpLogMap::from_shmem(cmp_shmem) }, true);
+            let handle = observer.handle();
+            let tracer = ptxas(&worker_dir.join("cmplog.cubin"))
+                .env("___AFL_EINS_ZWEI_POLIZEI___", "1")
+                .env("__AFL_CMPLOG_SHM_ID", cmp_id)
+                .shmem_provider(&mut sp).timeout(Duration::from_secs(2))
+                .arg_input_file(worker_dir.join("cmplog.ptx"))
+                .build(tuple_list!(observer)).unwrap();
+            Some((tracer, handle))
+        } else { None };
         let initial_executions = *state.executions();
         if state.corpus().count() == 0 {
             // Every marked seed is queued, as AFL++ does; files without markers are not mutated.
@@ -195,6 +217,7 @@ fn worker(args: &[String]) {
                 }
             }
         }
+        let mut executor = redqueen::Stoppable(executor);
         let havoc = StdPowerMutationalStage::new(HavocScheduledMutator::with_max_stack_pow(havoc_mutations().merge(tokens_mutations()), HAVOC_STACK_POW2));
         // LibAFL's minimizer records the replacement as its own parent, which makes calibration
         // re-borrow the entry while it holds it; an entry trimmed in place has no parent.
@@ -205,7 +228,25 @@ fn worker(args: &[String]) {
             Ok(())
         });
         // Trim first; calibration then measures the replacement and gives it scheduler metadata.
-        let mut stages = tuple_list!(IfStage::new(first_scheduling, tuple_list!(trim, orphan)), calibration, havoc);
+        let rq_first = move |_: &mut _, _: &mut _, state: &mut State, _: &mut _| -> Result<bool, Error> {
+            Ok(redqueen_enabled && !stopped() && state.current_testcase()?.scheduled_count() == 0
+               && !state.current_input_cloned()?.region.is_empty())
+        };
+        let rq_prepare = ClosureStage::new(|_: &mut _, _: &mut _, state: &mut State, _: &mut _| -> Result<(), Error> {
+            let _ = state.metadata_map_mut().remove::<TaintMetadata>();
+            let _ = state.metadata_map_mut().remove::<libafl::observers::cmp::AflppCmpValuesMetadata>();
+            redqueen::stats(state).attempts += 1;
+            Ok(())
+        });
+        let rq_trace = ClosureStage::new(move |fuzzer: &mut _, _: &mut _, state: &mut State, manager: &mut _| -> Result<(), Error> {
+            if let Some((tracer, handle)) = &mut cmplog {
+                redqueen::trace(tracer, handle, fuzzer, state, manager)?;
+            }
+            Ok(())
+        });
+        let rq = MultiMutationalStage::new(redqueen::RegionRedQueen::new());
+        let mut stages = tuple_list!(IfStage::new(first_scheduling, tuple_list!(trim, orphan)), calibration,
+            IfStage::new(rq_first, tuple_list!(rq_prepare, colorization, rq_trace, rq)), havoc);
         let epoch_start = Instant::now(); let mut saved = Instant::now(); let mut reported = Instant::now();
         let mut last_executions = *state.executions();
         tx.send(activity(&state, index, arch, epoch, total + *state.executions() - initial_executions, 0.0)).unwrap();
@@ -219,7 +260,12 @@ fn worker(args: &[String]) {
                 match origin {
                     // Accepted cases enter scheduling even without new compiler coverage; executing
                     // them records the coverage metadata the minimizing scheduler needs.
-                    None => { fuzzer.add_input(&mut state, &mut executor, &mut mgr, input).unwrap(); }
+                    None => {
+                        if let Err(e) = fuzzer.add_input(&mut state, &mut executor, &mut mgr, input) {
+                            if stopped() { break; }
+                            panic!("{e:?}");
+                        }
+                    }
                     // Concolic outputs join the corpus only with new coverage; compiling ones are
                     // submitted under their own origin.
                     Some(origin) => {

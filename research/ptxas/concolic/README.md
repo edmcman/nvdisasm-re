@@ -16,6 +16,8 @@ python3 research/ptxas/concolic/run.py --output research/ptxas/concolic/tools/ru
 `--n 8` mutation workers, `--m 1` concolic workers, `--duration` seconds,
 `--seed FILE` (repeatable; default `generic_sm75.ptx` plus `../*.ptx`),
 `--architectures SM75,...`, `--dictionary FILE` (repeatable; default `ptx.dict`), `--resume`.
+RedQueen comparison-guided mutations are enabled by default; `--no-redqueen` disables
+them without changing the campaign's compiler or architecture identity.
 Build prerequisites are listed in `build.sh`; `afl-qemu-trace`, SymQEMU and LibAFL
 (rev `70259b66`, `libafl/Cargo.lock`) are pinned.
 
@@ -44,8 +46,8 @@ Uniform special registers (`%ctaid.x`, `%clock64`) give uniform-operand forms.
 - **Mutation workers** (Rust, `libafl/src/main.rs`): LibAFL forkserver over
   `afl-qemu-trace ptxas`, deferred to `0x4428e0` (`FORKSERVER_ENTRY`; skips ptxas's
   input-independent startup, 6.5x throughput). Per entry: trim on first scheduling
-  (LibAFL's `StdTMinMutationalStage`), calibration, then power-scheduled havoc + dictionary
-  tokens with AFL++'s stack depth; scheduling is AFL++'s (favored minimal entries per edge,
+  (LibAFL's `StdTMinMutationalStage`), calibration, RedQueen on first scheduling, then
+  power-scheduled havoc + dictionary tokens with AFL++'s stack depth; scheduling is AFL++'s (favored minimal entries per edge,
   `explore` schedule). Each worker rotates through the targets every 60 s with a saved state per
   target. ptxas writes its `-o` file only on success: an observer submits every input that
   left one and marks its facts in feature slots past qemu's edges (`features.rs`: PTX
@@ -54,8 +56,17 @@ Uniform special registers (`%ctaid.x`, `%clock64`) give uniform-operand forms.
 - **LibAFL workarounds** (rev `70259b66`): the minimizer records a trimmed entry as its own
   parent (a `ClosureStage` clears it), retries skipped mutations without counting them
   (`Counted` wrapper), and needs every entry's edge indexes (`non_metadata_removing` scheduler).
-  LibAFL has no AFL deterministic stage, and its RedQueen cannot rebuild a region-only input,
-  so neither is used.
+  LibAFL has no AFL deterministic stage, so that stage is not used.
+- **RedQueen** (`libafl/src/redqueen.rs`): colorization changes only instruction-region
+  bytes while preserving coverage. A separate QEMU CMPLOG forkserver traces the original
+  and colorized complete kernels; LibAFL's `AflppRedQueen` generates region replacements
+  with arithmetic and transformation matching. Local adapters preserve the fixed PTX
+  scaffold, and generated candidates use the ordinary coverage feedback and compilation
+  observer. Harvested comparison tokens also feed havoc. Shared memory includes QEMU's
+  trailing comparison-site arrays, which stay intact between paired traces. Empty regions
+  are skipped. Each worker's activity includes cumulative per-target `redqueen` counters:
+  `attempts`, `comparison_sites`, `candidates`, and `admitted` corpus entries; they survive
+  checkpoints. The current enabled setting is stored in catalogue metadata.
 - **Concolic workers**: SymQEMU over native ptxas with only the region symbolic, 30 s per run.
   One job per decoded (kernel, target); dispatch rotates through the targets. Every output is
   broadcast to the mutation workers, which evaluate it in that target's context: it joins their
@@ -146,11 +157,16 @@ Baseline (blocking AFL++ + SymQEMU custom mutator, SM100 only, `/tmp/ptx-concoli
 ## Tests
 
 ```sh
-uv run --with pytest python -m pytest research/ptxas/concolic
+uv run --with pytest python -m pytest research/ptxas/concolic/test_pipeline.py
 cargo test --release --manifest-path research/ptxas/concolic/libafl/Cargo.toml
+# Include the pinned QEMU comparison fixture and C layout check (requires built tools and cc):
+cargo test --release --manifest-path research/ptxas/concolic/libafl/Cargo.toml -- --include-ignored
 ```
 
-Rust tests cover marker parsing, scaffold invariance under 1,000 havoc mutations, and PTX/SASS facts.
+Rust tests cover marker parsing, scaffold invariance under 1,000 havoc mutations, PTX/SASS
+facts, numeric/string RedQueen replacements, harvested tokens, and checkpoint metadata.
+The optional checks validate the pinned QEMU map layout and solve a comparison through
+actual QEMU colorization and tracing while preserving the input scaffold.
 
 Covers candidate keys (whitespace, `\x1a`, strings, token boundaries, binding renames, mnemonic
 safety), Rust/Python region agreement, and form normalization (register renaming, aliasing, RZ, predicates, data
