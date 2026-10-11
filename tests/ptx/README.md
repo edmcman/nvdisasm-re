@@ -23,6 +23,9 @@ fixture when either is version-dependent.
 | `bmsk/cx_candidate_indirect_const_no_cx.ptx` | SM89 | Negative CX search probe; emits an ordinary constant load plus register-source `BMSK` |
 | `bfind/flo_bfind.ptx` | SM89 | PTX `bfind.u32` and `bfind.shiftamt.u32` lowering to the `FLO` family |
 | `vabsdiff4/vabsdiff4_modes.ptx` | SM89 | PTX merge, `.add`, lane mask, and `.sat` forms; CUDA 13.0.88 expands them to scalar SASS sequences and emits no `VABSDIFF4` instruction |
+| `viadd/packed_add.ptx` | SM100 | PTX signed/unsigned `add.s16x2`/`add.u16x2`; CUDA 13.0.88 emits `VIADD.16x2` |
+| `vimnmx/vimnmx_modes.ptx` | SM100 | Signed scalar/packed min-max, `.relu`, and chained three-way min; CUDA 13.0.88 emits `VIMNMX` and `VIMNMX3` |
+| `viaddmnmx/viaddmnmx_modes.ptx` | SM100 | Add followed by signed/unsigned min-max, including packed and `.relu` forms; CUDA 13.0.88 combines them into `VIADDMNMX` |
 
 The `BMSK.CX` PTX trigger remains unknown. The selector in CUDA 13.0.88
 `ptxas` checks the width operand's modifier bit 24, constant-source metadata
@@ -51,6 +54,16 @@ use separate whole-kernel fixtures that replace a LOP3 word with a manually
 encoded VABSDIFF4 instruction while preserving the original scheduling bits.
 That distinction matters because PTX `.add` is lane-wise, while SASS
 `VABSDIFF4.ACC` is a scalar reduction.
+
+The VIMNMX probes use PTX `min`/`max` instructions. A pair of chained scalar
+`min.s32` operations lowers to `VIMNMX3`; the two-input scalar and packed
+forms lower to `VIMNMX`. PTX `add.s16x2` and `add.u16x2` lower to `VIADD.16x2`.
+The VIADDMNMX probe computes `add` followed by `min` or `max`; CUDA 13.0.88
+`ptxas -arch=sm_100` combines those sequences into `VIADDMNMX`, including
+signed RELU and packed 16-bit cases. These are compiler lowering probes, not
+GPU execution tests or independent evidence of runtime semantics. The
+compiler emits `PT` in both optional predicate-output slots for the VIMNMX
+forms exercised here.
 
 Fixtures here are focused compiler probes, not a comprehensive PTX ISA test
 suite. Keep generated cubins, disassembly captures, and temporary variants

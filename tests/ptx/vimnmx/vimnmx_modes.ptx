@@ -1,0 +1,32 @@
+.version 8.8
+.target sm_100
+.address_size 64
+.visible .entry vimnmx_modes(
+ .param .u64 outp,
+ .param .u32 a,
+ .param .u32 b,
+ .param .u32 c
+) {
+ .reg .b64 %rd<2>;
+ .reg .b32 %r<12>;
+ ld.param.u64 %rd0, [outp];
+ ld.param.u32 %r0, [a];
+ ld.param.u32 %r1, [b];
+ ld.param.u32 %r2, [c];
+ min.s32 %r3, %r0, %r1;
+ max.s32.relu %r4, %r0, %r1;
+ min.s16x2 %r5, %r0, %r1;
+ max.s16x2.relu %r6, %r0, %r1;
+ min.u16x2 %r7, %r0, %r1;
+ max.u16x2 %r8, %r0, %r1;
+ min.s32 %r9, %r0, %r1;
+ min.s32 %r10, %r9, %r2;
+ st.global.u32 [%rd0], %r3;
+ st.global.u32 [%rd0+4], %r4;
+ st.global.u32 [%rd0+8], %r5;
+ st.global.u32 [%rd0+12], %r6;
+ st.global.u32 [%rd0+16], %r7;
+ st.global.u32 [%rd0+20], %r8;
+ st.global.u32 [%rd0+24], %r10;
+ ret;
+}

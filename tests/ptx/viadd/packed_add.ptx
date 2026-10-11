@@ -1,0 +1,23 @@
+.version 8.8
+.target sm_100
+.address_size 64
+.visible .entry viadd_packed_add(
+ .param .u64 outp,
+ .param .u32 a,
+ .param .u32 b,
+ .param .u32 c,
+ .param .u32 d
+) {
+ .reg .b64 %rd<2>;
+ .reg .b32 %r<8>;
+ ld.param.u64 %rd0, [outp];
+ ld.param.u32 %r0, [a];
+ ld.param.u32 %r1, [b];
+ ld.param.u32 %r2, [c];
+ ld.param.u32 %r3, [d];
+ add.s16x2 %r4, %r0, %r1;
+ add.u16x2 %r5, %r2, %r3;
+ st.global.u32 [%rd0], %r4;
+ st.global.u32 [%rd0+4], %r5;
+ ret;
+}

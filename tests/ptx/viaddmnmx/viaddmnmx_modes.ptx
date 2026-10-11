@@ -1,0 +1,57 @@
+.version 8.8
+.target sm_100
+.address_size 64
+.visible .entry viaddmnmx_s32_min(
+ .param .u64 outp, .param .u32 a, .param .u32 b, .param .u32 c
+) {
+ .reg .b64 %rd<2>; .reg .b32 %r<5>;
+ ld.param.u64 %rd0, [outp]; ld.param.u32 %r0, [a];
+ ld.param.u32 %r1, [b]; ld.param.u32 %r2, [c];
+ add.s32 %r3, %r0, %r1; min.s32 %r4, %r3, %r2;
+ st.global.u32 [%rd0], %r4; ret;
+}
+.visible .entry viaddmnmx_s32_max_relu(
+ .param .u64 outp, .param .u32 a, .param .u32 b, .param .u32 c
+) {
+ .reg .b64 %rd<2>; .reg .b32 %r<5>;
+ ld.param.u64 %rd0, [outp]; ld.param.u32 %r0, [a];
+ ld.param.u32 %r1, [b]; ld.param.u32 %r2, [c];
+ add.s32 %r3, %r0, %r1; max.s32.relu %r4, %r3, %r2;
+ st.global.u32 [%rd0], %r4; ret;
+}
+.visible .entry viaddmnmx_s16x2_min_relu(
+ .param .u64 outp, .param .u32 a, .param .u32 b, .param .u32 c
+) {
+ .reg .b64 %rd<2>; .reg .b32 %r<5>;
+ ld.param.u64 %rd0, [outp]; ld.param.u32 %r0, [a];
+ ld.param.u32 %r1, [b]; ld.param.u32 %r2, [c];
+ add.s16x2 %r3, %r0, %r1; min.s16x2.relu %r4, %r3, %r2;
+ st.global.u32 [%rd0], %r4; ret;
+}
+.visible .entry viaddmnmx_s16x2_max_relu(
+ .param .u64 outp, .param .u32 a, .param .u32 b, .param .u32 c
+) {
+ .reg .b64 %rd<2>; .reg .b32 %r<5>;
+ ld.param.u64 %rd0, [outp]; ld.param.u32 %r0, [a];
+ ld.param.u32 %r1, [b]; ld.param.u32 %r2, [c];
+ add.s16x2 %r3, %r0, %r1; max.s16x2.relu %r4, %r3, %r2;
+ st.global.u32 [%rd0], %r4; ret;
+}
+.visible .entry viaddmnmx_u16x2_min(
+ .param .u64 outp, .param .u32 a, .param .u32 b, .param .u32 c
+) {
+ .reg .b64 %rd<2>; .reg .b32 %r<5>;
+ ld.param.u64 %rd0, [outp]; ld.param.u32 %r0, [a];
+ ld.param.u32 %r1, [b]; ld.param.u32 %r2, [c];
+ add.u16x2 %r3, %r0, %r1; min.u16x2 %r4, %r3, %r2;
+ st.global.u32 [%rd0], %r4; ret;
+}
+.visible .entry viaddmnmx_u16x2_max(
+ .param .u64 outp, .param .u32 a, .param .u32 b, .param .u32 c
+) {
+ .reg .b64 %rd<2>; .reg .b32 %r<5>;
+ ld.param.u64 %rd0, [outp]; ld.param.u32 %r0, [a];
+ ld.param.u32 %r1, [b]; ld.param.u32 %r2, [c];
+ add.u16x2 %r3, %r0, %r1; max.u16x2 %r4, %r3, %r2;
+ st.global.u32 [%rd0], %r4; ret;
+}
