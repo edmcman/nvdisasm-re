@@ -3979,6 +3979,27 @@
     },
     "limitations": [
       "CX compound sources remain opaque pending a sass_operand_value provider"
-    ]
+    ],
+    "full_gpu_oracle": {
+      "architecture": "SM89",
+      "fixtures": 62,
+      "passed_comparisons": 7935,
+      "known_ghidra_exclusions": [
+        {
+          "family": "fmul",
+          "index": 119,
+          "inputs": [
+            "0x22af5809",
+            "0x915070cb",
+            "0xb5bdd046"
+          ],
+          "emulator": "0x80000000",
+          "gpu": "0x80000001",
+          "reason": "Ghidra 12.1.4 RN minimum-subnormal underflow"
+        }
+      ],
+      "all_fixtures_completed": true,
+      "result_file": "/tmp/sass-gpu-oracle/results.json"
+    }
   }
 }
