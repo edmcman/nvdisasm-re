@@ -1,0 +1,13 @@
+.version 8.7
+.target sm_75
+.address_size 64
+// Declarations, a few inputs predefined from special registers (opaque, so never folded into
+// the marked instruction), and one store of %r2 so a result is not deleted as dead code.
+.visible .entry k() {
+.reg .b16 %h<16>; .reg .b32 %r<16>; .reg .b64 %rd<16>; .reg .b128 %q<4>; .reg .pred %p<8>;
+mov.u32 %r0, %tid.x; mov.u32 %r1, %tid.y; mov.u32 %r3, %ctaid.x;
+mov.u64 %rd1, %clock64; mov.u64 %rd2, %globaltimer;
+/* BEGIN_INSTRUCTION */ add.u32 %r2, %r0, %r1; /* END_INSTRUCTION */
+st.global.b32 [%rd0], %r2;
+ret;
+}

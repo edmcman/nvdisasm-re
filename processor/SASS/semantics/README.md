@@ -92,10 +92,22 @@ bit 75 selects clamp (0, `BMSK`) or wrap (1, `BMSK.W`). Wrap masks both counts
 with 31; the resulting mask still ends at bit 31. Clamp returns zero for a
 position at least 32 and saturates large widths at the end of the word. Zero
 width returns zero in both modes. Register, uniform-register, immediate and
-ordinary constant-bank inputs are supported. The `cx[URx][offset]` form remains
-opaque because its constant-memory address requires a `sass_operand_value`
-provider. Dedicated SM89 whole-kernel GPU/reference/p-code comparisons cover
+ordinary constant-bank inputs are supported. The `cx[URx][offset]` form also
+has native P-code on SM75-SM90. Its 64-bit uniform-register pair contains a
+bounded constant-buffer header, and its offset is in bytes. SM75-SM89 decode
+the low 45 bits as base/16 and the high 19 bits as size/16; SM90 decodes the
+low 51 bits as base/64 and the high 13 bits as size/16. The load uses `ram`
+at the decoded GPU virtual address, returning zero outside the region.
+The layouts come from Mesa's `nvk_bindless_cbuf` definitions; SM89 hardware
+validates addressing and bounds. SM90's layout and zero-on-out-of-bounds
+behavior are implemented and emulator-tested, with hardware validation pending.
+Other opcode families' CX values still require a `sass_operand_value` provider.
+Dedicated SM89 whole-kernel GPU/reference/p-code comparisons cover
 1,504 inputs per mode; emulator tests cover both languages on all architectures.
+`tests/bmsk_cx_semantics.py` supplies a separate manually patched SASS oracle
+for CX counts, region sizes and offsets: 8,192 GPU/reference/P-code comparisons
+pass in each language variant. Another 446 focused CX cases pass in each of
+the ten SM75-SM90 languages. The oracle does not claim PTX generated CX.
 
 FSEL selects the modified floating input, with optional .FTZ. FMNMX implements
 ordinary min/max, including .FTZ: a numeric input wins over NaN, two NaNs yield
@@ -174,6 +186,16 @@ Conversion results for NaN, infinity, or out-of-range inputs and FMZ/NTZ modes
 whose conventions are unconfirmed raise `UnsupportedSemantics`. NaN results
 are canonical quiet NaNs; GPU payload selection is not verified. PRMT implements
 IDX and the six specialized modes.
+
+F2I has a native p-code path for the hardware-verified F32-to-S32
+`.TRUNC.NTZ` form. It truncates finite values toward zero, maps NaNs to zero,
+and clamps infinities and overflow to the signed 32-bit limits. The path is
+generated for all architectures; GPU behavior has been measured on SM89.
+Exact mode falls back to the runtime primitive for other rounding modes.
+Readable mode ignores the encoded rounding selector and uses truncation, like
+its other floating-point operations ignore rounding details. Other formats,
+destinations, NTZ selectors, and source modifiers fall back to the runtime
+primitive.
 
 S2R/CS2R copy named special registers; the launch environment seeds their values. SHFL/VOTE require explicit 32-lane
 values, predicates, active mask, and lane index. Inactive shuffle sources

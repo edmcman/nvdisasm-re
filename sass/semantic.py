@@ -247,6 +247,24 @@ class Builder:
 
     def compound(self, atom):
         name = atom.name
+        if (atom.type=='CX' and self.k.mnemonic=='BMSK' and
+                self.g.arch.name in ('SM75','SM80','SM86','SM89','SM90')):
+            # Mesa nvk_bindless_cbuf / nvk_bindless_cbuf_2 header layouts;
+            # pre-Hopper checked against SM89 hardware. CX offsets are bytes;
+            # the encoded field has already been scaled by four. RAM models the underlying VA,
+            # shared with global memory, rather than a numbered cbank.
+            from sass.gen_sleigh import pattern
+            header=self.values['URb'].symbol;off=self.values[name+'_offset'].symbol
+            refs=[r for r in self.refs if r[1] in (header,off)]
+            bits,shift=(51,6) if self.g.arch.name=='SM90' else (45,4)
+            code=(f'local header:8 = {header}; local offset:8 = zext({off}); '
+                  f'local size:8 = (header >> {bits}) << 4; local result:4 = 0; '
+                  'if (offset + 4 > size) goto <done>; '
+                  f'local address:8 = ((header & {(1<<bits)-1:#x}:8) << {shift}) + offset; '
+                  'result = *[ram]:4 address; <done> export result;')
+            table=self.g.subtable('value', [('""',pattern([],refs),'',code)])
+            self.refs.append(('sub',table))
+            return Value(table,4,'bindless-constant-load')
         if atom.type=='C' and self.k.mnemonic=='LDC' and name+'_bank' in self.values and 'Ra' in self.values:
             # LDC's compound operand is an address, not an eagerly loaded scalar.
             bank=self.values[name+'_bank'].symbol;base=self.values['Ra'].symbol

@@ -656,8 +656,8 @@ assignment `BITS_1_75_75_relu=cw`; `relu` is merely the shared field's name.
 `CWMode` defines `C=0`, `W=1`.
 
 The committed probes and complete captures are
-`bmsk_clamp.ptx` / `bmsk_clamp_finalizer.jsonl` and
-`bmsk_wrap.ptx` / `bmsk_wrap_finalizer.jsonl`. Each capture's 24 words (384
+`tests/ptx/bmsk/bmsk_clamp.ptx` / `bmsk_clamp_finalizer.jsonl` and
+`tests/ptx/bmsk/bmsk_wrap.ptx` / `bmsk_wrap_finalizer.jsonl`. Each capture's 24 words (384
 bytes) was checked against the cubin produced by that same SM100 compiler run
 using `validate_capture.py`. The arithmetic words, in little-endian byte order:
 
@@ -694,6 +694,92 @@ aliasing, zero registers, discarded results and predicates across all nine
 architectures in both exact and readable languages. Hardware evidence is
 limited to SM89; the compiler trace is SM100.
 
+## BMSK CX addressing (2026-10-11)
+
+Follow-up to the ordinary BMSK investigation above. The earlier opaque CX
+status was a limitation of our operand-value implementation. It is superseded
+for BMSK by the native load described here; other CX opcode families are not
+changed.
+
+NVIDIA's [CUDA-GDB bindless constants documentation](https://docs.nvidia.com/cuda/cuda-gdb/index.html#bindless-constants)
+describes a 64-bit uniform-register header plus a byte offset, and the
+`$_cuda_bindless_const(header, offset)` address resolver. The header contains
+an address and region size, rather than an ordinary unencoded pointer.
+[Mesa's descriptor definitions and packing/unpacking helpers](https://github.com/chaotic-cx/mesa-mirror/blob/27434d78dd5422a57b97f616ceeaaa8328bee0b9/src/nouveau/vulkan/nvk_descriptor_types.h)
+give two layouts:
+
+| Architectures | Base | Size |
+|---|---|---|
+| SM75-SM89 | `(header & ((1 << 45) - 1)) << 4` | `(header >> 45) << 4` |
+| SM90 (Hopper) | `(header & ((1 << 51) - 1)) << 6` | `(header >> 51) << 4` |
+
+The SM89 BMSK CX md uses `URb` as a 64-bit header, while `Sb` is a loaded
+32-bit width. Its offset field at bits 40..53 encodes byte offset/4; URb is
+at bits 32..37. Instruction bit 75 still selects clamp/wrap.
+
+`tests/kernels/bmsk_cx_semantics.cu` compiles a wrapper with an observable
+BMSK result and four BAR slots. The oracle pins its expected register
+allocation, replaces the BARs with ULDC.64 / two USHF operations / ULOP3 to
+construct the header in UR0/UR1 from the input pointer, replaces BMSK with
+`BMSK[.W] R7, R2, cx[UR0][offset]`, and replaces the old result XOR with NOP.
+UR4/UR5 retain the wrapper's global-memory descriptor. The six patched words
+use WAIT15_END_GROUP with all scoreboard waits; every replacement is decoded
+and validated before execution. This is a **manually patched SASS** fixture,
+not evidence that ptxas produces the CX form from the supplied PTX.
+
+SM89 execution established that the CX width reads the backing CUDA global
+allocation at `base + offset`. Outside the declared region it reads zero,
+including size zero, the exact region boundary and the maximum encoded
+offset. Tests also exercise high size bits to distinguish address and size.
+The reference enumerates output mask bits independently of the P-code.
+
+`sass/semantic.py::Builder.compound` now supplies this bounded 32-bit `ram`
+load specifically for BMSK CX on SM75-SM90. SM90 uses the Hopper layout at
+the user's request, with emulator validation but **no Hopper hardware pass**.
+Zero-on-out-of-bounds on SM90 follows the SM89 behavior and remains pending
+hardware validation there. The model covers value semantics, not constant
+cache behavior or coherence. Other CX instruction families remain unchanged.
+Reproduce focused values with `tests/bmsk_cx_semantics.py --arch SMxx`, and
+GPU plus whole-kernel P-code with `--require-gpu` (SM89). Measured results are
+recorded separately under `bmsk_cx` in the semantics verification manifest.
+All 64 patched fixtures (24 count fixtures and 40 bounds fixtures) passed
+8,192 GPU/reference comparisons and 8,192 whole-kernel P-code comparisons
+in each SM89 language variant. All ten SM75-SM90 languages compiled without
+unused temporaries and passed 446 focused CX cases each. Full SM89 semantics
+passed 14,027/14,027 exact and 9,197/9,197 readable cases. Register dataflow
+and control-flow checks passed on all five affected architectures in exact
+mode and on SM89 readable, using synthetic words plus 2,000 real samples.
+
+### Where ptxas selects CX
+
+For the CUDA 13.0.88 SM89 final emission path, Ghidra function
+`select_bmsk_family_sass_emission_form` (`0xc4df70`) routes BMSK width operands
+to emission form 8 when the third operand's modifier word has bit 24 set, the
+referenced metadata record has subtype 4 in bits 10..12, and the source
+register metadata is eligible. In the ORI layout, +0x64 is this operand's value word and +0x68 is its
+modifier word; calling +0x68 an “extension word” was incorrect. Bit 24 belongs
+to the internal memory-space modifier encoding (0x0100000N), not a separate
+source-extension field. That branch resolves the allocated header register,
+calls `encode_sass_scaled_offset_fields` (`0xaae660`) to produce the CX byte
+offset divided by four, then calls `pack_sass_BMSK_CX` (`0x1c746b0`). The
+packer writes the header register at bits 32..37, offset/4 at 40..53, and mode
+at bit 75. Its shared field resolver is `resolve_sass_constant_source_fields`
+(`0xa3b7b0`); classification 4 leaves the ordinary constant-bank field zero.
+This establishes what the late branch tests. A generic operand conversion helper,
+`FUN_00c2f140`, also has paths that OR bit 24 into an output modifier word for
+emitter modes 5, 8, and `0xd` when the incoming modifier is negative. That is
+not yet connected to the BMSK CX path or to a user PTX construct.
+
+Live SM89 GDB traces hit the selector for two ordinary BMSK PTX probes. A
+large kernel parameter at byte offset 8192 selected form 1, with an ordinary
+`c[0][0x2a80]` source. A dynamic `ld.const` through a pointer selected form 6,
+with the load materialized into UR4 before BMSK. Neither selected form 8.
+The exact traces and PTX/cubin outputs are temporary files under
+`/tmp/ptxas-cx-selection/`; the PTX source is reproducible from those files,
+and the compiler build is the CUDA 13.0.88 SHA256 pinned at the top of this
+note. These negative probes constrain the search; they do not prove no PTX
+input can trigger CX.
+
 ## Remaining investigation
 
 The intermediate ELF decode bridge and add/sub/wide-multiply conversion paths
@@ -710,3 +796,49 @@ The maintained capture script and complete probe JSONLs are in
 `/tmp`; rebuild cubins with the recorded CUDA13.0.88 compiler before rerunning
 the checks. Earlier temporary dispatch logs omitted the first LDC and are
 superseded by the complete captures.
+
+### PTX-side search for a BMSK CX trigger (2026-10-11)
+
+The searched PTX constructs have not produced a CX word. This matters because
+PTX `bmsk` exposes only register inputs (`bmsk.{clamp,wrap}.b32 d, a, b`);
+its operand matcher rejects a direct memory expression such as
+`[huge+32768]` with “Arguments mismatch for instruction 'bmsk'”. The CUDA
+13.0 CCCL generated wrapper likewise emits a register-constrained PTX BMSK
+call.
+
+The committed negative probe is `tests/ptx/bmsk/cx_candidate_indirect_const_no_cx.ptx`. A kernel parameter annotated as a constant-space pointer is accepted using
+`.param .u64 .ptr.const.align 16 ptr`. Loading through it with `ld.const`
+produces `LDC.IL R0, c[0][R0]` followed by `BMSK R5, R5, R0`, not CX. A
+live GDB trace of `select_bmsk_family_sass_emission_form` for this probe
+reported width value word `0x1000004a`, modifier word zero, and selected
+form 0. The unannotated version instead used `ULDC` and a uniform source
+register (selected form 6). A plain `ld.global` width likewise remains a
+separate `LDG` followed by register-source BMSK. Direct `.const` symbol loads,
+large parameter loads, and the earlier dynamic `ld.const` probe also remained
+ordinary constant-bank or register BMSK operands.
+
+The cached real-cubin scan found no CX-encoded instructions among 4,334 cubins
+for SM75/80/86/89/90. This scan is bounded by that corpus and does not prove
+the encoding is unreachable. The current evidence therefore does **not**
+identify a PTX construct that emits BMSK CX. The code path's requirements
+(memory-space modifier bit 24 plus metadata subtype 4) remain a late selector
+condition, not a source-level recipe. One unresolved possibility is an
+internal PTXAS lowering that does not correspond to a user-expressible PTX
+BMSK operand; the direct PTX memory form is not accepted.
+
+
+The modifier setter search found `FUN_00c2f140` (`0xc2f140`). Its bit-24
+writes at `0xc2f353`, `0xc2f3cb`, and `0xc2f41b` are conditional on the input
+modifier's negate bit and emitter modes 5, 8, or `0xd`. PTXAS rejects inline
+negation on either BMSK source; a separate `neg.s32` feeding BMSK remains a
+separate `IMAD.MOV ..., -R` followed by ordinary `BMSK`. This generic setter
+does not explain how BMSK acquires the bit-24 condition.
+
+A phase-boundary ORI trace of the annotated-pointer probe (`ORI_PHASES=all`)
+shows the constant load remains a separate `mov` with a memory modifier, while
+BMSK consumes the loaded virtual register. No optimizer phase attaches the
+memory modifier to BMSK for this input. This ties the negative selector trace
+to the upstream representation: the loader is classified as a memory operand,
+but the BMSK width is an ordinary register operand before register allocation
+and remains so through `CalcRegisterMap`. The metadata record at the selector's
+modifier-derived index is null because the modifier word is zero.

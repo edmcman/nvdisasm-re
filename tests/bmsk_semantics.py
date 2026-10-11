@@ -55,6 +55,8 @@ def cases(sm):
             expected=reference(1,3,mode) if pred^invert else 0xdeadbeef
             add('bmsk__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,cw=mode,Pg=0,**{'Pg@not':invert}),
                 dict(R2=1,R4=3,R8=0xdeadbeef,P0=pred),dict(R8=expected,__native=True))
+    from bmsk_cx_semantics import cases as cx_cases
+    out.extend(cx_cases(sm))
     return out
 
 

@@ -169,6 +169,267 @@
     "operation_families": 59,
     "reference": "independent enumeration of bits position <= bit < position+width; wrap masks both counts with 31"
   },
+  "bmsk_cx": {
+    "SM90_bounds_evidence": "Implemented from SM89 behavior; emulator-tested, not hardware-established on SM90",
+    "architectures": [
+      "SM75",
+      "SM80",
+      "SM86",
+      "SM89",
+      "SM90"
+    ],
+    "bounds": "32-bit load returns zero if byte offset + 4 exceeds region size",
+    "build": [
+      {
+        "arch": "SM75",
+        "dead_temporaries": 0,
+        "decompressed_bytes": 9915571,
+        "fp": "exact"
+      },
+      {
+        "arch": "SM75",
+        "dead_temporaries": 0,
+        "decompressed_bytes": 8451805,
+        "fp": "readable"
+      },
+      {
+        "arch": "SM80",
+        "dead_temporaries": 0,
+        "decompressed_bytes": 10925833,
+        "fp": "exact"
+      },
+      {
+        "arch": "SM80",
+        "dead_temporaries": 0,
+        "decompressed_bytes": 9460201,
+        "fp": "readable"
+      },
+      {
+        "arch": "SM86",
+        "dead_temporaries": 0,
+        "decompressed_bytes": 11081883,
+        "fp": "exact"
+      },
+      {
+        "arch": "SM86",
+        "dead_temporaries": 0,
+        "decompressed_bytes": 9616080,
+        "fp": "readable"
+      },
+      {
+        "arch": "SM89",
+        "dead_temporaries": 0,
+        "decompressed_bytes": 11339146,
+        "fp": "exact"
+      },
+      {
+        "arch": "SM89",
+        "dead_temporaries": 0,
+        "decompressed_bytes": 9873415,
+        "fp": "readable"
+      },
+      {
+        "arch": "SM90",
+        "dead_temporaries": 0,
+        "decompressed_bytes": 12194923,
+        "fp": "exact"
+      },
+      {
+        "arch": "SM90",
+        "dead_temporaries": 0,
+        "decompressed_bytes": 10727878,
+        "fp": "readable"
+      }
+    ],
+    "class": "bmsk__RCxR_RCxR",
+    "dataflow_and_control_flow": {
+      "SM75": {
+        "passed": 11825,
+        "total": 11825
+      },
+      "SM80": {
+        "passed": 11733,
+        "total": 11733
+      },
+      "SM86": {
+        "passed": 12163,
+        "total": 12163
+      },
+      "SM89": {
+        "passed": 12714,
+        "total": 12714
+      },
+      "SM89_readable": {
+        "passed": 12714,
+        "total": 12714
+      },
+      "SM90": {
+        "passed": 14619,
+        "total": 14619
+      }
+    },
+    "date": "2026-10-11",
+    "focused_value_tests": {
+      "SM75": {
+        "passed": 446,
+        "total": 446
+      },
+      "SM75_readable": {
+        "passed": 446,
+        "total": 446
+      },
+      "SM80": {
+        "passed": 446,
+        "total": 446
+      },
+      "SM80_readable": {
+        "passed": 446,
+        "total": 446
+      },
+      "SM86": {
+        "passed": 446,
+        "total": 446
+      },
+      "SM86_readable": {
+        "passed": 446,
+        "total": 446
+      },
+      "SM89": {
+        "passed": 446,
+        "total": 446
+      },
+      "SM89_readable": {
+        "passed": 446,
+        "total": 446
+      },
+      "SM90": {
+        "passed": 446,
+        "total": 446
+      },
+      "SM90_readable": {
+        "passed": 446,
+        "total": 446
+      }
+    },
+    "full_SM89_semantics": {
+      "exact": {
+        "passed": 14027,
+        "total": 14027
+      },
+      "readable": {
+        "passed": 9197,
+        "total": 9197
+      }
+    },
+    "hardware_architecture": "SM89",
+    "hardware_pending": [
+      "SM75",
+      "SM80",
+      "SM86",
+      "SM90"
+    ],
+    "header_layout_evidence": {
+      "SM75_SM89": {
+        "base_bits": 45,
+        "base_shift": 4,
+        "size_bits": 19,
+        "size_shift": 4
+      },
+      "SM90": {
+        "base_bits": 51,
+        "base_shift": 6,
+        "size_bits": 13,
+        "size_shift": 4
+      },
+      "source": "https://github.com/chaotic-cx/mesa-mirror/blob/27434d78dd5422a57b97f616ceeaaa8328bee0b9/src/nouveau/vulkan/nvk_descriptor_types.h",
+      "source_sha256": "d18a4bd897cb302e6f38350792a429b516176cbffee85ae21927802814d37735"
+    },
+    "scope": "Native BMSK CX operand values; other CX instruction families unchanged",
+    "whole_kernel_oracle": {
+      "exact": {
+        "bounds_fixtures": 40,
+        "byte_offsets": [
+          4,
+          16,
+          28,
+          40,
+          64,
+          65532
+        ],
+        "cases": 64,
+        "count_fixtures": 24,
+        "excluded_fixtures": "In-bounds offsets beyond the real input allocation are not executed",
+        "fixture": "manually patched SASS in compiler-generated CUDA 13.0.88 wrapper",
+        "gpu_reference_comparisons": 8192,
+        "pcode_reference_comparisons": 8192,
+        "region_sizes": [
+          0,
+          16,
+          32,
+          48,
+          2048,
+          4194304,
+          8388592
+        ],
+        "target_offset": 272,
+        "widths": [
+          0,
+          1,
+          2,
+          15,
+          31,
+          32,
+          33,
+          63,
+          64,
+          2147483647,
+          2147483648,
+          4294967295
+        ]
+      },
+      "readable": {
+        "bounds_fixtures": 40,
+        "byte_offsets": [
+          4,
+          16,
+          28,
+          40,
+          64,
+          65532
+        ],
+        "cases": 64,
+        "count_fixtures": 24,
+        "excluded_fixtures": "In-bounds offsets beyond the real input allocation are not executed",
+        "fixture": "manually patched SASS in compiler-generated CUDA 13.0.88 wrapper",
+        "gpu_reference_comparisons": 8192,
+        "pcode_reference_comparisons": 8192,
+        "region_sizes": [
+          0,
+          16,
+          32,
+          48,
+          2048,
+          4194304,
+          8388592
+        ],
+        "target_offset": 272,
+        "widths": [
+          0,
+          1,
+          2,
+          15,
+          31,
+          32,
+          33,
+          63,
+          64,
+          2147483647,
+          2147483648,
+          4294967295
+        ]
+      }
+    }
+  },
   "compiler_spec_load": {
     "architectures": [
       "SM75",
@@ -3979,27 +4240,6 @@
     },
     "limitations": [
       "CX compound sources remain opaque pending a sass_operand_value provider"
-    ],
-    "full_gpu_oracle": {
-      "architecture": "SM89",
-      "fixtures": 62,
-      "passed_comparisons": 7935,
-      "known_ghidra_exclusions": [
-        {
-          "family": "fmul",
-          "index": 119,
-          "inputs": [
-            "0x22af5809",
-            "0x915070cb",
-            "0xb5bdd046"
-          ],
-          "emulator": "0x80000000",
-          "gpu": "0x80000001",
-          "reason": "Ghidra 12.1.4 RN minimum-subnormal underflow"
-        }
-      ],
-      "all_fixtures_completed": true,
-      "result_file": "/tmp/sass-gpu-oracle/results.json"
-    }
+    ]
   }
 }

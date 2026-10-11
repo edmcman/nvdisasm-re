@@ -378,8 +378,8 @@ def emit_POPC(b,check=False):
 def emit_BMSK(b,check=False):
     position,width=operands(b,'Ra','Rb/Sb')
     if check:
-        if width and b.k.operand_types[width].type=='CX':
-            b.unsupported_reason='CX constant-memory addressing requires a sass_operand_value provider'
+        if width and b.k.operand_types[width].type=='CX' and b.values[width].kind=='runtime-primitive':
+            b.unsupported_reason='CX header layout is not implemented for this architecture; requires a sass_operand_value provider'
         return all((position,width)) and output(b) is not None and output(b).size==4 and all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (position,width))
     require(b,'cw',['C','W'])
     modes=enum_cases(b,'cw',['C','W']);a,n=b.flag(position),b.flag(width)
@@ -675,6 +675,62 @@ def emit_FMNMX(b,check=False):
 
 def emit_FSETP(b,check=False):
     return float_compare(b,4,check)
+
+
+def emit_F2I(b,check=False):
+    """Native SASS F2I.TRUNC.NTZ F32 -> S32 conversion.
+
+    The bit-level conversion avoids a host float cast and matches the measured
+    SM89 behavior: truncation toward zero, NaN -> 0, and signed saturation.
+    Keep all other formats and selectors on the runtime primitive path.
+    """
+    src=operands(b,'Rb/Sb/Ra/Sa/URb/URa')[0]
+    dst=output(b)
+    selectors=('srcfmt','dstfmt','rnd','ntz')
+    if check:
+        return (src is not None and dst is not None and dst.size==4 and
+                b.values[src].size==4 and all(n in b.values for n in selectors) and
+                set(b.outputs)=={'Rd'})
+    require(b,'srcfmt',['F32']);require(b,'dstfmt',['S32'])
+    if not fpops.readable(b):require(b,'rnd',['TRUNC'])
+    require(b,'ntz',['NTZ'])
+    # Keep absolute/negate source modifiers on the primitive path until their
+    # SASS interaction with NTZ is independently verified.
+    bits=b.values[src].symbol
+    for attr in ('absolute','negate'):
+        name=src+'@'+attr
+        if name in b.values:b.allow(name,lambda v:v==0)
+    sign=b.local(1,f'({bits} >> 31:4) != 0')
+    exponent=b.local(4,f'(({bits} >> 23:4) & 0xff:4)')
+    fraction=b.local(4,f'({bits} & 0x7fffff:4)')
+    magnitude=b.local(8,'0')
+    result=b.local(4,'0')
+    b.body += [
+        f'if ({exponent.symbol} != 0xff) goto <finite>;',
+        f'if ({fraction.symbol} != 0) goto <done>;',
+        f'if ({sign.symbol} != 0) goto <negative_limit>;',
+        f'{result.symbol} = 0x7fffffff; goto <done>;',
+        '<negative_limit>',f'{result.symbol} = 0x80000000; goto <done>;',
+        '<finite>',
+        f'if ({exponent.symbol} == 0) goto <done>;', # subnormals truncate to zero
+        f'local e:4 = {exponent.symbol} - 127:4;',
+        'if (e s< 0) goto <done>;',
+        'if (e s>= 31) goto <limit>;',
+        f'local significand:4 = {fraction.symbol} | 0x800000:4;',
+        'if (e s< 23:4) goto <right_shift>;',
+        f'{magnitude.symbol} = zext(significand) << (e - 23:4); goto <signed_result>;',
+        '<right_shift>',f'{magnitude.symbol} = zext(significand) >> (23:4 - e);',
+        '<signed_result>',
+        f'if ({sign.symbol} == 0) goto <positive_result>;',
+        f'if ({magnitude.symbol} > 0x80000000) goto <negative_limit>;',
+        f'{result.symbol} = 0:4 - {magnitude.symbol}:4; goto <done>;',
+        '<positive_result>',
+        f'if ({magnitude.symbol} > 0x7fffffff) goto <positive_limit>;',
+        f'{result.symbol} = {magnitude.symbol}:4; goto <done>;',
+        '<limit>',f'if ({sign.symbol} != 0) goto <negative_limit>;',
+        '<positive_limit>',f'{result.symbol} = 0x7fffffff;',
+        '<done>',f'{dst.symbol} = {result.symbol};'
+    ]
 
 
 def emit_DSETP(b,check=False):

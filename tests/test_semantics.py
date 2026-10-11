@@ -189,11 +189,18 @@ def cases(sm,fp='exact'):
         add('uldc_const__RCR',dict(URd=8,Sa_bank=2,Sa_addr=16,sz=label),{},expected,
             memory=[dict(space='cbank',address=(2<<32)|16,hex=data)])
     add('i2fp__RRR',dict(Rd=8,Rb=2,srcfmt='S32',dstfmt='F32'),dict(R2=0xfffffffe),dict(R8=0xc0000000))
-    if sm=='SM89':
-        for bits,want in [(0x7fc00000,0),(0x7f800000,0x7fffffff),(0xff800000,0x80000000),
-                          (0x4f000000,0x7fffffff),(0xcf000001,0x80000000),(0x3fc00000,1)]:
+    if 'f2i__Rb_32b' in classes:
+        for bits,want in [(0x7fc00000,0),(0x7f800001,0),(0x7f800000,0x7fffffff),(0xff800000,0x80000000),
+                          (0x4effffff,0x7fffff80),(0x4f000000,0x7fffffff),
+                          (0xcf000000,0x80000000),(0xcf000001,0x80000000),
+                          (0x3fc00000,1),(0xbfc00000,0xffffffff),(0x3f000000,0),
+                          (0xbf000000,0),(0x00000001,0),(0x80000001,0)]:
             add('f2i__Rb_32b',dict(Rd=8,Rb=2,dstfmt='S32',rnd='TRUNC',ntz='NTZ'),
-                dict(R2=bits),dict(R8=want))
+                dict(R2=bits),dict(R8=want,__native=True))
+        if fp=='readable':
+            for rnd in ('ROUND','FLOOR','CEIL'):
+                add('f2i__Rb_32b',dict(Rd=8,Rb=2,dstfmt='S32',rnd=rnd,ntz='NTZ'),
+                    dict(R2=0x3fe00000),dict(R8=1,__native=True))
     add('ldc__RaNonRZ',dict(Rd=8,Ra=2,Ra_offset=16,Sa_bank=3),dict(R2=0x100),dict(R8=0x12345678),memory=[dict(space='cbank',address=(3<<32)|0x110,hex='78563412')])
     for stride,factor in [('X4',4),('X8',8),('X16',16)]:
         add('lds__sImmOffset',dict(Rd=8,Ra=2,Ra_offset=4,stride=stride),dict(R2=0x10),
@@ -654,6 +661,7 @@ def test_semantics_gpu():
     subprocess.run([sys.executable,str(ROOT/'tests/gpu_semantics.py'),'--require-gpu'],check=True)
     subprocess.run([sys.executable,str(ROOT/'tests/carry_semantics.py'),'--require-gpu'],check=True)
     subprocess.run([sys.executable,str(ROOT/'tests/bmsk_semantics.py'),'--require-gpu'],check=True)
+    subprocess.run([sys.executable,str(ROOT/'tests/bmsk_cx_semantics.py'),'--require-gpu'],check=True)
 
 
 if __name__=='__main__':run(sys.argv[1] if len(sys.argv)>1 else 'SM89',sys.argv[2] if len(sys.argv)>2 else 'exact')
