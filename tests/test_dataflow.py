@@ -81,6 +81,13 @@ def expected(g, d, optimized=False):
                             if enums.get(label)==d.env.get('sz')),None)
                 if width:needed=set(range(base+size*index,base+size*index+width))
             (writes if role == 'write' else reads).update(needed)
+    if (optimized and d.klass.mnemonic=='UP2UR' and d.klass.name=='up2ur__Imm' and
+            d.env.get('insert')==g.arch.enums[d.klass.operand_types['insert'].type].get('B0')):
+        # The native lowering specializes the immediate mask, so it reads only
+        # the selected uniform predicates (higher mask bits are ignored).
+        base,size,_,_,_=REG_FILES['UP']
+        for bit in range(7):
+            if d.env.get('Sb',0)&(1<<bit):reads.add(base+size*bit)
     if guard:
         file = ENUM_FILE[guard.type]
         base, size, _, zero, _ = REG_FILES[file]

@@ -142,6 +142,18 @@ fixtures cover both predicate directions, ties, signed zeros, infinities, and
 NaNs. No compatible GPU is available, so its edge behavior follows the
 CuLifter formula rather than hardware measurements.
 
+UP2UR's immediate-mask `.B0` form is native on all nine architectures. It
+starts from `URa` and ORs `UPi << i` for each selected bit `i` from 0 through
+6; higher mask bits are ignored, matching CuLifter's handler. The generated
+p-code specializes the immediate mask so it reads only the selected uniform
+predicate registers. Register-mask UP2UR and non-B0 selectors, plus P2R/R2P,
+remain opaque. Exact/readable emulator fixtures cover empty, sparse, full, and
+high-bit masks and a false guard. `tests/up2ur_semantics.py` patches UP2UR into
+a compiled SM89 kernel wrapper; nine masks across 128 threads passed 1,152
+GPU/reference/exact-p-code comparisons, including a nonzero URa base. The PTX
+lowering probe did not emit UP2UR, so this hardware result comes from patched
+SASS rather than a PTX lowering.
+
 ## Exact and readable floating point
 
 Every architecture has two languages. `SASS:LE:64:smXX` (exact) models hardware

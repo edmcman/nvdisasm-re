@@ -599,6 +599,23 @@ def cases(sm,fp='exact'):
             add(klass.name,fields,dict(R2=0xfffffffe,R4=0x12345678,R6=0),
                 dict(error='sass_opaque_I2IP'))
             break
+    # CuLifter's immediate UP2UR form packs selected UP0..UP6 bits over URa.
+    up2ur=classes.get('up2ur__Imm')
+    if up2ur:
+        for mask in (0,1,0x55,0x7f,0xff):
+            base=0xa5a50000
+            predicates={f'UP{bit}':(mask >> bit) & 1 for bit in range(7)}
+            packed=base | (mask & 0x7f)
+            fields={'UPg':'UPT','URd':8,'UPR':'UPR','URa':4,'Sb':mask,
+                    'insert':'B0'}
+            add(up2ur.name,fields,{'UR4':base,**predicates},
+                {'UR8':packed,'__native':True})
+        # A false uniform guard leaves the destination untouched.
+        add(up2ur.name,{'UPg':6,'URd':8,'UPR':'UPR','URa':4,'Sb':0x7f,
+                        'insert':'B0'},
+            {'UR4':0x12345678,'UR8':0xdeadbeef,'UP6':0,
+             **{f'UP{i}':1 for i in range(6)}},
+            {'UR8':0xdeadbeef,'__native':True})
     # QSPC consumes generic-address provenance from the emulator's explicit
     # map; use model ranges rather than process/GPU virtual addresses.
     qspc=classes.get('qspc__RaNonRZ')

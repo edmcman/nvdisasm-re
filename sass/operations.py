@@ -12,7 +12,7 @@ ALIASES = dict(UIADD3='IADD3', UIMAD='IMAD', USHF='SHF', ULEA='LEA',
                UISETP='ISETP', ULOP3='LOP3', USEL='SEL', UMOV='MOV', VIADD='IADD',
                **{'HFMA2.MMA':'HFMA2_MMA'})
 OPERATION_FAMILIES.update(ALIASES)
-OPERATION_FAMILIES.update(('IADD','FSEL','FMNMX','FMNMX3','DADD','DMUL','DFMA','DSETP','F2IP','I2IP','HADD2','HFMA2','HMUL2','BREV','POPC','FLO','SGXT','IDP','QSPC','VIMNMX','VIMNMX3','VIADDMNMX','VABSDIFF4'))
+OPERATION_FAMILIES.update(('IADD','FSEL','FMNMX','FMNMX3','DADD','DMUL','DFMA','DSETP','F2IP','I2IP','HADD2','HFMA2','HMUL2','BREV','POPC','FLO','SGXT','IDP','QSPC','UP2UR','VIMNMX','VIMNMX3','VIADDMNMX','VABSDIFF4'))
 
 PRIMITIVES = set('FADD FMUL FFMA FSETP F2I I2F I2FP MUFU PRMT SHFL VOTE BAR BSSY BSYNC QSPC'.split())
 
@@ -1247,6 +1247,38 @@ def emit_QSPC(b,check=False):
     # The userop calculates both Pu (query match) and Rd (input space tag);
     # unsupported encodings use the complete opaque fallback.
     b.body+=b.call('prim')
+
+
+def emit_UP2UR(b,check=False):
+    """Pack an immediate mask of UP0..UP6 into a uniform integer register."""
+    from sass.gen_sleigh import pieces
+    source=b.g.source(b.k,'Sb')
+    source_pieces=pieces(source[1]) if source and source[0]=='field' else []
+    if check:
+        return (b.k.name=='up2ur__Imm' and 'URa' in b.values and
+                'Sb' in b.values and 'insert' in b.values and
+                'URd' in b.outputs and b.values['URa'].size==4 and
+                b.values['Sb'].size==4 and b.outputs['URd'].size==4 and
+                len(source_pieces)==1 and source_pieces[0][3]>=7)
+    insert=b.g.arch.enums[b.k.operand_types['insert'].type]
+    b.allow('insert',lambda v,z=insert.get('B0'):v==z)
+    base=b.values['URa'].symbol
+    dest=b.outputs['URd'].symbol
+    from sass import ir
+    from sass.gen_sleigh import eq,pattern
+    (tok,lo,hi,width),=source_pieces
+    mask_field=ir.Field('',((lo+6,lo),))
+    refs=[r for r in b.refs if r[1] in (base,dest)]
+    constructors=[]
+    for mask in range(128):
+        body=[f'local packed:4 = {base};']
+        body.extend(f'packed = packed | (zext(UP{bit}) << {bit});'
+                    for bit in range(7) if mask & (1<<bit))
+        body.append(f'{dest} = packed;')
+        constructors.append(('',pattern(eq(b.g,mask_field,mask),refs),'',' '.join(body)))
+    table=b.g.subtable('up2ur_mask',constructors)
+    b.refs.append(('sub',table))
+    b.body.append(f'build {table};')
 
 
 def emit_DSETP(b,check=False):
