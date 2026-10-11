@@ -88,6 +88,13 @@ def expected(g, d, optimized=False):
         base,size,_,_,_=REG_FILES['UP']
         for bit in range(7):
             if d.env.get('Sb',0)&(1<<bit):reads.add(base+size*bit)
+    if optimized and d.klass.mnemonic in ('P2R','R2P'):
+        # PR is an implicit packed predicate-register connector in the md.
+        # The P-code explicitly references each writable predicate register;
+        # runtime masks control which branches execute, not the static refs.
+        base,size,_,_,_=REG_FILES['P']
+        cells=set(range(base,base+size*7))
+        (reads if d.klass.mnemonic=='P2R' else writes).update(cells)
     if guard:
         file = ENUM_FILE[guard.type]
         base, size, _, zero, _ = REG_FILES[file]

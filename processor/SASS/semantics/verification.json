@@ -5363,5 +5363,31 @@
       "command": "XDG_CONFIG_HOME=/tmp/ghidra-config JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64 python3 -m sass.build_languages",
       "result": "All nine architectures compiled in exact and readable modes; generated language and coverage artifacts were refreshed."
     }
+  },
+  "culifter_predicate_transfer": {
+    "date": "2026-10-11",
+    "upstream": "third_party/culifter/lift/lifter.py::lift_p2r, lift_r2p",
+    "scope": {
+      "implemented": "P2R/R2P .B0-.B3 with immediate, R, and UR masks across all nine architectures",
+      "fallbacks": "Constant-bank/CX mask forms remain opaque because URb is an address component in those forms",
+      "hardware_scope": "SM89 patched whole-kernel probe; all four byte selectors on both opcodes"
+    },
+    "emulator_suite": {
+      "command": "python3 tests/test_semantics.py SMxx exact|readable",
+      "result": "Exact/readable semantic fixtures pass on all nine architectures; focused dataflow passes for all 18 exact/readable architecture languages (24/24 cases each)"
+    },
+    "gpu_oracle": {
+      "command": "SASS_SLEIGH_OUT=/tmp/sass-build-bselectors-final XDG_CONFIG_HOME=/tmp/ghidra-config JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64 python3 tests/predicate_transfer_semantics.py",
+      "architecture": "SM89",
+      "gpu": "NVIDIA GeForce RTX 4070 Laptop GPU",
+      "fixture": "Patched SASS in compiled whole-kernel wrapper; BAR slots and placeholder arithmetic instruction replaced; wrapper and EXIT preserved",
+      "cases": 18,
+      "inputs_per_case": 128,
+      "comparisons": 2304,
+      "result": "GPU, independent expected values, and exact whole-kernel P-code matched; target instructions were confirmed executed",
+      "coverage": "Eighteen cases across P2R/R2P selectors B0-B3, 128 inputs each; P2R uses a 0x7f predicate mask and R2P checks selected and preserved predicate outputs",
+      "observed": "P2R replaces the selected byte of its base with packed P0-P6 and ignores mask bits above 6. R2P extracts the selected source byte into selected predicates and preserves unselected predicates.",
+      "result_file": "/tmp/sass-predicate-transfer-oracle/results.json"
+    }
   }
 }

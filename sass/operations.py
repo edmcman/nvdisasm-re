@@ -12,7 +12,7 @@ ALIASES = dict(UIADD3='IADD3', UIMAD='IMAD', USHF='SHF', ULEA='LEA',
                UISETP='ISETP', ULOP3='LOP3', USEL='SEL', UMOV='MOV', VIADD='IADD',
                **{'HFMA2.MMA':'HFMA2_MMA'})
 OPERATION_FAMILIES.update(ALIASES)
-OPERATION_FAMILIES.update(('IADD','FSEL','FMNMX','FMNMX3','DADD','DMUL','DFMA','DSETP','F2IP','I2IP','HADD2','HFMA2','HMUL2','BREV','POPC','FLO','SGXT','IDP','QSPC','UP2UR','VIMNMX','VIMNMX3','VIADDMNMX','VABSDIFF4'))
+OPERATION_FAMILIES.update(('IADD','FSEL','FMNMX','FMNMX3','DADD','DMUL','DFMA','DSETP','F2IP','I2IP','HADD2','HFMA2','HMUL2','BREV','POPC','FLO','SGXT','IDP','QSPC','UP2UR','P2R','R2P','VIMNMX','VIMNMX3','VIADDMNMX','VABSDIFF4'))
 
 PRIMITIVES = set('FADD FMUL FFMA FSETP F2I I2F I2FP MUFU PRMT SHFL VOTE BAR BSSY BSYNC QSPC'.split())
 
@@ -1279,6 +1279,74 @@ def emit_UP2UR(b,check=False):
     table=b.g.subtable('up2ur_mask',constructors)
     b.refs.append(('sub',table))
     b.body.append(f'build {table};')
+
+
+def _predicate_transfer(b,op):
+    if op=='P2R':
+        source=next((n for n in ('Rb','URb','Sb') if n in b.values),None)
+        selector='insert';dest=output(b);base=b.values.get('Ra')
+        return source,selector,dest,base
+    source=next((n for n in ('Rb','URb','Sb') if n in b.values),None)
+    return source,'a_bsel',None,b.values.get('Ra')
+
+
+def _emit_predicate_transfer(b,op,check=False):
+    import re
+    source,selector,dest,base=_predicate_transfer(b,op)
+    if check:
+        supported_source=(source is not None and
+                          b.k.operand_types[source].type in ('Register','UniformRegister','SImm','UImm') and
+                          not any(atom.type in ('C','CX') for atom in b.k.operand_types.values()))
+        return (supported_source and base is not None and base.size==4 and
+                (op=='R2P' or (dest is not None and dest.size==4)))
+    selector_type=b.k.operand_types[selector].type
+    selector_values=b.g.arch.enums[selector_type]
+    byte_selectors={name:selector_values[name] for name in ('B0','B1','B2','B3')
+                    if name in selector_values}
+    b.allow(selector,lambda v,valid=frozenset(byte_selectors.values()):v in valid)
+    # Uniform-register operands can be declared as a 64-bit pair in the md;
+    # these transfers use only the low 32 mask bits.
+    mask_value=b.values[source]
+    mask_expr=(f'{mask_value.symbol}:4' if mask_value.size>4 else
+               f'zext({mask_value.symbol})' if mask_value.size<4 else mask_value.symbol)
+    mask='mask'
+    from sass.gen_sleigh import pattern
+    constructors=[]
+    for byte,selector_value in byte_selectors.items():
+        offset=8*int(byte[1])
+        code=[f'local {mask}:4 = {mask_expr};']
+        if op=='P2R':
+            packed='packed'
+            code.append(f'local {packed}:4 = 0;')
+            for bit in range(7):
+                skip=f'p2r_b{byte[1]}_skip_{bit}'
+                code += [f'if ({mask}[{bit},1] == 0:1) goto <{skip}>;',
+                         f'{packed} = {packed} | (zext(P{bit}) << {bit}:4);',
+                         f'<{skip}>']
+            clear=(~(0xff << offset)) & 0xffffffff
+            code += [f'local result:4 = ({base.symbol} & 0x{clear:08x}:4) | '
+                     f'({packed} << {offset}:4);',
+                     f'{dest.symbol} = result;']
+        else:
+            for bit in range(7):
+                skip=f'r2p_b{byte[1]}_skip_{bit}'
+                code += [f'if ({mask}[{bit},1] == 0:1) goto <{skip}>;',
+                         f'P{bit} = {base.symbol}[{offset+bit},1];',f'<{skip}>']
+        names=set(re.findall(r'\b\w+\b',' '.join(code)))
+        refs=[r for r in b.refs if r[1] in names]
+        clauses=b.g.values_where(b.k,selector,lambda v,w=selector_value:v==w)
+        constructors.append(('""',pattern(clauses,refs),'',' '.join(code)))
+    table=b.g.subtable(f'{op.lower()}_byte',constructors)
+    b.refs.append(('sub',table))
+    b.body.append(f'build {table};')
+
+
+def emit_P2R(b,check=False):
+    return _emit_predicate_transfer(b,'P2R',check)
+
+
+def emit_R2P(b,check=False):
+    return _emit_predicate_transfer(b,'R2P',check)
 
 
 def emit_DSETP(b,check=False):

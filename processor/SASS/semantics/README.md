@@ -146,13 +146,25 @@ UP2UR's immediate-mask `.B0` form is native on all nine architectures. It
 starts from `URa` and ORs `UPi << i` for each selected bit `i` from 0 through
 6; higher mask bits are ignored, matching CuLifter's handler. The generated
 p-code specializes the immediate mask so it reads only the selected uniform
-predicate registers. Register-mask UP2UR and non-B0 selectors, plus P2R/R2P,
-remain opaque. Exact/readable emulator fixtures cover empty, sparse, full, and
+predicate registers. Register-mask UP2UR and non-B0 selectors remain opaque.
+Exact/readable emulator fixtures cover empty, sparse, full, and
 high-bit masks and a false guard. `tests/up2ur_semantics.py` patches UP2UR into
 a compiled SM89 kernel wrapper; nine masks across 128 threads passed 1,152
 GPU/reference/exact-p-code comparisons, including a nonzero URa base. The PTX
 lowering probe did not emit UP2UR, so this hardware result comes from patched
 SASS rather than a PTX lowering.
+
+P2R and R2P support `.B0`–`.B3` with immediate, R, or UR masks on all nine
+architectures. P2R replaces the selected byte of its base integer with the
+packed selected `P0`–`P6` bits; R2P reads the selected source byte and updates
+only the selected predicates, preserving the others. Mask bits above 6 are
+ignored. Constant-bank/CX mask sources remain opaque because their `URb`
+operands are address components, not plain masks. Exact and readable emulator
+fixtures cover every selector and empty, sparse, full, high-bit, and register
+masks. Focused dataflow checks pass for all 18 exact/readable architecture
+languages, with 24/24 native cases per language. The patched SM89 whole-kernel
+GPU probe passed 2,304 GPU/reference/exact-p-code comparisons across 18
+selector/mask cases. Hardware evidence covers SM89 only.
 
 ## Exact and readable floating point
 

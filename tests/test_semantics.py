@@ -616,6 +616,38 @@ def cases(sm,fp='exact'):
             {'UR4':0x12345678,'UR8':0xdeadbeef,'UP6':0,
              **{f'UP{i}':1 for i in range(6)}},
             {'UR8':0xdeadbeef,'__native':True})
+    # Predicate transfers pack/unpack the seven writable predicate registers.
+    # Masks above bit 6 are ignored, and R2P preserves every unselected bit.
+    for op in ('P2R','R2P'):
+        for klass in (k for k in arch.classes if k.mnemonic==op and not k.alternate):
+            mask_name=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
+            if (not mask_name or klass.operand_types[mask_name].type in ('C','CX') or
+                    any(atom.type in ('C','CX') for atom in klass.operand_types.values())):
+                continue
+            atom=klass.operand_types[mask_name]
+            for mask in (0,1,0x25,0x7f,0xff):
+                fields={'Pg':'PT','Ra':4,mask_name:(6 if atom.type in ('Register','UniformRegister') else mask)}
+                if atom.type=='Register':registers={mask_name[0]+'6':mask}
+                elif atom.type=='UniformRegister':registers={'UR6':mask}
+                else:registers={}
+                for byte in range(4):
+                    if op=='P2R':
+                        fields.update(Rd=2,Pr='PR',insert=f'B{byte}')
+                        predicates={f'P{i}':((0x55>>i)&1) for i in range(7)}
+                        base=0x12345678
+                        registers.update(predicates);registers['R4']=base
+                        shift=byte*8
+                        packed=(0x55 & mask & 0x7f) << shift
+                        expected=(base & ~(0xff << shift)) | packed
+                        add(klass.name,fields,registers,{'R2':expected,'__native':True})
+                    else:
+                        fields['a_bsel']=f'B{byte}'
+                        initial={f'P{i}':(i&1) for i in range(7)}
+                        source=0xa1b2c354
+                        registers.update(initial);registers['R4']=source
+                        expected={f'P{i}':(((source>>(byte*8+i))&1) if mask&(1<<i) else initial[f'P{i}'])
+                                  for i in range(7)}
+                        add(klass.name,fields,registers,{**expected,'__native':True})
     # QSPC consumes generic-address provenance from the emulator's explicit
     # map; use model ranges rather than process/GPU virtual addresses.
     qspc=classes.get('qspc__RaNonRZ')
