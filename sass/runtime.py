@@ -46,8 +46,15 @@ class Runtime:
         if not name.startswith('sass_prim_'):raise UnsupportedSemantics(name)
         ordinal,*values=args;arch=ir.load('SM'+str(sm));k=arch.classes[ordinal]
         variants=self.manifest(sm)[k.name]['variants']
-        if len(variants)!=1:raise UnsupportedSemantics('primitive with modifier-dependent register spans '+k.name)
-        inputs,outputs=variants[0]['inputs'],variants[0]['outputs']
+        if len(variants)!=1:
+            # QSPC's E selector changes register spans, not its query inputs or
+            # outputs. P-code has already assembled the selected span into the
+            # integer argument consumed by the query.
+            signatures={(tuple(x['inputs']),tuple(x['outputs'].items())) for x in variants}
+            if k.mnemonic=='QSPC' and len(signatures)==1:
+                inputs,outputs=variants[0]['inputs'],variants[0]['outputs']
+            else:raise UnsupportedSemantics('primitive with modifier-dependent register spans '+k.name)
+        else:inputs,outputs=variants[0]['inputs'],variants[0]['outputs']
         if len(values)!=len(inputs):raise UnsupportedSemantics('primitive input ABI mismatch '+k.name)
         v=dict(zip(inputs,values))
         # Multi-destination operations return a low-to-high byte bundle. All
@@ -110,6 +117,41 @@ class Runtime:
             if dest=='Pv':result=not result
             pred=bool(integer('Pp'));bop=label('bop','AND')
             return int({'AND':lambda:result and pred,'OR':lambda:result or pred,'XOR':lambda:result!=pred}[bop]())
+        if op=='QSPC':
+            query=label('space')
+            space={'G':'global','L':'local','S':'shared',
+                   'D':'shared_cluster'}.get(query)
+            if space is None:raise UnsupportedSemantics(f'QSPC query space {query}')
+            ranges=self.context.get('address_spaces')
+            if not isinstance(ranges,dict):
+                raise UnsupportedSemantics(f'QSPC address_spaces.{space} context required')
+            offset=v.get('Ra_offset',0)&0xffffffff
+            if offset&0x80000000:offset-=1<<32
+            address=(v.get('Ra',0)+v.get('Ra_URb',0)+offset)&((1<<64)-1)
+            def in_space(name):
+                if name not in ranges:
+                    raise UnsupportedSemantics(f'QSPC address_spaces.{name} context required')
+                intervals=ranges[name]
+                if not isinstance(intervals,(list,tuple)):
+                    raise UnsupportedSemantics(f'malformed QSPC address ranges for {name}')
+                matched=False
+                for interval in intervals:
+                    if not isinstance(interval,(list,tuple)) or len(interval)!=2:
+                        raise UnsupportedSemantics(f'malformed QSPC address range for {name}')
+                    start,end=map(int,interval)
+                    if not 0<=start<=end<=1<<64:
+                        raise UnsupportedSemantics(f'invalid QSPC address range for {name}')
+                    matched |= start<=address<end
+                return matched
+            if dest=='Pu':return int(in_space(space))
+            if dest=='Rd':
+                tags={'global':1,'shared':2,'local':4,'shared_cluster':8}
+                matches=[tag for name,tag in tags.items()
+                         if name in ranges and in_space(name)]
+                if len(matches)!=1:
+                    raise UnsupportedSemantics('QSPC input address has no unique mapped space')
+                return matches[0]
+            raise UnsupportedSemantics(f'QSPC output {dest}')
         if op in ('F2I','I2F','I2FP'):
             src=label('srcfmt');dst=label('dstfmt');n,bits=get('Sb','Rb','Ra','Sa')
             if not src or not dst:raise UnsupportedSemantics(op+' format')

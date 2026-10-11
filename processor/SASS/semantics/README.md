@@ -214,7 +214,16 @@ This transform is evaluated from encoded immediates at decode time, so the
 move emits one COPY. Other MMA forms retain opaque fallbacks.
 
 Runtime primitives cover the float fallbacks, F2I/I2F, PRMT, SHFL/VOTE,
-and synchronization events. Floating arithmetic uses exact rational values
+QSPC, and synchronization events. QSPC requires `context["address_spaces"]`,
+a mapping from `global`, `local`, and `shared` to half-open address intervals;
+SM90+ also accepts `shared_cluster`. `S` queries CTA shared memory, while
+SM90+'s `D` queries cluster-visible shared memory, corresponding to PTX
+`isspacep.shared::cluster`. `Pu` reports whether the address belongs to the
+queried space. `Rd` reports a one-hot input-space tag: global `1`, shared `2`,
+local `4`, based on SM89 GPU probes. `Rd` with D is kept opaque until checked
+on SM90 hardware. The emulator cannot infer generic-pointer provenance from
+an integer address; missing mappings, unmapped addresses, or overlapping
+ranges raise `UnsupportedSemantics`. Floating arithmetic uses exact rational values
 with one IEEE rounding step; FTZ, saturation, and directed rounding are explicit.
 Conversion results for NaN, infinity, or out-of-range inputs and FMZ/NTZ modes
 whose conventions are unconfirmed raise `UnsupportedSemantics`. NaN results

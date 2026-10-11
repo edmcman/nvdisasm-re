@@ -12,9 +12,9 @@ ALIASES = dict(UIADD3='IADD3', UIMAD='IMAD', USHF='SHF', ULEA='LEA',
                UISETP='ISETP', ULOP3='LOP3', USEL='SEL', UMOV='MOV', VIADD='IADD',
                **{'HFMA2.MMA':'HFMA2_MMA'})
 OPERATION_FAMILIES.update(ALIASES)
-OPERATION_FAMILIES.update(('IADD','FSEL','FMNMX','FMNMX3','DADD','DMUL','DFMA','DSETP','F2IP','I2IP','HADD2','HFMA2','HMUL2','BREV','POPC','FLO','SGXT','IDP','VIMNMX','VIMNMX3','VIADDMNMX','VABSDIFF4'))
+OPERATION_FAMILIES.update(('IADD','FSEL','FMNMX','FMNMX3','DADD','DMUL','DFMA','DSETP','F2IP','I2IP','HADD2','HFMA2','HMUL2','BREV','POPC','FLO','SGXT','IDP','QSPC','VIMNMX','VIMNMX3','VIADDMNMX','VABSDIFF4'))
 
-PRIMITIVES = set('FADD FMUL FFMA FSETP F2I I2F I2FP MUFU PRMT SHFL VOTE BAR BSSY BSYNC'.split())
+PRIMITIVES = set('FADD FMUL FFMA FSETP F2I I2F I2FP MUFU PRMT SHFL VOTE BAR BSSY BSYNC QSPC'.split())
 
 @dataclass(frozen=True)
 class Override:
@@ -80,8 +80,14 @@ def emit(b):
     initial_body=list(b.body)
     fn(b,check=False)
     if op in PRIMITIVES:
-        dispatch(b,'prim')
-        return 'native','decode-time selector guards fall back to runtime primitives'
+        # QSPC has a deliberately narrow runtime implementation. Unsupported
+        # selectors/forms must use the opaque ABI instead of reaching a
+        # primitive that can only reject them after execution starts.
+        dispatch(b,'opaque' if op=='QSPC' else 'prim')
+        reason=('decode-time selector guards fall back to opaque semantics'
+                if op=='QSPC' else
+                'decode-time selector guards fall back to runtime primitives')
+        return 'native',reason
     if not b.native_supported:
         b.body=initial_body
         return 'opaque','class selectors have no supported native combination'
@@ -1210,6 +1216,37 @@ def emit_I2IP(b,check=False):
     b.allow_combinations(selector_names,cases.keys())
     table=b.select_code(selector_names,cases)
     b.body.append(f'{dst.symbol} = {table};')
+
+
+def emit_QSPC(b,check=False):
+    """Query a caller-provided generic-address map via the runtime primitive."""
+    if check:
+        return ('Ra' in b.values and 'Ra_offset' in b.values and
+                'space' in b.values and 'Pu' in b.outputs and
+                output(b) is not None and b.values['Ra'].size in (4,8) and
+                ('Ra_URb' not in b.values or b.values['Ra_URb'].size in (4,8)))
+    # Rd reports a one-hot tag for the input pointer's space. SM89 GPU probes
+    # establish G=1, S=2, L=4; D's nonzero-Rd tag is not hardware-verified.
+    atom=b.k.operand_types.get('space')
+    enum=b.g.arch.enums.get(atom.type,{}) if atom else {}
+    labels=[x for x in ('G','L','S','D') if x in enum]
+    b.selector_guards['space']=labels
+    values={x:enum[x] for x in labels}
+    ordinary={values[x] for x in ('G','L','S') if x in values}
+    ordinary_clauses=b.g.values_where(b.k,'space',lambda v,w=ordinary:v in w)
+    if ordinary_clauses is not None:b.selector_patterns.append(ordinary_clauses)
+    combinations=[(x,'any') for x in ('G','L','S') if x in values]
+    if 'D' in values and 'Rd' in b.outputs:
+        zero=b.g.register_zero(b.k,'Rd')
+        d_space=b.g.values_where(b.k,'space',lambda v,w=values['D']:v==w)
+        d_zero=b.g.values_where(b.k,'Rd',lambda v,z=zero:v==z)
+        if d_space is not None and d_zero is not None:
+            b.selector_patterns.append(d_space+d_zero)
+            combinations.append(('D','RZ'))
+    b.selector_combinations['space,Rd']=combinations
+    # The userop calculates both Pu (query match) and Rd (input space tag);
+    # unsupported encodings use the complete opaque fallback.
+    b.body+=b.call('prim')
 
 
 def emit_DSETP(b,check=False):

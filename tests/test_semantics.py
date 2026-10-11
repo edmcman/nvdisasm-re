@@ -599,6 +599,55 @@ def cases(sm,fp='exact'):
             add(klass.name,fields,dict(R2=0xfffffffe,R4=0x12345678,R6=0),
                 dict(error='sass_opaque_I2IP'))
             break
+    # QSPC consumes generic-address provenance from the emulator's explicit
+    # map; use model ranges rather than process/GPU virtual addresses.
+    qspc=classes.get('qspc__RaNonRZ')
+    if qspc:
+        qspc_context={'address_spaces':{
+            'global':[[0x100000,0x100100]],
+            'shared':[[0x200,0x300]],
+            'local':[[0x400,0x500]],
+            'shared_cluster':[[0x600,0x700]],}}
+        e_atom=qspc.operand_types['e']
+        e_value='noe' if 'noe' in arch.enums[e_atom.type] else e_atom.default
+        for query,base,offset,expected in (
+                ('G',0x100020,-32,1),('S',0x220,0,1),
+                ('L',0x420,0,1),('G',0x420,0,0)):
+            add(qspc.name,dict(Pg='PT',Pu=1,Rd='RZ',e=e_value,
+                                space=query,Ra=2,Ra_offset=offset),
+                {'R2':base},{'P1':expected},context=qspc_context)
+        add(qspc.name,dict(Pg='PT',Pu=1,Rd='RZ',e=e_value,
+                           space='G',Ra=2,Ra_offset=0),
+            {'R2':0x100000},dict(error='address_spaces.global context required'))
+        add(qspc.name,dict(Pg='PT',Pu=1,Rd=8,e=e_value,
+                           space='G',Ra=2,Ra_offset=0),
+            {'R2':0x100000},{'P1':1,'R8':1},context=qspc_context)
+        add(qspc.name,dict(Pg='PT',Pu=1,Rd=8,e=e_value,
+                           space='G',Ra=2,Ra_offset=0),
+            {'R2':0x420},{'P1':0,'R8':4},context=qspc_context)
+        add(qspc.name,dict(Pg='PT',Pu=1,Rd=8,e=e_value,
+                           space='G',Ra=2,Ra_offset=0),
+            {'R2':0x220},{'P1':0,'R8':2},context=qspc_context)
+        space_atom=qspc.operand_types['space']
+        if 'D' in arch.enums[space_atom.type]:
+            add(qspc.name,dict(Pg='PT',Pu=1,Rd='RZ',e=e_value,
+                               space='D',Ra=2,Ra_offset=0),
+                {'R2':0x620},{'P1':1},context=qspc_context)
+            add(qspc.name,dict(Pg='PT',Pu=1,Rd='RZ',e=e_value,
+                               space='D',Ra=2,Ra_offset=0),
+                {'R2':0x420},{'P1':0},context=qspc_context)
+            add(qspc.name,dict(Pg='PT',Pu=1,Rd=8,e=e_value,
+                               space='D',Ra=2,Ra_offset=0),
+                {'R2':0x620},dict(error='sass_opaque_QSPC'),
+                context=qspc_context)
+    qspc_urb=classes.get('qspc_urb__Ra32')
+    if qspc_urb:
+        e_atom=qspc_urb.operand_types['e']
+        e_value='noe' if 'noe' in arch.enums[e_atom.type] else e_atom.default
+        fields=dict(Pg='PT',Pu=1,Rd='RZ',e=e_value,space='S',Ra=2,
+                    input_reg_sz_32_dist='U32',Ra_URb=4,Ra_offset=0)
+        add(qspc_urb.name,fields,{'R2':0x100,'UR4':0x120},{'P1':1},
+            context=qspc_context)
     add('ldc__RaNonRZ',dict(Rd=8,Ra=2,Ra_offset=16,Sa_bank=3),dict(R2=0x100),dict(R8=0x12345678),memory=[dict(space='cbank',address=(3<<32)|0x110,hex='78563412')])
     for stride,factor in [('X4',4),('X8',8),('X16',16)]:
         add('lds__sImmOffset',dict(Rd=8,Ra=2,Ra_offset=4,stride=stride),dict(R2=0x10),

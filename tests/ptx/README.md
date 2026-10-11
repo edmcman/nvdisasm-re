@@ -31,6 +31,7 @@ fixture when either is version-dependent.
 | `i2ip/pack_s4_s2.ptx` | SM89 | `cvt.pack.sat.s4.s32` and `cvt.pack.sat.s2.s32`; CUDA 13.0.88 emits I2IP S4/S2 forms |
 | `i2ip/pack_s8_s16.ptx` | SM89 | `cvt.pack.sat.s8.s32` and `cvt.pack.sat.s16.s32`; CUDA 13.0.88 emits I2IP S8/S16 forms |
 | `viaddmnmx/viaddmnmx_modes.ptx` | SM100 | Add followed by signed/unsigned min-max, including packed and `.relu` forms; CUDA 13.0.88 combines them into `VIADDMNMX` |
+| `qspc/address_spaces.cu` | SM89 | Inline PTX emits `QSPC.E.G`, `.L`, and `.S`; the GPU distinguishes generic global, local, and shared pointers |
 
 The `BMSK.CX` PTX trigger remains unknown. The selector in CUDA 13.0.88
 `ptxas` checks the width operand's modifier bit 24, constant-source metadata
@@ -92,3 +93,23 @@ SATRELU/no-SAT selectors.
 Fixtures here are focused compiler probes, not a comprehensive PTX ISA test
 suite. Keep generated cubins, disassembly captures, and temporary variants
 outside this directory unless they are stable regression expectations.
+
+`qspc/address_spaces.cu` is an executable GPU probe rather than a lowering-only
+fixture. Build it with `nvcc --allow-unsupported-compiler -arch=sm_89`, then run
+it on an SM89 GPU. It checks a loaded global pointer, a low generic address,
+local/shared pointers, and cross-space negative queries. The local/shared PTX
+conversions first move to the specific space and then back to generic before
+`isspacep`, matching the instruction's generic-address input.
+
+`qspc/cluster.cu` compiles for SM90 and probes PTX `isspacep.shared::cluster`,
+which maps to the SASS `D` selector. The available GPU is SM89, so this probe
+can establish ptxas output by disassembly but cannot establish SM90 execution.
+`qspc/const.cu` compiles an `isspacep.const` query for SM89; ptxas lowers it to
+integer range comparisons rather than QSPC, so `.const` is not another QSPC
+selector in this probe.
+`qspc/rd.cu` is the input fixture for patched-Rd G/L/S probes. In the SM89
+cubin, each QSPC `Rd` field was patched to the register holding the final
+result store, and the following predicate `SEL` destination was moved to a
+spare register. A seed of `0x5a17c0de` confirmed the observed values were
+written by QSPC. Matching and cross-space queries show `Rd` carries a one-hot
+tag for the input pointer's space (G=1, S=2, L=4), independent of the query.
