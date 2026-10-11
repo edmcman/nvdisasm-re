@@ -842,3 +842,51 @@ to the upstream representation: the loader is classified as a memory operand,
 but the BMSK width is an ordinary register operand before register allocation
 and remains so through `CalcRegisterMap`. The metadata record at the selector's
 modifier-derived index is null because the modifier word is zero.
+
+### CX trigger search, round 2 (2026-10-11)
+
+No PTX input produced a `cx[` operand. Negative results (CUDA 13.0.88 and 13.4.92 ptxas, sm_75-120):
+~480 ALU/memory variants (`ld.const`, `ldu`, `ld.global.nc`, `.ptr.const` params feeding ALU ops), 175 tex/suld/sust/txq
+variants, the ~2,800-file concolic corpus on sm_89/90 (zero hits at any of the 35 final-emission `descriptor
+subtype == 4` checks, `0xc4xxxx-0xc5xxxx`), `ld.const` offset/width sweeps (168 files, no subtype-4 descriptor created).
+
+Findings:
+- Plain `ld.const [ptr+imm]` becomes bank-3 indexed constant access: SM89/90 `ULDC UR, c[0x3][UR+imm]`, SM100+
+  `LDC R, c[0x3][R+imm]` / `LDCU UR, c[0x3][UR+imm]`. Bank 3 + index, not a bindless header.
+- The late selectors test an ORI operand whose modifier word has bit 24 set and whose pool entry (`func+0x98`, created by
+  `FUN_00925bb0` and the `FUN_009262a0` family; kind 0x10 const-ref descriptors) has `flags>>10 & 7 == 4`. `FUN_009262a0`'s
+  5th argument is that subtype. The only caller passing 4 is the address legalizer `FUN_013a78b0` (0x13a78b0), at the
+  residual-offset path that emits ORI op 0xb8; `FUN_007dead0` is the predicate for it. The two-source form selector
+  `FUN_00c47220` picks forms 8/9 (CX) from it. No PTX construct reaching that path was found.
+- Hidden OCG builtins are callable from PTX as functions: `__nv_ptx_builtin_ocg_<op>_<subops>_<type>` (e.g. `ldc_u32`,
+  `cctl_c_{ldc|ldcu}_{shallow|deep}_{iv|ivall}`). Lowerers: `FUN_006bec60` (LDC, bank must be an immediate; emits ORI `ld`
+  0xb7) and `FUN_006c5a40` (CCTL.C, builds a register + fresh class-4 vreg modifier operand). sm_89: `CCTL.E.C.IV [UR4]`
+  (no CX). sm_90: CCTL dropped. SM100/120: every `ocg` call ICEs in Mercury conversion (`merc_convert_instruction`).
+- SM100+ CX exists only for LDC/LDCU/CCTL. LDC encoder variants 02/03 (`0x12b7100`) and 03/03 (`0x1347320`) pack the
+  `ldc_ur` classes; ordinary programs only reach 01/03 (`0x1a71e40`).
+- Slang's CUDA backend maps `ConstantBuffer` to plain pointers and emits no `ldc`/`ocg` calls.
+- `--query-controls`/`--apply-controls` files are encrypted; knob pragmas (`next knob`, `func knob`, ...) are present but
+  reported `unsupported` in release builds.
+- Tooling: gdb stalls on debuginfod downloads; run with `DEBUGINFOD_URLS=` (0.2 s per ptxas run instead of timing out).
+
+### CX trigger search, round 3 (2026-10-11)
+
+- Descriptor pool (`func+0x98`, interned by `FUN_00925bb0` = `intern_ori_descriptor_record`): `flags>>10 & 7` is a subtype. Only two writers exist in
+  13.0 and 13.4: `FUN_0091c570` (`build_descriptor_key_from_symbol`) sets subtype 1 for memory-space id 0x160 (`.ptr.const` params), and
+  `FUN_009262a0` (`make_const_ref_descriptor`) takes it as argument 5. The only caller passing 4 is the legalizer `FUN_013a78b0`, which runs that path
+  only for operands that already have a subtype-4 descriptor (`FUN_007dead0`). Across the ~2,800-file corpus and my probes, subtypes seen: 0 and 1 only.
+  A scan of both binaries finds a single `and $0xffffe27f` site, so 13.4 adds no new writer.
+- `.ptr.const` lowering is per-target: sm_75-89 `LDC.IL R, c[0x0][R]` (subtype 1), sm_90+ `LDG.E.CONSTANT desc[UR][R.64]`. Plain `ld.const [p+imm]` is
+  bank 3 plus index on every target, including sm_107/110/121 with 13.4.
+- Mercury side: final SM100 LDC encoder rows are keyed by (variant byte +0xe, +0xf) = (0..3, 3). `01/03` (`0x1a71e40`) is the bank form; `02/03` and `03/03`
+  (`0x12b7100`, `0x1347320`) write URa at bit 24 and Rb at bit 64, i.e. the `ldc_ur` (CX) classes. Variant bytes are written by `0xb28f10`/`0xb28f20` from a
+  large shape-matching converter (`FUN_0198bcd0`); an rr reverse-watchpoint on a normal LDC shows `(1,3)` set at 0x19af9f8.
+- Tooling: `rr record --bind-to-cpu=0` then `rr replay -s PORT -k` plus `gdb -batch -ex 'target remote :PORT'` works for reverse watchpoints.
+
+### Forced CX emission from ptxas itself (2026-10-11)
+
+`research/ptxas/force_ldc_cx.gdb` redirects the SM100 LDC row-`01/03` encoder to the row-`02/03` (`ldc_ur`) handler for the first LDC of
+`force_ldc_cx_input.ptx` (sm_100). The cubin then decodes (13.0 nvdisasm) as `LDC R1, cx[UR0][0x37c]`; hits 2 and 3 give
+`LDC.64 R2, cx[UR0][0x380]` and `LDC R4, cx[UR0][0x388]`. So ptxas's own packer for `ldc_ur` yields a real CX operand from ptxas
+output, but it needs a debugger patch: no PTX-only input selecting that row has been found. The URa field is not set up (UR0), so the
+value is not meaningful.
