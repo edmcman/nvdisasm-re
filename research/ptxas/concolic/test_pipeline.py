@@ -145,11 +145,12 @@ REGION_CASES = [
 @pytest.mark.skipif(not APP.exists(), reason='ptx-sass-gen not built')
 def test_region_parsers_agree(tmp_path):
     """The concolic worker (Python) and the mutators (Rust) must use the same instruction region."""
-    files = [*HERE.parent.glob('*.ptx'), *HERE.glob('*.ptx')]
+    fixtures = HERE.parents[2] / 'tests' / 'ptx'
+    files = [*fixtures.rglob('*.ptx'), *HERE.glob('*.ptx')]
     for i, case in enumerate(REGION_CASES):
         files.append(tmp_path / f'{i}.ptx'); files[-1].write_bytes(case)
     for f in files:
         rust = subprocess.run([APP, '--region', f], capture_output=True, text=True, check=True).stdout.split()
         python = instruction_region(f.read_bytes())
         assert rust == (['none'] if python is None else [str(python[0]), str(python[1])]), f
-    assert all(instruction_region(f.read_bytes()) for f in [*HERE.parent.glob('*.ptx'), HERE / 'generic_sm75.ptx'])
+    assert all(instruction_region(f.read_bytes()) for f in [*fixtures.rglob('*.ptx'), HERE / 'generic_sm75.ptx'])

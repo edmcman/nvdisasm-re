@@ -140,7 +140,7 @@ IR, not the PTX text parser. The function includes type-dependent paths.
 `research/ptxas/capture_finalizer.py` can be sourced in rr's GDB before
 continuing. It logs intermediate bytes, decoded instruction identities,
 native dispatch table rows and operand records, and final16-byte words.
-The probe is checked in as `research/ptxas/one_add.ptx`; captured evidence is
+The probe is checked in as `tests/ptx/arithmetic/one_add.ptx`; captured evidence is
 `research/ptxas/one_add_finalizer.jsonl`.
 
 Validated recording:7 intermediate decodes,16 native instructions. All256
@@ -282,8 +282,8 @@ calls in the arithmetic p-code. It tests the two arithmetic words, not the
 whole kernel or SM100 hardware. Compile inputs with CUDA 13.0.88 ptxas:
 
 ```
-ptxas -arch=sm_100 research/ptxas/add_u64.ptx -o /tmp/ptxas_add_u64.cubin
-ptxas -arch=sm_100 research/ptxas/sub_u64.ptx -o /tmp/ptxas_sub_u64.cubin
+ptxas -arch=sm_100 tests/ptx/arithmetic/add_u64.ptx -o /tmp/ptxas_add_u64.cubin
+ptxas -arch=sm_100 tests/ptx/arithmetic/sub_u64.ptx -o /tmp/ptxas_sub_u64.cubin
 python3 research/ptxas/check_wide_chains.py /tmp/ptxas_add_u64.cubin /tmp/ptxas_sub_u64.cubin
 ```
 

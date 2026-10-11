@@ -360,7 +360,7 @@ but automaton extraction and that mutation hook are not yet implemented.
 PTX_PREFIX_TRACE=/tmp/prefix.jsonl gdb -q -batch \
   -ex 'source research/ptxas/concolic/prefix_trace.py' \
   --args /usr/local/cuda-13.0/bin/ptxas -arch=sm_100 -o /dev/null \
-  research/ptxas/add_f32.ptx
+  tests/ptx/arithmetic/add_f32.ptx
 ```
 
 ### Parser recognition feedback

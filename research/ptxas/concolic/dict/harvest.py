@@ -16,7 +16,8 @@ def main():
     p.add_argument('--output', type=Path, default=HERE / 'ptx-strcmp.dict')
     p.add_argument('seeds', type=Path, nargs='*')
     args = p.parse_args()
-    seeds = args.seeds or [HERE.parent / 'generic_sm75.ptx', *sorted(HERE.parents[1].glob('*.ptx'))]
+    fixtures = HERE.parents[3] / 'tests' / 'ptx'
+    seeds = args.seeds or [HERE.parent / 'generic_sm75.ptx', *sorted(fixtures.rglob('*.ptx'))]
     with tempfile.TemporaryDirectory() as tmp:
         tmp = Path(tmp); shim = tmp / 'strcmp_log.so'; log = tmp / 'log'
         subprocess.check_call(['cc', '-shared', '-fPIC', '-O1', '-o', shim, HERE / 'strcmp_log.c', '-ldl'])
