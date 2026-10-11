@@ -13,6 +13,8 @@ from compare_ghidra import GHIDRA_PY,LDEFS,ROOT
 SPECS={
  'iadd3':('IADD3',), 'imad':('IMAD',), 'imad_hi':('IMAD.HI',),
  'lop3':('LOP3',), 'shf':('SHF',), 'iabs':('IABS',), 'imnmx':('IMNMX',),
+ 'vabsdiff4_s8_merge':('VABSDIFF4',), 'vabsdiff4_u8_merge':('VABSDIFF4',),
+ 'vabsdiff4_s8_acc':('VABSDIFF4',), 'vabsdiff4_u8_acc':('VABSDIFF4',),
  'dadd':('DADD',), 'dmul':('DMUL',), 'dfma':('DFMA',), 'dsetp':('DSETP',),
  'hadd2':('HADD2',), 'hfma2':('HFMA2',), 'hadd2_sat':('HADD2.SAT',),
  'hfma2_sat':('HFMA2.SAT',), 'hfma2_move':('HFMA2.MMA',),
@@ -20,6 +22,7 @@ SPECS={
  'hfma2_move_denorm':('HFMA2.MMA',), 'hfma2_move_inf':('HFMA2.MMA',),
  'hadd2_lanes':('HADD2',), 'hfma2_lanes':('HFMA2',),
  'prmt':('PRMT',), 'brev':('BREV',), 'popc':('POPC',),
+ 'bfind':('FLO.U32',), 'bfind_shift':('FLO.U32.SH',),
  'fadd':('FADD',), 'fmul':('FMUL',), 'ffma':('FFMA',),
  'isetp':('ISETP',), 'sel':('ISETP',), 'fsetp':('FSETP',), 'f2i':('F2I',),
  'fsel':('FSEL',), 'fmin':('FMNMX',), 'fmax':('FMNMX',),
@@ -97,6 +100,10 @@ def patch_half_fixtures(cubin):
         'hfma2_move':('HFMA2','hfma2_mma__RRI_norelu',dict(Ra=255,Rb=255,**{'Ra@negate':1,'Rb@negate':0})),
         'hadd2_lanes':('HADD2',None,dict(iswzA='H0_H0',iswzB_as_C='H1_H1',**{'Ra@absolute':1,'Rc@negate':1})),
         'hfma2_lanes':('HFMA2',None,dict(iswzA='H1_H1',iswzB='H0_H0',iswzC='H1_H0',**{'Ra@negate':1,'Rb@absolute':1}))}
+    for family,fmt,red in (
+        ('vabsdiff4_s8_merge','S8','SIMD_MRG'),('vabsdiff4_u8_merge','U8','SIMD_MRG'),
+        ('vabsdiff4_s8_acc','S8','ACC'),('vabsdiff4_u8_acc','U8','ACC')):
+        changes[family]=('LOP3','vabsdiff4__RRR_RRR',dict(Pu='PT',fmt=fmt,red=red))
     for suffix,bits in [('zero',0x80000000),('nan',0xfe01fd01),('denorm',0x000103ff),('inf',0x7c00fc00)]:
         changes['hfma2_move_'+suffix]=('HFMA2','hfma2_mma__RRI_norelu',
             dict(Ra=255,Rb=255,Sc=bits>>16,Sc1=bits&0xffff,**{'Ra@negate':1,'Rb@negate':0}))
@@ -171,6 +178,15 @@ def main():
             edges=[0,0xffffffff,0x80000000,0x7fffffff,0x7f800000,0xff800000,0x7fc00000,1,
                    0x007fffff,0x00800000,0x3f800000,0xbf800000,0x7f7fffff,0x80000001]
             vectors[:len(edges)]=[[x,x,x] for x in edges]
+            if family.startswith('vabsdiff4_'):
+                vectors[:8]=[(0,0xffffffff,0xdeadbeef),
+                    (0x807f01ff,0xff010080,0x7f80ff01),
+                    (0x80808080,0x7f7f7f7f,0x01020304),
+                    (0xffffffff,0,0x80000000),
+                    (0x7f000180,0x80ff017f,0xffffffff),
+                    (0x01020304,0x05060708,0x00000000),
+                    (0x80000000,0x7fffffff,0x7f80ff01),
+                    (0xdeadbeef,0x12345678,0xabcdef01)]
             if family in ('fsel','fmin','fmax','fmin_ftz','fmax_ftz'):
                 pairs=[(0,0x80000000),(0x80000000,0),(0x7fc00000,0x3f800000),
                        (0x3f800000,0x7fc00000),(0x7f800001,0xff800001),
@@ -222,13 +238,32 @@ def main():
             actual=[int.from_bytes(bytes.fromhex(value),'little') for value in result['outputs']]
             if len(actual)!=len(gpu):raise RuntimeError(f'{family}: missing emulated outputs')
             excluded=[]
-            if family in ('brev','popc'):
+            if family in ('brev','popc','bfind','bfind_shift'):
                 def reference(x):
                     if family=='popc':return x.bit_count()
-                    return sum(((x>>bit)&1)<<(31-bit) for bit in range(32))
+                    if family=='brev':return sum(((x>>bit)&1)<<(31-bit) for bit in range(32))
+                    if x==0:return 0xffffffff
+                    index=x.bit_length()-1
+                    return 31-index if family=='bfind_shift' else index
                 expected=tuple(reference(v[0]) for v in vectors)
                 if gpu!=expected:
                     mismatch=next((i for i,(actual,want) in enumerate(zip(gpu,expected)) if actual!=want),None)
+                    raise AssertionError((family,'GPU/reference mismatch',mismatch,vectors[mismatch],hex(gpu[mismatch]),hex(expected[mismatch])))
+            if family.startswith('vabsdiff4_'):
+                signed='_s8_' in family;acc=family.endswith('_acc')
+                expected=[]
+                for x,y,c in vectors:
+                    ds=[]
+                    for lane in range(4):
+                        a8=(x>>(lane*8))&255;b8=(y>>(lane*8))&255
+                        if signed:
+                            if a8&128:a8-=256
+                            if b8&128:b8-=256
+                        ds.append(abs(a8-b8))
+                    expected.append(((sum(ds)+c)&0xffffffff) if acc else
+                        sum((v&255)<<(lane*8) for lane,v in enumerate(ds)))
+                if gpu!=tuple(expected):
+                    mismatch=next(i for i,(got,want) in enumerate(zip(gpu,expected)) if got!=want)
                     raise AssertionError((family,'GPU/reference mismatch',mismatch,vectors[mismatch],hex(gpu[mismatch]),hex(expected[mismatch])))
             for index,(g,e) in enumerate(zip(gpu,actual)):
                 if family in HALF_FLOAT_OUTPUTS:

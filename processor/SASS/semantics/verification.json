@@ -4241,5 +4241,744 @@
     "limitations": [
       "CX compound sources remain opaque pending a sass_operand_value provider"
     ]
+  },
+  "culifter_scalar_port": {
+    "date": "2026-10-11",
+    "scope": {
+      "implemented": "FLO 32-bit .S32/.U32 index and .SH modes; SGXT .S32.C signed-byte extraction; BREV and POPC remain in the existing native implementation",
+      "fallbacks": "CX sources and unsupported selectors remain opaque",
+      "hardware_scope": "SM89 FLO forms emitted from PTX bfind; SGXT has emulator coverage only"
+    },
+    "emulator_suite": {
+      "command": "python3 tests/test_semantics.py SMxx exact|readable",
+      "results": {
+        "SM75": {
+          "exact": {
+            "passed": 14108,
+            "total": 14108
+          },
+          "readable": {
+            "passed": 9392,
+            "total": 9392
+          }
+        },
+        "SM80": {
+          "exact": {
+            "passed": 14223,
+            "total": 14223
+          },
+          "readable": {
+            "passed": 9506,
+            "total": 9506
+          }
+        },
+        "SM86": {
+          "exact": {
+            "passed": 14225,
+            "total": 14225
+          },
+          "readable": {
+            "passed": 9507,
+            "total": 9507
+          }
+        },
+        "SM89": {
+          "exact": {
+            "passed": 14225,
+            "total": 14225
+          },
+          "readable": {
+            "passed": 9507,
+            "total": 9507
+          }
+        },
+        "SM90": {
+          "exact": {
+            "passed": 14229,
+            "total": 14229
+          },
+          "readable": {
+            "passed": 9510,
+            "total": 9510
+          }
+        },
+        "SM100": {
+          "exact": {
+            "passed": 13382,
+            "total": 13382
+          },
+          "readable": {
+            "passed": 8669,
+            "total": 8669
+          }
+        },
+        "SM101": {
+          "exact": {
+            "passed": 13370,
+            "total": 13370
+          },
+          "readable": {
+            "passed": 8657,
+            "total": 8657
+          }
+        },
+        "SM103": {
+          "exact": {
+            "passed": 13382,
+            "total": 13382
+          },
+          "readable": {
+            "passed": 8669,
+            "total": 8669
+          }
+        },
+        "SM120": {
+          "exact": {
+            "passed": 13394,
+            "total": 13394
+          },
+          "readable": {
+            "passed": 8681,
+            "total": 8681
+          }
+        }
+      }
+    },
+    "ptx_bfind_probe": {
+      "fixture": "tests/ptx/bfind/flo_bfind.ptx",
+      "target": "SM89",
+      "compiler": "CUDA 13.0.88 ptxas",
+      "ptxas_sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+      "observed_sass": [
+        "FLO.U32",
+        "FLO.U32.SH"
+      ]
+    },
+    "gpu_oracle": {
+      "architecture": "SM89",
+      "gpu": "NVIDIA GeForce RTX 4070 Laptop GPU",
+      "families": {
+        "bfind": {
+          "sass": "FLO.U32",
+          "inputs": 128,
+          "passed": 128,
+          "executed": true
+        },
+        "bfind_shift": {
+          "sass": "FLO.U32.SH",
+          "inputs": 128,
+          "passed": 128,
+          "executed": true
+        }
+      },
+      "comparison": "GPU, Ghidra whole-kernel p-code, and independent PTX bfind references matched",
+      "result_file": "/tmp/sass-gpu-oracle/results.json"
+    }
+  },
+  "culifter_idp4a": {
+    "date": "2026-10-11",
+    "scope": {
+      "implemented": "IDP.4A R, URb, and ordinary constant-bank B classes; S8/U8 selection for A and B; 32-bit modular accumulation and Rc negation",
+      "fallbacks": "CX source classes and all IDP.2A classes remain opaque",
+      "hardware_scope": "No IDP PTX-to-SASS or GPU oracle verification recorded"
+    },
+    "emulator_suite": {
+      "command": "IDP-only subset of tests/test_semantics.py cases, run through tests/ghidra_emulate.py",
+      "fixtures_per_arch_mode": {
+        "SM75": 156,
+        "SM80": 156,
+        "SM86": 156,
+        "SM89": 156,
+        "SM90": 156,
+        "SM100": 104,
+        "SM101": 104,
+        "SM103": 104,
+        "SM120": 104
+      },
+      "results": {
+        "SM75": {
+          "exact": {
+            "passed": 156,
+            "total": 156
+          },
+          "readable": {
+            "passed": 156,
+            "total": 156
+          }
+        },
+        "SM80": {
+          "exact": {
+            "passed": 156,
+            "total": 156
+          },
+          "readable": {
+            "passed": 156,
+            "total": 156
+          }
+        },
+        "SM86": {
+          "exact": {
+            "passed": 156,
+            "total": 156
+          },
+          "readable": {
+            "passed": 156,
+            "total": 156
+          }
+        },
+        "SM89": {
+          "exact": {
+            "passed": 156,
+            "total": 156
+          },
+          "readable": {
+            "passed": 156,
+            "total": 156
+          }
+        },
+        "SM90": {
+          "exact": {
+            "passed": 156,
+            "total": 156
+          },
+          "readable": {
+            "passed": 156,
+            "total": 156
+          }
+        },
+        "SM100": {
+          "exact": {
+            "passed": 104,
+            "total": 104
+          },
+          "readable": {
+            "passed": 104,
+            "total": 104
+          }
+        },
+        "SM101": {
+          "exact": {
+            "passed": 104,
+            "total": 104
+          },
+          "readable": {
+            "passed": 104,
+            "total": 104
+          }
+        },
+        "SM103": {
+          "exact": {
+            "passed": 104,
+            "total": 104
+          },
+          "readable": {
+            "passed": 104,
+            "total": 104
+          }
+        },
+        "SM120": {
+          "exact": {
+            "passed": 104,
+            "total": 104
+          },
+          "readable": {
+            "passed": 104,
+            "total": 104
+          }
+        }
+      },
+      "vectors": "Independent Python byte unpacking reference; all four S8/U8 combinations; wraparound, negated Rc, and destination overlap"
+    },
+    "language_build": {
+      "command": "python3 -m sass.build_languages",
+      "result": "All 18 exact/readable architecture languages compiled; all decompressed SLA sizes below 16 MiB"
+    }
+  },
+  "culifter_vimnmx3": {
+    "date": "2026-10-11",
+    "scope": {
+      "implemented": "VIMNMX3 S32/U32/S16x2/U16x2 per-lane three-way min/max; PT selects min and !PT max; signed RELU clamps each result lane at zero; R, URb, and immediate B forms on SM100/SM103",
+      "fallbacks": "Unsigned RELU combinations are invalid per machine-description conditions; SM101 has no VIMNMX3 classes",
+      "hardware_scope": "No GPU oracle is available: these SM100+ instructions are newer than the available SM89 hardware; emulator fixtures use independent lane references"
+    },
+    "emulator_suite": {
+      "command": "Filtered VIMNMX3 fixtures from tests/test_semantics.py cases, executed with tests/ghidra_emulate.py",
+      "results": {
+        "SM100": {
+          "exact": {
+            "passed": 648,
+            "total": 648
+          },
+          "readable": {
+            "passed": 648,
+            "total": 648
+          }
+        },
+        "SM103": {
+          "exact": {
+            "passed": 648,
+            "total": 648
+          },
+          "readable": {
+            "passed": 648,
+            "total": 648
+          }
+        }
+      },
+      "vectors": "Independent per-lane reference with signed and unsigned formats, predicate modes, boundary and deterministic vectors, source forms, and signed RELU where valid"
+    },
+    "language_build": {
+      "command": "python3 -m sass.build_languages",
+      "architectures": [
+        "SM75",
+        "SM80",
+        "SM86",
+        "SM89",
+        "SM90",
+        "SM100",
+        "SM101",
+        "SM103",
+        "SM120"
+      ],
+      "modes": [
+        "exact",
+        "readable"
+      ],
+      "result": "All 18 generated languages compiled below the 16 MiB decompressed SLA limit"
+    },
+    "full_semantic_suite": {
+      "command": "python3 tests/test_semantics.py ARCH MODE",
+      "results": {
+        "SM100": {
+          "exact": {
+            "passed": 14138,
+            "total": 14138
+          },
+          "readable": {
+            "passed": 9328,
+            "total": 9328
+          }
+        },
+        "SM103": {
+          "exact": {
+            "passed": 14138,
+            "total": 14138
+          },
+          "readable": {
+            "passed": 9328,
+            "total": 9328
+          }
+        }
+      }
+    },
+    "full_sm100_sm103_semantics": {
+      "command": "python3 tests/test_semantics.py ARCH MODE",
+      "results": {
+        "SM100": {
+          "exact": {
+            "passed": 14138,
+            "total": 14138
+          },
+          "readable": {
+            "passed": 9328,
+            "total": 9328
+          }
+        },
+        "SM103": {
+          "exact": {
+            "passed": 14138,
+            "total": 14138
+          },
+          "readable": {
+            "passed": 9328,
+            "total": 9328
+          }
+        }
+      }
+    }
+  },
+  "culifter_vabsdiff4": {
+    "date": "2026-10-11",
+    "scope": {
+      "implemented": "S8/U8 four-byte absolute differences in SIMD_MRG and ACC reduction modes; register, uniform-register, immediate, and ordinary constant-bank source shapes; Pu constrained to PT",
+      "architecture_coverage": {
+        "SM75": {
+          "native_classes": 7,
+          "opaque_classes": 2
+        },
+        "SM80": {
+          "native_classes": 7,
+          "opaque_classes": 2
+        },
+        "SM86": {
+          "native_classes": 7,
+          "opaque_classes": 2
+        },
+        "SM89": {
+          "native_classes": 7,
+          "opaque_classes": 2
+        },
+        "SM90": {
+          "native_classes": 7,
+          "opaque_classes": 2
+        },
+        "SM100": {
+          "native_classes": 5,
+          "opaque_classes": 0
+        },
+        "SM101": {
+          "native_classes": 5,
+          "opaque_classes": 0
+        },
+        "SM103": {
+          "native_classes": 5,
+          "opaque_classes": 0
+        },
+        "SM120": {
+          "classes": 0
+        }
+      },
+      "fallbacks": "CX sources and non-PT Pu destinations remain opaque; the available md classes have no SAT selector",
+      "hardware_scope": "SM89 NVIDIA GeForce RTX 4070 Laptop GPU; patched SASS encodings, not compiler-generated VABSDIFF4"
+    },
+    "sass_rules": {
+      "SIMD_MRG": "Pack the four absolute byte differences; source C is ignored",
+      "ACC": "Add all four byte differences as a scalar, then add C modulo 2^32",
+      "patched_words": {
+        "vabsdiff4_s8_merge": {
+          "text_offset": "0x100",
+          "little_endian": "15720b020500000006020e0000ca4f00",
+          "disassembly": "VABSDIFF4 R11, R2, R5, R6"
+        },
+        "vabsdiff4_u8_merge": {
+          "text_offset": "0x100",
+          "little_endian": "15720b020500000006000e0000ca4f00",
+          "disassembly": "VABSDIFF4.U8 R11, R2, R5, R6"
+        },
+        "vabsdiff4_s8_acc": {
+          "text_offset": "0x100",
+          "little_endian": "15720b0205000000060a0e0000ca4f00",
+          "disassembly": "VABSDIFF4.ACC R11, R2, R5, R6"
+        },
+        "vabsdiff4_u8_acc": {
+          "text_offset": "0x100",
+          "little_endian": "15720b020500000006080e0000ca4f00",
+          "disassembly": "VABSDIFF4.U8.ACC R11, R2, R5, R6"
+        }
+      },
+      "patch_method": "Replace the low 105 bits of the compiler-generated LOP3 word in each controlled kernel; preserve bits 105-127 containing scheduling/control data. Only LOP3-derived register assignments R11/R2/R5/R6 are shared."
+    },
+    "emulator_suite": {
+      "command": "VABSDIFF4-only subset of tests/test_semantics.py cases through tests/ghidra_emulate.py",
+      "results": {
+        "SM75": {
+          "exact": {
+            "passed": 168,
+            "total": 168
+          },
+          "readable": {
+            "passed": 168,
+            "total": 168
+          }
+        },
+        "SM80": {
+          "exact": {
+            "passed": 168,
+            "total": 168
+          },
+          "readable": {
+            "passed": 168,
+            "total": 168
+          }
+        },
+        "SM86": {
+          "exact": {
+            "passed": 168,
+            "total": 168
+          },
+          "readable": {
+            "passed": 168,
+            "total": 168
+          }
+        },
+        "SM89": {
+          "exact": {
+            "passed": 168,
+            "total": 168
+          },
+          "readable": {
+            "passed": 168,
+            "total": 168
+          }
+        },
+        "SM90": {
+          "exact": {
+            "passed": 168,
+            "total": 168
+          },
+          "readable": {
+            "passed": 168,
+            "total": 168
+          }
+        },
+        "SM100": {
+          "exact": {
+            "passed": 120,
+            "total": 120
+          },
+          "readable": {
+            "passed": 120,
+            "total": 120
+          }
+        },
+        "SM101": {
+          "exact": {
+            "passed": 120,
+            "total": 120
+          },
+          "readable": {
+            "passed": 120,
+            "total": 120
+          }
+        },
+        "SM103": {
+          "exact": {
+            "passed": 120,
+            "total": 120
+          },
+          "readable": {
+            "passed": 120,
+            "total": 120
+          }
+        }
+      },
+      "vectors": "Independent signed/unsigned byte unpacking reference; six boundary vectors and deterministic random values; merge and scalar ACC mode"
+    },
+    "dataflow_suite": {
+      "command": "python3 tests/test_dataflow.py SM89 2000 MODE",
+      "results": {
+        "exact": {
+          "passed": 12714,
+          "total": 12714
+        },
+        "readable": {
+          "passed": 12714,
+          "total": 12714
+        }
+      },
+      "note": "Dataflow expectations account for ignored C in SIMD_MRG"
+    },
+    "full_sm89_semantics": {
+      "command": "python3 tests/test_semantics.py SM89 MODE",
+      "results": {
+        "exact": {
+          "passed": 14649,
+          "total": 14649
+        },
+        "readable": {
+          "passed": 9834,
+          "total": 9834
+        }
+      }
+    },
+    "gpu_oracle": {
+      "command": "python3 tests/gpu_semantics.py --require-gpu --output /tmp/sass-gpu-vabs",
+      "architecture": "SM89",
+      "device": "NVIDIA GeForce RTX 4070 Laptop GPU",
+      "seed": 1,
+      "inputs_per_form": 128,
+      "families": {
+        "vabsdiff4_s8_merge": {
+          "passed": 128,
+          "target_executed": true
+        },
+        "vabsdiff4_u8_merge": {
+          "passed": 128,
+          "target_executed": true
+        },
+        "vabsdiff4_s8_acc": {
+          "passed": 128,
+          "target_executed": true
+        },
+        "vabsdiff4_u8_acc": {
+          "passed": 128,
+          "target_executed": true
+        }
+      },
+      "comparison": "GPU, Ghidra whole-kernel p-code, and independent reference matched for every vector"
+    },
+    "ptx_compiler_probe": {
+      "fixture": "tests/ptx/vabsdiff4/vabsdiff4_modes.ptx",
+      "target": "SM89",
+      "compiler": "CUDA 13.0.88 ptxas",
+      "ptxas_sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+      "result": "PTX SIMD merge, .add, mask, and .sat forms compiled but expanded to scalar SASS sequences; none emitted a VABSDIFF4 opcode",
+      "evidence": "Manually patched SASS forms are separately labeled and are not presented as ptxas output"
+    },
+    "language_build": {
+      "command": "python3 -m sass.build_languages",
+      "architectures": [
+        "SM75",
+        "SM80",
+        "SM86",
+        "SM89",
+        "SM90",
+        "SM100",
+        "SM101",
+        "SM103",
+        "SM120"
+      ],
+      "modes": [
+        "exact",
+        "readable"
+      ],
+      "result": "All 18 languages compiled below the 16 MiB decompressed SLA limit"
+    },
+    "full_sm100_sm103_semantics": {
+      "command": "python3 tests/test_semantics.py ARCH MODE",
+      "results": {
+        "SM100": {
+          "exact": {
+            "passed": 14138,
+            "total": 14138
+          },
+          "readable": {
+            "passed": 9328,
+            "total": 9328
+          }
+        },
+        "SM103": {
+          "exact": {
+            "passed": 14138,
+            "total": 14138
+          },
+          "readable": {
+            "passed": 9328,
+            "total": 9328
+          }
+        }
+      }
+    }
+  },
+  "culifter_vimnmx": {
+    "date": "2026-10-11",
+    "upstream": "third_party/culifter/lift/lifter.py::lift_vimnmx",
+    "scope": {
+      "implemented": "VIMNMX S32/U32 and packed S16x2/U16x2 on SM100/SM103; SM120 also supports S8x4/U8x4; PT selects minimum and non-PT selects maximum; signed RELU clamps each lane at zero; R, URb, and immediate B sources",
+      "fallbacks": "Unsigned RELU combinations are invalid per machine-description conditions; non-PT Pu/Pv outputs and CX forms remain opaque",
+      "hardware_scope": "No GPU oracle is available: these SM100+ instructions are newer than the available SM89 hardware; emulator fixtures use independent lane references"
+    },
+    "language_build": {
+      "command": "XDG_CONFIG_HOME=/tmp/.config python3 -m sass.build_languages SM100 SM101 SM103 SM120",
+      "architectures": [
+        "SM100",
+        "SM101",
+        "SM103",
+        "SM120"
+      ],
+      "modes": [
+        "exact",
+        "readable"
+      ],
+      "result": "All eight affected language variants compiled below the 16 MiB decompressed SLA limit"
+    },
+    "emulator_suite": {
+      "command": "Filtered VIMNMX fixtures from tests/test_semantics.py cases, executed with tests/ghidra_emulate.py",
+      "results": {
+        "SM100": {
+          "exact": {
+            "passed": 504,
+            "total": 504
+          },
+          "readable": {
+            "passed": 504,
+            "total": 504
+          }
+        },
+        "SM103": {
+          "exact": {
+            "passed": 504,
+            "total": 504
+          },
+          "readable": {
+            "passed": 504,
+            "total": 504
+          }
+        },
+        "SM120": {
+          "exact": {
+            "passed": 756,
+            "total": 756
+          },
+          "readable": {
+            "passed": 756,
+            "total": 756
+          }
+        }
+      },
+      "vectors": "Independent per-lane reference with signed and unsigned formats, predicate modes, boundary and deterministic vectors, source forms, and signed RELU where valid"
+    },
+    "dataflow_suite": {
+      "command": "XDG_CONFIG_HOME=/tmp/.config python3 tests/test_dataflow.py SM100 2000 exact",
+      "result": {
+        "passed": 12856,
+        "total": 12856
+      }
+    }
+  },
+  "culifter_viaddmnmx": {
+    "date": "2026-10-11",
+    "upstream": "third_party/culifter/lift/lifter.py::lift_viaddmnmx",
+    "scope": {
+      "implemented": "S32/U32/S16x2/U16x2 forms across five SM100/SM103 classes with R, URb, and immediate B/C operands; per-lane modular addition followed by Pp-selected min/max against C; signed RELU clamps each result lane at zero",
+      "source_modifier": "B negate is applied to its 32-bit value before lane extraction, matching CuLifter operand materialization",
+      "fallbacks": "Unsigned RELU combinations are invalid per machine-description conditions; CX forms remain opaque",
+      "hardware_scope": "No GPU oracle is available: these SM100+ instructions are newer than the available SM89 hardware; emulator fixtures use independent lane references"
+    },
+    "language_build": {
+      "command": "XDG_CONFIG_HOME=/tmp/.config python3 -m sass.build_languages SM100 SM103",
+      "architectures": [
+        "SM100",
+        "SM103"
+      ],
+      "modes": [
+        "exact",
+        "readable"
+      ],
+      "result": "All four affected language variants compiled below the 16 MiB decompressed SLA limit"
+    },
+    "emulator_suite": {
+      "command": "Filtered VIADDMNMX fixtures from tests/test_semantics.py cases, executed with tests/ghidra_emulate.py",
+      "results": {
+        "SM100": {
+          "exact": {
+            "passed": 840,
+            "total": 840
+          },
+          "readable": {
+            "passed": 840,
+            "total": 840
+          }
+        },
+        "SM103": {
+          "exact": {
+            "passed": 840,
+            "total": 840
+          },
+          "readable": {
+            "passed": 840,
+            "total": 840
+          }
+        }
+      },
+      "vectors": "Independent per-lane reference with signed and unsigned formats, predicate modes, boundary and deterministic vectors, source forms, and signed RELU where valid"
+    },
+    "dataflow_suite": {
+      "command": "XDG_CONFIG_HOME=/tmp/.config python3 tests/test_dataflow.py SM100 2000 exact",
+      "result": {
+        "passed": 12856,
+        "total": 12856
+      }
+    }
   }
 }

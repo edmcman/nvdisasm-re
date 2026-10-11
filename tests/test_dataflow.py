@@ -33,6 +33,12 @@ def expected(g, d, optimized=False):
         operand=d.klass.operand_types.get(name)
         if operand and d.env.get(name) in {g.arch.enums[operand.type].get(n) for n in ('F','T')}:
             unused.update(('Ra','Sa','Rb','Sb','URa','URb'))
+    if optimized and d.klass.mnemonic=='VABSDIFF4':
+        red=d.klass.operand_types.get('red');enums=g.arch.enums.get(red.type,{}) if red else {}
+        if d.env.get('red')==enums.get('SIMD_MRG'):
+            # The generated full-width merge selector always chooses all four
+            # difference lanes; its secondary source C is therefore unused.
+            unused.update(('Rc','URc','Sc'))
     # An unused compound value also drops reads of its address registers.
     for atom in d.klass.format:
         if atom.name not in unused or atom.type not in ('C','CX','A','DESC'):continue

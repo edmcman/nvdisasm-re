@@ -38,7 +38,10 @@ class Builder:
         self.body = [f'build {guard};'] if guard else []
         self.refs, self.values, self.outputs, self.inventory = [], {}, {}, []
         self.selector_guards = {}
+        self.selector_combinations = {}
         self.native_constraints = []
+        self.native_refs = []
+        self.selector_patterns = []
         self.native_supported = True
         self.serial = 0
         from sass.operations import OPERATION_FAMILIES
@@ -383,6 +386,31 @@ class Builder:
         else:
             self.native_constraints += clauses
 
+    def allow_combinations(self, names, combinations):
+        """Restrict native p-code to explicit combinations of decoded selectors."""
+        from sass.gen_sleigh import pattern
+        accepted=[]
+        patterns=[]
+        for values in combinations:
+            clauses=[];valid=True
+            for name,value in zip(names,values):
+                constraint=self.g.values_where(self.k,name,lambda v,w=value:v==w)
+                if constraint is None:
+                    current=self.values.get(name)
+                    valid &= bool(current and re.fullmatch(r'(?:0x[0-9a-f]+|\d+):\d+',current.symbol)
+                                  and int(current.symbol.split(':')[0],0)==value)
+                else:clauses+=constraint
+            if not valid:continue
+            pat=pattern(clauses)
+            if pat:
+                accepted.append(list(values))
+                patterns.append(clauses)
+        if not patterns:
+            self.reject()
+            return
+        self.selector_patterns=patterns
+        self.selector_combinations[','.join(names)]=accepted
+
     def reject(self):
         self.native_supported = False
 
@@ -460,6 +488,7 @@ class Builder:
               implicit=self.g.roles.get(self.k.name,{}).get('implicit',[])))
         row['status']=status
         row['selector_guards']=self.selector_guards
+        row['selector_combinations']=self.selector_combinations
         row['raw_bits_preserved']=True
         row['flow']={n:v for n,v in self.g.props.get(self.k.name,{}).items() if n.startswith('BRANCH_')}
         variant=dict(spans=self.spans,inputs=list(self.values),outputs={n:v.size for n,v in self.outputs.items()})

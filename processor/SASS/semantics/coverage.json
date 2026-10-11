@@ -19,6 +19,8 @@
       "iadd_x_xor_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RUR_RUR": "class selectors have no supported native combination",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
       "isetp__RUR_RUR_EX": "class selectors have no supported native combination",
       "isetp__RsIR_RIR_EX": "class selectors have no supported native combination",
@@ -102,6 +104,9 @@
       "FFMA": {
         "native": 5
       },
+      "FLO": {
+        "native": 3
+      },
       "FMNMX": {
         "native": 3,
         "opaque": 3
@@ -141,6 +146,10 @@
       },
       "IADD3": {
         "native": 6
+      },
+      "IDP": {
+        "native": 2,
+        "opaque": 2
       },
       "IMAD": {
         "native": 29
@@ -200,6 +209,9 @@
       "SEL": {
         "native": 3
       },
+      "SGXT": {
+        "native": 3
+      },
       "SHF": {
         "native": 5
       },
@@ -246,7 +258,19 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "native": 5
+      },
       "VIADD": {
+        "native": 3
+      },
+      "VIADDMNMX": {
+        "native": 5
+      },
+      "VIMNMX": {
+        "native": 3
+      },
+      "VIMNMX3": {
         "native": 3
       },
       "VOTE": {
@@ -254,8 +278,8 @@
       }
     },
     "status": {
-      "native": 216,
-      "opaque": 674,
+      "native": 240,
+      "opaque": 650,
       "primitive": 88
     }
   },
@@ -279,6 +303,8 @@
       "iadd_x_xor_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RUR_RUR": "class selectors have no supported native combination",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
       "isetp__RUR_RUR_EX": "class selectors have no supported native combination",
       "isetp__RsIR_RIR_EX": "class selectors have no supported native combination",
@@ -362,6 +388,9 @@
       "FFMA": {
         "native": 5
       },
+      "FLO": {
+        "native": 3
+      },
       "FMNMX": {
         "native": 3,
         "opaque": 3
@@ -401,6 +430,10 @@
       },
       "IADD3": {
         "native": 6
+      },
+      "IDP": {
+        "native": 2,
+        "opaque": 2
       },
       "IMAD": {
         "native": 29
@@ -460,6 +493,9 @@
       "SEL": {
         "native": 3
       },
+      "SGXT": {
+        "native": 3
+      },
       "SHF": {
         "native": 5
       },
@@ -506,7 +542,19 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "native": 5
+      },
       "VIADD": {
+        "native": 3
+      },
+      "VIADDMNMX": {
+        "native": 5
+      },
+      "VIMNMX": {
+        "native": 3
+      },
+      "VIMNMX3": {
         "native": 3
       },
       "VOTE": {
@@ -514,8 +562,8 @@
       }
     },
     "status": {
-      "native": 216,
-      "opaque": 674,
+      "native": 240,
+      "opaque": 650,
       "primitive": 88
     }
   },
@@ -536,6 +584,8 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
       "isetp__RUR_RUR_EX": "class selectors have no supported native combination",
       "isetp__RsIR_RIR_EX": "class selectors have no supported native combination",
@@ -619,6 +669,9 @@
       "FFMA": {
         "native": 5
       },
+      "FLO": {
+        "native": 3
+      },
       "FMNMX": {
         "native": 3,
         "opaque": 3
@@ -657,6 +710,10 @@
       },
       "IADD3": {
         "native": 6
+      },
+      "IDP": {
+        "native": 2,
+        "opaque": 2
       },
       "IMAD": {
         "native": 29
@@ -716,6 +773,9 @@
       "SEL": {
         "native": 3
       },
+      "SGXT": {
+        "native": 3
+      },
       "SHF": {
         "native": 5
       },
@@ -762,7 +822,19 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "native": 5
+      },
       "VIADD": {
+        "absent": 0
+      },
+      "VIADDMNMX": {
+        "absent": 0
+      },
+      "VIMNMX": {
+        "absent": 0
+      },
+      "VIMNMX3": {
         "absent": 0
       },
       "VOTE": {
@@ -770,8 +842,8 @@
       }
     },
     "status": {
-      "native": 210,
-      "opaque": 608,
+      "native": 223,
+      "opaque": 595,
       "primitive": 86
     }
   },
@@ -792,6 +864,8 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
       "isetp__RUR_RUR_EX": "class selectors have no supported native combination",
       "isetp__RsIR_RIR_EX": "class selectors have no supported native combination",
@@ -875,6 +949,9 @@
       "FFMA": {
         "native": 5
       },
+      "FLO": {
+        "native": 3
+      },
       "FMNMX": {
         "native": 3,
         "opaque": 3
@@ -913,6 +990,10 @@
       },
       "IADD3": {
         "native": 6
+      },
+      "IDP": {
+        "native": 2,
+        "opaque": 2
       },
       "IMAD": {
         "native": 29
@@ -972,6 +1053,9 @@
       "SEL": {
         "native": 3
       },
+      "SGXT": {
+        "native": 3
+      },
       "SHF": {
         "native": 5
       },
@@ -1018,7 +1102,19 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "native": 5
+      },
       "VIADD": {
+        "absent": 0
+      },
+      "VIADDMNMX": {
+        "absent": 0
+      },
+      "VIMNMX": {
+        "absent": 0
+      },
+      "VIMNMX3": {
         "absent": 0
       },
       "VOTE": {
@@ -1026,8 +1122,8 @@
       }
     },
     "status": {
-      "native": 210,
-      "opaque": 608,
+      "native": 223,
+      "opaque": 595,
       "primitive": 86
     }
   },
@@ -1051,6 +1147,8 @@
       "iadd_x_xor_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RUR_RUR": "class selectors have no supported native combination",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
       "isetp__RUR_RUR_EX": "class selectors have no supported native combination",
       "isetp__RsIR_RIR_EX": "class selectors have no supported native combination",
@@ -1134,6 +1232,9 @@
       "FFMA": {
         "native": 5
       },
+      "FLO": {
+        "native": 3
+      },
       "FMNMX": {
         "native": 3,
         "opaque": 3
@@ -1173,6 +1274,10 @@
       },
       "IADD3": {
         "native": 6
+      },
+      "IDP": {
+        "native": 2,
+        "opaque": 2
       },
       "IMAD": {
         "native": 29
@@ -1232,6 +1337,9 @@
       "SEL": {
         "native": 3
       },
+      "SGXT": {
+        "native": 3
+      },
       "SHF": {
         "native": 5
       },
@@ -1278,7 +1386,19 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "native": 5
+      },
       "VIADD": {
+        "native": 3
+      },
+      "VIADDMNMX": {
+        "native": 5
+      },
+      "VIMNMX": {
+        "native": 3
+      },
+      "VIMNMX3": {
         "native": 3
       },
       "VOTE": {
@@ -1286,8 +1406,8 @@
       }
     },
     "status": {
-      "native": 216,
-      "opaque": 667,
+      "native": 240,
+      "opaque": 643,
       "primitive": 91
     }
   },
@@ -1311,6 +1431,8 @@
       "iadd_x_xor_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RUR_RUR": "class selectors have no supported native combination",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
       "isetp__RUR_RUR_EX": "class selectors have no supported native combination",
       "isetp__RsIR_RIR_EX": "class selectors have no supported native combination",
@@ -1394,6 +1516,9 @@
       "FFMA": {
         "native": 5
       },
+      "FLO": {
+        "native": 3
+      },
       "FMNMX": {
         "native": 3,
         "opaque": 3
@@ -1433,6 +1558,10 @@
       },
       "IADD3": {
         "native": 6
+      },
+      "IDP": {
+        "native": 2,
+        "opaque": 2
       },
       "IMAD": {
         "native": 29
@@ -1492,6 +1621,9 @@
       "SEL": {
         "native": 3
       },
+      "SGXT": {
+        "native": 3
+      },
       "SHF": {
         "native": 5
       },
@@ -1538,7 +1670,19 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "native": 5
+      },
       "VIADD": {
+        "native": 3
+      },
+      "VIADDMNMX": {
+        "native": 5
+      },
+      "VIMNMX": {
+        "native": 3
+      },
+      "VIMNMX3": {
         "native": 3
       },
       "VOTE": {
@@ -1546,8 +1690,8 @@
       }
     },
     "status": {
-      "native": 216,
-      "opaque": 667,
+      "native": 240,
+      "opaque": 643,
       "primitive": 91
     }
   },
@@ -1577,6 +1721,8 @@
       "iadd_x_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd_x_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd_x_noimm__RUR_RUR": "class selectors have no supported native combination",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
       "imnmx_64__RIR_RsIR": "unsupported class shape",
       "imnmx_64__RRR_RRR": "unsupported class shape",
       "imnmx_64__RUR_RUR": "unsupported class shape",
@@ -1680,6 +1826,9 @@
       "FFMA": {
         "native": 5
       },
+      "FLO": {
+        "native": 3
+      },
       "FMNMX": {
         "native": 3,
         "opaque": 3
@@ -1719,6 +1868,10 @@
       },
       "IADD3": {
         "native": 6
+      },
+      "IDP": {
+        "native": 2,
+        "opaque": 2
       },
       "IMAD": {
         "native": 29
@@ -1778,6 +1931,9 @@
       "SEL": {
         "native": 6
       },
+      "SGXT": {
+        "native": 3
+      },
       "SHF": {
         "native": 5
       },
@@ -1824,16 +1980,28 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "absent": 0
+      },
       "VIADD": {
         "native": 3
+      },
+      "VIADDMNMX": {
+        "absent": 0
+      },
+      "VIMNMX": {
+        "native": 3
+      },
+      "VIMNMX3": {
+        "absent": 0
       },
       "VOTE": {
         "primitive": 1
       }
     },
     "status": {
-      "native": 227,
-      "opaque": 702,
+      "native": 238,
+      "opaque": 691,
       "primitive": 86
     }
   },
@@ -1863,6 +2031,8 @@
       "iadd_x_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd_x_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd_x_noimm__RUR_RUR": "class selectors have no supported native combination",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
       "imnmx_64__RIR_RsIR": "unsupported class shape",
       "imnmx_64__RRR_RRR": "unsupported class shape",
       "imnmx_64__RUR_RUR": "unsupported class shape",
@@ -1966,6 +2136,9 @@
       "FFMA": {
         "native": 5
       },
+      "FLO": {
+        "native": 3
+      },
       "FMNMX": {
         "native": 3,
         "opaque": 3
@@ -2005,6 +2178,10 @@
       },
       "IADD3": {
         "native": 6
+      },
+      "IDP": {
+        "native": 2,
+        "opaque": 2
       },
       "IMAD": {
         "native": 29
@@ -2064,6 +2241,9 @@
       "SEL": {
         "native": 6
       },
+      "SGXT": {
+        "native": 3
+      },
       "SHF": {
         "native": 5
       },
@@ -2110,16 +2290,28 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "absent": 0
+      },
       "VIADD": {
         "native": 3
+      },
+      "VIADDMNMX": {
+        "absent": 0
+      },
+      "VIMNMX": {
+        "native": 3
+      },
+      "VIMNMX3": {
+        "absent": 0
       },
       "VOTE": {
         "primitive": 1
       }
     },
     "status": {
-      "native": 227,
-      "opaque": 702,
+      "native": 238,
+      "opaque": 691,
       "primitive": 86
     }
   },
@@ -2128,6 +2320,12 @@
     "hardware_verified": false,
     "opaque_operations": {
       "brev__RCxR_RCxR": "unsupported class shape",
+      "flo__RCxR_RCxR": "unsupported class shape",
+      "idp_2a__C": "only IDP.4A forms are implemented",
+      "idp_2a__CXb": "only IDP.4A forms are implemented",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
+      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
       "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
       "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
       "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
@@ -2151,6 +2349,7 @@
       "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
+      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
@@ -2161,7 +2360,9 @@
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
-      "uldc_ur_offset_": "unsupported class shape"
+      "uldc_ur_offset_": "unsupported class shape",
+      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
+      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs"
     },
     "operations": {
       "BAR": {
@@ -2214,6 +2415,10 @@
       "FFMA": {
         "native": 9
       },
+      "FLO": {
+        "native": 4,
+        "opaque": 1
+      },
       "FMNMX": {
         "native": 5
       },
@@ -2249,6 +2454,10 @@
       },
       "IADD3": {
         "native": 10
+      },
+      "IDP": {
+        "native": 3,
+        "opaque": 5
       },
       "IMAD": {
         "native": 51,
@@ -2308,6 +2517,10 @@
       "SEL": {
         "native": 5
       },
+      "SGXT": {
+        "native": 4,
+        "opaque": 1
+      },
       "SHF": {
         "native": 9
       },
@@ -2355,7 +2568,20 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "native": 7,
+        "opaque": 2
+      },
       "VIADD": {
+        "absent": 0
+      },
+      "VIADDMNMX": {
+        "absent": 0
+      },
+      "VIMNMX": {
+        "absent": 0
+      },
+      "VIMNMX3": {
         "absent": 0
       },
       "VOTE": {
@@ -2363,8 +2589,8 @@
       }
     },
     "status": {
-      "native": 302,
-      "opaque": 497,
+      "native": 320,
+      "opaque": 479,
       "primitive": 104
     }
   },
@@ -2373,6 +2599,12 @@
     "hardware_verified": false,
     "opaque_operations": {
       "brev__RCxR_RCxR": "unsupported class shape",
+      "flo__RCxR_RCxR": "unsupported class shape",
+      "idp_2a__C": "only IDP.4A forms are implemented",
+      "idp_2a__CXb": "only IDP.4A forms are implemented",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
+      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
       "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
       "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
       "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
@@ -2396,6 +2628,7 @@
       "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
+      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
@@ -2406,7 +2639,9 @@
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
-      "uldc_ur_offset_": "unsupported class shape"
+      "uldc_ur_offset_": "unsupported class shape",
+      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
+      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs"
     },
     "operations": {
       "BAR": {
@@ -2459,6 +2694,10 @@
       "FFMA": {
         "native": 9
       },
+      "FLO": {
+        "native": 4,
+        "opaque": 1
+      },
       "FMNMX": {
         "native": 5
       },
@@ -2494,6 +2733,10 @@
       },
       "IADD3": {
         "native": 10
+      },
+      "IDP": {
+        "native": 3,
+        "opaque": 5
       },
       "IMAD": {
         "native": 51,
@@ -2553,6 +2796,10 @@
       "SEL": {
         "native": 5
       },
+      "SGXT": {
+        "native": 4,
+        "opaque": 1
+      },
       "SHF": {
         "native": 9
       },
@@ -2600,7 +2847,20 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "native": 7,
+        "opaque": 2
+      },
       "VIADD": {
+        "absent": 0
+      },
+      "VIADDMNMX": {
+        "absent": 0
+      },
+      "VIMNMX": {
+        "absent": 0
+      },
+      "VIMNMX3": {
         "absent": 0
       },
       "VOTE": {
@@ -2608,8 +2868,8 @@
       }
     },
     "status": {
-      "native": 302,
-      "opaque": 497,
+      "native": 320,
+      "opaque": 479,
       "primitive": 104
     }
   },
@@ -2620,6 +2880,7 @@
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "brev__RCxR_RCxR": "unsupported class shape",
+      "flo__RCxR_RCxR": "unsupported class shape",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -2646,6 +2907,11 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "idp_2a__C": "only IDP.4A forms are implemented",
+      "idp_2a__CXb": "only IDP.4A forms are implemented",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
+      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
       "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
       "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
       "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
@@ -2668,6 +2934,7 @@
       "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
+      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
@@ -2678,7 +2945,9 @@
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
-      "uldc_ur_offset_": "unsupported class shape"
+      "uldc_ur_offset_": "unsupported class shape",
+      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
+      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs"
     },
     "operations": {
       "BAR": {
@@ -2732,6 +3001,10 @@
       "FFMA": {
         "native": 9
       },
+      "FLO": {
+        "native": 4,
+        "opaque": 1
+      },
       "FMNMX": {
         "native": 5
       },
@@ -2769,6 +3042,10 @@
       },
       "IADD3": {
         "native": 10
+      },
+      "IDP": {
+        "native": 3,
+        "opaque": 5
       },
       "IMAD": {
         "native": 51,
@@ -2830,6 +3107,10 @@
       "SEL": {
         "native": 5
       },
+      "SGXT": {
+        "native": 4,
+        "opaque": 1
+      },
       "SHF": {
         "native": 9
       },
@@ -2877,7 +3158,20 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "native": 7,
+        "opaque": 2
+      },
       "VIADD": {
+        "absent": 0
+      },
+      "VIADDMNMX": {
+        "absent": 0
+      },
+      "VIMNMX": {
+        "absent": 0
+      },
+      "VIMNMX3": {
         "absent": 0
       },
       "VOTE": {
@@ -2885,8 +3179,8 @@
       }
     },
     "status": {
-      "native": 309,
-      "opaque": 554,
+      "native": 327,
+      "opaque": 536,
       "primitive": 104
     }
   },
@@ -2897,6 +3191,7 @@
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "brev__RCxR_RCxR": "unsupported class shape",
+      "flo__RCxR_RCxR": "unsupported class shape",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -2923,6 +3218,11 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "idp_2a__C": "only IDP.4A forms are implemented",
+      "idp_2a__CXb": "only IDP.4A forms are implemented",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
+      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
       "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
       "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
       "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
@@ -2945,6 +3245,7 @@
       "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
+      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
@@ -2955,7 +3256,9 @@
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
-      "uldc_ur_offset_": "unsupported class shape"
+      "uldc_ur_offset_": "unsupported class shape",
+      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
+      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs"
     },
     "operations": {
       "BAR": {
@@ -3009,6 +3312,10 @@
       "FFMA": {
         "native": 9
       },
+      "FLO": {
+        "native": 4,
+        "opaque": 1
+      },
       "FMNMX": {
         "native": 5
       },
@@ -3046,6 +3353,10 @@
       },
       "IADD3": {
         "native": 10
+      },
+      "IDP": {
+        "native": 3,
+        "opaque": 5
       },
       "IMAD": {
         "native": 51,
@@ -3107,6 +3418,10 @@
       "SEL": {
         "native": 5
       },
+      "SGXT": {
+        "native": 4,
+        "opaque": 1
+      },
       "SHF": {
         "native": 9
       },
@@ -3154,7 +3469,20 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "native": 7,
+        "opaque": 2
+      },
       "VIADD": {
+        "absent": 0
+      },
+      "VIADDMNMX": {
+        "absent": 0
+      },
+      "VIMNMX": {
+        "absent": 0
+      },
+      "VIMNMX3": {
         "absent": 0
       },
       "VOTE": {
@@ -3162,8 +3490,8 @@
       }
     },
     "status": {
-      "native": 309,
-      "opaque": 554,
+      "native": 327,
+      "opaque": 536,
       "primitive": 104
     }
   },
@@ -3174,6 +3502,7 @@
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "brev__RCxR_RCxR": "unsupported class shape",
+      "flo__RCxR_RCxR": "unsupported class shape",
       "hadd2_F32__RC": "class selectors have no supported native combination",
       "hadd2_F32__RCx": "class selectors have no supported native combination",
       "hadd2_F32__RI": "unsupported class shape",
@@ -3205,6 +3534,11 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "idp_2a__C": "only IDP.4A forms are implemented",
+      "idp_2a__CXb": "only IDP.4A forms are implemented",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
+      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
       "isetp__RCR_RCR_EX": "class selectors have no supported native combination",
       "isetp__RCxR_RCxR_EX": "class selectors have no supported native combination",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
@@ -3223,6 +3557,7 @@
       "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
+      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
@@ -3233,7 +3568,9 @@
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
-      "uldc_ur_offset_": "unsupported class shape"
+      "uldc_ur_offset_": "unsupported class shape",
+      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
+      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs"
     },
     "operations": {
       "BAR": {
@@ -3287,6 +3624,10 @@
       "FFMA": {
         "native": 9
       },
+      "FLO": {
+        "native": 4,
+        "opaque": 1
+      },
       "FMNMX": {
         "native": 5
       },
@@ -3325,6 +3666,10 @@
       },
       "IADD3": {
         "native": 10
+      },
+      "IDP": {
+        "native": 3,
+        "opaque": 5
       },
       "IMAD": {
         "native": 55
@@ -3385,6 +3730,10 @@
       "SEL": {
         "native": 5
       },
+      "SGXT": {
+        "native": 4,
+        "opaque": 1
+      },
       "SHF": {
         "native": 9
       },
@@ -3432,7 +3781,20 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "native": 7,
+        "opaque": 2
+      },
       "VIADD": {
+        "absent": 0
+      },
+      "VIADDMNMX": {
+        "absent": 0
+      },
+      "VIMNMX": {
+        "absent": 0
+      },
+      "VIMNMX3": {
         "absent": 0
       },
       "VOTE": {
@@ -3440,8 +3802,8 @@
       }
     },
     "status": {
-      "native": 313,
-      "opaque": 581,
+      "native": 331,
+      "opaque": 563,
       "primitive": 110
     }
   },
@@ -3452,6 +3814,7 @@
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "brev__RCxR_RCxR": "unsupported class shape",
+      "flo__RCxR_RCxR": "unsupported class shape",
       "hadd2_F32__RC": "class selectors have no supported native combination",
       "hadd2_F32__RCx": "class selectors have no supported native combination",
       "hadd2_F32__RI": "unsupported class shape",
@@ -3483,6 +3846,11 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "idp_2a__C": "only IDP.4A forms are implemented",
+      "idp_2a__CXb": "only IDP.4A forms are implemented",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
+      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
       "isetp__RCR_RCR_EX": "class selectors have no supported native combination",
       "isetp__RCxR_RCxR_EX": "class selectors have no supported native combination",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
@@ -3501,6 +3869,7 @@
       "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
+      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
@@ -3511,7 +3880,9 @@
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
-      "uldc_ur_offset_": "unsupported class shape"
+      "uldc_ur_offset_": "unsupported class shape",
+      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
+      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs"
     },
     "operations": {
       "BAR": {
@@ -3565,6 +3936,10 @@
       "FFMA": {
         "native": 9
       },
+      "FLO": {
+        "native": 4,
+        "opaque": 1
+      },
       "FMNMX": {
         "native": 5
       },
@@ -3603,6 +3978,10 @@
       },
       "IADD3": {
         "native": 10
+      },
+      "IDP": {
+        "native": 3,
+        "opaque": 5
       },
       "IMAD": {
         "native": 55
@@ -3663,6 +4042,10 @@
       "SEL": {
         "native": 5
       },
+      "SGXT": {
+        "native": 4,
+        "opaque": 1
+      },
       "SHF": {
         "native": 9
       },
@@ -3710,7 +4093,20 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "native": 7,
+        "opaque": 2
+      },
       "VIADD": {
+        "absent": 0
+      },
+      "VIADDMNMX": {
+        "absent": 0
+      },
+      "VIMNMX": {
+        "absent": 0
+      },
+      "VIMNMX3": {
         "absent": 0
       },
       "VOTE": {
@@ -3718,8 +4114,8 @@
       }
     },
     "status": {
-      "native": 313,
-      "opaque": 581,
+      "native": 331,
+      "opaque": 563,
       "primitive": 110
     }
   },
@@ -3730,6 +4126,7 @@
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "brev__RCxR_RCxR": "unsupported class shape",
+      "flo__RCxR_RCxR": "unsupported class shape",
       "hadd2_F32__RC": "class selectors have no supported native combination",
       "hadd2_F32__RCx": "class selectors have no supported native combination",
       "hadd2_F32__RI": "unsupported class shape",
@@ -3761,6 +4158,11 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "idp_2a__C": "only IDP.4A forms are implemented",
+      "idp_2a__CXb": "only IDP.4A forms are implemented",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
+      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
       "isetp__RCR_RCR_EX": "class selectors have no supported native combination",
       "isetp__RCxR_RCxR_EX": "class selectors have no supported native combination",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
@@ -3783,6 +4185,7 @@
       "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
+      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_256_memdesc__Ra64": "unsupported class shape",
       "stg_256_uniform__Ra32": "unsupported class shape",
       "stg_256_uniform__Ra64": "unsupported class shape",
@@ -3797,7 +4200,9 @@
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
-      "uldc_ur_offset_": "unsupported class shape"
+      "uldc_ur_offset_": "unsupported class shape",
+      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
+      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs"
     },
     "operations": {
       "BAR": {
@@ -3851,6 +4256,10 @@
       "FFMA": {
         "native": 9
       },
+      "FLO": {
+        "native": 4,
+        "opaque": 1
+      },
       "FMNMX": {
         "native": 5
       },
@@ -3889,6 +4298,10 @@
       },
       "IADD3": {
         "native": 10
+      },
+      "IDP": {
+        "native": 3,
+        "opaque": 5
       },
       "IMAD": {
         "native": 55
@@ -3949,6 +4362,10 @@
       "SEL": {
         "native": 5
       },
+      "SGXT": {
+        "native": 4,
+        "opaque": 1
+      },
       "SHF": {
         "native": 9
       },
@@ -3996,7 +4413,20 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "native": 7,
+        "opaque": 2
+      },
       "VIADD": {
+        "absent": 0
+      },
+      "VIADDMNMX": {
+        "absent": 0
+      },
+      "VIMNMX": {
+        "absent": 0
+      },
+      "VIMNMX3": {
         "absent": 0
       },
       "VOTE": {
@@ -4004,8 +4434,8 @@
       }
     },
     "status": {
-      "native": 313,
-      "opaque": 631,
+      "native": 331,
+      "opaque": 613,
       "primitive": 110
     }
   },
@@ -4016,6 +4446,7 @@
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "brev__RCxR_RCxR": "unsupported class shape",
+      "flo__RCxR_RCxR": "unsupported class shape",
       "hadd2_F32__RC": "class selectors have no supported native combination",
       "hadd2_F32__RCx": "class selectors have no supported native combination",
       "hadd2_F32__RI": "unsupported class shape",
@@ -4047,6 +4478,11 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "idp_2a__C": "only IDP.4A forms are implemented",
+      "idp_2a__CXb": "only IDP.4A forms are implemented",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
+      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
       "isetp__RCR_RCR_EX": "class selectors have no supported native combination",
       "isetp__RCxR_RCxR_EX": "class selectors have no supported native combination",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
@@ -4069,6 +4505,7 @@
       "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
+      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_256_memdesc__Ra64": "unsupported class shape",
       "stg_256_uniform__Ra32": "unsupported class shape",
       "stg_256_uniform__Ra64": "unsupported class shape",
@@ -4083,7 +4520,9 @@
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
-      "uldc_ur_offset_": "unsupported class shape"
+      "uldc_ur_offset_": "unsupported class shape",
+      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
+      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs"
     },
     "operations": {
       "BAR": {
@@ -4137,6 +4576,10 @@
       "FFMA": {
         "native": 9
       },
+      "FLO": {
+        "native": 4,
+        "opaque": 1
+      },
       "FMNMX": {
         "native": 5
       },
@@ -4176,6 +4619,10 @@
       "IADD3": {
         "native": 10
       },
+      "IDP": {
+        "native": 3,
+        "opaque": 5
+      },
       "IMAD": {
         "native": 55
       },
@@ -4235,6 +4682,10 @@
       "SEL": {
         "native": 5
       },
+      "SGXT": {
+        "native": 4,
+        "opaque": 1
+      },
       "SHF": {
         "native": 9
       },
@@ -4282,7 +4733,20 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "native": 7,
+        "opaque": 2
+      },
       "VIADD": {
+        "absent": 0
+      },
+      "VIADDMNMX": {
+        "absent": 0
+      },
+      "VIMNMX": {
+        "absent": 0
+      },
+      "VIMNMX3": {
         "absent": 0
       },
       "VOTE": {
@@ -4290,8 +4754,8 @@
       }
     },
     "status": {
-      "native": 313,
-      "opaque": 631,
+      "native": 331,
+      "opaque": 613,
       "primitive": 110
     }
   },
@@ -4302,6 +4766,7 @@
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "brev__RCxR_RCxR": "unsupported class shape",
+      "flo__RCxR_RCxR": "unsupported class shape",
       "fmnmx_pred__RCR_RCR": "unsupported class shape",
       "fmnmx_pred__RCxR_RCxR": "unsupported class shape",
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
@@ -4339,6 +4804,11 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "idp_2a__C": "only IDP.4A forms are implemented",
+      "idp_2a__CXb": "only IDP.4A forms are implemented",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
+      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
       "isetp__RCR_RCR_EX": "class selectors have no supported native combination",
       "isetp__RCxR_RCxR_EX": "class selectors have no supported native combination",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
@@ -4358,6 +4828,7 @@
       "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
+      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_memdesc__Ra64": "class selectors have no supported native combination",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
@@ -4369,7 +4840,21 @@
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
-      "uldc_ur_offset_": "unsupported class shape"
+      "uldc_ur_offset_": "unsupported class shape",
+      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
+      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs",
+      "viaddmnmx__RCR_RCR": "outside implemented operation families",
+      "viaddmnmx__RCxR_RCxR": "outside implemented operation families",
+      "viaddmnmx__RRC_RRC": "outside implemented operation families",
+      "viaddmnmx__RRCx_RRCx": "outside implemented operation families",
+      "viaddmnmx__RRR_RRR": "outside implemented operation families",
+      "viaddmnmx__RRU_RRU": "outside implemented operation families",
+      "viaddmnmx__RRuI_RRI": "outside implemented operation families",
+      "viaddmnmx__RUR_RUR": "outside implemented operation families",
+      "viaddmnmx__RuIR_RIR": "outside implemented operation families",
+      "vimnmx3__RCxR_RCxR": "VIMNMX3 requires three 32-bit non-CX values",
+      "vimnmx__RCxR_RCxR": "VIMNMX requires two 32-bit non-CX values",
+      "vimnmx_pred__RCxR_RCxR": "VIMNMX requires two 32-bit non-CX values"
     },
     "operations": {
       "BAR": {
@@ -4423,6 +4908,10 @@
       "FFMA": {
         "native": 9
       },
+      "FLO": {
+        "native": 4,
+        "opaque": 1
+      },
       "FMNMX": {
         "native": 5,
         "opaque": 5
@@ -4461,6 +4950,10 @@
       },
       "IADD3": {
         "native": 10
+      },
+      "IDP": {
+        "native": 3,
+        "opaque": 5
       },
       "IMAD": {
         "native": 55
@@ -4521,6 +5014,10 @@
       "SEL": {
         "native": 5
       },
+      "SGXT": {
+        "native": 4,
+        "opaque": 1
+      },
       "SHF": {
         "native": 9
       },
@@ -4568,16 +5065,31 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "native": 7,
+        "opaque": 2
+      },
       "VIADD": {
         "native": 5
+      },
+      "VIADDMNMX": {
+        "opaque": 9
+      },
+      "VIMNMX": {
+        "native": 8,
+        "opaque": 2
+      },
+      "VIMNMX3": {
+        "native": 4,
+        "opaque": 1
       },
       "VOTE": {
         "primitive": 1
       }
     },
     "status": {
-      "native": 318,
-      "opaque": 739,
+      "native": 348,
+      "opaque": 709,
       "primitive": 116
     }
   },
@@ -4588,6 +5100,7 @@
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "brev__RCxR_RCxR": "unsupported class shape",
+      "flo__RCxR_RCxR": "unsupported class shape",
       "fmnmx_pred__RCR_RCR": "unsupported class shape",
       "fmnmx_pred__RCxR_RCxR": "unsupported class shape",
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
@@ -4625,6 +5138,11 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
+      "idp_2a__C": "only IDP.4A forms are implemented",
+      "idp_2a__CXb": "only IDP.4A forms are implemented",
+      "idp_2a__R": "only IDP.4A forms are implemented",
+      "idp_2a__URb": "only IDP.4A forms are implemented",
+      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
       "isetp__RCR_RCR_EX": "class selectors have no supported native combination",
       "isetp__RCxR_RCxR_EX": "class selectors have no supported native combination",
       "isetp__RRR_RRR_EX": "class selectors have no supported native combination",
@@ -4644,6 +5162,7 @@
       "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
+      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_memdesc__Ra64": "class selectors have no supported native combination",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
@@ -4655,7 +5174,21 @@
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
-      "uldc_ur_offset_": "unsupported class shape"
+      "uldc_ur_offset_": "unsupported class shape",
+      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
+      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs",
+      "viaddmnmx__RCR_RCR": "outside implemented operation families",
+      "viaddmnmx__RCxR_RCxR": "outside implemented operation families",
+      "viaddmnmx__RRC_RRC": "outside implemented operation families",
+      "viaddmnmx__RRCx_RRCx": "outside implemented operation families",
+      "viaddmnmx__RRR_RRR": "outside implemented operation families",
+      "viaddmnmx__RRU_RRU": "outside implemented operation families",
+      "viaddmnmx__RRuI_RRI": "outside implemented operation families",
+      "viaddmnmx__RUR_RUR": "outside implemented operation families",
+      "viaddmnmx__RuIR_RIR": "outside implemented operation families",
+      "vimnmx3__RCxR_RCxR": "VIMNMX3 requires three 32-bit non-CX values",
+      "vimnmx__RCxR_RCxR": "VIMNMX requires two 32-bit non-CX values",
+      "vimnmx_pred__RCxR_RCxR": "VIMNMX requires two 32-bit non-CX values"
     },
     "operations": {
       "BAR": {
@@ -4709,6 +5242,10 @@
       "FFMA": {
         "native": 9
       },
+      "FLO": {
+        "native": 4,
+        "opaque": 1
+      },
       "FMNMX": {
         "native": 5,
         "opaque": 5
@@ -4747,6 +5284,10 @@
       },
       "IADD3": {
         "native": 10
+      },
+      "IDP": {
+        "native": 3,
+        "opaque": 5
       },
       "IMAD": {
         "native": 55
@@ -4807,6 +5348,10 @@
       "SEL": {
         "native": 5
       },
+      "SGXT": {
+        "native": 4,
+        "opaque": 1
+      },
       "SHF": {
         "native": 9
       },
@@ -4854,16 +5399,31 @@
       "USHF": {
         "native": 3
       },
+      "VABSDIFF4": {
+        "native": 7,
+        "opaque": 2
+      },
       "VIADD": {
         "native": 5
+      },
+      "VIADDMNMX": {
+        "opaque": 9
+      },
+      "VIMNMX": {
+        "native": 8,
+        "opaque": 2
+      },
+      "VIMNMX3": {
+        "native": 4,
+        "opaque": 1
       },
       "VOTE": {
         "primitive": 1
       }
     },
     "status": {
-      "native": 318,
-      "opaque": 739,
+      "native": 348,
+      "opaque": 709,
       "primitive": 116
     }
   }

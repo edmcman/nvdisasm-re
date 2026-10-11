@@ -60,6 +60,231 @@ def cases(sm,fp='exact'):
                     add(klass.name,fields,{}, {'R2':result,'__native':True},
                         memory=[dict(space='cbank',address=(bank<<32)|offset,
                                      hex=value.to_bytes(4,'little').hex())])
+    # CuLifter scalar bit operations. FLO's ordinary form returns the highest
+    # set-bit index; .SH returns the normalization shift. Both encode zero as
+    # -1. SGXT selects one signed byte using the low two index bits.
+    flo_values=[0,1,2,0x80000000,0xffffffff,0x01000000,0x00ffffff]
+    for klass in (k for k in arch.classes if k.mnemonic=='FLO' and not k.alternate):
+        src=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
+        if src is None or any(atom.type=='CX' for atom in klass.operand_types.values()):continue
+        atom=klass.operand_types[src]
+        for mode in ('nosh','SH'):
+            for value in flo_values:
+                fields={'Rd':2,'Pu':'PT','fmt':'S32','sh':mode}
+                registers={}
+                memory=[]
+                if atom.type=='C':
+                    fields.update(Sb_bank=2,Sb_addr=16)
+                    memory=[dict(space='cbank',address=(2<<32)|16,hex=value.to_bytes(4,'little').hex())]
+                elif atom.type in ('Register','UniformRegister'):
+                    fields[src]=4
+                    registers[('R' if atom.type=='Register' else 'UR')+'4']=value
+                else:fields[src]=value
+                result=((value.bit_length()-1) if mode=='nosh' else (32-value.bit_length())) if value else -1
+                add(klass.name,fields,registers,{'R2':result&0xffffffff,'__native':True},memory=memory)
+    sgxt_values=[0,0x7f80ff01,0x80ff007f,0xdeadbeef]
+    for klass in (k for k in arch.classes if k.mnemonic=='SGXT' and not k.alternate):
+        if any(atom.type=='CX' for atom in klass.operand_types.values()):continue
+        src=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
+        if src is None or klass.operand_types[src].type=='CX':continue
+        atom=klass.operand_types[src]
+        for idx in range(4):
+            for value in sgxt_values:
+                fields={'Rd':2,'Ra':4,'cw':'C','fmt':'S32'}
+                registers={'R4':idx};memory=[]
+                if atom.type=='C':
+                    fields.update(Sb_bank=2,Sb_addr=16)
+                    memory=[dict(space='cbank',address=(2<<32)|16,hex=value.to_bytes(4,'little').hex())]
+                elif atom.type in ('Register','UniformRegister'):
+                    fields[src]=6
+                    registers[('R' if atom.type=='Register' else 'UR')+'6']=value
+                else:fields[src]=value
+                byte=(value>>(idx*8))&255
+                result=byte if byte<128 else byte-256
+                add(klass.name,fields,registers,{'R2':result&0xffffffff,'__native':True},memory=memory)
+    # CuLifter's IDP.4A: independently unpack each byte as a signed or
+    # unsigned integer, then accumulate four products modulo 2^32.
+    def idp_ref(a,b,c,asigned,bsigned):
+        total=c
+        for i in range(4):
+            x=(a>>(8*i))&255;y=(b>>(8*i))&255
+            if asigned and x&128:x-=256
+            if bsigned and y&128:y-=256
+            total+=x*y
+        return total&0xffffffff
+    idp_words=[0,0xffffffff,0x807f01ff,0x01020304,0x7f80ff00]
+    idp_words += [rng.getrandbits(32) for _ in range(8)]
+    for klass in (k for k in arch.classes if k.mnemonic=='IDP' and k.name.startswith('idp_4a__') and not k.alternate):
+        if any(atom.type=='CX' for atom in klass.operand_types.values()):continue
+        srcb=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
+        if srcb is None or klass.operand_types[srcb].type=='CX':continue
+        for afmt,bfmt in (('S8','S8'),('U8','U8'),('S8','U8'),('U8','S8')):
+            for j,a in enumerate(idp_words):
+                bval=idp_words[(j+3)%len(idp_words)];cval=idp_words[(j+5)%len(idp_words)]
+                rd=2 if j%3==0 else 8
+                fields={'Rd':rd,'Ra':4,'Rc':6,'mode':'4A','SrcAFmt':afmt,'SrcBFmt':bfmt}
+                regs={'R4':a,'R6':cval};memory=[]
+                if klass.operand_types[srcb].type=='C':
+                    fields.update(Sb_bank=2,Sb_addr=16)
+                    memory=[dict(space='cbank',address=(2<<32)|16,hex=bval.to_bytes(4,'little').hex())]
+                else:
+                    fields[srcb]=10
+                    regs[('UR' if srcb=='URb' else 'R')+'10']=bval
+                if j==1 and 'Rc@negate' in klass.operand_types:
+                    fields['Rc@negate']=1;cval=(-cval)&0xffffffff
+                add(klass.name,fields,regs,{f'R{rd}':idp_ref(a,bval,cval,afmt=='S8',bfmt=='S8'),'__native':True},memory=memory)
+    # VABSDIFF4's hardware ACC is a scalar sum of the four byte differences
+    # plus Rc; SIMD_MRG returns the four differences packed in byte lanes.
+    def vabsdiff4_ref(a,b,c,signed,red):
+        diffs=[]
+        for lane in range(4):
+            x=(a>>(8*lane))&255;y=(b>>(8*lane))&255
+            if signed:
+                if x&128:x-=256
+                if y&128:y-=256
+            diffs.append(abs(x-y))
+        if red=='SIMD_MRG':return sum((value&255)<<(8*lane) for lane,value in enumerate(diffs))
+        return (sum(diffs)+c)&0xffffffff
+    vabs_words=[0,0xffffffff,0x807f01ff,0xff010080,0x7f80ff01,0x01020304]
+    for klass in (k for k in arch.classes if k.mnemonic=='VABSDIFF4' and not k.alternate):
+        if any(atom.type=='CX' for atom in klass.operand_types.values()):continue
+        srcb=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
+        srcc=next((n for n in ('Rc','URc','Sc') if n in klass.operand_types),None)
+        if not srcb or not srcc:continue
+        for fmt in ('S8','U8'):
+            if fmt not in arch.enums[klass.operand_types['fmt'].type]:continue
+            for red in ('SIMD_MRG','ACC'):
+                if red not in arch.enums[klass.operand_types['red'].type]:continue
+                for j,a in enumerate(vabs_words):
+                    bval=vabs_words[(j+2)%len(vabs_words)];cval=vabs_words[(j+4)%len(vabs_words)]
+                    rd=2 if j%2==0 else 8
+                    fields={'Rd':rd,'Ra':4,'fmt':fmt,'red':red,'Pu':'PT'}
+                    regs={'R4':a};memory=[]
+                    btype=klass.operand_types[srcb].type
+                    if btype=='C':
+                        fields.update(Sb_bank=2,Sb_addr=16)
+                        memory.append(dict(space='cbank',address=(2<<32)|16,hex=bval.to_bytes(4,'little').hex()))
+                    elif btype=='UImm':fields[srcb]=bval
+                    else:
+                        fields[srcb]=10;regs[('UR' if btype=='UniformRegister' else 'R')+'10']=bval
+                    ctype=klass.operand_types[srcc].type
+                    if ctype=='C':
+                        fields.update(Sc_bank=3,Sc_addr=24)
+                        memory.append(dict(space='cbank',address=(3<<32)|24,hex=cval.to_bytes(4,'little').hex()))
+                    elif ctype=='UImm':fields[srcc]=cval
+                    else:
+                        fields[srcc]=12;regs[('UR' if ctype=='UniformRegister' else 'R')+'12']=cval
+                    add(klass.name,fields,regs,
+                        {f'R{rd}':vabsdiff4_ref(a,bval,cval,fmt=='S8',red),'__native':True},memory=memory)
+    # CuLifter's VIMNMX is predicate-selected scalar or packed min/max.
+    def vimnmx_ref(a,b,width,signed,is_min,relu=False):
+        mask=(1<<width)-1;result=0
+        for lane in range(32//width):
+            shift=lane*width
+            x=(a>>shift)&mask;y=(b>>shift)&mask
+            if signed:
+                if x&(1<<(width-1)):x-=1<<width
+                if y&(1<<(width-1)):y-=1<<width
+            value=(min if is_min else max)(x,y)
+            if relu and signed:value=max(value,0)
+            result|=(value&mask)<<shift
+        return result
+    vimnmx_words=[0,0xffffffff,0x80007fff,0x7fff8000,0x12345678,0xdeadbeef]
+    vimnmx_words += [rng.getrandbits(32) for _ in range(8)]
+    for klass in (k for k in arch.classes if k.mnemonic=='VIMNMX' and not k.alternate):
+        srcb=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
+        if not srcb or any(klass.operand_types[n].type=='CX' for n in ('Ra',srcb)):continue
+        fmts=[('S32',32,True),('U32',32,False),('S16x2',16,True),('U16x2',16,False),('S8x4',8,True),('U8x4',8,False)]
+        for fmt,width,signed in fmts:
+            if fmt not in arch.enums[klass.operand_types['fmt'].type]:continue
+            for relu in (('norelu','RELU') if signed else ('norelu',)):
+                for is_min in (True,False):
+                    for j,a in enumerate(vimnmx_words):
+                        bval=vimnmx_words[(j+3)%len(vimnmx_words)];rd=2 if j%2 else 8
+                        fields={'Rd':rd,'Ra':4,'fmt':fmt,'relu':relu,'Pp':'PT' if is_min else 'P0'}
+                        if 'Pu' in klass.operand_types:fields['Pu']='PT'
+                        if 'Pv' in klass.operand_types:fields['Pv']='PT'
+                        regs={'R4':a}
+                        if srcb=='Sb':fields[srcb]=bval
+                        else:
+                            fields[srcb]=10;regs[('UR' if srcb=='URb' else 'R')+'10']=bval
+                        if not is_min:regs['P0']=0
+                        add(klass.name,fields,regs,
+                            {f'R{rd}':vimnmx_ref(a,bval,width,signed,is_min,relu=='RELU'),'__native':True})
+    # CuLifter's VIADDMNMX adds modulo each lane width before min/max.
+    def viaddmnmx_ref(a,b,c,width,signed,is_min,relu=False):
+        mask=(1<<width)-1;result=0
+        for lane in range(32//width):
+            shift=lane*width
+            total=(((a>>shift)&mask)+((b>>shift)&mask))&mask
+            bound=(c>>shift)&mask
+            x=total-(1<<width) if signed and total&(1<<(width-1)) else total
+            y=bound-(1<<width) if signed and bound&(1<<(width-1)) else bound
+            value=(min if is_min else max)(x,y)
+            if relu and signed:value=max(value,0)
+            result|=(value&mask)<<shift
+        return result
+    for klass in (k for k in arch.classes if k.mnemonic=='VIADDMNMX' and not k.alternate):
+        srcb=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
+        srcc=next((n for n in ('Rc','URc','Sc') if n in klass.operand_types),None)
+        if not srcb or not srcc or any(klass.operand_types[n].type=='CX' for n in ('Ra',srcb,srcc)):continue
+        for fmt,width,signed in (('S32',32,True),('U32',32,False),('S16x2',16,True),('U16x2',16,False)):
+            if fmt not in arch.enums[klass.operand_types['fmt'].type]:continue
+            for relu in (('norelu','RELU') if signed else ('norelu',)):
+                for is_min in (True,False):
+                    for j,a in enumerate(vimnmx_words):
+                        bval=vimnmx_words[(j+1)%len(vimnmx_words)];cval=vimnmx_words[(j+4)%len(vimnmx_words)]
+                        negate=bool(j&1 and srcb+'@negate' in klass.operand_types)
+                        effective_b=(-bval)&0xffffffff if negate else bval
+                        rd=2 if j%2 else 8
+                        fields={'Rd':rd,'Ra':4,'fmt':fmt,'relu':relu,'Pp':'PT' if is_min else 'P0'}
+                        regs={'R4':a}
+                        if srcb in ('Sb',) or klass.operand_types[srcb].type=='UImm':fields[srcb]=bval
+                        else:
+                            fields[srcb]=10;regs[('UR' if srcb=='URb' else 'R')+'10']=bval
+                        if srcc=='Sc' or klass.operand_types[srcc].type=='UImm':fields[srcc]=cval
+                        else:
+                            fields[srcc]=12;regs[('UR' if srcc=='URc' else 'R')+'12']=cval
+                        if negate:fields[srcb+'@negate']=1
+                        if not is_min:regs['P0']=0
+                        add(klass.name,fields,regs,
+                            {f'R{rd}':viaddmnmx_ref(a,effective_b,cval,width,signed,is_min,relu=='RELU'),'__native':True})
+    # CuLifter's VIMNMX3 is a lane-wise min/max; PT selects min and !PT max.
+    def vimnmx3_ref(a,b,c,width,signed,is_min,relu):
+        mask=(1<<width)-1;result=0
+        for lane in range(32//width):
+            shift=lane*width
+            vals=[(v>>shift)&mask for v in (a,b,c)]
+            if signed:vals=[v-(1<<width) if v&(1<<(width-1)) else v for v in vals]
+            value=(min if is_min else max)(vals)
+            if relu and signed:value=max(value,0)
+            result|=(value&mask)<<shift
+        return result
+    vim_words=[0,0xffffffff,0x80007fff,0x7fff8000,0x12345678,0xdeadbeef]
+    vim_words += [rng.getrandbits(32) for _ in range(6)]
+    for klass in (k for k in arch.classes if k.mnemonic=='VIMNMX3' and not k.alternate):
+        srcb=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
+        srcc=next((n for n in ('Rc','URc','Sc') if n in klass.operand_types),None)
+        if not srcb or not srcc or any(klass.operand_types[n].type=='CX' for n in (srcb,srcc)):continue
+        fmts=[('S32',32,True),('U32',32,False),('S16x2',16,True),('U16x2',16,False)]
+        for fmt,width,signed in fmts:
+            if fmt not in arch.enums[klass.operand_types['fmt'].type]:continue
+            for relu in (('norelu','RELU') if signed else ('norelu',)):
+                for pred_name,pred_not,is_min in (('PT',0,True),('P0',0,False),('PT',1,False)):
+                    for j,a in enumerate(vim_words):
+                        bval=vim_words[(j+2)%len(vim_words)];cval=vim_words[(j+4)%len(vim_words)]
+                        rd=2 if j%3==0 else 8
+                        fields={'Rd':rd,'Ra':2,'Rc':6,'fmt':fmt,'relu':relu,'Pp':pred_name,'Pp@not':pred_not}
+                        regs={'R2':a,'R6':cval}
+                        if srcb=='Sb':fields[srcb]=bval
+                        else:
+                            fields[srcb]=10;regs[('UR' if srcb=='URb' else 'R')+'10']=bval
+                        if srcc=='Sc':fields[srcc]=cval & 0xffff
+                        elif srcc!='Rc':
+                            fields[srcc]=12;regs[('UR' if srcc=='URc' else 'R')+'12']=cval
+                        if not is_min:regs['P0']=0
+                        add(klass.name,fields,regs,
+                            {f'R{rd}':vimnmx3_ref(a,bval,cval,width,signed,is_min,relu=='RELU'),'__native':True})
     for i in range(20):
         a,b,c=[rng.getrandbits(32) for _ in range(3)];regs={'R2':a,'R4':b,'R6':c}
         rd=2 if i%2 else 8 # overlap source/destination

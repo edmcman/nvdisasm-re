@@ -2,9 +2,9 @@
 
 The generator preserves register spans and predicates for every class. Value semantics
 add executable scalar values and native overrides or named runtime primitives
-for 59 opcode families. The test harness can load cubin text and run independent
-threads as whole kernels. The general Ghidra loader, warp scheduler, and
-concurrent memory model remain separate work.
+for the opcode families registered in `sass/operations.py`. The test harness
+can load cubin text and run independent threads as whole kernels. The general
+Ghidra loader, warp scheduler, and concurrent memory model remain separate work.
 
 `sass/semantic.py` builds operand values independently of assembly display.
 Encoded immediates retain their size, sign and scale; multi-field operands and
@@ -72,7 +72,24 @@ Mixed ordinary/uniform register forms of IMAD, IADD3, ISETP and LEA use the
 same native calculations. UIADD3, UIMAD, USHF, ULEA, UISETP, ULOP3, USEL and
 UMOV reuse those emitters with uniform register and predicate names. Ordinary
 32-bit IADD and VIADD are native; packed/saturating VIADD and carry modes retain
-opaque fallbacks. Uniform wide views follow the same zero-slot restrictions.
+opaque fallbacks. VIMNMX implements PT=min and !PT=max for S/U32, S/U16x2,
+and SM120's S/U8x4 formats with register, uniform-register, and immediate B
+sources. Signed RELU forms clamp each selected lane at zero; unsigned RELU
+encodings are invalid according to the machine description. Non-PT predicate
+outputs and CX forms remain opaque. CuLifter's per-lane behavior has
+independent exact/readable emulator fixtures on SM100 and SM103, and VIMNMX
+also on SM120; this path has no GPU verification because these instructions
+are newer than the available SM89 hardware. Uniform wide views follow the
+same zero-slot restrictions.
+VIADDMNMX adds B modulo each selected lane width, then applies the same
+predicate-selected min/max against C. It supports S/U32 and S/U16x2 with R,
+uniform-register, and immediate B/C forms on SM100 and SM103. The encoded B
+negation is applied before lane extraction, matching CuLifter's operand
+materialization. Signed RELU forms clamp each result lane at zero; unsigned
+RELU encodings are invalid according to the machine description. Independent
+exact/readable emulator fixtures cover lane overflow, signed comparisons,
+predicate polarity, B negation, RELU, and all source shapes. No GPU
+verification is available for these newer instructions.
 Native IADD3.X adds both predicate inputs to the complemented 32-bit operands.
 Ordinary negation retains its 33-bit +1, including the carry from negating zero.
 IADD3 predicate outputs indicate a sum at least 2^32 and 2^33; the first output
@@ -292,12 +309,44 @@ SM89 F2I.TRUNC.NTZ to S32 maps NaN to zero and clamps infinities/overflow;
 other NTZ combinations still reject until verified.
 
 BREV and POPC are native 32-bit operations for register, uniform-register,
-immediate, and ordinary constant-bank sources where present. CX encodings
-remain opaque because their compound source needs a `sass_operand_value`
-provider. Focused P-code checks pass on all nine architectures in both exact
-and readable languages (160 cases per variant on SM75-SM90; 162 on SM100-SM120).
-The SM89 GPU oracle confirms each opcode executes and matches both Ghidra and
-an independent reference for 128 inputs.
+immediate, and ordinary constant-bank sources where present. FLO supports
+32-bit sources with `.S32` and `.SH`/default mode: the default result is the
+highest set-bit index, `.SH` returns the leading-zero shift, and zero returns
+`0xffffffff` in both modes. Its predicate destination is supported only when
+encoded as `PT`. SGXT supports `.S32`/`.C`, selects the byte indexed by the low
+two bits of its first source, then sign-extends that byte to 32 bits. CX
+encodings of these operations remain opaque because their compound sources
+need a `sass_operand_value` provider; other FLO and SGXT selectors retain
+opaque fallbacks. The tests compare BREV against a per-bit reversal reference,
+POPC against `bit_count`, FLO against the bit length/leading-zero definitions,
+and SGXT against signed byte extraction.
+
+IDP has native guarded semantics for `IDP.4A` R, URb, and ordinary
+constant-bank B forms. The four packed byte products use independent S8/U8
+extension selectors and accumulate with Rc modulo 2^32; the Rc negation flag
+is applied by the normal operand path. CX and all 2A forms remain opaque.
+Independent packed-byte reference fixtures cover each signedness pair,
+overflow, Rc negation, and source/destination overlap on all nine architectures
+in both exact and readable languages. These are emulator checks; no IDP GPU
+oracle result is recorded.
+
+VIMNMX3 uses its Pp input to select three-way min for PT and max otherwise,
+per lane, for S32/U32/S16x2/U16x2. Native support covers R, URb, and immediate
+B forms on SM100 and SM103. Signed RELU forms clamp each result lane at zero;
+unsigned RELU encodings are invalid according to the machine description.
+Independent lane-wise fixtures pass in exact and readable mode. No hardware
+oracle result is available because these instructions are newer than the
+available SM89 hardware.
+
+VABSDIFF4 supports S8/U8 register, uniform, immediate, and ordinary
+constant-bank operands for `SIMD_MRG` and `ACC`; CX and non-PT Pu destinations
+remain opaque. `SIMD_MRG` packs four absolute byte differences and ignores C.
+`ACC` adds the four differences as a scalar, then adds C modulo 2^32. CuLifter's
+CPU handler matches these SASS rules. A whole-kernel SM89 oracle patched one
+LOP3 instruction per fixture to the target VABSDIFF4 encoding; 128 GPU,
+emulator, and independent-reference comparisons passed for each fmt/reduction
+pair. This is patched SASS evidence, not a claim that ptxas emits those words
+for a PTX vabsdiff4 instruction.
 
 Floating results are bit-exact except that two NaNs compare equal regardless
 of payload/sign (independently for each packed half). MMA move constants are

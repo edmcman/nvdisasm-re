@@ -1,0 +1,18 @@
+.version 8.8
+.target sm_89
+.address_size 64
+
+.visible .entry flo_bfind(.param .u64 in, .param .u64 out) {
+    .reg .pred %p;
+    .reg .b64 %inptr, %outptr;
+    .reg .u32 %value, %index, %shift;
+
+    ld.param.u64 %inptr, [in];
+    ld.param.u64 %outptr, [out];
+    ld.global.u32 %value, [%inptr];
+    bfind.u32 %index, %value;
+    bfind.shiftamt.u32 %shift, %value;
+    st.global.u32 [%outptr], %index;
+    st.global.u32 [%outptr+4], %shift;
+    ret;
+}

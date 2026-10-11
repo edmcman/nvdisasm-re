@@ -12,7 +12,7 @@ ALIASES = dict(UIADD3='IADD3', UIMAD='IMAD', USHF='SHF', ULEA='LEA',
                UISETP='ISETP', ULOP3='LOP3', USEL='SEL', UMOV='MOV', VIADD='IADD',
                **{'HFMA2.MMA':'HFMA2_MMA'})
 OPERATION_FAMILIES.update(ALIASES)
-OPERATION_FAMILIES.update(('IADD','FSEL','FMNMX','DADD','DMUL','DFMA','DSETP','HADD2','HFMA2','BREV','POPC'))
+OPERATION_FAMILIES.update(('IADD','FSEL','FMNMX','DADD','DMUL','DFMA','DSETP','HADD2','HFMA2','BREV','POPC','FLO','SGXT','IDP','VIMNMX','VIMNMX3','VIADDMNMX','VABSDIFF4'))
 
 PRIMITIVES = set('FADD FMUL FFMA FSETP F2I I2F I2FP MUFU PRMT SHFL VOTE BAR BSSY BSYNC'.split())
 
@@ -46,11 +46,17 @@ def dispatch(b,fallback='opaque'):
     fallback_names=set(re.findall(r'\b\w+\b',fallback))
     fallback_refs=[r for r in b.refs if r[1] in fallback_names]
     constructors=[]
-    if b.native_supported and pattern(b.native_constraints):
+    native_pattern=pattern(b.native_constraints,b.native_refs)
+    if b.native_supported and native_pattern:
         # Share arithmetic bodies independently of each class's opaque ABI.
         calculation=b.g.subtable('native',[('""',pattern([],refs),'',native)])
-        constructors.append(('""',pattern(b.native_constraints,[('sub',calculation)]),'',f'build {calculation};'))
-    if not constructors or b.native_constraints:
+        if b.selector_patterns:
+            for clauses in b.selector_patterns:
+                root=pattern([*b.native_constraints,*clauses],[*b.native_refs,('sub',calculation)])
+                if root:constructors.append(('""',root,'',f'build {calculation};'))
+        else:
+            constructors.append(('""',pattern(b.native_constraints,[*b.native_refs,('sub',calculation)]),'',f'build {calculation};'))
+    if not constructors or b.native_constraints or b.native_refs or b.selector_patterns:
         constructors.append(('""',pattern([],fallback_refs),'',fallback))
     table=b.g.subtable('dispatch',constructors)
     b.body=[f'build {table};'];b.refs=[('sub',table)]
@@ -373,6 +379,269 @@ def emit_POPC(b,check=False):
     value=b.local(4,f'{value} + ({value} >> 16)').symbol
     value=b.local(4,f'{value} & 0x3f').symbol
     b.body.append(f'{dst.symbol} = {value};')
+
+
+def emit_FLO(b,check=False):
+    """Find the most-significant set-bit index, or produce a normalization shift."""
+    src=_unary_word_source(b);dst=output(b)
+    if check:
+        if src is None or dst is None or dst.size!=4 or b.values[src].size!=4 or b.values[src].kind=='runtime-primitive':return False
+        return True
+    if 'Pu' in b.outputs:
+        b.allow('Pu',lambda v:v==b.g.arch.enums[b.k.operand_types['Pu'].type]['PT'])
+    require(b,'fmt',['S32','U32','32'])
+    require(b,'sh',['nosh','SH'])
+    value=b.flag(src)
+    def flo_code(shift_mode):
+        code=f'local x:4 = {value}; local n:4 = 0; '
+        for shift,mask in ((16,0xffff0000),(8,0xff000000),(4,0xf0000000),(2,0xc0000000),(1,0x80000000)):
+            code+=f'if ((x & {mask:#x}) != 0) goto <keep{shift}>; n = n | {shift}; x = x << {shift}; <keep{shift}> '
+        code+='local r:4 = 0xffffffff; if (x == 0) goto <done>; '
+        code+=('r = n;' if shift_mode else 'r = 31 - n;')+' <done> export r;'
+        return code
+    sh=b.k.operand_types.get('sh')
+    if sh:
+        modes=b.g.arch.enums[sh.type]
+        result=b.select_code(('sh',),{(modes['nosh'],):flo_code(False),(modes['SH'],):flo_code(True)})
+    else:result=b.expression(4,'0xffffffff')
+    b.body.append(f'{dst.symbol} = {result};')
+
+
+def emit_SGXT(b,check=False):
+    """Select a byte with the low two index bits and sign extend it."""
+    index=operands(b,'Ra')[0];src=operands(b,'Rb/Sb')[0];dst=output(b)
+    if check:
+        ok=all((index,src)) and dst is not None and dst.size==4 and b.values[index].size==4 and b.values[src].size==4 and b.values[src].kind!='runtime-primitive'
+        if not ok:b.unsupported_reason='SGXT requires 32-bit index and source values'
+        return ok
+    require(b,'cw',['C']);require(b,'fmt',['S32','32'])
+    idx=b.flag(index);value=b.flag(src)
+    shift=b.local(4,f'({idx} & 3) << 3').symbol
+    shifted=b.local(4,f'{value} >> {shift}').symbol
+    byte=b.local(1,f'{shifted}:1').symbol
+    b.body.append(f'{dst.symbol} = sext({byte});')
+
+
+def emit_IDP(b,check=False):
+    """Four packed byte products plus a 32-bit accumulator (IDP.4A)."""
+    if not b.k.name.startswith('idp_4a__'):
+        if check:b.unsupported_reason='only IDP.4A forms are implemented'
+        return False if check else None
+    a,bb,c=operands(b,'Ra','Rb/URb/Sb','Rc');dst=output(b)
+    if check:
+        ok=(all((a,bb,c)) and dst is not None and dst.size==4 and
+            all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (a,bb,c)) and
+            b.k.operand_types[bb].type!='CX')
+        if not ok:b.unsupported_reason='IDP.4A requires 32-bit non-CX sources'
+        return ok
+    require(b,'mode',['4A']);require(b,'SrcAFmt',['S8','U8']);require(b,'SrcBFmt',['S8','U8'])
+    av=b.flag(a);bv=b.flag(bb);cv=b.flag(c)
+    cases={}
+    for asigned,aval in enum_cases(b,'SrcAFmt',['S8','U8']).items():
+        for bsigned,bval in enum_cases(b,'SrcBFmt',['S8','U8']).items():
+            code=f'local aa:4 = {av}; local bbv:4 = {bv}; local acc:4 = {cv}; '
+            for i in range(4):
+                code+=f'local ashr{i}:4 = aa >> {8*i}; local bshr{i}:4 = bbv >> {8*i}; local abyte{i}:1 = ashr{i}[0,8]; local bbyte{i}:1 = bshr{i}[0,8]; '
+                ax=f'sext(abyte{i})' if asigned=='S8' else f'zext(abyte{i})'
+                bx=f'sext(bbyte{i})' if bsigned=='S8' else f'zext(bbyte{i})'
+                code+=f'acc = acc + ({ax} * {bx}); '
+            code+='export acc;'
+            cases[(aval,bval)]=code
+    result=b.select_code(('SrcAFmt','SrcBFmt'),cases)
+    b.body.append(f'{dst.symbol} = {result};')
+
+
+def emit_VIMNMX3(b,check=False):
+    """Per-lane three-way integer min/max, with the CuLifter RELU option."""
+    a,bb,c=operands(b,'Ra','Rb/URb/Sb','Rc/URc/Sc');dst=output(b)
+    if check:
+        ok=(b.k.name.startswith('vimnmx3__') and all((a,bb,c)) and dst is not None and dst.size==4 and
+            all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (a,bb,c)) and
+            all(b.k.operand_types[n].type!='CX' for n in (a,bb,c)))
+        if not ok:b.unsupported_reason='VIMNMX3 requires three 32-bit non-CX values'
+        return ok
+    require(b,'fmt',['S32','U32','S16x2','U16x2'])
+    require(b,'relu',['norelu','RELU'])
+    aval,bval,cval=map(b.flag,(a,bb,c));pred=b.flag('Pp')
+    formats=enum_cases(b,'fmt',['S32','U32','S16x2','U16x2'])
+    relus=enum_cases(b,'relu',['norelu','RELU'])
+    cases={}
+    for fmt,fv in formats.items():
+        width=16 if '16x2' in fmt else 32
+        signed=fmt.startswith('S')
+        compare='s' if signed else ''
+        lane_count=32//width
+        for relu,rv in relus.items():
+            if relu=='RELU' and not signed:continue
+            code=f'local aa:4 = {aval}; local bbv:4 = {bval}; local cc:4 = {cval}; local result:4 = 0; '
+            for lane in range(lane_count):
+                off=lane*width
+                if width==32:
+                    x,y,z='aa','bbv','cc'
+                else:
+                    code+=f'local xa{lane}:2 = aa[{off},{width}]; local yb{lane}:2 = bbv[{off},{width}]; local zc{lane}:2 = cc[{off},{width}]; '
+                    x=f'{"sext" if signed else "zext"}(xa{lane})'
+                    y=f'{"sext" if signed else "zext"}(yb{lane})'
+                    z=f'{"sext" if signed else "zext"}(zc{lane})'
+                code+=f'local x{lane}:4 = {x}; local y{lane}:4 = {y}; local z{lane}:4 = {z}; '
+                code+=f'local ab{lane}:4 = 0; local abc{lane}:4 = 0; '
+                choose_x=f'(({pred} == 1 && x{lane} {compare}< y{lane}) || ({pred} != 1 && x{lane} {compare}> y{lane}))'
+                choose_ab=f'(({pred} == 1 && ab{lane} {compare}< z{lane}) || ({pred} != 1 && ab{lane} {compare}> z{lane}))'
+                code+=f'if {choose_x} goto <abx{lane}>; ab{lane} = y{lane}; goto <abd{lane}>; <abx{lane}> ab{lane} = x{lane}; <abd{lane}> '
+                code+=f'if {choose_ab} goto <abcx{lane}>; abc{lane} = z{lane}; goto <abcd{lane}>; <abcx{lane}> abc{lane} = ab{lane}; <abcd{lane}> '
+                if relu=='RELU':
+                    if width==32:
+                        code+=f'if (abc{lane} s< 0) goto <relu_zero{lane}>; result = abc{lane}; goto <relu_done{lane}>; <relu_zero{lane}> result = 0; <relu_done{lane}> '
+                    else:
+                        lane_size=width//8
+                        code+=f'local clamped{lane}:{lane_size} = 0; if (abc{lane} s< 0) goto <relu_zero{lane}>; clamped{lane} = abc{lane}[0,{width}]; goto <relu_done{lane}>; <relu_zero{lane}> clamped{lane} = 0; <relu_done{lane}> result = result | (zext(clamped{lane}) << {off}); '
+                elif width==32:code+=f'result = abc{lane}; '
+                else:code+=f'result = result | (zext(abc{lane}[0,{width}]) << {off}); '
+            code+='export result;'
+            cases[(fv,rv)]=code
+    b.allow_combinations(('fmt','relu'),cases.keys())
+    result=b.select_code(('fmt','relu'),cases)
+    b.body.append(f'{dst.symbol} = {result};')
+
+
+def emit_VIMNMX(b,check=False):
+    """Scalar or packed integer min/max; PT selects min and !PT selects max."""
+    a,bb=operands(b,'Ra','Rb/URb/Sb');dst=output(b)
+    if check:
+        ok=(all((a,bb)) and dst is not None and dst.size==4 and
+            all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (a,bb)) and
+            all(b.k.operand_types[n].type!='CX' for n in (a,bb)))
+        if not ok:b.unsupported_reason='VIMNMX requires two 32-bit non-CX values'
+        return ok
+    require(b,'fmt',['S32','U32','S16x2','U16x2','S8x4','U8x4'])
+    require(b,'relu',['norelu','RELU'])
+    for pred in ('Pu','Pv'):
+        if pred in b.outputs:
+            atom=b.k.operand_types[pred];pt=b.g.arch.enums[atom.type]['PT']
+            b.allow(pred,lambda v,p=pt:v==p)
+    av,bv=map(b.flag,(a,bb));pred=b.flag('Pp')
+    formats=enum_cases(b,'fmt',['S32','U32','S16x2','U16x2','S8x4','U8x4'])
+    relus=enum_cases(b,'relu',['norelu','RELU'])
+    cases={}
+    for fmt,fv in formats.items():
+        width=8 if '8x4' in fmt else 16 if '16x2' in fmt else 32
+        signed=fmt.startswith('S');compare='s' if signed else ''
+        lane_count=32//width
+        for relu,rv in relus.items():
+            if relu=='RELU' and not signed:continue
+            code=f'local aa:4 = {av}; local bbv:4 = {bv}; local result:4 = 0; '
+            for lane in range(lane_count):
+                off=lane*width
+                if width==32:x,y='aa','bbv'
+                else:
+                    lane_size=width//8
+                    code+=f'local xa{lane}:{lane_size} = aa[{off},{width}]; local yb{lane}:{lane_size} = bbv[{off},{width}]; '
+                    x=f'{"sext" if signed else "zext"}(xa{lane})'
+                    y=f'{"sext" if signed else "zext"}(yb{lane})'
+                code+=f'local x{lane}:4 = {x}; local y{lane}:4 = {y}; local z{lane}:4 = 0; '
+                choose_x=f'(({pred} == 1 && x{lane} {compare}< y{lane}) || ({pred} != 1 && x{lane} {compare}> y{lane}))'
+                code+=f'if {choose_x} goto <take_x{lane}>; z{lane} = y{lane}; goto <done{lane}>; <take_x{lane}> z{lane} = x{lane}; <done{lane}> '
+                if relu=='RELU':
+                    if width==32:
+                        code+=f'if (z{lane} s< 0) goto <relu_zero{lane}>; result = z{lane}; goto <relu_done{lane}>; <relu_zero{lane}> result = 0; <relu_done{lane}> '
+                    else:
+                        lane_size=width//8
+                        code+=f'local clamped{lane}:{lane_size} = 0; if (z{lane} s< 0) goto <relu_zero{lane}>; clamped{lane} = z{lane}[0,{width}]; goto <relu_done{lane}>; <relu_zero{lane}> clamped{lane} = 0; <relu_done{lane}> result = result | (zext(clamped{lane}) << {off}); '
+                elif width==32:code+=f'result = z{lane}; '
+                else:code+=f'result = result | (zext(z{lane}[0,{width}]) << {off}); '
+            code+='export result;'
+            cases[(fv,rv)]=code
+    b.allow_combinations(('fmt','relu'),cases.keys())
+    result=b.select_code(('fmt','relu'),cases)
+    b.body.append(f'{dst.symbol} = {result};')
+
+
+def emit_VIADDMNMX(b,check=False):
+    """Per-lane modular add followed by predicate-selected min/max."""
+    a,bb,c=operands(b,'Ra','Rb/URb/Sb','Rc/URc/Sc');dst=output(b)
+    if check:
+        ok=(all((a,bb,c)) and dst is not None and dst.size==4 and
+            all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (a,bb,c)) and
+            all(b.k.operand_types[n].type!='CX' for n in (a,bb,c)))
+        if not ok:b.unsupported_reason='VIADDMNMX requires three 32-bit non-CX values'
+        return ok
+    require(b,'fmt',['S32','U32','S16x2','U16x2'])
+    require(b,'relu',['norelu','RELU'])
+    av,bv,cv=map(b.flag,(a,bb,c));pred=b.flag('Pp')
+    formats=enum_cases(b,'fmt',['S32','U32','S16x2','U16x2'])
+    relus=enum_cases(b,'relu',['norelu','RELU'])
+    cases={}
+    for fmt,fv in formats.items():
+        width=16 if '16x2' in fmt else 32
+        lane_size=width//8;signed=fmt.startswith('S');compare='s' if signed else ''
+        lane_count=32//width
+        for relu,rv in relus.items():
+            if relu=='RELU' and not signed:continue
+            code=f'local aa:4 = {av}; local bbv:4 = {bv}; local cc:4 = {cv}; local result:4 = 0; '
+            for lane in range(lane_count):
+                off=lane*width
+                if width==32:
+                    z='cc';raw_sum='aa + bbv'
+                    code+=f'local z{lane}:4 = {z}; '
+                else:
+                    code+=f'local xa{lane}:{lane_size} = aa[{off},{width}]; local yb{lane}:{lane_size} = bbv[{off},{width}]; local zc{lane}:{lane_size} = cc[{off},{width}]; '
+                    z=f'{"sext" if signed else "zext"}(zc{lane})'
+                    raw_sum=f'xa{lane} + yb{lane}'
+                    code+=f'local z{lane}:4 = {z}; '
+                code+=f'local sum{lane}:{lane_size} = {raw_sum}; '
+                code+=f'local sx{lane}:4 = {"sext" if signed else "zext"}(sum{lane}); local value{lane}:4 = 0; '
+                choose_sum=f'(({pred} == 1 && sx{lane} {compare}< z{lane}) || ({pred} != 1 && sx{lane} {compare}> z{lane}))'
+                code+=f'if {choose_sum} goto <take_sum{lane}>; value{lane} = z{lane}; goto <done{lane}>; <take_sum{lane}> value{lane} = sx{lane}; <done{lane}> '
+                if relu=='RELU':
+                    if width==32:
+                        code+=f'if (value{lane} s< 0) goto <relu_zero{lane}>; result = value{lane}; goto <relu_done{lane}>; <relu_zero{lane}> result = 0; <relu_done{lane}> '
+                    else:
+                        code+=f'local clamped{lane}:{lane_size} = 0; if (value{lane} s< 0) goto <relu_zero{lane}>; clamped{lane} = value{lane}[0,{width}]; goto <relu_done{lane}>; <relu_zero{lane}> clamped{lane} = 0; <relu_done{lane}> result = result | (zext(clamped{lane}) << {off}); '
+                elif width==32:code+=f'result = value{lane}; '
+                else:code+=f'result = result | (zext(value{lane}[0,{width}]) << {off}); '
+            code+='export result;'
+            cases[(fv,rv)]=code
+    b.allow_combinations(('fmt','relu'),cases.keys())
+    result=b.select_code(('fmt','relu'),cases)
+    b.body.append(f'{dst.symbol} = {result};')
+
+
+def emit_VABSDIFF4(b,check=False):
+    """Packed byte absolute differences or the SASS scalar ACC reduction."""
+    a,bb,c=operands(b,'Ra','Rb/URb/Sb','Rc/URc/Sc');dst=output(b)
+    if check:
+        ok=(all((a,bb,c)) and dst is not None and dst.size==4 and
+            all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (a,bb,c)) and
+            all(b.k.operand_types[n].type!='CX' for n in (a,bb,c)))
+        if not ok:b.unsupported_reason='VABSDIFF4 requires three 32-bit non-CX inputs'
+        return ok
+    require(b,'fmt',['S8','U8']);require(b,'red',['SIMD_MRG','ACC'])
+    if 'Pu' in b.outputs:
+        atom=b.k.operand_types['Pu'];pt=b.g.arch.enums[atom.type]['PT']
+        b.allow('Pu',lambda v,p=pt:v==p)
+    av,bv,cv=map(b.flag,(a,bb,c))
+    formats=enum_cases(b,'fmt',['S8','U8'])
+    reductions=enum_cases(b,'red',['SIMD_MRG','ACC'])
+    cases={}
+    for fmt,fv in formats.items():
+        signed=fmt=='S8';extend='sext' if signed else 'zext';compare='s' if signed else ''
+        for red,rv in reductions.items():
+            code=f'local aa:4 = {av}; local bbv:4 = {bv}; local result:4 = 0; '
+            if red=='ACC':code+=f'local cc:4 = {cv}; '
+            for lane in range(4):
+                shift=lane*8
+                code+=f'local ash{lane}:4 = aa >> {shift}; local bsh{lane}:4 = bbv >> {shift}; '
+                code+=f'local abyte{lane}:1 = ash{lane}[0,8]; local bbyte{lane}:1 = bsh{lane}[0,8]; '
+                code+=f'local ax{lane}:4 = {extend}(abyte{lane}); local bx{lane}:4 = {extend}(bbyte{lane}); local diff{lane}:4 = 0; '
+                code+=f'if (ax{lane} {compare}>= bx{lane}) goto <ab{lane}>; diff{lane} = bx{lane} - ax{lane}; goto <ad{lane}>; <ab{lane}> diff{lane} = ax{lane} - bx{lane}; <ad{lane}> '
+                if red=='SIMD_MRG':
+                    code+=f'local byte{lane}:4 = diff{lane} & 0xff; result = result | (byte{lane} << {shift}); '
+                else:code+=f'result = result + diff{lane}; '
+            if red=='ACC':code+='result = result + cc; '
+            code+='export result;'
+            cases[(fv,rv)]=code
+    result=b.select_code(('fmt','red'),cases)
+    b.body.append(f'{dst.symbol} = {result};')
 
 
 def emit_BMSK(b,check=False):
