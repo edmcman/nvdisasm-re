@@ -2,7 +2,7 @@
 
 The generator preserves register spans and predicates for every class. Value semantics
 add executable scalar values and native overrides or named runtime primitives
-for 58 opcode families. The test harness can load cubin text and run independent
+for 59 opcode families. The test harness can load cubin text and run independent
 threads as whole kernels. The general Ghidra loader, warp scheduler, and
 concurrent memory model remain separate work.
 
@@ -86,6 +86,16 @@ carry outputs preserve compact arithmetic. Uniform aliases share these emitters.
 
 PRMT emits native byte selection for IDX (including sign replication), F4E,
 B4E, RC8, RC16, ECL and ECR, in SASS source order: data A, selector, data B.
+
+BMSK emits native 32-bit mask generation from position and width. Instruction
+bit 75 selects clamp (0, `BMSK`) or wrap (1, `BMSK.W`). Wrap masks both counts
+with 31; the resulting mask still ends at bit 31. Clamp returns zero for a
+position at least 32 and saturates large widths at the end of the word. Zero
+width returns zero in both modes. Register, uniform-register, immediate and
+ordinary constant-bank inputs are supported. The `cx[URx][offset]` form remains
+opaque because its constant-memory address requires a `sass_operand_value`
+provider. Dedicated SM89 whole-kernel GPU/reference/p-code comparisons cover
+1,504 inputs per mode; emulator tests cover both languages on all architectures.
 
 FSEL selects the modified floating input, with optional .FTZ. FMNMX implements
 ordinary min/max, including .FTZ: a numeric input wins over NaN, two NaNs yield

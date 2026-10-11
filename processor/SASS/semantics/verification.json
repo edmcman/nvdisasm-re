@@ -1,4 +1,174 @@
 {
+  "bmsk": {
+    "compiler_trace": {
+      "architecture": "SM100",
+      "bytes_matched_to_each_cubin": 384,
+      "captures": [
+        "research/ptxas/bmsk_clamp_finalizer.jsonl",
+        "research/ptxas/bmsk_wrap_finalizer.jsonl"
+      ],
+      "encoder_function": "0x1a0eeb0",
+      "lowering_function": "0x9d9f60",
+      "sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+      "version": "CUDA 13.0.88",
+      "words_matched_to_each_cubin": 24
+    },
+    "dataflow_and_control_flow": {
+      "SM100": {
+        "passed": 12856,
+        "total": 12856
+      },
+      "SM101": {
+        "passed": 10218,
+        "total": 10218
+      },
+      "SM103": {
+        "passed": 12762,
+        "total": 12762
+      },
+      "SM120": {
+        "passed": 13162,
+        "total": 13162
+      },
+      "SM75": {
+        "passed": 11825,
+        "total": 11825
+      },
+      "SM80": {
+        "passed": 11733,
+        "total": 11733
+      },
+      "SM86": {
+        "passed": 12163,
+        "total": 12163
+      },
+      "SM89": {
+        "passed": 12714,
+        "total": 12714
+      },
+      "SM89_readable": {
+        "passed": 12714,
+        "total": 12714
+      },
+      "SM90": {
+        "passed": 14619,
+        "total": 14619
+      }
+    },
+    "date": "2026-10-11",
+    "fallbacks": {
+      "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider"
+    },
+    "focused_value_tests": {
+      "SM100": {
+        "passed": 3398,
+        "total": 3398
+      },
+      "SM100_readable": {
+        "passed": 3398,
+        "total": 3398
+      },
+      "SM101": {
+        "passed": 3398,
+        "total": 3398
+      },
+      "SM101_readable": {
+        "passed": 3398,
+        "total": 3398
+      },
+      "SM103": {
+        "passed": 3398,
+        "total": 3398
+      },
+      "SM103_readable": {
+        "passed": 3398,
+        "total": 3398
+      },
+      "SM120": {
+        "passed": 3398,
+        "total": 3398
+      },
+      "SM120_readable": {
+        "passed": 3398,
+        "total": 3398
+      },
+      "SM75": {
+        "passed": 3750,
+        "total": 3750
+      },
+      "SM75_readable": {
+        "passed": 3750,
+        "total": 3750
+      },
+      "SM80": {
+        "passed": 3750,
+        "total": 3750
+      },
+      "SM80_readable": {
+        "passed": 3750,
+        "total": 3750
+      },
+      "SM86": {
+        "passed": 3750,
+        "total": 3750
+      },
+      "SM86_readable": {
+        "passed": 3750,
+        "total": 3750
+      },
+      "SM89": {
+        "passed": 3750,
+        "total": 3750
+      },
+      "SM89_readable": {
+        "passed": 3750,
+        "total": 3750
+      },
+      "SM90": {
+        "passed": 3750,
+        "total": 3750
+      },
+      "SM90_readable": {
+        "passed": 3750,
+        "total": 3750
+      }
+    },
+    "full_sm89_semantics_regression": {
+      "exact": {
+        "passed": 13581,
+        "total": 13581
+      },
+      "readable": {
+        "passed": 8751,
+        "total": 8751
+      }
+    },
+    "gpu": {
+      "architecture": "SM89",
+      "comparison": "GPU and whole-kernel Ghidra P-code against independent reference",
+      "mode_bit": 75,
+      "seed": 18,
+      "target_execution_checked": true,
+      "vectors_per_mode": {
+        "C": 1504,
+        "W": 1504
+      }
+    },
+    "limitations": [
+      "Hardware evidence limited to SM89 register-input kernels; other architectures and operand forms emulator-tested",
+      "CX bank/address interpretation unresolved; UBMSK outside this change"
+    ],
+    "mode_bit": {
+      "bit": 75,
+      "captured_sm100_word_xor": "0x8000000000000000000",
+      "clamp": 0,
+      "sm89_fixture_xor_checked": true,
+      "wrap": 1
+    },
+    "native_scope": "BMSK C/W: register, uniform-register, immediate and ordinary constant-bank width operands",
+    "operation_families": 59,
+    "reference": "independent enumeration of bits position <= bit < position+width; wrap masks both counts with 31"
+  },
   "compiler_spec_load": {
     "architectures": [
       "SM75",
@@ -2730,24 +2900,24 @@
     "source": "cubin PARAM_CBANK and KPARAM_INFO"
   },
   "language_build": {
-    "SM100": 8612362,
-    "SM100_readable": 7739659,
-    "SM101": 8412548,
-    "SM101_readable": 7539181,
-    "SM103": 8621436,
-    "SM103_readable": 7748750,
-    "SM120": 8786465,
-    "SM120_readable": 7913529,
-    "SM75": 9900107,
-    "SM75_readable": 8436328,
-    "SM80": 10910364,
-    "SM80_readable": 9444712,
-    "SM86": 11066350,
-    "SM86_readable": 9600648,
-    "SM89": 11323581,
-    "SM89_readable": 9857974,
-    "SM90": 12179148,
-    "SM90_readable": 10712118
+    "SM100": 8822245,
+    "SM100_readable": 7953467,
+    "SM101": 8621970,
+    "SM101_readable": 7752741,
+    "SM103": 8831740,
+    "SM103_readable": 7962994,
+    "SM120": 9021834,
+    "SM120_readable": 8152520,
+    "SM75": 9910900,
+    "SM75_readable": 8447136,
+    "SM80": 10921159,
+    "SM80_readable": 9455517,
+    "SM86": 11077201,
+    "SM86_readable": 9611411,
+    "SM89": 11334443,
+    "SM89_readable": 9868731,
+    "SM90": 12190260,
+    "SM90_readable": 10723219
   },
   "pcode_reduction": [
     {
@@ -3460,8 +3630,8 @@
         "total": 9823
       },
       "SM89": {
-        "passed": 9829,
-        "total": 9829
+        "passed": 13581,
+        "total": 13581
       },
       "SM90": {
         "passed": 9827,
@@ -3498,8 +3668,8 @@
         "total": 4993
       },
       "SM89": {
-        "passed": 4999,
-        "total": 4999
+        "passed": 8751,
+        "total": 8751
       },
       "SM90": {
         "passed": 4996,
@@ -3511,109 +3681,109 @@
     {
       "arch": "SM75",
       "dead_temporaries": 0,
-      "decompressed_bytes": 9900107,
+      "decompressed_bytes": 9910900,
       "fp": "exact"
     },
     {
       "arch": "SM75",
       "dead_temporaries": 0,
-      "decompressed_bytes": 8436328,
+      "decompressed_bytes": 8447136,
       "fp": "readable"
     },
     {
       "arch": "SM80",
       "dead_temporaries": 0,
-      "decompressed_bytes": 10910364,
+      "decompressed_bytes": 10921159,
       "fp": "exact"
     },
     {
       "arch": "SM80",
       "dead_temporaries": 0,
-      "decompressed_bytes": 9444712,
+      "decompressed_bytes": 9455517,
       "fp": "readable"
     },
     {
       "arch": "SM86",
       "dead_temporaries": 0,
-      "decompressed_bytes": 11066350,
+      "decompressed_bytes": 11077201,
       "fp": "exact"
     },
     {
       "arch": "SM86",
       "dead_temporaries": 0,
-      "decompressed_bytes": 9600648,
+      "decompressed_bytes": 9611411,
       "fp": "readable"
     },
     {
       "arch": "SM89",
       "dead_temporaries": 0,
-      "decompressed_bytes": 11323581,
+      "decompressed_bytes": 11334443,
       "fp": "exact"
     },
     {
       "arch": "SM89",
       "dead_temporaries": 0,
-      "decompressed_bytes": 9857974,
+      "decompressed_bytes": 9868731,
       "fp": "readable"
     },
     {
       "arch": "SM90",
       "dead_temporaries": 0,
-      "decompressed_bytes": 12179148,
+      "decompressed_bytes": 12190260,
       "fp": "exact"
     },
     {
       "arch": "SM90",
       "dead_temporaries": 0,
-      "decompressed_bytes": 10712118,
+      "decompressed_bytes": 10723219,
       "fp": "readable"
     },
     {
       "arch": "SM100",
       "dead_temporaries": 0,
-      "decompressed_bytes": 8612362,
+      "decompressed_bytes": 8822245,
       "fp": "exact"
     },
     {
       "arch": "SM100",
       "dead_temporaries": 0,
-      "decompressed_bytes": 7739659,
+      "decompressed_bytes": 7953467,
       "fp": "readable"
     },
     {
       "arch": "SM101",
       "dead_temporaries": 0,
-      "decompressed_bytes": 8412548,
+      "decompressed_bytes": 8621970,
       "fp": "exact"
     },
     {
       "arch": "SM101",
       "dead_temporaries": 0,
-      "decompressed_bytes": 7539181,
+      "decompressed_bytes": 7752741,
       "fp": "readable"
     },
     {
       "arch": "SM103",
       "dead_temporaries": 0,
-      "decompressed_bytes": 8621436,
+      "decompressed_bytes": 8831740,
       "fp": "exact"
     },
     {
       "arch": "SM103",
       "dead_temporaries": 0,
-      "decompressed_bytes": 7748750,
+      "decompressed_bytes": 7962994,
       "fp": "readable"
     },
     {
       "arch": "SM120",
       "dead_temporaries": 0,
-      "decompressed_bytes": 8786465,
+      "decompressed_bytes": 9021834,
       "fp": "exact"
     },
     {
       "arch": "SM120",
       "dead_temporaries": 0,
-      "decompressed_bytes": 7913529,
+      "decompressed_bytes": 8152520,
       "fp": "readable"
     }
   ],

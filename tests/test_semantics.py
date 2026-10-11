@@ -25,6 +25,8 @@ def cases(sm,fp='exact'):
         request=dict(word=encode(sm,cls,**fields),registers=registers,observe=[n for n in expected if not n.startswith("__")],**extras)
         if '__max_ops' in expected or '__native' in expected:request['inspect_pcode']=True
         out.append((cls,request,expected))
+    from bmsk_semantics import cases as bmsk_cases
+    out.extend(bmsk_cases(sm))
     rng=random.Random(7)
     for i in range(20):
         a,b,c=[rng.getrandbits(32) for _ in range(3)];regs={'R2':a,'R4':b,'R6':c}
@@ -576,9 +578,9 @@ def readable_cases(sm,add,classes,rng):
             dict(R2=a,R4=c),dict(P0=int(f32(a)<f32(c)),P1=int(not f32(a)<f32(c)),__native=True))
 
 
-def run(sm='SM89',fp='exact'):
+def run(sm='SM89',fp='exact',todo=None):
     from sass.gen_sleigh import variant
-    todo=cases(sm,fp)
+    if todo is None:todo=cases(sm,fp)
     inp=''.join(json.dumps(request)+'\n' for _,request,_ in todo)
     process=subprocess.run([GHIDRA_PY,str(ROOT/'tests/ghidra_emulate.py'),str(LDEFS),f'SASS:LE:64:{variant(sm,fp)}'],input=inp,capture_output=True,text=True)
     results=[json.loads(line) for line in process.stdout.splitlines() if line.startswith('{')]
@@ -619,6 +621,7 @@ def test_semantics_gpu():
     driver.close()
     subprocess.run([sys.executable,str(ROOT/'tests/gpu_semantics.py'),'--require-gpu'],check=True)
     subprocess.run([sys.executable,str(ROOT/'tests/carry_semantics.py'),'--require-gpu'],check=True)
+    subprocess.run([sys.executable,str(ROOT/'tests/bmsk_semantics.py'),'--require-gpu'],check=True)
 
 
 if __name__=='__main__':run(sys.argv[1] if len(sys.argv)>1 else 'SM89',sys.argv[2] if len(sys.argv)>2 else 'exact')

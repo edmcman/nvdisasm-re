@@ -635,6 +635,65 @@ Later Merc phases: MercEncodeAndDecode (142), MercExpandInstructions,
 MercGenerateWARs1/2, MercGenerateOpex, MercGenerateSassUCode. Whether 142 is the
 intermediate-ELF round trip is unverified.
 
+## BMSK mode and functional semantics (2026-10-11)
+
+The SASS md's `BMSK` opcode was selected to trace one operation from compiler
+lowering through its final encoding, then implement its scalar P-code.
+
+`dispatch_ori_opcode_conversion` (`0x9ed2d0`) case `0x18` calls
+`lower_bmsk_operation_to_target` (`0x9d9f60`, renamed from `FUN_009d9f60`).
+The handler starts target class 1, sets type selector 10 through builder slot
+`+0x170`, and transfers destination operand 0 to role 6, position operand 1 to
+role `0xd`, and width operand 2 to role `0x14`. The final descriptor's low bit
+is passed to builder slot `+0x218`: clamp 0, wrap 1. A live breakpoint hit this
+path for SM100 compilation; it was not hit for the SM89 probe.
+
+The SM100 finalizer's class-1 row at `0x2339760`, keys `00/05`, calls
+`encode_sm100_BMSK_variant_00_05` (`0x1a0eeb0`). The encoder starts opcode
+`0x21b`, puts Rd at bits 16..23, position at 24..31, width at 32..39, and mode
+at high-qword bit 11, which is **instruction bit 75**. This matches the md
+assignment `BITS_1_75_75_relu=cw`; `relu` is merely the shared field's name.
+`CWMode` defines `C=0`, `W=1`.
+
+The committed probes and complete captures are
+`bmsk_clamp.ptx` / `bmsk_clamp_finalizer.jsonl` and
+`bmsk_wrap.ptx` / `bmsk_wrap_finalizer.jsonl`. Each capture's 24 words (384
+bytes) was checked against the cubin produced by that same SM100 compiler run
+using `validate_capture.py`. The arithmetic words, in little-endian byte order:
+
+| Mode | Word | Disassembly |
+|---|---|---|
+| Clamp | `1b720500050000000000000000ca0f00` | `BMSK R5, R0, R5` |
+| Wrap | `1b720500050000000008000000ca0f00` | `BMSK.W R5, R0, R5` |
+
+Their XOR is exactly `1 << 75`. The dedicated SM89 CUDA fixtures also differ
+only at that bit. `tests/bmsk_semantics.py` checks this directly.
+
+The [PTX bmsk specification](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#integer-arithmetic-instructions-bmsk)
+defines position and width, and clamp versus count masking. Wrap masks both
+counts with 31; it does not rotate mask bits past the end of the word.
+Clamp position >=32 gives zero, width >=32 fills from a valid position to
+bit 31, and zero width gives zero. For example, position 32 and width 1 gives
+0 in clamp mode and 1 in wrap mode.
+
+`sass/operations.py::emit_BMSK` now emits these operations as native P-code.
+Register, uniform-register, immediate and ordinary constant-bank forms are
+supported. The SM75-SM90 `bmsk__RCxR_RCxR` form prints, for example,
+`BMSK R8, R2, cx[UR4][0x10]`; its address reads a uniform-register pair plus
+an offset. Its bank/address interpretation is unresolved and remains opaque.
+The coverage reason refers to this P-code limitation, not compiler support.
+SM100+ has three BMSK classes, all supported. UBMSK is outside this change.
+
+`tests/bmsk_semantics.py --require-gpu` compiled two SM89 whole kernels,
+confirmed their BMSK modes, and compared 1,504 vectors per mode against both
+GPU results and whole-kernel Ghidra P-code. All 3,008 comparisons passed,
+including every position/width pair from 0 through 33, large unsigned counts,
+and random inputs. The reference enumerates selected bits independently of
+the P-code's shifts. Native P-code tests also cover alternate operand forms,
+aliasing, zero registers, discarded results and predicates across all nine
+architectures in both exact and readable languages. Hardware evidence is
+limited to SM89; the compiler trace is SM100.
+
 ## Remaining investigation
 
 The intermediate ELF decode bridge and add/sub/wide-multiply conversion paths

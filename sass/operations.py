@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from itertools import product
 from sass import fpops
 
-OPERATION_FAMILIES = set('IADD3 IMAD LOP3 SHF LEA IABS IMNMX ISETP SEL PRMT MOV S2R CS2R LDC FADD FMUL FFMA FSETP F2I I2F I2FP MUFU LDG STG LDS STS LDL STL BRA EXIT CALL RET BSSY BSYNC BAR SHFL VOTE ULDC NOP'.split())
+OPERATION_FAMILIES = set('IADD3 IMAD LOP3 SHF BMSK LEA IABS IMNMX ISETP SEL PRMT MOV S2R CS2R LDC FADD FMUL FFMA FSETP F2I I2F I2FP MUFU LDG STG LDS STS LDL STL BRA EXIT CALL RET BSSY BSYNC BAR SHFL VOTE ULDC NOP'.split())
 ALIASES = dict(UIADD3='IADD3', UIMAD='IMAD', USHF='SHF', ULEA='LEA',
                UISETP='ISETP', ULOP3='LOP3', USEL='SEL', UMOV='MOV', VIADD='IADD',
                **{'HFMA2.MMA':'HFMA2_MMA'})
@@ -339,6 +339,28 @@ def emit_PRMT(b,check=False):
             code+=f'r = r | (byte{i} << {8*i}); '
         cases[(value,)]=code+'export r;'
     result=b.select_code(('pmode',),cases)
+    b.body.append(f'{output(b).symbol} = {result};')
+
+
+def emit_BMSK(b,check=False):
+    position,width=operands(b,'Ra','Rb/Sb')
+    if check:
+        if width and b.k.operand_types[width].type=='CX':
+            b.unsupported_reason='CX constant-memory addressing requires a sass_operand_value provider'
+        return all((position,width)) and output(b) is not None and output(b).size==4 and all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (position,width))
+    require(b,'cw',['C','W'])
+    modes=enum_cases(b,'cw',['C','W']);a,n=b.flag(position),b.flag(width)
+    # P-code shifts by >= the word size produce zero. Clamp before adding the
+    # position, so a large unsigned width cannot wrap the end position.
+    cases={}
+    for mode,value in modes.items():
+        code=f'local pos:4 = {a}; local width:4 = {n}; '
+        if mode=='W':code+='pos = pos & 31; width = width & 31; '
+        else:code+='if (width <= 32) goto <width_ready>; width = 32; <width_ready> '
+        code+='local result:4 = 0; if (pos >= 32) goto <done>; '
+        code+='result = (0xffffffff:4 << pos) & ~(0xffffffff:4 << (pos + width)); <done> export result;'
+        cases[(value,)]=code
+    result=b.select_code(('cw',),cases)
     b.body.append(f'{output(b).symbol} = {result};')
 
 

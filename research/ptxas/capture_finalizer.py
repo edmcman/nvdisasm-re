@@ -120,7 +120,7 @@ class BuildOperand(gdb.Breakpoint):
     def stop(self):
         output, conversion, instruction = (register(n) for n in ("rdi", "rsi", "rdx"))
         flags = struct.unpack("<I", memory(instruction + 0x48, 4))[0]
-        if flags & 0xffffcfff not in (2, 5, 0x6e, 0x70, 0x72, 0x73, 0x75, 0x8b, 0x8c, 0x8d, 0x8f):
+        if flags & 0xffffcfff not in (2, 5, 0x18, 0x6e, 0x70, 0x72, 0x73, 0x75, 0x8b, 0x8c, 0x8d, 0x8f):
             return False
         index = 0 if self.destination else register("rcx")
         descriptor = memory(instruction + 0x54 + index * 8, 8)

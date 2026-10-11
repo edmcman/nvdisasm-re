@@ -55,6 +55,9 @@
       "BAR": {
         "primitive": 26
       },
+      "BMSK": {
+        "native": 3
+      },
       "BRA": {
         "native": 2,
         "opaque": 2
@@ -244,8 +247,8 @@
       }
     },
     "status": {
-      "native": 200,
-      "opaque": 683,
+      "native": 203,
+      "opaque": 680,
       "primitive": 95
     }
   },
@@ -305,6 +308,9 @@
       "BAR": {
         "primitive": 26
       },
+      "BMSK": {
+        "native": 3
+      },
       "BRA": {
         "native": 2,
         "opaque": 2
@@ -494,8 +500,8 @@
       }
     },
     "status": {
-      "native": 200,
-      "opaque": 683,
+      "native": 203,
+      "opaque": 680,
       "primitive": 95
     }
   },
@@ -552,6 +558,9 @@
       "BAR": {
         "primitive": 26
       },
+      "BMSK": {
+        "native": 3
+      },
       "BRA": {
         "native": 2,
         "opaque": 2
@@ -740,8 +749,8 @@
       }
     },
     "status": {
-      "native": 194,
-      "opaque": 617,
+      "native": 197,
+      "opaque": 614,
       "primitive": 93
     }
   },
@@ -798,6 +807,9 @@
       "BAR": {
         "primitive": 26
       },
+      "BMSK": {
+        "native": 3
+      },
       "BRA": {
         "native": 2,
         "opaque": 2
@@ -986,8 +998,8 @@
       }
     },
     "status": {
-      "native": 194,
-      "opaque": 617,
+      "native": 197,
+      "opaque": 614,
       "primitive": 93
     }
   },
@@ -1047,6 +1059,9 @@
       "BAR": {
         "primitive": 26
       },
+      "BMSK": {
+        "native": 3
+      },
       "BRA": {
         "native": 2,
         "opaque": 2
@@ -1236,8 +1251,8 @@
       }
     },
     "status": {
-      "native": 200,
-      "opaque": 676,
+      "native": 203,
+      "opaque": 673,
       "primitive": 98
     }
   },
@@ -1297,6 +1312,9 @@
       "BAR": {
         "primitive": 26
       },
+      "BMSK": {
+        "native": 3
+      },
       "BRA": {
         "native": 2,
         "opaque": 2
@@ -1486,8 +1504,8 @@
       }
     },
     "status": {
-      "native": 200,
-      "opaque": 676,
+      "native": 203,
+      "opaque": 673,
       "primitive": 98
     }
   },
@@ -1573,6 +1591,9 @@
       "BAR": {
         "primitive": 26
       },
+      "BMSK": {
+        "native": 3
+      },
       "BRA": {
         "native": 2,
         "opaque": 2
@@ -1762,8 +1783,8 @@
       }
     },
     "status": {
-      "native": 211,
-      "opaque": 711,
+      "native": 214,
+      "opaque": 708,
       "primitive": 93
     }
   },
@@ -1849,6 +1870,9 @@
       "BAR": {
         "primitive": 26
       },
+      "BMSK": {
+        "native": 3
+      },
       "BRA": {
         "native": 2,
         "opaque": 2
@@ -2038,8 +2062,8 @@
       }
     },
     "status": {
-      "native": 211,
-      "opaque": 711,
+      "native": 214,
+      "opaque": 708,
       "primitive": 93
     }
   },
@@ -2047,6 +2071,7 @@
     "classes": 903,
     "hardware_verified": false,
     "opaque_operations": {
+      "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
       "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
       "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
@@ -2084,6 +2109,10 @@
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMSK": {
+        "native": 4,
+        "opaque": 1
       },
       "BRA": {
         "native": 1
@@ -2269,8 +2298,8 @@
       }
     },
     "status": {
-      "native": 280,
-      "opaque": 510,
+      "native": 284,
+      "opaque": 506,
       "primitive": 113
     }
   },
@@ -2278,6 +2307,7 @@
     "classes": 903,
     "hardware_verified": false,
     "opaque_operations": {
+      "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
       "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
       "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
@@ -2315,6 +2345,10 @@
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMSK": {
+        "native": 4,
+        "opaque": 1
       },
       "BRA": {
         "native": 1
@@ -2500,8 +2534,8 @@
       }
     },
     "status": {
-      "native": 280,
-      "opaque": 510,
+      "native": 284,
+      "opaque": 506,
       "primitive": 113
     }
   },
@@ -2509,6 +2543,7 @@
     "classes": 967,
     "hardware_verified": false,
     "opaque_operations": {
+      "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
@@ -2573,6 +2608,10 @@
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMSK": {
+        "native": 4,
+        "opaque": 1
       },
       "BRA": {
         "native": 1,
@@ -2763,8 +2802,8 @@
       }
     },
     "status": {
-      "native": 287,
-      "opaque": 567,
+      "native": 291,
+      "opaque": 563,
       "primitive": 113
     }
   },
@@ -2772,6 +2811,7 @@
     "classes": 967,
     "hardware_verified": false,
     "opaque_operations": {
+      "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
@@ -2836,6 +2876,10 @@
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMSK": {
+        "native": 4,
+        "opaque": 1
       },
       "BRA": {
         "native": 1,
@@ -3026,8 +3070,8 @@
       }
     },
     "status": {
-      "native": 287,
-      "opaque": 567,
+      "native": 291,
+      "opaque": 563,
       "primitive": 113
     }
   },
@@ -3035,6 +3079,7 @@
     "classes": 1004,
     "hardware_verified": false,
     "opaque_operations": {
+      "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "hadd2_F32__RC": "class selectors have no supported native combination",
@@ -3100,6 +3145,10 @@
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMSK": {
+        "native": 4,
+        "opaque": 1
       },
       "BRA": {
         "native": 1,
@@ -3290,8 +3339,8 @@
       }
     },
     "status": {
-      "native": 291,
-      "opaque": 594,
+      "native": 295,
+      "opaque": 590,
       "primitive": 119
     }
   },
@@ -3299,6 +3348,7 @@
     "classes": 1004,
     "hardware_verified": false,
     "opaque_operations": {
+      "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "hadd2_F32__RC": "class selectors have no supported native combination",
@@ -3364,6 +3414,10 @@
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMSK": {
+        "native": 4,
+        "opaque": 1
       },
       "BRA": {
         "native": 1,
@@ -3554,8 +3608,8 @@
       }
     },
     "status": {
-      "native": 291,
-      "opaque": 594,
+      "native": 295,
+      "opaque": 590,
       "primitive": 119
     }
   },
@@ -3563,6 +3617,7 @@
     "classes": 1054,
     "hardware_verified": false,
     "opaque_operations": {
+      "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "hadd2_F32__RC": "class selectors have no supported native combination",
@@ -3636,6 +3691,10 @@
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMSK": {
+        "native": 4,
+        "opaque": 1
       },
       "BRA": {
         "native": 1,
@@ -3826,8 +3885,8 @@
       }
     },
     "status": {
-      "native": 291,
-      "opaque": 644,
+      "native": 295,
+      "opaque": 640,
       "primitive": 119
     }
   },
@@ -3835,6 +3894,7 @@
     "classes": 1054,
     "hardware_verified": false,
     "opaque_operations": {
+      "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "hadd2_F32__RC": "class selectors have no supported native combination",
@@ -3908,6 +3968,10 @@
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMSK": {
+        "native": 4,
+        "opaque": 1
       },
       "BRA": {
         "native": 1,
@@ -4098,8 +4162,8 @@
       }
     },
     "status": {
-      "native": 291,
-      "opaque": 644,
+      "native": 295,
+      "opaque": 640,
       "primitive": 119
     }
   },
@@ -4107,6 +4171,7 @@
     "classes": 1173,
     "hardware_verified": false,
     "opaque_operations": {
+      "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "fmnmx_pred__RCR_RCR": "unsupported class shape",
@@ -4180,6 +4245,10 @@
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMSK": {
+        "native": 4,
+        "opaque": 1
       },
       "BRA": {
         "native": 2,
@@ -4370,8 +4439,8 @@
       }
     },
     "status": {
-      "native": 292,
-      "opaque": 752,
+      "native": 296,
+      "opaque": 748,
       "primitive": 129
     }
   },
@@ -4379,6 +4448,7 @@
     "classes": 1173,
     "hardware_verified": false,
     "opaque_operations": {
+      "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "fmnmx_pred__RCR_RCR": "unsupported class shape",
@@ -4452,6 +4522,10 @@
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMSK": {
+        "native": 4,
+        "opaque": 1
       },
       "BRA": {
         "native": 2,
@@ -4642,8 +4716,8 @@
       }
     },
     "status": {
-      "native": 292,
-      "opaque": 752,
+      "native": 296,
+      "opaque": 748,
       "primitive": 129
     }
   }
