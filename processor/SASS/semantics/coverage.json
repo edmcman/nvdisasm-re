@@ -62,6 +62,9 @@
         "native": 2,
         "opaque": 2
       },
+      "BREV": {
+        "native": 3
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -179,6 +182,9 @@
       },
       "NOP": {
         "native": 1
+      },
+      "POPC": {
+        "native": 3
       },
       "PRMT": {
         "native": 5
@@ -315,6 +321,9 @@
         "native": 2,
         "opaque": 2
       },
+      "BREV": {
+        "native": 3
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -432,6 +441,9 @@
       },
       "NOP": {
         "native": 1
+      },
+      "POPC": {
+        "native": 3
       },
       "PRMT": {
         "native": 5
@@ -565,6 +577,9 @@
         "native": 2,
         "opaque": 2
       },
+      "BREV": {
+        "native": 3
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -681,6 +696,9 @@
       },
       "NOP": {
         "native": 1
+      },
+      "POPC": {
+        "native": 3
       },
       "PRMT": {
         "native": 5
@@ -814,6 +832,9 @@
         "native": 2,
         "opaque": 2
       },
+      "BREV": {
+        "native": 3
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -930,6 +951,9 @@
       },
       "NOP": {
         "native": 1
+      },
+      "POPC": {
+        "native": 3
       },
       "PRMT": {
         "native": 5
@@ -1066,6 +1090,9 @@
         "native": 2,
         "opaque": 2
       },
+      "BREV": {
+        "native": 3
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -1183,6 +1210,9 @@
       },
       "NOP": {
         "native": 1
+      },
+      "POPC": {
+        "native": 3
       },
       "PRMT": {
         "native": 5
@@ -1319,6 +1349,9 @@
         "native": 2,
         "opaque": 2
       },
+      "BREV": {
+        "native": 3
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -1436,6 +1469,9 @@
       },
       "NOP": {
         "native": 1
+      },
+      "POPC": {
+        "native": 3
       },
       "PRMT": {
         "native": 5
@@ -1598,6 +1634,9 @@
         "native": 2,
         "opaque": 2
       },
+      "BREV": {
+        "native": 3
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -1715,6 +1754,9 @@
       },
       "NOP": {
         "native": 1
+      },
+      "POPC": {
+        "native": 3
       },
       "PRMT": {
         "native": 5
@@ -1877,6 +1919,9 @@
         "native": 2,
         "opaque": 2
       },
+      "BREV": {
+        "native": 3
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -1995,6 +2040,9 @@
       "NOP": {
         "native": 1
       },
+      "POPC": {
+        "native": 3
+      },
       "PRMT": {
         "native": 5
       },
@@ -2072,6 +2120,7 @@
     "hardware_verified": false,
     "opaque_operations": {
       "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
+      "brev__RCxR_RCxR": "unsupported class shape",
       "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
       "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
       "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
@@ -2092,6 +2141,7 @@
       "ldl_uniform_": "class selectors have no supported native combination",
       "lds_uniform_": "class selectors have no supported native combination",
       "lds_zd_uniform_": "class selectors have no supported native combination",
+      "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
@@ -2116,6 +2166,10 @@
       },
       "BRA": {
         "native": 1
+      },
+      "BREV": {
+        "native": 4,
+        "opaque": 1
       },
       "BSSY": {
         "primitive": 1
@@ -2230,6 +2284,10 @@
       "NOP": {
         "native": 1
       },
+      "POPC": {
+        "native": 4,
+        "opaque": 1
+      },
       "PRMT": {
         "native": 9
       },
@@ -2298,8 +2356,8 @@
       }
     },
     "status": {
-      "native": 284,
-      "opaque": 506,
+      "native": 282,
+      "opaque": 508,
       "primitive": 113
     }
   },
@@ -2308,6 +2366,7 @@
     "hardware_verified": false,
     "opaque_operations": {
       "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
+      "brev__RCxR_RCxR": "unsupported class shape",
       "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
       "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
       "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
@@ -2328,6 +2387,7 @@
       "ldl_uniform_": "class selectors have no supported native combination",
       "lds_uniform_": "class selectors have no supported native combination",
       "lds_zd_uniform_": "class selectors have no supported native combination",
+      "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
@@ -2352,6 +2412,10 @@
       },
       "BRA": {
         "native": 1
+      },
+      "BREV": {
+        "native": 4,
+        "opaque": 1
       },
       "BSSY": {
         "primitive": 1
@@ -2466,6 +2530,10 @@
       "NOP": {
         "native": 1
       },
+      "POPC": {
+        "native": 4,
+        "opaque": 1
+      },
       "PRMT": {
         "native": 9
       },
@@ -2534,8 +2602,8 @@
       }
     },
     "status": {
-      "native": 284,
-      "opaque": 506,
+      "native": 282,
+      "opaque": 508,
       "primitive": 113
     }
   },
@@ -2546,6 +2614,7 @@
       "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
+      "brev__RCxR_RCxR": "unsupported class shape",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -2591,6 +2660,7 @@
       "mov_indexedRF_IRFd__Cb": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
@@ -2616,6 +2686,10 @@
       "BRA": {
         "native": 1,
         "opaque": 2
+      },
+      "BREV": {
+        "native": 4,
+        "opaque": 1
       },
       "BSSY": {
         "primitive": 1
@@ -2734,6 +2808,10 @@
       "NOP": {
         "native": 1
       },
+      "POPC": {
+        "native": 4,
+        "opaque": 1
+      },
       "PRMT": {
         "native": 9
       },
@@ -2802,8 +2880,8 @@
       }
     },
     "status": {
-      "native": 291,
-      "opaque": 563,
+      "native": 289,
+      "opaque": 565,
       "primitive": 113
     }
   },
@@ -2814,6 +2892,7 @@
       "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
+      "brev__RCxR_RCxR": "unsupported class shape",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -2859,6 +2938,7 @@
       "mov_indexedRF_IRFd__Cb": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
@@ -2884,6 +2964,10 @@
       "BRA": {
         "native": 1,
         "opaque": 2
+      },
+      "BREV": {
+        "native": 4,
+        "opaque": 1
       },
       "BSSY": {
         "primitive": 1
@@ -3002,6 +3086,10 @@
       "NOP": {
         "native": 1
       },
+      "POPC": {
+        "native": 4,
+        "opaque": 1
+      },
       "PRMT": {
         "native": 9
       },
@@ -3070,8 +3158,8 @@
       }
     },
     "status": {
-      "native": 291,
-      "opaque": 563,
+      "native": 289,
+      "opaque": 565,
       "primitive": 113
     }
   },
@@ -3082,6 +3170,7 @@
       "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
+      "brev__RCxR_RCxR": "unsupported class shape",
       "hadd2_F32__RC": "class selectors have no supported native combination",
       "hadd2_F32__RCx": "class selectors have no supported native combination",
       "hadd2_F32__RI": "unsupported class shape",
@@ -3128,6 +3217,7 @@
       "mov_indexedRF_IRFd__Cb": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
@@ -3153,6 +3243,10 @@
       "BRA": {
         "native": 1,
         "opaque": 2
+      },
+      "BREV": {
+        "native": 4,
+        "opaque": 1
       },
       "BSSY": {
         "primitive": 1
@@ -3271,6 +3365,10 @@
       "NOP": {
         "native": 1
       },
+      "POPC": {
+        "native": 4,
+        "opaque": 1
+      },
       "PRMT": {
         "native": 9
       },
@@ -3339,8 +3437,8 @@
       }
     },
     "status": {
-      "native": 295,
-      "opaque": 590,
+      "native": 293,
+      "opaque": 592,
       "primitive": 119
     }
   },
@@ -3351,6 +3449,7 @@
       "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
+      "brev__RCxR_RCxR": "unsupported class shape",
       "hadd2_F32__RC": "class selectors have no supported native combination",
       "hadd2_F32__RCx": "class selectors have no supported native combination",
       "hadd2_F32__RI": "unsupported class shape",
@@ -3397,6 +3496,7 @@
       "mov_indexedRF_IRFd__Cb": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
@@ -3422,6 +3522,10 @@
       "BRA": {
         "native": 1,
         "opaque": 2
+      },
+      "BREV": {
+        "native": 4,
+        "opaque": 1
       },
       "BSSY": {
         "primitive": 1
@@ -3540,6 +3644,10 @@
       "NOP": {
         "native": 1
       },
+      "POPC": {
+        "native": 4,
+        "opaque": 1
+      },
       "PRMT": {
         "native": 9
       },
@@ -3608,8 +3716,8 @@
       }
     },
     "status": {
-      "native": 295,
-      "opaque": 590,
+      "native": 293,
+      "opaque": 592,
       "primitive": 119
     }
   },
@@ -3620,6 +3728,7 @@
       "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
+      "brev__RCxR_RCxR": "unsupported class shape",
       "hadd2_F32__RC": "class selectors have no supported native combination",
       "hadd2_F32__RCx": "class selectors have no supported native combination",
       "hadd2_F32__RI": "unsupported class shape",
@@ -3670,6 +3779,7 @@
       "mov_indexedRF_IRFd__Cb": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
       "stg_256_memdesc__Ra64": "unsupported class shape",
@@ -3699,6 +3809,10 @@
       "BRA": {
         "native": 1,
         "opaque": 2
+      },
+      "BREV": {
+        "native": 4,
+        "opaque": 1
       },
       "BSSY": {
         "primitive": 1
@@ -3817,6 +3931,10 @@
       "NOP": {
         "native": 1
       },
+      "POPC": {
+        "native": 4,
+        "opaque": 1
+      },
       "PRMT": {
         "native": 9
       },
@@ -3885,8 +4003,8 @@
       }
     },
     "status": {
-      "native": 295,
-      "opaque": 640,
+      "native": 293,
+      "opaque": 642,
       "primitive": 119
     }
   },
@@ -3897,6 +4015,7 @@
       "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
+      "brev__RCxR_RCxR": "unsupported class shape",
       "hadd2_F32__RC": "class selectors have no supported native combination",
       "hadd2_F32__RCx": "class selectors have no supported native combination",
       "hadd2_F32__RI": "unsupported class shape",
@@ -3947,6 +4066,7 @@
       "mov_indexedRF_IRFd__Cb": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
       "stg_256_memdesc__Ra64": "unsupported class shape",
@@ -3976,6 +4096,10 @@
       "BRA": {
         "native": 1,
         "opaque": 2
+      },
+      "BREV": {
+        "native": 4,
+        "opaque": 1
       },
       "BSSY": {
         "primitive": 1
@@ -4094,6 +4218,10 @@
       "NOP": {
         "native": 1
       },
+      "POPC": {
+        "native": 4,
+        "opaque": 1
+      },
       "PRMT": {
         "native": 9
       },
@@ -4162,8 +4290,8 @@
       }
     },
     "status": {
-      "native": 295,
-      "opaque": 640,
+      "native": 293,
+      "opaque": 642,
       "primitive": 119
     }
   },
@@ -4174,6 +4302,7 @@
       "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
+      "brev__RCxR_RCxR": "unsupported class shape",
       "fmnmx_pred__RCR_RCR": "unsupported class shape",
       "fmnmx_pred__RCxR_RCxR": "unsupported class shape",
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
@@ -4227,6 +4356,7 @@
       "mov_indexedRF_IRFd__Cb": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
       "stg_memdesc__Ra64": "class selectors have no supported native combination",
@@ -4253,6 +4383,10 @@
       "BRA": {
         "native": 2,
         "opaque": 2
+      },
+      "BREV": {
+        "native": 4,
+        "opaque": 1
       },
       "BSSY": {
         "primitive": 1
@@ -4371,6 +4505,10 @@
       "NOP": {
         "native": 1
       },
+      "POPC": {
+        "native": 4,
+        "opaque": 1
+      },
       "PRMT": {
         "native": 9
       },
@@ -4439,8 +4577,8 @@
       }
     },
     "status": {
-      "native": 296,
-      "opaque": 748,
+      "native": 294,
+      "opaque": 750,
       "primitive": 129
     }
   },
@@ -4451,6 +4589,7 @@
       "bmsk__RCxR_RCxR": "CX constant-memory addressing requires a sass_operand_value provider",
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
+      "brev__RCxR_RCxR": "unsupported class shape",
       "fmnmx_pred__RCR_RCR": "unsupported class shape",
       "fmnmx_pred__RCxR_RCxR": "unsupported class shape",
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
@@ -4504,6 +4643,7 @@
       "mov_indexedRF_IRFd__Cb": "unsupported class shape",
       "mov_indexedRF_IRFd__Ib": "unsupported class shape",
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
+      "popc__RCxR_RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
       "stg_memdesc__Ra64": "class selectors have no supported native combination",
@@ -4530,6 +4670,10 @@
       "BRA": {
         "native": 2,
         "opaque": 2
+      },
+      "BREV": {
+        "native": 4,
+        "opaque": 1
       },
       "BSSY": {
         "primitive": 1
@@ -4648,6 +4792,10 @@
       "NOP": {
         "native": 1
       },
+      "POPC": {
+        "native": 4,
+        "opaque": 1
+      },
       "PRMT": {
         "native": 9
       },
@@ -4716,8 +4864,8 @@
       }
     },
     "status": {
-      "native": 296,
-      "opaque": 748,
+      "native": 294,
+      "opaque": 750,
       "primitive": 129
     }
   }

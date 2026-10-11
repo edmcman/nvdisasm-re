@@ -12,7 +12,7 @@ ALIASES = dict(UIADD3='IADD3', UIMAD='IMAD', USHF='SHF', ULEA='LEA',
                UISETP='ISETP', ULOP3='LOP3', USEL='SEL', UMOV='MOV', VIADD='IADD',
                **{'HFMA2.MMA':'HFMA2_MMA'})
 OPERATION_FAMILIES.update(ALIASES)
-OPERATION_FAMILIES.update(('IADD','FSEL','FMNMX','DADD','DMUL','DFMA','DSETP','HADD2','HFMA2'))
+OPERATION_FAMILIES.update(('IADD','FSEL','FMNMX','DADD','DMUL','DFMA','DSETP','HADD2','HFMA2','BREV','POPC'))
 
 PRIMITIVES = set('FADD FMUL FFMA FSETP F2I I2F I2FP MUFU PRMT SHFL VOTE BAR BSSY BSYNC'.split())
 
@@ -340,6 +340,39 @@ def emit_PRMT(b,check=False):
         cases[(value,)]=code+'export r;'
     result=b.select_code(('pmode',),cases)
     b.body.append(f'{output(b).symbol} = {result};')
+
+
+def _unary_word_source(b):
+    if 'Sb' in b.values and b.k.operand_types['Sb'].type=='CX':
+        return 'Sb'  # CX is an explicit runtime operand, not just its URb child.
+    return next((n for n in ('Rb','URb','Sb') if n in b.values),None)
+
+
+def emit_BREV(b,check=False):
+    """Reverse the bit order of one 32-bit integer source."""
+    src=_unary_word_source(b);dst=output(b)
+    if check:
+        return src is not None and dst is not None and b.values[src].size==4 and dst.size==4 and b.values[src].kind!='runtime-primitive'
+    value=b.flag(src)
+    for shift,mask in ((1,0x55555555),(2,0x33333333),(4,0x0f0f0f0f),(8,0x00ff00ff)):
+        value=b.local(4,f'(({value} >> {shift}) & {mask:#x}) | (({value} & {mask:#x}) << {shift})').symbol
+    value=b.local(4,f'({value} >> 16) | ({value} << 16)').symbol
+    b.body.append(f'{dst.symbol} = {value};')
+
+
+def emit_POPC(b,check=False):
+    """Count the set bits in one 32-bit integer source using SWAR arithmetic."""
+    src=_unary_word_source(b);dst=output(b)
+    if check:
+        return src is not None and dst is not None and b.values[src].size==4 and dst.size==4 and b.values[src].kind!='runtime-primitive'
+    value=b.flag(src)
+    value=b.local(4,f'{value} - (({value} >> 1) & 0x55555555)').symbol
+    value=b.local(4,f'({value} & 0x33333333) + (({value} >> 2) & 0x33333333)').symbol
+    value=b.local(4,f'(({value} + ({value} >> 4)) & 0x0f0f0f0f)').symbol
+    value=b.local(4,f'{value} + ({value} >> 8)').symbol
+    value=b.local(4,f'{value} + ({value} >> 16)').symbol
+    value=b.local(4,f'{value} & 0x3f').symbol
+    b.body.append(f'{dst.symbol} = {value};')
 
 
 def emit_BMSK(b,check=False):

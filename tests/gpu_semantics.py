@@ -19,7 +19,8 @@ SPECS={
  'hfma2_move_zero':('HFMA2.MMA',), 'hfma2_move_nan':('HFMA2.MMA',),
  'hfma2_move_denorm':('HFMA2.MMA',), 'hfma2_move_inf':('HFMA2.MMA',),
  'hadd2_lanes':('HADD2',), 'hfma2_lanes':('HFMA2',),
- 'prmt':('PRMT',), 'fadd':('FADD',), 'fmul':('FMUL',), 'ffma':('FFMA',),
+ 'prmt':('PRMT',), 'brev':('BREV',), 'popc':('POPC',),
+ 'fadd':('FADD',), 'fmul':('FMUL',), 'ffma':('FFMA',),
  'isetp':('ISETP',), 'sel':('ISETP',), 'fsetp':('FSETP',), 'f2i':('F2I',),
  'fsel':('FSEL',), 'fmin':('FMNMX',), 'fmax':('FMNMX',),
  'fmin_ftz':('FMNMX.FTZ',), 'fmax_ftz':('FMNMX.FTZ',),
@@ -200,6 +201,14 @@ def main():
                     raise AssertionError(f'{family}: target {target} was never executed')
             actual=[int.from_bytes(bytes.fromhex(value),'little') for value in result['outputs']]
             if len(actual)!=len(gpu):raise RuntimeError(f'{family}: missing emulated outputs')
+            if family in ('brev','popc'):
+                def reference(x):
+                    if family=='popc':return x.bit_count()
+                    return sum(((x>>bit)&1)<<(31-bit) for bit in range(32))
+                expected=tuple(reference(v[0]) for v in vectors)
+                if gpu!=expected:
+                    mismatch=next((i for i,(actual,want) in enumerate(zip(gpu,expected)) if actual!=want),None)
+                    raise AssertionError((family,'GPU/reference mismatch',mismatch,vectors[mismatch],hex(gpu[mismatch]),hex(expected[mismatch])))
             for index,(g,e) in enumerate(zip(gpu,actual)):
                 if family in HALF_FLOAT_OUTPUTS:
                     equal=all(((e>>shift)&0xffff)==((g>>shift)&0xffff) or

@@ -269,6 +269,14 @@ bits and compiled prologues remain intact. The manifest records these patches.
 SM89 F2I.TRUNC.NTZ to S32 maps NaN to zero and clamps infinities/overflow;
 other NTZ combinations still reject until verified.
 
+BREV and POPC are native 32-bit operations for register, uniform-register,
+immediate, and ordinary constant-bank sources where present. CX encodings
+remain opaque because their compound source needs a `sass_operand_value`
+provider. Focused P-code checks pass on all nine architectures in both exact
+and readable languages (160 cases per variant on SM75-SM90; 162 on SM100-SM120).
+The SM89 GPU oracle confirms each opcode executes and matches both Ghidra and
+an independent reference for 128 inputs.
+
 Floating results are bit-exact except that two NaNs compare equal regardless
 of payload/sign (independently for each packed half). MMA move constants are
 compared bit-exactly, including NaN canonicalization. FTZ and saturation have no additional numeric tolerance.

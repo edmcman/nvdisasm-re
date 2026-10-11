@@ -3870,5 +3870,115 @@
     "compiled_languages_match_tested_build": true,
     "directory": "processor/SASS/data/languages",
     "tested_directory": "processor/SASS/data/languages"
+  },
+  "brev_popc": {
+    "date": "2026-10-11",
+    "native_scope": "32-bit BREV and POPC; register, uniform-register, immediate and ordinary constant-bank sources where present; source inversion modifiers",
+    "emulator_value_checks": {
+      "SM75": {
+        "exact": {
+          "passed": 160,
+          "total": 160
+        },
+        "readable": {
+          "passed": 160,
+          "total": 160
+        }
+      },
+      "SM80": {
+        "exact": {
+          "passed": 160,
+          "total": 160
+        },
+        "readable": {
+          "passed": 160,
+          "total": 160
+        }
+      },
+      "SM86": {
+        "exact": {
+          "passed": 160,
+          "total": 160
+        },
+        "readable": {
+          "passed": 160,
+          "total": 160
+        }
+      },
+      "SM89": {
+        "exact": {
+          "passed": 160,
+          "total": 160
+        },
+        "readable": {
+          "passed": 160,
+          "total": 160
+        }
+      },
+      "SM90": {
+        "exact": {
+          "passed": 160,
+          "total": 160
+        },
+        "readable": {
+          "passed": 160,
+          "total": 160
+        }
+      },
+      "SM100": {
+        "exact": {
+          "passed": 162,
+          "total": 162
+        },
+        "readable": {
+          "passed": 162,
+          "total": 162
+        }
+      },
+      "SM101": {
+        "exact": {
+          "passed": 162,
+          "total": 162
+        },
+        "readable": {
+          "passed": 162,
+          "total": 162
+        }
+      },
+      "SM103": {
+        "exact": {
+          "passed": 162,
+          "total": 162
+        },
+        "readable": {
+          "passed": 162,
+          "total": 162
+        }
+      },
+      "SM120": {
+        "exact": {
+          "passed": 162,
+          "total": 162
+        },
+        "readable": {
+          "passed": 162,
+          "total": 162
+        }
+      }
+    },
+    "gpu_oracle": {
+      "architecture": "SM89",
+      "gpu": "NVIDIA GeForce RTX 4070 Laptop GPU",
+      "inputs_per_opcode": 128,
+      "opcodes": [
+        "BREV",
+        "POPC"
+      ],
+      "result": "GPU, Ghidra whole-kernel P-code, and independent references matched; each target opcode was confirmed executed",
+      "result_file": "/tmp/sass-gpu-bitops/results.json"
+    },
+    "limitations": [
+      "CX compound sources remain opaque pending a sass_operand_value provider"
+    ]
   }
 }

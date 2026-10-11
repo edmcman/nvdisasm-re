@@ -28,6 +28,38 @@ def cases(sm,fp='exact'):
     from bmsk_semantics import cases as bmsk_cases
     out.extend(bmsk_cases(sm))
     rng=random.Random(7)
+    # CuLifter comparison: scalar bit operations. Expected values use an
+    # independent per-bit reference (BREV) and Python's bit_count (POPC).
+    def reverse32(value):
+        return sum(((value>>bit)&1)<<(31-bit) for bit in range(32))
+    bit_vectors=[0,1,0x80000000,0xffffffff,0x01234567,0xaaaaaaaa,0x55555555]
+    bit_vectors += [rng.getrandbits(32) for _ in range(20)]
+    for op in ('BREV','POPC'):
+        for klass in (k for k in arch.classes if k.mnemonic==op and not k.alternate):
+            src=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
+            if src is None:continue
+            if any(atom.type=='CX' for atom in klass.operand_types.values()):continue
+            atom=klass.operand_types[src]
+            if atom.type!='C':
+                for i,value in enumerate(bit_vectors):
+                    fields={'Rd':2,src:(4 if atom.type in ('Register','UniformRegister') else value)}
+                    registers=({f'{src[:1]}4':value} if atom.type=='Register' else
+                               {'UR4':value} if atom.type=='UniformRegister' else {})
+                    source=value
+                    if i==1 and src+'@invert' in klass.operand_types:
+                        fields[src+'@invert']=1;source=(~value)&0xffffffff
+                    result=reverse32(source) if op=='BREV' else source.bit_count()
+                    add(klass.name,fields,registers,{'R2':result,'__native':True})
+            if atom.type=='C':
+                for bank,offset,value in ((2,16,0x01234567),(3,24,0x80000001)):
+                    source=value
+                    fields={'Rd':2,'Sb_bank':bank,'Sb_addr':offset}
+                    if 'Sb@invert' in klass.operand_types:
+                        fields['Sb@invert']=1;source=(~value)&0xffffffff
+                    result=reverse32(source) if op=='BREV' else source.bit_count()
+                    add(klass.name,fields,{}, {'R2':result,'__native':True},
+                        memory=[dict(space='cbank',address=(bank<<32)|offset,
+                                     hex=value.to_bytes(4,'little').hex())])
     for i in range(20):
         a,b,c=[rng.getrandbits(32) for _ in range(3)];regs={'R2':a,'R4':b,'R6':c}
         rd=2 if i%2 else 8 # overlap source/destination
