@@ -682,7 +682,7 @@ def emit_F2I(b,check=False):
 
     The bit-level conversion avoids a host float cast and matches the measured
     SM89 behavior: truncation toward zero, NaN -> 0, and signed saturation.
-    Keep all other formats and selectors on the runtime primitive path.
+    Exact mode accepts only TRUNC; readable mode deliberately ignores rnd.
     """
     src=operands(b,'Rb/Sb/Ra/Sa/URb/URa')[0]
     dst=output(b)
