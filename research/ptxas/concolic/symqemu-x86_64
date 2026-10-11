@@ -21,11 +21,18 @@ def main():
     digest = None
     worker_env = os.environ.copy()
     symbolic_range = None
+    prefix = Path(os.environ["PTX_PREFIX"]).read_bytes() if "PTX_PREFIX" in os.environ else None
+    suffix = Path(os.environ["PTX_SUFFIX"]).read_bytes() if prefix is not None else None
     if input_file:
         data = Path(input_file).read_bytes()
         (work / "input.ptx").write_bytes(data)
         digest = hashlib.sha256(data).hexdigest()
         scope = worker_env.get("PTX_SYMBOLIC_SCOPE", "instruction")
+        if prefix is not None:
+            # The queue holds only the instruction text: wrap it, and make only those bytes symbolic.
+            Path(input_file).write_bytes(prefix + data + suffix)
+            worker_env.update(PTX_SYMBOLIC_BEGIN=str(len(prefix)), PTX_SYMBOLIC_END=str(len(prefix) + len(data)))
+            scope = "region"
         marker = b"// BEGIN_INSTRUCTION\n"
         position = data.find(marker)
         if scope != "file" and position >= 0:
@@ -60,6 +67,13 @@ def main():
     for path in sorted(output.iterdir()):
         if path.is_file() and path.name not in previous:
             data = path.read_bytes()
+            if prefix is not None:
+                # Back to instruction text; a candidate that altered the scaffold is dropped.
+                if not (data.startswith(prefix) and data.endswith(suffix) and len(data) >= len(prefix) + len(suffix)):
+                    path.unlink()
+                    continue
+                data = data[len(prefix):len(data) - len(suffix)]
+                path.write_bytes(data)
             (work / path.name).write_bytes(data)
             record = {"name": path.name, "sha256": hashlib.sha256(data).hexdigest()}
             if os.environ.get("PTX_VALIDATE_GENERATED") == "1":
