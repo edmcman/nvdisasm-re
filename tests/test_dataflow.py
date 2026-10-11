@@ -61,9 +61,9 @@ def expected(g, d, optimized=False):
         for role in o['role']:
             if role=='read' and o['name'] in unused:continue
             needed=cells
-            if optimized and role=='read' and span==1 and d.klass.mnemonic in ('HADD2','HFMA2'):
-                # An unmodified low-half broadcast can export the two-byte
-                # register slice directly. Modified inputs still read the word;
+            if optimized and role=='read' and span==1 and d.klass.mnemonic in ('HADD2','HFMA2','HMUL2'):
+                # An unmodified low-half broadcast in HADD2/HFMA2/HMUL2 can export the
+                # two-byte register slice directly. Modified inputs still read the word;
                 # two-register CX address inputs retain the entire pointer.
                 selectors={'Ra':('iswzA',),'Rb':('iswzB','iswzC_as_B'),
                            'URb':('iswzB','iswzC_as_B'),'Rc':('iswzC','iswzB_as_C'),

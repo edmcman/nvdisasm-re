@@ -25,6 +25,11 @@ fixture when either is version-dependent.
 | `vabsdiff4/vabsdiff4_modes.ptx` | SM89 | PTX merge, `.add`, lane mask, and `.sat` forms; CUDA 13.0.88 expands them to scalar SASS sequences and emits no `VABSDIFF4` instruction |
 | `viadd/packed_add.ptx` | SM100 | PTX signed/unsigned `add.s16x2`/`add.u16x2`; CUDA 13.0.88 emits `VIADD.16x2` |
 | `vimnmx/vimnmx_modes.ptx` | SM100 | Signed scalar/packed min-max, `.relu`, and chained three-way min; CUDA 13.0.88 emits `VIMNMX` and `VIMNMX3` |
+| `vimnmx/vimnmx_predicate_consumers.ptx` | SM100 | Checks whether compares/selects of min/max inputs or results make `ptxas` use VIMNMX predicate outputs; CUDA 13.0.88 leaves the slots as `PT` and emits separate `ISETP`s |
+| `fmnmx3/min_chain.ptx` | SM100 | Chained PTX `min.f32`; CUDA 13.0.88 combines the two operations into `FMNMX3 ... PT` |
+| `f2ip/pack_s8.ptx` | SM89 | Two `cvt.rni.s32.f32` operations followed by `cvt.pack.sat.s8.s32.b32`; CUDA 13.0.88 emits `F2IP.S8.F32.NTZ` |
+| `i2ip/pack_s4_s2.ptx` | SM89 | `cvt.pack.sat.s4.s32` and `cvt.pack.sat.s2.s32`; CUDA 13.0.88 emits I2IP S4/S2 forms |
+| `i2ip/pack_s8_s16.ptx` | SM89 | `cvt.pack.sat.s8.s32` and `cvt.pack.sat.s16.s32`; CUDA 13.0.88 emits I2IP S8/S16 forms |
 | `viaddmnmx/viaddmnmx_modes.ptx` | SM100 | Add followed by signed/unsigned min-max, including packed and `.relu` forms; CUDA 13.0.88 combines them into `VIADDMNMX` |
 
 The `BMSK.CX` PTX trigger remains unknown. The selector in CUDA 13.0.88
@@ -63,7 +68,26 @@ The VIADDMNMX probe computes `add` followed by `min` or `max`; CUDA 13.0.88
 signed RELU and packed 16-bit cases. These are compiler lowering probes, not
 GPU execution tests or independent evidence of runtime semantics. The
 compiler emits `PT` in both optional predicate-output slots for the VIMNMX
-forms exercised here.
+forms exercised here. The predicate-consumer probe also compares the original
+inputs and the min result, then materializes those comparisons as integers;
+`ptxas` still leaves VIMNMX's output slots as `PT` and emits separate `ISETP`
+instructions. This establishes that these PTX patterns do not expose the
+instruction's source-selection predicates.
+
+The FMNMX3 probe loads three scalar floats and chains two `min.f32` PTX
+operations. CUDA 13.0.88 folds them into one `FMNMX3 ... PT`; this confirms the
+compiler lowering only and does not validate NaN, tie, or signed-zero behavior.
+
+The F2IP probe converts two float inputs with round-to-nearest-even, then uses
+the PTX saturating byte-pack operation. CUDA 13.0.88 fuses the conversion and
+pack into `F2IP.S8.F32.NTZ`. The GPU oracle checks its packed output and
+saturation behavior independently.
+
+The I2IP probes use the PTX saturating integer-pack forms for 2-, 4-, 8-, and
+16-bit destinations. CUDA 13.0.88 emits the corresponding I2IP forms on SM89.
+These probes establish PTX-to-SASS lowering; the separate GPU oracle covers
+signed and unsigned values, packing order, C-field preservation, and patched
+SATRELU/no-SAT selectors.
 
 Fixtures here are focused compiler probes, not a comprehensive PTX ISA test
 suite. Keep generated cubins, disassembly captures, and temporary variants

@@ -1,0 +1,31 @@
+.version 8.8
+.target sm_100
+.address_size 64
+.visible .entry vimnmx_predicate_consumers(
+ .param .u64 outp,
+ .param .s32 a,
+ .param .s32 b
+) {
+ .reg .b64 %rd<2>;
+ .reg .b32 %r<8>;
+ .reg .pred %p<3>;
+ ld.param.u64 %rd0, [outp];
+ ld.param.s32 %r0, [a];
+ ld.param.s32 %r1, [b];
+
+ min.s32 %r2, %r0, %r1;
+ setp.lt.s32 %p0, %r0, %r1;
+ selp.u32 %r3, 1, 0, %p0;
+ max.s32 %r4, %r0, %r1;
+ setp.gt.s32 %p1, %r0, %r1;
+ selp.u32 %r5, 1, 0, %p1;
+ setp.eq.s32 %p2, %r2, %r0;
+ selp.u32 %r6, 1, 0, %p2;
+
+ st.global.u32 [%rd0], %r2;
+ st.global.u32 [%rd0+4], %r3;
+ st.global.u32 [%rd0+8], %r4;
+ st.global.u32 [%rd0+12], %r5;
+ st.global.u32 [%rd0+16], %r6;
+ ret;
+}

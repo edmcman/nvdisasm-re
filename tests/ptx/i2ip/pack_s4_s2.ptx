@@ -1,0 +1,23 @@
+.version 8.7
+.target sm_89
+.address_size 64
+.visible .entry i2ip_probe(
+    .param .u64 in_ptr,
+    .param .u64 out_ptr
+)
+{
+    .reg .b64 %rd<3>;
+    .reg .s32 %r<8>;
+    ld.param.u64 %rd1, [in_ptr];
+    ld.param.u64 %rd2, [out_ptr];
+    ld.global.s32 %r1, [%rd1];
+    ld.global.s32 %r2, [%rd1+4];
+    ld.global.s32 %r3, [%rd1+8];
+    ld.global.s32 %r4, [%rd1+12];
+    ld.global.b32 %r5, [%rd1+16];
+    cvt.pack.sat.s4.s32.b32 %r6, %r1, %r2, %r5;
+    st.global.b32 [%rd2], %r6;
+    cvt.pack.sat.s2.s32.b32 %r7, %r3, %r4, %r5;
+    st.global.b32 [%rd2+4], %r7;
+    ret;
+}

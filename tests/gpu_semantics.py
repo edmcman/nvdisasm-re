@@ -4,7 +4,7 @@ The GPU and PcodeEmulator execute the same cubin text, including its prologue,
 address calculations, memory operations, and EXIT. Threads have independent
 emulator states; warp communication and cross-thread shared memory are excluded.
 """
-import argparse,ctypes as C,json,os,random,re,struct,subprocess,sys,tempfile
+import argparse,ctypes as C,json,math,os,random,re,struct,subprocess,sys,tempfile
 from pathlib import Path
 sys.path[:0]=[str(Path(__file__).parent),str(Path(__file__).parent.parent)]
 from sass.cubin import kernel_image
@@ -16,15 +16,19 @@ SPECS={
  'vabsdiff4_s8_merge':('VABSDIFF4',), 'vabsdiff4_u8_merge':('VABSDIFF4',),
  'vabsdiff4_s8_acc':('VABSDIFF4',), 'vabsdiff4_u8_acc':('VABSDIFF4',),
  'dadd':('DADD',), 'dmul':('DMUL',), 'dfma':('DFMA',), 'dsetp':('DSETP',),
- 'hadd2':('HADD2',), 'hfma2':('HFMA2',), 'hadd2_sat':('HADD2.SAT',),
+ 'hadd2':('HADD2',), 'hfma2':('HFMA2',), 'hmul2':('HMUL2',),
+ 'hmul2_sat':('HMUL2.SAT',), 'hmul2_ftz':('HMUL2.FTZ',), 'hmul2_fmz':('HMUL2.FMZ',), 'hadd2_sat':('HADD2.SAT',),
  'hfma2_sat':('HFMA2.SAT',), 'hfma2_move':('HFMA2.MMA',),
  'hfma2_move_zero':('HFMA2.MMA',), 'hfma2_move_nan':('HFMA2.MMA',),
  'hfma2_move_denorm':('HFMA2.MMA',), 'hfma2_move_inf':('HFMA2.MMA',),
- 'hadd2_lanes':('HADD2',), 'hfma2_lanes':('HFMA2',),
+ 'hadd2_lanes':('HADD2',), 'hfma2_lanes':('HFMA2',), 'hmul2_lanes':('HMUL2',),
  'prmt':('PRMT',), 'brev':('BREV',), 'popc':('POPC',),
  'bfind':('FLO.U32',), 'bfind_shift':('FLO.U32.SH',),
  'fadd':('FADD',), 'fmul':('FMUL',), 'ffma':('FFMA',),
- 'isetp':('ISETP',), 'sel':('ISETP',), 'fsetp':('FSETP',), 'f2i':('F2I',),
+ 'isetp':('ISETP',), 'sel':('ISETP',), 'fsetp':('FSETP',), 'f2i':('F2I',), 'f2ip':('F2IP',),
+ **{f'i2ip_{fmt}':(f'I2IP.{fmt.upper()}',) for fmt in ('s2','u2','s4','u4','s8','u8','s16','u16')},
+ 'i2ip_s8_nosat':('I2IP.S8',), 'i2ip_s8_satrelu':('I2IP.S8',),
+ 'i2ip_s4_satrelu':('I2IP.S4',),
  'fsel':('FSEL',), 'fmin':('FMNMX',), 'fmax':('FMNMX',),
  'fmin_ftz':('FMNMX.FTZ',), 'fmax_ftz':('FMNMX.FTZ',),
  'i2f':('I2FP',), 'fadd_ftz':('FADD.FTZ',),
@@ -32,7 +36,7 @@ SPECS={
  'branch':('BRA','BSSY','BSYNC'), 'ldc':('LDC',),
  **{f'{op}_{mode}':(f'{op.upper()}.{mode.upper()}',) for op in ('fadd','fmul','ffma','dadd','dmul','dfma') for mode in ('rz','rm','rp')}}
 ROUNDED={family for family in SPECS if family[-3:] in ('_rz','_rm','_rp')}
-HALF_FLOAT_OUTPUTS={'hadd2','hfma2','hadd2_sat','hfma2_sat','hadd2_lanes','hfma2_lanes'}
+HALF_FLOAT_OUTPUTS={'hadd2','hfma2','hmul2','hmul2_sat','hmul2_ftz','hmul2_fmz','hadd2_sat','hfma2_sat','hadd2_lanes','hfma2_lanes','hmul2_lanes'}
 DOUBLE_FAMILIES={'dadd','dmul','dfma','dsetp'}|{f for f in ROUNDED if f.startswith('d')}
 FLOAT_OUTPUTS={'dadd','dmul','dfma','fadd','fmul','ffma','i2f','fadd_ftz','ffma_sat'}|ROUNDED
 
@@ -99,7 +103,13 @@ def patch_half_fixtures(cubin):
     changes={
         'hfma2_move':('HFMA2','hfma2_mma__RRI_norelu',dict(Ra=255,Rb=255,**{'Ra@negate':1,'Rb@negate':0})),
         'hadd2_lanes':('HADD2',None,dict(iswzA='H0_H0',iswzB_as_C='H1_H1',**{'Ra@absolute':1,'Rc@negate':1})),
-        'hfma2_lanes':('HFMA2',None,dict(iswzA='H1_H1',iswzB='H0_H0',iswzC='H1_H0',**{'Ra@negate':1,'Rb@absolute':1}))}
+        'hfma2_lanes':('HFMA2',None,dict(iswzA='H1_H1',iswzB='H0_H0',iswzC='H1_H0',**{'Ra@negate':1,'Rb@absolute':1})),
+        'hmul2_lanes':('HMUL2',None,dict(iswzA='H0_H0',iswzB='H1_H1',**{'Ra@absolute':1,'Rb@negate':1})),
+        'hmul2_fmz':('HMUL2','hmul2__RR',dict(fmz='FMZ'))}
+    changes.update({
+        'i2ip_s8_nosat':('I2IP','i2ip__RRR_RRR',dict(satrelu='nosatrelu')),
+        'i2ip_s8_satrelu':('I2IP','i2ip__RRR_RRR',dict(satrelu='SATRELU')),
+        'i2ip_s4_satrelu':('I2IP','i2ip_24__RRR_RRR',dict(satrelu='SATRELU'))})
     for family,fmt,red in (
         ('vabsdiff4_s8_merge','S8','SIMD_MRG'),('vabsdiff4_u8_merge','U8','SIMD_MRG'),
         ('vabsdiff4_s8_acc','S8','ACC'),('vabsdiff4_u8_acc','U8','ACC')):
@@ -197,6 +207,32 @@ def main():
                 vectors[:len(edges16)]=[[x|(edges16[(i+3)%len(edges16)]<<16),
                     edges16[(i+5)%len(edges16)]|(x<<16),
                     edges16[(i+7)%len(edges16)]|(edges16[(i+9)%len(edges16)]<<16)] for i,x in enumerate(edges16)]
+            if family.startswith('hmul2'):
+                pairs=[(0x00010001,0x60006000),(0x80018001,0x60006000),
+                       (0x00010001,0xe000e000),(0x80018001,0xe000e000),
+                       (0x14001400,0x14001400),(0x94009400,0x14001400),
+                       (0x94009400,0x94009400),(0x40004000,0x40004000),
+                       (0xbc00bc00,0x40004000),(0x7e017c00,0x3c003c00),
+                       (0x7c007e01,0x3c003c00),(0x7c007c00,0x00000000)]
+                vectors[:len(pairs)]=[[x,y,0] for x,y in pairs]
+            if family=='f2ip':
+                values=[0,0x80000000,0x3f000000,0xbf000000,0x3fc00000,0xbfc00000,
+                        0x40200000,0xc0200000,0x42ff0000,0xc3000000,0x43000000,
+                        0xc2ff0000,0x42ff8000,0xc2ff8000,0x437f8000,0x7f800000,
+                        0xff800000,0x7fc00000,0x7f800001,0x4f000000,0xcf000000,
+                        0x7f7fffff,0xff7fffff]
+                vectors=[[values[i%len(values)],values[(i+7)%len(values)],
+                          rng.getrandbits(32)] for i in range(128)]
+            if family.startswith('i2ip_'):
+                match=re.fullmatch(r'i2ip_(s2|u2|s4|u4|s8|u8|s16|u16)(?:_(nosat|satrelu))?',family)
+                if not match:raise ValueError(f'bad I2IP fixture name {family}')
+                fmt,mode=match.groups();width=int(fmt[1:]);signed=fmt.startswith('s')
+                lo=-(1<<(width-1)) if signed else 0
+                hi=(1<<(width-1))-1 if signed else (1<<width)-1
+                edges=[0,1,0xffffffff,lo-1,lo,hi,hi+1,0x12345678,0x89abcdef]
+                edges=[x&0xffffffff for x in edges]
+                vectors=[[edges[i%len(edges)],edges[(i+4)%len(edges)],
+                          0x89abcdef^(i*0x01010101)] for i in range(128)]
             if family in DOUBLE_FAMILIES:
                 vectors=[[rng.getrandbits(64) for _ in range(3)] for _ in range(128)]
                 edges64=[0,1<<63,1,(1<<63)|1,0x000fffffffffffff,0x0010000000000000,
@@ -263,6 +299,39 @@ def main():
                     expected.append(((sum(ds)+c)&0xffffffff) if acc else
                         sum((v&255)<<(lane*8) for lane,v in enumerate(ds)))
                 if gpu!=tuple(expected):
+                    mismatch=next(i for i,(got,want) in enumerate(zip(gpu,expected)) if got!=want)
+                    raise AssertionError((family,'GPU/reference mismatch',mismatch,vectors[mismatch],hex(gpu[mismatch]),hex(expected[mismatch])))
+            if family.startswith('i2ip_'):
+                match=re.fullmatch(r'i2ip_(s2|u2|s4|u4|s8|u8|s16|u16)(?:_(nosat|satrelu))?',family)
+                if not match:raise ValueError(f'bad I2IP fixture name {family}')
+                fmt,mode=match.groups();fmt=fmt.upper();width=int(fmt[1:]);signed=fmt.startswith('S')
+                lo=-(1<<(width-1)) if signed else 0
+                hi=(1<<(width-1))-1 if signed else (1<<width)-1
+                def cvt(value):
+                    value=value if value<0x80000000 else value-0x100000000
+                    if mode in ('satrelu',):value=max(0,min(hi,value))
+                    elif mode=='nosat':pass
+                    else:value=max(lo,min(hi,value))
+                    return value&((1<<width)-1)
+                expected=[]
+                for x,y,c in vectors:
+                    packed=(cvt(x)<<width)|cvt(y)
+                    if width<16:packed|=(c&((1<<(32-2*width))-1))<<(2*width)
+                    expected.append(packed&0xffffffff)
+                if gpu!=tuple(expected):
+                    mismatch=next(i for i,(got,want) in enumerate(zip(gpu,expected)) if got!=want)
+                    raise AssertionError((family,'GPU/reference mismatch',mismatch,vectors[mismatch],hex(gpu[mismatch]),hex(expected[mismatch])))
+            if family=='f2ip':
+                def cvt8(bits):
+                    value=struct.unpack('<f',bits.to_bytes(4,'little'))[0]
+                    if math.isnan(value):return 0
+                    if value==float('inf'):rounded=127
+                    elif value==float('-inf'):rounded=-128
+                    else:rounded=round(value)
+                    return max(-128,min(127,rounded))&0xff
+                expected=tuple(((c&0xffff)<<16)|(cvt8(x)<<8)|cvt8(y)
+                               for x,y,c in vectors)
+                if gpu!=expected:
                     mismatch=next(i for i,(got,want) in enumerate(zip(gpu,expected)) if got!=want)
                     raise AssertionError((family,'GPU/reference mismatch',mismatch,vectors[mismatch],hex(gpu[mismatch]),hex(expected[mismatch])))
             for index,(g,e) in enumerate(zip(gpu,actual)):

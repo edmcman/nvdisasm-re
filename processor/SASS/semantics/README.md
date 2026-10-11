@@ -133,6 +133,15 @@ true selects min; false selects max. .NAN, .XORSIGN and predicate-result .IS_A f
 compare FSEL and ordinary FMNMX (including FMNMX.FTZ) bits exactly on SM89.
 FSEL.FTZ and other architectures have emulator coverage.
 
+FMNMX3 is native on SM100/SM103 for PT/!PT, `noftz`/`nonan` RRR, RUR, and
+immediate-B forms. It applies two ordered comparisons: PT selects the three-way minimum,
+and !PT selects the maximum. Ties and unordered comparisons
+retain the earlier input at each step, matching CuLifter's formula. FTZ/NAN
+selectors, dynamic predicate registers, and CX forms remain opaque. Independent exact/readable emulator
+fixtures cover both predicate directions, ties, signed zeros, infinities, and
+NaNs. No compatible GPU is available, so its edge behavior follows the
+CuLifter formula rather than hardware measurements.
+
 ## Exact and readable floating point
 
 Every architecture has two languages. `SASS:LE:64:smXX` (exact) models hardware
@@ -181,13 +190,21 @@ comparison logic and combines complementary results with AND/OR/XOR; MIN/MAX
 selectors retain opaque fallbacks. Dynamic constant operands still require an
 explicit operand provider. The same Ghidra underflow limitation applies to FP64.
 
-HADD2/HFMA2 implement packed FP16 under RN, including per-lane absolute/negate,
+HADD2/HFMA2/HMUL2 implement packed FP16 under RN, including per-lane absolute/negate,
 H1_H0/H0_H0/H1_H1 selection, saturation, register/uniform inputs, separate lane
 immediates, and constant-bank values. HFMA2 uses binary128 for an exact finite
 half product and sum before a single rounding to half; HADD2 widens to fp64.
 Both results are captured before writing an overlapping destination. An
 unmodified H0_H0 source reads only its low two bytes in optimized p-code.
-FP32/BF16/E6M9 formats, FP32 inputs, H0_NH1, FTZ/FMZ, and RELU remain opaque.
+HMUL2 multiplies each selected pair after widening to fp32, which holds the
+exact finite binary16 product before one narrowing conversion. F16_V2 supports
+FMZ, FTZ, and no-flush modes, with SAT and no-SAT variants. FTZ flushes
+subnormal inputs and results while preserving their signs. On SM89, FMZ
+produces canonical +0 when either selected input has an all-zero exponent,
+including zero-times-infinity; this case is checked against the GPU. SAT clamps
+the result to [0, 1]. Register, uniform, immediate, and
+constant-bank sources are covered where the machine description provides them.
+FP32/BF16/E6M9 formats, FP32 inputs, H0_NH1, and RELU remain opaque.
 The minimum-subnormal Ghidra emulator limitation also applies to FP16.
 
 The `HFMA2.MMA Rd, -RZ, RZ, imm_hi, imm_lo` form is a native constant move
@@ -203,6 +220,26 @@ Conversion results for NaN, infinity, or out-of-range inputs and FMZ/NTZ modes
 whose conventions are unconfirmed raise `UnsupportedSemantics`. NaN results
 are canonical quiet NaNs; GPU payload selection is not verified. PRMT implements
 IDX and the six specialized modes.
+
+F2IP has a native path for packed F32-to-S8/U8 conversion when the instruction
+uses round-to-nearest-even, NTZ, no RELU, and direct 32-bit register inputs.
+It rounds and saturates each input independently; NaNs become zero and infinities
+saturate by sign. The first input occupies bits 8–15, the second bits 0–7, and
+the low 16 bits of C occupy bits 16–31. Other destination/source formats,
+rounding selectors, modifiers, and CX sources retain opaque fallbacks. The
+SM89 GPU oracle verifies the packed byte order and edge behavior.
+
+I2IP has a native path for S32 inputs packed to signed or unsigned 2-, 4-,
+8-, and 16-bit lanes. SAT clamps each input to its destination range;
+SATRELU clamps signed inputs to zero through the signed maximum. The no-SAT
+form keeps the low destination bits. For 2- and 4-bit packing, the supported
+`.28`/`.24` extraction selectors place the two converted inputs in the high
+and low lane, respectively; the remaining high bits come from C. The 8-bit
+and 16-bit forms use H0 extraction, with C supplying the unused upper bits for
+the 8-bit form. The SM89 GPU oracle compares all eight signed/unsigned widths,
+plus patched no-SAT and SATRELU selector cases, against both an independent
+reference and Ghidra p-code. Unsupported selector combinations, source shapes,
+and CX forms retain opaque fallbacks.
 
 F2I has a native p-code path for the hardware-verified F32-to-S32
 `.TRUNC.NTZ` form. It truncates finite values toward zero, maps NaNs to zero,

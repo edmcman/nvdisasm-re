@@ -4980,5 +4980,388 @@
         "total": 12856
       }
     }
+  },
+  "culifter_hmul2": {
+    "date": "2026-10-11",
+    "upstream": "sass/operations.py::emit_HMUL2; CuLifter packed half multiply helper",
+    "scope": {
+      "implemented": "F16_V2 packed half multiply with per-lane input selection/modifiers, no-flush/FTZ/FMZ, SAT/no-SAT, and register/uniform/immediate/constant-bank sources where available across SM75-SM120",
+      "fmz": "SM89 hardware returns canonical +0 if either selected input has zero exponent, including zero-times-infinity",
+      "ftz": "Flush subnormal inputs and results while preserving sign",
+      "fallbacks": "FP32/BF16/E6M9 formats, FP32 inputs, H0_NH1, RELU, and unsupported CX forms remain opaque",
+      "hardware_scope": "GPU verified on SM89 only; other architectures are emulator-tested"
+    },
+    "gpu_oracle": {
+      "command": "python3 tests/gpu_semantics.py --require-gpu --output /tmp/hmul2-fmz-verification",
+      "architecture": "SM89",
+      "whole_kernel_fixtures_total": 73,
+      "whole_kernel_fixtures_passed": 73,
+      "hmul2_families": {
+        "hmul2": 128,
+        "hmul2_sat": 128,
+        "hmul2_ftz": 128,
+        "hmul2_fmz": 128,
+        "hmul2_lanes": 128
+      },
+      "comparisons": "128 output vectors per fixture, comparing GPU execution, Ghidra P-code, and independent references",
+      "result": "All target HMUL2 forms were confirmed present and executed; all comparisons passed"
+    },
+    "emulator_suite": {
+      "command": "Filtered HMUL2 fixtures from tests/test_semantics.py cases, executed with tests/ghidra_emulate.py",
+      "result": "Focused exact selector/value coverage passed 38/38 on each of SM75, SM80, SM86, SM89, SM90, SM100, SM101, SM103, and SM120"
+    }
+  },
+  "culifter_fmnmx3": {
+    "date": "2026-10-11",
+    "upstream": "third_party/culifter/lift/lifter.py::lift_fmnmx3",
+    "scope": {
+      "implemented": "Three-input F32 min/max for PT/!PT with RRR, RUR, and immediate-B classes on SM100 and SM103",
+      "formula": "Two ordered comparisons. Ties and unordered comparisons retain the earlier input at each selection step, matching CuLifter.",
+      "native_selectors": "Pp=PT with optional inversion; ftz=noftz; nan=nonan",
+      "fallbacks": "Dynamic predicate registers, FTZ/NAN selector variants, and CX forms remain opaque",
+      "hardware_scope": "No compatible GPU is available; edge behavior follows the CuLifter formula and is emulator-verified only"
+    },
+    "language_build": {
+      "command": "XDG_CONFIG_HOME=/tmp/ghidra-config JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64 python3 -m sass.build_languages SM100 SM103",
+      "architectures": [
+        "SM100",
+        "SM103"
+      ],
+      "modes": [
+        "exact",
+        "readable"
+      ],
+      "result": "All four affected language variants compiled below the 16 MiB decompressed SLA limit"
+    },
+    "emulator_suite": {
+      "command": "XDG_CONFIG_HOME=/tmp/ghidra-config JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64 python3 tests/test_semantics.py SMXX exact|readable",
+      "results": {
+        "SM100": {
+          "exact": {
+            "passed": 15805,
+            "total": 15805
+          },
+          "readable": {
+            "passed": 10951,
+            "total": 10951
+          }
+        },
+        "SM103": {
+          "exact": {
+            "passed": 15805,
+            "total": 15805
+          },
+          "readable": {
+            "passed": 10951,
+            "total": 10951
+          }
+        }
+      },
+      "focused_cases_per_architecture_and_mode": 48,
+      "vectors": "Eight values including finite values, signed zeros, infinities and NaN; literal PT and !PT; RRR, RUR, and immediate-B source classes",
+      "unsupported_selector_check": "Dynamic P0 is confirmed to use the opaque fallback."
+    },
+    "ptx_compiler_probe": {
+      "source": "tests/ptx/fmnmx3/min_chain.ptx",
+      "command": "/usr/local/cuda-13.0/bin/ptxas -arch=sm_100 -o /tmp/fmnmx3_probe.cubin tests/ptx/fmnmx3/min_chain.ptx",
+      "disassembly": "/usr/local/cuda-13.0/bin/nvdisasm /tmp/fmnmx3_probe.cubin",
+      "observed": "Two chained min.f32 operations compile to FMNMX3 ... PT on SM100",
+      "limitation": "Compiler lowering evidence only; it does not establish hardware runtime semantics"
+    }
+  },
+  "culifter_f2ip": {
+    "date": "2026-10-11",
+    "upstream": "third_party/culifter/lift/lifter.py::lift_f2ip",
+    "scope": {
+      "implemented": "Packed F32-to-S8/U8 conversion for direct 32-bit register sources, RN-even/NTZ and no RELU",
+      "behavior": "Round each float to nearest-even, saturate to destination signedness, map NaN to zero, pack A into bits 8\u201315, B into bits 0\u20137, and C[15:0] into bits 16\u201331",
+      "fallbacks": "Other formats, rounding selectors, RELU, source modifiers and CX forms remain opaque",
+      "hardware_scope": "GPU verified on SM89 only; all nine architectures are emulator-tested"
+    },
+    "language_build": {
+      "command": "XDG_CONFIG_HOME=/tmp/ghidra-config JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64 python3 -m sass.build_languages",
+      "architectures": [
+        "SM75",
+        "SM80",
+        "SM86",
+        "SM89",
+        "SM90",
+        "SM100",
+        "SM101",
+        "SM103",
+        "SM120"
+      ],
+      "modes": [
+        "exact",
+        "readable"
+      ],
+      "result": "All eighteen language variants compiled"
+    },
+    "emulator_suite": {
+      "command": "XDG_CONFIG_HOME=/tmp/ghidra-config JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64 python3 tests/test_semantics.py ARCH exact|readable",
+      "results": {
+        "SM75": {
+          "exact": {
+            "passed": 14632,
+            "total": 14632
+          },
+          "readable": {
+            "passed": 9733,
+            "total": 9733
+          }
+        },
+        "SM80": {
+          "exact": {
+            "passed": 14747,
+            "total": 14747
+          },
+          "readable": {
+            "passed": 9847,
+            "total": 9847
+          }
+        },
+        "SM86": {
+          "exact": {
+            "passed": 15044,
+            "total": 15044
+          },
+          "readable": {
+            "passed": 10143,
+            "total": 10143
+          }
+        },
+        "SM89": {
+          "exact": {
+            "passed": 15044,
+            "total": 15044
+          },
+          "readable": {
+            "passed": 10143,
+            "total": 10143
+          }
+        },
+        "SM90": {
+          "exact": {
+            "passed": 18411,
+            "total": 18411
+          },
+          "readable": {
+            "passed": 13530,
+            "total": 13530
+          }
+        },
+        "SM100": {
+          "exact": {
+            "passed": 16016,
+            "total": 16016
+          },
+          "readable": {
+            "passed": 11162,
+            "total": 11162
+          }
+        },
+        "SM101": {
+          "exact": {
+            "passed": 14012,
+            "total": 14012
+          },
+          "readable": {
+            "passed": 9158,
+            "total": 9158
+          }
+        },
+        "SM103": {
+          "exact": {
+            "passed": 16016,
+            "total": 16016
+          },
+          "readable": {
+            "passed": 11162,
+            "total": 11162
+          }
+        },
+        "SM120": {
+          "exact": {
+            "passed": 14623,
+            "total": 14623
+          },
+          "readable": {
+            "passed": 9769,
+            "total": 9769
+          }
+        }
+      }
+    },
+    "gpu_oracle": {
+      "command": "python3 tests/gpu_semantics.py --require-gpu --output /tmp/f2ip-gpu-oracle",
+      "architecture": "SM89",
+      "whole_kernel_fixtures_total": 74,
+      "whole_kernel_fixtures_passed": 74,
+      "f2ip_comparisons": 128,
+      "result": "F2IP executed and all GPU, Ghidra p-code, and independent-reference comparisons passed"
+    },
+    "ptx_compiler_probe": {
+      "source": "tests/ptx/f2ip/pack_s8.ptx",
+      "command": "/usr/local/cuda-13.0/bin/ptxas -arch=sm_89 -o /tmp/f2ip_probe.cubin tests/ptx/f2ip/pack_s8.ptx",
+      "disassembly": "/usr/local/cuda-13.0/bin/nvdisasm /tmp/f2ip_probe.cubin",
+      "observed": "cvt.rni.s32.f32 pairs followed by cvt.pack.sat.s8.s32 compile to F2IP.S8.F32.NTZ",
+      "limitation": "Compiler lowering evidence only; runtime semantics are established by the separate GPU oracle"
+    }
+  },
+  "culifter_i2ip": {
+    "implementation": "sass/operations.py::emit_I2IP",
+    "scope": "Native guarded S32 to signed/unsigned 2-, 4-, 8-, and 16-bit packing; SAT, SATRELU and no-SAT forms exercised where available; unsupported shapes/selectors retain opaque fallbacks.",
+    "semantic_tests": {
+      "command": "XDG_CONFIG_HOME=/tmp/ghidra-config JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64 python3 tests/test_semantics.py SMxx exact|readable",
+      "architectures": {
+        "SM75": {
+          "exact": {
+            "passed": 14889,
+            "total": 14889
+          },
+          "readable": {
+            "passed": 9990,
+            "total": 9990
+          }
+        },
+        "SM80": {
+          "exact": {
+            "passed": 15004,
+            "total": 15004
+          },
+          "readable": {
+            "passed": 10104,
+            "total": 10104
+          }
+        },
+        "SM86": {
+          "exact": {
+            "passed": 15685,
+            "total": 15685
+          },
+          "readable": {
+            "passed": 10784,
+            "total": 10784
+          }
+        },
+        "SM89": {
+          "exact": {
+            "passed": 15685,
+            "total": 15685
+          },
+          "readable": {
+            "passed": 10784,
+            "total": 10784
+          }
+        },
+        "SM90": {
+          "exact": {
+            "passed": 19052,
+            "total": 19052
+          },
+          "readable": {
+            "passed": 14171,
+            "total": 14171
+          }
+        },
+        "SM100": {
+          "exact": {
+            "passed": 16497,
+            "total": 16497
+          },
+          "readable": {
+            "passed": 11643,
+            "total": 11643
+          }
+        },
+        "SM101": {
+          "exact": {
+            "passed": 14493,
+            "total": 14493
+          },
+          "readable": {
+            "passed": 9639,
+            "total": 9639
+          }
+        },
+        "SM103": {
+          "exact": {
+            "passed": 16497,
+            "total": 16497
+          },
+          "readable": {
+            "passed": 11643,
+            "total": 11643
+          }
+        },
+        "SM120": {
+          "exact": {
+            "passed": 15104,
+            "total": 15104
+          },
+          "readable": {
+            "passed": 10250,
+            "total": 10250
+          }
+        }
+      }
+    },
+    "dataflow_tests": [
+      {
+        "architecture": "SM89",
+        "mode": "exact",
+        "passed": 12714,
+        "total": 12714
+      },
+      {
+        "architecture": "SM89",
+        "mode": "readable",
+        "passed": 12714,
+        "total": 12714
+      },
+      {
+        "architecture": "SM100",
+        "mode": "exact",
+        "passed": 12856,
+        "total": 12856
+      }
+    ],
+    "gpu_oracle": {
+      "command": "python3 tests/gpu_semantics.py --require-gpu --output /tmp/i2ip-gpu-oracle-checked-in",
+      "architecture": "SM89",
+      "whole_kernel_fixtures_total": 85,
+      "whole_kernel_fixtures_passed": 85,
+      "i2ip_fixtures": [
+        "i2ip_s2",
+        "i2ip_u2",
+        "i2ip_s4",
+        "i2ip_u4",
+        "i2ip_s8",
+        "i2ip_u8",
+        "i2ip_s16",
+        "i2ip_u16",
+        "i2ip_s8_nosat",
+        "i2ip_s8_satrelu",
+        "i2ip_s4_satrelu"
+      ],
+      "comparisons_per_fixture": 128,
+      "result": "All I2IP GPU, Ghidra p-code, and independent-reference comparisons passed, including patched SATRELU selector cases.",
+      "language_source": "Regenerated processor/SASS/data/languages; exact SM89 language loaded through sass.ldefs"
+    },
+    "ptx_compiler_probe": {
+      "sources": [
+        "tests/ptx/i2ip/pack_s4_s2.ptx",
+        "tests/ptx/i2ip/pack_s8_s16.ptx"
+      ],
+      "command": "/usr/local/cuda-13.0/bin/ptxas -arch=sm_89",
+      "ptxas_version": "CUDA 13.0.88",
+      "ptxas_sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+      "observed": "PTX cvt.pack.sat S2, S4, S8, and S16 forms compile to corresponding I2IP forms on SM89; confirmed by nvdisasm.",
+      "limitation": "Compiler lowering only; runtime behavior is established by the separate GPU oracle."
+    },
+    "language_build": {
+      "command": "XDG_CONFIG_HOME=/tmp/ghidra-config JAVA_HOME=/usr/lib/jvm/temurin-21-jdk-amd64 python3 -m sass.build_languages",
+      "result": "All nine architectures compiled in exact and readable modes; generated language and coverage artifacts were refreshed."
+    }
   }
 }

@@ -1,0 +1,22 @@
+.version 8.7
+.target sm_89
+.address_size 64
+.visible .entry i2ip_byte_half_probe(
+    .param .u64 in_ptr,
+    .param .u64 out_ptr
+)
+{
+    .reg .b64 %rd<3>;
+    .reg .s32 %r<8>;
+    ld.param.u64 %rd1, [in_ptr];
+    ld.param.u64 %rd2, [out_ptr];
+    ld.global.s32 %r1, [%rd1];
+    ld.global.s32 %r2, [%rd1+4];
+    ld.global.s32 %r3, [%rd1+8];
+    ld.global.b32 %r4, [%rd1+12];
+    cvt.pack.sat.s8.s32.b32 %r5, %r1, %r2, %r4;
+    st.global.b32 [%rd2], %r5;
+    cvt.pack.sat.s16.s32 %r6, %r2, %r3;
+    st.global.b32 [%rd2+4], %r6;
+    ret;
+}

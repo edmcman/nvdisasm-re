@@ -12,7 +12,7 @@ ALIASES = dict(UIADD3='IADD3', UIMAD='IMAD', USHF='SHF', ULEA='LEA',
                UISETP='ISETP', ULOP3='LOP3', USEL='SEL', UMOV='MOV', VIADD='IADD',
                **{'HFMA2.MMA':'HFMA2_MMA'})
 OPERATION_FAMILIES.update(ALIASES)
-OPERATION_FAMILIES.update(('IADD','FSEL','FMNMX','DADD','DMUL','DFMA','DSETP','HADD2','HFMA2','BREV','POPC','FLO','SGXT','IDP','VIMNMX','VIMNMX3','VIADDMNMX','VABSDIFF4'))
+OPERATION_FAMILIES.update(('IADD','FSEL','FMNMX','FMNMX3','DADD','DMUL','DFMA','DSETP','F2IP','I2IP','HADD2','HFMA2','HMUL2','BREV','POPC','FLO','SGXT','IDP','VIMNMX','VIMNMX3','VIADDMNMX','VABSDIFF4'))
 
 PRIMITIVES = set('FADD FMUL FFMA FSETP F2I I2F I2FP MUFU PRMT SHFL VOTE BAR BSSY BSYNC'.split())
 
@@ -854,6 +854,52 @@ def emit_HADD2(b,check=False):return half_arithmetic(b,False,check)
 def emit_HFMA2(b,check=False):return half_arithmetic(b,True,check)
 
 
+def emit_HMUL2(b,check=False):
+    names=operands(b,'Ra/Sa','Rb/Sb/URb')
+    if check:
+        return (all(names) and not any(b.k.operand_types[n].type=='CX' for n in names) and
+                output(b) is not None and output(b).size==4 and
+                all((b.values[n].size in (2,8) and b.values[n+'1'].size==b.values[n].size)
+                    if n+'1' in b.values else b.values[n].size==4 for n in names))
+    require(b,'ofmt',['F16_V2'])
+    fmz_modes=enum_cases(b,'fmz',['nofmz','nofmz_hfma2','FMZ','FTZ'])
+    sat_modes=enum_cases(b,'sat',['nosat','SAT'])
+    a,c=[half_inputs(b,n,s) for n,s in zip(names,('iswzA','iswzB'))]
+
+    def flush_input(value,label):
+        if fpops.readable(b) or label.startswith('nofmz'):return value
+        exponent=f'(({value}) & 0x7c00) != 0'
+        if label=='FMZ':return f'({value}) * zext({exponent})'
+        return f'(({value}) & 0x8000) | ((({value}) & 0x7fff) * zext({exponent}))'
+
+    def flush_result():
+        return 'r = (r & 0x8000) | ((r & 0x7fff) * zext((r & 0x7c00) != 0));'
+
+    results=[]
+    for lane in (0,1):
+        av=b.select('fmz',{value:flush_input(a[lane],label) for label,value in fmz_modes.items()},2)
+        cv=b.select('fmz',{value:flush_input(c[lane],label) for label,value in fmz_modes.items()},2)
+        core=fpops.arithmetic('mul',[av,cv],2,exact=not fpops.readable(b))
+        cases={}
+        for fmz_label,fmz_value in fmz_modes.items():
+            for sat_label,sat_value in sat_modes.items():
+                code=core+' '
+                if sat_label=='SAT':code+=fpops.saturate(2)+' '
+                if not fpops.readable(b) and fmz_label in ('FMZ','FTZ'):
+                    code+=flush_result()+' '
+                if not fpops.readable(b) and fmz_label=='FMZ':
+                    # HMUL2.FMZ turns any zero/subnormal source into a
+                    # canonical +0 result, including 0*Inf (which would be
+                    # NaN under ordinary IEEE multiplication).
+                    zero_source=f'((({a[lane]}) & 0x7c00) == 0) || ((({c[lane]}) & 0x7c00) == 0)'
+                    code+=f'if ({zero_source}) goto <fmz_zero{lane}>; goto <fmz_done{lane}>; <fmz_zero{lane}> r = 0; <fmz_done{lane}> '
+                key=tuple(v for name,v in (('fmz',fmz_value),('sat',sat_value)) if name in b.values)
+                cases[key]=code+'export r;'
+        selected=b.select_code(tuple(n for n in ('fmz','sat') if n in b.values),cases)
+        results.append(b.local(2,selected).symbol)
+    b.body.append(f'{output(b).symbol} = zext({results[0]}) | (zext({results[1]}) << 16);')
+
+
 def emit_HFMA2_MMA(b,check=False):
     if check:return all(n in b.values for n in ('Ra','Rb','Sc','Sc1')) and output(b) is not None and output(b).size==4
     # Establish only the constant move used by the compiler. Other MMA forms
@@ -942,6 +988,30 @@ def emit_FMNMX(b,check=False):
                f'{output(b).symbol} = {result.symbol};']
 
 
+def emit_FMNMX3(b,check=False):
+    """Three-input scalar float min/max selected by the predicate value."""
+    names=float_shape(b,'Ra/Sa','Rb/Sb/URb','Rc/Sc/URc')
+    p=operands(b,'Pp')[0]
+    if check:return bool(names and p) and set(b.outputs)=={'Rd'}
+    # CuLifter's implementation uses ordered comparisons and a two-step
+    # select. Keep FTZ/NAN selectors opaque until their behavior is verified.
+    require(b,'ftz',['noftz'])
+    require(b,'nan',['nonan'])
+    require(b,'Pp',['PT'])
+    _,_,(a,c,d)=float_inputs(b,names)
+    pred=b.flag(p)
+    first=b.local(4,a)
+    second=b.local(4,'0')
+    third=b.local(4,'0')
+    choose_c=f'(({pred} != 0 && {first.symbol} f> {c}) || ({pred} == 0 && {first.symbol} f< {c}))'
+    choose_d=f'(({pred} != 0 && {second.symbol} f> {d}) || ({pred} == 0 && {second.symbol} f< {d}))'
+    b.body += [f'if {choose_c} goto <take_c>; {second.symbol} = {first.symbol}; goto <first_done>;',
+               '<take_c>',f'{second.symbol} = {c};','<first_done>',
+               f'if {choose_d} goto <take_d>; {third.symbol} = {second.symbol}; goto <second_done>;',
+               '<take_d>',f'{third.symbol} = {d};','<second_done>',
+               f'{output(b).symbol} = {third.symbol};']
+
+
 def emit_FSETP(b,check=False):
     return float_compare(b,4,check)
 
@@ -1000,6 +1070,146 @@ def emit_F2I(b,check=False):
         '<positive_limit>',f'{result.symbol} = 0x7fffffff;',
         '<done>',f'{dst.symbol} = {result.symbol};'
     ]
+
+
+def emit_F2IP(b,check=False):
+    """Pack two RN-even, saturating F32-to-8-bit conversions plus C[15:0]."""
+    a,bb,c=operands(b,'Ra','Rb/URb/Sb','Rc/Sc/URc')
+    if check:
+        return (all((a,bb,c)) and output(b) is not None and output(b).size==4 and
+                all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (a,bb,c)) and
+                all(b.k.operand_types[n].type!='CX' for n in (a,bb,c)))
+    formats=enum_cases(b,'dstfmt',['S8','U8'])
+    require(b,'srcfmt',['F32']);require(b,'rnd',['ROUND'])
+    require(b,'ntz',['NTZ']);require(b,'relu',['norelu'])
+    av,bv,cv=(b.flag(n) for n in (a,bb,c))
+
+    def convert(src,prefix,signed):
+        exp=f'{prefix}_exp';frac=f'{prefix}_frac';sig=f'{prefix}_sig'
+        sign=f'{prefix}_sign';mag=f'{prefix}_mag';e=f'{prefix}_e'
+        shift=f'{prefix}_shift';q=f'{prefix}_q';rem=f'{prefix}_rem'
+        mask=f'{prefix}_mask';half=f'{prefix}_half';val=f'{prefix}_val';byte=f'{prefix}_byte'
+        lines=[f'local {sign}:1 = ({src} >> 31) != 0;',
+               f'local {exp}:4 = ({src} >> 23) & 0xff;',
+               f'local {frac}:4 = {src} & 0x7fffff;',
+               f'local {sig}:4 = {frac} | 0x800000;',
+               f'local {mag}:4 = 0;',
+               f'if ({exp} == 0xff) goto <{prefix}_special>;',
+               f'if ({exp} == 0) goto <{prefix}_done>;',
+               f'local {e}:4 = {exp} - 127:4;',
+               f'if ({e} s< -1:4) goto <{prefix}_done>;',
+               f'if ({e} == -1:4) goto <{prefix}_halfway>;',
+               f'if ({e} s>= {7 if signed else 8}:4) goto <{prefix}_overflow>;',
+               f'local {shift}:4 = 23:4 - {e};',
+               f'local {q}:4 = {sig} >> {shift};',
+               f'local {mask}:4 = (1:4 << {shift}) - 1:4;',
+               f'local {rem}:4 = {sig} & {mask};',
+               f'local {half}:4 = 1:4 << ({shift} - 1:4);',
+               f'if ({rem} > {half}) goto <{prefix}_increment>;',
+               f'if ({rem} < {half}) goto <{prefix}_rounded>;',
+               f'if (({q} & 1) == 0) goto <{prefix}_rounded>;',
+               f'<{prefix}_increment>',f'{q} = {q} + 1:4;',
+               f'<{prefix}_rounded>',f'{mag} = {q};',f'goto <{prefix}_done>;',
+               f'<{prefix}_halfway>',
+               f'if ({sig} <= 0x800000) goto <{prefix}_done>;',
+               f'{mag} = 1;',f'goto <{prefix}_done>;',
+               f'<{prefix}_special>',
+               f'if ({frac} != 0) goto <{prefix}_done>;',
+               f'<{prefix}_overflow>',
+               f'{mag} = {("128" if signed else "255")};',
+               f'<{prefix}_done>']
+        if signed:
+            lines += [f'local {val}:4 = {mag};',
+                      f'if ({sign} == 0) goto <{prefix}_positive>;',
+                      f'{val} = 0:4 - {mag}; goto <{prefix}_packed>;',
+                      f'<{prefix}_positive>',
+                      f'if ({mag} <= 127) goto <{prefix}_packed>;',
+                      f'{val} = 127;',f'<{prefix}_packed>',
+                      f'local {byte}:4 = {val} & 0xff;']
+        else:
+            lines += [f'local {byte}:4 = 0;',
+                      f'if ({sign} != 0) goto <{prefix}_unsigned_done>;',
+                      f'{byte} = {mag};',
+                      f'if ({byte} <= 255) goto <{prefix}_unsigned_done>;',
+                      f'{byte} = 255;',f'<{prefix}_unsigned_done>']
+        return ' '.join(lines),byte
+
+    cases={}
+    for label,value in formats.items():
+        signed=label=='S8'
+        ca,ba=convert(av,'fa',signed);cb,bbbyte=convert(bv,'fb',signed)
+        code=(f'{ca} {cb} local acc:4 = {cv}; '
+              f'local result:4 = ((acc & 0xffff) << 16) | ({ba} << 8) | {bbbyte}; '
+              'export result;')
+        cases[(value,)]=code
+    result=b.select_code(('dstfmt',),cases)
+    b.body.append(f'{output(b).symbol} = {result};')
+
+
+def emit_I2IP(b,check=False):
+    """Saturating integer conversion and packing used by PTX cvt.pack."""
+    a,bb,c=operands(b,'Ra','Rb/URb/Sb','Rc')
+    dst=output(b)
+    if check:
+        ok=(all((a,bb,c)) and dst is not None and dst.size==4 and
+            all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive'
+                for n in (a,bb,c)) and
+            all(b.k.operand_types[n].type!='CX' for n in (a,bb,c)))
+        if not ok:b.unsupported_reason='I2IP requires three 32-bit non-CX values'
+        return ok
+
+    require(b,'srcfmt',['S32'])
+    formats=enum_cases(b,'dstfmt',['S2','U2','S4','U4','S8','U8','S16','U16'])
+    extract_name=next((n for n,a in b.k.operand_types.items()
+                       if a.type in ('EXTRACT','HSEL','ONLY24','ONLY28')),None)
+    sat_name=next((n for n,a in b.k.operand_types.items()
+                   if a.type in ('SATONLY','SATRELU','SATRELU_RELU')),None)
+    extract_values=enum_cases(b,extract_name,['H0','24','28']) if extract_name else {}
+    sat_atom=b.k.operand_types.get(sat_name) if sat_name else None
+    sat_enum=b.g.arch.enums.get(sat_atom.type,{}) if sat_atom else {}
+    sat_labels=[name for name in ('nosatrelu','nosatrelu_relu','SAT','SATRELU','RELU') if name in sat_enum]
+    sat_modes=enum_cases(b,sat_name,sat_labels) if sat_name else {}
+    av,bv,cv=(b.flag(n) for n in (a,bb,c))
+    cases={}
+    selector_names=('dstfmt',extract_name,sat_name)
+    for fmt,fv in formats.items():
+        signed=fmt.startswith('S');width=int(fmt[1:]);mask=(1<<width)-1
+        for extract,xv in extract_values.items():
+            # The ordinary byte/halfword classes expose H0/H1 extraction;
+            # sub-byte pack classes encode the required cursor lane as .24/.28.
+            if width<=4 and extract!=str(32-2*width):continue
+            if width>=8 and extract!='H0':continue
+            for mode,mv in sat_modes.items():
+                do_sat=mode in ('SAT','SATRELU')
+                do_relu=mode in ('RELU','SATRELU')
+                if not signed and do_relu:continue
+                lo=-(1<<(width-1)) if signed else 0
+                hi=(1<<(width-1))-1 if signed else mask
+
+                def convert(src,tag):
+                    value=f'{tag}_value';packed=f'{tag}_packed'
+                    code=f'local {value}:4 = {src}; '
+                    if do_sat:
+                        code+=(f'if ({value} s< {lo}) goto <{tag}_lo>; '
+                               f'if ({value} s> {hi}) goto <{tag}_hi>; '
+                               f'goto <{tag}_done>; <{tag}_lo> {value} = {lo}; '
+                               f'goto <{tag}_done>; <{tag}_hi> {value} = {hi}; <{tag}_done> ')
+                    if do_relu:
+                        code+=(f'if ({value} s< 0) goto <{tag}_relu>; '
+                               f'goto <{tag}_relu_done>; <{tag}_relu> {value} = 0; '
+                               f'<{tag}_relu_done> ')
+                    code+=f'local {packed}:4 = {value} & {mask}; '
+                    return code,packed
+
+                ca,pa=convert(av,'i2ip_a');cb,pb=convert(bv,'i2ip_b')
+                tail=(f' | (({cv}) & 0x{(1<<(32-2*width))-1:x}) << {2*width}'
+                      if width<16 else f' | (({cv}) & 0)')
+                code=(ca+cb+f'local i2ip_result:4 = (zext({pa}) << {width}) | '
+                      f'zext({pb}){tail}; export i2ip_result;')
+                cases[(fv,xv,mv)]=code
+    b.allow_combinations(selector_names,cases.keys())
+    table=b.select_code(selector_names,cases)
+    b.body.append(f'{dst.symbol} = {table};')
 
 
 def emit_DSETP(b,check=False):

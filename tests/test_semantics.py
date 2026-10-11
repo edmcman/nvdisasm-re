@@ -193,7 +193,10 @@ def cases(sm,fp='exact'):
     vimnmx_words += [rng.getrandbits(32) for _ in range(8)]
     for klass in (k for k in arch.classes if k.mnemonic=='VIMNMX' and not k.alternate):
         srcb=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
-        if not srcb or any(klass.operand_types[n].type=='CX' for n in ('Ra',srcb)):continue
+        # CX composite operands are address descriptors, not direct URb/Sb
+        # values. Their semantics need an explicit provider and are covered by
+        # opaque fallback tests rather than this direct-value arithmetic test.
+        if not srcb or any(atom.type=='CX' for atom in klass.operand_types.values()):continue
         fmts=[('S32',32,True),('U32',32,False),('S16x2',16,True),('U16x2',16,False),('S8x4',8,True),('U8x4',8,False)]
         for fmt,width,signed in fmts:
             if fmt not in arch.enums[klass.operand_types['fmt'].type]:continue
@@ -202,15 +205,21 @@ def cases(sm,fp='exact'):
                     for j,a in enumerate(vimnmx_words):
                         bval=vimnmx_words[(j+3)%len(vimnmx_words)];rd=2 if j%2 else 8
                         fields={'Rd':rd,'Ra':4,'fmt':fmt,'relu':relu,'Pp':'PT' if is_min else 'P0'}
-                        if 'Pu' in klass.operand_types:fields['Pu']='PT'
-                        if 'Pv' in klass.operand_types:fields['Pv']='PT'
-                        regs={'R4':a}
-                        if srcb=='Sb':fields[srcb]=bval
+                        for pred_name,pred_value in (('Pu','PT'),('Pv','PT')):
+                            if pred_name in klass.operand_types:
+                                pred_enum=arch.enums[klass.operand_types[pred_name].type]
+                                fields[pred_name]=pred_value if pred_value in pred_enum else next(iter(pred_enum))
+                        regs={'R4':a};memory=[]
+                        btype=klass.operand_types[srcb].type
+                        if btype=='C':
+                            fields.update(Sb_bank=0,Sb_addr=0)
+                            memory=[dict(space='cbank',address=0,hex=bval.to_bytes(4,'little').hex())]
+                        elif btype in ('SImm','UImm'):fields[srcb]=bval
                         else:
                             fields[srcb]=10;regs[('UR' if srcb=='URb' else 'R')+'10']=bval
                         if not is_min:regs['P0']=0
                         add(klass.name,fields,regs,
-                            {f'R{rd}':vimnmx_ref(a,bval,width,signed,is_min,relu=='RELU'),'__native':True})
+                            {f'R{rd}':vimnmx_ref(a,bval,width,signed,is_min,relu=='RELU'),'__native':True},memory=memory)
     # CuLifter's VIADDMNMX adds modulo each lane width before min/max.
     def viaddmnmx_ref(a,b,c,width,signed,is_min,relu=False):
         mask=(1<<width)-1;result=0
@@ -227,7 +236,7 @@ def cases(sm,fp='exact'):
     for klass in (k for k in arch.classes if k.mnemonic=='VIADDMNMX' and not k.alternate):
         srcb=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
         srcc=next((n for n in ('Rc','URc','Sc') if n in klass.operand_types),None)
-        if not srcb or not srcc or any(klass.operand_types[n].type=='CX' for n in ('Ra',srcb,srcc)):continue
+        if not srcb or not srcc or any(atom.type=='CX' for atom in klass.operand_types.values()):continue
         for fmt,width,signed in (('S32',32,True),('U32',32,False),('S16x2',16,True),('U16x2',16,False)):
             if fmt not in arch.enums[klass.operand_types['fmt'].type]:continue
             for relu in (('norelu','RELU') if signed else ('norelu',)):
@@ -238,17 +247,25 @@ def cases(sm,fp='exact'):
                         effective_b=(-bval)&0xffffffff if negate else bval
                         rd=2 if j%2 else 8
                         fields={'Rd':rd,'Ra':4,'fmt':fmt,'relu':relu,'Pp':'PT' if is_min else 'P0'}
-                        regs={'R4':a}
-                        if srcb in ('Sb',) or klass.operand_types[srcb].type=='UImm':fields[srcb]=bval
+                        regs={'R4':a};memory=[]
+                        btype=klass.operand_types[srcb].type
+                        if btype=='C':
+                            fields.update(Sb_bank=0,Sb_addr=0)
+                            memory.append(dict(space='cbank',address=0,hex=bval.to_bytes(4,'little').hex()))
+                        elif btype in ('SImm','UImm'):fields[srcb]=bval
                         else:
                             fields[srcb]=10;regs[('UR' if srcb=='URb' else 'R')+'10']=bval
-                        if srcc=='Sc' or klass.operand_types[srcc].type=='UImm':fields[srcc]=cval
+                        ctype=klass.operand_types[srcc].type
+                        if ctype=='C':
+                            fields.update(Sc_bank=0,Sc_addr=4)
+                            memory.append(dict(space='cbank',address=4,hex=cval.to_bytes(4,'little').hex()))
+                        elif ctype in ('SImm','UImm'):fields[srcc]=cval
                         else:
                             fields[srcc]=12;regs[('UR' if srcc=='URc' else 'R')+'12']=cval
                         if negate:fields[srcb+'@negate']=1
                         if not is_min:regs['P0']=0
                         add(klass.name,fields,regs,
-                            {f'R{rd}':viaddmnmx_ref(a,effective_b,cval,width,signed,is_min,relu=='RELU'),'__native':True})
+                            {f'R{rd}':viaddmnmx_ref(a,effective_b,cval,width,signed,is_min,relu=='RELU'),'__native':True},memory=memory)
     # CuLifter's VIMNMX3 is a lane-wise min/max; PT selects min and !PT max.
     def vimnmx3_ref(a,b,c,width,signed,is_min,relu):
         mask=(1<<width)-1;result=0
@@ -265,7 +282,7 @@ def cases(sm,fp='exact'):
     for klass in (k for k in arch.classes if k.mnemonic=='VIMNMX3' and not k.alternate):
         srcb=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
         srcc=next((n for n in ('Rc','URc','Sc') if n in klass.operand_types),None)
-        if not srcb or not srcc or any(klass.operand_types[n].type=='CX' for n in (srcb,srcc)):continue
+        if not srcb or not srcc or any(atom.type=='CX' for atom in klass.operand_types.values()):continue
         fmts=[('S32',32,True),('U32',32,False),('S16x2',16,True),('U16x2',16,False)]
         for fmt,width,signed in fmts:
             if fmt not in arch.enums[klass.operand_types['fmt'].type]:continue
@@ -275,16 +292,24 @@ def cases(sm,fp='exact'):
                         bval=vim_words[(j+2)%len(vim_words)];cval=vim_words[(j+4)%len(vim_words)]
                         rd=2 if j%3==0 else 8
                         fields={'Rd':rd,'Ra':2,'Rc':6,'fmt':fmt,'relu':relu,'Pp':pred_name,'Pp@not':pred_not}
-                        regs={'R2':a,'R6':cval}
-                        if srcb=='Sb':fields[srcb]=bval
+                        regs={'R2':a,'R6':cval};memory=[]
+                        btype=klass.operand_types[srcb].type
+                        if btype=='C':
+                            fields.update(Sb_bank=0,Sb_addr=0)
+                            memory.append(dict(space='cbank',address=0,hex=bval.to_bytes(4,'little').hex()))
+                        elif btype in ('SImm','UImm'):fields[srcb]=bval
                         else:
                             fields[srcb]=10;regs[('UR' if srcb=='URb' else 'R')+'10']=bval
-                        if srcc=='Sc':fields[srcc]=cval & 0xffff
+                        ctype=klass.operand_types[srcc].type
+                        if ctype=='C':
+                            fields.update(Sc_bank=0,Sc_addr=4)
+                            memory.append(dict(space='cbank',address=4,hex=cval.to_bytes(4,'little').hex()))
+                        elif ctype in ('SImm','UImm'):fields[srcc]=cval
                         elif srcc!='Rc':
                             fields[srcc]=12;regs[('UR' if srcc=='URc' else 'R')+'12']=cval
                         if not is_min:regs['P0']=0
                         add(klass.name,fields,regs,
-                            {f'R{rd}':vimnmx3_ref(a,bval,cval,width,signed,is_min,relu=='RELU'),'__native':True})
+                            {f'R{rd}':vimnmx3_ref(a,bval,cval,width,signed,is_min,relu=='RELU'),'__native':True},memory=memory)
     for i in range(20):
         a,b,c=[rng.getrandbits(32) for _ in range(3)];regs={'R2':a,'R4':b,'R6':c}
         rd=2 if i%2 else 8 # overlap source/destination
@@ -359,6 +384,41 @@ def cases(sm,fp='exact'):
                     elif xf==yf==0:want=(x|y) if pred else (x&y)
                     else:want=x if (xf<yf)==bool(pred) else y
                     add('fmnmx__RRR_RRR',fields,regs,dict(R2=want,**({'__native':True} if a==c==0 else {})))
+    # CuLifter's FMNMX3 performs two ordered comparisons. Ties and unordered
+    # comparisons retain the earlier value at each step.
+    def fmnmx3_pick(x,y,is_min):
+        xf=struct.unpack('<f',x.to_bytes(4,'little'))[0]
+        yf=struct.unpack('<f',y.to_bytes(4,'little'))[0]
+        return y if (xf>yf if is_min else xf<yf) else x
+    fmnmx3_values=[0x3f800000,0xbf800000,0x40000000,0x00000000,
+                   0x80000000,0x7f800000,0xff800000,0x7fc00000]
+    for klass in (k for k in arch.classes if k.mnemonic=='FMNMX3' and not k.alternate):
+        source_names=[next((n for n in group.split('/') if n in klass.operand_types),None)
+                      for group in ('Ra/Sa','Rb/Sb/URb','Rc/Sc/URc')]
+        if not all(source_names) or any(atom.type=='CX' for atom in klass.operand_types.values()):continue
+        for i,a in enumerate(fmnmx3_values):
+            bval=fmnmx3_values[(i+3)%len(fmnmx3_values)]
+            cval=fmnmx3_values[(i+5)%len(fmnmx3_values)]
+            for is_min in (False,True):
+                fields={'Rd':8,'Pp':'PT','Pp@not':int(not is_min),
+                        'ftz':'noftz','nan':'nonan'}
+                regs={}
+                vals=(a,bval,cval)
+                for name,value,reg in zip(source_names,vals,(2,4,6)):
+                    typ=klass.operand_types[name].type
+                    if typ=='Register':
+                        fields[name]=reg;regs[f'R{reg}']=value
+                    elif typ=='UniformRegister':
+                        fields[name]=10;regs['UR10']=value
+                    elif typ=='F32Imm':fields[name]=value
+                    else:break
+                else:
+                    want=fmnmx3_pick(fmnmx3_pick(a,bval,is_min),cval,is_min)
+                    add(klass.name,fields,regs,{'R8':want,'__native':True})
+    if 'fmnmx3__RRR_RRR' in classes:
+        add('fmnmx3__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,Pp='P0',
+            ftz='noftz',nan='nonan'),dict(R2=0x3f800000,R4=0x40000000,
+            R6=0x40400000,P0=1),dict(error='sass_opaque_FMNMX3'))
     add('fmnmx_pred__RRR_RRR',dict(Rd=8,Pu=0,Ra=2,Rb=4,Pp='PT'),{},dict(error='sass_opaque_FMNMX'))
     if 'nan' in classes['fmnmx__RRR_RRR'].operand_types:
         add('fmnmx__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Pp='PT',nan='NAN'),{},dict(error='sass_opaque_FMNMX'))
@@ -426,6 +486,119 @@ def cases(sm,fp='exact'):
             for rnd in ('ROUND','FLOOR','CEIL'):
                 add('f2i__Rb_32b',dict(Rd=8,Rb=2,dstfmt='S32',rnd=rnd,ntz='NTZ'),
                     dict(R2=0x3fe00000),dict(R8=1,__native=True))
+    # F2IP rounds two F32 inputs to nearest-even, saturates each to S8/U8,
+    # and copies C[15:0] into the high half of the packed result.
+    f2ip_values=[0,0x80000000,0x3f000000,0xbf000000,0x3fc00000,0xbfc00000,
+                 0x40200000,0xc0200000,0x42ff0000,0xc3000000,0x43000000,
+                 0xc2ff0000,0x42ff8000,0xc2ff8000,0x437f8000,0x7f800000,
+                 0xff800000,0x7fc00000,0x7f800001,0x4f000000,0xcf000000]
+    def f2ip_byte(bits,signed):
+        x=struct.unpack('<f',bits.to_bytes(4,'little'))[0]
+        if math.isnan(x):return 0
+        lo,hi=(-128,127) if signed else (0,255)
+        if math.isinf(x):value=hi if x>0 else lo
+        else:value=max(lo,min(hi,round(x)))
+        return value&0xff
+    for klass in (k for k in arch.classes if k.mnemonic=='F2IP' and not k.alternate):
+        srcs=[next((n for n in group.split('/') if n in klass.operand_types),None)
+              for group in ('Ra','Rb/URb/Sb','Rc/Sc/URc')]
+        if not all(srcs) or any(atom.type=='CX' for atom in klass.operand_types.values()):continue
+        for dstfmt,signed in (('S8',True),('U8',False)):
+            if dstfmt not in arch.enums[klass.operand_types['dstfmt'].type]:continue
+            for j in range(len(f2ip_values)):
+                a=f2ip_values[j];bval=f2ip_values[(j+7)%len(f2ip_values)]
+                cval=(0x1357+j*0x101)&0xffffffff;rd=2 if j%2==0 else 8
+                fields={'Rd':rd,'dstfmt':dstfmt,'srcfmt':'F32','rnd':'ROUND',
+                        'ntz':'NTZ','relu':'norelu'}
+                regs={};memory=[]
+                for name,value,reg in zip(srcs,(a,bval,cval),(2,4,6)):
+                    typ=klass.operand_types[name].type
+                    if typ=='Register':fields[name]=reg;regs[f'R{reg}']=value
+                    elif typ=='UniformRegister':fields[name]=10;regs['UR10']=value
+                    elif typ=='C':
+                        offset={'Sb':0,'Sc':4}.get(name,8)
+                        fields.update({name+'_bank':0,name+'_addr':offset})
+                        memory.append(dict(space='cbank',address=offset,
+                                           hex=value.to_bytes(4,'little').hex()))
+                    elif typ in ('F32Imm','SImm','UImm'):fields[name]=value
+                    else:break
+                else:
+                    want=((cval&0xffff)<<16)|(f2ip_byte(a,signed)<<8)|f2ip_byte(bval,signed)
+                    add(klass.name,fields,regs,{f'R{rd}':want,'__native':True},memory=memory)
+    if 'f2ip__RRR' in classes:
+        add('f2ip__RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,dstfmt='S8',srcfmt='F32',
+            rnd='TRUNC',ntz='NTZ',relu='norelu'),dict(R2=0x3f800000,R4=0x40000000,
+            R6=0),dict(error='sass_opaque_F2IP'))
+    # I2IP inserts two saturated or truncated S32 values into a packed word.
+    # For sub-byte formats the unused high bits come from C; S16/U16 fill the
+    # full result and ptxas uses RZ in that source slot.
+    i2ip_values=[0,1,-1,-3,3,-9,7,8,15,16,127,-128,255,-256,
+                 32767,-32768,0x12345678,-0x1234567]
+    for klass in (k for k in arch.classes if k.mnemonic=='I2IP' and not k.alternate):
+        srcs=[next((n for n in group.split('/') if n in klass.operand_types),None)
+              for group in ('Ra','Rb/URb/Sb','Rc')]
+        if not all(srcs) or any(atom.type=='CX' for atom in klass.operand_types.values()):continue
+        dst_enum=arch.enums[klass.operand_types['dstfmt'].type]
+        extract_field=next(n for n,x in klass.operand_types.items()
+                           if x.type in ('EXTRACT','HSEL','ONLY24','ONLY28'))
+        ext_enum=arch.enums[klass.operand_types[extract_field].type]
+        sat_field=next(n for n,x in klass.operand_types.items()
+                       if x.type in ('SATONLY','SATRELU','SATRELU_RELU'))
+        sat_enum=arch.enums[klass.operand_types[sat_field].type]
+        labels=[label for label in ('S2','U2','S4','U4','S8','U8','S16','U16') if label in dst_enum]
+        modes=[label for label in ('nosatrelu','nosatrelu_relu','SAT','SATRELU','RELU') if label in sat_enum]
+        for fmt in labels:
+            width=int(fmt[1:]);signed=fmt.startswith('S')
+            extracts=('24' if width==4 else '28' if width==2 else 'H0',)
+            if any(x not in ext_enum for x in extracts):continue
+            for mode in modes:
+                if not signed and mode in ('SATRELU','RELU'):continue
+                sat=mode in ('SAT','SATRELU');relu=mode in ('RELU','SATRELU')
+                lo=-(1<<(width-1)) if signed else 0
+                hi=(1<<(width-1))-1 if signed else (1<<width)-1
+                def i2ip_convert(v):
+                    if sat:v=max(lo,min(hi,v))
+                    if relu:v=max(0,v)
+                    return v&((1<<width)-1)
+                # Exercise truncation, both saturation bounds, and RELU with
+                # values chosen around the target range for this element size.
+                samples=[0,1,-1,lo-1,lo,hi,hi+1,0x12345678]
+                for j,avalue in enumerate(samples):
+                    bvalue=samples[(j+3)%len(samples)]
+                    cvalue=(0xa53c91e7+j*0x10203)&0xffffffff
+                    rd=2 if j==7 else 8
+                    fields={'Rd':rd,'dstfmt':fmt,'srcfmt':'S32',sat_field:mode,
+                            extract_field:extracts[0]}
+                    regs={};memory=[]
+                    for name,value,reg in zip(srcs,(avalue,bvalue,cvalue),(2,4,6)):
+                        typ=klass.operand_types[name].type
+                        if name=='Rc' and width==16:
+                            fields[name]='RZ';continue
+                        if typ=='Register':fields[name]=reg;regs[f'R{reg}']=value&0xffffffff
+                        elif typ=='UniformRegister':fields[name]=10;regs['UR10']=value&0xffffffff
+                        elif typ=='C':
+                            offset=0x20
+                            fields.update({name+'_bank':0,name+'_addr':offset})
+                            memory.append(dict(space='cbank',address=offset,
+                                               hex=(value&0xffffffff).to_bytes(4,'little').hex()))
+                        elif typ in ('SImm','UImm'):fields[name]=value
+                        else:break
+                    else:
+                        packed=(i2ip_convert(avalue)<<width)|i2ip_convert(bvalue)
+                        if width<16:
+                            packed|=(cvalue&((1<<(32-2*width))-1))<<(2*width)
+                        add(klass.name,fields,regs,{f'R{rd}':packed&0xffffffff,'__native':True},memory=memory)
+    for klass in (k for k in arch.classes if k.mnemonic=='I2IP' and not k.alternate):
+        extract_field=next(n for n,x in klass.operand_types.items()
+                           if x.type in ('EXTRACT','HSEL','ONLY24','ONLY28'))
+        sat_field=next(n for n,x in klass.operand_types.items()
+                       if x.type in ('SATONLY','SATRELU','SATRELU_RELU'))
+        if 'H1' in arch.enums[klass.operand_types[extract_field].type]:
+            fields={'Rd':8,'Ra':2,'Rb':4,'Rc':6,'dstfmt':'S8','srcfmt':'S32',
+                    sat_field:'SAT',extract_field:'H1'}
+            add(klass.name,fields,dict(R2=0xfffffffe,R4=0x12345678,R6=0),
+                dict(error='sass_opaque_I2IP'))
+            break
     add('ldc__RaNonRZ',dict(Rd=8,Ra=2,Ra_offset=16,Sa_bank=3),dict(R2=0x100),dict(R8=0x12345678),memory=[dict(space='cbank',address=(3<<32)|0x110,hex='78563412')])
     for stride,factor in [('X4',4),('X8',8),('X16',16)]:
         add('lds__sImmOffset',dict(Rd=8,Ra=2,Ra_offset=4,stride=stride),dict(R2=0x10),
@@ -642,8 +815,62 @@ def cases(sm,fp='exact'):
         want=half_reference('fma' if cls.startswith('hfma') else 'add',inputs)
         add(cls,fields,dict(R2=x,R4=y,R6=z,UR4=y,UR6=z),dict(R8=want,__native=True),
             memory=[dict(space='cbank',address=0x100,hex=(y.to_bytes(4,'little')+z.to_bytes(4,'little')).hex())])
+    # HMUL2 is a packed binary16 multiply. Exercise each operand encoding,
+    # lane broadcast, source modifiers and overlap with the destination.
+    mul_values=[0x3c004000,0x00010001,0x80010001,0x7bff3c00,0x040003ff,
+                0xbc00c000,0x35553aaa]
+    for klass in (k for k in arch.classes if k.mnemonic=='HMUL2' and not k.alternate):
+        src=next((n for n in ('Rb','Sb','URb') if n in klass.operand_types),None)
+        if not src:continue
+        atom=klass.operand_types[src]
+        for i,x in enumerate(mul_values):
+            y=mul_values[(i*3+2)%len(mul_values)]
+            for sa,sb in (('H1_H0','H1_H0'),('H0_H0','H1_H1'),('H1_H1','H0_H0')):
+                effective_sb=sb if 'iswzB' in klass.operand_types else 'H1_H0'
+                fields={'Rd':2,'Ra':2 if i%2==0 else 4,'iswzA':sa,'ofmt':'F16_V2',
+                        'fmz':klass.operand_types['fmz'].default,'sat':'nosat'}
+                fields.update({'Ra@absolute':int(bool(i&1)),'Ra@negate':int(bool(i&2))})
+                regs={'R2':x,'R4':x}
+                memory=[]
+                if src=='Rb':
+                    fields.update(Rb=6,iswzB=sb);regs['R6']=y
+                elif atom.type=='UniformRegister':
+                    fields.update(URb=6,iswzB=sb);regs['UR6']=y
+                elif atom.type=='C':
+                    fields.update(Sb_bank=0,Sb_addr=0x100,iswzB=sb)
+                    memory=[dict(space='cbank',address=0x100,hex=y.to_bytes(4,'little').hex())]
+                elif atom.type in ('F16Imm','UImm'):
+                    fields.update(Sb=y>>16,Sb1=y&0xffff)
+                else:continue
+                lanes_a=half_lanes(x,sa,bool(i&1),bool(i&2))
+                lanes_b=half_lanes(y,effective_sb)
+                want=sum(softfloat.arithmetic('mul',[lanes_a[lane],lanes_b[lane]],16)<<(16*lane)
+                         for lane in (0,1))
+                add(klass.name,fields,regs,dict(R2=want,__native=True),memory=memory)
     add('hadd2__RR',dict(Rd=8,Ra=2,Rc=4,ftz='FTZ'),{},dict(error='sass_opaque_HADD2'))
     add('hfma2__RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,fmz='FMZ'),{},dict(error='sass_opaque_HFMA2'))
+    def hmul2_reference(a,b,mode,sat):
+        lanes=[]
+        for shift in (0,16):
+            x,y=(a>>shift)&0xffff,(b>>shift)&0xffff
+            if fp=='exact' and mode=='FMZ' and ((x&0x7c00)==0 or (y&0x7c00)==0):
+                # SM89 HMUL2.FMZ returns canonical +0 if either source is
+                # zero/subnormal, even for zero*Inf or signed-zero products.
+                lanes.append(0)
+                continue
+            if fp=='exact' and (x&0x7c00)==0 and (x&0x03ff) and mode=='FMZ':x=0
+            if fp=='exact' and (y&0x7c00)==0 and (y&0x03ff) and mode=='FMZ':y=0
+            result=softfloat.arithmetic('mul',[x,y],16,ftz=(fp=='exact' and mode in ('FMZ','FTZ')),sat=sat)
+            lanes.append(result)
+        return lanes[0]|(lanes[1]<<16)
+    if 'hmul2__RR' in classes:
+        for mode in ('FMZ','FTZ'):
+            for sat in (False,True):
+                for a,b in ((0x00010001,0x60006000),(0x80018001,0x60006000),
+                            (0x14001400,0x14001400),(0x94009400,0x14001400),
+                            (0x7e017c00,0x3c003c00),(0xbc00c000,0x40004000)):
+                    add('hmul2__RR',dict(Rd=8,Ra=2,Rb=4,fmz=mode,sat='SAT' if sat else 'nosat'),
+                        dict(R2=a,R4=b),dict(R8=hmul2_reference(a,b,mode,sat),__native=True))
     for cls,fields in [('hadd2_F32__RR',dict(Rd=8,Ra=2,Rc=4)),
                        ('hfma2__RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,ofmt='F32'))]:
         add(cls,fields,{},dict(error='sass_opaque_'+('HADD2' if cls.startswith('hadd') else 'HFMA2')))
@@ -769,7 +996,7 @@ def cases(sm,fp='exact'):
 
 
 # Classes whose readable lowering differs from the exact one.
-READABLE_FLOATS={'FADD','FMUL','FFMA','DADD','DMUL','DFMA','HADD2','HFMA2','FSEL','FMNMX','FSETP'}
+READABLE_FLOATS={'FADD','FMUL','FFMA','DADD','DMUL','DFMA','HADD2','HFMA2','HMUL2','FSEL','FMNMX','FSETP'}
 
 def readable_reference(op,inputs,width,sat=False,scale=0):
     """Unfused round-to-nearest formula without flushing; None where a NaN or
@@ -828,6 +1055,7 @@ def readable_cases(sm,add,classes,rng):
     for i,x in enumerate(packed):
         y,z=packed[(i*7+3)%len(packed)],packed[(i*5+1)%len(packed)]
         for op,cls,fields,inputs in [('add','hadd2__RR',dict(Rd=2,Ra=2,Rc=4,ftz='FTZ'),[x,y]),
+                                     ('mul','hmul2__RR',dict(Rd=2,Ra=2,Rb=4),[x,y]),
                                      ('fma','hfma2__RRR',dict(Rd=2,Ra=2,Rb=4,Rc=6,fmz='FMZ'),[x,y,z])]:
             lanes=[readable_reference(op,[v>>(16*lane)&0xffff for v in inputs],16) for lane in (0,1)]
             if None not in lanes:add(cls,fields,dict(R2=x,R4=y,R6=z),dict(R2=lanes[0]|lanes[1]<<16,__native=True))
