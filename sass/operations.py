@@ -2549,7 +2549,9 @@ def emit_I2IP(b,check=False):
                     return code,packed
 
                 ca,pa=convert(av,'i2ip_a');cb,pb=convert(bv,'i2ip_b')
-                carry_source=cv if extract=='H0' else f'(({cv}) >> 16)'
+                # Only H1 selects C's high half; the sub-byte .24/.28 forms take C's
+                # low bits unshifted (SM89 hardware).
+                carry_source=f'(({cv}) >> 16)' if extract=='H1' else cv
                 tail=(f' | (({carry_source}) & 0x{(1<<(32-2*width))-1:x}) << {2*width}'
                       if width<16 else f' | (({cv}) & 0)')
                 code=(ca+cb+f'local i2ip_result:4 = (zext({pa}) << {width}) | '
