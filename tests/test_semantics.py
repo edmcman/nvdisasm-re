@@ -62,12 +62,12 @@ def cases(sm,fp='exact'):
             {'R8':30,'__native':True},
             memory=[dict(space='ram',address=base,
                          hex=loaded.to_bytes(4,'little').hex())])
-    rng=random.Random(7)
     # CuLifter comparison: scalar bit operations. Expected values use an
     # independent per-bit reference (BREV) and Python's bit_count (POPC).
     def reverse32(value):
         return sum(((value>>bit)&1)<<(31-bit) for bit in range(32))
     bit_vectors=[0,1,0x80000000,0xffffffff,0x01234567,0xaaaaaaaa,0x55555555]
+    rng=random.Random('brev_popc')
     bit_vectors += [rng.getrandbits(32) for _ in range(20)]
     for op in ('BREV','POPC'):
         for klass in (k for k in arch.classes if k.mnemonic==op and not k.alternate):
@@ -148,6 +148,7 @@ def cases(sm,fp='exact'):
             total+=x*y
         return total&0xffffffff
     idp_words=[0,0xffffffff,0x807f01ff,0x01020304,0x7f80ff00]
+    rng=random.Random('idp4a')
     idp_words += [rng.getrandbits(32) for _ in range(8)]
     for klass in (k for k in arch.classes if k.mnemonic=='IDP' and k.name.startswith('idp_4a__') and not k.alternate):
         if any(atom.type=='CX' for atom in klass.operand_types.values()):continue
@@ -179,6 +180,7 @@ def cases(sm,fp='exact'):
             total+=x*y
         return total&0xffffffff
     idp2_words=[0,0xffffffff,0x80017fff,0x7fff8001,0x01020304]
+    rng=random.Random('idp2a')
     idp2_words += [rng.getrandbits(32) for _ in range(8)]
     for klass in (k for k in arch.classes if k.mnemonic=='IDP' and k.name.startswith('idp_2a__') and not k.alternate):
         if any(atom.type=='CX' for atom in klass.operand_types.values()):continue
@@ -286,6 +288,7 @@ def cases(sm,fp='exact'):
             result|=(value&mask)<<shift
         return result
     vimnmx_words=[0,0xffffffff,0x80007fff,0x7fff8000,0x12345678,0xdeadbeef]
+    rng=random.Random('vimnmx')
     vimnmx_words += [rng.getrandbits(32) for _ in range(8)]
     for klass in (k for k in arch.classes if k.mnemonic=='VIMNMX' and not k.alternate):
         srcb=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
@@ -393,6 +396,7 @@ def cases(sm,fp='exact'):
             result|=(value&mask)<<shift
         return result
     vim_words=[0,0xffffffff,0x80007fff,0x7fff8000,0x12345678,0xdeadbeef]
+    rng=random.Random('vimnmx3')
     vim_words += [rng.getrandbits(32) for _ in range(6)]
     for klass in (k for k in arch.classes if k.mnemonic=='VIMNMX3' and not k.alternate):
         srcb=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
@@ -434,6 +438,7 @@ def cases(sm,fp='exact'):
         cx_fields,cx_regs,memory=cx_source(klass,cx_name,bval);fields.update(cx_fields)
         add(klass.name,fields,{'R2':a,'R6':cval,**cx_regs},
             {'R8':vimnmx3_ref(a,bval,cval,32,True,True,False),'__native':True},memory=memory)
+    rng=random.Random('int_alu')
     for i in range(20):
         a,b,c=[rng.getrandbits(32) for _ in range(3)];regs={'R2':a,'R4':b,'R6':c}
         rd=2 if i%2 else 8 # overlap source/destination
@@ -447,6 +452,7 @@ def cases(sm,fp='exact'):
         add('lop3_lut__RRR_RRR',dict(common,imm8=0x96,Pp='PT'),regs,{f'R{rd}':a^b^c})
         add('lea_lo_noimm__RRR_RRR',dict(Rd=rd,Ra=2,Rb=4,scaleU5=i%8),regs,{f'R{rd}':((a<<(i%8))+b)&0xffffffff})
     # Mixed register banks and uniform aliases retain original md operand names.
+    rng=random.Random('uniform')
     for i in range(12):
         a,b,c=[rng.getrandbits(32) for _ in range(3)]
         regs=dict(R2=a,R4=b,R6=c,UR2=a,UR4=b,UR6=c)
@@ -1221,6 +1227,7 @@ def cases(sm,fp='exact'):
                 vals.update((threshold-1,threshold,threshold+1,
                              threshold|0x8000,(threshold|0x8000)-1,
                              (threshold|0x8000)+1))
+            rng=random.Random('f2fp_4b_down')
             vals.update(rng.getrandbits(16) for _ in range(24))
             vals=sorted(vals)
             # Pair each boundary with a different lane to catch lane swaps.
@@ -1597,6 +1604,7 @@ def cases(sm,fp='exact'):
         a,b=parts[0][2],parts[1][2];v=abs(a*b*Fraction(2)**k+(parts[2][2] if op=='fma' else 0) if op!='add' else a+b)
         return Fraction(1,2)*Fraction(2)**-149<v<Fraction(2)**-149
     edges=[0,0x80000000,1,0x80000001,0x007fffff,0x00800000,0x3f800000,0xbf800000,0x7f7fffff,0xff7fffff,0x7f800000,0xff800000,0x3effffff,0x4b800001]
+    rng=random.Random('fp32')
     floats=edges+[rng.getrandbits(32)&0xbfffffff for _ in range(10)]+[rng.getrandbits(32) for _ in range(10)]
     vectors=[(floats[i],floats[(i*7+3)%len(floats)],floats[(i*5+1)%len(floats)]) for i in range(len(floats))]
     for x,y,z in vectors:
@@ -1652,6 +1660,7 @@ def cases(sm,fp='exact'):
     edges64=[0,1<<63,1,(1<<63)|1,0x000fffffffffffff,0x0010000000000000,
              0x3ff0000000000000,0xbff0000000000000,0x7fefffffffffffff,
              0x7ff0000000000000,0xfff0000000000000,0x3ff0000000000001]
+    rng=random.Random('fp64')
     values64=edges64+[rng.getrandbits(64) for _ in range(30)]
     vectors64=[(v,values64[(i*7+3)%len(values64)],values64[(i*5+1)%len(values64)]) for i,v in enumerate(values64)]
     # This cancellation needs an exact wide product, rather than fp64 multiply/add.
@@ -1739,6 +1748,7 @@ def cases(sm,fp='exact'):
         return result
     packed=[0,0x80008000,0x00010001,0x80010001,0x03ff0400,0x3c004000,
             0xbc00c000,0x7bfffbff,0x7c003c00,0x3c007e00,0x3c014001]
+    rng=random.Random('fp16')
     packed += [rng.getrandbits(32) for _ in range(15)]
     for i,x in enumerate(packed):
         y,z=packed[(i*7+3)%len(packed)],packed[(i*5+1)%len(packed)]
@@ -2138,6 +2148,7 @@ def cases(sm,fp='exact'):
     mask=0xffffffff;mask64=(1<<64)-1
     carry_vectors=[(0,0,0),(0xffffffff,0xffffffff,0xffffffff),(0x80000000,0x80000000,0),
                    (0xffffffff,1,0),(0,0xffffffff,1)]
+    rng=random.Random('carry')
     carry_vectors += [tuple(rng.getrandbits(32) for _ in range(3)) for _ in range(12)]
     from itertools import product
     for a,b,c in carry_vectors:
@@ -2349,8 +2360,9 @@ def readable_reference(op,inputs,width,sat=False,scale=0):
     return value
 
 def readable_cases(sm,add,classes,rng):
-    import struct
+    import struct,random
     edges=[0,0x80000000,1,0x80000001,0x007fffff,0x00800000,0x3f800000,0xbf800000,0x7f7fffff,0x7f800000,0x3effffff,0x4b800001]
+    rng=random.Random('readable_fp32')
     floats=edges+[rng.getrandbits(32)&0xbfffffff for _ in range(10)]+[rng.getrandbits(32) for _ in range(6)]
     vectors=[(floats[i],floats[(i*7+3)%len(floats)],floats[(i*5+1)%len(floats)]) for i in range(len(floats))]
     for i,(x,y,z) in enumerate(vectors):
@@ -2370,6 +2382,7 @@ def readable_cases(sm,add,classes,rng):
     add('ffma__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,rnd='RZ'),dict(R2=0x3fc00000,R4=0x40000000,R6=0xbf800000),dict(R8=0x40000000,__max_ops=3))
     add('fadd__RRR_RR',dict(Rd=8,Ra=2,Rc=4,ftz='FTZ'),dict(R2=0x3f800000,R4=0x40000000),dict(R8=0x40400000,__max_ops=2))
     def pair(name,bits):return {name:bits&0xffffffff,f'R{int(name[1:])+1}':bits>>32}
+    rng=random.Random('readable_fp64')
     values64=[0,1<<63,1,0x0010000000000000,0x3ff0000000000000,0xbff0000000000000,0x7fefffffffffffff,
               0x3ff0000000000001]+[rng.getrandbits(64) for _ in range(16)]
     for i,x in enumerate(values64):
@@ -2380,6 +2393,7 @@ def readable_cases(sm,add,classes,rng):
             want=readable_reference(op,inputs,64)
             if want is not None:
                 add(cls,dict(fields,rnd=('RN','RZ','RM','RP')[i%4]),{**pair('R2',x),**pair('R4',y),**pair('R6',z)},dict(pair('R2',want),__native=True))
+    rng=random.Random('readable_fp16')
     packed=[0x3c004000,0x00010001,0x7bfffbff,0xbc00c000]+[rng.getrandbits(32) for _ in range(10)]
     for i,x in enumerate(packed):
         y,z=packed[(i*7+3)%len(packed)],packed[(i*5+1)%len(packed)]

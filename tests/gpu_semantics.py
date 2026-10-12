@@ -400,6 +400,7 @@ def main():
                 local_rng=random.Random(sum((i+1)*ord(ch) for i,ch in enumerate(family)))
                 vectors=[[local_rng.getrandbits(32) for _ in range(3)] for _ in range(128)]
             else:
+                rng=random.Random(family)
                 vectors=[[rng.getrandbits(32) for _ in range(3)] for _ in range(128)]
             edges=[0,0xffffffff,0x80000000,0x7fffffff,0x7f800000,0xff800000,0x7fc00000,1,
                    0x007fffff,0x00800000,0x3f800000,0xbf800000,0x7f7fffff,0x80000001]
