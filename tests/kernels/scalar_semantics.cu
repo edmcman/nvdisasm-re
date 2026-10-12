@@ -104,6 +104,8 @@ F2FP_PACK_MOD(f2fp_bf16_pack_relu_satfinite, bf16, ".relu.satfinite")
 #undef F2FP_PACK_MOD
 KERNEL(f2fp_e4m3_pack, { uint16_t packed; asm("cvt.rn.satfinite.e4m3x2.f32 %0,%1,%2;":"=h"(packed):"f"(__uint_as_float(a)),"f"(__uint_as_float(b))); r=(c&0xffff0000u)|packed; })
 KERNEL(f2fp_e5m2_pack, { uint16_t packed; asm("cvt.rn.satfinite.e5m2x2.f32 %0,%1,%2;":"=h"(packed):"f"(__uint_as_float(a)),"f"(__uint_as_float(b))); r=(c&0xffff0000u)|packed; })
+KERNEL(f2fp_e4m3_pack_nosat, { uint16_t packed; asm("cvt.rn.satfinite.e4m3x2.f32 %0,%1,%2;":"=h"(packed):"f"(__uint_as_float(a)),"f"(__uint_as_float(b))); r=(c&0xffff0000u)|packed; })
+KERNEL(f2fp_e5m2_pack_nosat, { uint16_t packed; asm("cvt.rn.satfinite.e5m2x2.f32 %0,%1,%2;":"=h"(packed):"f"(__uint_as_float(a)),"f"(__uint_as_float(b))); r=(c&0xffff0000u)|packed; })
 #define F2FP_UNPACK(name, fmt) extern "C" __global__ void sem_##name(const uint32_t *in, uint64_t *out) { \
  unsigned i=threadIdx.x+blockIdx.x*blockDim.x; uint32_t a=in[3*i],lo,hi; \
  asm volatile("{ .reg .b16 low,high; mov.b32 {low,high},%2; cvt.rn.f16x2." #fmt "x2 %0,low; cvt.rn.f16x2." #fmt "x2 %1,high; }":"=r"(lo),"=r"(hi):"r"(a)); \

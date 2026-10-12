@@ -58,20 +58,62 @@ been removed. `ntz` is an ignored encoding bit in the unpack class, not an
 FTZ/FMZ selector. The SM100 MD adds these distinct non-ALTERNATE F2FP class
 families, which are not fully supported by the current native emitter:
 
-F16/BF16 and F32 downconversion to E4M3/E5M2 is now native for RN,
-SATFINITE, optional RELU, and H0/H1 merge selection. The ordinary source forms
-pass 11,040 exact/readable cases and ten dataflow checks per mode on each of
-SM100, SM101, and SM103. SM120 additionally has six uniform-register `UF2FP`
-forms; its expanded matrix passes 14,592 exact/readable cases and sixteen
-dataflow checks per mode. NaN sign/payload differences are compared by class.
-These are emulator/reference checks only; there is no SM100+ GPU available.
-The remaining destination formats and selector combinations in the 8-bit
-families stay open.
+SM100+ F16/BF16 and F32 downconversion to E4M3/E5M2 is native for RN/RP,
+SATFINITE/nosatfinite, optional RELU, and H0/H1 merge selection. For
+nosatfinite, E4M3 overflow and infinity produce positive canonical NaN, while
+E5M2 produces signed infinity. Finite values follow the selected rounding
+mode, so negative RP overflow rounds to negative max finite. SM89 GPU probes
+execute patched no-SATFINITE SASS for both formats and pass 128 whole-kernel
+GPU/P-code comparisons per format against an independent reference. This
+provides hardware evidence on SM89; SM100+ behavior is emulator/reference
+validated. The expanded FP8 suite passes exact and readable modes on all four
+architectures: 24,560 cases per mode on SM100/SM101/SM103 and 28,616 on
+SM120. Dataflow passes 10/10 classes per mode on SM100/SM101/SM103 and
+16/16 on SM120. RP chooses toward +infinity, including the least positive
+subnormal for positive nonzero values below the FP8 range; negative values
+round toward zero, and signed zero is preserved. The available GPU is SM89,
+so there is no direct SM100+ hardware validation. CUDA 13.4 `ptxas` rejects
+`.rp` SATFINITE FP8 PTX, so RP has emulator/MD-selector evidence but no PTX
+carrier. Other destination formats and selector combinations remain open.
+
+E2M3/E3M2 downconversion is now native on SM100/SM101/SM103/SM120 for the ten
+ordinary R/uniform/immediate classes, with SATFINITE, optional RELU, and RN,
+RZ, or RP. The independent reference uses the documented six-bit formats,
+nearest-even or directed rounding, and the PTX SATFINITE rules (NaN becomes
+positive MAX_NORM; overflow and infinity become sign-preserving MAX_NORM).
+The PTX ISA specifies the two output lanes in six bits each, padded to bytes,
+with A in the high byte and B in the low byte. Each of SM100, SM101, SM103, and SM120 passes 7,320 exact and 7,320
+readable value comparisons, 10/10 dataflow checks per mode, and 10/10
+`nosatfinite` opaque-fallback checks. CUDA 13.4 `ptxas` compiles
+RN `.version 9.1` E2M3/E3M2 carriers for `sm_100a`; `nvdisasm` shows
+`F2FP.SATFINITE.E2M3.F32.PACK_AB_MERGE_C`. PTX `.rz` is documented only for
+`sm_107f` in PTX 9.4, and PTX `.rp` is rejected, so RZ/RP have emulator and
+MD-selector evidence but no compiler carrier. Hardware validation is pending:
+the available GPU is SM89. E3M4/E8 downconversion and FP6 `nosatfinite`
+semantics remain open; FP6 `nosatfinite` is intentionally opaque.
 
 | MD class prefix | Encoded conversion | Principal selectors | Current status |
 | --- | --- | --- | --- |
-| `f2fp_f16_to_8b_downconvert__`, `f2fp_f32_to_8b_downconvert__`, SM120 `uf2fp_*` forms | F16/F32 to 8-bit formats | E4M3/E5M2 with SATFINITE, optional RELU, RN, H0/H1; other formats/selectors remain open | Partial |
-| `f2fp_f16_to_mx8_downconvert_scale__`, `f2fp_f32_to_mx8_downconvert_scale__` | F16/F32 to scaled S2_6 | SATNARROW/SATFINITE, RELU, RN | Open |
+| `f2fp_f16_to_8b_downconvert__`, `f2fp_f32_to_8b_downconvert__`, SM120 `uf2fp_*` forms | F16/F32 to 8-bit formats | E4M3/E5M2 SATFINITE/nosatfinite with optional RELU and RN/RP where encoded; E2M3/E3M2 SATFINITE with RELU and RN/RZ/RP; E3M4/E8 and FP6 `nosatfinite` semantics remain open | Partial |
+| `f2fp_f16_to_mx8_downconvert_scale__`, `f2fp_f32_to_mx8_downconvert_scale__` | BF16x2/F32x2 to scaled S2_6 | SATFINITE, optional RELU, RN across RIR/RRI/RRR/RRU/RUR | Partial: SATNARROW remains opaque pending independent semantics evidence |
+
+The SATFINITE scaled S2_6 downconvert is native on SM100, SM101, SM103, and
+SM120 for all five register/uniform/immediate source forms. It divides each
+input by its UE8M0 scale, rounds to nearest even, packs input A in the high
+byte and B in the low byte, maps NaN to positive MAX_NORM, and preserves the
+sign when saturating infinities/overflow. The exact/readable emulator matrix
+passes 9,920 cases per mode and 10/10 dataflow checks per mode on each of the
+four architectures. Inputs include signed ties, infinities, NaNs, large
+finite values, and scale bytes 0, 1, 126–128, 253–255 (including the subnormal
+reciprocal for scale 254). These rules follow the [PTX ISA S2F6 conversion
+specification](https://docs.nvidia.com/cuda/parallel-thread-execution/#data-movement-and-conversion-instructions-cvt).
+CUDA 13.4 `ptxas` compiles RN `.version 9.1` E2M3/E3M2 carriers for
+`sm_100a`, and `nvdisasm` shows the expected `F2FP.SATFINITE.E2M3` form.
+RZ/RP carrier availability remains limited, and the available GPU is SM89, so
+SM100+ hardware execution could not be checked. The distinct SASS `SATNARROW` selector remains on the opaque path:
+the available PTX documentation does not establish its behavior. Focused
+emulator checks confirm all ten `SATNARROW` source-form encodings use the
+opaque fallback on each of SM100/SM101/SM103/SM120.
 
 The `f2fp_rs_16b__` and `f2fp_rs_8b4b__` families encode stochastic
 rounding and remain opaque until their random input/state is modeled. These

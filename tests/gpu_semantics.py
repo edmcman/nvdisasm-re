@@ -73,6 +73,12 @@ SPECS.update({
  'f2fp_e5m2_unpack_h0_relu':('F2FP.RELU.F16.E5M2.UNPACK_B',),
  'f2fp_e5m2_unpack_h1_relu':('F2FP.RELU.F16.E5M2.UNPACK_B',),
 })
+# Append new families so the shared RNG stream for established fixtures stays
+# stable when this oracle grows.
+SPECS.update({
+ 'f2fp_e4m3_pack_nosat':('F2FP.E4M3',),
+ 'f2fp_e5m2_pack_nosat':('F2FP.E5M2',),
+})
 HALF_FLOAT_OUTPUTS={'hadd2','hfma2','hmul2','hmul2_sat','hmul2_ftz','hmul2_fmz','hadd2_sat','hfma2_sat','hadd2_lanes','hfma2_lanes','hmul2_lanes'}
 DOUBLE_FAMILIES={'dadd','dmul','dfma','dsetp','isetp_ex'}|{f for f in ROUNDED if f.startswith('d')}
 FLOAT_OUTPUTS={'dadd','dmul','dfma','fadd','fmul','ffma','i2f','fadd_ftz','ffma_sat'}|ROUNDED
@@ -98,12 +104,14 @@ def known_min_subnormal_bug(family,inputs,emulator,gpu):
     return emulator==expected_sign and gpu==(expected_sign|1)
 
 
-def fp8_reference(bits,fmt):
+def fp8_reference(bits,fmt,satfinite=True):
     """Independent nearest-even finite FP8 encoding from exact rational values."""
     from sass import softfloat
     kind,sign,value=softfloat.unpack(bits,32);signbit=sign<<7
     if kind=='nan':return signbit|0x7f
-    if kind=='inf':return signbit|(0x7b if fmt=='E5M2' else 0x7e)
+    if kind=='inf':
+        return signbit|(0x7b if fmt=='E5M2' else 0x7e) if satfinite else \
+            signbit|0x7c if fmt=='E5M2' else 0x7f
     mbits=2 if fmt=='E5M2' else 3
     bias=15 if fmt=='E5M2' else 7
     value=abs(value);candidates=[]
@@ -114,7 +122,15 @@ def fp8_reference(bits,fmt):
         if exp==0:v=Fraction(mant)*(Fraction(2)**(1-bias-mbits))
         else:v=Fraction((1<<mbits)+mant)*(Fraction(2)**(exp-bias-mbits))
         candidates.append((code,v))
-    if value>=candidates[-1][1]:return signbit|candidates[-1][0]
+    if value>=candidates[-1][1]:
+        if satfinite:return signbit|candidates[-1][0]
+        # The encoding immediately above max finite is E4M3 NaN or E5M2
+        # infinity. RN reaches it at the midpoint, with ties-even selecting
+        # E5M2 infinity and E4M3 max finite.
+        overflow=Fraction(61440 if fmt=='E5M2' else 464)
+        if value>overflow or (fmt=='E5M2' and value==overflow):
+            return signbit|0x7c if fmt=='E5M2' else 0x7f
+        return signbit|candidates[-1][0]
     distance=min(abs(value-v) for _,v in candidates)
     ties=[code for code,v in candidates if abs(value-v)==distance]
     return signbit|(ties[0] if len(ties)==1 else next(code for code in ties if not (code&1)))
@@ -221,10 +237,12 @@ def patch_half_fixtures(cubin):
     changes['imad_hi_c']=('IMAD','imad_hi__RRC_RRC',dict(Sc_bank=0,Sc_addr=0x170))
     for family,absolute,negate in (('f2i_abs',1,0),('f2i_neg',0,1),('f2i_absneg',1,1)):
         changes[family]=('F2I','f2i__Rb_32b',{'Rb@absolute':absolute,'Rb@negate':negate})
-    for family,fmt in (('f2fp_e4m3_pack','E4M3'),('f2fp_e5m2_pack','E5M2')):
+    for family,fmt in (('f2fp_e4m3_pack','E4M3'),('f2fp_e5m2_pack','E5M2'),
+                       ('f2fp_e4m3_pack_nosat','E4M3'),('f2fp_e5m2_pack_nosat','E5M2')):
+        satfinite='nosatfinite' if family.endswith('_nosat') else 'SATFINITE'
         changes[family]=('F2FP','f2fp_f32_to_8b_downconvert__RRR',dict(
             dstfmt=fmt,srcfmt='F32',merge='PACK_AB_MERGE_C',rndMode='RN',
-            satfinite='SATFINITE',relu='norelu',extract='H1'))
+            satfinite=satfinite,relu='norelu',extract='H1'))
     for family in ('f2fp_e4m3_unpack_h0_relu','f2fp_e4m3_unpack_h1_relu',
                    'f2fp_e5m2_unpack_h0_relu','f2fp_e5m2_unpack_h1_relu'):
         changes[family]=('F2FP',None,{})
@@ -261,7 +279,7 @@ def patch_half_fixtures(cubin):
         values={n:v for n,v in decoded.env.items() if isinstance(n,str) and n in names}
         values.update({('@'.join(n)):v for n,v in decoded.env.items() if isinstance(n,tuple) and len(n)==2 and n[0] in names})
         values.update(fields)
-        if family.startswith('f2fp_e') and family.endswith('_pack'):
+        if family.startswith('f2fp_e') and '_pack' in family:
             # The compiler's third input is the last LDG before this F2FP.
             # Hardware carries the selected C half when Rd aliases Rc.
             loads=[pydecode.decode('SM89',code[i:i+16])
@@ -274,7 +292,7 @@ def patch_half_fixtures(cubin):
         replacement=int.from_bytes(bytes.fromhex(encode('SM89',classname or decoded.klass.name,**values)),'little')
         old=int.from_bytes(code[offset:offset+16],'little');mask=(1<<105)-1
         data[offsets[section]+offset:offsets[section]+offset+16]=((replacement&mask)|(old&~mask)).to_bytes(16,'little')
-        if family.startswith('f2fp_e') and family.endswith('_pack'):
+        if family.startswith('f2fp_e') and '_pack' in family:
             # The PTX kernel normally extracts the 16-bit result and rebuilds
             # the upper half from its original C value. Route that mask from
             # F2FP's full SASS result instead, exposing PACK_AB_MERGE_C.
@@ -340,7 +358,12 @@ class Driver:
         return struct.unpack('<'+('Q' if output_size==8 else 'I')*n,result.raw)
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--compile-only',action='store_true');p.add_argument('--require-gpu',action='store_true');p.add_argument('--output',default='/tmp/sass-gpu-oracle');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--compile-only',action='store_true');p.add_argument('--require-gpu',action='store_true');p.add_argument('--output',default='/tmp/sass-gpu-oracle');p.add_argument('--families',nargs='+');a=p.parse_args()
+    if a.families:
+        unknown=set(a.families)-set(SPECS)
+        if unknown: p.error('unknown fixture families: '+', '.join(sorted(unknown)))
+        selected={family:SPECS[family] for family in a.families}
+        SPECS.clear();SPECS.update(selected)
     out=Path(a.output);out.mkdir(parents=True,exist_ok=True);cubin=out/'scalar_semantics.cubin'
     subprocess.run([os.environ.get('NVCC','/usr/local/cuda/bin/nvcc'),'--allow-unsupported-compiler','-diag-suppress=177','-cubin','-arch=sm_89',str(ROOT/'tests/kernels/scalar_semantics.cu'),'-o',str(cubin)],check=True)
     patched=patch_half_fixtures(cubin)
@@ -459,7 +482,7 @@ def main():
                     0x7f800001,1,0x007fffff,0x00800000,0x7f7fffff,0xff7fffff]
                 vectors=[[values[i%len(values)],values[(i*7+3)%len(values)],0]
                          for i in range(128)]
-            if family in ('f2fp_e4m3_pack','f2fp_e5m2_pack'):
+            if family.startswith(('f2fp_e4m3_pack','f2fp_e5m2_pack')):
                 values=[0,0x80000000,1,0x007fffff,0x00800000,0x33800000,
                     0x3f800000,0xbf800000,0x3f801000,0x3f803000,0x40600000,
                     0x43e00000,0x43e10000,0x43e08000,0x477fe000,0x7f800000,
@@ -784,10 +807,11 @@ def main():
                                   if not same_packed(got,want))
                     raise AssertionError((family,'GPU/reference mismatch',mismatch,
                         tuple(hex(x) for x in vectors[mismatch][:2]),hex(gpu[mismatch]),hex(expected[mismatch])))
-            if family in ('f2fp_e4m3_pack','f2fp_e5m2_pack'):
-                fmt='E4M3' if family=='f2fp_e4m3_pack' else 'E5M2'
+            if family.startswith(('f2fp_e4m3_pack','f2fp_e5m2_pack')):
+                fmt='E4M3' if family.startswith('f2fp_e4m3') else 'E5M2'
+                satfinite=not family.endswith('_nosat')
                 expected=tuple((((c>>16)&0xffff)<<16)|
-                    (fp8_reference(x,fmt)<<8)|fp8_reference(y,fmt)
+                    (fp8_reference(x,fmt,satfinite)<<8)|fp8_reference(y,fmt,satfinite)
                     for x,y,c in vectors)
                 if gpu!=expected:
                     mismatch=next(i for i,(got,want) in enumerate(zip(gpu,expected)) if got!=want)
