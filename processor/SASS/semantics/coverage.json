@@ -2497,6 +2497,9 @@
     "opaque_operations": {
       "brev__RCxR_RCxR": "unsupported class shape",
       "flo__RCxR_RCxR": "unsupported class shape",
+      "hadd2__RCx": "unsupported class shape",
+      "hfma2__RCxR": "unsupported class shape",
+      "hfma2__RRCx": "unsupported class shape",
       "hmul2__RCx": "unsupported class shape",
       "i2ip_24__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
       "i2ip_28__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
@@ -2623,10 +2626,12 @@
         "native": 5
       },
       "HADD2": {
-        "native": 5
+        "native": 4,
+        "opaque": 1
       },
       "HFMA2": {
-        "native": 9
+        "native": 7,
+        "opaque": 2
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -2803,8 +2808,8 @@
       }
     },
     "status": {
-      "native": 348,
-      "opaque": 451,
+      "native": 345,
+      "opaque": 454,
       "primitive": 104
     }
   },
@@ -2814,6 +2819,9 @@
     "opaque_operations": {
       "brev__RCxR_RCxR": "unsupported class shape",
       "flo__RCxR_RCxR": "unsupported class shape",
+      "hadd2__RCx": "unsupported class shape",
+      "hfma2__RCxR": "unsupported class shape",
+      "hfma2__RRCx": "unsupported class shape",
       "hmul2__RCx": "unsupported class shape",
       "i2ip_24__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
       "i2ip_28__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
@@ -2940,10 +2948,12 @@
         "native": 5
       },
       "HADD2": {
-        "native": 5
+        "native": 4,
+        "opaque": 1
       },
       "HFMA2": {
-        "native": 9
+        "native": 7,
+        "opaque": 2
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -3120,8 +3130,8 @@
       }
     },
     "status": {
-      "native": 348,
-      "opaque": 451,
+      "native": 345,
+      "opaque": 454,
       "primitive": 104
     }
   },
@@ -3133,6 +3143,7 @@
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "brev__RCxR_RCxR": "unsupported class shape",
       "flo__RCxR_RCxR": "unsupported class shape",
+      "hadd2__RCx": "unsupported class shape",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -3150,11 +3161,13 @@
       "hfma2_mma__RRU_relu": "unsupported class shape",
       "hfma2_mma__RUR_norelu": "unsupported class shape",
       "hfma2_mma__RUR_relu": "unsupported class shape",
+      "hfma2__RCxR": "unsupported class shape",
+      "hfma2__RRCx": "unsupported class shape",
       "hfma2_relu__RCR": "class selectors have no supported native combination",
-      "hfma2_relu__RCxR": "class selectors have no supported native combination",
+      "hfma2_relu__RCxR": "unsupported class shape",
       "hfma2_relu__RIR": "class selectors have no supported native combination",
       "hfma2_relu__RRC": "class selectors have no supported native combination",
-      "hfma2_relu__RRCx": "class selectors have no supported native combination",
+      "hfma2_relu__RRCx": "unsupported class shape",
       "hfma2_relu__RRI": "class selectors have no supported native combination",
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
@@ -3285,11 +3298,12 @@
         "native": 5
       },
       "HADD2": {
-        "native": 5
+        "native": 4,
+        "opaque": 1
       },
       "HFMA2": {
-        "native": 9,
-        "opaque": 9
+        "native": 7,
+        "opaque": 11
       },
       "HFMA2.MMA": {
         "native": 1,
@@ -3469,8 +3483,8 @@
       }
     },
     "status": {
-      "native": 355,
-      "opaque": 508,
+      "native": 352,
+      "opaque": 511,
       "primitive": 104
     }
   },
@@ -3482,6 +3496,7 @@
       "bra_uniform_pred_": "class selectors have no supported native combination",
       "brev__RCxR_RCxR": "unsupported class shape",
       "flo__RCxR_RCxR": "unsupported class shape",
+      "hadd2__RCx": "unsupported class shape",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -3499,11 +3514,13 @@
       "hfma2_mma__RRU_relu": "unsupported class shape",
       "hfma2_mma__RUR_norelu": "unsupported class shape",
       "hfma2_mma__RUR_relu": "unsupported class shape",
+      "hfma2__RCxR": "unsupported class shape",
+      "hfma2__RRCx": "unsupported class shape",
       "hfma2_relu__RCR": "class selectors have no supported native combination",
-      "hfma2_relu__RCxR": "class selectors have no supported native combination",
+      "hfma2_relu__RCxR": "unsupported class shape",
       "hfma2_relu__RIR": "class selectors have no supported native combination",
       "hfma2_relu__RRC": "class selectors have no supported native combination",
-      "hfma2_relu__RRCx": "class selectors have no supported native combination",
+      "hfma2_relu__RRCx": "unsupported class shape",
       "hfma2_relu__RRI": "class selectors have no supported native combination",
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
@@ -3634,11 +3651,12 @@
         "native": 5
       },
       "HADD2": {
-        "native": 5
+        "native": 4,
+        "opaque": 1
       },
       "HFMA2": {
-        "native": 9,
-        "opaque": 9
+        "native": 7,
+        "opaque": 11
       },
       "HFMA2.MMA": {
         "native": 1,
@@ -3818,8 +3836,8 @@
       }
     },
     "status": {
-      "native": 355,
-      "opaque": 508,
+      "native": 352,
+      "opaque": 511,
       "primitive": 104
     }
   },
@@ -3835,8 +3853,6 @@
       "flo__RCxR_RCxR": "unsupported class shape",
       "hadd2_F32__RCx": "unsupported class shape",
       "hadd2__RCx": "unsupported class shape",
-      "hfma2__RCxR": "unsupported class shape",
-      "hfma2__RRCx": "unsupported class shape",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -3854,6 +3870,8 @@
       "hfma2_mma__RRU_relu": "unsupported class shape",
       "hfma2_mma__RUR_norelu": "unsupported class shape",
       "hfma2_mma__RUR_relu": "unsupported class shape",
+      "hfma2__RCxR": "unsupported class shape",
+      "hfma2__RRCx": "unsupported class shape",
       "hfma2_relu__RCR": "class selectors have no supported native combination",
       "hfma2_relu__RCxR": "unsupported class shape",
       "hfma2_relu__RIR": "class selectors have no supported native combination",
@@ -4187,8 +4205,6 @@
       "flo__RCxR_RCxR": "unsupported class shape",
       "hadd2_F32__RCx": "unsupported class shape",
       "hadd2__RCx": "unsupported class shape",
-      "hfma2__RCxR": "unsupported class shape",
-      "hfma2__RRCx": "unsupported class shape",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -4206,6 +4222,8 @@
       "hfma2_mma__RRU_relu": "unsupported class shape",
       "hfma2_mma__RUR_norelu": "unsupported class shape",
       "hfma2_mma__RUR_relu": "unsupported class shape",
+      "hfma2__RCxR": "unsupported class shape",
+      "hfma2__RRCx": "unsupported class shape",
       "hfma2_relu__RCR": "class selectors have no supported native combination",
       "hfma2_relu__RCxR": "unsupported class shape",
       "hfma2_relu__RIR": "class selectors have no supported native combination",
@@ -4539,8 +4557,6 @@
       "flo__RCxR_RCxR": "unsupported class shape",
       "hadd2_F32__RCx": "unsupported class shape",
       "hadd2__RCx": "unsupported class shape",
-      "hfma2__RCxR": "unsupported class shape",
-      "hfma2__RRCx": "unsupported class shape",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -4558,6 +4574,8 @@
       "hfma2_mma__RRU_relu": "unsupported class shape",
       "hfma2_mma__RUR_norelu": "unsupported class shape",
       "hfma2_mma__RUR_relu": "unsupported class shape",
+      "hfma2__RCxR": "unsupported class shape",
+      "hfma2__RRCx": "unsupported class shape",
       "hfma2_relu__RCR": "class selectors have no supported native combination",
       "hfma2_relu__RCxR": "unsupported class shape",
       "hfma2_relu__RIR": "class selectors have no supported native combination",
@@ -4899,8 +4917,6 @@
       "flo__RCxR_RCxR": "unsupported class shape",
       "hadd2_F32__RCx": "unsupported class shape",
       "hadd2__RCx": "unsupported class shape",
-      "hfma2__RCxR": "unsupported class shape",
-      "hfma2__RRCx": "unsupported class shape",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -4918,6 +4934,8 @@
       "hfma2_mma__RRU_relu": "unsupported class shape",
       "hfma2_mma__RUR_norelu": "unsupported class shape",
       "hfma2_mma__RUR_relu": "unsupported class shape",
+      "hfma2__RCxR": "unsupported class shape",
+      "hfma2__RRCx": "unsupported class shape",
       "hfma2_relu__RCR": "class selectors have no supported native combination",
       "hfma2_relu__RCxR": "unsupported class shape",
       "hfma2_relu__RIR": "class selectors have no supported native combination",
@@ -5264,8 +5282,6 @@
       "fmnmx_pred__RUR_RUR": "unsupported class shape",
       "hadd2_F32__RCx": "unsupported class shape",
       "hadd2__RCx": "unsupported class shape",
-      "hfma2__RCxR": "unsupported class shape",
-      "hfma2__RRCx": "unsupported class shape",
       "hfma2_mma__RCR": "unsupported class shape",
       "hfma2_mma__RCxR": "unsupported class shape",
       "hfma2_mma__RIR": "unsupported class shape",
@@ -5284,6 +5300,8 @@
       "hfma2_mma_relu__RRR": "unsupported class shape",
       "hfma2_mma_relu__RRU": "unsupported class shape",
       "hfma2_mma_relu__RUR": "unsupported class shape",
+      "hfma2__RCxR": "unsupported class shape",
+      "hfma2__RRCx": "unsupported class shape",
       "hfma2_relu__RCR": "class selectors have no supported native combination",
       "hfma2_relu__RCxR": "unsupported class shape",
       "hfma2_relu__RIR": "class selectors have no supported native combination",
@@ -5343,9 +5361,9 @@
       "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs",
       "viaddmnmx__RCxR_RCxR": "VIADDMNMX requires three 32-bit non-CX values",
       "viaddmnmx__RRCx_RRCx": "VIADDMNMX requires three 32-bit non-CX values",
-      "vimnmx3__RCxR_RCxR": "VIMNMX3 requires three 32-bit non-CX values",
       "vimnmx__RCxR_RCxR": "VIMNMX requires two 32-bit non-CX values",
-      "vimnmx_pred__RCxR_RCxR": "VIMNMX requires two 32-bit non-CX values"
+      "vimnmx_pred__RCxR_RCxR": "VIMNMX requires two 32-bit non-CX values",
+      "vimnmx3__RCxR_RCxR": "VIMNMX3 requires three 32-bit non-CX values"
     },
     "operations": {
       "BAR": {
@@ -5632,8 +5650,6 @@
       "fmnmx_pred__RUR_RUR": "unsupported class shape",
       "hadd2_F32__RCx": "unsupported class shape",
       "hadd2__RCx": "unsupported class shape",
-      "hfma2__RCxR": "unsupported class shape",
-      "hfma2__RRCx": "unsupported class shape",
       "hfma2_mma__RCR": "unsupported class shape",
       "hfma2_mma__RCxR": "unsupported class shape",
       "hfma2_mma__RIR": "unsupported class shape",
@@ -5652,6 +5668,8 @@
       "hfma2_mma_relu__RRR": "unsupported class shape",
       "hfma2_mma_relu__RRU": "unsupported class shape",
       "hfma2_mma_relu__RUR": "unsupported class shape",
+      "hfma2__RCxR": "unsupported class shape",
+      "hfma2__RRCx": "unsupported class shape",
       "hfma2_relu__RCR": "class selectors have no supported native combination",
       "hfma2_relu__RCxR": "unsupported class shape",
       "hfma2_relu__RIR": "class selectors have no supported native combination",
@@ -5711,9 +5729,9 @@
       "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs",
       "viaddmnmx__RCxR_RCxR": "VIADDMNMX requires three 32-bit non-CX values",
       "viaddmnmx__RRCx_RRCx": "VIADDMNMX requires three 32-bit non-CX values",
-      "vimnmx3__RCxR_RCxR": "VIMNMX3 requires three 32-bit non-CX values",
       "vimnmx__RCxR_RCxR": "VIMNMX requires two 32-bit non-CX values",
-      "vimnmx_pred__RCxR_RCxR": "VIMNMX requires two 32-bit non-CX values"
+      "vimnmx_pred__RCxR_RCxR": "VIMNMX requires two 32-bit non-CX values",
+      "vimnmx3__RCxR_RCxR": "VIMNMX3 requires three 32-bit non-CX values"
     },
     "operations": {
       "BAR": {

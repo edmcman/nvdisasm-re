@@ -30,6 +30,8 @@ SPECS={
  'i2ip_s8_nosat':('I2IP.S8',), 'i2ip_s8_satrelu':('I2IP.S8',),
  'i2ip_s4_satrelu':('I2IP.S4',),
  'fsel':('FSEL',), 'fmin':('FMNMX',), 'fmax':('FMNMX',),
+ 'fmin_nan':('FMNMX.NAN',), 'fmax_nan':('FMNMX.NAN',),
+ 'fmin_ftz_nan':('FMNMX.FTZ.NAN',), 'fmax_ftz_nan':('FMNMX.FTZ.NAN',),
  'fmin_ftz':('FMNMX.FTZ',), 'fmax_ftz':('FMNMX.FTZ',),
  'i2f':('I2FP',), 'fadd_ftz':('FADD.FTZ',),
  'ffma_sat':('FFMA.SAT',), 'shared':('LDS','STS'), 'local':('LDL','STL'),
@@ -105,7 +107,11 @@ def patch_half_fixtures(cubin):
         'hadd2_lanes':('HADD2',None,dict(iswzA='H0_H0',iswzB_as_C='H1_H1',**{'Ra@absolute':1,'Rc@negate':1})),
         'hfma2_lanes':('HFMA2',None,dict(iswzA='H1_H1',iswzB='H0_H0',iswzC='H1_H0',**{'Ra@negate':1,'Rb@absolute':1})),
         'hmul2_lanes':('HMUL2',None,dict(iswzA='H0_H0',iswzB='H1_H1',**{'Ra@absolute':1,'Rb@negate':1})),
-        'hmul2_fmz':('HMUL2','hmul2__RR',dict(fmz='FMZ'))}
+        'hmul2_fmz':('HMUL2','hmul2__RR',dict(fmz='FMZ')),
+        'fmin_nan':('FMNMX',None,dict(nan='NAN')),
+        'fmax_nan':('FMNMX',None,dict(nan='NAN')),
+        'fmin_ftz_nan':('FMNMX',None,dict(ftz='FTZ',nan='NAN')),
+        'fmax_ftz_nan':('FMNMX',None,dict(ftz='FTZ',nan='NAN'))}
     changes.update({
         'i2ip_s8_nosat':('I2IP','i2ip__RRR_RRR',dict(satrelu='nosatrelu')),
         'i2ip_s8_satrelu':('I2IP','i2ip__RRR_RRR',dict(satrelu='SATRELU')),
@@ -197,7 +203,7 @@ def main():
                     (0x01020304,0x05060708,0x00000000),
                     (0x80000000,0x7fffffff,0x7f80ff01),
                     (0xdeadbeef,0x12345678,0xabcdef01)]
-            if family in ('fsel','fmin','fmax','fmin_ftz','fmax_ftz'):
+            if family in ('fsel','fmin','fmax','fmin_nan','fmax_nan','fmin_ftz_nan','fmax_ftz_nan','fmin_ftz','fmax_ftz'):
                 pairs=[(0,0x80000000),(0x80000000,0),(0x7fc00000,0x3f800000),
                        (0x3f800000,0x7fc00000),(0x7f800001,0xff800001),
                        (1,0),(0x80000001,0),(0x007fffff,0x80000001)]
@@ -284,6 +290,27 @@ def main():
                 expected=tuple(reference(v[0]) for v in vectors)
                 if gpu!=expected:
                     mismatch=next((i for i,(actual,want) in enumerate(zip(gpu,expected)) if actual!=want),None)
+                    raise AssertionError((family,'GPU/reference mismatch',mismatch,vectors[mismatch],hex(gpu[mismatch]),hex(expected[mismatch])))
+            if family in ('fmin','fmax','fmin_nan','fmax_nan','fmin_ftz_nan','fmax_ftz_nan','fmin_ftz','fmax_ftz'):
+                is_min=family.startswith('fmin')
+                is_nan_mode=family.endswith('_nan')
+                is_ftz='ftz' in family
+                def fmnmx_expected(x,y):
+                    if is_ftz:
+                        if x&0x7f800000==0:x &= 0x80000000
+                        if y&0x7f800000==0:y &= 0x80000000
+                    xnan=x&0x7f800000==0x7f800000 and x&0x007fffff!=0
+                    ynan=y&0x7f800000==0x7f800000 and y&0x007fffff!=0
+                    if is_nan_mode and (xnan or ynan):return 0x7fffffff
+                    if xnan:return 0x7fffffff if ynan else y
+                    if ynan:return x
+                    xf=struct.unpack('<f',x.to_bytes(4,'little'))[0]
+                    yf=struct.unpack('<f',y.to_bytes(4,'little'))[0]
+                    if xf==yf==0:return (x|y) if is_min else (x&y)
+                    return x if (xf<yf)==is_min else y
+                expected=tuple(fmnmx_expected(x,y) for x,y,_ in vectors)
+                if gpu!=expected:
+                    mismatch=next(i for i,(got,want) in enumerate(zip(gpu,expected)) if got!=want)
                     raise AssertionError((family,'GPU/reference mismatch',mismatch,vectors[mismatch],hex(gpu[mismatch]),hex(expected[mismatch])))
             if family.startswith('vabsdiff4_'):
                 signed='_s8_' in family;acc=family.endswith('_acc')

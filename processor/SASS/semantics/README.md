@@ -46,7 +46,7 @@ has value semantics. `primitive` means the runtime validates and executes the
 operation or rejects an unsupported selector/context. `opaque` means the md's
 register effects, registers and immediates are passed without asserting a result.
 The coverage ledger's architecture-wide `hardware_verified` flag remains false:
-GPU comparisons currently cover the 60 whole-kernel SM89 fixtures recorded in
+GPU comparisons currently cover the 89 whole-kernel SM89 fixtures recorded in
 [verification.json](verification.json), rather than every class and selector.
 
 IMAD.HI adds the 64-bit addend before selecting the high word; IMAD.WIDE
@@ -128,10 +128,12 @@ the ten SM75-SM90 languages. The oracle does not claim PTX generated CX.
 
 FSEL selects the modified floating input, with optional .FTZ. FMNMX implements
 ordinary min/max, including .FTZ: a numeric input wins over NaN, two NaNs yield
-`0x7fffffff`, and equal signed zeros yield -0 for min or +0 for max. Predicate
-true selects min; false selects max. .NAN, .XORSIGN and predicate-result .IS_A forms remain opaque. The GPU checks
-compare FSEL and ordinary FMNMX (including FMNMX.FTZ) bits exactly on SM89.
-FSEL.FTZ and other architectures have emulator coverage.
+`0x7fffffff`, and equal signed zeros yield -0 for min or +0 for max. With
+.NAN, either NaN input produces canonical `0x7fffffff`; numeric inputs still
+use the ordinary min/max and signed-zero rules. Predicate true selects min;
+false selects max. .XORSIGN and predicate-result .IS_A forms remain opaque.
+The SM89 GPU checks compare FSEL and FMNMX bits exactly, including .FTZ,
+.NAN and .FTZ.NAN. FSEL.FTZ and other architectures have emulator coverage.
 
 FMNMX3 is native on SM100/SM103 for PT/!PT, `noftz`/`nonan` RRR, RUR, and
 immediate-B forms. It applies two ordered comparisons: PT selects the three-way minimum,
@@ -346,12 +348,12 @@ not a Python reimplementation of the instruction dispatcher. `GHIDRA_PY`
 selects the pyghidra Python interpreter. In a restricted environment, set
 `XDG_CONFIG_HOME` and `XDG_CACHE_HOME` to writable scratch directories.
 
-The CUDA Driver API oracle compiles 60 SM89 kernels and executes their actual
+The CUDA Driver API oracle compiles 89 SM89 kernels and executes their actual
 `.text` through Ghidra's normal instruction stepping, from the prologue through
 EXIT. It compares 128 random/edge input vectors per kernel (four blocks of 32),
 including NaNs, infinities, denormals, signed zero, and integer boundaries.
 Target mnemonics must both appear in cuobjdump output and execute in the emulator.
-All 7,680 output comparisons passed on the RTX 4070 Laptop GPU.
+All 11,392 output comparisons passed on the RTX 4070 Laptop GPU.
 
 `tests/carry_semantics.py --require-gpu` adds 210 patched SM89 whole-kernel
 variants (26,880 comparisons) for IADD3, LEA and IMAD carry chains, including
@@ -379,9 +381,10 @@ FADD/FMUL/FFMA/DADD/DMUL/DFMA. Each uses edge vectors whose residual lies below
 the wide format's precision, exact cancellations, and overflow. FSEL and FMNMX min/max have dedicated fixtures, including FMNMX.FTZ
 and mixed NaN/signed-zero/denormal pairs. FP16 has ordinary/saturating and
 broadcast/modifier fixtures; MMA move constants include signed zero, negative
-signaling/quiet NaNs, denormals, and infinities. Seven fixtures replace one
-arithmetic word in the compiled kernel to request SASS modes directly; scheduling
-bits and compiled prologues remain intact. The manifest records these patches.
+signaling/quiet NaNs, denormals, and infinities. Mode-specific fixtures replace
+one arithmetic word in a compiled kernel to request SASS modes directly;
+scheduling bits and compiled prologues remain intact. The manifest records
+these patches.
 SM89 F2I.TRUNC.NTZ to S32 maps NaN to zero and clamps infinities/overflow;
 other NTZ combinations still reject until verified.
 

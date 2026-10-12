@@ -420,8 +420,45 @@ def cases(sm,fp='exact'):
             ftz='noftz',nan='nonan'),dict(R2=0x3f800000,R4=0x40000000,
             R6=0x40400000,P0=1),dict(error='sass_opaque_FMNMX3'))
     add('fmnmx_pred__RRR_RRR',dict(Rd=8,Pu=0,Ra=2,Rb=4,Pp='PT'),{},dict(error='sass_opaque_FMNMX'))
-    if 'nan' in classes['fmnmx__RRR_RRR'].operand_types:
-        add('fmnmx__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Pp='PT',nan='NAN'),{},dict(error='sass_opaque_FMNMX'))
+    # FMNMX.NAN returns canonical +NaN if either source is NaN; otherwise it
+    # preserves the ordinary min/max result and signed-zero rule.
+    fmnmx_nan_values=[0x7fc12345,0x7f812345,0xffc54321,0xff812345,
+                      0x3f800000,0xc0000000,0,0x80000000,0x7f800000,0xff800000]
+    for klass in (k for k in arch.classes if k.mnemonic=='FMNMX' and
+                  k.name.startswith('fmnmx__') and not k.alternate):
+        if 'nan' not in klass.operand_types:continue
+        source=next((n for n in ('Rb','Sb','URb') if n in klass.operand_types),None)
+        if source is None:continue
+        atom=klass.operand_types[source]
+        if atom.type=='CX':continue
+        for i,a in enumerate(fmnmx_nan_values):
+            c=fmnmx_nan_values[(i*3+1)%len(fmnmx_nan_values)]
+            for ftz_mode in ('noftz','FTZ'):
+                aa=(a&0x80000000) if ftz_mode=='FTZ' and a&0x7f800000==0 else a
+                cc=(c&0x80000000) if ftz_mode=='FTZ' and c&0x7f800000==0 else c
+                for is_min in (False,True):
+                    fields={'Rd':8,'Ra':2,'Pp':'PT','Pp@not':int(not is_min),
+                            'nan':'NAN','ftz':ftz_mode}
+                    if 'xorsign' in klass.operand_types:fields['xorsign']='noxorsign'
+                    regs={'R2':a};memory=[]
+                    if atom.type=='Register':fields[source]=4;regs['R4']=c
+                    elif atom.type=='UniformRegister':fields[source]=4;regs['UR4']=c
+                    elif atom.type=='F32Imm':fields[source]=c
+                    elif atom.type=='C':
+                        fields.update(Sb_bank=2,Sb_addr=0x100)
+                        memory=[dict(space='cbank',address=(2<<32)|0x100,
+                                     hex=c.to_bytes(4,'little').hex())]
+                    else:continue
+                    anan=aa&0x7f800000==0x7f800000 and aa&0x007fffff!=0
+                    cnan=cc&0x7f800000==0x7f800000 and cc&0x007fffff!=0
+                    if anan or cnan:want=0x7fffffff
+                    else:
+                        af=struct.unpack('<f',aa.to_bytes(4,'little'))[0]
+                        cf=struct.unpack('<f',cc.to_bytes(4,'little'))[0]
+                        if af==cf==0:want=(aa|cc) if is_min else (aa&cc)
+                        else:want=aa if (af<cf)==is_min else cc
+                    add(klass.name,fields,regs,{'R8':want,'__native':True},
+                        **({'memory':memory} if memory else {}))
     add('mov__RI',dict(Rd=3,Sb=0xdeadbeef,PixMaskU04=15),{},dict(R3=0xdeadbeef,__max_ops=1))
     add('mov__RR',dict(Rd=3,Rb=2,PixMaskU04=15),dict(R2=0xdeadbeef),dict(R3=0xdeadbeef,__max_ops=1))
     add('mov__RR',dict(Rd=2,Rb=2,PixMaskU04=15),dict(R2=0xdeadbeef),dict(R2=0xdeadbeef))

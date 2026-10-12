@@ -999,7 +999,7 @@ def emit_FMNMX(b,check=False):
     names=float_shape(b,'Ra/Sa','Rb/Sb')
     p=operands(b,'Pp')[0]
     if check:return bool(names and p) and set(b.outputs)=={'Rd'}
-    # .XORSIGN changes the formula; exact .NAN requires hardware evidence.
+    # .XORSIGN changes the formula and remains unverified.
     require(b,'xorsign',['noxorsign'])
     _,_,(a,c)=float_inputs(b,names)
     predicate=b.flag(p)
@@ -1009,21 +1009,32 @@ def emit_FMNMX(b,check=False):
         b.body += [f'if (({a} f< {c}) != {predicate}) goto <minmaxdone>;',f'{result.symbol} = {a};',
                    '<minmaxdone>',f'{output(b).symbol} = {result.symbol};']
         return
-    require(b,'nan',['nonan'])
+    nan_modes=enum_cases(b,'nan',['nonan','NAN'])
     # Numeric input wins over NaN. Equal signed zeros use OR for min and AND
     # for max; this preserves -0 for min and +0 for max in either source order.
-    result=b.local(4,c)
-    b.body += [f'if (!nan({a})) goto <numeric_a>;',
-               f'if (!nan({c})) goto <minmaxdone>;',
-               f'{result.symbol} = 0x7fffffff;','goto <minmaxdone>;',
-               '<numeric_a>',f'if (nan({c})) goto <choosea>;',
-               f'if ((({a} | {c}) & 0x7fffffff) != 0) goto <compare>;',
-               f'if ({predicate} == 0) goto <maxzero>;',
-               f'{result.symbol} = {a} | {c};','goto <minmaxdone>;',
-               '<maxzero>',f'{result.symbol} = {a} & {c};','goto <minmaxdone>;',
-               '<compare>',f'if (({a} f< {c}) != {predicate}) goto <minmaxdone>;',
-               '<choosea>',f'{result.symbol} = {a};','<minmaxdone>',
-               f'{output(b).symbol} = {result.symbol};']
+    cases={}
+    has_nan_selector='nan' in b.values
+    for label,value in nan_modes.items():
+        if label is None:label='nonan'
+        lines=['local r:4 = '+c+';']
+        if label=='NAN':
+            lines += [f'if (nan({a}) || nan({c})) goto <nan_result>;']
+        else:
+            lines += [f'if (!nan({a})) goto <numeric_a>;',
+                      f'if (!nan({c})) goto <minmaxdone>;',
+                      'r = 0x7fffffff;','goto <minmaxdone>;','<numeric_a>',
+                      f'if (nan({c})) goto <choosea>;']
+        lines += [f'if ((({a} | {c}) & 0x7fffffff) != 0) goto <compare>;',
+                  f'if ({predicate} == 0) goto <maxzero>;',
+                  f'r = {a} | {c};','goto <minmaxdone>;',
+                  '<maxzero>',f'r = {a} & {c};','goto <minmaxdone>;',
+                  '<compare>',f'if (({a} f< {c}) != {predicate}) goto <minmaxdone>;',
+                  *(['<choosea>'] if label!='NAN' else []),f'r = {a};']
+        if label=='NAN':lines += ['goto <minmaxdone>;','<nan_result>','r = 0x7fffffff;']
+        lines += ['<minmaxdone>','export r;']
+        cases[(value,) if has_nan_selector else ()]= '\n'.join(lines)
+    table=b.select_code(('nan',) if has_nan_selector else (),cases)
+    b.body.append(f'{output(b).symbol} = {table};')
 
 
 def emit_FMNMX3(b,check=False):
