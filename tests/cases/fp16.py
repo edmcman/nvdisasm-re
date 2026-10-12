@@ -82,7 +82,6 @@ def arithmetic(c):
                 c.add(k.name, fields, regs, dict(R2=want, __native=True), memory=memory)
     c.add("hadd2__RR", dict(Rd=8, Ra=2, Rc=4, ftz="FTZ"), {}, dict(error="sass_opaque_HADD2"))
     c.add("hfma2__RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6, fmz="FMZ"), {}, dict(error="sass_opaque_HFMA2"))
-    c.add("hfma2__RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6, ofmt="F32"), {}, dict(error="sass_opaque_HFMA2"))
 
     def hmul2(a, b, mode, sat):
         out = []

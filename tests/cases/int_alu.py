@@ -126,7 +126,6 @@ def fixed(c):
     c.add("mov__RI", dict(Rd=3, Sb=5, PixMaskU04=1), {}, dict(error="sass_opaque_MOV"))
     c.add("imad_wide__RRR_RRR", dict(Rd="RZ", Ra=2, Rb=4, Rc=6, fmt="U32"), dict(R2=3, R4=4, R6=5, R7=1), dict(RZ=0, PT=1))
     c.add("imad_wide__RRR_RRR", dict(Rd=8, Ra=2, Rb=4, Rc="RZ", fmt="U32"), dict(R2=3, R4=4), dict(R8=12, R9=0))
-    c.add("imad_wide__RRR_RRR", dict(Rd=254, Ra=2, Rb=4, Rc=6, fmt="U32"), dict(R2=2, R4=3, R6=1, R7=1), dict(error="sass_opaque_IMAD"))
     c.add("imad_wide__RRR_RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6, fmt="U32"), dict(R2=0xffffffff, R4=2, R6=3, R7=1), dict(R8=1, R9=3))
     c.add("isetp__RRR_RRR_noEX", dict(Pu=0, Pv=1, Ra=2, Rb=4, Pp=2, icmp="LT", bop="AND", fmt="U32"), dict(R2=2, R4=3, P2=1), dict(P0=1, P1=0))
     c.add("shf__RRR_RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6, fmt="U32", dir="R", cw="W", hilo="LO"), dict(R2=0xabcdef12, R4=36, R6=0x12345678), dict(R8=0x8abcdef1))

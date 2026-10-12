@@ -4,7 +4,7 @@ import ctypes as C, hashlib, struct, subprocess
 from dataclasses import dataclass, field
 from typing import Callable
 from sass import cubin as elf, pydecode
-from tests.harness.case import word
+from sass.pyencode import word
 from tests.paths import CACHE, NVCC, ROOT
 
 ENCODING = (1 << 105) - 1  # instruction bits below the scheduling controls

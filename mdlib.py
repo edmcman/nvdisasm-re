@@ -93,9 +93,14 @@ def literal(tok):
     try: return int(tok.replace("_", ""), 0)
     except ValueError: return tok
 
+def parse_constants(text):
+    """`NAME = int` lines of the PARAMETERS and CONSTANTS sections (%NAME and $NAME in expressions)."""
+    return {n: int(v, 0) for n, v in re.findall(r"^\s*(\w+)\s*=\s*(-?(?:0x[0-9a-fA-F]+|\d+))\s*$", text, re.M)}
+
 def load_arch(arch):
     d = OUT / arch
     pre = preamble(d)
     return dict(arch=arch, classes=load_classes(d),
+                constants=parse_constants(between(pre, "PARAMETERS", "STRING_MAP")),
                 enums=parse_enums(between(pre, "REGISTERS", "TABLES")),
                 tables=parse_tables(between(pre, "TABLES", "OPERATION PROPERTIES")))

@@ -4,7 +4,7 @@ three inputs per thread and write one output; families supply vectors and refere
 import random
 from functools import cache
 from sass import ir, pydecode
-from tests.harness.case import encode, klass
+from sass.pyencode import encode, klass
 from tests.harness.gpu import ENCODING, Fixture, Template, compile
 from sass import softfloat
 from tests.refs.bits import nan16

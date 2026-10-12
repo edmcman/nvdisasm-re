@@ -1,59 +1,10 @@
-"""Single-instruction emulator cases: md-driven encoding and operand placement."""
-from functools import cache
+"""Single-instruction emulator cases: operand placement and the Case/Cases collections
+(words come from sass.pyencode)."""
 from typing import NamedTuple
-from sass import ir, pydecode
-from sass.gen_sleigh import default_value, ENUM_FILE, REG_FILES
+from sass import ir
+from sass.pyencode import encode
 
 IMMEDIATES = ("SImm", "UImm", "F32Imm")
-
-
-@cache
-def klass(arch, name):
-    return next(c for c in ir.load(arch).classes if c.name == name)
-
-
-def encode(arch, cls, **values):
-    """Hex word for `cls` with operand values (enum labels or numbers); `name@attr` sets modifiers."""
-    md, k = ir.load(arch), klass(arch, cls)
-    desired = {}
-    for atom in k.operand_types.values():
-        value = values.get(atom.name, default_value(md, atom))
-        if value is None and atom.type in ENUM_FILE:
-            value = REG_FILES[ENUM_FILE[atom.type]][3] if atom.kind == "guard" or "Predicate" in atom.type else 0
-        if value is None: value = min(md.enums[atom.type].values()) if atom.type in md.enums else 0
-        if isinstance(value, str): value = md.enums[atom.type][value]
-        desired[atom.name] = value
-    desired.update({tuple(n.split("@")): v for n, v in values.items() if "@" in n})
-    word = k.constraint_bits
-    for f, r in k.rules:
-        match r[0]:
-            case "op": raw = desired.get(r[1], 0) // r[2]
-            case "attr": raw = desired.get((r[1], r[2]), 0)
-            case "table" if r[1] == "IDENTICAL": raw = desired[r[2][0][1]]
-            case "table":
-                candidates = [(sum(desired.get(pydecode.key(a), 0) != v for a, v in zip(r[2], row) if a[0] != "const"), raw)
-                              for raw, rows in pydecode.table_inverse(md, r[1]).items() for row in rows
-                              if all(a[0] != "const" or a[1] == v for a, v in zip(r[2], row))]
-                if not candidates: raise ValueError(r[1])
-                raw = min(candidates)[1]
-            case _: continue
-        word = (word & ~f.mask) | f.put(raw & ((1 << f.width) - 1))
-    data = ((word & ~k.constraint_mask) | k.constraint_bits).to_bytes(16, "little")
-    decoded = pydecode.decode(arch, data)
-    if decoded.klass.name != cls: raise ValueError((cls, decoded.klass.name))
-    for name, value in values.items():
-        key = tuple(name.split("@")) if "@" in name else name
-        if isinstance(value, str): value = md.enums[k.operand_types[name].type][value]
-        if key in decoded.env and decoded.env[key] != value:
-            if isinstance(value, int) and value < 0:
-                source = next(((f, r[2]) for f, r in k.rules if r[0] == "op" and r[1] == name), None)
-                if source and decoded.env[key] == value % ((1 << source[0].width) * source[1]): continue
-            raise ValueError((name, value, decoded.env[key]))
-    return data.hex()
-
-
-def word(arch, cls, **values):
-    return int.from_bytes(bytes.fromhex(encode(arch, cls, **values)), "little")
 
 
 def cbank(bank, address, value, size=4):

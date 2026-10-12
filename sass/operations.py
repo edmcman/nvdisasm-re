@@ -6,6 +6,8 @@ This module does not equate PTX syntax with undocumented SASS variants.
 from dataclasses import dataclass
 from itertools import product
 from sass import fpops
+from sass.sem_family import FAMILIES
+import sass.families  # registers the semantics families
 
 OPERATION_FAMILIES = set('IADD3 IMAD LOP3 SHF BMSK LEA IABS IMNMX ISETP SEL PRMT MOV S2R CS2R LDC FADD FMUL FFMA FSETP F2I F2FP I2F I2FP MUFU LDG STG LDS STS LDL STL BRA EXIT CALL RET BSSY BSYNC BAR SHFL VOTE ULDC NOP'.split())
 ALIASES = dict(UIADD3='IADD3', UIMAD='IMAD', USHF='SHF', ULEA='LEA',
@@ -20,6 +22,8 @@ PRIMITIVES = set('FADD FMUL FFMA FSETP F2I I2F I2FP MUFU PRMT SHFL VOTE BAR BSSY
 class Override:
     family: str
     implementation: str
+
+OPERATION_FAMILIES.update(FAMILIES)
 
 REGISTRY = {op: Override(op,'primitive' if op in PRIMITIVES else 'native') for op in OPERATION_FAMILIES}
 
@@ -64,6 +68,9 @@ def dispatch(b,fallback='opaque'):
 
 def emit(b):
     op=b.k.mnemonic
+    if op in FAMILIES:
+        from sass import sem_sleigh
+        return sem_sleigh.emit(b)
     if op not in REGISTRY:return 'opaque','outside implemented operation families'
     fn=globals().get('emit_'+ALIASES.get(op,op))
     if op in PRIMITIVES and not (fn and fn(b,check=True)):
@@ -264,27 +271,6 @@ def emit_IMAD(b,check=False):
         slow=fast[:-1]+[f'local cout:1 = {overflow};',fast[-1],f'{predicate.symbol} = cout;']
         carry_choice(b,fast,slow,['Pu','UPu'])
     else:b.body+=fast
-
-
-def emit_IADD3(b,check=False):
-    a,c,d=operands(b,'Ra/Sa','Rb/Sb','Rc/Sc')
-    if check:return all((a,c,d)) and output(b) is not None and all(b.values[n].size==4 for n in (a,c,d))
-    extended='X' in b.values
-    p,q=operands(b,'Pp','Pq')
-    if extended and not (p and q) or not extended and (p or q):b.reject()
-    exclusive_modifiers(b,a,c,'invert' if extended else 'negate')
-    aa,bb,cc=(b.flag(n) for n in (a,c,d))
-    fast=[f'local first:4 = {aa} + {bb};',f'local total:4 = first + {cc};']
-    if extended:fast += [f'total = total + zext({b.flag(p)}) + zext({b.flag(q)});']
-    fast += [f'{output(b).symbol} = total;']
-    av,bv,cv=[modified_word(b,n) for n in (a,c,d)]
-    slow=[f'local total:8 = {av} + {bv} + {cv}'+(f' + zext({b.flag(p)}) + zext({b.flag(q)})' if extended else '')+';',
-          'local cout1:1 = total >= 0x100000000:8; local cout2:1 = total >= 0x200000000:8;',
-          f'{output(b).symbol} = total:4;']
-    # Hardware gives Pu priority when the two predicate destinations alias.
-    for name in ('Pv','UPv','Pu','UPu'):
-        if name in b.outputs:slow.append(f'{b.outputs[name].symbol} = {"cout1" if name.endswith("u") else "cout2"};')
-    carry_choice(b,fast,slow,['Pu','UPu','Pv','UPv'])
 
 
 def emit_IADD(b,check=False):
@@ -683,28 +669,6 @@ def emit_VABSDIFF4(b,check=False):
             cases[(fv,rv)]=code
     result=b.select_code(('fmt','red'),cases)
     b.body.append(f'{dst.symbol} = {result};')
-
-
-def emit_BMSK(b,check=False):
-    position,width=operands(b,'Ra','Rb/Sb')
-    if check:
-        if width and b.k.operand_types[width].type=='CX' and b.values[width].kind=='runtime-primitive':
-            b.unsupported_reason='CX header layout is not implemented for this architecture; requires a sass_operand_value provider'
-        return all((position,width)) and output(b) is not None and output(b).size==4 and all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (position,width))
-    require(b,'cw',['C','W'])
-    modes=enum_cases(b,'cw',['C','W']);a,n=b.flag(position),b.flag(width)
-    # P-code shifts by >= the word size produce zero. Clamp before adding the
-    # position, so a large unsigned width cannot wrap the end position.
-    cases={}
-    for mode,value in modes.items():
-        code=f'local pos:4 = {a}; local width:4 = {n}; '
-        if mode=='W':code+='pos = pos & 31; width = width & 31; '
-        else:code+='if (width <= 32) goto <width_ready>; width = 32; <width_ready> '
-        code+='local result:4 = 0; if (pos >= 32) goto <done>; '
-        code+='result = (0xffffffff:4 << pos) & ~(0xffffffff:4 << (pos + width)); <done> export result;'
-        cases[(value,)]=code
-    result=b.select_code(('cw',),cases)
-    b.body.append(f'{output(b).symbol} = {result};')
 
 
 def emit_SHF(b,check=False):

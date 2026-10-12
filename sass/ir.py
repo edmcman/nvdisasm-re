@@ -157,6 +157,12 @@ class Klass:
     aliases: list = field(default_factory=list)  # (name, enum type, pattern table, arg names)
     sched: dict = field(default_factory=dict)    # typed operands of $( ... )$ scheduling groups: name -> type
     strict: frozenset = frozenset()              # `field=*X`: X must be a valid enum value or the class does not match
+    conditions: tuple = ()                       # md CONDITIONS: (kind, expression, message)
+
+CONDITION = re.compile(r'^(\w+)\s*\n(.*?):\s*\n?\s*"([^"]*)"', re.S | re.M)
+
+def parse_conditions(text):
+    return tuple((k, " ".join(e.split()), msg) for k, e, msg in CONDITION.findall(mdlib.strip_comments(text)))
 
 def build_class(c, order):
     rules = parse_encoding(c["sections"]["ENCODING"])
@@ -174,7 +180,7 @@ def build_class(c, order):
              for t, n in re.findall(r"(\w+)(?:\([^)]*\))?:(\w+)", g)}
     return Klass(c["cls"], c["alternate"], base[0], opcode, rules, fmt, order, mask, bits,
                  {a.name: a for a in fmt if a.kind in ("operand", "guard", "mod")}, aliases, sched,
-                 strict_operands(c["sections"]["ENCODING"]))
+                 strict_operands(c["sections"]["ENCODING"]), parse_conditions(c["sections"].get("CONDITIONS", "")))
 
 @dataclass
 class Arch:
@@ -182,6 +188,7 @@ class Arch:
     classes: list
     enum_defs: dict  # enum -> [(member, value)] in definition order
     tables: dict
+    constants: dict  # PARAMETERS and CONSTANTS (%NAME, $NAME)
 
     @cached_property
     def enums(self):  # member -> value of its first definition
@@ -194,4 +201,4 @@ class Arch:
 @cache
 def load(arch):
     md = mdlib.load_arch(arch)
-    return Arch(arch, [build_class(c, i) for i, c in enumerate(md["classes"])], md["enums"], md["tables"])
+    return Arch(arch, [build_class(c, i) for i, c in enumerate(md["classes"])], md["enums"], md["tables"], md["constants"])

@@ -9,7 +9,7 @@ from pathlib import Path
 from collections import defaultdict
 from dataclasses import dataclass
 from functools import cache
-from sass import ir
+from sass import ir, mdcond
 
 IMM = re.compile(r"(?P<rel>R)?(?P<signed>S|U)Imm|(?P<float>F(?:16|32|64))Imm")
 PREFIX = {"C": "c", "CX": "cx", "A": "a", "DESC": "desc"}
@@ -24,6 +24,7 @@ class Decoded:
     text: str
     env: dict
     candidates: list
+    widths: dict = None  # operand -> decoded field width (bits, scale included)
 
 def table_inverse(arch, name):
     return _inverse(arch.name, name)
@@ -247,24 +248,28 @@ def index(archname):
 def candidates(arch, w):
     return [k for k in index(arch.name)[w & 0xfff] if w & k.constraint_mask == k.constraint_bits]
 
-def decode(archname, word: bytes, addr=0):
+def decode(archname, word: bytes, addr=0, conditions=True):
+    """Decode one word. md CONDITIONS errors make a class not match unless `conditions=False`
+    (nvdisasm prints such words; the nvdisasm comparison opts out)."""
     arch, w = ir.load(archname), int.from_bytes(word, "little")
     ok, errs = [], []
     for k in candidates(arch, w):
         try:
             env, widths = decode_env(arch, k, w)
+            if conditions and (bad := mdcond.violation(arch, k, env)):
+                raise NoMatch(f"{k.name}: {bad[0]}: {bad[1]}")
             env["__addr"], env["__strict"] = addr, k.strict
             pseudo = apply_aliases(arch, k, env, widths) and sched_valid(arch, k, env)
-            ok.append((k, render(arch, k, env, widths), env, pseudo))
+            ok.append((k, render(arch, k, env, widths), env, pseudo, widths))
         except NoMatch as e: errs.append(str(e))
     # ALTERNATE classes are assembler syntax; nvdisasm prints one only as an active pseudo-op (e.g. IMAD.MOV).
-    ok = [o for o in ok if o[3] or not o[0].alternate]
+    ok = [o for o in ok if o[3] or not o[0].alternate]  # (class, text, env, pseudo, widths)
     if not ok: raise NoMatch("; ".join(errs) or "only ALTERNATE classes match")
     plain = [o for o in ok if not o[3]]
     if len(plain) > 1 and not any(o[3] for o in ok):
         raise NoMatch("ambiguous: " + " and ".join(o[0].name for o in plain))  # nvdisasm: "More than one pattern matched"
-    k, text, env, _ = min(ok, key=lambda o: (not o[3], o[0].order))
-    return Decoded(k, text, env, [o[0] for o in ok])
+    k, text, env, _, widths = min(ok, key=lambda o: (not o[3], o[0].order))
+    return Decoded(k, text, env, [o[0] for o in ok], widths)
 
 def sched_valid(arch, k, env):
     return all(env[n] in arch.rev_enums[t] for n, t in k.sched.items() if t in arch.enums and n in env)

@@ -51,7 +51,6 @@ def arithmetic(c):
         c.add(cls, fields, {**pair("R2", ONE), **pair("R4", ONE)}, dict(pair("R8", result), __native=True), memory=two)
     c.add("dadd__RRR_RR", dict(Rd=8, Ra=2, Rc=4, Pg=0), dict(pair("R2", ONE), P0=0, R8=7, R9=9), dict(R8=7, R9=9))
     c.add("dadd__RRR_RR", dict(Rd=8, Ra="RZ", Rc=4), pair("R4", TWO), dict(pair("R8", TWO), __native=True))
-    c.add("dadd__RRR_RR", dict(Rd=8, Ra=254, Rc=4), {}, dict(error="sass_opaque_DADD"))
 
 
 def compare(c):

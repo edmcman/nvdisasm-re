@@ -28,7 +28,7 @@ def sample(arch, source, n, seed=0, real=None):
 
 def py_decode(arch, w, addr):
     try:
-        d = pydecode.decode(arch, w, addr)
+        d = pydecode.decode(arch, w, addr, conditions=False)  # nvdisasm prints md-illegal words
         return d.klass.name, d.text, None
     except pydecode.NoMatch as e:
         return None, None, str(e)

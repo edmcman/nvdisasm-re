@@ -2,7 +2,8 @@
 (SATFINITE, RELU, RN/RZ/RP, uniform destinations); 8-bit, 4-bit and UE8M0 upconversion,
 plain and scaled; S2_6 scaled fixed point; CX sources; opaque fallbacks."""
 import itertools, random, struct
-from tests.harness.case import Case, Cases, cx_source, encode, put, source
+from sass.pyencode import encode
+from tests.harness.case import Case, Cases, cx_source, put, source
 from tests.refs import fpformat as fpf
 
 NEW = ("SM100", "SM101", "SM103", "SM120")  # where the focused SM100+ conversion suites run
@@ -291,13 +292,14 @@ def fp6_classes(c):
 
 
 def fp6_down(c):
-    """F32/F16/BF16 -> E2M3/E3M2 SATFINITE with RN/RZ/RP and RELU; NOSATFINITE is opaque."""
+    """F32/F16/BF16 -> E2M3/E3M2 SATFINITE, RN, with RELU (the md allows FP6 destinations only with
+    SATFINITE and RN)."""
     for k in fp6_classes(c):
         half = "_f16_to_8b_" in k.name
         for srcfmt in ("F16", "BF16") if half else ("F32",):
             for fmt in FP6:
                 vals = fp6_samples(srcfmt, fmt)
-                for rnd, relu in itertools.product(("RN", "RZ", "RP"), ("norelu", "RELU")):
+                for rnd, relu in itertools.product(("RN",), ("norelu", "RELU")):
                     for i in range(0, len(vals) - 1, 2):
                         x, y, carry = vals[i], vals[i + 1], 0x9bd753e1 ^ (i * 0x01010101)
                         fields = {"dstfmt": fmt, "srcfmt": srcfmt, "merge": "UNPACK_B_MERGE_C" if half else "PACK_AB_MERGE_C", "rndMode": rnd,
@@ -309,10 +311,6 @@ def fp6_down(c):
                         ox, oy = (fpf.fp6(v, fmt, rnd, relu == "RELU", srcfmt) for v in (x, y))
                         packed = (oy << 8) | ox if half else (ox << 8) | oy
                         c.add(k.name, fields, regs, {observed(k): ((carry >> 16) & 0xffff) << 16 | packed, "__native": True})
-    if c.fp == "exact":
-        for k in fp6_classes(c):
-            fields, regs = fp6_probe(k, "nosatfinite", "norelu", "H0")
-            c.add(k.name, fields, regs, {"error": "sass_opaque_F2FP("}, observe=[observed(k)], inspect_pcode=True)
 
 
 def fp6_probe(k, satfinite, relu, extract):

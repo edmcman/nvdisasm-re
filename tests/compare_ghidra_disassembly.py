@@ -29,7 +29,8 @@ def compare(arch, words, fp="exact"):
     pydecode.FLOAT_HEX = True
     todo = []
     for w in words:
-        try: d = pydecode.decode(arch, w, addrs[w]); todo.append((w, d.klass.name, d.text))
+        # The generated SLEIGH doesn't enforce md CONDITIONS (yet), so neither does the reference here.
+        try: d = pydecode.decode(arch, w, addrs[w], conditions=False); todo.append((w, d.klass.name, d.text))
         except pydecode.NoMatch: pass
     def judge(todo):
         return {w: ("error" if "error" in g else "ok" if loose(g["text"]) == loose(exp) else "mismatch", cls, exp, g.get("text") or g.get("error"))
