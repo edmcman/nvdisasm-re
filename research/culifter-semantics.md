@@ -69,6 +69,15 @@ probe cannot resolve their polarity or tie behavior.
 
 ## Partial overlap and tempting false positives
 
+`ISETP.EX` is native for direct register, uniform, immediate, and ordinary
+constant-bank sources where the architecture exposes those forms. It compares
+the high words and uses `Pr` for the low-word result only when the high words
+are equal, then applies the selected predicate combiner with `Pp`. SM75's
+shared `EX`/`noex` selector has separate decode-time paths. CX descriptors and
+SM120 ISETP64 classes remain opaque. Nine-architecture exact/readable suites,
+18 dataflow variants, and an SM89 ptxas-generated 64-bit comparison GPU probe
+validate the implemented forms.
+
 The following are not missing wholesale: `FADD`, `FMUL`, `FFMA`, `FMNMX`,
 `FSETP`, `DADD`, `DMUL`, `DFMA`, `DSETP`, `HADD2`, `HFMA2`, `IMAD`, `IADD3`,
 `LEA`, `LOP3`, `PRMT`, `BMSK`, `SHF`, `ISETP`, `S2R`/`CS2R`, basic loads and

@@ -56,10 +56,16 @@ specific; SM75/80 HI/WIDE forms with 32-bit constant addends stay opaque
 until their extension convention is established.
 
 Native overrides cover ordinary MOV, IABS, SEL, IMAD low/high/wide, IADD3,
-LOP3, SHF, LEA low/high/extended, IMNMX, ordinary ISETP, S2R/CS2R, basic memory operations,
+LOP3, SHF, LEA low/high/extended, IMNMX, ISETP including `.EX`, S2R/CS2R, basic memory operations,
 and supported BRA/EXIT/CALL/RET forms. Common supported restrictions include:
 
-- ISETP .EX and SM120's extra IMNMX predicate operands/results remain opaque.
+- ISETP `.EX` compares the high words and uses `Pr` for the low-word result
+  when those words are equal, then applies the selected AND/OR/XOR combiner
+  with `Pp` to produce `Pu`/`Pv`. Direct register, uniform, immediate, and
+  ordinary constant-bank forms are native; CX and SM120 ISETP64 forms remain
+  opaque. SM75's shared `EX`/`noex` selector is handled separately at decode
+  time so ordinary ISETP does not read `Pr` or compare high words.
+- SM120's extra IMNMX predicate operands/results remain opaque.
 - Wide views containing the hardwired zero slot, except views starting at the
   zero register itself, remain opaque. This avoids writing ordinary backing
   storage for a zero-register component.
@@ -348,12 +354,14 @@ not a Python reimplementation of the instruction dispatcher. `GHIDRA_PY`
 selects the pyghidra Python interpreter. In a restricted environment, set
 `XDG_CONFIG_HOME` and `XDG_CACHE_HOME` to writable scratch directories.
 
-The CUDA Driver API oracle compiles 89 SM89 kernels and executes their actual
+The CUDA Driver API oracle compiles 90 SM89 kernels and executes their actual
 `.text` through Ghidra's normal instruction stepping, from the prologue through
 EXIT. It compares 128 random/edge input vectors per kernel (four blocks of 32),
 including NaNs, infinities, denormals, signed zero, and integer boundaries.
 Target mnemonics must both appear in cuobjdump output and execute in the emulator.
-All 11,392 output comparisons passed on the RTX 4070 Laptop GPU.
+The `isetp_ex` PTX 64-bit comparison compiles to a low-word ISETP followed by
+`ISETP.GE.U32.AND.EX`; all 128 vectors matched the GPU. All 11,520 output
+comparisons passed on the RTX 4070 Laptop GPU.
 
 `tests/carry_semantics.py --require-gpu` adds 210 patched SM89 whole-kernel
 variants (26,880 comparisons) for IADD3, LEA and IMAD carry chains, including

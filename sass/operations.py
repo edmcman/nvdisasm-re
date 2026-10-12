@@ -1418,10 +1418,54 @@ def float_compare(b,size,check):
 
 def emit_ISETP(b,check=False):
     a,c,p=operands(b,'Ra/Sa','Rb/Sb','Pp')
-    if check:return all((a,c,p)) and 'icmp' in b.values and 'bop' in b.values and b.values[a].size==b.values[c].size
-    if 'ex' in b.values or any(n in b.values for n in ('Pr','UPr')):b.reject()
+    extended='ex' in b.values
+    if check:
+        return (all((a,c,p)) and 'icmp' in b.values and 'bop' in b.values and
+                b.values[a].size==b.values[c].size==4 and
+                not any(atom.type=='CX' for atom in b.k.operand_types.values()) and
+                (('Pr' in b.values)==extended) and 'UPr' not in b.values)
+    if ('Pr' in b.values)!=extended or 'UPr' in b.values:b.reject()
     require(b,'fmt',['U32','S32'])
-    cond=comparison(b,b.flag(a),b.flag(c)); pv=b.flag(p)
+    av,cv=b.flag(a),b.flag(c)
+    cond=comparison(b,av,cv); pv=b.flag(p)
+    if extended:
+        ex_en=b.g.arch.enums[b.k.operand_types['ex'].type]
+        ex_value=ex_en.get('EX')
+        noex_value=ex_en.get('noex')
+        if noex_value is not None:
+            # Older architectures encode both modes in one class. Keep the
+            # ordinary form's p-code free of the high-word and Pr reads.
+            extended_cond=b.select_code(('ex',),{
+                (noex_value,):f'local t:1 = {cond}; export t;',
+                (ex_value,):f'local t:1 = {cond}; if ({av} != {cv}) goto <isept_ex_done>; '
+                            f't = {b.flag("Pr")}; <isept_ex_done> export t;'
+            })
+            yes=combine(b,extended_cond,pv)
+            no=combine(b,b.expression(1,f'!{extended_cond}').symbol,pv)
+            yes=b.local(1,yes).symbol;no=b.local(1,no).symbol
+            for name,out in b.outputs.items():
+                b.body.append(f'{out.symbol} = {yes if name in ("Pu","UPu") else no};')
+            return
+        # ISETP.EX compares the high words first. If equal, Pr carries the
+        # comparison result for the low words from the preceding ISETP.
+        require(b,'bop',['AND','OR','XOR'])
+        result=b.local(1,cond).symbol
+        b.body += [f'if ({av} != {cv}) goto <isept_ex_done>;',
+                   f'{result} = {b.flag("Pr")};','<isept_ex_done>']
+        yes=b.local(1,'0').symbol;no=b.local(1,'0').symbol
+        bop=b.values['bop'].symbol;en=b.g.arch.enums[b.k.operand_types['bop'].type]
+        for label,operator in (('AND','&'),('OR','|'),('XOR','^')):
+            value=en.get(label)
+            if value is None:continue
+            next_label=f'isept_ex_{label.lower()}';done='isept_ex_combine_done'
+            b.body += [f'if ({bop} != {value}) goto <{next_label}>;',
+                       f'{yes} = {result} {operator} {pv};',
+                       f'{no} = !{result} {operator} {pv};',
+                       f'goto <{done}>;',f'<{next_label}>']
+        b.body.append('<isept_ex_combine_done>')
+        for name,out in b.outputs.items():
+            b.body.append(f'{out.symbol} = {yes if name in ("Pu","UPu") else no};')
+        return
     yes=combine(b,cond,pv)
     # Use unique labels for the complementary predicate's boolean combination.
     inv=b.expression(1,f'!{cond}')

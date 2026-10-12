@@ -31,8 +31,13 @@ def expected(g, d, optimized=False):
     if optimized and d.klass.mnemonic in ('ISETP','UISETP','FSETP'):
         name='icmp' if d.klass.mnemonic in ('ISETP','UISETP') else 'fcomp'
         operand=d.klass.operand_types.get(name)
-        if operand and d.env.get(name) in {g.arch.enums[operand.type].get(n) for n in ('F','T')}:
+        if (operand and not d.env.get('ex') and
+                d.env.get(name) in {g.arch.enums[operand.type].get(n) for n in ('F','T')}):
             unused.update(('Ra','Sa','Rb','Sb','URa','URb'))
+        ex=d.klass.operand_types.get('ex')
+        if (d.klass.mnemonic=='ISETP' and 'Pr' in d.env and ex and
+                d.env.get('ex')==g.arch.enums[ex.type].get('noex')):
+            unused.add('Pr')
     if optimized and d.klass.mnemonic=='VABSDIFF4':
         red=d.klass.operand_types.get('red');enums=g.arch.enums.get(red.type,{}) if red else {}
         if d.env.get('red')==enums.get('SIMD_MRG'):

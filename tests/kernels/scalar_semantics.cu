@@ -23,6 +23,12 @@ KERNEL(fadd, asm("add.rn.f32 %0,%1,%2;":"=r"(r):"r"(a),"r"(b)))
 KERNEL(fmul, asm("mul.rn.f32 %0,%1,%2;":"=r"(r):"r"(a),"r"(b)))
 KERNEL(ffma, asm("fma.rn.f32 %0,%1,%2,%3;":"=r"(r):"r"(a),"r"(b),"r"(c)))
 KERNEL(isetp, asm("{ .reg .pred p; setp.lt.u32 p,%1,%2; selp.u32 %0,1,0,p; }":"=r"(r):"r"(a),"r"(b)))
+extern "C" __global__ void sem_isetp_ex(const uint64_t *in,uint64_t *out) {
+ unsigned i=threadIdx.x+blockIdx.x*blockDim.x;
+ uint64_t a=in[3*i],b=in[3*i+1],r;
+ asm("{ .reg .pred p; setp.lt.u64 p,%1,%2; selp.u64 %0,1,0,p; }":"=l"(r):"l"(a),"l"(b));
+ out[i]=r;
+}
 KERNEL(sel, asm("{ .reg .pred p; setp.ne.u32 p,%3,0; selp.u32 %0,%1,%2,p; }":"=r"(r):"r"(a),"r"(b),"r"(c)))
 KERNEL(fsetp, asm("{ .reg .pred p; setp.lt.f32 p,%1,%2; selp.u32 %0,1,0,p; }":"=r"(r):"r"(a),"r"(b)))
 KERNEL(fsel, asm("{ .reg .pred p; setp.ne.u32 p,%3,0; neg.f32 %0,%1; selp.f32 %0,%0,%2,p; }":"=r"(r):"r"(a),"r"(b),"r"(c)))

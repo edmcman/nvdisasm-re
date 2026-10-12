@@ -589,11 +589,11 @@
   "gpu": {
     "architecture": "SM89",
     "block_size": 32,
-    "compiled_kernels": 89,
-    "cubin_sha256": "7d9978491c2e620b5b3ebc59bc67fc92b92e357b7446e2601272666f9b00ee67",
+    "compiled_kernels": 90,
+    "cubin_sha256": "a988fff09e49ed29643b2c24d936844117cfd8c921fe60d0c0ffe2e7056257fd",
     "device": "NVIDIA GeForce RTX 4070 Laptop GPU",
     "driver_version": "580.178.04",
-    "emulated_instructions": 233364,
+    "emulated_instructions": 235796,
     "exclusions": [
       "warp collectives",
       "cross-thread shared memory and memory ordering",
@@ -1994,6 +1994,48 @@
           224,
           240,
           256
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "BRA",
+          "EXIT",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "ISETP.GE.U32.AND",
+          "ISETP.GE.U32.AND.EX",
+          "LDG.E.64",
+          "MOV",
+          "NOP",
+          "S2R",
+          "SEL",
+          "STG.E.64",
+          "ULDC.64"
+        ],
+        "family": "isetp_ex",
+        "passed": 128,
+        "steps": 2432,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288
         ]
       },
       {
@@ -4124,7 +4166,7 @@
     "floating_tolerance": "bit-exact FSEL/FMNMX; other floating arithmetic except NaN payload/sign",
     "hardware_verified": true,
     "mode": "whole-kernel",
-    "passed": 11392,
+    "passed": 11520,
     "patched_fixtures": [
       "fmax_ftz_nan",
       "fmax_nan",
@@ -6542,6 +6584,72 @@
       "targeted_comparisons": 512,
       "total_comparisons": 11392,
       "result": "All GPU outputs, independent references and exact whole-kernel P-code outputs matched"
+    }
+  },
+  "culifter_isetp_ex": {
+    "date": "2026-10-11",
+    "upstream": "third_party/culifter/lift/lifter.py::lift_isetp",
+    "scope": {
+      "implemented": "ISETP.EX compares high words using S32/U32, falls back to Pr when equal, then combines with Pp using AND/OR/XOR; direct R/UR/immediate/ordinary constant-bank forms across architectures where present",
+      "fallbacks": "CX descriptor forms and SM120 ISETP64 classes remain opaque",
+      "older_architectures": "SM75 shared EX/noex selector is decoded into separate p-code paths; noex does not read Pr or high-word equality inputs",
+      "hardware_scope": "SM89 ptxas-generated 64-bit setp.lt.u64 sequence; all supported direct forms emulator-tested across nine architectures"
+    },
+    "emulator_suite": {
+      "command": "python3 tests/test_semantics.py SMxx exact|readable",
+      "architectures": {
+        "SM75": {
+          "exact": "21168/21168",
+          "readable": "16269/16269"
+        },
+        "SM80": {
+          "exact": "18370/18370",
+          "readable": "13311/13311"
+        },
+        "SM86": {
+          "exact": "21111/21111",
+          "readable": "13991/13991"
+        },
+        "SM89": {
+          "exact": "21111/21111",
+          "readable": "13991/13991"
+        },
+        "SM90": {
+          "exact": "24481/24481",
+          "readable": "17381/17381"
+        },
+        "SM100": {
+          "exact": "20501/20501",
+          "readable": "14085/14085"
+        },
+        "SM101": {
+          "exact": "18497/18497",
+          "readable": "12081/12081"
+        },
+        "SM103": {
+          "exact": "20501/20501",
+          "readable": "14085/14085"
+        },
+        "SM120": {
+          "exact": "19108/19108",
+          "readable": "12692/12692"
+        }
+      },
+      "language_build": "All 18 exact/readable architecture languages compiled"
+    },
+    "dataflow_suite": {
+      "command": "python3 tests/test_dataflow.py SMxx 2000 exact|readable",
+      "result": "All 18 exact/readable architecture checks pass; EX reads Pr and high words, while SM75 noex omits those reads"
+    },
+    "gpu_oracle": {
+      "command": "python3 tests/gpu_semantics.py --require-gpu --output /tmp/sass-isetp-ex-oracle-final",
+      "architecture": "SM89",
+      "gpu": "NVIDIA GeForce RTX 4070 Laptop GPU",
+      "fixture": "PTX setp.lt.u64 compiled by ptxas to low-word ISETP plus ISETP.GE.U32.AND.EX; full kernel executes through EXIT",
+      "cases": 1,
+      "inputs_per_case": 128,
+      "comparisons": 128,
+      "result": "GPU, independent unsigned 64-bit reference, and exact whole-kernel P-code matched; ISETP.EX confirmed in cuobjdump and executed"
     }
   }
 }

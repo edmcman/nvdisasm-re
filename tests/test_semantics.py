@@ -1175,6 +1175,51 @@ def cases(sm,fp='exact'):
                         return int((v and predicate) if bop=='AND' else (v or predicate) if bop=='OR' else bool(v)^bool(predicate))
                     add('isetp__RRR_RRR_noEX',dict(Pu=0,Pv=1,Ra=2,Rb=4,Pp=0,icmp=operation,bop=bop,fmt=fmt),
                         dict(R2=x,R4=y,P0=predicate),dict(P0=combine(condition),P1=combine(not condition)))
+    # CuLifter's ISETP.EX consumes Pr as the low-word comparison result and
+    # compares the encoded operands as high words. Exercise every comparison
+    # and predicate combiner across the direct source forms.
+    ex_pairs=[(0,0,0),(0x80000000,0x7fffffff,1),
+              (0x7fffffff,0x80000000,0),(0xffffffff,0,1)]
+    for klass in (k for k in arch.classes if k.mnemonic=='ISETP' and
+                  'ex' in k.operand_types and not k.alternate):
+        src=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
+        if src is None or any(atom.type=='CX' for atom in klass.operand_types.values()):continue
+        atom=klass.operand_types[src]
+        ex_en=arch.enums[klass.operand_types['ex'].type]
+        ex_modes=['noex','EX'] if 'noex' in ex_en else ['EX']
+        for fmt in ('U32','S32'):
+            if fmt not in arch.enums[klass.operand_types['fmt'].type]:continue
+            for ex_mode in ex_modes:
+              for av,bv,low in ex_pairs:
+                for operation in ('F','LT','EQ','LE','GT','NE','GE','T'):
+                    sa=av if fmt=='U32' or av<0x80000000 else av-(1<<32)
+                    sb=bv if fmt=='U32' or bv<0x80000000 else bv-(1<<32)
+                    compare={'F':False,'LT':sa<sb,'EQ':sa==sb,'LE':sa<=sb,
+                             'GT':sa>sb,'NE':sa!=sb,'GE':sa>=sb,'T':True}[operation]
+                    for bop in ('AND','OR','XOR'):
+                        for predicate,pr_not,p_not in ((0,0,0),(1,0,0),(0,1,0),(1,1,1)):
+                            low_value=low ^ pr_not
+                            cond=(low_value if av==bv else compare) if ex_mode=='EX' else compare
+                            p_value=predicate ^ p_not
+                            def combine_ex(v):
+                                return int((bool(v) and bool(p_value)) if bop=='AND' else
+                                           (bool(v) or bool(p_value)) if bop=='OR' else
+                                           bool(v)^bool(p_value))
+                            fields={'Pu':0,'Pv':1,'Ra':2,'Pp':4,'Pr':5,
+                                    'icmp':operation,'fmt':fmt,'bop':bop,
+                                    'ex':ex_mode,'Pp@not':p_not,'Pr@not':pr_not}
+                            regs={'R2':av,'P4':predicate,'P5':low}
+                            memory=[]
+                            if atom.type=='Register':fields[src]=6;regs['R6']=bv
+                            elif atom.type=='UniformRegister':fields[src]=6;regs['UR6']=bv
+                            elif atom.type=='C':
+                                fields.update(Sb_bank=2,Sb_addr=16)
+                                memory=[dict(space='cbank',address=(2<<32)|16,
+                                             hex=bv.to_bytes(4,'little').hex())]
+                            else:fields[src]=bv
+                            add(klass.name,fields,regs,
+                                {'P0':combine_ex(cond),'P1':combine_ex(not cond),'__native':True},
+                                memory=memory)
     for name,cls,fields,message in [('loop_limit','bra_',dict(sImm=-16),'kernel instruction limit'),
                                     ('zero_target','bra_',dict(sImm=-0x100010),'terminated without EXIT'),
                                     ('fallthrough','nop_',{},'PC outside kernel')]:

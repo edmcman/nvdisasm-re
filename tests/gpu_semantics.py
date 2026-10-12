@@ -25,7 +25,7 @@ SPECS={
  'prmt':('PRMT',), 'brev':('BREV',), 'popc':('POPC',),
  'bfind':('FLO.U32',), 'bfind_shift':('FLO.U32.SH',),
  'fadd':('FADD',), 'fmul':('FMUL',), 'ffma':('FFMA',),
- 'isetp':('ISETP',), 'sel':('ISETP',), 'fsetp':('FSETP',), 'f2i':('F2I',), 'f2ip':('F2IP',),
+ 'isetp':('ISETP',), 'isetp_ex':('ISETP.GE.U32.AND.EX',), 'sel':('ISETP',), 'fsetp':('FSETP',), 'f2i':('F2I',), 'f2ip':('F2IP',),
  **{f'i2ip_{fmt}':(f'I2IP.{fmt.upper()}',) for fmt in ('s2','u2','s4','u4','s8','u8','s16','u16')},
  'i2ip_s8_nosat':('I2IP.S8',), 'i2ip_s8_satrelu':('I2IP.S8',),
  'i2ip_s4_satrelu':('I2IP.S4',),
@@ -39,7 +39,7 @@ SPECS={
  **{f'{op}_{mode}':(f'{op.upper()}.{mode.upper()}',) for op in ('fadd','fmul','ffma','dadd','dmul','dfma') for mode in ('rz','rm','rp')}}
 ROUNDED={family for family in SPECS if family[-3:] in ('_rz','_rm','_rp')}
 HALF_FLOAT_OUTPUTS={'hadd2','hfma2','hmul2','hmul2_sat','hmul2_ftz','hmul2_fmz','hadd2_sat','hfma2_sat','hadd2_lanes','hfma2_lanes','hmul2_lanes'}
-DOUBLE_FAMILIES={'dadd','dmul','dfma','dsetp'}|{f for f in ROUNDED if f.startswith('d')}
+DOUBLE_FAMILIES={'dadd','dmul','dfma','dsetp','isetp_ex'}|{f for f in ROUNDED if f.startswith('d')}
 FLOAT_OUTPUTS={'dadd','dmul','dfma','fadd','fmul','ffma','i2f','fadd_ftz','ffma_sat'}|ROUNDED
 
 
@@ -250,6 +250,14 @@ def main():
                        (0x3ff0000000000001,0x3feffffffffffffe,0xbff0000000000000),
                        (0x7fefffffffffffff,0x4000000000000000,0xffefffffffffffff)]
                 vectors[len(edges64):len(edges64)+len(pairs)]=pairs
+                if family=='isetp_ex':
+                    pairs=[(0,1,0),(1,0,0),(0,0,0),(1,1,0),
+                           (0x00000001ffffffff,0x0000000200000000,0),
+                           (0x0000000200000000,0x00000001ffffffff,0),
+                           (0x7fffffffffffffff,0x8000000000000000,0),
+                           (0x8000000000000000,0x7fffffffffffffff,0),
+                           (0xffffffffffffffff,0,0),(0,0xffffffffffffffff,0)]
+                    vectors[:len(pairs)]=pairs
             if family in ROUNDED:
                 # Residuals below the wide format's precision, exact cancellation
                 # (zero sign) and overflow, per format.
@@ -270,6 +278,11 @@ def main():
             return x&exponent==exponent and x&mantissa!=0
         for (family,vectors,gpu),result in zip(fixtures,emulated):
             if 'error' in result:raise RuntimeError(f'{family}: {result["error"]}')
+            if family=='isetp_ex':
+                expected=tuple(int(x<y) for x,y,_ in vectors)
+                if gpu!=expected:
+                    mismatch=next(i for i,(got,want) in enumerate(zip(gpu,expected)) if got!=want)
+                    raise AssertionError((family,'GPU/reference mismatch',mismatch,vectors[mismatch],gpu[mismatch],expected[mismatch]))
             body=re.search(r'Function : sem_'+family+r'\b(.*?)(?=Function :|\Z)',sass,re.S)[1]
             instructions={int(offset,16):mnemonic for offset,mnemonic in re.findall(
                 r'/\*([0-9a-f]+)\*/\s+(?:@!?\w+\s+)?([A-Z][A-Z0-9]*(?:\.[A-Z0-9]+)*)',body)}
