@@ -250,24 +250,35 @@ class Builder:
 
     def compound(self, atom):
         name = atom.name
-        if (atom.type=='CX' and self.k.mnemonic=='BMSK' and
-                self.g.arch.name in ('SM75','SM80','SM86','SM89','SM90')):
-            # Mesa nvk_bindless_cbuf / nvk_bindless_cbuf_2 header layouts;
-            # pre-Hopper checked against SM89 hardware. CX offsets are bytes;
-            # the encoded field has already been scaled by four. RAM models the underlying VA,
-            # shared with global memory, rather than a numbered cbank.
+        if atom.type=='CX' and self.g.arch.name in ('SM75','SM80','SM86','SM89','SM90'):
+            # CX is a bounded constant-buffer load through a 64-bit uniform
+            # header plus a byte offset. SM75-SM89 and SM90 use different
+            # header layouts. BMSK CX was hardware-validated on SM89; applying
+            # the same MD representation to other CX consumers is an explicit
+            # shared-layout inference until those opcode forms are probed.
             from sass.gen_sleigh import pattern
-            header=self.values['URb'].symbol;off=self.values[name+'_offset'].symbol
+            start=self.k.format.index(atom)+1;children=[]
+            for child in self.k.format[start:]:
+                if child.kind=='lit' and child.name==',':break
+                if child.kind=='operand':children.append(child)
+            ur=next((child.name for child in children
+                     if child.type in ('UniformRegister','NonZeroUniformRegister','ZeroUniformRegister')),None)
+            offset=next((child.name for child in children
+                         if child.type in ('UImm','SImm')),None)
+            if ur not in self.values or offset not in self.values:
+                return self.unknown(atom,self.source_size(name))
+            header=self.values[ur].symbol;off=self.values[offset].symbol
             refs=[r for r in self.refs if r[1] in (header,off)]
             bits,shift=(51,6) if self.g.arch.name=='SM90' else (45,4)
+            size=self.source_size(name)
             code=(f'local header:8 = {header}; local offset:8 = zext({off}); '
-                  f'local size:8 = (header >> {bits}) << 4; local result:4 = 0; '
-                  'if (offset + 4 > size) goto <done>; '
+                  f'local limit:8 = (header >> {bits}) << 4; local result:{size} = 0; '
+                  f'if (offset + {size}:8 > limit) goto <done>; '
                   f'local address:8 = ((header & {(1<<bits)-1:#x}:8) << {shift}) + offset; '
-                  'result = *[ram]:4 address; <done> export result;')
+                  f'result = *[ram]:{size} address; <done> export result;')
             table=self.g.subtable('value', [('""',pattern([],refs),'',code)])
             self.refs.append(('sub',table))
-            return Value(table,4,'bindless-constant-load')
+            return Value(table,size,'cx-load')
         if atom.type=='C' and self.k.mnemonic=='LDC' and name+'_bank' in self.values and 'Ra' in self.values:
             # LDC's compound operand is an address, not an eagerly loaded scalar.
             bank=self.values[name+'_bank'].symbol;base=self.values['Ra'].symbol
@@ -391,10 +402,12 @@ class Builder:
         from sass.gen_sleigh import pattern
         accepted=[]
         patterns=[]
+        seen_patterns=set()
         for values in combinations:
             clauses=[];valid=True
             for name,value in zip(names,values):
-                constraint=self.g.values_where(self.k,name,lambda v,w=value:v==w)
+                key=tuple(name.split('@',1)) if isinstance(name,str) and '@' in name else name
+                constraint=self.g.values_where(self.k,key,lambda v,w=value:v==w)
                 if constraint is None:
                     current=self.values.get(name)
                     valid &= bool(current and re.fullmatch(r'(?:0x[0-9a-f]+|\d+):\d+',current.symbol)
@@ -402,7 +415,11 @@ class Builder:
                 else:clauses+=constraint
             if not valid:continue
             pat=pattern(clauses)
-            if pat:
+            # Enum aliases can make different decoded combinations produce
+            # the same encoding constraint (for example BF16_V2/E8M7_V2).
+            # Emitting the same constructor pattern twice makes SLEIGH fail.
+            if pat and pat not in seen_patterns:
+                seen_patterns.add(pat)
                 accepted.append(list(values))
                 patterns.append(clauses)
         if not patterns:

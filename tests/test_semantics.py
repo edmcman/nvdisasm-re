@@ -2,7 +2,9 @@
 
 Usage: SASS_SLEIGH_OUT=... python3 tests/test_semantics.py SM89 [exact|readable]
 """
-import json,os,random,subprocess,sys
+import json,math,os,random,struct,subprocess,sys
+import itertools
+from itertools import product
 from pathlib import Path
 sys.path[:0]=[str(Path(__file__).parent),str(Path(__file__).parent.parent)]
 from semantic_cases import encode
@@ -13,11 +15,13 @@ from sass import ir,softfloat
 def cases(sm,fp='exact'):
     arch=ir.load(sm)
     classes={k.name:k for k in arch.classes if not k.alternate}
+    imad_records=json.loads((ROOT/'out'/sm/'semantics/IMAD.json').read_text())
+    imad_hi_constant=next((x for x in imad_records if x['cls']=='imad_hi__RRC_RRC'),
+                          next(x for x in imad_records if x['cls'].startswith('imad_hi__')))
+    imad_hi_c_width=imad_hi_constant['sizes']['ISRC_C_SIZE']
     available=set(classes);out=[]
     def add(cls,fields,registers,expected,**extras):
         if cls not in available:return
-        if sm in ('SM75','SM80') and cls in ('imad_wide__RRC_RRC','imad_hi__RRC_RRC'):
-            expected=dict(error='sass_opaque_IMAD')
         if sm=='SM120' and cls=='imnmx__RRR_RRR':
             # This architecture adds a second predicate input and two predicate
             # results. Its convention is intentionally an explicit fallback.
@@ -25,8 +29,39 @@ def cases(sm,fp='exact'):
         request=dict(word=encode(sm,cls,**fields),registers=registers,observe=[n for n in expected if not n.startswith("__")],**extras)
         if '__max_ops' in expected or '__native' in expected:request['inspect_pcode']=True
         out.append((cls,request,expected))
+    def cx_source(klass,name,value,ur=4,offset=0,base=0x2000):
+        """Encode a CX header and map its loaded word in GPU virtual memory."""
+        atom=klass.operand_types[name];start=klass.format.index(atom)+1;children=[]
+        for child in klass.format[start:]:
+            if child.kind=='lit' and child.name==',':break
+            if child.kind=='operand':children.append(child)
+        ur_name=next(child.name for child in children if child.type in
+                     ('UniformRegister','NonZeroUniformRegister','ZeroUniformRegister'))
+        off_name=next(child.name for child in children if child.type in ('UImm','SImm'))
+        bits,shift=(51,6) if sm=='SM90' else (45,4)
+        header=base//(1<<shift)+(1<<bits)
+        return ({ur_name:ur,off_name:offset},
+                {'UR'+str(ur):header&0xffffffff,'UR'+str(ur+1):header>>32},
+                [dict(space='ram',address=base+offset,
+                      hex=(value&0xffffffff).to_bytes(4,'little').hex())])
     from bmsk_semantics import cases as bmsk_cases
     out.extend(bmsk_cases(sm))
+    # CX children URb/Sb_offset describe a bounded constant-buffer address;
+    # the dot product must consume the loaded 32-bit word from Sb.
+    idp_cx=next((k for k in arch.classes if not k.alternate and
+                 k.mnemonic=='IDP' and k.name.startswith('idp_4a__') and
+                 any(atom.type=='CX' for atom in k.operand_types.values())),None)
+    if idp_cx is not None:
+        bits,shift=(51,6) if sm=='SM90' else (45,4)
+        base=0x1000;header=base//(1<<shift)+(1<<bits)
+        loaded=0x01020304
+        fields=dict(Rd=8,Ra=2,URb=4,Sb_offset=0,Rc=6,
+                    mode='4A',SrcAFmt='U8',SrcBFmt='U8')
+        add(idp_cx.name,fields,
+            {'R2':0x04030201,'R6':10,'UR4':header&0xffffffff,'UR5':header>>32},
+            {'R8':30,'__native':True},
+            memory=[dict(space='ram',address=base,
+                         hex=loaded.to_bytes(4,'little').hex())])
     rng=random.Random(7)
     # CuLifter comparison: scalar bit operations. Expected values use an
     # independent per-bit reference (BREV) and Python's bit_count (POPC).
@@ -133,6 +168,51 @@ def cases(sm,fp='exact'):
                 if j==1 and 'Rc@negate' in klass.operand_types:
                     fields['Rc@negate']=1;cval=(-cval)&0xffffffff
                 add(klass.name,fields,regs,{f'R{rd}':idp_ref(a,bval,cval,afmt=='S8',bfmt=='S8'),'__native':True},memory=memory)
+    # NVIDIA PTX ISA dp2a: two signed/unsigned 16-bit A lanes multiply
+    # the selected pair of signed/unsigned bytes from B and accumulate into C.
+    def idp2a_ref(a,b,c,asigned,bsigned,high):
+        total=c
+        for i in range(2):
+            x=(a>>(16*i))&0xffff;y=(b>>(8*(i+(2 if high else 0))))&0xff
+            if asigned and x&0x8000:x-=0x10000
+            if bsigned and y&0x80:y-=0x100
+            total+=x*y
+        return total&0xffffffff
+    idp2_words=[0,0xffffffff,0x80017fff,0x7fff8001,0x01020304]
+    idp2_words += [rng.getrandbits(32) for _ in range(8)]
+    for klass in (k for k in arch.classes if k.mnemonic=='IDP' and k.name.startswith('idp_2a__') and not k.alternate):
+        if any(atom.type=='CX' for atom in klass.operand_types.values()):continue
+        srcb=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
+        if srcb is None or klass.operand_types[srcb].type=='CX':continue
+        for afmt in ('S16','U16'):
+            for bfmt in ('S8','U8'):
+                for mode in ('2A.LO','2A.HI'):
+                    for j,a in enumerate(idp2_words):
+                        bval=idp2_words[(j+3)%len(idp2_words)];cval=idp2_words[(j+5)%len(idp2_words)]
+                        rd=2 if j%3==0 else 8
+                        fields={'Rd':rd,'Ra':4,'Rc':6,'mode':mode,'SrcAFmt':afmt,'SrcBFmt':bfmt}
+                        regs={'R4':a,'R6':cval};memory=[]
+                        if klass.operand_types[srcb].type=='C':
+                            fields.update(Sb_bank=2,Sb_addr=16)
+                            memory=[dict(space='cbank',address=(2<<32)|16,hex=bval.to_bytes(4,'little').hex())]
+                        else:
+                            fields[srcb]=10
+                            regs[('UR' if srcb=='URb' else 'R')+'10']=bval
+                        if j==1 and 'Rc@negate' in klass.operand_types:
+                            fields['Rc@negate']=1;cval=(-cval)&0xffffffff
+                        expected=idp2a_ref(a,bval,cval,afmt=='S16',bfmt=='S8',mode.endswith('HI'))
+                        add(klass.name,fields,regs,{f'R{rd}':expected,'__native':True},memory=memory)
+    for klass in (k for k in arch.classes if k.mnemonic=='IDP' and
+                  k.name.startswith('idp_2a__') and not k.alternate and
+                  any(atom.type=='CX' for atom in k.operand_types.values())):
+        srcb=next(n for n,a in klass.operand_types.items() if a.type=='CX')
+        a,bval,cval=0x80017fff,0x807f01ff,0x12345678
+        fields={'Rd':8,'Ra':2,'Rc':6,'mode':'2A.HI','SrcAFmt':'S16','SrcBFmt':'S8'}
+        cx_fields,cx_regs,memory=cx_source(klass,srcb,bval)
+        fields.update(cx_fields)
+        expected=idp2a_ref(a,bval,cval,True,True,True)
+        add(klass.name,fields,{'R2':a,'R6':cval,**cx_regs},
+            {'R8':expected,'__native':True},memory=memory)
     # VABSDIFF4's hardware ACC is a scalar sum of the four byte differences
     # plus Rc; SIMD_MRG returns the four differences packed in byte lanes.
     def vabsdiff4_ref(a,b,c,signed,red):
@@ -176,6 +256,22 @@ def cases(sm,fp='exact'):
                         fields[srcc]=12;regs[('UR' if ctype=='UniformRegister' else 'R')+'12']=cval
                     add(klass.name,fields,regs,
                         {f'R{rd}':vabsdiff4_ref(a,bval,cval,fmt=='S8',red),'__native':True},memory=memory)
+    for klass in (k for k in arch.classes if k.mnemonic=='VABSDIFF4' and
+                  not k.alternate and any(a.type=='CX' for a in k.operand_types.values())):
+        cx_name=next(n for n,a in klass.operand_types.items() if a.type=='CX')
+        if cx_name not in ('Sb','Rb'):continue
+        a,bval,cval=0x807f01ff,0xff010080,0x13579bdf
+        fields={'Rd':8,'Ra':2,'fmt':'S8','red':'ACC','Pu':'PT'}
+        cx_fields,cx_regs,memory=cx_source(klass,cx_name,bval)
+        fields.update(cx_fields);regs={'R2':a,**cx_regs}
+        other=next((n for n in ('Rc','URc','Sc') if n in klass.operand_types),None)
+        if other and other!=cx_name:
+            typ=klass.operand_types[other].type
+            if typ=='Register':fields[other]=6;regs['R6']=cval
+            elif typ=='UniformRegister':fields[other]=6;regs['UR6']=cval
+            else:continue
+        add(klass.name,fields,regs,
+            {'R8':vabsdiff4_ref(a,bval,cval,True,'ACC'),'__native':True},memory=memory)
     # CuLifter's VIMNMX is predicate-selected scalar or packed min/max.
     def vimnmx_ref(a,b,width,signed,is_min,relu=False):
         mask=(1<<width)-1;result=0
@@ -220,6 +316,16 @@ def cases(sm,fp='exact'):
                         if not is_min:regs['P0']=0
                         add(klass.name,fields,regs,
                             {f'R{rd}':vimnmx_ref(a,bval,width,signed,is_min,relu=='RELU'),'__native':True},memory=memory)
+    for klass in (k for k in arch.classes if k.mnemonic=='VIMNMX' and
+                  not k.alternate and 'pred' not in k.name and
+                  any(a.type=='CX' for a in k.operand_types.values())):
+        cx_name=next(n for n,a in klass.operand_types.items() if a.type=='CX')
+        if cx_name not in ('Sb','Rb'):continue
+        a,bval=0xfffffffe,3
+        fields={'Rd':8,'Ra':2,'fmt':'S32','relu':'norelu','Pp':'PT'}
+        cx_fields,cx_regs,memory=cx_source(klass,cx_name,bval);fields.update(cx_fields)
+        add(klass.name,fields,{'R2':a,**cx_regs},
+            {'R8':vimnmx_ref(a,bval,32,True,True),'__native':True},memory=memory)
     # CuLifter's VIADDMNMX adds modulo each lane width before min/max.
     def viaddmnmx_ref(a,b,c,width,signed,is_min,relu=False):
         mask=(1<<width)-1;result=0
@@ -266,6 +372,15 @@ def cases(sm,fp='exact'):
                         if not is_min:regs['P0']=0
                         add(klass.name,fields,regs,
                             {f'R{rd}':viaddmnmx_ref(a,effective_b,cval,width,signed,is_min,relu=='RELU'),'__native':True},memory=memory)
+    for klass in (k for k in arch.classes if k.mnemonic=='VIADDMNMX' and
+                  not k.alternate and any(a.type=='CX' for a in k.operand_types.values())):
+        cx_name=next(n for n,a in klass.operand_types.items() if a.type=='CX')
+        if cx_name not in ('Sb','Rb'):continue
+        a,bval,cval=0x7fffffff,2,0x80000000
+        fields={'Rd':8,'Ra':2,'Rc':6,'fmt':'U32','relu':'norelu','Pp':'PT'}
+        cx_fields,cx_regs,memory=cx_source(klass,cx_name,bval);fields.update(cx_fields)
+        add(klass.name,fields,{'R2':a,'R6':cval,**cx_regs},
+            {'R8':viaddmnmx_ref(a,bval,cval,32,False,True),'__native':True},memory=memory)
     # CuLifter's VIMNMX3 is a lane-wise min/max; PT selects min and !PT max.
     def vimnmx3_ref(a,b,c,width,signed,is_min,relu):
         mask=(1<<width)-1;result=0
@@ -310,6 +425,15 @@ def cases(sm,fp='exact'):
                         if not is_min:regs['P0']=0
                         add(klass.name,fields,regs,
                             {f'R{rd}':vimnmx3_ref(a,bval,cval,width,signed,is_min,relu=='RELU'),'__native':True},memory=memory)
+    for klass in (k for k in arch.classes if k.mnemonic=='VIMNMX3' and
+                  not k.alternate and any(a.type=='CX' for a in k.operand_types.values())):
+        cx_name=next(n for n,a in klass.operand_types.items() if a.type=='CX')
+        if cx_name not in ('Sb','Rb'):continue
+        a,bval,cval=0xfffffffe,3,1
+        fields={'Rd':8,'Ra':2,'Rc':6,'fmt':'S32','relu':'norelu','Pp':'PT'}
+        cx_fields,cx_regs,memory=cx_source(klass,cx_name,bval);fields.update(cx_fields)
+        add(klass.name,fields,{'R2':a,'R6':cval,**cx_regs},
+            {'R8':vimnmx3_ref(a,bval,cval,32,True,True,False),'__native':True},memory=memory)
     for i in range(20):
         a,b,c=[rng.getrandbits(32) for _ in range(3)];regs={'R2':a,'R4':b,'R6':c}
         rd=2 if i%2 else 8 # overlap source/destination
@@ -384,25 +508,34 @@ def cases(sm,fp='exact'):
                     elif xf==yf==0:want=(x|y) if pred else (x&y)
                     else:want=x if (xf<yf)==bool(pred) else y
                     add('fmnmx__RRR_RRR',fields,regs,dict(R2=want,**({'__native':True} if a==c==0 else {})))
-    # CuLifter's FMNMX3 performs two ordered comparisons. Ties and unordered
-    # comparisons retain the earlier value at each step.
-    def fmnmx3_pick(x,y,is_min):
+    # The three-input PTX min/max semantics use numeric-wins NaN selection,
+    # canonical NaN under .NAN, and IEEE signed-zero ordering. Readable mode
+    # intentionally remains the plain ordered-comparison formula.
+    def fmnmx3_pick(x,y,is_min,exact):
         xf=struct.unpack('<f',x.to_bytes(4,'little'))[0]
         yf=struct.unpack('<f',y.to_bytes(4,'little'))[0]
+        if exact:
+            if math.isnan(xf):return y if not math.isnan(yf) else x
+            if math.isnan(yf):return x
+            if xf==yf==0:return (x|y) if is_min else (x&y)
         return y if (xf>yf if is_min else xf<yf) else x
     fmnmx3_values=[0x3f800000,0xbf800000,0x40000000,0x00000000,
-                   0x80000000,0x7f800000,0xff800000,0x7fc00000]
+                   0x80000000,0x7f800000,0xff800000,0x7fc00000,
+                   0x7f812345,0xffc54321,0x00000001,0x80000001]
     for klass in (k for k in arch.classes if k.mnemonic=='FMNMX3' and not k.alternate):
         source_names=[next((n for n in group.split('/') if n in klass.operand_types),None)
                       for group in ('Ra/Sa','Rb/Sb/URb','Rc/Sc/URc')]
         if not all(source_names) or any(atom.type=='CX' for atom in klass.operand_types.values()):continue
+        ftz_labels=[x for x in ('noftz','FTZ') if x in arch.enums[klass.operand_types['ftz'].type]]
+        nan_labels=[x for x in ('nonan','NAN') if x in arch.enums[klass.operand_types['nan'].type]]
         for i,a in enumerate(fmnmx3_values):
             bval=fmnmx3_values[(i+3)%len(fmnmx3_values)]
             cval=fmnmx3_values[(i+5)%len(fmnmx3_values)]
-            for is_min in (False,True):
-                fields={'Rd':8,'Pp':'PT','Pp@not':int(not is_min),
-                        'ftz':'noftz','nan':'nonan'}
-                regs={}
+            for ftz_mode,nan_mode,predicate,inverted in itertools.product(ftz_labels,nan_labels,(0,1),(0,1)):
+                is_min=bool(predicate ^ inverted)
+                fields={'Rd':8,'Pp':'P0','Pp@not':inverted,
+                        'ftz':ftz_mode,'nan':nan_mode}
+                regs={'P0':predicate}
                 vals=(a,bval,cval)
                 for name,value,reg in zip(source_names,vals,(2,4,6)):
                     typ=klass.operand_types[name].type
@@ -413,12 +546,15 @@ def cases(sm,fp='exact'):
                     elif typ=='F32Imm':fields[name]=value
                     else:break
                 else:
-                    want=fmnmx3_pick(fmnmx3_pick(a,bval,is_min),cval,is_min)
+                    exact=fp=='exact'
+                    prepared=vals
+                    if exact and ftz_mode=='FTZ':
+                        prepared=tuple((v&0x80000000) if (v&0x7f800000)==0 and (v&0x007fffff) else v for v in vals)
+                    if exact and nan_mode=='NAN' and any(math.isnan(struct.unpack('<f',v.to_bytes(4,'little'))[0]) for v in prepared):
+                        want=0x7fffffff
+                    else:
+                        want=fmnmx3_pick(fmnmx3_pick(prepared[0],prepared[1],is_min,exact),prepared[2],is_min,exact)
                     add(klass.name,fields,regs,{'R8':want,'__native':True})
-    if 'fmnmx3__RRR_RRR' in classes:
-        add('fmnmx3__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,Pp='P0',
-            ftz='noftz',nan='nonan'),dict(R2=0x3f800000,R4=0x40000000,
-            R6=0x40400000,P0=1),dict(error='sass_opaque_FMNMX3'))
     add('fmnmx_pred__RRR_RRR',dict(Rd=8,Pu=0,Ra=2,Rb=4,Pp='PT'),{},dict(error='sass_opaque_FMNMX'))
     # FMNMX.NAN returns canonical +NaN if either source is NaN; otherwise it
     # preserves the ordinary min/max result and signed-zero rule.
@@ -459,6 +595,32 @@ def cases(sm,fp='exact'):
                         else:want=aa if (af<cf)==is_min else cc
                     add(klass.name,fields,regs,{'R8':want,'__native':True},
                         **({'memory':memory} if memory else {}))
+    # PTX min.xorsign.abs: select on absolute values, then replace the result
+    # sign with the XOR of the transformed source signs unless the result is NaN.
+    for klass in (k for k in arch.classes if k.mnemonic=='FMNMX' and
+                  k.name=='fmnmx__RRR_RRR' and not k.alternate and
+                  'xorsign' in k.operand_types):
+        pairs=[(0x3f800000,0xc0000000),(0xbf800000,0xc0400000),
+               (0,0x80000000),(1,0x3f800000),(0x7fc12345,0xbf800000),
+               (0x7fc12345,0xffc54321)]
+        for a,c in pairs:
+            for ftz_mode,nan_mode,is_min in itertools.product(('noftz','FTZ'),('nonan','NAN'),(False,True)):
+                aa=(a&0x80000000) if ftz_mode=='FTZ' and a&0x7f800000==0 else a
+                cc=(c&0x80000000) if ftz_mode=='FTZ' and c&0x7f800000==0 else c
+                anan=aa&0x7f800000==0x7f800000 and aa&0x007fffff!=0
+                cnan=cc&0x7f800000==0x7f800000 and cc&0x007fffff!=0
+                if nan_mode=='NAN' and (anan or cnan):want=0x7fffffff
+                elif anan:want=0x7fffffff if cnan else (cc&0x7fffffff)|((aa^cc)&0x80000000)
+                elif cnan:want=(aa&0x7fffffff)|((aa^cc)&0x80000000)
+                else:
+                    xa=aa&0x7fffffff;xc=cc&0x7fffffff
+                    af=struct.unpack('<f',xa.to_bytes(4,'little'))[0]
+                    cf=struct.unpack('<f',xc.to_bytes(4,'little'))[0]
+                    chosen=xa if (af<cf)==is_min else xc
+                    want=chosen|((aa^cc)&0x80000000)
+                fields={'Rd':8,'Ra':2,'Rb':4,'Pp':'PT','Pp@not':int(not is_min),
+                        'xorsign':'XORSIGN','ftz':ftz_mode,'nan':nan_mode}
+                add(klass.name,fields,{'R2':a,'R4':c},{'R8':want,'__native':True})
     add('mov__RI',dict(Rd=3,Sb=0xdeadbeef,PixMaskU04=15),{},dict(R3=0xdeadbeef,__max_ops=1))
     add('mov__RR',dict(Rd=3,Rb=2,PixMaskU04=15),dict(R2=0xdeadbeef),dict(R3=0xdeadbeef,__max_ops=1))
     add('mov__RR',dict(Rd=2,Rb=2,PixMaskU04=15),dict(R2=0xdeadbeef),dict(R2=0xdeadbeef))
@@ -500,8 +662,23 @@ def cases(sm,fp='exact'):
     add('fadd__RRI_RI',dict(Rd=8,Ra=2,Sc=0x40000000),dict(R2=0x3f800000),dict(R8=0x40400000))
     add('imad__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,fmt='U32',**{'Rc@negate':1}),dict(R2=2,R4=3,R6=4),dict(R8=2))
     add('imad_hi__RRR_RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,fmt='U32'),dict(R2=0xffffffff,R4=2,R6=3,R7=1),dict(R8=3))
-    add('imad_wide__RRC_RRC',dict(Rd=8,Ra=2,Rb=4,Sc_bank=2,Sc_addr=16,fmt='U32'),dict(R2=3,R4=5),dict(R8=22,R9=2),memory=[dict(space='cbank',address=(2<<32)|16,hex='0700000002000000')])
-    add('imad_hi__RRC_RRC',dict(Rd=8,Ra=2,Rb=4,Sc_bank=2,Sc_addr=16,fmt='U32'),dict(R2=3,R4=5),dict(R8=2),memory=[dict(space='cbank',address=(2<<32)|16,hex='0700000002000000')])
+    wide_hi=4 if sm not in ('SM75','SM80') else 2
+    add('imad_wide__RRC_RRC',dict(Rd=8,Pu=0,Ra=2,Rb=4,Sc_bank=2,Sc_addr=16,fmt='U32'),
+        dict(R2=0xffffffff,R4=2),dict(R8=0xfffffffd,R9=wide_hi,P0=0),
+        memory=[dict(space='cbank',address=(2<<32)|16,hex='ffffffff02000000')])
+    add('imad_hi__RRC_RRC',dict(Rd=8,Pu=0,Ra=2,Rb=4,Sc_bank=2,Sc_addr=16,fmt='U32'),
+        dict(R2=0xffffffff,R4=2),
+        dict(R8=4,P0=0) if imad_hi_c_width>32 else dict(R8=0,P0=1),
+        memory=[dict(space='cbank',address=(2<<32)|16,hex='ffffffff02000000')])
+    if imad_hi_c_width==32 and 'imad_hi_x__RRC_RRC' in available:
+        # Narrow HI addends must include the encoded predicate carry input.
+        # With a zero product, C=UINT32_MAX and Pp=0/1 distinguish both the
+        # result bit and the carry-out predicate.
+        for carry,result,predicate in ((0,0xffffffff,0),(1,0,1)):
+            add('imad_hi_x__RRC_RRC',dict(Rd=8,Pu=0,Ra=2,Rb=4,
+                Sc_bank=2,Sc_addr=16,fmt='U32',Pp=1),
+                dict(R2=0,R4=0,P1=carry),dict(R8=result,P0=predicate,__native=True),
+                memory=[dict(space='cbank',address=(2<<32)|16,hex='ffffffff')])
     add('mov__RC',dict(Rd=8,Sb_bank=2,Sb_addr=16,PixMaskU04=15),{},dict(R8=0x12345678),memory=[dict(space='cbank',address=(2<<32)|16,hex='78563412')])
     for label,data,want in [('U8','ff',255),('S8','ff',0xffffffff),('U16','ffff',65535),
                             ('S16','ffff',0xffffffff),('32','78563412',0x12345678),
@@ -527,25 +704,42 @@ def cases(sm,fp='exact'):
     for klass in (k for k in arch.classes if k.mnemonic=='F2FP' and
                   k.name.startswith('f2fp_tf32__') and not k.alternate):
         if any(atom.type=='CX' for atom in klass.operand_types.values()):continue
-        src=next((n for n in ('Rb','URb') if n in klass.operand_types),None)
+        src=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
         if src is None:continue
         typ=klass.operand_types[src].type
         for rnd in ('RN','RZ'):
             for i,bits in enumerate(tf32_values):
-                reg=4 if typ=='Register' else 10
                 fields={'Rd':8,'dstfmt':'TF32','srcfmt':'F32',
-                        'merge':'PACK_B','rndMode':rnd,'relu':'norelu',src:reg}
-                regs={('R' if typ=='Register' else 'UR')+str(reg):bits}
+                        'merge':'PACK_B','rndMode':rnd,'relu':'norelu'}
+                regs={};memory=[]
+                if typ=='Register':fields[src]=4;regs['R4']=bits
+                elif typ=='UniformRegister':fields[src]=10;regs['UR10']=bits
+                elif typ=='F32Imm':fields[src]=bits
+                elif typ=='C':
+                    fields.update(Sb_bank=2,Sb_addr=0x100)
+                    memory=[dict(space='cbank',address=(2<<32)|0x100,
+                                 hex=bits.to_bytes(4,'little').hex())]
+                else:continue
                 add(klass.name,fields,regs,{'R8':tf32_round(bits,rnd=='RN'),
-                                             '__native':True})
-        add(klass.name,dict(Rd=8,dstfmt='TF32',srcfmt='F32',merge='PACK_B',
-            rndMode='RN',relu='RELU',**{src:4 if typ=='Register' else 10}),
-            {},dict(error='sass_opaque_F2FP'))
+                                             '__native':True},memory=memory)
+                for relu in ('norelu','RELU'):
+                    if relu=='norelu':continue
+                    result=tf32_round(bits,rnd=='RN')
+                    if result&0x7f800000==0x7f800000 and result&0x007fffff:
+                        result=0x7fffffff
+                    elif result&0x80000000:
+                        result=0
+                    add(klass.name,dict(fields,relu=relu),regs,
+                        {'R8':result,'__native':True},memory=memory)
     # F2FP.PACK_AB F32 -> F16/BF16, for scalar and uniform register inputs.
+    def f32_bits(value):return struct.unpack('<I',struct.pack('<f',value))[0]
     packed_values=[0,0x80000000,0x3f800000,0xbf800000,0x3f801000,
         0x3f803000,0x33000000,0x33800000,0x387fc000,0x38800000,
         0x477fe000,0x477ff000,0x7f800000,0xff800000,0x7fc00000,
         0x7f800001,1,0x007fffff,0x00800000,0x7f7fffff,0xff7fffff]
+    packed_values += [f32_bits(v) for v in (
+        2.0**-41,2.0**-40,2.0**-39,2.0**-30,-2.0**-40,
+        2.0**31,2.0**32-2.0**22,2.0**32-2.0**21,2.0**32)]
     def f16_pack_ref(bits,rn):
         sign=(bits>>16)&0x8000;exp=(bits>>23)&255;frac=bits&0x7fffff
         if exp==255:return sign|(0x7c00 if frac==0 else 0x7e00)
@@ -568,6 +762,27 @@ def cases(sm,fp='exact'):
         hi=bits>>16;lo=bits&0xffff
         if rn and (lo>0x8000 or (lo==0x8000 and hi&1)):hi+=1
         return hi&0xffff
+    def e6m9_pack_ref(bits,rn):
+        from fractions import Fraction as F
+        kind,sign,value=softfloat.unpack(bits,32);signbit=sign<<15
+        if kind=='nan':return 0x7fff
+        if kind=='inf':return signbit|0x7e00
+        value=abs(value)
+        if not value:return signbit
+        e=value.numerator.bit_length()-value.denominator.bit_length()
+        if value<F(2)**e:e-=1
+        if e < -30:
+            scaled=value*(F(2)**39);q=scaled.numerator//scaled.denominator
+            rem=scaled-q
+            if rn and (rem>F(1,2) or (rem==F(1,2) and q&1)):q+=1
+            return signbit|(0x200 if q>=0x200 else q)
+        if e>31:return signbit|(0x7e00 if rn else 0x7dff)
+        scaled=value/(F(2)**(e-9));q=scaled.numerator//scaled.denominator
+        rem=scaled-q
+        if rn and (rem>F(1,2) or (rem==F(1,2) and q&1)):q+=1
+        if q>=0x400:e+=1;q=0x200
+        if e>31:return signbit|(0x7e00 if rn else 0x7dff)
+        return signbit|((e+31)<<9)|(q&0x1ff)
     for klass in (k for k in arch.classes if k.mnemonic=='F2FP' and
                   k.name.startswith('f2fp__') and not k.alternate):
         if any(atom.type=='CX' for atom in klass.operand_types.values()):continue
@@ -576,7 +791,7 @@ def cases(sm,fp='exact'):
         if not all(srcs) or any(klass.operand_types[n].type not in
               ('Register','UniformRegister') for n in srcs):continue
         if not all(n in klass.operand_types for n in ('dstfmt','srcfmt','merge','rndMode','relu')):continue
-        for fmt in ('F16','BF16'):
+        for fmt in ('F16','BF16','E6M9'):
             if fmt not in arch.enums[klass.operand_types['dstfmt'].type]:continue
             if 'F32' not in arch.enums[klass.operand_types['srcfmt'].type]:continue
             if 'PACK_AB' not in arch.enums[klass.operand_types['merge'].type]:continue
@@ -593,18 +808,148 @@ def cases(sm,fp='exact'):
                         typ=klass.operand_types[n].type;fieldreg=reg if typ=='Register' else reg+6
                         fields[n]=fieldreg
                         regs[('R' if typ=='Register' else 'UR')+str(fieldreg)]=value
-                    conv=f16_pack_ref if fmt=='F16' else bf16_pack_ref
+                    conv={'F16':f16_pack_ref,'BF16':bf16_pack_ref,
+                          'E6M9':e6m9_pack_ref}[fmt]
                     want=(conv(av,rnd=='RN')<<16)|conv(bv,rnd=='RN')
                     add(klass.name,fields,regs,{'R8':want,'__native':True})
         if 'RELU' in arch.enums[klass.operand_types['relu'].type]:
-            fields={'Rd':8,'dstfmt':'F16','srcfmt':'F32','merge':'PACK_AB',
-                    'rndMode':'RN','relu':'RELU'}
-            if 'satfinite' in klass.operand_types:fields['satfinite']='nosatfinite'
-            regs={}
-            for n,reg in zip(srcs,(2,4)):
-                typ=klass.operand_types[n].type;fieldreg=reg if typ=='Register' else reg+6
-                fields[n]=fieldreg;regs[('R' if typ=='Register' else 'UR')+str(fieldreg)]=0x3f800000
-            add(klass.name,fields,regs,dict(error='sass_opaque_F2FP'))
+            sat_modes=('nosatfinite','SATFINITE') if satfield else (None,)
+            for fmt in ('F16','BF16','E6M9'):
+                if fmt not in arch.enums[klass.operand_types['dstfmt'].type]:continue
+                conv={'F16':f16_pack_ref,'BF16':bf16_pack_ref,
+                      'E6M9':e6m9_pack_ref}[fmt]
+                for relu_mode,sat_mode in itertools.product(('norelu','RELU'),sat_modes):
+                    if relu_mode=='norelu' and sat_mode!='SATFINITE':continue
+                    for rnd in ('RN','RZ'):
+                        if rnd not in arch.enums[klass.operand_types['rndMode'].type]:continue
+                        for i,av in enumerate(packed_values):
+                            bv=packed_values[(i*7+3)%len(packed_values)]
+                            fields={'Rd':8,'dstfmt':fmt,'srcfmt':'F32','merge':'PACK_AB',
+                                    'rndMode':rnd,'relu':relu_mode}
+                            if satfield:fields[satfield]=sat_mode
+                            regs={}
+                            for n,value,reg in zip(srcs,(av,bv),(2,4)):
+                                typ=klass.operand_types[n].type;fieldreg=reg if typ=='Register' else reg+6
+                                fields[n]=fieldreg
+                                regs[('R' if typ=='Register' else 'UR')+str(fieldreg)]=value
+                            def mod(bits):
+                                out=conv(bits,rnd=='RN')
+                                sign=out&0x8000;mag=out&0x7fff
+                                is_nan=(((mag&0x7e00)==0x7e00 and (mag&0x1ff)!=0)
+                                        if fmt=='E6M9' else
+                                        ((mag&0x7f80)==0x7f80 and (mag&0x7f)!=0)
+                                        if fmt=='BF16' else
+                                        ((mag&0x7c00)==0x7c00 and (mag&0x3ff)!=0))
+                                if sat_mode=='SATFINITE':
+                                    if fmt=='BF16' and mag==0x7f80:out=sign|0x7f7f
+                                    if fmt=='F16' and mag==0x7c00:out=sign|0x7bff
+                                    if fmt=='E6M9' and mag==0x7e00:out=sign|0x7dff
+                                if relu_mode=='RELU':
+                                    if is_nan:out=0x7fff if fmt in ('BF16','E6M9') else 0x7e00
+                                    elif sign:out=0
+                                return out
+                            want=(mod(av)<<16)|mod(bv)
+                            add(klass.name,fields,regs,{'R8':want,'__native':True})
+    # E6M9 uses the same packed source forms as this class family. Exercise
+    # immediate and direct constant-bank B operands as well as R/UR inputs.
+    for klass in (k for k in arch.classes if k.mnemonic=='F2FP' and
+                  k.name.startswith('f2fp__') and not k.alternate):
+        if any(atom.type=='CX' for atom in klass.operand_types.values()):continue
+        srcs=[next((n for n in group.split('/')+['U'+n for n in group.split('/')]
+                    if n in klass.operand_types),None) for group in ('Ra/URa','Rb/URb/Sb')]
+        if not all(srcs) or not all(n in klass.operand_types for n in
+                ('dstfmt','srcfmt','merge','rndMode','relu')):continue
+        if 'E6M9' not in arch.enums[klass.operand_types['dstfmt'].type]:continue
+        sat_atom=klass.operand_types.get('satfinite')
+        if sat_atom and 'SATFINITE' in arch.enums.get(sat_atom.type,{}):
+            sat_modes=('nosatfinite','SATFINITE')
+        else:sat_modes=(None,)
+        for rnd,relu_mode,sat_mode in itertools.product(
+                ('RN','RZ'),('norelu','RELU'),sat_modes):
+            for i,av in enumerate(packed_values):
+                bv=packed_values[(i*7+3)%len(packed_values)]
+                fields={'Rd':8,'dstfmt':'E6M9','srcfmt':'F32','merge':'PACK_AB',
+                    'rndMode':rnd,'relu':relu_mode}
+                if sat_mode is not None:fields['satfinite']=sat_mode
+                regs={};memory=[]
+                for n,value,reg in zip(srcs,(av,bv),(2,4)):
+                    typ=klass.operand_types[n].type
+                    if typ=='Register':fields[n]=reg;regs[f'R{reg}']=value
+                    elif typ=='UniformRegister':fields[n]=reg+6;regs[f'UR{reg+6}']=value
+                    elif typ=='F32Imm':fields[n]=value
+                    elif typ=='C':
+                        fields.update(Sb_bank=2,Sb_addr=0x100)
+                        memory.append(dict(space='cbank',address=(2<<32)|0x100,
+                                           hex=value.to_bytes(4,'little').hex()))
+                    else:break
+                else:
+                    def e6_mod(bits):
+                        out=e6m9_pack_ref(bits,rnd=='RN');mag=out&0x7fff
+                        is_nan=(mag&0x7e00)==0x7e00 and (mag&0x1ff)!=0
+                        if sat_mode=='SATFINITE' and mag==0x7e00:out=(out&0x8000)|0x7dff
+                        if relu_mode=='RELU' and not is_nan and out&0x8000:out=0
+                        return out
+                    want=(e6_mod(av)<<16)|e6_mod(bv)
+                    add(klass.name,fields,regs,{'R8':want,'__native':True},memory=memory)
+    # MERGE_C converts one F32 input into the low half and copies the selected
+    # half of the base operand into the high half. Exercise every ordinary
+    # source layout and selector supported by the shared conversion emitter.
+    for klass in (k for k in arch.classes if k.mnemonic=='F2FP' and
+                  k.name.startswith('f2fp_merge_c__') and not k.alternate):
+        if any(atom.type=='CX' for atom in klass.operand_types.values()):continue
+        src=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
+        base=next((n for n in ('Rc','URc','Sc') if n in klass.operand_types),None)
+        if not src or not base:continue
+        if not all(n in klass.operand_types for n in
+                   ('dstfmt','srcfmt','merge','rndMode','relu','extract')):continue
+        sat_atom=klass.operand_types.get('satfinite')
+        sat_modes=('nosatfinite','SATFINITE') if sat_atom else (None,)
+        values=[0x3fc00000,0xbfc00000,0x7fc12345,0x7f800000,0xff800000]
+        for fmt,rnd,relu_mode,sat_mode,extract in itertools.product(
+                ('F16','BF16','E6M9'),('RN','RZ'),('norelu','RELU'),
+                sat_modes,('H0','H1')):
+            if fmt not in arch.enums[klass.operand_types['dstfmt'].type]:continue
+            if 'F32' not in arch.enums[klass.operand_types['srcfmt'].type]:continue
+            if 'MERGE_C' not in arch.enums[klass.operand_types['merge'].type]:continue
+            if rnd not in arch.enums[klass.operand_types['rndMode'].type]:continue
+            if extract not in arch.enums[klass.operand_types['extract'].type]:continue
+            for i,bits in enumerate(values):
+                fields={'Rd':8,'dstfmt':fmt,'srcfmt':'F32','merge':'MERGE_C',
+                        'rndMode':rnd,'relu':relu_mode,'extract':extract}
+                if sat_mode is not None:fields['satfinite']=sat_mode
+                registers={};memory=[]
+                for name,value,reg in ((src,bits,2),(base,0xdeadbeef,4)):
+                    typ=klass.operand_types[name].type
+                    if typ=='Register':fields[name]=reg;registers[f'R{reg}']=value
+                    elif typ=='UniformRegister':fields[name]=reg;registers[f'UR{reg}']=value
+                    elif typ=='F32Imm':fields[name]=value
+                    elif typ=='C':
+                        bank_name=name+'_bank';addr_name=name+'_addr'
+                        fields[bank_name]=2;fields[addr_name]=0x100
+                        memory.append(dict(space='cbank',address=(2<<32)|0x100,
+                                           hex=value.to_bytes(4,'little').hex()))
+                    else:break
+                else:
+                    conv={'F16':f16_pack_ref,'BF16':bf16_pack_ref,
+                          'E6M9':e6m9_pack_ref}[fmt]
+                    converted=conv(bits,rnd=='RN');sign=converted&0x8000
+                    mag=converted&0x7fff
+                    is_nan=(((mag&0x7e00)==0x7e00 and (mag&0x1ff)!=0)
+                            if fmt=='E6M9' else
+                            ((mag&0x7f80)==0x7f80 and (mag&0x7f)!=0)
+                            if fmt=='BF16' else
+                            ((mag&0x7c00)==0x7c00 and (mag&0x3ff)!=0))
+                    if sat_mode=='SATFINITE':
+                        if fmt=='BF16' and mag==0x7f80:converted=sign|0x7f7f
+                        if fmt=='F16' and mag==0x7c00:converted=sign|0x7bff
+                        if fmt=='E6M9' and mag==0x7e00:converted=sign|0x7dff
+                    if relu_mode=='RELU':
+                        if is_nan:converted=0x7fff if fmt in ('BF16','E6M9') else 0x7e00
+                        elif sign:converted=0
+                    basehalf=(0xdead if extract=='H1' else 0xbeef)
+                    want=(basehalf<<16)|(converted&0xffff)
+                    add(klass.name,fields,registers,{'R8':want,'__native':True},
+                        memory=memory)
     # F2FP FP8 PACK_AB_MERGE_C, with exact rational-distance RN-even oracle.
     fp8_values=[0,0x80000000,0x00000001,0x007fffff,0x00800000,
         0x33800000,0x3f800000,0xbf800000,0x3f801000,0x3f803000,
@@ -640,9 +985,8 @@ def cases(sm,fp='exact'):
                   not k.alternate):
         if any(atom.type=='CX' for atom in klass.operand_types.values()):continue
         srcs=[next((n for n in group.split('/') if n in klass.operand_types),None)
-              for group in ('Ra/URa','Rb/URb','Rc/URc')]
-        if not all(srcs) or any(klass.operand_types[n].type not in
-              ('Register','UniformRegister') for n in srcs):continue
+              for group in ('Ra/URa','Rb/URb/Sb','Rc/URc/Sc')]
+        if not all(srcs) or any(klass.operand_types[n].type=='CX' for n in srcs):continue
         if not all(n in klass.operand_types for n in
                    ('dstfmt','srcfmt','merge','rndMode','satfinite','relu','extract')):continue
         for fmt in ('E4M3','E5M2'):
@@ -655,16 +999,40 @@ def cases(sm,fp='exact'):
                     fields={'Rd':6,'dstfmt':fmt,'srcfmt':'F32',
                         'merge':'PACK_AB_MERGE_C','rndMode':'RN',
                         'satfinite':'SATFINITE','relu':'norelu','extract':extract}
-                    regs={}
+                    regs={};memory=[]
                     for n,value,reg in zip(srcs,(av,bv,cv),(2,4,6)):
-                        typ=klass.operand_types[n].type;fieldreg=reg if typ=='Register' else reg+6
-                        fields[n]=fieldreg
-                        regs[('R' if typ=='Register' else 'UR')+str(fieldreg)]=value
+                        typ=klass.operand_types[n].type
+                        if typ=='Register':fields[n]=reg;regs[f'R{reg}']=value
+                        elif typ=='UniformRegister':fields[n]=reg+6;regs[f'UR{reg+6}']=value
+                        elif typ=='C':
+                            fields.update(Sb_bank=2,Sb_addr=0x100)
+                            memory.append(dict(space='cbank',address=(2<<32)|0x100,
+                                               hex=value.to_bytes(4,'little').hex()))
+                        elif typ=='F32Imm':fields[n]=value
                     cbits=(cv>>16)&0xffff if extract=='H1' else cv&0xffff
                     want=(cbits<<16)|(fp8_ref(av,fmt)<<8)|fp8_ref(bv,fmt)
-                    add(klass.name,fields,regs,{'R6':want,'__native':True})
+                    add(klass.name,fields,regs,{'R6':want,'__native':True},memory=memory)
     # F2FP.F16.{E4M3,E5M2}.UNPACK_B widens both bytes in selected half.
     def fp8_to_f16(code,fmt):
+        if fmt=='E3M4':
+            sign=(code&0x80)<<8;exponent=(code>>4)&7;mantissa=code&15
+            if exponent==7 and mantissa==15:return 0x7fff
+            value=(mantissa/64 if exponent==0 else
+                   (1+mantissa/16)*2**(exponent-3))
+            if code&0x80:value=-value
+            return sign|int.from_bytes(struct.pack('<e',value),'little')
+        if fmt in ('E2M3','E3M2'):
+            ebits,mbits,bias=(2,3,1) if fmt=='E2M3' else (3,2,3)
+            sign=(code&0x20)<<10
+            exponent=(code>>mbits)&((1<<ebits)-1)
+            mantissa=code&((1<<mbits)-1)
+            if exponent:
+                return sign|((exponent-bias+15)<<10)|(mantissa<<(10-mbits))
+            if not mantissa:return sign
+            top=mantissa.bit_length()-1
+            half_exp=15+1-bias-mbits+top
+            fraction=(mantissa-(1<<top))<<(10-top)
+            return sign|(half_exp<<10)|fraction
         sign=(code&0x80)<<8
         if fmt=='E5M2':
             if (code&0x7c)==0x7c and (code&3):return 0x7fff
@@ -680,38 +1048,277 @@ def cases(sm,fp='exact'):
     for klass in (k for k in arch.classes if k.mnemonic=='F2FP' and
                   k.name.startswith('f2fp_8b_upconvert__') and not k.alternate):
         if any(atom.type=='CX' for atom in klass.operand_types.values()):continue
-        source=next((n for n in ('Rb','URb') if n in klass.operand_types),None)
+        source=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
         if source is None or klass.operand_types[source].type not in ('Register','UniformRegister'):continue
         if not all(n in klass.operand_types for n in
                    ('dstfmt','srcfmt','merge','rndMode','relu','extract_B')):continue
         typ=klass.operand_types[source].type
         reg=2 if typ=='Register' else 8
-        regname=('R' if typ=='Register' else 'UR')+str(reg)
-        for fmt in ('E4M3','E5M2'):
+        for fmt in ('E4M3','E5M2','E2M3','E3M2','E3M4'):
             if fmt not in arch.enums[klass.operand_types['srcfmt'].type]:continue
+            codes=range(64) if fmt in ('E2M3','E3M2') else range(256 if fmt=='E3M4' else 128)
             for extract in ('H0','H1'):
                 if extract not in arch.enums[klass.operand_types['extract_B'].type]:continue
                 fields={'Rd':8,'dstfmt':'F16','srcfmt':fmt,'merge':'UNPACK_B',
                     'rndMode':'RN','relu':'norelu','extract_B':extract,source:reg}
-                for i in range(128):
-                    pair=i|((255-i)<<8)
+                for i in codes:
+                    other=(63-i) if fmt in ('E2M3','E3M2') else ((255-i) if fmt=='E3M4' else (127-i))
+                    pair=i|(other<<8)
                     word=pair if extract=='H0' else pair<<16
-                    regs={regname:word}
-                    want=fp8_to_f16(i,fmt)|(fp8_to_f16(255-i,fmt)<<16)
-                    add(klass.name,fields,regs,{'R8':want,'__native':True})
-            # RELU is outside the modeled UP-convert selector combination.
-            relu_fields=dict(Rd=8,dstfmt='F16',srcfmt=fmt,merge='UNPACK_B',
-                rndMode='RN',relu='RELU',extract_B='H0',**{source:reg})
-            add(klass.name,relu_fields,{regname:0x7f7f8080},
-                {'error':'sass_opaque_F2FP'})
+                    regs={};memory=[]
+                    if typ=='Register':fields[source]=reg;regs[f'R{reg}']=word
+                    elif typ=='UniformRegister':fields[source]=reg;regs[f'UR{reg}']=word
+                    elif typ=='F32Imm':fields[source]=word
+                    elif typ=='F32Imm':fields[source]=word
+                    elif typ=='C':
+                        fields.update(Sb_bank=2,Sb_addr=0x100)
+                        memory=[dict(space='cbank',address=(2<<32)|0x100,
+                                     hex=word.to_bytes(4,'little').hex())]
+                    want=fp8_to_f16(i,fmt)|(fp8_to_f16(other,fmt)<<16)
+                    add(klass.name,fields,regs,{'R8':want,'__native':True},memory=memory)
+                for i in codes:
+                    other=(63-i) if fmt in ('E2M3','E3M2') else ((255-i) if fmt=='E3M4' else (127-i))
+                    pair=i|(other<<8)
+                    word=pair if extract=='H0' else pair<<16
+                    regs={};memory=[]
+                    if typ=='Register':fields[source]=reg;regs[f'R{reg}']=word
+                    elif typ=='UniformRegister':fields[source]=reg;regs[f'UR{reg}']=word
+                    elif typ=='F32Imm':fields[source]=word
+                    elif typ=='F32Imm':fields[source]=word
+                    elif typ=='C':
+                        fields.update(Sb_bank=2,Sb_addr=0x100)
+                        memory=[dict(space='cbank',address=(2<<32)|0x100,
+                                     hex=word.to_bytes(4,'little').hex())]
+                    relu_fields=dict(fields,relu='RELU')
+                    lo=fp8_to_f16(i,fmt);hi=fp8_to_f16(other,fmt)
+                    want=(0 if lo&0x8000 else lo)|((0 if hi&0x8000 else hi)<<16)
+                    add(klass.name,relu_fields,regs,{'R8':want,'__native':True},memory=memory)
+    # SM100+ F2FP E2M1 byte upconvert: each selected byte contains two
+    # nibbles, packed low nibble -> low F16 and high nibble -> high F16.
+    def e2m1_to_f16(nibble):
+        sign=(nibble&8)<<12;exponent=(nibble>>1)&3;mantissa=nibble&1
+        if exponent:return sign|((exponent+14)<<10)|(mantissa<<9)
+        return sign|(0x3800 if mantissa else 0)
+    def e0m3_to_f16(nibble):
+        sign=(nibble&8)<<12;magnitude=nibble&7
+        return sign|int.from_bytes(struct.pack('<e',float(magnitude)),'little')
+    for klass in (k for k in arch.classes if k.mnemonic=='F2FP' and
+                  k.name.startswith('f2fp_4b_upconvert__') and not k.alternate):
+        source=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
+        if source is None or not all(n in klass.operand_types for n in
+                ('dstfmt','srcfmt','merge','rndMode','relu','selB')):continue
+        typ=klass.operand_types[source].type
+        for srcfmt in ('E2M1','E0M3'):
+            if srcfmt not in arch.enums[klass.operand_types['srcfmt'].type]:continue
+            convert=e2m1_to_f16 if srcfmt=='E2M1' else e0m3_to_f16
+            for selector in ('B0','B1','B2','B3'):
+                if selector not in arch.enums[klass.operand_types['selB'].type]:continue
+                sel=int(selector[1:])
+                for relu in ('norelu','RELU'):
+                    for byte in range(256):
+                        word=byte<<(sel*8)
+                        fields={'Rd':8,'dstfmt':'F16','srcfmt':srcfmt,'merge':'UNPACK_B',
+                            'rndMode':'RN','relu':relu,'selB':selector}
+                        regs={}
+                        if typ=='Register':fields[source]=2;regs['R2']=word
+                        elif typ=='UniformRegister':fields[source]=4;regs['UR4']=word
+                        elif typ=='F32Imm':fields[source]=word
+                        lo=convert(byte&0xf);hi=convert(byte>>4)
+                        if relu=='RELU':
+                            lo=0 if lo&0x8000 else lo;hi=0 if hi&0x8000 else hi
+                        add(klass.name,fields,regs,{'R8':lo|(hi<<16),'__native':True})
+    # SM100+ scaled FP4 upconvert. PTX specifies per-lane UE8M0 multiplication
+    # after unpacking; low/high nibbles pair with low/high scale bytes.
+    def fp4_scaled_bf16(nibble,fmt,scale,relu):
+        mag=nibble&7;sign=(nibble&8)!=0
+        values=([0.0,0.5,1.0,1.5,2.0,3.0,4.0,6.0] if fmt=='E2M1' else
+                [0.0,1.0,2.0,3.0,4.0,5.0,6.0,7.0])
+        value=-values[mag] if sign else values[mag]
+        if scale==0xff:return 0x7fff
+        factor=2.0**(-127 if scale==0 else scale-127)
+        scaled=value*factor
+        try:bits=int.from_bytes(struct.pack('<f',scaled),'little')
+        except OverflowError:bits=(0xff800000 if scaled<0 else 0x7f800000)
+        if (bits&0x7f800000)==0x7f800000:
+            if bits&0x007fffff:return 0x7fff
+            out=(bits>>16)&0xffff
+        else:out=(bits+0x7fff+((bits>>16)&1))>>16
+        if (out&0x7fff)==0x7f80:out=(out&0x8000)|0x7f7f
+        if relu and out&0x8000 and not ((out&0x7f80)==0x7f80 and (out&0x7f)!=0):return 0
+        return out
+    for klass in (k for k in arch.classes if k.mnemonic=='F2FP' and
+                  k.name.startswith('f2fp_4b_upconvert_scale__') and not k.alternate):
+        bsrc=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
+        csrc=next((n for n in ('Rc','URc','Sc') if n in klass.operand_types),None)
+        if bsrc is None or csrc is None:continue
+        btype=klass.operand_types[bsrc].type;ctype=klass.operand_types[csrc].type
+        for fmt in ('E2M1','E0M3'):
+            for selector in ('B0','B1','B2','B3'):
+                if selector not in arch.enums[klass.operand_types['selB'].type]:continue
+                for relu in ('norelu','RELU'):
+                    for i in range(256):
+                        byte=(i&15)|(((i>>4)&15)<<4)
+                        bword=byte<<(int(selector[1:])*8)
+                        scales=i|((255-i)<<8)
+                        fields={'Rd':8,'dstfmt':'BF16','srcfmt':fmt,'merge':'UNPACK_B',
+                            'rndMode':'RN','satfinite':'SATFINITE','relu':relu,'selB':selector}
+                        regs={}
+                        if btype=='Register':fields[bsrc]=2;regs['R2']=bword
+                        elif btype=='UniformRegister':fields[bsrc]=4;regs['UR4']=bword
+                        else:fields[bsrc]=bword
+                        if ctype=='Register':fields[csrc]=6;regs['R6']=scales
+                        elif ctype=='UniformRegister':fields[csrc]=8;regs['UR8']=scales
+                        else:fields[csrc]=scales
+                        lo=fp4_scaled_bf16(byte&15,fmt,scales&0xff,relu=='RELU')
+                        hi=fp4_scaled_bf16(byte>>4,fmt,(scales>>8)&0xff,relu=='RELU')
+                        add(klass.name,fields,regs,{'R8':lo|(hi<<16),'__native':True})
+    # SM100+ F16/BF16 to E2M1x4: B supplies the low byte and C the next
+    # byte, as established by the ptxas UNPACK_B_MERGE_C lowering.
+    def half_to_e2m1(raw,fmt,relu):
+        sign=(raw>>12)&8;mag=raw&0x7fff
+        thresholds=((0x3400,0x3a00,0x3d00,0x3f00,0x4100,0x4300,0x4500,0x7c00)
+                    if fmt=='F16' else
+                    (0x3e80,0x3f40,0x3fa0,0x3fe0,0x4020,0x4060,0x40a0,0x7f80))
+        if mag>thresholds[-1]:return 7 # NaN -> positive maxnorm
+        code=7
+        for idx,(threshold,op) in enumerate(zip(thresholds[:7],
+                ('>','>=','>','>=','>','>=','>')),start=1):
+            if mag>threshold if op=='>' else mag>=threshold:
+                continue
+            code=idx-1;break
+        out=sign|code
+        return 0 if relu and sign else out
+    def half_to_e0m3(raw,fmt,relu):
+        sign=(raw>>15)&1
+        value=(struct.unpack('<e',raw.to_bytes(2,'little'))[0] if fmt=='F16' else
+               struct.unpack('<f',(raw<<16).to_bytes(4,'little'))[0])
+        # NaNs canonicalize to the positive max code before RELU, as for E2M1.
+        if math.isnan(value):return 7
+        if math.isinf(value):code=7
+        else:code=min(7,round(abs(value)))
+        if relu and sign:return 0
+        return (sign<<3)|code
+    fp4_edges={
+        'F16':[0,1,0x03ff,0x0400,0x8000,0x8001,0x7c00,0xfc00,
+               0x7c01,0x7e00,0xfc01,0xfe00],
+        'BF16':[0,1,0x007f,0x0080,0x8000,0x8001,0x7f80,0xff80,
+                0x7f81,0x7fc0,0xff81,0xffc0]}
+    fp4_thresholds={
+        'F16':(0x3400,0x3a00,0x3d00,0x3f00,0x4100,0x4300,0x4500),
+        'BF16':(0x3e80,0x3f40,0x3fa0,0x3fe0,0x4020,0x4060,0x40a0)}
+    e0m3_thresholds={
+        'F16':(0x3800,0x3e00,0x4100,0x4300,0x4480,0x4580,0x4680),
+        'BF16':(0x3f00,0x3fc0,0x4020,0x4060,0x4090,0x40b0,0x40d0)}
+    for klass in (k for k in arch.classes if k.mnemonic=='F2FP' and
+                  k.name.startswith('f2fp_f16_to_4b_downconvert__') and not k.alternate):
+        bsrc=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
+        csrc=next((n for n in ('Rc','URc','Sc') if n in klass.operand_types),None)
+        if bsrc is None or csrc is None:continue
+        btype=klass.operand_types[bsrc].type;ctype=klass.operand_types[csrc].type
+        for fmt in ('F16','BF16'):
+            vals=set(fp4_edges[fmt])
+            for threshold in set(fp4_thresholds[fmt])|set(e0m3_thresholds[fmt]):
+                vals.update((threshold-1,threshold,threshold+1,
+                             threshold|0x8000,(threshold|0x8000)-1,
+                             (threshold|0x8000)+1))
+            vals.update(rng.getrandbits(16) for _ in range(24))
+            vals=sorted(vals)
+            # Pair each boundary with a different lane to catch lane swaps.
+            for dstfmt in ('E2M1','E0M3'):
+                convert=half_to_e2m1 if dstfmt=='E2M1' else half_to_e0m3
+                for relu in ('norelu','RELU'):
+                    for i,x in enumerate(vals):
+                        y=vals[(i*7+3)%len(vals)]
+                        bword=x|(y<<16);cword=vals[(i*11+5)%len(vals)]|(vals[(i*13+9)%len(vals)]<<16)
+                        fields={'Rd':8,'dstfmt':dstfmt,'srcfmt':fmt,
+                            'merge':'UNPACK_B_MERGE_C','rndMode':'RN',
+                            'satfinite':'SATFINITE','relu':relu}
+                        regs={}
+                        if btype=='Register':fields[bsrc]=2;regs['R2']=bword
+                        elif btype=='UniformRegister':fields[bsrc]=4;regs['UR4']=bword
+                        else:fields[bsrc]=bword
+                        if ctype=='Register':fields[csrc]=6;regs['R6']=cword
+                        elif ctype=='UniformRegister':fields[csrc]=8;regs['UR8']=cword
+                        else:fields[csrc]=cword
+                        lanes=[convert((bword>>(16*j))&0xffff,fmt,relu=='RELU') for j in range(2)]
+                        lanes += [convert((cword>>(16*j))&0xffff,fmt,relu=='RELU') for j in range(2)]
+                        want=sum(lane<<(4*j) for j,lane in enumerate(lanes))
+                        add(klass.name,fields,regs,{'R8':want,'__native':True})
+    # SM100+ UE8M0 to BF16x2. CUDA's host reference maps 0xff to canonical
+    # NaN, 0 to the 2^-127 BF16 subnormal, and other bytes by shifting left 7.
+    def e8m0_to_bf16(byte):
+        if byte==0xff:return 0x7fff
+        if byte==0:return 0x0040
+        return byte<<7
+    for klass in (k for k in arch.classes if k.mnemonic=='F2FP' and
+                  k.name.startswith('f2fp_E8_upconvert__') and not k.alternate):
+        source=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
+        if source is None or not all(n in klass.operand_types for n in
+                ('dstfmt','srcfmt','merge','rndMode','extract_B')):continue
+        typ=klass.operand_types[source].type
+        for extract in ('H0','H1'):
+            for byte in range(256):
+                other=255-byte
+                pair=byte|(other<<8)
+                word=pair if extract=='H0' else pair<<16
+                fields={'Rd':8,'dstfmt':'BF16','srcfmt':'E8','merge':'UNPACK_B',
+                    'rndMode':'RN','extract_B':extract}
+                regs={}
+                if typ=='Register':fields[source]=2;regs['R2']=word
+                elif typ=='UniformRegister':fields[source]=4;regs['UR4']=word
+                elif typ=='F32Imm':fields[source]=word
+                lo=e8m0_to_bf16(byte);hi=e8m0_to_bf16(other)
+                add(klass.name,fields,regs,{'R8':lo|(hi<<16),'__native':True})
+    for klass in (k for k in arch.classes if k.mnemonic=='F2FP' and
+                  k.name=='f2fp__RCxR' and not k.alternate):
+        cx_name=next(n for n,a in klass.operand_types.items() if a.type=='CX')
+        a,bval=0x3f800000,0x40000000
+        fields={'Rd':8,'Ra':2,'dstfmt':'F16','srcfmt':'F32','merge':'PACK_AB',
+                'rndMode':'RN','relu':'norelu','satfinite':'nosatfinite'}
+        cx_fields,cx_regs,memory=cx_source(klass,cx_name,bval);fields.update(cx_fields)
+        add(klass.name,fields,{'R2':a,**cx_regs},
+            {'R8':0x3c004000,'__native':True},memory=memory)
+    for klass in (k for k in arch.classes if k.mnemonic=='F2FP' and
+                  k.name in ('f2fp_merge_c__RCxR','f2fp_merge_c__RRCx') and
+                  not k.alternate):
+        cx_name=next(n for n,a in klass.operand_types.items() if a.type=='CX')
+        fields={'Rd':8,'dstfmt':'F16','srcfmt':'F32','merge':'MERGE_C',
+                'rndMode':'RN','relu':'norelu','satfinite':'nosatfinite','extract':'H1'}
+        regs={}
+        if cx_name=='Sb':fields['Rc']=6;regs['R6']=0xaabbccdd
+        else:fields['Rb']=2;regs['R2']=0x3f800000
+        cx_fields,cx_regs,memory=cx_source(klass,cx_name,
+            0x3f800000 if cx_name=='Sb' else 0xaabbccdd);fields.update(cx_fields);regs.update(cx_regs)
+        add(klass.name,fields,regs,{'R8':0xaabb3c00,'__native':True},memory=memory)
     if 'f2i__Rb_32b' in classes:
-        for bits,want in [(0x7fc00000,0),(0x7f800001,0),(0x7f800000,0x7fffffff),(0xff800000,0x80000000),
+        f2i_values=[0x7fc00000,0x7f800001,0x7f800000,0xff800000,
                           (0x4effffff,0x7fffff80),(0x4f000000,0x7fffffff),
                           (0xcf000000,0x80000000),(0xcf000001,0x80000000),
                           (0x3fc00000,1),(0xbfc00000,0xffffffff),(0x3f000000,0),
-                          (0xbf000000,0),(0x00000001,0),(0x80000001,0)]:
-            add('f2i__Rb_32b',dict(Rd=8,Rb=2,dstfmt='S32',rnd='TRUNC',ntz='NTZ'),
-                dict(R2=bits),dict(R8=want,__native=True))
+                          (0xbf000000,0),(0x00000001,0),(0x80000001,0)]
+        f2i_values=[x if isinstance(x,int) else x[0] for x in f2i_values]
+        def f2i_ref(bits):
+            sign=bits>>31;exp=(bits>>23)&255;frac=bits&0x7fffff
+            if exp==255:
+                if frac:return 0
+                return 0x80000000 if sign else 0x7fffffff
+            if exp==0:return 0
+            e=exp-127
+            if e<0:return 0
+            if e>=31:return 0x80000000 if sign else 0x7fffffff
+            magnitude=((frac|0x800000) << (e-23) if e>=23 else
+                       (frac|0x800000) >> (23-e))
+            return (-magnitude if sign else magnitude)&0xffffffff
+        for bits in f2i_values:
+            for absolute in (0,1):
+                for negate in (0,1):
+                    effective=bits
+                    if absolute:effective &= 0x7fffffff
+                    if negate:effective ^= 0x80000000
+                    fields=dict(Rd=8,Rb=2,dstfmt='S32',rnd='TRUNC',ntz='NTZ',
+                                **{'Rb@absolute':absolute,'Rb@negate':negate})
+                    add('f2i__Rb_32b',fields,dict(R2=bits),
+                        dict(R8=f2i_ref(effective),__native=True))
         if fp=='readable':
             for rnd in ('ROUND','FLOOR','CEIL'):
                 add('f2i__Rb_32b',dict(Rd=8,Rb=2,dstfmt='S32',rnd=rnd,ntz='NTZ'),
@@ -755,6 +1362,17 @@ def cases(sm,fp='exact'):
                 else:
                     want=((cval&0xffff)<<16)|(f2ip_byte(a,signed)<<8)|f2ip_byte(bval,signed)
                     add(klass.name,fields,regs,{f'R{rd}':want,'__native':True},memory=memory)
+    for klass in (k for k in arch.classes if k.mnemonic=='F2IP' and
+                  not k.alternate and any(a.type=='CX' for a in k.operand_types.values())):
+        cx_name=next(n for n,a in klass.operand_types.items() if a.type=='CX')
+        if cx_name not in ('Sb','Rb'):continue
+        a,bval,cval=0x3fc00000,0x40200000,0x12345678
+        fields={'Rd':8,'Ra':2,'Rc':6,'dstfmt':'S8','srcfmt':'F32',
+                'rnd':'ROUND','ntz':'NTZ','relu':'norelu'}
+        cx_fields,cx_regs,memory=cx_source(klass,cx_name,bval);fields.update(cx_fields)
+        want=((cval&0xffff)<<16)|(f2ip_byte(a,True)<<8)|f2ip_byte(bval,True)
+        add(klass.name,fields,{'R2':a,'R6':cval,**cx_regs},
+            {'R8':want,'__native':True},memory=memory)
     if 'f2ip__RRR' in classes:
         add('f2ip__RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,dstfmt='S8',srcfmt='F32',
             rnd='TRUNC',ntz='NTZ',relu='norelu'),dict(R2=0x3f800000,R4=0x40000000,
@@ -779,56 +1397,67 @@ def cases(sm,fp='exact'):
         modes=[label for label in ('nosatrelu','nosatrelu_relu','SAT','SATRELU','RELU') if label in sat_enum]
         for fmt in labels:
             width=int(fmt[1:]);signed=fmt.startswith('S')
-            extracts=('24' if width==4 else '28' if width==2 else 'H0',)
-            if any(x not in ext_enum for x in extracts):continue
-            for mode in modes:
-                if not signed and mode in ('SATRELU','RELU'):continue
-                sat=mode in ('SAT','SATRELU');relu=mode in ('RELU','SATRELU')
-                lo=-(1<<(width-1)) if signed else 0
-                hi=(1<<(width-1))-1 if signed else (1<<width)-1
-                def i2ip_convert(v):
-                    if sat:v=max(lo,min(hi,v))
-                    if relu:v=max(0,v)
-                    return v&((1<<width)-1)
-                # Exercise truncation, both saturation bounds, and RELU with
-                # values chosen around the target range for this element size.
-                samples=[0,1,-1,lo-1,lo,hi,hi+1,0x12345678]
-                for j,avalue in enumerate(samples):
-                    bvalue=samples[(j+3)%len(samples)]
-                    cvalue=(0xa53c91e7+j*0x10203)&0xffffffff
-                    rd=2 if j==7 else 8
-                    fields={'Rd':rd,'dstfmt':fmt,'srcfmt':'S32',sat_field:mode,
-                            extract_field:extracts[0]}
-                    regs={};memory=[]
-                    for name,value,reg in zip(srcs,(avalue,bvalue,cvalue),(2,4,6)):
-                        typ=klass.operand_types[name].type
-                        if name=='Rc' and width==16:
-                            fields[name]='RZ';continue
-                        if typ=='Register':fields[name]=reg;regs[f'R{reg}']=value&0xffffffff
-                        elif typ=='UniformRegister':fields[name]=10;regs['UR10']=value&0xffffffff
-                        elif typ=='C':
-                            offset=0x20
-                            fields.update({name+'_bank':0,name+'_addr':offset})
-                            memory.append(dict(space='cbank',address=offset,
-                                               hex=(value&0xffffffff).to_bytes(4,'little').hex()))
-                        elif typ in ('SImm','UImm'):fields[name]=value
-                        else:break
-                    else:
-                        packed=(i2ip_convert(avalue)<<width)|i2ip_convert(bvalue)
-                        if width<16:
-                            packed|=(cvalue&((1<<(32-2*width))-1))<<(2*width)
-                        add(klass.name,fields,regs,{f'R{rd}':packed&0xffffffff,'__native':True},memory=memory)
-    for klass in (k for k in arch.classes if k.mnemonic=='I2IP' and not k.alternate):
+            extracts=(('24',) if width==4 else ('28',) if width==2 else ('H0','H1'))
+            extracts=tuple(x for x in extracts if x in ext_enum)
+            for extract in extracts:
+                for mode in modes:
+                    if not signed and mode in ('SATRELU','RELU'):continue
+                    sat=mode in ('SAT','SATRELU');relu=mode in ('RELU','SATRELU')
+                    lo=-(1<<(width-1)) if signed else 0
+                    hi=(1<<(width-1))-1 if signed else (1<<width)-1
+                    def i2ip_convert(v):
+                        if sat:v=max(lo,min(hi,v))
+                        if relu:v=max(0,v)
+                        return v&((1<<width)-1)
+                    # Exercise truncation, both saturation bounds, and RELU with
+                    # values chosen around the target range for this element size.
+                    samples=[0,1,-1,lo-1,lo,hi,hi+1,0x12345678]
+                    for j,avalue in enumerate(samples):
+                        bvalue=samples[(j+3)%len(samples)]
+                        cvalue=(0xa53c91e7+j*0x10203)&0xffffffff
+                        rd=2 if j==7 else 8
+                        fields={'Rd':rd,'dstfmt':fmt,'srcfmt':'S32',sat_field:mode,
+                                extract_field:extract}
+                        regs={};memory=[]
+                        for name,value,reg in zip(srcs,(avalue,bvalue,cvalue),(2,4,6)):
+                            typ=klass.operand_types[name].type
+                            if name=='Rc' and width==16:
+                                fields[name]='RZ';continue
+                            if typ=='Register':fields[name]=reg;regs[f'R{reg}']=value&0xffffffff
+                            elif typ=='UniformRegister':fields[name]=10;regs['UR10']=value&0xffffffff
+                            elif typ=='C':
+                                offset=0x20
+                                fields.update({name+'_bank':0,name+'_addr':offset})
+                                memory.append(dict(space='cbank',address=offset,
+                                                   hex=(value&0xffffffff).to_bytes(4,'little').hex()))
+                            elif typ in ('SImm','UImm'):fields[name]=value
+                            else:break
+                        else:
+                            packed=(i2ip_convert(avalue)<<width)|i2ip_convert(bvalue)
+                            if width<16:
+                                carry_source=cvalue if extract=='H0' else cvalue>>16
+                                packed|=(carry_source&((1<<(32-2*width))-1))<<(2*width)
+                            add(klass.name,fields,regs,{f'R{rd}':packed&0xffffffff,'__native':True},memory=memory)
+    for klass in (k for k in arch.classes if k.mnemonic=='I2IP' and
+                  k.name.startswith('i2ip__') and not k.alternate and
+                  any(a.type=='CX' for a in k.operand_types.values())):
+        cx_name=next(n for n,a in klass.operand_types.items() if a.type=='CX')
+        if cx_name not in ('Sb','Rb'):continue
         extract_field=next(n for n,x in klass.operand_types.items()
                            if x.type in ('EXTRACT','HSEL','ONLY24','ONLY28'))
         sat_field=next(n for n,x in klass.operand_types.items()
                        if x.type in ('SATONLY','SATRELU','SATRELU_RELU'))
-        if 'H1' in arch.enums[klass.operand_types[extract_field].type]:
-            fields={'Rd':8,'Ra':2,'Rb':4,'Rc':6,'dstfmt':'S8','srcfmt':'S32',
-                    sat_field:'SAT',extract_field:'H1'}
-            add(klass.name,fields,dict(R2=0xfffffffe,R4=0x12345678,R6=0),
-                dict(error='sass_opaque_I2IP'))
-            break
+        a,bval,cval=300,-140,0x12345678
+        for extract in ('H0','H1'):
+            if extract not in arch.enums[klass.operand_types[extract_field].type]:continue
+            fields={'Rd':8,'Ra':2,'Rc':6,'dstfmt':'S8','srcfmt':'S32',
+                    sat_field:'SAT',extract_field:extract}
+            cx_fields,cx_regs,memory=cx_source(klass,cx_name,bval);fields.update(cx_fields)
+            # Saturate each input to S8; H0/H1 selects C's preserved high half.
+            c_half=(cval if extract=='H0' else cval>>16)&0xffff
+            packed=(c_half<<16)|(127<<8)|((-128)&0xff)
+            add(klass.name,fields,{'R2':a,'R6':cval,**cx_regs},
+                {'R8':packed,'__native':True},memory=memory)
     # CuLifter's immediate UP2UR form packs selected UP0..UP6 bits over URa.
     up2ur=classes.get('up2ur__Imm')
     if up2ur:
@@ -1199,6 +1828,237 @@ def cases(sm,fp='exact'):
                             (0x7e017c00,0x3c003c00),(0xbc00c000,0x40004000)):
                     add('hmul2__RR',dict(Rd=8,Ra=2,Rb=4,fmz=mode,sat='SAT' if sat else 'nosat'),
                         dict(R2=a,R4=b),dict(R8=hmul2_reference(a,b,mode,sat),__native=True))
+    for klass in (k for k in arch.classes if k.mnemonic=='HADD2' and
+                  k.name=='hadd2__RCx' and not k.alternate):
+        cx_name=next(n for n,a in klass.operand_types.items() if a.type=='CX')
+        fields={'Rd':8,'Ra':2}
+        cx_fields,cx_regs,memory=cx_source(klass,cx_name,0x40004000);fields.update(cx_fields)
+        add(klass.name,fields,{'R2':0x3c003c00,**cx_regs},
+            {'R8':0x42004200,'__native':True},memory=memory)
+    for klass in (k for k in arch.classes if k.mnemonic=='HFMA2' and
+                  k.name=='hfma2__RCxR' and not k.alternate):
+        cx_name=next(n for n,a in klass.operand_types.items() if a.type=='CX')
+        fields={'Rd':8,'Ra':2,'Rc':6}
+        cx_fields,cx_regs,memory=cx_source(klass,cx_name,0x40004000);fields.update(cx_fields)
+        add(klass.name,fields,{'R2':0x3c003c00,'R6':0x42004200,**cx_regs},
+            {'R8':0x45004500,'__native':True},memory=memory)
+    for klass in (k for k in arch.classes if k.mnemonic=='HMUL2' and
+                  k.name=='hmul2__RCx' and not k.alternate):
+        cx_name=next(n for n,a in klass.operand_types.items() if a.type=='CX')
+        fields={'Rd':8,'Ra':2}
+        cx_fields,cx_regs,memory=cx_source(klass,cx_name,0x40004000);fields.update(cx_fields)
+        add(klass.name,fields,{'R2':0x3c003c00,**cx_regs},
+            {'R8':0x40004000,'__native':True},memory=memory)
+    for klass in (k for k in arch.classes if k.mnemonic=='HMNMX2' and
+                  k.name=='hmnmx2__RCxR' and not k.alternate):
+        cx_name=next(n for n,a in klass.operand_types.items() if a.type=='CX')
+        fields={'Rd':8,'Ra':2,'Pp':'PT'}
+        cx_fields,cx_regs,memory=cx_source(klass,cx_name,0x40004000);fields.update(cx_fields)
+        add(klass.name,fields,{'R2':0x3c003c00,**cx_regs},
+            {'R8':0x3c003c00,'__native':True},memory=memory)
+    if 'hmnmx2__RRR' in classes:
+        def half_minmax(a,b,is_min,nan_mode,ftz,xorsign,abs_a=None,abs_b=None,bf16=False,e6m9=False):
+            if abs_a is None:abs_a=xorsign
+            if abs_b is None:abs_b=xorsign
+            lanes=[]
+            for shift in (0,16):
+                x=(a>>shift)&0xffff;y=(b>>shift)&0xffff
+                sx=(x>>15)&1;sy=(y>>15)&1
+                if abs_a:x&=0x7fff
+                if abs_b:y&=0x7fff
+                if ftz:
+                    if x&0x7c00==0:x&=0x8000
+                    if y&0x7c00==0:y&=0x8000
+                expmask,fracmask=(0x7e00,0x01ff) if e6m9 else ((0x7f80,0x007f) if bf16 else (0x7c00,0x03ff))
+                xn=(x&expmask)==expmask and (x&fracmask)!=0
+                yn=(y&expmask)==expmask and (y&fracmask)!=0
+                if nan_mode and (xn or yn):r=0x7fff
+                elif xn and not yn:r=y
+                elif yn and not xn:r=x
+                elif xn and yn:r=0x7fff
+                else:
+                    if e6m9:
+                        sign_x=(x&0x8000)!=0;sign_y=(y&0x8000)!=0
+                        xm=x&0x7fff;ym=y&0x7fff
+                        less=(sign_x if sign_x!=sign_y else (xm>ym if sign_x else xm<ym))
+                        r=x if less==is_min else y
+                    else:
+                        if bf16:
+                            xf=struct.unpack('<f',(x<<16).to_bytes(4,'little'))[0]
+                            yf=struct.unpack('<f',(y<<16).to_bytes(4,'little'))[0]
+                        else:
+                            xf=struct.unpack('<e',x.to_bytes(2,'little'))[0]
+                            yf=struct.unpack('<e',y.to_bytes(2,'little'))[0]
+                        if xf==yf==0:r=(x|y) if is_min else (x&y)
+                        else:r=x if (xf<yf)==is_min else y
+                if xorsign and not ((xn and yn) or (nan_mode and (xn or yn))):
+                    r=(r&0x7fff)|((sx^sy)<<15)
+                if ftz and r&0x7c00==0:r&=0x8000
+                lanes.append(r)
+            return lanes[0]|(lanes[1]<<16)
+        cases_hmn=[(0x3c003c00,0xc000c000),(0x80000000,0x00000000),
+                   (0x7e017c00,0x40003c00),(0x00010001,0x80018001),
+                   (0xbc003c00,0x4200c000),(0xffc17fc1,0x7fc17fc1)]
+        hmn_has_xor='xorsign' in classes['hmnmx2__RRR'].operand_types
+        for a,bval in cases_hmn:
+            for is_min,nan_mode,ftz in itertools.product((False,True),(False,True),(False,True)):
+                # XORSIGN encodings require both input absolute modifiers.
+                use_xor=(hmn_has_xor and a==0x3c003c00 and bval==0xc000c000 and
+                         is_min and not nan_mode and not ftz)
+                fields=dict(Rd=8,Ra=2,Rb=4,Pp='PT',**{'Pp@not':int(not is_min)},
+                            nan='NAN' if nan_mode else 'nonan',ftz='FTZ' if ftz else 'noftz',
+                            iswzA='H1_H0',iswzB='H1_H0')
+                if use_xor:
+                    fields.update(xorsign='XORSIGN',**{'Ra@absolute':1,'Rb@absolute':1})
+                elif hmn_has_xor:fields['xorsign']='noxorsign'
+                add('hmnmx2__RRR',fields,{'R2':a,'R4':bval},
+                    {'R8':half_minmax(a,bval,is_min,nan_mode,ftz,use_xor),'__native':True})
+        if hmn_has_xor:
+            for fmt, a, bval, bf16, e6m9 in (
+                ('F16_V2',0x80010000,0x7e017e01,False,False),
+                ('BF16_V2',0x80010000,0x7fc17fc1,True,False),
+                ('E6M9_V2',0x80010000,0x7e017e01,False,True)):
+                if fmt not in arch.enums[classes['hmnmx2__RRR'].operand_types['ofmt'].type]:
+                    continue
+                for is_min in (False,True):
+                    fields=dict(Rd=8,Ra=2,Rb=4,Pp='PT',**{'Pp@not':int(not is_min)},
+                        ofmt=fmt,nan='nonan',ftz='noftz',xorsign='XORSIGN',
+                        iswzA='H1_H0',iswzB='H1_H0',
+                        **{'Ra@absolute':1,'Rb@absolute':1})
+                    add('hmnmx2__RRR',fields,{'R2':a,'R4':bval},
+                        {'R8':half_minmax(a,bval,is_min,False,False,True,
+                            bf16=bf16,e6m9=e6m9),'__native':True})
+        if 'BF16_V2' in arch.enums[classes['hmnmx2__RRR'].operand_types['ofmt'].type]:
+            xor_supported=('xorsign' in classes['hmnmx2__RRR'].operand_types and
+                'XORSIGN' in arch.enums[classes['hmnmx2__RRR'].operand_types['xorsign'].type])
+            for a,bval in ((0x3f803f80,0xc000c000),(0,0x80008000),
+                           (0x7fc17f80,0x40003f80),(0x7f80ff80,0x7f7fff7f),
+                           (0xbf803f80,0x4200c000),(0xffc17fc1,0x7fc17fc1)):
+                for is_min,nan_mode,use_xor in itertools.product((False,True),(False,True),
+                                                                  (False,True) if xor_supported else (False,)):
+                    if use_xor and (nan_mode or not is_min or a not in (0x3f803f80,0xbf803f80)):
+                        continue
+                    fields=dict(Rd=8,Ra=2,Rb=4,Pp='PT',**{'Pp@not':int(not is_min)},
+                        ofmt='BF16_V2',nan='NAN' if nan_mode else 'nonan',ftz='noftz',
+                        iswzA='H1_H0',iswzB='H1_H0')
+                    if use_xor:fields.update(xorsign='XORSIGN',**{'Ra@absolute':1,'Rb@absolute':1})
+                    elif xor_supported:fields['xorsign']='noxorsign'
+                    add('hmnmx2__RRR',fields,{'R2':a,'R4':bval},
+                        {'R8':half_minmax(a,bval,is_min,nan_mode,False,use_xor,bf16=True),
+                         '__native':True})
+        if 'E6M9_V2' in arch.enums[classes['hmnmx2__RRR'].operand_types['ofmt'].type]:
+            xor_supported=('xorsign' in classes['hmnmx2__RRR'].operand_types and
+                'XORSIGN' in arch.enums[classes['hmnmx2__RRR'].operand_types['xorsign'].type])
+            for a,bval in ((0x40004000,0x3f803f80),(0,0x80008000),
+                           (0x7fff7fff,0x3f803f80),(0x7e00fe00,0x3f80bf80),
+                           (0x00010001,0x80028002),(0xc0003f80,0x41003e00),
+                           (0xffff7fff,0x7fff7fff)):
+                for is_min,nan_mode,use_xor in itertools.product((False,True),(False,True),
+                                                                  (False,True) if xor_supported else (False,)):
+                    if use_xor and (nan_mode or not is_min):continue
+                    fields=dict(Rd=8,Ra=2,Rb=4,Pp='PT',**{'Pp@not':int(not is_min)},
+                        ofmt='E6M9_V2',nan='NAN' if nan_mode else 'nonan',ftz='noftz',
+                        iswzA='H1_H0',iswzB='H1_H0')
+                    if use_xor:fields.update(xorsign='XORSIGN',**{'Ra@absolute':1,'Rb@absolute':1})
+                    elif xor_supported:fields['xorsign']='noxorsign'
+                    add('hmnmx2__RRR',fields,{'R2':a,'R4':bval},
+                        {'R8':half_minmax(a,bval,is_min,nan_mode,False,use_xor,e6m9=True),
+                         '__native':True})
+        if 'hmnmx2__RIR' in classes:
+            for swizzle in ('H1_H0','H0_H0','H1_H1'):
+                a=0x40003c00
+                bval=0x42003e00
+                fields=dict(Rd=8,Ra=2,Sb=0x4200,Sb1=0x3e00,Pp='PT',
+                    iswzA=swizzle,nan='nonan',ftz='noftz')
+                if 'xorsign' in classes['hmnmx2__RIR'].operand_types:fields['xorsign']='noxorsign'
+                if swizzle=='H0_H0':a=(a&0xffff)*0x10001
+                if swizzle=='H1_H1':a=((a>>16)&0xffff)*0x10001
+                add('hmnmx2__RIR',fields,{'R2':0x40003c00},
+                    {'R8':half_minmax(a,bval,True,False,False,False),'__native':True})
+            if 'xorsign' in classes['hmnmx2__RIR'].operand_types:
+                immediate=0x3c00
+                for src,abs_a in ((0xc000c000,0),(0xc000c000,1),
+                                  (0x40004000,0),(0x40004000,1),
+                                  (0xbc00bc00,1)):
+                    fields=dict(Rd=8,Ra=2,Sb=immediate,Sb1=immediate,Pp='PT',
+                        iswzA='H1_H0',nan='nonan',ftz='noftz',xorsign='XORSIGN',
+                        **{'Ra@absolute':abs_a})
+                    add('hmnmx2__RIR',fields,{'R2':src},
+                        {'R8':half_minmax(src,immediate|(immediate<<16),True,
+                            False,False,True,abs_a,False),'__native':True})
+        for cls in ('hmnmx2__RUR','hmnmx2__RCR'):
+            if cls not in classes:continue
+            a,bval=0x40003c00,0x42003e00
+            fields=dict(Rd=8,Ra=2,Pp='PT',iswzA='H1_H0',iswzB='H1_H0',
+                        nan='nonan',ftz='noftz')
+            if 'xorsign' in classes[cls].operand_types:fields['xorsign']='noxorsign'
+            regs={'R2':a};extra={}
+            if cls=='hmnmx2__RUR':fields['URb']=4;regs['UR4']=bval
+            else:
+                fields.update(Sb_bank=0,Sb_addr=0x100)
+                extra['memory']=[dict(space='cbank',address=0x100,
+                                      hex=bval.to_bytes(4,'little').hex())]
+            add(cls,fields,regs,{'R8':half_minmax(a,bval,True,False,False,False),'__native':True},**extra)
+    # NVIDIA's HMNMX2 patent describes Pu/Pv as per-lane source indicators.
+    # The IS_A encoding enables those outputs; true denotes source A.
+    for klass in (k for k in arch.classes if k.mnemonic=='HMNMX2' and
+                  k.name.startswith('hmnmx2_pred__') and not k.alternate):
+        source=next((n for n,a in klass.operand_types.items() if a.type=='CX'),None)
+        if source is None:
+            source=next((n for n in ('Rb','URb','Sb') if n in klass.operand_types),None)
+        if source is None or 'IS_A' not in arch.enums[klass.operand_types['isA'].type]:continue
+        a=0x44003e00 # low A=1.5, high A=4.0
+        bval=0x42004000 # low B=2.0, high B=3.0
+        atom=klass.operand_types[source];regs={'R2':a};extra={}
+        fields=dict(Rd=8,Ra=2,Pu=2,Pv=3,isA='IS_A',ofmt='F16_V2',
+            ftz='noftz',nan='nonan',Pp='PT',iswzA='H1_H0')
+        if 'iswzB' in klass.operand_types:fields['iswzB']='H1_H0'
+        if 'xorsign' in klass.operand_types:fields['xorsign']='noxorsign'
+        if atom.type=='Register':fields[source]=4;regs['R4']=bval
+        elif atom.type=='UniformRegister':fields[source]=4;regs['UR4']=bval
+        elif atom.type=='F32Imm':fields[source]=bval
+        elif atom.type=='F64Imm':
+            fields[source]=(bval>>16)&0xffff;fields[source+'1']=bval&0xffff
+        elif atom.type=='C':
+            fields.update(Sb_bank=2,Sb_addr=0x100)
+            extra['memory']=[dict(space='cbank',address=(2<<32)|0x100,
+                                  hex=bval.to_bytes(4,'little').hex())]
+        elif atom.type=='CX':
+            cx_fields,cx_regs,memory=cx_source(klass,source,bval)
+            fields.update(cx_fields);regs.update(cx_regs);extra['memory']=memory
+        else:continue
+        for is_min,flags in ((True,(1,0)),(False,(0,1))):
+            fields['Pp@not']=int(not is_min)
+            result=half_minmax(a,bval,is_min,False,False,False)
+            add(klass.name,dict(fields),dict(regs),
+                {'R8':result,'P2':flags[0],'P3':flags[1],'__native':True},**extra)
+        # The patent identifies Pu/Pv as source indicators. Check the emitter's
+        # source flags on one-NaN inputs and its canonical result on two NaNs.
+        for av,bv,want,flags in (
+                (0x7e007e00,0x7e007e00,0x7fff7fff,(1,1)),
+                (0x7e007e00,0x3c003c00,0x3c003c00,(0,0)),
+                (0x3c003c00,0x7e007e00,0x3c003c00,(1,1))):
+            nan_fields=dict(fields);nan_regs=dict(regs);nan_extra=dict(extra)
+            nan_regs['R2']=av
+            if atom.type=='Register':nan_regs['R4']=bv
+            elif atom.type=='UniformRegister':nan_regs['UR4']=bv
+            elif atom.type=='F32Imm':nan_fields[source]=bv
+            elif atom.type=='F64Imm':
+                nan_fields[source]=(bv>>16)&0xffff;nan_fields[source+'1']=bv&0xffff
+            elif atom.type=='C':
+                nan_extra['memory']=[dict(space='cbank',address=(2<<32)|0x100,
+                    hex=bv.to_bytes(4,'little').hex())]
+            elif atom.type=='CX':
+                nan_extra['memory']=[dict(space='ram',address=0x2000,
+                    hex=bv.to_bytes(4,'little').hex())]
+            for is_min in (True,False):
+                nan_fields['Pp@not']=int(not is_min)
+                add(klass.name,dict(nan_fields),dict(nan_regs),
+                    {'R8':want,'P2':flags[0],'P3':flags[1],'__native':True},
+                    **nan_extra)
+        canonical_fields=dict(fields,nan='NAN')
+        add(klass.name,canonical_fields,dict(regs),
+            {'error':'sass_opaque_HMNMX2'},**extra)
     # HADD2.F32 adds two half lanes, takes the selected low result, and widens
     # it to F32. Its required first operand is -RZ; the selectors on the
     # second source choose which half supplies that low result.
@@ -1213,8 +2073,15 @@ def cases(sm,fp='exact'):
     for klass in (k for k in arch.classes if k.mnemonic=='HADD2' and
                   k.name.startswith('hadd2_F32') and not k.alternate):
         if any(atom.type=='CX' for atom in klass.operand_types.values()):
-            add(klass.name,dict(Rd=8,Ra='RZ',URc=4,ofmt='F32',**{'Ra@negate':1}),
-                dict(UR4=0x3c003c00),dict(error='sass_opaque_HADD2'))
+            bits,shift=(51,6) if sm=='SM90' else (45,4)
+            base=0x1000;header=base//(1<<shift)+(1<<bits)
+            loaded=0x3c003c00
+            add(klass.name,dict(Rd=8,Ra='RZ',URc=4,Sc_offset=0,ofmt='F32',
+                                **{'Ra@negate':1}),
+                {'UR4':header&0xffffffff,'UR5':header>>32},
+                {'R8':0x3f800000,'__native':True},
+                memory=[dict(space='ram',address=base,
+                             hex=loaded.to_bytes(4,'little').hex())])
             continue
         source=next(n for n in ('Rc','URc','Sc') if n in klass.operand_types)
         atom=klass.operand_types[source]
@@ -1423,6 +2290,37 @@ def cases(sm,fp='exact'):
     if fp=='readable':
         out=[c for c in out if c[0] not in classes or classes[c[0]].mnemonic not in READABLE_FLOATS]
         readable_cases(sm,add,classes,rng)
+        # The generic readable fixture generator uses direct registers and
+        # does not cover composite CX operands. Restore focused CX cases after
+        # filtering the exact packed-half fixtures above.
+        for klass in (k for k in arch.classes if k.mnemonic=='HADD2' and
+                      k.name=='hadd2__RCx' and not k.alternate):
+            cx_name=next(n for n,a in klass.operand_types.items() if a.type=='CX')
+            fields={'Rd':8,'Ra':2}
+            cx_fields,cx_regs,memory=cx_source(klass,cx_name,0x40004000);fields.update(cx_fields)
+            add(klass.name,fields,{'R2':0x3c003c00,**cx_regs},
+                {'R8':0x42004200,'__native':True},memory=memory)
+        for klass in (k for k in arch.classes if k.mnemonic=='HFMA2' and
+                      k.name=='hfma2__RCxR' and not k.alternate):
+            cx_name=next(n for n,a in klass.operand_types.items() if a.type=='CX')
+            fields={'Rd':8,'Ra':2,'Rc':6}
+            cx_fields,cx_regs,memory=cx_source(klass,cx_name,0x40004000);fields.update(cx_fields)
+            add(klass.name,fields,{'R2':0x3c003c00,'R6':0x42004200,**cx_regs},
+                {'R8':0x45004500,'__native':True},memory=memory)
+        for klass in (k for k in arch.classes if k.mnemonic=='HMUL2' and
+                      k.name=='hmul2__RCx' and not k.alternate):
+            cx_name=next(n for n,a in klass.operand_types.items() if a.type=='CX')
+            fields={'Rd':8,'Ra':2}
+            cx_fields,cx_regs,memory=cx_source(klass,cx_name,0x40004000);fields.update(cx_fields)
+            add(klass.name,fields,{'R2':0x3c003c00,**cx_regs},
+                {'R8':0x40004000,'__native':True},memory=memory)
+        for klass in (k for k in arch.classes if k.mnemonic=='HADD2' and
+                      k.name.startswith('hadd2_F32') and not k.alternate and
+                      any(a.type=='CX' for a in k.operand_types.values())):
+            cx_name=next(n for n,a in klass.operand_types.items() if a.type=='CX')
+            fields={'Rd':8,'Ra':'RZ','ofmt':'F32','Ra@negate':1}
+            cx_fields,cx_regs,memory=cx_source(klass,cx_name,0x3c003c00);fields.update(cx_fields)
+            add(klass.name,fields,cx_regs,{'R8':0x3f800000,'__native':True},memory=memory)
     return out
 
 

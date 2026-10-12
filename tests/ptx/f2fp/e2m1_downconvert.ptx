@@ -1,0 +1,20 @@
+.version 9.0
+.target sm_100a
+.address_size 64
+
+.visible .entry f2fp_e2m1_downconvert(
+    .param .u64 input,
+    .param .u64 output
+) {
+    .reg .b64 %rd<3>;
+    .reg .b32 %r<3>;
+    .reg .b8 %b;
+
+    ld.param.u64 %rd1, [input];
+    ld.param.u64 %rd2, [output];
+    ld.global.u32 %r1, [%rd1];
+    cvt.rn.satfinite.e2m1x2.f16x2 %b, %r1;
+    cvt.u32.u8 %r2, %b;
+    st.global.u32 [%rd2], %r2;
+    ret;
+}

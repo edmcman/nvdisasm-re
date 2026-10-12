@@ -1,0 +1,33 @@
+.version 9.2
+.target sm_100
+.address_size 64
+
+.visible .entry f8_scaled_upconvert_probe(.param .u64 out) {
+    .reg .b64 %rd<2>;
+    .reg .b32 %r<5>;
+    .reg .b16 %h<10>;
+
+    ld.param.u64 %rd0, [out];
+    mov.b16 %h0, 0x1234;
+    mov.b16 %h1, 0x7f7f;
+    mov.b16 %h2, 0x5678;
+    mov.b16 %h3, 0x7f7f;
+    mov.b16 %h4, 0x9abc;
+    mov.b16 %h5, 0x7f7f;
+    mov.b16 %h6, 0xdef0;
+    mov.b16 %h7, 0x7f7f;
+    mov.b16 %h8, 0x8081;
+    mov.b16 %h9, 0x7f7f;
+
+    cvt.rn.relu.satfinite.scaled::n2::ue8m0.bf16x2.e4m3x2 %r0, %h0, %h1;
+    st.global.b32 [%rd0], %r0;
+    cvt.rn.relu.satfinite.scaled::n2::ue8m0.bf16x2.e5m2x2 %r1, %h2, %h3;
+    st.global.b32 [%rd0+4], %r1;
+    cvt.rn.relu.satfinite.scaled::n2::ue8m0.bf16x2.e2m3x2 %r2, %h4, %h5;
+    st.global.b32 [%rd0+8], %r2;
+    cvt.rn.relu.satfinite.scaled::n2::ue8m0.bf16x2.e3m2x2 %r3, %h6, %h7;
+    st.global.b32 [%rd0+12], %r3;
+    cvt.rn.relu.satfinite.scaled::n2::ue8m0.bf16x2.s2f6x2 %r4, %h8, %h9;
+    st.global.b32 [%rd0+16], %r4;
+    ret;
+}

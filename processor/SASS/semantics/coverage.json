@@ -5,56 +5,16 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "f2fp_4b_upconvert__RIR": "unsupported class shape",
-      "f2fp_4b_upconvert__RRR": "unsupported class shape",
-      "f2fp_4b_upconvert__RUR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RIR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRI": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRU": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RUR": "unsupported class shape",
-      "f2fp_8b_upconvert__RIR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RIR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRI": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRU": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RUR": "unsupported class shape",
-      "f2fp_E8_upconvert__RIR": "unsupported class shape",
-      "f2fp_E8_upconvert__RRR": "unsupported class shape",
-      "f2fp_E8_upconvert__RUR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RUR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RIR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRI": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRU": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RUR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RRI": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RIR": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRI": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRR": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRU": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RUR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
       "f2fp_rs_16b__RIR": "unsupported class shape",
       "f2fp_rs_16b__RRI": "unsupported class shape",
       "f2fp_rs_16b__RRR": "unsupported class shape",
@@ -65,7 +25,6 @@
       "f2fp_rs_8b4b__RRR": "unsupported class shape",
       "f2fp_rs_8b4b__RRU": "unsupported class shape",
       "f2fp_rs_8b4b__RUR": "unsupported class shape",
-      "f2fp_tf32__RIR": "unsupported class shape",
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
       "fmnmx_pred__RRR_RRR": "unsupported class shape",
       "fmnmx_pred__RUR_RUR": "unsupported class shape",
@@ -77,8 +36,6 @@
       "iadd_x_xor_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RUR_RUR": "class selectors have no supported native combination",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_256_memdesc__Ra64": "unsupported class shape",
@@ -105,6 +62,11 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
+      "uf2fp__URIUR": "outside implemented operation families",
+      "uf2fp__URURUR": "outside implemented operation families",
+      "uf2fp_merge_c__URIUR": "outside implemented operation families",
+      "uf2fp_merge_c__URURI": "outside implemented operation families",
+      "uf2fp_merge_c__URURUR": "outside implemented operation families",
       "uisetp_optional_upr__URURUR_URURUR": "unsupported class shape",
       "uisetp_optional_upr__URsIUR_URIR": "unsupported class shape",
       "up2ur__URb": "unsupported class shape"
@@ -151,8 +113,8 @@
         "native": 1
       },
       "F2FP": {
-        "native": 9,
-        "opaque": 61
+        "native": 50,
+        "opaque": 20
       },
       "F2I": {
         "native": 7,
@@ -196,6 +158,9 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMNMX2": {
+        "native": 6
+      },
       "HMUL2": {
         "native": 3
       },
@@ -219,8 +184,7 @@
         "native": 6
       },
       "IDP": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "IMAD": {
         "native": 29
@@ -309,6 +273,9 @@
         "native": 2,
         "opaque": 1
       },
+      "UF2FP": {
+        "opaque": 5
+      },
       "UIADD3": {
         "native": 4
       },
@@ -361,8 +328,8 @@
       }
     },
     "status": {
-      "native": 286,
-      "opaque": 604,
+      "native": 335,
+      "opaque": 555,
       "primitive": 88
     }
   },
@@ -372,56 +339,16 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "f2fp_4b_upconvert__RIR": "unsupported class shape",
-      "f2fp_4b_upconvert__RRR": "unsupported class shape",
-      "f2fp_4b_upconvert__RUR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RIR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRI": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRU": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RUR": "unsupported class shape",
-      "f2fp_8b_upconvert__RIR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RIR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRI": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRU": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RUR": "unsupported class shape",
-      "f2fp_E8_upconvert__RIR": "unsupported class shape",
-      "f2fp_E8_upconvert__RRR": "unsupported class shape",
-      "f2fp_E8_upconvert__RUR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RUR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RIR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRI": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRU": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RUR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RRI": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RIR": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRI": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRR": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRU": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RUR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
       "f2fp_rs_16b__RIR": "unsupported class shape",
       "f2fp_rs_16b__RRI": "unsupported class shape",
       "f2fp_rs_16b__RRR": "unsupported class shape",
@@ -432,7 +359,6 @@
       "f2fp_rs_8b4b__RRR": "unsupported class shape",
       "f2fp_rs_8b4b__RRU": "unsupported class shape",
       "f2fp_rs_8b4b__RUR": "unsupported class shape",
-      "f2fp_tf32__RIR": "unsupported class shape",
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
       "fmnmx_pred__RRR_RRR": "unsupported class shape",
       "fmnmx_pred__RUR_RUR": "unsupported class shape",
@@ -444,8 +370,6 @@
       "iadd_x_xor_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RUR_RUR": "class selectors have no supported native combination",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_256_memdesc__Ra64": "unsupported class shape",
@@ -472,6 +396,11 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
+      "uf2fp__URIUR": "outside implemented operation families",
+      "uf2fp__URURUR": "outside implemented operation families",
+      "uf2fp_merge_c__URIUR": "outside implemented operation families",
+      "uf2fp_merge_c__URURI": "outside implemented operation families",
+      "uf2fp_merge_c__URURUR": "outside implemented operation families",
       "uisetp_optional_upr__URURUR_URURUR": "unsupported class shape",
       "uisetp_optional_upr__URsIUR_URIR": "unsupported class shape",
       "up2ur__URb": "unsupported class shape"
@@ -518,8 +447,8 @@
         "native": 1
       },
       "F2FP": {
-        "native": 9,
-        "opaque": 61
+        "native": 50,
+        "opaque": 20
       },
       "F2I": {
         "native": 7,
@@ -563,6 +492,9 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMNMX2": {
+        "native": 6
+      },
       "HMUL2": {
         "native": 3
       },
@@ -586,8 +518,7 @@
         "native": 6
       },
       "IDP": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "IMAD": {
         "native": 29
@@ -676,6 +607,9 @@
         "native": 2,
         "opaque": 1
       },
+      "UF2FP": {
+        "opaque": 5
+      },
       "UIADD3": {
         "native": 4
       },
@@ -728,8 +662,8 @@
       }
     },
     "status": {
-      "native": 286,
-      "opaque": 604,
+      "native": 335,
+      "opaque": 555,
       "primitive": 88
     }
   },
@@ -739,57 +673,16 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "f2fp_4b_upconvert__RIR": "unsupported class shape",
-      "f2fp_4b_upconvert__RRR": "unsupported class shape",
-      "f2fp_4b_upconvert__RUR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RIR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRI": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRU": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RUR": "unsupported class shape",
-      "f2fp_8b_upconvert__RIR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RIR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRI": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRU": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RUR": "unsupported class shape",
-      "f2fp_E8_upconvert__RIR": "unsupported class shape",
-      "f2fp_E8_upconvert__RRR": "unsupported class shape",
-      "f2fp_E8_upconvert__RUR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RUR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RIR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRI": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRU": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RUR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RRI": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RIR": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRI": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRR": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRU": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RUR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
-      "f2fp_tf32__RIR": "unsupported class shape",
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
       "fmnmx_pred__RRR_RRR": "unsupported class shape",
       "fmnmx_pred__RUR_RUR": "unsupported class shape",
@@ -798,8 +691,6 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_256_memdesc__Ra64": "unsupported class shape",
@@ -826,6 +717,11 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
+      "uf2fp__URIUR": "outside implemented operation families",
+      "uf2fp__URURUR": "outside implemented operation families",
+      "uf2fp_merge_c__URIUR": "outside implemented operation families",
+      "uf2fp_merge_c__URURI": "outside implemented operation families",
+      "uf2fp_merge_c__URURUR": "outside implemented operation families",
       "uisetp_optional_upr__URURUR_URURUR": "unsupported class shape",
       "uisetp_optional_upr__URsIUR_URIR": "unsupported class shape",
       "up2ur__URb": "unsupported class shape"
@@ -872,8 +768,8 @@
         "native": 1
       },
       "F2FP": {
-        "native": 9,
-        "opaque": 51
+        "native": 50,
+        "opaque": 10
       },
       "F2I": {
         "native": 7,
@@ -917,6 +813,9 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMNMX2": {
+        "native": 6
+      },
       "HMUL2": {
         "native": 3
       },
@@ -939,8 +838,7 @@
         "native": 6
       },
       "IDP": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "IMAD": {
         "native": 29
@@ -1029,6 +927,9 @@
         "native": 2,
         "opaque": 1
       },
+      "UF2FP": {
+        "opaque": 5
+      },
       "UIADD3": {
         "native": 4
       },
@@ -1081,8 +982,8 @@
       }
     },
     "status": {
-      "native": 269,
-      "opaque": 549,
+      "native": 318,
+      "opaque": 500,
       "primitive": 86
     }
   },
@@ -1092,57 +993,16 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "f2fp_4b_upconvert__RIR": "unsupported class shape",
-      "f2fp_4b_upconvert__RRR": "unsupported class shape",
-      "f2fp_4b_upconvert__RUR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RIR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRI": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRU": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RUR": "unsupported class shape",
-      "f2fp_8b_upconvert__RIR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RIR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRI": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRU": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RUR": "unsupported class shape",
-      "f2fp_E8_upconvert__RIR": "unsupported class shape",
-      "f2fp_E8_upconvert__RRR": "unsupported class shape",
-      "f2fp_E8_upconvert__RUR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RUR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RIR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRI": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRU": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RUR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RRI": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RIR": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRI": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRR": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRU": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RUR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
-      "f2fp_tf32__RIR": "unsupported class shape",
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
       "fmnmx_pred__RRR_RRR": "unsupported class shape",
       "fmnmx_pred__RUR_RUR": "unsupported class shape",
@@ -1151,8 +1011,6 @@
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_256_memdesc__Ra64": "unsupported class shape",
@@ -1179,6 +1037,11 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
+      "uf2fp__URIUR": "outside implemented operation families",
+      "uf2fp__URURUR": "outside implemented operation families",
+      "uf2fp_merge_c__URIUR": "outside implemented operation families",
+      "uf2fp_merge_c__URURI": "outside implemented operation families",
+      "uf2fp_merge_c__URURUR": "outside implemented operation families",
       "uisetp_optional_upr__URURUR_URURUR": "unsupported class shape",
       "uisetp_optional_upr__URsIUR_URIR": "unsupported class shape",
       "up2ur__URb": "unsupported class shape"
@@ -1225,8 +1088,8 @@
         "native": 1
       },
       "F2FP": {
-        "native": 9,
-        "opaque": 51
+        "native": 50,
+        "opaque": 10
       },
       "F2I": {
         "native": 7,
@@ -1270,6 +1133,9 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMNMX2": {
+        "native": 6
+      },
       "HMUL2": {
         "native": 3
       },
@@ -1292,8 +1158,7 @@
         "native": 6
       },
       "IDP": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "IMAD": {
         "native": 29
@@ -1382,6 +1247,9 @@
         "native": 2,
         "opaque": 1
       },
+      "UF2FP": {
+        "opaque": 5
+      },
       "UIADD3": {
         "native": 4
       },
@@ -1434,8 +1302,8 @@
       }
     },
     "status": {
-      "native": 269,
-      "opaque": 549,
+      "native": 318,
+      "opaque": 500,
       "primitive": 86
     }
   },
@@ -1445,56 +1313,16 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "f2fp_4b_upconvert__RIR": "unsupported class shape",
-      "f2fp_4b_upconvert__RRR": "unsupported class shape",
-      "f2fp_4b_upconvert__RUR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RIR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRI": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRU": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RUR": "unsupported class shape",
-      "f2fp_8b_upconvert__RIR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RIR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRI": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRU": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RUR": "unsupported class shape",
-      "f2fp_E8_upconvert__RIR": "unsupported class shape",
-      "f2fp_E8_upconvert__RRR": "unsupported class shape",
-      "f2fp_E8_upconvert__RUR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RUR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RIR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRI": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRU": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RUR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RRI": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RIR": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRI": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRR": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRU": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RUR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
       "f2fp_rs_16b__RIR": "unsupported class shape",
       "f2fp_rs_16b__RRI": "unsupported class shape",
       "f2fp_rs_16b__RRR": "unsupported class shape",
@@ -1505,7 +1333,6 @@
       "f2fp_rs_8b4b__RRR": "unsupported class shape",
       "f2fp_rs_8b4b__RRU": "unsupported class shape",
       "f2fp_rs_8b4b__RUR": "unsupported class shape",
-      "f2fp_tf32__RIR": "unsupported class shape",
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
       "fmnmx_pred__RRR_RRR": "unsupported class shape",
       "fmnmx_pred__RUR_RUR": "unsupported class shape",
@@ -1517,8 +1344,6 @@
       "iadd_x_xor_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RUR_RUR": "class selectors have no supported native combination",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_256_memdesc__Ra64": "unsupported class shape",
@@ -1545,6 +1370,11 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
+      "uf2fp__URIUR": "outside implemented operation families",
+      "uf2fp__URURUR": "outside implemented operation families",
+      "uf2fp_merge_c__URIUR": "outside implemented operation families",
+      "uf2fp_merge_c__URURI": "outside implemented operation families",
+      "uf2fp_merge_c__URURUR": "outside implemented operation families",
       "uisetp_optional_upr__URURUR_URURUR": "unsupported class shape",
       "uisetp_optional_upr__URsIUR_URIR": "unsupported class shape",
       "up2ur__URb": "unsupported class shape"
@@ -1591,8 +1421,8 @@
         "native": 1
       },
       "F2FP": {
-        "native": 9,
-        "opaque": 61
+        "native": 50,
+        "opaque": 20
       },
       "F2I": {
         "native": 7,
@@ -1636,6 +1466,9 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMNMX2": {
+        "native": 6
+      },
       "HMUL2": {
         "native": 3
       },
@@ -1659,8 +1492,7 @@
         "native": 6
       },
       "IDP": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "IMAD": {
         "native": 29
@@ -1749,6 +1581,9 @@
         "native": 2,
         "opaque": 1
       },
+      "UF2FP": {
+        "opaque": 5
+      },
       "UIADD3": {
         "native": 4
       },
@@ -1801,8 +1636,8 @@
       }
     },
     "status": {
-      "native": 286,
-      "opaque": 597,
+      "native": 335,
+      "opaque": 548,
       "primitive": 91
     }
   },
@@ -1812,56 +1647,16 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "f2fp_4b_upconvert__RIR": "unsupported class shape",
-      "f2fp_4b_upconvert__RRR": "unsupported class shape",
-      "f2fp_4b_upconvert__RUR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RIR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRI": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRU": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RUR": "unsupported class shape",
-      "f2fp_8b_upconvert__RIR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RIR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRI": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRU": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RUR": "unsupported class shape",
-      "f2fp_E8_upconvert__RIR": "unsupported class shape",
-      "f2fp_E8_upconvert__RRR": "unsupported class shape",
-      "f2fp_E8_upconvert__RUR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RUR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RIR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRI": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRU": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RUR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RRI": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RIR": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRI": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRR": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRU": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RUR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
       "f2fp_rs_16b__RIR": "unsupported class shape",
       "f2fp_rs_16b__RRI": "unsupported class shape",
       "f2fp_rs_16b__RRR": "unsupported class shape",
@@ -1872,7 +1667,6 @@
       "f2fp_rs_8b4b__RRR": "unsupported class shape",
       "f2fp_rs_8b4b__RRU": "unsupported class shape",
       "f2fp_rs_8b4b__RUR": "unsupported class shape",
-      "f2fp_tf32__RIR": "unsupported class shape",
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
       "fmnmx_pred__RRR_RRR": "unsupported class shape",
       "fmnmx_pred__RUR_RUR": "unsupported class shape",
@@ -1884,8 +1678,6 @@
       "iadd_x_xor_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd_x_xor_noimm__RUR_RUR": "class selectors have no supported native combination",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_256_memdesc__Ra64": "unsupported class shape",
@@ -1912,6 +1704,11 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
+      "uf2fp__URIUR": "outside implemented operation families",
+      "uf2fp__URURUR": "outside implemented operation families",
+      "uf2fp_merge_c__URIUR": "outside implemented operation families",
+      "uf2fp_merge_c__URURI": "outside implemented operation families",
+      "uf2fp_merge_c__URURUR": "outside implemented operation families",
       "uisetp_optional_upr__URURUR_URURUR": "unsupported class shape",
       "uisetp_optional_upr__URsIUR_URIR": "unsupported class shape",
       "up2ur__URb": "unsupported class shape"
@@ -1958,8 +1755,8 @@
         "native": 1
       },
       "F2FP": {
-        "native": 9,
-        "opaque": 61
+        "native": 50,
+        "opaque": 20
       },
       "F2I": {
         "native": 7,
@@ -2003,6 +1800,9 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMNMX2": {
+        "native": 6
+      },
       "HMUL2": {
         "native": 3
       },
@@ -2026,8 +1826,7 @@
         "native": 6
       },
       "IDP": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "IMAD": {
         "native": 29
@@ -2116,6 +1915,9 @@
         "native": 2,
         "opaque": 1
       },
+      "UF2FP": {
+        "opaque": 5
+      },
       "UIADD3": {
         "native": 4
       },
@@ -2168,8 +1970,8 @@
       }
     },
     "status": {
-      "native": 286,
-      "opaque": 597,
+      "native": 335,
+      "opaque": 548,
       "primitive": 91
     }
   },
@@ -2179,57 +1981,16 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "f2fp_4b_upconvert__RIR": "unsupported class shape",
-      "f2fp_4b_upconvert__RRR": "unsupported class shape",
-      "f2fp_4b_upconvert__RUR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RIR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRI": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRU": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RUR": "unsupported class shape",
-      "f2fp_8b_upconvert__RIR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RIR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRI": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRU": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RUR": "unsupported class shape",
-      "f2fp_E8_upconvert__RIR": "unsupported class shape",
-      "f2fp_E8_upconvert__RRR": "unsupported class shape",
-      "f2fp_E8_upconvert__RUR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RUR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RIR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRI": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRU": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RUR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RRI": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RIR": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRI": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRR": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRU": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RUR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
-      "f2fp_tf32__RIR": "unsupported class shape",
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
       "fmnmx_pred__RRR_RRR": "unsupported class shape",
       "fmnmx_pred__RUR_RUR": "unsupported class shape",
@@ -2247,8 +2008,6 @@
       "iadd_x_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd_x_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd_x_noimm__RUR_RUR": "class selectors have no supported native combination",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
       "imnmx_64__RIR_RsIR": "unsupported class shape",
       "imnmx_64__RRR_RRR": "unsupported class shape",
       "imnmx_64__RUR_RUR": "unsupported class shape",
@@ -2291,6 +2050,15 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
+      "uf2fp_8b_upconvert__URIUR": "unsupported class shape",
+      "uf2fp_8b_upconvert__URURUR": "unsupported class shape",
+      "uf2fp__URIUR": "unsupported class shape",
+      "uf2fp__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URIUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "unsupported class shape",
+      "uf2fp_merge_c__URURUR": "unsupported class shape",
+      "uf2fp_tf32__URIUR": "unsupported class shape",
+      "uf2fp_tf32__URURUR": "unsupported class shape",
       "uisetp_64__URURUR_URURUR": "unsupported class shape",
       "uisetp_64__URsIUR_URIR": "unsupported class shape",
       "uisetp_64_optional_upr__URURUR_URURUR": "unsupported class shape",
@@ -2341,8 +2109,8 @@
         "native": 1
       },
       "F2FP": {
-        "native": 9,
-        "opaque": 51
+        "native": 50,
+        "opaque": 10
       },
       "F2I": {
         "native": 7,
@@ -2386,6 +2154,9 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMNMX2": {
+        "native": 6
+      },
       "HMUL2": {
         "native": 3
       },
@@ -2409,8 +2180,7 @@
         "native": 6
       },
       "IDP": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "IMAD": {
         "native": 29
@@ -2500,6 +2270,10 @@
         "native": 2,
         "opaque": 1
       },
+      "UF2FP": {
+        "native": 6,
+        "opaque": 9
+      },
       "UIADD3": {
         "native": 4
       },
@@ -2552,8 +2326,8 @@
       }
     },
     "status": {
-      "native": 281,
-      "opaque": 648,
+      "native": 336,
+      "opaque": 593,
       "primitive": 86
     }
   },
@@ -2563,57 +2337,16 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "f2fp_4b_upconvert__RIR": "unsupported class shape",
-      "f2fp_4b_upconvert__RRR": "unsupported class shape",
-      "f2fp_4b_upconvert__RUR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RIR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRI": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRR": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RRU": "unsupported class shape",
-      "f2fp_4b_upconvert_scale__RUR": "unsupported class shape",
-      "f2fp_8b_upconvert__RIR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RIR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRI": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRR": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RRU": "unsupported class shape",
-      "f2fp_8b_upconvert_scale__RUR": "unsupported class shape",
-      "f2fp_E8_upconvert__RIR": "unsupported class shape",
-      "f2fp_E8_upconvert__RRR": "unsupported class shape",
-      "f2fp_E8_upconvert__RUR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_4b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RUR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RIR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRI": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRR": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RRU": "unsupported class shape",
       "f2fp_f16_to_mx8_downconvert_scale__RUR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f32_to_4b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RRI": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RIR": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRI": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRR": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RRU": "unsupported class shape",
       "f2fp_f32_to_mx8_downconvert_scale__RUR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
-      "f2fp_tf32__RIR": "unsupported class shape",
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
       "fmnmx_pred__RRR_RRR": "unsupported class shape",
       "fmnmx_pred__RUR_RUR": "unsupported class shape",
@@ -2631,8 +2364,6 @@
       "iadd_x_imm__RIR_RIR": "class selectors have no supported native combination",
       "iadd_x_noimm__RRR_RRR": "class selectors have no supported native combination",
       "iadd_x_noimm__RUR_RUR": "class selectors have no supported native combination",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
       "imnmx_64__RIR_RsIR": "unsupported class shape",
       "imnmx_64__RRR_RRR": "unsupported class shape",
       "imnmx_64__RUR_RUR": "unsupported class shape",
@@ -2675,6 +2406,15 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
+      "uf2fp_8b_upconvert__URIUR": "unsupported class shape",
+      "uf2fp_8b_upconvert__URURUR": "unsupported class shape",
+      "uf2fp__URIUR": "unsupported class shape",
+      "uf2fp__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URIUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "unsupported class shape",
+      "uf2fp_merge_c__URURUR": "unsupported class shape",
+      "uf2fp_tf32__URIUR": "unsupported class shape",
+      "uf2fp_tf32__URURUR": "unsupported class shape",
       "uisetp_64__URURUR_URURUR": "unsupported class shape",
       "uisetp_64__URsIUR_URIR": "unsupported class shape",
       "uisetp_64_optional_upr__URURUR_URURUR": "unsupported class shape",
@@ -2725,8 +2465,8 @@
         "native": 1
       },
       "F2FP": {
-        "native": 9,
-        "opaque": 51
+        "native": 50,
+        "opaque": 10
       },
       "F2I": {
         "native": 7,
@@ -2770,6 +2510,9 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMNMX2": {
+        "native": 6
+      },
       "HMUL2": {
         "native": 3
       },
@@ -2793,8 +2536,7 @@
         "native": 6
       },
       "IDP": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "IMAD": {
         "native": 29
@@ -2884,6 +2626,10 @@
         "native": 2,
         "opaque": 1
       },
+      "UF2FP": {
+        "native": 6,
+        "opaque": 9
+      },
       "UIADD3": {
         "native": 4
       },
@@ -2936,8 +2682,8 @@
       }
     },
     "status": {
-      "native": 281,
-      "opaque": 648,
+      "native": 336,
+      "opaque": 593,
       "primitive": 86
     }
   },
@@ -2945,19 +2691,6 @@
     "classes": 903,
     "hardware_verified": false,
     "opaque_operations": {
-      "brev__RCxR_RCxR": "unsupported class shape",
-      "f2fp__RCR": "unsupported class shape",
-      "f2fp__RCxR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
-      "f2fp_merge_c__RCR": "unsupported class shape",
-      "f2fp_merge_c__RCxR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRC": "unsupported class shape",
-      "f2fp_merge_c__RRCx": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
       "f2fp_rs__RCR": "unsupported class shape",
       "f2fp_rs__RCxR": "unsupported class shape",
       "f2fp_rs__RIR": "unsupported class shape",
@@ -2967,24 +2700,6 @@
       "f2fp_rs__RRR": "unsupported class shape",
       "f2fp_rs__RRU": "unsupported class shape",
       "f2fp_rs__RUR": "unsupported class shape",
-      "flo__RCxR_RCxR": "unsupported class shape",
-      "hadd2__RCx": "unsupported class shape",
-      "hfma2__RCxR": "unsupported class shape",
-      "hfma2__RRCx": "unsupported class shape",
-      "hmul2__RCx": "unsupported class shape",
-      "i2ip_24__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip_28__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "idp_2a__C": "only IDP.4A forms are implemented",
-      "idp_2a__CXb": "only IDP.4A forms are implemented",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
-      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
-      "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_wide_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "isetp__RCxR_RCxR": "unsupported class shape",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_uniform__Ra32": "class selectors have no supported native combination",
@@ -2998,12 +2713,10 @@
       "lds_zd_uniform_": "class selectors have no supported native combination",
       "p2r__RCR_RCR": "unsupported class shape",
       "p2r__RCxR_RCxR": "unsupported class shape",
-      "popc__RCxR_RCxR": "unsupported class shape",
       "r2p__RCR": "unsupported class shape",
       "r2p__RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
-      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
@@ -3015,9 +2728,7 @@
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
       "uldc_ur_offset_": "unsupported class shape",
-      "up2ur__URb": "unsupported class shape",
-      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
-      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs"
+      "up2ur__URb": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -3030,8 +2741,7 @@
         "native": 1
       },
       "BREV": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "BSSY": {
         "primitive": 1
@@ -3061,8 +2771,8 @@
         "native": 1
       },
       "F2FP": {
-        "native": 2,
-        "opaque": 21
+        "native": 14,
+        "opaque": 9
       },
       "F2I": {
         "native": 9,
@@ -3078,8 +2788,7 @@
         "native": 9
       },
       "FLO": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "FMNMX": {
         "native": 5
@@ -3097,19 +2806,19 @@
         "native": 5
       },
       "HADD2": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "HFMA2": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMNMX2": {
+        "absent": 0
+      },
       "HMUL2": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "I2F": {
         "primitive": 40
@@ -3118,8 +2827,7 @@
         "absent": 0
       },
       "I2IP": {
-        "native": 12,
-        "opaque": 3
+        "native": 15
       },
       "IABS": {
         "native": 5
@@ -3131,19 +2839,16 @@
         "native": 10
       },
       "IDP": {
-        "native": 3,
-        "opaque": 5
+        "native": 8
       },
       "IMAD": {
-        "native": 51,
-        "opaque": 4
+        "native": 55
       },
       "IMNMX": {
         "native": 5
       },
       "ISETP": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "LDC": {
         "native": 2,
@@ -3181,8 +2886,7 @@
         "opaque": 2
       },
       "POPC": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "PRMT": {
         "native": 9
@@ -3205,8 +2909,7 @@
         "native": 5
       },
       "SGXT": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "SHF": {
         "native": 9
@@ -3225,6 +2928,9 @@
       "STS": {
         "native": 2,
         "opaque": 1
+      },
+      "UF2FP": {
+        "absent": 0
       },
       "UIADD3": {
         "native": 4
@@ -3260,8 +2966,7 @@
         "native": 3
       },
       "VABSDIFF4": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "VIADD": {
         "absent": 0
@@ -3280,8 +2985,8 @@
       }
     },
     "status": {
-      "native": 351,
-      "opaque": 448,
+      "native": 386,
+      "opaque": 413,
       "primitive": 104
     }
   },
@@ -3289,19 +2994,6 @@
     "classes": 903,
     "hardware_verified": false,
     "opaque_operations": {
-      "brev__RCxR_RCxR": "unsupported class shape",
-      "f2fp__RCR": "unsupported class shape",
-      "f2fp__RCxR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
-      "f2fp_merge_c__RCR": "unsupported class shape",
-      "f2fp_merge_c__RCxR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRC": "unsupported class shape",
-      "f2fp_merge_c__RRCx": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
       "f2fp_rs__RCR": "unsupported class shape",
       "f2fp_rs__RCxR": "unsupported class shape",
       "f2fp_rs__RIR": "unsupported class shape",
@@ -3311,24 +3003,6 @@
       "f2fp_rs__RRR": "unsupported class shape",
       "f2fp_rs__RRU": "unsupported class shape",
       "f2fp_rs__RUR": "unsupported class shape",
-      "flo__RCxR_RCxR": "unsupported class shape",
-      "hadd2__RCx": "unsupported class shape",
-      "hfma2__RCxR": "unsupported class shape",
-      "hfma2__RRCx": "unsupported class shape",
-      "hmul2__RCx": "unsupported class shape",
-      "i2ip_24__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip_28__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "idp_2a__C": "only IDP.4A forms are implemented",
-      "idp_2a__CXb": "only IDP.4A forms are implemented",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
-      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
-      "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_wide_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "isetp__RCxR_RCxR": "unsupported class shape",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_uniform__Ra32": "class selectors have no supported native combination",
@@ -3342,12 +3016,10 @@
       "lds_zd_uniform_": "class selectors have no supported native combination",
       "p2r__RCR_RCR": "unsupported class shape",
       "p2r__RCxR_RCxR": "unsupported class shape",
-      "popc__RCxR_RCxR": "unsupported class shape",
       "r2p__RCR": "unsupported class shape",
       "r2p__RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
-      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
@@ -3359,9 +3031,7 @@
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
       "uldc_ur_offset_": "unsupported class shape",
-      "up2ur__URb": "unsupported class shape",
-      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
-      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs"
+      "up2ur__URb": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -3374,8 +3044,7 @@
         "native": 1
       },
       "BREV": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "BSSY": {
         "primitive": 1
@@ -3405,8 +3074,8 @@
         "native": 1
       },
       "F2FP": {
-        "native": 2,
-        "opaque": 21
+        "native": 14,
+        "opaque": 9
       },
       "F2I": {
         "native": 9,
@@ -3422,8 +3091,7 @@
         "native": 9
       },
       "FLO": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "FMNMX": {
         "native": 5
@@ -3441,19 +3109,19 @@
         "native": 5
       },
       "HADD2": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "HFMA2": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMNMX2": {
+        "absent": 0
+      },
       "HMUL2": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "I2F": {
         "primitive": 40
@@ -3462,8 +3130,7 @@
         "absent": 0
       },
       "I2IP": {
-        "native": 12,
-        "opaque": 3
+        "native": 15
       },
       "IABS": {
         "native": 5
@@ -3475,19 +3142,16 @@
         "native": 10
       },
       "IDP": {
-        "native": 3,
-        "opaque": 5
+        "native": 8
       },
       "IMAD": {
-        "native": 51,
-        "opaque": 4
+        "native": 55
       },
       "IMNMX": {
         "native": 5
       },
       "ISETP": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "LDC": {
         "native": 2,
@@ -3525,8 +3189,7 @@
         "opaque": 2
       },
       "POPC": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "PRMT": {
         "native": 9
@@ -3549,8 +3212,7 @@
         "native": 5
       },
       "SGXT": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "SHF": {
         "native": 9
@@ -3569,6 +3231,9 @@
       "STS": {
         "native": 2,
         "opaque": 1
+      },
+      "UF2FP": {
+        "absent": 0
       },
       "UIADD3": {
         "native": 4
@@ -3604,8 +3269,7 @@
         "native": 3
       },
       "VABSDIFF4": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "VIADD": {
         "absent": 0
@@ -3624,8 +3288,8 @@
       }
     },
     "status": {
-      "native": 351,
-      "opaque": 448,
+      "native": 386,
+      "opaque": 413,
       "primitive": 104
     }
   },
@@ -3635,19 +3299,6 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "brev__RCxR_RCxR": "unsupported class shape",
-      "f2fp__RCR": "unsupported class shape",
-      "f2fp__RCxR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
-      "f2fp_merge_c__RCR": "unsupported class shape",
-      "f2fp_merge_c__RCxR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRC": "unsupported class shape",
-      "f2fp_merge_c__RRCx": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
       "f2fp_rs__RCR": "unsupported class shape",
       "f2fp_rs__RCxR": "unsupported class shape",
       "f2fp_rs__RIR": "unsupported class shape",
@@ -3657,10 +3308,6 @@
       "f2fp_rs__RRR": "unsupported class shape",
       "f2fp_rs__RRU": "unsupported class shape",
       "f2fp_rs__RUR": "unsupported class shape",
-      "flo__RCxR_RCxR": "unsupported class shape",
-      "hadd2__RCx": "unsupported class shape",
-      "hfma2__RCxR": "unsupported class shape",
-      "hfma2__RRCx": "unsupported class shape",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -3679,29 +3326,14 @@
       "hfma2_mma__RUR_norelu": "unsupported class shape",
       "hfma2_mma__RUR_relu": "unsupported class shape",
       "hfma2_relu__RCR": "class selectors have no supported native combination",
-      "hfma2_relu__RCxR": "unsupported class shape",
+      "hfma2_relu__RCxR": "class selectors have no supported native combination",
       "hfma2_relu__RIR": "class selectors have no supported native combination",
       "hfma2_relu__RRC": "class selectors have no supported native combination",
-      "hfma2_relu__RRCx": "unsupported class shape",
+      "hfma2_relu__RRCx": "class selectors have no supported native combination",
       "hfma2_relu__RRI": "class selectors have no supported native combination",
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "hmul2__RCx": "unsupported class shape",
-      "i2ip_24__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip_28__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "idp_2a__C": "only IDP.4A forms are implemented",
-      "idp_2a__CXb": "only IDP.4A forms are implemented",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
-      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
-      "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_wide_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "isetp__RCxR_RCxR_EX": "unsupported class shape",
-      "isetp__RCxR_RCxR_noEX": "unsupported class shape",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_uniform__Ra32": "class selectors have no supported native combination",
@@ -3714,12 +3346,10 @@
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
       "p2r__RCR_RCR": "unsupported class shape",
       "p2r__RCxR_RCxR": "unsupported class shape",
-      "popc__RCxR_RCxR": "unsupported class shape",
       "r2p__RCR": "unsupported class shape",
       "r2p__RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
-      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
@@ -3731,9 +3361,7 @@
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
       "uldc_ur_offset_": "unsupported class shape",
-      "up2ur__URb": "unsupported class shape",
-      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
-      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs"
+      "up2ur__URb": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -3747,8 +3375,7 @@
         "opaque": 2
       },
       "BREV": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "BSSY": {
         "primitive": 1
@@ -3778,8 +3405,8 @@
         "native": 1
       },
       "F2FP": {
-        "native": 2,
-        "opaque": 21
+        "native": 14,
+        "opaque": 9
       },
       "F2I": {
         "native": 9,
@@ -3795,8 +3422,7 @@
         "native": 9
       },
       "FLO": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "FMNMX": {
         "native": 5
@@ -3814,20 +3440,21 @@
         "native": 5
       },
       "HADD2": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "HFMA2": {
-        "native": 7,
-        "opaque": 11
+        "native": 9,
+        "opaque": 9
       },
       "HFMA2.MMA": {
         "native": 1,
         "opaque": 17
       },
+      "HMNMX2": {
+        "native": 5
+      },
       "HMUL2": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "I2F": {
         "primitive": 40
@@ -3836,8 +3463,7 @@
         "absent": 0
       },
       "I2IP": {
-        "native": 12,
-        "opaque": 3
+        "native": 15
       },
       "IABS": {
         "native": 5
@@ -3849,19 +3475,16 @@
         "native": 10
       },
       "IDP": {
-        "native": 3,
-        "opaque": 5
+        "native": 8
       },
       "IMAD": {
-        "native": 51,
-        "opaque": 4
+        "native": 55
       },
       "IMNMX": {
         "native": 5
       },
       "ISETP": {
-        "native": 8,
-        "opaque": 2
+        "native": 10
       },
       "LDC": {
         "native": 2,
@@ -3900,8 +3523,7 @@
         "opaque": 2
       },
       "POPC": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "PRMT": {
         "native": 9
@@ -3924,8 +3546,7 @@
         "native": 5
       },
       "SGXT": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "SHF": {
         "native": 9
@@ -3944,6 +3565,9 @@
       "STS": {
         "native": 2,
         "opaque": 1
+      },
+      "UF2FP": {
+        "absent": 0
       },
       "UIADD3": {
         "native": 4
@@ -3979,8 +3603,7 @@
         "native": 3
       },
       "VABSDIFF4": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "VIADD": {
         "absent": 0
@@ -3999,8 +3622,8 @@
       }
     },
     "status": {
-      "native": 357,
-      "opaque": 506,
+      "native": 398,
+      "opaque": 465,
       "primitive": 104
     }
   },
@@ -4010,19 +3633,6 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "brev__RCxR_RCxR": "unsupported class shape",
-      "f2fp__RCR": "unsupported class shape",
-      "f2fp__RCxR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
-      "f2fp_merge_c__RCR": "unsupported class shape",
-      "f2fp_merge_c__RCxR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRC": "unsupported class shape",
-      "f2fp_merge_c__RRCx": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
       "f2fp_rs__RCR": "unsupported class shape",
       "f2fp_rs__RCxR": "unsupported class shape",
       "f2fp_rs__RIR": "unsupported class shape",
@@ -4032,10 +3642,6 @@
       "f2fp_rs__RRR": "unsupported class shape",
       "f2fp_rs__RRU": "unsupported class shape",
       "f2fp_rs__RUR": "unsupported class shape",
-      "flo__RCxR_RCxR": "unsupported class shape",
-      "hadd2__RCx": "unsupported class shape",
-      "hfma2__RCxR": "unsupported class shape",
-      "hfma2__RRCx": "unsupported class shape",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -4054,29 +3660,14 @@
       "hfma2_mma__RUR_norelu": "unsupported class shape",
       "hfma2_mma__RUR_relu": "unsupported class shape",
       "hfma2_relu__RCR": "class selectors have no supported native combination",
-      "hfma2_relu__RCxR": "unsupported class shape",
+      "hfma2_relu__RCxR": "class selectors have no supported native combination",
       "hfma2_relu__RIR": "class selectors have no supported native combination",
       "hfma2_relu__RRC": "class selectors have no supported native combination",
-      "hfma2_relu__RRCx": "unsupported class shape",
+      "hfma2_relu__RRCx": "class selectors have no supported native combination",
       "hfma2_relu__RRI": "class selectors have no supported native combination",
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "hmul2__RCx": "unsupported class shape",
-      "i2ip_24__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip_28__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "idp_2a__C": "only IDP.4A forms are implemented",
-      "idp_2a__CXb": "only IDP.4A forms are implemented",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
-      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
-      "imad_hi__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_hi_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_wide__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "imad_wide_x__RRC_RRC": "32-bit constant addend extension for HI/WIDE is unverified",
-      "isetp__RCxR_RCxR_EX": "unsupported class shape",
-      "isetp__RCxR_RCxR_noEX": "unsupported class shape",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_uniform__Ra32": "class selectors have no supported native combination",
@@ -4089,12 +3680,10 @@
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
       "p2r__RCR_RCR": "unsupported class shape",
       "p2r__RCxR_RCxR": "unsupported class shape",
-      "popc__RCxR_RCxR": "unsupported class shape",
       "r2p__RCR": "unsupported class shape",
       "r2p__RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
-      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
@@ -4106,9 +3695,7 @@
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
       "uldc_ur_offset_": "unsupported class shape",
-      "up2ur__URb": "unsupported class shape",
-      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
-      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs"
+      "up2ur__URb": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -4122,8 +3709,7 @@
         "opaque": 2
       },
       "BREV": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "BSSY": {
         "primitive": 1
@@ -4153,8 +3739,8 @@
         "native": 1
       },
       "F2FP": {
-        "native": 2,
-        "opaque": 21
+        "native": 14,
+        "opaque": 9
       },
       "F2I": {
         "native": 9,
@@ -4170,8 +3756,7 @@
         "native": 9
       },
       "FLO": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "FMNMX": {
         "native": 5
@@ -4189,20 +3774,21 @@
         "native": 5
       },
       "HADD2": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "HFMA2": {
-        "native": 7,
-        "opaque": 11
+        "native": 9,
+        "opaque": 9
       },
       "HFMA2.MMA": {
         "native": 1,
         "opaque": 17
       },
+      "HMNMX2": {
+        "native": 5
+      },
       "HMUL2": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "I2F": {
         "primitive": 40
@@ -4211,8 +3797,7 @@
         "absent": 0
       },
       "I2IP": {
-        "native": 12,
-        "opaque": 3
+        "native": 15
       },
       "IABS": {
         "native": 5
@@ -4224,19 +3809,16 @@
         "native": 10
       },
       "IDP": {
-        "native": 3,
-        "opaque": 5
+        "native": 8
       },
       "IMAD": {
-        "native": 51,
-        "opaque": 4
+        "native": 55
       },
       "IMNMX": {
         "native": 5
       },
       "ISETP": {
-        "native": 8,
-        "opaque": 2
+        "native": 10
       },
       "LDC": {
         "native": 2,
@@ -4275,8 +3857,7 @@
         "opaque": 2
       },
       "POPC": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "PRMT": {
         "native": 9
@@ -4299,8 +3880,7 @@
         "native": 5
       },
       "SGXT": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "SHF": {
         "native": 9
@@ -4319,6 +3899,9 @@
       "STS": {
         "native": 2,
         "opaque": 1
+      },
+      "UF2FP": {
+        "absent": 0
       },
       "UIADD3": {
         "native": 4
@@ -4354,8 +3937,7 @@
         "native": 3
       },
       "VABSDIFF4": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "VIADD": {
         "absent": 0
@@ -4374,8 +3956,8 @@
       }
     },
     "status": {
-      "native": 357,
-      "opaque": 506,
+      "native": 398,
+      "opaque": 465,
       "primitive": 104
     }
   },
@@ -4385,19 +3967,6 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "brev__RCxR_RCxR": "unsupported class shape",
-      "f2fp__RCR": "unsupported class shape",
-      "f2fp__RCxR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
-      "f2fp_merge_c__RCR": "unsupported class shape",
-      "f2fp_merge_c__RCxR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRC": "unsupported class shape",
-      "f2fp_merge_c__RRCx": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
       "f2fp_rs__RCR": "unsupported class shape",
       "f2fp_rs__RCxR": "unsupported class shape",
       "f2fp_rs__RIR": "unsupported class shape",
@@ -4407,13 +3976,6 @@
       "f2fp_rs__RRR": "unsupported class shape",
       "f2fp_rs__RRU": "unsupported class shape",
       "f2fp_rs__RUR": "unsupported class shape",
-      "f2ip__RCxR": "unsupported class shape",
-      "f2ip__RRCx": "unsupported class shape",
-      "flo__RCxR_RCxR": "unsupported class shape",
-      "hadd2_F32__RCx": "unsupported class shape",
-      "hadd2__RCx": "unsupported class shape",
-      "hfma2__RCxR": "unsupported class shape",
-      "hfma2__RRCx": "unsupported class shape",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -4432,25 +3994,14 @@
       "hfma2_mma__RUR_norelu": "unsupported class shape",
       "hfma2_mma__RUR_relu": "unsupported class shape",
       "hfma2_relu__RCR": "class selectors have no supported native combination",
-      "hfma2_relu__RCxR": "unsupported class shape",
+      "hfma2_relu__RCxR": "class selectors have no supported native combination",
       "hfma2_relu__RIR": "class selectors have no supported native combination",
       "hfma2_relu__RRC": "class selectors have no supported native combination",
-      "hfma2_relu__RRCx": "unsupported class shape",
+      "hfma2_relu__RRCx": "class selectors have no supported native combination",
       "hfma2_relu__RRI": "class selectors have no supported native combination",
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "hmul2__RCx": "unsupported class shape",
-      "i2ip_24__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip_28__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "idp_2a__C": "only IDP.4A forms are implemented",
-      "idp_2a__CXb": "only IDP.4A forms are implemented",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
-      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
-      "isetp__RCxR_RCxR_EX": "unsupported class shape",
-      "isetp__RCxR_RCxR_noEX": "unsupported class shape",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_uniform__Ra32": "class selectors have no supported native combination",
@@ -4463,26 +4014,27 @@
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
       "p2r__RCR_RCR": "unsupported class shape",
       "p2r__RCxR_RCxR": "unsupported class shape",
-      "popc__RCxR_RCxR": "unsupported class shape",
       "r2p__RCR": "unsupported class shape",
       "r2p__RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
-      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
+      "uf2fp__URIUR": "outside implemented operation families",
+      "uf2fp__URURUR": "outside implemented operation families",
+      "uf2fp_merge_c__URIUR": "outside implemented operation families",
+      "uf2fp_merge_c__URURI": "outside implemented operation families",
+      "uf2fp_merge_c__URURUR": "outside implemented operation families",
       "uisetp_optional_upr__URURUR_URURUR": "unsupported class shape",
       "uisetp_optional_upr__URsIUR_URIR": "unsupported class shape",
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
       "uldc_ur_offset_": "unsupported class shape",
-      "up2ur__URb": "unsupported class shape",
-      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
-      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs"
+      "up2ur__URb": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -4496,8 +4048,7 @@
         "opaque": 2
       },
       "BREV": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "BSSY": {
         "primitive": 1
@@ -4527,16 +4078,15 @@
         "native": 1
       },
       "F2FP": {
-        "native": 2,
-        "opaque": 21
+        "native": 14,
+        "opaque": 9
       },
       "F2I": {
         "native": 9,
         "primitive": 21
       },
       "F2IP": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "FADD": {
         "native": 5
@@ -4545,8 +4095,7 @@
         "native": 9
       },
       "FLO": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "FMNMX": {
         "native": 5
@@ -4564,20 +4113,21 @@
         "native": 5
       },
       "HADD2": {
-        "native": 8,
-        "opaque": 2
+        "native": 10
       },
       "HFMA2": {
-        "native": 7,
-        "opaque": 11
+        "native": 9,
+        "opaque": 9
       },
       "HFMA2.MMA": {
         "native": 1,
         "opaque": 17
       },
+      "HMNMX2": {
+        "native": 5
+      },
       "HMUL2": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "I2F": {
         "primitive": 40
@@ -4586,8 +4136,7 @@
         "primitive": 6
       },
       "I2IP": {
-        "native": 12,
-        "opaque": 3
+        "native": 15
       },
       "IABS": {
         "native": 5
@@ -4599,8 +4148,7 @@
         "native": 10
       },
       "IDP": {
-        "native": 3,
-        "opaque": 5
+        "native": 8
       },
       "IMAD": {
         "native": 55
@@ -4609,8 +4157,7 @@
         "native": 5
       },
       "ISETP": {
-        "native": 8,
-        "opaque": 2
+        "native": 10
       },
       "LDC": {
         "native": 2,
@@ -4649,8 +4196,7 @@
         "opaque": 2
       },
       "POPC": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "PRMT": {
         "native": 9
@@ -4673,8 +4219,7 @@
         "native": 5
       },
       "SGXT": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "SHF": {
         "native": 9
@@ -4693,6 +4238,9 @@
       "STS": {
         "native": 2,
         "opaque": 1
+      },
+      "UF2FP": {
+        "opaque": 5
       },
       "UIADD3": {
         "native": 4
@@ -4728,8 +4276,7 @@
         "native": 3
       },
       "VABSDIFF4": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "VIADD": {
         "absent": 0
@@ -4748,8 +4295,8 @@
       }
     },
     "status": {
-      "native": 372,
-      "opaque": 522,
+      "native": 412,
+      "opaque": 482,
       "primitive": 110
     }
   },
@@ -4759,19 +4306,6 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "brev__RCxR_RCxR": "unsupported class shape",
-      "f2fp__RCR": "unsupported class shape",
-      "f2fp__RCxR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
-      "f2fp_merge_c__RCR": "unsupported class shape",
-      "f2fp_merge_c__RCxR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRC": "unsupported class shape",
-      "f2fp_merge_c__RRCx": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
       "f2fp_rs__RCR": "unsupported class shape",
       "f2fp_rs__RCxR": "unsupported class shape",
       "f2fp_rs__RIR": "unsupported class shape",
@@ -4781,13 +4315,6 @@
       "f2fp_rs__RRR": "unsupported class shape",
       "f2fp_rs__RRU": "unsupported class shape",
       "f2fp_rs__RUR": "unsupported class shape",
-      "f2ip__RCxR": "unsupported class shape",
-      "f2ip__RRCx": "unsupported class shape",
-      "flo__RCxR_RCxR": "unsupported class shape",
-      "hadd2_F32__RCx": "unsupported class shape",
-      "hadd2__RCx": "unsupported class shape",
-      "hfma2__RCxR": "unsupported class shape",
-      "hfma2__RRCx": "unsupported class shape",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -4806,25 +4333,14 @@
       "hfma2_mma__RUR_norelu": "unsupported class shape",
       "hfma2_mma__RUR_relu": "unsupported class shape",
       "hfma2_relu__RCR": "class selectors have no supported native combination",
-      "hfma2_relu__RCxR": "unsupported class shape",
+      "hfma2_relu__RCxR": "class selectors have no supported native combination",
       "hfma2_relu__RIR": "class selectors have no supported native combination",
       "hfma2_relu__RRC": "class selectors have no supported native combination",
-      "hfma2_relu__RRCx": "unsupported class shape",
+      "hfma2_relu__RRCx": "class selectors have no supported native combination",
       "hfma2_relu__RRI": "class selectors have no supported native combination",
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "hmul2__RCx": "unsupported class shape",
-      "i2ip_24__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip_28__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "idp_2a__C": "only IDP.4A forms are implemented",
-      "idp_2a__CXb": "only IDP.4A forms are implemented",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
-      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
-      "isetp__RCxR_RCxR_EX": "unsupported class shape",
-      "isetp__RCxR_RCxR_noEX": "unsupported class shape",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_uniform__Ra32": "class selectors have no supported native combination",
@@ -4837,26 +4353,27 @@
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
       "p2r__RCR_RCR": "unsupported class shape",
       "p2r__RCxR_RCxR": "unsupported class shape",
-      "popc__RCxR_RCxR": "unsupported class shape",
       "r2p__RCR": "unsupported class shape",
       "r2p__RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
-      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
+      "uf2fp__URIUR": "outside implemented operation families",
+      "uf2fp__URURUR": "outside implemented operation families",
+      "uf2fp_merge_c__URIUR": "outside implemented operation families",
+      "uf2fp_merge_c__URURI": "outside implemented operation families",
+      "uf2fp_merge_c__URURUR": "outside implemented operation families",
       "uisetp_optional_upr__URURUR_URURUR": "unsupported class shape",
       "uisetp_optional_upr__URsIUR_URIR": "unsupported class shape",
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
       "uldc_ur_offset_": "unsupported class shape",
-      "up2ur__URb": "unsupported class shape",
-      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
-      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs"
+      "up2ur__URb": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -4870,8 +4387,7 @@
         "opaque": 2
       },
       "BREV": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "BSSY": {
         "primitive": 1
@@ -4901,16 +4417,15 @@
         "native": 1
       },
       "F2FP": {
-        "native": 2,
-        "opaque": 21
+        "native": 14,
+        "opaque": 9
       },
       "F2I": {
         "native": 9,
         "primitive": 21
       },
       "F2IP": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "FADD": {
         "native": 5
@@ -4919,8 +4434,7 @@
         "native": 9
       },
       "FLO": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "FMNMX": {
         "native": 5
@@ -4938,20 +4452,21 @@
         "native": 5
       },
       "HADD2": {
-        "native": 8,
-        "opaque": 2
+        "native": 10
       },
       "HFMA2": {
-        "native": 7,
-        "opaque": 11
+        "native": 9,
+        "opaque": 9
       },
       "HFMA2.MMA": {
         "native": 1,
         "opaque": 17
       },
+      "HMNMX2": {
+        "native": 5
+      },
       "HMUL2": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "I2F": {
         "primitive": 40
@@ -4960,8 +4475,7 @@
         "primitive": 6
       },
       "I2IP": {
-        "native": 12,
-        "opaque": 3
+        "native": 15
       },
       "IABS": {
         "native": 5
@@ -4973,8 +4487,7 @@
         "native": 10
       },
       "IDP": {
-        "native": 3,
-        "opaque": 5
+        "native": 8
       },
       "IMAD": {
         "native": 55
@@ -4983,8 +4496,7 @@
         "native": 5
       },
       "ISETP": {
-        "native": 8,
-        "opaque": 2
+        "native": 10
       },
       "LDC": {
         "native": 2,
@@ -5023,8 +4535,7 @@
         "opaque": 2
       },
       "POPC": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "PRMT": {
         "native": 9
@@ -5047,8 +4558,7 @@
         "native": 5
       },
       "SGXT": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "SHF": {
         "native": 9
@@ -5067,6 +4577,9 @@
       "STS": {
         "native": 2,
         "opaque": 1
+      },
+      "UF2FP": {
+        "opaque": 5
       },
       "UIADD3": {
         "native": 4
@@ -5102,8 +4615,7 @@
         "native": 3
       },
       "VABSDIFF4": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "VIADD": {
         "absent": 0
@@ -5122,8 +4634,8 @@
       }
     },
     "status": {
-      "native": 372,
-      "opaque": 522,
+      "native": 412,
+      "opaque": 482,
       "primitive": 110
     }
   },
@@ -5133,13 +4645,6 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "brev__RCxR_RCxR": "unsupported class shape",
-      "f2fp_8b_upconvert__RCR": "unsupported class shape",
-      "f2fp_8b_upconvert__RCxR": "unsupported class shape",
-      "f2fp_8b_upconvert__RIR": "unsupported class shape",
-      "f2fp__RCR": "unsupported class shape",
-      "f2fp__RCxR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RCR": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RCxR": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RIR": "unsupported class shape",
@@ -5149,21 +4654,9 @@
       "f2fp_f16_to_8b_downconvert__RRR": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RRU": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RCR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RCxR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RIR": "unsupported class shape",
       "f2fp_f32_to_8b_downconvert__RRC": "unsupported class shape",
       "f2fp_f32_to_8b_downconvert__RRCx": "unsupported class shape",
       "f2fp_f32_to_8b_downconvert__RRI": "unsupported class shape",
-      "f2fp_merge_c__RCR": "unsupported class shape",
-      "f2fp_merge_c__RCxR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRC": "unsupported class shape",
-      "f2fp_merge_c__RRCx": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
       "f2fp_rs__RCR": "unsupported class shape",
       "f2fp_rs__RCxR": "unsupported class shape",
       "f2fp_rs__RIR": "unsupported class shape",
@@ -5173,16 +4666,6 @@
       "f2fp_rs__RRR": "unsupported class shape",
       "f2fp_rs__RRU": "unsupported class shape",
       "f2fp_rs__RUR": "unsupported class shape",
-      "f2fp_tf32__RCR": "unsupported class shape",
-      "f2fp_tf32__RCxR": "unsupported class shape",
-      "f2fp_tf32__RIR": "unsupported class shape",
-      "f2ip__RCxR": "unsupported class shape",
-      "f2ip__RRCx": "unsupported class shape",
-      "flo__RCxR_RCxR": "unsupported class shape",
-      "hadd2_F32__RCx": "unsupported class shape",
-      "hadd2__RCx": "unsupported class shape",
-      "hfma2__RCxR": "unsupported class shape",
-      "hfma2__RRCx": "unsupported class shape",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -5201,25 +4684,14 @@
       "hfma2_mma__RUR_norelu": "unsupported class shape",
       "hfma2_mma__RUR_relu": "unsupported class shape",
       "hfma2_relu__RCR": "class selectors have no supported native combination",
-      "hfma2_relu__RCxR": "unsupported class shape",
+      "hfma2_relu__RCxR": "class selectors have no supported native combination",
       "hfma2_relu__RIR": "class selectors have no supported native combination",
       "hfma2_relu__RRC": "class selectors have no supported native combination",
-      "hfma2_relu__RRCx": "unsupported class shape",
+      "hfma2_relu__RRCx": "class selectors have no supported native combination",
       "hfma2_relu__RRI": "class selectors have no supported native combination",
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "hmul2__RCx": "unsupported class shape",
-      "i2ip_24__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip_28__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "idp_2a__C": "only IDP.4A forms are implemented",
-      "idp_2a__CXb": "only IDP.4A forms are implemented",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
-      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
-      "isetp__RCxR_RCxR_EX": "unsupported class shape",
-      "isetp__RCxR_RCxR_noEX": "unsupported class shape",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_256_memdesc__Ra64": "unsupported class shape",
@@ -5236,12 +4708,10 @@
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
       "p2r__RCR_RCR": "unsupported class shape",
       "p2r__RCxR_RCxR": "unsupported class shape",
-      "popc__RCxR_RCxR": "unsupported class shape",
       "r2p__RCR": "unsupported class shape",
       "r2p__RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
-      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_256_memdesc__Ra64": "unsupported class shape",
       "stg_256_uniform__Ra32": "unsupported class shape",
       "stg_256_uniform__Ra64": "unsupported class shape",
@@ -5251,15 +4721,18 @@
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
+      "uf2fp__URIUR": "outside implemented operation families",
+      "uf2fp__URURUR": "outside implemented operation families",
+      "uf2fp_merge_c__URIUR": "outside implemented operation families",
+      "uf2fp_merge_c__URURI": "outside implemented operation families",
+      "uf2fp_merge_c__URURUR": "outside implemented operation families",
       "uisetp_optional_upr__URURUR_URURUR": "unsupported class shape",
       "uisetp_optional_upr__URsIUR_URIR": "unsupported class shape",
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
       "uldc_ur_offset_": "unsupported class shape",
-      "up2ur__URb": "unsupported class shape",
-      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
-      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs"
+      "up2ur__URb": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -5273,8 +4746,7 @@
         "opaque": 2
       },
       "BREV": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "BSSY": {
         "primitive": 1
@@ -5304,16 +4776,15 @@
         "native": 1
       },
       "F2FP": {
-        "native": 9,
-        "opaque": 42
+        "native": 30,
+        "opaque": 21
       },
       "F2I": {
         "native": 9,
         "primitive": 21
       },
       "F2IP": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "FADD": {
         "native": 5
@@ -5322,8 +4793,7 @@
         "native": 9
       },
       "FLO": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "FMNMX": {
         "native": 5
@@ -5341,20 +4811,21 @@
         "native": 5
       },
       "HADD2": {
-        "native": 8,
-        "opaque": 2
+        "native": 10
       },
       "HFMA2": {
-        "native": 7,
-        "opaque": 11
+        "native": 9,
+        "opaque": 9
       },
       "HFMA2.MMA": {
         "native": 1,
         "opaque": 17
       },
+      "HMNMX2": {
+        "native": 5
+      },
       "HMUL2": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "I2F": {
         "primitive": 40
@@ -5363,8 +4834,7 @@
         "primitive": 6
       },
       "I2IP": {
-        "native": 12,
-        "opaque": 3
+        "native": 15
       },
       "IABS": {
         "native": 5
@@ -5376,8 +4846,7 @@
         "native": 10
       },
       "IDP": {
-        "native": 3,
-        "opaque": 5
+        "native": 8
       },
       "IMAD": {
         "native": 55
@@ -5386,8 +4855,7 @@
         "native": 5
       },
       "ISETP": {
-        "native": 8,
-        "opaque": 2
+        "native": 10
       },
       "LDC": {
         "native": 2,
@@ -5426,8 +4894,7 @@
         "opaque": 2
       },
       "POPC": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "PRMT": {
         "native": 9
@@ -5450,8 +4917,7 @@
         "native": 5
       },
       "SGXT": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "SHF": {
         "native": 9
@@ -5470,6 +4936,9 @@
       "STS": {
         "native": 2,
         "opaque": 1
+      },
+      "UF2FP": {
+        "opaque": 5
       },
       "UIADD3": {
         "native": 4
@@ -5505,8 +4974,7 @@
         "native": 3
       },
       "VABSDIFF4": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "VIADD": {
         "absent": 0
@@ -5525,8 +4993,8 @@
       }
     },
     "status": {
-      "native": 379,
-      "opaque": 565,
+      "native": 428,
+      "opaque": 516,
       "primitive": 110
     }
   },
@@ -5536,13 +5004,6 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "brev__RCxR_RCxR": "unsupported class shape",
-      "f2fp_8b_upconvert__RCR": "unsupported class shape",
-      "f2fp_8b_upconvert__RCxR": "unsupported class shape",
-      "f2fp_8b_upconvert__RIR": "unsupported class shape",
-      "f2fp__RCR": "unsupported class shape",
-      "f2fp__RCxR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RCR": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RCxR": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RIR": "unsupported class shape",
@@ -5552,21 +5013,9 @@
       "f2fp_f16_to_8b_downconvert__RRR": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RRU": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RCR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RCxR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RIR": "unsupported class shape",
       "f2fp_f32_to_8b_downconvert__RRC": "unsupported class shape",
       "f2fp_f32_to_8b_downconvert__RRCx": "unsupported class shape",
       "f2fp_f32_to_8b_downconvert__RRI": "unsupported class shape",
-      "f2fp_merge_c__RCR": "unsupported class shape",
-      "f2fp_merge_c__RCxR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRC": "unsupported class shape",
-      "f2fp_merge_c__RRCx": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
       "f2fp_rs__RCR": "unsupported class shape",
       "f2fp_rs__RCxR": "unsupported class shape",
       "f2fp_rs__RIR": "unsupported class shape",
@@ -5576,16 +5025,6 @@
       "f2fp_rs__RRR": "unsupported class shape",
       "f2fp_rs__RRU": "unsupported class shape",
       "f2fp_rs__RUR": "unsupported class shape",
-      "f2fp_tf32__RCR": "unsupported class shape",
-      "f2fp_tf32__RCxR": "unsupported class shape",
-      "f2fp_tf32__RIR": "unsupported class shape",
-      "f2ip__RCxR": "unsupported class shape",
-      "f2ip__RRCx": "unsupported class shape",
-      "flo__RCxR_RCxR": "unsupported class shape",
-      "hadd2_F32__RCx": "unsupported class shape",
-      "hadd2__RCx": "unsupported class shape",
-      "hfma2__RCxR": "unsupported class shape",
-      "hfma2__RRCx": "unsupported class shape",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -5604,25 +5043,14 @@
       "hfma2_mma__RUR_norelu": "unsupported class shape",
       "hfma2_mma__RUR_relu": "unsupported class shape",
       "hfma2_relu__RCR": "class selectors have no supported native combination",
-      "hfma2_relu__RCxR": "unsupported class shape",
+      "hfma2_relu__RCxR": "class selectors have no supported native combination",
       "hfma2_relu__RIR": "class selectors have no supported native combination",
       "hfma2_relu__RRC": "class selectors have no supported native combination",
-      "hfma2_relu__RRCx": "unsupported class shape",
+      "hfma2_relu__RRCx": "class selectors have no supported native combination",
       "hfma2_relu__RRI": "class selectors have no supported native combination",
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "hmul2__RCx": "unsupported class shape",
-      "i2ip_24__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip_28__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "idp_2a__C": "only IDP.4A forms are implemented",
-      "idp_2a__CXb": "only IDP.4A forms are implemented",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
-      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
-      "isetp__RCxR_RCxR_EX": "unsupported class shape",
-      "isetp__RCxR_RCxR_noEX": "unsupported class shape",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_256_memdesc__Ra64": "unsupported class shape",
@@ -5639,12 +5067,10 @@
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
       "p2r__RCR_RCR": "unsupported class shape",
       "p2r__RCxR_RCxR": "unsupported class shape",
-      "popc__RCxR_RCxR": "unsupported class shape",
       "r2p__RCR": "unsupported class shape",
       "r2p__RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
-      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_256_memdesc__Ra64": "unsupported class shape",
       "stg_256_uniform__Ra32": "unsupported class shape",
       "stg_256_uniform__Ra64": "unsupported class shape",
@@ -5654,15 +5080,18 @@
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
+      "uf2fp__URIUR": "outside implemented operation families",
+      "uf2fp__URURUR": "outside implemented operation families",
+      "uf2fp_merge_c__URIUR": "outside implemented operation families",
+      "uf2fp_merge_c__URURI": "outside implemented operation families",
+      "uf2fp_merge_c__URURUR": "outside implemented operation families",
       "uisetp_optional_upr__URURUR_URURUR": "unsupported class shape",
       "uisetp_optional_upr__URsIUR_URIR": "unsupported class shape",
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
       "uldc_ur_offset_": "unsupported class shape",
-      "up2ur__URb": "unsupported class shape",
-      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
-      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs"
+      "up2ur__URb": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -5676,8 +5105,7 @@
         "opaque": 2
       },
       "BREV": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "BSSY": {
         "primitive": 1
@@ -5707,16 +5135,15 @@
         "native": 1
       },
       "F2FP": {
-        "native": 9,
-        "opaque": 42
+        "native": 30,
+        "opaque": 21
       },
       "F2I": {
         "native": 9,
         "primitive": 21
       },
       "F2IP": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "FADD": {
         "native": 5
@@ -5725,8 +5152,7 @@
         "native": 9
       },
       "FLO": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "FMNMX": {
         "native": 5
@@ -5744,20 +5170,21 @@
         "native": 5
       },
       "HADD2": {
-        "native": 8,
-        "opaque": 2
+        "native": 10
       },
       "HFMA2": {
-        "native": 7,
-        "opaque": 11
+        "native": 9,
+        "opaque": 9
       },
       "HFMA2.MMA": {
         "native": 1,
         "opaque": 17
       },
+      "HMNMX2": {
+        "native": 5
+      },
       "HMUL2": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "I2F": {
         "primitive": 40
@@ -5766,8 +5193,7 @@
         "primitive": 6
       },
       "I2IP": {
-        "native": 12,
-        "opaque": 3
+        "native": 15
       },
       "IABS": {
         "native": 5
@@ -5779,8 +5205,7 @@
         "native": 10
       },
       "IDP": {
-        "native": 3,
-        "opaque": 5
+        "native": 8
       },
       "IMAD": {
         "native": 55
@@ -5789,8 +5214,7 @@
         "native": 5
       },
       "ISETP": {
-        "native": 8,
-        "opaque": 2
+        "native": 10
       },
       "LDC": {
         "native": 2,
@@ -5829,8 +5253,7 @@
         "opaque": 2
       },
       "POPC": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "PRMT": {
         "native": 9
@@ -5853,8 +5276,7 @@
         "native": 5
       },
       "SGXT": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "SHF": {
         "native": 9
@@ -5873,6 +5295,9 @@
       "STS": {
         "native": 2,
         "opaque": 1
+      },
+      "UF2FP": {
+        "opaque": 5
       },
       "UIADD3": {
         "native": 4
@@ -5908,8 +5333,7 @@
         "native": 3
       },
       "VABSDIFF4": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "VIADD": {
         "absent": 0
@@ -5928,8 +5352,8 @@
       }
     },
     "status": {
-      "native": 379,
-      "opaque": 565,
+      "native": 428,
+      "opaque": 516,
       "primitive": 110
     }
   },
@@ -5939,13 +5363,6 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "brev__RCxR_RCxR": "unsupported class shape",
-      "f2fp_8b_upconvert__RCR": "unsupported class shape",
-      "f2fp_8b_upconvert__RCxR": "unsupported class shape",
-      "f2fp_8b_upconvert__RIR": "unsupported class shape",
-      "f2fp__RCR": "unsupported class shape",
-      "f2fp__RCxR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RCR": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RCxR": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RIR": "unsupported class shape",
@@ -5955,36 +5372,14 @@
       "f2fp_f16_to_8b_downconvert__RRR": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RRU": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RCR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RCxR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RIR": "unsupported class shape",
       "f2fp_f32_to_8b_downconvert__RRC": "unsupported class shape",
       "f2fp_f32_to_8b_downconvert__RRCx": "unsupported class shape",
       "f2fp_f32_to_8b_downconvert__RRI": "unsupported class shape",
-      "f2fp_merge_c__RCR": "unsupported class shape",
-      "f2fp_merge_c__RCxR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRC": "unsupported class shape",
-      "f2fp_merge_c__RRCx": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
-      "f2fp_tf32__RCR": "unsupported class shape",
-      "f2fp_tf32__RCxR": "unsupported class shape",
-      "f2fp_tf32__RIR": "unsupported class shape",
-      "f2ip__RCxR": "unsupported class shape",
-      "f2ip__RRCx": "unsupported class shape",
-      "flo__RCxR_RCxR": "unsupported class shape",
       "fmnmx_pred__RCR_RCR": "unsupported class shape",
       "fmnmx_pred__RCxR_RCxR": "unsupported class shape",
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
       "fmnmx_pred__RRR_RRR": "unsupported class shape",
       "fmnmx_pred__RUR_RUR": "unsupported class shape",
-      "hadd2_F32__RCx": "unsupported class shape",
-      "hadd2__RCx": "unsupported class shape",
-      "hfma2__RCxR": "unsupported class shape",
-      "hfma2__RRCx": "unsupported class shape",
       "hfma2_mma__RCR": "unsupported class shape",
       "hfma2_mma__RCxR": "unsupported class shape",
       "hfma2_mma__RIR": "unsupported class shape",
@@ -6004,25 +5399,14 @@
       "hfma2_mma_relu__RRU": "unsupported class shape",
       "hfma2_mma_relu__RUR": "unsupported class shape",
       "hfma2_relu__RCR": "class selectors have no supported native combination",
-      "hfma2_relu__RCxR": "unsupported class shape",
+      "hfma2_relu__RCxR": "class selectors have no supported native combination",
       "hfma2_relu__RIR": "class selectors have no supported native combination",
       "hfma2_relu__RRC": "class selectors have no supported native combination",
-      "hfma2_relu__RRCx": "unsupported class shape",
+      "hfma2_relu__RRCx": "class selectors have no supported native combination",
       "hfma2_relu__RRI": "class selectors have no supported native combination",
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "hmul2__RCx": "unsupported class shape",
-      "i2ip_24__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip_28__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "idp_2a__C": "only IDP.4A forms are implemented",
-      "idp_2a__CXb": "only IDP.4A forms are implemented",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
-      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
-      "isetp__RCxR_RCxR_EX": "unsupported class shape",
-      "isetp__RCxR_RCxR_noEX": "unsupported class shape",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_memdesc__Ra64": "class selectors have no supported native combination",
@@ -6036,32 +5420,28 @@
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
       "p2r__RCR_RCR": "unsupported class shape",
       "p2r__RCxR_RCxR": "unsupported class shape",
-      "popc__RCxR_RCxR": "unsupported class shape",
       "r2p__RCR": "unsupported class shape",
       "r2p__RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
-      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_memdesc__Ra64": "class selectors have no supported native combination",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
+      "uf2fp__URIUR": "outside implemented operation families",
+      "uf2fp__URURUR": "outside implemented operation families",
+      "uf2fp_merge_c__URIUR": "outside implemented operation families",
+      "uf2fp_merge_c__URURI": "outside implemented operation families",
+      "uf2fp_merge_c__URURUR": "outside implemented operation families",
       "uisetp_optional_upr__URURUR_URURUR": "unsupported class shape",
       "uisetp_optional_upr__URsIUR_URIR": "unsupported class shape",
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
       "uldc_ur_offset_": "unsupported class shape",
-      "up2ur__URb": "unsupported class shape",
-      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
-      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs",
-      "viaddmnmx__RCxR_RCxR": "VIADDMNMX requires three 32-bit non-CX values",
-      "viaddmnmx__RRCx_RRCx": "VIADDMNMX requires three 32-bit non-CX values",
-      "vimnmx3__RCxR_RCxR": "VIMNMX3 requires three 32-bit non-CX values",
-      "vimnmx__RCxR_RCxR": "VIMNMX requires two 32-bit non-CX values",
-      "vimnmx_pred__RCxR_RCxR": "VIMNMX requires two 32-bit non-CX values"
+      "up2ur__URb": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -6075,8 +5455,7 @@
         "opaque": 2
       },
       "BREV": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "BSSY": {
         "primitive": 1
@@ -6106,16 +5485,15 @@
         "native": 1
       },
       "F2FP": {
-        "native": 9,
-        "opaque": 33
+        "native": 30,
+        "opaque": 12
       },
       "F2I": {
         "native": 13,
         "primitive": 27
       },
       "F2IP": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "FADD": {
         "native": 5
@@ -6124,8 +5502,7 @@
         "native": 9
       },
       "FLO": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "FMNMX": {
         "native": 5,
@@ -6144,19 +5521,20 @@
         "native": 5
       },
       "HADD2": {
-        "native": 8,
-        "opaque": 2
+        "native": 10
       },
       "HFMA2": {
-        "native": 7,
-        "opaque": 11
+        "native": 9,
+        "opaque": 9
       },
       "HFMA2.MMA": {
         "opaque": 18
       },
+      "HMNMX2": {
+        "native": 10
+      },
       "HMUL2": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "I2F": {
         "primitive": 40
@@ -6165,8 +5543,7 @@
         "primitive": 6
       },
       "I2IP": {
-        "native": 12,
-        "opaque": 3
+        "native": 15
       },
       "IABS": {
         "native": 5
@@ -6178,8 +5555,7 @@
         "native": 10
       },
       "IDP": {
-        "native": 3,
-        "opaque": 5
+        "native": 8
       },
       "IMAD": {
         "native": 55
@@ -6188,8 +5564,7 @@
         "native": 5
       },
       "ISETP": {
-        "native": 8,
-        "opaque": 2
+        "native": 10
       },
       "LDC": {
         "native": 2,
@@ -6228,8 +5603,7 @@
         "opaque": 2
       },
       "POPC": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "PRMT": {
         "native": 9
@@ -6252,8 +5626,7 @@
         "native": 5
       },
       "SGXT": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "SHF": {
         "native": 9
@@ -6272,6 +5645,9 @@
       "STS": {
         "native": 2,
         "opaque": 1
+      },
+      "UF2FP": {
+        "opaque": 5
       },
       "UIADD3": {
         "native": 4
@@ -6307,31 +5683,27 @@
         "native": 3
       },
       "VABSDIFF4": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "VIADD": {
         "native": 5
       },
       "VIADDMNMX": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "VIMNMX": {
-        "native": 8,
-        "opaque": 2
+        "native": 10
       },
       "VIMNMX3": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "VOTE": {
         "primitive": 1
       }
     },
     "status": {
-      "native": 402,
-      "opaque": 655,
+      "native": 461,
+      "opaque": 596,
       "primitive": 116
     }
   },
@@ -6341,13 +5713,6 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "brev__RCxR_RCxR": "unsupported class shape",
-      "f2fp_8b_upconvert__RCR": "unsupported class shape",
-      "f2fp_8b_upconvert__RCxR": "unsupported class shape",
-      "f2fp_8b_upconvert__RIR": "unsupported class shape",
-      "f2fp__RCR": "unsupported class shape",
-      "f2fp__RCxR": "unsupported class shape",
-      "f2fp__RIR": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RCR": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RCxR": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RIR": "unsupported class shape",
@@ -6357,36 +5722,14 @@
       "f2fp_f16_to_8b_downconvert__RRR": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RRU": "unsupported class shape",
       "f2fp_f16_to_8b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RCR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RCxR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RIR": "unsupported class shape",
       "f2fp_f32_to_8b_downconvert__RRC": "unsupported class shape",
       "f2fp_f32_to_8b_downconvert__RRCx": "unsupported class shape",
       "f2fp_f32_to_8b_downconvert__RRI": "unsupported class shape",
-      "f2fp_merge_c__RCR": "unsupported class shape",
-      "f2fp_merge_c__RCxR": "unsupported class shape",
-      "f2fp_merge_c__RIR": "unsupported class shape",
-      "f2fp_merge_c__RRC": "unsupported class shape",
-      "f2fp_merge_c__RRCx": "unsupported class shape",
-      "f2fp_merge_c__RRI": "unsupported class shape",
-      "f2fp_merge_c__RRR": "unsupported class shape",
-      "f2fp_merge_c__RRU": "unsupported class shape",
-      "f2fp_merge_c__RUR": "unsupported class shape",
-      "f2fp_tf32__RCR": "unsupported class shape",
-      "f2fp_tf32__RCxR": "unsupported class shape",
-      "f2fp_tf32__RIR": "unsupported class shape",
-      "f2ip__RCxR": "unsupported class shape",
-      "f2ip__RRCx": "unsupported class shape",
-      "flo__RCxR_RCxR": "unsupported class shape",
       "fmnmx_pred__RCR_RCR": "unsupported class shape",
       "fmnmx_pred__RCxR_RCxR": "unsupported class shape",
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
       "fmnmx_pred__RRR_RRR": "unsupported class shape",
       "fmnmx_pred__RUR_RUR": "unsupported class shape",
-      "hadd2_F32__RCx": "unsupported class shape",
-      "hadd2__RCx": "unsupported class shape",
-      "hfma2__RCxR": "unsupported class shape",
-      "hfma2__RRCx": "unsupported class shape",
       "hfma2_mma__RCR": "unsupported class shape",
       "hfma2_mma__RCxR": "unsupported class shape",
       "hfma2_mma__RIR": "unsupported class shape",
@@ -6406,25 +5749,14 @@
       "hfma2_mma_relu__RRU": "unsupported class shape",
       "hfma2_mma_relu__RUR": "unsupported class shape",
       "hfma2_relu__RCR": "class selectors have no supported native combination",
-      "hfma2_relu__RCxR": "unsupported class shape",
+      "hfma2_relu__RCxR": "class selectors have no supported native combination",
       "hfma2_relu__RIR": "class selectors have no supported native combination",
       "hfma2_relu__RRC": "class selectors have no supported native combination",
-      "hfma2_relu__RRCx": "unsupported class shape",
+      "hfma2_relu__RRCx": "class selectors have no supported native combination",
       "hfma2_relu__RRI": "class selectors have no supported native combination",
       "hfma2_relu__RRR": "class selectors have no supported native combination",
       "hfma2_relu__RRU": "class selectors have no supported native combination",
       "hfma2_relu__RUR": "class selectors have no supported native combination",
-      "hmul2__RCx": "unsupported class shape",
-      "i2ip_24__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip_28__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "i2ip__RCxR_RCxR": "I2IP requires three 32-bit non-CX values",
-      "idp_2a__C": "only IDP.4A forms are implemented",
-      "idp_2a__CXb": "only IDP.4A forms are implemented",
-      "idp_2a__R": "only IDP.4A forms are implemented",
-      "idp_2a__URb": "only IDP.4A forms are implemented",
-      "idp_4a__CXb": "IDP.4A requires 32-bit non-CX sources",
-      "isetp__RCxR_RCxR_EX": "unsupported class shape",
-      "isetp__RCxR_RCxR_noEX": "unsupported class shape",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_memdesc__Ra64": "class selectors have no supported native combination",
@@ -6438,32 +5770,28 @@
       "mov_indexedRF_IRFd__Rb": "unsupported class shape",
       "p2r__RCR_RCR": "unsupported class shape",
       "p2r__RCxR_RCxR": "unsupported class shape",
-      "popc__RCxR_RCxR": "unsupported class shape",
       "r2p__RCR": "unsupported class shape",
       "r2p__RCxR": "unsupported class shape",
       "ret__REL": "class selectors have no supported native combination",
       "ret__REL_UR": "class selectors have no supported native combination",
-      "sgxt__RCxR_RCxR": "SGXT requires 32-bit index and source values",
       "stg_memdesc__Ra64": "class selectors have no supported native combination",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
+      "uf2fp__URIUR": "outside implemented operation families",
+      "uf2fp__URURUR": "outside implemented operation families",
+      "uf2fp_merge_c__URIUR": "outside implemented operation families",
+      "uf2fp_merge_c__URURI": "outside implemented operation families",
+      "uf2fp_merge_c__URURUR": "outside implemented operation families",
       "uisetp_optional_upr__URURUR_URURUR": "unsupported class shape",
       "uisetp_optional_upr__URsIUR_URIR": "unsupported class shape",
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
       "uldc_ur_offset_": "unsupported class shape",
-      "up2ur__URb": "unsupported class shape",
-      "vabsdiff4__RCxR_RCxR": "VABSDIFF4 requires three 32-bit non-CX inputs",
-      "vabsdiff4__RRCx_RRCx": "VABSDIFF4 requires three 32-bit non-CX inputs",
-      "viaddmnmx__RCxR_RCxR": "VIADDMNMX requires three 32-bit non-CX values",
-      "viaddmnmx__RRCx_RRCx": "VIADDMNMX requires three 32-bit non-CX values",
-      "vimnmx3__RCxR_RCxR": "VIMNMX3 requires three 32-bit non-CX values",
-      "vimnmx__RCxR_RCxR": "VIMNMX requires two 32-bit non-CX values",
-      "vimnmx_pred__RCxR_RCxR": "VIMNMX requires two 32-bit non-CX values"
+      "up2ur__URb": "unsupported class shape"
     },
     "operations": {
       "BAR": {
@@ -6477,8 +5805,7 @@
         "opaque": 2
       },
       "BREV": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "BSSY": {
         "primitive": 1
@@ -6508,16 +5835,15 @@
         "native": 1
       },
       "F2FP": {
-        "native": 9,
-        "opaque": 33
+        "native": 30,
+        "opaque": 12
       },
       "F2I": {
         "native": 13,
         "primitive": 27
       },
       "F2IP": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "FADD": {
         "native": 5
@@ -6526,8 +5852,7 @@
         "native": 9
       },
       "FLO": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "FMNMX": {
         "native": 5,
@@ -6546,19 +5871,20 @@
         "native": 5
       },
       "HADD2": {
-        "native": 8,
-        "opaque": 2
+        "native": 10
       },
       "HFMA2": {
-        "native": 7,
-        "opaque": 11
+        "native": 9,
+        "opaque": 9
       },
       "HFMA2.MMA": {
         "opaque": 18
       },
+      "HMNMX2": {
+        "native": 10
+      },
       "HMUL2": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "I2F": {
         "primitive": 40
@@ -6567,8 +5893,7 @@
         "primitive": 6
       },
       "I2IP": {
-        "native": 12,
-        "opaque": 3
+        "native": 15
       },
       "IABS": {
         "native": 5
@@ -6580,8 +5905,7 @@
         "native": 10
       },
       "IDP": {
-        "native": 3,
-        "opaque": 5
+        "native": 8
       },
       "IMAD": {
         "native": 55
@@ -6590,8 +5914,7 @@
         "native": 5
       },
       "ISETP": {
-        "native": 8,
-        "opaque": 2
+        "native": 10
       },
       "LDC": {
         "native": 2,
@@ -6630,8 +5953,7 @@
         "opaque": 2
       },
       "POPC": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "PRMT": {
         "native": 9
@@ -6654,8 +5976,7 @@
         "native": 5
       },
       "SGXT": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "SHF": {
         "native": 9
@@ -6674,6 +5995,9 @@
       "STS": {
         "native": 2,
         "opaque": 1
+      },
+      "UF2FP": {
+        "opaque": 5
       },
       "UIADD3": {
         "native": 4
@@ -6709,31 +6033,27 @@
         "native": 3
       },
       "VABSDIFF4": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "VIADD": {
         "native": 5
       },
       "VIADDMNMX": {
-        "native": 7,
-        "opaque": 2
+        "native": 9
       },
       "VIMNMX": {
-        "native": 8,
-        "opaque": 2
+        "native": 10
       },
       "VIMNMX3": {
-        "native": 4,
-        "opaque": 1
+        "native": 5
       },
       "VOTE": {
         "primitive": 1
       }
     },
     "status": {
-      "native": 402,
-      "opaque": 655,
+      "native": 461,
+      "opaque": 596,
       "primitive": 116
     }
   }

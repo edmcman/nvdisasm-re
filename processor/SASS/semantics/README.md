@@ -46,14 +46,16 @@ has value semantics. `primitive` means the runtime validates and executes the
 operation or rejects an unsupported selector/context. `opaque` means the md's
 register effects, registers and immediates are passed without asserting a result.
 The coverage ledger's architecture-wide `hardware_verified` flag remains false:
-GPU comparisons currently cover the 100 whole-kernel SM89 fixtures recorded in
+GPU comparisons currently cover the 144 whole-kernel SM89 fixtures (18,432 output comparisons) recorded in
 [verification.json](verification.json), rather than every class and selector.
 
-IMAD.HI adds the 64-bit addend before selecting the high word; IMAD.WIDE
-writes the whole sum. The CUDA mad.hi lowering places its scalar addend in
-the upper register of that pair. The whole-kernel oracle executes that compiler lowering directly. Constant-bank widths are class
-specific; SM75/80 HI/WIDE forms with 32-bit constant addends stay opaque
-until their extension convention is established.
+IMAD.HI adds a 64-bit addend to the full product before selecting the high
+word. A 32-bit non-pair addend is added to the selected high word. IMAD.WIDE
+writes the whole sum. The CUDA `mad.hi` lowering places its scalar addend in
+the upper register of a pair, and the whole-kernel oracle executes that
+compiler lowering directly. An SM89 probe also verifies the 64-bit constant
+source path; narrower constant forms follow CuLifter's source-width handling
+and pass the SM75 emulator fixture.
 
 Native overrides cover ordinary MOV, IABS, SEL, IMAD low/high/wide, IADD3,
 LOP3, SHF, LEA low/high/extended, IMNMX, ISETP including `.EX`, S2R/CS2R, basic memory operations,
@@ -79,10 +81,10 @@ same native calculations. UIADD3, UIMAD, USHF, ULEA, UISETP, ULOP3, USEL and
 UMOV reuse those emitters with uniform register and predicate names. Ordinary
 32-bit IADD and VIADD are native; packed/saturating VIADD and carry modes retain
 opaque fallbacks. VIMNMX implements PT=min and !PT=max for S/U32, S/U16x2,
-and SM120's S/U8x4 formats with register, uniform-register, and immediate B
-sources. Signed RELU forms clamp each selected lane at zero; unsigned RELU
-encodings are invalid according to the machine description. Non-PT predicate
-outputs and CX forms remain opaque. CuLifter's per-lane behavior has
+and SM120's S/U8x4 formats with register, uniform-register, immediate, and
+SM75-SM90 CX B sources. Signed RELU forms clamp each selected lane at zero;
+unsigned RELU encodings are invalid according to the machine description.
+Non-PT predicate outputs remain opaque. CuLifter's per-lane behavior has
 independent exact/readable emulator fixtures on SM100 and SM103, and VIMNMX
 also on SM120; this path has no GPU verification because these instructions
 are newer than the available SM89 hardware. Uniform wide views follow the
@@ -103,6 +105,9 @@ wins if both destinations name the same predicate. LEA computes the shifted
 low/high word before applying negate/complement and adds its predicate for .X.
 IMAD.X adds one predicate; HI/WIDE carry indicates unsigned overflow of the
 full 64-bit product and pair addend, including signed product bit patterns.
+For SM75/SM80 HI classes with a 32-bit C addend, the predicate is added to the
+extracted product high word and C before the 32-bit result and carry-out are
+computed. Exact/readable fixtures cover both carry-in values at the wrap edge.
 These operations capture input predicates before writing overlapping outputs.
 IADD3/LEA encodings modifying both Ra and Rb retain opaque fallbacks. Discarded
 carry outputs preserve compact arithmetic. Uniform aliases share these emitters.
@@ -123,8 +128,10 @@ low 51 bits as base/64 and the high 13 bits as size/16. The load uses `ram`
 at the decoded GPU virtual address, returning zero outside the region.
 The layouts come from Mesa's `nvk_bindless_cbuf` definitions; SM89 hardware
 validates addressing and bounds. SM90's layout and zero-on-out-of-bounds
-behavior are implemented and emulator-tested, with hardware validation pending.
-Other opcode families' CX values still require a `sass_operand_value` provider.
+behavior are emulator-tested, with hardware validation pending. The shared
+provider materializes CX values for supported scalar and packed emitters on
+SM75-SM90. Direct GPU evidence remains BMSK-only; other consumers need
+opcode-specific probes before their hardware behavior is established.
 Dedicated SM89 whole-kernel GPU/reference/p-code comparisons cover
 1,504 inputs per mode; emulator tests cover both languages on all architectures.
 `tests/bmsk_cx_semantics.py` supplies a separate manually patched SASS oracle
@@ -137,18 +144,25 @@ ordinary min/max, including .FTZ: a numeric input wins over NaN, two NaNs yield
 `0x7fffffff`, and equal signed zeros yield -0 for min or +0 for max. With
 .NAN, either NaN input produces canonical `0x7fffffff`; numeric inputs still
 use the ordinary min/max and signed-zero rules. Predicate true selects min;
-false selects max. .XORSIGN and predicate-result .IS_A forms remain opaque.
-The SM89 GPU checks compare FSEL and FMNMX bits exactly, including .FTZ,
-.NAN and .FTZ.NAN. FSEL.FTZ and other architectures have emulator coverage.
+false selects max. `.XORSIGN` takes the XOR of the raw source sign bits before
+the absolute source modifiers, selects min/max by magnitude, and applies the
+combined sign to a non-NaN result; NaN results bypass the sign update.
+FMNMX predicate-result `.IS_A` forms remain opaque. The SM89 GPU checks compare FSEL
+and FMNMX bits exactly, including `.FTZ`, `.NAN`, `.FTZ.NAN`, and
+`.XORSIGN`; FSEL.FTZ and other architectures have emulator coverage.
 
-FMNMX3 is native on SM100/SM103 for PT/!PT, `noftz`/`nonan` RRR, RUR, and
-immediate-B forms. It applies two ordered comparisons: PT selects the three-way minimum,
-and !PT selects the maximum. Ties and unordered comparisons
-retain the earlier input at each step, matching CuLifter's formula. FTZ/NAN
-selectors, dynamic predicate registers, and CX forms remain opaque. Independent exact/readable emulator
-fixtures cover both predicate directions, ties, signed zeros, infinities, and
-NaNs. No compatible GPU is available, so its edge behavior follows the
-CuLifter formula rather than hardware measurements.
+FMNMX3 is native on SM100/SM103 for P0–P6/PT with optional inversion, all
+`FTZ`/`noftz` and `NAN`/`nonan` selectors, and RRR, RUR, and immediate-B
+forms. PT selects three-way minimum; !PT selects maximum. Exact mode follows
+the PTX three-input min/max rules: default min/max selects the numeric input
+when paired with one NaN, `.NAN` returns canonical `0x7fffffff` if any input
+is NaN, and equal signed zeros select -0 for min or +0 for max. `.FTZ` flushes
+subnormal inputs to signed zero. Readable mode keeps CuLifter's ordered
+comparison formula. Emulator fixtures cover both predicate directions and
+inversion, all selector combinations, NaNs in each input position, signed
+zeros, infinities, and subnormals. No SM100+ GPU is available, so this
+implementation is emulator-verified against the PTX specification, not
+hardware-measured.
 
 UP2UR's immediate-mask `.B0` form is native on all nine architectures. It
 starts from `URa` and ORs `UPi << i` for each selected bit `i` from 0 through
@@ -234,7 +248,8 @@ to F32. The second-source H1_H0/H0_H0/H1_H1 selectors, absolute/negate,
 FTZ/no-FTZ, SAT/no-SAT, and available register, uniform, immediate, and
 constant-bank forms are covered. SM89 GPU fixtures confirm the register form
 for all 48 selector/modifier combinations (128 inputs each); RC forms are
-emulator-tested. CX forms remain opaque.
+emulator-tested. SM90 CX is emulator-tested; other CX forms use the shared
+bounded-load provider where their MD classes exist.
 HMUL2 multiplies each selected pair after widening to fp32, which holds the
 exact finite binary16 product before one narrowing conversion. F16_V2 supports
 FMZ, FTZ, and no-flush modes, with SAT and no-SAT variants. FTZ flushes
@@ -251,6 +266,28 @@ under nofmz/nosat. Hardware shows it preserves finite bits, signed zero,
 infinities, and denormals, while canonicalizing each NaN half to `0x7fff`.
 This transform is evaluated from encoded immediates at decode time, so the
 move emits one COPY. Other MMA forms retain opaque fallbacks.
+
+HMNMX2 is native for materialized F16_V2, BF16_V2, E8M7_V2, and E6M9_V2
+operands: register, uniform, immediate, and ordinary constant-bank forms
+where present in the MD. E8M7_V2 aliases BF16_V2's encoded format. `Pp`
+selects min when true and max when false. Per-lane H1_H0/H0_H0/H1_H1 selection
+and source absolute/negate modifiers are honored. F16 `.FTZ` flushes inputs
+and results to signed zero; BF16/E8M7 and E6M9 do not expose FTZ. `.NAN`
+canonicalizes NaN results to `0x7fff`. `.XORSIGN` compares magnitudes and
+applies the XOR of raw source signs. RRR/RUR/RCR require both absolute flags;
+RIR has only the register source's absolute flag, and its immediate keeps its
+sign. The SM89 whole-kernel oracle covers 19 HMNMX2 fixtures with 128 vectors
+each; exact/readable semantic matrices cover SM75-SM120. CX sources use the
+shared bounded-load provider on SM75-SM90. SM90+ `IS_A` predicate-output
+classes use native P-code for supported source forms with `nan=nonan`; the
+`.NAN` selector stays opaque until its interaction with source flags is known.
+`Pu` and `Pv` report whether source A supplied the low and high lane results,
+respectively, based on NVIDIA patent US 12,554,493 and the `IS_A` selector.
+Exact/readable emulator and dataflow checks cover 45 cases on SM90 and 27 on
+SM100, SM101, SM103, and SM120. This interpretation is not GPU-verified: the
+available SM89 GPU cannot execute the SM90+ form, and the patent does not
+independently establish every tie/NaN detail. The default two-NaN path's A
+flag is modeled but has not been measured on hardware.
 
 Runtime primitives cover the float fallbacks, F2I/I2F, PRMT, SHFL/VOTE,
 QSPC, and synchronization events. QSPC requires `context["address_spaces"]`,
@@ -270,38 +307,154 @@ are canonical quiet NaNs; GPU payload selection is not verified. PRMT implements
 IDX and the six specialized modes.
 
 F2IP has a native path for packed F32-to-S8/U8 conversion when the instruction
-uses round-to-nearest-even, NTZ, no RELU, and direct 32-bit register inputs.
+uses round-to-nearest-even, NTZ, no RELU, and materialized 32-bit inputs,
+including CX loads on SM75-SM90. The SM89 CX probe covers 16 S8/U8 forms
+and passes 2,048 GPU/reference and exact/readable P-code comparisons per mode.
 It rounds and saturates each input independently; NaNs become zero and infinities
 saturate by sign. The first input occupies bits 8–15, the second bits 0–7, and
 the low 16 bits of C occupy bits 16–31. Other destination/source formats,
-rounding selectors, modifiers, and CX sources retain opaque fallbacks. The
-SM89 GPU oracle verifies the packed byte order and edge behavior.
+rounding selectors and modifiers retain opaque fallbacks. The SM89 GPU oracle
+verifies the packed byte order and edge behavior for directly materialized
+sources.
 
 F2FP has guarded packed F32-to-F16 and F32-to-BF16 `PACK_AB` paths for RN and
-RZ with R/UR source registers, plus F32-to-TF32 `PACK_B` RN/RZ for R/UR input.
+RZ, including RELU, SATFINITE, and their combination, with R/UR, immediate,
+and ordinary constant-bank sources. F32-to-TF32 `PACK_B` supports RN/RZ and
+RELU with R/UR, immediate, and ordinary constant-bank sources.
 The first source converts into bits 31–16 and the second into bits 15–0.
 F16 conversion uses integer rounding, including subnormals and overflow; BF16
 uses its F32 high half and ties-to-even, with NaNs canonicalized to `0x7fff`.
 TF32 retains ten fraction bits and rounds the discarded 13 according to RN/RZ.
+F32-to-E6M9 `PACK_AB` is native for RN/RZ with RELU, SATFINITE, and their
+combinations on SM86/SM89/SM90, where the MD exposes that destination selector.
+E6M9 uses one sign bit, six exponent bits with bias 31, and nine fraction bits.
+RN uses ties-to-even; RZ truncates overflow to max finite; SATFINITE clamps
+infinity and overflow to signed max finite; RELU maps negative outputs, including
+negative zero, to positive zero and leaves NaNs canonical at `0x7fff`. Exact
+and readable emulator suites pass on all three architectures, including
+R/UR/immediate/direct-C sources where present. A patched SM89 GPU probe covered
+RRR, RIR immediate, and RCR constant-bank forms: 13,824 packed-lane comparisons
+across eight selector combinations (RN/RZ, RELU, SATFINITE) matched an
+exact-rational reference, and 1,536 whole-kernel lanes matched P-code. The
+probe includes 576 lanes per selector/source form and checks underflow and
+overflow boundaries, random values, infinities, NaNs, and signed zero.
+`MERGE_C` is native for F32-to-F16/BF16/E6M9 `PACK_AB` classes, with RN/RZ,
+RELU, SATFINITE, and their combinations. The converted value occupies the low
+16 bits; H0/H1 selects the low/high half of the merge source, which is copied
+into the result's high 16 bits. R/UR, immediate, ordinary constant-bank, and
+SM75-SM90 CX forms are supported where present. SM89 direct GPU
+probes established H0/H1 placement for F16 and confirmed H0 behavior for BF16
+and E6M9; current exact
+and readable semantic suites exercise the supported ordinary source forms on
+all nine architectures. The available RTX 4070 Laptop GPU is reachable but
+SM89, so it cannot execute the newer SM100 selector forms.
 F32-to-E4M3/E5M2 `PACK_AB_MERGE_C` is native for RN, SATFINITE, no RELU, and
-direct R/UR inputs, with H0/H1 selection of the carried C half. E5M2 infinity
+R/UR, immediate, and ordinary constant-bank inputs, with H0/H1 selection of the carried C half. E5M2 infinity
 clamps to max finite; NaNs use `0x7f` with the source sign. `F16.E4M3/E5M2
-UNPACK_B` is native for RN, no RELU, and direct R/UR sources, with H0/H1
-selection of the source half. Finite E4M3 values are normalized exactly;
+UNPACK_B` is native for RN with optional RELU and R/UR, immediate, and ordinary constant-bank sources, with
+H0/H1 selection of the source half. RELU maps negative results, including
+negative zero, to positive zero per lane; NaNs retain canonical positive
+`0x7fff`. Finite E4M3 values are normalized exactly;
 E5M2 finite values and infinities widen by shifting the encoding. Both formats
 canonicalize every NaN to positive `0x7fff`, as established by exhaustive
-SM89 byte probes. Other FP8 formats, FTZ/FMZ, RELU, constant/immediate/
-descriptor sources, and other unpack forms remain opaque. Exact/readable
+SM89 byte probes. SM100 `E2M1.UNPACK_B` now widens the two nibbles in a
+selected source byte to F16 for RIR/RRR/RUR sources, with RN and optional
+RELU. B0–B3 select the byte; all 256 byte values pass exact/readable emulator
+fixtures on SM100/SM101/SM103/SM120. The independent reference follows PTX's
+documented E2M1-to-F16x2 packing order. E0M3 uses its sign bit and 3-bit
+integer magnitude (−7…7, including signed zero). All 256 byte values pass
+exact/readable emulator fixtures and RIR/RRR/RUR
+dataflow checks on SM100/SM101/SM103/SM120. E0M3 hardware validation remains
+pending because the available GPU is SM89. E3M4 also widens to F16 for
+RIR/RRR/RUR sources with RN, UNPACK_B, and optional RELU. An [independent
+E3M4 format reference](https://github.com/tjthereal/fp8/blob/main/READMEFP8.md)
+describes sign, 3-bit exponent (bias 3), 4-bit fraction, subnormals, and the
+reserved NaN encoding. Exhaustive fixtures check all 256
+source bytes in both selected halves and both RELU settings: 3,072 cases per
+mode on each of SM100/SM101/SM103/SM120. Dataflow passes for all three source
+classes in both modes. These E3M4 results are emulator-verified from format
+evidence, not GPU-measured. The `f2fp_rs` stochastic-rounding family, FP4
+scaling, and other scaled conversions remain opaque.
+F16/BF16 and F32 downconversion to E4M3/E5M2 is native for RN, SATFINITE,
+optional RELU, and H0/H1 merge selection. The ordinary R/UR/immediate source
+forms pass 11,040 exact and readable cases per mode on SM100/SM101/SM103 and
+SM120; SM120's six uniform-register `UF2FP` forms are included in its 14,592
+cases. Dataflow passes for all ten ordinary forms per mode on SM100/SM101/SM103
+and all sixteen ordinary plus uniform forms on SM120. NaN sign and payload are
+compared by class because F16 widening may canonicalize them. These emulator
+results do not establish hardware behavior on SM100+; other 8-bit destination
+formats and rounding/saturation selectors, scaled S2_6 downconversion, and
+stochastic rounding remain opaque.
+F16/BF16-to-E2M1/E0M3 downconvert is native for the SM100/SM101/SM103/SM120
+`UNPACK_B_MERGE_C` classes in RIR/RRI/RRR/RRU/RUR forms. The B input produces
+the low output byte, C produces the next byte, and Rd receives the packed
+16-bit result. E2M1 follows CUDA's `cuda_fp4.hpp` RN-even conversion, signed
+maxnorm saturation, and NaN-to-positive-maxnorm rules. E0M3 is interpreted as
+sign plus a 3-bit integer magnitude (−7…7, with signed zero): finite inputs
+round to nearest-even magnitude and saturate at 7; NaNs canonicalize to
+positive 7 before RELU. The E2M1 matrix passes 1,560 exact/readable fixtures per
+architecture; the expanded E2M1/E0M3 matrix passes 4,320 exact and readable
+fixtures per architecture, covering RIR/RRI/RRR/RRU/RUR, F16/BF16, threshold
+neighbors, edge encodings, RELU, and deterministic random inputs. No compatible
+SM100+ GPU is available, so E0M3 hardware behavior remains unverified.
+F32-to-E2M1/E0M3 conversion is native for the SM100/SM101/SM103/SM120 `PACK_AB_MERGE_C` classes in RIR/RRI/RRR/RRU/RUR forms. A and B produce the high and low nibbles of Rd[7:0], and C supplies the preserved upper 24 bits. E2M1 uses RN-even conversion with signed maxnorm saturation; E0M3 uses signed integer magnitudes 0–7 with RN-even rounding. Both support SATFINITE and optional RELU. The F32 FP4 matrix passes 1,440 exact and 1,440 readable cases per architecture, including source forms, threshold neighbors, special values, and deterministic random inputs; all five forms pass dataflow checks in each mode. PTX 9.0 compilation with CUDA 13.0.88 confirms the E2M1 lowering to `F2FP.SATFINITE.E2M1.F32.PACK_AB_MERGE_C`. The available GPU is SM89, so this class has no hardware execution validation; E0M3 is format-derived.
+The scaled `f2fp_4b_upconvert_scale__` family is also native for RIR/RRI/RRR/RRU/RUR
+on SM100/SM101/SM103/SM120. It selects one byte from the FP4 source, converts
+its low/high nibbles to BF16, then multiplies each lane by the corresponding
+low/high UE8M0 byte in the second source. The E2M1 rule follows the PTX ISA;
+E0M3 uses its sign-plus-magnitude integer grid with the same per-lane scaling
+operation. RN, SATFINITE, and optional RELU are implemented. All 256 scale
+bytes, FP4 codes, B0–B3 selectors, both formats, RELU settings, and source
+forms pass 20,480 exact/readable fixtures per architecture, with focused
+dataflow checks for both formats and all five forms. No compatible SM100+ GPU
+is available, so this family has emulator but no hardware validation.
+The scaled `f2fp_8b_upconvert_scale__` family is native for RIR/RRI/RRR/RRU/RUR
+on SM100/SM101/SM103/SM120. E5M2, E4M3, E2M3, E3M2, E3M4, and signed S2F6
+bytes widen to BF16, then multiply by the matching UE8M0 byte. H0/H1 selects
+the source pair and matching scale pair; RN, optional RELU, and optional
+SATFINITE are implemented. The rules for E5M2/E4M3/E2M3/E3M2/S2F6 follow the
+[PTX conversion specification](https://docs.nvidia.com/cuda/parallel-thread-execution/#data-movement-and-conversion-instructions-cvt),
+including S2F6's signed 8-bit value times 2^-6 and the PTX-specified conversion-
+then-scale order. E3M4 uses the independent format reference described above.
+Each of the six formats, five source forms, H0/H1, RELU settings, and
+SATFINITE settings passes 61,440 exact/readable emulator cases per architecture.
+Each lane sweeps all 256 source-byte and all 256 scale-byte values; the matrix
+does not enumerate every source/scale cross-product. Dataflow/control-flow
+checks pass 5/5 classes per mode on all four architectures. The available GPU
+is SM89 and cannot execute SM100 SASS. The PTX 9.2 compile probe is recorded at
+`tests/ptx/f2fp/f8_scaled_upconvert.ptx`; installed CUDA 13.0 ptxas supports
+PTX 9.0 and rejects the PTX 9.2 version and scaled modifier, so it supplies no
+compiler-lowering evidence.
+SM100 UE8M0 `UNPACK_B` to BF16 is native for RIR/RRR/RUR with H0/H1 selection.
+All 256 source bytes pass exact/readable emulator fixtures in both lanes on
+SM100/SM101/SM103/SM120. Its reference follows CUDA's host UE8M0-to-BF16
+conversion, including `0x00` to the `2^-127` BF16 subnormal and `0xff` to
+canonical `0x7fff`. No compatible GPU was available for SM100 hardware
+validation.
+SM100/SM101/SM103/SM120 `F16.E2M3/E3M2.UNPACK_B` now widens both padded 6-bit
+lanes to F16 for RIR/RRR/RUR sources, with RN and optional RELU. The fixture
+reference matches CUDA's host FP6 conversion implementation for all 64
+encodings per format. The SM100 full suites include 4,608 exact and readable
+cases; the targeted SM101/SM103/SM120 matrix has 1,536 cases per mode and arch.
+Hardware validation is pending because no compatible GPU is available. FTZ/FMZ are not selector operands in the
+inspected SM89 F2FP MD classes. Immediate and ordinary constant-bank sources
+pass exact/readable emulator fixtures; SM89 GPU probes exercise F16 PACK_AB
+immediate and ordinary constant-bank sources (128 vectors each); other source
+combinations have emulator coverage only. Exact/readable
 semantic suites and dataflow suites pass for all nine
 architectures. The SM89 GPU oracle confirms H1 C merging in the in-place
 `Rd=Rc` form for both E4M3 and E5M2 against independent references and P-code
 (128 whole-kernel vectors per format). Distinct-destination merge results and
 H0 hardware behavior remain unverified. The same oracle confirms the four F16
-and BF16 RN/RZ forms (128 whole-kernel vectors per form). ptxas emits
+and BF16 RN/RZ forms plus RELU, SATFINITE, and combined RELU/SATFINITE for both
+formats (128 whole-kernel vectors per form). ptxas emits
 `F2FP.TF32.F32.PACK_B` for the RN PTX probe on SM90, but the available SM89 GPU
 cannot execute that instruction; TF32 hardware validation remains pending.
 The four FP8 unpack probes compare both H0 and H1 conversions for E4M3 and
 E5M2 across all 256 source-byte encodings (128 whole-kernel vectors per form).
+Four additional RELU probes patch only the RELU selector bit and compare GPU,
+P-code, and an independent per-lane reference for 128 vectors per form; these
+cover every source byte in both extracts and both formats.
 
 I2IP has a native path for S32 inputs packed to signed or unsigned 2-, 4-,
 8-, and 16-bit lanes. SAT clamps each input to its destination range;
@@ -309,11 +462,14 @@ SATRELU clamps signed inputs to zero through the signed maximum. The no-SAT
 form keeps the low destination bits. For 2- and 4-bit packing, the supported
 `.28`/`.24` extraction selectors place the two converted inputs in the high
 and low lane, respectively; the remaining high bits come from C. The 8-bit
-and 16-bit forms use H0 extraction, with C supplying the unused upper bits for
-the 8-bit form. The SM89 GPU oracle compares all eight signed/unsigned widths,
-plus patched no-SAT and SATRELU selector cases, against both an independent
-reference and Ghidra p-code. Unsupported selector combinations, source shapes,
-and CX forms retain opaque fallbacks.
+and 16-bit forms accept H0/H1 extraction. H1 selects C[31:16] for the
+preserved upper half of an 8-bit result; C is unused for 16-bit results. The
+SM89 GPU oracle compares all eight signed/unsigned widths, plus patched no-SAT
+and SATRELU selector cases, against an independent reference and Ghidra
+p-code. The SM89 CX probe covers 40 selector/source combinations and passes
+5,120 GPU/reference and exact/readable P-code comparisons per mode. CX inputs
+are materialized on SM75-SM90; unsupported selector combinations and source
+shapes retain opaque fallbacks.
 
 F2I has a native p-code path for the hardware-verified F32-to-S32
 `.TRUNC.NTZ` form. It truncates finite values toward zero, maps NaNs to zero,
@@ -322,8 +478,10 @@ generated for all architectures; GPU behavior has been measured on SM89.
 Exact mode falls back to the runtime primitive for other rounding modes.
 Readable mode ignores the encoded rounding selector and uses truncation, like
 its other floating-point operations ignore rounding details. Other formats,
-destinations, NTZ selectors, and source modifiers fall back to the runtime
-primitive.
+destinations, and NTZ selectors fall back to the runtime primitive. Absolute
+clears the source sign bit before negate toggles it; patched
+SM89 GPU fixtures verify absolute, negate, and combined forms against an
+independent integer reference (128 whole-kernel comparisons per form).
 
 S2R/CS2R copy named special registers; the launch environment seeds their values. SHFL/VOTE require explicit 32-lane
 values, predicates, active mask, and lane index. Inactive shuffle sources
@@ -428,21 +586,21 @@ immediate, and ordinary constant-bank sources where present. FLO supports
 highest set-bit index, `.SH` returns the leading-zero shift, and zero returns
 `0xffffffff` in both modes. Its predicate destination is supported only when
 encoded as `PT`. SGXT supports `.S32`/`.C`, selects the byte indexed by the low
-two bits of its first source, then sign-extends that byte to 32 bits. CX
-encodings of these operations remain opaque because their compound sources
-need a `sass_operand_value` provider; other FLO and SGXT selectors retain
-opaque fallbacks. The tests compare BREV against a per-bit reversal reference,
+two bits of its first source, then sign-extends that byte to 32 bits. The
+shared provider materializes CX operands on SM75-SM90 where those classes
+exist; other FLO and SGXT selectors retain opaque fallbacks. The tests compare BREV against a per-bit reversal reference,
 POPC against `bit_count`, FLO against the bit length/leading-zero definitions,
 and SGXT against signed byte extraction.
 
-IDP has native guarded semantics for `IDP.4A` R, URb, and ordinary
-constant-bank B forms. The four packed byte products use independent S8/U8
-extension selectors and accumulate with Rc modulo 2^32; the Rc negation flag
-is applied by the normal operand path. CX and all 2A forms remain opaque.
-Independent packed-byte reference fixtures cover each signedness pair,
-overflow, Rc negation, and source/destination overlap on all nine architectures
-in both exact and readable languages. These are emulator checks; no IDP GPU
-oracle result is recorded.
+IDP has native guarded semantics for `IDP.4A` and `IDP.2A.LO/.HI` R, URb,
+ordinary constant-bank, and SM75-SM90 CX B forms. `.4A` multiplies four independently
+signed or unsigned byte pairs; `.2A` multiplies two signed or unsigned 16-bit
+A lanes by consecutive signed or unsigned bytes selected from B's low or high
+half. Both accumulate into C modulo 2^32, including Rc negation. Independent reference fixtures cover all selector and
+signedness combinations, overflow, Rc negation, and source/destination overlap
+on all nine architectures in exact and readable languages. Eight SM89 PTX
+`dp2a` kernels lower to the expected SASS selectors and pass 128 whole-kernel
+GPU/P-code/reference comparisons apiece.
 
 VIMNMX3 uses its Pp input to select three-way min for PT and max otherwise,
 per lane, for S32/U32/S16x2/U16x2. Native support covers R, URb, and immediate
@@ -452,8 +610,8 @@ Independent lane-wise fixtures pass in exact and readable mode. No hardware
 oracle result is available because these instructions are newer than the
 available SM89 hardware.
 
-VABSDIFF4 supports S8/U8 register, uniform, immediate, and ordinary
-constant-bank operands for `SIMD_MRG` and `ACC`; CX and non-PT Pu destinations
+VABSDIFF4 supports S8/U8 register, uniform, immediate, ordinary constant-bank,
+and SM75-SM90 CX operands for `SIMD_MRG` and `ACC`; non-PT Pu destinations
 remain opaque. `SIMD_MRG` packs four absolute byte differences and ignores C.
 `ACC` adds the four differences as a scalar, then adds C modulo 2^32. CuLifter's
 CPU handler matches these SASS rules. A whole-kernel SM89 oracle patched one

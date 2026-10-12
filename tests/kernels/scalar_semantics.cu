@@ -4,6 +4,23 @@
 KERNEL(iadd3, r=a+b+c)
 KERNEL(imad, asm("mad.lo.u32 %0,%1,%2,%3;":"=r"(r):"r"(a),"r"(b),"r"(c)))
 KERNEL(imad_hi, asm("mad.hi.u32 %0,%1,%2,%3;":"=r"(r):"r"(a),"r"(b),"r"(c)))
+extern "C" __global__ void sem_imad_hi_c(const uint32_t *in, uint32_t *out, uint64_t addend) {
+ unsigned i=threadIdx.x+blockIdx.x*blockDim.x;
+ uint32_t a=in[3*i],b=in[3*i+1],c=in[3*i+2],r;
+ asm volatile("mad.hi.u32 %0,%1,%2,%3;":"=r"(r):"r"(a),"r"(b),"r"(c));
+ asm volatile(""::"l"(addend));
+ out[i]=r;
+}
+#define IDP2A(name, instruction) KERNEL(name, asm(instruction " %0,%1,%2,%3;":"=r"(r):"r"(a),"r"(b),"r"(c)))
+IDP2A(idp2a_lo_ss, "dp2a.lo.s32.s32")
+IDP2A(idp2a_lo_su, "dp2a.lo.s32.u32")
+IDP2A(idp2a_lo_us, "dp2a.lo.u32.s32")
+IDP2A(idp2a_lo_uu, "dp2a.lo.u32.u32")
+IDP2A(idp2a_hi_ss, "dp2a.hi.s32.s32")
+IDP2A(idp2a_hi_su, "dp2a.hi.s32.u32")
+IDP2A(idp2a_hi_us, "dp2a.hi.u32.s32")
+IDP2A(idp2a_hi_uu, "dp2a.hi.u32.u32")
+#undef IDP2A
 KERNEL(lop3, asm("lop3.b32 %0,%1,%2,%3,0x96;":"=r"(r):"r"(a),"r"(b),"r"(c)))
 #define VABSDIFF4_FIXTURE(name) KERNEL(name, asm("lop3.b32 %0,%1,%2,%3,0x96;":"=r"(r):"r"(a),"r"(b),"r"(c)))
 VABSDIFF4_FIXTURE(vabsdiff4_s8_merge)
@@ -31,6 +48,7 @@ extern "C" __global__ void sem_isetp_ex(const uint64_t *in,uint64_t *out) {
 }
 KERNEL(sel, asm("{ .reg .pred p; setp.ne.u32 p,%3,0; selp.u32 %0,%1,%2,p; }":"=r"(r):"r"(a),"r"(b),"r"(c)))
 KERNEL(fsetp, asm("{ .reg .pred p; setp.lt.f32 p,%1,%2; selp.u32 %0,1,0,p; }":"=r"(r):"r"(a),"r"(b)))
+KERNEL(fmin_xorsign, { float value; asm("min.xorsign.abs.f32 %0,%1,%2;":"=f"(value):"f"(__uint_as_float(a)),"f"(__uint_as_float(b))); r=__float_as_uint(value); })
 KERNEL(fsel, asm("{ .reg .pred p; setp.ne.u32 p,%3,0; neg.f32 %0,%1; selp.f32 %0,%0,%2,p; }":"=r"(r):"r"(a),"r"(b),"r"(c)))
 KERNEL(fmin, asm("min.f32 %0,%1,%2;":"=r"(r):"r"(a),"r"(b)))
 KERNEL(fmax, asm("max.f32 %0,%1,%2;":"=r"(r):"r"(a),"r"(b)))
@@ -40,11 +58,50 @@ KERNEL(fmin_ftz_nan, asm("min.ftz.f32 %0,%1,%2;":"=r"(r):"r"(a),"r"(b)))
 KERNEL(fmax_ftz_nan, asm("max.ftz.f32 %0,%1,%2;":"=r"(r):"r"(a),"r"(b)))
 KERNEL(fmin_ftz, asm("min.ftz.f32 %0,%1,%2;":"=r"(r):"r"(a),"r"(b)))
 KERNEL(fmax_ftz, asm("max.ftz.f32 %0,%1,%2;":"=r"(r):"r"(a),"r"(b)))
+#define HMNMX2_FIXTURE(name, op) KERNEL(name, asm(op " %0,%1,%2;":"=r"(r):"r"(a),"r"(b)))
+HMNMX2_FIXTURE(hmnmx2_min, "min.f16x2")
+HMNMX2_FIXTURE(hmnmx2_max, "max.f16x2")
+HMNMX2_FIXTURE(hmnmx2_xorsign, "min.f16x2")
+HMNMX2_FIXTURE(hmnmx2_xorsign_rir, "min.f16x2")
+HMNMX2_FIXTURE(hmnmx2_xorsign_rir_noabs, "min.f16x2")
+HMNMX2_FIXTURE(hmnmx2_nan_min, "min.f16x2")
+HMNMX2_FIXTURE(hmnmx2_nan_max, "max.f16x2")
+HMNMX2_FIXTURE(hmnmx2_ftz_min, "min.f16x2")
+HMNMX2_FIXTURE(hmnmx2_ftz_max, "max.f16x2")
+HMNMX2_FIXTURE(hmnmx2_bf16_min, "min.bf16x2")
+HMNMX2_FIXTURE(hmnmx2_bf16_max, "max.bf16x2")
+HMNMX2_FIXTURE(hmnmx2_bf16_nan_min, "min.NaN.bf16x2")
+HMNMX2_FIXTURE(hmnmx2_bf16_nan_max, "max.NaN.bf16x2")
+HMNMX2_FIXTURE(hmnmx2_bf16_xorsign, "min.xorsign.abs.bf16x2")
+HMNMX2_FIXTURE(hmnmx2_e6m9_min, "min.bf16x2")
+HMNMX2_FIXTURE(hmnmx2_e6m9_max, "max.bf16x2")
+HMNMX2_FIXTURE(hmnmx2_e6m9_nan_min, "min.NaN.bf16x2")
+HMNMX2_FIXTURE(hmnmx2_e6m9_nan_max, "max.NaN.bf16x2")
+HMNMX2_FIXTURE(hmnmx2_e6m9_xorsign, "min.xorsign.abs.bf16x2")
+#undef HMNMX2_FIXTURE
 KERNEL(f2i, asm("cvt.rzi.s32.f32 %0,%1;":"=r"(r):"r"(a)))
+KERNEL(f2i_abs, asm("cvt.rzi.s32.f32 %0,%1;":"=r"(r):"r"(a)))
+KERNEL(f2i_neg, asm("cvt.rzi.s32.f32 %0,%1;":"=r"(r):"r"(a)))
+KERNEL(f2i_absneg, asm("cvt.rzi.s32.f32 %0,%1;":"=r"(r):"r"(a)))
 KERNEL(f2fp_f16_pack_rn, asm("cvt.rn.f16x2.f32 %0,%1,%2;":"=r"(r):"f"(__uint_as_float(a)),"f"(__uint_as_float(b))))
 KERNEL(f2fp_f16_pack_rz, asm("cvt.rz.f16x2.f32 %0,%1,%2;":"=r"(r):"f"(__uint_as_float(a)),"f"(__uint_as_float(b))))
 KERNEL(f2fp_bf16_pack_rn, asm("cvt.rn.bf16x2.f32 %0,%1,%2;":"=r"(r):"f"(__uint_as_float(a)),"f"(__uint_as_float(b))))
 KERNEL(f2fp_bf16_pack_rz, asm("cvt.rz.bf16x2.f32 %0,%1,%2;":"=r"(r):"f"(__uint_as_float(a)),"f"(__uint_as_float(b))))
+KERNEL(f2fp_f16_pack_imm, asm("cvt.rn.f16x2.f32 %0,%1,1.5;":"=r"(r):"f"(__uint_as_float(a))))
+extern "C" __global__ void sem_f2fp_f16_pack_c(const uint32_t *in,uint32_t *out,float y) {
+ unsigned i=threadIdx.x+blockIdx.x*blockDim.x;
+ float x=__uint_as_float(in[3*i]);uint32_t r;
+ asm("cvt.rn.f16x2.f32 %0,%1,%2;":"=r"(r):"f"(x),"f"(y));
+ out[i]=r;
+}
+#define F2FP_PACK_MOD(name, type, mods) KERNEL(name, asm("cvt.rn" mods "." #type "x2.f32 %0,%1,%2;":"=r"(r):"f"(__uint_as_float(a)),"f"(__uint_as_float(b))))
+F2FP_PACK_MOD(f2fp_f16_pack_relu, f16, ".relu")
+F2FP_PACK_MOD(f2fp_f16_pack_satfinite, f16, ".satfinite")
+F2FP_PACK_MOD(f2fp_f16_pack_relu_satfinite, f16, ".relu.satfinite")
+F2FP_PACK_MOD(f2fp_bf16_pack_relu, bf16, ".relu")
+F2FP_PACK_MOD(f2fp_bf16_pack_satfinite, bf16, ".satfinite")
+F2FP_PACK_MOD(f2fp_bf16_pack_relu_satfinite, bf16, ".relu.satfinite")
+#undef F2FP_PACK_MOD
 KERNEL(f2fp_e4m3_pack, { uint16_t packed; asm("cvt.rn.satfinite.e4m3x2.f32 %0,%1,%2;":"=h"(packed):"f"(__uint_as_float(a)),"f"(__uint_as_float(b))); r=(c&0xffff0000u)|packed; })
 KERNEL(f2fp_e5m2_pack, { uint16_t packed; asm("cvt.rn.satfinite.e5m2x2.f32 %0,%1,%2;":"=h"(packed):"f"(__uint_as_float(a)),"f"(__uint_as_float(b))); r=(c&0xffff0000u)|packed; })
 #define F2FP_UNPACK(name, fmt) extern "C" __global__ void sem_##name(const uint32_t *in, uint64_t *out) { \
@@ -55,6 +112,10 @@ F2FP_UNPACK(f2fp_e4m3_unpack_h0, e4m3)
 F2FP_UNPACK(f2fp_e4m3_unpack_h1, e4m3)
 F2FP_UNPACK(f2fp_e5m2_unpack_h0, e5m2)
 F2FP_UNPACK(f2fp_e5m2_unpack_h1, e5m2)
+F2FP_UNPACK(f2fp_e4m3_unpack_h0_relu, e4m3)
+F2FP_UNPACK(f2fp_e4m3_unpack_h1_relu, e4m3)
+F2FP_UNPACK(f2fp_e5m2_unpack_h0_relu, e5m2)
+F2FP_UNPACK(f2fp_e5m2_unpack_h1_relu, e5m2)
 #undef F2FP_UNPACK
 KERNEL(f2ip, asm("{ .reg .s32 x,y; cvt.rni.s32.f32 x,%1; cvt.rni.s32.f32 y,%2; cvt.pack.sat.s8.s32.b32 %0,x,y,%3; }":"=r"(r):"r"(a),"r"(b),"r"(c)))
 KERNEL(i2ip_s2, asm("cvt.pack.sat.s2.s32.b32 %0,%1,%2,%3;":"=r"(r):"r"(a),"r"(b),"r"(c)))

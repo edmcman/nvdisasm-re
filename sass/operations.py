@@ -10,9 +10,9 @@ from sass import fpops
 OPERATION_FAMILIES = set('IADD3 IMAD LOP3 SHF BMSK LEA IABS IMNMX ISETP SEL PRMT MOV S2R CS2R LDC FADD FMUL FFMA FSETP F2I F2FP I2F I2FP MUFU LDG STG LDS STS LDL STL BRA EXIT CALL RET BSSY BSYNC BAR SHFL VOTE ULDC NOP'.split())
 ALIASES = dict(UIADD3='IADD3', UIMAD='IMAD', USHF='SHF', ULEA='LEA',
                UISETP='ISETP', ULOP3='LOP3', USEL='SEL', UMOV='MOV', VIADD='IADD',
-               **{'HFMA2.MMA':'HFMA2_MMA'})
+               UF2FP='F2FP', **{'HFMA2.MMA':'HFMA2_MMA'})
 OPERATION_FAMILIES.update(ALIASES)
-OPERATION_FAMILIES.update(('IADD','FSEL','FMNMX','FMNMX3','DADD','DMUL','DFMA','DSETP','F2IP','I2IP','HADD2','HFMA2','HMUL2','BREV','POPC','FLO','SGXT','IDP','QSPC','UP2UR','P2R','R2P','VIMNMX','VIMNMX3','VIADDMNMX','VABSDIFF4'))
+OPERATION_FAMILIES.update(('IADD','FSEL','FMNMX','FMNMX3','DADD','DMUL','DFMA','DSETP','F2IP','I2IP','HADD2','HFMA2','HMUL2','HMNMX2','BREV','POPC','FLO','SGXT','IDP','QSPC','UP2UR','P2R','R2P','VIMNMX','VIMNMX3','VIADDMNMX','VABSDIFF4'))
 
 PRIMITIVES = set('FADD FMUL FFMA FSETP F2I I2F I2FP MUFU PRMT SHFL VOTE BAR BSSY BSYNC QSPC'.split())
 
@@ -115,8 +115,16 @@ def default(b,name):
 def operands(b,*groups):
     # Keep original md names so selector constraints and attribute lookup use the
     # actual encoding, including mixed ordinary/uniform register classes.
-    return [next((n for n in group.split('/')+['U'+n for n in group.split('/')]
-                  if n in b.values),None) for group in groups]
+    result=[]
+    for group in groups:
+        candidates=group.split('/')+['U'+n for n in group.split('/')]
+        # A CX operand exposes its UR pair and offset as child operands. Those
+        # children describe the address; arithmetic must consume the loaded
+        # compound value instead.
+        compound=next((n for n in candidates if n in b.values and
+                       b.k.operand_types.get(n) and b.k.operand_types[n].type=='CX'),None)
+        result.append(compound or next((n for n in candidates if n in b.values),None))
+    return result
 
 
 def output(b,name='Rd'):
@@ -198,11 +206,6 @@ def emit_IMAD(b,check=False):
     a,c,d=operands(b,'Ra/Sa','Rb/Sb','Rc/Sc')
     if check:
         if not (all((a,c,d)) and output(b) is not None and all(b.values[n].size<=8 for n in (a,c,d))):return False
-        mode=b.k.operand_types.get('wide')
-        labels=b.g.arch.enums.get(mode.type,{}) if mode else {}
-        if set(labels)&{'HI','WIDE'} and b.k.operand_types[d].type in ('C','CX') and b.values[d].size<8:
-            b.unsupported_reason='32-bit constant addend extension for HI/WIDE is unverified'
-            return False
         return True
     extended='X' in b.values
     if 'x' in b.values:require(b,'x',['nox','NOX'])
@@ -231,18 +234,33 @@ def emit_IMAD(b,check=False):
                           for label,value in formats.items()},8) if formats else b.local(8,f'zext({bb})').symbol
         product=b.local(8,f'{x} * {y}')
         rc=b.flag(d)
-        if b.values[d].size<8:rc=b.local(8,f'zext({rc})').symbol
-        summed=b.local(8,f'{product.symbol} + {rc}')
-        result=b.local(8,f'{summed.symbol} + zext({b.flag(carryin)})') if extended else summed
-        full=result
-        if mode=='HI':result=b.local(8,f'{result.symbol} >> 32')
+        atom=b.k.operand_types[d]
+        pair_addend=(atom.type in ('Register','UniformRegister') and b.values[d].size==8)
+        if mode=='HI' and not pair_addend and b.values[d].size<=4:
+            # Narrow non-pair addends are added to the extracted high word.
+            # A 64-bit constant-bank value follows the full-width datapath,
+            # as established by the SM89 GPU probe.
+            basewide=b.local(8,f'{product.symbol} >> 32')
+            base=b.local(4,f'{basewide.symbol}:4')
+            if b.values[d].size>4:rc=b.local(4,f'{rc}:4').symbol
+            elif b.values[d].size<4:rc=b.local(4,f'zext({rc})').symbol
+            full=b.local(8,f'zext({base.symbol}) + zext({rc})' +
+                         (f' + zext({b.flag(carryin)})' if extended else ''))
+            result=b.local(4,f'{full.symbol}:4')
+            overflow=f'{full.symbol} >= 0x100000000:8'
+        else:
+            if b.values[d].size<8:rc=b.local(8,f'zext({rc})').symbol
+            summed=b.local(8,f'{product.symbol} + {rc}')
+            result=b.local(8,f'{summed.symbol} + zext({b.flag(carryin)})') if extended else summed
+            full=result
+            if mode=='HI':result=b.local(8,f'{result.symbol} >> 32')
+            overflow=f'({summed.symbol} < {product.symbol})'
+            if extended:overflow+=f' || ({full.symbol} < {summed.symbol})'
     fast=b.body[initial:]+[f'{rd.symbol} = {result.symbol}{":4" if result.size>rd.size else ""};']
     b.body=b.body[:initial]
     if mode=='LO':b.body+=fast;return
     predicate=output(b,'Pu')
     if predicate:
-        overflow=f'({summed.symbol} < {product.symbol})'
-        if extended:overflow+=f' || ({full.symbol} < {summed.symbol})'
         slow=fast[:-1]+[f'local cout:1 = {overflow};',fast[-1],f'{predicate.symbol} = cout;']
         carry_choice(b,fast,slow,['Pu','UPu'])
     else:b.body+=fast
@@ -429,31 +447,52 @@ def emit_SGXT(b,check=False):
 
 
 def emit_IDP(b,check=False):
-    """Four packed byte products plus a 32-bit accumulator (IDP.4A)."""
-    if not b.k.name.startswith('idp_4a__'):
-        if check:b.unsupported_reason='only IDP.4A forms are implemented'
+    """Packed integer dot products with a 32-bit accumulator (IDP.2A/4A)."""
+    is_2a=b.k.name.startswith('idp_2a__')
+    is_4a=b.k.name.startswith('idp_4a__')
+    if not (is_2a or is_4a):
+        if check:b.unsupported_reason='unrecognized IDP class shape'
         return False if check else None
     a,bb,c=operands(b,'Ra','Rb/URb/Sb','Rc');dst=output(b)
     if check:
         ok=(all((a,bb,c)) and dst is not None and dst.size==4 and
-            all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (a,bb,c)) and
-            b.k.operand_types[bb].type!='CX')
-        if not ok:b.unsupported_reason='IDP.4A requires 32-bit non-CX sources'
+            all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (a,bb,c)))
+        if not ok:b.unsupported_reason='IDP requires materialized 32-bit sources'
         return ok
-    require(b,'mode',['4A']);require(b,'SrcAFmt',['S8','U8']);require(b,'SrcBFmt',['S8','U8'])
+    require(b,'mode',['2A.LO','2A.HI'] if is_2a else ['4A'])
+    require(b,'SrcAFmt',['S16','U16'] if is_2a else ['S8','U8'])
+    require(b,'SrcBFmt',['S8','U8'])
     av=b.flag(a);bv=b.flag(bb);cv=b.flag(c)
     cases={}
-    for asigned,aval in enum_cases(b,'SrcAFmt',['S8','U8']).items():
+    afmts=enum_cases(b,'SrcAFmt',['S16','U16'] if is_2a else ['S8','U8'])
+    bfmts=enum_cases(b,'SrcBFmt',['S8','U8'])
+    modes=enum_cases(b,'mode',['2A.LO','2A.HI'] if is_2a else ['4A'])
+    for asigned,aval in afmts.items():
         for bsigned,bval in enum_cases(b,'SrcBFmt',['S8','U8']).items():
-            code=f'local aa:4 = {av}; local bbv:4 = {bv}; local acc:4 = {cv}; '
-            for i in range(4):
-                code+=f'local ashr{i}:4 = aa >> {8*i}; local bshr{i}:4 = bbv >> {8*i}; local abyte{i}:1 = ashr{i}[0,8]; local bbyte{i}:1 = bshr{i}[0,8]; '
-                ax=f'sext(abyte{i})' if asigned=='S8' else f'zext(abyte{i})'
-                bx=f'sext(bbyte{i})' if bsigned=='S8' else f'zext(bbyte{i})'
-                code+=f'acc = acc + ({ax} * {bx}); '
-            code+='export acc;'
-            cases[(aval,bval)]=code
-    result=b.select_code(('SrcAFmt','SrcBFmt'),cases)
+            mode_cases={}
+            for mode,mval in modes.items():
+                code=f'local aa:4 = {av}; local bbv:4 = {bv}; local acc:4 = {cv}; '
+                count=2 if is_2a else 4
+                aw=16 if is_2a else 8
+                bwstart=2 if is_2a and mode.endswith('HI') else 0
+                for i in range(count):
+                    ai=i*aw;bi=(i+bwstart)*8
+                    code+=f'local ashr{i}:4 = aa >> {ai}; local bshr{i}:4 = bbv >> {bi}; '
+                    if is_2a:
+                        code+=f'local ahalf{i}:2 = ashr{i}[0,16]; '
+                        ax=f'sext(ahalf{i})' if asigned=='S16' else f'zext(ahalf{i})'
+                    else:
+                        code+=f'local abyte{i}:1 = ashr{i}[0,8]; '
+                        ax=f'sext(abyte{i})' if asigned=='S8' else f'zext(abyte{i})'
+                    code+=f'local bbyte{i}:1 = bshr{i}[0,8]; '
+                    bx=f'sext(bbyte{i})' if bsigned=='S8' else f'zext(bbyte{i})'
+                    code+=f'acc = acc + ({ax} * {bx}); '
+                code+='export acc;'
+                mode_cases[(mval,)]=code
+            for (mv,),code in mode_cases.items():
+                cases[(mv,aval,bval)]=code
+    b.allow_combinations(('mode','SrcAFmt','SrcBFmt'),cases.keys())
+    result=b.select_code(('mode','SrcAFmt','SrcBFmt'),cases)
     b.body.append(f'{dst.symbol} = {result};')
 
 
@@ -462,9 +501,8 @@ def emit_VIMNMX3(b,check=False):
     a,bb,c=operands(b,'Ra','Rb/URb/Sb','Rc/URc/Sc');dst=output(b)
     if check:
         ok=(b.k.name.startswith('vimnmx3__') and all((a,bb,c)) and dst is not None and dst.size==4 and
-            all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (a,bb,c)) and
-            all(b.k.operand_types[n].type!='CX' for n in (a,bb,c)))
-        if not ok:b.unsupported_reason='VIMNMX3 requires three 32-bit non-CX values'
+            all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (a,bb,c)))
+        if not ok:b.unsupported_reason='VIMNMX3 requires three materialized 32-bit values'
         return ok
     require(b,'fmt',['S32','U32','S16x2','U16x2'])
     require(b,'relu',['norelu','RELU'])
@@ -515,9 +553,8 @@ def emit_VIMNMX(b,check=False):
     a,bb=operands(b,'Ra','Rb/URb/Sb');dst=output(b)
     if check:
         ok=(all((a,bb)) and dst is not None and dst.size==4 and
-            all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (a,bb)) and
-            all(b.k.operand_types[n].type!='CX' for n in (a,bb)))
-        if not ok:b.unsupported_reason='VIMNMX requires two 32-bit non-CX values'
+            all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (a,bb)))
+        if not ok:b.unsupported_reason='VIMNMX requires two materialized 32-bit values'
         return ok
     require(b,'fmt',['S32','U32','S16x2','U16x2','S8x4','U8x4'])
     require(b,'relu',['norelu','RELU'])
@@ -567,9 +604,8 @@ def emit_VIADDMNMX(b,check=False):
     a,bb,c=operands(b,'Ra','Rb/URb/Sb','Rc/URc/Sc');dst=output(b)
     if check:
         ok=(all((a,bb,c)) and dst is not None and dst.size==4 and
-            all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (a,bb,c)) and
-            all(b.k.operand_types[n].type!='CX' for n in (a,bb,c)))
-        if not ok:b.unsupported_reason='VIADDMNMX requires three 32-bit non-CX values'
+            all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (a,bb,c)))
+        if not ok:b.unsupported_reason='VIADDMNMX requires three materialized 32-bit values'
         return ok
     require(b,'fmt',['S32','U32','S16x2','U16x2'])
     require(b,'relu',['norelu','RELU'])
@@ -617,9 +653,8 @@ def emit_VABSDIFF4(b,check=False):
     a,bb,c=operands(b,'Ra','Rb/URb/Sb','Rc/URc/Sc');dst=output(b)
     if check:
         ok=(all((a,bb,c)) and dst is not None and dst.size==4 and
-            all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (a,bb,c)) and
-            all(b.k.operand_types[n].type!='CX' for n in (a,bb,c)))
-        if not ok:b.unsupported_reason='VABSDIFF4 requires three 32-bit non-CX inputs'
+            all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (a,bb,c)))
+        if not ok:b.unsupported_reason='VABSDIFF4 requires three materialized 32-bit inputs'
         return ok
     require(b,'fmt',['S8','U8']);require(b,'red',['SIMD_MRG','ACC'])
     if 'Pu' in b.outputs:
@@ -829,7 +864,7 @@ def half_inputs(b,name,swizzle):
 def half_arithmetic(b,fma,check):
     names=half_shape(b,fma)
     is_f32=not fma and b.k.name.startswith('hadd2_F32')
-    if check:return bool(names) and not any(atom.type=='CX' for atom in b.k.operand_types.values())
+    if check:return bool(names)
     if is_f32:
         require(b,'ofmt',['F32'])
         flush=enum_cases(b,'ftz',['noftz','FTZ'])
@@ -895,7 +930,7 @@ def emit_HFMA2(b,check=False):return half_arithmetic(b,True,check)
 def emit_HMUL2(b,check=False):
     names=operands(b,'Ra/Sa','Rb/Sb/URb')
     if check:
-        return (all(names) and not any(b.k.operand_types[n].type=='CX' for n in names) and
+        return (all(names) and
                 output(b) is not None and output(b).size==4 and
                 all((b.values[n].size in (2,8) and b.values[n+'1'].size==b.values[n].size)
                     if n+'1' in b.values else b.values[n].size==4 for n in names))
@@ -936,6 +971,197 @@ def emit_HMUL2(b,check=False):
         selected=b.select_code(tuple(n for n in ('fmz','sat') if n in b.values),cases)
         results.append(b.local(2,selected).symbol)
     b.body.append(f'{output(b).symbol} = zext({results[0]}) | (zext({results[1]}) << 16);')
+
+
+def emit_HMNMX2(b,check=False):
+    """Packed 16-bit float min/max, including MD-declared scalar selectors."""
+    names=operands(b,'Ra/Sa','Rb/Sb/URb')
+    dst=output(b)
+    source_predicates=set(b.outputs)=={'Rd','Pu','Pv'}
+    if check:
+        def packed_source(name):
+            value=b.values.get(name)
+            if value is None:return False
+            paired=b.values.get(name+'1')
+            return ((value.size in (2,8) and paired is not None and paired.size==value.size) or
+                    (value.size==4 and paired is None))
+        return (all(names) and dst is not None and dst.size==4 and
+                (set(b.outputs)=={'Rd'} or
+                 (set(b.outputs)=={'Rd','Pu','Pv'} and 'isA' in b.values)) and
+                all(packed_source(n) for n in names) and
+                all(n in b.values for n in ('ofmt','ftz','nan','Pp')))
+    formats=b.g.arch.enums[b.k.operand_types['ofmt'].type]
+    format_labels=[name for name in ('F16_V2','BF16_V2','E6M9_V2') if name in formats]
+    require(b,'ofmt',format_labels)
+    f16_value=formats['F16_V2'];bf16_value=formats.get('BF16_V2')
+    e6m9_value=formats.get('E6M9_V2')
+    ftz_modes=enum_cases(b,'ftz',['noftz','FTZ'])
+    nan_modes=enum_cases(b,'nan',['nonan','NAN'])
+    xor_modes=enum_cases(b,'xorsign',['noxorsign','XORSIGN'])
+    # PT selects min; its negated form selects max. XORSIGN is defined with
+    # absolute source values, and the raw signs are captured before those flags.
+    abs_attrs=[n+'@absolute' for n in names if n+'@absolute' in b.values]
+    selector_names=['ofmt','ftz']
+    if 'xorsign' in b.values:selector_names += ['xorsign',*abs_attrs]
+    combinations=[]
+    fmt_options=[('F16_V2',f16_value),
+        *([('BF16_V2',bf16_value)] if bf16_value is not None else []),
+        *([('E6M9_V2',e6m9_value)] if e6m9_value is not None else [])]
+    noftz=next((value for label,value in ftz_modes.items() if label=='noftz'),None)
+    ftz=next((value for label,value in ftz_modes.items() if label=='FTZ'),None)
+    for fmt_label,fmt_value in fmt_options:
+        for ftz_label,ftz_value in ftz_modes.items():
+            # The MD disallows FTZ with BF16/E8M7 and E6M9 encodings.
+            if fmt_label in ('BF16_V2','E6M9_V2') and ftz_label!='noftz':continue
+            xor_options=xor_modes.items() if 'xorsign' in b.values else [(None,None)]
+            for xor_label,xor_value in xor_options:
+                for abs_values in product((0,1),repeat=len(abs_attrs)):
+                    # For two explicitly modifiable inputs, hardware requires
+                    # both abs flags with XORSIGN. RIR's immediate has no abs
+                    # bit, so its sign and comparison value remain encoded.
+                    if xor_label=='XORSIGN' and len(abs_attrs)==2 and not all(abs_values):continue
+                    values=(fmt_value,ftz_value)
+                    if 'xorsign' in b.values:values += (xor_value,*abs_values)
+                    combinations.append(values)
+    if source_predicates:
+        require(b,'isA',['IS_A'])
+        # The patent describes source indicators but not their interaction
+        # with the canonical NAN selector. Keep that selector on the fallback.
+        require(b,'nan',['nonan'])
+    b.allow_combinations(selector_names,combinations)
+    bswz='iswzB' if 'iswzB' in b.values else 'iswzB_as_C'
+    inputs=[half_inputs(b,n,s) for n,s in zip(names,('iswzA',bswz))]
+    raw=[]
+    for name,swizzle in zip(names,('iswzA',bswz)):
+        if name+'1' in b.values:
+            raw.append([b.expression(2,f'{b.values[n].symbol}:2').symbol
+                        for n in (name+'1',name)])
+            continue
+        packed=b.values[name].symbol
+        modes=enum_cases(b,swizzle,['H1_H0','H0_H0','H1_H1'])
+        lanes=[]
+        for lane in (0,1):
+            val=b.local(2,f'({packed} >> {16*lane})') if lane else b.local(2,packed)
+            cases={}
+            for label,encoded in modes.items():
+                source_lane=0 if label=='H0_H0' else 1 if label=='H1_H1' else lane
+                code=(f'local h:2 = {packed}:2;' if source_lane==0 else
+                      f'local shifted:4 = {packed} >> 16; local h:2 = shifted:2;')
+                cases[(encoded,) if swizzle in b.values else ()]=code+' export h;'
+            lanes.append(b.select_code((swizzle,) if swizzle in b.values else (),cases))
+        raw.append(lanes)
+    predicate=b.flag('Pp')
+    results=[]
+    source_a_flags=[]
+    for lane in (0,1):
+        avname=f'av{lane}';cvname=f'cv{lane}';afname=f'af{lane}';cfname=f'cf{lane}'
+        a,c=(values[lane] for values in inputs)
+        ar,cr=(values[lane] for values in raw)
+        # The bit-level tests preserve NaN payloads in ordinary mode and make
+        # the .NAN canonical result explicit. The decoded predicate chooses
+        # min when true and max when false (confirmed by SM89 min/max probes).
+        bf_nan_a=f'(({ar} & 0x7f80) == 0x7f80 && ({ar} & 0x007f) != 0)'
+        bf_nan_c=f'(({cr} & 0x7f80) == 0x7f80 && ({cr} & 0x007f) != 0)'
+        e6_nan_a=f'(({ar} & 0x7e00) == 0x7e00 && ({ar} & 0x01ff) != 0)'
+        e6_nan_c=f'(({cr} & 0x7e00) == 0x7e00 && ({cr} & 0x01ff) != 0)'
+        h_nan_a=f'(({ar} & 0x7c00) == 0x7c00 && ({ar} & 0x03ff) != 0)'
+        h_nan_c=f'(({cr} & 0x7c00) == 0x7c00 && ({cr} & 0x03ff) != 0)'
+        fmt=b.values['ofmt'].symbol
+        if bf16_value is None and e6m9_value is None:
+            is_nan_a=h_nan_a;is_nan_c=h_nan_c;conversion_lines=[]
+        else:
+            nan_a=[];nan_c=[];non_bf=[]
+            if bf16_value is not None:
+                nan_a.append(f'({fmt} == {bf16_value}:4 && {bf_nan_a})')
+                nan_c.append(f'({fmt} == {bf16_value}:4 && {bf_nan_c})')
+                non_bf.append(f'{fmt} != {bf16_value}:4')
+            if e6m9_value is not None:
+                nan_a.append(f'({fmt} == {e6m9_value}:4 && {e6_nan_a})')
+                nan_c.append(f'({fmt} == {e6m9_value}:4 && {e6_nan_c})')
+                non_bf.append(f'{fmt} != {e6m9_value}:4')
+            nan_a.append(f'(({" && ".join(non_bf)}) && {h_nan_a})')
+            nan_c.append(f'(({" && ".join(non_bf)}) && {h_nan_c})')
+            is_nan_a='('+' || '.join(nan_a)+')';is_nan_c='('+' || '.join(nan_c)+')'
+            conversion_lines=[]
+            if bf16_value is not None:
+                conversion_lines=[f'if ({fmt} == {bf16_value}:4) goto <hmn_bf_cmp>;',
+                    'goto <hmn_cmp_ready>;', '<hmn_bf_cmp>',
+                    f'local hmn_bf_a:4 = zext({avname}); local hmn_bf_c:4 = zext({cvname});',
+                    'hmn_bf_a = hmn_bf_a << 16; hmn_bf_c = hmn_bf_c << 16;',
+                    f'{afname} = float2float(hmn_bf_a); {cfname} = float2float(hmn_bf_c);',
+                    '<hmn_cmp_ready>']
+        result=b.local(2,'0')
+        source_a=b.local(1,'0') if source_predicates else None
+        code=[f'local {avname}:2 = {a}; local {cvname}:2 = {c};',
+              f'if ({is_nan_a} || {is_nan_c}) goto <hmn_nan>;',
+              'goto <hmn_compare>;', '<hmn_nan>',
+              f'if ({b.values["nan"].symbol} != {b.g.arch.enums[b.k.operand_types["nan"].type]["NAN"]}:4) goto <hmn_nan_default>;',
+              f'{result.symbol} = 0x7fff:2; goto <hmn_done>;',
+              '<hmn_nan_default>',
+              f'if ({is_nan_a} && !{is_nan_c}) goto <hmn_take_c>;',
+              f'if ({is_nan_c} && !{is_nan_a}) goto <hmn_take_a>;',
+              f'if ({is_nan_a} && {is_nan_c}) goto <hmn_both_nan>;',
+              f'{result.symbol} = {ar}; goto <hmn_done>;',
+              '<hmn_both_nan>',
+              # The default both-NaN value path canonicalizes the result. This
+              # A flag follows the modeled comparison path; GPU evidence is open.
+              *([f'{source_a.symbol} = 1:1;'] if source_predicates else []),
+              f'{result.symbol} = 0x7fff:2; goto <hmn_done>;',
+              '<hmn_compare>',
+              f'if ({b.values["ftz"].symbol} == {b.g.arch.enums[b.k.operand_types["ftz"].type].get("FTZ",-1)}:4) goto <hmn_ftz_cmp>;',
+              'goto <hmn_cmp_values>;', '<hmn_ftz_cmp>',
+              f'{avname} = ({avname} & 0x8000) | (({avname} & 0x7fff) * zext(({avname} & 0x7c00) != 0));',
+              f'{cvname} = ({cvname} & 0x8000) | (({cvname} & 0x7fff) * zext(({cvname} & 0x7c00) != 0));',
+              '<hmn_cmp_values>',
+              f'if (({avname} & 0x7fff) != 0 || ({cvname} & 0x7fff) != 0) goto <hmn_ordered>;',
+              f'if ({predicate} != 0) goto <hmn_min_zero>;',
+              f'{result.symbol} = {avname} & {cvname};',
+              *([f'{source_a.symbol} = ({avname} == {result.symbol});'] if source_predicates else []),
+              'goto <hmn_done>;', '<hmn_min_zero>',
+              f'{result.symbol} = {avname} | {cvname};',
+              *([f'{source_a.symbol} = ({avname} == {result.symbol});'] if source_predicates else []),
+              'goto <hmn_done>;', '<hmn_ordered>',
+              f'local {afname}:4 = float2float({avname}); local {cfname}:4 = float2float({cvname});',
+              *conversion_lines,
+              *([f'if ({fmt} == {e6m9_value}:4) goto <hmn_e6_order>;'] if e6m9_value is not None else []),
+              f'if (({afname} f< {cfname}) != ({predicate} != 0)) goto <hmn_take_c>;',
+              *(["goto <hmn_take_a>;", '<hmn_e6_order>',
+                 'local hmn_e6_less:1 = 0;',
+                 f'if ((({avname} ^ {cvname}) & 0x8000) != 0) goto <hmn_e6_sign_diff>;',
+                 f'if (({avname} & 0x8000) != 0) goto <hmn_e6_both_negative>;',
+                 f'hmn_e6_less = ({avname} & 0x7fff) < ({cvname} & 0x7fff); goto <hmn_e6_order_done>;',
+                 '<hmn_e6_both_negative>',
+                 f'hmn_e6_less = ({avname} & 0x7fff) > ({cvname} & 0x7fff); goto <hmn_e6_order_done>;',
+                 '<hmn_e6_sign_diff>',f'hmn_e6_less = ({avname} & 0x8000) != 0;',
+                 '<hmn_e6_order_done>',
+                 f'if ((hmn_e6_less != 0) != ({predicate} != 0)) goto <hmn_take_c>;'] if e6m9_value is not None else []),
+              '<hmn_take_a>',*([f'{source_a.symbol} = 1:1;'] if source_predicates else []),
+              f'{result.symbol} = {avname}; goto <hmn_done>;',
+              '<hmn_take_c>',*([f'{source_a.symbol} = 0:1;'] if source_predicates else []),
+              f'{result.symbol} = {cvname};', '<hmn_done>']
+        # FTZ on inputs is applied before NaN/selection; flush the selected
+        # result as required by PTX's f16x2 min/max definition.
+        if 'xorsign' in b.values:
+            xor=b.g.arch.enums[b.k.operand_types['xorsign'].type].get('XORSIGN')
+            sign=f'(({ar} ^ {cr}) & 0x8000)'
+            nan_mode=b.values['nan'].symbol
+            nan_value=b.g.arch.enums[b.k.operand_types['nan'].type].get('NAN')
+            code += [f'if ({b.values["xorsign"].symbol} != {xor}:4) goto <hmn_xor_done>;',
+                     f'if ({is_nan_a} && {is_nan_c}) goto <hmn_xor_done>;',
+                     f'if ({nan_mode} == {nan_value}:4 && ({is_nan_a} || {is_nan_c})) goto <hmn_xor_done>;',
+                     f'{result.symbol} = ({result.symbol} & 0x7fff) | {sign};','<hmn_xor_done>']
+        if 'ftz' in b.values:
+            flush=b.g.arch.enums[b.k.operand_types['ftz'].type].get('FTZ')
+            code += [f'if ({b.values["ftz"].symbol} != {flush}:4) goto <hmn_flush_done>;',
+                     f'{result.symbol} = ({result.symbol} & 0x8000) | (({result.symbol} & 0x7fff) * zext(({result.symbol} & 0x7c00) != 0));','<hmn_flush_done>']
+        code=[line.replace('hmn_',f'hmn{lane}_') for line in code]
+        b.body += code
+        results.append(result.symbol)
+        if source_predicates:source_a_flags.append(source_a.symbol)
+    b.body.append(f'{dst.symbol} = zext({results[0]}) | (zext({results[1]}) << 16);')
+    if source_predicates:
+        b.body += [f'{output(b,"Pu").symbol} = {source_a_flags[0]};',
+                   f'{output(b,"Pv").symbol} = {source_a_flags[1]};']
 
 
 def emit_HFMA2_MMA(b,check=False):
@@ -999,10 +1225,9 @@ def emit_FMNMX(b,check=False):
     names=float_shape(b,'Ra/Sa','Rb/Sb')
     p=operands(b,'Pp')[0]
     if check:return bool(names and p) and set(b.outputs)=={'Rd'}
-    # .XORSIGN changes the formula and remains unverified.
-    require(b,'xorsign',['noxorsign'])
     _,_,(a,c)=float_inputs(b,names)
     predicate=b.flag(p)
+    xorsign_modes=enum_cases(b,'xorsign',['noxorsign','XORSIGN'])
     if fpops.readable(b):
         enum_cases(b,'nan',['nonan','NAN'])
         result=b.local(4,c)
@@ -1014,26 +1239,43 @@ def emit_FMNMX(b,check=False):
     # for max; this preserves -0 for min and +0 for max in either source order.
     cases={}
     has_nan_selector='nan' in b.values
-    for label,value in nan_modes.items():
+    has_xorsign_selector='xorsign' in b.values
+    for xormode,xorvalue in xorsign_modes.items():
+      for label,value in nan_modes.items():
         if label is None:label='nonan'
-        lines=['local r:4 = '+c+';']
+        use_xor=xormode=='XORSIGN'
+        selected='<fmnmx_select_done>' if use_xor else '<minmaxdone>'
+        aa=f'({a} & 0x7fffffff)' if use_xor else a
+        cc=f'({c} & 0x7fffffff)' if use_xor else c
+        # XORSIGN captures the encoded register signs before SASS's source
+        # absolute modifiers (ptxas emits |Ra|/|Rb| for min.xorsign.abs).
+        raw_a=b.values[names[0]].symbol;raw_c=b.values[names[1]].symbol
+        xor_sign=f'(({raw_a} ^ {raw_c}) & 0x80000000)'
+        lines=['local r:4 = '+cc+';']
         if label=='NAN':
-            lines += [f'if (nan({a}) || nan({c})) goto <nan_result>;']
+            lines += [f'if (nan({aa}) || nan({cc})) goto <nan_result>;']
         else:
-            lines += [f'if (!nan({a})) goto <numeric_a>;',
-                      f'if (!nan({c})) goto <minmaxdone>;',
-                      'r = 0x7fffffff;','goto <minmaxdone>;','<numeric_a>',
-                      f'if (nan({c})) goto <choosea>;']
-        lines += [f'if ((({a} | {c}) & 0x7fffffff) != 0) goto <compare>;',
+            lines += [f'if (!nan({aa})) goto <numeric_a>;',
+                      f'if (!nan({cc})) goto {selected};',
+                      'r = 0x7fffffff;',f'goto {selected};','<numeric_a>',
+                      f'if (nan({cc})) goto <choosea>;']
+        lines += [f'if ((({aa} | {cc}) & 0x7fffffff) != 0) goto <compare>;',
                   f'if ({predicate} == 0) goto <maxzero>;',
-                  f'r = {a} | {c};','goto <minmaxdone>;',
-                  '<maxzero>',f'r = {a} & {c};','goto <minmaxdone>;',
-                  '<compare>',f'if (({a} f< {c}) != {predicate}) goto <minmaxdone>;',
-                  *(['<choosea>'] if label!='NAN' else []),f'r = {a};']
-        if label=='NAN':lines += ['goto <minmaxdone>;','<nan_result>','r = 0x7fffffff;']
+                  f'r = {aa} | {cc};',f'goto {selected};',
+                  '<maxzero>',f'r = {aa} & {cc};',f'goto {selected};',
+                  '<compare>',f'if (({aa} f< {cc}) != {predicate}) goto {selected};',
+                  *(['<choosea>'] if label!='NAN' else []),f'r = {aa};']
+        if label=='NAN':lines += [f'goto {selected};','<nan_result>','r = 0x7fffffff;']
+        if use_xor:
+            lines += ['<fmnmx_select_done>',f'if (nan(r)) goto <minmaxdone>;',
+                      f'r = (r & 0x7fffffff) | {xor_sign};']
         lines += ['<minmaxdone>','export r;']
-        cases[(value,) if has_nan_selector else ()]= '\n'.join(lines)
-    table=b.select_code(('nan',) if has_nan_selector else (),cases)
+        key=()
+        if has_xorsign_selector:key+=(xorvalue,)
+        if has_nan_selector:key+=(value,)
+        cases[key]='\n'.join(lines)
+    selectors=tuple(n for n,present in (('xorsign',has_xorsign_selector),('nan',has_nan_selector)) if present)
+    table=b.select_code(selectors,cases)
     b.body.append(f'{output(b).symbol} = {table};')
 
 
@@ -1042,23 +1284,53 @@ def emit_FMNMX3(b,check=False):
     names=float_shape(b,'Ra/Sa','Rb/Sb/URb','Rc/Sc/URc')
     p=operands(b,'Pp')[0]
     if check:return bool(names and p) and set(b.outputs)=={'Rd'}
-    # CuLifter's implementation uses ordered comparisons and a two-step
-    # select. Keep FTZ/NAN selectors opaque until their behavior is verified.
-    require(b,'ftz',['noftz'])
-    require(b,'nan',['nonan'])
-    require(b,'Pp',['PT'])
     _,_,(a,c,d)=float_inputs(b,names)
     pred=b.flag(p)
-    first=b.local(4,a)
-    second=b.local(4,'0')
-    third=b.local(4,'0')
-    choose_c=f'(({pred} != 0 && {first.symbol} f> {c}) || ({pred} == 0 && {first.symbol} f< {c}))'
-    choose_d=f'(({pred} != 0 && {second.symbol} f> {d}) || ({pred} == 0 && {second.symbol} f< {d}))'
-    b.body += [f'if {choose_c} goto <take_c>; {second.symbol} = {first.symbol}; goto <first_done>;',
-               '<take_c>',f'{second.symbol} = {c};','<first_done>',
-               f'if {choose_d} goto <take_d>; {third.symbol} = {second.symbol}; goto <second_done>;',
-               '<take_d>',f'{third.symbol} = {d};','<second_done>',
-               f'{output(b).symbol} = {third.symbol};']
+    nan_modes=enum_cases(b,'nan',['nonan','NAN'])
+    if fpops.readable(b):
+        first=b.local(4,a);second=b.local(4,'0');third=b.local(4,'0')
+        choose_c=f'(({pred} != 0 && {first.symbol} f> {c}) || ({pred} == 0 && {first.symbol} f< {c}))'
+        choose_d=f'(({pred} != 0 && {second.symbol} f> {d}) || ({pred} == 0 && {second.symbol} f< {d}))'
+        b.body += [f'if {choose_c} goto <take_c>; {second.symbol} = {first.symbol}; goto <first_done>;',
+                   '<take_c>',f'{second.symbol} = {c};','<first_done>',
+                   f'if {choose_d} goto <take_d>; {third.symbol} = {second.symbol}; goto <second_done>;',
+                   '<take_d>',f'{third.symbol} = {d};','<second_done>',
+                   f'{output(b).symbol} = {third.symbol};']
+        return
+    has_nan='nan' in b.values
+    cases={}
+    for label,value in nan_modes.items():
+        first='m1';second='m2'
+        lines=['local m1:4 = 0;','local m2:4 = 0;']
+        if label=='NAN':
+            lines += [f'if (nan({a}) || nan({c}) || nan({d})) goto <fmnmx3_nan>;']
+        for left,right,target,tag in ((a,c,first,'ab'),(first,d,second,'abc')):
+            # PTX min/max's default NaN rule is numeric-wins. Equal zero
+            # operands choose -0 for min and +0 for max, independent of order.
+            lines += [f'if (nan({left})) goto <fmnmx3_{tag}_left_nan>;',
+                      f'if (nan({right})) goto <fmnmx3_{tag}_right_nan>;',
+                      f'if ((({left} | {right}) & 0x7fffffff) == 0) goto <fmnmx3_{tag}_zero>;',
+                      f'if (({pred} != 0 && {left} f> {right}) || ({pred} == 0 && {left} f< {right})) goto <fmnmx3_{tag}_right>;',
+                      f'{target} = {left}; goto <fmnmx3_{tag}_done>;',
+                      f'<fmnmx3_{tag}_right>',f'{target} = {right}; goto <fmnmx3_{tag}_done>;',
+                      f'<fmnmx3_{tag}_left_nan>',f'{target} = {right};',
+                      f'if (nan({right})) goto <fmnmx3_{tag}_both_nan>;',
+                      f'goto <fmnmx3_{tag}_done>;',
+                      f'<fmnmx3_{tag}_right_nan>',f'{target} = {left}; goto <fmnmx3_{tag}_done>;',
+                      f'<fmnmx3_{tag}_both_nan>',f'{target} = {left}; goto <fmnmx3_{tag}_done>;',
+                      f'<fmnmx3_{tag}_zero>',
+                      f'if ({pred} != 0) goto <fmnmx3_{tag}_min_zero>;',
+                      f'{target} = {left} & {right}; goto <fmnmx3_{tag}_done>;',
+                      f'<fmnmx3_{tag}_min_zero>',
+                      f'{target} = {left} | {right};',
+                      f'<fmnmx3_{tag}_done>']
+        lines += [f'goto <fmnmx3_export>;']
+        if label=='NAN':
+            lines += ['<fmnmx3_nan>',f'{second} = 0x7fffffff;']
+        lines += ['<fmnmx3_export>','local t:4 = '+second+'; export t;']
+        cases[(value,) if has_nan else ()]='\n'.join(lines)
+    table=b.select_code(('nan',) if has_nan else (),cases)
+    b.body.append(f'{output(b).symbol} = {table};')
 
 
 def emit_FSETP(b,check=False):
@@ -1082,12 +1354,8 @@ def emit_F2I(b,check=False):
     require(b,'srcfmt',['F32']);require(b,'dstfmt',['S32'])
     if not fpops.readable(b):require(b,'rnd',['TRUNC'])
     require(b,'ntz',['NTZ'])
-    # Keep absolute/negate source modifiers on the primitive path until their
-    # SASS interaction with NTZ is independently verified.
-    bits=b.values[src].symbol
-    for attr in ('absolute','negate'):
-        name=src+'@'+attr
-        if name in b.values:b.allow(name,lambda v:v==0)
+    # Apply the encoded source transforms in FORMAT order before converting.
+    bits=b.flag(src,float_value=True)
     sign=b.local(1,f'({bits} >> 31:4) != 0')
     exponent=b.local(4,f'(({bits} >> 23:4) & 0xff:4)')
     fraction=b.local(4,f'({bits} & 0x7fffff:4)')
@@ -1126,14 +1394,15 @@ def emit_F2FP(b,check=False):
     dst=output(b)
     tf32=b.k.name.startswith('f2fp_tf32__')
     if tf32:
-        src=operands(b,'Rb/URb')[0]
+        src=operands(b,'Rb/URb/Sb')[0]
         if check:
             return (src is not None and dst is not None and dst.size==4 and
-                    b.values[src].size==4 and b.values[src].kind=='register' and
+                    b.values[src].size==4 and b.values[src].kind!='runtime-primitive' and
                     all(n in b.values for n in ('dstfmt','srcfmt','merge','rndMode','relu')))
         require(b,'dstfmt',['TF32']);require(b,'srcfmt',['F32'])
         require(b,'merge',['PACK_B']);require(b,'rndMode',['RN','RZ'])
-        require(b,'relu',['norelu'])
+        require(b,'relu',['norelu','RELU'])
+        relu=b.values['relu'].symbol;relu_value=b.g.arch.enums[b.k.operand_types['relu'].type]['RELU']
         bits=b.values[src].symbol;rnd=b.values['rndMode'].symbol
         rz=b.g.arch.enums[b.k.operand_types['rndMode'].type]['RZ']
         result=b.local(4,'0')
@@ -1143,23 +1412,447 @@ def emit_F2FP(b,check=False):
             f'local rounded:4 = {bits} + 0xfff:4 + lsb;',
             f'{result.symbol} = rounded & 0xffffe000:4; goto <f2fp_tf32_done>;',
             '<f2fp_tf32_rz>',f'{result.symbol} = {bits} & 0xffffe000:4;',
-            '<f2fp_tf32_done>',f'{dst.symbol} = {result.symbol};']
+            '<f2fp_tf32_done>',
+            f'if ({relu} != {relu_value}:4) goto <f2fp_tf32_output>;',
+            f'if (({result.symbol} & 0x7f800000:4) == 0x7f800000:4 && ({result.symbol} & 0x007fffff:4) != 0:4) goto <f2fp_tf32_nan>;',
+            f'if (({result.symbol} & 0x80000000:4) == 0:4) goto <f2fp_tf32_output>;',
+            f'{result.symbol} = 0:4; goto <f2fp_tf32_output>;',
+            '<f2fp_tf32_nan>',f'{result.symbol} = 0x7fffffff:4;',
+            '<f2fp_tf32_output>',f'{dst.symbol} = {result.symbol};']
+        return
+
+    fp4_f32=b.k.name.startswith('f2fp_f32_to_4b_downconvert__')
+    if fp4_f32:
+        a,source_b,carry=operands(b,'Ra/URa','Rb/URb/Sb','Rc/URc/Sc')
+        if check:
+            ok=(all((a,source_b,carry)) and dst is not None and dst.size==4 and
+                all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive'
+                    for n in (a,source_b,carry)) and
+                all(n in b.values for n in
+                    ('dstfmt','srcfmt','merge','rndMode','relu','satfinite')))
+            if not ok:b.unsupported_reason='FP4 F32 downconvert requires two materialized F32 inputs and a materialized merge source'
+            return ok
+        require(b,'dstfmt',['E2M1','E0M3']);require(b,'srcfmt',['F32'])
+        require(b,'merge',['PACK_AB_MERGE_C']);require(b,'rndMode',['RN'])
+        require(b,'satfinite',['SATFINITE']);require(b,'relu',['norelu','RELU'])
+        enum=b.g.arch.enums[b.k.operand_types['dstfmt'].type]
+        e2m1=enum['E2M1'];e0m3=enum['E0M3']
+        relu=b.values['relu'].symbol
+        relu_value=b.g.arch.enums[b.k.operand_types['relu'].type]['RELU']
+        thresholds={
+            e2m1:(0x3e800000,0x3f400000,0x3fa00000,0x3fe00000,
+                  0x40200000,0x40600000,0x40a00000),
+            e0m3:(0x3f000000,0x3fc00000,0x40200000,0x40600000,
+                 0x40900000,0x40b00000,0x40d00000)}
+
+        def convert_f32(src,prefix):
+            bits=b.flag(src,float_value=True)
+            sign=b.local(1,f'({bits} >> 31:4) != 0')
+            mag=b.local(4,f'{bits} & 0x7fffffff:4')
+            exp=b.local(4,f'({bits} >> 23:4) & 0xff:4')
+            frac=b.local(4,f'{bits} & 0x7fffff:4')
+            nan=b.local(1,f'({exp.symbol} == 0xff:4) && ({frac.symbol} != 0:4)')
+            code=b.local(4,'7:4')
+            b.body += [f'if ({exp.symbol} != 0xff:4) goto <{prefix}_finite>;',
+                f'goto <{prefix}_special>;',f'<{prefix}_finite>',
+                f'if ({b.values["dstfmt"].symbol} == {e2m1}:4) goto <{prefix}_e2m1>;',
+                f'goto <{prefix}_e0m3>;',f'<{prefix}_e2m1>']
+            for fmt,label in ((e2m1,'e2m1'),(e0m3,'e0m3')):
+                if label=='e0m3':b.body.append(f'<{prefix}_e0m3>')
+                for idx,threshold in enumerate(thresholds[fmt],start=1):
+                    next_label=f'{prefix}_{label}_{idx}'
+                    op='>' if idx%2 else '>='
+                    b.body += [f'if ({mag.symbol} {op} 0x{threshold:08x}:4) goto <{next_label}>;',
+                        f'{code.symbol} = {idx-1}:4; goto <{prefix}_relu>;',
+                        f'<{next_label}>']
+                b.body.append(f'{code.symbol} = 7:4; goto <{prefix}_relu>;')
+            b.body += [f'<{prefix}_special>',f'goto <{prefix}_relu>;',
+                f'<{prefix}_relu>',
+                f'if ({relu} != {relu_value}:4) goto <{prefix}_sign>;',
+                f'if ({sign.symbol} == 0:1) goto <{prefix}_sign>;',
+                f'{code.symbol} = 0:4; goto <{prefix}_finish>;',
+                f'<{prefix}_sign>',
+                f'if ({sign.symbol} == 0:1) goto <{prefix}_finish>;',
+                f'if ({nan.symbol} != 0:1) goto <{prefix}_finish>;',
+                f'{code.symbol} = {code.symbol} | 8:4;',f'<{prefix}_finish>']
+            return code
+
+        av=convert_f32(a,'f2fp4_f32_a')
+        bv=convert_f32(source_b,'f2fp4_f32_b')
+        cv=b.values[carry].symbol
+        b.body.append(f'{dst.symbol} = ({cv} & 0xffffff00:4) | ({av.symbol} << 4:4) | {bv.symbol};')
+        return
+
+    fp4_down=b.k.name.startswith('f2fp_f16_to_4b_downconvert__')
+    if fp4_down:
+        src_b=operands(b,'Rb/URb/Sb')[0]
+        src_c=operands(b,'Rc/URc/Sc')[0]
+        if check:
+            ok=(src_b is not None and src_c is not None and dst is not None and
+                dst.size==4 and all(b.values[n].size==4 and
+                    b.values[n].kind!='runtime-primitive' for n in (src_b,src_c)) and
+                all(n in b.values for n in
+                    ('dstfmt','srcfmt','merge','rndMode','relu','satfinite')))
+            if not ok:b.unsupported_reason='FP4 downconvert requires two materialized 32-bit sources'
+            return ok
+        require(b,'dstfmt',['E2M1','E0M3']);require(b,'srcfmt',['F16','BF16'])
+        require(b,'merge',['UNPACK_B_MERGE_C']);require(b,'rndMode',['RN'])
+        require(b,'satfinite',['SATFINITE']);require(b,'relu',['norelu','RELU'])
+        sf=b.flag('srcfmt');relu=b.flag('relu');df=b.flag('dstfmt')
+        f16=b.g.arch.enums[b.k.operand_types['srcfmt'].type]['F16']
+        e2m1=b.g.arch.enums[b.k.operand_types['dstfmt'].type]['E2M1']
+        e0m3=b.g.arch.enums[b.k.operand_types['dstfmt'].type]['E0M3']
+        f16_thresholds=(0x3400,0x3a00,0x3d00,0x3f00,0x4100,0x4300,0x4500,0x7c00)
+        bf16_thresholds=(0x3e80,0x3f40,0x3fa0,0x3fe0,0x4020,0x4060,0x40a0,0x7f80)
+        e0m3_f16_thresholds=(0x3800,0x3e00,0x4100,0x4300,0x4480,0x4580,0x4680,0x7c00)
+        e0m3_bf16_thresholds=(0x3f00,0x3fc0,0x4020,0x4060,0x4090,0x40b0,0x40d0,0x7f80)
+
+        def convert_half(src,half_lane,prefix):
+            raw=b.local(4,f'({src} >> {half_lane*16}:4) & 0xffff:4')
+            sign=b.local(4,f'({raw.symbol} >> 12:4) & 8:4')
+            mag=b.local(4,f'{raw.symbol} & 0x7fff:4')
+            packed=b.local(4,'0')
+            done=f'{prefix}_done'
+            b.body += [f'if ({df} == {e0m3}:4) goto <{prefix}_e0m3>;',
+                f'goto <{prefix}_e2m1>;',f'<{prefix}_e0m3>',
+                f'if ({sf} == {f16}:4) goto <{prefix}_e0m3_f16>;',
+                f'goto <{prefix}_e0m3_bf16>;']
+            for label,thresholds in (('bf16',e0m3_bf16_thresholds),
+                                     ('f16',e0m3_f16_thresholds)):
+                b.body.append(f'<{prefix}_e0m3_{label}>')
+                inf=thresholds[-1]
+                b.body += [f'if ({mag.symbol} > {inf}:4) goto <{prefix}_nan>;',
+                    f'if ({mag.symbol} >= {inf}:4) goto <{prefix}_overflow>;']
+                for idx,(threshold,operator) in enumerate(zip(
+                        thresholds[:7],('>','>=','>','>=','>','>=','>')),start=1):
+                    next_label=f'{prefix}_e0m3_{label}_m{idx}'
+                    b.body += [f'if ({mag.symbol} {operator} {threshold}:4) goto <{next_label}>;',
+                        f'{packed.symbol} = ({sign.symbol} | {idx-1}:4); goto <{done}>;',
+                        f'<{next_label}>']
+                b.body += [f'{packed.symbol} = ({sign.symbol} | 7:4);',
+                    f'goto <{done}>;']
+            b.body += [f'goto <{done}>;',f'<{prefix}_e2m1>',
+                f'if ({sf} == {f16}:4) goto <{prefix}_f16>;',
+                f'goto <{prefix}_bf16>;']
+            for fmt,label,thresholds in (
+                    ('bf16','bf16',bf16_thresholds),('f16','f16',f16_thresholds)):
+                b.body.append(f'<{prefix}_{label}>')
+                inf=thresholds[-1]
+                b.body += [f'if ({mag.symbol} > {inf}:4) goto <{prefix}_nan>;',
+                    f'if ({mag.symbol} >= {inf}:4) goto <{prefix}_overflow>;']
+                # Round to nearest even between E2M1 values 0,.5,1,1.5,2,3,4,6.
+                # The comparison polarity at each midpoint selects the even
+                # target encoding on exact ties.
+                for idx,(threshold,operator) in enumerate(zip(
+                        thresholds[:7],('>','>=','>','>=','>','>=','>')),start=1):
+                    next_label=f'{prefix}_{label}_m{idx}'
+                    b.body += [f'if ({mag.symbol} {operator} {threshold}:4) goto <{next_label}>;',
+                        f'{packed.symbol} = ({sign.symbol} | {idx-1}:4); goto <{done}>;',
+                        f'<{next_label}>']
+                b.body += [f'{packed.symbol} = ({sign.symbol} | 7:4);',
+                    f'goto <{done}>;']
+            b.body += [f'<{prefix}_overflow>',f'{packed.symbol} = ({sign.symbol} | 7:4);',
+                f'goto <{done}>;',f'<{prefix}_nan>',f'{packed.symbol} = 7:4;',
+                f'goto <{done}>;',f'<{done}>',
+                f'if ({relu} == {b.g.arch.enums[b.k.operand_types["relu"].type]["RELU"]}:4 && ({packed.symbol} & 8:4) != 0:4) goto <{prefix}_relu>;',
+                f'goto <{prefix}_keep>;',f'<{prefix}_relu>',
+                f'{packed.symbol} = 0:4;',f'<{prefix}_keep>']
+            return packed
+
+        packed=[]
+        for operand,src in enumerate((src_b,src_c)):
+            for half_lane in range(2):
+                packed.append(convert_half(b.flag(src),half_lane,
+                    f'f2fp4_{operand}_{half_lane}'))
+        b.body.append(f'{dst.symbol} = ({packed[3].symbol} << 12:4) | ({packed[2].symbol} << 8:4) | ({packed[1].symbol} << 4:4) | {packed[0].symbol};')
+        return
+
+    unpack_e8=b.k.name.startswith('f2fp_E8_upconvert__')
+    if unpack_e8:
+        src=operands(b,'Rb/URb/Sb')[0]
+        if check:
+            return (src is not None and dst is not None and dst.size==4 and
+                b.values[src].size==4 and b.values[src].kind!='runtime-primitive' and
+                all(n in b.values for n in ('dstfmt','srcfmt','merge','rndMode','extract_B')))
+        require(b,'dstfmt',['BF16']);require(b,'srcfmt',['E8'])
+        require(b,'merge',['UNPACK_B']);require(b,'rndMode',['RN'])
+        require(b,'extract_B',['H0','H1'])
+        source=b.flag(src);extract=b.flag('extract_B')
+        h1=b.g.arch.enums[b.k.operand_types['extract_B'].type]['H1']
+        selected=b.local(4,'0')
+        b.body += [f'if ({extract} == {h1}:4) goto <f2fp_e8_h1>;',
+            f'{selected.symbol} = {source} & 0xffff:4; goto <f2fp_e8_decode>;',
+            '<f2fp_e8_h1>',
+            f'{selected.symbol} = ({source} >> 16:4) & 0xffff:4;',
+            '<f2fp_e8_decode>']
+        lanes=[]
+        for lane in range(2):
+            byte=b.local(4,f'({selected.symbol} >> {lane*8}:4) & 0xff:4')
+            value=b.local(4,f'{byte.symbol} << 7:4')
+            b.body += [f'if ({byte.symbol} != 0xff:4) goto <f2fp_e8_not_nan_{lane}>;',
+                f'{value.symbol} = 0x7fff:4; goto <f2fp_e8_done_{lane}>;',
+                f'<f2fp_e8_not_nan_{lane}>',
+                f'if ({byte.symbol} != 0:4) goto <f2fp_e8_done_{lane}>;',
+                f'{value.symbol} = 0x40:4;',f'<f2fp_e8_done_{lane}>']
+            lanes.append(value)
+        b.body.append(f'{dst.symbol} = (({lanes[1].symbol} & 0xffff:4) << 16:4) | ({lanes[0].symbol} & 0xffff:4);')
+        return
+
+    unpack4_scale=b.k.name.startswith('f2fp_4b_upconvert_scale__')
+    if unpack4_scale:
+        src=operands(b,'Rb/URb/Sb')[0]
+        scale_src=operands(b,'Rc/URc/Sc')[0]
+        if check:
+            return (src is not None and scale_src is not None and dst is not None and
+                dst.size==4 and all(b.values[n].size==4 and
+                    b.values[n].kind!='runtime-primitive' for n in (src,scale_src)) and
+                all(n in b.values for n in
+                    ('dstfmt','srcfmt','merge','rndMode','relu','satfinite','selB')))
+        require(b,'dstfmt',['BF16']);require(b,'srcfmt',['E2M1','E0M3'])
+        require(b,'merge',['UNPACK_B']);require(b,'rndMode',['RN'])
+        require(b,'relu',['norelu','RELU']);require(b,'satfinite',['SATFINITE'])
+        require(b,'selB',['B0','B1','B2','B3'])
+        source=b.flag(src);scale_word=b.flag(scale_src)
+        selector=b.flag('selB');relu=b.flag('relu');srcfmt=b.flag('srcfmt')
+        formats=b.g.arch.enums[b.k.operand_types['srcfmt'].type]
+        e2m1=formats['E2M1'];e0m3=formats['E0M3']
+        relu_value=b.g.arch.enums[b.k.operand_types['relu'].type]['RELU']
+        packed=b.local(4,f'({source} >> ({selector} * 8:4)) & 0xff:4')
+        outputs=[]
+        for lane in range(2):
+            prefix=f'f2fp4scale_{lane}'
+            nibble=b.local(4,f'({packed.symbol} >> {lane*4}:4) & 0xf:4')
+            value=b.local(4,'0')
+            scale_byte=b.local(4,f'({scale_word} >> {lane*8}:4) & 0xff:4')
+            scale_bits=b.local(4,'0')
+            scaled=b.local(4,'0')
+            result=b.local(4,'0')
+            b.body += [f'if ({srcfmt} == {e2m1}:4) goto <{prefix}_e2m1>;',
+                f'local {prefix}_mag:4 = {nibble.symbol} & 7:4;']
+            for magnitude,bits in enumerate((0,0x3f800000,0x40000000,0x40400000,
+                                              0x40800000,0x40a00000,0x40c00000,0x40e00000)):
+                b.body += [f'if ({prefix}_mag != {magnitude}:4) goto <{prefix}_e0m3_{magnitude}>;',
+                    f'{value.symbol} = 0x{bits:08x}:4 + (({nibble.symbol} & 8:4) << 28:4); goto <{prefix}_value_ready>;',
+                    f'<{prefix}_e0m3_{magnitude}>']
+            b.body += [f'goto <{prefix}_value_ready>;',f'<{prefix}_e2m1>',
+                f'local {prefix}_e2m1_mag:4 = {nibble.symbol} & 7:4;']
+            for magnitude,bits in enumerate((0,0x3f000000,0x3f800000,0x3fc00000,
+                                              0x40000000,0x40400000,0x40800000,0x40c00000)):
+                b.body += [f'if ({prefix}_e2m1_mag != {magnitude}:4) goto <{prefix}_e2m1_{magnitude}>;',
+                    f'{value.symbol} = 0x{bits:08x}:4 + (({nibble.symbol} & 8:4) << 28:4); goto <{prefix}_value_ready>;',
+                    f'<{prefix}_e2m1_{magnitude}>']
+            b.body += [f'<{prefix}_value_ready>',
+                f'if ({scale_byte.symbol} != 0:4) goto <{prefix}_scale_nonzero>;',
+                f'{scale_bits.symbol} = 0x00400000:4; goto <{prefix}_scale_ready>;',
+                f'<{prefix}_scale_nonzero>',
+                f'if ({scale_byte.symbol} != 0xff:4) goto <{prefix}_scale_finite>;',
+                f'{scale_bits.symbol} = 0x7fc00000:4; goto <{prefix}_scale_ready>;',
+                f'<{prefix}_scale_finite>',f'{scale_bits.symbol} = {scale_byte.symbol} << 23:4;',
+                f'<{prefix}_scale_ready>',
+                f'{scaled.symbol} = {value.symbol} f* {scale_bits.symbol};',
+                f'if (({scaled.symbol} & 0x7f800000:4) != 0x7f800000:4 || ({scaled.symbol} & 0x007fffff:4) == 0:4) goto <{prefix}_round>;',
+                f'{result.symbol} = 0x7fff:4; goto <{prefix}_done>;',
+                f'<{prefix}_round>',
+                f'{result.symbol} = ({scaled.symbol} + 0x7fff:4 + (({scaled.symbol} >> 16:4) & 1:4)) >> 16:4;',
+                f'if ({b.flag("satfinite")} != {b.g.arch.enums[b.k.operand_types["satfinite"].type]["SATFINITE"]}:4) goto <{prefix}_relu>;',
+                f'if (({result.symbol} & 0x7fff:4) != 0x7f80:4) goto <{prefix}_relu>;',
+                f'{result.symbol} = ({result.symbol} & 0x8000:4) + 0x7f7f:4;',
+                f'<{prefix}_relu>',
+                f'if ({relu} != {relu_value}:4) goto <{prefix}_done>;',
+                f'if (({result.symbol} & 0x8000:4) == 0:4) goto <{prefix}_done>;',
+                f'if (({result.symbol} & 0x7f80:4) == 0x7f80:4 && ({result.symbol} & 0x007f:4) != 0:4) goto <{prefix}_done>;',
+                f'{result.symbol} = 0:4;',f'<{prefix}_done>']
+            outputs.append(result)
+        b.body.append(f'{dst.symbol} = (({outputs[1].symbol} & 0xffff:4) << 16:4) + ({outputs[0].symbol} & 0xffff:4);')
+        return
+
+    unpack8_scale=b.k.name.startswith('f2fp_8b_upconvert_scale__')
+    if unpack8_scale:
+        src=operands(b,'Rb/URb/Sb')[0]
+        scale_src=operands(b,'Rc/URc/Sc')[0]
+        if check:
+            return (src is not None and scale_src is not None and dst is not None and
+                dst.size==4 and all(b.values[n].size==4 and
+                    b.values[n].kind!='runtime-primitive' for n in (src,scale_src)) and
+                all(n in b.values for n in
+                    ('dstfmt','srcfmt','merge','rndMode','relu','satfinite','extract_B')))
+        require(b,'dstfmt',['BF16']);require(b,'merge',['UNPACK_B'])
+        require(b,'rndMode',['RN']);require(b,'relu',['norelu','RELU'])
+        require(b,'satfinite',['nosatfinite','SATFINITE']);require(b,'extract_B',['H0','H1'])
+        require(b,'srcfmt',['E5M2','E4M3','E2M3','E3M2','E3M4','S2_6'])
+        source=b.flag(src);scale_word=b.flag(scale_src)
+        extract=b.flag('extract_B');relu=b.flag('relu');satfinite=b.flag('satfinite')
+        srcfmt=b.flag('srcfmt')
+        formats=b.g.arch.enums[b.k.operand_types['srcfmt'].type]
+        h1=b.g.arch.enums[b.k.operand_types['extract_B'].type]['H1']
+        relu_value=b.g.arch.enums[b.k.operand_types['relu'].type]['RELU']
+        satfinite_value=b.g.arch.enums[b.k.operand_types['satfinite'].type]['SATFINITE']
+        selected=b.local(4,'0');selected_scale=b.local(4,'0')
+        b.body += [f'if ({extract} == {h1}:4) goto <f2fp8scale_h1>;',
+            f'{selected.symbol} = {source} & 0xffff:4;',
+            f'{selected_scale.symbol} = {scale_word} & 0xffff:4; goto <f2fp8scale_selected>;',
+            '<f2fp8scale_h1>',
+            f'{selected.symbol} = ({source} >> 16:4) & 0xffff:4;',
+            f'{selected_scale.symbol} = ({scale_word} >> 16:4) & 0xffff:4;',
+            '<f2fp8scale_selected>']
+
+        def decode_source(byte,prefix):
+            value=b.local(4,'0')
+            descriptors=(
+                ('E5M2',7,5,2,15,31,0),
+                ('E4M3',7,4,3,7,15,7),
+                ('E3M4',7,3,4,3,7,15),
+                ('E2M3',5,2,3,1,None,None),
+                ('E3M2',5,3,2,3,None,None),
+            )
+            dispatch=[];code=[]
+            for name,signbit,ebits,mbits,bias,special_exp,special_mant in descriptors:
+                if name not in formats:continue
+                fmtval=formats[name];label=f'{prefix}_{name.lower()}'
+                sign=b.local(4,f'({byte.symbol} & {1<<signbit}:4) << {31-signbit}:4')
+                exp=b.local(4,f'({byte.symbol} >> {mbits}:4) & {(1<<ebits)-1}:4')
+                mant=b.local(4,f'{byte.symbol} & {(1<<mbits)-1}:4')
+                dispatch.append(f'if ({srcfmt} == {fmtval}:4) goto <{label}>;')
+                code.append(f'<{label}>')
+                if name=='E5M2':
+                    code += [f'if ({exp.symbol} != 31:4) goto <{label}_finite>;',
+                        f'if ({mant.symbol} != 0:4) goto <{label}_nan>;',
+                        f'{value.symbol} = {sign.symbol} | 0x7f800000:4; goto <{prefix}_decoded>;',
+                        f'<{label}_nan>',f'{value.symbol} = 0x7fc00000:4; goto <{prefix}_decoded>;',
+                        f'<{label}_finite>']
+                elif special_exp is not None:
+                    code += [f'if ({exp.symbol} != {special_exp}:4) goto <{label}_finite>;',
+                        f'if ({mant.symbol} != {special_mant}:4) goto <{label}_finite>;',
+                        f'{value.symbol} = 0x7fc00000:4; goto <{prefix}_decoded>;',
+                        f'<{label}_finite>']
+                code += [
+                    f'if ({exp.symbol} != 0:4) goto <{label}_normal>;',
+                    f'if ({mant.symbol} == 0:4) goto <{label}_zero>;']
+                for top in range(mbits-1,-1,-1):
+                    code.append(f'if ({mant.symbol} >= {1<<top}:4) goto <{label}_sub{top}>;')
+                for top in range(mbits-1,-1,-1):
+                    unbiased=1-bias-mbits+top
+                    code += [f'<{label}_sub{top}>',
+                        f'{value.symbol} = {sign.symbol} | ({unbiased+127}:4 << 23:4) | '
+                        f'(({mant.symbol} - {1<<top}:4) << {23-top}:4);',
+                        f'goto <{prefix}_decoded>;']
+                code += [f'<{label}_normal>',
+                    f'{value.symbol} = {sign.symbol} | '
+                    f'(({exp.symbol} - {bias}:4 + 127:4) << 23:4) | '
+                    f'({mant.symbol} << {23-mbits}:4);',
+                    f'goto <{prefix}_decoded>;',
+                    f'<{label}_zero>',f'{value.symbol} = {sign.symbol};',
+                    f'goto <{prefix}_decoded>;']
+
+            s2f6=formats.get('S2_6')
+            if s2f6 is not None:
+                dispatch.append(f'if ({srcfmt} == {s2f6}:4) goto <{prefix}_s2_6>;')
+                signed=b.local(4,f'sext({byte.symbol}:1)')
+                code += [f'<{prefix}_s2_6>',
+                    f'{value.symbol} = int2float({signed.symbol}) f* 0x3c800000:4;',
+                    f'goto <{prefix}_decoded>;']
+            b.body += [*dispatch,*code,f'<{prefix}_decoded>']
+            return value
+
+        outputs=[]
+        for lane in range(2):
+            prefix=f'f2fp8scale_{lane}'
+            byte=b.local(4,f'({selected.symbol} >> {lane*8}:4) & 0xff:4')
+            scale_byte=b.local(4,f'({selected_scale.symbol} >> {lane*8}:4) & 0xff:4')
+            value=decode_source(byte,prefix)
+            scale_bits=b.local(4,'0');scaled=b.local(4,'0');result=b.local(4,'0')
+            b.body += [f'if ({scale_byte.symbol} != 0:4) goto <{prefix}_scale_nonzero>;',
+                f'{scale_bits.symbol} = 0x00400000:4; goto <{prefix}_scale_ready>;',
+                f'<{prefix}_scale_nonzero>',
+                f'if ({scale_byte.symbol} != 0xff:4) goto <{prefix}_scale_finite>;',
+                f'{scale_bits.symbol} = 0x7fc00000:4; goto <{prefix}_scale_ready>;',
+                f'<{prefix}_scale_finite>',
+                f'{scale_bits.symbol} = {scale_byte.symbol} << 23:4;',
+                f'<{prefix}_scale_ready>',
+                f'{scaled.symbol} = {value.symbol} f* {scale_bits.symbol};',
+                f'if (({scaled.symbol} & 0x7f800000:4) != 0x7f800000:4 || '
+                f'({scaled.symbol} & 0x007fffff:4) == 0:4) goto <{prefix}_round>;',
+                f'{result.symbol} = 0x7fff:4; goto <{prefix}_done>;',
+                f'<{prefix}_round>',
+                f'{result.symbol} = ({scaled.symbol} + 0x7fff:4 + '
+                f'(({scaled.symbol} >> 16:4) & 1:4)) >> 16:4;',
+                f'if ({satfinite} != {satfinite_value}:4) goto <{prefix}_relu>;',
+                f'if (({result.symbol} & 0x7fff:4) != 0x7f80:4) goto <{prefix}_relu>;',
+                f'{result.symbol} = ({result.symbol} & 0x8000:4) | 0x7f7f:4;',
+                f'<{prefix}_relu>',
+                f'if ({relu} != {relu_value}:4) goto <{prefix}_done>;',
+                f'if (({result.symbol} & 0x8000:4) == 0:4) goto <{prefix}_done>;',
+                f'if (({result.symbol} & 0x7f80:4) == 0x7f80:4 && '
+                f'({result.symbol} & 0x007f:4) != 0:4) goto <{prefix}_done>;',
+                f'{result.symbol} = 0:4;',f'<{prefix}_done>']
+            outputs.append(result)
+        b.body.append(f'{dst.symbol} = (({outputs[1].symbol} & 0xffff:4) << 16:4) | '
+                      f'({outputs[0].symbol} & 0xffff:4);')
+        return
+
+    unpack4=b.k.name.startswith('f2fp_4b_upconvert__')
+    if unpack4:
+        src=operands(b,'Rb/URb/Sb')[0]
+        if check:
+            return (src is not None and dst is not None and dst.size==4 and
+                b.values[src].size==4 and b.values[src].kind!='runtime-primitive' and
+                all(n in b.values for n in ('dstfmt','srcfmt','merge','rndMode','relu','selB')))
+        require(b,'dstfmt',['F16']);require(b,'srcfmt',['E2M1','E0M3'])
+        require(b,'merge',['UNPACK_B']);require(b,'rndMode',['RN'])
+        require(b,'relu',['norelu','RELU']);require(b,'selB',['B0','B1','B2','B3'])
+        source=b.flag(src);selector=b.flag('selB');relu=b.flag('relu')
+        srcfmt=b.flag('srcfmt')
+        e2m1=b.g.arch.enums[b.k.operand_types['srcfmt'].type]['E2M1']
+        e0m3=b.g.arch.enums[b.k.operand_types['srcfmt'].type]['E0M3']
+        relu_value=b.g.arch.enums[b.k.operand_types['relu'].type]['RELU']
+        packed=b.local(4,f'({source} >> ({selector} * 8:4)) & 0xff:4')
+        results=[]
+        for lane in range(2):
+            nibble=b.local(4,f'({packed.symbol} >> {lane*4}:4) & 0xf:4')
+            sign=b.local(4,f'({nibble.symbol} & 8:4) << 12:4')
+            exponent=b.local(4,f'({nibble.symbol} >> 1:4) & 3:4')
+            mantissa=b.local(4,f'{nibble.symbol} & 1:4')
+            half=b.local(4,'0')
+            b.body += [f'if ({srcfmt} == {e2m1}:4) goto <f2fp4_e2m1_{lane}>;',
+                f'local e0m3_mag_{lane}:4 = {nibble.symbol} & 7:4;']
+            for magnitude,half_bits in enumerate((0,0x3c00,0x4000,0x4200,
+                                                   0x4400,0x4500,0x4600,0x4700)):
+                b.body += [f'if (e0m3_mag_{lane} != {magnitude}:4) goto <f2fp4_e0m3_{lane}_{magnitude}>;',
+                    f'{half.symbol} = {sign.symbol} | 0x{half_bits:04x}:4; goto <f2fp4_relu_{lane}>;',
+                    f'<f2fp4_e0m3_{lane}_{magnitude}>']
+            b.body += [f'goto <f2fp4_relu_{lane}>;',f'<f2fp4_e2m1_{lane}>',
+                f'if ({exponent.symbol} != 0:4) goto <f2fp4_normal_{lane}>;',
+                f'if ({mantissa.symbol} == 0:4) goto <f2fp4_zero_{lane}>;',
+                f'{half.symbol} = {sign.symbol} | 0x3800:4; goto <f2fp4_relu_{lane}>;',
+                f'<f2fp4_zero_{lane}>',f'{half.symbol} = {sign.symbol};',
+                f'goto <f2fp4_relu_{lane}>;',f'<f2fp4_normal_{lane}>',
+                f'{half.symbol} = {sign.symbol} | (({exponent.symbol} + 14:4) << 10:4) | ({mantissa.symbol} << 9:4);',
+                f'<f2fp4_relu_{lane}>',
+                f'if ({relu} != {relu_value}:4) goto <f2fp4_keep_{lane}>;',
+                f'if (({half.symbol} & 0x8000:4) == 0:4) goto <f2fp4_keep_{lane}>;',
+                f'{half.symbol} = 0:4;',f'<f2fp4_keep_{lane}>']
+            results.append(half)
+        b.body.append(f'{dst.symbol} = (({results[1].symbol} & 0xffff:4) << 16:4) | ({results[0].symbol} & 0xffff:4);')
         return
 
     unpack=b.k.name.startswith('f2fp_8b_upconvert__')
     if unpack:
-        src=operands(b,'Rb/URb')[0]
+        src=operands(b,'Rb/URb/Sb')[0]
         if check:
             return (src is not None and dst is not None and dst.size==4 and
-                b.values[src].size==4 and b.values[src].kind=='register' and
-                not any(x.type=='CX' for x in b.k.operand_types.values()) and
+                b.values[src].size==4 and b.values[src].kind!='runtime-primitive' and
                 all(n in b.values for n in ('dstfmt','srcfmt','merge','rndMode','relu','extract_B')))
-        require(b,'dstfmt',['F16']);require(b,'srcfmt',['E4M3','E5M2'])
+        require(b,'dstfmt',['F16'])
         require(b,'merge',['UNPACK_B']);require(b,'rndMode',['RN'])
-        require(b,'relu',['norelu']);require(b,'extract_B',['H0','H1'])
+        require(b,'relu',['norelu','RELU']);require(b,'extract_B',['H0','H1'])
+        relu_value=b.g.arch.enums[b.k.operand_types['relu'].type]['RELU']
+        relu=b.values['relu'].symbol
         srcfmt=b.values['srcfmt'].symbol
         formats=b.g.arch.enums[b.k.operand_types['srcfmt'].type]
         e4=formats['E4M3'];e5=formats['E5M2']
+        fp6_formats=[name for name in ('E2M3','E3M2') if name in formats]
+        e3m4=formats.get('E3M4')
+        require(b,'srcfmt',['E4M3','E5M2',*fp6_formats,*(['E3M4'] if e3m4 is not None else [])])
         extract=b.values['extract_B'].symbol
         h1=b.g.arch.enums[b.k.operand_types['extract_B'].type]['H1']
         packed=b.values[src].symbol
@@ -1176,7 +1869,61 @@ def emit_F2FP(b,check=False):
             mant=b.local(4,f'{byte.symbol} & 7:4')
             half_exp=b.local(4,'0');fraction=b.local(4,'0')
             magnitude=b.local(4,'0');result=b.local(4,'0')
-            b.body += [f'if ({srcfmt} == {e5}:4) goto <{prefix}_e5>;',
+            fp6_dispatch=[];fp6_code=[];e3m4_dispatch=[];e3m4_code=[]
+            if e3m4 is not None:
+                e3_exp=b.local(4,f'({byte.symbol} >> 4:4) & 7:4')
+                e3_mant=b.local(4,f'{byte.symbol} & 0xf:4')
+                e3m4_dispatch=[f'if ({srcfmt} == {e3m4}:4) goto <{prefix}_e3m4>;']
+                e3m4_code=[f'<{prefix}_e3m4>',
+                    f'if ({e3_exp.symbol} != 7:4) goto <{prefix}_e3m4_not_nan>;',
+                    f'if ({e3_mant.symbol} != 0xf:4) goto <{prefix}_e3m4_not_nan>;',
+                    f'{result.symbol} = 0x7fff:4; goto <{prefix}_finish>;',
+                    f'<{prefix}_e3m4_not_nan>',
+                    f'if ({e3_exp.symbol} != 0:4) goto <{prefix}_e3m4_normal>;',
+                    f'if ({e3_mant.symbol} == 0:4) goto <{prefix}_e3m4_zero>;',
+                    f'if ({e3_mant.symbol} >= 8:4) goto <{prefix}_e3m4_sub8>;',
+                    f'if ({e3_mant.symbol} >= 4:4) goto <{prefix}_e3m4_sub4>;',
+                    f'if ({e3_mant.symbol} >= 2:4) goto <{prefix}_e3m4_sub2>;',
+                    f'{result.symbol} = {sign.symbol} | (9:4 << 10:4); goto <{prefix}_finish>;',
+                    f'<{prefix}_e3m4_sub2>',
+                    f'{result.symbol} = {sign.symbol} | (10:4 << 10:4) | (({e3_mant.symbol} - 2:4) << 9:4); goto <{prefix}_finish>;',
+                    f'<{prefix}_e3m4_sub4>',
+                    f'{result.symbol} = {sign.symbol} | (11:4 << 10:4) | (({e3_mant.symbol} - 4:4) << 8:4); goto <{prefix}_finish>;',
+                    f'<{prefix}_e3m4_sub8>',
+                    f'{result.symbol} = {sign.symbol} | (12:4 << 10:4) | (({e3_mant.symbol} - 8:4) << 7:4); goto <{prefix}_finish>;',
+                    f'<{prefix}_e3m4_zero>',f'{result.symbol} = {sign.symbol}; goto <{prefix}_finish>;',
+                    f'<{prefix}_e3m4_normal>',
+                    f'{result.symbol} = {sign.symbol} | (({e3_exp.symbol} + 12:4) << 10:4) | ({e3_mant.symbol} << 6:4);',
+                    f'goto <{prefix}_finish>;']
+            for name,ebits,mbits,bias in (('E2M3',2,3,1),('E3M2',3,2,3)):
+                if name not in fp6_formats:continue
+                label=name.lower()
+                fields_exp=b.local(4,f'({byte.symbol} >> {mbits}:4) & {(1<<ebits)-1}:4')
+                fields_mant=b.local(4,f'{byte.symbol} & {(1<<mbits)-1}:4')
+                fields_sign=b.local(4,f'({byte.symbol} & 0x20:4) << 10:4')
+                fp6_dispatch += [f'if ({srcfmt} == {formats[name]}:4) goto <{prefix}_{label}>;']
+                fp6_code += [f'<{prefix}_{label}>',
+                    f'if ({fields_exp.symbol} != 0:4) goto <{prefix}_{label}_normal>;',
+                    f'if ({fields_mant.symbol} == 0:4) goto <{prefix}_{label}_zero>;']
+                for top in range(mbits-1,-1,-1):
+                    fp6_code += [f'if (({fields_mant.symbol} & {1<<top}:4) != 0:4) goto <{prefix}_{label}_sub{top}>;']
+                for top in range(mbits-1,-1,-1):
+                    half_e=15 + 1 - bias - mbits + top
+                    frac_shift=10-top
+                    fp6_code += [f'<{prefix}_{label}_sub{top}>',
+                        f'{result.symbol} = {fields_sign.symbol} | ({half_e}:4 << 10:4) | '
+                        f'(({fields_mant.symbol} & {(1<<top)-1}:4) << {frac_shift}:4);',
+                        f'goto <{prefix}_finish>;']
+                fp6_code += [f'<{prefix}_{label}_normal>',
+                    f'{result.symbol} = {fields_sign.symbol} | '
+                    f'(({fields_exp.symbol} - {bias}:4 + 15:4) << 10:4) | '
+                    '({} << {}:4);'.format(fields_mant.symbol,10-mbits),
+                    f'goto <{prefix}_finish>;',
+                    f'<{prefix}_{label}_zero>',
+                    f'{result.symbol} = {fields_sign.symbol};',
+                    f'goto <{prefix}_finish>;']
+            b.body += [*e3m4_dispatch,*fp6_dispatch,
+                f'if ({srcfmt} == {e5}:4) goto <{prefix}_e5>;',
                 f'if (({exp.symbol} == 0xf:4) && ({mant.symbol} == 7:4)) goto <{prefix}_nan>;',
                 f'if ({exp.symbol} != 0:4) goto <{prefix}_normal>;',
                 f'if ({mant.symbol} == 0:4) goto <{prefix}_zero>;',
@@ -1198,7 +1945,12 @@ def emit_F2FP(b,check=False):
                 f'if ((({byte.symbol} & 0x7c:4) == 0x7c:4) && (({byte.symbol} & 3:4) != 0:4)) goto <{prefix}_nan>;',
                 f'{magnitude.symbol} = ({byte.symbol} & 0x7f:4) << 8:4;',
                 f'<{prefix}_done>',f'{result.symbol} = {sign.symbol} | {magnitude.symbol};',
-                f'<{prefix}_finish>']
+                f'goto <{prefix}_finish>;',
+                *e3m4_code,*fp6_code,
+                f'<{prefix}_finish>',
+                f'if ({relu} != {relu_value}:4) goto <{prefix}_relu_done>;',
+                f'if (({result.symbol} & 0x8000:4) == 0:4) goto <{prefix}_relu_done>;',
+                f'{result.symbol} = 0:4;',f'<{prefix}_relu_done>']
             return result
 
         low=unpack_byte(0,'f2fp_unpack_lo')
@@ -1206,19 +1958,28 @@ def emit_F2FP(b,check=False):
         b.body += [f'{dst.symbol} = ({high.symbol} << 16:4) | {low.symbol};']
         return
 
-    fp8=b.k.name.startswith('f2fp_f32_to_8b_downconvert__')
-    if fp8:
-        a,c,carry=operands(b,'Ra/URa','Rb/URb','Rc/URc')
+    fp8_f32=b.k.name.startswith(('f2fp_f32_to_8b_downconvert__',
+                                 'uf2fp_f32_to_8b_downconvert__'))
+    fp8_f16=b.k.name.startswith(('f2fp_f16_to_8b_downconvert__',
+                                 'uf2fp_f16_to_8b_downconvert__'))
+    if fp8_f32 or fp8_f16:
+        if fp8_f32:
+            a,c,carry=operands(b,'Ra/URa','Rb/URb/Sb','Rc/URc/Sc')
+            sources=(a,c,carry)
+        else:
+            pair,carry=operands(b,'Rb/URb/Sb','Rc/URc/Sc')
+            sources=(pair,carry)
         if check:
-            return (all((a,c,carry)) and dst is not None and dst.size==4 and
-                all(b.values[n].size==4 and b.values[n].kind=='register'
-                    for n in (a,c,carry)) and
-                not any(x.type=='CX' for x in b.k.operand_types.values()) and
+            return (all(sources) and dst is not None and dst.size==4 and
+                all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive'
+                    for n in sources) and
                 all(n in b.values for n in ('dstfmt','srcfmt','merge','rndMode',
                                              'satfinite','relu','extract')))
-        require(b,'dstfmt',['E4M3','E5M2']);require(b,'srcfmt',['F32'])
-        require(b,'merge',['PACK_AB_MERGE_C']);require(b,'rndMode',['RN'])
-        require(b,'satfinite',['SATFINITE']);require(b,'relu',['norelu'])
+        require(b,'dstfmt',['E4M3','E5M2'])
+        require(b,'srcfmt',['F32'] if fp8_f32 else ['F16','BF16'])
+        require(b,'merge',['PACK_AB_MERGE_C'] if fp8_f32 else ['UNPACK_B_MERGE_C'])
+        require(b,'rndMode',['RN'])
+        require(b,'satfinite',['SATFINITE']);require(b,'relu',['norelu','RELU'])
         require(b,'extract',['H0','H1'])
         enum=b.g.arch.enums[b.k.operand_types['dstfmt'].type]
         e4=enum['E4M3'];e5=enum['E5M2']
@@ -1226,8 +1987,7 @@ def emit_F2FP(b,check=False):
         bias=b.select('dstfmt',{e4:'7:4',e5:'15:4'},4)
         maxfinite=b.select('dstfmt',{e4:'0x7e:4',e5:'0x7b:4'},4)
 
-        def convert(src,prefix):
-            bits=b.values[src].symbol
+        def convert(bits,prefix):
             sign=b.local(4,f'({bits} >> 24) & 0x80')
             exp=b.local(4,f'({bits} >> 23) & 0xff')
             frac=b.local(4,f'{bits} & 0x7fffff')
@@ -1265,10 +2025,34 @@ def emit_F2FP(b,check=False):
                 f'<{prefix}_nan>',f'{mag.symbol} = 0x7f:4; goto <{prefix}_result>;',
                 f'<{prefix}_tiny>',f'{mag.symbol} = 0:4;',
                 f'<{prefix}_result>',
-                f'{byte.symbol} = {sign.symbol} | {mag.symbol};']
+                f'{byte.symbol} = {sign.symbol} | {mag.symbol};',
+                f'if ({b.values["relu"].symbol} != {b.g.arch.enums[b.k.operand_types["relu"].type]["RELU"]}:4) goto <{prefix}_relu_done>;',
+                f'if ({nan.symbol} != 0:1) goto <{prefix}_relu_done>;',
+                f'if (({byte.symbol} & 0x80:4) == 0:4) goto <{prefix}_relu_done>;',
+                f'{byte.symbol} = 0:4;',f'<{prefix}_relu_done>']
             return byte
 
-        av=convert(a,'f2fp_fp8_a');bv=convert(c,'f2fp_fp8_b')
+        if fp8_f32:
+            av=convert(b.values[a].symbol,'f2fp_fp8_a')
+            bv=convert(b.values[c].symbol,'f2fp_fp8_b')
+        else:
+            packed=b.values[pair].symbol
+            lanes=[]
+            formats=b.g.arch.enums[b.k.operand_types['srcfmt'].type]
+            f16=formats.get('F16');bf16=formats.get('BF16')
+            for lane in range(2):
+                raw_word=b.expression(4,f'({packed} >> {lane*16}:4) & 0xffff:4')
+                raw=b.local(2,f'{raw_word.symbol}:2')
+                expanded=b.local(4,f'zext({raw.symbol}) << 16:4')
+                # The F16 operand is reinterpreted as a 16-bit float and widened;
+                # BF16 already has the same upper sixteen bits as F32.
+                f32bits=b.local(4,f'float2float({raw.symbol})')
+                src_cases={}
+                if f16 is not None:src_cases[f16]=f32bits.symbol
+                if bf16 is not None:src_cases[bf16]=expanded.symbol
+                bits=b.select('srcfmt',src_cases,4)
+                lanes.append(convert(bits,f'f2fp_fp8_half{lane}'))
+            av,bv=lanes
         cv=b.values[carry].symbol;extract=b.values['extract'].symbol
         h1=b.g.arch.enums[b.k.operand_types['extract'].type]['H1']
         carryhalf=b.local(4,'0')
@@ -1276,27 +2060,48 @@ def emit_F2FP(b,check=False):
             f'{carryhalf.symbol} = {cv} & 0xffff:4; goto <f2fp_fp8_pack>;',
             '<f2fp_fp8_h1>',f'{carryhalf.symbol} = ({cv} >> 16) & 0xffff;',
             '<f2fp_fp8_pack>',
-            f'{dst.symbol} = ({carryhalf.symbol} << 16) | ({av.symbol} << 8) | {bv.symbol};']
+            f'{dst.symbol} = ({carryhalf.symbol} << 16) | '
+            f'({bv.symbol if fp8_f16 else av.symbol} << 8) | '
+            f'{av.symbol if fp8_f16 else bv.symbol};']
         return
 
-    if not b.k.name.startswith('f2fp__'):return False
-    a,c=operands(b,'Ra/URa','Rb/URb')
+    merge_c=b.k.name.startswith('f2fp_merge_c__')
+    if not (merge_c or b.k.name.startswith('f2fp__')):return False
+    if merge_c:
+        a,c=operands(b,'Rb/URb/Sb','Rc/URc/Sc')
+    else:
+        a,c=operands(b,'Ra/URa','Rb/URb/Sb')
     if check:
         return (a is not None and c is not None and dst is not None and
                 dst.size==4 and all(b.values[n].size==4 and
-                b.values[n].kind=='register' for n in (a,c)) and
-                not any(x.type=='CX' for x in b.k.operand_types.values()) and
-                all(n in b.values for n in ('dstfmt','srcfmt','merge','rndMode','relu')))
-    require(b,'dstfmt',['F16','BF16'])
-    require(b,'srcfmt',['F32']);require(b,'merge',['PACK_AB'])
-    require(b,'rndMode',['RN','RZ']);require(b,'relu',['norelu'])
-    if 'satfinite' in b.values:require(b,'satfinite',['nosatfinite'])
+                b.values[n].kind!='runtime-primitive' for n in (a,c)) and
+                all(n in b.values for n in ('dstfmt','srcfmt','merge','rndMode','relu')) and
+                (not merge_c or 'extract' in b.values))
+    require(b,'dstfmt',['F16','BF16','E6M9'])
+    require(b,'srcfmt',['F32']);require(b,'merge',['MERGE_C' if merge_c else 'PACK_AB'])
+    require(b,'rndMode',['RN','RZ']);require(b,'relu',['norelu','RELU'])
+    if 'satfinite' in b.values:require(b,'satfinite',['nosatfinite','SATFINITE'])
     rnd=b.values['rndMode'].symbol;rz=b.g.arch.enums[b.k.operand_types['rndMode'].type]['RZ']
     fmt=b.values['dstfmt'].symbol;formats=b.g.arch.enums[b.k.operand_types['dstfmt'].type]
     bf16=formats.get('BF16')
+    e6m9=formats.get('E6M9')
+    relu=b.values['relu'].symbol
+    relu_value=b.g.arch.enums[b.k.operand_types['relu'].type]['RELU']
+    satfinite=b.values.get('satfinite')
+    satfinite_value=(b.g.arch.enums[b.k.operand_types['satfinite'].type]['SATFINITE']
+                     if satfinite else None)
 
     def convert(src,prefix):
         bits=b.values[src].symbol;out=b.local(4,'0')
+        if e6m9 is not None:
+            exp6=b.local(4,f'({bits} >> 23) & 0xff:4')
+            frac6=b.local(4,f'{bits} & 0x7fffff:4')
+            sign6=b.local(4,f'({bits} >> 16) & 0x8000:4')
+            e6=b.local(4,f'{exp6.symbol} - 127:4')
+            sig6=b.local(4,f'{frac6.symbol} | 0x800000:4')
+            q6=b.local(4,'0');rem6=b.local(4,'0');shift6=b.local(4,'0')
+        if e6m9 is not None:
+            b.body += [f'if ({fmt} == {e6m9}:4) goto <{prefix}_e6m9>;']
         if bf16 is not None:
             b.body += [f'if ({fmt} != {bf16}:4) goto <{prefix}_f16>;',
                 f'local {prefix}_exp:4 = ({bits} >> 23) & 0xff;',
@@ -1350,10 +2155,105 @@ def emit_F2FP(b,check=False):
             f'{out.symbol} = {sign.symbol} | 0x7c00:4; goto <{prefix}_done>;',
             f'<{prefix}_h_maxfinite>',f'{out.symbol} = {sign.symbol} | 0x7bff:4; goto <{prefix}_done>;',
             f'<{prefix}_h_zero>',f'{out.symbol} = {sign.symbol};',f'<{prefix}_done>']
+        if e6m9 is not None:
+            b.body += [f'goto <{prefix}_end>;',f'<{prefix}_e6m9>',
+                f'if ({exp6.symbol} == 0xff:4) goto <{prefix}_e6_special>;',
+                f'if ({exp6.symbol} == 0:4) goto <{prefix}_e6_zero>;',
+                f'if ({e6.symbol} s> 31:4) goto <{prefix}_e6_overflow>;',
+                f'if ({e6.symbol} s< -40:4) goto <{prefix}_e6_zero>;',
+                f'if ({e6.symbol} s>= -30:4) goto <{prefix}_e6_normal>;',
+                f'{shift6.symbol} = 0:4 - {e6.symbol} - 16:4;',
+                f'{q6.symbol} = {sig6.symbol} >> {shift6.symbol};',
+                f'{rem6.symbol} = {sig6.symbol} & ((1:4 << {shift6.symbol}) - 1:4);',
+                f'goto <{prefix}_e6_round>;',
+                f'<{prefix}_e6_normal>',f'{shift6.symbol} = 14:4;',
+                f'{q6.symbol} = {sig6.symbol} >> 14:4;',
+                f'{rem6.symbol} = {sig6.symbol} & 0x3fff:4;',
+                f'<{prefix}_e6_round>',
+                f'if ({rnd} == {rz}:4) goto <{prefix}_e6_pack>;',
+                f'if ({rem6.symbol} > (1:4 << ({shift6.symbol} - 1:4))) goto <{prefix}_e6_inc>;',
+                f'if ({rem6.symbol} < (1:4 << ({shift6.symbol} - 1:4))) goto <{prefix}_e6_pack>;',
+                f'if (({q6.symbol} & 1:4) == 0:4) goto <{prefix}_e6_pack>;',
+                f'<{prefix}_e6_inc>',f'{q6.symbol} = {q6.symbol} + 1:4;',
+                f'<{prefix}_e6_pack>',
+                f'if ({e6.symbol} s< -30:4) goto <{prefix}_e6_subnormal>;',
+                f'if ({q6.symbol} < 0x400:4) goto <{prefix}_e6_normal_pack>;',
+                f'{q6.symbol} = 0x200:4; {e6.symbol} = {e6.symbol} + 1:4;',
+                f'if ({e6.symbol} s> 31:4) goto <{prefix}_e6_overflow>;',
+                f'<{prefix}_e6_normal_pack>',
+                f'{out.symbol} = {sign6.symbol} | (({e6.symbol} + 31:4) << 9:4) | ({q6.symbol} & 0x1ff:4);',
+                f'goto <{prefix}_end>;',
+                f'<{prefix}_e6_subnormal>',
+                f'if ({q6.symbol} >= 0x200:4) goto <{prefix}_e6_min_normal>;',
+                f'{out.symbol} = {sign6.symbol} | {q6.symbol}; goto <{prefix}_end>;',
+                f'<{prefix}_e6_min_normal>',
+                f'{out.symbol} = {sign6.symbol} | 0x200:4; goto <{prefix}_end>;',
+                f'<{prefix}_e6_overflow>',
+                f'if ({rnd} == {rz}:4) goto <{prefix}_e6_maxfinite>;',
+                f'{out.symbol} = {sign6.symbol} | 0x7e00:4; goto <{prefix}_end>;',
+                f'<{prefix}_e6_maxfinite>',
+                f'{out.symbol} = {sign6.symbol} | 0x7dff:4; goto <{prefix}_end>;',
+                f'<{prefix}_e6_zero>',f'{out.symbol} = {sign6.symbol}; goto <{prefix}_end>;',
+                f'<{prefix}_e6_special>',
+                f'if ({frac6.symbol} != 0:4) goto <{prefix}_e6_nan>;',
+                f'{out.symbol} = {sign6.symbol} | 0x7e00:4; goto <{prefix}_end>;',
+                f'<{prefix}_e6_nan>',f'{out.symbol} = 0x7fff:4;',
+                f'<{prefix}_end>']
         return out
 
-    av=convert(a,'f2fp_a');bv=convert(c,'f2fp_b')
-    b.body += [f'{dst.symbol} = (({av.symbol} & 0xffff:4) << 16) | ({bv.symbol} & 0xffff:4);']
+    av=convert(a,'f2fp_a')
+    def postprocess(value,prefix):
+        # .SATFINITE maps infinities and overflow to signed MAX_NORM. .RELU
+        # clamps negative non-NaN outputs to +0; NaNs remain canonical.
+        done=f'{prefix}_mods_done'
+        if e6m9 is not None:
+            b.body += [f'if ({fmt} != {e6m9}:4) goto <{prefix}_not_e6m9>;',
+                f'if ({satfinite.symbol if satfinite else "0:4"} != {satfinite_value if satfinite else "0"}:4) goto <{prefix}_e6_relu>;',
+                f'if (({value.symbol} & 0x7fff:4) != 0x7e00:4) goto <{prefix}_e6_relu>;',
+                f'{value.symbol} = ({value.symbol} & 0x8000:4) | 0x7dff:4;',
+                f'<{prefix}_e6_relu>',
+                f'if ({relu} != {relu_value}:4) goto <{done}>;',
+                f'if (({value.symbol} & 0x8000:4) == 0:4) goto <{done}>;',
+                f'if ((({value.symbol} & 0x7e00:4) == 0x7e00:4) && (({value.symbol} & 0x01ff:4) != 0:4)) goto <{done}>;',
+                f'{value.symbol} = 0:4; goto <{done}>;',
+                f'<{prefix}_not_e6m9>']
+        b.body += [f'if ({fmt} == {bf16}:4) goto <{prefix}_bf16_mod>;',
+            f'goto <{prefix}_f16_mod>;',
+            f'<{prefix}_f16_mod>']
+        if satfinite:
+            b.body += [f'if ({satfinite.symbol} != {satfinite_value}:4) goto <{prefix}_f16_relu>;',
+                f'if (({value.symbol} & 0x7fff:4) != 0x7c00:4) goto <{prefix}_f16_relu>;',
+                f'{value.symbol} = ({value.symbol} & 0x8000:4) | 0x7bff:4;',
+                f'<{prefix}_f16_relu>']
+        b.body += [f'if ({relu} != {relu_value}:4) goto <{done}>;',
+            f'if (({value.symbol} & 0x8000:4) == 0:4) goto <{done}>;',
+            f'if (({value.symbol} & 0x7c00:4) == 0x7c00:4 && ({value.symbol} & 0x03ff:4) != 0:4) goto <{done}>;',
+            f'{value.symbol} = 0:4; goto <{done}>;',
+            f'<{prefix}_bf16_mod>']
+        if satfinite:
+            b.body += [f'if ({satfinite.symbol} != {satfinite_value}:4) goto <{prefix}_bf16_relu>;',
+                f'if (({value.symbol} & 0x7fff:4) != 0x7f80:4) goto <{prefix}_bf16_relu>;',
+                f'{value.symbol} = ({value.symbol} & 0x8000:4) | 0x7f7f:4;',
+                f'<{prefix}_bf16_relu>']
+        b.body += [f'if ({relu} != {relu_value}:4) goto <{done}>;',
+            f'if (({value.symbol} & 0x8000:4) == 0:4) goto <{done}>;',
+            f'if (({value.symbol} & 0x7f80:4) == 0x7f80:4 && ({value.symbol} & 0x007f:4) != 0:4) goto <{done}>;',
+            f'{value.symbol} = 0:4;',f'<{done}>']
+    postprocess(av,'f2fp_a')
+    if merge_c:
+        extract=b.values['extract'].symbol
+        h1=b.g.arch.enums[b.k.operand_types['extract'].type]['H1']
+        base=b.values[c].symbol
+        b.body += ['local f2fp_merge_half:4 = 0:4;',
+            f'if ({extract} == {h1}:4) goto <f2fp_merge_h1>;',
+            f'f2fp_merge_half = {base} & 0xffff:4; goto <f2fp_merge_pack>;',
+            '<f2fp_merge_h1>',
+            f'f2fp_merge_half = ({base} >> 16:4) & 0xffff:4;',
+            '<f2fp_merge_pack>',
+            f'{dst.symbol} = (f2fp_merge_half << 16:4) | ({av.symbol} & 0xffff:4);']
+    else:
+        bv=convert(c,'f2fp_b');postprocess(bv,'f2fp_b')
+        b.body += [f'{dst.symbol} = (({av.symbol} & 0xffff:4) << 16) | ({bv.symbol} & 0xffff:4);']
 
 
 def emit_F2IP(b,check=False):
@@ -1362,7 +2262,7 @@ def emit_F2IP(b,check=False):
     if check:
         return (all((a,bb,c)) and output(b) is not None and output(b).size==4 and
                 all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive' for n in (a,bb,c)) and
-                all(b.k.operand_types[n].type!='CX' for n in (a,bb,c)))
+                all(b.values[n].kind!='runtime-primitive' for n in (a,bb,c)))
     formats=enum_cases(b,'dstfmt',['S8','U8'])
     require(b,'srcfmt',['F32']);require(b,'rnd',['ROUND'])
     require(b,'ntz',['NTZ']);require(b,'relu',['norelu'])
@@ -1437,9 +2337,8 @@ def emit_I2IP(b,check=False):
     if check:
         ok=(all((a,bb,c)) and dst is not None and dst.size==4 and
             all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive'
-                for n in (a,bb,c)) and
-            all(b.k.operand_types[n].type!='CX' for n in (a,bb,c)))
-        if not ok:b.unsupported_reason='I2IP requires three 32-bit non-CX values'
+                for n in (a,bb,c)))
+        if not ok:b.unsupported_reason='I2IP requires three materialized 32-bit values'
         return ok
 
     require(b,'srcfmt',['S32'])
@@ -1448,7 +2347,7 @@ def emit_I2IP(b,check=False):
                        if a.type in ('EXTRACT','HSEL','ONLY24','ONLY28')),None)
     sat_name=next((n for n,a in b.k.operand_types.items()
                    if a.type in ('SATONLY','SATRELU','SATRELU_RELU')),None)
-    extract_values=enum_cases(b,extract_name,['H0','24','28']) if extract_name else {}
+    extract_values=enum_cases(b,extract_name,['H0','H1','24','28']) if extract_name else {}
     sat_atom=b.k.operand_types.get(sat_name) if sat_name else None
     sat_enum=b.g.arch.enums.get(sat_atom.type,{}) if sat_atom else {}
     sat_labels=[name for name in ('nosatrelu','nosatrelu_relu','SAT','SATRELU','RELU') if name in sat_enum]
@@ -1462,7 +2361,7 @@ def emit_I2IP(b,check=False):
             # The ordinary byte/halfword classes expose H0/H1 extraction;
             # sub-byte pack classes encode the required cursor lane as .24/.28.
             if width<=4 and extract!=str(32-2*width):continue
-            if width>=8 and extract!='H0':continue
+            if width>=8 and extract not in ('H0','H1'):continue
             for mode,mv in sat_modes.items():
                 do_sat=mode in ('SAT','SATRELU')
                 do_relu=mode in ('RELU','SATRELU')
@@ -1486,7 +2385,8 @@ def emit_I2IP(b,check=False):
                     return code,packed
 
                 ca,pa=convert(av,'i2ip_a');cb,pb=convert(bv,'i2ip_b')
-                tail=(f' | (({cv}) & 0x{(1<<(32-2*width))-1:x}) << {2*width}'
+                carry_source=cv if extract=='H0' else f'(({cv}) >> 16)'
+                tail=(f' | (({carry_source}) & 0x{(1<<(32-2*width))-1:x}) << {2*width}'
                       if width<16 else f' | (({cv}) & 0)')
                 code=(ca+cb+f'local i2ip_result:4 = (zext({pa}) << {width}) | '
                       f'zext({pb}){tail}; export i2ip_result;')
@@ -1657,7 +2557,6 @@ def emit_ISETP(b,check=False):
     if check:
         return (all((a,c,p)) and 'icmp' in b.values and 'bop' in b.values and
                 b.values[a].size==b.values[c].size==4 and
-                not any(atom.type=='CX' for atom in b.k.operand_types.values()) and
                 (('Pr' in b.values)==extended) and 'UPr' not in b.values)
     if ('Pr' in b.values)!=extended or 'UPr' in b.values:b.reject()
     require(b,'fmt',['U32','S32'])
