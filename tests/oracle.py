@@ -4,8 +4,9 @@ from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
-NVDISASM = os.environ.get("NVDISASM", "/tmp/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/nvdisasm")
-CACHE = Path(__file__).resolve().parent.parent / ".cache" / "oracle.sqlite"
+from tests.paths import CACHE as CACHE_ROOT, NVDISASM
+
+CACHE = CACHE_ROOT / "oracle.sqlite"
 BATCH = 65536
 FATAL = re.compile(r"nvdisasm fatal\s*:\s*(.*?)(?: at address 0x[0-9a-f]+)?\s*$", re.M)
 LINE = re.compile(r"/\*([0-9a-f]{4,})\*/\s+(.*?)\s*;")

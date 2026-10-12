@@ -7,7 +7,7 @@ import json,sys,os
 from pathlib import Path
 sys.path[:0]=[str(Path(__file__).parent),str(Path(__file__).parent.parent)]
 import pyghidra
-from ghidra_decode import GHIDRA,load_language
+from ghidra_decode import GHIDRA,load_language,parse
 from sass.runtime import Runtime
 
 
@@ -18,9 +18,6 @@ def main(ldefs,langid):
     from java.lang import Class
     from ghidra.pcode.emu import PcodeEmulator
     from ghidra.pcode.exec import PcodeUseropLibrary,PcodeExecutorStatePiece
-    from ghidra.program.model.lang import ProcessorContextImpl
-    from ghidra.program.model.mem import ByteMemBufferImpl
-    from ghidra.app.util import PseudoInstruction
     from ghidra.program.model.pcode import Varnode
     lang=load_language(ldefs,langid);space=lang.getDefaultSpace();variant=langid.rsplit(':',1)[1];arch=variant.split('_')[0].upper();runtime=Runtime(Path(ldefs).parent,int(arch[2:]),variant=variant)
     reason=PcodeExecutorStatePiece.Reason.INSPECT
@@ -125,11 +122,8 @@ def main(ldefs,langid):
                 if name in ('RZ','URZ'):value=0
                 if name in ('PT','UPT'):value=1
                 state.setVar(reg,jpype.JArray(jpype.JByte)(value.to_bytes(size,'little')))
-            for mem in request.get('memory',[]):
-                sp=lang.getAddressFactory().getAddressSpace(mem['space']);data=bytes.fromhex(mem['hex'])
-                state.setVar(Varnode(sp.getAddress(mem['address']),len(data)),jpype.JArray(jpype.JByte)(data))
-            word=bytes.fromhex(request['word']);buf=ByteMemBufferImpl(addr,word,False);ctx=ProcessorContextImpl(lang)
-            ins=PseudoInstruction(addr,lang.parse(buf,ctx,False),buf,ctx)
+            write_memory(state,request.get('memory',[]))
+            ins=parse(lang,addr,bytes.fromhex(request['word']))
             program=ArrayList()
             for op in ins.getPcode():program.add(op)
             # Execute with the actual Ghidra byte arithmetic and state machinery.

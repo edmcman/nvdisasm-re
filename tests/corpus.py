@@ -2,10 +2,9 @@
 import random, subprocess
 from pathlib import Path
 from sass.cubin import elf_arch, text_words
+from tests.paths import CACHE as CACHE_ROOT, CUOBJDUMP, ROOT
 
-ROOT = Path(__file__).resolve().parent.parent
-CACHE = ROOT / ".cache" / "cubins"
-CUOBJDUMP = "/usr/local/cuda/bin/cuobjdump"
+CACHE = CACHE_ROOT / "cubins"
 LIBS = [Path("/usr/local/cuda/lib64") / n for n in
         ("libcublasLt.so", "libcusparse.so", "libcusolver.so", "libcurand.so", "libcufft.so")]
 LOOSE = [*Path.home().glob("Downloads/*.cubin"), *Path.home().glob(".triton/cache/*/*.cubin"),

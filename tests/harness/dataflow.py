@@ -1,0 +1,150 @@
+"""Layer 3: register dataflow and control flow of generated p-code against md operand roles,
+exact spans and BRANCH_TYPE."""
+from sass import mdexpr, pydecode
+from sass.gen_sleigh import ENUM_FILE, REG_FILES, RESOURCE_FILE, Gen
+from tests.harness import ghidra
+
+
+def expected(g, d, optimized=False):
+    reads, writes = set(), set()
+    unused=set()
+    if optimized and d.klass.mnemonic in ('LDG','STG','LDL','STL') and d.env.get('e_desc')==0:
+        # Implicit pointer forms use their address registers directly.
+        unused.update(('Ra_URb','Ra_URc'))
+    if optimized and d.klass.mnemonic in ('LOP3','ULOP3') and 'imm8' in d.env:
+        lut=d.env['imm8']
+        for bit,names in [(2,('Ra','Sa','URa')),(1,('Rb','Sb','URb')),(0,('Rc','Sc','URc'))]:
+            # A truth table reads an input only if toggling it changes a result.
+            if all((lut>>v&1)==(lut>>(v^(1<<bit))&1) for v in range(8)):
+                unused.update(names)
+        if d.env.get('Pu',d.env.get('UPu'))==7:unused.update(('Pp','UPp'))
+    if optimized and d.klass.mnemonic in ('ISETP','UISETP','FSETP'):
+        name='icmp' if d.klass.mnemonic in ('ISETP','UISETP') else 'fcomp'
+        operand=d.klass.operand_types.get(name)
+        if (operand and not d.env.get('ex') and
+                d.env.get(name) in {g.arch.enums[operand.type].get(n) for n in ('F','T')}):
+            unused.update(('Ra','Sa','Rb','Sb','URa','URb'))
+        ex=d.klass.operand_types.get('ex')
+        if (d.klass.mnemonic=='ISETP' and 'Pr' in d.env and ex and
+                d.env.get('ex')==g.arch.enums[ex.type].get('noex')):
+            unused.add('Pr')
+    if optimized and d.klass.mnemonic=='VABSDIFF4':
+        red=d.klass.operand_types.get('red');enums=g.arch.enums.get(red.type,{}) if red else {}
+        if d.env.get('red')==enums.get('SIMD_MRG'):
+            # The generated full-width merge selector always chooses all four
+            # difference lanes; its secondary source C is therefore unused.
+            unused.update(('Rc','URc','Sc'))
+    # An unused compound value also drops reads of its address registers.
+    for atom in d.klass.format:
+        if atom.name not in unused or atom.type not in ('C','CX','A','DESC'):continue
+        for child in d.klass.format[d.klass.format.index(atom)+1:]:
+            if child.kind=='lit' and child.name==',':break
+            if child.kind=='operand':unused.add(child.name)
+    guard = next((a for a in d.klass.format if a.kind == 'guard'), None)
+    for o in g.roles.get(d.klass.name, {}).get('operands', []):
+        file = ENUM_FILE.get(o['type'])
+        if (not file or file != RESOURCE_FILE.get(o['resource']) or not o['role']
+                or o['name'] not in d.env or guard and o['name'] == guard.name):
+            continue
+        span = o['span']
+        if isinstance(span, str): span = int(mdexpr.evaluate(span, g.arch, d.env))
+        index = d.env[o['name']]
+        base, size, count, zero, _ = REG_FILES[file]
+        zero = g.register_zero(d.klass, o['name'])
+        if index == zero or index + span > count: continue
+        cells = set(range(base + size * index, base + size * (index + span)))
+        for role in o['role']:
+            if role=='read' and o['name'] in unused:continue
+            needed=cells
+            if (optimized and role=='read' and span==1 and d.klass.mnemonic=='HADD2'
+                    and d.klass.name.startswith('hadd2_F32')):
+                # HADD2.F32 widens only its low result lane. H1_H0 and H0_H0
+                # select the low half directly; H1_H1 selects the high half
+                # through a word shift. Modifiers and that shift retain a full
+                # word read in generated p-code.
+                selector={'Ra':'iswzA','Rc':'iswzB','URc':'iswzB'}.get(o['name'])
+                if selector not in d.klass.operand_types and o['name'] in ('Rc','URc'):
+                    selector='iswzB_as_C'
+                atom=d.klass.operand_types.get(selector) if selector else None
+                if atom and not any(d.env.get((o['name'],attr),0)
+                                    for attr in ('absolute','negate')):
+                    h1h1=g.arch.enums[atom.type].get('H1_H1')
+                    if d.env.get(selector)!=h1h1:
+                        needed=set(range(base+size*index,base+size*index+2))
+            elif optimized and role=='read' and span==1 and d.klass.mnemonic in ('HADD2','HFMA2','HMUL2','HMNMX2'):
+                # An unmodified low-half broadcast in HADD2/HFMA2/HMUL2/HMNMX2 can export the
+                # two-byte register slice directly. Modified inputs still read the word;
+                # two-register CX address inputs retain the entire pointer.
+                selectors={'Ra':('iswzA',),'Rb':('iswzB','iswzC_as_B'),
+                           'URb':('iswzB','iswzC_as_B'),'Rc':('iswzC','iswzB_as_C'),
+                           'URc':('iswzC','iswzB_as_C')}
+                if d.klass.mnemonic=='HMNMX2':
+                    selectors.update(Rb=('iswzB',),URb=('iswzB',),Sb=('iswzB',))
+                if d.klass.mnemonic=='HADD2':selectors.update(Rc=('iswzB','iswzB_as_C'),URc=('iswzB','iswzB_as_C'))
+                selector=next((s for s in selectors.get(o['name'],()) if s in d.klass.operand_types),None)
+                if selector:
+                    atom=d.klass.operand_types[selector]
+                    if d.env.get(selector)==g.arch.enums[atom.type].get('H0_H0') and not any(
+                            d.env.get((o['name'],attr),0) for attr in ('absolute','negate')):
+                        needed=set(range(base+size*index,base+size*index+2))
+            if optimized and role=='read' and o['name']=='Rb' and d.klass.mnemonic in ('STG','STS','STL'):
+                atom=d.klass.operand_types.get('sz');enums=g.arch.enums.get(atom.type,{}) if atom else {}
+                width=next((width for label,width in [('U8',1),('S8',1),('U16',2),('S16',2)]
+                            if enums.get(label)==d.env.get('sz')),None)
+                if width:needed=set(range(base+size*index,base+size*index+width))
+            (writes if role == 'write' else reads).update(needed)
+    if (optimized and d.klass.mnemonic=='UP2UR' and d.klass.name=='up2ur__Imm' and
+            d.env.get('insert')==g.arch.enums[d.klass.operand_types['insert'].type].get('B0')):
+        # The native lowering specializes the immediate mask, so it reads only
+        # the selected uniform predicates (higher mask bits are ignored).
+        base,size,_,_,_=REG_FILES['UP']
+        for bit in range(7):
+            if d.env.get('Sb',0)&(1<<bit):reads.add(base+size*bit)
+    if optimized and d.klass.mnemonic in ('P2R','R2P'):
+        # PR is an implicit packed predicate-register connector in the md.
+        # The P-code explicitly references each writable predicate register;
+        # runtime masks control which branches execute, not the static refs.
+        base,size,_,_,_=REG_FILES['P']
+        cells=set(range(base,base+size*7))
+        (reads if d.klass.mnemonic=='P2R' else writes).update(cells)
+    if guard:
+        file = ENUM_FILE[guard.type]
+        base, size, _, zero, _ = REG_FILES[file]
+        if d.env[guard.name] != zero:
+            reads.update(range(base + size * d.env[guard.name], base + size * (d.env[guard.name] + 1)))
+    return reads, writes
+
+
+def expected_flow(g, d):
+    """Ghidra flow type implied by the md BRANCH_TYPE (predicated forms may also fall through)."""
+    kind = g.props.get(d.klass.name, {}).get('BRANCH_TYPE', 'BRT_NONE')
+    return {'jump': kind == 'BRT_BRANCH', 'call': kind == 'BRT_CALL', 'terminal': kind in ('BRT_RETURN', 'BRT_BRANCHOUT')}
+
+
+def actual(ops):
+    reads, writes = set(), set()
+    for op in ops:
+        for nodes, cells in ((op['inputs'], reads), ([op['output']], writes)):
+            for n in nodes:
+                if n and n['space'] == 'register' and n['offset'] < 0x810:
+                    cells.update(range(n['offset'], n['offset'] + n['size']))
+    return reads, writes
+
+
+def problems(arch, fp, words):
+    """Failure descriptions for the given instruction words (bytes)."""
+    gen, todo = Gen(arch, fp), []
+    for w in words:
+        try: todo.append((w, pydecode.decode(arch, w)))
+        except pydecode.NoMatch: pass
+    out = []
+    for (w, d), result in zip(todo, ghidra.disassemble(arch, fp, [(w, 0) for w, _ in todo], "--dataflow")):
+        if "error" in result:
+            out.append(f"{d.klass.name}: {result['error']}")
+        elif (flow := result["flow"]) != (want_flow := expected_flow(gen, d)):
+            out.append(f"{d.klass.name} {w.hex()} {d.text}: flow {flow}, md {want_flow}")
+        elif (got := actual(result["ops"])) != (want := expected(gen, d, optimized=not any(
+                (op.get("userop") or "").startswith(("sass_opaque_", "sass_prim_")) for op in result["ops"]))):
+            out.append(f"{d.klass.name} {w.hex()} {d.text}: reads missing={sorted(want[0] - got[0])} extra={sorted(got[0] - want[0])}; "
+                       f"writes missing={sorted(want[1] - got[1])} extra={sorted(got[1] - want[1])}")
+    return len(todo), out

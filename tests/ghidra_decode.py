@@ -1,8 +1,8 @@
 """Decode instruction words with a SLEIGH language straight from its .ldefs (no project, no install).
 
 Runs under Ghidra's pyghidra venv. stdin: lines "<addr hex> <word hex>"; stdout: JSON per line
-{"text": ..., "pcode": [...]} or {"error": ...}.
-usage: ghidra_decode.py <ldefs> <language id> [--pcode]
+{"text": ..., "pcode": [...] (--pcode), "flow"/"ops" (--dataflow)} or {"error": ...}.
+usage: ghidra_decode.py <ldefs> <language id> [--pcode] [--dataflow]
 """
 import json, os, sys
 import pyghidra
@@ -21,19 +21,22 @@ def load_language(ldefs, lang_id):
     lang.getCompilerSpecByID(CompilerSpecID('default'))
     return lang
 
-def main(ldefs, lang_id, *opts):
-    pyghidra.start(install_dir=GHIDRA)
+def parse(lang, addr, word):
+    """The instruction encoded by `word` at address `addr`, outside any program."""
     from ghidra.app.util import PseudoInstruction
     from ghidra.program.model.lang import ProcessorContextImpl
     from ghidra.program.model.mem import ByteMemBufferImpl
+    buf, ctx = ByteMemBufferImpl(addr, word, False), ProcessorContextImpl(lang)
+    return PseudoInstruction(addr, lang.parse(buf, ctx, False), buf, ctx)
+
+def main(ldefs, lang_id, *opts):
+    pyghidra.start(install_dir=GHIDRA)
     lang = load_language(ldefs, lang_id)
-    space, ctx = lang.getDefaultSpace(), ProcessorContextImpl(lang)
+    space = lang.getDefaultSpace()
     for line in sys.stdin:
         a, w = line.split()
-        addr = space.getAddress(int(a, 16))
         try:
-            buf = ByteMemBufferImpl(addr, bytes.fromhex(w), False)
-            ins = PseudoInstruction(addr, lang.parse(buf, ctx, False), buf, ctx)
+            ins = parse(lang, space.getAddress(int(a, 16)), bytes.fromhex(w))
             out = {"text": str(ins)}
             if "--pcode" in opts: out["pcode"] = [str(op) for op in ins.getPcode()]
             if "--dataflow" in opts:

@@ -5,30 +5,19 @@ Executes the low and high words using actual Ghidra p-code, transferring the
 low-word result and predicate into the high-word state. This is an emulator
 consistency check, not a claim of SM100 hardware verification.
 """
-import json
 import random
-import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path[:0] = [str(ROOT), str(ROOT / "tests")]
-from compare_ghidra import GHIDRA_PY, LDEFS
+sys.path.insert(0, str(ROOT))
 from sass.cubin import kernel_image
 from sass import pydecode
+from tests.harness import ghidra
 
 
 def emulate(requests):
-    process = subprocess.run(
-        [GHIDRA_PY, str(ROOT / "tests/ghidra_emulate.py"), str(LDEFS),
-         "SASS:LE:64:sm100"],
-        input="".join(json.dumps(r) + "\n" for r in requests),
-        capture_output=True, text=True, cwd=ROOT)
-    if process.returncode:
-        raise RuntimeError(process.stderr[-3000:])
-    results = [json.loads(l) for l in process.stdout.splitlines() if l.startswith("{")]
-    if len(results) != len(requests):
-        raise RuntimeError(process.stderr[-2000:])
+    results = ghidra.emulate("SM100", "exact", requests)
     for result in results:
         if "error" in result:
             raise RuntimeError(result["error"])

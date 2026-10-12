@@ -1,0 +1,298 @@
+"""The scalar_semantics.cu whole-kernel fixtures: one `sem_<family>` kernel per family, compiled
+once, with arithmetic fields patched where PTX lowering cannot select a SASS mode. Kernels read
+three inputs per thread and write one output; families supply vectors and references."""
+import random
+from functools import cache
+from sass import ir, pydecode
+from tests.harness.case import encode, klass
+from tests.harness.gpu import ENCODING, Fixture, Template, compile
+from sass import softfloat
+from tests.refs.bits import nan16
+from tests.refs.float import underflow_band
+
+EDGES = [0, 0xffffffff, 0x80000000, 0x7fffffff, 0x7f800000, 0xff800000, 0x7fc00000, 1, 0x007fffff, 0x00800000, 0x3f800000,
+         0xbf800000, 0x7f7fffff, 0x80000001]
+EDGES16 = [0, 0x8000, 1, 0x8001, 0x03ff, 0x0400, 0x3c00, 0xbc00, 0x7bff, 0xfbff, 0x7c00, 0xfc00, 0x7e01]
+
+
+def vectors(family, rng=None):
+    """128 random 32-bit triples (from a per-family seed) whose first 14 repeat the fp32/int edges."""
+    rng = rng or random.Random(family)
+    out = [[rng.getrandbits(32) for _ in range(3)] for _ in range(128)]
+    out[:len(EDGES)] = [[x, x, x] for x in EDGES]
+    return out
+
+
+def half_edges(vs):
+    """Overwrite the leading vectors with packed fp16 edges in every lane position."""
+    n = len(EDGES16)
+    vs[:n] = [[x | (EDGES16[(i + 3) % n] << 16), EDGES16[(i + 5) % n] | (x << 16), EDGES16[(i + 7) % n] | (EDGES16[(i + 9) % n] << 16)]
+              for i, x in enumerate(EDGES16)]
+    return vs
+
+
+# Family -> (mnemonic to find, class to re-encode it as (None: same), field overrides).
+PATCHES = {
+    "hfma2_move": ("HFMA2", "hfma2_mma__RRI_norelu", dict(Ra=255, Rb=255, **{"Ra@negate": 1, "Rb@negate": 0})),
+    "hadd2_lanes": ("HADD2", None, dict(iswzA="H0_H0", iswzB_as_C="H1_H1", **{"Ra@absolute": 1, "Rc@negate": 1})),
+    "hfma2_lanes": ("HFMA2", None, dict(iswzA="H1_H1", iswzB="H0_H0", iswzC="H1_H0", **{"Ra@negate": 1, "Rb@absolute": 1})),
+    "hmul2_lanes": ("HMUL2", None, dict(iswzA="H0_H0", iswzB="H1_H1", **{"Ra@absolute": 1, "Rb@negate": 1})),
+    "hmul2_fmz": ("HMUL2", "hmul2__RR", dict(fmz="FMZ")),
+    **{f: ("FMNMX", None, dict(nan="NAN")) for f in ("fmin_nan", "fmax_nan")},
+    **{f: ("FMNMX", None, dict(ftz="FTZ", nan="NAN")) for f in ("fmin_ftz_nan", "fmax_ftz_nan")},
+    "hmnmx2_xorsign": ("HMNMX2", "hmnmx2__RRR", dict(xorsign="XORSIGN", **{"Ra@absolute": 1, "Rb@absolute": 1})),
+    "hmnmx2_xorsign_rir": ("HMNMX2", "hmnmx2__RIR", dict(xorsign="XORSIGN", Sb=0x3c00, Sb1=0x3c00, **{"Ra@absolute": 1})),
+    "hmnmx2_xorsign_rir_noabs": ("HMNMX2", "hmnmx2__RIR", dict(xorsign="XORSIGN", Sb=0x3c00, Sb1=0x3c00, **{"Ra@absolute": 0})),
+    **{f"hmnmx2_{p}nan_{m}": ("HMNMX2", "hmnmx2__RRR", dict(nan="NAN", **fmt)) for m in ("min", "max")
+       for p, fmt in (("", {}), ("bf16_", dict(ofmt="BF16_V2")), ("e6m9_", dict(ofmt="E6M9_V2")))},
+    **{f"hmnmx2_ftz_{m}": ("HMNMX2", "hmnmx2__RRR", dict(ftz="FTZ")) for m in ("min", "max")},
+    **{f"hmnmx2_{p}_{m}": ("HMNMX2", "hmnmx2__RRR", dict(ofmt=fmt)) for m in ("min", "max") for p, fmt in (("bf16", "BF16_V2"), ("e6m9", "E6M9_V2"))},
+    **{f"hmnmx2_{p}_xorsign": ("HMNMX2", "hmnmx2__RRR", dict(ofmt=fmt, xorsign="XORSIGN", **{"Ra@absolute": 1, "Rb@absolute": 1}))
+       for p, fmt in (("bf16", "BF16_V2"), ("e6m9", "E6M9_V2"))},
+    "i2ip_s8_nosat": ("I2IP", "i2ip__RRR_RRR", dict(satrelu="nosatrelu")),
+    "i2ip_s8_satrelu": ("I2IP", "i2ip__RRR_RRR", dict(satrelu="SATRELU")),
+    "i2ip_s4_satrelu": ("I2IP", "i2ip_24__RRR_RRR", dict(satrelu="SATRELU")),
+    "imad_hi_c": ("IMAD", "imad_hi__RRC_RRC", dict(Sc_bank=0, Sc_addr=0x170)),
+    **{f: ("F2I", "f2i__Rb_32b", {"Rb@absolute": a, "Rb@negate": n}) for f, a, n in (("f2i_abs", 1, 0), ("f2i_neg", 0, 1), ("f2i_absneg", 1, 1))},
+    **{f"f2fp_{fmt.lower()}_pack{s}": ("F2FP", "f2fp_f32_to_8b_downconvert__RRR", dict(dstfmt=fmt, srcfmt="F32", merge="PACK_AB_MERGE_C", rndMode="RN",
+       satfinite="nosatfinite" if s else "SATFINITE", relu="norelu", extract="H1")) for fmt in ("E4M3", "E5M2") for s in ("", "_nosat")},
+    **{f"vabsdiff4_{f}_{r}": ("LOP3", "vabsdiff4__RRR_RRR", dict(Pu="PT", fmt=f.upper(), red=red)) for f in ("s8", "u8")
+       for r, red in (("merge", "SIMD_MRG"), ("acc", "ACC"))},
+    **{"hfma2_move_" + s: ("HFMA2", "hfma2_mma__RRI_norelu", dict(Ra=255, Rb=255, Sc=bits >> 16, Sc1=bits & 0xffff, **{"Ra@negate": 1, "Rb@negate": 0}))
+       for s, bits in (("zero", 0x80000000), ("nan", 0xfe01fd01), ("denorm", 0x000103ff), ("inf", 0x7c00fc00))}}
+# FP8 unpack kernels are compiled without RELU; both conversions get the RELU bit (75) set.
+RELU_UNPACK = tuple(f"f2fp_{f}_unpack_{h}_relu" for f in ("e4m3", "e5m2") for h in ("h0", "h1"))
+
+
+@cache
+def template():
+    """The compiled, patched scalar_semantics cubin."""
+    image = compile("scalar_semantics", "-diag-suppress=177")
+    out = bytearray(image)
+    for family, (mnemonic, cls, fields) in PATCHES.items(): out = _patch(out, image, family, mnemonic, cls, fields)
+    for family in RELU_UNPACK:
+        t = Template(bytes(out), "sem_" + family)
+        for offset in _find(t, "F2FP", family, 2):
+            old = int.from_bytes(t.code[offset:offset + 16], "little")
+            replacement = old ^ (1 << 75)
+            if pydecode.decode("SM89", replacement.to_bytes(16, "little")).env.get("relu") != ir.load("SM89").enums[t.decoded(offset).klass.operand_types["relu"].type]["RELU"]:
+                raise ValueError(f"{family}: patched selector did not decode as RELU")
+            out = bytearray(t.patch({offset: (replacement, old & ~ENCODING)}, bytes(out)))
+    return bytes(out)
+
+
+def _find(t, mnemonic, family, count=1):
+    matches = [o for o in range(0, len(t.code), 16) if t.decoded(o).klass.mnemonic == mnemonic and
+               (family != "imad_hi_c" or t.decoded(o).klass.name == "imad_hi__RRR_RRR")]
+    if len(matches) != count: raise ValueError(f"{family}: expected {count} {mnemonic} instructions, got {len(matches)}")
+    return matches
+
+
+def operands(d, k=None):
+    """A decoded instruction's operand values, for those operands class k (default its own) has."""
+    names = (k or d.klass).operand_types
+    return {**{n: v for n, v in d.env.items() if isinstance(n, str) and n in names},
+            **{"@".join(n): v for n, v in d.env.items() if isinstance(n, tuple) and len(n) == 2 and n[0] in names}}
+
+
+def _patch(out, image, family, mnemonic, cls, fields):
+    """Re-encode the family's one target instruction with `fields`, keeping its controls."""
+    t = Template(image, "sem_" + family)
+    offset, = _find(t, mnemonic, family)
+    d = t.decoded(offset)
+    values = {**operands(d, klass("SM89", cls or d.klass.name)), **fields}
+    words = {}
+    if family.startswith("f2fp_e") and "_pack" in family:
+        # The compiler's third input is the last LDG before this F2FP; hardware carries the selected
+        # C half when Rd aliases Rc.
+        loads = [t.decoded(o).env["Rd"] for o in range(0, offset, 16) if t.decoded(o).klass.mnemonic.startswith("LDG") and "Rd" in t.decoded(o).env]
+        if len(loads) < 3: raise ValueError(f"{family}: expected three input loads")
+        values["Rc"] = values["Rd"] = loads[-1]
+        # The PTX kernel extracts the 16-bit result and rebuilds the upper half from C; route
+        # both half masks from F2FP's full result instead, exposing PACK_AB_MERGE_C.
+        masks = [o for o in range(offset + 16, len(t.code), 16) if t.decoded(o).klass.mnemonic == "LOP3" and t.decoded(o).env.get("Sb") in (0xffff0000, 0xffff)]
+        if len(masks) != 2: raise ValueError(f"{family}: expected two output half masks, got {len(masks)}")
+        for o in masks:
+            m = t.decoded(o); ops = operands(m)
+            ops["Ra" if m.env["Sb"] == 0xffff0000 else "Rc"] = values["Rd"]
+            words[o] = (int.from_bytes(bytes.fromhex(encode("SM89", m.klass.name, **ops)), "little"), t.control(o))
+    words[offset] = (int.from_bytes(bytes.fromhex(encode("SM89", cls or d.klass.name, **values)), "little"), t.control(offset))
+    return bytearray(t.patch(words, bytes(out)))
+
+
+def same_halves(got, want):
+    """Packed F16 lanes equal, or both NaN."""
+    return all(((got >> s) & 0xffff) == ((want >> s) & 0xffff) or nan16(got >> s & 0xffff) and nan16(want >> s & 0xffff) for s in (0, 16))
+
+
+def fixture(family, vs, expected=None, targets=(), wide=False, wide_output=None, arguments=(), **kw):
+    """A sem_<family> launch over vectors `vs`; wide: 64-bit inputs and outputs."""
+    import struct
+    data = b"".join(struct.pack("<QQQ" if wide else "<III", *v) for v in vs)
+    return Fixture(name=family, image=template(), kernel="sem_" + family, data=data, expected=expected, input_size=8 if wide else 4,
+                   output_size=8 if wide or wide_output else 4, arguments=arguments, targets=targets, vectors=vs, **kw)
+
+
+TARGETS = {
+    "iadd3": ("IADD3",), "imad": ("IMAD",), "imad_hi": ("IMAD.HI",), "imad_hi_c": ("IMAD.HI",),
+    **{f"idp2a_{m}_{a}{b}": (f'IDP.2A.{m.upper()}.{"S16" if a == "s" else "U16"}.{"S8" if b == "s" else "U8"}',) for m in ("lo", "hi") for a in "su" for b in "su"},
+    "lop3": ("LOP3",), "shf": ("SHF",), "iabs": ("IABS",), "imnmx": ("IMNMX",),
+    **{f"vabsdiff4_{f}_{r}": ("VABSDIFF4",) for f in ("s8", "u8") for r in ("merge", "acc")},
+    "dadd": ("DADD",), "dmul": ("DMUL",), "dfma": ("DFMA",), "dsetp": ("DSETP",),
+    "hadd2": ("HADD2",), "hfma2": ("HFMA2",), "hmul2": ("HMUL2",), "hmul2_sat": ("HMUL2.SAT",), "hmul2_ftz": ("HMUL2.FTZ",), "hmul2_fmz": ("HMUL2.FMZ",),
+    "hadd2_sat": ("HADD2.SAT",), "hfma2_sat": ("HFMA2.SAT",), **{f: ("HFMA2.MMA",) for f in ("hfma2_move", "hfma2_move_zero", "hfma2_move_nan", "hfma2_move_denorm", "hfma2_move_inf")},
+    "hadd2_lanes": ("HADD2",), "hfma2_lanes": ("HFMA2",), "hmul2_lanes": ("HMUL2",),
+    "prmt": ("PRMT",), "brev": ("BREV",), "popc": ("POPC",), "bfind": ("FLO.U32",), "bfind_shift": ("FLO.U32.SH",),
+    "fadd": ("FADD",), "fmul": ("FMUL",), "ffma": ("FFMA",),
+    "isetp": ("ISETP",), "isetp_ex": ("ISETP.GE.U32.AND.EX",), "sel": ("ISETP",), "fsetp": ("FSETP",),
+    **{f: ("F2I",) for f in ("f2i", "f2i_abs", "f2i_neg", "f2i_absneg")}, "f2ip": ("F2IP",),
+    **{f"i2ip_{f}": (f"I2IP.{f.upper()}",) for f in ("s2", "u2", "s4", "u4", "s8", "u8", "s16", "u16")},
+    "i2ip_s8_nosat": ("I2IP.S8",), "i2ip_s8_satrelu": ("I2IP.S8",), "i2ip_s4_satrelu": ("I2IP.S4",),
+    "fsel": ("FSEL",), "fmin": ("FMNMX",), "fmax": ("FMNMX",), "fmin_xorsign": ("FMNMX.XORSIGN",),
+    "fmin_nan": ("FMNMX.NAN",), "fmax_nan": ("FMNMX.NAN",), "fmin_ftz_nan": ("FMNMX.FTZ.NAN",), "fmax_ftz_nan": ("FMNMX.FTZ.NAN",),
+    "fmin_ftz": ("FMNMX.FTZ",), "fmax_ftz": ("FMNMX.FTZ",),
+    "hmnmx2_min": ("HMNMX2",), "hmnmx2_max": ("HMNMX2",), "hmnmx2_xorsign": ("HMNMX2.XORSIGN",),
+    "hmnmx2_xorsign_rir": ("HMNMX2.XORSIGN",), "hmnmx2_xorsign_rir_noabs": ("HMNMX2.XORSIGN",),
+    "hmnmx2_nan_min": ("HMNMX2.NAN",), "hmnmx2_nan_max": ("HMNMX2.NAN",), "hmnmx2_ftz_min": ("HMNMX2.FTZ",), "hmnmx2_ftz_max": ("HMNMX2.FTZ",),
+    "hmnmx2_bf16_min": ("HMNMX2.BF16_V2",), "hmnmx2_bf16_max": ("HMNMX2.BF16_V2",),
+    "hmnmx2_bf16_nan_min": ("HMNMX2.BF16_V2.NAN",), "hmnmx2_bf16_nan_max": ("HMNMX2.BF16_V2.NAN",), "hmnmx2_bf16_xorsign": ("HMNMX2.BF16_V2.XORSIGN",),
+    "hmnmx2_e6m9_min": ("HMNMX2.E6M9_V2",), "hmnmx2_e6m9_max": ("HMNMX2.E6M9_V2",),
+    "hmnmx2_e6m9_nan_min": ("HMNMX2.E6M9_V2.NAN",), "hmnmx2_e6m9_nan_max": ("HMNMX2.E6M9_V2.NAN",), "hmnmx2_e6m9_xorsign": ("HMNMX2.E6M9_V2.XORSIGN",),
+    "i2f": ("I2FP",), "fadd_ftz": ("FADD.FTZ",), "ffma_sat": ("FFMA.SAT",), "shared": ("LDS", "STS"), "local": ("LDL", "STL"),
+    "branch": ("BRA", "BSSY", "BSYNC"), "ldc": ("LDC",),
+    **{f"{op}_{m}": (f"{op.upper()}.{m.upper()}",) for op in ("fadd", "fmul", "ffma", "dadd", "dmul", "dfma") for m in ("rz", "rm", "rp")},
+    "f2fp_f16_pack_rn": ("F2FP.F16",), "f2fp_f16_pack_rz": ("F2FP.F16",), "f2fp_bf16_pack_rn": ("F2FP.BF16",), "f2fp_bf16_pack_rz": ("F2FP.BF16",),
+    "f2fp_f16_pack_imm": ("F2FP.F16",), "f2fp_f16_pack_c": ("F2FP.F16",), "f2fp_f16_pack_relu": ("F2FP.RELU.F16",),
+    "f2fp_f16_pack_satfinite": ("F2FP.SATFINITE.F16",), "f2fp_f16_pack_relu_satfinite": ("F2FP.SATFINITE.RELU.F16",),
+    "f2fp_bf16_pack_relu": ("F2FP.RELU.BF16",), "f2fp_bf16_pack_satfinite": ("F2FP.SATFINITE.BF16",), "f2fp_bf16_pack_relu_satfinite": ("F2FP.SATFINITE.RELU.BF16",),
+    "f2fp_e4m3_pack": ("F2FP.SATFINITE.E4M3",), "f2fp_e5m2_pack": ("F2FP.SATFINITE.E5M2",),
+    **{f"f2fp_{f}_unpack_{h}{r}": (f"F2FP.{'RELU.' if r else ''}F16.{f.upper()}.UNPACK_B",) for f in ("e4m3", "e5m2") for h in ("h0", "h1") for r in ("", "_relu")},
+    "f2fp_e4m3_pack_nosat": ("F2FP.E4M3",), "f2fp_e5m2_pack_nosat": ("F2FP.E5M2",)}
+ROUNDED = {f"{op}_{m}" for op in ("fadd", "fmul", "ffma", "dadd", "dmul", "dfma") for m in ("rz", "rm", "rp")}  # directed-rounding kernels
+HALF_OUTPUTS = {"hadd2", "hfma2", "hmul2", "hmul2_sat", "hmul2_ftz", "hmul2_fmz", "hadd2_sat", "hfma2_sat", "hadd2_lanes", "hfma2_lanes", "hmul2_lanes"}
+WIDE = {"dadd", "dmul", "dfma", "dsetp", "isetp_ex"} | {f for f in ROUNDED if f.startswith("d")}
+FLOAT_OUTPUTS = {"dadd", "dmul", "dfma", "fadd", "fmul", "ffma", "i2f", "fadd_ftz", "ffma_sat"} | ROUNDED
+
+
+def scalar_vectors(family):
+    """The family's 128 input triples (edge rows first)."""
+    if family == "imad_hi_c": vs = vectors(family, random.Random(0x1a2ad))
+    elif family.startswith("idp2a_"): vs = vectors(family, random.Random(sum((i + 1) * ord(ch) for i, ch in enumerate(family))))
+    else: vs = vectors(family)
+    match family:
+        case f if f.startswith("vabsdiff4_"):
+            vs[:8] = [(0, 0xffffffff, 0xdeadbeef), (0x807f01ff, 0xff010080, 0x7f80ff01), (0x80808080, 0x7f7f7f7f, 0x01020304), (0xffffffff, 0, 0x80000000),
+                      (0x7f000180, 0x80ff017f, 0xffffffff), (0x01020304, 0x05060708, 0), (0x80000000, 0x7fffffff, 0x7f80ff01), (0xdeadbeef, 0x12345678, 0xabcdef01)]
+        case "imad_hi_c":
+            vs[:8] = [(0xffffffff, 2, 0), (0x80000000, 2, 0), (0xffffffff, 0xffffffff, 0), (0x80000001, 0xffffffff, 0), (0x7fffffff, 0x7fffffff, 0),
+                      (0x12345678, 0x87654321, 0), (0x40000000, 4, 0), (0xfffffffe, 3, 0)]
+        case f if f.startswith("idp2a_"):
+            vs[:8] = [(0x80017fff, 0x807f01ff, 0x7fffffff), (0x7fff8001, 0x01020304, 0x80000000), (0xffff0001, 0x807f80ff, 0xffffffff), (0x00010001, 0xffffffff, 0),
+                      (0x80008000, 0x7f807f80, 1), (0x7fff7fff, 0x008000ff, 0xfffffffe), (0xffff7fff, 0x80ff00ff, 0x12345678), (0x01020304, 0x05060708, 0x87654321)]
+        case "fsel" | "fmin" | "fmax" | "fmin_nan" | "fmax_nan" | "fmin_ftz_nan" | "fmax_ftz_nan" | "fmin_ftz" | "fmax_ftz" | "fmin_xorsign":
+            pairs = [(0, 0x80000000), (0x80000000, 0), (0x7fc00000, 0x3f800000), (0x3f800000, 0x7fc00000), (0x7f800001, 0xff800001), (1, 0), (0x80000001, 0), (0x007fffff, 0x80000001)]
+            vs[len(EDGES):len(EDGES) + 2 * len(pairs)] = [[x, y, p] for x, y in pairs for p in (0, 1)]
+        case f if f.startswith("hmnmx2_"):
+            if f.startswith("hmnmx2_bf16"):
+                pairs = [(0x3f803f80, 0xc000c000), (0, 0x80008000), (0x7fc17f80, 0x40003f80), (0x00010001, 0x80018001), (0x7f80ff80, 0x7f7fff7f), (0xbf803f80, 0x4200c000), (0xffc17fc1, 0x7fc17fc1)]
+            elif f.startswith("hmnmx2_e6m9"):
+                pairs = [(0x40004000, 0x3f803f80), (0, 0x80008000), (0x7fff7fff, 0x3f803f80), (0x7e00fe00, 0x3f80bf80), (0x00010001, 0x80028002), (0xc0003f80, 0x41003e00), (0xffff7fff, 0x7fff7fff)]
+            elif f.startswith("hmnmx2_xorsign_rir"):
+                pairs = [(0xc000c000, 0), (0x40004000, 0), (0x3c003c00, 0), (0xbc00bc00, 0), (0xc0003c00, 0), (0x3c00c000, 0)]
+            else:
+                pairs = [(0x3c003c00, 0xc000c000), (0, 0x80008000), (0x7e017c00, 0x40003c00), (0x00010001, 0x80018001), (0x7c00fc00, 0x7bfffbff), (0xbc003c00, 0x4200c000), (0xffc17fc1, 0x7fc17fc1)]
+            pairs += {"hmnmx2_xorsign": [(0x80017e01, 0x7e017e01), (0x7e017e01, 0x80017e01)], "hmnmx2_bf16_xorsign": [(0x80010000, 0x7fc17fc1), (0x7fc17fc1, 0x80010000)],
+                      "hmnmx2_e6m9_xorsign": [(0x80010000, 0x7e017e01), (0x7e017e01, 0x80010000)]}.get(f, [])
+            vs = [[a, b, 0] for a, b in (pairs * (128 // len(pairs) + 1))[:128]]
+    if family in HALF_OUTPUTS or family == "hfma2_move": half_edges(vs)
+    if family.startswith("hmul2"):
+        pairs = [(0x00010001, 0x60006000), (0x80018001, 0x60006000), (0x00010001, 0xe000e000), (0x80018001, 0xe000e000), (0x14001400, 0x14001400), (0x94009400, 0x14001400),
+                 (0x94009400, 0x94009400), (0x40004000, 0x40004000), (0xbc00bc00, 0x40004000), (0x7e017c00, 0x3c003c00), (0x7c007e01, 0x3c003c00), (0x7c007c00, 0)]
+        vs[:len(pairs)] = [[x, y, 0] for x, y in pairs]
+    if family == "f2ip":
+        values = [0, 0x80000000, 0x3f000000, 0xbf000000, 0x3fc00000, 0xbfc00000, 0x40200000, 0xc0200000, 0x42ff0000, 0xc3000000, 0x43000000, 0xc2ff0000,
+                  0x42ff8000, 0xc2ff8000, 0x437f8000, 0x7f800000, 0xff800000, 0x7fc00000, 0x7f800001, 0x4f000000, 0xcf000000, 0x7f7fffff, 0xff7fffff]
+        rng = random.Random(family)
+        for _ in range(128 * 3): rng.getrandbits(32)  # continue the family stream after its base vectors
+        vs = [[values[i % len(values)], values[(i + 7) % len(values)], rng.getrandbits(32)] for i in range(128)]
+    if family.startswith(("f2fp_f16_pack_", "f2fp_bf16_pack_")):
+        values = [0, 0x80000000, 0x3f800000, 0xbf800000, 0x3f801000, 0x3f803000, 0x33000000, 0x33800000, 0x387fc000, 0x38800000, 0x477fe000, 0x477ff000,
+                  0x7f800000, 0xff800000, 0x7fc00000, 0x7f800001, 1, 0x007fffff, 0x00800000, 0x7f7fffff, 0xff7fffff]
+        vs = [[values[i % len(values)], values[(i * 7 + 3) % len(values)], 0] for i in range(128)]
+    if family.startswith(("f2fp_e4m3_pack", "f2fp_e5m2_pack")):
+        values = [0, 0x80000000, 1, 0x007fffff, 0x00800000, 0x33800000, 0x3f800000, 0xbf800000, 0x3f801000, 0x3f803000, 0x40600000, 0x43e00000, 0x43e10000,
+                  0x43e08000, 0x477fe000, 0x7f800000, 0xff800000, 0x7fc00000, 0x7f800001,
+                  0x43e80000, 0xc3e80000, 0x47700000, 0xc7700000]  # RN overflow ties: E4M3 +-464, E5M2 +-61440
+        vs = [[values[i % len(values)], values[(i * 7 + 3) % len(values)], (0x13579bdf ^ (i * 0x01010101)) & 0xffffffff] for i in range(128)]
+    if family.startswith(("f2fp_e4m3_unpack_", "f2fp_e5m2_unpack_")):
+        vs = [[(i | ((255 - i) << 8)) << (16 if "_h1" in family else 0), 0, 0] for i in range(128)]
+    if family.startswith("i2ip_"):
+        fmt = family.split("_")[1]; width, signed = int(fmt[1:]), fmt[0] == "s"
+        lo, hi = (-(1 << (width - 1)), (1 << (width - 1)) - 1) if signed else (0, (1 << width) - 1)
+        edges = [x & 0xffffffff for x in (0, 1, 0xffffffff, lo - 1, lo, hi, hi + 1, 0x12345678, 0x89abcdef)]
+        vs = [[edges[i % len(edges)], edges[(i + 4) % len(edges)], 0x89abcdef ^ (i * 0x01010101)] for i in range(128)]
+    if family in WIDE:
+        rng = random.Random(family)
+        for _ in range(128 * 3): rng.getrandbits(32)
+        vs = [[rng.getrandbits(64) for _ in range(3)] for _ in range(128)]
+        edges64 = [0, 1 << 63, 1, (1 << 63) | 1, 0x000fffffffffffff, 0x0010000000000000, 0x3ff0000000000000, 0xbff0000000000000, 0x7fefffffffffffff,
+                   0x7ff0000000000000, 0xfff0000000000000, 0x7ff8000000000000]
+        vs[:len(edges64)] = [[x, x, x] for x in edges64]
+        pairs = [(0, 1 << 63, 0), (1 << 63, 0, 0), (0x7ff8000000000000, 0, 0), (0, 0x7ff0000000000001, 0),
+                 (0x3ff0000000000001, 0x3feffffffffffffe, 0xbff0000000000000), (0x7fefffffffffffff, 0x4000000000000000, 0xffefffffffffffff)]
+        vs[len(edges64):len(edges64) + len(pairs)] = pairs
+        if family == "isetp_ex":
+            vs[:10] = [(0, 1, 0), (1, 0, 0), (0, 0, 0), (1, 1, 0), (0x00000001ffffffff, 0x0000000200000000, 0), (0x0000000200000000, 0x00000001ffffffff, 0),
+                       (0x7fffffffffffffff, 0x8000000000000000, 0), (0x8000000000000000, 0x7fffffffffffffff, 0), (0xffffffffffffffff, 0, 0), (0, 0xffffffffffffffff, 0)]
+    if family in ROUNDED:
+        # Residuals below the wide format's precision, exact cancellation (zero sign) and overflow.
+        wide = family in WIDE
+        one, tiny, top = (0x3ff0000000000000, 1, 0x7fefffffffffffff) if wide else (0x3f800000, 1, 0x7f7fffff)
+        sign = 1 << (63 if wide else 31)
+        vs[64:72] = [list(v) for v in [(one, tiny, one | sign), (one, tiny | sign, tiny), (one, one | sign, one), (one | sign, one, tiny | sign),
+                                       (top, top, top | sign), (top | sign, top, top), (one + 1, one + 1, tiny | sign), (0, sign, 0)]]
+    return vs
+
+
+def half_underflow(emulated, gpu):
+    """Per fp16 lane: equal, or the emulator's RN underflow signature (a signed zero where the GPU
+    has the same-sign minimum subnormal; see refs.float.underflow_band)."""
+    return all(e == g or e & 0x7fff == 0 and g == e | 1 for e, g in (((emulated >> s) & 0xffff, (gpu >> s) & 0xffff) for s in (0, 16)))
+
+
+def nan(x, width):
+    exponent, mantissa = (0x7ff0000000000000, 0xfffffffffffff) if width == 64 else (0x7f800000, 0x7fffff)
+    return x & exponent == exponent and x & mantissa != 0
+
+
+def underflow_bug(family, inputs, emulated, gpu):
+    """The emulator's RN minimum-subnormal underflow (refs.float.underflow_band): it returns a
+    signed zero where the GPU returns the signed minimum subnormal."""
+    width = 64 if family.startswith("d") else 32
+    op = "add" if family.endswith("add") else "mul" if family.endswith("mul") else "fma"
+    if not underflow_band(op, inputs, width): return False  # all three inputs must be finite
+    parts = [softfloat.unpack(x, width)[2] for x in inputs]
+    exact = parts[0] + parts[1] if op == "add" else parts[0] * parts[1] + (parts[2] if op == "fma" else 0)
+    sign = (1 << (width - 1)) if exact < 0 else 0
+    return emulated == sign and gpu == sign | 1
+
+
+def launch(family, reference=None, same=None, underflow=False):
+    """Fixture for scalar family `family`; reference(x, y, z) gives the expected output;
+    underflow excuses the emulator's known minimum-subnormal defect."""
+    vs = scalar_vectors(family)
+    width = 64 if family in WIDE else 32
+    if family.startswith("f2fp_f16_pack_"): emulator_same = same_halves
+    elif family in HALF_OUTPUTS: emulator_same = lambda e, g: same_halves(e, g) or half_underflow(e, g)
+    elif family in FLOAT_OUTPUTS: emulator_same = lambda e, g: e == g or nan(e, width) and nan(g, width)
+    else: emulator_same = lambda e, g: e == g
+    return fixture(family, vs, [reference(*v) for v in vs] if reference else None, targets=TARGETS[family], wide=family in WIDE,
+                   wide_output=family.startswith(("f2fp_e4m3_unpack_", "f2fp_e5m2_unpack_")),
+                   arguments=((8, 0x00000002ffffffff),) if family == "imad_hi_c" else ((4, 0x3fc00000),) if family == "f2fp_f16_pack_c" else (),
+                   same=same or (lambda g, w: g == w), emulator_same=emulator_same,
+                   excused=(lambda i, e, g: underflow_bug(family, vs[i], e, g)) if underflow else (lambda i, e, g: False))
+
+
+def generic(*families):
+    """Families compared only GPU-to-emulator (no independent reference)."""
+    return [launch(f) for f in families]
