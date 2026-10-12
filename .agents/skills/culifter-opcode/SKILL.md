@@ -51,7 +51,7 @@ Update semantic fixtures and dataflow expectations. Fixtures should assert value
 
 Try a GPU oracle whenever a usable device and toolchain are available. GPU validation is encouraged, but a device or compiler limitation must be reported as an environment limitation rather than a semantic conclusion.
 
-Reuse `tests/gpu_semantics.py`, `tests/carry_semantics.py`, `tests/up2ur_semantics.py`, and their kernel patching helpers when they fit. Otherwise add a focused probe that:
+Add GPU fixtures to the family's `gpu_fixtures()` in `tests/cases/<family>.py`, reusing `tests/harness/scalar.py` (compiled scalar kernels), `tests/harness/templates.py` (patched CX wrapper and carry-kernel slots) and `tests/harness/gpu.py` (`Fixture`, `Driver`). While the behavior is unknown, draft the fixture with `expected=None` and run `python -m tests.observe <family>` to see raw GPU outputs; then write the reference in `tests/refs/` and the fixture becomes a regression test. A fixture:
 
 1. Compiles a small kernel for the target architecture.
 2. Verifies the expected opcode and selector are present, or documents the exact word/fields patched into the kernel.
@@ -71,9 +71,9 @@ Run focused checks first, then broaden to the architectures and exact/readable m
 
 ```sh
 python3 -m sass.build_languages SM89
-python3 tests/test_semantics.py SM89
-python3 tests/test_semantics.py SM89 readable
-python3 tests/test_dataflow.py SM89 2000
+python -m tests.semantics SM89 exact --family <family>
+uv run --with pytest python -m pytest tests -m ghidra --arch SM89 --fp all
+uv run --with pytest python -m pytest tests -m gpu --require-gpu --family <family>
 python3 -m sass.coverage processor/SASS/data/languages --output processor/SASS/semantics/coverage.json
 git diff --check
 ```

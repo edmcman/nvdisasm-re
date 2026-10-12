@@ -189,14 +189,13 @@ For a scratch build, run `python3 -m sass.build_languages SM89 --output /tmp/sas
 (the build copies shared definitions automatically), then set
 `SASS_SLEIGH_OUT=/tmp/sass-languages` when running Ghidra tests. When using
 `sass.gen_sleigh` directly, copy `sass_common.sinc`, `sass.pspec`, and `sass.cspec`
-to the scratch directory first. Register
-dataflow can be checked with `python3 tests/test_dataflow.py SM89`, or with
-`SASS_DATAFLOW=1 python3 -m pytest tests/test_dataflow.py` (requires pyghidra).
+to the scratch directory first. Register dataflow is checked by
+`uv run --with pytest python -m pytest tests -m ghidra -k dataflow` (requires pyghidra; see Testing).
 
 ### GPU semantics oracle
 
-`python3 tests/gpu_semantics.py --require-gpu` compiles 100 SM89 CUDA kernels,
-runs them on the GPU, then executes the same kernel text in Ghidra's p-code
+`uv run --with pytest python -m pytest tests -m gpu --require-gpu` compiles 100 SM89 CUDA kernels
+(and patched variants), runs them on the GPU, then executes the same kernel text in Ghidra's p-code
 emulator. It checks 12,800 random/edge output values, including address setup,
 constant parameters, memory operations, predication, and loops. Patched fixtures
 select specific FP16 lane/MMA modes and FMNMX NaN modes; both the GPU and emulator
@@ -217,14 +216,16 @@ The tests use `nvdisasm -b SMxx` as an oracle, over three corpora:
 - **mutated**: real words with one or two bits flipped
 
 ```sh
-python3 tests/compare.py SM89 real 0             # pydecode vs nvdisasm (0 = whole corpus)
-python3 tests/compare_ghidra.py SM89 synthetic 0 # Ghidra (generated SLEIGH) vs pydecode
-uv run --with pytest python -m pytest tests -k pydecode   # per-class ratchet vs tests/baseline/
+python -m tests.compare_pydecode_disassembly SM89 real 0       # pydecode vs nvdisasm (0 = whole corpus)
+python -m tests.compare_ghidra_disassembly SM89 synthetic 0    # Ghidra (generated SLEIGH) vs pydecode
+uv run --with pytest python -m pytest tests                    # layers 0-1: helpers, per-class ratchet vs tests/baseline/
+uv run --with pytest python -m pytest tests -m ghidra --arch all --fp all   # layers 2-4 (compiled languages)
+uv run --with pytest python -m pytest tests -m gpu --require-gpu            # layer 5 (SM89 GPU)
 ```
 
-`nvdisasm` results are cached in `.cache/oracle.sqlite`. The paths to `nvdisasm`, the CUDA
-libraries and Ghidra are set at the top of `tests/oracle.py`, `tests/corpus.py` and
-`tests/compare_ghidra.py`, and the first two can be overridden with `NVDISASM`.
+`nvdisasm` results are cached in `.cache/oracle.sqlite`. Tool locations live in `tests/paths.py`:
+`NVDISASM` (default: the CUDA 13.4 copy in uv's cache or `/tmp/.venv`), `NVCC`, `CUOBJDUMP`,
+`GHIDRA_PY` and `SASS_SLEIGH_OUT` override them.
 
 Current results (CUDA 13.4 `nvdisasm`):
 

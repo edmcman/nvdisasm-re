@@ -667,7 +667,7 @@ using `validate_capture.py`. The arithmetic words, in little-endian byte order:
 | Wrap | `1b720500050000000008000000ca0f00` | `BMSK.W R5, R0, R5` |
 
 Their XOR is exactly `1 << 75`. The dedicated SM89 CUDA fixtures also differ
-only at that bit. `tests/bmsk_semantics.py` checks this directly.
+only at that bit. The BMSK GPU fixtures (`tests/cases/bmsk.py`) check this directly.
 
 The [PTX bmsk specification](https://docs.nvidia.com/cuda/parallel-thread-execution/index.html#integer-arithmetic-instructions-bmsk)
 defines position and width, and clamp versus count masking. Wrap masks both
@@ -684,7 +684,7 @@ an offset. Its bank/address interpretation is unresolved and remains opaque.
 The coverage reason refers to this P-code limitation, not compiler support.
 SM100+ has three BMSK classes, all supported. UBMSK is outside this change.
 
-`tests/bmsk_semantics.py --require-gpu` compiled two SM89 whole kernels,
+The BMSK GPU fixtures (`pytest tests -m gpu --family bmsk`) compiled two SM89 whole kernels,
 confirmed their BMSK modes, and compared 1,504 vectors per mode against both
 GPU results and whole-kernel Ghidra P-code. All 3,008 comparisons passed,
 including every position/width pair from 0 through 33, large unsigned counts,
@@ -739,8 +739,8 @@ the user's request, with emulator validation but **no Hopper hardware pass**.
 Zero-on-out-of-bounds on SM90 follows the SM89 behavior and remains pending
 hardware validation there. The model covers value semantics, not constant
 cache behavior or coherence. Other CX instruction families remain unchanged.
-Reproduce focused values with `tests/bmsk_cx_semantics.py --arch SMxx`, and
-GPU plus whole-kernel P-code with `--require-gpu` (SM89). Measured results are
+Reproduce focused values with `pytest tests -m ghidra --arch SMxx --family bmsk`, and
+GPU plus whole-kernel P-code with `pytest tests -m gpu --require-gpu --family bmsk` (SM89). Measured results are
 recorded separately under `bmsk_cx` in the semantics verification manifest.
 All 64 patched fixtures (24 count fixtures and 40 bounds fixtures) passed
 8,192 GPU/reference comparisons and 8,192 whole-kernel P-code comparisons

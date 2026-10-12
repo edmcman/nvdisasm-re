@@ -83,9 +83,12 @@ source/destination aliases, discarded results, and supported operand forms.
 Record unresolved forms individually rather than inferring them from another
 form's success.
 
-Reuse `tests/gpu_semantics.py` for CUDA Driver API execution and whole-kernel
-Ghidra emulation. Compile a fixture, verify its target instruction and selector,
-then compare GPU, reference and P-code outputs using the same input vectors.
+Add GPU fixtures to the family's `gpu_fixtures()` in `tests/cases/<family>.py`
+(`tests/harness/gpu.py` `Fixture`/`Driver`, with `tests/harness/scalar.py` and
+`tests/harness/templates.py` for compiled and patched kernels). Verify the target
+instruction and selector, then compare GPU, reference and P-code outputs using the
+same input vectors; `python -m tests.observe <family>` shows raw GPU outputs for a
+draft fixture (`expected=None`).
 Check that the emulator actually visited the target instruction. When testing
 a patched instruction, preserve the kernel wrapper and document exactly which
 word or fields were changed.
@@ -109,9 +112,10 @@ Give rejected forms specific coverage reasons. A message such as
 `unsupported class shape` is a limitation of this emitter, not evidence that
 the GPU or ptxas lacks the instruction.
 
-Add reusable value fixtures to `tests/test_semantics.py` or a focused oracle
-module. Prefer existing encoders and emulation helpers over a second decoding
-or execution framework.
+Add value cases to the family's `emulator_cases()` in `tests/cases/<family>.py`
+and independent references to `tests/refs/` (which must not import the generated
+semantics). Prefer `tests/harness/case.py` helpers (`Cases.add`, `put`, `cx_source`)
+over a second decoding or execution framework.
 
 ## Build, verify and record
 
@@ -128,9 +132,9 @@ Typical checks, adjusted to the actual scope:
 
 ```sh
 python3 -m sass.build_languages SM89
-python3 tests/test_semantics.py SM89
-python3 tests/test_semantics.py SM89 readable
-python3 tests/test_dataflow.py SM89 2000
+python -m tests.semantics SM89 exact --family <family>
+uv run --with pytest python -m pytest tests -m ghidra --arch SM89 --fp all
+uv run --with pytest python -m pytest tests -m gpu --require-gpu --family <family>
 python3 -m sass.coverage processor/SASS/data/languages --output processor/SASS/semantics/coverage.json
 git diff --check
 ```

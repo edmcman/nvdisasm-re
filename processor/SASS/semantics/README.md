@@ -134,7 +134,7 @@ SM75-SM90. Direct GPU evidence remains BMSK-only; other consumers need
 opcode-specific probes before their hardware behavior is established.
 Dedicated SM89 whole-kernel GPU/reference/p-code comparisons cover
 1,504 inputs per mode; emulator tests cover both languages on all architectures.
-`tests/bmsk_cx_semantics.py` supplies a separate manually patched SASS oracle
+The BMSK CX GPU fixtures (`tests/cases/bmsk.py`) supply a separate manually patched SASS oracle
 for CX counts, region sizes and offsets: 8,192 GPU/reference/P-code comparisons
 pass in each language variant. Another 446 focused CX cases pass in each of
 the ten SM75-SM90 languages. The oracle does not claim PTX generated CX.
@@ -170,7 +170,7 @@ starts from `URa` and ORs `UPi << i` for each selected bit `i` from 0 through
 p-code specializes the immediate mask so it reads only the selected uniform
 predicate registers. Register-mask UP2UR and non-B0 selectors remain opaque.
 Exact/readable emulator fixtures cover empty, sparse, full, and
-high-bit masks and a false guard. `tests/up2ur_semantics.py` patches UP2UR into
+high-bit masks and a false guard. A GPU fixture (`tests/cases/predicates.py`) patches UP2UR into
 a compiled SM89 kernel wrapper; nine masks across 128 threads passed 1,152
 GPU/reference/exact-p-code comparisons, including a nonzero URa base. The PTX
 lowering probe did not emit UP2UR, so this hardware result comes from patched
@@ -524,12 +524,10 @@ python3 -m sass.build_languages --output /tmp/sass-semantics
 # compiled files atomically, checks the 16 MiB decompressed size limit, and
 # rejects unused-temporary diagnostics.
 python3 -m sass.coverage /tmp/sass-semantics --output processor/SASS/semantics/coverage.json
-python3 -m unittest discover -s tests -p test_semantics_cpu.py
-python3 tests/test_semantics.py SM89
-python3 tests/test_dataflow.py SM89 20000
-python3 tests/compare_ghidra.py SM89 synthetic 0
-python3 tests/gpu_semantics.py --compile-only
-python3 tests/gpu_semantics.py --require-gpu
+uv run --with pytest python -m pytest tests                                  # helpers incl. softfloat vs libm
+uv run --with pytest python -m pytest tests -m ghidra --arch all --fp all    # disassembly, dataflow, semantics, coverage
+uv run --with pytest python -m pytest tests -m gpu --require-gpu             # SM89 hardware fixtures
+python -m tests.semantics SM89 readable --family f2fp                       # quick layer-4 run outside pytest
 ```
 
 `tests/ghidra_emulate.py` runs decoded p-code through Ghidra's real byte executor
@@ -542,12 +540,12 @@ The CUDA Driver API oracle compiles 96 SM89 kernels and executes their actual
 `.text` through Ghidra's normal instruction stepping, from the prologue through
 EXIT. It compares 128 random/edge input vectors per kernel (four blocks of 32),
 including NaNs, infinities, denormals, signed zero, and integer boundaries.
-Target mnemonics must both appear in cuobjdump output and execute in the emulator.
+Target mnemonics must execute in the emulator (decoded with pydecode).
 The `isetp_ex` PTX 64-bit comparison compiles to a low-word ISETP followed by
 `ISETP.GE.U32.AND.EX`; all 128 vectors matched the GPU. All 12,288 output
 comparisons passed on the RTX 4070 Laptop GPU.
 
-`tests/carry_semantics.py --require-gpu` adds 210 patched SM89 whole-kernel
+The carry GPU fixtures (`tests/cases/carry.py`) add 210 patched SM89 whole-kernel
 variants (26,880 comparisons) for IADD3, LEA and IMAD carry chains, including
 aliased IADD3 outputs, predicate inversion, negate/complement,
 shift boundaries and signed/unsigned full-width overflow. Independent integer
@@ -628,9 +626,8 @@ and cross-thread memory ordering remain outside this hardware validation.
 The loop fixture explicitly acknowledges BSSY/BSYNC events; this verifies its
 per-thread result without asserting a warp scheduler.
 
-Use `NVCC` and `CUOBJDUMP` to select toolkit binaries. Without a GPU, normal
-invocation prints an explicit skip; `--require-gpu` fails. The opt-in pytest
-entry point is `SASS_GPU=1 python3 -m pytest tests -k semantics_gpu`.
+Use `NVCC` to select the toolkit. Without a GPU, `pytest -m gpu` skips; `--require-gpu` fails.
+`python -m tests.observe FAMILY` runs a family's fixtures and prints raw GPU outputs without asserting.
 CUDA device access requires running outside the restricted sandbox here.
 
 Recorded results for this implementation are in [verification.json](verification.json).

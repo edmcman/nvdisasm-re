@@ -85,13 +85,13 @@ Specification: [PTX bmsk](https://docs.nvidia.com/cuda/parallel-thread-execution
 and ordinary constant-bank width operands. It retains the unresolved CX form
 as an opaque fallback. UBMSK was not added in this change.
 
-The fixtures are `tests/bmsk_semantics.py` and
-`tests/kernels/bmsk_semantics.cu`. Focused value tests can run as:
+The fixtures are `tests/cases/bmsk.py` and `tests/kernels/bmsk_semantics.cu`.
+Focused value tests can run as:
 
 ```sh
-python3 tests/bmsk_semantics.py --arch SM89
-python3 tests/bmsk_semantics.py --arch SM89 --fp readable
-python3 tests/bmsk_semantics.py --require-gpu
+python -m tests.semantics SM89 exact --family bmsk
+python -m tests.semantics SM89 readable --family bmsk
+uv run --with pytest python -m pytest tests -m gpu --require-gpu --family bmsk
 ```
 
 The SM89 hardware oracle compiles two whole kernels, verifies one BMSK in each
