@@ -3939,11 +3939,11 @@
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp__URIUR": "outside implemented operation families",
-      "uf2fp__URURUR": "outside implemented operation families",
-      "uf2fp_merge_c__URIUR": "outside implemented operation families",
-      "uf2fp_merge_c__URURI": "outside implemented operation families",
-      "uf2fp_merge_c__URURUR": "outside implemented operation families",
+      "uf2fp__URIUR": "unsupported class shape",
+      "uf2fp__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URIUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "unsupported class shape",
+      "uf2fp_merge_c__URURUR": "unsupported class shape",
       "uisetp_optional_upr__URURUR_URURUR": "unsupported class shape",
       "uisetp_optional_upr__URsIUR_URIR": "unsupported class shape",
       "uldc_const__RCxR": "unsupported class shape",
@@ -4278,11 +4278,11 @@
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp__URIUR": "outside implemented operation families",
-      "uf2fp__URURUR": "outside implemented operation families",
-      "uf2fp_merge_c__URIUR": "outside implemented operation families",
-      "uf2fp_merge_c__URURI": "outside implemented operation families",
-      "uf2fp_merge_c__URURUR": "outside implemented operation families",
+      "uf2fp__URIUR": "unsupported class shape",
+      "uf2fp__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URIUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "unsupported class shape",
+      "uf2fp_merge_c__URURUR": "unsupported class shape",
       "uisetp_optional_upr__URURUR_URURUR": "unsupported class shape",
       "uisetp_optional_upr__URsIUR_URIR": "unsupported class shape",
       "uldc_const__RCxR": "unsupported class shape",
@@ -5255,18 +5255,6 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "f2fp_f16_to_8b_downconvert__RCR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RCxR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRC": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRCx": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RRC": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RRCx": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RRI": "unsupported class shape",
       "fmnmx_pred__RCR_RCR": "unsupported class shape",
       "fmnmx_pred__RCxR_RCxR": "unsupported class shape",
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
@@ -5322,11 +5310,11 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp__URIUR": "outside implemented operation families",
-      "uf2fp__URURUR": "outside implemented operation families",
-      "uf2fp_merge_c__URIUR": "outside implemented operation families",
-      "uf2fp_merge_c__URURI": "outside implemented operation families",
-      "uf2fp_merge_c__URURUR": "outside implemented operation families",
+      "uf2fp__URIUR": "unsupported class shape",
+      "uf2fp__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URIUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "unsupported class shape",
+      "uf2fp_merge_c__URURUR": "unsupported class shape",
       "uisetp_optional_upr__URURUR_URURUR": "unsupported class shape",
       "uisetp_optional_upr__URsIUR_URIR": "unsupported class shape",
       "uldc_const__RCxR": "unsupported class shape",
@@ -5377,8 +5365,7 @@
         "native": 1
       },
       "F2FP": {
-        "native": 30,
-        "opaque": 12
+        "native": 42
       },
       "F2I": {
         "native": 13,
@@ -5594,8 +5581,8 @@
       }
     },
     "status": {
-      "native": 461,
-      "opaque": 596,
+      "native": 473,
+      "opaque": 584,
       "primitive": 116
     }
   },
@@ -5605,18 +5592,6 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "f2fp_f16_to_8b_downconvert__RCR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RCxR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RIR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRC": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRCx": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRI": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRR": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RRU": "unsupported class shape",
-      "f2fp_f16_to_8b_downconvert__RUR": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RRC": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RRCx": "unsupported class shape",
-      "f2fp_f32_to_8b_downconvert__RRI": "unsupported class shape",
       "fmnmx_pred__RCR_RCR": "unsupported class shape",
       "fmnmx_pred__RCxR_RCxR": "unsupported class shape",
       "fmnmx_pred__RIR_RIR": "unsupported class shape",
@@ -5672,11 +5647,11 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp__URIUR": "outside implemented operation families",
-      "uf2fp__URURUR": "outside implemented operation families",
-      "uf2fp_merge_c__URIUR": "outside implemented operation families",
-      "uf2fp_merge_c__URURI": "outside implemented operation families",
-      "uf2fp_merge_c__URURUR": "outside implemented operation families",
+      "uf2fp__URIUR": "unsupported class shape",
+      "uf2fp__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URIUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "unsupported class shape",
+      "uf2fp_merge_c__URURUR": "unsupported class shape",
       "uisetp_optional_upr__URURUR_URURUR": "unsupported class shape",
       "uisetp_optional_upr__URsIUR_URIR": "unsupported class shape",
       "uldc_const__RCxR": "unsupported class shape",
@@ -5727,8 +5702,7 @@
         "native": 1
       },
       "F2FP": {
-        "native": 30,
-        "opaque": 12
+        "native": 42
       },
       "F2I": {
         "native": 13,
@@ -5944,8 +5918,8 @@
       }
     },
     "status": {
-      "native": 461,
-      "opaque": 596,
+      "native": 473,
+      "opaque": 584,
       "primitive": 116
     }
   }
