@@ -5389,5 +5389,38 @@
       "observed": "P2R replaces the selected byte of its base with packed P0-P6 and ignores mask bits above 6. R2P extracts the selected source byte into selected predicates and preserves unselected predicates.",
       "result_file": "/tmp/sass-predicate-transfer-oracle/results.json"
     }
+  },
+  "culifter_hadd2_f32": {
+    "date": "2026-10-11",
+    "upstream": "third_party/culifter/lift/lifter.py::HADD2 handler",
+    "scope": {
+      "implemented": "HADD2.F32 selected-half addition with F32 widening, source selectors/modifiers, FTZ/SAT, and available R/UR/immediate/constant-bank forms on SM86/89/90/100/101/103/120",
+      "semantics": "The required -RZ source contributes its low half; the selected low half from the second source is added in FP16 and widened to F32",
+      "fallbacks": "CX forms and unsupported selectors remain opaque",
+      "hardware_scope": "Register-source RR forms verified on SM89; other supported architectures and constant-bank forms emulator-tested"
+    },
+    "emulator_suite": {
+      "command": "SASS_SLEIGH_OUT=<built-language-dir> python3 tests/test_semantics.py SMxx exact|readable",
+      "architectures": [
+        "SM86",
+        "SM89",
+        "SM90",
+        "SM100",
+        "SM101",
+        "SM103",
+        "SM120"
+      ],
+      "result": "All exact and readable semantic suites passed; each architecture built in both language modes"
+    },
+    "gpu_oracle": {
+      "command": "python3 tests/hadd2_f32_semantics.py",
+      "architecture": "SM89",
+      "fixture": "Patched HADD2.F32 RR word in a compiled whole-kernel wrapper; target execution through EXIT confirmed",
+      "cases": 48,
+      "inputs_per_case": 128,
+      "comparisons": 6144,
+      "coverage": "FTZ/no-FTZ, SAT/no-SAT, H1_H0/H0_H0/H1_H1, absolute and negate combinations",
+      "result": "GPU, independent reference, and exact whole-kernel P-code matched all outputs"
+    }
   }
 }

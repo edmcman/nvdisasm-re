@@ -220,6 +220,13 @@ immediates, and constant-bank values. HFMA2 uses binary128 for an exact finite
 half product and sum before a single rounding to half; HADD2 widens to fp64.
 Both results are captured before writing an overlapping destination. An
 unmodified H0_H0 source reads only its low two bytes in optimized p-code.
+HADD2.F32 is also native on SM86/89/90/100/101/103/120: it adds the selected
+low half lanes from `-RZ` and the second operand, then widens that half result
+to F32. The second-source H1_H0/H0_H0/H1_H1 selectors, absolute/negate,
+FTZ/no-FTZ, SAT/no-SAT, and available register, uniform, immediate, and
+constant-bank forms are covered. SM89 GPU fixtures confirm the register form
+for all 48 selector/modifier combinations (128 inputs each); RC forms are
+emulator-tested. CX forms remain opaque.
 HMUL2 multiplies each selected pair after widening to fp32, which holds the
 exact finite binary16 product before one narrowing conversion. F16_V2 supports
 FMZ, FTZ, and no-flush modes, with SAT and no-SAT variants. FTZ flushes
@@ -228,7 +235,7 @@ produces canonical +0 when either selected input has an all-zero exponent,
 including zero-times-infinity; this case is checked against the GPU. SAT clamps
 the result to [0, 1]. Register, uniform, immediate, and
 constant-bank sources are covered where the machine description provides them.
-FP32/BF16/E6M9 formats, FP32 inputs, H0_NH1, and RELU remain opaque.
+BF16/E6M9 formats, FP32-input packed arithmetic, H0_NH1, and RELU remain opaque.
 The minimum-subnormal Ghidra emulator limitation also applies to FP16.
 
 The `HFMA2.MMA Rd, -RZ, RZ, imm_hi, imm_lo` form is a native constant move

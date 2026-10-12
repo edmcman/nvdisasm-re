@@ -798,7 +798,10 @@ def half_shape(b,fma):
     for name in names:
         if name+'1' in b.values:
             if b.values[name].size not in (2,8) or b.values[name+'1'].size!=b.values[name].size:return None
-        elif b.values[name].size!=4:return None
+        elif (b.values[name].size!=4 and not
+              (not fma and b.k.name.startswith('hadd2_F32') and
+               b.k.operand_types[name].type=='F16Imm' and b.values[name].size==2)):
+            return None
     return names
 
 
@@ -825,7 +828,36 @@ def half_inputs(b,name,swizzle):
 
 def half_arithmetic(b,fma,check):
     names=half_shape(b,fma)
-    if check:return bool(names)
+    is_f32=not fma and b.k.name.startswith('hadd2_F32')
+    if check:return bool(names) and not any(atom.type=='CX' for atom in b.k.operand_types.values())
+    if is_f32:
+        require(b,'ofmt',['F32'])
+        flush=enum_cases(b,'ftz',['noftz','FTZ'])
+        saturate=enum_cases(b,'sat',['nosat','SAT'])
+        cswz='iswzB' if 'iswzB' in b.values else 'iswzB_as_C'
+        inputs=[half_inputs(b,n,s) for n,s in zip(names,('iswzA',cswz))]
+        lhs,rhs=(lane[0] for lane in inputs)
+        wide_lhs=b.expression(8,f'float2float({lhs})').symbol
+        wide_rhs=b.expression(8,f'float2float({rhs})').symbol
+        cases={}
+        for (flush_label,flush_value),(sat_label,sat_value) in product(flush.items(),saturate.items()):
+            a,c=lhs,rhs
+            if flush_label=='FTZ' and not fpops.readable(b):
+                a=fpops.flush(a,2);c=fpops.flush(c,2)
+                wa=b.expression(8,f'float2float({a})').symbol
+                wc=b.expression(8,f'float2float({c})').symbol
+            else:wa,wc=wide_lhs,wide_rhs
+            if fpops.readable(b):
+                code=f'local r:2 = {a} f+ {c};'
+            else:
+                code=f'local r:2 = float2float({wa} f+ {wc});'
+            if flush_label=='FTZ' and not fpops.readable(b):code+=f' r = {fpops.flush("r",2)};'
+            if sat_label=='SAT':code+=' '+fpops.saturate(2)
+            code+=' local out:4 = float2float(r); export out;'
+            cases[(flush_value,sat_value)]=(code)
+        table=b.select_code(('ftz','sat'),cases)
+        b.body.append(f'{output(b).symbol} = {table};')
+        return
     require(b,'ofmt',['F16_V2'])
     if fpops.readable(b):
         for name in ('ftz','fmz'):enum_cases(b,name,FLUSH_LABELS)

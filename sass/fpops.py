@@ -21,7 +21,7 @@ def readable(b):
 
 def flush(v,size=4):
     """Denormal to signed zero."""
-    sign,exponent={4:(0x80000000,0x7f800000),8:(1<<63,0x7ff0000000000000)}[size]
+    sign,exponent={2:(0x8000,0x7c00),4:(0x80000000,0x7f800000),8:(1<<63,0x7ff0000000000000)}[size]
     return f'{v} & ({sign:#x} | ({sign-1:#x} * zext(({v} & {exponent:#x}) != 0)))'
 
 

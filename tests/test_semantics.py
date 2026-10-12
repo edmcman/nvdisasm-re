@@ -969,9 +969,67 @@ def cases(sm,fp='exact'):
                             (0x7e017c00,0x3c003c00),(0xbc00c000,0x40004000)):
                     add('hmul2__RR',dict(Rd=8,Ra=2,Rb=4,fmz=mode,sat='SAT' if sat else 'nosat'),
                         dict(R2=a,R4=b),dict(R8=hmul2_reference(a,b,mode,sat),__native=True))
-    for cls,fields in [('hadd2_F32__RR',dict(Rd=8,Ra=2,Rc=4)),
-                       ('hfma2__RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,ofmt='F32'))]:
-        add(cls,fields,{},dict(error='sass_opaque_'+('HADD2' if cls.startswith('hadd') else 'HFMA2')))
+    # HADD2.F32 adds two half lanes, takes the selected low result, and widens
+    # it to F32. Its required first operand is -RZ; the selectors on the
+    # second source choose which half supplies that low result.
+    def widen_half(bits):
+        kind,sign,value=softfloat.unpack(bits,16)
+        if kind=='nan':return None
+        if kind=='inf':return (sign<<31)|0x7f800000
+        return softfloat.pack(value,32,zero_sign=sign)
+    f32_values=[0x00000000,0x80000000,0x00010001,0x80010001,0x03ff0400,
+                0x040003ff,0x35553aaa,0x3c004000,0xbc00c000,0x7bff3c00,
+                0x7c003c00,0x3c007c00,0x7e003c00]
+    for klass in (k for k in arch.classes if k.mnemonic=='HADD2' and
+                  k.name.startswith('hadd2_F32') and not k.alternate):
+        if any(atom.type=='CX' for atom in klass.operand_types.values()):
+            add(klass.name,dict(Rd=8,Ra='RZ',URc=4,ofmt='F32',**{'Ra@negate':1}),
+                dict(UR4=0x3c003c00),dict(error='sass_opaque_HADD2'))
+            continue
+        source=next(n for n in ('Rc','URc','Sc') if n in klass.operand_types)
+        atom=klass.operand_types[source]
+        swizzle_name=next((n for n in ('iswzB_as_C','iswzB') if n in klass.operand_types),None)
+        for ftz_mode in ('noftz','FTZ'):
+            for sat_mode in ('nosat','SAT'):
+                for swizzle in (('H1_H0','H0_H0','H1_H1') if swizzle_name else ('H1_H0',)):
+                    for absolute in (0,1):
+                        for negate in (0,1):
+                            for packed_value in f32_values:
+                                fields={'Rd':8,'Ra':'RZ','ofmt':'F32','ftz':ftz_mode,'sat':sat_mode,
+                                        'iswzA':'H1_H0','Ra@negate':1}
+                                registers={};memory=[]
+                                source_value=packed_value
+                                if absolute:source_value &= 0x7fff7fff
+                                if negate:source_value ^= 0x80008000
+                                if atom.type=='Register':fields[source]=4;registers['R4']=packed_value
+                                elif atom.type=='UniformRegister':fields[source]=4;registers['UR4']=packed_value
+                                elif atom.type=='F16Imm':fields[source]=packed_value&0xffff;source_value=packed_value&0xffff
+                                elif atom.type=='C':
+                                    fields.update(Sc_bank=2,Sc_addr=0x100)
+                                    memory=[dict(space='cbank',address=(2<<32)|0x100,
+                                                 hex=packed_value.to_bytes(4,'little').hex())]
+                                # Attribute modifiers live in the rule list, not
+                                # operand_types; checking the latter silently
+                                # left the encoded word unmodified while the
+                                # reference applied abs/neg to source_value.
+                                attrs={(r[1],r[2]) for _,r in klass.rules if r[0]=='attr'}
+                                if (source,'absolute') in attrs:fields[source+'@absolute']=absolute
+                                if (source,'negate') in attrs:fields[source+'@negate']=negate
+                                if swizzle_name:fields[swizzle_name]=swizzle
+                                lane=(source_value>>16)&0xffff if swizzle=='H1_H1' else source_value&0xffff
+                                half=softfloat.arithmetic('add',[0x8000,lane],16,
+                                    ftz=ftz_mode=='FTZ' and fp!='readable',sat=sat_mode=='SAT')
+                                expected=widen_half(half)
+                                if expected is None:continue
+                                add(klass.name,fields,registers,{'R8':expected,'__native':True},**({'memory':memory} if memory else {}))
+        # A 16-bit scalar literal occupies the low lane in this one-use form.
+        if atom.type=='F16Imm':
+            for half_value in (0x0001,0x3c00,0x8000,0xbc00):
+                fields={'Rd':8,'Ra':'RZ','Sc':half_value,'ofmt':'F32','ftz':'noftz',
+                        'sat':'nosat','iswzA':'H1_H0','Ra@negate':1}
+                want=widen_half(softfloat.arithmetic('add',[0x8000,half_value],16))
+                add(klass.name,fields,{}, {'R8':want,'__native':True})
+    add('hfma2__RRR',dict(Rd=8,Ra=2,Rb=4,Rc=6,ofmt='F32'),{},dict(error='sass_opaque_HFMA2'))
     if 'hfma2_mma__RRI_norelu' in classes:
         for bits in (0x3c004000,0x80000000,0x7e017d01,0x000103ff):
             canonical=lambda h:0x7fff if h&0x7c00==0x7c00 and h&0x3ff else h
