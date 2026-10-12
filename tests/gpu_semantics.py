@@ -5,6 +5,7 @@ address calculations, memory operations, and EXIT. Threads have independent
 emulator states; warp communication and cross-thread shared memory are excluded.
 """
 import argparse,ctypes as C,json,math,os,random,re,struct,subprocess,sys,tempfile
+from fractions import Fraction
 from pathlib import Path
 sys.path[:0]=[str(Path(__file__).parent),str(Path(__file__).parent.parent)]
 from sass.cubin import kernel_image
@@ -41,6 +42,8 @@ ROUNDED={family for family in SPECS if family[-3:] in ('_rz','_rm','_rp')}
 SPECS.update({
  'f2fp_f16_pack_rn':('F2FP.F16',), 'f2fp_f16_pack_rz':('F2FP.F16',),
  'f2fp_bf16_pack_rn':('F2FP.BF16',), 'f2fp_bf16_pack_rz':('F2FP.BF16',),
+ 'f2fp_e4m3_pack':('F2FP.SATFINITE.E4M3',),
+ 'f2fp_e5m2_pack':('F2FP.SATFINITE.E5M2',),
 })
 HALF_FLOAT_OUTPUTS={'hadd2','hfma2','hmul2','hmul2_sat','hmul2_ftz','hmul2_fmz','hadd2_sat','hfma2_sat','hadd2_lanes','hfma2_lanes','hmul2_lanes'}
 DOUBLE_FAMILIES={'dadd','dmul','dfma','dsetp','isetp_ex'}|{f for f in ROUNDED if f.startswith('d')}
@@ -65,6 +68,28 @@ def known_min_subnormal_bug(family,inputs,emulator,gpu):
     if not minimum/2<abs(exact)<minimum:return False
     expected_sign=sign if exact<0 else 0
     return emulator==expected_sign and gpu==(expected_sign|1)
+
+
+def fp8_reference(bits,fmt):
+    """Independent nearest-even finite FP8 encoding from exact rational values."""
+    from sass import softfloat
+    kind,sign,value=softfloat.unpack(bits,32);signbit=sign<<7
+    if kind=='nan':return signbit|0x7f
+    if kind=='inf':return signbit|(0x7b if fmt=='E5M2' else 0x7e)
+    mbits=2 if fmt=='E5M2' else 3
+    bias=15 if fmt=='E5M2' else 7
+    value=abs(value);candidates=[]
+    for code in range(128):
+        exp=code>>mbits;mant=code&((1<<mbits)-1)
+        if fmt=='E5M2' and exp==31:continue
+        if fmt=='E4M3' and exp==15 and mant==7:continue
+        if exp==0:v=Fraction(mant)*(Fraction(2)**(1-bias-mbits))
+        else:v=Fraction((1<<mbits)+mant)*(Fraction(2)**(exp-bias-mbits))
+        candidates.append((code,v))
+    if value>=candidates[-1][1]:return signbit|candidates[-1][0]
+    distance=min(abs(value-v) for _,v in candidates)
+    ties=[code for code,v in candidates if abs(value-v)==distance]
+    return signbit|(ties[0] if len(ties)==1 else next(code for code in ties if not (code&1)))
 
 
 
@@ -120,6 +145,10 @@ def patch_half_fixtures(cubin):
         'i2ip_s8_nosat':('I2IP','i2ip__RRR_RRR',dict(satrelu='nosatrelu')),
         'i2ip_s8_satrelu':('I2IP','i2ip__RRR_RRR',dict(satrelu='SATRELU')),
         'i2ip_s4_satrelu':('I2IP','i2ip_24__RRR_RRR',dict(satrelu='SATRELU'))})
+    for family,fmt in (('f2fp_e4m3_pack','E4M3'),('f2fp_e5m2_pack','E5M2')):
+        changes[family]=('F2FP','f2fp_f32_to_8b_downconvert__RRR',dict(
+            dstfmt=fmt,srcfmt='F32',merge='PACK_AB_MERGE_C',rndMode='RN',
+            satfinite='SATFINITE',relu='norelu',extract='H1'))
     for family,fmt,red in (
         ('vabsdiff4_s8_merge','S8','SIMD_MRG'),('vabsdiff4_u8_merge','U8','SIMD_MRG'),
         ('vabsdiff4_s8_acc','S8','ACC'),('vabsdiff4_u8_acc','U8','ACC')):
@@ -139,9 +168,42 @@ def patch_half_fixtures(cubin):
         values={n:v for n,v in decoded.env.items() if isinstance(n,str) and n in names}
         values.update({('@'.join(n)):v for n,v in decoded.env.items() if isinstance(n,tuple) and len(n)==2 and n[0] in names})
         values.update(fields)
+        if family.startswith('f2fp_e') and family.endswith('_pack'):
+            # The compiler's third input is the last LDG before this F2FP.
+            # Hardware carries the selected C half when Rd aliases Rc.
+            loads=[pydecode.decode('SM89',code[i:i+16])
+                   for i in range(0,offset,16)]
+            c_regs=[d.env['Rd'] for d in loads
+                    if d.klass.mnemonic.startswith('LDG') and 'Rd' in d.env]
+            if len(c_regs)<3:raise ValueError(f'{family}: expected three input loads')
+            values['Rc']=c_regs[-1]
+            values['Rd']=c_regs[-1]
         replacement=int.from_bytes(bytes.fromhex(encode('SM89',classname or decoded.klass.name,**values)),'little')
         old=int.from_bytes(code[offset:offset+16],'little');mask=(1<<105)-1
         data[offsets[section]+offset:offsets[section]+offset+16]=((replacement&mask)|(old&~mask)).to_bytes(16,'little')
+        if family.startswith('f2fp_e') and family.endswith('_pack'):
+            # The PTX kernel normally extracts the 16-bit result and rebuilds
+            # the upper half from its original C value. Route that mask from
+            # F2FP's full SASS result instead, exposing PACK_AB_MERGE_C.
+            rd=values['Rd']
+            selectors=[]
+            for candidate in range(offset+16,len(code),16):
+                d=pydecode.decode('SM89',code[candidate:candidate+16])
+                if d.klass.mnemonic=='LOP3' and d.env.get('Sb')==0xffff0000:
+                    selectors.append((candidate,d))
+                elif d.klass.mnemonic=='LOP3' and d.env.get('Sb')==0xffff:
+                    selectors.append((candidate,d))
+            if len(selectors)!=2:raise ValueError(f'{family}: expected two output half masks, got {len(selectors)}')
+            for candidate,d in selectors:
+                operands={n:v for n,v in d.env.items() if isinstance(n,str) and n in d.klass.operand_types}
+                operands.update({'@'.join(n):v for n,v in d.env.items()
+                                 if isinstance(n,tuple) and len(n)==2 and n[0] in d.klass.operand_types})
+                if d.env['Sb']==0xffff0000:operands['Ra']=rd
+                else:operands['Rc']=rd
+                replacement=int.from_bytes(bytes.fromhex(encode('SM89',d.klass.name,**operands)),'little')
+                old=int.from_bytes(code[candidate:candidate+16],'little')
+                data[offsets[section]+candidate:candidate+16+offsets[section]]= (
+                    (replacement&mask)|(old&~mask)).to_bytes(16,'little')
     cubin.write_bytes(data)
     return sorted(changes)
 
@@ -239,6 +301,14 @@ def main():
                     0x477fe000,0x477ff000,0x7f800000,0xff800000,0x7fc00000,
                     0x7f800001,1,0x007fffff,0x00800000,0x7f7fffff,0xff7fffff]
                 vectors=[[values[i%len(values)],values[(i*7+3)%len(values)],0]
+                         for i in range(128)]
+            if family in ('f2fp_e4m3_pack','f2fp_e5m2_pack'):
+                values=[0,0x80000000,1,0x007fffff,0x00800000,0x33800000,
+                    0x3f800000,0xbf800000,0x3f801000,0x3f803000,0x40600000,
+                    0x43e00000,0x43e10000,0x43e08000,0x477fe000,0x7f800000,
+                    0xff800000,0x7fc00000,0x7f800001]
+                vectors=[[values[i%len(values)],values[(i*7+3)%len(values)],
+                          (0x13579bdf ^ (i*0x01010101))&0xffffffff]
                          for i in range(128)]
             if family.startswith('i2ip_'):
                 match=re.fullmatch(r'i2ip_(s2|u2|s4|u4|s8|u8|s16|u16)(?:_(nosat|satrelu))?',family)
@@ -422,6 +492,15 @@ def main():
                                   if not same_packed(got,want))
                     raise AssertionError((family,'GPU/reference mismatch',mismatch,
                         tuple(hex(x) for x in vectors[mismatch][:2]),hex(gpu[mismatch]),hex(expected[mismatch])))
+            if family in ('f2fp_e4m3_pack','f2fp_e5m2_pack'):
+                fmt='E4M3' if family=='f2fp_e4m3_pack' else 'E5M2'
+                expected=tuple((((c>>16)&0xffff)<<16)|
+                    (fp8_reference(x,fmt)<<8)|fp8_reference(y,fmt)
+                    for x,y,c in vectors)
+                if gpu!=expected:
+                    mismatch=next(i for i,(got,want) in enumerate(zip(gpu,expected)) if got!=want)
+                    raise AssertionError((family,'GPU/reference mismatch',mismatch,
+                        tuple(hex(x) for x in vectors[mismatch]),hex(gpu[mismatch]),hex(expected[mismatch])))
             for index,(g,e) in enumerate(zip(gpu,actual)):
                 if family.startswith('f2fp_f16_pack_'):
                     if not same_packed(e,g):raise AssertionError((family,index,

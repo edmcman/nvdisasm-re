@@ -46,7 +46,7 @@ has value semantics. `primitive` means the runtime validates and executes the
 operation or rejects an unsupported selector/context. `opaque` means the md's
 register effects, registers and immediates are passed without asserting a result.
 The coverage ledger's architecture-wide `hardware_verified` flag remains false:
-GPU comparisons currently cover the 94 whole-kernel SM89 fixtures recorded in
+GPU comparisons currently cover the 96 whole-kernel SM89 fixtures recorded in
 [verification.json](verification.json), rather than every class and selector.
 
 IMAD.HI adds the 64-bit addend before selecting the high word; IMAD.WIDE
@@ -283,13 +283,18 @@ The first source converts into bits 31–16 and the second into bits 15–0.
 F16 conversion uses integer rounding, including subnormals and overflow; BF16
 uses its F32 high half and ties-to-even, with NaNs canonicalized to `0x7fff`.
 TF32 retains ten fraction bits and rounds the discarded 13 according to RN/RZ.
-SATFINITE, RELU, E6M9, FP8, constant/immediate/descriptor sources, merge and
-unpack forms remain opaque. Exact/readable semantic suites and dataflow suites
-pass for all nine architectures. The SM89 GPU oracle confirms the four F16 and
-BF16 RN/RZ forms against independent references and P-code (128 whole-kernel
-vectors per form). ptxas emits `F2FP.TF32.F32.PACK_B` for the RN PTX probe on
-SM90, but the available SM89 GPU cannot execute that instruction; TF32 hardware
-validation remains pending.
+F32-to-E4M3/E5M2 `PACK_AB_MERGE_C` is native for RN, SATFINITE, no RELU, and
+direct R/UR inputs, with H0/H1 selection of the carried C half. E5M2 infinity
+clamps to max finite; NaNs use `0x7f` with the source sign. Other FP8 formats,
+FTZ/FMZ, RELU, constant/immediate/descriptor sources, and unpack forms remain
+opaque. Exact/readable semantic suites and dataflow suites pass for all nine
+architectures. The SM89 GPU oracle confirms H1 C merging in the in-place
+`Rd=Rc` form for both E4M3 and E5M2 against independent references and P-code
+(128 whole-kernel vectors per format). Distinct-destination merge results and
+H0 hardware behavior remain unverified. The same oracle confirms the four F16
+and BF16 RN/RZ forms (128 whole-kernel vectors per form). ptxas emits
+`F2FP.TF32.F32.PACK_B` for the RN PTX probe on SM90, but the available SM89 GPU
+cannot execute that instruction; TF32 hardware validation remains pending.
 
 I2IP has a native path for S32 inputs packed to signed or unsigned 2-, 4-,
 8-, and 16-bit lanes. SAT clamps each input to its destination range;
@@ -368,13 +373,13 @@ not a Python reimplementation of the instruction dispatcher. `GHIDRA_PY`
 selects the pyghidra Python interpreter. In a restricted environment, set
 `XDG_CONFIG_HOME` and `XDG_CACHE_HOME` to writable scratch directories.
 
-The CUDA Driver API oracle compiles 94 SM89 kernels and executes their actual
+The CUDA Driver API oracle compiles 96 SM89 kernels and executes their actual
 `.text` through Ghidra's normal instruction stepping, from the prologue through
 EXIT. It compares 128 random/edge input vectors per kernel (four blocks of 32),
 including NaNs, infinities, denormals, signed zero, and integer boundaries.
 Target mnemonics must both appear in cuobjdump output and execute in the emulator.
 The `isetp_ex` PTX 64-bit comparison compiles to a low-word ISETP followed by
-`ISETP.GE.U32.AND.EX`; all 128 vectors matched the GPU. All 12,032 output
+`ISETP.GE.U32.AND.EX`; all 128 vectors matched the GPU. All 12,288 output
 comparisons passed on the RTX 4070 Laptop GPU.
 
 `tests/carry_semantics.py --require-gpu` adds 210 patched SM89 whole-kernel

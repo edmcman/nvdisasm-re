@@ -1146,6 +1146,79 @@ def emit_F2FP(b,check=False):
             '<f2fp_tf32_done>',f'{dst.symbol} = {result.symbol};']
         return
 
+    fp8=b.k.name.startswith('f2fp_f32_to_8b_downconvert__')
+    if fp8:
+        a,c,carry=operands(b,'Ra/URa','Rb/URb','Rc/URc')
+        if check:
+            return (all((a,c,carry)) and dst is not None and dst.size==4 and
+                all(b.values[n].size==4 and b.values[n].kind=='register'
+                    for n in (a,c,carry)) and
+                not any(x.type=='CX' for x in b.k.operand_types.values()) and
+                all(n in b.values for n in ('dstfmt','srcfmt','merge','rndMode',
+                                             'satfinite','relu','extract')))
+        require(b,'dstfmt',['E4M3','E5M2']);require(b,'srcfmt',['F32'])
+        require(b,'merge',['PACK_AB_MERGE_C']);require(b,'rndMode',['RN'])
+        require(b,'satfinite',['SATFINITE']);require(b,'relu',['norelu'])
+        require(b,'extract',['H0','H1'])
+        enum=b.g.arch.enums[b.k.operand_types['dstfmt'].type]
+        e4=enum['E4M3'];e5=enum['E5M2']
+        mbits=b.select('dstfmt',{e4:'3:4',e5:'2:4'},4)
+        bias=b.select('dstfmt',{e4:'7:4',e5:'15:4'},4)
+        maxfinite=b.select('dstfmt',{e4:'0x7e:4',e5:'0x7b:4'},4)
+
+        def convert(src,prefix):
+            bits=b.values[src].symbol
+            sign=b.local(4,f'({bits} >> 24) & 0x80')
+            exp=b.local(4,f'({bits} >> 23) & 0xff')
+            frac=b.local(4,f'{bits} & 0x7fffff')
+            sig=b.local(4,f'{frac.symbol} | 0x800000')
+            target_exp=b.local(4,f'{exp.symbol} - 127:4 + {bias}')
+            is_sub=b.local(1,f'{target_exp.symbol} s<= 0')
+            drop=b.local(4,f'23:4 - {mbits}')
+            extra=b.local(4,f'zext({is_sub.symbol}) * (1:4 - {target_exp.symbol})')
+            shift=b.local(4,f'{drop.symbol} + {extra.symbol}')
+            kept=b.local(4,'0');rem=b.local(4,'0');rounded=b.local(4,'0')
+            em=b.local(4,'0');mag=b.local(4,'0');byte=b.local(4,'0')
+            nan=b.local(1,f'({exp.symbol} == 0xff) && ({frac.symbol} != 0)')
+            b.body += [f'if ({exp.symbol} == 0xff) goto <{prefix}_special>;',
+                f'if ({shift.symbol} > 31:4) goto <{prefix}_tiny>;',
+                f'{kept.symbol} = {sig.symbol} >> {shift.symbol};',
+                f'{rem.symbol} = {sig.symbol} & ((1:4 << {shift.symbol}) - 1:4);',
+                f'if ({rem.symbol} > (1:4 << ({shift.symbol} - 1:4))) goto <{prefix}_increment>;',
+                f'if ({rem.symbol} < (1:4 << ({shift.symbol} - 1:4))) goto <{prefix}_pack>;',
+                f'if (({kept.symbol} & 1) == 0) goto <{prefix}_pack>;',
+                f'<{prefix}_increment>',f'{rounded.symbol} = {kept.symbol} + 1:4; goto <{prefix}_encoded>;',
+                f'<{prefix}_pack>',f'{rounded.symbol} = {kept.symbol};',
+                f'<{prefix}_encoded>',
+                f'if ({is_sub.symbol}) goto <{prefix}_subnormal>;',
+                f'{em.symbol} = {rounded.symbol} + (({target_exp.symbol} - 1:4) << {mbits});',
+                f'goto <{prefix}_finite>;',
+                f'<{prefix}_subnormal>',f'{em.symbol} = {rounded.symbol};',
+                f'<{prefix}_finite>',
+                f'if ({em.symbol} > {maxfinite}) goto <{prefix}_saturate>;',
+                f'{mag.symbol} = {em.symbol}; goto <{prefix}_result>;',
+                f'<{prefix}_saturate>',f'{mag.symbol} = {maxfinite};',
+                f'goto <{prefix}_result>;',
+                f'<{prefix}_special>',
+                f'if ({nan.symbol}) goto <{prefix}_nan>;',
+                f'{mag.symbol} = {maxfinite}; goto <{prefix}_result>;',
+                f'<{prefix}_nan>',f'{mag.symbol} = 0x7f:4; goto <{prefix}_result>;',
+                f'<{prefix}_tiny>',f'{mag.symbol} = 0:4;',
+                f'<{prefix}_result>',
+                f'{byte.symbol} = {sign.symbol} | {mag.symbol};']
+            return byte
+
+        av=convert(a,'f2fp_fp8_a');bv=convert(c,'f2fp_fp8_b')
+        cv=b.values[carry].symbol;extract=b.values['extract'].symbol
+        h1=b.g.arch.enums[b.k.operand_types['extract'].type]['H1']
+        carryhalf=b.local(4,'0')
+        b.body += [f'if ({extract} == {h1}:4) goto <f2fp_fp8_h1>;',
+            f'{carryhalf.symbol} = {cv} & 0xffff:4; goto <f2fp_fp8_pack>;',
+            '<f2fp_fp8_h1>',f'{carryhalf.symbol} = ({cv} >> 16) & 0xffff;',
+            '<f2fp_fp8_pack>',
+            f'{dst.symbol} = ({carryhalf.symbol} << 16) | ({av.symbol} << 8) | {bv.symbol};']
+        return
+
     if not b.k.name.startswith('f2fp__'):return False
     a,c=operands(b,'Ra/URa','Rb/URb')
     if check:

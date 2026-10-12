@@ -605,6 +605,64 @@ def cases(sm,fp='exact'):
                 typ=klass.operand_types[n].type;fieldreg=reg if typ=='Register' else reg+6
                 fields[n]=fieldreg;regs[('R' if typ=='Register' else 'UR')+str(fieldreg)]=0x3f800000
             add(klass.name,fields,regs,dict(error='sass_opaque_F2FP'))
+    # F2FP FP8 PACK_AB_MERGE_C, with exact rational-distance RN-even oracle.
+    fp8_values=[0,0x80000000,0x00000001,0x007fffff,0x00800000,
+        0x33800000,0x3f800000,0xbf800000,0x3f801000,0x3f803000,
+        0x40600000,0x43e00000,0x43e10000,0x43e08000,0x477fe000,
+        0x7f800000,0xff800000,0x7fc00000,0x7f800001]
+    def fp8_decode(code,fmt):
+        from fractions import Fraction as F
+        mbits,bias=(3,7) if fmt=='E4M3' else (2,15)
+        exp=(code>>mbits)&((1<<(4 if fmt=='E4M3' else 5))-1)
+        mant=code&((1<<mbits)-1)
+        if exp==0:return F(mant,1)*F(2)**(1-bias-mbits)
+        return F((1<<mbits)+mant,1)*F(2)**(exp-bias-mbits)
+    def fp8_ref(bits,fmt):
+        kind,sign,value=softfloat.unpack(bits,32)
+        s=sign<<7
+        if kind=='nan':return s|0x7f
+        if kind=='inf':return s|(0x7b if fmt=='E5M2' else 0x7e)
+        value=abs(value)
+        codes=[]
+        for code in range(128):
+            exp=code>>(2 if fmt=='E5M2' else 3)
+            mant=code&((1<<(2 if fmt=='E5M2' else 3))-1)
+            if fmt=='E5M2' and exp==31:continue
+            if fmt=='E4M3' and exp==15 and mant==7:continue
+            codes.append(code)
+        maximum=codes[-1]
+        if value>=fp8_decode(maximum,fmt):return s|maximum
+        distances=[abs(value-fp8_decode(code,fmt)) for code in codes]
+        best=min(distances);ties=[code for code,d in zip(codes,distances) if d==best]
+        return s+(ties[0] if len(ties)==1 else next(code for code in ties if code&1==0))
+    for klass in (k for k in arch.classes if k.mnemonic=='F2FP' and
+                  k.name.startswith('f2fp_f32_to_8b_downconvert__') and
+                  not k.alternate):
+        if any(atom.type=='CX' for atom in klass.operand_types.values()):continue
+        srcs=[next((n for n in group.split('/') if n in klass.operand_types),None)
+              for group in ('Ra/URa','Rb/URb','Rc/URc')]
+        if not all(srcs) or any(klass.operand_types[n].type not in
+              ('Register','UniformRegister') for n in srcs):continue
+        if not all(n in klass.operand_types for n in
+                   ('dstfmt','srcfmt','merge','rndMode','satfinite','relu','extract')):continue
+        for fmt in ('E4M3','E5M2'):
+            if fmt not in arch.enums[klass.operand_types['dstfmt'].type]:continue
+            for extract in ('H0','H1'):
+                if extract not in arch.enums[klass.operand_types['extract'].type]:continue
+                for i,av in enumerate(fp8_values):
+                    bv=fp8_values[(i*7+3)%len(fp8_values)]
+                    cv=(0xa55a1234 ^ (i*0x01010101))&0xffffffff
+                    fields={'Rd':6,'dstfmt':fmt,'srcfmt':'F32',
+                        'merge':'PACK_AB_MERGE_C','rndMode':'RN',
+                        'satfinite':'SATFINITE','relu':'norelu','extract':extract}
+                    regs={}
+                    for n,value,reg in zip(srcs,(av,bv,cv),(2,4,6)):
+                        typ=klass.operand_types[n].type;fieldreg=reg if typ=='Register' else reg+6
+                        fields[n]=fieldreg
+                        regs[('R' if typ=='Register' else 'UR')+str(fieldreg)]=value
+                    cbits=(cv>>16)&0xffff if extract=='H1' else cv&0xffff
+                    want=(cbits<<16)|(fp8_ref(av,fmt)<<8)|fp8_ref(bv,fmt)
+                    add(klass.name,fields,regs,{'R6':want,'__native':True})
     if 'f2i__Rb_32b' in classes:
         for bits,want in [(0x7fc00000,0),(0x7f800001,0),(0x7f800000,0x7fffffff),(0xff800000,0x80000000),
                           (0x4effffff,0x7fffff80),(0x4f000000,0x7fffffff),

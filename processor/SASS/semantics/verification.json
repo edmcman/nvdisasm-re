@@ -589,11 +589,11 @@
   "gpu": {
     "architecture": "SM89",
     "block_size": 32,
-    "compiled_kernels": 94,
-    "cubin_sha256": "647a941b0009b9b5485dd750c7ddde7fb2c0e590e8cb79875c12cdd3dd00984a",
+    "compiled_kernels": 96,
+    "cubin_sha256": "d717b0b307879b586571c038f6c1ff3c0a946f532f19c15201e53a054e465056",
     "device": "NVIDIA GeForce RTX 4070 Laptop GPU",
     "driver_version": "580.178.04",
-    "emulated_instructions": 243988,
+    "emulated_instructions": 249548,
     "exclusions": [
       "warp collectives",
       "cross-thread shared memory and memory ordering",
@@ -1998,7 +1998,6 @@
       },
       {
         "executed_mnemonics": [
-          "BRA",
           "EXIT",
           "IADD3",
           "IMAD",
@@ -2007,7 +2006,6 @@
           "ISETP.GE.U32.AND.EX",
           "LDG.E.64",
           "MOV",
-          "NOP",
           "S2R",
           "SEL",
           "STG.E.64",
@@ -3439,7 +3437,7 @@
         ],
         "family": "branch",
         "passed": 128,
-        "steps": 4372,
+        "steps": 4556,
         "visited": [
           0,
           16,
@@ -4163,6 +4161,18 @@
         ]
       },
       {
+        "executed_mnemonics": [
+          "EXIT",
+          "F2FP.F16.F32.PACK",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
         "family": "f2fp_f16_pack_rn",
         "passed": 128,
         "steps": 2048,
@@ -4183,7 +4193,9 @@
           208,
           224,
           240
-        ],
+        ]
+      },
+      {
         "executed_mnemonics": [
           "EXIT",
           "F2FP.F16.F32.PACK",
@@ -4195,9 +4207,7 @@
           "S2R",
           "STG.E",
           "ULDC.64"
-        ]
-      },
-      {
+        ],
         "family": "f2fp_f16_pack_rz",
         "passed": 128,
         "steps": 2048,
@@ -4218,10 +4228,12 @@
           208,
           224,
           240
-        ],
+        ]
+      },
+      {
         "executed_mnemonics": [
           "EXIT",
-          "F2FP.F16.F32.PACK",
+          "F2FP.BF16.F32.PACK",
           "IADD3",
           "IMAD",
           "IMAD.WIDE.U32",
@@ -4230,9 +4242,7 @@
           "S2R",
           "STG.E",
           "ULDC.64"
-        ]
-      },
-      {
+        ],
         "family": "f2fp_bf16_pack_rn",
         "passed": 128,
         "steps": 2048,
@@ -4253,7 +4263,9 @@
           208,
           224,
           240
-        ],
+        ]
+      },
+      {
         "executed_mnemonics": [
           "EXIT",
           "F2FP.BF16.F32.PACK",
@@ -4265,9 +4277,7 @@
           "S2R",
           "STG.E",
           "ULDC.64"
-        ]
-      },
-      {
+        ],
         "family": "f2fp_bf16_pack_rz",
         "passed": 128,
         "steps": 2048,
@@ -4288,18 +4298,88 @@
           208,
           224,
           240
-        ],
+        ]
+      },
+      {
         "executed_mnemonics": [
           "EXIT",
-          "F2FP.BF16.F32.PACK",
+          "F2FP.SATFINITE.E4M3.F32.PACK",
           "IADD3",
           "IMAD",
           "IMAD.WIDE.U32",
           "LDG.E",
+          "LOP3.LUT",
           "MOV",
           "S2R",
           "STG.E",
           "ULDC.64"
+        ],
+        "family": "f2fp_e4m3_pack",
+        "passed": 128,
+        "steps": 2688,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288,
+          304,
+          320
+        ]
+      },
+      {
+        "executed_mnemonics": [
+          "EXIT",
+          "F2FP.SATFINITE.E5M2.F32.PACK",
+          "IADD3",
+          "IMAD",
+          "IMAD.WIDE.U32",
+          "LDG.E",
+          "LOP3.LUT",
+          "MOV",
+          "S2R",
+          "STG.E",
+          "ULDC.64"
+        ],
+        "family": "f2fp_e5m2_pack",
+        "passed": 128,
+        "steps": 2688,
+        "visited": [
+          0,
+          16,
+          32,
+          48,
+          64,
+          80,
+          96,
+          112,
+          128,
+          144,
+          160,
+          176,
+          192,
+          208,
+          224,
+          240,
+          256,
+          272,
+          288,
+          304,
+          320
         ]
       }
     ],
@@ -4308,6 +4388,8 @@
     "mode": "whole-kernel",
     "passed": 11520,
     "patched_fixtures": [
+      "f2fp_e4m3_pack",
+      "f2fp_e5m2_pack",
       "fmax_ftz_nan",
       "fmax_nan",
       "fmin_ftz_nan",
@@ -4330,12 +4412,13 @@
       "vabsdiff4_u8_merge"
     ],
     "sandbox": "disabled for CUDA device access",
-    "scope": "compiled whole kernels from entry through EXIT; tested scalar selectors and independent threads",
+    "scope": "compiled whole kernels from entry through EXIT; tested scalar selectors and independent threads; F2FP FP8 H1 carry in Rd=Rc form",
     "seed": 1,
     "target_mnemonics_confirmed": true,
     "target_mnemonics_executed": true,
     "threads_per_kernel": 128,
-    "compared_outputs": 12032
+    "compared_outputs": 12288,
+    "date": "2026-10-11"
   },
   "gpu_carry": {
     "architecture": "SM89",
@@ -6797,12 +6880,12 @@
     "date": "2026-10-11",
     "implemented": [
       "F2FP F32 to F16/BF16 PACK_AB for RN/RZ and ordinary/uniform register source pairs",
-      "F2FP F32 to TF32 PACK_B for RN/RZ and ordinary/uniform register sources"
+      "F2FP F32 to TF32 PACK_B for RN/RZ and ordinary/uniform register sources",
+      "F2FP F32 to E4M3/E5M2 PACK_AB_MERGE_C for RN, SATFINITE, no RELU, direct register sources, and H0/H1 C-half selection"
     ],
     "fallbacks": [
-      "SATFINITE and RELU selectors",
-      "E6M9/FP8 conversions, 8-bit downconvert and upconvert",
-      "constant-bank, immediate, CX descriptor, merge-C, unpack, and other F2F/F2FP forms"
+      "F16-to-FP8, E6M9, and FP8 upconvert forms",
+      "constant-bank, immediate, CX descriptor, unpack, FTZ/FMZ, RELU, alternate rounding, and other F2F/F2FP forms"
     ],
     "semantics": {
       "SM75": {
@@ -6818,28 +6901,28 @@
         "readable": "14161/14161"
       },
       "SM89": {
-        "exact": "21323/21323",
-        "readable": "14203/14203"
+        "exact": "21551/21551",
+        "readable": "14431/14431"
       },
       "SM90": {
-        "exact": "24693/24693",
-        "readable": "17593/17593"
+        "exact": "24921/24921",
+        "readable": "17821/17821"
       },
       "SM100": {
-        "exact": "20713/20713",
-        "readable": "14297/14297"
+        "exact": "20941/20941",
+        "readable": "14525/14525"
       },
       "SM101": {
-        "exact": "18709/18709",
-        "readable": "12293/12293"
+        "exact": "18937/18937",
+        "readable": "12521/12521"
       },
       "SM103": {
-        "exact": "20713/20713",
-        "readable": "14297/14297"
+        "exact": "20941/20941",
+        "readable": "14525/14525"
       },
       "SM120": {
-        "exact": "19320/19320",
-        "readable": "12904/12904"
+        "exact": "19548/19548",
+        "readable": "13132/13132"
       }
     },
     "dataflow_and_control_flow": {
@@ -6881,7 +6964,7 @@
       }
     },
     "gpu_oracle": {
-      "command": "python3 tests/gpu_semantics.py --require-gpu --output /tmp/sass-f2fp-gpu",
+      "command": "python3 tests/gpu_semantics.py --require-gpu --output /tmp/sass-f2fp-fp8-gpu8",
       "architecture": "SM89",
       "gpu": "NVIDIA GeForce RTX 4070 Laptop GPU",
       "fixtures": [
@@ -6948,10 +7031,44 @@
             "STG.E",
             "ULDC.64"
           ]
+        },
+        {
+          "family": "f2fp_e4m3_pack",
+          "comparisons": 128,
+          "executed_mnemonics": [
+            "EXIT",
+            "F2FP.SATFINITE.E4M3.F32.PACK",
+            "IADD3",
+            "IMAD",
+            "IMAD.WIDE.U32",
+            "LDG.E",
+            "LOP3.LUT",
+            "MOV",
+            "S2R",
+            "STG.E",
+            "ULDC.64"
+          ]
+        },
+        {
+          "family": "f2fp_e5m2_pack",
+          "comparisons": 128,
+          "executed_mnemonics": [
+            "EXIT",
+            "F2FP.SATFINITE.E5M2.F32.PACK",
+            "IADD3",
+            "IMAD",
+            "IMAD.WIDE.U32",
+            "LDG.E",
+            "LOP3.LUT",
+            "MOV",
+            "S2R",
+            "STG.E",
+            "ULDC.64"
+          ]
         }
       ],
-      "comparisons": 512,
-      "result": "GPU, independent references, and exact whole-kernel P-code matched all four packed F16/BF16 RN/RZ targets."
+      "comparisons": 768,
+      "result": "GPU, independent references, and exact whole-kernel P-code matched all six tested forms: four F16/BF16 RN/RZ forms and E4M3/E5M2 H1 merge forms."
     },
     "tf32_ptx_probe": {
       "command": "/usr/local/cuda/bin/nvcc --allow-unsupported-compiler -cubin -arch=sm_90 third_party/culifter/test/sm90_synth/f2fp_tf32_packb/kernel.cu -o /tmp/f2fp_tf32_probe_sm90.cubin",
@@ -6962,9 +7079,20 @@
       "hardware_validation": "pending: the available GPU is SM89 and cannot execute this SM90 instruction."
     },
     "sm89_corpus_impact": {
-      "before": "90.9% native, 0.50% F2FP opaque",
-      "after": "91.2% native, 0.23% F2FP opaque",
-      "remaining": "f2fp_f32_to_8b_downconvert__RRR accounts for all remaining F2FP opaque instructions in this corpus"
+      "before": "91.2% native, 0.23% F2FP opaque",
+      "after": "91.4% native, no F2FP opaque instructions in the 9.6M-word corpus",
+      "remaining": "no F2FP opaque occurrences remain in the SM89 corpus; F2F conversions are a separate opcode family"
+    },
+    "hardware_scope": {
+      "architecture": "SM89",
+      "forms": [
+        "F32-to-E4M3 H1",
+        "F32-to-E5M2 H1",
+        "PACK_AB_MERGE_C with Rd=Rc and distinct C from A/B"
+      ],
+      "vectors_per_form": 128,
+      "result": "GPU, independent exact-rational reference, and exact whole-kernel P-code matched both FP8 formats.",
+      "limitations": "H0 and distinct-destination merge behavior are not hardware-verified; TF32 remains unverified because SM89 cannot execute the SM90 PTX probe."
     }
   }
 }

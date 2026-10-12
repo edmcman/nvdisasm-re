@@ -45,6 +45,8 @@ KERNEL(f2fp_f16_pack_rn, asm("cvt.rn.f16x2.f32 %0,%1,%2;":"=r"(r):"f"(__uint_as_
 KERNEL(f2fp_f16_pack_rz, asm("cvt.rz.f16x2.f32 %0,%1,%2;":"=r"(r):"f"(__uint_as_float(a)),"f"(__uint_as_float(b))))
 KERNEL(f2fp_bf16_pack_rn, asm("cvt.rn.bf16x2.f32 %0,%1,%2;":"=r"(r):"f"(__uint_as_float(a)),"f"(__uint_as_float(b))))
 KERNEL(f2fp_bf16_pack_rz, asm("cvt.rz.bf16x2.f32 %0,%1,%2;":"=r"(r):"f"(__uint_as_float(a)),"f"(__uint_as_float(b))))
+KERNEL(f2fp_e4m3_pack, { uint16_t packed; asm("cvt.rn.satfinite.e4m3x2.f32 %0,%1,%2;":"=h"(packed):"f"(__uint_as_float(a)),"f"(__uint_as_float(b))); r=(c&0xffff0000u)|packed; })
+KERNEL(f2fp_e5m2_pack, { uint16_t packed; asm("cvt.rn.satfinite.e5m2x2.f32 %0,%1,%2;":"=h"(packed):"f"(__uint_as_float(a)),"f"(__uint_as_float(b))); r=(c&0xffff0000u)|packed; })
 KERNEL(f2ip, asm("{ .reg .s32 x,y; cvt.rni.s32.f32 x,%1; cvt.rni.s32.f32 y,%2; cvt.pack.sat.s8.s32.b32 %0,x,y,%3; }":"=r"(r):"r"(a),"r"(b),"r"(c)))
 KERNEL(i2ip_s2, asm("cvt.pack.sat.s2.s32.b32 %0,%1,%2,%3;":"=r"(r):"r"(a),"r"(b),"r"(c)))
 KERNEL(i2ip_u2, asm("cvt.pack.sat.u2.s32.b32 %0,%1,%2,%3;":"=r"(r):"r"(a),"r"(b),"r"(c)))
