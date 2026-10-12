@@ -195,14 +195,15 @@ dataflow can be checked with `python3 tests/test_dataflow.py SM89`, or with
 
 ### GPU semantics oracle
 
-`python3 tests/gpu_semantics.py --require-gpu` compiles 96 SM89 CUDA kernels,
+`python3 tests/gpu_semantics.py --require-gpu` compiles 100 SM89 CUDA kernels,
 runs them on the GPU, then executes the same kernel text in Ghidra's p-code
-emulator. It checks 12,288 random/edge output values, including address setup,
+emulator. It checks 12,800 random/edge output values, including address setup,
 constant parameters, memory operations, predication, and loops. Patched fixtures
 select specific FP16 lane/MMA modes and FMNMX NaN modes; both the GPU and emulator
-execute the resulting cubin. A 64-bit PTX comparison also checks the ptxas
-ISETP.EX lowering, packed F16/BF16 F2FP RN/RZ conversions, and E4M3/E5M2
-FP8 packing with H1 C merges. See
+execute the resulting cubin. A 64-bit PTX comparison checks the ptxas ISETP.EX
+lowering. F2FP fixtures cover packed F16/BF16 RN/RZ, E4M3/E5M2 FP8 packing
+with H1 C merges, and E4M3/E5M2 FP8-to-F16 UNPACK_B H0/H1 across all byte
+encodings. See
 [semantic coverage and limitations](processor/SASS/semantics/README.md) for the
 verified modes and excluded warp/concurrency operations.
 

@@ -663,6 +663,47 @@ def cases(sm,fp='exact'):
                     cbits=(cv>>16)&0xffff if extract=='H1' else cv&0xffff
                     want=(cbits<<16)|(fp8_ref(av,fmt)<<8)|fp8_ref(bv,fmt)
                     add(klass.name,fields,regs,{'R6':want,'__native':True})
+    # F2FP.F16.{E4M3,E5M2}.UNPACK_B widens both bytes in selected half.
+    def fp8_to_f16(code,fmt):
+        sign=(code&0x80)<<8
+        if fmt=='E5M2':
+            if (code&0x7c)==0x7c and (code&3):return 0x7fff
+            return code<<8
+        exp=(code>>3)&15;mant=code&7
+        if exp==15 and mant==7:return 0x7fff
+        if exp==0:
+            if mant==0:return sign
+            if mant&4:return sign|(8<<10)|((mant&3)<<8)
+            if mant&2:return sign|(7<<10)|((mant&1)<<9)
+            return sign|(6<<10)
+        return sign|((exp+8)<<10)|(mant<<7)
+    for klass in (k for k in arch.classes if k.mnemonic=='F2FP' and
+                  k.name.startswith('f2fp_8b_upconvert__') and not k.alternate):
+        if any(atom.type=='CX' for atom in klass.operand_types.values()):continue
+        source=next((n for n in ('Rb','URb') if n in klass.operand_types),None)
+        if source is None or klass.operand_types[source].type not in ('Register','UniformRegister'):continue
+        if not all(n in klass.operand_types for n in
+                   ('dstfmt','srcfmt','merge','rndMode','relu','extract_B')):continue
+        typ=klass.operand_types[source].type
+        reg=2 if typ=='Register' else 8
+        regname=('R' if typ=='Register' else 'UR')+str(reg)
+        for fmt in ('E4M3','E5M2'):
+            if fmt not in arch.enums[klass.operand_types['srcfmt'].type]:continue
+            for extract in ('H0','H1'):
+                if extract not in arch.enums[klass.operand_types['extract_B'].type]:continue
+                fields={'Rd':8,'dstfmt':'F16','srcfmt':fmt,'merge':'UNPACK_B',
+                    'rndMode':'RN','relu':'norelu','extract_B':extract,source:reg}
+                for i in range(128):
+                    pair=i|((255-i)<<8)
+                    word=pair if extract=='H0' else pair<<16
+                    regs={regname:word}
+                    want=fp8_to_f16(i,fmt)|(fp8_to_f16(255-i,fmt)<<16)
+                    add(klass.name,fields,regs,{'R8':want,'__native':True})
+            # RELU is outside the modeled UP-convert selector combination.
+            relu_fields=dict(Rd=8,dstfmt='F16',srcfmt=fmt,merge='UNPACK_B',
+                rndMode='RN',relu='RELU',extract_B='H0',**{source:reg})
+            add(klass.name,relu_fields,{regname:0x7f7f8080},
+                {'error':'sass_opaque_F2FP'})
     if 'f2i__Rb_32b' in classes:
         for bits,want in [(0x7fc00000,0),(0x7f800001,0),(0x7f800000,0x7fffffff),(0xff800000,0x80000000),
                           (0x4effffff,0x7fffff80),(0x4f000000,0x7fffffff),

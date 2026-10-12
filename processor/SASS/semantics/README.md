@@ -46,7 +46,7 @@ has value semantics. `primitive` means the runtime validates and executes the
 operation or rejects an unsupported selector/context. `opaque` means the md's
 register effects, registers and immediates are passed without asserting a result.
 The coverage ledger's architecture-wide `hardware_verified` flag remains false:
-GPU comparisons currently cover the 96 whole-kernel SM89 fixtures recorded in
+GPU comparisons currently cover the 100 whole-kernel SM89 fixtures recorded in
 [verification.json](verification.json), rather than every class and selector.
 
 IMAD.HI adds the 64-bit addend before selecting the high word; IMAD.WIDE
@@ -285,9 +285,14 @@ uses its F32 high half and ties-to-even, with NaNs canonicalized to `0x7fff`.
 TF32 retains ten fraction bits and rounds the discarded 13 according to RN/RZ.
 F32-to-E4M3/E5M2 `PACK_AB_MERGE_C` is native for RN, SATFINITE, no RELU, and
 direct R/UR inputs, with H0/H1 selection of the carried C half. E5M2 infinity
-clamps to max finite; NaNs use `0x7f` with the source sign. Other FP8 formats,
-FTZ/FMZ, RELU, constant/immediate/descriptor sources, and unpack forms remain
-opaque. Exact/readable semantic suites and dataflow suites pass for all nine
+clamps to max finite; NaNs use `0x7f` with the source sign. `F16.E4M3/E5M2
+UNPACK_B` is native for RN, no RELU, and direct R/UR sources, with H0/H1
+selection of the source half. Finite E4M3 values are normalized exactly;
+E5M2 finite values and infinities widen by shifting the encoding. Both formats
+canonicalize every NaN to positive `0x7fff`, as established by exhaustive
+SM89 byte probes. Other FP8 formats, FTZ/FMZ, RELU, constant/immediate/
+descriptor sources, and other unpack forms remain opaque. Exact/readable
+semantic suites and dataflow suites pass for all nine
 architectures. The SM89 GPU oracle confirms H1 C merging in the in-place
 `Rd=Rc` form for both E4M3 and E5M2 against independent references and P-code
 (128 whole-kernel vectors per format). Distinct-destination merge results and
@@ -295,6 +300,8 @@ H0 hardware behavior remain unverified. The same oracle confirms the four F16
 and BF16 RN/RZ forms (128 whole-kernel vectors per form). ptxas emits
 `F2FP.TF32.F32.PACK_B` for the RN PTX probe on SM90, but the available SM89 GPU
 cannot execute that instruction; TF32 hardware validation remains pending.
+The four FP8 unpack probes compare both H0 and H1 conversions for E4M3 and
+E5M2 across all 256 source-byte encodings (128 whole-kernel vectors per form).
 
 I2IP has a native path for S32 inputs packed to signed or unsigned 2-, 4-,
 8-, and 16-bit lanes. SAT clamps each input to its destination range;

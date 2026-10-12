@@ -1146,6 +1146,66 @@ def emit_F2FP(b,check=False):
             '<f2fp_tf32_done>',f'{dst.symbol} = {result.symbol};']
         return
 
+    unpack=b.k.name.startswith('f2fp_8b_upconvert__')
+    if unpack:
+        src=operands(b,'Rb/URb')[0]
+        if check:
+            return (src is not None and dst is not None and dst.size==4 and
+                b.values[src].size==4 and b.values[src].kind=='register' and
+                not any(x.type=='CX' for x in b.k.operand_types.values()) and
+                all(n in b.values for n in ('dstfmt','srcfmt','merge','rndMode','relu','extract_B')))
+        require(b,'dstfmt',['F16']);require(b,'srcfmt',['E4M3','E5M2'])
+        require(b,'merge',['UNPACK_B']);require(b,'rndMode',['RN'])
+        require(b,'relu',['norelu']);require(b,'extract_B',['H0','H1'])
+        srcfmt=b.values['srcfmt'].symbol
+        formats=b.g.arch.enums[b.k.operand_types['srcfmt'].type]
+        e4=formats['E4M3'];e5=formats['E5M2']
+        extract=b.values['extract_B'].symbol
+        h1=b.g.arch.enums[b.k.operand_types['extract_B'].type]['H1']
+        packed=b.values[src].symbol
+        selected=b.local(4,'0')
+        b.body += [f'if ({extract} == {h1}:4) goto <f2fp_unpack_h1>;',
+            f'{selected.symbol} = {packed} & 0xffff:4; goto <f2fp_unpack_decode>;',
+            '<f2fp_unpack_h1>',f'{selected.symbol} = ({packed} >> 16:4) & 0xffff:4;',
+            '<f2fp_unpack_decode>']
+
+        def unpack_byte(shift,prefix):
+            byte=b.local(4,f'({selected.symbol} >> {shift}:4) & 0xff:4')
+            sign=b.local(4,f'({byte.symbol} & 0x80:4) << 8:4')
+            exp=b.local(4,f'({byte.symbol} >> 3:4) & 0xf:4')
+            mant=b.local(4,f'{byte.symbol} & 7:4')
+            half_exp=b.local(4,'0');fraction=b.local(4,'0')
+            magnitude=b.local(4,'0');result=b.local(4,'0')
+            b.body += [f'if ({srcfmt} == {e5}:4) goto <{prefix}_e5>;',
+                f'if (({exp.symbol} == 0xf:4) && ({mant.symbol} == 7:4)) goto <{prefix}_nan>;',
+                f'if ({exp.symbol} != 0:4) goto <{prefix}_normal>;',
+                f'if ({mant.symbol} == 0:4) goto <{prefix}_zero>;',
+                f'if (({mant.symbol} & 4:4) != 0:4) goto <{prefix}_sub4>;',
+                f'if (({mant.symbol} & 2:4) != 0:4) goto <{prefix}_sub2>;',
+                f'{half_exp.symbol} = 6:4; goto <{prefix}_pack>;',
+                f'<{prefix}_sub4>',f'{half_exp.symbol} = 8:4;',
+                f'{fraction.symbol} = ({mant.symbol} & 3:4) << 8:4; goto <{prefix}_pack>;',
+                f'<{prefix}_sub2>',f'{half_exp.symbol} = 7:4;',
+                f'{fraction.symbol} = ({mant.symbol} & 1:4) << 9:4; goto <{prefix}_pack>;',
+                f'<{prefix}_normal>',f'{half_exp.symbol} = {exp.symbol} + 8:4;',
+                f'{fraction.symbol} = {mant.symbol} << 7:4; goto <{prefix}_pack>;',
+                f'<{prefix}_zero>',f'{magnitude.symbol} = 0:4; goto <{prefix}_done>;',
+                f'<{prefix}_nan>',f'{result.symbol} = 0x7fff:4; goto <{prefix}_finish>;',
+                f'<{prefix}_pack>',
+                f'{magnitude.symbol} = ({half_exp.symbol} << 10:4) | {fraction.symbol};',
+                f'goto <{prefix}_done>;',
+                f'<{prefix}_e5>',
+                f'if ((({byte.symbol} & 0x7c:4) == 0x7c:4) && (({byte.symbol} & 3:4) != 0:4)) goto <{prefix}_nan>;',
+                f'{magnitude.symbol} = ({byte.symbol} & 0x7f:4) << 8:4;',
+                f'<{prefix}_done>',f'{result.symbol} = {sign.symbol} | {magnitude.symbol};',
+                f'<{prefix}_finish>']
+            return result
+
+        low=unpack_byte(0,'f2fp_unpack_lo')
+        high=unpack_byte(8,'f2fp_unpack_hi')
+        b.body += [f'{dst.symbol} = ({high.symbol} << 16:4) | {low.symbol};']
+        return
+
     fp8=b.k.name.startswith('f2fp_f32_to_8b_downconvert__')
     if fp8:
         a,c,carry=operands(b,'Ra/URa','Rb/URb','Rc/URc')

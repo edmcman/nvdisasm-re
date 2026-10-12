@@ -44,6 +44,10 @@ SPECS.update({
  'f2fp_bf16_pack_rn':('F2FP.BF16',), 'f2fp_bf16_pack_rz':('F2FP.BF16',),
  'f2fp_e4m3_pack':('F2FP.SATFINITE.E4M3',),
  'f2fp_e5m2_pack':('F2FP.SATFINITE.E5M2',),
+ 'f2fp_e4m3_unpack_h0':('F2FP.F16.E4M3.UNPACK_B',),
+ 'f2fp_e4m3_unpack_h1':('F2FP.F16.E4M3.UNPACK_B',),
+ 'f2fp_e5m2_unpack_h0':('F2FP.F16.E5M2.UNPACK_B',),
+ 'f2fp_e5m2_unpack_h1':('F2FP.F16.E5M2.UNPACK_B',),
 })
 HALF_FLOAT_OUTPUTS={'hadd2','hfma2','hmul2','hmul2_sat','hmul2_ftz','hmul2_fmz','hadd2_sat','hfma2_sat','hadd2_lanes','hfma2_lanes','hmul2_lanes'}
 DOUBLE_FAMILIES={'dadd','dmul','dfma','dsetp','isetp_ex'}|{f for f in ROUNDED if f.startswith('d')}
@@ -92,15 +96,31 @@ def fp8_reference(bits,fmt):
     return signbit|(ties[0] if len(ties)==1 else next(code for code in ties if not (code&1)))
 
 
+def fp8_to_f16_reference(code,fmt):
+    sign=(code&0x80)<<8
+    if fmt=='E5M2':
+        if (code&0x7c)==0x7c and (code&3):return 0x7fff
+        return code<<8
+    exp=(code>>3)&15;mant=code&7
+    if exp==15 and mant==7:return 0x7fff
+    if exp==0:
+        if mant==0:return sign
+        if mant&4:return sign|(8<<10)|((mant&3)<<8)
+        if mant&2:return sign|(7<<10)|((mant&1)<<9)
+        return sign|(6<<10)
+    return sign|((exp+8)<<10)|(mant<<7)
+
+
 
 def kernel_request(cubin, family, data):
     image=kernel_image(cubin,'sem_'+family)
     if image['arch']!='SM89':raise ValueError('SM89 cubin required')
     if [p['size'] for p in image['parameters']] != [8,8]:
         raise ValueError('oracle kernels require two pointer parameters')
-    size=8 if family in DOUBLE_FAMILIES else 4
-    count=len(data)//(3*size)
-    if not count or len(data)%(3*size) or count%32:raise ValueError('input must contain whole 32-thread blocks')
+    input_size=8 if family in DOUBLE_FAMILIES else 4
+    output_size=8 if family in DOUBLE_FAMILIES or family.startswith(('f2fp_e4m3_unpack_','f2fp_e5m2_unpack_')) else 4
+    count=len(data)//(3*input_size)
+    if not count or len(data)%(3*input_size) or count%32:raise ValueError('input must contain whole 32-thread blocks')
     input_address,output_address=0x100000000,0x200000000
     constants=dict(image['constants']);bank=bytearray(constants[0])
     # CUDA launch dimensions and local stack base, before the metadata-defined
@@ -112,9 +132,9 @@ def kernel_request(cubin, family, data):
     constants[0]=bytes(bank)
     memory=[dict(space='cbank',address=index<<32,hex=value.hex()) for index,value in constants.items()]
     memory += [dict(space='ram',address=input_address,hex=data.hex()),
-               dict(space='ram',address=output_address,hex=('cc'*count*size))]
+               dict(space='ram',address=output_address,hex=('cc'*count*output_size))]
     return dict(kernel=dict(name=image['name'],code=image['code'].hex(),threads=count,block_size=32),
-                memory=memory,output=dict(address=output_address,size=size,stride=size),
+                memory=memory,output=dict(address=output_address,size=output_size,stride=output_size),
                 context=dict(synchronization=dict(bssy=True,bsync=True)))
 
 def patch_half_fixtures(cubin):
@@ -161,7 +181,8 @@ def patch_half_fixtures(cubin):
         for offset in range(0,len(code),16):
             decoded=pydecode.decode('SM89',code[offset:offset+16])
             if decoded.klass.mnemonic==mnemonic:matches.append((offset,decoded))
-        if len(matches)!=1:raise ValueError(f'{family}: expected one {mnemonic}, got {len(matches)}')
+        if len(matches)!=1:
+            raise ValueError(f'{family}: expected one {mnemonic}, got {len(matches)}')
         offset,decoded=matches[0]
         target=next(k for k in ir.load('SM89').classes if k.name==(classname or decoded.klass.name))
         names=target.operand_types
@@ -227,15 +248,17 @@ class Driver:
     def run(self,cubin,family,data):
         self.call('cuModuleLoad',C.byref(self.module),C.c_char_p(os.fsencode(cubin)))
         fn=C.c_void_p();self.call('cuModuleGetFunction',C.byref(fn),self.module,C.c_char_p(('sem_'+family).encode()))
-        size=8 if family in DOUBLE_FAMILIES else 4
-        a=self.malloc(len(data));n=len(data)//(3*size);b=self.malloc(n*size)
-        inp=C.create_string_buffer(data);result=C.create_string_buffer(n*size)
+        input_size=8 if family in DOUBLE_FAMILIES else 4
+        output_size=8 if family in DOUBLE_FAMILIES or family.startswith(('f2fp_e4m3_unpack_','f2fp_e5m2_unpack_')) else 4
+        a=self.malloc(len(data));n=len(data)//(3*input_size);b=self.malloc(n*output_size)
+        inp=C.create_string_buffer(data)
         self.call('cuMemcpyHtoD_v2',a,inp,C.c_size_t(len(data)))
         params=(C.c_void_p*2)(C.cast(C.byref(a),C.c_void_p),C.cast(C.byref(b),C.c_void_p))
         self.call('cuLaunchKernel',fn,C.c_uint(n//32),C.c_uint(1),C.c_uint(1),C.c_uint(32),C.c_uint(1),C.c_uint(1),C.c_uint(0),C.c_void_p(),params,C.c_void_p())
-        self.call('cuCtxSynchronize');self.call('cuMemcpyDtoH_v2',result,b,C.c_size_t(n*size))
+        result=C.create_string_buffer(n*output_size)
+        self.call('cuCtxSynchronize');self.call('cuMemcpyDtoH_v2',result,b,C.c_size_t(n*output_size))
         self.call('cuModuleUnload',self.module);self.module=C.c_void_p()
-        return struct.unpack('<'+('Q' if size==8 else 'I')*n,result.raw)
+        return struct.unpack('<'+('Q' if output_size==8 else 'I')*n,result.raw)
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--compile-only',action='store_true');p.add_argument('--require-gpu',action='store_true');p.add_argument('--output',default='/tmp/sass-gpu-oracle');a=p.parse_args()
@@ -247,6 +270,10 @@ def main():
         match=re.search(r'Function : sem_'+family+r'\b(.*?)(?=Function :|\Z)',sass,re.S)
         for mnemonic in mnemonics:
             if not match or not re.search(r'\b'+re.escape(mnemonic)+r'(?:\.|\s)',match[1]):raise RuntimeError('fixture does not contain '+mnemonic+' for '+family)
+        if family.startswith(('f2fp_e4m3_unpack_','f2fp_e5m2_unpack_')):
+            ops=re.findall(r'F2FP\.F16\.(?:E4M3|E5M2)\.UNPACK_B\s+([^;]+);',match[1])
+            if len(ops)!=2 or sum('.H1' in op for op in ops)!=1:
+                raise RuntimeError(f'{family}: expected one full-word H0 and one H1 conversion, got {ops}')
     print(f'Compiled and confirmed {len(SPECS)} SM89 kernel fixtures',flush=True)
     if a.compile_only:return
     try:driver=Driver()
@@ -310,6 +337,12 @@ def main():
                 vectors=[[values[i%len(values)],values[(i*7+3)%len(values)],
                           (0x13579bdf ^ (i*0x01010101))&0xffffffff]
                          for i in range(128)]
+            if family.startswith(('f2fp_e4m3_unpack_','f2fp_e5m2_unpack_')):
+                extract='H1' if family.endswith('_h1') else 'H0'
+                vectors=[]
+                for i in range(128):
+                    pair=i|((255-i)<<8)
+                    vectors.append([pair if extract=='H0' else pair<<16,0,0])
             if family.startswith('i2ip_'):
                 match=re.fullmatch(r'i2ip_(s2|u2|s4|u4|s8|u8|s16|u16)(?:_(nosat|satrelu))?',family)
                 if not match:raise ValueError(f'bad I2IP fixture name {family}')
@@ -366,7 +399,7 @@ def main():
                     raise AssertionError((family,'GPU/reference mismatch',mismatch,vectors[mismatch],gpu[mismatch],expected[mismatch]))
             body=re.search(r'Function : sem_'+family+r'\b(.*?)(?=Function :|\Z)',sass,re.S)[1]
             instructions={int(offset,16):mnemonic for offset,mnemonic in re.findall(
-                r'/\*([0-9a-f]+)\*/\s+(?:@!?\w+\s+)?([A-Z][A-Z0-9]*(?:\.[A-Z0-9]+)*)',body)}
+                r'/\*([0-9a-f]+)\*/\s+(?:@!?\w+\s+)?([A-Z][A-Z0-9_]*(?:\.[A-Z0-9_]+)*)',body)}
             executed={instructions[offset] for offset in result['visited']}
             for target in SPECS[family]:
                 if not any(op==target or op.startswith(target+'.') for op in executed):
@@ -497,6 +530,20 @@ def main():
                 expected=tuple((((c>>16)&0xffff)<<16)|
                     (fp8_reference(x,fmt)<<8)|fp8_reference(y,fmt)
                     for x,y,c in vectors)
+                if gpu!=expected:
+                    mismatch=next(i for i,(got,want) in enumerate(zip(gpu,expected)) if got!=want)
+                    raise AssertionError((family,'GPU/reference mismatch',mismatch,
+                        tuple(hex(x) for x in vectors[mismatch]),hex(gpu[mismatch]),hex(expected[mismatch])))
+            if family.startswith(('f2fp_e4m3_unpack_','f2fp_e5m2_unpack_')):
+                fmt='E4M3' if family.startswith('f2fp_e4m3') else 'E5M2'
+                expected=[]
+                for word,_,_ in vectors:
+                    lo=(fp8_to_f16_reference(word&0xff,fmt)|
+                        (fp8_to_f16_reference((word>>8)&0xff,fmt)<<16))
+                    hi=(fp8_to_f16_reference((word>>16)&0xff,fmt)|
+                        (fp8_to_f16_reference((word>>24)&0xff,fmt)<<16))
+                    expected.append(lo|(hi<<32))
+                expected=tuple(expected)
                 if gpu!=expected:
                     mismatch=next(i for i,(got,want) in enumerate(zip(gpu,expected)) if got!=want)
                     raise AssertionError((family,'GPU/reference mismatch',mismatch,
