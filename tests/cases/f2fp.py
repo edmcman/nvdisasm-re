@@ -533,5 +533,5 @@ def gpu_fixtures():
             out.append(Fixture(name=f"e6m9_{wrapper}_{rnd}_{int(sat)}_{int(relu)}", image=t.patch({offset: (sm89(form, **fields), t.control(offset))}),
                                kernel="sem_" + wrapper, data=rows(triples), arguments=((4, 0x3fc00000),) if wrapper == "f2fp_f16_pack_c" else (),
                                expected=[(cvt(a) << 16) | cvt(b if wrapper == "f2fp_f16_pack_rn" else 0x3fc00000) for a, b, _ in triples],
-                               exit=True, emulate_threads=64))
+                               exit=True))
     return out

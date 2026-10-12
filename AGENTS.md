@@ -42,7 +42,7 @@ Each layer checks one artifact against one oracle; markers only say what a test 
 
 - `tests/cases/<family>.py`: `emulator_cases(c)` (layer 4, `harness/case.py` `Cases.add`, `put`, `cx_source`) and `gpu_fixtures()` (layer 5, `harness/gpu.py` `Fixture`; `harness/scalar.py` compiled scalar kernels; `harness/templates.py` patched CX wrapper and carry-kernel slots). Every random block draws from its own named `random.Random`.
 - `tests/refs/` are independent references and may import only `sass.softfloat` from `sass/` (`test_refs.py` enforces it). `harness/checks.py` documents the expectation keys (`__native`, `__max_ops`, `__fp8_nan`, `__opaque`, `error`, ...).
-- `harness/ghidra.py` is the only path to `ghidra_emulate.py`/`ghidra_decode.py`; Ghidra layers emulate all selected languages concurrently. `conftest.require_languages` fails on a stale `.sla` instead of letting concurrent Ghidra processes recompile it.
+- `harness/ghidra.py` is the only path to `ghidra_emulate.py`/`ghidra_decode.py`; Ghidra layers run all selected languages concurrently, and layer 4 (`emulate_sharded`) also splits each language's batch into chunks so up to 24 JVMs stay busy. `conftest.require_languages` fails on a stale `.sla` instead of letting concurrent Ghidra processes recompile it.
 - GPU vs reference is exact except F16 NaN payload/sign in F16 packs; GPU vs emulator tolerates floating NaN payload/sign and excuses the Ghidra minimum-subnormal underflow (fp16/32/64) only on its exact signature. FP8 emulator cases compare NaN class only (`__fp8_nan`).
 - I2IP sub-byte forms (S2/U2 `.28`, S4/U4 `.24`) fill the high bits from C unshifted; only H1 selects C's high half (SM89 hardware, 2026-10-12; the earlier reference and p-code shifted for every non-H0 form).
 

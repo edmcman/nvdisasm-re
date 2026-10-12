@@ -40,7 +40,7 @@ def semantic_results(request):
     require_languages(variants)
     cases = all_cases(variants, fams)
     flat = {v: [(family, c) for family, cs in fams_cases.items() for c in cs] for v, fams_cases in cases.items()}
-    results = ghidra.concurrently(ghidra.emulate, {v: (*v, [c.request for _, c in flat[v]]) for v in variants})
+    results = ghidra.emulate_sharded({v: (*v, [c.request for _, c in flat[v]]) for v in variants})
     out = {}
     for v in variants:
         grouped = defaultdict(list)

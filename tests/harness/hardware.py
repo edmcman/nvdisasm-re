@@ -28,7 +28,7 @@ def check(f, gpu, result):
         ops = executed(f, result["visited"])
         out += [f"target {t} never executed" for t in f.targets if not any(op == t or op.startswith(t + ".") for op in ops)]
     emulated = ghidra.outputs(result)
-    other = (f.expected if f.emulator_vs == "reference" else gpu)[:len(emulated)]
+    other = f.expected if f.emulator_vs == "reference" else gpu
     same = f.emulator_same or f.same
     bad = [i for i, (e, o) in enumerate(zip(emulated, other)) if not same(e, o) and not f.excused(i, e, o)]
     if len(emulated) != len(other): out.append(f"emulator produced {len(emulated)} outputs, expected {len(other)}")

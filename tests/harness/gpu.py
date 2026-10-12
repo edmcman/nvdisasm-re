@@ -28,7 +28,7 @@ class Fixture:
     """One patched kernel launch: GPU outputs are compared with `expected` (the reference) using
     `same(gpu, want)` and with the emulator using `emulator_same(emulated, other)` (default `same`),
     where other is the GPU output or, with emulator_vs="reference", the expected value. The emulator
-    may run `emulator_image` (default image) on the first `emulate_threads` threads (default all);
+    may run a different `emulator_image` (default image);
     `excused(i, emulated, gpu)` admits known emulator defects; `visited` offsets and `targets`
     mnemonics must execute; `exit` requires termination through EXIT."""
     name: str
@@ -46,7 +46,6 @@ class Fixture:
     emulator_same: Callable | None = None
     emulator_vs: str = "gpu"
     emulator_image: bytes | None = None
-    emulate_threads: int | None = None
     excused: Callable = lambda i, emulated, gpu: False
     modes: tuple = ("exact",)  # fp lowerings to emulate
     vectors: list = field(default_factory=list, repr=False)
@@ -57,13 +56,11 @@ class Fixture:
 
 def request(f):
     """The emulator's whole-kernel request for fixture f (launch dimensions, stack, parameters)."""
-    threads = f.emulate_threads or f.threads
-    data = f.data[:threads * 3 * f.input_size]
     image = elf.kernel_image(f.emulator_image or f.image, f.kernel)
     if image["arch"] != "SM89": raise ValueError("SM89 cubin required")
     if [p["size"] for p in image["parameters"]] != [8, 8] + [size for size, _ in f.arguments]:
         raise ValueError(f"{f.name}: unexpected kernel parameter layout")
-    if not threads or len(data) % (3 * f.input_size) or threads % 32: raise ValueError("input must contain whole 32-thread blocks")
+    if not f.threads or len(f.data) % (3 * f.input_size) or f.threads % 32: raise ValueError("input must contain whole 32-thread blocks")
     constants = dict(image["constants"]); bank = bytearray(constants[0])
     # CUDA launch dimensions and local stack base precede the parameter region (SM89 compiler output).
     struct.pack_into("<III", bank, 0, 32, 1, 1)
@@ -72,8 +69,8 @@ def request(f):
         struct.pack_into("<Q" if parameter["size"] == 8 else "<I", bank, image["parameter_base"] + parameter["offset"], value)
     constants[0] = bytes(bank)
     memory = [dict(space="cbank", address=index << 32, hex=value.hex()) for index, value in constants.items()]
-    memory += [dict(space="ram", address=INPUT, hex=data.hex()), dict(space="ram", address=OUTPUT, hex="cc" * threads * f.output_size)]
-    return dict(kernel=dict(name=image["name"], code=image["code"].hex(), threads=threads, block_size=32), memory=memory,
+    memory += [dict(space="ram", address=INPUT, hex=f.data.hex()), dict(space="ram", address=OUTPUT, hex="cc" * f.threads * f.output_size)]
+    return dict(kernel=dict(name=image["name"], code=image["code"].hex(), threads=f.threads, block_size=32), memory=memory,
                 output=dict(address=OUTPUT, size=f.output_size, stride=f.output_size), context=dict(synchronization=dict(bssy=True, bsync=True)))
 
 

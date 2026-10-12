@@ -32,3 +32,17 @@ def concurrently(fn, jobs):
 
 def outputs(result):
     return [int.from_bytes(bytes.fromhex(x), "little") for x in result["outputs"]]
+
+
+def emulate_sharded(batches, workers=None):
+    """{key: (arch, fp, requests)} -> {key: results}, with every batch split into contiguous
+    chunks of about equal size so `workers` processes stay busy (default: CPUs, at most 24,
+    for about 2 GB per JVM)."""
+    workers = workers or max(1, min(os.cpu_count() or 1, 24))
+    total = sum(len(r) for _, _, r in batches.values())
+    size = max(1, -(-total // workers))
+    jobs = {(key, i): (arch, fp, requests[i:i + size]) for key, (arch, fp, requests) in batches.items()
+            for i in range(0, max(len(requests), 1), size)}
+    with ThreadPoolExecutor(min(workers, len(jobs)) or 1) as pool:
+        futures = {job: pool.submit(emulate, *args) for job, args in jobs.items()}
+    return {key: [r for (k, i), f in sorted(futures.items(), key=lambda kv: kv[0][1]) if k == key for r in f.result()] for key in batches}
