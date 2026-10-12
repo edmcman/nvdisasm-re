@@ -38,6 +38,10 @@ SPECS={
  'branch':('BRA','BSSY','BSYNC'), 'ldc':('LDC',),
  **{f'{op}_{mode}':(f'{op.upper()}.{mode.upper()}',) for op in ('fadd','fmul','ffma','dadd','dmul','dfma') for mode in ('rz','rm','rp')}}
 ROUNDED={family for family in SPECS if family[-3:] in ('_rz','_rm','_rp')}
+SPECS.update({
+ 'f2fp_f16_pack_rn':('F2FP.F16',), 'f2fp_f16_pack_rz':('F2FP.F16',),
+ 'f2fp_bf16_pack_rn':('F2FP.BF16',), 'f2fp_bf16_pack_rz':('F2FP.BF16',),
+})
 HALF_FLOAT_OUTPUTS={'hadd2','hfma2','hmul2','hmul2_sat','hmul2_ftz','hmul2_fmz','hadd2_sat','hfma2_sat','hadd2_lanes','hfma2_lanes','hmul2_lanes'}
 DOUBLE_FAMILIES={'dadd','dmul','dfma','dsetp','isetp_ex'}|{f for f in ROUNDED if f.startswith('d')}
 FLOAT_OUTPUTS={'dadd','dmul','dfma','fadd','fmul','ffma','i2f','fadd_ftz','ffma_sat'}|ROUNDED
@@ -229,6 +233,13 @@ def main():
                         0x7f7fffff,0xff7fffff]
                 vectors=[[values[i%len(values)],values[(i+7)%len(values)],
                           rng.getrandbits(32)] for i in range(128)]
+            if family.startswith(('f2fp_f16_pack_','f2fp_bf16_pack_')):
+                values=[0,0x80000000,0x3f800000,0xbf800000,0x3f801000,
+                    0x3f803000,0x33000000,0x33800000,0x387fc000,0x38800000,
+                    0x477fe000,0x477ff000,0x7f800000,0xff800000,0x7fc00000,
+                    0x7f800001,1,0x007fffff,0x00800000,0x7f7fffff,0xff7fffff]
+                vectors=[[values[i%len(values)],values[(i*7+3)%len(values)],0]
+                         for i in range(128)]
             if family.startswith('i2ip_'):
                 match=re.fullmatch(r'i2ip_(s2|u2|s4|u4|s8|u8|s16|u16)(?:_(nosat|satrelu))?',family)
                 if not match:raise ValueError(f'bad I2IP fixture name {family}')
@@ -374,7 +385,48 @@ def main():
                 if gpu!=expected:
                     mismatch=next(i for i,(got,want) in enumerate(zip(gpu,expected)) if got!=want)
                     raise AssertionError((family,'GPU/reference mismatch',mismatch,vectors[mismatch],hex(gpu[mismatch]),hex(expected[mismatch])))
+            if family.startswith(('f2fp_f16_pack_','f2fp_bf16_pack_')):
+                rn=family.endswith('_rn');is_bf16=family.startswith('f2fp_bf16')
+                def cvt16(bits):
+                    sign=(bits>>16)&0x8000;exp=(bits>>23)&255;frac=bits&0x7fffff
+                    if is_bf16:
+                        if exp==255 and frac:return 0x7fff
+                        hi=bits>>16;lo=bits&0xffff
+                        if rn and (lo>0x8000 or (lo==0x8000 and hi&1)):hi+=1
+                        return hi&0xffff
+                    if exp==255:return sign|(0x7c00 if frac==0 else 0x7e00)
+                    if exp==0:return sign
+                    e=exp-127;sig=frac|0x800000
+                    if e>15:return sign|(0x7c00 if rn else 0x7bff)
+                    if e < -25:return sign
+                    shift=13 if e>=-14 else -e-1
+                    q=sig>>shift;rem=sig&((1<<shift)-1);half=1<<(shift-1)
+                    if rn and (rem>half or (rem==half and q&1)):q+=1
+                    if e>=-14:
+                        if q>=0x800:e+=1;q=0x400
+                        if e>15:return sign|0x7c00
+                        return sign|((e+15)<<10)|(q&0x3ff)
+                    return sign|q
+                expected=tuple((cvt16(x)<<16)|cvt16(y) for x,y,_ in vectors)
+                def same_packed(got,want):
+                    for shift in (0,16):
+                        g=(got>>shift)&0xffff;e=(want>>shift)&0xffff
+                        if is_bf16:
+                            if g!=e:return False
+                        elif g!=e and not ((g&0x7c00)==0x7c00 and (g&0x3ff)!=0 and
+                                           (e&0x7c00)==0x7c00 and (e&0x3ff)!=0):
+                            return False
+                    return True
+                if not all(same_packed(got,want) for got,want in zip(gpu,expected)):
+                    mismatch=next(i for i,(got,want) in enumerate(zip(gpu,expected))
+                                  if not same_packed(got,want))
+                    raise AssertionError((family,'GPU/reference mismatch',mismatch,
+                        tuple(hex(x) for x in vectors[mismatch][:2]),hex(gpu[mismatch]),hex(expected[mismatch])))
             for index,(g,e) in enumerate(zip(gpu,actual)):
+                if family.startswith('f2fp_f16_pack_'):
+                    if not same_packed(e,g):raise AssertionError((family,index,
+                        tuple(hex(x) for x in vectors[index][:2]),hex(e),hex(g)))
+                    continue
                 if family in HALF_FLOAT_OUTPUTS:
                     equal=all(((e>>shift)&0xffff)==((g>>shift)&0xffff) or
                         (((e>>shift)&0x7c00)==0x7c00 and ((e>>shift)&0x3ff)!=0 and

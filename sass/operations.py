@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from itertools import product
 from sass import fpops
 
-OPERATION_FAMILIES = set('IADD3 IMAD LOP3 SHF BMSK LEA IABS IMNMX ISETP SEL PRMT MOV S2R CS2R LDC FADD FMUL FFMA FSETP F2I I2F I2FP MUFU LDG STG LDS STS LDL STL BRA EXIT CALL RET BSSY BSYNC BAR SHFL VOTE ULDC NOP'.split())
+OPERATION_FAMILIES = set('IADD3 IMAD LOP3 SHF BMSK LEA IABS IMNMX ISETP SEL PRMT MOV S2R CS2R LDC FADD FMUL FFMA FSETP F2I F2FP I2F I2FP MUFU LDG STG LDS STS LDL STL BRA EXIT CALL RET BSSY BSYNC BAR SHFL VOTE ULDC NOP'.split())
 ALIASES = dict(UIADD3='IADD3', UIMAD='IMAD', USHF='SHF', ULEA='LEA',
                UISETP='ISETP', ULOP3='LOP3', USEL='SEL', UMOV='MOV', VIADD='IADD',
                **{'HFMA2.MMA':'HFMA2_MMA'})
@@ -1119,6 +1119,108 @@ def emit_F2I(b,check=False):
         '<positive_limit>',f'{result.symbol} = 0x7fffffff;',
         '<done>',f'{dst.symbol} = {result.symbol};'
     ]
+
+
+def emit_F2FP(b,check=False):
+    """Packed F2FP conversions with explicit selector and source-form guards."""
+    dst=output(b)
+    tf32=b.k.name.startswith('f2fp_tf32__')
+    if tf32:
+        src=operands(b,'Rb/URb')[0]
+        if check:
+            return (src is not None and dst is not None and dst.size==4 and
+                    b.values[src].size==4 and b.values[src].kind=='register' and
+                    all(n in b.values for n in ('dstfmt','srcfmt','merge','rndMode','relu')))
+        require(b,'dstfmt',['TF32']);require(b,'srcfmt',['F32'])
+        require(b,'merge',['PACK_B']);require(b,'rndMode',['RN','RZ'])
+        require(b,'relu',['norelu'])
+        bits=b.values[src].symbol;rnd=b.values['rndMode'].symbol
+        rz=b.g.arch.enums[b.k.operand_types['rndMode'].type]['RZ']
+        result=b.local(4,'0')
+        # TF32 retains the sign, exponent and ten high fraction bits.
+        b.body += [f'if ({rnd} == {rz}:4) goto <f2fp_tf32_rz>;',
+            f'local lsb:4 = ({bits} >> 13) & 1;',
+            f'local rounded:4 = {bits} + 0xfff:4 + lsb;',
+            f'{result.symbol} = rounded & 0xffffe000:4; goto <f2fp_tf32_done>;',
+            '<f2fp_tf32_rz>',f'{result.symbol} = {bits} & 0xffffe000:4;',
+            '<f2fp_tf32_done>',f'{dst.symbol} = {result.symbol};']
+        return
+
+    if not b.k.name.startswith('f2fp__'):return False
+    a,c=operands(b,'Ra/URa','Rb/URb')
+    if check:
+        return (a is not None and c is not None and dst is not None and
+                dst.size==4 and all(b.values[n].size==4 and
+                b.values[n].kind=='register' for n in (a,c)) and
+                not any(x.type=='CX' for x in b.k.operand_types.values()) and
+                all(n in b.values for n in ('dstfmt','srcfmt','merge','rndMode','relu')))
+    require(b,'dstfmt',['F16','BF16'])
+    require(b,'srcfmt',['F32']);require(b,'merge',['PACK_AB'])
+    require(b,'rndMode',['RN','RZ']);require(b,'relu',['norelu'])
+    if 'satfinite' in b.values:require(b,'satfinite',['nosatfinite'])
+    rnd=b.values['rndMode'].symbol;rz=b.g.arch.enums[b.k.operand_types['rndMode'].type]['RZ']
+    fmt=b.values['dstfmt'].symbol;formats=b.g.arch.enums[b.k.operand_types['dstfmt'].type]
+    bf16=formats.get('BF16')
+
+    def convert(src,prefix):
+        bits=b.values[src].symbol;out=b.local(4,'0')
+        if bf16 is not None:
+            b.body += [f'if ({fmt} != {bf16}:4) goto <{prefix}_f16>;',
+                f'local {prefix}_exp:4 = ({bits} >> 23) & 0xff;',
+                f'local {prefix}_frac:4 = {bits} & 0x7fffff;',
+                f'if ({prefix}_exp == 0xff && {prefix}_frac != 0) goto <{prefix}_bf_nan>;',
+                f'if ({rnd} == {rz}:4) goto <{prefix}_bf_rz>;',
+                f'local {prefix}_lsb:4 = ({bits} >> 16) & 1;',
+                f'{out.symbol} = ({bits} + 0x7fff:4 + {prefix}_lsb) >> 16; goto <{prefix}_done>;',
+                f'<{prefix}_bf_rz>',f'{out.symbol} = {bits} >> 16; goto <{prefix}_done>;',
+                f'<{prefix}_bf_nan>',f'{out.symbol} = 0x7fff:4; goto <{prefix}_done>;',
+                f'<{prefix}_f16>']
+        # IEEE binary32 -> binary16. Integer rounding avoids the emulator's
+        # minimum-subnormal fptrunc defect and models RN-even / truncation.
+        sign=b.local(4,f'({bits} >> 16) & 0x8000')
+        exp=b.local(4,f'({bits} >> 23) & 0xff')
+        frac=b.local(4,f'{bits} & 0x7fffff')
+        sig=b.local(4,f'{frac.symbol} | 0x800000')
+        e=b.local(4,f'{exp.symbol} - 127:4')
+        q=b.local(4,'0');rem=b.local(4,'0');shift=b.local(4,'0')
+        b.body += [f'if ({exp.symbol} == 0xff) goto <{prefix}_h_special>;',
+            f'if ({exp.symbol} == 0) goto <{prefix}_h_zero>;',
+            f'if ({e.symbol} s> 15:4) goto <{prefix}_h_overflow>;',
+            f'if ({e.symbol} s>= -14:4) goto <{prefix}_h_normal>;',
+            f'if ({e.symbol} s< -25:4) goto <{prefix}_h_zero>;',
+            f'{shift.symbol} = 0:4 - {e.symbol} - 1:4;',
+            f'{q.symbol} = {sig.symbol} >> {shift.symbol};',
+            f'{rem.symbol} = {sig.symbol} & ((1:4 << {shift.symbol}) - 1:4);',
+            f'goto <{prefix}_h_round>;',
+            f'<{prefix}_h_normal>',f'{shift.symbol} = 13:4;',
+            f'{q.symbol} = {sig.symbol} >> 13;',
+            f'{rem.symbol} = {sig.symbol} & 0x1fff;',
+            f'<{prefix}_h_round>',f'if ({rnd} == {rz}:4) goto <{prefix}_h_pack>;',
+            f'if ({rem.symbol} > (1:4 << ({shift.symbol} - 1:4))) goto <{prefix}_h_increment>;',
+            f'if ({rem.symbol} < (1:4 << ({shift.symbol} - 1:4))) goto <{prefix}_h_pack>;',
+            f'if (({q.symbol} & 1) == 0) goto <{prefix}_h_pack>;',
+            f'<{prefix}_h_increment>',f'{q.symbol} = {q.symbol} + 1:4;',
+            f'<{prefix}_h_pack>',f'if ({e.symbol} s>= -14:4) goto <{prefix}_h_norm_pack>;',
+            f'{out.symbol} = {sign.symbol} | {q.symbol}; goto <{prefix}_done>;',
+            f'<{prefix}_h_norm_pack>',
+            f'if ({q.symbol} < 0x800:4) goto <{prefix}_h_norm_bits>;',
+            f'{q.symbol} = 0x400:4; {e.symbol} = {e.symbol} + 1:4;',
+            f'<{prefix}_h_norm_bits>',
+            f'if ({e.symbol} s> 15:4) goto <{prefix}_h_overflow>;',
+            f'{out.symbol} = {sign.symbol} | (({e.symbol} + 15:4) << 10) | ({q.symbol} & 0x3ff); goto <{prefix}_done>;',
+            f'<{prefix}_h_special>',
+            f'if ({frac.symbol} == 0) goto <{prefix}_h_inf>;',
+            f'{out.symbol} = {sign.symbol} | 0x7e00:4; goto <{prefix}_done>;',
+            f'<{prefix}_h_inf>',f'{out.symbol} = {sign.symbol} | 0x7c00:4; goto <{prefix}_done>;',
+            f'<{prefix}_h_overflow>',
+            f'if ({rnd} == {rz}:4) goto <{prefix}_h_maxfinite>;',
+            f'{out.symbol} = {sign.symbol} | 0x7c00:4; goto <{prefix}_done>;',
+            f'<{prefix}_h_maxfinite>',f'{out.symbol} = {sign.symbol} | 0x7bff:4; goto <{prefix}_done>;',
+            f'<{prefix}_h_zero>',f'{out.symbol} = {sign.symbol};',f'<{prefix}_done>']
+        return out
+
+    av=convert(a,'f2fp_a');bv=convert(c,'f2fp_b')
+    b.body += [f'{dst.symbol} = (({av.symbol} & 0xffff:4) << 16) | ({bv.symbol} & 0xffff:4);']
 
 
 def emit_F2IP(b,check=False):

@@ -511,6 +511,100 @@ def cases(sm,fp='exact'):
         add('uldc_const__RCR',dict(URd=8,Sa_bank=2,Sa_addr=16,sz=label),{},expected,
             memory=[dict(space='cbank',address=(2<<32)|16,hex=data)])
     add('i2fp__RRR',dict(Rd=8,Rb=2,srcfmt='S32',dstfmt='F32'),dict(R2=0xfffffffe),dict(R8=0xc0000000))
+    # F2FP.TF32.F32.PACK_B retains 10 fraction bits. The independent oracle
+    # rounds the discarded 13-bit fraction field directly, including ties-even.
+    tf32_values=[0,0x80000000,0x3f801000,0x3f803000,0xbf801000,0xbf803000,
+                 0x3f7ff000,0x3f7ff001,0x7f800000,0xff800000]
+    def tf32_round(bits,rn):
+        sign=bits&0x80000000;mag=bits&0x7fffffff
+        if mag&0x7f800000==0x7f800000:
+            return bits&0xffffe000
+        base=mag&0xffffe000;discarded=mag&0x1fff
+        if rn and (discarded>0x1000 or
+                   (discarded==0x1000 and ((base>>13)&1))):
+            base+=0x2000
+        return sign|base
+    for klass in (k for k in arch.classes if k.mnemonic=='F2FP' and
+                  k.name.startswith('f2fp_tf32__') and not k.alternate):
+        if any(atom.type=='CX' for atom in klass.operand_types.values()):continue
+        src=next((n for n in ('Rb','URb') if n in klass.operand_types),None)
+        if src is None:continue
+        typ=klass.operand_types[src].type
+        for rnd in ('RN','RZ'):
+            for i,bits in enumerate(tf32_values):
+                reg=4 if typ=='Register' else 10
+                fields={'Rd':8,'dstfmt':'TF32','srcfmt':'F32',
+                        'merge':'PACK_B','rndMode':rnd,'relu':'norelu',src:reg}
+                regs={('R' if typ=='Register' else 'UR')+str(reg):bits}
+                add(klass.name,fields,regs,{'R8':tf32_round(bits,rnd=='RN'),
+                                             '__native':True})
+        add(klass.name,dict(Rd=8,dstfmt='TF32',srcfmt='F32',merge='PACK_B',
+            rndMode='RN',relu='RELU',**{src:4 if typ=='Register' else 10}),
+            {},dict(error='sass_opaque_F2FP'))
+    # F2FP.PACK_AB F32 -> F16/BF16, for scalar and uniform register inputs.
+    packed_values=[0,0x80000000,0x3f800000,0xbf800000,0x3f801000,
+        0x3f803000,0x33000000,0x33800000,0x387fc000,0x38800000,
+        0x477fe000,0x477ff000,0x7f800000,0xff800000,0x7fc00000,
+        0x7f800001,1,0x007fffff,0x00800000,0x7f7fffff,0xff7fffff]
+    def f16_pack_ref(bits,rn):
+        sign=(bits>>16)&0x8000;exp=(bits>>23)&255;frac=bits&0x7fffff
+        if exp==255:return sign|(0x7c00 if frac==0 else 0x7e00)
+        if exp==0:return sign
+        e=exp-127;sig=frac|0x800000
+        if e>15:return sign|(0x7c00 if rn else 0x7bff)
+        shift=13 if e>=-14 else -e-1
+        if e < -25:return sign
+        q=sig>>shift;rem=sig&((1<<shift)-1)
+        half=1<<(shift-1)
+        if rn and (rem>half or (rem==half and q&1)):q+=1
+        if e>=-14:
+            if q>=0x800:e+=1;q=0x400
+            if e>15:return sign|0x7c00
+            return sign|((e+15)<<10)|(q&0x3ff)
+        return sign|q
+    def bf16_pack_ref(bits,rn):
+        exp=bits&0x7f800000;frac=bits&0x7fffff
+        if exp==0x7f800000 and frac:return 0x7fff
+        hi=bits>>16;lo=bits&0xffff
+        if rn and (lo>0x8000 or (lo==0x8000 and hi&1)):hi+=1
+        return hi&0xffff
+    for klass in (k for k in arch.classes if k.mnemonic=='F2FP' and
+                  k.name.startswith('f2fp__') and not k.alternate):
+        if any(atom.type=='CX' for atom in klass.operand_types.values()):continue
+        srcs=[next((n for n in group.split('/') if n in klass.operand_types),None)
+              for group in ('Ra/URa','Rb/URb')]
+        if not all(srcs) or any(klass.operand_types[n].type not in
+              ('Register','UniformRegister') for n in srcs):continue
+        if not all(n in klass.operand_types for n in ('dstfmt','srcfmt','merge','rndMode','relu')):continue
+        for fmt in ('F16','BF16'):
+            if fmt not in arch.enums[klass.operand_types['dstfmt'].type]:continue
+            if 'F32' not in arch.enums[klass.operand_types['srcfmt'].type]:continue
+            if 'PACK_AB' not in arch.enums[klass.operand_types['merge'].type]:continue
+            satfield='satfinite' if 'satfinite' in klass.operand_types else None
+            for rnd in ('RN','RZ'):
+                if rnd not in arch.enums[klass.operand_types['rndMode'].type]:continue
+                for i,av in enumerate(packed_values):
+                    bv=packed_values[(i*7+3)%len(packed_values)]
+                    fields={'Rd':8,'dstfmt':fmt,'srcfmt':'F32','merge':'PACK_AB',
+                            'rndMode':rnd,'relu':'norelu'}
+                    if satfield:fields[satfield]='nosatfinite'
+                    regs={}
+                    for n,value,reg in zip(srcs,(av,bv),(2,4)):
+                        typ=klass.operand_types[n].type;fieldreg=reg if typ=='Register' else reg+6
+                        fields[n]=fieldreg
+                        regs[('R' if typ=='Register' else 'UR')+str(fieldreg)]=value
+                    conv=f16_pack_ref if fmt=='F16' else bf16_pack_ref
+                    want=(conv(av,rnd=='RN')<<16)|conv(bv,rnd=='RN')
+                    add(klass.name,fields,regs,{'R8':want,'__native':True})
+        if 'RELU' in arch.enums[klass.operand_types['relu'].type]:
+            fields={'Rd':8,'dstfmt':'F16','srcfmt':'F32','merge':'PACK_AB',
+                    'rndMode':'RN','relu':'RELU'}
+            if 'satfinite' in klass.operand_types:fields['satfinite']='nosatfinite'
+            regs={}
+            for n,reg in zip(srcs,(2,4)):
+                typ=klass.operand_types[n].type;fieldreg=reg if typ=='Register' else reg+6
+                fields[n]=fieldreg;regs[('R' if typ=='Register' else 'UR')+str(fieldreg)]=0x3f800000
+            add(klass.name,fields,regs,dict(error='sass_opaque_F2FP'))
     if 'f2i__Rb_32b' in classes:
         for bits,want in [(0x7fc00000,0),(0x7f800001,0),(0x7f800000,0x7fffffff),(0xff800000,0x80000000),
                           (0x4effffff,0x7fffff80),(0x4f000000,0x7fffffff),
