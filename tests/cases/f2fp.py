@@ -178,7 +178,7 @@ def upconvert(c):
                 for relu in ("norelu", "RELU"):
                     for byte in range(256):
                         scales = byte | ((255 - byte) << 8)
-                        fields = {"Rd": 8, "dstfmt": "BF16", "srcfmt": fmt, "merge": "UNPACK_B", "rndMode": "RN", "satfinite": "SATFINITE", "relu": relu, "selB": selector}
+                        fields = {"Rd": 8, "dstfmt": "BF16", "srcfmt": fmt, "merge": "UNPACK_B", "rndMode": "RN", "satfinite": "SATFINITE", "relu": relu, "selB": selector, "iswzC": "H0"}
                         regs = {}
                         put(k, bsrc, byte << (int(selector[1:]) * 8), fields, regs, None, 2, ureg=4, imm=(k.operand_types[bsrc].type,))
                         put(k, csrc, scales, fields, regs, None, 6, ureg=8, imm=(k.operand_types[csrc].type,))
@@ -408,8 +408,8 @@ def scaled_up(c):
                     other_bytes = ((i ^ 0xa5) & 0xff) | (((i ^ 0x5a) & 0xff) << 8)
                     other_scales = ((i * 11 + 3) & 0xff) | (((i * 17 + 9) & 0xff) << 8)
                     bword = low | (other_bytes << 16) if extract == "H0" else other_bytes | (low << 16)
-                    cword = scales | (other_scales << 16) if extract == "H0" else other_scales | (scales << 16)
-                    fields = dict(Rd=8, dstfmt="BF16", srcfmt=fmt, merge="UNPACK_B", rndMode="RN", relu=relu, satfinite=satfinite, extract_B=extract)
+                    cword = scales | (other_scales << 16)   # Rc.H0 (iswzC); extract_B picks only Rb's half
+                    fields = dict(Rd=8, dstfmt="BF16", srcfmt=fmt, merge="UNPACK_B", rndMode="RN", relu=relu, satfinite=satfinite, extract_B=extract, iswzC="H0")
                     regs = {}
                     into(k, bsrc, bword, fields, regs, 2); into(k, csrc, cword, fields, regs, 4)
                     want = [fpf.scaled_bf16(code, fmt, scale, relu == "RELU", satfinite == "SATFINITE") for code, scale in ((code0, scale0), (code1, scale1))]

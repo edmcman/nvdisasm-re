@@ -5,16 +5,16 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "f2fp_rs_16b__RIR": "unsupported class shape",
-      "f2fp_rs_16b__RRI": "unsupported class shape",
-      "f2fp_rs_16b__RRR": "unsupported class shape",
-      "f2fp_rs_16b__RRU": "unsupported class shape",
-      "f2fp_rs_16b__RUR": "unsupported class shape",
-      "f2fp_rs_8b4b__RIR": "unsupported class shape",
-      "f2fp_rs_8b4b__RRI": "unsupported class shape",
-      "f2fp_rs_8b4b__RRR": "unsupported class shape",
-      "f2fp_rs_8b4b__RRU": "unsupported class shape",
-      "f2fp_rs_8b4b__RUR": "unsupported class shape",
+      "f2fp_rs_16b__RIR": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RRI": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RRR": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RRU": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RUR": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RIR": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RRI": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RRR": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RRU": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RUR": "class variant not yet described by a native override",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
@@ -56,11 +56,7 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp__URIUR": "unsupported class shape",
-      "uf2fp__URURUR": "unsupported class shape",
-      "uf2fp_merge_c__URIUR": "unsupported class shape",
-      "uf2fp_merge_c__URURI": "unsupported class shape",
-      "uf2fp_merge_c__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "up2ur__URb": "unsupported class shape"
     },
     "operations": {
@@ -109,8 +105,8 @@
         "opaque": 10
       },
       "F2I": {
-        "native": 7,
-        "primitive": 17
+        "native": 3,
+        "primitive": 21
       },
       "F2IP": {
         "native": 5
@@ -271,7 +267,8 @@
         "native": 2
       },
       "UF2FP": {
-        "opaque": 5
+        "native": 4,
+        "opaque": 1
       },
       "UFLO": {
         "native": 2
@@ -358,8 +355,8 @@
     },
     "status": {
       "native": 353,
-      "opaque": 537,
-      "primitive": 88
+      "opaque": 533,
+      "primitive": 92
     }
   },
   "SM100_READABLE": {
@@ -368,16 +365,16 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "f2fp_rs_16b__RIR": "unsupported class shape",
-      "f2fp_rs_16b__RRI": "unsupported class shape",
-      "f2fp_rs_16b__RRR": "unsupported class shape",
-      "f2fp_rs_16b__RRU": "unsupported class shape",
-      "f2fp_rs_16b__RUR": "unsupported class shape",
-      "f2fp_rs_8b4b__RIR": "unsupported class shape",
-      "f2fp_rs_8b4b__RRI": "unsupported class shape",
-      "f2fp_rs_8b4b__RRR": "unsupported class shape",
-      "f2fp_rs_8b4b__RRU": "unsupported class shape",
-      "f2fp_rs_8b4b__RUR": "unsupported class shape",
+      "f2fp_rs_16b__RIR": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RRI": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RRR": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RRU": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RUR": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RIR": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RRI": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RRR": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RRU": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RUR": "class variant not yet described by a native override",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
@@ -419,11 +416,7 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp__URIUR": "unsupported class shape",
-      "uf2fp__URURUR": "unsupported class shape",
-      "uf2fp_merge_c__URIUR": "unsupported class shape",
-      "uf2fp_merge_c__URURI": "unsupported class shape",
-      "uf2fp_merge_c__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "up2ur__URb": "unsupported class shape"
     },
     "operations": {
@@ -472,8 +465,8 @@
         "opaque": 10
       },
       "F2I": {
-        "native": 7,
-        "primitive": 17
+        "native": 3,
+        "primitive": 21
       },
       "F2IP": {
         "native": 5
@@ -634,7 +627,8 @@
         "native": 2
       },
       "UF2FP": {
-        "opaque": 5
+        "native": 4,
+        "opaque": 1
       },
       "UFLO": {
         "native": 2
@@ -721,8 +715,8 @@
     },
     "status": {
       "native": 353,
-      "opaque": 537,
-      "primitive": 88
+      "opaque": 533,
+      "primitive": 92
     }
   },
   "SM101": {
@@ -766,11 +760,7 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp__URIUR": "unsupported class shape",
-      "uf2fp__URURUR": "unsupported class shape",
-      "uf2fp_merge_c__URIUR": "unsupported class shape",
-      "uf2fp_merge_c__URURI": "unsupported class shape",
-      "uf2fp_merge_c__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "up2ur__URb": "unsupported class shape"
     },
     "operations": {
@@ -818,8 +808,8 @@
         "native": 60
       },
       "F2I": {
-        "native": 7,
-        "primitive": 17
+        "native": 3,
+        "primitive": 21
       },
       "F2IP": {
         "native": 5
@@ -980,7 +970,8 @@
         "native": 2
       },
       "UF2FP": {
-        "opaque": 5
+        "native": 4,
+        "opaque": 1
       },
       "UFLO": {
         "native": 2
@@ -1067,8 +1058,8 @@
     },
     "status": {
       "native": 339,
-      "opaque": 479,
-      "primitive": 86
+      "opaque": 475,
+      "primitive": 90
     }
   },
   "SM101_READABLE": {
@@ -1112,11 +1103,7 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp__URIUR": "unsupported class shape",
-      "uf2fp__URURUR": "unsupported class shape",
-      "uf2fp_merge_c__URIUR": "unsupported class shape",
-      "uf2fp_merge_c__URURI": "unsupported class shape",
-      "uf2fp_merge_c__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "up2ur__URb": "unsupported class shape"
     },
     "operations": {
@@ -1164,8 +1151,8 @@
         "native": 60
       },
       "F2I": {
-        "native": 7,
-        "primitive": 17
+        "native": 3,
+        "primitive": 21
       },
       "F2IP": {
         "native": 5
@@ -1326,7 +1313,8 @@
         "native": 2
       },
       "UF2FP": {
-        "opaque": 5
+        "native": 4,
+        "opaque": 1
       },
       "UFLO": {
         "native": 2
@@ -1413,8 +1401,8 @@
     },
     "status": {
       "native": 339,
-      "opaque": 479,
-      "primitive": 86
+      "opaque": 475,
+      "primitive": 90
     }
   },
   "SM103": {
@@ -1423,16 +1411,16 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "f2fp_rs_16b__RIR": "unsupported class shape",
-      "f2fp_rs_16b__RRI": "unsupported class shape",
-      "f2fp_rs_16b__RRR": "unsupported class shape",
-      "f2fp_rs_16b__RRU": "unsupported class shape",
-      "f2fp_rs_16b__RUR": "unsupported class shape",
-      "f2fp_rs_8b4b__RIR": "unsupported class shape",
-      "f2fp_rs_8b4b__RRI": "unsupported class shape",
-      "f2fp_rs_8b4b__RRR": "unsupported class shape",
-      "f2fp_rs_8b4b__RRU": "unsupported class shape",
-      "f2fp_rs_8b4b__RUR": "unsupported class shape",
+      "f2fp_rs_16b__RIR": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RRI": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RRR": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RRU": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RUR": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RIR": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RRI": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RRR": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RRU": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RUR": "class variant not yet described by a native override",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
@@ -1474,11 +1462,7 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp__URIUR": "unsupported class shape",
-      "uf2fp__URURUR": "unsupported class shape",
-      "uf2fp_merge_c__URIUR": "unsupported class shape",
-      "uf2fp_merge_c__URURI": "unsupported class shape",
-      "uf2fp_merge_c__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "up2ur__URb": "unsupported class shape"
     },
     "operations": {
@@ -1527,8 +1511,8 @@
         "opaque": 10
       },
       "F2I": {
-        "native": 7,
-        "primitive": 17
+        "native": 3,
+        "primitive": 21
       },
       "F2IP": {
         "native": 5
@@ -1689,7 +1673,8 @@
         "native": 2
       },
       "UF2FP": {
-        "opaque": 5
+        "native": 4,
+        "opaque": 1
       },
       "UFLO": {
         "native": 2
@@ -1776,8 +1761,8 @@
     },
     "status": {
       "native": 353,
-      "opaque": 530,
-      "primitive": 91
+      "opaque": 526,
+      "primitive": 95
     }
   },
   "SM103_READABLE": {
@@ -1786,16 +1771,16 @@
     "opaque_operations": {
       "bra_uniform_": "class selectors have no supported native combination",
       "bra_uniform_pred_": "class selectors have no supported native combination",
-      "f2fp_rs_16b__RIR": "unsupported class shape",
-      "f2fp_rs_16b__RRI": "unsupported class shape",
-      "f2fp_rs_16b__RRR": "unsupported class shape",
-      "f2fp_rs_16b__RRU": "unsupported class shape",
-      "f2fp_rs_16b__RUR": "unsupported class shape",
-      "f2fp_rs_8b4b__RIR": "unsupported class shape",
-      "f2fp_rs_8b4b__RRI": "unsupported class shape",
-      "f2fp_rs_8b4b__RRR": "unsupported class shape",
-      "f2fp_rs_8b4b__RRU": "unsupported class shape",
-      "f2fp_rs_8b4b__RUR": "unsupported class shape",
+      "f2fp_rs_16b__RIR": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RRI": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RRR": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RRU": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RUR": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RIR": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RRI": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RRR": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RRU": "class variant not yet described by a native override",
+      "f2fp_rs_8b4b__RUR": "class variant not yet described by a native override",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
@@ -1837,11 +1822,7 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp__URIUR": "unsupported class shape",
-      "uf2fp__URURUR": "unsupported class shape",
-      "uf2fp_merge_c__URIUR": "unsupported class shape",
-      "uf2fp_merge_c__URURI": "unsupported class shape",
-      "uf2fp_merge_c__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "up2ur__URb": "unsupported class shape"
     },
     "operations": {
@@ -1890,8 +1871,8 @@
         "opaque": 10
       },
       "F2I": {
-        "native": 7,
-        "primitive": 17
+        "native": 3,
+        "primitive": 21
       },
       "F2IP": {
         "native": 5
@@ -2052,7 +2033,8 @@
         "native": 2
       },
       "UF2FP": {
-        "opaque": 5
+        "native": 4,
+        "opaque": 1
       },
       "UFLO": {
         "native": 2
@@ -2139,8 +2121,8 @@
     },
     "status": {
       "native": 353,
-      "opaque": 530,
-      "primitive": 91
+      "opaque": 526,
+      "primitive": 95
     }
   },
   "SM120": {
@@ -2209,15 +2191,7 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp_8b_upconvert__URIUR": "unsupported class shape",
-      "uf2fp_8b_upconvert__URURUR": "unsupported class shape",
-      "uf2fp__URIUR": "unsupported class shape",
-      "uf2fp__URURUR": "unsupported class shape",
-      "uf2fp_merge_c__URIUR": "unsupported class shape",
-      "uf2fp_merge_c__URURI": "unsupported class shape",
-      "uf2fp_merge_c__URURUR": "unsupported class shape",
-      "uf2fp_tf32__URIUR": "unsupported class shape",
-      "uf2fp_tf32__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uimnmx_64__URIR_URsIUR": "SM120 predicates",
       "uimnmx_64__UUU_URURUR": "SM120 predicates",
       "uimnmx__URIR_URsIUR": "SM120 predicates",
@@ -2273,8 +2247,8 @@
         "native": 60
       },
       "F2I": {
-        "native": 7,
-        "primitive": 17
+        "native": 3,
+        "primitive": 21
       },
       "F2IP": {
         "native": 5
@@ -2437,8 +2411,8 @@
         "native": 2
       },
       "UF2FP": {
-        "native": 6,
-        "opaque": 9
+        "native": 14,
+        "opaque": 1
       },
       "UFLO": {
         "native": 2
@@ -2525,9 +2499,9 @@
       }
     },
     "status": {
-      "native": 367,
-      "opaque": 562,
-      "primitive": 86
+      "native": 371,
+      "opaque": 554,
+      "primitive": 90
     }
   },
   "SM120_READABLE": {
@@ -2596,15 +2570,7 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp_8b_upconvert__URIUR": "unsupported class shape",
-      "uf2fp_8b_upconvert__URURUR": "unsupported class shape",
-      "uf2fp__URIUR": "unsupported class shape",
-      "uf2fp__URURUR": "unsupported class shape",
-      "uf2fp_merge_c__URIUR": "unsupported class shape",
-      "uf2fp_merge_c__URURI": "unsupported class shape",
-      "uf2fp_merge_c__URURUR": "unsupported class shape",
-      "uf2fp_tf32__URIUR": "unsupported class shape",
-      "uf2fp_tf32__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uimnmx_64__URIR_URsIUR": "SM120 predicates",
       "uimnmx_64__UUU_URURUR": "SM120 predicates",
       "uimnmx__URIR_URsIUR": "SM120 predicates",
@@ -2660,8 +2626,8 @@
         "native": 60
       },
       "F2I": {
-        "native": 7,
-        "primitive": 17
+        "native": 3,
+        "primitive": 21
       },
       "F2IP": {
         "native": 5
@@ -2824,8 +2790,8 @@
         "native": 2
       },
       "UF2FP": {
-        "native": 6,
-        "opaque": 9
+        "native": 14,
+        "opaque": 1
       },
       "UFLO": {
         "native": 2
@@ -2912,9 +2878,9 @@
       }
     },
     "status": {
-      "native": 367,
-      "opaque": 562,
-      "primitive": 86
+      "native": 371,
+      "opaque": 554,
+      "primitive": 90
     }
   },
   "SM75": {
@@ -2926,15 +2892,15 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
-      "f2fp_rs__RCR": "unsupported class shape",
-      "f2fp_rs__RCxR": "unsupported class shape",
-      "f2fp_rs__RIR": "unsupported class shape",
-      "f2fp_rs__RRC": "unsupported class shape",
-      "f2fp_rs__RRCx": "unsupported class shape",
-      "f2fp_rs__RRI": "unsupported class shape",
-      "f2fp_rs__RRR": "unsupported class shape",
-      "f2fp_rs__RRU": "unsupported class shape",
-      "f2fp_rs__RUR": "unsupported class shape",
+      "f2fp_rs__RCR": "class variant not yet described by a native override",
+      "f2fp_rs__RCxR": "class variant not yet described by a native override",
+      "f2fp_rs__RIR": "class variant not yet described by a native override",
+      "f2fp_rs__RRC": "class variant not yet described by a native override",
+      "f2fp_rs__RRCx": "class variant not yet described by a native override",
+      "f2fp_rs__RRI": "class variant not yet described by a native override",
+      "f2fp_rs__RRR": "class variant not yet described by a native override",
+      "f2fp_rs__RRU": "class variant not yet described by a native override",
+      "f2fp_rs__RUR": "class variant not yet described by a native override",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_uniform__Ra32": "class selectors have no supported native combination",
@@ -3008,8 +2974,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 9,
-        "primitive": 21
+        "native": 5,
+        "primitive": 25
       },
       "F2IP": {
         "absent": 0
@@ -3254,9 +3220,9 @@
       }
     },
     "status": {
-      "native": 397,
+      "native": 393,
       "opaque": 402,
-      "primitive": 104
+      "primitive": 108
     }
   },
   "SM75_READABLE": {
@@ -3268,15 +3234,15 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
-      "f2fp_rs__RCR": "unsupported class shape",
-      "f2fp_rs__RCxR": "unsupported class shape",
-      "f2fp_rs__RIR": "unsupported class shape",
-      "f2fp_rs__RRC": "unsupported class shape",
-      "f2fp_rs__RRCx": "unsupported class shape",
-      "f2fp_rs__RRI": "unsupported class shape",
-      "f2fp_rs__RRR": "unsupported class shape",
-      "f2fp_rs__RRU": "unsupported class shape",
-      "f2fp_rs__RUR": "unsupported class shape",
+      "f2fp_rs__RCR": "class variant not yet described by a native override",
+      "f2fp_rs__RCxR": "class variant not yet described by a native override",
+      "f2fp_rs__RIR": "class variant not yet described by a native override",
+      "f2fp_rs__RRC": "class variant not yet described by a native override",
+      "f2fp_rs__RRCx": "class variant not yet described by a native override",
+      "f2fp_rs__RRI": "class variant not yet described by a native override",
+      "f2fp_rs__RRR": "class variant not yet described by a native override",
+      "f2fp_rs__RRU": "class variant not yet described by a native override",
+      "f2fp_rs__RUR": "class variant not yet described by a native override",
       "ldc_ur__URRzI": "unsupported class shape",
       "ldc_ur__URnonRzI": "unsupported class shape",
       "ldg_uniform__Ra32": "class selectors have no supported native combination",
@@ -3350,8 +3316,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 9,
-        "primitive": 21
+        "native": 5,
+        "primitive": 25
       },
       "F2IP": {
         "absent": 0
@@ -3596,9 +3562,9 @@
       }
     },
     "status": {
-      "native": 397,
+      "native": 393,
       "opaque": 402,
-      "primitive": 104
+      "primitive": 108
     }
   },
   "SM80": {
@@ -3612,15 +3578,15 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
-      "f2fp_rs__RCR": "unsupported class shape",
-      "f2fp_rs__RCxR": "unsupported class shape",
-      "f2fp_rs__RIR": "unsupported class shape",
-      "f2fp_rs__RRC": "unsupported class shape",
-      "f2fp_rs__RRCx": "unsupported class shape",
-      "f2fp_rs__RRI": "unsupported class shape",
-      "f2fp_rs__RRR": "unsupported class shape",
-      "f2fp_rs__RRU": "unsupported class shape",
-      "f2fp_rs__RUR": "unsupported class shape",
+      "f2fp_rs__RCR": "class variant not yet described by a native override",
+      "f2fp_rs__RCxR": "class variant not yet described by a native override",
+      "f2fp_rs__RIR": "class variant not yet described by a native override",
+      "f2fp_rs__RRC": "class variant not yet described by a native override",
+      "f2fp_rs__RRCx": "class variant not yet described by a native override",
+      "f2fp_rs__RRI": "class variant not yet described by a native override",
+      "f2fp_rs__RRR": "class variant not yet described by a native override",
+      "f2fp_rs__RRU": "class variant not yet described by a native override",
+      "f2fp_rs__RUR": "class variant not yet described by a native override",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -3721,8 +3687,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 9,
-        "primitive": 21
+        "native": 5,
+        "primitive": 25
       },
       "F2IP": {
         "absent": 0
@@ -3970,9 +3936,9 @@
       }
     },
     "status": {
-      "native": 408,
+      "native": 404,
       "opaque": 455,
-      "primitive": 104
+      "primitive": 108
     }
   },
   "SM80_READABLE": {
@@ -3986,15 +3952,15 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
-      "f2fp_rs__RCR": "unsupported class shape",
-      "f2fp_rs__RCxR": "unsupported class shape",
-      "f2fp_rs__RIR": "unsupported class shape",
-      "f2fp_rs__RRC": "unsupported class shape",
-      "f2fp_rs__RRCx": "unsupported class shape",
-      "f2fp_rs__RRI": "unsupported class shape",
-      "f2fp_rs__RRR": "unsupported class shape",
-      "f2fp_rs__RRU": "unsupported class shape",
-      "f2fp_rs__RUR": "unsupported class shape",
+      "f2fp_rs__RCR": "class variant not yet described by a native override",
+      "f2fp_rs__RCxR": "class variant not yet described by a native override",
+      "f2fp_rs__RIR": "class variant not yet described by a native override",
+      "f2fp_rs__RRC": "class variant not yet described by a native override",
+      "f2fp_rs__RRCx": "class variant not yet described by a native override",
+      "f2fp_rs__RRI": "class variant not yet described by a native override",
+      "f2fp_rs__RRR": "class variant not yet described by a native override",
+      "f2fp_rs__RRU": "class variant not yet described by a native override",
+      "f2fp_rs__RUR": "class variant not yet described by a native override",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -4095,8 +4061,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 9,
-        "primitive": 21
+        "native": 5,
+        "primitive": 25
       },
       "F2IP": {
         "absent": 0
@@ -4344,9 +4310,9 @@
       }
     },
     "status": {
-      "native": 408,
+      "native": 404,
       "opaque": 455,
-      "primitive": 104
+      "primitive": 108
     }
   },
   "SM86": {
@@ -4360,15 +4326,15 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
-      "f2fp_rs__RCR": "unsupported class shape",
-      "f2fp_rs__RCxR": "unsupported class shape",
-      "f2fp_rs__RIR": "unsupported class shape",
-      "f2fp_rs__RRC": "unsupported class shape",
-      "f2fp_rs__RRCx": "unsupported class shape",
-      "f2fp_rs__RRI": "unsupported class shape",
-      "f2fp_rs__RRR": "unsupported class shape",
-      "f2fp_rs__RRU": "unsupported class shape",
-      "f2fp_rs__RUR": "unsupported class shape",
+      "f2fp_rs__RCR": "class variant not yet described by a native override",
+      "f2fp_rs__RCxR": "class variant not yet described by a native override",
+      "f2fp_rs__RIR": "class variant not yet described by a native override",
+      "f2fp_rs__RRC": "class variant not yet described by a native override",
+      "f2fp_rs__RRCx": "class variant not yet described by a native override",
+      "f2fp_rs__RRI": "class variant not yet described by a native override",
+      "f2fp_rs__RRR": "class variant not yet described by a native override",
+      "f2fp_rs__RRU": "class variant not yet described by a native override",
+      "f2fp_rs__RUR": "class variant not yet described by a native override",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -4413,11 +4379,7 @@
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp__URIUR": "unsupported class shape",
-      "uf2fp__URURUR": "unsupported class shape",
-      "uf2fp_merge_c__URIUR": "unsupported class shape",
-      "uf2fp_merge_c__URURI": "unsupported class shape",
-      "uf2fp_merge_c__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
@@ -4474,8 +4436,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 9,
-        "primitive": 21
+        "native": 5,
+        "primitive": 25
       },
       "F2IP": {
         "native": 9
@@ -4636,7 +4598,8 @@
         "native": 2
       },
       "UF2FP": {
-        "opaque": 5
+        "native": 4,
+        "opaque": 1
       },
       "UFLO": {
         "native": 2
@@ -4724,8 +4687,8 @@
     },
     "status": {
       "native": 422,
-      "opaque": 472,
-      "primitive": 110
+      "opaque": 468,
+      "primitive": 114
     }
   },
   "SM86_READABLE": {
@@ -4739,15 +4702,15 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
-      "f2fp_rs__RCR": "unsupported class shape",
-      "f2fp_rs__RCxR": "unsupported class shape",
-      "f2fp_rs__RIR": "unsupported class shape",
-      "f2fp_rs__RRC": "unsupported class shape",
-      "f2fp_rs__RRCx": "unsupported class shape",
-      "f2fp_rs__RRI": "unsupported class shape",
-      "f2fp_rs__RRR": "unsupported class shape",
-      "f2fp_rs__RRU": "unsupported class shape",
-      "f2fp_rs__RUR": "unsupported class shape",
+      "f2fp_rs__RCR": "class variant not yet described by a native override",
+      "f2fp_rs__RCxR": "class variant not yet described by a native override",
+      "f2fp_rs__RIR": "class variant not yet described by a native override",
+      "f2fp_rs__RRC": "class variant not yet described by a native override",
+      "f2fp_rs__RRCx": "class variant not yet described by a native override",
+      "f2fp_rs__RRI": "class variant not yet described by a native override",
+      "f2fp_rs__RRR": "class variant not yet described by a native override",
+      "f2fp_rs__RRU": "class variant not yet described by a native override",
+      "f2fp_rs__RUR": "class variant not yet described by a native override",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -4792,11 +4755,7 @@
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp__URIUR": "unsupported class shape",
-      "uf2fp__URURUR": "unsupported class shape",
-      "uf2fp_merge_c__URIUR": "unsupported class shape",
-      "uf2fp_merge_c__URURI": "unsupported class shape",
-      "uf2fp_merge_c__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
@@ -4853,8 +4812,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 9,
-        "primitive": 21
+        "native": 5,
+        "primitive": 25
       },
       "F2IP": {
         "native": 9
@@ -5015,7 +4974,8 @@
         "native": 2
       },
       "UF2FP": {
-        "opaque": 5
+        "native": 4,
+        "opaque": 1
       },
       "UFLO": {
         "native": 2
@@ -5103,8 +5063,8 @@
     },
     "status": {
       "native": 422,
-      "opaque": 472,
-      "primitive": 110
+      "opaque": 468,
+      "primitive": 114
     }
   },
   "SM89": {
@@ -5118,15 +5078,15 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
-      "f2fp_rs__RCR": "unsupported class shape",
-      "f2fp_rs__RCxR": "unsupported class shape",
-      "f2fp_rs__RIR": "unsupported class shape",
-      "f2fp_rs__RRC": "unsupported class shape",
-      "f2fp_rs__RRCx": "unsupported class shape",
-      "f2fp_rs__RRI": "unsupported class shape",
-      "f2fp_rs__RRR": "unsupported class shape",
-      "f2fp_rs__RRU": "unsupported class shape",
-      "f2fp_rs__RUR": "unsupported class shape",
+      "f2fp_rs__RCR": "class variant not yet described by a native override",
+      "f2fp_rs__RCxR": "class variant not yet described by a native override",
+      "f2fp_rs__RIR": "class variant not yet described by a native override",
+      "f2fp_rs__RRC": "class variant not yet described by a native override",
+      "f2fp_rs__RRCx": "class variant not yet described by a native override",
+      "f2fp_rs__RRI": "class variant not yet described by a native override",
+      "f2fp_rs__RRR": "class variant not yet described by a native override",
+      "f2fp_rs__RRU": "class variant not yet described by a native override",
+      "f2fp_rs__RUR": "class variant not yet described by a native override",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -5179,11 +5139,7 @@
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp__URIUR": "unsupported class shape",
-      "uf2fp__URURUR": "unsupported class shape",
-      "uf2fp_merge_c__URIUR": "unsupported class shape",
-      "uf2fp_merge_c__URURI": "unsupported class shape",
-      "uf2fp_merge_c__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
@@ -5240,8 +5196,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 9,
-        "primitive": 21
+        "native": 5,
+        "primitive": 25
       },
       "F2IP": {
         "native": 9
@@ -5402,7 +5358,8 @@
         "native": 2
       },
       "UF2FP": {
-        "opaque": 5
+        "native": 4,
+        "opaque": 1
       },
       "UFLO": {
         "native": 2
@@ -5490,8 +5447,8 @@
     },
     "status": {
       "native": 450,
-      "opaque": 494,
-      "primitive": 110
+      "opaque": 490,
+      "primitive": 114
     }
   },
   "SM89_READABLE": {
@@ -5505,15 +5462,15 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
-      "f2fp_rs__RCR": "unsupported class shape",
-      "f2fp_rs__RCxR": "unsupported class shape",
-      "f2fp_rs__RIR": "unsupported class shape",
-      "f2fp_rs__RRC": "unsupported class shape",
-      "f2fp_rs__RRCx": "unsupported class shape",
-      "f2fp_rs__RRI": "unsupported class shape",
-      "f2fp_rs__RRR": "unsupported class shape",
-      "f2fp_rs__RRU": "unsupported class shape",
-      "f2fp_rs__RUR": "unsupported class shape",
+      "f2fp_rs__RCR": "class variant not yet described by a native override",
+      "f2fp_rs__RCxR": "class variant not yet described by a native override",
+      "f2fp_rs__RIR": "class variant not yet described by a native override",
+      "f2fp_rs__RRC": "class variant not yet described by a native override",
+      "f2fp_rs__RRCx": "class variant not yet described by a native override",
+      "f2fp_rs__RRI": "class variant not yet described by a native override",
+      "f2fp_rs__RRR": "class variant not yet described by a native override",
+      "f2fp_rs__RRU": "class variant not yet described by a native override",
+      "f2fp_rs__RUR": "class variant not yet described by a native override",
       "hfma2_mma__RCR_norelu": "unsupported class shape",
       "hfma2_mma__RCR_relu": "unsupported class shape",
       "hfma2_mma__RCxR_norelu": "unsupported class shape",
@@ -5566,11 +5523,7 @@
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp__URIUR": "unsupported class shape",
-      "uf2fp__URURUR": "unsupported class shape",
-      "uf2fp_merge_c__URIUR": "unsupported class shape",
-      "uf2fp_merge_c__URURI": "unsupported class shape",
-      "uf2fp_merge_c__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
@@ -5627,8 +5580,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 9,
-        "primitive": 21
+        "native": 5,
+        "primitive": 25
       },
       "F2IP": {
         "native": 9
@@ -5789,7 +5742,8 @@
         "native": 2
       },
       "UF2FP": {
-        "opaque": 5
+        "native": 4,
+        "opaque": 1
       },
       "UFLO": {
         "native": 2
@@ -5877,8 +5831,8 @@
     },
     "status": {
       "native": 450,
-      "opaque": 494,
-      "primitive": 110
+      "opaque": 490,
+      "primitive": 114
     }
   },
   "SM90": {
@@ -5944,11 +5898,7 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp__URIUR": "unsupported class shape",
-      "uf2fp__URURUR": "unsupported class shape",
-      "uf2fp_merge_c__URIUR": "unsupported class shape",
-      "uf2fp_merge_c__URURI": "unsupported class shape",
-      "uf2fp_merge_c__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
@@ -6009,8 +5959,8 @@
         "native": 42
       },
       "F2I": {
-        "native": 13,
-        "primitive": 27
+        "native": 5,
+        "primitive": 35
       },
       "F2IP": {
         "native": 9
@@ -6171,7 +6121,8 @@
         "native": 2
       },
       "UF2FP": {
-        "opaque": 5
+        "native": 4,
+        "opaque": 1
       },
       "UFLO": {
         "native": 2
@@ -6259,9 +6210,9 @@
       }
     },
     "status": {
-      "native": 478,
-      "opaque": 579,
-      "primitive": 116
+      "native": 474,
+      "opaque": 575,
+      "primitive": 124
     }
   },
   "SM90_READABLE": {
@@ -6327,11 +6278,7 @@
       "stl_memdesc_": "class selectors have no supported native combination",
       "stl_uniform_": "class selectors have no supported native combination",
       "sts_uniform_": "class selectors have no supported native combination",
-      "uf2fp__URIUR": "unsupported class shape",
-      "uf2fp__URURUR": "unsupported class shape",
-      "uf2fp_merge_c__URIUR": "unsupported class shape",
-      "uf2fp_merge_c__URURI": "unsupported class shape",
-      "uf2fp_merge_c__URURUR": "unsupported class shape",
+      "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uldc_const__RCxR": "unsupported class shape",
       "uldc_imm_": "unsupported class shape",
       "uldc_ur_offs_": "unsupported class shape",
@@ -6392,8 +6339,8 @@
         "native": 42
       },
       "F2I": {
-        "native": 13,
-        "primitive": 27
+        "native": 5,
+        "primitive": 35
       },
       "F2IP": {
         "native": 9
@@ -6554,7 +6501,8 @@
         "native": 2
       },
       "UF2FP": {
-        "opaque": 5
+        "native": 4,
+        "opaque": 1
       },
       "UFLO": {
         "native": 2
@@ -6642,9 +6590,9 @@
       }
     },
     "status": {
-      "native": 478,
-      "opaque": 579,
-      "primitive": 116
+      "native": 474,
+      "opaque": 575,
+      "primitive": 124
     }
   }
 }

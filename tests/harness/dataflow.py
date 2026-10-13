@@ -6,6 +6,22 @@ from sass.gen_sleigh import ENUM_FILE, REG_FILES, RESOURCE_FILE, Gen
 from tests.harness import ghidra
 
 
+def part_selector(g,d,name):
+    """The H0/H1/B0-B3 label of the selector modifier following operand `name` in the class's
+    FORMAT (before the next comma), or None."""
+    fmt=d.klass.format
+    at=next((j for j,x in enumerate(fmt) if x.kind=='operand' and x.name==name),None)
+    if at is None:return None
+    for x in fmt[at+1:]:
+        if x.kind=='lit' and x.name==',':return None
+        if x.kind=='mod' and x.name in d.klass.operand_types:
+            names=set(g.arch.enums.get(x.type,{}))
+            if names and names<={'H0','H1','B0','B1','B2','B3'}:
+                v=d.env.get(x.name,g.arch.enums[x.type].get(x.default))
+                return g.arch.rev_enums[x.type].get(v)
+    return None
+
+
 def discarded(g, d):
     """Every register the class writes is a predicate set to PT: the native body for discarded
     predicate destinations computes nothing (RZ destinations still compute, into a sink)."""
@@ -96,13 +112,12 @@ def expected(g, d, optimized=False):
                     atom=d.klass.operand_types[selector]
                     if d.env.get(selector)==g.arch.enums[atom.type].get('H0_H0'):
                         needed=set(range(base+size*index,base+size*index+2))
-            if (optimized and role=='read' and span==1 and o['name'] in ('Rc','URc')
-                    and '_to_8b_downconvert__' in d.klass.name and 'extract' in d.klass.operand_types):
-                # The FP8/FP6 downconverts keep one half of C above the packed bytes; H0 is
-                # bytes 0-1 of the register.
-                atom=d.klass.operand_types['extract'];enums=g.arch.enums[atom.type]
-                if d.env.get('extract',enums.get(atom.default))==enums.get('H0'):
-                    needed=set(range(base+size*index,base+size*index+2))
+            if optimized and role=='read' and span==1 and d.klass.mnemonic in ('F2FP','UF2FP','F2IP'):
+                # F2FP/F2IP read an operand's half or byte named by the selector after it in FORMAT
+                # (extract, extract_B, selB): H0 and B0 are the low bytes themselves, H1 and B1-B3
+                # a word shift.
+                label=part_selector(g,d,o['name'])
+                if label in ('H0','B0'):needed=set(range(base+size*index,base+size*index+(2 if label=='H0' else 1)))
             if optimized and role=='read' and span==1 and d.klass.mnemonic in ('I2IP','UI2IP'):
                 # I2IP packs two width-bit lanes above the rest of C: only the bytes that reach the
                 # result are read (a lane's low byte without saturation or RELU; C's low 24/28 bits,

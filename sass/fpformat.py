@@ -8,7 +8,7 @@ SASS conversions differ there (SATFINITE, E4M3 without infinity, canonical NaNs)
 Independent of tests/refs/fpformat.py, which is the oracle.
 """
 from typing import NamedTuple
-from sass.sem import Expr, concat, const, extract, ite, lnot, smax, umin, zext
+from sass.sem import Expr, concat, const, extract, ite, lnot, sle, smax, umin, zext
 
 W = 32  # width of the exponent and significand arithmetic
 
@@ -44,9 +44,11 @@ ROUNDING = ("RN", "RZ", "RP", "RM")
 
 
 def fields(x, fmt):
-    """(sign, exponent field, fraction) of an encoding (x is exactly the format's width)."""
+    """(sign, exponent field, fraction) of an encoding (x is exactly the format's width); a format
+    without exponent bits (E0M3) has a 1-bit zero field."""
     f = FORMATS[fmt]
-    return extract(x, f.width - 1, f.width - 1), extract(x, f.width - 2, f.mbits), extract(x, f.mbits - 1, 0)
+    exponent = extract(x, f.width - 2, f.mbits) if f.ebits else const(0, 1)
+    return extract(x, f.width - 1, f.width - 1), exponent, extract(x, f.mbits - 1, 0)
 
 
 def classify(x, fmt):
@@ -94,25 +96,71 @@ def rounding(rnd): return Rounding(*(rnd == m for m in ROUNDING))
 def value(x, w=W): return x if isinstance(x, Expr) else const(int(x), w)
 
 
+class Parts(NamedTuple):
+    """A value sign * sig * 2^lsb (sig, lsb W bits, lsb signed); top is the exponent of sig's leading
+    bit, or an upper bound of it where that gives the same rounding (see parts)."""
+    sign: Expr
+    sig: Expr
+    lsb: Expr
+    top: Expr
+    nan: Expr
+    inf: Expr
+
+    def scaled(self, k):
+        """The value times 2^k (k a W-bit signed expression): exact, only the exponents move."""
+        return self._replace(lsb=self.lsb + k, top=self.top + k)
+
+
+def leading(sig, bits):
+    """The position of the highest set bit of sig (< 2^bits); 0 for 0."""
+    lead = const(0, W)
+    for b in range(1, bits): lead = ite(extract(sig, b, b) == 1, const(b, W), lead)
+    return lead
+
+
+def parts(x, fmt, normalized=False):
+    """The Parts of the `fmt` encoding x. A subnormal's top is that of the implicit bit unless
+    normalized: a narrowing's result puts such values below its minimum exponent anyway."""
+    f = FORMATS[fmt]
+    sign, e, m = fields(x, fmt)
+    is_nan, is_inf = classify(x, fmt)
+    sig = zext(concat(e != 0, m), W) if f.ebits else zext(m, W)        # the implicit bit, then the fraction
+    lsb = (ite(e == 0, const(1, W), zext(e, W)) if f.ebits else const(1, W)) - (f.bias + f.mbits)
+    top = lsb + (leading(sig, f.mbits + 1) if normalized else const(f.mbits, W))
+    return Parts(sign, sig, lsb, top, is_nan, is_inf)
+
+
+def fixed_parts(x, frac_bits):
+    """The Parts of the two's complement fixed-point number x with frac_bits fraction bits (S2_6)."""
+    sign = extract(x, x.w - 1, x.w - 1)
+    sig = zext(ite(sign == 1, -x, x), W)                                # the most negative value stays exact unsigned
+    lsb = const(-frac_bits, W)
+    return Parts(sign, sig, lsb, lsb + leading(sig, x.w + 1), const(0, 1), const(0, 1))
+
+
 def narrow_parts(x, src, d, r, satfinite=False):
     """(sign, magnitude, source is NaN) of the narrowing of the `src` value x to Dest d with
-    Rounding r; sign is 1 bit, magnitude W bits. Rounding toward zero (RZ, RP of a negative, RM of a
-    positive value) never overflows: it gives the largest finite value; infinite sources always
-    overflow. Requires the destination's minimum exponent at least src's (a narrowing)."""
-    s = FORMATS[src]
-    sign, e, m = fields(x, src)
-    is_nan, is_inf = classify(x, src)
-    sig = zext(concat(e != 0, m), W)                                    # the implicit bit, then the fraction
-    lsb = ite(e == 0, const(1, W), zext(e, W)) - (s.bias + s.mbits)    # value = sig * 2^lsb (signed)
-    q = smax(lsb + s.mbits, value(d.emin)) - d.mbits                    # exponent of the result's ulp
-    # Source subnormals sit below the destination's minimum exponent: the result's ulp is q either way.
-    shift = umin(q - lsb, const(30, W))                                 # >= 1; clamped: tiny values keep 0
+    Rounding r; sign is 1 bit, magnitude W bits. Requires the destination's minimum exponent at
+    least src's (a narrowing)."""
+    return round_parts(parts(x, src), d, r, satfinite)
+
+
+def round_parts(p, d, r, satfinite=False, general=False):
+    """(sign, magnitude, NaN) of the Parts p rounded to Dest d with Rounding r. Rounding toward zero
+    (RZ, RP of a negative, RM of a positive value) never overflows: it gives the largest finite
+    value; infinite values always overflow. general: p may be any value (scaled): it may
+    need fewer bits than d keeps (shifted left, exact), and zero needs its own case; otherwise p
+    comes from a wider format by parts(), whose zero and subnormals lie below d's minimum exponent."""
+    sign, sig, lsb, is_nan, is_inf = p.sign, p.sig, p.lsb, p.nan, p.inf
+    q = smax(p.top, value(d.emin)) - d.mbits                            # exponent of the result's ulp
+    shift = umin(q - lsb, const(30, W))                                 # clamped: tiny values keep 0
     kept, rest = sig >> shift, sig & ((const(1, W) << shift) - 1)
     half = const(1, W) << (shift - 1)
     negative = sign == 1
     up = value((r.rn & ((rest > half) | ((rest == half) & (extract(kept, 0, 0) == 1))))
                | (r.rp & (rest != 0) & lnot(negative)) | (r.rm & (rest != 0) & negative), 1)
     code = ((q - (d.emin - d.mbits)) << d.mbits) + kept + zext(up, W)   # a carry renormalizes by itself
+    if general: code = ite(sle(q, lsb), exact_code(p, d), code)
     toward_zero = value(r.rz | (r.rp & negative) | (r.rm & lnot(negative)), 1)
     signed = lambda keep: ite(keep, negative, const(0, 1))
     away_sign = ite(satfinite, negative, signed(d.ovf_signed))
@@ -122,6 +170,36 @@ def narrow_parts(x, src, d, r, satfinite=False):
     out_sign = choose(signed(d.nan_signed), away_sign, ite(big & lnot(toward_zero), away_sign, negative))
     out_mag = choose(value(d.nan_mag), away_mag, ite(big, ite(toward_zero, value(d.max_code), away_mag), code))
     return out_sign, out_mag, is_nan
+
+
+def exact_code(p, d):
+    """The magnitude code of the Parts p when d holds it exactly (no bits below d's ulp): the
+    significand shifted into place, its leading bit carrying into the exponent field."""
+    q = smax(p.top, value(d.emin)) - d.mbits
+    return ite(p.sig == 0, const(0, W), ((q - (d.emin - d.mbits)) << d.mbits) + (p.sig << (p.lsb - q)))
+
+
+def widen(x, src, dst, nan=None):
+    """The `dst` encoding of the `src` value x, exactly (dst holds every src value): a normal value
+    is re-biased, a subnormal shifted onto dst's subnormal grid, or normalized where dst's range
+    makes it normal. NaN: the (signed, magnitude) result, default positive canonical."""
+    s, f, d = FORMATS[src], FORMATS[dst], dest(dst, nan)
+    if f.emin > s.emin or f.mbits < s.mbits: raise ValueError(f"{src} -> {dst} is not a widening")
+    sign, e, m = fields(x, src)
+    is_nan, is_inf = classify(x, src)
+    normal = ((zext(e, W) + (f.bias - s.bias)) << f.mbits) | (zext(m, W) << (f.mbits - s.mbits))
+    shift = (s.emin - s.mbits) - (f.emin - f.mbits)
+    if s.emin == f.emin: sub = zext(m, W) << shift                       # subnormals stay subnormal
+    elif s.emin - s.mbits >= f.emin:                                    # subnormals are normal in dst
+        # m * 2^(s.emin - s.mbits) with leading bit b: exponent b + s.emin - s.mbits, fraction below b.
+        sub = const(0, W)
+        for b in range(s.mbits):
+            sub = ite(extract(m, b, b) == 1, ((b + s.emin - s.mbits + f.bias) << f.mbits)
+                      | ((zext(m, W) << (f.mbits - b)) & ((1 << f.mbits) - 1)), sub)
+    else: sub = exact_code(parts(x, src, normalized=True), d)
+    code = ite(e == 0, sub, normal) if s.ebits else sub
+    mag = ite(is_nan, value(d.nan_mag), ite(is_inf, const(f.inf_code or f.max_code, W), code))
+    return concat(ite(is_nan, const(int(d.nan_signed), 1) & sign, sign), extract(mag, f.ebits + f.mbits - 1, 0))
 
 
 def narrow(x, src, dst, rnd="RN", satfinite=False, nan=None, overflow=None):

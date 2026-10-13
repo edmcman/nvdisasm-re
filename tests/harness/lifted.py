@@ -1,6 +1,6 @@
 """Run layer-4 emulator cases through the Ghidra-free semantics (`sass.sem_lift` + `sass.sem_eval`)."""
 import re
-from sass import pydecode, sem_eval, sem_lift
+from sass import ir, pydecode, sem_eval, sem_lift
 from sass.sem_family import family_for
 from tests.harness.checks import problems
 
@@ -37,12 +37,19 @@ def run(arch, fp, case):
     expected = {k: v for k, v in case.expected.items() if k not in PCODE_ONLY}
     opaque = "__opaque" in expected or str(expected.get("error", "")).startswith(("sass_opaque", "sass_prim"))
     if lifted.status == "opaque":
+        if primitive_fallback(arch, lifted.cls): return "primitive", []   # the runtime primitive's values: layer 4
         return "opaque", [] if opaque else [f"unmodelled ({lifted.reason}), expected values"]
     if opaque: return "native", ["modelled, expected an opaque fallback"]
     if "error" in expected: return "native", []  # runtime errors (budgets, events) are emulator matters
     try: out = sem_eval.execute(lifted, state(case.request))
     except sem_eval.Unknown as e: return "native", [str(e)]
     return "native", problems(expected, dict(registers=observe(out, case.request.get("observe", []))))
+
+
+def primitive_fallback(arch, cls):
+    """Whether the class's unmodelled encodings fall back to a runtime primitive (FADD, F2I, ...)."""
+    fam = family_for(next(k for k in ir.load(arch).classes if k.name == cls))
+    return getattr(fam, "fallback", "opaque") == "prim"
 
 
 def has_family(md, cls):

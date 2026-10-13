@@ -1,0 +1,10 @@
+Phase 5c (F2FP/F2I/F2IP families): p-code op counts, HEAD (5b code) vs working tree, on identical md-legal
+words. Columns: opcode, changed classes, ops before, ops after, increases. Increases: TF32 +4 (Inf/NaN
+truncate, as tests/refs/fpformat.tf32); UF2FP newly native (SM86-SM90 dfmt.sfmt packs, SM120 forms); F2I +1
+(FTZ asked explicitly); F2IP RCR +6. 16-bit/BF16 F2I classes report primitive (same p-code; the old coverage called them native).
+
+opcode       classes  before   after up/err
+F2FP             696  172198   81542    112  SM89-exact:f2fp_tf32_default_src__RUR 27->31; SM89-exact:f2fp_tf32_default_src__RRR 26->30; SM89-exact:f2fp_tf32_default_src__RCxR 39->43; SM89-exact:f2fp_tf32__RIR 27->31; SM89-exact:f2fp_tf32__RRR 27->31; SM89-exact:f2fp_tf32__RCR 32->36
+UF2FP             72     202    7546     72  SM86-exact:uf2fp_merge_c__URURUR 3->72; SM86-exact:uf2fp__URIUR 3->131; SM86-exact:uf2fp_merge_c__URIUR 3->71; SM86-exact:uf2fp__URURUR 3->131; SM86-readable:uf2fp_merge_c__URURUR 3->72; SM86-readable:uf2fp__URIUR 3->131
+F2I               15     810     825     15  SM75-exact:f2i__CXb_32b 64->65; SM75-readable:f2i__CXb_32b 64->65; SM89-exact:f2i__CXb_32b 64->65; SM89-readable:f2i__IU_32b 50->51; SM89-readable:f2i__CXb_32b 64->65; SM90-exact:f2i__Rb_32b 50->51
+F2IP              16    1828     520      4  SM86-exact:f2ip__RCR 115->121; SM86-readable:f2ip__RCR 115->121; SM90-exact:f2ip__RCR 115->121; SM90-readable:f2ip__RCR 115->121
