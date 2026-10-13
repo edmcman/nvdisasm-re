@@ -1,0 +1,144 @@
+CLASS "uclea__Imm"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode
+UniformRegister:URd
+','UniformPredicate:UPu
+','UniformRegister:URa
+','UImm(16)*:Sb ','UImm(5)*:constSizeU05
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URd is out of range"
+MISALIGNED_REG_ERROR
+ (((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URd is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((constSizeU05==0)||(constSizeU05==1)||(constSizeU05==2)||(constSizeU05==3)||(constSizeU05==4)||(constSizeU05==5)||(constSizeU05==6)||(constSizeU05==7)||(constSizeU05==8)||(constSizeU05==9)||(constSizeU05==10)||(constSizeU05==11)||(constSizeU05==12)||(constSizeU05==13)||(constSizeU05==14)||(constSizeU05==15)||(constSizeU05==16))) :
+ "Invalid instruction combination (reason: #constSizeU05 cannot be greater than 16)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@UCLEA_Ib ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 16;
+ ISRC_A_SIZE = 64;
+
+ ILABEL_URa_SIZE = 64;
+
+OPCODES
+        UCLEAudp_pipe =  0b1100010111100;
+        UCLEA =  0b1100010111100;
+
+ENCODING
+!uclea__Imm_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_8_23_16_Rd=URd;
+BITS_3_83_81_Pu=UPu;
+BITS_8_31_24_Ra=URa;
+BITS_16_47_32_Sb=Sb;
+BITS_5_77_73_constSizeU05=constSizeU05;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+
+CLASS "uclea__URb"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode
+UniformRegister:URd
+','UniformPredicate:UPu
+','UniformRegister:URa
+','UniformRegister:URb ','UImm(5)*:constSizeU05
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URd is out of range"
+MISALIGNED_REG_ERROR
+ (((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URd is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_1(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((constSizeU05==0)||(constSizeU05==1)||(constSizeU05==2)||(constSizeU05==3)||(constSizeU05==4)||(constSizeU05==5)||(constSizeU05==6)||(constSizeU05==7)||(constSizeU05==8)||(constSizeU05==9)||(constSizeU05==10)||(constSizeU05==11)||(constSizeU05==12)||(constSizeU05==13)||(constSizeU05==14)||(constSizeU05==15)||(constSizeU05==16))) :
+ "Invalid instruction combination (reason: #constSizeU05 cannot be greater than 16)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@UCLEA_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 64;
+
+ ILABEL_URa_SIZE = 64;
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        UCLEAudp_pipe =  0b1110010111100;
+        UCLEA =  0b1110010111100;
+
+ENCODING
+!uclea__URb_unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_8_23_16_Rd=URd;
+BITS_3_83_81_Pu=UPu;
+BITS_8_31_24_Ra=URa;
+BITS_8_39_32_Rb=URb;
+BITS_5_77_73_constSizeU05=constSizeU05;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_1(batch_t,usched_info);
+
+
+

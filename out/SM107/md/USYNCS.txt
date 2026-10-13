@@ -1,0 +1,690 @@
+CLASS "usyncs_arrive_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ARRIVEONLY:op /TRANS64ONLY:bartype /RETVAL_OLDSTATE_TMASK_RED("OLDSTATE"):retval /OPTOUT("nooptout"):optout /PARAMTYPE("A1TR"):paramtype
+UniformRegister:URd
+',' [ UniformRegister:URa + SImm(24/0)*:URa_offset ]
+','UniformRegister:URb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((retval !=`RETVAL_OLDSTATE_TMASK_RED@INVALID3)) :
+ "Invalid retval field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((paramtype !=`PARAMTYPE@INVALID7)) :
+ "Invalid paramtype field value"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URd is out of range"
+MISALIGNED_REG_ERROR
+ (((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URd is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_URa_0(URa,URb) :
+ "Invalid combination of URa, URb"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((retval == `RETVAL_OLDSTATE_TMASK_RED@RED))) -> ((((URd)==`UniformRegister@URZ))) :
+ "Invalid instruction combination (reason: .RED requires URd==URZ)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((retval == `RETVAL_OLDSTATE_TMASK_RED@OLDSTATE)||(retval == `RETVAL_OLDSTATE_TMASK_RED@RED))) :
+ "Invalid instruction combination (reason: .RED requires URd==URZ)"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_WR_SCBD;
+ MEM_SCBD = SOURCE_SINK_WR ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@USYNCS_ARRIVE ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_SYNCS_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 64;
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        USYNCSmio_pipe =  0b1100110111111;
+        USYNCS =  0b1100110111111;
+
+ENCODING
+!usyncs_arrive__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_77_76_op=op;
+BITS_1_72_72_e=*0;
+BITS_2_74_73_space=retval;
+BITS_1_75_75_sz=optout;
+BITS_3_86_84_cop=paramtype;
+BITS_8_23_16_Rd=URd;
+BITS_24_63_40_Ra_offset=URa_offset;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+BITS_8_31_24_Ra=TABLES_URa_0(URa,URb);
+
+
+
+CLASS "usyncs_arrive_multicast_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ARRIVEONLY:op /TRANS64ONLY:bartype /BarRED:retval /OPTOUT("nooptout"):optout /PARAMTYPE("A1TR"):paramtype /MULTICASTONLY:multicast
+ [ UniformRegister:URa + SImm(24/0)*:URa_offset ]
+','UniformRegister:URb
+','UniformRegister:URc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((paramtype !=`PARAMTYPE@INVALID7)) :
+ "Invalid paramtype field value"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URb is out of range"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_URa_0(URa,URb) :
+ "Invalid combination of URa, URb"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = SOURCE_SINK_WR ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@USYNCS_MULTICAST ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_SYNCS_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 64;
+ ILABEL_URb_SIZE = 32;
+ ILABEL_URc_SIZE = 32;
+
+OPCODES
+        USYNCSmio_pipe =  0b1001110111111;
+        USYNCS =  0b1001110111111;
+
+ENCODING
+!usyncs_arrive_multicast__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_77_76_op=op;
+BITS_1_72_72_e=*0;
+BITS_2_74_73_space=retval;
+BITS_1_75_75_sz=optout;
+BITS_3_86_84_cop=paramtype;
+BITS_24_63_40_Ra_offset=URa_offset;
+BITS_8_71_64_Ra_URc=URc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+BITS_8_31_24_Ra=TABLES_URa_0(URa,URb);
+
+
+
+CLASS "usyncs_cas_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /CASONLY:emuop /ONLY64_syncs:sz
+UniformRegister:URd
+',' [ UniformRegister:URa + SImm(24/0)*:URa_offset ]
+','UniformRegister:URb
+','UniformRegister:URc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URd is out of range"
+MISALIGNED_REG_ERROR
+ (((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URd is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-4))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 4) == 0 :
+ "Uniform register URb is misaligned"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URc is out of range"
+MISALIGNED_REG_ERROR
+ (((URc)+((URc)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URc is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_URb_0(URb,URc) :
+ "Invalid combination of URb, URc"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = SOURCE_SINK_WR ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@SYNCS_UNIFORM_CAS ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 128;
+ ISRC_C_SIZE = 64;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_SYNCS_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 128;
+ ILABEL_URc_SIZE = 64;
+
+OPCODES
+        USYNCSmio_pipe =  0b1001110110010;
+        USYNCS =  0b1001110110010;
+
+ENCODING
+!usyncs_cas__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_73_72_memType=emuop;
+BITS_8_23_16_Rd=URd;
+BITS_8_31_24_Ra=URa;
+BITS_24_63_40_Ra_offset=URa_offset;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+BITS_8_39_32_Rb=TABLES_URb_0(URb,URc);
+
+
+
+CLASS "usyncs_cctl_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /CCTLONLY:cctl_mode /SYNCS_CCTL_OP:cctlop
+ [ UniformRegister:URa + SImm(24/0)*:URa_offset ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_WR_SCBD;
+ MEM_SCBD = SOURCE_SINK_WR ;
+ MEM_SCBD_TYPE = ALL ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@USYNCS_CCTL ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_SYNCS_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 32;
+
+OPCODES
+        USYNCSmio_pipe =  0b1110110110010;
+        USYNCS =  0b1110110110010;
+
+ENCODING
+!usyncs_cctl__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_73_73_sz=cctl_mode;
+BITS_1_72_72_e=cctlop;
+BITS_8_31_24_Ra=URa;
+BITS_24_63_40_Ra_offset=URa_offset;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "usyncs_exch_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /EXCHONLY:emuop /ONLY64_syncs:sz
+UniformRegister:URd
+',' [ UniformRegister:URa + SImm(24/0)*:URa_offset ]
+','UniformRegister:URb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URd is out of range"
+MISALIGNED_REG_ERROR
+ (((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URd is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URb is out of range"
+MISALIGNED_REG_ERROR
+ (((URb)+((URb)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URb is misaligned"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = SOURCE_SINK_WR ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@SYNCS_UNIFORM_EXCH ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_B_SIZE = 64;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_SYNCS_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 32;
+ ILABEL_URb_SIZE = 64;
+
+OPCODES
+        USYNCSmio_pipe =  0b1010110110010;
+        USYNCS =  0b1010110110010;
+
+ENCODING
+!usyncs_exch__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_73_72_memType=emuop;
+BITS_8_23_16_Rd=URd;
+BITS_8_31_24_Ra=URa;
+BITS_24_63_40_Ra_offset=URa_offset;
+BITS_8_39_32_Rb=URb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "usyncs_ld_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /LDONLY_usyncs:emuop /ONLY64_syncs:sz
+UniformRegister:URd
+',' [ UniformRegister:URa + SImm(24/0)*:URa_offset ]
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URd is out of range"
+MISALIGNED_REG_ERROR
+ (((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URd is misaligned"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URa is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_WR_SCBD;
+ MEM_SCBD = SOURCE_SINK_WR ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@SYNCS_UNIFORM_LD ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_A_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_SYNCS_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 32;
+
+OPCODES
+        USYNCSmio_pipe =  0b1100110110010;
+        USYNCS =  0b1100110110010;
+
+ENCODING
+!usyncs_ld__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_73_72_memType=emuop;
+BITS_8_23_16_Rd=URd;
+BITS_8_31_24_Ra=URa;
+BITS_24_63_40_Ra_offset=URa_offset;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "usyncs_phasechk_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /PHASECHKONLY:op /TRANS64ONLY:bartype /WAIT("ONCE"):wait /CONDITIONAL("noconditional"):conditional
+UniformPredicate:UPu
+',' [ UniformRegister:URa + SImm(24/0)*:URa_offset ]
+','UniformRegister:URb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_URa_0(URa,URb) :
+ "Invalid combination of URa, URb"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_WR_SCBD;
+ MEM_SCBD = SOURCE_SINK_WR ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@USYNCS_PHASECHK ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_SYNCS_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 64;
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        USYNCSmio_pipe =  0b1010110111111;
+        USYNCS =  0b1010110111111;
+
+ENCODING
+!usyncs_phasechk__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_77_76_op=op;
+BITS_1_72_72_e=wait;
+BITS_1_74_74_conditional=conditional;
+BITS_3_83_81_Pu=UPu;
+BITS_24_63_40_Ra_offset=URa_offset;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+BITS_8_31_24_Ra=TABLES_URa_0(URa,URb);
+
+
+
+CLASS "usyncs_phasechk_upv_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /PHASECHKONLY:op /TRANS64ONLY:bartype /WAIT("ONCE"):wait /PRIMARYONLY:primary
+UniformPredicate:UPu
+','UniformPredicate:UPv
+','ZeroUniformRegister:URd
+',' [ UniformRegister:URa + SImm(24/0)*:URa_offset ]
+','UniformRegister:URb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((URd)==`UniformRegister@URZ) :
+ "Disallowed uniform register URd"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_URa_0(URa,URb) :
+ "Invalid combination of URa, URb"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_WR_SCBD;
+ MEM_SCBD = SOURCE_SINK_WR ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@USYNCS_PHASECHK_UPV ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_SYNCS_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 64;
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        USYNCSmio_pipe =  0b1111110111111;
+        USYNCS =  0b1111110111111;
+
+ENCODING
+!usyncs_phasechk_upv__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_77_76_op=op;
+BITS_1_72_72_e=wait;
+BITS_3_83_81_Pu=UPu;
+BITS_3_86_84_cop=UPv;
+BITS_8_23_16_Rd=URd;
+BITS_24_63_40_Ra_offset=URa_offset;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+BITS_8_31_24_Ra=TABLES_URa_0(URa,URb);
+
+
+
+ALTERNATE CLASS "usyncs_tcnt_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /TCNTONLY:op /TRANS64ONLY:bartype /BarRED:retval
+ [ UniformRegister:URa + SImm(24/0)*:URa_offset ]
+','UniformRegister:URb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URa)==`UniformRegister@URZ)||((URa)<=(%MAX_UNIFORM_REG_COUNT-2))) :
+ "Uniform register URa is out of range"
+MISALIGNED_REG_ERROR
+ (((URa)+((URa)==`UniformRegister@URZ)) % 2) == 0 :
+ "Uniform register URa is misaligned"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_URa_0(URa,URb) :
+ "Invalid combination of URa, URb"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_WR_SCBD;
+ MEM_SCBD = SOURCE_SINK_WR ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@USYNCS_ARRIVE ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ IDEST_SIZE = 32;
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 64;
+ VIRTUAL_QUEUE = $VQ_SYNCS_UNORDERED_WR ;
+
+ ILABEL_URa_SIZE = 64;
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        USYNCSmio_pipe =  0b1100110111111;
+        USYNCS =  0b1100110111111;
+
+ENCODING
+!usyncs_tcnt__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_77_76_op=op;
+BITS_1_72_72_e=*0;
+BITS_2_74_73_space=retval;
+BITS_1_75_75_sz=*0;
+BITS_3_86_84_cop=*3;
+BITS_8_23_16_Rd=*255;
+BITS_24_63_40_Ra_offset=URa_offset;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+BITS_8_31_24_Ra=TABLES_URa_0(URa,URb);
+
+
+

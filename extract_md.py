@@ -11,7 +11,7 @@ KEYS = {"SM75": 0xb4a, "SM80": 0x8416, "SM86": 0x8416, "SM89": 0x1684, "SM90": 0
 DEFAULT_KEY = 0x9327  # SM100, SM101, SM103, SM107, SM120
 INV_SBOX_OFF = 0xfa5e0
 REGISTER_FN = 0xbe200            # md_register_embedded_blob
-REGISTRATIONS = range(0xbd9e0, 0xbde60)  # md_register_SMxx callers
+REGISTRATIONS = range(0xbd9e0, 0xbded1)  # md_register_SMxx callers
 DATA_VADDR, DATA_OFF = 0x348000, 0x148000
 
 def cstr(binary, off): return binary[off:binary.index(b"\0", off)].decode()

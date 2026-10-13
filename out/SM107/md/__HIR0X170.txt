@@ -1,0 +1,122 @@
+CLASS "utcldsws_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /CLUSTER_SIZE("1CTA"):cluster_sz
+UniformRegister:URd
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((cluster_sz == `CLUSTER_SIZE@"2CTA"))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((cluster_sz == `CLUSTER_SIZE@"2CTA"))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@__HIR0X170 ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ IDEST_SIZE = 32 + ((cluster_sz==`CLUSTER_SIZE@"2CTA"))*32;
+ VIRTUAL_QUEUE = $VQ_SW_STATE ;
+ MASK_INSTR_PREDICATE = (1);
+
+
+OPCODES
+        __HIR0X170udp_pipe =  0b1100111100101;
+        __HIR0X170 =  0b1100111100101;
+
+ENCODING
+!__HIR0X170__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_85_85_ignoreKill=cluster_sz;
+BITS_8_23_16_Rd=URd;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+ALTERNATE CLASS "utcldsws_one_"
+FORMAT PREDICATE @[!]UniformPredicate(UPT):UPg Opcode /ONEONLY:one /CLUSTER_SIZE("1CTA"):cluster_sz
+UniformRegister:URd
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((URd)==`UniformRegister@URZ)||((URd)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URd is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+OOR_REG_ERROR
+ (((cluster_sz == `CLUSTER_SIZE@"2CTA"))) -> (((((URd)==`UniformRegister@URZ)||((URd)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((cluster_sz == `CLUSTER_SIZE@"2CTA"))) -> (((((URd)+((URd)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@__HIR0X170 ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ IDEST_SIZE = 32 + ((cluster_sz==`CLUSTER_SIZE@"2CTA"))*32;
+ VIRTUAL_QUEUE = $VQ_SW_STATE ;
+ MASK_INSTR_PREDICATE = (1);
+
+
+OPCODES
+        __HIR0X170udp_pipe =  0b1100111100101;
+        __HIR0X170 =  0b1100111100101;
+
+ENCODING
+!__HIR0X170_one__unused;
+BITS_3_14_12_Pg = UPg;
+BITS_1_15_15_Pg_not = UPg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_85_85_ignoreKill=cluster_sz;
+BITS_8_23_16_Rd=URd;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

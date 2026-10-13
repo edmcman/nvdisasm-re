@@ -1,0 +1,203 @@
+CLASS "sparsify_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /DATASIZE:datasize /IDXSIZE:idxsize /ONLY2TO4:sparsityfactor /NUMSEQUENCE:numbeats
+Register:Rd2
+','Register:Rd
+','Register:Ra
+','UniformRegister:URb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((datasize !=`DATASIZE@INVALID3)) :
+ "Invalid datasize field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((numbeats !=`NUMSEQUENCE@INVALID7)) :
+ "Invalid numbeats field value"
+OOR_REG_ERROR
+ (((Rd2)==`Register@RZ)||(((Rd2)<=(%MAX_REG_COUNT-1))&&((Rd2)!=`Register@R254))) :
+ "Register Rd2 is out of range"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((URb)==`UniformRegister@URZ)||((URb)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register URb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+MISALIGNED_REG_ERROR
+ (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((numbeats == `NUMSEQUENCE@X1))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numbeats == `NUMSEQUENCE@X2))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numbeats == `NUMSEQUENCE@X4))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numbeats == `NUMSEQUENCE@X8))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numbeats == `NUMSEQUENCE@X16))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numbeats == `NUMSEQUENCE@X32))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numbeats == `NUMSEQUENCE@X64))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numbeats == `NUMSEQUENCE@X2))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numbeats == `NUMSEQUENCE@X4))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numbeats == `NUMSEQUENCE@X8))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numbeats == `NUMSEQUENCE@X16))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numbeats == `NUMSEQUENCE@X32))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numbeats == `NUMSEQUENCE@X64))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((idxsize == `IDXSIZE@U2))&&((numbeats == `NUMSEQUENCE@X8))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((idxsize == `IDXSIZE@U2))&&((numbeats == `NUMSEQUENCE@X16))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((idxsize == `IDXSIZE@U2))&&((numbeats == `NUMSEQUENCE@X32))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((idxsize == `IDXSIZE@U2))&&((numbeats == `NUMSEQUENCE@X64))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((idxsize == `IDXSIZE@U2))&&((numbeats == `NUMSEQUENCE@X16))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((idxsize == `IDXSIZE@U2))&&((numbeats == `NUMSEQUENCE@X32))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((idxsize == `IDXSIZE@U2))&&((numbeats == `NUMSEQUENCE@X64))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((idxsize == `IDXSIZE@U2))&&((numbeats == `NUMSEQUENCE@X4))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((idxsize == `IDXSIZE@U2))&&((numbeats == `NUMSEQUENCE@X8))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((idxsize == `IDXSIZE@U2))&&((numbeats == `NUMSEQUENCE@X16))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((idxsize == `IDXSIZE@U2))&&((numbeats == `NUMSEQUENCE@X32))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((idxsize == `IDXSIZE@U2))&&((numbeats == `NUMSEQUENCE@X64))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((idxsize == `IDXSIZE@U4))&&((numbeats == `NUMSEQUENCE@X4))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((idxsize == `IDXSIZE@U4))&&((numbeats == `NUMSEQUENCE@X8))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((idxsize == `IDXSIZE@U4))&&((numbeats == `NUMSEQUENCE@X16))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((idxsize == `IDXSIZE@U4))&&((numbeats == `NUMSEQUENCE@X32))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((idxsize == `IDXSIZE@U4))&&((numbeats == `NUMSEQUENCE@X64))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((idxsize == `IDXSIZE@U4))&&((numbeats == `NUMSEQUENCE@X8))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((idxsize == `IDXSIZE@U4))&&((numbeats == `NUMSEQUENCE@X16))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((idxsize == `IDXSIZE@U4))&&((numbeats == `NUMSEQUENCE@X32))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((idxsize == `IDXSIZE@U4))&&((numbeats == `NUMSEQUENCE@X64))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((idxsize == `IDXSIZE@U4))&&((numbeats == `NUMSEQUENCE@X2))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((idxsize == `IDXSIZE@U4))&&((numbeats == `NUMSEQUENCE@X4))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((idxsize == `IDXSIZE@U4))&&((numbeats == `NUMSEQUENCE@X8))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((idxsize == `IDXSIZE@U4))&&((numbeats == `NUMSEQUENCE@X16))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((idxsize == `IDXSIZE@U4))&&((numbeats == `NUMSEQUENCE@X32))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((idxsize == `IDXSIZE@U4))&&((numbeats == `NUMSEQUENCE@X64))) -> (((((Rd2)==`Register@RZ)||((Rd2)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@__HIR0X1C0_Ra_URb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + (((numbeats==`NUMSEQUENCE@X2))*32 + ((numbeats==`NUMSEQUENCE@X4))*96 + ((numbeats==`NUMSEQUENCE@X8))*224 + ((numbeats==`NUMSEQUENCE@X16))*480 + ((numbeats==`NUMSEQUENCE@X32))*992 + ((numbeats==`NUMSEQUENCE@X64))*2016);
+ IDEST2_SIZE = 32 + ((((datasize==`DATASIZE@"8")) && ((idxsize==`IDXSIZE@U2)) && ((numbeats==`NUMSEQUENCE@X8)))*32 + (((datasize==`DATASIZE@"8")) && ((idxsize==`IDXSIZE@U2)) && ((numbeats==`NUMSEQUENCE@X16)))*96 + (((datasize==`DATASIZE@"8")) && ((idxsize==`IDXSIZE@U2)) && ((numbeats==`NUMSEQUENCE@X32)))*224 + (((datasize==`DATASIZE@"8")) && ((idxsize==`IDXSIZE@U2)) && ((numbeats==`NUMSEQUENCE@X64)))*480 + (((datasize==`DATASIZE@"16")) && ((idxsize==`IDXSIZE@U2)) && ((numbeats==`NUMSEQUENCE@X16)))*32 + (((datasize==`DATASIZE@"16")) && ((idxsize==`IDXSIZE@U2)) && ((numbeats==`NUMSEQUENCE@X32)))*96 + (((datasize==`DATASIZE@"16")) && ((idxsize==`IDXSIZE@U2)) && ((numbeats==`NUMSEQUENCE@X64)))*224 + (((datasize==`DATASIZE@"4")) && ((idxsize==`IDXSIZE@U2)) && ((numbeats==`NUMSEQUENCE@X4)))*32 + (((datasize==`DATASIZE@"4")) && ((idxsize==`IDXSIZE@U2)) && ((numbeats==`NUMSEQUENCE@X8)))*96 + (((datasize==`DATASIZE@"4")) && ((idxsize==`IDXSIZE@U2)) && ((numbeats==`NUMSEQUENCE@X16)))*224 + (((datasize==`DATASIZE@"4")) && ((idxsize==`IDXSIZE@U2)) && ((numbeats==`NUMSEQUENCE@X32)))*480 + (((datasize==`DATASIZE@"4")) && ((idxsize==`IDXSIZE@U2)) && ((numbeats==`NUMSEQUENCE@X64)))*992 + (((datasize==`DATASIZE@"8")) && ((idxsize==`IDXSIZE@U4)) && ((numbeats==`NUMSEQUENCE@X4)))*32 + (((datasize==`DATASIZE@"8")) && ((idxsize==`IDXSIZE@U4)) && ((numbeats==`NUMSEQUENCE@X8)))*96 + (((datasize==`DATASIZE@"8")) && ((idxsize==`IDXSIZE@U4)) && ((numbeats==`NUMSEQUENCE@X16)))*224 + (((datasize==`DATASIZE@"8")) && ((idxsize==`IDXSIZE@U4)) && ((numbeats==`NUMSEQUENCE@X32)))*480 + (((datasize==`DATASIZE@"8")) && ((idxsize==`IDXSIZE@U4)) && ((numbeats==`NUMSEQUENCE@X64)))*992 + (((datasize==`DATASIZE@"16")) && ((idxsize==`IDXSIZE@U4)) && ((numbeats==`NUMSEQUENCE@X8)))*32 + (((datasize==`DATASIZE@"16")) && ((idxsize==`IDXSIZE@U4)) && ((numbeats==`NUMSEQUENCE@X16)))*96 + (((datasize==`DATASIZE@"16")) && ((idxsize==`IDXSIZE@U4)) && ((numbeats==`NUMSEQUENCE@X32)))*224 + (((datasize==`DATASIZE@"16")) && ((idxsize==`IDXSIZE@U4)) && ((numbeats==`NUMSEQUENCE@X64)))*480 + (((datasize==`DATASIZE@"4")) && ((idxsize==`IDXSIZE@U4)) && ((numbeats==`NUMSEQUENCE@X2)))*32 + (((datasize==`DATASIZE@"4")) && ((idxsize==`IDXSIZE@U4)) && ((numbeats==`NUMSEQUENCE@X4)))*96 + (((datasize==`DATASIZE@"4")) && ((idxsize==`IDXSIZE@U4)) && ((numbeats==`NUMSEQUENCE@X8)))*224 + (((datasize==`DATASIZE@"4")) && ((idxsize==`IDXSIZE@U4)) && ((numbeats==`NUMSEQUENCE@X16)))*480 + (((datasize==`DATASIZE@"4")) && ((idxsize==`IDXSIZE@U4)) && ((numbeats==`NUMSEQUENCE@X32)))*992 + (((datasize==`DATASIZE@"4")) && ((idxsize==`IDXSIZE@U4)) && ((numbeats==`NUMSEQUENCE@X64)))*2016);
+ ISRC_B_SIZE = 32;
+ ISRC_A_SIZE = 64 + (((numbeats==`NUMSEQUENCE@X2))*64 + ((numbeats==`NUMSEQUENCE@X4))*192 + ((numbeats==`NUMSEQUENCE@X8))*448 + ((numbeats==`NUMSEQUENCE@X16))*960 + ((numbeats==`NUMSEQUENCE@X32))*1984 + ((numbeats==`NUMSEQUENCE@X64))*4032);
+ VIRTUAL_QUEUE = $VQ_TMEM ;
+
+ ILABEL_Ra_SIZE = 64 + (((numbeats==`NUMSEQUENCE@X2))*64 + ((numbeats==`NUMSEQUENCE@X4))*192 + ((numbeats==`NUMSEQUENCE@X8))*448 + ((numbeats==`NUMSEQUENCE@X16))*960 + ((numbeats==`NUMSEQUENCE@X32))*1984 + ((numbeats==`NUMSEQUENCE@X64))*4032);
+ ILABEL_URb_SIZE = 32;
+
+OPCODES
+        __HIR0X1C0mio_pipe =  0b1000111101;
+        __HIR0X1C0 =  0b1000111101;
+
+ENCODING
+!__HIR0X1C1__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_79_78_stride=datasize;
+BITS_1_75_75_sz=idxsize;
+BITS_3_86_84_cop=numbeats;
+BITS_8_71_64_Ra_URc=Rd2;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=URb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

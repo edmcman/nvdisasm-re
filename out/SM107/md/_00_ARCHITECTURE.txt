@@ -1,0 +1,170 @@
+ARCHITECTURE "Volta"
+
+   PROCESSOR_ID Volta;
+   ISSUE_SLOTS 1;
+   WORD_SIZE 64;
+   BRANCH_DELAY 0;
+   ELF_ID 190;
+   ELF_ABI 0x33;
+   ELF_ABI_VERSION 7U;
+
+
+   ELF_VERSION 134;
+
+   RELOCATORS
+  { "R_CUDA_NONE", 0, False, False, 0,0, { { 0, 0} } }
+  { "R_CUDA_32", 0xffffffffffffffff, False, False, 0,0, { { 0, 32} } }
+  { "R_CUDA_64", 0xffffffffffffffff, False, False, 0,0, { { 0, 64} } }
+  { "R_CUDA_G32", "R_CUDA_G32", 0xffffffffffffffff, False, False, 0,0, { { 0, 32} } }
+  { "R_CUDA_G64", "R_CUDA_G64", 0xffffffffffffffff, False, False, 0,0, { { 0, 64} } }
+  { "R_CUDA_ABS32_26", 0xffffffffffffffff, False, False, 0,0, { { 26, 32} } }
+  { "R_CUDA_TEX_HEADER_INDEX", 0xffffffffffffffff, False, False, False, 0,0, { { 0, 20} } }
+  { "R_CUDA_SAMP_HEADER_INDEX", 0xffffffffffffffff, False, False, False, 0,0, { { 20, 12} } }
+  { "R_CUDA_SURF_HW_DESC", 4, 0, 32 }
+  { "R_CUDA_SURF_HW_SW_DESC", 5, 0, 32 }
+  { "R_CUDA_ABS32_LO_26", 0x00000000ffffffff, False, False, 0,0, { { 26, 32} } }
+  { "R_CUDA_ABS32_HI_26", 0xffffffff00000000, False, False, 0,0, { { 26, 32} } }
+  { "R_CUDA_ABS32_23", 0xffffffffffffffff, False, False, 0,0, { { 23, 32} } }
+  { "R_CUDA_ABS32_LO_23", 0x00000000ffffffff, False, False, 0,0, { { 23, 32} } }
+  { "R_CUDA_ABS32_HI_23", 0xffffffff00000000, False, False, 0,0, { { 23, 32} } }
+  { "R_CUDA_ABS24_26", 0xffffffffffffffff, False, False, 0,0, { { 26, 24} } }
+  { "R_CUDA_ABS24_23", 0xffffffffffffffff, False, False, 0,0, { { 23, 24} } }
+  { "R_CUDA_ABS16_26", 0xffffffffffffffff, False, False, 0,0, { { 26, 16} } }
+  { "R_CUDA_ABS16_23", 0xffffffffffffffff, False, False, 0,0, { { 23, 16} } }
+  { "R_CUDA_TEX_SLOT", 0xffffffffffffffff, False, False, 0,0, { { 32, 8} } }
+  { "R_CUDA_SAMP_SLOT", 0xffffffffffffffff, False, False, 0,0, { { 40, 5} } }
+  { "R_CUDA_SURF_SLOT", 0xffffffffffffffff, False, False, 0,0, { { 26, 6} } }
+  { "R_CUDA_TEX_BINDLESSOFF13_32", 0xffffffffffffffff, False, False, 0,2, { { 32, 13} } }
+  { "R_CUDA_TEX_BINDLESSOFF13_47", 0xffffffffffffffff, False, False, 0,2, { { 47, 13} } }
+  { "R_CUDA_CONST_FIELD19_28", 0xffffffffffffffff, "ConstBankAddress2", False, False, 0,0, { { 28, 18},
+  { 26, 1} } }
+  { "R_CUDA_CONST_FIELD19_23", 0xffffffffffffffff, "ConstBankAddress2", False, False, 0,0, { { 23, 19} } }
+  { "R_CUDA_TEX_SLOT9_49", 0xffffffffffffffff, False, False, 0,0, { { 49, 9} } }
+  { "R_CUDA_6_31", 0xffffffffffffffff, False, False, 0,0, { { 31, 6} } }
+  { "R_CUDA_2_47", 0xffffffffffffffff, False, False, 0,0, { { 47, 2} } }
+  { "R_CUDA_TEX_BINDLESSOFF13_41", 0xffffffffffffffff, False, False, 0,2, { { 41, 13} } }
+  { "R_CUDA_TEX_BINDLESSOFF13_45", 0xffffffffffffffff, False, False, 0,2, { { 45, 13} } }
+  { "R_CUDA_FUNC_DESC32_23", "fdesc", 0xffffffffffffffff, False, False, 0,0, { { 23, 32} } }
+  { "R_CUDA_FUNC_DESC32_LO_23", "fdesc", 0x00000000ffffffff, False, False, 0,0, { { 23, 32} } }
+  { "R_CUDA_FUNC_DESC32_HI_23", "fdesc", 0xffffffff00000000, False, False, 0,0, { { 23, 32} } }
+  { "R_CUDA_FUNC_DESC_32", "R_CUDA_FUNC_DESC_32", 0xffffffffffffffff, False, False, 0,0, { { 0, 32} } }
+  { "R_CUDA_FUNC_DESC_64", "R_CUDA_FUNC_DESC_64", 0xffffffffffffffff, False, False, 0,0, { { 0, 64} } }
+  { "R_CUDA_CONST_FIELD21_26", 0xffffffffffffffff, "ConstBankAddress0", False, False, 0,0, { { 26, 21} } }
+  { "R_CUDA_QUERY_DESC21_37", 0xffffffffffffffff, "ConstBankAddress0", False, False, 0,0, { { 37, 21} } }
+  { "R_CUDA_CONST_FIELD19_26", 0xffffffffffffffff, "ConstBankAddress2", False, False, 0,0, { { 26, 19} } }
+  { "R_CUDA_CONST_FIELD21_23", 0xffffffffffffffff, "ConstBankAddress0", False, False, 0,0, { { 23, 21} } }
+  { "R_CUDA_PCREL_IMM24_26", 0xffffffffffffffff, True, False, 0,0, { { 26, 24} } }
+  { "R_CUDA_PCREL_IMM24_23", 0xffffffffffffffff, True, False, 0,0, { { 23, 24} } }
+  { "R_CUDA_ABS32_20", 0xffffffffffffffff, False, False, 0,0, { { 20, 32} } }
+  { "R_CUDA_ABS32_LO_20", 0x00000000ffffffff, False, False, 0,0, { { 20, 32} } }
+  { "R_CUDA_ABS32_HI_20", 0xffffffff00000000, False, False, 0,0, { { 20, 32} } }
+  { "R_CUDA_ABS24_20", 0xffffffffffffffff, False, False, 0,0, { { 20, 24} } }
+  { "R_CUDA_ABS16_20", 0xffffffffffffffff, False, False, 0,0, { { 20, 16} } }
+  { "R_CUDA_FUNC_DESC32_20", "fdesc", 0xffffffffffffffff, False, False, 0,0, { { 20, 32} } }
+  { "R_CUDA_FUNC_DESC32_LO_20", "fdesc", 0x00000000ffffffff, False, False, 0,0, { { 20, 32} } }
+  { "R_CUDA_FUNC_DESC32_HI_20", "fdesc", 0xffffffff00000000, False, False, 0,0, { { 20, 32} } }
+  { "R_CUDA_CONST_FIELD19_20", 0xffffffffffffffff, "ConstBankAddress2", False, False, 0,0, { { 20, 19} } }
+  { "R_CUDA_BINDLESSOFF13_36", 0xffffffffffffffff, False, False, 0,2, { { 36, 13} } }
+  { "R_CUDA_SURF_HEADER_INDEX", "R_CUDA_SURF_HEADER_INDEX", 0xffffffffffffffff, False, False, False, 0,0, { { 0, 20} } }
+  { "R_CUDA_INSTRUCTION64", 17, 0, 64 }
+  { "R_CUDA_CONST_FIELD21_20", 0xffffffffffffffff, "ConstBankAddress0", False, False, 0,0, { { 20, 21} } }
+  { "R_CUDA_ABS32_32", 0xffffffffffffffff, False, False, 0,0, { { 32, 32} } }
+  { "R_CUDA_ABS32_LO_32", 0x00000000ffffffff, False, False, 0,0, { { 32, 32} } }
+  { "R_CUDA_ABS32_HI_32", 0xffffffff00000000, False, False, 0,0, { { 32, 32} } }
+  { "R_CUDA_ABS47_34", 0xffffffffffffffff, False, False, 0,2, { { 34, 47} } }
+  { "R_CUDA_ABS16_32", 0xffffffffffffffff, False, False, 0,0, { { 32, 16} } }
+  { "R_CUDA_ABS24_32", 0xffffffffffffffff, False, False, 0,0, { { 32, 24} } }
+  { "R_CUDA_FUNC_DESC32_32", "fdesc", 0xffffffffffffffff, False, False, 0,0, { { 32, 32} } }
+  { "R_CUDA_FUNC_DESC32_LO_32", "fdesc", 0x00000000ffffffff, False, False, 0,0, { { 32, 32} } }
+  { "R_CUDA_FUNC_DESC32_HI_32", "fdesc", 0xffffffff00000000, False, False, 0,0, { { 32, 32} } }
+  { "R_CUDA_CONST_FIELD19_40", 0xffffffffffffffff, "ConstBankAddress2", False, False, 0,0, { { 40, 19} } }
+  { "R_CUDA_BINDLESSOFF14_40", 0xffffffffffffffff, False, False, 0,2, { { 40, 14} } }
+  { "R_CUDA_CONST_FIELD21_38", 0xffffffffffffffff, "ConstBankAddress0", False, False, 0,0, { { 38, 21} } }
+  { "R_CUDA_INSTRUCTION128", 17, 0, 128 }
+  { "R_CUDA_YIELD_OPCODE9_0", 18, 0, 9 }
+  { "R_CUDA_YIELD_CLEAR_PRED4_87", 19, 87, 4 }
+  { "R_CUDA_32_LO", 0x00000000ffffffff, False, False, 0,0, { { 0, 32} } }
+  { "R_CUDA_32_HI", 0xffffffff00000000, False, False, 0,0, { { 0, 32} } }
+  { "R_CUDA_UNUSED_CLEAR32", "R_CUDA_UNUSED_CLEAR32", 0xffffffffffffffff, False, False, 0,0, { { 0, 32} } }
+  { "R_CUDA_UNUSED_CLEAR64", "R_CUDA_UNUSED_CLEAR64", 0xffffffffffffffff, False, False, 0,0, { { 0, 64} } }
+  { "R_CUDA_ABS24_40", 0xffffffffffffffff, False, False, 0,0, { { 40, 24} } }
+  { "R_CUDA_ABS55_16_34", 0xffffffffffffffff, False, False, 0,2, { { 16, 8}, { 34, 47} } }
+  { "R_CUDA_8_0", 0x00000000000000ff, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_8_8", 0x000000000000ff00, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_8_16", 0x0000000000ff0000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_8_24", 0x00000000ff000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_8_32", 0x000000ff00000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_8_40", 0x0000ff0000000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_8_48", 0x00ff000000000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_8_56", 0xff00000000000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_G8_0", "R_CUDA_G8_0", 0x00000000000000ff, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_G8_8", "R_CUDA_G8_8", 0x000000000000ff00, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_G8_16", "R_CUDA_G8_16", 0x0000000000ff0000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_G8_24", "R_CUDA_G8_24", 0x00000000ff000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_G8_32", "R_CUDA_G8_32", 0x000000ff00000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_G8_40", "R_CUDA_G8_40", 0x0000ff0000000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_G8_48", "R_CUDA_G8_48", 0x00ff000000000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_G8_56", "R_CUDA_G8_56", 0xff00000000000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_FUNC_DESC_8_0", "fdesc", 0x00000000000000ff, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_FUNC_DESC_8_8", "fdesc", 0x000000000000ff00, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_FUNC_DESC_8_16", "fdesc", 0x0000000000ff0000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_FUNC_DESC_8_24", "fdesc", 0x00000000ff000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_FUNC_DESC_8_32", "fdesc", 0x000000ff00000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_FUNC_DESC_8_40", "fdesc", 0x0000ff0000000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_FUNC_DESC_8_48", "fdesc", 0x00ff000000000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_FUNC_DESC_8_56", "fdesc", 0xff00000000000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_ABS20_44", 0xffffffffffffffff, False, False, 0,0, { { 44, 20} } }
+  { "R_CUDA_SAMP_HEADER_INDEX_0", 0xffffffffffffffff, False, False, False, 0,0, { { 0, 12} } }
+  { "R_CUDA_UNIFIED", "unified", 0xffffffffffffffff, False, False, 0,0, { { 0, 64} } }
+  { "R_CUDA_UNIFIED_32", "unified", 0xffffffffffffffff, False, False, 0,0, { { 0, 32} } }
+  { "R_CUDA_UNIFIED_8_0 ", "unified", 0x00000000000000ff, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_UNIFIED_8_8 ", "unified", 0x000000000000ff00, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_UNIFIED_8_16", "unified", 0x0000000000ff0000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_UNIFIED_8_24", "unified", 0x00000000ff000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_UNIFIED_8_32", "unified", 0x000000ff00000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_UNIFIED_8_40", "unified", 0x0000ff0000000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_UNIFIED_8_48", "unified", 0x00ff000000000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_UNIFIED_8_56", "unified", 0xff00000000000000, False, False, 0,0, { { 0, 8} } }
+  { "R_CUDA_UNIFIED32_LO_32", "unified", 0x00000000ffffffff, False, False, 0,0, { { 32, 32} } }
+  { "R_CUDA_UNIFIED32_HI_32", "unified", 0xffffffff00000000, False, False, 0,0, { { 32, 32} } }
+  { "R_CUDA_ABS56_16_34", 0xffffffffffffffff, False, False, 0,2, { { 16, 8}, { 34, 48} } }
+  { "R_CUDA_CONST_FIELD22_37", 0xffffffffffffffff, "ConstBankAddress0", False, False, 0,0, { { 37, 22} } }
+      ;
+
+
+   OPTIONS CASE_INSENSITIVE_SYNTAX,
+                  NOCHECK_OPCLASS_AMBIGUITY,
+                  NO_QUALIFIER_REORDERING,
+                  VLIW_BRACE_NOTATION;
+
+   RELATIVE_ADDRESS_BASE CURRENT_INSTRUCTION + 16;
+
+   EMPTY_INSTRUCTION = "NOP;";
+
+   CONDITION TYPES
+      ILLEGAL_INSTR_ENCODING_ERROR : ERROR
+      OOR_REG_ERROR : ERROR
+      MISALIGNED_REG_ERROR : ERROR
+      INVALID_CONST_ADDR_ERROR : ERROR
+      MISALIGNED_ADDR_ERROR : ERROR
+      UNPREDICTABLE_BEHAVIOR_ERROR : ERROR
+      PC_MISALIGNED_ERROR : ERROR
+      ILLEGAL_INSTR_PARAM_ERROR : ERROR
+
+      ILLEGAL_INSTR_ENCODING_WARNING : WARNING
+      OOR_REG_WARNING : WARNING
+      MISALIGNED_REG_WARNING : WARNING
+      INVALID_CONST_ADDR_WARNING : WARNING
+      MISALIGNED_ADDR_WARNING : WARNING
+      UNPREDICTABLE_BEHAVIOR_WARNING : WARNING
+
+      ILLEGAL_INSTR_ENCODING_INFO : INFO
+      OOR_REG_INFO : INFO
+      MISALIGNED_REG_INFO : INFO
+      INVALID_CONST_ADDR_INFO : INFO
+      MISALIGNED_ADDR_INFO : INFO
+      UNPREDICTABLE_BEHAVIOR_INFO : INFO
+
+      ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR : ERROR
+      INVALID_CONST_ADDR_SASS_ONLY_ERROR : ERROR
+

@@ -1,0 +1,273 @@
+CLASS "fadd2_imm__RRI"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA_fadd2:iswzA /NEGA("PP"):negA
+','F32Imm(64):Sc /NEGA("PP"):negC
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzA !=`ISWZA_fadd2@INVALID3)) :
+ "Invalid iswzA field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_5(batch_t,usched_info,reuse_src_a) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+OOR_REG_ERROR
+ (((iswzA == `ISWZA_fadd2@F32x2)||(iswzA == `ISWZA_fadd2@F32x2.HI_LO)||(iswzA == `ISWZA_fadd2@F32x2.LO_HI))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((iswzA == `ISWZA_fadd2@F32x2)||(iswzA == `ISWZA_fadd2@F32x2.HI_LO)||(iswzA == `ISWZA_fadd2@F32x2.LO_HI))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@FADD2_Imm ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_C_SIZE = 32;
+ ISRC_A_SIZE = 32 + ((iswzA==`ISWZA_fadd2@F32x2) || (iswzA==`ISWZA_fadd2@F32x2.HI_LO) || (iswzA==`ISWZA_fadd2@F32x2.LO_HI))*32;
+
+ ILABEL_Ra_SIZE = 32 + ((iswzA==`ISWZA_fadd2@F32x2) || (iswzA==`ISWZA_fadd2@F32x2.HI_LO) || (iswzA==`ISWZA_fadd2@F32x2.LO_HI))*32;
+
+OPCODES
+        FADD2fmalighter_pipe =  0b10001001011;
+        FADD2 =  0b10001001011;
+
+ENCODING
+!fadd2_imm__RRI_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_ftz=ftz;
+BITS_2_79_78_stride=rnd;
+BITS_2_85_84_mode=*2;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_2_82_81_iswzC=iswzA;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_1_83_83_nottid0=negA;
+BITS_32_63_32_Ra_offset=Sc;
+BITS_1_86_86_depth=negC;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_5(batch_t,usched_info,reuse_src_a);
+
+
+
+CLASS "fadd2_rc__RRR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA_fadd2:iswzA /NEGA("PP"):negA
+',' [-] [||] Register:Rc {/REUSE("noreuse"):reuse_src_c} /ISWZA_fadd2:iswzC /NEGA("PP"):negC
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzA !=`ISWZA_fadd2@INVALID3)) :
+ "Invalid iswzA field value"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzC !=`ISWZA_fadd2@INVALID3)) :
+ "Invalid iswzC field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_4(batch_t,usched_info,reuse_src_a,reuse_src_c) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a, reuse_src_c"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)||(reuse_src_c==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+OOR_REG_ERROR
+ (((iswzA == `ISWZA_fadd2@F32x2)||(iswzA == `ISWZA_fadd2@F32x2.HI_LO)||(iswzA == `ISWZA_fadd2@F32x2.LO_HI))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((iswzA == `ISWZA_fadd2@F32x2)||(iswzA == `ISWZA_fadd2@F32x2.HI_LO)||(iswzA == `ISWZA_fadd2@F32x2.LO_HI))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((iswzC == `ISWZA_fadd2@F32x2)||(iswzC == `ISWZA_fadd2@F32x2.HI_LO)||(iswzC == `ISWZA_fadd2@F32x2.LO_HI))) -> (((((Rc)==`Register@RZ)||((Rc)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((iswzC == `ISWZA_fadd2@F32x2)||(iswzC == `ISWZA_fadd2@F32x2.HI_LO)||(iswzC == `ISWZA_fadd2@F32x2.LO_HI))) -> (((((Rc)+((Rc)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@FADD2_Rc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_C_SIZE = 32 + ((iswzC==`ISWZA_fadd2@F32x2) || (iswzC==`ISWZA_fadd2@F32x2.HI_LO) || (iswzC==`ISWZA_fadd2@F32x2.LO_HI))*32;
+ ISRC_A_SIZE = 32 + ((iswzA==`ISWZA_fadd2@F32x2) || (iswzA==`ISWZA_fadd2@F32x2.HI_LO) || (iswzA==`ISWZA_fadd2@F32x2.LO_HI))*32;
+
+ ILABEL_Ra_SIZE = 32 + ((iswzA==`ISWZA_fadd2@F32x2) || (iswzA==`ISWZA_fadd2@F32x2.HI_LO) || (iswzA==`ISWZA_fadd2@F32x2.LO_HI))*32;
+ ILABEL_Rc_SIZE = 32 + ((iswzC==`ISWZA_fadd2@F32x2) || (iswzC==`ISWZA_fadd2@F32x2.HI_LO) || (iswzC==`ISWZA_fadd2@F32x2.LO_HI))*32;
+
+OPCODES
+        FADD2fmalighter_pipe =  0b1001001011;
+        FADD2 =  0b1001001011;
+
+ENCODING
+!fadd2_rc__RRR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_ftz=ftz;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_2_82_81_iswzC=iswzA;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_1_83_83_nottid0=negA;
+BITS_8_39_32_Rb=Rc;
+BITS_2_85_84_mode=iswzC;
+BITS_1_62_62_Sb_absolute=Rc@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=Rc@negate;
+BITS_1_86_86_depth=negC;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_4(batch_t,usched_info,reuse_src_a,reuse_src_c);
+
+
+
+CLASS "fadd2_urc__RRU"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /FTZ("noftz"):ftz /Round1("RN"):rnd
+Register:Rd
+',' [-] [||] Register:Ra {/REUSE("noreuse"):reuse_src_a} /ISWZA_fadd2:iswzA /NEGA("PP"):negA
+',' [-] [||] UniformRegister:URc /ISWZA_fadd2:iswzC /NEGA("PP"):negC
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-2))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+MISALIGNED_REG_ERROR
+ (((Rd)+((Rd)==`Register@RZ)) % 2) == 0 :
+ "Register Rd is misaligned"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzA !=`ISWZA_fadd2@INVALID3)) :
+ "Invalid iswzA field value"
+OOR_REG_ERROR
+ (((URc)==`UniformRegister@URZ)||((URc)<=(%MAX_UNIFORM_REG_COUNT-1))) :
+ "Uniform register Sc is out of range"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((iswzC !=`ISWZA_fadd2@INVALID3)) :
+ "Invalid iswzC field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_5(batch_t,usched_info,reuse_src_a) :
+ "Invalid combination of batch_t, usched_info, reuse_src_a"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((reuse_src_a==1)) -> ((usched_info==17)||(usched_info==18)||(usched_info==19)||(usched_info==20)||(usched_info==21)||(usched_info==22)||(usched_info==23)||(usched_info==24)||(usched_info==25)||(usched_info==26)||(usched_info==27)) :
+ "?DRAIN and ?WAITn_END_GROUP tokens are not allowed with .reuse"
+OOR_REG_ERROR
+ (((iswzA == `ISWZA_fadd2@F32x2)||(iswzA == `ISWZA_fadd2@F32x2.HI_LO)||(iswzA == `ISWZA_fadd2@F32x2.LO_HI))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((iswzA == `ISWZA_fadd2@F32x2)||(iswzA == `ISWZA_fadd2@F32x2.HI_LO)||(iswzA == `ISWZA_fadd2@F32x2.LO_HI))) -> (((((Ra)+((Ra)==`Register@RZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+OOR_REG_ERROR
+ (((iswzC == `ISWZA_fadd2@F32x2)||(iswzC == `ISWZA_fadd2@F32x2.HI_LO)||(iswzC == `ISWZA_fadd2@F32x2.LO_HI))) -> (((((URc)==`UniformRegister@URZ)||((URc)<=%MAX_UNIFORM_REG_COUNT-2)))) :
+ "Register is out of range"
+MISALIGNED_REG_ERROR
+ (((iswzC == `ISWZA_fadd2@F32x2)||(iswzC == `ISWZA_fadd2@F32x2.HI_LO)||(iswzC == `ISWZA_fadd2@F32x2.LO_HI))) -> (((((URc)+((URc)==`UniformRegister@URZ)) % 2) == 0)) :
+ "Register incorrectly aligned"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_COUPLED_MATH;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 0 ;
+ SIDL_NAME = `SIDL_NAMES@FADD2_URc ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 64;
+ ISRC_C_SIZE = 32 + ((iswzC==`ISWZA_fadd2@F32x2) || (iswzC==`ISWZA_fadd2@F32x2.HI_LO) || (iswzC==`ISWZA_fadd2@F32x2.LO_HI))*32;
+ ISRC_A_SIZE = 32 + ((iswzA==`ISWZA_fadd2@F32x2) || (iswzA==`ISWZA_fadd2@F32x2.HI_LO) || (iswzA==`ISWZA_fadd2@F32x2.LO_HI))*32;
+
+ ILABEL_Ra_SIZE = 32 + ((iswzA==`ISWZA_fadd2@F32x2) || (iswzA==`ISWZA_fadd2@F32x2.HI_LO) || (iswzA==`ISWZA_fadd2@F32x2.LO_HI))*32;
+ ILABEL_URc_SIZE = 32 + ((iswzC==`ISWZA_fadd2@F32x2) || (iswzC==`ISWZA_fadd2@F32x2.HI_LO) || (iswzC==`ISWZA_fadd2@F32x2.LO_HI))*32;
+
+OPCODES
+        FADD2fmalighter_pipe =  0b1111001001011;
+        FADD2 =  0b1111001001011;
+
+ENCODING
+!fadd2_urc__RRU_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_1_80_80_ftz=ftz;
+BITS_2_79_78_stride=rnd;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_2_82_81_iswzC=iswzA;
+BITS_1_73_73_sz=Ra@absolute;
+BITS_1_72_72_e=Ra@negate;
+BITS_1_83_83_nottid0=negA;
+BITS_8_39_32_Rb=URc;
+BITS_2_85_84_mode=iswzC;
+BITS_1_62_62_Sb_absolute=URc@absolute;
+BITS_1_63_63_input_reg_sz_32_100_dist=URc@negate;
+BITS_1_86_86_depth=negC;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=*7;
+BITS_3_112_110_dst_wr_sb=*7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_5(batch_t,usched_info,reuse_src_a);
+
+
+

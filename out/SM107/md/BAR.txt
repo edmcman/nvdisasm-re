@@ -1,0 +1,1613 @@
+CLASS "bar__ARV_II_II"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarArv:barmode
+UImm(4)*:Sb
+','UImm(12)*:Sc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_Imm_Imm ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 4;
+ ISRC_C_SIZE = 12;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+
+OPCODES
+        BARmio_pipe =  0b101100011101;
+        BAR =  0b101100011101;
+
+ENCODING
+!bar__ARV_II_II_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=0;
+BITS_4_57_54_barname=Sb;
+BITS_12_53_42_Sc=Sc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__ARV_IR_IR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarArv:barmode
+UImm(4)*:Sb
+','Register:Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_Imm_R ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 4;
+ ISRC_C_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b100100011101;
+        BAR =  0b100100011101;
+
+ENCODING
+!bar__ARV_IR_IR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=0;
+BITS_4_57_54_barname=Sb;
+BITS_8_39_32_Rb=Rc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__ARV_RI_RI"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarArv:barmode
+Register:Rb
+','UImm(12)*:Sc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_R_Imm ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 12;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b10100011101;
+        BAR =  0b10100011101;
+
+ENCODING
+!bar__ARV_RI_RI_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=0;
+BITS_8_39_32_Rb=Rb;
+BITS_12_53_42_Sc=Sc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__ARV_RR_RR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarArv:barmode
+Register:Rb
+','Register:Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Rb)==(Rc)) :
+ "Rb and Rc must be the same"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_R ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b1100011101;
+        BAR =  0b1100011101;
+
+ENCODING
+!bar__ARV_RR_RR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=0;
+BITS_8_39_32_Rb=IDENTICAL(Rb,Rc);
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__RED_II_optionalCount_II"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarRED:barmode /Red:op
+UImm(4)*:Sb
+','UImm(12/0)*:Sc
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((op !=`Red@INVALID3)) :
+ "Invalid op field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_Imm_Imm ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 4;
+ ISRC_C_SIZE = 12;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+
+OPCODES
+        BARmio_pipe =  0b101100011101;
+        BAR =  0b101100011101;
+
+ENCODING
+!bar__RED_II_optionalCount_II_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_2_75_74_iswzA=op;
+BITS_1_80_80_ftz=0;
+BITS_4_57_54_barname=Sb;
+BITS_12_53_42_Sc=Sc;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__RED_IR_optionalCount_IR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarRED:barmode /Red:op
+UImm(4)*:Sb
+','Register("RZ"):Rc
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((op !=`Red@INVALID3)) :
+ "Invalid op field value"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_Imm_R ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 4;
+ ISRC_C_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b100100011101;
+        BAR =  0b100100011101;
+
+ENCODING
+!bar__RED_IR_optionalCount_IR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_2_75_74_iswzA=op;
+BITS_1_80_80_ftz=0;
+BITS_4_57_54_barname=Sb;
+BITS_8_39_32_Rb=Rc;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__RED_RI_optionalCount_RI"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarRED:barmode /Red:op
+Register:Rb
+','UImm(12/0)*:Sc
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((op !=`Red@INVALID3)) :
+ "Invalid op field value"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_R_Imm ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 12;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b10100011101;
+        BAR =  0b10100011101;
+
+ENCODING
+!bar__RED_RI_optionalCount_RI_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_2_75_74_iswzA=op;
+BITS_1_80_80_ftz=0;
+BITS_8_39_32_Rb=Rb;
+BITS_12_53_42_Sc=Sc;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__RED_RR_RR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarRED:barmode /Red:op
+Register:Rb
+','Register:Rc
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((op !=`Red@INVALID3)) :
+ "Invalid op field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Rb)==(Rc)) :
+ "Rb and Rc must be the same"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_R ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b1100011101;
+        BAR =  0b1100011101;
+
+ENCODING
+!bar__RED_RR_RR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_2_75_74_iswzA=op;
+BITS_1_80_80_ftz=0;
+BITS_8_39_32_Rb=IDENTICAL(Rb,Rc);
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__RED_dfrBlk_II_optionalCount_II"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarRED:barmode /Red:op /DEFER_BLOCKINGONLY:defer_blocking
+UImm(4)*:Sb
+','UImm(12/0)*:Sc
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((op !=`Red@INVALID3)) :
+ "Invalid op field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_Imm_Imm ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 4;
+ ISRC_C_SIZE = 12;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+
+OPCODES
+        BARmio_pipe =  0b101100011101;
+        BAR =  0b101100011101;
+
+ENCODING
+!bar__RED_dfrBlk_II_optionalCount_II_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_2_75_74_iswzA=op;
+BITS_1_80_80_ftz=*defer_blocking;
+BITS_4_57_54_barname=Sb;
+BITS_12_53_42_Sc=Sc;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__RED_dfrBlk_IR_optionalCount_IR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarRED:barmode /Red:op /DEFER_BLOCKINGONLY:defer_blocking
+UImm(4)*:Sb
+','Register("RZ"):Rc
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((op !=`Red@INVALID3)) :
+ "Invalid op field value"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_Imm_R ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 4;
+ ISRC_C_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b100100011101;
+        BAR =  0b100100011101;
+
+ENCODING
+!bar__RED_dfrBlk_IR_optionalCount_IR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_2_75_74_iswzA=op;
+BITS_1_80_80_ftz=*defer_blocking;
+BITS_4_57_54_barname=Sb;
+BITS_8_39_32_Rb=Rc;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__RED_dfrBlk_RI_optionalCount_RI"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarRED:barmode /Red:op /DEFER_BLOCKINGONLY:defer_blocking
+Register:Rb
+','UImm(12/0)*:Sc
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((op !=`Red@INVALID3)) :
+ "Invalid op field value"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_R_Imm ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 12;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b10100011101;
+        BAR =  0b10100011101;
+
+ENCODING
+!bar__RED_dfrBlk_RI_optionalCount_RI_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_2_75_74_iswzA=op;
+BITS_1_80_80_ftz=*defer_blocking;
+BITS_8_39_32_Rb=Rb;
+BITS_12_53_42_Sc=Sc;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__RED_dfrBlk_RR_RR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarRED:barmode /Red:op /DEFER_BLOCKINGONLY:defer_blocking
+Register:Rb
+','Register:Rc
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((op !=`Red@INVALID3)) :
+ "Invalid op field value"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Rb)==(Rc)) :
+ "Rb and Rc must be the same"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_R ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b1100011101;
+        BAR =  0b1100011101;
+
+ENCODING
+!bar__RED_dfrBlk_RR_RR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_2_75_74_iswzA=op;
+BITS_1_80_80_ftz=*defer_blocking;
+BITS_8_39_32_Rb=IDENTICAL(Rb,Rc);
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__SCAN_II_II"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarSCAN:barmode
+UImm(4)*:Sb
+','UImm(12)*:Sc
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_Imm_Imm ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 4;
+ ISRC_C_SIZE = 12;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+
+OPCODES
+        BARmio_pipe =  0b101100011101;
+        BAR =  0b101100011101;
+
+ENCODING
+!bar__SCAN_II_II_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=0;
+BITS_4_57_54_barname=Sb;
+BITS_12_53_42_Sc=Sc;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__SCAN_IR_IR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarSCAN:barmode
+UImm(4)*:Sb
+','Register:Rc
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_Imm_R ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 4;
+ ISRC_C_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b100100011101;
+        BAR =  0b100100011101;
+
+ENCODING
+!bar__SCAN_IR_IR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=0;
+BITS_4_57_54_barname=Sb;
+BITS_8_39_32_Rb=Rc;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__SCAN_RI_RI"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarSCAN:barmode
+Register:Rb
+','UImm(12)*:Sc
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_R_Imm ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 12;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b10100011101;
+        BAR =  0b10100011101;
+
+ENCODING
+!bar__SCAN_RI_RI_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=0;
+BITS_8_39_32_Rb=Rb;
+BITS_12_53_42_Sc=Sc;
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__SCAN_RR_RR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarSCAN:barmode
+Register:Rb
+','Register:Rc
+',' [!]Predicate:Pp
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Rb)==(Rc)) :
+ "Rb and Rc must be the same"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_R ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b1100011101;
+        BAR =  0b1100011101;
+
+ENCODING
+!bar__SCAN_RR_RR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=0;
+BITS_8_39_32_Rb=IDENTICAL(Rb,Rc);
+BITS_3_89_87_Pp = Pp;
+BITS_1_90_90_memdesc = Pp@not;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__SYNCALL_dfrBlk_noSrc_II"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarSYNCALL:barmode /DEFER_BLOCKINGONLY:defer_blocking
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_Imm_Imm ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 4;
+ ISRC_C_SIZE = 12;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+ MASK_INSTR_PREDICATE = ((barmode == `BarSYNCALL@SYNCALL));
+
+
+OPCODES
+        BARmio_pipe =  0b101100011101;
+        BAR =  0b101100011101;
+
+ENCODING
+!bar__SYNCALL_dfrBlk_noSrc_II_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=*defer_blocking;
+BITS_4_57_54_barname=*0;
+BITS_12_53_42_Sc=*0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__SYNCALL_noSrc_II"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarSYNCALL:barmode
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_Imm_Imm ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 4;
+ ISRC_C_SIZE = 12;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+ MASK_INSTR_PREDICATE = ((barmode == `BarSYNCALL@SYNCALL));
+
+
+OPCODES
+        BARmio_pipe =  0b101100011101;
+        BAR =  0b101100011101;
+
+ENCODING
+!bar__SYNCALL_noSrc_II_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=0;
+BITS_4_57_54_barname=*0;
+BITS_12_53_42_Sc=*0;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__SYNC_II_optionalCount_II"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarSync:barmode
+UImm(4)*:Sb
+','UImm(12/0)*:Sc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_Imm_Imm ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 4;
+ ISRC_C_SIZE = 12;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+
+OPCODES
+        BARmio_pipe =  0b101100011101;
+        BAR =  0b101100011101;
+
+ENCODING
+!bar__SYNC_II_optionalCount_II_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=0;
+BITS_4_57_54_barname=Sb;
+BITS_12_53_42_Sc=Sc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__SYNC_IR_optionalCount_IR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarSync:barmode
+UImm(4)*:Sb
+','Register("RZ"):Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_Imm_R ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 4;
+ ISRC_C_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b100100011101;
+        BAR =  0b100100011101;
+
+ENCODING
+!bar__SYNC_IR_optionalCount_IR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=0;
+BITS_4_57_54_barname=Sb;
+BITS_8_39_32_Rb=Rc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__SYNC_RI_optionalCount_RI"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarSync:barmode
+Register:Rb
+','UImm(12/0)*:Sc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_R_Imm ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 12;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b10100011101;
+        BAR =  0b10100011101;
+
+ENCODING
+!bar__SYNC_RI_optionalCount_RI_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=0;
+BITS_8_39_32_Rb=Rb;
+BITS_12_53_42_Sc=Sc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__SYNC_RR_RR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarSync:barmode
+Register:Rb
+','Register:Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Rb)==(Rc)) :
+ "Rb and Rc must be the same"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_R ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b1100011101;
+        BAR =  0b1100011101;
+
+ENCODING
+!bar__SYNC_RR_RR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=0;
+BITS_8_39_32_Rb=IDENTICAL(Rb,Rc);
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__SYNC_dfrBlk_II_optionalCount_II"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarSync:barmode /DEFER_BLOCKINGONLY:defer_blocking
+UImm(4)*:Sb
+','UImm(12/0)*:Sc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_Imm_Imm ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 4;
+ ISRC_C_SIZE = 12;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+
+OPCODES
+        BARmio_pipe =  0b101100011101;
+        BAR =  0b101100011101;
+
+ENCODING
+!bar__SYNC_dfrBlk_II_optionalCount_II_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=*defer_blocking;
+BITS_4_57_54_barname=Sb;
+BITS_12_53_42_Sc=Sc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__SYNC_dfrBlk_IR_optionalCount_IR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarSync:barmode /DEFER_BLOCKINGONLY:defer_blocking
+UImm(4)*:Sb
+','Register("RZ"):Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_Imm_R ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 4;
+ ISRC_C_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b100100011101;
+        BAR =  0b100100011101;
+
+ENCODING
+!bar__SYNC_dfrBlk_IR_optionalCount_IR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=*defer_blocking;
+BITS_4_57_54_barname=Sb;
+BITS_8_39_32_Rb=Rc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__SYNC_dfrBlk_RI_optionalCount_RI"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarSync:barmode /DEFER_BLOCKINGONLY:defer_blocking
+Register:Rb
+','UImm(12/0)*:Sc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_R_Imm ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 12;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rb_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b10100011101;
+        BAR =  0b10100011101;
+
+ENCODING
+!bar__SYNC_dfrBlk_RI_optionalCount_RI_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=*defer_blocking;
+BITS_8_39_32_Rb=Rb;
+BITS_12_53_42_Sc=Sc;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
+CLASS "bar__SYNC_dfrBlk_RR_RR"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /BarSync:barmode /DEFER_BLOCKINGONLY:defer_blocking
+Register:Rb
+','Register:Rc
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ (%SHADER_TYPE == $ST_UNKNOWN) || ((%SHADER_TYPE == $ST_TRAP)||(%SHADER_TYPE == $ST_CS)) :
+ "Can only be used with CS"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ ((Rb)==(Rc)) :
+ "Rb and Rc must be the same"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+OOR_REG_ERROR
+ (((Rc)==`Register@RZ)||(((Rc)<=(%MAX_REG_COUNT-1))&&((Rc)!=`Register@R254))) :
+ "Register Rc is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+
+ MIN_WAIT_NEEDED = 6 ;
+ SIDL_NAME = `SIDL_NAMES@BAR_R ;
+ VALID_IN_SHADERS = (1<<ISHADER_TRAP)+(1<<ISHADER_CS)+0 ;
+
+PREDICATES
+ ISRC_B_SIZE = 32;
+ ISRC_C_SIZE = 32;
+ VIRTUAL_QUEUE = $VQ_UNORDERED ;
+
+ ILABEL_Rb_SIZE = 32;
+ ILABEL_Rc_SIZE = 32;
+
+OPCODES
+        BARmio_pipe =  0b1100011101;
+        BAR =  0b1100011101;
+
+ENCODING
+!bar__SYNC_dfrBlk_RR_RR_unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_3_79_77_Pq=*barmode;
+BITS_1_80_80_ftz=*defer_blocking;
+BITS_8_39_32_Rb=IDENTICAL(Rb,Rc);
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=7;
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+

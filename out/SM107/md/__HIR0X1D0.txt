@@ -1,0 +1,523 @@
+CLASS "decompress_"
+FORMAT PREDICATE @[!]Predicate(PT):Pg Opcode /DATASIZE:datasize /IDXSIZE:idxsize /N_SOURCE:n_source /M_TARGET:m_target /NUMSEQUENCE:numsequence
+Register:Rd
+','Register:Ra
+','Register:Rb
+$( { '&' REQ:req '=' BITSET(6/0x0000):req_bit_set } )$
+$( { '&' RD:rd '=' UImm(3/0x7):src_rel_sb } )$
+$( { '&' WR:wr '=' UImm(3/0x7):dst_wr_sb } )$
+$( { '?' USCHED_INFO("DRAIN"):usched_info } )$
+$( { '?' BATCH_T("NOP"):batch_t } )$
+$( { '?' PM_PRED("PMN"):pm_pred } )$;
+
+CONDITIONS
+
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((datasize !=`DATASIZE@INVALID3)) :
+ "Invalid datasize field value"
+ILLEGAL_INSTR_ENCODING_ERROR
+ ((numsequence !=`NUMSEQUENCE@INVALID7)) :
+ "Invalid numsequence field value"
+OOR_REG_ERROR
+ (((Rd)==`Register@RZ)||(((Rd)<=(%MAX_REG_COUNT-1))&&((Rd)!=`Register@R254))) :
+ "Register Rd is out of range"
+OOR_REG_ERROR
+ (((Ra)==`Register@RZ)||(((Ra)<=(%MAX_REG_COUNT-1))&&((Ra)!=`Register@R254))) :
+ "Register Ra is out of range"
+OOR_REG_ERROR
+ (((Rb)==`Register@RZ)||(((Rb)<=(%MAX_REG_COUNT-1))&&((Rb)!=`Register@R254))) :
+ "Register Rb is out of range"
+ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR
+ DEFINED TABLES_opex_0(batch_t,usched_info) :
+ "Invalid combination of batch_t, usched_info"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((n_source == `N_SOURCE@N2))) -> (((m_target == `M_TARGET@M4)||(m_target == `M_TARGET@M8)||(m_target == `M_TARGET@M16))) :
+ "Invalid instruction combination (reason: n_source must be less than m_target)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((n_source == `N_SOURCE@N4))) -> (((m_target == `M_TARGET@M8)||(m_target == `M_TARGET@M16))) :
+ "Invalid instruction combination (reason: n_source must be less than m_target)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((n_source == `N_SOURCE@N8))) -> (((m_target == `M_TARGET@M16))) :
+ "Invalid instruction combination (reason: n_source must be less than m_target)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((idxsize == `IDXSIZE@U2))) -> (((m_target == `M_TARGET@M2)||(m_target == `M_TARGET@M4))) :
+ "Invalid instruction combination (reason: Idxsize U2 has maximum m_target of M4)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((datasize == `DATASIZE@"16"))) -> (((n_source == `N_SOURCE@N1)||(n_source == `N_SOURCE@N2))) :
+ "Invalid instruction combination (reason: Datasize 16 has maximum n_source of N2)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((datasize == `DATASIZE@"8"))) -> (((n_source == `N_SOURCE@N1)||(n_source == `N_SOURCE@N2)||(n_source == `N_SOURCE@N4))) :
+ "Invalid instruction combination (reason: Datasize 8 has maximum n_source of N4)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"8"))) -> (((numsequence == `NUMSEQUENCE@X1)||(numsequence == `NUMSEQUENCE@X2)||(numsequence == `NUMSEQUENCE@X4)||(numsequence == `NUMSEQUENCE@X8)||(numsequence == `NUMSEQUENCE@X16)||(numsequence == `NUMSEQUENCE@X32))) :
+ "Invalid instruction combination (reason: Number of input and output registers < 256)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"16"))) -> (((numsequence == `NUMSEQUENCE@X1)||(numsequence == `NUMSEQUENCE@X2)||(numsequence == `NUMSEQUENCE@X4)||(numsequence == `NUMSEQUENCE@X8)||(numsequence == `NUMSEQUENCE@X16)||(numsequence == `NUMSEQUENCE@X32))) :
+ "Invalid instruction combination (reason: Number of input and output registers < 256)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"16"))) -> (((numsequence == `NUMSEQUENCE@X1)||(numsequence == `NUMSEQUENCE@X2)||(numsequence == `NUMSEQUENCE@X4)||(numsequence == `NUMSEQUENCE@X8)||(numsequence == `NUMSEQUENCE@X16))) :
+ "Invalid instruction combination (reason: Number of input and output registers < 256)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((m_target == `M_TARGET@M2))&&((datasize == `DATASIZE@"8"))) -> (((numsequence == `NUMSEQUENCE@X2)||(numsequence == `NUMSEQUENCE@X4)||(numsequence == `NUMSEQUENCE@X8)||(numsequence == `NUMSEQUENCE@X16)||(numsequence == `NUMSEQUENCE@X32)||(numsequence == `NUMSEQUENCE@X64))) :
+ "Invalid instruction combination (reason: Target output data in Rd >= 32b)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((m_target == `M_TARGET@M2))&&((datasize == `DATASIZE@"4"))) -> (((numsequence == `NUMSEQUENCE@X4)||(numsequence == `NUMSEQUENCE@X8)||(numsequence == `NUMSEQUENCE@X16)||(numsequence == `NUMSEQUENCE@X32)||(numsequence == `NUMSEQUENCE@X64))) :
+ "Invalid instruction combination (reason: Target output data in Rd >= 32b)"
+ILLEGAL_INSTR_ENCODING_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"4"))) -> (((numsequence == `NUMSEQUENCE@X2)||(numsequence == `NUMSEQUENCE@X4)||(numsequence == `NUMSEQUENCE@X8)||(numsequence == `NUMSEQUENCE@X16)||(numsequence == `NUMSEQUENCE@X32)||(numsequence == `NUMSEQUENCE@X64))) :
+ "Invalid instruction combination (reason: Target output data in Rd >= 32b)"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X8))&&((n_source == `N_SOURCE@N1))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X16))&&((n_source == `N_SOURCE@N1))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X32))&&((n_source == `N_SOURCE@N1))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X64))&&((n_source == `N_SOURCE@N1))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X4))&&((n_source == `N_SOURCE@N2))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X8))&&((n_source == `N_SOURCE@N2))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X16))&&((n_source == `N_SOURCE@N2))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X32))&&((n_source == `N_SOURCE@N2))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X64))&&((n_source == `N_SOURCE@N2))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X4))&&((n_source == `N_SOURCE@N1))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X8))&&((n_source == `N_SOURCE@N1))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X16))&&((n_source == `N_SOURCE@N1))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X32))&&((n_source == `N_SOURCE@N1))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X64))&&((n_source == `N_SOURCE@N1))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X2))&&((n_source == `N_SOURCE@N2))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X4))&&((n_source == `N_SOURCE@N2))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X8))&&((n_source == `N_SOURCE@N2))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X16))&&((n_source == `N_SOURCE@N2))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X32))&&((n_source == `N_SOURCE@N2))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X64))&&((n_source == `N_SOURCE@N2))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X16))&&((n_source == `N_SOURCE@N1))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X32))&&((n_source == `N_SOURCE@N1))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X64))&&((n_source == `N_SOURCE@N1))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X8))&&((n_source == `N_SOURCE@N2))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X16))&&((n_source == `N_SOURCE@N2))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X32))&&((n_source == `N_SOURCE@N2))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X64))&&((n_source == `N_SOURCE@N2))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X2))&&((n_source == `N_SOURCE@N4))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X4))&&((n_source == `N_SOURCE@N4))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X8))&&((n_source == `N_SOURCE@N4))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X16))&&((n_source == `N_SOURCE@N4))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X32))&&((n_source == `N_SOURCE@N4))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X64))&&((n_source == `N_SOURCE@N4))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X4))&&((n_source == `N_SOURCE@N4))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X8))&&((n_source == `N_SOURCE@N4))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X16))&&((n_source == `N_SOURCE@N4))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X32))&&((n_source == `N_SOURCE@N4))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X64))&&((n_source == `N_SOURCE@N4))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X2))&&((n_source == `N_SOURCE@N8))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X4))&&((n_source == `N_SOURCE@N8))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X8))&&((n_source == `N_SOURCE@N8))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X16))&&((n_source == `N_SOURCE@N8))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X32))&&((n_source == `N_SOURCE@N8))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X64))&&((n_source == `N_SOURCE@N8))) -> (((((Ra)==`Register@RZ)||((Ra)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X32))&&((idxsize == `IDXSIZE@U2))&&((n_source == `N_SOURCE@N1))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X64))&&((idxsize == `IDXSIZE@U2))&&((n_source == `N_SOURCE@N1))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X16))&&((idxsize == `IDXSIZE@U2))&&((n_source == `N_SOURCE@N2))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X32))&&((idxsize == `IDXSIZE@U2))&&((n_source == `N_SOURCE@N2))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X64))&&((idxsize == `IDXSIZE@U2))&&((n_source == `N_SOURCE@N2))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X16))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N1))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X32))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N1))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X64))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N1))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X8))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N2))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X16))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N2))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X32))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N2))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X64))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N2))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X4))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N4))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X8))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N4))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X16))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N4))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X32))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N4))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X64))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N4))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X2))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N8))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X4))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N8))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X8))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N8))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X16))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N8))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X32))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N8))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((numsequence == `NUMSEQUENCE@X64))&&((idxsize == `IDXSIZE@U4))&&((n_source == `N_SOURCE@N8))) -> (((((Rb)==`Register@RZ)||((Rb)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M2))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X4))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M2))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X8))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M2))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X16))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M2))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X32))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M2))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X64))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X2))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X4))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X8))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X16))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X32))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X64))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M2))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X2))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M2))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X4))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M2))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X8))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M2))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X16))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M2))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X32))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M2))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X64))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X1))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X2))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X4))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X8))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X16))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X32))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X64))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M2))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X8))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M2))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X16))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M2))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X32))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M2))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X64))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X4))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X8))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X16))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X32))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M4))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X64))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X1))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X2))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X4))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X8))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X16))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X32))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X64))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X1))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X2))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X4))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X8))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X16))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"8"))&&((numsequence == `NUMSEQUENCE@X32))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X1))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X2))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X4))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X8))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X16))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X32))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X1))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X2))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X4))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X8))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"16"))&&((numsequence == `NUMSEQUENCE@X16))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X2))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X4))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X8))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X16))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X32))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M8))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X64))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X1))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-2)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X2))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-4)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X4))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-8)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X8))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-16)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X16))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-32)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X32))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-64)))) :
+ "Register is out of range"
+OOR_REG_ERROR
+ (((m_target == `M_TARGET@M16))&&((datasize == `DATASIZE@"4"))&&((numsequence == `NUMSEQUENCE@X64))) -> (((((Rd)==`Register@RZ)||((Rd)<=%MAX_REG_COUNT-128)))) :
+ "Register is out of range"
+
+
+PROPERTIES
+ INSTRUCTION_TYPE = INST_TYPE_DECOUPLED_RD_WR_SCBD;
+ MEM_SCBD = NONE ;
+ MEM_SCBD_TYPE = BARRIER_INST ;
+ MIN_WAIT_NEEDED = 1 ;
+ SIDL_NAME = `SIDL_NAMES@__HIR0X1D0_Ra_Rb ;
+ VALID_IN_SHADERS = ISHADER_ALL ;
+
+PREDICATES
+ IDEST_SIZE = 32 + ((((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M2)) && ((numsequence==`NUMSEQUENCE@X4)))*32 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M2)) && ((numsequence==`NUMSEQUENCE@X8)))*96 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M2)) && ((numsequence==`NUMSEQUENCE@X16)))*224 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M2)) && ((numsequence==`NUMSEQUENCE@X32)))*480 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M2)) && ((numsequence==`NUMSEQUENCE@X64)))*992 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X2)))*32 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X4)))*96 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X8)))*224 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X16)))*480 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X32)))*992 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X64)))*2016 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M2)) && ((numsequence==`NUMSEQUENCE@X2)))*32 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M2)) && ((numsequence==`NUMSEQUENCE@X4)))*96 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M2)) && ((numsequence==`NUMSEQUENCE@X8)))*224 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M2)) && ((numsequence==`NUMSEQUENCE@X16)))*480 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M2)) && ((numsequence==`NUMSEQUENCE@X32)))*992 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M2)) && ((numsequence==`NUMSEQUENCE@X64)))*2016 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X1)))*32 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X2)))*96 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X4)))*224 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X8)))*480 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X16)))*992 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X32)))*2016 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X64)))*4064 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M2)) && ((numsequence==`NUMSEQUENCE@X8)))*32 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M2)) && ((numsequence==`NUMSEQUENCE@X16)))*96 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M2)) && ((numsequence==`NUMSEQUENCE@X32)))*224 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M2)) && ((numsequence==`NUMSEQUENCE@X64)))*480 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X4)))*32 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X8)))*96 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X16)))*224 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X32)))*480 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M4)) && ((numsequence==`NUMSEQUENCE@X64)))*992 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X1)))*32 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X2)))*96 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X4)))*224 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X8)))*480 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X16)))*992 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X32)))*2016 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X64)))*4064 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X1)))*96 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X2)))*224 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X4)))*480 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X8)))*992 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X16)))*2016 + (((datasize==`DATASIZE@"8")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X32)))*4064 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X1)))*96 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X2)))*224 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X4)))*480 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X8)))*992 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X16)))*2016 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X32)))*4064 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X1)))*224 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X2)))*480 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X4)))*992 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X8)))*2016 + (((datasize==`DATASIZE@"16")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X16)))*4064 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X2)))*32 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X4)))*96 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X8)))*224 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X16)))*480 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X32)))*992 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M8)) && ((numsequence==`NUMSEQUENCE@X64)))*2016 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X1)))*32 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X2)))*96 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X4)))*224 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X8)))*480 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X16)))*992 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X32)))*2016 + (((datasize==`DATASIZE@"4")) && ((m_target==`M_TARGET@M16)) && ((numsequence==`NUMSEQUENCE@X64)))*4064);
+ ISRC_B_SIZE = 32 + ((((numsequence==`NUMSEQUENCE@X32)) && ((idxsize==`IDXSIZE@U2)) && ((n_source==`N_SOURCE@N1)))*32 + (((numsequence==`NUMSEQUENCE@X64)) && ((idxsize==`IDXSIZE@U2)) && ((n_source==`N_SOURCE@N1)))*96 + (((numsequence==`NUMSEQUENCE@X16)) && ((idxsize==`IDXSIZE@U2)) && ((n_source==`N_SOURCE@N2)))*32 + (((numsequence==`NUMSEQUENCE@X32)) && ((idxsize==`IDXSIZE@U2)) && ((n_source==`N_SOURCE@N2)))*96 + (((numsequence==`NUMSEQUENCE@X64)) && ((idxsize==`IDXSIZE@U2)) && ((n_source==`N_SOURCE@N2)))*224 + (((numsequence==`NUMSEQUENCE@X16)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N1)))*32 + (((numsequence==`NUMSEQUENCE@X32)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N1)))*96 + (((numsequence==`NUMSEQUENCE@X64)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N1)))*224 + (((numsequence==`NUMSEQUENCE@X8)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N2)))*32 + (((numsequence==`NUMSEQUENCE@X16)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N2)))*96 + (((numsequence==`NUMSEQUENCE@X32)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N2)))*224 + (((numsequence==`NUMSEQUENCE@X64)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N2)))*480 + (((numsequence==`NUMSEQUENCE@X4)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N4)))*32 + (((numsequence==`NUMSEQUENCE@X8)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N4)))*96 + (((numsequence==`NUMSEQUENCE@X16)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N4)))*224 + (((numsequence==`NUMSEQUENCE@X32)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N4)))*480 + (((numsequence==`NUMSEQUENCE@X64)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N4)))*992 + (((numsequence==`NUMSEQUENCE@X2)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N8)))*32 + (((numsequence==`NUMSEQUENCE@X4)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N8)))*96 + (((numsequence==`NUMSEQUENCE@X8)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N8)))*224 + (((numsequence==`NUMSEQUENCE@X16)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N8)))*480 + (((numsequence==`NUMSEQUENCE@X32)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N8)))*992 + (((numsequence==`NUMSEQUENCE@X64)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N8)))*2016);
+ ISRC_A_SIZE = 32 + ((((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X8)) && ((n_source==`N_SOURCE@N1)))*32 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N1)))*96 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N1)))*224 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N1)))*480 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X4)) && ((n_source==`N_SOURCE@N2)))*32 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X8)) && ((n_source==`N_SOURCE@N2)))*96 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N2)))*224 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N2)))*480 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N2)))*992 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X4)) && ((n_source==`N_SOURCE@N1)))*32 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X8)) && ((n_source==`N_SOURCE@N1)))*96 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N1)))*224 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N1)))*480 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N1)))*992 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X2)) && ((n_source==`N_SOURCE@N2)))*32 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X4)) && ((n_source==`N_SOURCE@N2)))*96 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X8)) && ((n_source==`N_SOURCE@N2)))*224 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N2)))*480 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N2)))*992 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N2)))*2016 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N1)))*32 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N1)))*96 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N1)))*224 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X8)) && ((n_source==`N_SOURCE@N2)))*32 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N2)))*96 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N2)))*224 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N2)))*480 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X2)) && ((n_source==`N_SOURCE@N4)))*32 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X4)) && ((n_source==`N_SOURCE@N4)))*96 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X8)) && ((n_source==`N_SOURCE@N4)))*224 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N4)))*480 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N4)))*992 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N4)))*2016 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X4)) && ((n_source==`N_SOURCE@N4)))*32 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X8)) && ((n_source==`N_SOURCE@N4)))*96 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N4)))*224 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N4)))*480 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N4)))*992 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X2)) && ((n_source==`N_SOURCE@N8)))*32 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X4)) && ((n_source==`N_SOURCE@N8)))*96 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X8)) && ((n_source==`N_SOURCE@N8)))*224 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N8)))*480 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N8)))*992 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N8)))*2016);
+ VIRTUAL_QUEUE = $VQ_TMEM ;
+
+ ILABEL_Ra_SIZE = 32 + ((((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X8)) && ((n_source==`N_SOURCE@N1)))*32 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N1)))*96 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N1)))*224 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N1)))*480 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X4)) && ((n_source==`N_SOURCE@N2)))*32 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X8)) && ((n_source==`N_SOURCE@N2)))*96 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N2)))*224 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N2)))*480 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N2)))*992 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X4)) && ((n_source==`N_SOURCE@N1)))*32 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X8)) && ((n_source==`N_SOURCE@N1)))*96 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N1)))*224 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N1)))*480 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N1)))*992 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X2)) && ((n_source==`N_SOURCE@N2)))*32 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X4)) && ((n_source==`N_SOURCE@N2)))*96 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X8)) && ((n_source==`N_SOURCE@N2)))*224 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N2)))*480 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N2)))*992 + (((datasize==`DATASIZE@"16")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N2)))*2016 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N1)))*32 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N1)))*96 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N1)))*224 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X8)) && ((n_source==`N_SOURCE@N2)))*32 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N2)))*96 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N2)))*224 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N2)))*480 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X2)) && ((n_source==`N_SOURCE@N4)))*32 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X4)) && ((n_source==`N_SOURCE@N4)))*96 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X8)) && ((n_source==`N_SOURCE@N4)))*224 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N4)))*480 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N4)))*992 + (((datasize==`DATASIZE@"8")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N4)))*2016 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X4)) && ((n_source==`N_SOURCE@N4)))*32 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X8)) && ((n_source==`N_SOURCE@N4)))*96 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N4)))*224 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N4)))*480 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N4)))*992 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X2)) && ((n_source==`N_SOURCE@N8)))*32 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X4)) && ((n_source==`N_SOURCE@N8)))*96 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X8)) && ((n_source==`N_SOURCE@N8)))*224 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X16)) && ((n_source==`N_SOURCE@N8)))*480 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X32)) && ((n_source==`N_SOURCE@N8)))*992 + (((datasize==`DATASIZE@"4")) && ((numsequence==`NUMSEQUENCE@X64)) && ((n_source==`N_SOURCE@N8)))*2016);
+ ILABEL_Rb_SIZE = 32 + ((((numsequence==`NUMSEQUENCE@X32)) && ((idxsize==`IDXSIZE@U2)) && ((n_source==`N_SOURCE@N1)))*32 + (((numsequence==`NUMSEQUENCE@X64)) && ((idxsize==`IDXSIZE@U2)) && ((n_source==`N_SOURCE@N1)))*96 + (((numsequence==`NUMSEQUENCE@X16)) && ((idxsize==`IDXSIZE@U2)) && ((n_source==`N_SOURCE@N2)))*32 + (((numsequence==`NUMSEQUENCE@X32)) && ((idxsize==`IDXSIZE@U2)) && ((n_source==`N_SOURCE@N2)))*96 + (((numsequence==`NUMSEQUENCE@X64)) && ((idxsize==`IDXSIZE@U2)) && ((n_source==`N_SOURCE@N2)))*224 + (((numsequence==`NUMSEQUENCE@X16)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N1)))*32 + (((numsequence==`NUMSEQUENCE@X32)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N1)))*96 + (((numsequence==`NUMSEQUENCE@X64)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N1)))*224 + (((numsequence==`NUMSEQUENCE@X8)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N2)))*32 + (((numsequence==`NUMSEQUENCE@X16)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N2)))*96 + (((numsequence==`NUMSEQUENCE@X32)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N2)))*224 + (((numsequence==`NUMSEQUENCE@X64)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N2)))*480 + (((numsequence==`NUMSEQUENCE@X4)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N4)))*32 + (((numsequence==`NUMSEQUENCE@X8)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N4)))*96 + (((numsequence==`NUMSEQUENCE@X16)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N4)))*224 + (((numsequence==`NUMSEQUENCE@X32)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N4)))*480 + (((numsequence==`NUMSEQUENCE@X64)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N4)))*992 + (((numsequence==`NUMSEQUENCE@X2)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N8)))*32 + (((numsequence==`NUMSEQUENCE@X4)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N8)))*96 + (((numsequence==`NUMSEQUENCE@X8)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N8)))*224 + (((numsequence==`NUMSEQUENCE@X16)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N8)))*480 + (((numsequence==`NUMSEQUENCE@X32)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N8)))*992 + (((numsequence==`NUMSEQUENCE@X64)) && ((idxsize==`IDXSIZE@U4)) && ((n_source==`N_SOURCE@N8)))*2016);
+
+OPCODES
+        __HIR0X1D0mio_pipe =  0b1100010110;
+        __HIR0X1D0 =  0b1100010110;
+
+ENCODING
+!__HIR0X1D0__unused;
+BITS_3_14_12_Pg = Pg;
+BITS_1_15_15_Pg_not = Pg@not;
+BITS_13_91_91_11_0_opcode=Opcode;
+BITS_2_79_78_stride=datasize;
+BITS_1_75_75_sz=idxsize;
+BITS_2_73_72_memType=n_source;
+BITS_2_81_80_selB=m_target;
+BITS_3_86_84_cop=numsequence;
+BITS_8_23_16_Rd=Rd;
+BITS_8_31_24_Ra=Ra;
+BITS_8_39_32_Rb=Rb;
+BITS_6_121_116_req_bit_set=req_bit_set;
+BITS_3_115_113_src_rel_sb=VarLatOperandEnc(src_rel_sb);
+BITS_3_112_110_dst_wr_sb=VarLatOperandEnc(dst_wr_sb);
+BITS_2_103_102_pm_pred=pm_pred;
+BITS_8_124_122_109_105_opex=TABLES_opex_0(batch_t,usched_info);
+
+
+
