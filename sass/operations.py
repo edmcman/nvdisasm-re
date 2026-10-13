@@ -155,12 +155,6 @@ def emit_ULDC(b,check=False):
     table=b.select_code(('sz',),cases);b.body.append(f'{result.symbol} = {table};')
 
 
-def combine(b,cond,p):
-    require(b,'bop',['AND','OR','XOR']);en=b.g.arch.enums[b.k.operand_types['bop'].type]
-    return b.select('bop',{en[label]:f'{cond} {oper} {p}' for label,oper in [('AND','&'),('OR','|'),('XOR','^')] if label in en},1)
-
-
-SCALES={'noscale':0,'D2':-1,'D4':-2,'D8':-3,'M2':1,'M4':2,'M8':3}
 FLUSH_LABELS=['FTZ','FMZ','noftz','nofmz','nofmz_hfma2']
 
 def enum_cases(b,name,labels):
@@ -170,63 +164,9 @@ def enum_cases(b,name,labels):
     require(b,name,[l for l in labels if l in en])
     return {l:en[l] for l in labels if l in en}
 
-def float_inputs(b,names):
-    """Operand symbols after |x|/-x flags and, under exact .FTZ, denormal flushing."""
-    mode='fmz' if 'fmz' in b.values else 'ftz'
-    if fpops.readable(b):
-        enum_cases(b,mode,FLUSH_LABELS)
-        return mode,{None:None},[b.flag(n,True) for n in names]
-    flush=enum_cases(b,mode,['FTZ','noftz','nofmz','nofmz_hfma2'])
-    out=[]
-    for name in names:
-        v=b.flag(name,True)
-        out.append(v if flush=={None:None} else
-                   b.select(mode,{value:fpops.flush(v) if label=='FTZ' else v for label,value in flush.items()},4))
-    return mode,flush,out
-
-def float_result(b,mode,flush,core,extra=None,size=4):
-    """Select the body computing r per (.FTZ, .SAT, rounding[, extra]) and assign it to Rd.
-
-    core(rounding label, extra label) leaves the unflushed result in r."""
-    rnd=enum_cases(b,'rnd',fpops.ROUNDING)
-    if fpops.readable(b):rnd={None:None}
-    selectors=[(n,c) for n,c in ((mode,flush),('sat',enum_cases(b,'sat',['SAT','nosat'])),('rnd',rnd),extra or (None,{None:None}))
-               if n and c!={None:None}]
-    cases={}
-    for combo in product(*(c.items() for _,c in selectors)):
-        label={n:l for (n,_),(l,_) in zip(selectors,combo)}
-        code=(core(label.get('rnd','RN'),label.get(extra and extra[0]))+
-              (f' r = {fpops.flush("r",size)};' if label.get(mode)=='FTZ' else '')+
-              (' '+fpops.saturate(size) if label.get('sat')=='SAT' else ' ')+'export r;')
-        cases[tuple(v for _,v in combo)]=code
-    table=b.select_code(tuple(n for n,_ in selectors),cases)
-    b.body.append(f'{output(b).symbol} = {table};')
 
 def arithmetic(b,op,xs,size,rnd,scale=0):
     return fpops.arithmetic(op,xs,size,rnd,scale,exact=not fpops.readable(b))
-
-def float_shape(b,*groups,size=4):
-    names=operands(b,*groups)
-    return all(names) and output(b) is not None and output(b).size==size and all(b.values[n].size==size for n in names) and names
-
-
-def double_arithmetic(b,groups,op,check):
-    names=float_shape(b,*groups,size=8)
-    if check:return bool(names)
-    inputs=[b.flag(n,True) for n in names]
-    float_result(b,'ftz',{None:None},lambda rnd,_:arithmetic(b,op,inputs,8,rnd),size=8)
-
-
-def emit_DADD(b,check=False):
-    return double_arithmetic(b,('Ra/Sa','Rc/Sc/URc'),'add',check)
-
-
-def emit_DMUL(b,check=False):
-    return double_arithmetic(b,('Ra/Sa','Rb/Sb/URb'),'mul',check)
-
-
-def emit_DFMA(b,check=False):
-    return double_arithmetic(b,('Ra/Sa','Rb/Sb/URb','Rc/Sc/URc'),'fma',check)
 
 
 def half_shape(b,fma):
@@ -592,151 +532,6 @@ def emit_HFMA2_MMA(b,check=False):
     expr=f'({lanes[0]}) | (({lanes[1]}) << 16)'
     table=b.g.subtable('halfmove',[('t',pattern([],refs),f' [ t = inst_start * 0 + ({expr}); ]','export *[const]:4 t;')])
     b.refs.append(('sub',table));b.body.append(f'{output(b).symbol} = {table};')
-
-def emit_FADD(b,check=False):
-    names=float_shape(b,'Ra/Sa','Rc/Sc/URc')
-    if check:return bool(names)
-    mode,flush,xs=float_inputs(b,names)
-    float_result(b,mode,flush,lambda rnd,_:arithmetic(b,'add',xs,4,rnd))
-
-def emit_FMUL(b,check=False):
-    names=float_shape(b,'Ra/Sa','Rb/Sb/URb')
-    if check:return bool(names)
-    mode,flush,xs=float_inputs(b,names)
-    scale=enum_cases(b,'scale',list(SCALES))
-    float_result(b,mode,flush,lambda rnd,label:arithmetic(b,'mul',xs,4,rnd,SCALES[label] if label else 0),
-                 ('scale',scale) if scale!={None:None} else None)
-
-def emit_FFMA(b,check=False):
-    names=float_shape(b,'Ra/Sa','Rb/Sb/URb','Rc/Sc/URc')
-    if check:return bool(names)
-    mode,flush,xs=float_inputs(b,names)
-    float_result(b,mode,flush,lambda rnd,_:arithmetic(b,'fma',xs,4,rnd))
-
-def emit_FSEL(b,check=False):
-    names=float_shape(b,'Ra/Sa','Rb/Sb')
-    p=operands(b,'Pp')[0]
-    if check:return bool(names and p) and set(b.outputs)=={'Rd'}
-    _,_,(a,c)=float_inputs(b,names)
-    result=b.local(4,a)
-    b.body += [f'if ({b.flag(p)} != 0) goto <selected>;',f'{result.symbol} = {c};',
-               '<selected>',f'{output(b).symbol} = {result.symbol};']
-
-
-def emit_FMNMX(b,check=False):
-    names=float_shape(b,'Ra/Sa','Rb/Sb')
-    p=operands(b,'Pp')[0]
-    if check:return bool(names and p) and set(b.outputs)=={'Rd'}
-    _,_,(a,c)=float_inputs(b,names)
-    predicate=b.flag(p)
-    xorsign_modes=enum_cases(b,'xorsign',['noxorsign','XORSIGN'])
-    if fpops.readable(b):
-        enum_cases(b,'nan',['nonan','NAN'])
-        result=b.local(4,c)
-        b.body += [f'if (({a} f< {c}) != {predicate}) goto <minmaxdone>;',f'{result.symbol} = {a};',
-                   '<minmaxdone>',f'{output(b).symbol} = {result.symbol};']
-        return
-    nan_modes=enum_cases(b,'nan',['nonan','NAN'])
-    # Numeric input wins over NaN. Equal signed zeros use OR for min and AND
-    # for max; this preserves -0 for min and +0 for max in either source order.
-    cases={}
-    has_nan_selector='nan' in b.values
-    has_xorsign_selector='xorsign' in b.values
-    for xormode,xorvalue in xorsign_modes.items():
-      for label,value in nan_modes.items():
-        if label is None:label='nonan'
-        use_xor=xormode=='XORSIGN'
-        selected='<fmnmx_select_done>' if use_xor else '<minmaxdone>'
-        aa=f'({a} & 0x7fffffff)' if use_xor else a
-        cc=f'({c} & 0x7fffffff)' if use_xor else c
-        # XORSIGN captures the encoded register signs before SASS's source
-        # absolute modifiers (ptxas emits |Ra|/|Rb| for min.xorsign.abs).
-        raw_a=b.values[names[0]].symbol;raw_c=b.values[names[1]].symbol
-        xor_sign=f'(({raw_a} ^ {raw_c}) & 0x80000000)'
-        lines=['local r:4 = '+cc+';']
-        if label=='NAN':
-            lines += [f'if (nan({aa}) || nan({cc})) goto <nan_result>;']
-        else:
-            lines += [f'if (!nan({aa})) goto <numeric_a>;',
-                      f'if (!nan({cc})) goto {selected};',
-                      'r = 0x7fffffff;',f'goto {selected};','<numeric_a>',
-                      f'if (nan({cc})) goto <choosea>;']
-        lines += [f'if ((({aa} | {cc}) & 0x7fffffff) != 0) goto <compare>;',
-                  f'if ({predicate} == 0) goto <maxzero>;',
-                  f'r = {aa} | {cc};',f'goto {selected};',
-                  '<maxzero>',f'r = {aa} & {cc};',f'goto {selected};',
-                  '<compare>',f'if (({aa} f< {cc}) != {predicate}) goto {selected};',
-                  *(['<choosea>'] if label!='NAN' else []),f'r = {aa};']
-        if label=='NAN':lines += [f'goto {selected};','<nan_result>','r = 0x7fffffff;']
-        if use_xor:
-            lines += ['<fmnmx_select_done>',f'if (nan(r)) goto <minmaxdone>;',
-                      f'r = (r & 0x7fffffff) | {xor_sign};']
-        lines += ['<minmaxdone>','export r;']
-        key=()
-        if has_xorsign_selector:key+=(xorvalue,)
-        if has_nan_selector:key+=(value,)
-        cases[key]='\n'.join(lines)
-    selectors=tuple(n for n,present in (('xorsign',has_xorsign_selector),('nan',has_nan_selector)) if present)
-    table=b.select_code(selectors,cases)
-    b.body.append(f'{output(b).symbol} = {table};')
-
-
-def emit_FMNMX3(b,check=False):
-    """Three-input scalar float min/max selected by the predicate value."""
-    names=float_shape(b,'Ra/Sa','Rb/Sb/URb','Rc/Sc/URc')
-    p=operands(b,'Pp')[0]
-    if check:return bool(names and p) and set(b.outputs)=={'Rd'}
-    _,_,(a,c,d)=float_inputs(b,names)
-    pred=b.flag(p)
-    nan_modes=enum_cases(b,'nan',['nonan','NAN'])
-    if fpops.readable(b):
-        first=b.local(4,a);second=b.local(4,'0');third=b.local(4,'0')
-        choose_c=f'(({pred} != 0 && {first.symbol} f> {c}) || ({pred} == 0 && {first.symbol} f< {c}))'
-        choose_d=f'(({pred} != 0 && {second.symbol} f> {d}) || ({pred} == 0 && {second.symbol} f< {d}))'
-        b.body += [f'if {choose_c} goto <take_c>; {second.symbol} = {first.symbol}; goto <first_done>;',
-                   '<take_c>',f'{second.symbol} = {c};','<first_done>',
-                   f'if {choose_d} goto <take_d>; {third.symbol} = {second.symbol}; goto <second_done>;',
-                   '<take_d>',f'{third.symbol} = {d};','<second_done>',
-                   f'{output(b).symbol} = {third.symbol};']
-        return
-    has_nan='nan' in b.values
-    cases={}
-    for label,value in nan_modes.items():
-        first='m1';second='m2'
-        lines=['local m1:4 = 0;','local m2:4 = 0;']
-        if label=='NAN':
-            lines += [f'if (nan({a}) || nan({c}) || nan({d})) goto <fmnmx3_nan>;']
-        for left,right,target,tag in ((a,c,first,'ab'),(first,d,second,'abc')):
-            # PTX min/max's default NaN rule is numeric-wins. Equal zero
-            # operands choose -0 for min and +0 for max, independent of order.
-            lines += [f'if (nan({left})) goto <fmnmx3_{tag}_left_nan>;',
-                      f'if (nan({right})) goto <fmnmx3_{tag}_right_nan>;',
-                      f'if ((({left} | {right}) & 0x7fffffff) == 0) goto <fmnmx3_{tag}_zero>;',
-                      f'if (({pred} != 0 && {left} f> {right}) || ({pred} == 0 && {left} f< {right})) goto <fmnmx3_{tag}_right>;',
-                      f'{target} = {left}; goto <fmnmx3_{tag}_done>;',
-                      f'<fmnmx3_{tag}_right>',f'{target} = {right}; goto <fmnmx3_{tag}_done>;',
-                      f'<fmnmx3_{tag}_left_nan>',f'{target} = {right};',
-                      f'if (nan({right})) goto <fmnmx3_{tag}_both_nan>;',
-                      f'goto <fmnmx3_{tag}_done>;',
-                      f'<fmnmx3_{tag}_right_nan>',f'{target} = {left}; goto <fmnmx3_{tag}_done>;',
-                      f'<fmnmx3_{tag}_both_nan>',f'{target} = {left}; goto <fmnmx3_{tag}_done>;',
-                      f'<fmnmx3_{tag}_zero>',
-                      f'if ({pred} != 0) goto <fmnmx3_{tag}_min_zero>;',
-                      f'{target} = {left} & {right}; goto <fmnmx3_{tag}_done>;',
-                      f'<fmnmx3_{tag}_min_zero>',
-                      f'{target} = {left} | {right};',
-                      f'<fmnmx3_{tag}_done>']
-        lines += [f'goto <fmnmx3_export>;']
-        if label=='NAN':
-            lines += ['<fmnmx3_nan>',f'{second} = 0x7fffffff;']
-        lines += ['<fmnmx3_export>','local t:4 = '+second+'; export t;']
-        cases[(value,) if has_nan else ()]='\n'.join(lines)
-    table=b.select_code(('nan',) if has_nan else (),cases)
-    b.body.append(f'{output(b).symbol} = {table};')
-
-
-def emit_FSETP(b,check=False):
-    return float_compare(b,4,check)
 
 
 def emit_F2I(b,check=False):
@@ -1796,30 +1591,6 @@ def emit_UP2UR(b,check=False):
     table=b.g.subtable('up2ur_mask',constructors)
     b.refs.append(('sub',table))
     b.body.append(f'build {table};')
-
-
-def emit_DSETP(b,check=False):
-    return float_compare(b,8,check)
-
-
-def float_compare(b,size,check):
-    selector='fcomp' if size==4 else 'test'
-    names=operands(b,'Ra/Sa','Rb/Sb/URb' if size==4 else 'Rc/Sc/URc')
-    if check:return all(names) and selector in b.values and output(b,'Pu') is not None and all(b.values[n].size==size for n in names)
-    if size==4:_,_,(x,y)=float_inputs(b,names)
-    else:x,y=[b.flag(n,True) for n in names]
-    unordered=f'(nan({x}) || nan({y}))'
-    ordered={'LT':f'{x} f< {y}','EQ':f'{x} f== {y}','LE':f'{x} f<= {y}','GT':f'{y} f< {x}',
-             'NE':f'!{unordered} && ({x} f!= {y})','GE':f'{y} f<= {x}'}
-    tests={**ordered,**{l+'U':f'{unordered} || ({e})' for l,e in ordered.items() if l!='NE'},
-           'NEU':f'{x} f!= {y}','NUM':f'!{unordered}','NAN':unordered,'T':'1:1','F':'0:1'}
-    en=enum_cases(b,selector,list(tests))
-    cond=b.select_code((selector,),{(v,):f'local t:1 = {tests[l]}; export t;' for l,v in en.items()})
-    if 'bop' not in b.values:
-        b.body.append(f'{output(b,"Pu").symbol} = {cond};');return
-    pv=b.flag(operands(b,'Pp')[0]);yes=combine(b,cond,pv);no=combine(b,b.expression(1,f'!{cond}').symbol,pv)
-    yes=b.local(1,yes).symbol;no=b.local(1,no).symbol
-    for name,out in b.outputs.items():b.body.append(f'{out.symbol} = {yes if name in ("Pu","UPu") else no};')
 
 
 def emit_S2R(b,check=False):

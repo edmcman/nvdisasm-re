@@ -12,6 +12,7 @@ Ghidra decodes at run time, so a class's semantics must cover every word of the 
    keep the complete opaque fallback via `operations.dispatch`.
 """
 import itertools
+from functools import cache
 from collections import defaultdict
 from dataclasses import dataclass
 from sass import sem
@@ -47,18 +48,28 @@ class Symbolic(Instruction):
 
     def operand(self, name, width): return sem.param(name, width)
 
+    def modified(self, name, attr, v, f):
+        # A decode-time choice of this value, not a branch of every row on the bit; except for a
+        # loaded operand, whose load each choice table would repeat (rows keep it in one body).
+        key = (name, attr)
+        if key not in self._encoded: return v
+        if getattr(self.b.values.get(name), "kind", None) in LOADS: return super().modified(name, attr, v, f)
+        self.asked.add(key)
+        cases = [((bit,), t) for bit, t in ((0, v), (1, f(v))) if clauses(self.b, key, bit) is not None]
+        return cases[0][1] if len(cases) == 1 or cases[0][1] is cases[-1][1] else sel((key,), cases, v.w)
+
     def span(self, name):
         v = self.b.outputs.get(name) or self.b.values.get(name)
         return v.size // nbytes(ELEMENT[REG_TYPES[self.atom(name).type]])
 
     def addr(self): return sem.param("__inst_start", 64)
 
-    def parameter(self, name, values, w):
-        # One yes/no question (in the table or not), then a decode-time constant table.
+    def choice(self, name, values):
+        # One yes/no question (in the table or not), then a decode-time choice of the value.
         if not self.answer(("in", name, frozenset(values)), (True, False)): raise Unmodelled(f"{name} outside the table")
-        cases = [((v,), sem.const(x, w)) for v, x in sorted(values.items()) if clauses(self.b, name, v) is not None]
-        if len({value for _, value in cases}) == 1: return cases[0][1]
-        return sel((name,), cases, w)
+        cases = [((v,), e) for v, e in sorted(values.items()) if clauses(self.b, name, v) is not None]
+        if all(e is cases[0][1] for _, e in cases): return cases[0][1]
+        return sel((name,), cases, cases[0][1].w)
 
 
 def clauses(b, key, v):
@@ -111,7 +122,19 @@ class Merger:
     choices it built so that a choice agreeing with an earlier one is that one (LOP3's Pu reuses
     Rd's table)."""
 
-    def __init__(self): self.choices = defaultdict(list)   # keys -> [(cases, default, choice)]
+    def __init__(self):
+        self.choices = defaultdict(list)   # keys -> [(cases, default, choice)]
+        self.merged = {}                   # (trees, rows) -> merge: subtrees recur (operands, wide values)
+        self.deciding = {}                 # (partition of the rows, rows) -> determining keys
+
+    def keys(self, values, assignments):
+        """determining_keys, cached: many nodes split the rows the same way (every node that depends
+        only on Ra's modifiers)."""
+        index = {}
+        partition = tuple(index.setdefault(v, len(index)) for v in values)
+        memo = (partition, id(assignments))
+        if memo not in self.deciding: self.deciding[memo] = determining_keys(partition, assignments)
+        return self.deciding[memo]
 
     def choice(self, keys, cases, w):
         """sel over keys with cases {values: tree}; the most common arm becomes a default row (no
@@ -136,29 +159,32 @@ class Merger:
         self.choices[keys].append((cases, default, e))
         return e
 
-    def bodies(self, trees, assignments, memo=None):
+    def bodies(self, trees, assignments):
         """The outputs of every row, merged: a tuple of per-output merges, or a decode-time choice
-        of whole bodies over one small key (each body merged the same way), whichever costs less.
-        Whole bodies keep a value shared by several outputs or lanes in one constructor (PRMT's
-        constant operand loads once, not once per byte table)."""
-        memo = {} if memo is None else memo
-        # Different rows can share trees (ISETP.F with !Pp and ISETP.T with Pp): key by both.
-        rows = tuple(sorted((id(t), tuple(sorted(a.items(), key=repr))) for t, a in zip(trees, assignments)))
-        if rows in memo: return memo[rows]
-        best = Expr("tuple", tuple(self.merge([t.args[j] for t in trees], assignments) for j in range(len(trees[0].args))), 0)
-        for key in sorted({k for a in assignments for k in a}, key=repr):
+        of whole bodies over one small key, whichever costs less. Whole bodies keep a value shared
+        by several outputs or lanes in one constructor (PRMT's constant operand loads once, not once
+        per byte table). Greedy: the best single-key split one level deep, then the same inside
+        each branch (an exhaustive search over key orders is exponential in FFMA's modifier bits)."""
+        def per_output(ts, asg):
+            return Expr("tuple", tuple(self.merge([t.args[j] for t in ts], asg) for j in range(len(ts[0].args))), 0)
+        def split(key):
             values = sorted({a[key] for a in assignments if key in a}, key=repr)
-            if not 1 < len(values) <= MAX_BODY_SPLIT: continue
-            branches = {}
+            if not 1 < len(values) <= MAX_BODY_SPLIT: return None
+            parts = {}
             for v in values:
-                rows_v = [j for j, a in enumerate(assignments) if a.get(key, v) == v]
-                if len(rows_v) == len(trees): break   # every row is in every branch: no split
-                branches[(v,)] = self.bodies([trees[j] for j in rows_v], [assignments[j] for j in rows_v], memo)
-            else:
-                candidate = self.choice((key,), branches, 0)
-                if cost(candidate) < cost(best): best = candidate
-        memo[rows] = best
-        return best
+                rows = [j for j, a in enumerate(assignments) if a.get(key, v) == v]
+                if len(rows) == len(trees): return None   # every row is in every branch: no split
+                parts[(v,)] = rows
+            return parts
+        best, best_cost, best_key = per_output(trees, assignments), None, None
+        best_cost = cost(best)
+        for key in sorted({k for a in assignments for k in a}, key=repr):
+            if (parts := split(key)) is None: continue
+            candidate = self.choice((key,), {v: per_output([trees[j] for j in r], [assignments[j] for j in r]) for v, r in parts.items()}, 0)
+            if (c := cost(candidate)) < best_cost: best_cost, best_key = c, key
+        if best_key is None: return best
+        return self.choice((best_key,), {v: self.bodies([trees[j] for j in r], [assignments[j] for j in r])
+                                         for v, r in split(best_key).items()}, 0)
 
     def merge(self, trees, assignments):
         """One expression generalizing trees[i] (the value under assignments[i]). Equal shapes merge
@@ -166,6 +192,12 @@ class Merger:
         and the cheaper of that and one table of whole trees is kept."""
         first = trees[0]
         if all(t is first for t in trees): return first
+        memo = (tuple(map(id, trees)), id(assignments))
+        if memo not in self.merged: self.merged[memo] = (self.merge_rows(trees, assignments), assignments)   # keep the rows alive
+        return self.merged[memo][0]
+
+    def merge_rows(self, trees, assignments):
+        first = trees[0]
         shapes = [shape(t) for t in trees]
         if shapes[0][0] != "leaf" and all(x == shapes[0] for x in shapes):
             # A choice has one width, so children of different widths are chosen between here.
@@ -174,7 +206,7 @@ class Merger:
                 args = [self.merge([t.args[j] for t in trees], assignments) if isinstance(first.args[j], Expr) else first.args[j]
                         for j in range(len(first.args))]
                 return sem.ite(*args) if first.op == "ite" else Expr(first.op, tuple(args), first.w)
-        keys = determining_keys(shapes, assignments)
+        keys = self.keys(shapes, assignments)
         if len(keys) > 1:
             key = min(keys, key=lambda k: (len({a.get(k) for a in assignments}), repr(k)))
             branches = {}
@@ -189,7 +221,7 @@ class Merger:
             factored = self.choice(keys, {tuple(a.get(k) for k in keys): merged[x] for a, x in zip(assignments, shapes)}, first.w)
         # Factoring pays when the arms share structure (F2FP's formats); 256 distinct LOP3 functions
         # are cheaper as one table of whole trees than as nested tables over the same key.
-        whole = determining_keys([id(t) for t in trees], assignments)
+        whole = self.keys([id(t) for t in trees], assignments)
         flat = self.choice(whole, {tuple(a.get(k) for k in whole): t for t, a in zip(trees, assignments)}, first.w)
         return min((factored, flat), key=cost)
 
@@ -222,6 +254,7 @@ MAX_BODY_SPLIT = 8   # keys with more values than this (LOP3's imm8) stay choice
 RUNTIME = 8   # an operation executed per instruction outweighs a node of .sla
 
 
+@cache
 def cost(e):
     """Generated size (nodes outside choices once, every choice arm with its row) plus RUNTIME per
     operation on the longest execution path. A choice is its own subtable: its arms can't reuse
@@ -254,13 +287,39 @@ def determining_keys(values, assignments):
     universe = sorted({k for a in assignments for k in a}, key=repr)
     rows = list(zip(values, assignments))
     overlap = lambda a, b, keys: all(k not in a or k not in b or a[k] == b[k] for k in keys)
-    for n in range(len(universe) + 1):
-        for keys in itertools.combinations(universe, n):
-            if not any(v != w and overlap(a, c, keys) for (v, a), (w, c) in itertools.combinations(rows, 2)): return keys
+    def determines(keys):
+        # Rows that asked every key: one value per projection (linear). Rows that didn't are
+        # wildcards on the rest and must not overlap a row of another value (pairwise, few).
+        seen, partial = {}, []
+        for v, a in rows:
+            if all(k in a for k in keys):
+                if seen.setdefault(tuple(a[k] for k in keys), v) != v: return False
+            else: partial.append((v, a))
+        return not any(v != w and overlap(a, c, keys) for v, a in partial for w, c in rows)
+    # A key is necessary when two rows differing only in it have different values; every
+    # determining set contains the necessary keys, so try those first, then extend them.
+    full = [(v, tuple(a[x] for x in universe)) for v, a in rows if len(a) == len(universe)]
+    def necessary(i):
+        seen = {}
+        return any(seen.setdefault(t[:i] + t[i + 1:], v) != v for v, t in full)
+    needed = [k for i, k in enumerate(universe) if necessary(i)]
+    rest = [k for k in universe if k not in needed]
+    for n in range(len(rest) + 1):
+        for extra in itertools.combinations(rest, n):
+            keys = tuple(k for k in universe if k in needed or k in extra)
+            if determines(keys): return keys
     raise AssertionError("assignments do not determine the values")
 
 
 # ---- lowering to p-code text ------------------------------------------------------------------
+
+FLOAT_CMP = {"flt": "f<", "fle": "f<=", "feq": "f=="}
+
+
+def scale_constant(k, n):
+    """2^k as a float constant of n bytes."""
+    return {4: f"{(127 + k) << 23:#x}:4", 8: f"{(1023 + k) << 52:#x}:8", 16: f"{(16383 + k) << 112:#x}:16"}[n]
+
 
 SLEIGH_OP = {"add": "+", "sub": "-", "mul": "*", "and": "&", "or": "|", "xor": "^", "shl": "<<", "shr": ">>",
              "sar": "s>>", "eq": "==", "ne": "!=", "ult": "<", "ule": "<=", "slt": "s<", "sle": "s<="}
@@ -403,6 +462,9 @@ class Lower:
                 hi, lo = self.widened(a[0], e.w), self.widened(a[1], e.w)
                 return self.local(e.w, expr(f"({hi} << {a[1].w}) | {lo}", hi, lo))
             case "ite": return self.ite(*a)
+            case "fadd" | "fmul" | "ffma": return self.float_op(e)
+            case "flt" | "fle" | "feq": return self.binary(FLOAT_CMP[e.op], self.value(a[0]), self.value(a[1]))
+            case "fnan": v = self.value(a[0]); return expr(f"nan({v})", v)
             case "sel": return self.sel(e)
             case "load": v = self.value(a[1]); return self.local(e.w, expr(f"*[{a[0]}]:{n} {v}", v))
             case "sar": return self.clean(e.w, self.binary("s>>", self.signed(a[0]), self.amount(a[1])))
@@ -412,6 +474,83 @@ class Lower:
             case "add" | "sub" | "mul": return self.clean(e.w, self.binary(SLEIGH_OP[e.op], self.value(a[0]), self.value(a[1])))
             case op if op in SLEIGH_OP: return self.binary(SLEIGH_OP[op], self.value(a[0]), self.value(a[1]))
         raise NotImplementedError(f"lowering of {e.op}")
+
+    # ---- floating point: exactly rounded (the exact language) or the plain formula (readable) ----
+    # Ghidra's float ops round to nearest at the operands' size. Exact results come from a wider
+    # format: products of these formats are exact in twice the width, so one rounding of a wide
+    # sum or a narrowing of an exact product is a correct single rounding (FFMA's wide sum may
+    # double-round in rare midpoint cases). Directed modes narrow with round-to-nearest, then
+    # step the encoding by one toward the requested direction when the exact residual says so.
+
+    def float_op(self, e):
+        a, n = e.args, nbytes(e.w)
+        xs = [self.value(x) for x in a if isinstance(x, Expr)]
+        rnd = next(x for x in a if isinstance(x, str))
+        scale = a[3] if e.op == "fmul" else 0
+        if n == 2: return self.half_op(e.op, xs, scale)
+        if self.b.g.fp == "readable":
+            v = self.float_formula(e.op, xs, n, scale)
+        elif rnd == "RN": v = self.nearest(e.op, xs, n, scale)
+        else: return self.directed(e.op, xs, n, rnd, scale)
+        return v   # materialized by value() when used more than once
+
+    def float_formula(self, op, xs, n, scale):
+        match op:
+            case "fadd": x = f"{xs[0]} f+ {xs[1]}"
+            case "fmul": x = f"{xs[0]} f* {xs[1]}"
+            case "ffma": x = f"{xs[0]} f* {xs[1]} f+ {xs[2]}"
+        if scale: x = f"({x}) f* {scale_constant(scale, n)}"
+        return expr(x, *xs)
+
+    def widen_float(self, x, n): return self.local(8 * n, expr(f"float2float({x})", x))
+
+    def nearest(self, op, xs, n, scale):
+        if op == "fadd" or op == "fmul" and not scale: return self.float_formula(op, xs, n, 0)
+        wide = [self.widen_float(x, 2 * n) for x in xs]
+        x = (f"({wide[0]} f* {wide[1]}) f* {scale_constant(scale, 2 * n)}" if op == "fmul"
+             else f"{wide[0]} f* {wide[1]} f+ {wide[2]}")
+        return expr(f"float2float({x})", *wide)
+
+    def half_op(self, op, xs, scale):
+        """binary16: computed in binary64 (sums and products exact) or binary128 (FMA), narrowed once."""
+        n = 16 if op == "ffma" else 8
+        wide = [self.widen_float(x, n) for x in xs]
+        x = self.local(8 * n, self.float_formula(op, wide, n, scale))
+        return self.local(16, expr(f"float2float({x})", x))
+
+    def directed(self, op, xs, n, rnd, scale):
+        """RZ/RP/RM: s = RN_wide(exact), residual e (TwoSum; zero for exact wide products),
+        r = RN(s), then r +- 1 ulp by the sign of the remaining error."""
+        w = 2 * n
+        zero = self.local(8 * w, Operand("zext(0:8)", "expr")) if w > 8 else Operand(f"0:{w}", "const")
+        wide = [self.widen_float(x, w) for x in xs]
+        if op == "fmul":
+            s = self.local(8 * w, expr(f"{wide[0]} f* {wide[1]}", *wide))
+            if scale: s = self.local(8 * w, expr(f"{s} f* {scale_constant(scale, w)}", s))
+            residual = None
+        else:
+            p, c = (self.local(8 * w, expr(f"{wide[0]} f* {wide[1]}", *wide)), wide[2]) if op == "ffma" else (wide[0], wide[1])
+            s = self.local(8 * w, expr(f"{p} f+ {c}", p, c))
+            v = self.local(8 * w, expr(f"{s} f- {p}", s, p))
+            residual = self.local(8 * w, expr(f"({p} f- ({s} f- {v})) f+ ({c} f- {v})", p, s, v, c))
+        r = self.local(8 * n, expr(f"float2float({s})", s))
+        d = self.local(8 * w, expr(f"({s} f- float2float({r}))" + (f" f+ {residual}" if residual else ""), s, r, *([residual] if residual else [])))
+        negative = self.local(8, expr(f"{r} s< 0", r))
+        # Infinite inputs leave a NaN residual: the result is exact. Ghidra 12.1.4 orders NaN in
+        # binary128 comparisons, so test it explicitly.
+        ordered = self.local(8, expr(f"!nan({d})", d))
+        # RP needs only the error's upward test, RM only the downward one.
+        above = self.local(8, expr(f"{ordered} && ({zero} f< {d})", ordered, zero, d)) if rnd != "RM" else None
+        below = self.local(8, expr(f"{ordered} && ({d} f< {zero})", ordered, zero, d)) if rnd != "RP" else None
+        step = {"RZ": f"{r} - zext(({below} && !{negative}) || ({above} && {negative}))",
+                "RP": f"{r} + zext({above} && !{negative}) - zext({above} && {negative})",
+                "RM": f"{r} + zext({below} && {negative}) - zext({below} && !{negative})"}[rnd]
+        out = self.local(8 * n, expr(step, r, *(t for t in (above, below) if t is not None), negative))
+        if rnd == "RM" and op != "fmul":
+            # An exact zero sum is -0 under RM unless both addends are +0.
+            sign = f"({xs[0]} ^ {xs[1]}) | {xs[2]}" if op == "ffma" else f"{xs[0]} | {xs[1]}"
+            out = self.local(8 * n, expr(f"{out} | (zext(({s} f== {zero}) && (({sign}) s< 0)) << {8 * n - 1})", out, s, zero, *xs))
+        return out
 
     def amount(self, n):
         """A shift amount: p-code shifts take any size of amount, so a zero-extension is dropped."""
@@ -435,7 +574,7 @@ class Lower:
 
     def cheap(self, e):
         """At hand without computing: constants, operands, values computed, and their low parts."""
-        return (e.op in ("const", "param") or self.lookup(e) is not None
+        return (e.op in ("const", "param", "sel") or self.lookup(e) is not None   # a choice is a table reference
                 or e.op == "extract" and e.args[2] == 0 and e.args[1] + 1 == 8 * nbytes(e.w) and self.cheap(e.args[0]))
 
     def precompute(self, nodes):
@@ -444,15 +583,20 @@ class Lower:
             if self.lookup(n) is None: self.memo[-1][n] = self.named(self.value(n), n.w)
 
     def arm(self, target, e):
-        """target = e, with e's temporaries local to this arm."""
-        self.memo.append({}); v = self.value(e); self.code.add(f"{target.text} = {v.text};", v); self.memo.pop()
+        """target = e, with e's temporaries local to this arm; a nested choice assigns target
+        itself (no local and copy per level)."""
+        self.memo.append({})
+        if e.op == "ite" and self.uses.get(e, 0) <= 1 and self.lookup(e) is None: self.ite(*e.args, into=target)
+        else: v = self.value(e); self.code.add(f"{target.text} = {v.text};", v)
+        self.memo.pop()
 
-    def ite(self, c, x, y):
+    def ite(self, c, x, y, into=None):
         """A dynamic choice. Non-trivial subexpressions of both arms are computed before the branch.
         With a cheap arm (constant or value at hand) it is the default and the other arm overwrites
         it conditionally (one CBRANCH); otherwise a two-armed diamond."""
         self.precompute(shared_subtrees([x, y]))
-        r = Operand(self.label("se"), "local")
+        r = into or Operand(self.label("se"), "local")
+        declare = "" if into else "local "
         if self.cheap(x) or self.cheap(y):
             first, other = (x, y) if self.cheap(x) else (y, x)
             # Not c: its complement comparison, or the negation of c when c is computed already.
@@ -460,13 +604,13 @@ class Lower:
             cond = (self.value(c) if first is x else expr(f"!{known}", known) if known is not None
                     else self.value(sem.complement(c)))
             init = self.value(first)
-            self.code.add(f"local {r.text}:{nbytes(x.w)} = {init.text};", init)
+            self.code.add(f"{declare}{r.text}{'' if into else f':{nbytes(x.w)}'} = {init.text};", init)
             done = self.label("done")
             self.code.add(f"if ({cond.text}) goto <{done}>;", cond)
             self.arm(r, other)
             self.code.add(f"<{done}>")
             return r
-        self.code.add(f"local {r.text}:{nbytes(x.w)} = 0;")
+        if not into: self.code.add(f"local {r.text}:{nbytes(x.w)} = 0;")
         then, done = self.label("then"), self.label("done")
         cond = self.value(c)
         self.code.add(f"if ({cond.text}) goto <{then}>;", cond)
@@ -594,8 +738,11 @@ def emit(b):
     fam = family_for(b.k)
     rows = enumerate_rows(b, fam)
     native = [(a, r) for a, r in rows if not isinstance(r, Exception)]
+    why = "; ".join(sorted({str(r) for _, r in rows if isinstance(r, Exception)}))
     if not native:
-        return "opaque", "; ".join(sorted({str(r) for _, r in rows})) or "no modelled encodings"
+        if fam.fallback != "prim": return "opaque", why or "no modelled encodings"
+        b.body += b.call("prim")
+        return "primitive", why
     i = Symbolic(b, {})
     resolved = [(a, [w for n, e in r.ordered() if i.has_operand(n) for w in predicate_writes(i, i.resolve(n), e)])
                 for a, r in native]
@@ -638,6 +785,6 @@ def emit(b):
     if len(native) < len(rows):
         b.selector_combinations = {",".join(map(str, map(builder_key, deciding))): [list(v) for v in native_values]}
     else: b.selector_combinations = {}
-    dispatch(b, refs=sorted(refs, key=repr))
+    dispatch(b, fam.fallback, refs=sorted(refs, key=repr))
     return "native", ("decode-time selector guards retain complete opaque fallbacks" if len(native) < len(rows)
                       else "semantics family")

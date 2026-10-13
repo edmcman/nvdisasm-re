@@ -1,0 +1,28 @@
+# p-code op counts, Phase 5a (FP32/FP64 scalar families) vs the Phase 4 baseline, same sample words
+# Totals fall for FSETP/DSETP/D*/FSEL (one comparison choice for both predicates; decode-time modifier choices).
+# FADD/FFMA/FMUL +1 per class: the SAT clamp's nested choice. FMNMX larger on SM80/SM86 (NAN/XORSIGN variants): the merge decides flat vs factored per node and can't see sharing with sibling nodes (open).
+opcode       classes  before   after up/err
+FFMA              63    2273    2336     63  SM75-exact:ffma__RIR_RIR 41->42; SM75-exact:ffma__RRCx_RRCx 53->54; SM75-exact:ffma__RRC_RRC 55->56; SM75-exact:ffma__RRI_RRI 66->67
+FMUL              53    1156    1221     53  SM75-exact:fmul__RCxR_RCx 45->46; SM75-exact:fmul__RIR_RI 34->35; SM75-readable:fmul__RRR_RR 8->9; SM75-readable:fmul__RCxR_RCx 27->28
+FADD              50    1608    1658     50  SM75-exact:fadd__RRR_RR 63->64; SM75-exact:fadd__RRU_RU 34->35; SM75-exact:fadd__RRI_RI 64->65; SM75-exact:fadd__RRCx_RCx 50->51
+VIADDMNMX         32    1004    1126     30  SM90-exact:viaddmnmx__RRR_RRR 32->36; SM90-exact:viaddmnmx__RCxR_RCxR 58->60; SM90-exact:viaddmnmx__RRuI_RRI 31->36; SM90-exact:viaddmnmx__RCR_RCR 37->44
+FMNMX             74    2160    3008     27  SM80-exact:fmnmx__RCR_RCR 43->47; SM80-exact:fmnmx__RIR_RIR 36->40; SM80-exact:fmnmx__RUR_RUR 27->31; SM86-exact:fmnmx__RIR_RIR 41->95
+FMUL32I           11     239     254     11  SM75-exact:fmul32i_ 34->35; SM75-readable:fmul32i_ 16->17; SM80-readable:fmul32i_ 6->7; SM89-readable:fmul32i_ 7->8
+VIMNMX3           10     322     334     10  SM90-exact:vimnmx3__RuIR_RIR 21->22; SM90-exact:vimnmx3__RRR_RRR 25->26; SM90-exact:vimnmx3__RUR_RUR 25->26; SM90-exact:vimnmx3__RCxR_RCxR 69->71
+FFMA32I            9     336     345      9  SM80-exact:ffma32i_ 46->47; SM80-readable:ffma32i_ 18->19; SM89-readable:ffma32i_ 18->19; SM90-exact:ffma32i_ 74->75
+FADD32I            8     236     244      8  SM86-exact:fadd32i_ 57->58; SM86-readable:fadd32i_ 16->17; SM89-exact:fadd32i_ 37->38; SM89-readable:fadd32i_ 14->15
+ISETP            140    2378    2116      6  SM80-exact:isetp__RRR_RRR_noEX 5->6; SM80-readable:isetp__RRR_RRR_noEX 5->6; SM86-exact:isetp__RCxR_RCxR_noEX 3->4; SM86-readable:isetp__RCxR_RCxR_noEX 3->4
+VIMNMX             6     168     156      4  SM90-exact:vimnmx__RUR_RUR 32->33; SM90-readable:vimnmx__RUR_RUR 32->33; SM120-exact:vimnmx__RRR_RRR 12->13; SM120-readable:vimnmx__RRR_RRR 12->13
+UVIMNMX            2     136     138      2  SM120-exact:uvimnmx__UUU_URURUR 68->69; SM120-readable:uvimnmx__UUU_URURUR 68->69
+DSETP            142    3238    1580      0  
+UFLO               2     102     100      0  
+FSETP            148    3908    2544      0  
+UISETP            72     976     832      0  
+DMUL              42     478     215      0  
+FSEL              74    1022     948      0  
+DFMA              75    1134     449      0  
+DADD              42     505     198      0  
+FLO                2     100      98      0  
+F2FP             128   26804   24892      0  
+FMNMX3            18    1091     834      0  
+UF2FP             12    2226    2074      0  

@@ -115,16 +115,17 @@ def rewrite(fn):
     return out
 
 
-def family(*opcodes, classes=None):
+def family(*opcodes, classes=None, fallback="opaque"):
     """Register fn for every md class of `opcodes`, or only those `classes(klass)` accepts (while an
-    opcode is partly migrated, the other classes keep their old emitter)."""
+    opcode is partly migrated, the other classes keep their old emitter). Unmodelled encodings use
+    the opaque call, or with fallback='prim' the runtime primitive (sass/runtime.py)."""
     def register(fn):
         staged = rewrite(fn)
         def checked(i):
             result = staged(i)
             i.require_unasked_defaults()
             return result
-        checked.__name__, checked.__wrapped__ = fn.__name__, fn
+        checked.__name__, checked.__wrapped__, checked.fallback = fn.__name__, fn, fallback
         for op in opcodes: FAMILIES.setdefault(op, []).append((classes, checked))
         return checked
     return register
@@ -270,7 +271,7 @@ class Instruction:
         if a.type == "C": return constant_width(self.arch.name, self.cls, name)
         if a.type == "PR": return PR_BITS
         bits = int((a.args.split("/")[0] or "32").split(",")[0]) if a.args and a.type.endswith("Imm") else 32
-        return {"F16Imm": 16, "F64Imm": 64}.get(a.type, 64 if bits > 32 else 32)
+        return {"F16Imm": 16, "F32Imm": 32, "F64Imm": 64}.get(a.type, 64 if bits > 32 else 32)
 
     # Static facts about the encoding.
     def modifier(self, names, attr):
@@ -297,23 +298,34 @@ class Instruction:
 
     def default(self, names): return self.atom(self.resolve(names)).default
 
-    def param(self, names, table, w=32):
-        """A number chosen by a selector's label, as a value: `table` maps labels to ints (labels
-        outside it are unmodelled). Unlike `sel`, the backend doesn't run the family per label: lift
-        gets a constant, SLEIGH a decode-time constant table, so one parametric computation serves
-        every label (format constants, rounding-mode flags)."""
+    def choose(self, names, table):
+        """The value a selector's label chooses, as one value: `table` maps labels to expressions
+        (None or absent: unmodelled). Unlike `sel`, the backend doesn't run the family per label:
+        lift gets the chosen value, SLEIGH a decode-time choice, so a computation using it is
+        built once (FSETP's comparison serves both predicates)."""
         name = self.resolve(names); a = self.atom(name)
         enum = self.arch.enums[a.type]
         self.asked.add(name)
+        table = {l: e for l, e in table.items() if e is not None}
         if name not in self._encoded:
             label = self.sel(name)
-            v = next((x for l, x in table.items() if label == l), None)
-            if v is None: unmodelled(f"{name} {label}")
-            return sem.const(v, w)
-        return self.parameter(name, {enum[l]: v for l, v in table.items() if l in enum}, w)
+            e = next((x for l, x in table.items() if label == l), None)
+            if e is None: unmodelled(f"{name} {label}")
+            return e
+        return self.choice(name, {enum[l]: e for l, e in table.items() if l in enum})
 
-    def parameter(self, name, values, w):
-        """Backend: the value table[encoded value] of an encoded selector, as an expression."""
+    def param(self, names, table, w=32):
+        """A number chosen by a selector's label (format constants, rounding-mode flags): choose
+        with constants, so one parametric computation serves every label."""
+        return self.choose(names, {l: sem.const(v, w) for l, v in table.items()})
+
+    def labels(self, names):
+        """The labels the class's selector can take (its md enum's printed names)."""
+        a = self.atom(self.resolve(names))
+        return sorted(set(self.arch.rev_enums[a.type].values()))
+
+    def choice(self, name, values):
+        """Backend: values[encoded value] of an encoded selector (encoded value -> expression)."""
         raise NotImplementedError
 
     def on(self, names):
@@ -382,28 +394,31 @@ class Instruction:
         return a.default in ("RZ", "URZ", "PT", "UPT") or (a.default or "").startswith("0")
 
     # Dynamic values.
+    def modified(self, name, attr, v, f):
+        """v, or f(v) when the operand's modifier bit `attr` is set. Backends may answer without
+        enumerating the bit (SLEIGH: a decode-time choice), since it changes only this value."""
+        return f(v) if self.modifier(name, attr) else v
+
     def value(self, names, modifiers=True, width=None):
         name = self.resolve(names); self.asked.add(name)
         v = self.operand(name, width or self.width(name))
         if not modifiers: return v
-        if self.operand_absolute(name): v = sem.iabs(v)
-        if self.operand_negated(name): v = -v
-        if self.operand_inverted(name): v = ~v
-        return v
+        v = self.modified(name, "absolute", v, sem.iabs)
+        v = self.modified(name, "negate", v, lambda x: -x)
+        return self.modified(name, "invert", v, lambda x: ~x)
 
     def fvalue(self, names, modifiers=True, width=None):
         name = self.resolve(names); self.asked.add(name)
         v = self.operand(name, width or self.width(name))
         if not modifiers: return v
         sign = 1 << v.w - 1
-        if self.operand_absolute(name): v = v & (sign - 1)
-        if self.operand_negated(name): v = v ^ sign
-        return v
+        v = self.modified(name, "absolute", v, lambda x: x & (sign - 1))
+        return self.modified(name, "negate", v, lambda x: x ^ sign)
 
     def pred(self, names, modifiers=True):
         name = self.resolve(names); self.asked.add(name)
         v = self.operand(name, 1)
-        return sem.lnot(v) if modifiers and self.operand_notted(name) else v
+        return self.modified(name, "not", v, sem.lnot) if modifiers else v
 
     def imm(self, names, width=None):
         if self.kind(names) not in ("immediate", "float-immediate"): raise TypeError(f"{names} is not an immediate")

@@ -11,6 +11,7 @@ Python operators build IR: + - * & | ^ ~ (unary -) << >> (logical) and the unsig
 value has no truth value: a Python `if` on one raises (use a ternary, which `@family` rewrites).
 """
 from functools import reduce
+from sass import softfloat
 
 
 def mask(w): return (1 << w) - 1
@@ -125,7 +126,29 @@ OPS = {
     "sext": lambda v, ws, w: signed(v[0], ws[0]) & mask(w),
     "extract": lambda v, ws, w: v[0] >> v[2] & mask(w),
     "concat": lambda v, ws, w: v[0] << ws[1] | v[1],
+    # Floating point on IEEE encodings (16, 32, 64 bits): exactly rounded per mode, NaN results
+    # canonical; comparisons are false when either side is NaN.
+    "fadd": lambda v, ws, w: softfloat.arithmetic("add", v[:2], w, v[2]),
+    "fmul": lambda v, ws, w: softfloat.arithmetic("mul", v[:2], w, v[2], scale=v[3]),
+    "ffma": lambda v, ws, w: softfloat.arithmetic("fma", v[:3], w, v[3]),
+    "flt": lambda v, ws, w: int(fcompare(v[0], v[1], ws[0], lambda x, y: x < y)),
+    "fle": lambda v, ws, w: int(fcompare(v[0], v[1], ws[0], lambda x, y: x <= y)),
+    "feq": lambda v, ws, w: int(fcompare(v[0], v[1], ws[0], lambda x, y: x == y)),
+    "fnan": lambda v, ws, w: int(softfloat.unpack(v[0], ws[0])[0] == "nan"),
 }
+
+
+def fvalue(bits, w):
+    """The real value of an IEEE encoding (infinities as float infinities), or None for NaN."""
+    kind, sign, v = softfloat.unpack(bits, w)
+    if kind == "nan": return None
+    if kind == "inf": return float("-inf") if sign else float("inf")
+    return v
+
+
+def fcompare(a, b, w, test):
+    x, y = fvalue(a, w), fvalue(b, w)
+    return x is not None and y is not None and test(x, y)
 
 
 def fold(name, args, w):
@@ -311,6 +334,32 @@ def ite(c, a, b):
 
 
 def lnot(c): return c == 0 if isinstance(c, Expr) else not c
+
+
+ROUNDING = ("RN", "RZ", "RP", "RM")
+
+
+def fadd(a, b, rnd="RN"):
+    a, b = pair(a, b)
+    return op("fadd", a, b, rnd, w=a.w)
+
+
+def fmul(a, b, rnd="RN", scale=0):
+    """a * b * 2^scale, rounded once."""
+    a, b = pair(a, b)
+    return op("fmul", a, b, rnd, scale, w=a.w)
+
+
+def ffma(a, b, c, rnd="RN"):
+    """a * b + c, rounded once."""
+    a, b = pair(a, b); a, c = pair(a, c)
+    return op("ffma", a, b, c, rnd, w=a.w)
+
+
+def flt(a, b): a, b = pair(a, b); return op("flt", a, b, w=1)
+def fle(a, b): a, b = pair(a, b); return op("fle", a, b, w=1)
+def feq(a, b): a, b = pair(a, b); return op("feq", a, b, w=1)
+def fnan(a): return op("fnan", a, w=1)
 
 
 def complement(c):
