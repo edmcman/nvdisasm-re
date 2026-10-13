@@ -5,13 +5,13 @@ from sass.sem_family import family_for
 from tests.harness.checks import problems
 
 NAME = re.compile(r"(UR|UP|R|P)(\d+)$")
-PCODE_ONLY = ("__native", "__max_ops", "__memory", "__events")
+PCODE_ONLY = ("__native", "__max_ops", "__events")
 
 
 def applies(case):
     """Whether layer 4a can judge the case: a single instruction of an opcode with a family."""
     r = case.request
-    return "word" in r and not r.get("context") and not r.get("observe_memory") and \
+    return "word" in r and not r.get("context") and \
         all(NAME.match(n) or n in ("RZ", "PT") for n in list(r.get("registers", {})) + list(r.get("observe", [])))
 
 
@@ -43,7 +43,9 @@ def run(arch, fp, case):
     if "error" in expected: return "native", []  # runtime errors (budgets, events) are emulator matters
     try: out = sem_eval.execute(lifted, state(case.request))
     except sem_eval.Unknown as e: return "native", [str(e)]
-    return "native", problems(expected, dict(registers=observe(out, case.request.get("observe", [])), counter=out.pc))
+    memory = [dict(hex=bytes(out.memory.get(m["space"], {}).get(m["address"] + j, 0) for j in range(m["size"])).hex())
+              for m in case.request.get("observe_memory", [])]
+    return "native", problems(expected, dict(registers=observe(out, case.request.get("observe", [])), counter=out.pc, memory=memory))
 
 
 def primitive_fallback(arch, cls):

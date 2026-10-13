@@ -44,13 +44,35 @@ class Outputs:
     writes: dict                 # operand name -> Expr, evaluated simultaneously
     order: tuple = ()            # write order for aliased destinations (last wins)
     flow: "Flow | None" = None   # control transfer after the writes
+    stores: tuple = ()           # Store(space, address, value), after the register writes
+    effects: tuple = ()          # Effect(name, args): side-effecting calls, before everything else
 
     def ordered(self):
         names = [n for n in self.writes if n not in self.order] + [n for n in self.order if n in self.writes]
         return [(n, self.writes[n]) for n in names]
 
 
-def outputs(order=(), flow=None, **writes): return Outputs(writes, tuple(order), flow)
+def outputs(order=(), flow=None, stores=(), effects=(), **writes):
+    return Outputs(writes, tuple(order), flow, tuple(stores), tuple(effects))
+
+
+@dataclass(frozen=True)
+class Store:
+    """Write value (a whole number of bytes) to memory space `space` at byte `address` (64 bits)."""
+    space: str
+    address: Expr
+    value: Expr
+
+
+@dataclass(frozen=True)
+class Effect:
+    """A call to the pcodeop `name` with Expr arguments and no result (memory ordering events)."""
+    name: str
+    args: tuple
+
+
+def store(space, address, value): return Store(space, address, value)
+def effect(name, *args): return Effect(name, tuple(args))
 
 
 @dataclass(frozen=True)
@@ -436,6 +458,17 @@ class Instruction:
         name = self.resolve(names); self.asked.add(name)
         v = self.operand(name, 1)
         return self.modified(name, "not", v, sem.lnot) if modifiers else v
+
+    def encoding(self, names, w=32):
+        """A selector's encoded value as a w-bit expression, for a call that interprets it itself
+        (memory-ordering controls): the family models every label."""
+        name = self.resolve(names); self.asked.add(name)
+        return sem.param(f"__enc:{name}", w)
+
+    def special(self, names, w):
+        """The special register (view of w bits) a SpecialRegister operand names; SRZ reads 0."""
+        name = self.resolve(names); self.asked.add(name)
+        return sem.param(f"__sr:{name}", w)
 
     def branch_target(self, names):
         """The absolute address an RSImm (relative to the next instruction) or UImm (absolute)

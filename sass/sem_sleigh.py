@@ -165,6 +165,17 @@ class Merger:
         by several outputs or lanes in one constructor (PRMT's constant operand loads once, not once
         per byte table). Greedy: the best single-key split one level deep, then the same inside
         each branch (an exhaustive search over key orders is exponential in FFMA's modifier bits)."""
+        widths = [tuple(x.w for x in t.args) for t in trees]
+        if len(set(widths)) > 1:
+            # A choice has one width: rows whose outputs differ in width (a store of sz bits) are
+            # bodies of their own, split on a key that decides the widths.
+            keys = self.keys(widths, assignments)
+            key = min(keys, key=lambda k: (len({a.get(k) for a in assignments}), repr(k)))
+            branches = {}
+            for v in sorted({a[key] for a in assignments if key in a}, key=repr):
+                rows = [j for j, a in enumerate(assignments) if a.get(key, v) == v]
+                branches[(v,)] = self.bodies([trees[j] for j in rows], [assignments[j] for j in rows])
+            return self.choice((key,), branches, 0)
         def per_output(ts, asg):
             return Expr("tuple", tuple(self.merge([t.args[j] for t in ts], asg) for j in range(len(ts[0].args))), 0)
         def split(key):
@@ -562,6 +573,12 @@ class Lower:
         if name == "__inst_start":
             v = Operand("inst_start", "name")
             return v if w == 64 else self.clean(w, Operand(f"inst_start:{nbytes(w)}", "piece"))
+        if name.startswith("__enc:"): return self.param(name.split(":", 1)[1], w)   # the field itself
+        if name.startswith("__sr:"):      # the special register the field selects
+            real = name.split(":", 1)[1]
+            table = self.b.g.specialsem(self.b.g.source(self.b.k, real)[1], nbytes(w))
+            self.b.refs.append(("sub", table))
+            return Operand(table, "name", frozenset([("sub", table)]))
         if name.startswith("__target:"):   # a direct branch target: the subtable exporting it
             table = self.b.g.branch_target(self.b.k, self.b.k.operand_types[name.split(":", 1)[1]])
             self.b.refs.append(("sub", table))
@@ -698,6 +715,9 @@ FIXED = {f"P{k}" for k in range(PR_BITS)}   # register symbols written directly 
 FLOW = ("__flow_target", "__flow_cond")      # a control transfer, carried through merging as values
 
 
+def pseudo(n): return n.startswith("__")       # flow, store and effect values merged like outputs
+
+
 def predicate_writes(i, name, e):
     """A PR write is one write per predicate; other writes are themselves."""
     if i.atom(name).type != "PR": return [(name, e)]
@@ -725,19 +745,27 @@ def lower_writes(b, writes):
     the control transfer (b.flow_kind) to the FLOW target if its condition holds."""
     code = Code()
     low = Lower(b, code, count_uses([e for _, e in writes]))
+    extra = dict(w for w in writes if pseudo(w[0]))
+    # Effects (memory-ordering calls) come before any load the values do.
+    for k, (name, nargs) in enumerate(b.effect_shapes):
+        args = [low.value(extra[f"__effect{k}_{j}"]) for j in range(nargs)]
+        b.g.pcodeops.add(name); code.add(f"{name}({', '.join(a.text for a in args)});", *args)
     low.precompute(n for n, c in low.uses.items() if c > 1 and n.op not in ("const", "param", "reg", "sel"))
-    flow = dict(w for w in writes if w[0] in FLOW)
-    writes = [w for w in writes if w[0] not in FLOW]
+    flow = {n: extra[n] for n in FLOW if n in extra}
+    writes = [w for w in writes if not pseudo(w[0])]
     # A value used after the first write that isn't a local, constant or direct target may be a
     # register (a table can export one, Pv's Pp): capture it before the first write can change it.
     keep = lambda v, e: low.local(e.w, v) if v.kind not in ("local", "const", "target") and writes else v
     later = [keep(low.value(e), e) for _, e in writes[1:]]
     target, cond = (keep(low.value(flow[n]), flow[n]) for n in FLOW) if flow else (None, None)
+    stores = [(space, *(keep(low.value(e), e) for e in (extra[f"__store{k}_addr"], extra[f"__store{k}_value"])), extra[f"__store{k}_value"].w)
+              for k, space in enumerate(b.store_spaces)]
     first = [low.value(writes[0][1])] if writes else []
     for (n, _), v in zip(writes, first + later):
         symbol = n if n in FIXED else b.outputs[n].symbol
         dest = Operand(symbol, "name", frozenset([r] if (r := b.ref(symbol)) else []))
         code.add(f"{dest.text} = {v.text};", dest, v)
+    for space, address, v, w in stores: code.add(f"*[{space}]:{nbytes(w)} {address.text} = {v.text};", address, v)
     if flow: lower_flow(low, b.flow_kind, target, cond, sem.is_const(flow["__flow_cond"], 1))
     return code
 
@@ -771,23 +799,30 @@ def emit(b):
     kinds = {r.flow.kind if r.flow else None for _, r in native}
     if len(kinds) > 1: raise TypeError(f"{b.k.name}: rows differ in control transfer {sorted(map(str, kinds))}")
     b.flow_kind = kinds.pop()
-    flow = lambda r: [("__flow_target", r.flow.target), ("__flow_cond", r.flow.cond if r.flow.cond is not None else sem.const(1, 1))] if r.flow else []
+    for attr, shape in (("store_spaces", lambda r: tuple(s.space for s in r.stores)),
+                        ("effect_shapes", lambda r: tuple((e.name, len(e.args)) for e in r.effects))):
+        shapes = {shape(r) for _, r in native}
+        if len(shapes) > 1: raise TypeError(f"{b.k.name}: rows differ in {attr} {sorted(shapes)}")
+        setattr(b, attr, shapes.pop())
+    flow = lambda r: ([("__flow_target", r.flow.target), ("__flow_cond", r.flow.cond if r.flow.cond is not None else sem.const(1, 1))] if r.flow else []) \
+        + [w for k, s in enumerate(r.stores) for w in ((f"__store{k}_addr", s.address), (f"__store{k}_value", s.value))] \
+        + [(f"__effect{k}_{j}", a) for k, e in enumerate(r.effects) for j, a in enumerate(e.args)]
     resolved = [(a, [w for n, e in r.ordered() if i.has_operand(n) for w in predicate_writes(i, i.resolve(n), e)] + flow(r))
                 for a, r in native]
     for a, writes in resolved:
         for n, e in writes:
-            if n in FIXED or n in FLOW: continue
+            if n in FIXED or pseudo(n): continue
             if n not in b.outputs: raise TypeError(f"{b.k.name}: {n} is not an output")
             if e.w != i.width(n): raise TypeError(f"{b.k.name}: {n} is {i.width(n)} bits, value {e!r} is {e.w}")
     # Liveness: when every optional predicate destination is PT, those writes and the work only
     # they need are dropped; otherwise everything is written (PT writes go to a sink).
     names = [n for n, _ in resolved[0][1]]
-    optional = [n for n in names if n not in FIXED and n not in FLOW and REG_TYPES.get(b.k.operand_types[n].type) in ("P", "UP")
+    optional = [n for n in names if n not in FIXED and not pseudo(n) and REG_TYPES.get(b.k.operand_types[n].type) in ("P", "UP")
                 and clauses(b, ("zero", n), True) not in (None, [])]
     assignments = [a for a, _ in resolved]
     merger = Merger()
     def body(live):
-        if not live and not b.flow_kind: return Code()
+        if not live: return Code()
         merged = merger.bodies([Expr("tuple", tuple(dict(w)[n] for n in live), 0) for _, w in resolved], assignments)
         return lower_body(b, live, merged)
     bodies = [([], body(names))]

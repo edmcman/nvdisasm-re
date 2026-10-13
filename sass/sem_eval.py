@@ -68,8 +68,11 @@ def execute(semantics, state, params=None):
     out = state.copy(); out.pc = semantics.addr + 16
     if semantics.guard is not None and not evaluate(semantics.guard, state, params, memo): return out
     values = [(loc, evaluate(v, state, params, memo)) for loc, v in semantics.writes]
+    stores = [(s.space, evaluate(s.address, state, params, memo), s.value.w, evaluate(s.value, state, params, memo))
+              for s in getattr(semantics, "stores", ())]
     flow = semantics.flow
     if flow and (flow.cond is None or evaluate(flow.cond, state, params, memo)):
         out.pc = evaluate(flow.target, state, params, memo)
     for loc, v in values: out.write(*loc.args, v)
+    for space, address, w, v in stores: out.store(space, address, w, v)
     return out

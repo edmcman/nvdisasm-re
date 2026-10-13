@@ -152,6 +152,19 @@ def intervals(vs):
         else: runs.append([v, v])
     return runs
 
+def restrict(fields, classes, legal, domain):
+    """mdcond.legal_classes' (fields, classes, legal) with the fields named in `domain` (ranges ->
+    raw values) narrowed to those values: classes lose the other values, legal its emptied classes."""
+    keep = []
+    for f, cls in zip(fields, classes):
+        values = domain.get(f.ranges)
+        keep.append([(j, frozenset(c) if values is None else frozenset(c) & values) for j, c in enumerate(cls)])
+        keep[-1] = [(j, c) for j, c in keep[-1] if c]
+    index = [{j: n for n, (j, _) in enumerate(k)} for k in keep]
+    narrowed = {tuple(index[i][t[i]] for i in range(len(t))) for t in legal if all(t[i] in index[i] for i in range(len(t)))}
+    return fields, [[c for _, c in k] for k in keep], narrowed
+
+
 def span_boxes(combos):
     """Disjoint Cartesian rectangles covering exactly the given modifier tuples."""
     if not combos or not combos[0]:
@@ -217,6 +230,7 @@ class Gen:
         self.sizes = {c["cls"]: c["preds"] for c in md}
         self.coverage = {}
         self.temporaries = {}
+        self._span_fields = {}
         self.roles = {r["cls"]: r for p in (mdlib.OUT / archname / "semantics").glob("*.json") for r in json.loads(p.read_text())}
 
     def field(self, tok, lo, hi, kind=""):
@@ -614,11 +628,12 @@ class Gen:
         if k.mnemonic in REGISTRY: return set()
         return {o["name"] for o, _, _ in self.reg_operands(k) if isinstance(o["span"], str) and o["role"] == ["read"]}
 
-    def span_variants(self, k, names=None):
-        """(fixed spans for expression-sized operands, clauses) per distinct span signature."""
+    def span_variants(self, k, names=None, domains=False):
+        """(fixed spans for expression-sized operands, clauses) per distinct span signature; with
+        domains, also each variant's raw values per span field ({field ranges: values})."""
         names = names or {o["name"] for o, _, _ in self.reg_operands(k)} - self.dynamic_inputs(k)
         exprs = {o["name"]: o["span"] for o, _, _ in self.reg_operands(k) if isinstance(o["span"], str) and o["name"] in names}
-        if not exprs: return [({}, [])]
+        if not exprs: return [({}, [], {})] if domains else [({}, [])]
         fields = {}
         for e in exprs.values():
             for v in sorted(mdexpr.free_vars(self.arch, e)):
@@ -637,38 +652,38 @@ class Gen:
             if any(s < 0 or s > 256 for _, s in sig):
                 raise ValueError(f"{k.name}: unsupported register spans {sig}")
             groups[sig].append(combo)
-        if len(groups) == 1: return [(dict(next(iter(groups))), [])]
+        if len(groups) == 1: return [(dict(next(iter(groups))), [], {})] if domains else [(dict(next(iter(groups))), [])]
         out = []
+        ranges = [src[1].ranges for src in fields.values()]
         for sig, cs in groups.items():
-            if len(fields) == 1:
-                ((_, (_, f, _)),) = fields.items()
-                clauses = member(self, f, {c[0] for c in cs})
-            else:
-                proj = [set(c[i] for c in cs) for i in range(len(fields))]
-                if len(cs) == math.prod(map(len, proj)):  # a product of per-field sets
-                    clauses = [cl for (_, src), vs in zip(fields.items(), proj) for cl in member(self, src[1], vs)]
-                else:
-                    # Partition into exact Cartesian rectangles, merging values
-                    # whose remaining modifier combinations are identical.
-                    for box in span_boxes(cs):
-                        clauses = [cl for (_, src), vs in zip(fields.items(), box)
-                                   for cl in member(self, src[1], vs)]
-                        out.append((dict(sig), clauses))
-                    continue
-            out.append((dict(sig), clauses))
-        return out
+            proj = [set(c[i] for c in cs) for i in range(len(fields))]
+            if len(fields) == 1 or len(cs) == math.prod(map(len, proj)):  # a product of per-field sets
+                clauses = [cl for (_, src), vs in zip(fields.items(), proj) for cl in member(self, src[1], vs)]
+                out.append((dict(sig), clauses, dict(zip(ranges, proj))))
+                continue
+            # Partition into exact Cartesian rectangles, merging values whose remaining modifier
+            # combinations are identical.
+            for box in span_boxes(cs):
+                clauses = [cl for (_, src), vs in zip(fields.items(), box) for cl in member(self, src[1], vs)]
+                out.append((dict(sig), clauses, dict(zip(ranges, map(set, box)))))
+        return out if domains else [(a, b) for a, b, _ in out]
 
     def semantics(self, k, guard):
         # Keep span decisions under their class rather than duplicating root
         # constructors: otherwise SLEIGH mixes modifiers from unrelated opcodes
         # into the global instruction decision tree.
-        variants = self.span_variants(k)
+        variants = self.span_variants(k, domains=True)
         if len(variants) == 1:
             return self.fixed_semantics(k, guard, variants[0][0])
         cons = []
-        for fixed, clauses in variants:
+        for fixed, clauses, domain in variants:
+            # md conditions that depend on the span fields hold per variant: checked here, over
+            # the variant's own span values, not in the root pattern (where register range and
+            # alignment rules on several fields multiply the global decision tree).
+            legality, tables = self.conditions(k, domain)
+            if legality is None: continue   # no legal encoding has this span
             body, refs = self.fixed_semantics(k, None, fixed, nested=True)
-            cons.append(('""', pattern(clauses, refs), "", body))
+            cons.append(('""', pattern(clauses + legality, refs + [("sub", t) for t in tables]), "", body))
         table = self.subtable("s", cons)
         body = f"build {guard}; " if guard else ""
         return body + f"build {table};", [("sub", table)]
@@ -717,7 +732,14 @@ class Gen:
             if c: cl += c
         return cl
 
-    def conditions(self, k):
+    def span_fields(self, k):
+        """The encoding fields (ranges) span expressions read, for a class with several span variants."""
+        if k.name not in self._span_fields:
+            variants = self.span_variants(k, domains=True)
+            self._span_fields[k.name] = set() if len(variants) < 2 else {r for _, _, d in variants for r in d}
+        return self._span_fields[k.name]
+
+    def conditions(self, k, domain=None):
         """(root clauses, subtable refs) rejecting the class's md-illegal encodings, for the classes
         lifted by semantics families (for every class the .sla grows past Ghidra's limit), except
         conditions on scheduling hints alone (`mdcond.operand_errors`).
@@ -730,11 +752,17 @@ class Gen:
         from sass.sem_family import family_for
         clauses, dead, tables = [], set(), []
         if not family_for(k): return clauses, tables
+        span = self.span_fields(k)
         for _, expr, _ in mdcond.operand_errors(self.arch.name, k):
             legal = mdcond.legal_classes(self.arch.name, k.name, expr)
             if legal is None: continue
             if not legal: raise NoMatch("md conditions never hold")
             fields, classes, ok = legal
+            # Conditions reading a span field belong to the span variants (domain: one variant's values).
+            if any(f.ranges in span for f in fields) != (domain is not None): continue
+            if domain is not None:
+                fields, classes, ok = restrict(fields, classes, ok, domain)
+                if not ok: return None, []
             good = self.cubes_of(fields, classes, ok)
             if len(good) == 1:
                 clauses += [[l] for l in self.cube_lits(fields, next(iter(good)))]; continue
