@@ -16,7 +16,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from sass import sem
 from sass.sem import Expr
-from sass.sem_family import Instruction, Illegal, Unmodelled, REG_TYPES, family_for
+from sass.sem_family import Instruction, Illegal, Unmodelled, PR_BITS, REG_TYPES, family_for
 import sass.families  # registers the families
 
 ELEMENT = {"R": 32, "UR": 32, "P": 1, "UP": 1}   # bits per register element
@@ -70,6 +70,8 @@ def clauses(b, key, v):
     elif isinstance(key, tuple) and key[0] == "zero":
         name = key[1]; atom = k.operand_types[name]
         zero = b.g.register_zero(k, name) if atom.type in REG_TYPES else 0
+        # A register type without its zero (Predicate_vimnmx: P0-P6) is never RZ/PT.
+        if v and atom.type in REG_TYPES and zero not in b.g.arch.enums[atom.type].values(): return None
         c = b.g.values_where(k, name, (lambda x: x == zero) if v else (lambda x: x != zero))
     else:
         c = b.g.values_where(k, key, lambda x: x == v)
@@ -134,6 +136,30 @@ class Merger:
         self.choices[keys].append((cases, default, e))
         return e
 
+    def bodies(self, trees, assignments, memo=None):
+        """The outputs of every row, merged: a tuple of per-output merges, or a decode-time choice
+        of whole bodies over one small key (each body merged the same way), whichever costs less.
+        Whole bodies keep a value shared by several outputs or lanes in one constructor (PRMT's
+        constant operand loads once, not once per byte table)."""
+        memo = {} if memo is None else memo
+        # Different rows can share trees (ISETP.F with !Pp and ISETP.T with Pp): key by both.
+        rows = tuple(sorted((id(t), tuple(sorted(a.items(), key=repr))) for t, a in zip(trees, assignments)))
+        if rows in memo: return memo[rows]
+        best = Expr("tuple", tuple(self.merge([t.args[j] for t in trees], assignments) for j in range(len(trees[0].args))), 0)
+        for key in sorted({k for a in assignments for k in a}, key=repr):
+            values = sorted({a[key] for a in assignments if key in a}, key=repr)
+            if not 1 < len(values) <= MAX_BODY_SPLIT: continue
+            branches = {}
+            for v in values:
+                rows_v = [j for j, a in enumerate(assignments) if a.get(key, v) == v]
+                if len(rows_v) == len(trees): break   # every row is in every branch: no split
+                branches[(v,)] = self.bodies([trees[j] for j in rows_v], [assignments[j] for j in rows_v], memo)
+            else:
+                candidate = self.choice((key,), branches, 0)
+                if cost(candidate) < cost(best): best = candidate
+        memo[rows] = best
+        return best
+
     def merge(self, trees, assignments):
         """One expression generalizing trees[i] (the value under assignments[i]). Equal shapes merge
         node by node; otherwise the rows split on one deciding key at a time (fewest values first),
@@ -183,23 +209,35 @@ def specialize(e, assignment, memo=None):
     else:
         args = [specialize(a, assignment, memo) for a in e.args]
         out = (sem.ite(*args) if e.op == "ite" else sem.extract(*args) if e.op == "extract"
+               else Expr("tuple", tuple(args), 0) if e.op == "tuple"
                else e if all(x is y for x, y in zip(args, e.args)) else sem.op(e.op, *args, w=e.w))
     memo[e] = out
     return out
 
 
 CONSTRUCTOR = 4   # a table row's cost in nodes (pattern, export, local)
+MAX_BODY_SPLIT = 8   # keys with more values than this (LOP3's imm8) stay choices of values
+
+
+RUNTIME = 8   # an operation executed per instruction outweighs a node of .sla
 
 
 def cost(e):
-    """Rough generated size: nodes outside choices once, plus every choice arm with its row."""
+    """Generated size (nodes outside choices once, every choice arm with its row) plus RUNTIME per
+    operation on the longest execution path. A choice is its own subtable: its arms can't reuse
+    values computed in the body or another table, so what several tables reference runs again."""
     seen = set()
-    def walk(n):
+    def static(n):
         if not isinstance(n, Expr) or n in seen: return 0
         seen.add(n)
-        if n.op == "sel": return sum(CONSTRUCTOR + walk(t) for _, t in n.args[1])
-        return 1 + sum(walk(a) for a in n.args)
-    return walk(e)
+        if n.op == "sel": return sum(CONSTRUCTOR + static(t) for _, t in n.args[1])
+        return 1 + sum(static(a) for a in n.args)
+    def path(n, done):
+        if not isinstance(n, Expr) or n in done or n.op in ("const", "param", "reg"): return 0
+        done.add(n)
+        if n.op == "sel": return 1 + max(path(t, set()) for _, t in n.args[1])
+        return (n.op != "tuple") + sum(path(a, done) for a in n.args)
+    return static(e) + RUNTIME * path(e, set())
 
 
 def size(e):
@@ -234,7 +272,7 @@ class Operand:
     (('sub', table) or (token, field)) it needs. A w-bit value occupies its whole bytes with the
     bits above w zero."""
     text: str
-    kind: str                       # name (local or symbol), const, piece (name:n) or expr
+    kind: str                       # local (this body's), name (a symbol, table or register), const, piece (name:n) or expr
     refs: frozenset = frozenset()
 
     @property
@@ -259,7 +297,7 @@ class Code:
         """The constructor body, optionally exporting a value of w bits."""
         lines = list(self.lines)
         if export is not None:
-            lines.append(f"export {export.text};" if export.kind == "name" else f"local t:{nbytes(w)} = {export.text}; export t;")
+            lines.append(f"export {export.text};" if export.kind in ("name", "local") else f"local t:{nbytes(w)} = {export.text}; export t;")
             self.refs |= export.refs
         return " ".join(lines)
 
@@ -289,11 +327,11 @@ class Lower:
             name = f"SEMTMP{self.b.serial}_{n}"; self.b.g.temporaries[name] = n
             self.code.add(f"{name} = {value.text};", value)
         else: self.code.add(f"local {name}:{n} = {value.text};", value)
-        return Operand(name, "name")
+        return Operand(name, "local")
 
     def named(self, v, w):
         """v as a name (a local if it isn't one)."""
-        return v if v.kind == "name" else self.local(w, v)
+        return v if v.kind in ("name", "local") else self.local(w, v)
 
     def lookup(self, e):
         return next((m[e] for m in reversed(self.memo) if e in m), None)
@@ -338,6 +376,9 @@ class Lower:
                 return Operand(f"{a[0]:#x}:{n}", "const")
             case "param": return self.param(a[0], e.w)
             case "zext": return self.widened(a[0], e.w)
+            case "sext" if a[0].w == 1:
+                v = self.widened(a[0], e.w)                    # 0 or 1, upper bits clear
+                return self.clean(e.w, expr(f"-{v}", v))  # 0 or all ones
             case "sext":
                 v = self.signed(a[0])
                 return self.clean(e.w, v if nbytes(a[0].w) == n else self.local(e.w, expr(f"sext({v.text})", v)))
@@ -364,16 +405,25 @@ class Lower:
             case "ite": return self.ite(*a)
             case "sel": return self.sel(e)
             case "load": v = self.value(a[1]); return self.local(e.w, expr(f"*[{a[0]}]:{n} {v}", v))
-            case "sar": return self.clean(e.w, self.binary("s>>", self.signed(a[0]), self.value(a[1])))
+            case "sar": return self.clean(e.w, self.binary("s>>", self.signed(a[0]), self.amount(a[1])))
             case "slt" | "sle": return self.binary(SLEIGH_OP[e.op], self.signed(a[0]), self.signed(a[1]))
-            case "add" | "sub" | "mul" | "shl": return self.clean(e.w, self.binary(SLEIGH_OP[e.op], self.value(a[0]), self.value(a[1])))
+            case "shl": return self.clean(e.w, self.binary("<<", self.value(a[0]), self.amount(a[1])))
+            case "shr": return self.binary(">>", self.value(a[0]), self.amount(a[1]))
+            case "add" | "sub" | "mul": return self.clean(e.w, self.binary(SLEIGH_OP[e.op], self.value(a[0]), self.value(a[1])))
             case op if op in SLEIGH_OP: return self.binary(SLEIGH_OP[op], self.value(a[0]), self.value(a[1]))
         raise NotImplementedError(f"lowering of {e.op}")
+
+    def amount(self, n):
+        """A shift amount: p-code shifts take any size of amount, so a zero-extension is dropped."""
+        return self.value(n.args[0]) if n.op == "zext" and n.args[0].w % 8 == 0 else self.value(n)
 
     def param(self, name, w):
         if name == "__inst_start":
             v = Operand("inst_start", "name")
             return v if w == 64 else self.clean(w, Operand(f"inst_start:{nbytes(w)}", "piece"))
+        if (atom := self.b.k.operand_types.get(name)) and atom.type == "PR":
+            text = " | ".join(f"(P{k} << {k})" if k else "P0" for k in reversed(range(PR_BITS)))
+            return self.local(w, Operand(text, "expr"))
         v = self.b.values[name]
         r = self.b.ref(v.symbol)
         sym = Operand(v.symbol, "const" if v.kind == "default" else "name", frozenset([r] if r else []))
@@ -384,7 +434,9 @@ class Lower:
         return self.local(w, expr(f"zext({sym.text})", sym))
 
     def cheap(self, e):
-        return e.op in ("const", "param") or self.lookup(e) is not None
+        """At hand without computing: constants, operands, values computed, and their low parts."""
+        return (e.op in ("const", "param") or self.lookup(e) is not None
+                or e.op == "extract" and e.args[2] == 0 and e.args[1] + 1 == 8 * nbytes(e.w) and self.cheap(e.args[0]))
 
     def precompute(self, nodes):
         """Compute nodes (smallest first) before a branch, so its arms share them."""
@@ -400,10 +452,13 @@ class Lower:
         With a cheap arm (constant or value at hand) it is the default and the other arm overwrites
         it conditionally (one CBRANCH); otherwise a two-armed diamond."""
         self.precompute(shared_subtrees([x, y]))
-        r = Operand(self.label("se"), "name")
+        r = Operand(self.label("se"), "local")
         if self.cheap(x) or self.cheap(y):
             first, other = (x, y) if self.cheap(x) else (y, x)
-            cond = self.value(c) if first is x else expr(f"!{self.value(c)}", self.value(c))
+            # Not c: its complement comparison, or the negation of c when c is computed already.
+            known = self.lookup(c)
+            cond = (self.value(c) if first is x else expr(f"!{known}", known) if known is not None
+                    else self.value(sem.complement(c)))
             init = self.value(first)
             self.code.add(f"local {r.text}:{nbytes(x.w)} = {init.text};", init)
             done = self.label("done")
@@ -425,7 +480,7 @@ class Lower:
         """A decode-time choice: a subtable with one constructor per case, exporting its value."""
         keys, cases = e.args
         constructors = []
-        shared = shared_subtrees([t for _, t in cases])
+        shared = shared_subtrees([t for _, t in cases], self.b)
         for values, tree in cases:
             cl = [c for k, v in zip(keys, values) if v is not None for c in clauses(self.b, k, v)]
             code = Code()
@@ -449,27 +504,33 @@ def value_table(b, e):
     return Operand(tables[e], "name", frozenset([("sub", tables[e])]))
 
 
-def shared_subtrees(trees):
-    """Maximal non-trivial subtrees that occur in more than one of `trees`."""
-    def nodes(t):
-        out, stack = set(), [t]
+LOADS = ("constant-load", "cx-load")   # operands whose subtable does a memory access when built
+
+
+def shared_subtrees(trees, b=None):
+    """Maximal non-trivial subtrees that occur in more than one of `trees`; with the Builder b, not
+    those holding a loaded operand: a value table holding one would load again beside the arm's
+    own reference to it."""
+    def nodes(t):   # in a fixed order: Expr hashes are identities, so sets would vary per run
+        out, stack = {}, [t]
         while stack:
             n = stack.pop()
             if isinstance(n, Expr) and n not in out:
-                out.add(n); stack.extend(a for a in n.args if isinstance(a, Expr))
+                out[n] = None; stack.extend(reversed([a for a in n.args if isinstance(a, Expr)]))
         return out
     counts = defaultdict(int)
     for t in trees:
         for n in nodes(t): counts[n] += 1
     # Even small shared parts: measured on SM89, hoisting everything shared gives the smallest .sla.
-    shared = {n for n, c in counts.items() if c > 1 and n.op not in ("const", "param", "reg")}
+    loads = lambda n: b is not None and any(m.op == "param" and getattr(b.values.get(m.args[0]), "kind", None) in LOADS for m in nodes(n))
+    shared = [n for n, c in counts.items() if c > 1 and n.op not in ("const", "param", "reg") and not loads(n)]
     def below(n, seen):
         for a in n.args:
             if isinstance(a, Expr) and a not in seen: seen.add(a); below(a, seen)
         return seen
     covered = set()
     for n in shared: covered |= below(n, set())
-    return frozenset(shared - covered)
+    return dict.fromkeys(n for n in shared if n not in covered)   # ordered, with set membership
 
 
 def count_uses(roots):
@@ -483,17 +544,43 @@ def count_uses(roots):
     return uses
 
 
+FIXED = {f"P{k}" for k in range(PR_BITS)}   # register symbols written directly (PR)
+
+
+def predicate_writes(i, name, e):
+    """A PR write is one write per predicate; other writes are themselves."""
+    if i.atom(name).type != "PR": return [(name, e)]
+    return [(f"P{k}", sem.extract(e, k, k)) for k in range(PR_BITS)]
+
+
+def lower_body(b, names, e):
+    """Code for a merged body: a tuple writes `names`; a choice is a table of whole bodies."""
+    if e.op == "tuple": return lower_writes(b, list(zip(names, e.args)))
+    keys, rows = e.args
+    constructors = []
+    for values, arm in rows:
+        code = lower_body(b, names, arm)
+        cl = [c for k, v in zip(keys, values) if v is not None for c in clauses(b, k, v)]
+        constructors.append(('""', code.pattern(cl), "", code.body()))
+    table = b.g.subtable("body", constructors)
+    b.refs.append(("sub", table))
+    out = Code(); out.lines.append(f"build {table};"); out.refs |= {("sub", table)}
+    return out
+
+
 def lower_writes(b, writes):
     """Code writing [(output name, Expr)]: shared values computed before any branch, later values
     captured before the first write (which may alias their inputs), the first write inline."""
     code = Code()
     low = Lower(b, code, count_uses([e for _, e in writes]))
     low.precompute(n for n, c in low.uses.items() if c > 1 and n.op not in ("const", "param", "reg", "sel"))
-    later = [low.named(low.value(e), e.w) if len(writes) > 1 and not low.value(e).atom else low.value(e) for _, e in writes[1:]]
+    # A later value that isn't a local or constant may be a register (a table can export one, Pv's
+    # Pp): capture it before the first write can change it.
+    later = [low.local(e.w, v) if (v := low.value(e)).kind not in ("local", "const") else v for _, e in writes[1:]]
     first = low.value(writes[0][1])
     for (n, _), v in zip(writes, [first] + later):
-        out = b.outputs[n]
-        target = Operand(out.symbol, "name", frozenset([r] if (r := b.ref(out.symbol)) else []))
+        symbol = n if n in FIXED else b.outputs[n].symbol
+        target = Operand(symbol, "name", frozenset([r] if (r := b.ref(symbol)) else []))
         code.add(f"{target.text} = {v.text};", target, v)
     return code
 
@@ -510,21 +597,24 @@ def emit(b):
     if not native:
         return "opaque", "; ".join(sorted({str(r) for _, r in rows})) or "no modelled encodings"
     i = Symbolic(b, {})
-    resolved = [(a, [(i.resolve(n), e) for n, e in r.ordered() if i.has_operand(n)]) for a, r in native]
+    resolved = [(a, [w for n, e in r.ordered() if i.has_operand(n) for w in predicate_writes(i, i.resolve(n), e)])
+                for a, r in native]
     for a, writes in resolved:
         for n, e in writes:
+            if n in FIXED: continue
             if n not in b.outputs: raise TypeError(f"{b.k.name}: {n} is not an output")
             if e.w != i.width(n): raise TypeError(f"{b.k.name}: {n} is {i.width(n)} bits, value {e!r} is {e.w}")
     # Liveness: when every optional predicate destination is PT, those writes and the work only
     # they need are dropped; otherwise everything is written (PT writes go to a sink).
     names = [n for n, _ in resolved[0][1]]
-    optional = [n for n in names if REG_TYPES.get(b.k.operand_types[n].type) in ("P", "UP")
+    optional = [n for n in names if n not in FIXED and REG_TYPES.get(b.k.operand_types[n].type) in ("P", "UP")
                 and clauses(b, ("zero", n), True) not in (None, [])]
     assignments = [a for a, _ in resolved]
     merger = Merger()
     def body(live):
-        merged = [(n, merger.merge([dict(w)[n] for _, w in resolved], assignments)) for n in live]
-        return lower_writes(b, merged) if merged else Code()
+        if not live: return Code()
+        merged = merger.bodies([Expr("tuple", tuple(dict(w)[n] for n in live), 0) for _, w in resolved], assignments)
+        return lower_body(b, live, merged)
     bodies = [([], body(names))]
     if optional:
         bodies.insert(0, ([c for n in optional for c in clauses(b, ("zero", n), True)], body([n for n in names if n not in optional])))

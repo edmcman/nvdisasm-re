@@ -1,8 +1,18 @@
 """Layer 3: register dataflow and control flow of generated p-code against md operand roles,
 exact spans and BRANCH_TYPE."""
 from sass import mdexpr, pydecode
+from sass.sem_family import family_for
 from sass.gen_sleigh import ENUM_FILE, REG_FILES, RESOURCE_FILE, Gen
 from tests.harness import ghidra
+
+
+def discarded(g, d):
+    """Every register the class writes is a predicate set to PT: the native body for discarded
+    predicate destinations computes nothing (RZ destinations still compute, into a sink)."""
+    outs = [o for o in g.roles.get(d.klass.name, {}).get('operands', []) if 'write' in (o['role'] or [])
+            and ENUM_FILE.get(o['type'])]
+    return (bool(outs) and all(ENUM_FILE[o['type']] in ('P', 'UP') for o in outs)
+            and all(d.env.get(o['name']) == g.register_zero(d.klass, o['name']) for o in outs))
 
 
 def expected(g, d, optimized=False):
@@ -94,6 +104,29 @@ def expected(g, d, optimized=False):
                 atom=d.klass.operand_types['extract'];enums=g.arch.enums[atom.type]
                 if d.env.get('extract',enums.get(atom.default))==enums.get('H0'):
                     needed=set(range(base+size*index,base+size*index+2))
+            if optimized and role=='read' and span==1 and d.klass.mnemonic in ('I2IP','UI2IP'):
+                # I2IP packs two width-bit lanes above the rest of C: only the bytes that reach the
+                # result are read (a lane's low byte without saturation or RELU; C's low 24/28 bits,
+                # or its H0/H1 half for bytes, none for halves).
+                label=lambda n:g.arch.rev_enums[d.klass.operand_types[n].type].get(d.env.get(n))
+                width=int(label('dstfmt')[1:])
+                mode=label('satrelu') if 'satrelu' in d.klass.operand_types else 'SAT'
+                lo=base+size*index
+                if o['name'] in ('Ra','Rb','URb') and not mode.startswith(('SAT','RELU')):
+                    needed=set(range(lo,lo+(width+7)//8))
+                elif o['name']=='Rc':
+                    half=next((label(n) for n in d.klass.operand_types if n.startswith('extract')),None)
+                    needed=(set() if width==16 else cells if half=='H1' else   # H1: a word shift
+                            set(range(lo,lo+2)) if width==8 else set(range(lo,lo+(32-2*width+7)//8)))
+            if (optimized and role=='read' and d.klass.mnemonic in ('SHF','USHF') and o['name'] in ('Rc','URc','Sc')
+                    and all(g.arch.rev_enums[d.klass.operand_types[n].type].get(d.env.get(n))==v for n,v in (('dir','L'),('hilo','LO')))):
+                needed=set()   # the low word of (C:A) << n is A << n
+            if (optimized and role=='read' and span==1 and d.klass.mnemonic in ('P2R','R2P')
+                    and o['name'] in ('Rb','URb')):
+                needed=set(range(base+size*index,base+size*index+1))   # a 7-bit predicate mask
+            if optimized and role=='read' and span==1 and d.klass.mnemonic=='R2P' and o['name']=='Ra':
+                at=int(g.arch.rev_enums[d.klass.operand_types['a_bsel'].type][d.env.get('a_bsel',0)][1])
+                needed={base+size*index} if at==0 else cells   # B1-B3: a word shift
             if optimized and role=='read' and o['name']=='Rb' and d.klass.mnemonic in ('STG','STS','STL'):
                 atom=d.klass.operand_types.get('sz');enums=g.arch.enums.get(atom.type,{}) if atom else {}
                 width=next((width for label,width in [('U8',1),('S8',1),('U16',2),('S16',2)]
@@ -108,12 +141,14 @@ def expected(g, d, optimized=False):
         for bit in range(7):
             if d.env.get('Sb',0)&(1<<bit):reads.add(base+size*bit)
     if optimized and d.klass.mnemonic in ('P2R','R2P'):
-        # PR is an implicit packed predicate-register connector in the md.
-        # The P-code explicitly references each writable predicate register;
-        # runtime masks control which branches execute, not the static refs.
+        # PR is an implicit packed predicate-register connector in the md. P2R reads P0-P6;
+        # R2P writes them all, keeping the masked-off ones (so it reads them too).
         base,size,_,_,_=REG_FILES['P']
         cells=set(range(base,base+size*7))
-        (reads if d.klass.mnemonic=='P2R' else writes).update(cells)
+        reads.update(cells)
+        if d.klass.mnemonic=='R2P':writes.update(cells)
+    if optimized and family_for(d.klass) and discarded(g, d):
+        reads = set()   # every destination is RZ/PT: native code computes nothing
     if guard:
         file = ENUM_FILE[guard.type]
         base, size, _, zero, _ = REG_FILES[file]

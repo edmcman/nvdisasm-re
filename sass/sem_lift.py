@@ -8,7 +8,7 @@ dropped; `sass.sem_eval.execute` runs the result.
 from dataclasses import dataclass, field
 from sass import ir, mdexpr, pydecode, sem
 from sass.sem import Expr
-from sass.sem_family import Instruction, Illegal, Unmodelled, REG_TYPES, family_for, roles
+from sass.sem_family import Instruction, Illegal, Unmodelled, PR_BITS, REG_TYPES, family_for, roles
 import sass.families  # registers the families
 
 ELEMENT = {"R": 32, "UR": 32, "P": 1, "UP": 1}
@@ -67,6 +67,7 @@ class Lifted(Instruction):
 
     def operand(self, name, width):
         a = self.atom(name)
+        if a.type == "PR": return sem.concat(*(sem.reg("P", k, 1, element=1) for k in reversed(range(PR_BITS))))
         if a.type in REG_TYPES:
             loc = self.location(name)
             if loc is None: return sem.const(1 if REG_TYPES[a.type] in ("P", "UP") else 0, width)
@@ -131,6 +132,9 @@ def lift(arch_name, word, addr=0, fp="exact", conditions=True):
     except Illegal as e: raise pydecode.NoMatch(f"{d.klass.name}: {e} ({e.evidence})")
     for name, value in result.ordered():
         if not i.has_operand(name): continue  # e.g. no second carry output in this class
+        if i.atom(i.resolve(name)).type == "PR":
+            out.writes += [(sem.reg("P", k, 1, element=1), sem.extract(value, k, k)) for k in range(PR_BITS)]
+            continue
         loc = i.location(i.resolve(name))
         if loc is None: continue
         width = loc[2] * ELEMENT[loc[0]]

@@ -172,6 +172,12 @@ def simplify(name, args, w):
             return a if (name == "eq") == bool(value(b)) else op("not", a)
         case "eq" if a is b: return const(1, 1)
         case "ne" | "ult" if a is b: return const(0, 1)
+        case "ule" if a is b: return const(1, 1)
+        # Unsigned comparisons with zero (umax(x, 0) of PRMT's edge clamp).
+        case "ult" if zero(b): return const(0, 1)
+        case "ule" if zero(a): return const(1, 1)
+        case "ult" if zero(a): return op("ne", b, a, w=1)
+        case "ule" if zero(b): return op("eq", a, b, w=1)
     return None
 
 
@@ -248,6 +254,7 @@ def narrowed(x, w, shared=frozenset()):
         case "add" | "sub" | "mul" | "and" | "or" | "xor": return op(x.op, n(a[0]), n(a[1]))
         case "not" | "neg": return op(x.op, n(a[0]))
         case "shl" if is_const(a[1]): return n(a[0]) << value(a[1]) if value(a[1]) < w else const(0, w)
+        case "shl": return op("shl", n(a[0]), a[1])   # a shift of >= w leaves no low bits either way
         case "ite": return ite(a[0], n(a[1]), n(a[2]))
         case "sel": return Expr("sel", (a[0], tuple((vals, n(t)) for vals, t in a[1])), w)
     return trunc(x, w)
@@ -297,10 +304,26 @@ def ite(c, a, b):
     a, b = pair(a, b)
     if is_const(c): return a if value(c) else b
     if a is b: return a
+    # x if x != 0 else 0 is x (and 0 if x == 0 else x).
+    if c.op in ("ne", "eq") and is_const(c.args[1], 0) and c.args[0] is (a if c.op == "ne" else b) and is_const(b if c.op == "ne" else a, 0):
+        return c.args[0]
     return Expr("ite", (c, a, b), a.w)
 
 
 def lnot(c): return c == 0 if isinstance(c, Expr) else not c
+
+
+def complement(c):
+    """not c, as the complementary comparison when c is one (one p-code operation, not two)."""
+    a = c.args
+    match c.op:
+        case "eq": return compare("ne", *a)
+        case "ne": return compare("eq", *a)
+        case "ult": return compare("ule", a[1], a[0])
+        case "ule": return compare("ult", a[1], a[0])
+        case "slt": return compare("sle", a[1], a[0])
+        case "sle": return compare("slt", a[1], a[0])
+    return lnot(c)
 def umin(a, b): a, b = pair(a, b); return ite(a < b, a, b)
 def umax(a, b): a, b = pair(a, b); return ite(b < a, a, b)
 def smin(a, b): a, b = pair(a, b); return ite(slt(a, b), a, b)

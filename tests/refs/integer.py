@@ -17,8 +17,10 @@ def combine(value, predicate, bop):
 def brev(value): return sum(((value >> bit) & 1) << (31 - bit) for bit in range(32))
 
 
-def flo(value, shift_amount):
-    """Highest set bit index (or the normalization shift with .SH); -1 for zero."""
+def flo(value, shift_amount, signed=False):
+    """Highest set bit index (or the normalization shift with .SH); -1 for zero. Signed (.S32): of
+    the complement for negative values, so the highest bit differing from the sign (SM89 GPU)."""
+    if signed and value >> 31: value = ~value & MASK32
     if not value: return MASK32
     return (32 - value.bit_length()) if shift_amount else value.bit_length() - 1
 

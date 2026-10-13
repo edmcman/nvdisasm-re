@@ -142,7 +142,7 @@ TARGETS = {
     "hadd2": ("HADD2",), "hfma2": ("HFMA2",), "hmul2": ("HMUL2",), "hmul2_sat": ("HMUL2.SAT",), "hmul2_ftz": ("HMUL2.FTZ",), "hmul2_fmz": ("HMUL2.FMZ",),
     "hadd2_sat": ("HADD2.SAT",), "hfma2_sat": ("HFMA2.SAT",), **{f: ("HFMA2.MMA",) for f in ("hfma2_move", "hfma2_move_zero", "hfma2_move_nan", "hfma2_move_denorm", "hfma2_move_inf")},
     "hadd2_lanes": ("HADD2",), "hfma2_lanes": ("HFMA2",), "hmul2_lanes": ("HMUL2",),
-    "prmt": ("PRMT",), "brev": ("BREV",), "popc": ("POPC",), "bfind": ("FLO.U32",), "bfind_shift": ("FLO.U32.SH",),
+    "prmt": ("PRMT",), "brev": ("BREV",), "popc": ("POPC",), "bfind": ("FLO.U32",), "bfind_shift": ("FLO.U32.SH",), "bfind_s32": ("FLO",), "bfind_shift_s32": ("FLO.SH",),
     "fadd": ("FADD",), "fmul": ("FMUL",), "ffma": ("FFMA",),
     "isetp": ("ISETP",), "isetp_ex": ("ISETP.GE.U32.AND.EX",), "sel": ("ISETP",), "fsetp": ("FSETP",),
     **{f: ("F2I",) for f in ("f2i", "f2i_abs", "f2i_neg", "f2i_absneg")}, "f2ip": ("F2IP",),

@@ -33,10 +33,11 @@ Each layer checks one artifact against one oracle; markers only say what a test 
 
 | # | Question | Under test | Oracle | File |
 |---|---|---|---|---|
-| 0 | helpers right? | refs, softfloat, mdexpr, cubin | libm / hand values | `test_refs.py`, `test_softfloat.py`, `test_mdexpr.py`, `test_cubin.py` |
+| 0 | helpers right? | refs, softfloat, mdexpr, cubin; every family runs on every class it covers | libm / hand values | `test_refs.py`, `test_softfloat.py`, `test_mdexpr.py`, `test_cubin.py`, `test_sem_families.py` |
 | 1 | decode like nvdisasm? | `sass/pydecode` | nvdisasm | `test_pydecode_disassembly.py` (CLI `compare_pydecode_disassembly`) |
 | 2 | SLEIGH disassembles like pydecode? | `.sla` display | pydecode | `test_ghidra_disassembly.py` (ratchet `baseline/ghidra_SMxx.json`; CLI `compare_ghidra_disassembly`) |
 | 3 | p-code reads/writes right registers? | `.sla` dataflow | md roles/spans, BRANCH_TYPE | `test_pcode_dataflow.py` (+ op-count ratchet `baseline/pcode_<variant>.json`) |
+| 4a | lifted semantics compute right values? (no Ghidra) | `sass/sem_lift` + `sem_eval` on families | `tests/refs/` | `test_sem_semantics.py` (same cases as layer 4) |
 | 4 | p-code computes right values? | `.sla` p-code in emulator | `tests/refs/` | `test_pcode_semantics.py` (one item per arch/fp/family/class; CLI `python -m tests.semantics`) |
 | 5 | refs and emulator right? | refs + emulated p-code | SM89 GPU | `test_refs_against_gpu.py` (CLI `python -m tests.observe FAMILY` for discovery) |
 
@@ -45,6 +46,8 @@ Each layer checks one artifact against one oracle; markers only say what a test 
 - `harness/ghidra.py` is the only path to `ghidra_emulate.py`/`ghidra_decode.py`; Ghidra layers run all selected languages concurrently, and layer 4 (`emulate_sharded`) also splits each language's batch into chunks so up to 24 JVMs stay busy. `conftest.require_languages` fails on a stale `.sla` instead of letting concurrent Ghidra processes recompile it.
 - GPU vs reference is exact except F16 NaN payload/sign in F16 packs; GPU vs emulator tolerates floating NaN payload/sign and excuses the Ghidra minimum-subnormal underflow (fp16/32/64) only on its exact signature. FP8 emulator cases compare NaN class only (`__fp8_nan`).
 - I2IP sub-byte forms (S2/U2 `.28`, S4/U4 `.24`) fill the high bits from C unshifted; only H1 selects C's high half (SM89 hardware, 2026-10-12; the earlier reference and p-code shifted for every non-H0 form).
+- FLO.S32 (plain `FLO`; ptxas emits it for `bfind.s32`) searches the complement of a negative source: the highest bit differing from the sign, so -1 gives -1 like 0. FLO.U32 searches the value (SM89 hardware, 2026-10-12, fixtures `bfind_s32`/`bfind_shift_s32`; the earlier emitter and reference treated S32 like U32).
+- Op-count samples (`synth.synthetic(..., legal=True)`) are md-legal words: redraws use aligned low registers (UR0-UR63 on SM100+ are the only in-range uniform registers in 8-bit fields).
 
 ## SLEIGH (processor/SASS, sass/gen_sleigh.py)
 - `python3 -m sass.gen_sleigh SM89 ...` writes `processor/SASS/data/languages/sass_smXX.slaspec` + `sass.ldefs` (ids `SASS:LE:64:smXX`); `sass_common.sinc`, `.pspec`, `.cspec` are hand-written. Ghidra recompiles a stale `.sla` on load; `support/sleigh` compiles standalone (~5 s/arch).
@@ -70,6 +73,15 @@ Each layer checks one artifact against one oracle; markers only say what a test 
   5. Done: carry chains IADD3.X, LEA.HI.X, IMAD.X and ordinary predicate outputs (SM89 hardware-established; all-architecture emulator/dataflow checks).
   6. Kernel parameters as named constant-bank-0 variables in the decompiler (offsets/sizes from `.nv.info`, `sass/cubin.py`).
   Stays primitive: SHFL, VOTE, BAR, BSSY/BSYNC, MUFU (multi-thread or hardware approximation). Ghidra's emulator FloatFormat underflow bug (see below) could be reported upstream.
+
+## Semantics families (sass/families/, 2026-10-12)
+- Families are Python functions over the md-decoded instruction (`@family('IMAD', 'UIMAD')`, `sass/sem_family.py`), returning `outputs(Rd=..., Pu=...)` of `sass.sem` bitvector expressions (widths in bits, `extract`/`concat`). One definition serves `sass.sem_lift.lift` (Ghidra-free semantics, evaluated by `sem_eval`) and the SLEIGH backend `sass/sem_sleigh.py`; `operations.emit` uses a family when one covers the class. Integer families are migrated (`sass/families/integer.py`), plus the F2FP FP8/FP6 downconverts.
+- Static answers (selectors `i.sel`, modifier bits `i.operand_*`, `i.is_zero`, `i.has_operand`, `i.param` label->number tables, `i.static` for immediates of at most 8 bits) are Python values that SLEIGH enumerates; operand values are expressions. `a if c else b`, `and`/`or`/`not` are rewritten so they work on both.
+- A family that never asks about a selector, modifier bit or defaulted numeric operand models only its md default: any other value is unmodelled (opaque). Selectors without an md default (`/ONLY64:size`, `/XORONLY:xor`) must be asked. `i.ignore(name)` marks an operand irrelevant to an encoding (ISETP's Pr without .EX). Operands with bracketed parts (C, CX, A, DESC) are values, not selectors, even where the type names an md enum.
+- md CONDITIONS are enforced in SLEIGH for family classes (except conditions on scheduling hints alone); `tests/compare_ghidra_disassembly` expects those words rejected.
+- The md's `PR` operand (P2R/R2P) is a 7-bit value, P0 the low bit. `Predicate_vimnmx` (VIMNMX.pred, P0-P6, no PT) is a P-file register type; its Pu/Pv semantics are unknown (opaque).
+- UPRMT is PRMT's IDX mode (`/IDXOnly("IDX"):idx`). Constant-bank widths come from md ISRC_<slot>_SIZE (IMAD c[][] is 64-bit on SM86+).
+- SLEIGH backend: the rows of static answers are merged by anti-unification (one key at a time, default rows, rows the default reproduces absorbed, choices reused across outputs); outputs merge jointly, so a decode-time choice can select whole bodies (one constructor computes a shared constant load once). Cost = .sla size + 8 x executed operations. A subtable exporting a register exports the register itself: later outputs are captured before the first write.
 
 ## Operand values and instruction semantics (2026-10-07)
 - `sass/semantic.py` preserves exact register effects for all classes, and materializes typed immediate/table/modifier/constant-bank values for supported operations. CX/descriptors/attribute/stateful operands require an explicit `sass_operand_value` provider.

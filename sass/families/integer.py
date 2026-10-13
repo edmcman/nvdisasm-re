@@ -48,6 +48,7 @@ def mov(i):
 @family('SEL', 'USEL')
 def sel(i):
     """Rd = Pp ? Ra : Rb."""
+    if i.has_operand('size') and i.sel('size') not in ('64', '_64'): unmodelled('size')
     w = i.width('Rd')
     return outputs(Rd=resize(i.value('Ra'), w) if i.pred('Pp') else resize(i.value('Rb|Sb'), w))
 
@@ -63,6 +64,7 @@ def iabs_(i):
 def iadd(i):
     """Rd = Ra + Rb, 32 bits, no carry out (Pu = PT). The SM100+ .X/.XOR/.64 classes are
     unmodelled (their class selectors have no default)."""
+    if i.width('Rd') != 32: unmodelled('width')   # IADD.64 (SM120)
     if i.has_operand('fmt') and i.sel('fmt') not in ('32', '_32', 'U32', 'S32'): unmodelled(f"{i.sel('fmt')} format")
     if i.has_operand('Pu') and not i.is_true('Pu'): unmodelled('carry out')
     return outputs(Rd=i.value('Ra|Sa') + i.value('Rb|Sb'))
@@ -154,11 +156,11 @@ def lop3(i):
 def prmt(i):
     """Rd = four bytes picked from Rc:Ra (Ra is bytes 0-3) by the selector Rb, per mode. IDX: nibble
     j of Rb picks byte j, bit 3 replicating the picked byte's sign; F4E/B4E: forward/backward
-    from Rb & 3; RC8/RC16: replicate a byte/half; ECL/ECR: edge clamp left/right (SM89 GPU)."""
+    from Rb & 3; RC8/RC16: replicate a byte/half; ECL/ECR: edge clamp left/right (SM89 GPU). UPRMT
+    is IDX only."""
     if any(i.width(n) != 32 for n in ('Rd', 'Ra|Sa', 'Rb|Sb', 'Rc|Sc')): unmodelled('width')
-    if not i.has_operand('pmode'): unmodelled('no mode operand')   # UPRMT
     s, data = i.value('Rb|Sb'), concat(i.value('Rc|Sc'), i.value('Ra|Sa'))
-    mode = i.sel('pmode')
+    mode = i.sel('pmode|idx')   # UPRMT spells its only mode /IDXOnly("IDX"):idx
     picked = []
     for j in range(4):
         match mode:
@@ -171,7 +173,7 @@ def prmt(i):
             case 'ECR': p = umin(s & 3, j)
             case other: unmodelled(f'{other} mode')
         byte = trunc(data >> (zext(p & 7, 64) << 3), 8)
-        if mode == 'IDX': byte = const(0xff, 8) if (p & 8) != 0 and extract(byte, 7, 7) == 1 else (const(0, 8) if (p & 8) != 0 else byte)
+        if mode == 'IDX': byte = sext(extract(byte, 7, 7), 8) if (p & 8) != 0 else byte   # replicate the sign bit
         picked.append(byte)
     return outputs(Rd=concat(*reversed(picked)))
 
@@ -230,11 +232,13 @@ def popc(i):
 @family('FLO', 'UFLO')
 def flo(i):
     """Rd = the index of the most significant set bit (.SH: its distance from bit 31), or -1 for 0.
-    .S32 is computed like .U32, as before the migration: only FLO.U32 has GPU evidence (PTX
-    bfind.s32 searches negative values for the highest clear bit)."""
+    .S32 searches the complement of a negative value: the highest bit differing from the sign
+    (SM89 GPU, bfind.s32)."""
     if i.has_operand('Pu') and not i.is_true('Pu'): unmodelled('Pu')
-    if i.sel('fmt') not in ('S32', 'U32', '32'): unmodelled(f"{i.sel('fmt')} format")
+    fmt = i.sel('fmt')
+    if fmt not in ('S32', 'U32', '32'): unmodelled(f'{fmt} format')
     x0 = word_source(i)
+    if fmt == 'S32': x0 = ~x0 if slt(x0, 0) else x0
     x, n = x0, const(0, 32)
     for shift, m in ((16, 0xffff0000), (8, 0xff000000), (4, 0xf0000000), (2, 0xc0000000), (1, 0x80000000)):
         low = (x & m) == 0
@@ -295,9 +299,9 @@ def isetp(i):
 
 @family('IMNMX', 'UIMNMX')
 def imnmx(i):
-    """Rd = Pp ? min(Ra, Rb) : max(Ra, Rb), signed for S32. The SM120 predicate outputs are
-    unmodelled."""
-    if i.has_operand('Pu') or i.has_operand('Pv'): unmodelled('predicate outputs')
+    """Rd = Pp ? min(Ra, Rb) : max(Ra, Rb), signed for S32. SM120's forms with predicate outputs
+    Pu/Pv and a second input Pq are unmodelled (Pq's meaning is unknown, even as PT)."""
+    if any(i.has_operand(p) for p in ('Pu', 'Pv', 'Pq')): unmodelled('SM120 predicates')
     fmt = i.sel('fmt')
     if fmt not in ('U32', 'S32'): unmodelled(f'{fmt} format')
     a, b = i.value('Ra|Sa'), i.value('Rb|Sb')
@@ -418,3 +422,55 @@ def idp(i):
     for j in range(count):
         acc = acc + widen(a[j], afmt[0] == 'S') * widen(b[first + j], bfmt[0] == 'S')
     return outputs(Rd=acc)
+
+
+@family('I2IP', 'UI2IP')
+def i2ip(i):
+    """Rd = Ra and Rb converted from S32 to a narrow integer (saturating with .SAT, negative to 0
+    with .RELU) and packed: Rb in the low lane, Ra above it, and the rest of the word from C: its
+    high half with .H1, its low bits otherwise (sub-byte .24/.28 forms take C unshifted, SM89 GPU)."""
+    if i.sel('srcfmt') != 'S32': unmodelled('srcfmt')
+    fmt = i.sel('dstfmt')
+    width, signed = int(fmt[1:]), fmt[0] == 'S'
+    half = i.sel('extract_dist_limited|extract_limited|extract_24|extract_28')
+    if width <= 4 and half not in (str(32 - 2 * width), f'_{32 - 2 * width}'): unmodelled(f'{half} extract')
+    if width >= 8 and half not in ('H0', 'H1'): unmodelled(f'{half} extract')
+    if i.has_operand('satrelu'):
+        mode = i.sel('satrelu')
+        if mode not in ('SAT', 'SATRELU', 'RELU') and not mode.startswith('nosatrelu'): unmodelled(f'{mode} mode')
+        sat, relu = mode in ('SAT', 'SATRELU'), mode in ('RELU', 'SATRELU')
+    else: sat, relu = i.sel('SAT') == 'SAT', False   # SM75/SM80: /SATONLY
+    if relu and not signed: unmodelled('RELU of an unsigned format')
+    lo, hi = (-(1 << width - 1), (1 << width - 1) - 1) if signed else (0, (1 << width) - 1)
+
+    def convert(x):
+        if sat: x = smax(smin(x, const(hi, 32)), const(lo, 32))
+        if relu: x = smax(x, const(0, 32))
+        return trunc(x, width)
+
+    packed = concat(convert(i.value('Ra')), convert(i.value('Rb|Sb')))
+    if width == 16: return outputs(Rd=packed)
+    c = i.value('Rc')
+    rest = extract(c, 31, 16) if width == 8 and half == 'H1' else trunc(c, 32 - 2 * width)   # .24/.28: C unshifted
+    return outputs(Rd=concat(rest, packed))
+
+
+def byte_offset(label):
+    if label not in ('B0', 'B1', 'B2', 'B3'): unmodelled(f'{label} byte')
+    return 8 * int(label[1])
+
+
+@family('P2R')
+def p2r(i):
+    """Rd = Ra with byte `insert` replaced by the predicates P0-P6 (PR) selected by the mask Rb."""
+    at = byte_offset(i.sel('insert'))
+    picked = zext(i.value('Pr') & trunc(i.value('Rb|Sb'), 7), 32)
+    return outputs(Rd=(i.value('Ra') & ~const(0xff << at, 32)) | (picked << at))
+
+
+@family('R2P')
+def r2p(i):
+    """P0-P6 (PR) = bits of byte `a_bsel` of Ra where the mask Rb is set; others keep their value."""
+    at = byte_offset(i.sel('a_bsel'))
+    mask, old = trunc(i.value('Rb|Sb'), 7), i.value('PR')
+    return outputs(PR=(extract(i.value('Ra'), at + 6, at) & mask) | (old & ~mask))

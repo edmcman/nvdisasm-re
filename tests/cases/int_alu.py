@@ -27,15 +27,17 @@ def bit_ops(c):
                 put(k, src, value, fields, regs, [], 4, imm=(k.operand_types[src].type,))
                 if i == 1 and src + "@invert" in k.operand_types: fields[src + "@invert"] = 1; value = ~value & MASK32
                 c.add(k.name, fields, regs, {"R2": ref(value), "__native": True})
-    # FLO returns the highest set-bit index, .SH the normalization shift; zero gives -1.
+    # FLO returns the highest set-bit index, .SH the normalization shift; zero gives -1; .S32
+    # searches the complement of negative values.
     for k in c.of("FLO"):
         src = source(k, "Rb", "URb", "Sb")
         if src is None: continue
-        for mode in ("nosh", "SH"):
-            for value in (0, 1, 2, 0x80000000, 0xffffffff, 0x01000000, 0x00ffffff):
-                fields, regs, memory = {"Rd": 2, "Pu": "PT", "fmt": "S32", "sh": mode}, {}, []
-                put(k, src, value, fields, regs, memory, 4, bank=(2, 16), imm=(k.operand_types[src].type,))
-                c.add(k.name, fields, regs, {"R2": flo(value, mode == "SH"), "__native": True}, memory=memory)
+        for fmt in ("S32", "U32"):
+            for mode in ("nosh", "SH"):
+                for value in (0, 1, 2, 0x80000000, 0xffffffff, 0xfffffffe, 0x01000000, 0x00ffffff):
+                    fields, regs, memory = {"Rd": 2, "Pu": "PT", "fmt": fmt, "sh": mode}, {}, []
+                    put(k, src, value, fields, regs, memory, 4, bank=(2, 16), imm=(k.operand_types[src].type,))
+                    c.add(k.name, fields, regs, {"R2": flo(value, mode == "SH", fmt == "S32"), "__native": True}, memory=memory)
     # SGXT selects one signed byte using the low two index bits.
     for k in c.of("SGXT"):
         src = source(k, "Rb", "URb", "Sb")
@@ -105,6 +107,11 @@ def permute(c):
             sel = selector * 0x1111 if mode == "IDX" else selector
             c.add("prmt__RRR_RRR", dict(Rd=2, Ra=2, Rb=4, Rc=6, pmode=mode), dict(R2=a, R4=sel, R6=d), dict(R2=prmt(a, sel, d, mode), __native=True))
     c.add("prmt__RRR_RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6, pmode="IDX"), dict(R2=0x03020100, R4=0x6420, R6=0x07060504), dict(R8=0x06040200))
+    # UPRMT is IDX only (/IDXOnly:idx), on uniform registers.
+    for k in c.of("UPRMT", "uprmt__URURUR"):
+        for selector in (0x3210, 0x7654, 0x89ab, 0xcdef, 0x0f1e, 0x6420):
+            a, d = 0x80ff017f, 0x55aa0081
+            c.add(k.name, dict(URd=2, URa=4, URb=5, URc=6), dict(UR4=a, UR5=selector, UR6=d), dict(UR2=prmt(a, selector, d, "IDX"), __native=True))
     for mode, selector, want in [("F4E", 1, 0x04030201), ("B4E", 1, 0x06070001), ("RC8", 2, 0x02020202),
                                  ("RC16", 1, 0x03020302), ("ECL", 2, 0x03020202), ("ECR", 2, 0x02020100)]:
         c.add("prmt__RRR_RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6, pmode=mode), dict(R2=0x03020100, R4=selector, R6=0x07060504), dict(R8=want))
@@ -219,4 +226,5 @@ def gpu_fixtures():
             scalar.launch("imad_hi_c", lambda x, y, _: ((x * y + 0x00000002ffffffff) >> 32) & MASK32),
             scalar.launch("isetp_ex", lambda x, y, _: int(x < y)),
             scalar.launch("brev", lambda x, *_: brev(x)), scalar.launch("popc", lambda x, *_: x.bit_count()),
-            scalar.launch("bfind", lambda x, *_: flo(x, False)), scalar.launch("bfind_shift", lambda x, *_: flo(x, True))]
+            scalar.launch("bfind", lambda x, *_: flo(x, False)), scalar.launch("bfind_shift", lambda x, *_: flo(x, True)),
+            scalar.launch("bfind_s32", lambda x, *_: flo(x, False, True)), scalar.launch("bfind_shift_s32", lambda x, *_: flo(x, True, True))]

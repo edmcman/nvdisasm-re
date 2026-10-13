@@ -25,7 +25,7 @@ SPECIAL_BASE = 0x3000  # SpecialRegister file, named from the md enum
 RESOURCE_FILE = {"GPR": "R", "UGPR": "UR", "PRED": "P", "UPRED": "UP"}
 ENUM_FILE = {"Register": "R", "NonZeroRegister": "R", "ZeroRegister": "R",
              "UniformRegister": "UR", "NonZeroUniformRegister": "UR", "ZeroUniformRegister": "UR",
-             "Predicate": "P", "UniformPredicate": "UP"}
+             "Predicate": "P", "Predicate_vimnmx": "P", "UniformPredicate": "UP"}
 SPANS = tuple(range(1, 9))
 
 # ---------- fields and constraints ----------

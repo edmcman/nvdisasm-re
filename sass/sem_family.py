@@ -143,9 +143,10 @@ def helper(fn):
 # ---- md facts about a class -------------------------------------------------------------------
 
 MODIFIERS = ("negate", "absolute", "invert", "not")
+PR_BITS = 7   # the md's PR connector: predicates P0-P6 as one value, P0 the low bit
 REG_TYPES = {"Register": "R", "NonZeroRegister": "R", "ZeroRegister": "R",
              "UniformRegister": "UR", "NonZeroUniformRegister": "UR", "ZeroUniformRegister": "UR",
-             "Predicate": "P", "UniformPredicate": "UP"}
+             "Predicate": "P", "Predicate_vimnmx": "P", "UniformPredicate": "UP"}
 
 
 @cache
@@ -267,6 +268,7 @@ class Instruction:
         name = self.resolve(names); a = self.atom(name)
         if a.type in REG_TYPES: return self.span(name) * (1 if REG_TYPES[a.type] in ("P", "UP") else 32)
         if a.type == "C": return constant_width(self.arch.name, self.cls, name)
+        if a.type == "PR": return PR_BITS
         bits = int((a.args.split("/")[0] or "32").split(",")[0]) if a.args and a.type.endswith("Imm") else 32
         return {"F16Imm": 16, "F64Imm": 64}.get(a.type, 64 if bits > 32 else 32)
 

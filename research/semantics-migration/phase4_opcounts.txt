@@ -1,0 +1,50 @@
+# p-code op counts, Phase 4 (integer families), same sample words as the previous baseline
+# (counts per opcode over all 18 languages; 'up/err' = classes whose count rose while staying native, or that now fail to decode: those are md-illegal words, rejected by design)
+opcode       classes  before   after up/err
+IMAD             486    8074    8396     68  SM75-exact:imad_wide_pseudo__RRCx_RRCx 22->23; SM75-exact:imad_wide_x__RRCx_RRCx 25->26; SM75-exact:imad_hi_x_pseudo__RRC_RRC 20->21; SM75-exact:imad_hi_pseudo__RRC_RRC 16->17
+UIMAD             92     622     564     42  ERR SM100-exact:uimad_wide_x__URURUR_URURUR 5->1; ERR SM100-exact:uimad__URURUR_URURUR 3->1; ERR SM100-exact:uimad_x__URsIUR_URIUR 3->1; ERR SM100-exact:uimad_wide__URsIUR_URIUR 5->1
+ULEA             192    2140    2356     30  ERR SM100-exact:ulea_hi_noimm_sx32_x__URURUR_URURUR 5->1; ERR SM100-exact:ulea_lo_noimm_x__URURUR_URURUR 4->1; ERR SM100-exact:ulea_hi_noimm_sx32__URURUR_URURUR 5->1; ERR SM100-exact:ulea_hi_noimm__URURUR_URURUR 5->1
+SHF               92    1136     964     26  SM75-exact:shf__RRuI_RRI 12->13; SM75-exact:shf__RCR_RCR 14->15; SM75-readable:shf__RRuI_RRI 12->13; SM75-readable:shf__RCR_RCR 14->15
+I2IP             384    9452    8548     24  SM86-exact:i2ip__RRR_RRR 10->11; SM86-exact:i2ip_relu__RCxR_RCxR 22->23; SM86-readable:i2ip__RRR_RRR 10->11; SM86-readable:i2ip_relu__RCxR_RCxR 22->23
+SHR               58     742     654     22  SM75-exact:shr__RCR_RCR 14->15; SM75-readable:shr__RCR_RCR 14->15; SM80-exact:shr__RUR_RUR 9->10; SM80-exact:shr__RCR_RCR 14->15
+PRMT             130    6414    5716     22  SM75-exact:prmt__RRuI_RRI 68->69; SM75-exact:prmt__RRU_RRU 68->69; SM75-exact:prmt__RRCx_RRCx 80->81; SM75-readable:prmt__RRuI_RRI 68->69
+SHL               70     900     816     18  SM75-exact:shl_imm_ 12->13; SM75-exact:shl__RCxR_RCxR 21->22; SM75-readable:shl_imm_ 12->13; SM75-readable:shl__RCxR_RCxR 21->22
+USHL              44     390     384     18  SM75-exact:ushl__URuIUR_URIR 12->13; SM75-readable:ushl__URuIUR_URIR 12->13; SM80-exact:ushl__URuIUR_URIR 12->13; SM80-readable:ushl__URuIUR_URIR 12->13
+ULOP3            140    1262    1278     16  ERR SM100-exact:ulop3_noimm_optionalUPp__URURUR_URURUR 3->1; ERR SM100-exact:ulop3_noimm__URURUR_URURUR 5->1; ERR SM100-readable:ulop3_noimm_optionalUPp__URURUR_URURUR 3->1; ERR SM100-readable:ulop3_noimm__URURUR_URURUR 5->1
+USHR              34     248     294     12  SM75-exact:ushr__URIR_URIR 9->10; SM75-readable:ushr__URIR_URIR 9->10; SM86-exact:ushr__URIR_URIR 12->13; SM86-readable:ushr__URIR_URIR 12->13
+IDP              112    2820    2640     10  SM75-exact:idp_2a__CXb 31->37; SM75-readable:idp_2a__CXb 31->37; SM80-exact:idp_2a__CXb 31->37; SM80-readable:idp_2a__CXb 31->37
+VABSDIFF4         14     810     818     10  SM75-exact:vabsdiff4__RUR_RUR 58->61; SM75-readable:vabsdiff4__RUR_RUR 58->61; SM80-exact:vabsdiff4__RRR_RRR 58->61; SM80-readable:vabsdiff4__RRR_RRR 58->61
+ULOP32I           34     226     184      8  ERR SM100-exact:ulop32i_optionalUPp_ 5->1; ERR SM100-readable:ulop32i_optionalUPp_ 5->1; ERR SM101-exact:ulop32i_optionalUPp_ 5->1; ERR SM101-readable:ulop32i_optionalUPp_ 5->1
+ULOP              58     400     334      8  ERR SM100-exact:ulop_noimm_optionalUPp__URURUR 4->1; ERR SM100-readable:ulop_noimm_optionalUPp__URURUR 4->1; ERR SM101-exact:ulop_noimm_optionalUPp__URURUR 5->1; ERR SM101-readable:ulop_noimm_optionalUPp__URURUR 5->1
+FLO                6     214     316      6  SM75-exact:flo__RRR_RRR 35->52; SM75-readable:flo__RRR_RRR 35->52; SM80-exact:flo__RCR_RCR 39->56; SM80-readable:flo__RCR_RCR 39->56
+UI2IP             12      36     134      6  ERR SM120-exact:ui2ip_28__URURUR_UUU 3->1; ERR SM120-exact:ui2ip__URURUR_UUU 3->1; ERR SM120-exact:ui2ip_28__URsIUR_URRI 3->1; ERR SM120-readable:ui2ip_28__URURUR_UUU 3->1
+UIMNMX             6      34       6      6  ERR SM120-exact:uimnmx_64_nopred__UUU_URURUR 6->1; ERR SM120-exact:uimnmx__UUU_URURUR 5->1; ERR SM120-exact:uimnmx_64__UUU_URURUR 6->1; ERR SM120-readable:uimnmx_64_nopred__UUU_URURUR 6->1
+UISETP           148    1070    1472      4  ERR SM120-exact:uisetp_64_simple_optional_upr__URURUR_URURUR 5->1; ERR SM120-exact:uisetp_64_optional_upr__URURUR_URURUR 5->1; ERR SM120-readable:uisetp_64_simple_optional_upr__URURUR_URURUR 5->1; ERR SM120-readable:uisetp_64_optional_upr__URURUR_URURUR 5->1
+USHF              50     496     490      4  SM80-exact:ushf__URuIUR_URIR 12->13; SM80-readable:ushf__URuIUR_URIR 12->13; SM90-exact:ushf__URURuI_URRI 12->13; SM90-readable:ushf__URURuI_URRI 12->13
+USEL              40     250     242      2  ERR SM120-exact:usel_64__UUU 1->1; ERR SM120-readable:usel_64__UUU 1->1
+SEL               80     768     686      2  ERR SM120-exact:sel_64__RUR 3->1; ERR SM120-readable:sel_64__RUR 3->1
+UMOV               2       6       2      2  ERR SM120-exact:umov_64__UR 3->1; ERR SM120-readable:umov_64__UR 3->1
+UBREV             36     102     894      0  
+LOP3             264    3306    3122      0  
+ISETP            276    6594    3596      0  
+IDP4A             56    1628    1508      0  
+P2R               92    4398    1978      0  
+UPOPC             36      98     612      0  
+LOP              138    1538    1400      0  
+UPRMT             36     106    2482      0  
+ISCADD32I          2      38      36      0  
+IMNMX             68     920     920      0  
+LEA              306    5276    5106      0  
+ISCADD            10      74     120      0  
+R2P               74    3130    2724      0  
+UFLO               4      20     212      0  
+LOP32I            34     282     248      0  
+USGXT              6      16      34      0  
+VIMNMX3           22    1108     848      0  
+VIADDMNMX         38    1584    1258      0  
+VIMNMX            28    1072     616      0  
+F2FP              32    8808    7512      0  
+POPC               6      16     104      0  
+MOV64IUR           4      12      12      0  
+UVIMNMX            4      12     272      0  
+VIADD              2       6       6      0  
