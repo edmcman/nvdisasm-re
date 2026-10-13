@@ -87,6 +87,13 @@ def expected(g, d, optimized=False):
                     if d.env.get(selector)==g.arch.enums[atom.type].get('H0_H0') and not any(
                             d.env.get((o['name'],attr),0) for attr in ('absolute','negate')):
                         needed=set(range(base+size*index,base+size*index+2))
+            if (optimized and role=='read' and span==1 and o['name'] in ('Rc','URc')
+                    and '_to_8b_downconvert__' in d.klass.name and 'extract' in d.klass.operand_types):
+                # The FP8/FP6 downconverts keep one half of C above the packed bytes; H0 is
+                # bytes 0-1 of the register.
+                atom=d.klass.operand_types['extract'];enums=g.arch.enums[atom.type]
+                if d.env.get('extract',enums.get(atom.default))==enums.get('H0'):
+                    needed=set(range(base+size*index,base+size*index+2))
             if optimized and role=='read' and o['name']=='Rb' and d.klass.mnemonic in ('STG','STS','STL'):
                 atom=d.klass.operand_types.get('sz');enums=g.arch.enums.get(atom.type,{}) if atom else {}
                 width=next((width for label,width in [('U8',1),('S8',1),('U16',2),('S16',2)]

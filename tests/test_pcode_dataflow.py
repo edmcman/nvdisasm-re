@@ -19,6 +19,9 @@ def words(arch, full):
     return list(synth.synthetic(arch, 8)) + sample(arch, "real", 0 if full else REAL_SAMPLE)[0] + f2fp.dataflow_words(arch)
 
 
+def dataflow_problems(arch, fp, full): return dataflow.problems(arch, fp, words(arch, full))
+
+
 def pytest_generate_tests(metafunc):
     if "language" not in metafunc.fixturenames: return
     if not selected(metafunc.config, "ghidra"): return skipped(metafunc, "language", "ghidra")
@@ -31,7 +34,7 @@ def dataflow_results(request):
     variants = [(a, f) for a in arches(request.config) for f in modes(request.config)]
     require_languages(variants)
     full = request.config.getoption("--full")
-    return ghidra.concurrently(lambda a, f: dataflow.problems(a, f, words(a, full)), {v: v for v in variants})
+    return ghidra.concurrently(dataflow_problems, {v: (*v, full) for v in variants})
 
 
 @pytest.mark.ghidra
@@ -41,8 +44,8 @@ def test_pcode_dataflow(language, dataflow_results):
 
 
 def op_counts(arch, fp):
-    """{class: {p-code op: count}} for one synthetic word per class."""
-    labels = synth.synthetic(arch, 1, 0)
+    """{class: {p-code op: count}} for one md-legal synthetic word per class."""
+    labels = synth.synthetic(arch, 1, 0, legal=True)
     results = ghidra.disassemble(arch, fp, [(w, 0) for w in labels], "--dataflow")
     return {labels[w].removeprefix("synth:"): dict(sorted(Counter(op["op"] for op in r["ops"]).items())) if "ops" in r else {"error": 1}
             for w, r in zip(labels, results)}

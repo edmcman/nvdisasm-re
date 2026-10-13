@@ -1,7 +1,7 @@
 """Run layer-4 emulator cases through the Ghidra-free semantics (`sass.sem_lift` + `sass.sem_eval`)."""
 import re
 from sass import pydecode, sem_eval, sem_lift
-from sass.sem_family import FAMILIES
+from sass.sem_family import family_for
 from tests.harness.checks import problems
 
 NAME = re.compile(r"(UR|UP|R|P)(\d+)$")
@@ -46,4 +46,4 @@ def run(arch, fp, case):
 
 
 def has_family(md, cls):
-    return next(k for k in md.classes if k.name == cls).mnemonic in FAMILIES
+    return family_for(next(k for k in md.classes if k.name == cls)) is not None

@@ -6,7 +6,7 @@ This module does not equate PTX syntax with undocumented SASS variants.
 from dataclasses import dataclass
 from itertools import product
 from sass import fpops
-from sass.sem_family import FAMILIES
+from sass.sem_family import FAMILIES, family_for
 import sass.families  # registers the semantics families
 
 OPERATION_FAMILIES = set('IADD3 IMAD LOP3 SHF BMSK LEA IABS IMNMX ISETP SEL PRMT MOV S2R CS2R LDC FADD FMUL FFMA FSETP F2I F2FP I2F I2FP MUFU LDG STG LDS STS LDL STL BRA EXIT CALL RET BSSY BSYNC BAR SHFL VOTE ULDC NOP'.split())
@@ -39,16 +39,18 @@ def constrain_banks(b):
                 b.allow(name,lambda v,z=zero,s=span,n=limit:v==z or v<max(0,n-s+1))
 
 
-def dispatch(b,fallback='opaque'):
+def dispatch(b,fallback='opaque',refs=None):
+    """Native body (with its pattern references `refs`, or found by scanning the text for the
+    hand-written emitters) behind the selector guards, and the opaque or primitive fallback."""
     import re
     from sass.gen_sleigh import pattern
     from sass.semantic import prune_unused_values
-    native=' '.join(prune_unused_values(b.body))
-    names=set(re.findall(r'\b\w+\b',native))
-    refs=[r for r in b.refs if r[1] in names]
-    fallback=' '.join(b.call(fallback))
-    fallback_names=set(re.findall(r'\b\w+\b',fallback))
-    fallback_refs=[r for r in b.refs if r[1] in fallback_names]
+    native=' '.join(b.body if refs is not None else prune_unused_values(b.body))
+    if refs is None:refs=[r for r in b.refs if r[1] in set(re.findall(r'\b\w+\b',native))]
+    fallback_lines=b.call(fallback)
+    fallback=' '.join(fallback_lines)
+    fallback_refs=(list(dict.fromkeys(b.call_refs)) if refs is not None
+                   else [r for r in b.refs if r[1] in set(re.findall(r'\b\w+\b',fallback))])
     constructors=[]
     native_pattern=pattern(b.native_constraints,b.native_refs)
     if b.native_supported and native_pattern:
@@ -68,7 +70,7 @@ def dispatch(b,fallback='opaque'):
 
 def emit(b):
     op=b.k.mnemonic
-    if op in FAMILIES:
+    if family_for(b.k):
         from sass import sem_sleigh
         return sem_sleigh.emit(b)
     if op not in REGISTRY:return 'opaque','outside implemented operation families'
@@ -2030,167 +2032,6 @@ def emit_F2FP(b,check=False):
         low=unpack_byte(0,'f2fp_unpack_lo')
         high=unpack_byte(8,'f2fp_unpack_hi')
         b.body += [f'{dst.symbol} = ({high.symbol} << 16:4) | {low.symbol};']
-        return
-
-    fp8_f32=b.k.name.startswith(('f2fp_f32_to_8b_downconvert__',
-                                 'uf2fp_f32_to_8b_downconvert__'))
-    fp8_f16=b.k.name.startswith(('f2fp_f16_to_8b_downconvert__',
-                                 'uf2fp_f16_to_8b_downconvert__'))
-    if fp8_f32 or fp8_f16:
-        if fp8_f32:
-            a,c,carry=operands(b,'Ra/URa','Rb/URb/Sb','Rc/URc/Sc')
-            sources=(a,c,carry)
-        else:
-            pair,carry=operands(b,'Rb/URb/Sb','Rc/URc/Sc')
-            sources=(pair,carry)
-        if check:
-            return (all(sources) and dst is not None and dst.size==4 and
-                all(b.values[n].size==4 and b.values[n].kind!='runtime-primitive'
-                    for n in sources) and
-                all(n in b.values for n in ('dstfmt','srcfmt','merge','rndMode',
-                                             'satfinite','relu','extract')))
-        enum=b.g.arch.enums[b.k.operand_types['dstfmt'].type]
-        fp6=[name for name in ('E2M3','E3M2') if name in enum]
-        require(b,'dstfmt',['E4M3','E5M2',*fp6])
-        require(b,'srcfmt',['F32'] if fp8_f32 else ['F16','BF16'])
-        require(b,'merge',['PACK_AB_MERGE_C'] if fp8_f32 else ['UNPACK_B_MERGE_C'])
-        require(b,'relu',['norelu','RELU'])
-        rnd_enum=b.g.arch.enums[b.k.operand_types['rndMode'].type]
-        sat_enum=b.g.arch.enums[b.k.operand_types['satfinite'].type]
-        combinations=[]
-        for name in ('E4M3','E5M2'):
-            if name not in enum:continue
-            for mode in ('RN','RP'):
-                if mode not in rnd_enum:continue
-                for sat_name in ('SATFINITE','nosatfinite'):
-                    if sat_name in sat_enum:
-                        combinations.append((enum[name],rnd_enum[mode],sat_enum[sat_name]))
-        for name in fp6:
-            if 'SATFINITE' in sat_enum:
-                for mode in ('RN','RZ','RP'):
-                    if mode in rnd_enum:
-                        combinations.append((enum[name],rnd_enum[mode],sat_enum['SATFINITE']))
-        b.allow_combinations(('dstfmt','rndMode','satfinite'),combinations)
-        require(b,'extract',['H0','H1'])
-        e4=enum['E4M3'];e5=enum['E5M2']
-        e2=enum.get('E2M3',0xffffffff);e3=enum.get('E3M2',0xffffffff)
-        mbits=b.select('dstfmt',{e4:'3:4',e5:'2:4',e2:'3:4',e3:'2:4'},4)
-        bias=b.select('dstfmt',{e4:'7:4',e5:'15:4',e2:'1:4',e3:'3:4'},4)
-        maxfinite=b.select('dstfmt',{e4:'0x7e:4',e5:'0x7b:4',e2:'0x1f:4',e3:'0x1f:4'},4)
-        nanmag=b.select('dstfmt',{e4:'0x7f:4',e5:'0x7f:4',e2:'0x1f:4',e3:'0x1f:4'},4)
-        rnd=b.values['rndMode'].symbol
-        sat=b.values['satfinite'].symbol
-        rnd_rn=rnd_enum['RN'];rnd_rz=rnd_enum.get('RZ',0xffffffff)
-        rnd_rp=rnd_enum.get('RP',0xffffffff)
-        satfinite=sat_enum['SATFINITE']
-
-        def convert(bits,prefix):
-            sign=b.local(4,f'({bits} >> 24) & 0x80')
-            exp=b.local(4,f'({bits} >> 23) & 0xff')
-            frac=b.local(4,f'{bits} & 0x7fffff')
-            sig=b.local(4,f'{frac.symbol} | 0x800000')
-            target_exp=b.local(4,'0')
-            is_sub=b.local(1,'0')
-            drop=b.local(4,f'23:4 - {mbits}')
-            shift=b.local(4,'0')
-            kept=b.local(4,'0');rem=b.local(4,'0');rounded=b.local(4,'0')
-            em=b.local(4,'0');mag=b.local(4,'0');byte=b.local(4,'0')
-            nan=b.local(1,f'({exp.symbol} == 0xff) && ({frac.symbol} != 0)')
-            b.body += [f'if ({exp.symbol} == 0xff) goto <{prefix}_special>;',
-                f'if ({exp.symbol} != 0:4) goto <{prefix}_source_normal>;',
-                f'{sig.symbol} = {frac.symbol}; {target_exp.symbol} = 1:4 - 127:4 + {bias};',
-                f'goto <{prefix}_source_ready>;',
-                f'<{prefix}_source_normal>',
-                f'{target_exp.symbol} = {exp.symbol} - 127:4 + {bias};',
-                f'<{prefix}_source_ready>',
-                f'{is_sub.symbol} = {target_exp.symbol} s<= 0:4;',
-                f'{shift.symbol} = {drop.symbol};',
-                f'if (!{is_sub.symbol}) goto <{prefix}_shift_ready>;',
-                f'{shift.symbol} = {shift.symbol} + 1:4 - {target_exp.symbol};',
-                f'<{prefix}_shift_ready>',
-                f'if ({shift.symbol} > 31:4) goto <{prefix}_tiny>;',
-                f'{kept.symbol} = {sig.symbol} >> {shift.symbol};',
-                f'{rem.symbol} = {sig.symbol} & ((1:4 << {shift.symbol}) - 1:4);',
-                f'if ({rnd} == {rnd_rn}:4) goto <{prefix}_nearest>;',
-                f'if ({rnd} != {rnd_rp}:4 || ({sign.symbol} & 0x80:4) != 0:4) goto <{prefix}_pack>;',
-                f'if ({rem.symbol} == 0:4) goto <{prefix}_pack>; goto <{prefix}_increment>;',
-                f'<{prefix}_nearest>',
-                f'if ({rem.symbol} > (1:4 << ({shift.symbol} - 1:4))) goto <{prefix}_increment>;',
-                f'if ({rem.symbol} < (1:4 << ({shift.symbol} - 1:4))) goto <{prefix}_pack>;',
-                f'if (({kept.symbol} & 1:4) == 0:4) goto <{prefix}_pack>;',
-                f'<{prefix}_increment>',f'{rounded.symbol} = {kept.symbol} + 1:4; goto <{prefix}_encoded>;',
-                f'<{prefix}_pack>',f'{rounded.symbol} = {kept.symbol};',
-                f'<{prefix}_encoded>',
-                f'if ({is_sub.symbol}) goto <{prefix}_subnormal>;',
-                f'{em.symbol} = {rounded.symbol} + (({target_exp.symbol} - 1:4) << {mbits});',
-                f'goto <{prefix}_finite>;',
-                f'<{prefix}_subnormal>',f'{em.symbol} = {rounded.symbol};',
-                f'<{prefix}_finite>',
-                f'if ({em.symbol} > {maxfinite}) goto <{prefix}_overflow>;',
-                f'{mag.symbol} = {em.symbol}; goto <{prefix}_result>;',
-                f'<{prefix}_saturate>',f'{mag.symbol} = {maxfinite};',
-                f'goto <{prefix}_result>;',
-                f'<{prefix}_overflow>',
-                f'if ({sat} == {satfinite}:4) goto <{prefix}_saturate>;',
-                f'if ({rnd} != {rnd_rp}:4 || ({sign.symbol} & 0x80:4) == 0:4) goto <{prefix}_nosat_overflow>;',
-                f'{mag.symbol} = {maxfinite}; goto <{prefix}_result>;',
-                f'<{prefix}_nosat_overflow>',
-                f'if ({b.values["dstfmt"].symbol} != {e4}:4) goto <{prefix}_nosat_e5_overflow>;',
-                f'{sign.symbol} = 0:4; {mag.symbol} = 0x7f:4; goto <{prefix}_result>;',
-                f'<{prefix}_nosat_e5_overflow>',
-                f'{mag.symbol} = 0x7c:4; goto <{prefix}_result>;',
-                f'<{prefix}_special>',
-                f'if ({nan.symbol}) goto <{prefix}_nan>;',
-                f'if ({sat} == {satfinite}:4) goto <{prefix}_saturate>;',
-                f'if ({b.values["dstfmt"].symbol} != {e4}:4) goto <{prefix}_nosat_e5_infinity>;',
-                f'{sign.symbol} = 0:4; {mag.symbol} = 0x7f:4; goto <{prefix}_result>;',
-                f'<{prefix}_nosat_e5_infinity>',
-                f'{mag.symbol} = 0x7c:4; goto <{prefix}_result>;',
-                f'<{prefix}_nan>',f'{sign.symbol} = 0:4; {mag.symbol} = {nanmag}; goto <{prefix}_result>;',
-                f'<{prefix}_tiny>',
-                f'if ({rnd} != {rnd_rp}:4 || ({sign.symbol} & 0x80:4) != 0:4) goto <{prefix}_tiny_zero>;',
-                f'if ({exp.symbol} == 0:4 && {frac.symbol} == 0:4) goto <{prefix}_tiny_zero>;',
-                f'{mag.symbol} = 1:4; goto <{prefix}_result>;',
-                f'<{prefix}_tiny_zero>',f'{mag.symbol} = 0:4;',
-                f'<{prefix}_result>',
-                f'{byte.symbol} = {sign.symbol} | {mag.symbol};',
-                f'if ({b.values["relu"].symbol} != {b.g.arch.enums[b.k.operand_types["relu"].type]["RELU"]}:4) goto <{prefix}_relu_done>;',
-                f'if ({nan.symbol} != 0:1) goto <{prefix}_relu_done>;',
-                f'if (({byte.symbol} & 0x80:4) == 0:4) goto <{prefix}_relu_done>;',
-                f'{byte.symbol} = 0:4;',f'<{prefix}_relu_done>']
-            return byte
-
-        if fp8_f32:
-            av=convert(b.values[a].symbol,'f2fp_fp8_a')
-            bv=convert(b.values[c].symbol,'f2fp_fp8_b')
-        else:
-            packed=b.values[pair].symbol
-            lanes=[]
-            formats=b.g.arch.enums[b.k.operand_types['srcfmt'].type]
-            f16=formats.get('F16');bf16=formats.get('BF16')
-            for lane in range(2):
-                raw_word=b.expression(4,f'({packed} >> {lane*16}:4) & 0xffff:4')
-                raw=b.local(2,f'{raw_word.symbol}:2')
-                expanded=b.local(4,f'zext({raw.symbol}) << 16:4')
-                # The F16 operand is reinterpreted as a 16-bit float and widened;
-                # BF16 already has the same upper sixteen bits as F32.
-                f32bits=b.local(4,f'float2float({raw.symbol})')
-                src_cases={}
-                if f16 is not None:src_cases[f16]=f32bits.symbol
-                if bf16 is not None:src_cases[bf16]=expanded.symbol
-                bits=b.select('srcfmt',src_cases,4)
-                lanes.append(convert(bits,f'f2fp_fp8_half{lane}'))
-            av,bv=lanes
-        cv=b.values[carry].symbol;extract=b.values['extract'].symbol
-        h1=b.g.arch.enums[b.k.operand_types['extract'].type]['H1']
-        carryhalf=b.local(4,'0')
-        b.body += [f'if ({extract} == {h1}:4) goto <f2fp_fp8_h1>;',
-            f'{carryhalf.symbol} = {cv} & 0xffff:4; goto <f2fp_fp8_pack>;',
-            '<f2fp_fp8_h1>',f'{carryhalf.symbol} = ({cv} >> 16) & 0xffff;',
-            '<f2fp_fp8_pack>',
-            f'{dst.symbol} = ({carryhalf.symbol} << 16) | '
-            f'({bv.symbol if fp8_f16 else av.symbol} << 8) | '
-            f'{av.symbol if fp8_f16 else bv.symbol};']
         return
 
     merge_c=b.k.name.startswith('f2fp_merge_c__')

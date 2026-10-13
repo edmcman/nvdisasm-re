@@ -20,7 +20,7 @@ import mdlib
 from sass import ir, sem
 from sass.sem import Expr
 
-FAMILIES = {}   # opcode -> family function
+FAMILIES = {}   # opcode -> [(class filter or None, family function)]
 
 
 # ---- results ----------------------------------------------------------------------------------
@@ -115,14 +115,19 @@ def rewrite(fn):
     return out
 
 
-def family(*opcodes):
+def family(*opcodes, classes=None):
+    """Register fn for every md class of `opcodes`, or only those `classes(klass)` accepts (while an
+    opcode is partly migrated, the other classes keep their old emitter)."""
     def register(fn):
         out = rewrite(fn)
-        for op in opcodes:
-            if op in FAMILIES: raise ValueError(f"{op} already has a family")
-            FAMILIES[op] = out
+        for op in opcodes: FAMILIES.setdefault(op, []).append((classes, out))
         return out
     return register
+
+
+def family_for(klass):
+    """The family function covering an md class, or None."""
+    return next((fn for accepts, fn in FAMILIES.get(klass.mnemonic, ()) if accepts is None or accepts(klass)), None)
 
 
 def helper(fn):
@@ -144,10 +149,13 @@ def roles(arch_name):
 
 
 @cache
-def all_labels(enum_type):
-    """Every label of an enum type on any architecture (for checking label comparisons)."""
+def operand_labels(name):
+    """Every label any operand called `name` can have, in any class on any architecture. One family
+    serves classes whose selectors have different enum types (DSTFMT, DSTFMT_uf2fp), so a label of
+    the operand elsewhere is a legitimate comparison; anything else is a typo or a wrong selector."""
     from sass.build_languages import ARCHES
-    return frozenset(l for a in ARCHES for l in ir.load(a).enums.get(enum_type, {}))
+    return frozenset(l for a in ARCHES for k in ir.load(a).classes if (t := k.operand_types.get(name))
+                     for l in ir.load(a).enums.get(t.type, ()))
 
 
 def encoded(k):
@@ -162,12 +170,13 @@ def encoded(k):
 
 
 class Label(str):
-    """An enum label; comparisons check the other side is a label of this enum type somewhere."""
-    def __new__(cls, label, names, enum_type):
-        s = super().__new__(cls, label); s.names, s.enum_type = names, enum_type; return s
+    """An enum label; comparisons check the other side is a label this operand has somewhere."""
+    def __new__(cls, label, names, operand):
+        s = super().__new__(cls, label); s.names, s.operand = names, operand; return s
 
     def check(self, other):
-        if other not in all_labels(self.enum_type): raise ValueError(f"{other!r} is not a {self.enum_type} label on any architecture")
+        if other not in operand_labels(self.operand):
+            raise ValueError(f"{other!r} is not a label of any {self.operand} operand on any architecture")
 
     def __eq__(self, other):
         if not isinstance(other, str): return NotImplemented
@@ -250,15 +259,33 @@ class Instruction:
         elif len(set(enum.values())) == 1: v = next(iter(enum.values()))
         else: raise KeyError(f"{self.cls}.{name} is neither encoded nor defaulted")
         names_of = [l for l, x in self.arch.enum_defs[a.type] if x == v]
-        return Label(self.arch.rev_enums[a.type][v], frozenset(names_of), a.type)
+        return Label(self.arch.rev_enums[a.type][v], frozenset(names_of), name)
 
     def default(self, names): return self.atom(self.resolve(names)).default
+
+    def param(self, names, table, w=32):
+        """A number chosen by a selector's label, as a value: `table` maps labels to ints (labels
+        outside it are unmodelled). Unlike `sel`, the backend doesn't run the family per label: lift
+        gets a constant, SLEIGH a decode-time constant table, so one parametric computation serves
+        every label (format constants, rounding-mode flags)."""
+        name = self.resolve(names); a = self.atom(name)
+        enum = self.arch.enums[a.type]
+        if name not in self._encoded:
+            label = self.sel(name)
+            v = next((x for l, x in table.items() if label == l), None)
+            if v is None: unmodelled(f"{name} {label}")
+            return sem.const(v, w)
+        return self.parameter(name, {enum[l]: v for l, v in table.items() if l in enum}, w)
+
+    def parameter(self, name, values, w):
+        """Backend: the value table[encoded value] of an encoded selector, as an expression."""
+        raise NotImplementedError
 
     def on(self, names):
         """The selector is set to a value other than its md default."""
         name = self.resolve(names); a = self.atom(name)
         if a.default is None: raise TypeError(f"{self.cls}.{name} has no default")
-        return self.sel(name) != a.default if a.default in all_labels(a.type) else False
+        return self.sel(name) != a.default
 
     def is_zero(self, names):
         """Register operand is RZ/URZ, predicate is PT (the md's constant register), immediate is 0."""

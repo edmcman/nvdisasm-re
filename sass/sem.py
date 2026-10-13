@@ -148,6 +148,10 @@ def simplify(name, args, w):
     a = args[0]; b = args[1] if len(args) > 1 else None
     zero, ones = (lambda e: is_const(e, 0)), (lambda e: is_const(e, -1))
     match name:
+        case "sub" if is_const(b): return op("add", a, const(-value(b), w))
+        case "add" | "mul" | "and" | "or" | "xor" if is_const(a) and not is_const(b): return op(name, b, a)
+        case "add" if is_const(b) and a.op == "add" and is_const(a.args[1]):
+            return op("add", a.args[0], const(value(a.args[1]) + value(b), w))
         case "add" | "or" | "xor" if zero(b): return a
         case "add" | "or" | "xor" if zero(a): return b
         case "sub" | "shl" | "shr" | "sar" if zero(b): return a
@@ -164,6 +168,8 @@ def simplify(name, args, w):
         case "mul" if is_const(a, 1): return b
         case "mul" if zero(a) or zero(b): return const(0, w)
         case "not" | "neg" if a.op == name: return a.args[0]
+        case "eq" | "ne" if a.w == 1 and is_const(b):   # booleans: b == 1 is b, b == 0 is !b
+            return a if (name == "eq") == bool(value(b)) else op("not", a)
         case "eq" if a is b: return const(1, 1)
         case "ne" | "ult" if a is b: return const(0, 1)
     return None
@@ -228,34 +234,45 @@ def trunc(x, w):
     return extract(x, w - 1, 0)
 
 
-def narrowed(x, w):
+def narrowed(x, w, shared=frozenset()):
     """The low w bits of x computed at width w: operations whose low bits depend only on their
-    operands' low bits are rebuilt narrow, so trunc32(zext64(a) + zext64(b)) is a + b."""
+    operands' low bits are rebuilt narrow, so trunc32(zext64(a) + zext64(b)) is a + b. Nodes in
+    `shared` are computed wide anyway, so their low bits are extracted, not recomputed."""
     if x.w == w: return x
-    a = x.args
+    if x in shared: return trunc(x, w)
+    a, n = x.args, lambda y: narrowed(y, w, shared)
     match x.op:
-        case "add" | "sub" | "mul" | "and" | "or" | "xor": return op(x.op, narrowed(a[0], w), narrowed(a[1], w))
-        case "not" | "neg": return op(x.op, narrowed(a[0], w))
-        case "shl" if is_const(a[1]): return narrowed(a[0], w) << value(a[1]) if value(a[1]) < w else const(0, w)
-        case "ite": return ite(a[0], narrowed(a[1], w), narrowed(a[2], w))
-        case "sel": return Expr("sel", (a[0], tuple((vals, narrowed(t, w)) for vals, t in a[1])), w)
+        case "add" | "sub" | "mul" | "and" | "or" | "xor": return op(x.op, n(a[0]), n(a[1]))
+        case "not" | "neg": return op(x.op, n(a[0]))
+        case "shl" if is_const(a[1]): return n(a[0]) << value(a[1]) if value(a[1]) < w else const(0, w)
+        case "ite": return ite(a[0], n(a[1]), n(a[2]))
+        case "sel": return Expr("sel", (a[0], tuple((vals, n(t)) for vals, t in a[1])), w)
     return trunc(x, w)
 
 
 def low(e): return e.op == "extract" and e.args[2] == 0
 
 
-def narrow(e, memo=None):
-    """e with every low-bits extract computed narrow (the readable form; backends may prefer
-    sharing the wide value)."""
-    memo = {} if memo is None else memo
-    if not isinstance(e, Expr) or e.op in ("const", "param", "reg"): return e
-    if e in memo: return memo[e]
-    args = [narrow(a, memo) for a in e.args]
-    out = narrowed(args[0], e.w) if low(e) else ite(*args) if e.op == "ite" else \
-        Expr(e.op, tuple(args), e.w) if e.op in ("sel", "load") else op(e.op, *args, w=e.w)
-    memo[e] = out
-    return out
+def narrow(roots):
+    """The roots with low-bits extracts computed narrow where the wide value has no other use (the
+    readable form; a wide value needed anyway is extracted from, not recomputed)."""
+    uses = {}
+    def count(e):
+        if not isinstance(e, Expr): return
+        uses[e] = uses.get(e, 0) + 1
+        if uses[e] == 1:
+            for x in e.args: count(x)
+    for r in roots: count(r)
+    memo, shared = {}, frozenset(e for e, n in uses.items() if n > 1)
+    def walk(e):
+        if not isinstance(e, Expr) or e.op in ("const", "param", "reg"): return e
+        if e in memo: return memo[e]
+        args = [walk(x) for x in e.args]
+        out = narrowed(args[0], e.w, frozenset(memo.get(x, x) for x in shared)) if low(e) and uses.get(e.args[0], 0) == 1 else ite(*args) if e.op == "ite" else \
+            extract(*args) if e.op == "extract" else Expr(e.op, tuple(args), e.w) if e.op in ("sel", "load") else op(e.op, *args, w=e.w)
+        memo[e] = out
+        return out
+    return [walk(r) for r in roots]
 
 
 def concat(*parts):
@@ -338,6 +355,16 @@ def show(outputs):
         order.append(e)
     for _, e in outputs: count(e)
     names, lines = {}, []
+    def number(e, signed=False):
+        v = value(e)
+        if signed and e.w > 1 and v >> (e.w - 1): return f"-{(1 << e.w) - v:#x}" + ("" if e.w == 32 else f":{e.w}")
+        return text(e)
+    def minmax(e):
+        c, x, y = e.args
+        if c.op in ("ult", "slt") and {c.args[0], c.args[1]} == {x, y}:
+            kind = ("s" if c.op == "slt" else "u") + ("min" if c.args[0] is x else "max")
+            return f"{kind}({text(x, True)}, {number(y, c.op == 'slt') if is_const(y) else text(y, True)})"
+        return None
     def text(e, bare=False, define=False):
         if not isinstance(e, Expr): return repr(e)
         if e in names and not define: return names[e]
@@ -347,14 +374,18 @@ def show(outputs):
             case "param": return a[0]
             case "reg": return f"{a[0]}{a[1]}" if a[2] == 1 else f"{a[0]}{a[1]}:{a[0]}{a[1] + a[2] - 1}"
             case "load": return f"{a[0]}[{text(a[1], True)}]:{e.w}"
+            case "ite" if (m := minmax(e)): return m
             case "ite": s = f"{text(a[0])} ? {text(a[1])} : {text(a[2])}"
-            case "not" | "neg": return ("~" if e.op == "not" else "-") + text(a[0])
+            case "add" if is_const(a[1]) and value(a[1]) >> (e.w - 1) and e.w > 1:
+                s = f"{text(a[0])} - {number(const(-value(a[1]), e.w))}"
+            case "not" | "neg": return ("!" if e.op == "not" and e.w == 1 else "~" if e.op == "not" else "-") + text(a[0])
             case "zext" | "sext": return f"{e.op}{e.w}({text(a[0], True)})"
             case "extract": return f"{text(a[0])}[{a[1]}:{a[2]}]" if a[1] != a[2] else f"{text(a[0])}[{a[1]}]"
             case "concat": return f"concat({text(a[0], True)}, {text(a[1], True)})"
             case "ult" | "ule" | "slt" | "sle" if is_const(a[0]) and not is_const(a[1]):
                 # Comparisons are canonically < / <=; print `x > k` the way it is usually written.
-                s = f"{text(a[1])} {FLIPPED[e.op]} {text(a[0])}"
+                s = f"{text(a[1])} {FLIPPED[e.op]} {number(a[0], e.op[0] == 's')}"
+            case "slt" | "sle" if is_const(a[1]): s = f"{text(a[0])} {INFIX[e.op]} {number(a[1], True)}"
             case op if op in INFIX: s = f"{text(a[0])} {INFIX[op]} {text(a[1])}"
             case op: return f"{op}({', '.join(text(x, True) for x in a)})"
         return s if bare else f"({s})"

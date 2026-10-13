@@ -3,7 +3,8 @@
 usage: python -m tests.compare_ghidra_disassembly SM89 [real|synthetic|mutated] [N] [--show K] [--fp exact|readable]
 """
 import re
-from sass import pydecode
+from sass import ir, mdcond, pydecode
+from sass.sem_family import family_for
 from tests import oracle
 from tests.compare_pydecode_disassembly import arguments, report, sample
 from tests.harness import ghidra
@@ -24,16 +25,21 @@ def loose(text):
 
 def compare(arch, words, fp="exact"):
     """{word: (status, cls, pydecode text, Ghidra text or error)} for words pydecode decodes;
-    status in ok, mismatch, error. Addresses come from the oracle (branch targets are absolute)."""
+    status in ok, mismatch, error. The SLEIGH enforces md CONDITIONS only for classes lifted by
+    semantics families, except those on scheduling hints alone: their md-illegal words must fail to
+    decode (expected text None). Addresses come from the oracle (branch targets are absolute)."""
     addrs = {w: r.addr for w, r in oracle.Oracle().disasm(arch, words).items()}
     pydecode.FLOAT_HEX = True
     todo = []
     for w in words:
-        # The generated SLEIGH doesn't enforce md CONDITIONS (yet), so neither does the reference here.
-        try: d = pydecode.decode(arch, w, addrs[w], conditions=False); todo.append((w, d.klass.name, d.text))
-        except pydecode.NoMatch: pass
+        try: d = pydecode.decode(arch, w, addrs[w], conditions=False)
+        except pydecode.NoMatch: continue
+        todo.append((w, d.klass.name, None if family_for(d.klass) and mdcond.violation(ir.load(arch), d.klass, d.env, hints=False) else d.text))
+    def status(exp, g):
+        if exp is None: return "ok" if "error" in g else "mismatch"
+        return "error" if "error" in g else "ok" if loose(g["text"]) == loose(exp) else "mismatch"
     def judge(todo):
-        return {w: ("error" if "error" in g else "ok" if loose(g["text"]) == loose(exp) else "mismatch", cls, exp, g.get("text") or g.get("error"))
+        return {w: (status(exp, g), cls, exp or "(md-illegal: rejected)", g.get("text") or g.get("error"))
                 for (w, cls, exp), g in zip(todo, ghidra.disassemble(arch, fp, [(w, addrs[w]) for w, _, _ in todo]))}
     out = judge(todo)
     # Ghidra caches instruction prototypes by a 32-bit hash of the constructor tree and trusts it

@@ -466,13 +466,21 @@ class Builder:
         self.refs.append(('sub',target))
         return kind,target
 
+    def ref(self, symbol):
+        """The pattern reference (('sub', table) or (token, field)) a symbol needs, if any."""
+        return next((r for r in self.refs if r[1] == symbol), None)
+
     def call(self, prefix='opaque'):
         stem='sass_'+prefix+'_'+re.sub(r'\W','_',self.k.mnemonic)
         args=[] if prefix=='opaque' else [f'{self.k.order}:4']
-        args += [v.symbol for n,v in self.values.items() if prefix!='opaque' or self.opaque_input(n,v)]
+        used=[v.symbol for n,v in self.values.items() if prefix!='opaque' or self.opaque_input(n,v)]
+        args += used
         self.g.pcodeops.add(stem)
         call=f'{stem}({", ".join(args)})'
         kind,target=self.flow()
+        # The references of the fallback's operands, for callers that don't scan the text.
+        self.call_refs=[r for sym in used+[v.symbol for v in self.outputs.values()]+([target] if target else [])
+                        if (r:=self.ref(sym))]
         if kind:
             # Branch classes write no registers. The call yields what is not
             # modelled (the taken condition, or an indirect destination), so

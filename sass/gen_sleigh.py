@@ -10,7 +10,7 @@ import itertools, json, math, re, sys
 import mdlib
 from collections import defaultdict
 from pathlib import Path
-from sass import ir, mdexpr, pydecode
+from sass import ir, mdcond, mdexpr, pydecode
 from sass.pydecode import IMM, PREFIX, NoMatch, resolve, sext, value_text
 
 OUT = Path(__import__("os").environ.get("SASS_SLEIGH_OUT") or
@@ -77,6 +77,58 @@ def member(gen, f, values):
             out += member(gen, ir.Field("", ((hi + (64 if tok == "h" else 0), lo + (64 if tok == "h" else 0)),)), vs)
         return out
     return [[merge_lits(eq(gen, f, v)) for v in sorted(values)]]
+
+MAX_CUBE_BITS = 10
+MAX_DEAD_CUBES = 64
+
+def merge_boxes(boxes):
+    """Union boxes (tuples of value sets) that differ in one position, until none do."""
+    boxes = set(boxes)
+    for _ in range(len(next(iter(boxes), ())) * 2):
+        for i in range(len(next(iter(boxes), ()))):
+            groups = defaultdict(set)
+            for box in boxes: groups[box[:i] + box[i + 1:]].add(box[i])
+            boxes = {key[:i] + (frozenset().union(*vs),) + key[i:] for key, vs in groups.items()}
+    return boxes
+
+def cubes(values, n):
+    """A small cover of `values` by cubes (mask of fixed bits, their values): Quine-McCluskey prime
+    implicants and a greedy cover."""
+    current, primes = {((1 << n) - 1, v) for v in values}, set()
+    while current:
+        merged, nxt = set(), set()
+        for mask, bits in current:
+            for b in range(n):
+                if mask >> b & 1 and (mask, bits ^ 1 << b) in current:
+                    nxt.add((mask & ~(1 << b), bits & ~(1 << b))); merged |= {(mask, bits), (mask, bits ^ 1 << b)}
+        primes |= current - merged; current = nxt
+    covers = {c: {v for v in values if v & c[0] == c[1]} for c in primes}
+    left, cover = set(values), []
+    while left:
+        best = max(sorted(covers), key=lambda c: len(covers[c] & left))
+        cover.append(best); left -= covers[best]
+    return sorted(cover)
+
+def split_cubes(values, n):
+    """Cubes from splitting on the top bit: equal halves leave that bit free (cheap, for wide fields)."""
+    values = frozenset(values)
+    if not values: return []
+    if n == 0: return [(0, 0)]
+    top = 1 << n - 1
+    low, high = frozenset(v for v in values if not v & top), frozenset(v & ~top for v in values if v & top)
+    if low == high: return split_cubes(low, n - 1)
+    return [(m | top, b) for m, b in split_cubes(low, n - 1)] + [(m | top, b | top) for m, b in split_cubes(high, n - 1)]
+
+def cube_literal(gen, tok, lo, mask, bits):
+    """One literal: each run of fixed bits in the field at `lo` equals its part of `bits`."""
+    parts, b = [], 0
+    while mask >> b:
+        if mask >> b & 1:
+            e = b
+            while mask >> (e + 1) & 1: e += 1
+            parts.append(f"{gen.field(tok, lo + b, lo + e)}={(bits >> b) & ((1 << (e - b + 1)) - 1)}"); b = e + 1
+        else: b += 1
+    return lit(tok, " & ".join(parts))
 
 def product_split(f, values, care=None):
     """Per-piece value sets whose Cartesian product equals `values` on `care` (default: everywhere), else None."""
@@ -443,7 +495,9 @@ class Gen:
                 if not empty and sep_before: disp = f'", "^{disp}'
                 out.append(('""' if empty else disp, pat, ""))
             item_syms.append(self.subtable("o", out))
-        clauses = self.class_constraints(k) + list(extra)
+        legality, tables = self.conditions(k)
+        clauses = self.class_constraints(k) + list(extra) + legality
+        refs = refs + [("sub", t) for t in tables]
         g = self.guard(k)
         disp = (f"^{g}^" if g else "") + mnem_disp
         if item_syms: disp += " " + "^".join(item_syms)
@@ -662,6 +716,111 @@ class Gen:
             c = self.values_where(k, name, lambda x: x in valid)
             if c: cl += c
         return cl
+
+    def conditions(self, k):
+        """(root clauses, subtable refs) rejecting the class's md-illegal encodings, for the classes
+        lifted by semantics families (for every class the .sla grows past Ghidra's limit), except
+        conditions on scheduling hints alone (`mdcond.operand_errors`).
+
+        A condition whose legal set is one cube constrains the root pattern directly. The others
+        contribute their illegal cubes (over all the fields they read) to one shared subtable per
+        class: a catch-all constructor plus, per illegal cube, a more specific constructor leading
+        to a dead end (`never`), so those words fail to decode. Conditions whose illegal set is
+        large keep a positive decision subtable."""
+        from sass.sem_family import family_for
+        clauses, dead, tables = [], set(), []
+        if not family_for(k): return clauses, tables
+        for _, expr, _ in mdcond.operand_errors(self.arch.name, k):
+            legal = mdcond.legal_classes(self.arch.name, k.name, expr)
+            if legal is None: continue
+            if not legal: raise NoMatch("md conditions never hold")
+            fields, classes, ok = legal
+            good = self.cubes_of(fields, classes, ok)
+            if len(good) == 1:
+                clauses += [[l] for l in self.cube_lits(fields, next(iter(good)))]; continue
+            bad = self.cubes_of(fields, classes, set(itertools.product(*(range(len(c)) for c in classes))) - ok)
+            if len(bad) <= min(len(good), MAX_DEAD_CUBES) and all(sum(bin(m).count("1") for m, _ in c) >= 2 for c in bad):
+                dead |= {(tuple(f.ranges for f in fields), c) for c in bad}
+            else: tables.append(self.decision(fields, classes, ok))
+        if dead:
+            # Different field tuples can spell the same cube: one constructor per pattern.
+            cons = {}
+            for ranges, c in sorted(dead):
+                fields = [ir.Field("", r) for r in ranges]
+                cons.setdefault(pattern([[l] for l in self.cube_lits(fields, c)]), (fields, c))
+            tables.append(self.subtable("ok", [('""', pattern([], []), "", "")] + [
+                ('""', pattern([[l] for l in self.cube_lits(f, c)], [("sub", self.never(f, c))]), "", "") for f, c in cons.values()]))
+        # One reference per root constructor; classes with the same conditions share the bundle.
+        refs = tables if len(tables) < 2 else [self.subtable("legal", [('""', pattern([], [("sub", t) for t in tables]), "", "")])]
+        return clauses, refs
+
+    def cubes_of(self, fields, classes, combos):
+        """Joint cubes (one (mask, bits) per field) covering the raw values of the given class tuples."""
+        boxes = merge_boxes([tuple(frozenset(classes[i][j]) for i, j in enumerate(c)) for c in combos])
+        cover = lambda f, vs: [(0, 0)] if len(vs) == 1 << f.width else (cubes if f.width <= MAX_CUBE_BITS else split_cubes)(vs, f.width)
+        out = {c for box in boxes for c in itertools.product(*(cover(f, vs) for f, vs in zip(fields, box)))}
+        # Drop cubes inside another (same fields fixed with the same values, plus more).
+        inside = lambda c, d: all(m & dm == dm and b & dm == db for (m, b), (dm, db) in zip(c, d))
+        return {c for c in out if not any(d != c and inside(c, d) for d in out)}
+
+    def cube_lits(self, fields, cube):
+        """Literals (one per token) fixing each field's cube bits."""
+        out = {}
+        for f, (mask, bits) in zip(fields, cube):
+            shift = 0
+            for tok, lo, hi, n in reversed(pieces(f)):
+                m, b = (mask >> shift) & ((1 << n) - 1), (bits >> shift) & ((1 << n) - 1); shift += n
+                if m:
+                    t = cube_literal(self, tok, lo, m, b)[tok]
+                    out[tok] = f"{out[tok]} & {t}" if tok in out else t
+        return [lit(tok, t) for tok, t in sorted(out.items())]
+
+    def never(self, fields, cube):
+        """A subtable matching no word inside `cube`: two one-bit constructors, each requiring one of
+        two of the cube's fixed bits to have the other value. It depends only on those two bits, so
+        it is shared widely. (A contradictory pattern is a compile error; this fails at decode.)"""
+        fixed = []
+        for f, (mask, bits) in zip(fields, cube):
+            shift = 0
+            for tok, lo, hi, n in reversed(pieces(f)):
+                for b in range(n):
+                    if mask >> (shift + b) & 1: fixed.append((tok, lo + b, bits >> (shift + b) & 1))
+                shift += n
+        return self.subtable("never", [('""', pattern([[lit(tok, f"{self.field(tok, pos, pos)}={1 - v}")]]), "", "")
+                                       for tok, pos, v in sorted(fixed)[:2]])
+
+    def decision(self, fields, classes, legal):
+        """Subtable accepting the raw values whose per-field class tuple is in `legal`; a word it
+        doesn't match fails to decode. It branches on the first field and nests the rest.
+
+        Each alternative (a cube of field values) is its own constructor: SLEIGH folds a subtable's
+        common sub-pattern into the parent, and for a single constructor holding an OR that is the
+        whole disjunction, which multiplies into every root pattern. When it is cheaper, the
+        largest value group becomes an unconstrained catch-all, and illegal cubes become more
+        specific constructors that lead to a dead end (`never`)."""
+        f, rest_fields = fields[0], fields[1:]
+        groups = defaultdict(set)
+        for i in range(len(classes[0])):
+            if rest := frozenset(c[1:] for c in legal if c[0] == i): groups[rest] |= set(classes[0][i])
+        def ref(rest):
+            whole = len(rest) == math.prod(len(c) for c in classes[1:])
+            return [] if whole else [("sub", self.decision(rest_fields, classes[1:], rest))]
+        if len(pieces(f)) != 1:
+            return self.subtable("ok", sorted(('""', pattern(member(self, f, vs), ref(rest)), "", "") for rest, vs in groups.items()))
+        (tok, lo, _, _), = pieces(f)
+        cover = lambda vs: (cubes if f.width <= MAX_CUBE_BITS else split_cubes)(vs, f.width)
+        covers = {rest: cover(vs) for rest, vs in groups.items()}
+        illegal = set(range(1 << f.width)) - set().union(*groups.values())
+        dead = cover(illegal) if illegal else []
+        cons = lambda rest, cs: [('""', pattern([[cube_literal(self, tok, lo, m, b)]], ref(rest)), "", "") for m, b in cs]
+        catch = max(covers, key=lambda r: len(covers[r]))
+        if all(bin(m).count("1") >= 2 for m, _ in dead) and len(dead) + 1 < len(covers[catch]):
+            out = [c for rest, cs in covers.items() if rest != catch for c in cons(rest, cs)]
+            out += [('""', pattern([[cube_literal(self, tok, lo, m, b)]], [("sub", self.never([f], ((m, b),)))]), "", "") for m, b in dead]
+            out.append(('""', pattern([], ref(catch)), "", ""))
+        else:
+            out = [c for rest, cs in covers.items() for c in cons(rest, cs)]
+        return self.subtable("ok", sorted(out))
 
     def sched_invalid(self, k):
         """Clause lists, one per table field, matching rows whose `$( ... )$` scheduling operands are not valid

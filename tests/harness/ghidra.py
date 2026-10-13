@@ -1,6 +1,6 @@
 """Batch requests through the Ghidra-side programs, which run under the pyghidra venv."""
 import json, os, subprocess
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from tests.paths import GHIDRA_PY, LDEFS, ROOT, language
 
 
@@ -24,8 +24,9 @@ def disassemble(arch, fp, words, *opts):
 
 
 def concurrently(fn, jobs):
-    """{key: args} -> {key: fn(*args)}, one Ghidra process per job."""
-    with ThreadPoolExecutor(max(1, min(os.cpu_count() or 1, 18, len(jobs)))) as pool:
+    """{key: args} -> {key: fn(*args)}, one Ghidra process per job. Processes, not threads: jobs
+    decode and compare in Python around their Ghidra call, which threads would serialize."""
+    with ProcessPoolExecutor(max(1, min(os.cpu_count() or 1, 18, len(jobs)))) as pool:
         futures = {key: pool.submit(fn, *args) for key, args in jobs.items()}
     return {key: f.result() for key, f in futures.items()}
 

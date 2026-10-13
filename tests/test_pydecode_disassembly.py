@@ -1,6 +1,8 @@
-"""Layer 1: pydecode disassembles like nvdisasm, ratcheted per md class against baseline/SMxx.json."""
+"""Layer 1: pydecode disassembles like nvdisasm, ratcheted per md class against baseline/SMxx.json.
+Every architecture, decoded in parallel processes."""
 import json
 from collections import defaultdict
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 import pytest
 from tests import corpus, synth
@@ -40,6 +42,13 @@ def ratchet(path, now, update):
     assert not regressed, f"{path.stem}: classes regressed: {regressed}"
 
 
+@pytest.fixture(scope="session")
+def decoded(request):
+    full = request.config.getoption("--full")
+    with ProcessPoolExecutor(len(ARCHES)) as pool:
+        return dict(zip(ARCHES, pool.map(class_results, ARCHES, [full] * len(ARCHES))))
+
+
 @pytest.mark.parametrize("arch", ARCHES)
-def test_pydecode_disassembly(arch, request):
-    ratchet(BASELINE / f"{arch}.json", class_results(arch, request.config.getoption("--full")), request.config.getoption("--update-baseline"))
+def test_pydecode_disassembly(arch, decoded, request):
+    ratchet(BASELINE / f"{arch}.json", decoded[arch], request.config.getoption("--update-baseline"))

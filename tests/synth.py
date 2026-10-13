@@ -1,6 +1,6 @@
 """Synthetic words per md class: constraints satisfied, enum/table fields valid, the rest random."""
 import random
-from sass import ir
+from sass import ir, pydecode
 from sass.pydecode import resolve
 
 def field_value(arch, k, f, rule, rng):
@@ -20,7 +20,18 @@ def word_for(arch, k, rng):
             w = w & ~f.mask | f.put(v)
     return w.to_bytes(16, "little")
 
-def synthetic(archname, per_class=64, seed=0, classes=None):
+def legal_word(arch, k, rng, seed, tries=64):
+    """A word of k that satisfies the md CONDITIONS: the usual draw, else redraws from the class's
+    own generator (so other classes keep their words); the usual draw if none is legal."""
+    first = w = word_for(arch, k, rng)
+    redraw = random.Random(f"{seed}:{k.name}")
+    for _ in range(tries):
+        try: pydecode.decode(arch.name, w); return w
+        except pydecode.NoMatch: w = word_for(arch, k, redraw)
+    return first
+
+def synthetic(archname, per_class=64, seed=0, classes=None, legal=False):
     arch, rng = ir.load(archname), random.Random(seed)
-    return {word_for(arch, k, rng): f"synth:{k.name}" for k in arch.classes
+    draw = (lambda k: legal_word(arch, k, rng, seed)) if legal else (lambda k: word_for(arch, k, rng))
+    return {draw(k): f"synth:{k.name}" for k in arch.classes
             if classes is None or k.name in classes for _ in range(per_class)}

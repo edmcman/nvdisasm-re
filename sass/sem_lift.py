@@ -8,7 +8,7 @@ dropped; `sass.sem_eval.execute` runs the result.
 from dataclasses import dataclass, field
 from sass import ir, mdexpr, pydecode, sem
 from sass.sem import Expr
-from sass.sem_family import FAMILIES, Instruction, Illegal, Unmodelled, REG_TYPES, roles
+from sass.sem_family import Instruction, Illegal, Unmodelled, REG_TYPES, family_for, roles
 import sass.families  # registers the families
 
 ELEMENT = {"R": 32, "UR": 32, "P": 1, "UP": 1}
@@ -98,6 +98,11 @@ class Lifted(Instruction):
         address = ((header & ((1 << bits) - 1)) << shift) + offset
         return sem.ite(limit < offset + width // 8, sem.const(0, width), sem.load("ram", address, width))
 
+    def parameter(self, name, values, w):
+        v = self.env.get(name)
+        if v not in values: raise Unmodelled(f"{name} {self.sel(name)}")
+        return sem.const(values[v], w)
+
     def addr(self): return sem.const(self.at, 64)
 
     def target(self, name="sImm"):
@@ -116,7 +121,7 @@ def lift(arch_name, word, addr=0, fp="exact", conditions=True):
     if guard:
         g = i.pred(guard)
         out.guard = None if sem.is_const(g, 1) else g
-    fam = FAMILIES.get(d.klass.mnemonic)
+    fam = family_for(d.klass)
     if fam is None:
         out.reason = "no family"; return out
     try: result = fam(i)
@@ -129,6 +134,7 @@ def lift(arch_name, word, addr=0, fp="exact", conditions=True):
         if loc is None: continue
         width = loc[2] * ELEMENT[loc[0]]
         if value.w != width: raise TypeError(f"{d.klass.name}: {name} is {width} bits, value {value!r} is {value.w}")
-        out.writes.append((sem.reg(*loc, element=ELEMENT[loc[0]]), sem.narrow(value)))
+        out.writes.append((sem.reg(*loc, element=ELEMENT[loc[0]]), value))
+    out.writes = list(zip([l for l, _ in out.writes], sem.narrow([v for _, v in out.writes])))
     out.status = "native"
     return out
