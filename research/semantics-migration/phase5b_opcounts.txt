@@ -1,0 +1,19 @@
+Phase 5b (packed half families): p-code op counts, HEAD (5a) vs working tree, on identical md-legal
+words (the zero-register sampler). Columns: opcode, changed classes, ops before, ops after, increases.
+HFMA2 increases are readable-language classes that were opaque (FMZ forms, SM100+ hfma2_mma).
+
+HFMA2           57    2152    2337    6  SM90-readable:hfma2__RRC 2->53; SM90-readable:hfma2__RCR 2->51; SM100-readable:hfma2_mma__RRI 3->38; SM101-readable:hfma2_mma__RRI 3->38; SM103-readable:hfma2_mma__RRI 3->38; SM120-readable:hfma2_mma__RRI 3->38
+FADD            50    1658    1608    0  
+FFMA            59    2128    2069    0  
+FMUL32I          8     231     223    0  
+FMUL            39    1105    1066    0  
+HMUL2           52    2876    2619    0  
+HMNMX2         116   75146   20882    0  
+FFMA32I          9     345     336    0  
+HMUL2_32I       21    1010     918    0  
+HADD2_32I       19     630     602    0  
+HFMA2_32I       12     264     240    0  
+HADD2          114    3003    2858    0  
+FADD32I          8     244     236    0  
+VIADDMNMX       34    1010     976    0  
+VIMNMX3         18     522     504    0  

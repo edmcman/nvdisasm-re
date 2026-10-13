@@ -463,6 +463,7 @@ class Lower:
                 return self.local(e.w, expr(f"({hi} << {a[1].w}) | {lo}", hi, lo))
             case "ite": return self.ite(*a)
             case "fadd" | "fmul" | "ffma": return self.float_op(e)
+            case "fconv": v = self.value(a[0]); return self.local(e.w, expr(f"float2float({v})", v))   # sized by its local
             case "flt" | "fle" | "feq": return self.binary(FLOAT_CMP[e.op], self.value(a[0]), self.value(a[1]))
             case "fnan": v = self.value(a[0]); return expr(f"nan({v})", v)
             case "sel": return self.sel(e)
@@ -487,9 +488,8 @@ class Lower:
         xs = [self.value(x) for x in a if isinstance(x, Expr)]
         rnd = next(x for x in a if isinstance(x, str))
         scale = a[3] if e.op == "fmul" else 0
-        if n == 2: return self.half_op(e.op, xs, scale)
-        if self.b.g.fp == "readable":
-            v = self.float_formula(e.op, xs, n, scale)
+        if self.b.g.fp == "readable": v = self.float_formula(e.op, xs, n, scale)   # native width, binary16 too
+        elif n == 2: return self.half_op(e.op, xs, scale)
         elif rnd == "RN": v = self.nearest(e.op, xs, n, scale)
         else: return self.directed(e.op, xs, n, rnd, scale)
         return v   # materialized by value() when used more than once
@@ -512,7 +512,9 @@ class Lower:
         return expr(f"float2float({x})", *wide)
 
     def half_op(self, op, xs, scale):
-        """binary16: computed in binary64 (sums and products exact) or binary128 (FMA), narrowed once."""
+        """binary16: a native product (as the FP32 one), else computed in binary64 (sums exact) or
+        binary128 (FMA) and narrowed once."""
+        if op == "fmul" and not scale: return self.local(16, self.float_formula(op, xs, 2, 0))
         n = 16 if op == "ffma" else 8
         wide = [self.widen_float(x, n) for x in xs]
         x = self.local(8 * n, self.float_formula(op, wide, n, scale))

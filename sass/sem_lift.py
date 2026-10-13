@@ -76,7 +76,9 @@ class Lifted(Instruction):
             raw = self.env.get(name)
             if raw is None: raw = int(a.args.split("/")[1], 0) if a.args.count("/") and a.args.split("/")[1] else 0
             if m["signed"] == "S" or m["rel"]: raw = pydecode.sext(raw, self.widths.get(name, 32))
-            if a.type == "F64Imm" or self.env.get(("__fmt", name)) == "F64": raw <<= 32   # the high word
+            # F64 supplies the high word: by the conversion rule when there is one (half
+            # immediates are F64Imm converted to F16), else by the type.
+            if self.env.get(("__fmt", name), "F64" if a.type == "F64Imm" else None) == "F64": raw <<= 32
             v = sem.const(raw, max(width, 64 if a.type == "F64Imm" else width))
         elif a.type == "C":
             bank, offset = self.env.get(name + "_bank", 0), self.env.get(name + "_addr", 0)
@@ -102,7 +104,7 @@ class Lifted(Instruction):
 
     def choice(self, name, values):
         v = self.env.get(name)
-        if v not in values: raise Unmodelled(f"{name} {self.sel(name)}")
+        if v not in values: raise Unmodelled(f"{name} {self.select_fork(name)}")
         return values[v]
 
     def addr(self): return sem.const(self.at, 64)

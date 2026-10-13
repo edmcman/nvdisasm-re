@@ -284,7 +284,9 @@ class Instruction:
     def operand_inverted(self, names): return self.modifier(names, "invert")
     def operand_notted(self, names): return self.modifier(names, "not")
 
-    def sel(self, names):
+    def select_fork(self, names):
+        """The selector's label as a Python value: the family runs once per label, and in SLEIGH
+        every label is its own body (expensive for large bodies; select_lookup picks a value instead)."""
         name = self.resolve(names); a = self.atom(name)
         if a.type not in self.arch.enums: raise TypeError(f"{self.cls}.{name} ({a.type}) is not a selector")
         enum = self.arch.enums[a.type]
@@ -298,7 +300,7 @@ class Instruction:
 
     def default(self, names): return self.atom(self.resolve(names)).default
 
-    def choose(self, names, table):
+    def select_lookup(self, names, table):
         """The value a selector's label chooses, as one value: `table` maps labels to expressions
         (None or absent: unmodelled). Unlike `sel`, the backend doesn't run the family per label:
         lift gets the chosen value, SLEIGH a decode-time choice, so a computation using it is
@@ -308,16 +310,16 @@ class Instruction:
         self.asked.add(name)
         table = {l: e for l, e in table.items() if e is not None}
         if name not in self._encoded:
-            label = self.sel(name)
+            label = self.select_fork(name)
             e = next((x for l, x in table.items() if label == l), None)
             if e is None: unmodelled(f"{name} {label}")
             return e
         return self.choice(name, {enum[l]: e for l, e in table.items() if l in enum})
 
-    def param(self, names, table, w=32):
-        """A number chosen by a selector's label (format constants, rounding-mode flags): choose
-        with constants, so one parametric computation serves every label."""
-        return self.choose(names, {l: sem.const(v, w) for l, v in table.items()})
+    def select_lookup_const(self, names, table, w=32):
+        """A w-bit number chosen by a selector's label (format constants, rounding-mode flags):
+        select_lookup with constants, so one parametric computation serves every label."""
+        return self.select_lookup(names, {l: sem.const(v, w) for l, v in table.items()})
 
     def labels(self, names):
         """The labels the class's selector can take (its md enum's printed names)."""
@@ -332,7 +334,7 @@ class Instruction:
         """The selector is set to a value other than its md default."""
         name = self.resolve(names); a = self.atom(name)
         if a.default is None: raise TypeError(f"{self.cls}.{name} has no default")
-        return self.sel(name) != a.default
+        return self.select_fork(name) != a.default
 
     def require_unasked_defaults(self):
         """A family that never asked about or read a selector, modifier bit or defaulted numeric

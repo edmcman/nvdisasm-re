@@ -61,7 +61,7 @@ def classify(x, fmt):
 
 class Dest(NamedTuple):
     """A narrowing's destination. Each field is a Python number (one format) or an expression (a
-    format chosen by the instruction, via `i.param`): the conversion is then one computation."""
+    format chosen by the instruction, via `i.select_lookup_const`): the conversion is then one computation."""
     mbits: object        # mantissa bits
     emin: object         # minimum normal exponent
     max_code: object     # largest finite magnitude
@@ -81,7 +81,7 @@ def dest(fmt, nan=None, overflow=None):
 
 
 class Rounding(NamedTuple):
-    """Which rounding mode applies: Python bools (one mode) or 1-bit expressions (`i.param`)."""
+    """Which rounding mode applies: Python bools (one mode) or 1-bit expressions (`i.select_lookup_const`)."""
     rn: object
     rz: object
     rp: object

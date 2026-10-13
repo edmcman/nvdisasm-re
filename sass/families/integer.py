@@ -27,7 +27,7 @@ def iadd3(i):
 def bmsk(i):
     """A mask of `width` ones starting at bit `pos`; .W wraps both to 5 bits, .C clamps the width."""
     pos, width = i.value('Ra'), i.value('Rb|Sb')
-    match i.sel('cw'):
+    match i.select_fork('cw'):
         case 'W': pos, width = pos & 31, width & 31
         case 'C': width = umin(width, 32)
         case _: unmodelled('cw selector')
@@ -40,15 +40,15 @@ def mov(i):
     """Rd = the source (register, uniform register, immediate or constant), 32 or 64 bits. MOV.SPILL
     (SM100+) is taken as the same copy, as before the migration (no hardware evidence)."""
     if i.has_operand('indexURd|indexURb'): unmodelled('indexed register file')
-    if i.has_operand('size') and i.sel('size') not in ('64', '_64'): unmodelled('size')
-    if i.has_operand('nonconformity') and i.sel('nonconformity') != 'SPILL': unmodelled('nonconformity')
+    if i.has_operand('size') and i.select_fork('size') not in ('64', '_64'): unmodelled('size')
+    if i.has_operand('nonconformity') and i.select_fork('nonconformity') != 'SPILL': unmodelled('nonconformity')
     return outputs(Rd=resize(i.value('Sb|Sa|Ra|Rb'), i.width('Rd')))
 
 
 @family('SEL', 'USEL')
 def sel(i):
     """Rd = Pp ? Ra : Rb."""
-    if i.has_operand('size') and i.sel('size') not in ('64', '_64'): unmodelled('size')
+    if i.has_operand('size') and i.select_fork('size') not in ('64', '_64'): unmodelled('size')
     w = i.width('Rd')
     return outputs(Rd=resize(i.value('Ra'), w) if i.pred('Pp') else resize(i.value('Rb|Sb'), w))
 
@@ -65,7 +65,7 @@ def iadd(i):
     """Rd = Ra + Rb, 32 bits, no carry out (Pu = PT). The SM100+ .X/.XOR/.64 classes are
     unmodelled (their class selectors have no default)."""
     if i.width('Rd') != 32: unmodelled('width')   # IADD.64 (SM120)
-    if i.has_operand('fmt') and i.sel('fmt') not in ('32', '_32', 'U32', 'S32'): unmodelled(f"{i.sel('fmt')} format")
+    if i.has_operand('fmt') and i.select_fork('fmt') not in ('32', '_32', 'U32', 'S32'): unmodelled(f"{i.select_fork('fmt')} format")
     if i.has_operand('Pu') and not i.is_true('Pu'): unmodelled('carry out')
     return outputs(Rd=i.value('Ra|Sa') + i.value('Rb|Sb'))
 
@@ -77,11 +77,11 @@ def lea(i):
     if i.has_operand('Pr'): unmodelled('Pr')
     x = i.has_operand('X')
     a, n = i.value('Ra', modifiers=False), zext(i.value('scaleU5'), 64)
-    match i.sel('hilo'):
+    match i.select_fork('hilo'):
         case 'LO': word = trunc(zext(a, 64) << n, 32)
         case 'HI':
             if i.has_operand('sx32'):
-                if i.sel('sx32') != 'SX32': unmodelled('HI without SX32 or a high word')
+                if i.select_fork('sx32') != 'SX32': unmodelled('HI without SX32 or a high word')
                 wide = sext(a, 64)
             else: wide = concat(i.value('Rc|Sc'), a)
             word = trunc((wide << n) >> 32, 32)
@@ -96,14 +96,14 @@ def imad(i):
     (signed for S32) plus Rc and keep its high word or all of it, Pu = unsigned overflow of that
     sum. A narrow (32-bit, non-pair) addend of .HI is added to the high word instead (SM89 GPU)."""
     if i.has_operand('Pq'): unmodelled('Pq')
-    if i.has_operand('x') and i.sel('x') not in ('nox', 'NOX'): unmodelled('x selector')
-    fmt = i.sel('fmt')
+    if i.has_operand('x') and i.select_fork('x') not in ('nox', 'NOX'): unmodelled('x selector')
+    fmt = i.select_fork('fmt')
     if fmt not in ('U32', 'S32'): unmodelled(f'{fmt} format')
     x = i.has_operand('X')
     a, b, c = i.value('Ra|Sa'), i.value('Rb|Sb'), i.value('Rc|Sc')
     if max(a.w, b.w, c.w) > 64: unmodelled('wide source')
     cin = zext(i.pred('Pp'), 64) if x else const(0, 64)
-    mode = i.sel('wide')
+    mode = i.select_fork('wide')
     if mode == 'LO': return outputs(Rd=a * b + resize(c, 32) + trunc(cin, 32))
     ext = sext if fmt == 'S32' else zext
     product = ext(a, 64) * ext(b, 64)
@@ -142,11 +142,11 @@ def truth_table(bits, inputs):
 def lop3(i):
     """Rd = the bitwise function of Ra, Rb, Rc with truth table imm8 (bit 4a+2b+c is f(a, b, c)).
     Pu = Rd != 0, combined with Pp by .POR/.PAND."""
-    if i.sel('lut') != 'LUT': unmodelled('lut')
+    if i.select_fork('lut') != 'LUT': unmodelled('lut')
     rd = truth_table(i.static('imm8'), [i.value('Ra|Sa'), i.value('Rb|Sb'), i.value('Rc|Sc')])
     pu = rd != 0
     if i.has_operand('Pp'):
-        match i.sel('pop'):
+        match i.select_fork('pop'):
             case 'POR': pu = pu | i.pred('Pp')
             case 'PAND': pu = pu & i.pred('Pp')
     return outputs(Rd=rd, Pu=pu)
@@ -160,7 +160,7 @@ def prmt(i):
     is IDX only."""
     if any(i.width(n) != 32 for n in ('Rd', 'Ra|Sa', 'Rb|Sb', 'Rc|Sc')): unmodelled('width')
     s, data = i.value('Rb|Sb'), concat(i.value('Rc|Sc'), i.value('Ra|Sa'))
-    mode = i.sel('pmode|idx')   # UPRMT spells its only mode /IDXOnly("IDX"):idx
+    mode = i.select_fork('pmode|idx')   # UPRMT spells its only mode /IDXOnly("IDX"):idx
     picked = []
     for j in range(4):
         match mode:
@@ -182,20 +182,20 @@ def prmt(i):
 def shf(i):
     """Rd = a word of Rc:Ra shifted left or right (arithmetic for signed formats) by Rb, wrapped
     (.W) or clamped (.C) to the format width; .HI takes the high word."""
-    fmt = i.sel('fmt')
+    fmt = i.select_fork('fmt')
     if fmt not in ('U32', 'S32', 'U64', 'S64'): unmodelled(f'{fmt} format')
     limit = 32 if fmt.endswith('32') else 64
     n = i.value('Rb|Sb')
-    match i.sel('cw'):
+    match i.select_fork('cw'):
         case 'W': count = n & (limit - 1)
         case 'C': count = umin(n, limit)
         case other: unmodelled(f'{other} cw')
     base, count = concat(i.value('Rc|Sc'), i.value('Ra|Sa')), zext(count, 64)
-    match i.sel('dir'):
+    match i.select_fork('dir'):
         case 'L': r = base << count
         case 'R': r = sar(base, count) if fmt.startswith('S') else base >> count
         case other: unmodelled(f'{other} direction')
-    match i.sel('hilo'):
+    match i.select_fork('hilo'):
         case 'LO': pass
         case 'HI': r = r >> 32
         case other: unmodelled(f'{other} half')
@@ -235,7 +235,7 @@ def flo(i):
     .S32 searches the complement of a negative value: the highest bit differing from the sign
     (SM89 GPU, bfind.s32)."""
     if i.has_operand('Pu') and not i.is_true('Pu'): unmodelled('Pu')
-    fmt = i.sel('fmt')
+    fmt = i.select_fork('fmt')
     if fmt not in ('S32', 'U32', '32'): unmodelled(f'{fmt} format')
     x0 = word_source(i)
     if fmt == 'S32': x0 = ~x0 if slt(x0, 0) else x0
@@ -243,7 +243,7 @@ def flo(i):
     for shift, m in ((16, 0xffff0000), (8, 0xff000000), (4, 0xf0000000), (2, 0xc0000000), (1, 0x80000000)):
         low = (x & m) == 0
         n, x = (n | shift if low else n), (x << shift if low else x)
-    match i.sel('sh'):
+    match i.select_fork('sh'):
         case 'nosh': r = 31 - n
         case 'SH': r = n
     return outputs(Rd=const(-1, 32) if x0 == 0 else r)
@@ -252,7 +252,7 @@ def flo(i):
 @family('SGXT', 'USGXT')
 def sgxt(i):
     """Rd = sext(byte Ra & 3 of Rb)."""
-    if i.sel('cw') != 'C' or i.sel('fmt') not in ('S32', '32'): unmodelled('cw/fmt')
+    if i.select_fork('cw') != 'C' or i.select_fork('fmt') not in ('S32', '32'): unmodelled('cw/fmt')
     if i.width('Rd') != 32: unmodelled('width')
     return outputs(Rd=sext(trunc(i.value('Rb|Sb') >> ((i.value('Ra') & 3) << 3), 8), 32))
 
@@ -284,16 +284,16 @@ def boolean(label, x, y):
 def isetp(i):
     """Pu = (Ra icmp Rb) bop Pp, Pv = !(Ra icmp Rb) bop Pp. .EX compares the high words of a wider
     comparison: if they are equal, Pr (the low words' result) decides."""
-    fmt = i.sel('fmt')
+    fmt = i.select_fork('fmt')
     if fmt not in ('U32', 'S32'): unmodelled(f'{fmt} format')
     a, b = i.value('Ra|Sa'), i.value('Rb|Sb')
     if a.w != 32 or b.w != 32: unmodelled('width')
-    cond = compare(i.sel('icmp'), a, b, fmt == 'S32')
-    if i.has_operand('ex') and i.sel('ex') == 'EX':
+    cond = compare(i.select_fork('icmp'), a, b, fmt == 'S32')
+    if i.has_operand('ex') and i.select_fork('ex') == 'EX':
         if not i.has_operand('Pr'): unmodelled('EX without Pr')
         cond = cond if a != b else i.pred('Pr')
     elif i.has_operand('Pr'): i.ignore('Pr')
-    p, bop = i.pred('Pp'), i.sel('bop')
+    p, bop = i.pred('Pp'), i.select_fork('bop')
     return outputs(Pu=boolean(bop, cond, p), Pv=boolean(bop, lnot(cond), p))
 
 
@@ -302,7 +302,7 @@ def imnmx(i):
     """Rd = Pp ? min(Ra, Rb) : max(Ra, Rb), signed for S32. SM120's forms with predicate outputs
     Pu/Pv and a second input Pq are unmodelled (Pq's meaning is unknown, even as PT)."""
     if any(i.has_operand(p) for p in ('Pu', 'Pv', 'Pq')): unmodelled('SM120 predicates')
-    fmt = i.sel('fmt')
+    fmt = i.select_fork('fmt')
     if fmt not in ('U32', 'S32'): unmodelled(f'{fmt} format')
     a, b = i.value('Ra|Sa'), i.value('Rb|Sb')
     if a.w != 32 or b.w != 32 or i.width('Rd') != 32: unmodelled('width')
@@ -342,9 +342,9 @@ def vector_result(i, fmt, relu, values):
 
 
 def vector_formats(i, allowed):
-    fmt = i.sel('fmt')
+    fmt = i.select_fork('fmt')
     if fmt not in allowed: unmodelled(f'{fmt} format')
-    relu = i.sel('relu') == 'RELU' if i.has_operand('relu') else False
+    relu = i.select_fork('relu') == 'RELU' if i.has_operand('relu') else False
     for p in ('Pu', 'Pv'):
         if i.has_operand(p) and (i.kind(p) != 'predicate' or not i.is_true(p)): unmodelled(f'{p} output')   # vimnmx_pred: P0-P6, no PT
     if i.width('Rd') != 32: unmodelled('width')
@@ -387,7 +387,7 @@ def viaddmnmx(i):
 @family('VABSDIFF4', 'UVABSDIFF4')
 def vabsdiff4(i):
     """Per byte |Ra - Rb|: packed (.SIMD_MRG) or summed with Rc (.ACC)."""
-    fmt = i.sel('fmt')
+    fmt = i.select_fork('fmt')
     if fmt not in ('S8', 'U8'): unmodelled(f'{fmt} format')
     if i.has_operand('Pu') and not i.is_true('Pu'): unmodelled('Pu output')
     signed = fmt == 'S8'
@@ -396,7 +396,7 @@ def vabsdiff4(i):
     for x, y in zip(xs, ys):
         a, b = widen(x, signed), widen(y, signed)
         diffs.append(a - b if (sle(b, a) if signed else b <= a) else b - a)
-    match i.sel('red'):
+    match i.select_fork('red'):
         case 'SIMD_MRG':
             if i.has_operand('Rc|Sc'): i.ignore('Rc|Sc')   # not read by the merge
             return outputs(Rd=concat(*reversed([trunc(d, 8) for d in diffs])))
@@ -408,13 +408,13 @@ def vabsdiff4(i):
 def idp(i):
     """Rd = Rc + the dot product of Ra's lanes with Rb's bytes: .4A four bytes each, .2A two halves
     of Ra with bytes 0-1 (.LO) or 2-3 (.HI) of Rb."""
-    mode = i.sel('mode')
+    mode = i.select_fork('mode')
     match mode:
         case '4A': aw, count, first = 8, 4, 0
         case '2A.LO': aw, count, first = 16, 2, 0
         case '2A.HI': aw, count, first = 16, 2, 2
         case other: unmodelled(f'{other} mode')
-    afmt, bfmt = i.sel('SrcAFmt'), i.sel('SrcBFmt')
+    afmt, bfmt = i.select_fork('SrcAFmt'), i.select_fork('SrcBFmt')
     if afmt not in ((('S16', 'U16') if aw == 16 else ('S8', 'U8'))) or bfmt not in ('S8', 'U8'): unmodelled('formats')
     if i.width('Rd') != 32: unmodelled('width')
     a, b = lanes(i.value('Ra'), aw), lanes(i.value('Rb|Sb'), 8)
@@ -429,17 +429,17 @@ def i2ip(i):
     """Rd = Ra and Rb converted from S32 to a narrow integer (saturating with .SAT, negative to 0
     with .RELU) and packed: Rb in the low lane, Ra above it, and the rest of the word from C: its
     high half with .H1, its low bits otherwise (sub-byte .24/.28 forms take C unshifted, SM89 GPU)."""
-    if i.sel('srcfmt') != 'S32': unmodelled('srcfmt')
-    fmt = i.sel('dstfmt')
+    if i.select_fork('srcfmt') != 'S32': unmodelled('srcfmt')
+    fmt = i.select_fork('dstfmt')
     width, signed = int(fmt[1:]), fmt[0] == 'S'
-    half = i.sel('extract_dist_limited|extract_limited|extract_24|extract_28')
+    half = i.select_fork('extract_dist_limited|extract_limited|extract_24|extract_28')
     if width <= 4 and half not in (str(32 - 2 * width), f'_{32 - 2 * width}'): unmodelled(f'{half} extract')
     if width >= 8 and half not in ('H0', 'H1'): unmodelled(f'{half} extract')
     if i.has_operand('satrelu'):
-        mode = i.sel('satrelu')
+        mode = i.select_fork('satrelu')
         if mode not in ('SAT', 'SATRELU', 'RELU') and not mode.startswith('nosatrelu'): unmodelled(f'{mode} mode')
         sat, relu = mode in ('SAT', 'SATRELU'), mode in ('RELU', 'SATRELU')
-    else: sat, relu = i.sel('SAT') == 'SAT', False   # SM75/SM80: /SATONLY
+    else: sat, relu = i.select_fork('SAT') == 'SAT', False   # SM75/SM80: /SATONLY
     if relu and not signed: unmodelled('RELU of an unsigned format')
     lo, hi = (-(1 << width - 1), (1 << width - 1) - 1) if signed else (0, (1 << width) - 1)
 
@@ -463,7 +463,7 @@ def byte_offset(label):
 @family('P2R')
 def p2r(i):
     """Rd = Ra with byte `insert` replaced by the predicates P0-P6 (PR) selected by the mask Rb."""
-    at = byte_offset(i.sel('insert'))
+    at = byte_offset(i.select_fork('insert'))
     picked = zext(i.value('Pr') & trunc(i.value('Rb|Sb'), 7), 32)
     return outputs(Rd=(i.value('Ra') & ~const(0xff << at, 32)) | (picked << at))
 
@@ -471,6 +471,6 @@ def p2r(i):
 @family('R2P')
 def r2p(i):
     """P0-P6 (PR) = bits of byte `a_bsel` of Ra where the mask Rb is set; others keep their value."""
-    at = byte_offset(i.sel('a_bsel'))
+    at = byte_offset(i.select_fork('a_bsel'))
     mask, old = trunc(i.value('Rb|Sb'), 7), i.value('PR')
     return outputs(PR=(extract(i.value('Ra'), at + 6, at) & mask) | (old & ~mask))

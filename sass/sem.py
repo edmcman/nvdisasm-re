@@ -135,7 +135,17 @@ OPS = {
     "fle": lambda v, ws, w: int(fcompare(v[0], v[1], ws[0], lambda x, y: x <= y)),
     "feq": lambda v, ws, w: int(fcompare(v[0], v[1], ws[0], lambda x, y: x == y)),
     "fnan": lambda v, ws, w: int(softfloat.unpack(v[0], ws[0])[0] == "nan"),
+    "fconv": lambda v, ws, w: convert(v[0], ws[0], w, v[1]),
 }
+
+
+def convert(bits, src, dst, rnd):
+    """An IEEE encoding converted between widths (NaN: canonical, keeping the sign)."""
+    kind, sign, v = softfloat.unpack(bits, src)
+    e, m = softfloat.FORMATS[dst]
+    if kind == "nan": return sign << (dst - 1) | softfloat.nan(dst)
+    if kind == "inf": return sign << (dst - 1) | ((1 << e) - 1) << m
+    return softfloat.pack(v, dst, rnd, sign)
 
 
 def fvalue(bits, w):
@@ -356,6 +366,11 @@ def ffma(a, b, c, rnd="RN"):
     return op("ffma", a, b, c, rnd, w=a.w)
 
 
+def fconv(x, w, rnd="RN"):
+    """x converted to the w-bit IEEE format (exact when widening)."""
+    return op("fconv", x, rnd, w=w)
+
+
 def flt(a, b): a, b = pair(a, b); return op("flt", a, b, w=1)
 def fle(a, b): a, b = pair(a, b); return op("fle", a, b, w=1)
 def feq(a, b): a, b = pair(a, b); return op("feq", a, b, w=1)
@@ -364,15 +379,28 @@ def fnan(a): return op("fnan", a, w=1)
 
 def complement(c):
     """not c, as the complementary comparison when c is one (one p-code operation, not two)."""
+    f = flipped(c)
+    return lnot(c) if f is None else f
+
+
+def flipped(c):
+    """not c without a negation: the complementary comparison, the operand of a negation, or De
+    Morgan's dual when a side flips (never more operations than negating); None otherwise."""
     a = c.args
     match c.op:
+        case "not" if c.w == 1: return a[0]
         case "eq": return compare("ne", *a)
         case "ne": return compare("eq", *a)
         case "ult": return compare("ule", a[1], a[0])
         case "ule": return compare("ult", a[1], a[0])
         case "slt": return compare("sle", a[1], a[0])
         case "sle": return compare("slt", a[1], a[0])
-    return lnot(c)
+        case "and" | "or" if c.w == 1 and ((x := flipped(a[0])) is not None) | ((y := flipped(a[1])) is not None):
+            x, y = x if x is not None else lnot(a[0]), y if y is not None else lnot(a[1])
+            return x | y if c.op == "and" else x & y
+    return None
+
+
 def umin(a, b): a, b = pair(a, b); return ite(a < b, a, b)
 def umax(a, b): a, b = pair(a, b); return ite(b < a, a, b)
 def smin(a, b): a, b = pair(a, b); return ite(slt(a, b), a, b)

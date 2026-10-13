@@ -82,9 +82,9 @@ def expected(g, d, optimized=False):
                     if d.env.get(selector)!=h1h1:
                         needed=set(range(base+size*index,base+size*index+2))
             elif optimized and role=='read' and span==1 and d.klass.mnemonic in ('HADD2','HFMA2','HMUL2','HMNMX2'):
-                # An unmodified low-half broadcast in HADD2/HFMA2/HMUL2/HMNMX2 can export the
-                # two-byte register slice directly. Modified inputs still read the word;
-                # two-register CX address inputs retain the entire pointer.
+                # A low-half broadcast in HADD2/HFMA2/HMUL2/HMNMX2 reads only the two-byte
+                # register slice; |x| and -x apply to the half. Two-register CX address inputs
+                # retain the entire pointer.
                 selectors={'Ra':('iswzA',),'Rb':('iswzB','iswzC_as_B'),
                            'URb':('iswzB','iswzC_as_B'),'Rc':('iswzC','iswzB_as_C'),
                            'URc':('iswzC','iswzB_as_C')}
@@ -94,8 +94,7 @@ def expected(g, d, optimized=False):
                 selector=next((s for s in selectors.get(o['name'],()) if s in d.klass.operand_types),None)
                 if selector:
                     atom=d.klass.operand_types[selector]
-                    if d.env.get(selector)==g.arch.enums[atom.type].get('H0_H0') and not any(
-                            d.env.get((o['name'],attr),0) for attr in ('absolute','negate')):
+                    if d.env.get(selector)==g.arch.enums[atom.type].get('H0_H0'):
                         needed=set(range(base+size*index,base+size*index+2))
             if (optimized and role=='read' and span==1 and o['name'] in ('Rc','URc')
                     and '_to_8b_downconvert__' in d.klass.name and 'extract' in d.klass.operand_types):

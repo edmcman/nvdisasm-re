@@ -12,7 +12,7 @@ def downconvert(k): return "_to_8b_downconvert__" in k.name
 
 def destination(i):
     """The destination format's constants, chosen by dstfmt: one conversion for every format."""
-    param = lambda f, w=32: i.param("dstfmt", {n: f(n) for n in FP8 + FP6}, w)
+    param = lambda f, w=32: i.select_lookup_const("dstfmt", {n: f(n) for n in FP8 + FP6}, w)
     return fpformat.Dest(
         mbits=param(lambda n: FORMATS[n].mbits), emin=param(lambda n: FORMATS[n].emin),
         max_code=param(lambda n: FORMATS[n].max_code),
@@ -29,16 +29,16 @@ def f2fp_8b_downconvert(i):
     (E2M3/E3M2) bytes (sign at bit 7) and packed above them with one half of Rc. RELU zeroes
     negative results except NaNs."""
     d = destination(i)
-    r = fpformat.Rounding(*(i.param("rndMode", {m: m == mode for m in ROUNDING}, 1) for mode in ROUNDING))
-    sat = i.param("satfinite", {"SATFINITE": 1, "nosatfinite": 0}, 1)
-    relu = i.param("relu", {"RELU": 1, "norelu": 0}, 1)
+    r = fpformat.Rounding(*(i.select_lookup_const("rndMode", {m: m == mode for m in ROUNDING}, 1) for mode in ROUNDING))
+    sat = i.select_lookup_const("satfinite", {"SATFINITE": 1, "nosatfinite": 0}, 1)
+    relu = i.select_lookup_const("relu", {"RELU": 1, "norelu": 0}, 1)
 
     def convert(x, src):
         sign, mag, nan = fpformat.narrow_parts(x, src, d, r, sat)
         return ite(relu & sign & lnot(nan), const(0, 8), concat(sign, extract(mag, 6, 0)))
 
-    if i.sel("merge") not in ("PACK_AB_MERGE_C", "UNPACK_B_MERGE_C"): unmodelled(f"{i.sel('merge')} merge")
-    src = i.sel("srcfmt")
+    if i.select_fork("merge") not in ("PACK_AB_MERGE_C", "UNPACK_B_MERGE_C"): unmodelled(f"{i.select_fork('merge')} merge")
+    src = i.select_fork("srcfmt")
     if "_f16_to_8b_" in i.cls:
         if src not in ("F16", "BF16"): unmodelled(f"{src} source")
         b = i.value("Rb|Sb")
@@ -46,7 +46,7 @@ def f2fp_8b_downconvert(i):
     else:
         if src != "F32": unmodelled(f"{src} source")
         high, low = convert(i.value("Ra"), "F32"), convert(i.value("Rb|Sb"), "F32")
-    match i.sel("extract"):
+    match i.select_fork("extract"):
         case "H0": keep = extract(i.value("Rc|Sc"), 15, 0)
         case "H1": keep = extract(i.value("Rc|Sc"), 31, 16)
         case other: unmodelled(f"{other} extract")
