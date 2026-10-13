@@ -139,9 +139,6 @@ def output(b,name='Rd'):
     return b.outputs.get(name,b.outputs.get('U'+name))
 
 
-def emit_NOP(b,check=False):
-    return not b.outputs if check else None
-
 def emit_ULDC(b,check=False):
     if check:return 'URd' in b.outputs and all(n in b.values for n in ('Sa_bank','Sa_addr','sz')) and b.k.operand_types['Sa'].type=='C'
     bank=b.values['Sa_bank'].symbol;offset=b.values['Sa_addr'].symbol
@@ -257,43 +254,6 @@ def emit_S2R(b,check=False):
     b.body.append(f'{out.symbol} = {sr};')
 
 emit_CS2R=emit_S2R
-
-
-def emit_BRA(b,check=False):
-    if check:return 'sImm' in b.values and 'Pp' in b.values
-    require(b,'depth',[default(b,'depth')]);require(b,'cond',[default(b,'cond'),'U'])
-    if any(n in b.values for n in ('URb','UPq')):b.reject()
-    atom=b.k.operand_types['sImm'];target=b.g.branch_target(b.k,atom);b.refs.append(('sub',target))
-    b.body.append(f'if ({b.flag("Pp")} != 0) goto {target};')
-
-
-def emit_EXIT(b,check=False):
-    if check:return True
-    require(b,'mode',['noexit_mode'])
-    if any(n in b.values for n in ('Ra','URa')):b.reject()
-    if 'Pp' in b.values:b.body.append(f'if ({b.flag("Pp")} == 0) goto <exitskip>;')
-    b.body.append('return [0:8];')
-    if 'Pp' in b.values:b.body.append('<exitskip>')
-
-
-def emit_CALL(b,check=False):
-    if check:return 'Pp' in b.values and any(n in b.values for n in ('sImm','Sa','Ra','URa'))
-    require(b,'depth',['NOINC','noinc','nodepth'])
-    b.body.append(f'if ({b.flag("Pp")} == 0) goto <callskip>;')
-    if 'sImm' in b.values:
-        atom=b.k.operand_types['sImm'];target=b.g.branch_target(b.k,atom);b.refs.append(('sub',target));b.body.append(f'call {target};')
-    else:
-        name=operands(b,'Sa/Ra/URa')[0];target=b.cast(name,8)
-        b.body.append(f'call [{target}];')
-    b.body.append('<callskip>')
-
-
-def emit_RET(b,check=False):
-    if check:return any(n in b.values for n in ('Ra','URa')) and 'Pp' in b.values
-    require(b,'addr',['ABS']);require(b,'depth',['NODEC'])
-    name=operands(b,'Ra/URa')[0];off=operands(b,'Ra_offset/Sa_offset')[0]
-    target=b.local(8,f'{b.cast(name,8)} + {b.cast(off,8,True) if off else "0"}')
-    b.body.append(f'if ({b.flag("Pp")} == 0) goto <retskip>;');b.body += [f'return [{target.symbol}];','<retskip>']
 
 
 def memory(b,op,check):

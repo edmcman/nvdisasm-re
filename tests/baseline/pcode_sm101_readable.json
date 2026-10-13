@@ -649,10 +649,10 @@
 "INT_EQUAL": 2
 },
 "bra__U": {
-"BOOL_NEGATE": 1,
+"BRANCH": 1,
+"CALLOTHER": 1,
 "CBRANCH": 2,
-"INT_EQUAL": 1,
-"INT_NOTEQUAL": 1
+"INT_EQUAL": 2
 },
 "bra_rel__CONV_DIV": {
 "BRANCH": 1,
@@ -662,8 +662,7 @@
 },
 "bra_rel__U": {
 "CBRANCH": 2,
-"INT_EQUAL": 1,
-"INT_NOTEQUAL": 1
+"INT_EQUAL": 1
 },
 "bra_uniform_": {
 "BRANCH": 1,
@@ -781,15 +780,16 @@
 "INT_NOTEQUAL": 1
 },
 "call_abs__RIR": {
-"BOOL_NEGATE": 1,
-"CALLIND": 1,
-"CBRANCH": 1,
-"INT_EQUAL": 1
+"BOOL_NEGATE": 2,
+"CALL": 1,
+"CBRANCH": 1
 },
 "call_abs__RRR": {
+"BOOL_NEGATE": 1,
 "CALLIND": 1,
 "CBRANCH": 2,
-"INT_EQUAL": 2
+"INT_ADD": 1,
+"INT_EQUAL": 1
 },
 "call_abs__URIR": {
 "BRANCH": 1,
@@ -815,17 +815,16 @@
 "INT_EQUAL": 1
 },
 "call_rel_imm__RIR": {
-"BOOL_NEGATE": 1,
-"CALLIND": 1,
+"BOOL_NEGATE": 2,
+"CALL": 1,
 "CBRANCH": 2,
-"INT_EQUAL": 1,
 "INT_NOTEQUAL": 1
 },
 "call_rel_imm__RRR": {
-"BOOL_NEGATE": 1,
 "CALLIND": 1,
-"CBRANCH": 2,
-"INT_EQUAL": 2
+"CALLOTHER": 1,
+"CBRANCH": 1,
+"INT_EQUAL": 1
 },
 "call_rel_imm__URIR": {
 "CALLIND": 1,
@@ -6642,9 +6641,10 @@
 "RETURN": 1
 },
 "ret_rel_reg__URIR": {
+"BOOL_NEGATE": 1,
 "CBRANCH": 2,
 "INT_ADD": 1,
-"INT_EQUAL": 2,
+"INT_EQUAL": 1,
 "RETURN": 1
 },
 "rpcmov_dstPc64__Imm": {

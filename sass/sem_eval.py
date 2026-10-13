@@ -16,6 +16,7 @@ ELEMENT = {"R": 32, "UR": 32, "P": 1, "UP": 1, "SR": 32}
 class State:
     regs: dict = field(default_factory=dict)      # (file, index) -> element value
     memory: dict = field(default_factory=dict)    # space -> {address: byte}
+    pc: int | None = None                         # after execute: the next instruction's address
 
     def copy(self): return State(dict(self.regs), {s: dict(m) for s, m in self.memory.items()})
 
@@ -64,8 +65,11 @@ def execute(semantics, state, params=None):
     """The state after one lifted instruction (`sass.sem_lift.Semantics`): writes are evaluated
     against the state before any of them, then applied in order, if the guard holds."""
     memo = {}
-    if semantics.guard is not None and not evaluate(semantics.guard, state, params, memo): return state.copy()
+    out = state.copy(); out.pc = semantics.addr + 16
+    if semantics.guard is not None and not evaluate(semantics.guard, state, params, memo): return out
     values = [(loc, evaluate(v, state, params, memo)) for loc, v in semantics.writes]
-    out = state.copy()
+    flow = semantics.flow
+    if flow and (flow.cond is None or evaluate(flow.cond, state, params, memo)):
+        out.pc = evaluate(flow.target, state, params, memo)
     for loc, v in values: out.write(*loc.args, v)
     return out

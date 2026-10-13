@@ -687,9 +687,10 @@
 "INT_NOTEQUAL": 1
 },
 "call_abs__RCR": {
+"BOOL_NEGATE": 1,
 "CALLIND": 1,
 "CBRANCH": 2,
-"INT_EQUAL": 2,
+"INT_EQUAL": 1,
 "INT_LEFT": 1,
 "INT_OR": 1,
 "INT_ZEXT": 3,
@@ -708,10 +709,10 @@
 "INT_EQUAL": 1
 },
 "call_abs__URIR": {
-"BOOL_NEGATE": 1,
+"BOOL_NEGATE": 2,
 "CALLIND": 1,
 "CBRANCH": 2,
-"INT_EQUAL": 1,
+"INT_ADD": 1,
 "INT_NOTEQUAL": 1
 },
 "call_rel__RIR": {
@@ -733,10 +734,9 @@
 "INT_EQUAL": 1
 },
 "call_rel_imm__RIR": {
-"BOOL_NEGATE": 1,
-"CALLIND": 1,
+"BOOL_NEGATE": 2,
+"CALL": 1,
 "CBRANCH": 2,
-"INT_EQUAL": 1,
 "INT_NOTEQUAL": 1
 },
 "call_rel_imm__RRR": {
@@ -746,24 +746,21 @@
 "INT_EQUAL": 1
 },
 "call_rel_imm__URIR": {
-"BOOL_NEGATE": 1,
 "CALLIND": 1,
-"CBRANCH": 2,
-"INT_EQUAL": 1,
+"CALLOTHER": 1,
+"CBRANCH": 1,
 "INT_NOTEQUAL": 1
 },
 "call_rel_reg__RRR": {
-"BOOL_NEGATE": 1,
 "CALLIND": 1,
-"CBRANCH": 2,
-"INT_EQUAL": 1,
+"CALLOTHER": 1,
+"CBRANCH": 1,
 "INT_NOTEQUAL": 1
 },
 "call_rel_reg__URIR": {
 "BRANCH": 1,
 "CALLIND": 1,
-"CBRANCH": 1,
-"INT_EQUAL": 1
+"CALLOTHER": 1
 },
 "cctl__IVALL_WBALL_C_noSrc": {
 "CALLOTHER": 1,
@@ -1158,9 +1155,9 @@
 "INT_EQUAL": 1
 },
 "exit_": {
-"BOOL_NEGATE": 1,
+"BOOL_NEGATE": 2,
 "CBRANCH": 2,
-"INT_EQUAL": 2,
+"INT_EQUAL": 1,
 "RETURN": 1
 },
 "f2f_f32_downconvert__RCR_RCR": {
@@ -7506,9 +7503,10 @@
 "RETURN": 1
 },
 "ret__ABS_UR": {
+"BOOL_NEGATE": 1,
 "CBRANCH": 2,
 "INT_ADD": 1,
-"INT_EQUAL": 2,
+"INT_EQUAL": 1,
 "RETURN": 1
 },
 "ret__REL": {
@@ -7543,9 +7541,10 @@
 "RETURN": 1
 },
 "ret_rel_reg__URIR": {
+"BOOL_NEGATE": 1,
 "CBRANCH": 2,
 "INT_ADD": 1,
-"INT_EQUAL": 2,
+"INT_EQUAL": 1,
 "RETURN": 1
 },
 "rpcmov_dstPc64__CXb": {

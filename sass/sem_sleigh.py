@@ -562,6 +562,10 @@ class Lower:
         if name == "__inst_start":
             v = Operand("inst_start", "name")
             return v if w == 64 else self.clean(w, Operand(f"inst_start:{nbytes(w)}", "piece"))
+        if name.startswith("__target:"):   # a direct branch target: the subtable exporting it
+            table = self.b.g.branch_target(self.b.k, self.b.k.operand_types[name.split(":", 1)[1]])
+            self.b.refs.append(("sub", table))
+            return Operand(table, "target", frozenset([("sub", table)]))
         if (atom := self.b.k.operand_types.get(name)) and atom.type == "PR":
             text = " | ".join(f"(P{k} << {k})" if k else "P0" for k in reversed(range(PR_BITS)))
             return self.local(w, Operand(text, "expr"))
@@ -691,6 +695,7 @@ def count_uses(roots):
 
 
 FIXED = {f"P{k}" for k in range(PR_BITS)}   # register symbols written directly (PR)
+FLOW = ("__flow_target", "__flow_cond")      # a control transfer, carried through merging as values
 
 
 def predicate_writes(i, name, e):
@@ -716,19 +721,36 @@ def lower_body(b, names, e):
 
 def lower_writes(b, writes):
     """Code writing [(output name, Expr)]: shared values computed before any branch, later values
-    captured before the first write (which may alias their inputs), the first write inline."""
+    captured before the first write (which may alias their inputs), the first write inline; then
+    the control transfer (b.flow_kind) to the FLOW target if its condition holds."""
     code = Code()
     low = Lower(b, code, count_uses([e for _, e in writes]))
     low.precompute(n for n, c in low.uses.items() if c > 1 and n.op not in ("const", "param", "reg", "sel"))
-    # A later value that isn't a local or constant may be a register (a table can export one, Pv's
-    # Pp): capture it before the first write can change it.
-    later = [low.local(e.w, v) if (v := low.value(e)).kind not in ("local", "const") else v for _, e in writes[1:]]
-    first = low.value(writes[0][1])
-    for (n, _), v in zip(writes, [first] + later):
+    flow = dict(w for w in writes if w[0] in FLOW)
+    writes = [w for w in writes if w[0] not in FLOW]
+    # A value used after the first write that isn't a local, constant or direct target may be a
+    # register (a table can export one, Pv's Pp): capture it before the first write can change it.
+    keep = lambda v, e: low.local(e.w, v) if v.kind not in ("local", "const", "target") and writes else v
+    later = [keep(low.value(e), e) for _, e in writes[1:]]
+    target, cond = (keep(low.value(flow[n]), flow[n]) for n in FLOW) if flow else (None, None)
+    first = [low.value(writes[0][1])] if writes else []
+    for (n, _), v in zip(writes, first + later):
         symbol = n if n in FIXED else b.outputs[n].symbol
-        target = Operand(symbol, "name", frozenset([r] if (r := b.ref(symbol)) else []))
-        code.add(f"{target.text} = {v.text};", target, v)
+        dest = Operand(symbol, "name", frozenset([r] if (r := b.ref(symbol)) else []))
+        code.add(f"{dest.text} = {v.text};", dest, v)
+    if flow: lower_flow(low, b.flow_kind, target, cond, sem.is_const(flow["__flow_cond"], 1))
     return code
+
+
+def lower_flow(low, kind, target, cond, always):
+    """goto / call / return to target (a direct target table, or an address value) if cond."""
+    where = target.text if target.kind == "target" and kind != "return" else f"[{target.text}]"
+    transfer = {"goto": f"goto {where};", "call": f"call {where};", "return": f"return {where};"}[kind]
+    if always: low.code.add(transfer, target)
+    elif kind == "goto": low.code.add(f"if ({cond.text}) {transfer}", target, cond)
+    else:
+        skip = low.label("skip")
+        low.code.add(f"if (!{cond}) goto <{skip}>; {transfer} <{skip}>", target, cond)
 
 
 # ---- the class -------------------------------------------------------------------------------
@@ -746,22 +768,26 @@ def emit(b):
         b.body += b.call("prim")
         return "primitive", why
     i = Symbolic(b, {})
-    resolved = [(a, [w for n, e in r.ordered() if i.has_operand(n) for w in predicate_writes(i, i.resolve(n), e)])
+    kinds = {r.flow.kind if r.flow else None for _, r in native}
+    if len(kinds) > 1: raise TypeError(f"{b.k.name}: rows differ in control transfer {sorted(map(str, kinds))}")
+    b.flow_kind = kinds.pop()
+    flow = lambda r: [("__flow_target", r.flow.target), ("__flow_cond", r.flow.cond if r.flow.cond is not None else sem.const(1, 1))] if r.flow else []
+    resolved = [(a, [w for n, e in r.ordered() if i.has_operand(n) for w in predicate_writes(i, i.resolve(n), e)] + flow(r))
                 for a, r in native]
     for a, writes in resolved:
         for n, e in writes:
-            if n in FIXED: continue
+            if n in FIXED or n in FLOW: continue
             if n not in b.outputs: raise TypeError(f"{b.k.name}: {n} is not an output")
             if e.w != i.width(n): raise TypeError(f"{b.k.name}: {n} is {i.width(n)} bits, value {e!r} is {e.w}")
     # Liveness: when every optional predicate destination is PT, those writes and the work only
     # they need are dropped; otherwise everything is written (PT writes go to a sink).
     names = [n for n, _ in resolved[0][1]]
-    optional = [n for n in names if n not in FIXED and REG_TYPES.get(b.k.operand_types[n].type) in ("P", "UP")
+    optional = [n for n in names if n not in FIXED and n not in FLOW and REG_TYPES.get(b.k.operand_types[n].type) in ("P", "UP")
                 and clauses(b, ("zero", n), True) not in (None, [])]
     assignments = [a for a, _ in resolved]
     merger = Merger()
     def body(live):
-        if not live: return Code()
+        if not live and not b.flow_kind: return Code()
         merged = merger.bodies([Expr("tuple", tuple(dict(w)[n] for n in live), 0) for _, w in resolved], assignments)
         return lower_body(b, live, merged)
     bodies = [([], body(names))]

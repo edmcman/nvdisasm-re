@@ -3,8 +3,10 @@
     "classes": 978,
     "hardware_verified": false,
     "opaque_operations": {
-      "bra_uniform_": "class selectors have no supported native combination",
-      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "bra_uniform_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform target or predicate",
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "f2fp_rs_16b__RIR": "class variant not yet described by a native override",
       "f2fp_rs_16b__RRI": "class variant not yet described by a native override",
       "f2fp_rs_16b__RRR": "class variant not yet described by a native override",
@@ -44,8 +46,8 @@
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_256_memdesc__Ra64": "unsupported class shape",
       "stg_256_uniform__Ra32": "unsupported class shape",
       "stg_256_uniform__Ra64": "unsupported class shape",
@@ -80,7 +82,8 @@
         "primitive": 2
       },
       "CALL": {
-        "native": 6
+        "native": 4,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -354,8 +357,8 @@
       }
     },
     "status": {
-      "native": 353,
-      "opaque": 533,
+      "native": 351,
+      "opaque": 535,
       "primitive": 92
     }
   },
@@ -363,8 +366,10 @@
     "classes": 978,
     "hardware_verified": false,
     "opaque_operations": {
-      "bra_uniform_": "class selectors have no supported native combination",
-      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "bra_uniform_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform target or predicate",
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "f2fp_rs_16b__RIR": "class variant not yet described by a native override",
       "f2fp_rs_16b__RRI": "class variant not yet described by a native override",
       "f2fp_rs_16b__RRR": "class variant not yet described by a native override",
@@ -404,8 +409,8 @@
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_256_memdesc__Ra64": "unsupported class shape",
       "stg_256_uniform__Ra32": "unsupported class shape",
       "stg_256_uniform__Ra64": "unsupported class shape",
@@ -440,7 +445,8 @@
         "primitive": 2
       },
       "CALL": {
-        "native": 6
+        "native": 4,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -714,8 +720,8 @@
       }
     },
     "status": {
-      "native": 353,
-      "opaque": 533,
+      "native": 351,
+      "opaque": 535,
       "primitive": 92
     }
   },
@@ -723,8 +729,10 @@
     "classes": 904,
     "hardware_verified": false,
     "opaque_operations": {
-      "bra_uniform_": "class selectors have no supported native combination",
-      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "bra_uniform_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform target or predicate",
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
@@ -748,8 +756,8 @@
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_256_memdesc__Ra64": "unsupported class shape",
       "stg_256_uniform__Ra32": "unsupported class shape",
       "stg_256_uniform__Ra64": "unsupported class shape",
@@ -784,7 +792,8 @@
         "primitive": 2
       },
       "CALL": {
-        "native": 6
+        "native": 4,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -1057,8 +1066,8 @@
       }
     },
     "status": {
-      "native": 339,
-      "opaque": 475,
+      "native": 337,
+      "opaque": 477,
       "primitive": 90
     }
   },
@@ -1066,8 +1075,10 @@
     "classes": 904,
     "hardware_verified": false,
     "opaque_operations": {
-      "bra_uniform_": "class selectors have no supported native combination",
-      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "bra_uniform_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform target or predicate",
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
@@ -1091,8 +1102,8 @@
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_256_memdesc__Ra64": "unsupported class shape",
       "stg_256_uniform__Ra32": "unsupported class shape",
       "stg_256_uniform__Ra64": "unsupported class shape",
@@ -1127,7 +1138,8 @@
         "primitive": 2
       },
       "CALL": {
-        "native": 6
+        "native": 4,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -1400,8 +1412,8 @@
       }
     },
     "status": {
-      "native": 339,
-      "opaque": 475,
+      "native": 337,
+      "opaque": 477,
       "primitive": 90
     }
   },
@@ -1409,8 +1421,10 @@
     "classes": 974,
     "hardware_verified": false,
     "opaque_operations": {
-      "bra_uniform_": "class selectors have no supported native combination",
-      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "bra_uniform_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform target or predicate",
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "f2fp_rs_16b__RIR": "class variant not yet described by a native override",
       "f2fp_rs_16b__RRI": "class variant not yet described by a native override",
       "f2fp_rs_16b__RRR": "class variant not yet described by a native override",
@@ -1450,8 +1464,8 @@
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_256_memdesc__Ra64": "unsupported class shape",
       "stg_256_uniform__Ra32": "unsupported class shape",
       "stg_256_uniform__Ra64": "unsupported class shape",
@@ -1486,7 +1500,8 @@
         "primitive": 2
       },
       "CALL": {
-        "native": 6
+        "native": 4,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -1760,8 +1775,8 @@
       }
     },
     "status": {
-      "native": 353,
-      "opaque": 526,
+      "native": 351,
+      "opaque": 528,
       "primitive": 95
     }
   },
@@ -1769,8 +1784,10 @@
     "classes": 974,
     "hardware_verified": false,
     "opaque_operations": {
-      "bra_uniform_": "class selectors have no supported native combination",
-      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "bra_uniform_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform target or predicate",
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "f2fp_rs_16b__RIR": "class variant not yet described by a native override",
       "f2fp_rs_16b__RRI": "class variant not yet described by a native override",
       "f2fp_rs_16b__RRR": "class variant not yet described by a native override",
@@ -1810,8 +1827,8 @@
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_256_memdesc__Ra64": "unsupported class shape",
       "stg_256_uniform__Ra32": "unsupported class shape",
       "stg_256_uniform__Ra64": "unsupported class shape",
@@ -1846,7 +1863,8 @@
         "primitive": 2
       },
       "CALL": {
-        "native": 6
+        "native": 4,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -2120,8 +2138,8 @@
       }
     },
     "status": {
-      "native": 353,
-      "opaque": 526,
+      "native": 351,
+      "opaque": 528,
       "primitive": 95
     }
   },
@@ -2129,8 +2147,10 @@
     "classes": 1015,
     "hardware_verified": false,
     "opaque_operations": {
-      "bra_uniform_": "class selectors have no supported native combination",
-      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "bra_uniform_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform target or predicate",
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
@@ -2179,8 +2199,8 @@
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_256_memdesc__Ra64": "unsupported class shape",
       "stg_256_uniform__Ra32": "unsupported class shape",
       "stg_256_uniform__Ra64": "unsupported class shape",
@@ -2223,7 +2243,8 @@
         "primitive": 2
       },
       "CALL": {
-        "native": 6
+        "native": 4,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -2499,8 +2520,8 @@
       }
     },
     "status": {
-      "native": 371,
-      "opaque": 554,
+      "native": 369,
+      "opaque": 556,
       "primitive": 90
     }
   },
@@ -2508,8 +2529,10 @@
     "classes": 1015,
     "hardware_verified": false,
     "opaque_operations": {
-      "bra_uniform_": "class selectors have no supported native combination",
-      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "bra_uniform_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform target or predicate",
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
@@ -2558,8 +2581,8 @@
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_256_memdesc__Ra64": "unsupported class shape",
       "stg_256_uniform__Ra32": "unsupported class shape",
       "stg_256_uniform__Ra64": "unsupported class shape",
@@ -2602,7 +2625,8 @@
         "primitive": 2
       },
       "CALL": {
-        "native": 6
+        "native": 4,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -2878,8 +2902,8 @@
       }
     },
     "status": {
-      "native": 371,
-      "opaque": 554,
+      "native": 369,
+      "opaque": 556,
       "primitive": 90
     }
   },
@@ -2887,6 +2911,8 @@
     "classes": 903,
     "hardware_verified": false,
     "opaque_operations": {
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "dadd__RRCx_RCx": "width",
       "dfma__RCxR_RCxR": "width",
       "dfma__RRCx_RRCx": "width",
@@ -2912,8 +2938,8 @@
       "ldl_uniform_": "class selectors have no supported native combination",
       "lds_uniform_": "class selectors have no supported native combination",
       "lds_zd_uniform_": "class selectors have no supported native combination",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
@@ -2945,7 +2971,8 @@
         "primitive": 1
       },
       "CALL": {
-        "native": 7
+        "native": 5,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -3220,8 +3247,8 @@
       }
     },
     "status": {
-      "native": 393,
-      "opaque": 402,
+      "native": 391,
+      "opaque": 404,
       "primitive": 108
     }
   },
@@ -3229,6 +3256,8 @@
     "classes": 903,
     "hardware_verified": false,
     "opaque_operations": {
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "dadd__RRCx_RCx": "width",
       "dfma__RCxR_RCxR": "width",
       "dfma__RRCx_RRCx": "width",
@@ -3254,8 +3283,8 @@
       "ldl_uniform_": "class selectors have no supported native combination",
       "lds_uniform_": "class selectors have no supported native combination",
       "lds_zd_uniform_": "class selectors have no supported native combination",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
@@ -3287,7 +3316,8 @@
         "primitive": 1
       },
       "CALL": {
-        "native": 7
+        "native": 5,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -3562,8 +3592,8 @@
       }
     },
     "status": {
-      "native": 393,
-      "opaque": 402,
+      "native": 391,
+      "opaque": 404,
       "primitive": 108
     }
   },
@@ -3571,8 +3601,10 @@
     "classes": 967,
     "hardware_verified": false,
     "opaque_operations": {
-      "bra_uniform_": "class selectors have no supported native combination",
-      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "bra_uniform_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform target or predicate",
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "dadd__RRCx_RCx": "width",
       "dfma__RCxR_RCxR": "width",
       "dfma__RRCx_RRCx": "width",
@@ -3624,8 +3656,8 @@
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
@@ -3658,7 +3690,8 @@
         "primitive": 1
       },
       "CALL": {
-        "native": 7
+        "native": 5,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -3936,8 +3969,8 @@
       }
     },
     "status": {
-      "native": 404,
-      "opaque": 455,
+      "native": 402,
+      "opaque": 457,
       "primitive": 108
     }
   },
@@ -3945,8 +3978,10 @@
     "classes": 967,
     "hardware_verified": false,
     "opaque_operations": {
-      "bra_uniform_": "class selectors have no supported native combination",
-      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "bra_uniform_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform target or predicate",
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "dadd__RRCx_RCx": "width",
       "dfma__RCxR_RCxR": "width",
       "dfma__RRCx_RRCx": "width",
@@ -3998,8 +4033,8 @@
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
@@ -4032,7 +4067,8 @@
         "primitive": 1
       },
       "CALL": {
-        "native": 7
+        "native": 5,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -4310,8 +4346,8 @@
       }
     },
     "status": {
-      "native": 404,
-      "opaque": 455,
+      "native": 402,
+      "opaque": 457,
       "primitive": 108
     }
   },
@@ -4319,8 +4355,10 @@
     "classes": 1004,
     "hardware_verified": false,
     "opaque_operations": {
-      "bra_uniform_": "class selectors have no supported native combination",
-      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "bra_uniform_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform target or predicate",
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "dadd__RRCx_RCx": "width",
       "dfma__RCxR_RCxR": "width",
       "dfma__RRCx_RRCx": "width",
@@ -4372,8 +4410,8 @@
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
@@ -4407,7 +4445,8 @@
         "primitive": 1
       },
       "CALL": {
-        "native": 7
+        "native": 5,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -4686,8 +4725,8 @@
       }
     },
     "status": {
-      "native": 422,
-      "opaque": 468,
+      "native": 420,
+      "opaque": 470,
       "primitive": 114
     }
   },
@@ -4695,8 +4734,10 @@
     "classes": 1004,
     "hardware_verified": false,
     "opaque_operations": {
-      "bra_uniform_": "class selectors have no supported native combination",
-      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "bra_uniform_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform target or predicate",
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "dadd__RRCx_RCx": "width",
       "dfma__RCxR_RCxR": "width",
       "dfma__RRCx_RRCx": "width",
@@ -4748,8 +4789,8 @@
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
       "stg_uniform__RaRZ": "class selectors have no supported native combination",
@@ -4783,7 +4824,8 @@
         "primitive": 1
       },
       "CALL": {
-        "native": 7
+        "native": 5,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -5062,8 +5104,8 @@
       }
     },
     "status": {
-      "native": 422,
-      "opaque": 468,
+      "native": 420,
+      "opaque": 470,
       "primitive": 114
     }
   },
@@ -5071,8 +5113,10 @@
     "classes": 1054,
     "hardware_verified": false,
     "opaque_operations": {
-      "bra_uniform_": "class selectors have no supported native combination",
-      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "bra_uniform_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform target or predicate",
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "dadd__RRCx_RCx": "width",
       "dfma__RCxR_RCxR": "width",
       "dfma__RRCx_RRCx": "width",
@@ -5128,8 +5172,8 @@
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_256_memdesc__Ra64": "unsupported class shape",
       "stg_256_uniform__Ra32": "unsupported class shape",
       "stg_256_uniform__Ra64": "unsupported class shape",
@@ -5167,7 +5211,8 @@
         "primitive": 1
       },
       "CALL": {
-        "native": 7
+        "native": 5,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -5446,8 +5491,8 @@
       }
     },
     "status": {
-      "native": 450,
-      "opaque": 490,
+      "native": 448,
+      "opaque": 492,
       "primitive": 114
     }
   },
@@ -5455,8 +5500,10 @@
     "classes": 1054,
     "hardware_verified": false,
     "opaque_operations": {
-      "bra_uniform_": "class selectors have no supported native combination",
-      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "bra_uniform_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform target or predicate",
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "dadd__RRCx_RCx": "width",
       "dfma__RCxR_RCxR": "width",
       "dfma__RRCx_RRCx": "width",
@@ -5512,8 +5559,8 @@
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_256_memdesc__Ra64": "unsupported class shape",
       "stg_256_uniform__Ra32": "unsupported class shape",
       "stg_256_uniform__Ra64": "unsupported class shape",
@@ -5551,7 +5598,8 @@
         "primitive": 1
       },
       "CALL": {
-        "native": 7
+        "native": 5,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -5830,8 +5878,8 @@
       }
     },
     "status": {
-      "native": 450,
-      "opaque": 490,
+      "native": 448,
+      "opaque": 492,
       "primitive": 114
     }
   },
@@ -5839,8 +5887,10 @@
     "classes": 1173,
     "hardware_verified": false,
     "opaque_operations": {
-      "bra_uniform_": "class selectors have no supported native combination",
-      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "bra_uniform_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform target or predicate",
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "dadd__RRCx_RCx": "width",
       "dfma__RCxR_RCxR": "width",
       "dfma__RRCx_RRCx": "width",
@@ -5890,8 +5940,8 @@
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_memdesc__Ra64": "class selectors have no supported native combination",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
@@ -5931,7 +5981,8 @@
         "primitive": 1
       },
       "CALL": {
-        "native": 7
+        "native": 5,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -6210,8 +6261,8 @@
       }
     },
     "status": {
-      "native": 474,
-      "opaque": 575,
+      "native": 472,
+      "opaque": 577,
       "primitive": 124
     }
   },
@@ -6219,8 +6270,10 @@
     "classes": 1173,
     "hardware_verified": false,
     "opaque_operations": {
-      "bra_uniform_": "class selectors have no supported native combination",
-      "bra_uniform_pred_": "class selectors have no supported native combination",
+      "bra_uniform_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform target or predicate",
+      "call_rel__RRR": "depth INC; relative register target",
+      "call_rel__URIR": "depth INC; relative register target",
       "dadd__RRCx_RCx": "width",
       "dfma__RCxR_RCxR": "width",
       "dfma__RRCx_RRCx": "width",
@@ -6270,8 +6323,8 @@
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "class selectors have no supported native combination",
-      "ret__REL_UR": "class selectors have no supported native combination",
+      "ret__REL": "addr REL",
+      "ret__REL_UR": "addr REL",
       "stg_memdesc__Ra64": "class selectors have no supported native combination",
       "stg_uniform__Ra32": "class selectors have no supported native combination",
       "stg_uniform__Ra64": "class selectors have no supported native combination",
@@ -6311,7 +6364,8 @@
         "primitive": 1
       },
       "CALL": {
-        "native": 7
+        "native": 5,
+        "opaque": 2
       },
       "CS2R": {
         "native": 1
@@ -6590,8 +6644,8 @@
       }
     },
     "status": {
-      "native": 474,
-      "opaque": 575,
+      "native": 472,
+      "opaque": 577,
       "primitive": 124
     }
   }

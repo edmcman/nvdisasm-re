@@ -43,13 +43,28 @@ def illegal(reason, evidence): raise Illegal(reason, evidence)
 class Outputs:
     writes: dict                 # operand name -> Expr, evaluated simultaneously
     order: tuple = ()            # write order for aliased destinations (last wins)
+    flow: "Flow | None" = None   # control transfer after the writes
 
     def ordered(self):
         names = [n for n in self.writes if n not in self.order] + [n for n in self.order if n in self.writes]
         return [(n, self.writes[n]) for n in names]
 
 
-def outputs(order=(), **writes): return Outputs(writes, tuple(order))
+def outputs(order=(), flow=None, **writes): return Outputs(writes, tuple(order), flow)
+
+
+@dataclass(frozen=True)
+class Flow:
+    """A control transfer: kind goto | call | return, to a 64-bit absolute target, taken when
+    cond (1 bit) is nonzero or always (None). A target from i.branch_target is a direct edge."""
+    kind: str
+    target: Expr
+    cond: Expr | None = None
+
+
+def goto(target, cond=None): return Flow("goto", target, cond)
+def call(target, cond=None): return Flow("call", target, cond)
+def ret(target, cond=None): return Flow("return", target, cond)
 
 
 # ---- native conditionals: the rewrite target --------------------------------------------------
@@ -421,6 +436,12 @@ class Instruction:
         name = self.resolve(names); self.asked.add(name)
         v = self.operand(name, 1)
         return self.modified(name, "not", v, sem.lnot) if modifiers else v
+
+    def branch_target(self, names):
+        """The absolute address an RSImm (relative to the next instruction) or UImm (absolute)
+        branch operand names: a direct target, unlike an address computed from values."""
+        name = self.resolve(names); self.asked.add(name)
+        return sem.param(f"__target:{name}", 64)
 
     def imm(self, names, width=None):
         if self.kind(names) not in ("immediate", "float-immediate"): raise TypeError(f"{names} is not an immediate")

@@ -24,6 +24,7 @@ class Semantics:
     reason: str = ""
     guard: Expr | None = None                    # execute only if nonzero
     writes: list = field(default_factory=list)   # [(register location, value)], simultaneous
+    flow: object = None                          # sem_family.Flow over concrete values, or None
 
 
 class Lifted(Instruction):
@@ -109,6 +110,11 @@ class Lifted(Instruction):
 
     def addr(self): return sem.const(self.at, 64)
 
+    def branch_target(self, names):
+        name = self.resolve(names); self.asked.add(name)
+        offset = self.imm(name, 64)
+        return sem.const(self.at + 16, 64) + offset if self.atom(name).type == "RSImm" else offset
+
     def target(self, name="sImm"):
         a = self.atom(name); v = pydecode.sext(self.env.get(name, 0), self.widths.get(name, 32))
         return sem.const(self.at + 16 + v if a.type == "RSImm" else v, 64)
@@ -143,5 +149,6 @@ def lift(arch_name, word, addr=0, fp="exact", conditions=True):
         if value.w != width: raise TypeError(f"{d.klass.name}: {name} is {width} bits, value {value!r} is {value.w}")
         out.writes.append((sem.reg(*loc, element=ELEMENT[loc[0]]), value))
     out.writes = list(zip([l for l, _ in out.writes], sem.narrow([v for _, v in out.writes])))
+    out.flow = result.flow
     out.status = "native"
     return out
