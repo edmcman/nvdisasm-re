@@ -228,6 +228,9 @@ def extract(x, hi, lo):
     return op("extract", x, hi, lo, w=w)
 
 
+def resize(x, w): return zext(x, w) if x.w <= w else trunc(x, w)
+
+
 def trunc(x, w):
     """The low w bits of x."""
     if x.w < w: raise TypeError(f"trunc of {x.w} bits to {w}")

@@ -37,6 +37,7 @@ def f2fp_8b_downconvert(i):
         sign, mag, nan = fpformat.narrow_parts(x, src, d, r, sat)
         return ite(relu & sign & lnot(nan), const(0, 8), concat(sign, extract(mag, 6, 0)))
 
+    if i.sel("merge") not in ("PACK_AB_MERGE_C", "UNPACK_B_MERGE_C"): unmodelled(f"{i.sel('merge')} merge")
     src = i.sel("srcfmt")
     if "_f16_to_8b_" in i.cls:
         if src not in ("F16", "BF16"): unmodelled(f"{src} source")

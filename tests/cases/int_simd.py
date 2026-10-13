@@ -96,6 +96,8 @@ def minmax(c):
     for k in c.of("VIMNMX"):
         srcb = source(k, "Rb", "URb", "Sb")
         if not srcb: continue
+        # vimnmx_pred's Pu/Pv (P0-P6, no PT) are written with unknown meaning: unmodelled.
+        if any(p in k.operand_types and "PT" not in c.enum(k, p) for p in ("Pu", "Pv")): continue
         for fmt, width, signed in FMTS:
             if fmt not in c.enum(k, "fmt"): continue
             for relu in relus(signed):
@@ -104,8 +106,7 @@ def minmax(c):
                         b = words[(j + 3) % len(words)]; rd = 2 if j % 2 else 8
                         fields = {"Rd": rd, "Ra": 4, "fmt": fmt, "relu": relu, "Pp": "PT" if is_min else "P0"}
                         for pred in ("Pu", "Pv"):
-                            if pred in k.operand_types:
-                                enum = c.enum(k, pred); fields[pred] = "PT" if "PT" in enum else next(iter(enum))
+                            if pred in k.operand_types: fields[pred] = "PT"
                         regs, memory = {"R4": a}, []
                         put(k, srcb, b, fields, regs, memory, 10, bank=(0, 0), imm=("SImm", "UImm"))
                         if not is_min: regs["P0"] = 0

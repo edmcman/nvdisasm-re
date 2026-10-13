@@ -119,9 +119,14 @@ def family(*opcodes, classes=None):
     """Register fn for every md class of `opcodes`, or only those `classes(klass)` accepts (while an
     opcode is partly migrated, the other classes keep their old emitter)."""
     def register(fn):
-        out = rewrite(fn)
-        for op in opcodes: FAMILIES.setdefault(op, []).append((classes, out))
-        return out
+        staged = rewrite(fn)
+        def checked(i):
+            result = staged(i)
+            i.require_unasked_defaults()
+            return result
+        checked.__name__, checked.__wrapped__ = fn.__name__, fn
+        for op in opcodes: FAMILIES.setdefault(op, []).append((classes, checked))
+        return checked
     return register
 
 
@@ -146,6 +151,26 @@ REG_TYPES = {"Register": "R", "NonZeroRegister": "R", "ZeroRegister": "R",
 @cache
 def roles(arch_name):
     return {r["cls"]: r for p in (mdlib.OUT / arch_name / "semantics").glob("*.json") for r in json.loads(p.read_text())}
+
+
+def compound(k):
+    """Operands with bracketed parts (C:Sb[bank][offset], CX, A, DESC, ...): values, not selectors,
+    even where their type names an md enum too (C)."""
+    f = k.format
+    return {x.name for x, y in zip(f, f[1:]) if x.kind == "operand" and y.kind == "open"}
+
+
+@cache
+def predicates(arch_name):
+    """md PREDICATES per class (IDEST_SIZE, ISRC_A_SIZE, ...; bits)."""
+    return {c["cls"]: c["preds"] for c in mdlib.load_classes(mdlib.OUT / arch_name)}
+
+
+def constant_width(arch_name, cls, name):
+    """Bits of a constant-bank operand's value: its source slot's md ISRC_<slot>_SIZE (Sc: ISRC_C_SIZE;
+    IMAD.WIDE c[][] is 64 on SM86+), else 32."""
+    size = predicates(arch_name).get(cls, {}).get(f"ISRC_{name[-1].upper()}_SIZE") if name[:1] == "S" else None
+    return size if size in (32, 64) else 32
 
 
 @cache
@@ -196,6 +221,7 @@ class Instruction:
         self.arch, self.k, self.fp = arch, klass, fp
         self.cls, self.opcode = klass.name, klass.mnemonic
         self._encoded = encoded(klass)
+        self.asked = set()   # selectors and (operand, modifier) keys the family asked about
 
     # Backend interface.
     def answer(self, key, domain):
@@ -221,7 +247,10 @@ class Instruction:
             if n in self.k.operand_types: return n
         raise KeyError(f"{self.cls} has none of the operands {names}")
 
-    def has_operand(self, names): return any(n in self.k.operand_types for n in self.candidates(names))
+    def has_operand(self, names):
+        present = [n for n in self.candidates(names) if n in self.k.operand_types]
+        self.asked.update(present)
+        return bool(present)
 
     def atom(self, name): return self.k.operand_types[name]
 
@@ -237,12 +266,14 @@ class Instruction:
     def width(self, names):
         name = self.resolve(names); a = self.atom(name)
         if a.type in REG_TYPES: return self.span(name) * (1 if REG_TYPES[a.type] in ("P", "UP") else 32)
+        if a.type == "C": return constant_width(self.arch.name, self.cls, name)
         bits = int((a.args.split("/")[0] or "32").split(",")[0]) if a.args and a.type.endswith("Imm") else 32
         return {"F16Imm": 16, "F64Imm": 64}.get(a.type, 64 if bits > 32 else 32)
 
     # Static facts about the encoding.
     def modifier(self, names, attr):
         name = self.resolve(names)
+        self.asked.add((name, attr))
         return bool(self.answer((name, attr), (0, 1))) if (name, attr) in self._encoded else False
 
     def operand_negated(self, names): return self.modifier(names, "negate")
@@ -254,6 +285,7 @@ class Instruction:
         name = self.resolve(names); a = self.atom(name)
         if a.type not in self.arch.enums: raise TypeError(f"{self.cls}.{name} ({a.type}) is not a selector")
         enum = self.arch.enums[a.type]
+        self.asked.add(name)
         if name in self._encoded: v = self.answer(name, tuple(sorted(set(enum.values()))))
         elif a.default is not None: v = enum[a.default]
         elif len(set(enum.values())) == 1: v = next(iter(enum.values()))
@@ -270,6 +302,7 @@ class Instruction:
         every label (format constants, rounding-mode flags)."""
         name = self.resolve(names); a = self.atom(name)
         enum = self.arch.enums[a.type]
+        self.asked.add(name)
         if name not in self._encoded:
             label = self.sel(name)
             v = next((x for l, x in table.items() if label == l), None)
@@ -287,9 +320,55 @@ class Instruction:
         if a.default is None: raise TypeError(f"{self.cls}.{name} has no default")
         return self.sel(name) != a.default
 
+    def require_unasked_defaults(self):
+        """A family that never asked about or read a selector, modifier bit or defaulted numeric
+        operand models only its md default: other values are unmodelled (an IADD family silent on
+        .SAT must not claim IADD.SAT; MOV ignores PixMaskU04 only at 0xf). Scheduling
+        hints and .reuse don't change what the instruction does; the guard is the framework's."""
+        from sass import mdcond
+        hints = mdcond.hints(self.k)
+        guard = next((a.name for a in self.k.format if a.kind == "guard"), None)   # applied by the framework
+        selectors = {n for n, a in self.k.operand_types.items()
+                     if a.type in self.arch.enums and a.type not in REG_TYPES and n not in compound(self.k)}
+        for key in sorted((self._encoded | selectors) - self.asked, key=repr):
+            if guard and (key == guard or key == (guard, "not")): continue
+            if isinstance(key, tuple):
+                if key[1] in MODIFIERS and self.answer(key, (0, 1)): unmodelled(f"{key[0]}.{key[1]}")
+                continue
+            a = self.k.operand_types.get(key)
+            if a is None or key in hints or a.type in REG_TYPES or key in compound(self.k): continue
+            if a.type.endswith("Imm"):
+                default = (a.args or "").split("/")[1:2]
+                if default and default[0] and not default[0].endswith("*"):
+                    if not self.answer(("in", key, frozenset({int(default[0], 0)})), (True, False)): unmodelled(f"{key} other than {default[0]}")
+                continue
+            if a.type not in self.arch.enums: continue
+            # A selector without a default names the class's variant (/ONLY64:size, /XORONLY:xor).
+            if a.default is None: unmodelled(f"{key} not modelled")
+            enum = self.arch.enums[a.type]
+            if a.default not in enum: unmodelled(f"{key} default {a.default} is not a value")
+            if key in self._encoded and not self.answer(("in", key, frozenset({enum[a.default]})), (True, False)):
+                unmodelled(f"{key} other than {a.default}")
+
+    def ignore(self, names):
+        """The operand (and its modifier bits) doesn't affect this encoding's result (ISETP's Pr
+        without .EX): considered, so its value isn't required to be the default."""
+        name = self.resolve(names)
+        self.asked |= {name} | {(name, m) for m in MODIFIERS}
+
+    def static(self, names, max_bits=8):
+        """A small immediate's value as a Python int, for a computation specialized per value (LOP3
+        truth tables). SLEIGH enumerates every encodable value, so only fields of at most
+        `max_bits` bits; other immediates stay dynamic (`value`)."""
+        name = self.resolve(names); self.asked.add(name)
+        if self.kind(name) != "immediate": raise TypeError(f"{self.cls}.{name} is not an immediate")
+        width = next((f.width for f, r in self.k.rules if r[0] == "op" and r[1] == name), None)
+        if width is None or width > max_bits: raise TypeError(f"{self.cls}.{name}: {width}-bit field is too wide to enumerate")
+        return self.answer(name, tuple(range(1 << width)))
+
     def is_zero(self, names):
         """Register operand is RZ/URZ, predicate is PT (the md's constant register), immediate is 0."""
-        name = self.resolve(names)
+        name = self.resolve(names); self.asked.add(name)
         return bool(self.answer(("zero", name), (False, True))) if name in self._encoded else self.zero_default(name)
 
     def is_true(self, names):
@@ -302,7 +381,7 @@ class Instruction:
 
     # Dynamic values.
     def value(self, names, modifiers=True, width=None):
-        name = self.resolve(names)
+        name = self.resolve(names); self.asked.add(name)
         v = self.operand(name, width or self.width(name))
         if not modifiers: return v
         if self.operand_absolute(name): v = sem.iabs(v)
@@ -311,7 +390,7 @@ class Instruction:
         return v
 
     def fvalue(self, names, modifiers=True, width=None):
-        name = self.resolve(names)
+        name = self.resolve(names); self.asked.add(name)
         v = self.operand(name, width or self.width(name))
         if not modifiers: return v
         sign = 1 << v.w - 1
@@ -320,7 +399,7 @@ class Instruction:
         return v
 
     def pred(self, names, modifiers=True):
-        name = self.resolve(names)
+        name = self.resolve(names); self.asked.add(name)
         v = self.operand(name, 1)
         return sem.lnot(v) if modifiers and self.operand_notted(name) else v
 

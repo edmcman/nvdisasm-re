@@ -104,31 +104,102 @@ def shape(t):
     return (t.op, t.w, tuple(None if isinstance(a, Expr) else a for a in t.args))
 
 
-def merge(trees, assignments):
-    """One expression generalizing trees[i] (the value under assignments[i]). Where the trees'
-    shapes differ, the fewest static keys that determine the shape choose between groups, and each
-    group is merged further: differences stay as small and as deep as they are."""
-    first = trees[0]
-    if all(t is first for t in trees): return first
-    shapes = [shape(t) for t in trees]
-    if shapes[0][0] != "leaf" and all(x == shapes[0] for x in shapes):
-        # A choice has one width, so children of different widths are chosen between here.
-        shapes = [x + tuple(a.w for a in t.args if isinstance(a, Expr)) for x, t in zip(shapes, trees)]
-        if all(x == shapes[0] for x in shapes):
-            args = [merge([t.args[j] for t in trees], assignments) if isinstance(first.args[j], Expr) else first.args[j]
-                    for j in range(len(first.args))]
-            return sem.ite(*args) if first.op == "ite" else Expr(first.op, tuple(args), first.w)
-    keys = determining_keys(shapes, assignments)
-    # Rows of the same shape merge together, whatever their key values (E4M3 with E5M2); the
-    # choice maps each key-value combination to its group's merged tree.
-    groups = defaultdict(list)
-    for t, a, x in zip(trees, assignments, shapes): groups[x].append((t, a))
-    merged = {x: merge([t for t, _ in g], [a for _, a in g]) for x, g in groups.items()}
-    cases = {tuple(a.get(k) for k in keys): merged[x] for a, x in zip(assignments, shapes)}
-    return sel(keys, sorted(cases.items(), key=lambda kv: repr(kv[0])), first.w)
+class Merger:
+    """Merges the rows' trees of one class (every output, every liveness body), remembering the
+    choices it built so that a choice agreeing with an earlier one is that one (LOP3's Pu reuses
+    Rd's table)."""
+
+    def __init__(self): self.choices = defaultdict(list)   # keys -> [(cases, default, choice)]
+
+    def choice(self, keys, cases, w):
+        """sel over keys with cases {values: tree}; the most common arm becomes a default row (no
+        constraints) that the specific rows override, when every specific row names all keys."""
+        if len(set(cases.values())) == 1: return next(iter(cases.values()))
+        for known, default, e in self.choices[keys]:
+            if e.w == w and all(known.get(v, default) is t for v, t in cases.items()): return e
+        counts = defaultdict(int)
+        for t in cases.values(): counts[t] += 1
+        default = max(counts, key=lambda t: (counts[t], -size(t))) if all(None not in v for v in cases) else None
+        if default is not None:
+            # The default also covers rows it reproduces under their key values (LOP3 imm8 = 0:
+            # (Rd != 0) | Pp with Rd's table at 0 is Pp).
+            covered = {v for v, t in cases.items() if t is default or specialize(default, dict(zip(keys, v))) is t}
+            cases = {v: default if v in covered else t for v, t in cases.items()}
+            counts[default] = len(covered)
+            if len(covered) == len(cases): return default
+        rows = sorted(((v, t) for v, t in cases.items() if t is not default), key=lambda kv: repr(kv[0]))
+        if default is not None and counts[default] > 1: rows.append(((None,) * len(keys), default))
+        else: rows, default = sorted(cases.items(), key=lambda kv: repr(kv[0])), None
+        e = sel(keys, rows, w)
+        self.choices[keys].append((cases, default, e))
+        return e
+
+    def merge(self, trees, assignments):
+        """One expression generalizing trees[i] (the value under assignments[i]). Equal shapes merge
+        node by node; otherwise the rows split on one deciding key at a time (fewest values first),
+        and the cheaper of that and one table of whole trees is kept."""
+        first = trees[0]
+        if all(t is first for t in trees): return first
+        shapes = [shape(t) for t in trees]
+        if shapes[0][0] != "leaf" and all(x == shapes[0] for x in shapes):
+            # A choice has one width, so children of different widths are chosen between here.
+            shapes = [x + tuple(a.w for a in t.args if isinstance(a, Expr)) for x, t in zip(shapes, trees)]
+            if all(x == shapes[0] for x in shapes):
+                args = [self.merge([t.args[j] for t in trees], assignments) if isinstance(first.args[j], Expr) else first.args[j]
+                        for j in range(len(first.args))]
+                return sem.ite(*args) if first.op == "ite" else Expr(first.op, tuple(args), first.w)
+        keys = determining_keys(shapes, assignments)
+        if len(keys) > 1:
+            key = min(keys, key=lambda k: (len({a.get(k) for a in assignments}), repr(k)))
+            branches = {}
+            for v in sorted({a[key] for a in assignments if key in a}, key=repr):
+                rows = [j for j, a in enumerate(assignments) if a.get(key, v) == v]  # rows that didn't ask: every branch
+                branches[(v,)] = self.merge([trees[j] for j in rows], [assignments[j] for j in rows])
+            factored = self.choice((key,), branches, first.w)
+        else:
+            groups = defaultdict(list)
+            for t, a, x in zip(trees, assignments, shapes): groups[x].append((t, a))
+            merged = {x: self.merge([t for t, _ in g], [a for _, a in g]) for x, g in groups.items()}
+            factored = self.choice(keys, {tuple(a.get(k) for k in keys): merged[x] for a, x in zip(assignments, shapes)}, first.w)
+        # Factoring pays when the arms share structure (F2FP's formats); 256 distinct LOP3 functions
+        # are cheaper as one table of whole trees than as nested tables over the same key.
+        whole = determining_keys([id(t) for t in trees], assignments)
+        flat = self.choice(whole, {tuple(a.get(k) for k in whole): t for t, a in zip(trees, assignments)}, first.w)
+        return min((factored, flat), key=cost)
 
 
-HEAVY = 12   # a choice whose arms hold more distinct nodes than this is tested at run time
+def specialize(e, assignment, memo=None):
+    """e under static key values: choices whose keys are all assigned resolve to their arm, and
+    the result is rebuilt (so it folds)."""
+    memo = {} if memo is None else memo
+    if not isinstance(e, Expr) or e.op in ("const", "param", "reg"): return e
+    if e in memo: return memo[e]
+    if e.op == "sel":
+        keys, rows = e.args
+        out = e
+        if all(k in assignment for k in keys):
+            arm = next((t for vals, t in rows if all(v is None or assignment[k] == v for k, v in zip(keys, vals))), None)
+            if arm is not None: out = specialize(arm, assignment, memo)
+    else:
+        args = [specialize(a, assignment, memo) for a in e.args]
+        out = (sem.ite(*args) if e.op == "ite" else sem.extract(*args) if e.op == "extract"
+               else e if all(x is y for x, y in zip(args, e.args)) else sem.op(e.op, *args, w=e.w))
+    memo[e] = out
+    return out
+
+
+CONSTRUCTOR = 4   # a table row's cost in nodes (pattern, export, local)
+
+
+def cost(e):
+    """Rough generated size: nodes outside choices once, plus every choice arm with its row."""
+    seen = set()
+    def walk(n):
+        if not isinstance(n, Expr) or n in seen: return 0
+        seen.add(n)
+        if n.op == "sel": return sum(CONSTRUCTOR + walk(t) for _, t in n.args[1])
+        return 1 + sum(walk(a) for a in n.args)
+    return walk(e)
 
 
 def size(e):
@@ -137,37 +208,6 @@ def size(e):
         n = stack.pop()
         if isinstance(n, Expr) and n not in seen: seen.add(n); stack.extend(n.args if n.op != "sel" else [t for _, t in n.args[1]])
     return len(seen)
-
-
-def staged(b, e, memo=None):
-    """e with heavy decode-time choices turned into run-time tests of the decoded selector values
-    (one body, shared parts computed once) and light ones kept as decode-time tables."""
-    memo = {} if memo is None else memo
-    if not isinstance(e, Expr) or e.op in ("const", "param", "reg"): return e
-    if e in memo: return memo[e]
-    if e.op == "sel":
-        keys, cases = e.args
-        cases = [(vals, staged(b, t, memo)) for vals, t in cases]
-        dynamic = all(selector_param(b, k) is not None for k in keys) and size(sel(keys, cases, e.w)) > HEAVY
-        if dynamic:
-            out = cases[-1][1]
-            for vals, t in reversed(cases[:-1]):
-                tests = [selector_param(b, k) == v for k, v in zip(keys, vals) if v is not None]
-                out = sem.ite(sem.all_of(*tests), t, out) if tests else t
-        else: out = sel(keys, cases, e.w)
-    else:
-        args = [staged(b, a, memo) for a in e.args]
-        out = sem.ite(*args) if e.op == "ite" else Expr(e.op, tuple(args), e.w)
-    memo[e] = out
-    return out
-
-
-def selector_param(b, key):
-    """The decoded value of a static key as a run-time value, if the Builder materializes one."""
-    if isinstance(key, tuple) and key[0] in ("zero", "in"): return None
-    name = builder_key(key)
-    v = b.values.get(name)
-    return sem.param(name, 8 * v.size) if v and v.kind in ("decoded", "table", "default") else None
 
 
 def determining_keys(values, assignments):
@@ -421,6 +461,7 @@ def shared_subtrees(trees):
     counts = defaultdict(int)
     for t in trees:
         for n in nodes(t): counts[n] += 1
+    # Even small shared parts: measured on SM89, hoisting everything shared gives the smallest .sla.
     shared = {n for n, c in counts.items() if c > 1 and n.op not in ("const", "param", "reg")}
     def below(n, seen):
         for a in n.args:
@@ -480,8 +521,9 @@ def emit(b):
     optional = [n for n in names if REG_TYPES.get(b.k.operand_types[n].type) in ("P", "UP")
                 and clauses(b, ("zero", n), True) not in (None, [])]
     assignments = [a for a, _ in resolved]
+    merger = Merger()
     def body(live):
-        merged = [(n, staged(b, merge([dict(w)[n] for _, w in resolved], assignments))) for n in live]
+        merged = [(n, merger.merge([dict(w)[n] for _, w in resolved], assignments)) for n in live]
         return lower_writes(b, merged) if merged else Code()
     bodies = [([], body(names))]
     if optional:
@@ -499,6 +541,10 @@ def emit(b):
         deciding = determining_keys(modelled, [a for a, _ in rows])
         native_values = sorted({tuple(a.get(k) for k in deciding) for a, r in rows if not isinstance(r, Exception)}, key=repr)
         b.selector_patterns = [[c for k, v in zip(deciding, vals) if v is not None for c in clauses(b, k, v)] for vals in native_values]
+        (key,) = deciding if len(deciding) == 1 else (None,)
+        if isinstance(key, str) and None not in (vs := {v for v, in native_values}):
+            # One deciding selector: a single membership pattern instead of a row per value.
+            b.selector_patterns = [b.g.values_where(b.k, key, lambda x: x in vs) or []]
     if len(native) < len(rows):
         b.selector_combinations = {",".join(map(str, map(builder_key, deciding))): [list(v) for v in native_values]}
     else: b.selector_combinations = {}

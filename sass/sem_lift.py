@@ -35,6 +35,7 @@ class Lifted(Instruction):
 
     def answer(self, key, domain):
         if isinstance(key, tuple) and key[0] == "zero": return self.zero(key[1])
+        if isinstance(key, tuple) and key[0] == "in": return self.env.get(key[1], 0) in key[2]
         return self.env.get(key, 0)
 
     def field_width(self, name):
