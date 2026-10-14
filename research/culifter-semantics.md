@@ -1,7 +1,8 @@
 # CuLifter instruction-semantics comparison
 
 CuLifter is included as the `third_party/culifter` submodule at commit
-`bc5a9f0fc7de929bb6965d7fed28a4dde6c1ef4b` (`main`, inspected 2026-10-11).
+`bc5a9f0fc7de929bb6965d7fed28a4dde6c1ef4b` (`main`, inspected 2026-10-11;
+opcode coverage rechecked 2026-10-14).
 Upstream describes it as a SASS-to-LLVM lifter for SM75 with experimental
 support for newer targets. The source now also contains substantial SM90+
 NVVM and CPU backend code. This comparison reads the registered `@lift_for`
@@ -45,7 +46,7 @@ FP6 downconversion to E2M3/E3M2 is native for the ten ordinary F16/BF16 and F32 
 | `FMNMX` | Predicate-selected scalar float min/max. CuLifter compares in order and selects one input. | Native for nonan and `.NAN`, with `.FTZ`, `.FTZ.NAN`, and `.XORSIGN`, across all nine architectures and supported R/UR/immediate/constant-bank forms. `.NAN` returns canonical `0x7fffffff` if either input is NaN. `.XORSIGN` takes raw source signs before absolute modifiers, chooses by magnitude, then applies their XOR sign unless the result is NaN. CX and predicate-result `.IS_A` remain opaque. | Exact/readable emulator suites pass on nine architectures. The SM89 whole-kernel GPU oracle verifies min/max with `.NAN` and `.FTZ.NAN`, and `min.xorsign.abs.f32` lowered to and executed as `FMNMX.XORSIGN`: 640 GPU/reference/P-code comparisons passed across NaNs, signed zeros, infinities, subnormals, and sign combinations. |
 | `FMNMX3` | Three-input floating min/max selected by the effective Pp predicate; registered only for SM100+. | Native for dynamic P0–P6/PT selectors with optional inversion, all FTZ/NAN selector combinations, and RRR, RUR, and immediate-B sources on SM100/SM103. Exact mode follows the PTX three-input min/max rules; readable mode keeps CuLifter's ordered-comparison formula. CX remains opaque. | SM100/SM103 exact suites pass 25,238 cases and readable suites pass 18,822 cases each. The focused fixtures cover all selector combinations, predicate directions/inversion, NaNs in each position, signed zeros, infinities, and subnormals. No compatible GPU is available; the exact rules are emulator-verified against PTX ISA documentation, not hardware-measured. |
 | `HMMA`, `DMMA`, `IMMA`, `HGMMA`/`WGMMA`/`QGMMA` | Matrix multiply-accumulate paths. HMMA 884 uses vector backend intrinsics; Hopper WGMMA uses NVVM inline assembly or a limited CPU scalar/descriptor model. | Opaque for these families (when represented in our manifests). | Potentially high-impact gap, especially matrix paths. This is not one scalar semantic: layouts, fragment ownership, accumulation, descriptors and architecture all matter. CuLifter's CPU code itself marks register/shape restrictions and descriptor forms that pass C through. |
-| `ATOM`, `ATOMG`, `ATOMS`, `RED`, `REDG` | Global/shared and newer descriptor atomics/reductions. CuLifter has backend-specific RMW lowering and specialized forms. | Ordinary `ATOM` has primitive support in this repo, with selector/context restrictions; `ATOMG`, `ATOMS`, `RED`, `REDG` remain opaque (the newer forms appear on their supporting architectures). | The newer global/shared/descriptor forms are gaps. The existing ATOM primitive means only unsupported operations/types/forms are candidates for extension; compare its runtime guards before claiming the ordinary family is missing. |
+| `ATOM`, `ATOMG`, `ATOMS`, `RED`, `REDG`, `REDAS` | Global/shared and newer descriptor atomics/reductions. CuLifter has backend-specific RMW lowering and specialized forms. | No family: all classes are opaque, including ordinary `ATOM` (rechecked 2026-10-14; an earlier note here claimed primitive support). | Whole-family gap. Atomics need a memory-ordering and return-value model; reductions (`RED*`) are the same RMW without a result. |
 | `LDSM`, `STSM` | Warp-collective matrix shared-memory load/store, using `ldmatrix`/`stmatrix` inline assembly in NVVM and explicit CPU layout handling. | Opaque (2–4 classes/arch where present). | Clear family gap, with cross-lane fragment layout as the hard part. A scalar load/store is not equivalent. |
 | `LDGSTS` | Global-to-shared asynchronous copy, including widths and guard predicate. NVVM emits GPU async-copy operations; CPU models a synchronous guarded copy. | Opaque: 5 classes/arch on SM80–SM120. | Clear gap. Memory ordering and asynchronous completion need an explicit execution model. |
 | `UTMALDG`, `UTMASTG`, `UBLKCP`, `UBLKRED`, `ARRIVES`, `ACQBULK`, `SYNCS`, `FENCE`, `WARPGROUP` | Tensor/bulk async transfer and reduction, mbarrier operations, proxy fences, and WGMMA commit/wait. NVVM uses architecture-specific inline assembly; CPU has a software/runtime model for selected protocols. | Opaque where present. This repository explicitly leaves descriptor/extended memory and cross-thread synchronization state to handlers. | Major gap in modern async memory/synchronization. The code provides concrete mapping ideas, but the correctness depends on descriptors, memory spaces, participating lanes, ordering and barrier phases. |
@@ -70,6 +71,35 @@ separate `ISETP` instructions. This is useful negative evidence: those ordinary
 PTX comparisons do not cause `ptxas` to expose the selection flags, so this
 probe cannot resolve their polarity or tie behavior.
 
+## Opcodes with CuLifter handlers and no family here (2026-10-14)
+
+These are CuLifter's `@lift_for` opcode names that are absent from
+`OPERATION_FAMILIES` but have non-`ALTERNATE` md classes. Every class of these
+opcodes is opaque in `processor/SASS/semantics/coverage.json`. Counts are md
+classes summed over all architectures (SM75–SM120).
+
+- **Value and warp:** `HSETP2` (40), `HSET2` (40), `FSET` (40); SM120 uniform
+  float `UFADD`, `UFFMA`, `UFMUL`, `UFRND`, `UFSEL`, `UFSETP`, `UF2I`, `UI2F`,
+  `UI2FP` (31 together); `VOTEU` (10), `MATCH` (20), `REDUX` (9), `ELECT` (12).
+- **Memory:** `LD` (58), `ST` (53), `LDCU` (21), `ATOM` (163), `ATOMG` (103),
+  `ATOMS` (97), `RED` (23), `REDG` (60), `REDAS` (12), `STAS` (12),
+  `LDGSTS` (45), `LDSM` (22), `STSM` (12), `MOVM` (10).
+- **Matrix:** `HMMA` (39), `IMMA` (20), `DMMA` (9), `HGMMA` (6), `QGMMA` (6),
+  `WARPGROUP` (3).
+- **Async, synchronization, and miscellaneous:** `UTMALDG` (24), `UTMASTG` (14),
+  `UTMACCTL` (12), `UBLKCP` (12), `UBLKRED` (12), `ARRIVES` (9), `ACQBULK` (6),
+  `SYNCS` (51), `FENCE` (16), `MEMBAR` (16), `DEPBAR` (26), `ENDCOLLECTIVE` (6),
+  `USETMAXREG` (24), `NANOSLEEP` (49), `B2R` (30), `BPT` (20), `LEPC` (16).
+
+`FSET` differs from the native `FSETP` only in writing a register (1.0f with
+`.BF`, else an all-ones mask) instead of a predicate. It can reuse FSETP's
+comparison helper in `src/sass/semantics/families/floating.py`.
+
+Excluded names: `LOP`, `LOP32I`, `SHL`, `SHR`, `MOV32I`, `IADD32I`, `ISCADD`,
+`ULOP`, `ULOP32I`, `USHL`, `USHR`, and `PSETP` have only md `ALTERNATE` classes,
+so they decode through the opcodes they alias. Lifter-internal names (`MOV64`,
+`PHI`, `SETZERO`, ...) are not SASS opcodes.
+
 ## Partial overlap and tempting false positives
 
 `ISETP.EX` is native for direct register, uniform, immediate, and ordinary
@@ -84,10 +114,10 @@ validate the implemented forms.
 The following are not missing wholesale: `FADD`, `FMUL`, `FFMA`, `FMNMX`,
 `FSETP`, `DADD`, `DMUL`, `DFMA`, `DSETP`, `HADD2`, `HFMA2`, `IMAD`, `IADD3`,
 `LEA`, `LOP3`, `PRMT`, `BMSK`, `SHF`, `ISETP`, `S2R`/`CS2R`, basic loads and
-stores, branches, barriers, warp operations, and ordinary `ATOM` already have
+stores, branches, barriers, and selected warp operations already have
 families in our implementation. CuLifter can still suggest uncovered forms:
 for example, its packed half min/max/comparisons extend our half arithmetic;
-its backend-specific atomics extend the ordinary ATOM family; and its matrix
+its backend-specific atomics address a family we lack entirely; and its matrix
 and async-memory code addresses forms we leave opaque. Our selector manifests
 and `docs/semantics.md` describe the specific supported forms.
 
