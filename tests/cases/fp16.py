@@ -4,7 +4,7 @@ import itertools, random
 from itertools import product
 from sass.semantics.fp import softfloat
 from tests.harness.case import cbank, cx_header, cx_source, put, ram, source
-from tests.refs.float import half2, half_minmax, hmul2, readable, same_halves, underflow_band, widen_half
+from tests.refs.float import half2, half_minmax, half_product, hmul2, readable, same_halves, underflow_band, widen_half
 
 SWIZZLES = ("H1_H0", "H0_H0", "H1_H1")
 
@@ -29,6 +29,10 @@ def reference(op, inputs, sat=False):
 
 
 def cx_name(k): return next(n for n, a in k.operand_types.items() if a.type == "CX")
+# HMUL2 (Rd, A, B) lane formats per format label; SM107 names all three (Dfmt.Afmt.Bfmt).
+MUL_FORMATS = {"F16_V2": ("F16", "F16", "F16"), "BF16_V2": ("BF16", "BF16", "BF16"),
+               "BF16x2.BF16x2.F16x2": ("BF16", "BF16", "F16"), "F16x2.F16x2.BF16x2": ("F16", "F16", "BF16")}
+def format_operand(k): return next(n for n in ("ofmt", "Dfmt.Afmt.Bfmt") if n in k.operand_types)
 
 
 def arithmetic(c):
@@ -67,10 +71,10 @@ def arithmetic(c):
         src = source(k, "Rb", "Sb", "URb")
         if not src: continue
         typ = k.operand_types[src].type
-        for i, x in enumerate(values):
+        for (i, x), fmt in itertools.product(enumerate(values), c.labels(k, format_operand(k), tuple(MUL_FORMATS))):
             y = values[(i * 3 + 2) % len(values)]
             for sa, sb in (("H1_H0", "H1_H0"), ("H0_H0", "H1_H1"), ("H1_H1", "H0_H0")):
-                fields = {"Rd": 2, "Ra": 2 if i % 2 == 0 else 4, "iswzA": sa, "ofmt": "F16_V2", "fmz": k.operand_types["fmz"].default,
+                fields = {"Rd": 2, "Ra": 2 if i % 2 == 0 else 4, "iswzA": sa, format_operand(k): fmt, "fmz": k.operand_types["fmz"].default,
                           "sat": "nosat", "Ra@absolute": int(bool(i & 1)), "Ra@negate": int(bool(i & 2))}
                 regs, memory = {"R2": x, "R4": x}, []
                 if typ in ("F16Imm", "UImm"): fields.update(Sb=y >> 16, Sb1=y & 0xffff)
@@ -78,8 +82,10 @@ def arithmetic(c):
                     put(k, src, y, fields, regs, memory, 6, bank=(0, 0x100)); fields["iswzB"] = sb
                 else: continue
                 a, b = lanes(x, sa, bool(i & 1), bool(i & 2)), lanes(y, sb if "iswzB" in k.operand_types else "H1_H0")
-                want = sum(softfloat.arithmetic("mul", [a[lane], b[lane]], 16) << (16 * lane) for lane in (0, 1))
-                c.add(k.name, fields, regs, dict(R2=want, __native=True), memory=memory)
+                if fmt == "F16_V2": got = [softfloat.arithmetic("mul", [a[lane], b[lane]], 16) for lane in (0, 1)]
+                else: got = [half_product(a[lane], b[lane], *MUL_FORMATS[fmt][1:], MUL_FORMATS[fmt][0]) for lane in (0, 1)]
+                if None in got: continue
+                c.add(k.name, fields, regs, dict(R2=got[0] | got[1] << 16, __native=True), memory=memory)
     c.add("hadd2__RR", dict(Rd=8, Ra=2, Rc=4, ftz="FTZ"), {}, dict(error="sass_opaque_HADD2"))
     c.add("hfma2__RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6, fmz="FMZ"), {}, dict(error="sass_opaque_HFMA2"))
 

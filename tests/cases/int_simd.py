@@ -1,9 +1,9 @@
-"""Packed integer lanes: IDP.4A/2A dot products, VABSDIFF4, VIMNMX, VIADDMNMX, VIMNMX3,
+"""Packed integer lanes: IDP.4A/2A dot products, VABSDIFF4, VIMNMX, VIADDMNMX, VIMNMX3, VISET,
 including CX (constant-descriptor) source forms."""
 import random
 from tests.harness.case import cx_header, cx_source, put, ram, source
 from tests.refs.bits import MASK32
-from tests.refs.integer import dot2, dot4, vabsdiff4, viaddmnmx, vminmax
+from tests.refs.integer import COMPARISONS, dot2, dot4, vabsdiff4, viaddmnmx, vminmax, vset_mask
 
 FMTS = [("S32", 32, True), ("U32", 32, False), ("S16x2", 16, True), ("U16x2", 16, False), ("S8x4", 8, True), ("U8x4", 8, False)]
 
@@ -173,8 +173,23 @@ def minmax(c):
         c.add(k.name, fields, {"R2": a, "R6": d, **cx_regs}, {"R8": vminmax((a, b, d), 32, True, True), "__native": True}, memory=memory)
 
 
+def viset(c):
+    """SM107's VISET.BM: lane masks of every comparison and format, from each B source kind."""
+    rng = random.Random("viset")
+    words = [0, 0xffffffff, 0x80007fff, 0x7fff8000, 0x7f80ff01, 0x12345678] + [rng.getrandbits(32) for _ in range(6)]
+    for k in c.of("VISET"):
+        srcb = source(k, "Rb", "URb", "Sb")
+        for (fmt, width, signed), op in ((f, op) for f in FMTS for op in COMPARISONS):
+            for j, a in enumerate(words):
+                b = a if j % 4 == 0 else words[(j * 5 + 1) % len(words)]
+                rd = 4 if j % 3 == 0 else 8
+                fields, regs = {"Rd": rd, "Ra": 4, "fmt": fmt, "icmp": op}, {"R4": a}
+                put(k, srcb, b, fields, regs, None, 6, ureg=10, imm=("UImm",))
+                c.add(k.name, fields, regs, {f"R{rd}": vset_mask(a, b, width, signed, op), "__native": True})
+
+
 def emulator_cases(c):
-    idp(c); vabsdiff(c); minmax(c)
+    idp(c); vabsdiff(c); minmax(c); viset(c)
 
 
 def gpu_fixtures():

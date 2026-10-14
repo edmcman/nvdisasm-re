@@ -1,0 +1,39 @@
+# f32x2 source lanes, swizzles and per-lane negation (FADD2/FFMA2/FMUL2)
+add.rn.f32x2 %d10, %d2, %d3;
+sub.rn.f32x2 %d10, %d2, %d3;
+fma.rn.f32x2 %d10, %d2, %d3, %d4;
+mul.rz.f32x2 %d10, %d2, %d3;
+add.rz.ftz.f32x2 %d10, %d2, %d3;
+# PTX 9.4 mixed precision (sm_107f): FHADD2/FHFMA2/FHMUL2
+add.rn.f32x2.f16x2.f32x2 %d10, %r1, %d2;
+add.rz.f32x2.f16x2.f32x2 %d10, %r1, %d2;
+add.rm.f32x2.f16x2.f32x2 %d10, %r1, %d2;
+add.rn.f32x2.bf16x2.f32x2 %d10, %r1, %d2;
+sub.rn.f32x2.f16x2.f32x2 %d10, %r1, %d2;
+fma.rn.f32x2.f16x2.f32x2.f32x2 %d10, %r1, %d2, %d3;
+fma.rn.f32x2.bf16x2.f32x2.f32x2 %d10, %r1, %d2, %d3;
+add.rz.f16x2.f32x2.f32x2 %r10, %d2, %d3;
+add.rz.ftz.f16x2.f32x2.f32x2 %r10, %d2, %d3;
+add.rz.bf16x2.f32x2.f32x2 %r10, %d2, %d3;
+mul.rz.ftz.f16x2.f32x2.f32x2 %r10, %d2, %d3;
+mul.rz.bf16x2.f32x2.f32x2 %r10, %d2, %d3;
+# HMUL2 mixed formats: d = a * convert(c)
+mul.f16x2.f16x2.bf16x2 %r10, %r1, %r2;
+mul.bf16x2.bf16x2.f16x2 %r10, %r1, %r2;
+mul.rn.f16x2.f16x2.bf16x2 %r10, %r1, %r2;
+# VISET: PTX set gives 0xffffffff/0, vset 0/1
+set.le.u32.s32 %r10, %r4, %r1;
+set.ne.u32.u32 %r10, %r1, %r3;
+set.eq.u32.s32 %r10, %r3, 7;
+set.lt.u32.s16 %r10, %h1, %h3;
+vset2.u32.u32.lt.add %r10, %r1, %r2, %r3;
+# F2FP scaled downconvert: where ptxas puts scale-factor
+cvt.rn.satfinite.scaled::n1::ue8m0.e4m3x2.f32 %h9, %f1, %f2, %s1;
+cvt.rz.satfinite.relu.scaled::n1::ue8m0.e5m2x2.f32 %h9, %f1, %f2, %s1;
+cvt.rn.satfinite.pzo.scaled::n1::ue8m0.e4m3x2.f32 %h9, %f1, %f2, %s1;
+cvt.rn.satfinite.scaled::n1::ue8m0.e4m3x2.bf16x2 %h9, %r1, %s1;
+cvt.rn.satfinite.scaled::n1::ue8m0.ue5m3x2.f32 %h9, %f1, %f2, %s1;
+cvt.rn.satfinite.scaled::n2::ue8m0.s2f6x2.f32 %h9, %f1, %f2, %h3;
+cvt.rn.satfinite.s2f6x2.f32 %h9, %f1, %f2;
+cvt.rn.ue5m3x2.f32 %h9, %f1, %f2;
+cvt.rn.f16x2.ue5m3x2 %r10, %h1;

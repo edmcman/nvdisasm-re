@@ -59,9 +59,9 @@ def arithmetic(c):
         c.add("iadd3_noimm__RRR_RRR", common, regs, {f"R{rd}": (a + b + d) & MASK32})
         c.add("iabs__RRR_R", dict(Rd=rd, Rb=4), regs, {f"R{rd}": abs(sext(b, 32)) & MASK32})
         c.add("sel__RRR_RRR", dict(Rd=rd, Ra=2, Rb=4, Pp=0), dict(regs, P0=i % 2), {f"R{rd}": a if i % 2 else b})
-        # SM120 adds a second predicate input and two predicate results: an explicit fallback.
+        # SM107/SM120 add a second predicate input and two predicate results: an explicit fallback.
         c.add("imnmx__RRR_RRR", dict(Rd=rd, Ra=2, Rb=4, Pp=0, fmt="U32"), dict(regs, P0=1),
-              dict(error="sass_opaque_IMNMX") if c.arch == "SM120" else {f"R{rd}": min(a, b)})
+              dict(error="sass_opaque_IMNMX") if "Pq" in c.classes["imnmx__RRR_RRR"].operand_types else {f"R{rd}": min(a, b)})
         c.add("lop3_lut__RRR_RRR", dict(common, imm8=0x96, Pp="PT"), regs, {f"R{rd}": a ^ b ^ d})
         c.add("lea_lo_noimm__RRR_RRR", dict(Rd=rd, Ra=2, Rb=4, scaleU5=i % 8), regs, {f"R{rd}": ((a << (i % 8)) + b) & MASK32})
     # Mixed register banks and uniform aliases retain original md operand names.

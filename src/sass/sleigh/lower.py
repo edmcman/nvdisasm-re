@@ -358,7 +358,8 @@ class Operand:
     (('sub', table) or (token, field)) it needs. A w-bit value occupies its whole bytes with the
     bits above w zero."""
     text: str
-    kind: str                       # local (this body's), name (a symbol, table or register), const, piece (name:n) or expr
+    kind: str                       # local (this body's), name (a symbol, table or register), const, piece (name:n), expr or
+                                    # unsized (float2float(...): sized only by where it is assigned)
     refs: frozenset = frozenset()
 
     @property
@@ -440,11 +441,19 @@ class Lower:
         alike (narrowing a hoisted zext must find it)."""
         return Expr("zext", e.args, 8 * nbytes(e.w)) if e.op == "zext" else e
 
-    def remember(self, e, v): self.memo[-1][self.key(e)] = v
+    def remember(self, e, v):
+        self.memo[-1][self.key(e)] = v
+        if e.op == "zext":   # also findable by a narrower zero-extension of the same value
+            wide = ("zext", e.args[0])
+            if nbytes(e.w) > nbytes(self.memo[-1].get(wide, (0, None))[0]): self.memo[-1][wide] = (e.w, v)
 
     def lookup(self, e):
         k = self.key(e)
-        return next((m[k] for m in reversed(self.memo) if k in m), None)
+        if (hit := next((m[k] for m in reversed(self.memo) if k in m), None)) is not None or e.op != "zext": return hit
+        # A wider zero-extension of the same value computed already (hoisted before a branch whose
+        # arms were then narrowed): its low bytes.
+        w, v = next((m[("zext", e.args[0])] for m in reversed(self.memo) if ("zext", e.args[0]) in m), (0, None))
+        return self.truncated(v, w, nbytes(e.w)) if v is not None and nbytes(w) > nbytes(e.w) else None
 
     def value(self, e):
         """The lowered value of e."""
@@ -468,7 +477,9 @@ class Lower:
     def widened(self, e, w):
         """e's value zero-extended to nbytes(w) bytes (no operation if the byte size is the same)."""
         v = self.value(e)
-        return v if nbytes(e.w) == nbytes(w) else self.local(w, expr(f"zext({v.text})", v))
+        if nbytes(e.w) == nbytes(w): return v
+        if v.kind == "unsized": v = self.local(e.w, v)   # zext() can't size a float2float
+        return self.local(w, expr(f"zext({v.text})", v))
 
     def signed(self, e):
         """e's value sign-extended from bit e.w - 1 to its whole bytes (for signed operations)."""
@@ -564,7 +575,7 @@ class Lower:
         wide = [self.widen_float(x, 2 * n) for x in xs]
         x = (f"({wide[0]} f* {wide[1]}) f* {scale_constant(scale, 2 * n)}" if op == "fmul"
              else f"{wide[0]} f* {wide[1]} f+ {wide[2]}")
-        return expr(f"float2float({x})", *wide)
+        return Operand(f"float2float({x})", "unsized", frozenset().union(*(p.refs for p in wide)))
 
     def half_op(self, op, xs, scale):
         """binary16: a native product (as the FP32 one), else computed in binary64 (sums exact) or

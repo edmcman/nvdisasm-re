@@ -78,7 +78,7 @@ class Case(NamedTuple):
 
 # Mnemonics whose readable lowering differs from the exact one: their exact-mode cases do
 # not apply to the readable language, which gets its own (portable=True) cases instead.
-READABLE_FLOATS = {"FADD", "FMUL", "FFMA", "DADD", "DMUL", "DFMA", "HADD2", "HFMA2", "HMUL2", "FSEL", "FMNMX", "FSETP"}
+READABLE_FLOATS = {"FADD", "FMUL", "FFMA", "FADD2", "FMUL2", "FFMA2", "FHADD2", "FHMUL2", "FHFMA2", "DADD", "DMUL", "DFMA", "HADD2", "HFMA2", "HMUL2", "FSEL", "FMNMX", "FSETP"}
 
 
 class Cases(list):

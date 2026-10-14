@@ -74,6 +74,11 @@ def vminmax(values, width, signed, is_min, relu=False):
     return pack([lane(xs) for xs in zip(*(lanes(v, width, signed) for v in values))], width)
 
 
+def vset_mask(a, b, width, signed, op):
+    """VISET.BM: per lane all ones where `a op b` holds (op: an ICmpAll label), else zero."""
+    return pack([-int(compare(x, y, op)) for x, y in zip(lanes(a, width, signed), lanes(b, width, signed))], width)
+
+
 def viaddmnmx(a, b, c, width, signed, is_min, relu=False):
     """VIADDMNMX: lane sums modulo the lane width, then min/max with c."""
     sums = pack([x + y for x, y in zip(lanes(a, width), lanes(b, width))], width)

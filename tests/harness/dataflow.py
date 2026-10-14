@@ -48,8 +48,8 @@ def expected(g, d, optimized=False):
             if all((lut>>v&1)==(lut>>(v^(1<<bit))&1) for v in range(8)):
                 unused.update(names)
         if d.env.get('Pu',d.env.get('UPu'))==7:unused.update(('Pp','UPp'))
-    if optimized and d.klass.mnemonic in ('ISETP','UISETP','FSETP'):
-        name='icmp' if d.klass.mnemonic in ('ISETP','UISETP') else 'fcomp'
+    if optimized and d.klass.mnemonic in ('ISETP','UISETP','FSETP','VISET'):
+        name='fcomp' if d.klass.mnemonic=='FSETP' else 'icmp'
         operand=d.klass.operand_types.get(name)
         if (operand and not d.env.get('ex') and
                 d.env.get(name) in {g.arch.enums[operand.type].get(n) for n in ('F','T')}):
@@ -58,6 +58,8 @@ def expected(g, d, optimized=False):
         if (d.klass.mnemonic=='ISETP' and 'Pr' in d.env and ex and
                 d.env.get('ex')==g.arch.enums[ex.type].get('noex')):
             unused.add('Pr')
+    if optimized and d.klass.name.startswith('imad_pseudo') and 'Rb' in d.klass.operand_types and d.env.get('Rb')==g.register_zero(d.klass,'Rb'):
+        unused.update(('Ra','URa'))   # the pseudo-op fixes Rb = RZ: Ra * 0 folds away (IMAD.MOV)
     if optimized and d.klass.mnemonic=='VABSDIFF4':
         red=d.klass.operand_types.get('red');enums=g.arch.enums.get(red.type,{}) if red else {}
         if d.env.get('red')==enums.get('SIMD_MRG'):
@@ -101,8 +103,9 @@ def expected(g, d, optimized=False):
                     h1h1=g.arch.enums[atom.type].get('H1_H1')
                     if d.env.get(selector)!=h1h1:
                         needed=set(range(base+size*index,base+size*index+2))
-            elif optimized and role=='read' and span==1 and d.klass.mnemonic in ('HADD2','HFMA2','HMUL2','HMNMX2'):
-                # A low-half broadcast in HADD2/HFMA2/HMUL2/HMNMX2 reads only the two-byte
+            elif optimized and role=='read' and span==1 and (d.klass.mnemonic in ('HADD2','HFMA2','HMUL2','HMNMX2')
+                                                               or d.klass.mnemonic in ('FHADD2','FHFMA2') and o['name']=='Ra'):
+                # A low-half broadcast in HADD2/HFMA2/HMUL2/HMNMX2 (and FHADD2/FHFMA2's F16/BF16 A) reads only the two-byte
                 # register slice; |x| and -x apply to the half. Two-register CX address inputs
                 # retain the entire pointer.
                 selectors={'Ra':('iswzA',),'Rb':('iswzB','iswzC_as_B'),
@@ -119,10 +122,9 @@ def expected(g, d, optimized=False):
             if optimized and role=='read' and span==1 and d.klass.mnemonic in ('F2FP','UF2FP','F2IP','F2F','F2I','I2F','FRND'):
                 # F2FP/F2IP and the 16/8-bit conversion sources read an operand's half or byte named
                 # by the selector after it in FORMAT (extract, extract_B, selB, hsel, bsel): the bytes
-                # up to it (SLEIGH truncates to the low bytes, then shifts). F2FP's MERGE_C forms
-                # without a selector keep C's low half.
+                # up to it (SLEIGH truncates to the low bytes, then shifts). The scaled MERGE_C
+                # forms, without a selector, read all of C: the scales above the kept low half.
                 label=part_selector(g,d,o['name'])
-                if label is None and d.klass.mnemonic=='F2FP' and o['name'] in ('Rc','URc') and 'mx8_downconvert' in d.klass.name:label='H0'
                 if label in PREFIX:needed=set(range(base+size*index,base+size*index+PREFIX[label]))
             if optimized and role=='read' and span==1 and d.klass.mnemonic in ('I2IP','UI2IP'):
                 # I2IP packs two width-bit lanes above the rest of C: only the bytes that reach the

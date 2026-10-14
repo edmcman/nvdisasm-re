@@ -38,7 +38,8 @@ FORMATS = {
     "F32": Format(8, 23, 127, "ieee"), "F16": Format(5, 10, 15, "ieee"), "BF16": Format(8, 7, 127, "ieee"),
     "E6M9": Format(6, 9, 31, "ieee"), "E5M2": Format(5, 2, 15, "ieee"), "E4M3": Format(4, 3, 7, "max"),
     "E3M4": Format(3, 4, 3, "max"), "E3M2": Format(3, 2, 3, None), "E2M3": Format(2, 3, 1, None),
-    "E2M1": Format(2, 1, 1, None), "E0M3": Format(0, 3, -2, None), "F64": Format(11, 52, 1023, "ieee")}
+    "E2M1": Format(2, 1, 1, None), "E0M3": Format(0, 3, -2, None), "F64": Format(11, 52, 1023, "ieee"),
+    "UE5M3": Format(5, 3, 15, "max")}   # unsigned: its code is the magnitude alone (NaN 0xff)
 
 ROUNDING = ("RN", "RZ", "RP", "RM")
 

@@ -10980,5 +10980,36 @@
       }
     },
     "hardware_execution": "Not run: available device is SM89 and cannot execute SM100+ SASS."
+  },
+  "sm107": {
+    "architecture": "SM107",
+    "hardware_execution": "Not run: available device is SM89 and cannot execute SM107 SASS.",
+    "compiler": {
+      "ptxas": "13.4.92 (nvidia-cuda-nvcc 13.4.92 wheel)",
+      "target": "sm_107a",
+      "probe": "research/sm107/probe.py",
+      "candidates": "research/sm107/candidates.txt",
+      "results": "research/sm107/results.txt"
+    },
+    "documents": [
+      "PTX ISA 9.4 (docs.nvidia.com/cuda/parallel-thread-execution): 9.7.5 mixed precision, 9.7.10.24 cvt",
+      "CUDA 13.4.92 cuda_fp8.hpp host UE5M3 conversion (nvidia-cuda-runtime wheel)"
+    ],
+    "compiler_established": [
+      "FADD2/FFMA2/FMUL2 source lanes: pair, LO_HI swap, F32 and immediate broadcast, |x| both lanes, -x lane 0, -x XOR NP lane 1 after the swizzle",
+      "FHADD2/FHFMA2/FHMUL2 are PTX add/sub/fma/mul .f32x2.{f16x2,bf16x2}.f32x2 and .rz{.ftz}.{f16x2,bf16x2}.f32x2.f32x2; .ftz required for a F16x2 result",
+      "HMUL2 mixed formats are PTX mul.{f16x2.f16x2.bf16x2,bf16x2.bf16x2.f16x2} (d = a * convert(c))",
+      "VISET.BM is PTX set.<cmp>.u32.{s32,u32}: all-ones/zero lanes",
+      "F2FP scale-factor in Rc's high half: n2 (S2_6) Rc[31:24]/Rc[23:16], n1 (SCALE_BY_C) Rc[31:24]",
+      "F2FP .PZO and UE5M3 destinations (ptxas F2FP.UE5M3, .PZO)"
+    ],
+    "inferred": [
+      "Rd[31:16] = Rc[15:0] of the scaled downconverts",
+      "VISET 16x2/8x4 lanes",
+      "FH*2 F16/BF16 NaN results",
+      "F16x2-result .FTZ stages (PTX's general half-type .ftz)"
+    ],
+    "emulator_suites": "tests/cases/fp32x2.py, int_simd.py (VISET), fp16.py (HMUL2), f2fp.py (scaled_8b_down, mx8_down): exact/readable lift and Ghidra p-code",
+    "date": "2026-10-14"
   }
 }

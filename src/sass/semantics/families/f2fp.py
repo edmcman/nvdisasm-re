@@ -5,6 +5,7 @@ from sass.semantics.bitvec import concat, const, extract, ite, lnot, zext
 from sass.semantics.family import family, outputs, unmodelled
 
 FP8, FP6 = ("E4M3", "E5M2"), ("E2M3", "E3M2")
+NARROW8 = FP8 + FP6 + ("UE5M3",)
 
 
 def downconvert(k): return "_to_8b_downconvert__" in k.name
@@ -12,31 +13,35 @@ def downconvert(k): return "_to_8b_downconvert__" in k.name
 
 def destination(i):
     """The destination format's constants, chosen by dstfmt: one conversion for every format."""
-    param = lambda f, w=32: i.select_lookup_const("dstfmt", {n: f(n) for n in FP8 + FP6}, w)
+    param = lambda f, w=32: i.select_lookup_const("dstfmt", {n: f(n) for n in NARROW8 if n in i.labels("dstfmt")}, w)
     return fpformat.Dest(
         mbits=param(lambda n: FORMATS[n].mbits), emin=param(lambda n: FORMATS[n].emin),
         max_code=param(lambda n: FORMATS[n].max_code),
-        # A NaN keeps its sign; FP6 has no NaN (SATFINITE: +max).
-        nan_signed=param(lambda n: n in FP8, 1), nan_mag=param(lambda n: 0x7f if n in FP8 else 0x1f),
-        # Without SATFINITE, E4M3 overflows to +NaN, E5M2 to signed infinity (FP6 requires SATFINITE).
-        ovf_signed=param(lambda n: n != "E4M3", 1),
-        ovf_mag=param(lambda n: {"E4M3": 0x7f, "E5M2": 0x7c}.get(n, FORMATS[n].max_code)))
+        # A NaN keeps its sign; FP6 has no NaN (SATFINITE: +max); UE5M3's is 0xff.
+        nan_signed=param(lambda n: n in FP8, 1), nan_mag=param(lambda n: {"UE5M3": 0xff}.get(n, 0x7f if n in FP8 else 0x1f)),
+        # Without SATFINITE, E4M3 overflows to +NaN, E5M2 to signed infinity, UE5M3 to NaN (FP6 requires SATFINITE).
+        ovf_signed=param(lambda n: n not in ("E4M3", "UE5M3"), 1),
+        ovf_mag=param(lambda n: {"E4M3": 0x7f, "E5M2": 0x7c, "UE5M3": 0xff}.get(n, FORMATS[n].max_code)))
+
+
+def narrow_byte(i, p, r, general=False):
+    """The Parts p rounded to the dstfmt byte: FP8/FP6 with the sign at bit 7, or unsigned UE5M3
+    (the sign dropped first, as CUDA's cuda_fp8.hpp does). SATFINITE and RN/RZ/RP per the class;
+    RELU zeroes negative results except NaNs; .PZO makes a -0 result +0 (PTX cvt)."""
+    d = destination(i)
+    sat, relu, pzo = (bit(i, n, on, off) for n, on, off in (("satfinite", "SATFINITE", "nosatfinite"), ("relu", "RELU", "norelu"), ("pzo", "PZO", "nopzo")))
+    unsigned = i.select_lookup_const("dstfmt", {n: int(n == "UE5M3") for n in NARROW8 if n in i.labels("dstfmt")}, 1)
+    sign, mag, nan = fpformat.round_parts(p._replace(sign=p.sign & lnot(unsigned)), d, r, sat, general)
+    sign = sign & lnot(pzo & (extract(mag, 6, 0) == 0))
+    return ite(unsigned == 1, extract(mag, 7, 0), ite(relu & sign & lnot(nan), const(0, 8), concat(sign, extract(mag, 6, 0))))
 
 
 @family("F2FP", "UF2FP", classes=downconvert)
 def f2fp_8b_downconvert(i):
-    """Two values, Ra and Rb as F32 or Rb's halves as F16/BF16, rounded to FP8 (E4M3/E5M2) or FP6
-    (E2M3/E3M2) bytes (sign at bit 7) and packed above them with one half of Rc. RELU zeroes
-    negative results except NaNs."""
-    d = destination(i)
+    """Two values, Ra and Rb as F32 or Rb's halves as F16/BF16, rounded to FP8 (E4M3/E5M2), FP6
+    (E2M3/E3M2) or UE5M3 bytes (narrow_byte) and packed above them with one half of Rc."""
     r = fpformat.chosen_rounding(i, "rndMode", {m: m for m in ROUNDING})
-    sat = i.select_lookup_const("satfinite", {"SATFINITE": 1, "nosatfinite": 0}, 1)
-    relu = i.select_lookup_const("relu", {"RELU": 1, "norelu": 0}, 1)
-
-    def convert(x, src):
-        sign, mag, nan = fpformat.narrow_parts(x, src, d, r, sat)
-        return ite(relu & sign & lnot(nan), const(0, 8), concat(sign, extract(mag, 6, 0)))
-
+    convert = lambda x, src: narrow_byte(i, fpformat.parts(x, src), r)
     if i.select_fork("merge") not in ("PACK_AB_MERGE_C", "UNPACK_B_MERGE_C"): unmodelled(f"{i.select_fork('merge')} merge")
     src = i.select_fork("srcfmt")
     if "_f16_to_8b_" in i.cls:
@@ -171,28 +176,51 @@ def f2fp_4b_downconvert(i):
     return outputs(Rd=zext(concat(*(convert(extract(v, h + 15, h), src) for v in (c, b) for h in (16, 0))), 32))
 
 
-@family("F2FP", "UF2FP", classes=form("f2fp_f32_to_mx8_downconvert_scale", "f2fp_f16_to_mx8_downconvert_scale"))
-def f2fp_s2_6_downconvert(i):
-    """Two values divided by their UE8M0 scales (Rc's bytes 1 and 0; 0xff: NaN) and rounded (RN,
-    SATFINITE) to S2_6 fixed point, two's complement in Rd[15:8] and Rd[7:0]. F32: Ra (high), Rb;
-    BF16: Rb's halves. NaN gives +127/64; RELU zeroes negative results."""
-    required(i, "dstfmt", "S2_6"); required(i, "rndMode", "RN"); required(i, "satnarrow", "SATFINITE")
+def scaled_pair(i, convert, one_scale):
+    """Rd = Rc[15:0] << 16 | convert(A) << 8 | convert(B): F32 Ra and Rb, or Rb's F16/BF16 halves
+    (high first), each divided by its UE8M0 scale (0xff: NaN). The scales are Rc's high half, where
+    ptxas 13.4 puts PTX cvt's scale-factor (`IMAD.U32 Rc, s, 0x10000`; one scale:
+    `IMAD.SHL.U32 Rc, s, 0x1000000`): Rc[31:24] for A and Rc[23:16] for B (.scaled::n2), or Rc[31:24]
+    for both (.scaled::n1, SCALE_BY_C). Rc[15:0] as MERGE_C's half (the unscaled forms' default H0)
+    is inferred: ptxas always passes zero there."""
     f32 = "_f32_to_" in i.cls
     required(i, "merge", "PACK_AB_MERGE_C" if f32 else "UNPACK_B_MERGE_C")
-    src = str(required(i, "srcfmt", "F32" if f32 else "BF16"))
-    d = fpformat.Dest(S2_6.mbits, S2_6.emin, 127, 0, 127, 1, 127)
-    relu, scales = bit(i, "relu", "RELU", "norelu"), i.value("Rc|Sc", modifiers=False)
+    src = str(required(i, "srcfmt", *(("F32",) if f32 else ("F16", "BF16"))))
+    c = i.value("Rc|Sc", modifiers=False)
 
-    def convert(x, scale):
+    def scaled(x, scale):
         p = fpformat.parts(x, src, normalized=True).scaled(const(127, 32) - zext(scale, 32))
-        p = p._replace(nan=p.nan | (scale == 0xff))
-        sign, mag, nan = fpformat.round_parts(p, d, fpformat.rounding("RN"), 1, general=True)
-        return relu_zero(relu, sign & lnot(nan), extract(ite(sign == 1, -mag, mag), 7, 0))
+        return convert(p._replace(nan=p.nan | (scale == 0xff)))
 
-    if f32: a, b = i.fvalue("Ra"), i.fvalue("Rb|Sb")
+    if f32: a, b = i.value("Ra", modifiers=False), i.value("Rb|Sb", modifiers=False)
     else:
         v = i.value("Rb|Sb", modifiers=False); a, b = extract(v, 31, 16), extract(v, 15, 0)
-    return outputs(Rd=zext(concat(convert(a, extract(scales, 15, 8)), convert(b, extract(scales, 7, 0))), 32))
+    scale_b = extract(c, 31, 24) if one_scale else extract(c, 23, 16)
+    return outputs(Rd=concat(extract(c, 15, 0), scaled(a, extract(c, 31, 24)), scaled(b, scale_b)))
+
+
+@family("F2FP", "UF2FP", classes=form("f2fp_f32_to_mx8_downconvert_scale", "f2fp_f16_to_mx8_downconvert_scale"))
+def f2fp_s2_6_downconvert(i):
+    """Two scaled values (scaled_pair, a scale each) rounded (RN, SATFINITE) to S2_6 fixed point,
+    two's complement. NaN gives +127/64; RELU zeroes negative results; .PZO changes nothing (no -0)."""
+    required(i, "dstfmt", "S2_6"); required(i, "rndMode", "RN"); required(i, "satnarrow", "SATFINITE")
+    d = fpformat.Dest(S2_6.mbits, S2_6.emin, 127, 0, 127, 1, 127)
+    relu = bit(i, "relu", "RELU", "norelu")
+    bit(i, "pzo", "PZO", "nopzo")
+
+    def convert(p):
+        sign, mag, nan = fpformat.round_parts(p, d, fpformat.rounding("RN"), 1, general=True)
+        return relu_zero(relu, sign & lnot(nan), extract(ite(sign == 1, -mag, mag), 7, 0))
+    return scaled_pair(i, convert, one_scale=False)
+
+
+@family("F2FP", "UF2FP", classes=form("f2fp_f32_to_8b_downconvert_scale", "f2fp_f16_to_8b_downconvert_scale"))
+def f2fp_8b_downconvert_scaled(i):
+    """SM107 (PTX cvt .scaled::n1::ue8m0): two values divided by one scale (scaled_pair) and
+    rounded (RN, RZ) to FP8/FP6/UE5M3 bytes as the unscaled downconvert does (narrow_byte)."""
+    required(i, "scalec", "SCALE_BY_C")
+    r = fpformat.chosen_rounding(i, "rndMode", {"RN": "RN", "RZ": "RZ"})
+    return scaled_pair(i, lambda p: narrow_byte(i, p, r, general=True), one_scale=True)
 
 
 @family("F2FP", "UF2FP", classes=form("f2fp_E8_upconvert"))
