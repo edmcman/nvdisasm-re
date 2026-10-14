@@ -58,7 +58,9 @@ def disasm_batch(arch, words):
 class Oracle:
     def __init__(self, path=CACHE):
         path.parent.mkdir(exist_ok=True)
-        self.db = sqlite3.connect(path)
+        # Parallel workers fill one cache: WAL keeps readers from blocking the writer, the timeout serializes writers.
+        self.db = sqlite3.connect(path, timeout=60)
+        self.db.execute("pragma journal_mode=wal")
         self.db.execute("create table if not exists r (tool text, arch text, word blob, addr int, text text, error text, primary key (tool, arch, word))")
 
     def disasm(self, arch, words):

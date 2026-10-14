@@ -13,12 +13,15 @@ LOOSE = [*Path.home().glob("Downloads/*.cubin"), *Path.home().glob(".triton/cach
 def extract(lib):
     out = CACHE / lib.name
     if not out.exists():
-        # A private directory per process: parallel workers (one per architecture) extract at once.
+        # Parallel workers each extract privately; the first rename wins and the losers discard theirs.
         CACHE.mkdir(parents=True, exist_ok=True)
-        tmp = Path(tempfile.mkdtemp(prefix=lib.name, dir=CACHE))
-        subprocess.run([CUOBJDUMP, "-xelf", "all", str(lib.resolve())], cwd=tmp, check=True, capture_output=True)
-        try: tmp.rename(out)
-        except OSError: shutil.rmtree(tmp)   # another worker finished first
+        tmp = Path(tempfile.mkdtemp(dir=CACHE, prefix=f"{lib.name}."))
+        try:
+            subprocess.run([CUOBJDUMP, "-xelf", "all", str(lib.resolve())], cwd=tmp, check=True, capture_output=True)
+            try: tmp.rename(out)
+            except OSError:
+                if not out.is_dir(): raise
+        finally: shutil.rmtree(tmp, ignore_errors=True)
     return sorted(out.glob("*.cubin"))
 
 def cubins():
