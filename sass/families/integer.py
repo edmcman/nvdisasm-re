@@ -163,14 +163,14 @@ def lop3(i):
 @family('PLOP3', 'UPLOP3', classes=lambda k: 'reg__' not in k.name)
 def plop3(i):
     """Pu, Pv = the functions of Pp, Pq, Pr with truth tables uimm8, vimm8 (bit 4p+2q+r, as LOP3).
-    Pu's table is enumerated into a boolean expression; Pv (almost always PT) looks its bit up,
-    since enumerating both tables jointly costs 65536 rows. The register-source classes (a
-    register's sign as an input) are unmodelled."""
+    Both look their bit up: enumerating Pu's 256 tables into boolean expressions cost ~30 KB of
+    SLEIGH per class (SM90 was near the .sla cap), and both jointly 65536 rows. The register-source
+    classes (a register's sign as an input) are unmodelled."""
     if i.select_fork('lut') != 'LUT': unmodelled('lut')
     xs = [i.pred('Pp'), i.pred('Pq'), i.pred('Pr')]
     index = (zext(xs[0], 8) << 2) | (zext(xs[1], 8) << 1) | zext(xs[2], 8)
-    pv = extract(trunc(i.imm('vimm8'), 8) >> index, 0, 0)
-    return outputs(Pu=truth_table(i.static('uimm8'), xs), Pv=pv, order=('Pv', 'Pu'))   # aliased: Pu wins (SM89)
+    bit = lambda table: extract(trunc(i.imm(table), 8) >> index, 0, 0)
+    return outputs(Pu=bit('uimm8'), Pv=bit('vimm8'), order=('Pv', 'Pu'))   # aliased: Pu wins (SM89)
 
 
 @family('PRMT', 'UPRMT')
