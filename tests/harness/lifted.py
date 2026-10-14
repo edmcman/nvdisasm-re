@@ -1,5 +1,6 @@
 """Run layer-4 emulator cases through the Ghidra-free semantics (`sass.sem_lift` + `sass.sem_eval`)."""
 import re
+from functools import cache
 from sass import ir, pydecode, sem_eval, sem_lift
 from sass.sem_family import family_for
 from tests.harness.checks import problems
@@ -29,10 +30,16 @@ def observe(s, names):
     return {n: 0 if n == "RZ" else 1 if n == "PT" else s.read(m[1], int(m[2]), 1) for n in names if (m := NAME.match(n)) or n in ("RZ", "PT")}
 
 
+@cache
+def lift(arch, word, address, fp):
+    """Lifted once per word: exhaustive cases share few words (F2FP scaled upconverts: 12288 cases, 48 words)."""
+    return sem_lift.lift(arch, word, address, fp)
+
+
 def run(arch, fp, case):
     """(status, problems) for one case; status native | opaque | illegal."""
     word = bytes.fromhex(case.request["word"])
-    try: lifted = sem_lift.lift(arch, word, case.request.get("address", 0x1000), fp)
+    try: lifted = lift(arch, word, case.request.get("address", 0x1000), fp)
     except pydecode.NoMatch as e: return "illegal", [f"does not decode: {e}"]
     expected = {k: v for k, v in case.expected.items() if k not in PCODE_ONLY}
     opaque = "__opaque" in expected or str(expected.get("error", "")).startswith(("sass_opaque", "sass_prim"))
