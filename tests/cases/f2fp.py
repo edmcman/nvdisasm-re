@@ -6,8 +6,8 @@ from sass.decode.pyencode import encode
 from tests.harness.case import Case, Cases, cx_source, put, source
 from tests.refs import fpformat as fpf
 
-NEW = ("SM100", "SM101", "SM103", "SM120")  # where the focused SM100+ conversion suites run
-FP6 = ("E2M3", "E3M2")
+NEW = ("SM100", "SM101", "SM103", "SM107", "SM120")  # where the focused SM100+ conversion suites run
+FP8, FP6 = ("E4M3", "E5M2"), ("E2M3", "E3M2")
 
 
 def into(k, group, value, fields, regs, reg):
@@ -173,7 +173,7 @@ def upconvert(c):
     for k in c.of("F2FP", "f2fp_4b_upconvert_scale__", cx=None):
         bsrc, csrc = source(k, "Rb", "URb", "Sb"), source(k, "Rc", "URc", "Sc")
         if bsrc is None or csrc is None: continue
-        for fmt in ("E2M1", "E0M3"):
+        for fmt in c.labels(k, "srcfmt", ("E2M1", "E0M3")):
             for selector in c.labels(k, "selB", ("B0", "B1", "B2", "B3")):
                 for relu in ("norelu", "RELU"):
                     for byte in range(256):
@@ -215,7 +215,7 @@ def fp4_pack(c):
             vals.update(rng.getrandbits(16) for _ in range(24))
             vals = sorted(vals)
             # Pair each boundary with a different lane to catch lane swaps.
-            for fmt in ("E2M1", "E0M3"):
+            for fmt in c.labels(k, "dstfmt", ("E2M1", "E0M3")):
                 for relu in ("norelu", "RELU"):
                     for i, x in enumerate(vals):
                         bword = x | (vals[(i * 7 + 3) % len(vals)] << 16)
@@ -347,7 +347,7 @@ def fp4_down(c):
                   "E0M3": (0x3f000000, 0x3fc00000, 0x40200000, 0x40600000, 0x40900000, 0x40b00000, 0x40d00000)}
     rng = random.Random(0xf2f4)
     for k in c.named("f2fp_f32_to_4b_downconvert__"):
-        for fmt in ("E2M1", "E0M3"):
+        for fmt in c.labels(k, "dstfmt", ("E2M1", "E0M3")):
             edges = [0, 0x80000000, 1, 0x80000001, 0x7f800000, 0xff800000, 0x7fc00001, 0xffc12345, 1, 0x007fffff]
             for t in thresholds[fmt]:
                 edges.extend((t - 1, t, t + 1, t | 0x80000000, (t - 1) | 0x80000000, (t + 1) | 0x80000000))
@@ -363,7 +363,8 @@ def fp4_down(c):
 
 
 def mx8_down(c):
-    """F32/BF16 -> S2_6 with per-lane UE8M0 scales; NOSATFINITE (bit 77) is an opaque fallback."""
+    """F32/BF16 -> S2_6 with per-lane UE8M0 scales (PTX .scaled::n2::ue8m0: A's in Rc[31:24], B's in
+    Rc[23:16], where ptxas puts scale-factor), Rc[15:0] kept above; NOSATFINITE (bit 77) is an opaque fallback."""
     floats = (0, 0x80000000, 0x3f000000, 0x3fc00000, 0xbfc00000, 0x3f400000, 0xbf400000, 0x3f600000, 0xbf600000, 0x3f800000, 0xbf800000,
               0x3ffe0000, 0xbffe0000, 0x40000000, 0xc0000000, 0x3c000000, 0xbc000000, 0x3cc00000, 0xbcc00000, 0x3d200000, 0xbd200000,
               0x7e800000, 0xfe800000, 0x7f000000, 0xff000000, 0x7f7fffff, 0xff7fffff, 0x7f800000, 0xff800000, 0x7fc12345, 0xffc54321)
@@ -383,14 +384,55 @@ def mx8_down(c):
                     regs = {}
                     if bf16: into(k, "Rb/URb/Sb", (a & 0xffff0000) | (b >> 16), fields, regs, 4)
                     else: into(k, "Ra/URa", a, fields, regs, 2); into(k, "Rb/URb/Sb", b, fields, regs, 4)
-                    into(k, "Rc/URc/Sc", scale_b | (scale_a << 8), fields, regs, 6)
+                    keep = (i * 0x9e37 + scale_a) & 0xffff
+                    into(k, "Rc/URc/Sc", (scale_a << 24) | (scale_b << 16) | keep, fields, regs, 6)
                     first.setdefault(k.name, (fields, regs))
-                    c.add(k.name, fields, regs, {"R8": (fpf.s2_6(a, scale_a, relu == "RELU") << 8) | fpf.s2_6(b, scale_b, relu == "RELU"), "__native": True})
+                    c.add(k.name, fields, regs, {"R8": (keep << 16) | (fpf.s2_6(a, scale_a, relu == "RELU") << 8) | fpf.s2_6(b, scale_b, relu == "RELU"), "__native": True})
     if c.fp == "exact":
         for cls, (fields, regs) in first.items():
             raw = int.from_bytes(bytes.fromhex(encode(c.arch, cls, **fields)), "little") ^ (1 << 77)
             c.append(Case(cls, dict(word=raw.to_bytes(16, "little").hex(), registers=regs, observe=["R8"], inspect_pcode=True),
                           {"__opaque": "sass_opaque_F2FP("}))
+
+
+def scaled_8b_down(c):
+    """SM107 F32/F16/BF16 -> E4M3/E5M2/E2M3/E3M2/UE5M3 divided by one UE8M0 scale (PTX cvt
+    .scaled::n1::ue8m0; ptxas puts it in Rc[31:24]); A (or Rb's high half) in the high byte, Rc[15:0]
+    kept above; Rc[23:16] holds noise. .PZO, and the unscaled forms' UE5M3/.PZO likewise."""
+    floats = (0, 0x80000000, 1, 0x00800000, 0x3f000000, 0x3fc00000, 0xbfc00000, 0x3f800000, 0xbf800000, 0x40e00000, 0xc3e00000,
+              0x43e00001, 0x47600000, 0x47700000, 0xc7700000, 0x3b000000, 0x3c000000, 0x3c400000, 0x7f7fffff, 0x7f800000, 0xff800000,
+              0x7fc12345, 0xffc54321, 0x3e7fffff, 0x41300000, 0x41980000, 0x47740000, 0x477c0000, 0x37000000, 0x36800000)
+    halves = {"F16": (0, 0x8000, 1, 0x0400, 0x3800, 0x3e00, 0xbe00, 0x3c00, 0xbc00, 0x4700, 0xdf00, 0x5f00, 0x7bff, 0x7c00, 0xfc00, 0x7e01, 0x2c00, 0x3500),
+              "BF16": tuple(x >> 16 for x in floats)}
+    scales = (0, 1, 120, 126, 127, 128, 134, 253, 254, 255)
+    rng = random.Random("f2fp_8b_down_scale")
+
+    def code(fmt, rnd, sat, relu, pz, srcfmt):
+        def one(x, scale):
+            if fmt == "UE5M3": return fpf.ue5m3(x, srcfmt, rnd, sat, scale)
+            out = fpf.fp8(x, fmt, rnd, sat, relu, srcfmt, scale) if fmt in FP8 else fpf.fp6(x, fmt, rnd, relu, srcfmt, scale)
+            return fpf.pzo(out) if pz else out
+        return one
+
+    for k in c.named("f2fp_f16_to_8b_downconvert_scale__", "f2fp_f32_to_8b_downconvert_scale__", "f2fp_f32_to_8b_downconvert__", "f2fp_f16_to_8b_downconvert__"):
+        half, scaled = k.name.startswith("f2fp_f16_"), "_scale__" in k.name
+        if not scaled and not c.labels(k, "dstfmt", ("UE5M3",)) and "pzo" not in k.operand_types: continue
+        for srcfmt in (c.labels(k, "srcfmt", ("F16", "BF16")) if half else ["F32"]):
+            for fmt, rnd, sat, relu, pz in itertools.product(c.labels(k, "dstfmt", FP8 + FP6 + ("UE5M3",)), ("RN", "RZ"), ("nosatfinite", "SATFINITE"), ("norelu", "RELU"), ("nopzo", "PZO") if "pzo" in k.operand_types else (None,)):
+                if fmt in FP6 and sat != "SATFINITE" or fmt == "UE5M3" and relu == "RELU": continue
+                if not scaled and fmt != "UE5M3" and pz != "PZO": continue   # the plain FP8/FP6 forms have their own suites
+                for i, a in enumerate(floats):
+                    b = floats[(i * 7 + 3) % len(floats)]
+                    scale = scales[(i * 3 + rng.randrange(len(scales))) % len(scales)] if scaled else 127
+                    if half: a, b = (halves[srcfmt][j % len(halves[srcfmt])] for j in (i, i * 5 + 2))
+                    fields = dict(Rd=8, dstfmt=fmt, srcfmt=srcfmt, merge="UNPACK_B_MERGE_C" if half else "PACK_AB_MERGE_C",
+                                  rndMode=rnd, satfinite=sat, relu=relu, **(dict(pzo=pz) if pz else {}), **(dict(scalec="SCALE_BY_C") if scaled else dict(extract="H0")))
+                    regs, keep = {}, rng.getrandbits(16)
+                    if half: into(k, "Rb/URb/Sb", (a << 16) | b, fields, regs, 4)
+                    else: into(k, "Ra/URa", a, fields, regs, 2); into(k, "Rb/URb/Sb", b, fields, regs, 4)
+                    into(k, "Rc/URc/Sc", (scale << 24) | (rng.getrandbits(8) << 16) | keep if scaled else keep, fields, regs, 6)
+                    one = code(fmt, rnd, sat == "SATFINITE", relu == "RELU", pz == "PZO", srcfmt)
+                    c.add(k.name, fields, regs, {"R8": (keep << 16) | (one(a, scale) << 8) | one(b, scale), "__native": True})
 
 
 def scaled_up(c):
@@ -419,7 +461,7 @@ def scaled_up(c):
 def e3m4_up(c):
     for k in c.named("f2fp_8b_upconvert__"):
         src = source(k, "Rb", "URb", "Sb")
-        if src is None: continue
+        if src is None or not c.labels(k, "srcfmt", ("E3M4",)): continue
         for extract, relu in itertools.product(("H0", "H1"), ("norelu", "RELU")):
             for code in range(256):
                 packed = code | ((code ^ 0xff) << 8)
@@ -434,7 +476,7 @@ def e3m4_up(c):
 def emulator_cases(c):
     tf32(c); pack16(c); fp8_pack(c); upconvert(c); fp4_pack(c)
     if c.arch in NEW:
-        fp8_down(c); fp6_down(c); fp4_down(c); mx8_down(c); scaled_up(c); e3m4_up(c)
+        fp8_down(c); fp6_down(c); fp4_down(c); mx8_down(c); scaled_8b_down(c); scaled_up(c); e3m4_up(c)
 
 
 def dataflow_words(arch):
@@ -462,7 +504,8 @@ def dataflow_words(arch):
         if "__native" in case.expected: seen.setdefault(case.cls, bytes.fromhex(case.request["word"]))
     words += list(seen.values())
     for i, k in enumerate(c.named("f2fp_8b_upconvert_scale__")):
-        fields = dict(Rd=8, dstfmt="BF16", srcfmt=("E5M2", "E4M3", "E2M3", "E3M2", "E3M4", "S2_6")[i % 6], merge="UNPACK_B", rndMode="RN",
+        fmts = c.labels(k, "srcfmt", ("E5M2", "E4M3", "E2M3", "E3M2", "E3M4", "S2_6"))
+        fields = dict(Rd=8, dstfmt="BF16", srcfmt=fmts[i % len(fmts)], merge="UNPACK_B", rndMode="RN",
                       relu="RELU", satfinite="SATFINITE", extract_B="H1")
         regs = {}
         into(k, source(k, "Rb", "URb", "Sb"), 0x5a3c9f81, fields, regs, 2); into(k, source(k, "Rc", "URc", "Sc"), 0x7f00fe01, fields, regs, 4)

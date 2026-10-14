@@ -6,6 +6,7 @@ results to signed zero), .SAT (to [+0, 1], NaN to +0) and the min/max NaN and si
 The readable lowering is the plain formula: round to nearest, no flushing, min/max a comparison
 (.SAT and the sign modifiers stay)."""
 from sass.semantics.bitvec import *
+from sass.semantics.fp import fpformat
 from sass.semantics.family import family, helper, outputs, unmodelled
 from sass.semantics.families.integer import boolean
 
@@ -345,18 +346,34 @@ def half_flushed_fmz(x):
     return x if (x & 0x7c00) != 0 else const(0, 16)
 
 
+# Rd, A, B lane formats of an HMUL2 format label (SM107 names all three: Dfmt.Afmt.Bfmt).
+MUL_FORMATS = {'F16_V2': ('F16', 'F16', 'F16'), 'BF16_V2': ('BF16', 'BF16', 'BF16'),
+               'BF16x2.BF16x2.F16x2': ('BF16', 'BF16', 'F16'), 'F16x2.F16x2.BF16x2': ('F16', 'F16', 'BF16')}
+
+
+def as_double(x, fmt): return fconv(x if fmt == 'F16' else concat(x, const(0, 16)), 64)
+
+
 @family('HMUL2')
 def hmul2(i):
     """Rd = per lane a * b on binary16, .SAT; .FTZ flushes inputs and results keeping the sign,
     .FMZ flushes inputs to +0 and makes the product +0 when either source is zero or denormal
-    (even 0 * Inf)."""
+    (even 0 * Inf). BF16 and SM107's mixed F16/BF16 formats (PTX mul.d.a.b): b rounded (RN) to Rd's
+    format, then the exact product (binary64 holds it) rounded RN to it; .SAT/.FTZ/.FMZ unmodelled."""
     if i.width('Rd') != 32: unmodelled('width')
-    if i.select_fork('ofmt') != 'F16_V2': unmodelled('ofmt')
+    fmt = i.select_fork('ofmt|Dfmt.Afmt.Bfmt')
+    if fmt not in MUL_FORMATS: unmodelled('format')
     mode = str(i.select_fork('fmz')) if i.has_operand('fmz') else 'nofmz'
     if mode not in ('nofmz', 'nofmz_hfma2', 'FMZ', 'FTZ'): unmodelled(mode)
     if readable(i): mode = 'nofmz'
     sat = half_saturating(i)
     a, b = (half_lanes(i, n, s) for n, s in zip(('Ra|Sa', 'Rb|Sb'), ('iswzA', 'iswzB')))
+    if fmt != 'F16_V2':
+        if sat or mode not in ('nofmz', 'nofmz_hfma2'): unmodelled(f'{mode} SAT={sat} of {fmt}')
+        d, fa, fb = MUL_FORMATS[fmt]   # PTX mul.d.a.b: d = a * convert(b), b first rounded to d's format
+        to_d = (lambda y: y) if fb == d else (lambda y: fpformat.narrow(as_double(y, fb), 'F64', d))
+        lanes = [fpformat.narrow(fmul(as_double(x, fa), as_double(to_d(y), d)), 'F64', d) for x, y in zip(a, b)]
+        return outputs(Rd=concat(lanes[1], lanes[0]))
     lanes = []
     for lane in (0, 1):
         x, y = a[lane], b[lane]
@@ -367,6 +384,105 @@ def hmul2(i):
         if mode == 'FMZ': r = const(0, 16) if ((x & 0x7c00) == 0) | ((y & 0x7c00) == 0) else r
         lanes.append(r)
     return outputs(Rd=concat(lanes[1], lanes[0]))
+
+
+# ---- packed binary32 pairs: FADD2/FMUL2/FFMA2 and the mixed FHADD2/FHFMA2/FHMUL2 (SM107) ------------
+
+SIGN32 = SIGN_EXPONENT[32][0]
+PAIR_SWAPPED = {'F32x2': False, 'F32x2.HI_LO': False, 'F32x2.LO_HI': True, 'F32': False}
+HALF_FORMATS = {'F16x2': 'F16', 'BF16x2': 'BF16'}
+NARROW_NAN = {'F16': (True, 0x7e00), 'BF16': (False, 0x7fff)}   # as F2FP's F16/BF16 packs
+
+
+def widened(i, fmt, x):
+    """A F16/BF16 lane as binary32, exactly; `fmt` names the selector choosing the format."""
+    return i.select_lookup(fmt, {'F16x2': fconv(x, 32), 'BF16x2': concat(x, const(0, 16))})
+
+
+def pair_lanes(i, names, swizzle, neg=None, half=None):
+    """(lane 0, lane 1) binary32 inputs: a register pair (.LO_HI swaps it), one register or
+    immediate for both (.F32), or a F16x2/BF16x2 register (format selector `half`, H1_H0/H0_H0/H1_H1)
+    widened; then |x| on both and, after the swizzle, -x on lane 0 with the negate bit and on lane 1
+    with negate XOR NEGA .NP (ptxas folds neg.f32 of either lane so)."""
+    name = i.resolve(names)
+    v = i.value(name, modifiers=False)
+    if half:
+        lanes = [widened(i, half, x) for x in swizzled(i, swizzle, extract(v, 15, 0), extract(v, 31, 16))]
+    elif v.w == 64:
+        lo, hi = extract(v, 31, 0), extract(v, 63, 32)
+        lanes = [i.select_lookup(swizzle, {l: (hi if s else lo) for l, s in PAIR_SWAPPED.items()}),
+                 i.select_lookup(swizzle, {l: (lo if s else hi) for l, s in PAIR_SWAPPED.items()})]
+    else:
+        if swizzle and i.has_operand(swizzle) and i.select_fork(swizzle) != 'F32': unmodelled(swizzle)
+        lanes = [v, v]
+    lanes = [i.modified(name, 'absolute', x, lambda x: x & (SIGN32 - 1)) for x in lanes]
+    lanes = [i.modified(name, 'negate', x, lambda x: x ^ SIGN32) for x in lanes]
+    if neg and i.has_operand(neg):
+        # .NP on a broadcast: no ptxas form (it copies the register instead), so unmodelled.
+        lanes[1] = lanes[1] ^ i.select_lookup_const(neg, {'PP': 0, 'NP': SIGN32} if half or v.w == 64 else {'PP': 0})
+    return lanes
+
+
+def pair_operands(i, *specs):
+    """The lanes of each (names, swizzle, NEGA) source, flushed under .FTZ, A widened from
+    F16x2/BF16x2 when the class has an Afmt selector of those."""
+    for name in ('Afmt', 'Bfmt', 'Cfmt', 'Dfmt'):
+        if i.has_operand(name) and i.labels(name) == ['F32x2']: i.select_fork(name)
+    half = 'Afmt' if i.has_operand('Afmt') and set(i.labels('Afmt')) <= set(HALF_FORMATS) else None
+    ftz = flushes(i)
+    lanes = [pair_lanes(i, n, s, neg, half if k == 0 else None) for k, (n, s, neg) in enumerate(specs)]
+    return ftz, [[flushed(x) if ftz else x for x in l] for l in lanes]
+
+
+def narrowed(i, x, rnd, ftz):
+    """A binary32 lane rounded to the Dfmt half format (F16x2/BF16x2), a F16 denormal flushed
+    under .FTZ (the md requires .FTZ for F16x2 and forbids it for BF16x2)."""
+    def to(f):
+        r = fpformat.narrow(x, 'F32', f, rnd, nan=NARROW_NAN[f])
+        return flushed(r) if ftz and f == 'F16' else r
+    return i.select_lookup('Dfmt', {l: to(f) for l, f in HALF_FORMATS.items()})
+
+
+def pair_result(i, ftz, lanes):
+    """Rd: the two binary32 lanes (flushed under .FTZ), or, with a F16x2/BF16x2 Dfmt, each rounded
+    to it. The narrowing forms are RZ only, and RZ to binary32 then RZ to the half format is RZ once
+    (the half format's values are a subset of binary32's)."""
+    if i.has_operand('Dfmt') and set(i.labels('Dfmt')) & set(HALF_FORMATS):
+        rnd = rounding(i)
+        lanes = [narrowed(i, x, rnd, ftz) for x in lanes]
+    elif ftz: lanes = [flushed(x) for x in lanes]
+    r = concat(lanes[1], lanes[0])
+    if r.w != i.width('Rd'): unmodelled('width')
+    return outputs(Rd=r)
+
+
+A2 = ('Ra', 'iswzA', 'negA')
+C2 = ('Rc|Sc', 'iswzC', 'negC')
+
+
+@family('FADD2', 'FHADD2')
+def fadd2(i):
+    """Rd = per lane a + c, rounded once; FHADD2 widens a F16x2/BF16x2 A, or rounds the sum (RZ)
+    to a F16x2/BF16x2 Rd."""
+    ftz, (a, c) = pair_operands(i, A2, C2)
+    rnd = rounding(i)
+    return pair_result(i, ftz, [fadd(x, y, rnd) for x, y in zip(a, c)])
+
+
+@family('FMUL2', 'FHMUL2')
+def fmul2(i):
+    """Rd = per lane a * b, rounded once (FHMUL2: RZ to a F16x2/BF16x2 Rd)."""
+    ftz, (a, b) = pair_operands(i, A2, ('Rb|Sb', 'iswzB', None))
+    rnd = rounding(i)
+    return pair_result(i, ftz, [fmul(x, y, rnd) for x, y in zip(a, b)])
+
+
+@family('FFMA2', 'FHFMA2')
+def ffma2(i):
+    """Rd = per lane a * b + c, rounded once (the readable lowering: unfused); FHFMA2 widens a
+    F16x2/BF16x2 A."""
+    ftz, (a, b, c) = pair_operands(i, A2, ('Rb|Sb', 'iswzB', None), C2)
+    return pair_result(i, ftz, [fused(i, x, y, z) for x, y, z in zip(a, b, c)])
 
 
 # ---- HMNMX2: packed min/max on F16, BF16 or E6M9 lanes ----------------------------------------------

@@ -52,6 +52,23 @@ def fmnmx3_pick(x, y, is_min, exact):
     return y if (f32(x) > f32(y) if is_min else f32(x) < f32(y)) else x
 
 
+def half_product(a, b, fa, fb, d):
+    """PTX mul.d.a.b on F16/BF16 lanes: b converted (RN) to d's format, then a * b rounded RN to d,
+    from exact values; None for a NaN result (payloads are not compared)."""
+    from tests.refs import fpformat as fpf
+    def to_d(kind, sign, value):
+        if kind != "finite" or fb == d: return kind, sign, value
+        code, over = fpf.round_magnitude(d, value, "RN", sign)
+        return ("inf", sign, None) if over else fpf.decode(d, code)[:1] + (sign,) + fpf.decode(d, code)[2:]
+    (ka, sa, va), (kb, sb, vb) = fpf.unpack(a, fa), to_d(*fpf.unpack(b, fb))
+    sign = sa ^ sb
+    if "nan" in (ka, kb) or "inf" in (ka, kb) and 0 in (va, vb): return None
+    inf = fpf.encode(d, sign, (0x1f << 10) if d == "F16" else (0xff << 7))
+    if "inf" in (ka, kb): return inf
+    code, over = fpf.round_magnitude(d, va * vb, "RN", sign)
+    return inf if over else fpf.encode(d, sign, code)
+
+
 def half_minmax(a, b, is_min, nan_mode=False, ftz=False, xorsign=False, abs_a=None, abs_b=None, fmt="F16"):
     """HMNMX2 per 16-bit lane (F16, BF16 or E6M9); XORSIGN implies absolute inputs by default."""
     abs_a = xorsign if abs_a is None else abs_a

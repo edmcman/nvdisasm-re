@@ -21,7 +21,8 @@ FORMATS = {
     "F16": Format(5, 10, 15, "ieee"), "BF16": Format(8, 7, 127, "ieee"), "E6M9": Format(6, 9, 31, "ieee"),
     "E5M2": Format(5, 2, 15, "ieee"), "E4M3": Format(4, 3, 7, "max"), "E3M4": Format(3, 4, 3, "max"),
     "E3M2": Format(3, 2, 3, None), "E2M3": Format(2, 3, 1, None),
-    "E2M1": Format(2, 1, 1, None), "E0M3": Format(0, 3, -2, None)}
+    "E2M1": Format(2, 1, 1, None), "E0M3": Format(0, 3, -2, None),
+    "UE5M3": Format(5, 3, 15, "max")}   # unsigned: codes are magnitudes (no sign bit)
 
 
 def width(fmt): f = FORMATS[fmt]; return 1 + f.ebits + f.mbits
@@ -77,10 +78,13 @@ def unpack(bits, src):
 def encode(fmt, sign, code): return (sign << (width(fmt) - 1)) | code
 
 
-def narrow(bits, src, fmt, rnd="RN", satfinite=True, relu=False, nan=None, overflow=None):
-    """Round an F32/F16/BF16 value to `fmt`. nan: the NaN result (default canonical +all-ones);
-    overflow: the out-of-range result without satfinite (default signed infinity)."""
+def narrow(bits, src, fmt, rnd="RN", satfinite=True, relu=False, nan=None, overflow=None, scale=127):
+    """Round an F32/F16/BF16 value, times 2^(127 - scale) (a UE8M0 scale; 255: NaN), to `fmt`.
+    nan: the NaN result (default canonical +all-ones); overflow: the out-of-range result without
+    satfinite (default signed infinity)."""
     kind, sign, mag = unpack(bits, src)
+    if scale == 255: kind = "nan"
+    elif kind == "finite": mag *= Fraction(2) ** (127 - scale)
     f = FORMATS[fmt]; top = (1 << (f.ebits + f.mbits)) - 1
     inf = (top >> f.mbits) << f.mbits
     if kind == "nan": return top if nan is None else nan(sign)
@@ -140,17 +144,33 @@ def pack16(bits, fmt, rnd="RN", satfinite=False, relu=False):
     return 0 if relu and out & 0x8000 and not is_nan16(out, fmt) else out
 
 
-def fp8(bits, fmt, rnd="RN", satfinite=True, relu=False, src="F32"):
+def fp8(bits, fmt, rnd="RN", satfinite=True, relu=False, src="F32", scale=127):
     """F2FP E4M3/E5M2 pack: NaN keeps its sign as S.1111111; without SATFINITE E4M3 overflows
     to +NaN and E5M2 to signed Inf; RELU zeroes negative non-NaN values."""
     return narrow(bits, src, fmt, rnd, satfinite, relu, nan=lambda s: (s << 7) | 0x7f,
-                  overflow=(lambda s: 0x7f) if fmt == "E4M3" else None)
+                  overflow=(lambda s: 0x7f) if fmt == "E4M3" else None, scale=scale)
 
 
-def fp6(bits, fmt, rnd="RN", relu=False, src="F32"):
+def fp6(bits, fmt, rnd="RN", relu=False, src="F32", scale=127):
     """F2FP E2M3/E3M2 SATFINITE pack into a byte: NaN becomes +max (0x1f)."""
-    code = narrow(bits, src, fmt, rnd, True, relu, nan=lambda s: 0x1f)
+    code = narrow(bits, src, fmt, rnd, True, relu, nan=lambda s: 0x1f, scale=scale)
     return ((code & 0x20) << 2) | (code & 0x1f)
+
+
+def ue5m3(bits, src="F32", rnd="RN", satfinite=False, scale=127):
+    """CUDA's UE5M3 conversion (cuda_fp8.hpp): the sign dropped first, no infinity; NaN (and a 0xff
+    scale) gives 0xff; Inf and an overflow rounding away from zero give 0xff, or 0xfe (the largest
+    finite) under SATFINITE; RZ/RM never overflow."""
+    kind, _, mag = unpack(bits, src)
+    if kind == "nan" or scale == 255: return 0xff
+    if kind == "inf": return 0xfe if satfinite else 0xff
+    code, over = round_magnitude("UE5M3", mag * Fraction(2) ** (127 - scale), rnd)
+    return (0xfe if satfinite else 0xff) if over else code
+
+
+def pzo(byte):
+    """.PZO: a -0 result (sign bit 7, zero magnitude) becomes +0."""
+    return 0 if byte == 0x80 else byte
 
 
 def fp4(bits, fmt, relu=False, src="F32", relu_nan=False):

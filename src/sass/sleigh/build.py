@@ -6,7 +6,7 @@ from pathlib import Path
 from sass.sleigh import gen, coverage
 from sass.paths import ROOT
 
-ARCHES=['SM75','SM80','SM86','SM89','SM90','SM100','SM101','SM103','SM120']
+ARCHES=['SM75','SM80','SM86','SM89','SM90','SM100','SM101','SM103','SM107','SM120']
 LIMIT=16*1024*1024
 COMPILER_HEAP=16  # GiB per SLEIGH compiler: the SM100+ languages reached 11.7 GiB each, and 18 at once exhausted 93 GiB (2026-10-13)
 

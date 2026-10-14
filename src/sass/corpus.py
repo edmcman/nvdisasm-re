@@ -1,5 +1,5 @@
 """Instruction-word corpora: real (from cubins), synthetic (per class), mutated (bit flips)."""
-import random, subprocess
+import random, shutil, subprocess, tempfile
 from pathlib import Path
 from sass.decode.cubin import elf_arch, text_words
 from sass.paths import CACHE as CACHE_ROOT, CUOBJDUMP, ROOT
@@ -13,9 +13,12 @@ LOOSE = [*Path.home().glob("Downloads/*.cubin"), *Path.home().glob(".triton/cach
 def extract(lib):
     out = CACHE / lib.name
     if not out.exists():
-        tmp = out.with_suffix(".tmp"); tmp.mkdir(parents=True, exist_ok=True)
+        # A private directory per process: parallel workers (one per architecture) extract at once.
+        CACHE.mkdir(parents=True, exist_ok=True)
+        tmp = Path(tempfile.mkdtemp(prefix=lib.name, dir=CACHE))
         subprocess.run([CUOBJDUMP, "-xelf", "all", str(lib.resolve())], cwd=tmp, check=True, capture_output=True)
-        tmp.rename(out)
+        try: tmp.rename(out)
+        except OSError: shutil.rmtree(tmp)   # another worker finished first
     return sorted(out.glob("*.cubin"))
 
 def cubins():

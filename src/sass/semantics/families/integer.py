@@ -322,9 +322,9 @@ def isetp(i):
 
 @family('IMNMX', 'UIMNMX')
 def imnmx(i):
-    """Rd = Pp ? min(Ra, Rb) : max(Ra, Rb), signed for S32. SM120's forms with predicate outputs
-    Pu/Pv and a second input Pq are unmodelled (Pq's meaning is unknown, even as PT)."""
-    if any(i.has_operand(p) for p in ('Pu', 'Pv', 'Pq')): unmodelled('SM120 predicates')
+    """Rd = Pp ? min(Ra, Rb) : max(Ra, Rb), signed for S32. SM107/SM120's forms with predicate
+    outputs Pu/Pv and a second input Pq are unmodelled (Pq's meaning is unknown, even as PT)."""
+    if any(i.has_operand(p) for p in ('Pu', 'Pv', 'Pq')): unmodelled('Pu/Pv/Pq predicates')
     fmt = i.select_fork('fmt')
     if fmt not in ('U32', 'S32'): unmodelled(f'{fmt} format')
     a, b = i.value('Ra|Sa'), i.value('Rb|Sb')
@@ -382,6 +382,19 @@ def vimnmx(i):
     p = i.pred('Pp')
     xs, ys = lanes(i.value('Ra'), width), lanes(i.value('Rb|Sb'), width)
     return outputs(Rd=vector_result(i, fmt, relu, [pick(p, widen(x, signed), widen(y, signed), signed) for x, y in zip(xs, ys)]))
+
+
+@family('VISET')
+def viset(i):
+    """Per lane (S/U 32, 16x2, 8x4): all ones where Ra icmp Rb holds, else zero. .BM (the md's only
+    mode, read as a bit mask) is inferred: no compiler emits VISET (SM107; ptxas 13.4 has no such
+    opcode)."""
+    fmt, _ = vector_formats(i, ('S32', 'U32', 'S16x2', 'U16x2', 'S8x4', 'U8x4'))
+    if i.select_fork('bm') != 'BM': unmodelled('bm')
+    width, signed = packed(fmt)
+    icmp = i.select_fork('icmp')
+    xs, ys = lanes(i.value('Ra'), width), lanes(i.value('Rb|Sb'), width)
+    return outputs(Rd=concat(*reversed([-zext(compare(icmp, x, y, signed), width) for x, y in zip(xs, ys)])))
 
 
 @family('VIMNMX3', 'UVIMNMX3')

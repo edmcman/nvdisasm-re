@@ -10,7 +10,7 @@ pipeline it issues to, and its dependency latencies.
 
 ## What's embedded
 
-For each of SM75, SM80, SM86, SM89, SM90, SM100, SM101, SM103 and SM120, `.data` holds
+For each of SM75, SM80, SM86, SM89, SM90, SM100, SM101, SM103, SM107 and SM120, `.data` holds
 three blobs:
 
 | Blob | Contents |

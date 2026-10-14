@@ -2,7 +2,7 @@
 import importlib
 from tests.harness.case import Cases
 
-FAMILIES = ("int_alu", "int_simd", "carry", "bmsk", "fp32", "fp64", "fp16", "f2fp", "conversions", "predicates", "memory", "control", "threads")
+FAMILIES = ("int_alu", "int_simd", "carry", "bmsk", "fp32", "fp32x2", "fp64", "fp16", "f2fp", "conversions", "predicates", "memory", "control", "threads")
 
 
 def module(family):
