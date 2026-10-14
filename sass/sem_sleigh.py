@@ -393,7 +393,7 @@ class Lower:
         """e computed while decoding, when its leaves are constants and plain immediate fields: a
         subtable whose constructor action evaluates it and exports the constant (one COPY where it
         is used). Actions have no comparisons: they are carries of masked sums (see Fold)."""
-        if not isinstance(e, Expr) or e.op in ("const", "param") or e.w > 32: return None
+        if not isinstance(e, Expr) or e.op in ("const", "param") or e.w > 64: return None
         fold = Fold(self.b)
         try: text = fold.text(e)
         except Fold.No: return None
@@ -696,7 +696,8 @@ class Lower:
 
 class Fold:
     """SLEIGH pattern-expression text for an Expr over constants and immediate fields, every value
-    masked to its width (at most 32 bits, so the 64-bit action arithmetic never overflows). An action
+    masked to its width (up to 64 bits: action arithmetic wraps at 64, and comparisons use borrow
+    formulas that need no spare bit). An action
     expression has no locals, so a shared subterm is written out at each use: text past MAX_TEXT
     (deep ite chains double per level) is not folded, its run-time p-code is kept."""
     class No(Exception): pass
@@ -711,9 +712,16 @@ class Fold:
         return self.mask(text, w)
 
     @staticmethod
-    def mask(text, w): return f"(({text}) & {(1 << w) - 1:#x})"
+    def mask(text, w): return f"({text})" if w >= 64 else f"(({text}) & {(1 << w) - 1:#x})"   # actions wrap at 64 bits
 
-    def nonzero(self, d, w): return f"((({d}) + {(1 << w) - 1:#x}) >> {w})"   # d in [0, 2^w): 1 iff d != 0
+    @staticmethod
+    def nonzero(d): return f"(((({d}) | (0 - ({d}))) >> 63) & 1)"   # the sign of d | -d: 1 iff d != 0
+
+    @staticmethod
+    def below(x, y):
+        """1 iff x < y unsigned: the borrow out of x - y at 64 bits (Hacker's Delight 2-13), so any
+        width up to 64 works without a spare bit."""
+        return f"((((~{x} & {y}) | (~({x} ^ {y}) & ({x} - {y}))) >> 63) & 1)"
 
     def text(self, e):
         if e not in self.memo:
@@ -723,7 +731,7 @@ class Fold:
         return self.memo[e]
 
     def compose(self, e):
-        if e.w > 32: raise Fold.No
+        if e.w > 64: raise Fold.No
         a, w = e.args, e.w
         sub = lambda x: self.text(x)
         match e.op:
@@ -732,23 +740,20 @@ class Fold:
             case "and" | "or" | "xor":
                 return f"({sub(a[0])} {dict(zip(('and', 'or', 'xor'), '&|^'))[e.op]} {sub(a[1])})"
             case "not": return self.mask(f"~{sub(a[0])}", w)
-            case "neg": return self.mask(f"{1 << w:#x} - {sub(a[0])}", w)
-            case "add" | "sub" | "mul":
-                return self.mask(f"{sub(a[0])} {dict(zip(('add', 'sub', 'mul'), '+-*'))[e.op]} {sub(a[1])}" if e.op != "sub"
-                                 else f"{sub(a[0])} + {1 << w:#x} - {sub(a[1])}", w)
+            case "neg": return self.mask(f"0 - {sub(a[0])}", w)   # two's complement, then masked
+            case "add" | "sub" | "mul": return self.mask(f"{sub(a[0])} {dict(zip(('add', 'sub', 'mul'), '+-*'))[e.op]} {sub(a[1])}", w)
             case "shl" | "shr" if sem.is_const(a[1]):
                 k = a[1].args[0]
-                return "0x0" if k >= w else self.mask(f"{sub(a[0])} << {k}", w) if e.op == "shl" else f"({sub(a[0])} >> {k})"
+                # Action arithmetic is signed: a right shift is masked so no sign bits come in.
+                return "0x0" if k >= w else self.mask(f"{sub(a[0])} << {k}", w) if e.op == "shl" else self.mask(f"{sub(a[0])} >> {k}", w - k)
             case "extract": return self.mask(f"{sub(a[0])} >> {a[2]}", w)
             case "zext": return sub(a[0])
             case "concat": return f"(({sub(a[0])} << {a[1].w}) | {sub(a[1])})"
             case "eq" | "ne":
-                d = self.nonzero(f"{sub(a[0])} ^ {sub(a[1])}", a[0].w)
+                d = self.nonzero(f"{sub(a[0])} ^ {sub(a[1])}")
                 return d if e.op == "ne" else f"(1 - {d})"
-            case "ult" | "ule":   # a < b: no carry out of a + 2^n - b
-                x, y = (a[0], a[1]) if e.op == "ult" else (a[1], a[0])
-                n = x.w; ge = f"(({sub(x)} + {1 << n:#x} - {sub(y)}) >> {n})"
-                return f"(1 - {ge})" if e.op == "ult" else ge
+            case "ult": return self.below(sub(a[0]), sub(a[1]))
+            case "ule": return f"(1 - {self.below(sub(a[1]), sub(a[0]))})"
             case "ite": return f"({sub(a[2])} ^ (({sub(a[1])} ^ {sub(a[2])}) * {sub(a[0])}))"
         raise Fold.No
 
