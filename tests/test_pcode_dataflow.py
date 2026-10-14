@@ -1,4 +1,4 @@
-"""Layer 3: generated p-code reads and writes exactly the md operand roles and spans, and its
+"""Generated p-code reads and writes exactly the md operand roles and spans, and its
 flow type matches BRANCH_TYPE; per-class p-code op counts are ratcheted in baseline/pcode_*.json."""
 import json
 from collections import Counter

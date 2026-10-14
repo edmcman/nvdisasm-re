@@ -1,4 +1,4 @@
-"""Layer 2: generated SLEIGH disassembles like pydecode (SLEIGH display mode), ratcheted per md
+"""Generated SLEIGH disassembles like pydecode (SLEIGH display mode), ratcheted per md
 class against baseline/ghidra_SMxx.json. Synthetic words (64 per class) by default; --full adds
 the whole real corpus. Architectures run concurrently; display is identical for both lowerings."""
 from collections import defaultdict

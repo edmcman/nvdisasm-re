@@ -83,7 +83,7 @@ def cx_fixture(name, cls, fields, triples, expected, units=128, offset=4, **kw):
     points at the input array, so source B is the word at byte `offset` of the first record."""
     from tests.harness.gpu import Fixture
     return Fixture(name=name, image=cx_image(cls, fields, units, offset), kernel="sem_cx", data=rows(triples), expected=expected,
-                   visited=(0x110,), emulator_vs="reference", modes=("exact", "readable"), **kw)
+                   visited=(0x110,), modes=("exact", "readable"), **kw)
 
 
 def slot_fixture(name, sequence, triples, expected, target, final=None, nobarrier_emulation=False, **kw):
@@ -91,4 +91,4 @@ def slot_fixture(name, sequence, triples, expected, target, final=None, nobarrie
     from tests.harness.gpu import Fixture
     image = slot_image(sequence, final)
     return Fixture(name=name, image=image, kernel="sem_probe", data=rows(triples), expected=expected, visited=(target,), exit=True,
-                   emulator_vs="reference", emulator_image=without_barriers(image) if nobarrier_emulation else None, **kw)
+                   emulator_image=without_barriers(image) if nobarrier_emulation else None, **kw)

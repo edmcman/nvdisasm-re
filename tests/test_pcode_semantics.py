@@ -1,4 +1,4 @@
-"""Layer 4: generated p-code, run in Ghidra's emulator, computes the independent references'
+"""Generated p-code, run in Ghidra's emulator, computes the independent references'
 values (tests/cases/*, tests/refs/*). One item per (architecture, fp lowering, family, md class)."""
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor
@@ -11,18 +11,18 @@ from tests.harness.checks import problems
 
 def build(job):
     from tests.cases import emulator_cases
-    arch, fp, fams = job
-    return {family: list(cases) for family, cases in emulator_cases(arch, fp, fams).items()}
+    arch, fp, fams, exhaustive = job
+    return {family: list(cases) for family, cases in emulator_cases(arch, fp, fams, exhaustive).items()}
 
 
 @cache
-def all_cases(variants, fams):
+def all_cases(variants, fams, exhaustive):
     with ProcessPoolExecutor() as pool:
-        return dict(zip(variants, pool.map(build, [(a, f, fams) for a, f in variants])))
+        return dict(zip(variants, pool.map(build, [(a, f, fams, exhaustive) for a, f in variants])))
 
 
 def selection(config):
-    return tuple((a, f) for a in arches(config) for f in modes(config)), tuple(families(config))
+    return tuple((a, f) for a in arches(config) for f in modes(config)), tuple(families(config)), config.getoption("--exhaustive")
 
 
 def pytest_generate_tests(metafunc):
@@ -36,9 +36,9 @@ def pytest_generate_tests(metafunc):
 @pytest.fixture(scope="session")
 def semantic_results(request):
     """{(arch, fp): {(family, cls): [(case, result)]}}, every language emulated concurrently."""
-    variants, fams = selection(request.config)
+    variants, fams, exhaustive = selection(request.config)
     require_languages(variants)
-    cases = all_cases(variants, fams)
+    cases = all_cases(variants, fams, exhaustive)
     flat = {v: [(family, c) for family, cs in fams_cases.items() for c in cs] for v, fams_cases in cases.items()}
     results = ghidra_bridge.emulate_sharded({v: (*v, [c.request for _, c in flat[v]]) for v in variants})
     out = {}

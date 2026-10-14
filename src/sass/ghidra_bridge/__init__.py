@@ -1,27 +1,67 @@
-"""Batch requests through the Ghidra-side programs, which run under the pyghidra venv."""
-import json, os, subprocess
+"""Batch requests through the Ghidra-side programs, which run under the pyghidra venv. Results are
+cached per language and program (see `stamp`), so reruns only send requests Ghidra hasn't answered."""
+import hashlib, json, os, sqlite3, subprocess
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from pathlib import Path
-from sass.paths import GHIDRA_PY, LDEFS, language
+from sass.paths import CACHE, GHIDRA_PY, LANGUAGES, LDEFS, ROOT, language
+
+SOURCES = ROOT / "src" / "sass"
 
 
-def run(program, arch, fp, lines, *opts):
-    # cwd="/" keeps repository modules from shadowing the venv's imports.
-    p = subprocess.run([GHIDRA_PY, str(Path(__file__).parent / program), str(LDEFS), language(arch, fp), *opts],
-                       input="".join(line + "\n" for line in lines), capture_output=True, text=True, cwd="/")
-    results = [json.loads(line) for line in p.stdout.splitlines() if line.startswith("{")]
-    if p.returncode or len(results) != len(lines):
-        raise RuntimeError(f"{program} {language(arch, fp)}: {len(results)}/{len(lines)} results\n{p.stderr[-3000:]}")
-    return results
+def stamp(arch, fp):
+    """Hash of everything a Ghidra-side answer depends on: the compiled language and its specs,
+    coverage manifest (runtime primitives), every sass source and the Ghidra install."""
+    from sass.sleigh.gen import variant
+    name = variant(arch, fp)
+    files = [LANGUAGES / f"sass_{name}.sla", LANGUAGES / f"sass_{name}_coverage.json", LDEFS, LANGUAGES / "sass.pspec", LANGUAGES / "sass.cspec",
+             *sorted(p for p in SOURCES.rglob("*") if p.suffix in (".py", ".java"))]
+    h = hashlib.sha256(GHIDRA_PY.encode() + os.environ.get("GHIDRA_INSTALL_DIR", "").encode())
+    for f in files: h.update(str(f).encode()); h.update(f.read_bytes() if f.exists() else b"")
+    return name, h.hexdigest()[:16]
+
+
+def cache(program, arch, fp, opts):
+    """The sqlite result cache for (program, options) on one language; stale stamps are removed."""
+    name, key = stamp(arch, fp)
+    prefix = f"{Path(program).stem}{''.join(opts)}-{name}-"
+    path = CACHE / "ghidra" / f"{prefix}{key}.sqlite"
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        for stale in path.parent.glob(f"{prefix}*.sqlite*"): stale.unlink(missing_ok=True)
+    db = sqlite3.connect(path, timeout=600)
+    db.execute("pragma journal_mode=wal")
+    db.execute("create table if not exists results (request text primary key, result text)")
+    return db
+
+
+def run(program, arch, fp, lines, *opts, fresh=False):
+    """One JSON result per input line. fresh: ask Ghidra in a new process, bypassing the cache (a
+    long decode batch can hit Ghidra's prototype-hash collisions; see check.ghidra_disasm)."""
+    db = cache(program, arch, fp, opts)
+    known = {} if fresh else {r: v for i in range(0, len(lines), 900)
+                              for r, v in db.execute(f"select request, result from results where request in ({','.join('?' * len(lines[i:i + 900]))})", lines[i:i + 900])}
+    missing = list(dict.fromkeys(line for line in lines if line not in known))
+    if missing:
+        # cwd="/" keeps repository modules from shadowing the venv's imports.
+        p = subprocess.run([GHIDRA_PY, str(Path(__file__).parent / program), str(LDEFS), language(arch, fp), *opts],
+                           input="".join(line + "\n" for line in missing), capture_output=True, text=True, cwd="/")
+        results = [line for line in p.stdout.splitlines() if line.startswith("{")]
+        if p.returncode or len(results) != len(missing):
+            raise RuntimeError(f"{program} {language(arch, fp)}: {len(results)}/{len(missing)} results\n{p.stderr[-3000:]}")
+        if not fresh:
+            with db: db.executemany("insert or replace into results values (?, ?)", zip(missing, results))
+        known.update(zip(missing, results))
+    db.close()
+    return [json.loads(known[line]) for line in lines]
 
 
 def emulate(arch, fp, requests):
     return run("ghidra_emulate.py", arch, fp, [json.dumps(r) for r in requests]) if requests else []
 
 
-def disassemble(arch, fp, words, *opts):
+def disassemble(arch, fp, words, *opts, fresh=False):
     """words: [(word bytes, address)]."""
-    return run("ghidra_decode.py", arch, fp, [f"{a:x} {w.hex()}" for w, a in words], *opts) if words else []
+    return run("ghidra_decode.py", arch, fp, [f"{a:x} {w.hex()}" for w, a in words], *opts, fresh=fresh) if words else []
 
 
 def concurrently(fn, jobs):

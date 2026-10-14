@@ -1,41 +1,50 @@
-"""Layer 1: pydecode disassembles like nvdisasm, ratcheted per md class against baseline/SMxx.json.
-Every architecture, decoded in parallel processes."""
-from collections import defaultdict
+"""pydecode disassembles like nvdisasm, ratcheted per md class against baseline/SMxx.json. The
+selected architectures' words are compared in chunks spread over every CPU."""
 from concurrent.futures import ProcessPoolExecutor
 import pytest
 from sass import corpus, synth
 from sass.check.pydecode_disasm import PASSING, compare, sample
-from sass.sleigh.build import ARCHES
 from tests.harness.baseline import BASELINE, ratchet
+from tests.harness.select import arches
 
-REAL_SAMPLE, MUTATED = 200_000, 50_000
+REAL_SAMPLE, MUTATED, CHUNK = 200_000, 50_000, 4096
 
 
-def corpora(arch, full):
+def corpora(job):
+    """[(words, labels)] for one architecture: sampled real, synthetic (labelled by class), mutated."""
+    arch, full = job
     real = corpus.real(arch)
-    yield sample(arch, "real", 0 if full else REAL_SAMPLE, real=real)[0], None
     labels = synth.synthetic(arch, 64, 0)
-    yield list(labels), labels
-    yield list(corpus.mutated(real, MUTATED, 0)), None
+    return arch, [(sample(arch, "real", 0 if full else REAL_SAMPLE, real=real)[0], None), (list(labels), labels),
+                  (list(corpus.mutated(real, MUTATED, 0)), None)]
 
 
-def class_results(arch, full):
-    status = defaultdict(lambda: True)
-    for words, labels in corpora(arch, full):
-        for w, (s, cls, exp, _) in compare(arch, words).items():
-            if s == "blank": continue
-            key = labels[w].removeprefix("synth:") if labels else cls or f"<{(exp or '?').split()[0]}>"
-            status[key] &= s in PASSING
-    return dict(sorted(status.items()))
+def chunk_status(job):
+    """{class: passed} over one chunk of words."""
+    arch, words, labels = job
+    status = {}
+    for w, (s, cls, exp, _) in compare(arch, words).items():
+        if s == "blank": continue
+        key = labels[w].removeprefix("synth:") if labels else cls or f"<{(exp or '?').split()[0]}>"
+        status[key] = status.get(key, True) and s in PASSING
+    return arch, status
 
 
 @pytest.fixture(scope="session")
 def decoded(request):
-    full = request.config.getoption("--full")
-    with ProcessPoolExecutor(len(ARCHES)) as pool:
-        return dict(zip(ARCHES, pool.map(class_results, ARCHES, [full] * len(ARCHES))))
+    selected, full = arches(request.config), request.config.getoption("--full")
+    with ProcessPoolExecutor() as pool:
+        jobs = [(arch, words[i:i + CHUNK], labels and {w: labels[w] for w in words[i:i + CHUNK]})
+                for arch, parts in pool.map(corpora, [(a, full) for a in selected]) for words, labels in parts for i in range(0, len(words), CHUNK)]
+        out = {arch: {} for arch in selected}
+        for arch, status in pool.map(chunk_status, jobs):
+            for key, ok in status.items(): out[arch][key] = out[arch].get(key, True) and ok
+    return {arch: dict(sorted(status.items())) for arch, status in out.items()}
 
 
-@pytest.mark.parametrize("arch", ARCHES)
-def test_pydecode_disassembly(arch, decoded, request):
-    ratchet(BASELINE / f"{arch}.json", decoded[arch], request.config.getoption("--update-baseline"))
+def pytest_generate_tests(metafunc):
+    if "pydecode_arch" in metafunc.fixturenames: metafunc.parametrize("pydecode_arch", arches(metafunc.config))
+
+
+def test_pydecode_disassembly(pydecode_arch, decoded, request):
+    ratchet(BASELINE / f"{pydecode_arch}.json", decoded[pydecode_arch], request.config.getoption("--update-baseline"))

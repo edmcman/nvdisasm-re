@@ -3,9 +3,43 @@ known Ghidra emulator underflow band."""
 import math
 from fractions import Fraction
 from sass.semantics.fp import softfloat
-from tests.refs.bits import bf16, f16, f32, ftz16, ftz32, nan16, nan32, nan_bf16
+from tests.refs.bits import bf16, f16, f32, f64, ftz16, ftz32, nan16, nan32, nan_bf16
 
 FCOMPARISONS = ("LT", "EQ", "LE", "GT", "NE", "GE", "LTU", "EQU", "LEU", "GTU", "NEU", "GEU", "NUM", "NAN")
+
+
+GPU_NAN = {16: 0x7fff, 32: 0x7fffffff, 64: 0xfff8000000000000}  # NaN results without a NaN operand (SM89)
+
+
+def rounded(op, inputs, width, mode="RN", ftz=False, sat=False):
+    """FADD/FMUL/FFMA (and DADD..., HADD2... lanes): exactly rounded. NaN results are canonical,
+    except that FP64 propagates a NaN operand, quieted (SM89; which of two different NaNs is untested)."""
+    result = softfloat.arithmetic(op, inputs, width, mode, ftz, sat)
+    if softfloat.unpack(result, width)[0] != "nan": return result
+    nans = [x for x in inputs if softfloat.unpack(x, width)[0] == "nan"]
+    return nans[0] | 1 << 51 if width == 64 and nans else GPU_NAN[width]
+
+
+def half2(op, inputs, **kw):
+    """Packed F16 arithmetic on [low, high] lane pairs."""
+    return sum(rounded(op, [x[lane] for x in inputs], 16, **kw) << (16 * lane) for lane in (0, 1))
+
+
+def hmul2(a, b, mode=None, sat=False):
+    """HMUL2 F16_V2 with FTZ or FMZ (None: neither). SM89 HMUL2.FMZ returns canonical +0 if either
+    source is zero/subnormal, even for zero*Inf or signed-zero products."""
+    out = 0
+    for shift in (0, 16):
+        x, y = (a >> shift) & 0xffff, (b >> shift) & 0xffff
+        if mode == "FMZ" and (x & 0x7c00 == 0 or y & 0x7c00 == 0): continue
+        out |= softfloat.arithmetic("mul", [x, y], 16, ftz=mode in ("FMZ", "FTZ"), sat=sat) << shift
+    return out
+
+
+def ordered(bits, width):
+    """The encoding's value for fcompare: a float, or None for NaN."""
+    x = f64(bits) if width == 64 else f32(bits)
+    return None if math.isnan(x) else x
 
 
 def fcompare(a, c, cmp):

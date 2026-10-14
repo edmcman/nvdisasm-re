@@ -25,12 +25,11 @@ def compile(kernel, *flags):
 
 @dataclass
 class Fixture:
-    """One patched kernel launch: GPU outputs are compared with `expected` (the reference) using
-    `same(gpu, want)` and with the emulator using `emulator_same(emulated, other)` (default `same`),
-    where other is the GPU output or, with emulator_vs="reference", the expected value. The emulator
-    may run a different `emulator_image` (default image);
-    `excused(i, emulated, gpu)` admits known emulator defects; `visited` offsets and `targets`
-    mnemonics must execute; `exit` requires termination through EXIT. `block` threads form a block;
+    """One patched kernel launch with reference outputs `expected` (None only while drafting with
+    tests.observe). GPU outputs are compared with it using `same(gpu, want)`, emulated outputs using
+    `emulator_same(emulated, want)` (default `same`). The emulator may run a different
+    `emulator_image` (default image); `excused(i, emulated, want)` admits known emulator defects;
+    `visited` offsets and `targets` mnemonics must execute; `exit` requires termination through EXIT. `block` threads form a block;
     `cooperative` emulates each block as one (warps in lockstep, shared memory, BAR.SYNC) instead
     of every thread alone."""
     name: str
@@ -46,9 +45,8 @@ class Fixture:
     targets: tuple = ()
     same: Callable = lambda got, want: got == want
     emulator_same: Callable | None = None
-    emulator_vs: str = "gpu"
     emulator_image: bytes | None = None
-    excused: Callable = lambda i, emulated, gpu: False
+    excused: Callable = lambda i, emulated, want: False
     modes: tuple = ("exact",)  # fp lowerings to emulate
     vectors: list = field(default_factory=list, repr=False)
     block: int = 32

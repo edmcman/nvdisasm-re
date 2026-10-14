@@ -1,14 +1,14 @@
-"""Test layers (see AGENTS.md): 0 helpers, 1 pydecode vs nvdisasm, 2 SLEIGH disassembly, 3 p-code
-dataflow, 4 p-code semantics, 5 references vs GPU. Markers express requirements: `ghidra`
-(compiled languages and pyghidra) and `gpu` (an SM89 device). Plain `pytest tests` runs neither."""
+"""Markers say what a test needs (see tests/README.md): `ghidra` (compiled languages and pyghidra)
+and `gpu` (an SM89 device). Plain `pytest` runs the Python tests, which need neither."""
 
 
 def pytest_addoption(parser):
     parser.addoption("--update-baseline", action="store_true", help="accept current results as the baseline")
     parser.addoption("--full", action="store_true", help="use the whole real corpus instead of a sample")
-    parser.addoption("--arch", default="SM89", help="architecture(s) for Ghidra layers: SMxx[,SMyy] or all")
+    parser.addoption("--arch", default="SM89", help="architecture(s): SMxx[,SMyy] or all")
     parser.addoption("--fp", default="exact", help="fp lowering(s): exact, readable or all")
     parser.addoption("--family", action="append", help="limit semantics/GPU tests to these case families")
+    parser.addoption("--exhaustive", action="store_true", help="emulate every code of the exhaustive F2FP loops (always on without Ghidra)")
     parser.addoption("--require-gpu", action="store_true", help="fail instead of skipping without an SM89 device")
 
 

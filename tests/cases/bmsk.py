@@ -81,7 +81,7 @@ def gpu_fixtures():
             raise RuntimeError(f"{mode}: compiler did not emit exactly one BMSK in the requested mode")
         words[mode] = int.from_bytes(t.code[targets[0]:targets[0] + 16], "little")
         out.append(Fixture(name=f"bmsk_{mode.lower()}", image=image, kernel="sem_bmsk_" + mode.lower(), data=rows([(a, n, 0) for a, n in vs]),
-                           expected=[bmsk(a, n, mode) for a, n in vs], visited=tuple(targets), emulator_vs="reference"))
+                           expected=[bmsk(a, n, mode) for a, n in vs], visited=tuple(targets)))
     if words["C"] ^ words["W"] != 1 << 75: raise AssertionError("clamp/wrap fixtures must differ only at instruction bit 75")
     positions = list(range(34)) + [0x7fffffff, 0x80000000, 0xffffffff] + list(range(91))
     forms = [(mode, 128, 4, width) for mode, width in itertools.product(("C", "W"), CX_WIDTHS)]

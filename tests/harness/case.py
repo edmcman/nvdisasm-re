@@ -82,11 +82,12 @@ READABLE_FLOATS = {"FADD", "FMUL", "FFMA", "DADD", "DMUL", "DFMA", "HADD2", "HFM
 
 
 class Cases(list):
-    """Collects Cases for one architecture and fp lowering, skipping classes it lacks."""
+    """Collects Cases for one architecture and fp lowering, skipping classes it lacks. Without
+    `exhaustive`, the large sweeps (`sweep`) run a fixed sample instead."""
 
-    def __init__(self, arch, fp="exact"):
+    def __init__(self, arch, fp="exact", exhaustive=True):
         super().__init__()
-        self.arch, self.fp, self.md = arch, fp, ir.load(arch)
+        self.arch, self.fp, self.md, self.exhaustive = arch, fp, ir.load(arch), exhaustive
         self.classes = {k.name: k for k in self.md.classes if not k.alternate}
 
     def add(self, cls, fields, registers, expected, portable=False, observe=None, **extras):
@@ -98,6 +99,14 @@ class Cases(list):
                        observe=[n for n in expected if not n.startswith("__")] if observe is None else observe, **extras)
         if "__max_ops" in expected or "__native" in expected: request["inspect_pcode"] = True
         self.append(Case(cls, request, expected))
+
+    def sweep(self, n):
+        """Indices of a sweep over n codes or values: range(n), or when not exhaustive those near 0,
+        n/2 and n plus those that are 0, 7, 8 or 15 mod 16 (for codes, each exponent's first and last
+        mantissa for 3- and 4-bit mantissas)."""
+        if self.exhaustive: return range(n)
+        edges = {*range(4), *range(n // 2 - 2, n // 2 + 2), *range(n - 4, n)}
+        return [i for i in range(n) if i in edges or i % 16 in (0, 7, 8, 15)]
 
     def kernel(self, name, cls, fields, error, max_steps=4):
         """A one-instruction kernel expected to stop with `error`."""

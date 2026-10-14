@@ -254,10 +254,10 @@ def scalar_vectors(family):
     return vs
 
 
-def half_underflow(emulated, gpu):
-    """Per fp16 lane: equal, or the emulator's RN underflow signature (a signed zero where the GPU
-    has the same-sign minimum subnormal; see refs.float.underflow_band)."""
-    return all(e == g or e & 0x7fff == 0 and g == e | 1 for e, g in (((emulated >> s) & 0xffff, (gpu >> s) & 0xffff) for s in (0, 16)))
+def half_underflow(emulated, want):
+    """Per fp16 lane: equal, or the emulator's RN underflow signature (a signed zero where the
+    reference has the same-sign minimum subnormal; see refs.float.underflow_band)."""
+    return all(e == w or e & 0x7fff == 0 and w == e | 1 for e, w in (((emulated >> s) & 0xffff, (want >> s) & 0xffff) for s in (0, 16)))
 
 
 def nan(x, width):
@@ -265,16 +265,16 @@ def nan(x, width):
     return x & exponent == exponent and x & mantissa != 0
 
 
-def underflow_bug(family, inputs, emulated, gpu):
+def underflow_bug(family, inputs, emulated, want):
     """The emulator's RN minimum-subnormal underflow (refs.float.underflow_band): it returns a
-    signed zero where the GPU returns the signed minimum subnormal."""
+    signed zero where the reference (and the GPU) has the signed minimum subnormal."""
     width = 64 if family.startswith("d") else 32
     op = "add" if family.endswith("add") else "mul" if family.endswith("mul") else "fma"
     if not underflow_band(op, inputs, width): return False  # all three inputs must be finite
     parts = [softfloat.unpack(x, width)[2] for x in inputs]
     exact = parts[0] + parts[1] if op == "add" else parts[0] * parts[1] + (parts[2] if op == "fma" else 0)
     sign = (1 << (width - 1)) if exact < 0 else 0
-    return emulated == sign and gpu == sign | 1
+    return emulated == sign and want == sign | 1
 
 
 def launch(family, reference=None, same=None, underflow=False):
@@ -283,16 +283,12 @@ def launch(family, reference=None, same=None, underflow=False):
     vs = scalar_vectors(family)
     width = 64 if family in WIDE else 32
     if family.startswith("f2fp_f16_pack_"): emulator_same = same_halves
-    elif family in HALF_OUTPUTS: emulator_same = lambda e, g: same_halves(e, g) or half_underflow(e, g)
-    elif family in FLOAT_OUTPUTS: emulator_same = lambda e, g: e == g or nan(e, width) and nan(g, width)
-    else: emulator_same = lambda e, g: e == g
+    elif family in HALF_OUTPUTS: emulator_same = lambda e, w: same_halves(e, w) or half_underflow(e, w)
+    elif family in FLOAT_OUTPUTS: emulator_same = lambda e, w: e == w or nan(e, width) and nan(w, width)
+    else: emulator_same = lambda e, w: e == w
     return fixture(family, vs, [reference(*v) for v in vs] if reference else None, targets=TARGETS[family], wide=family in WIDE,
                    wide_output=family.startswith(("f2fp_e4m3_unpack_", "f2fp_e5m2_unpack_")),
                    arguments=((8, 0x00000002ffffffff),) if family == "imad_hi_c" else ((4, 0x3fc00000),) if family == "f2fp_f16_pack_c" else (),
                    same=same or (lambda g, w: g == w), emulator_same=emulator_same,
-                   excused=(lambda i, e, g: underflow_bug(family, vs[i], e, g)) if underflow else (lambda i, e, g: False))
+                   excused=(lambda i, e, w: underflow_bug(family, vs[i], e, w)) if underflow else (lambda i, e, w: False))
 
-
-def generic(*families):
-    """Families compared only GPU-to-emulator (no independent reference)."""
-    return [launch(f) for f in families]

@@ -1,5 +1,5 @@
-"""Layer 4a: the Ghidra-free semantics (sass.semantics.bitvec families, lift + execute) compute the independent
-references' values on the layer-4 emulator cases. One item per (architecture, fp, family, md class)
+"""The Ghidra-free semantics (sass.semantics.bitvec families, lift + execute) compute the independent
+references' values on the emulator cases (the same as test_pcode_semantics). One item per (architecture, fp, family, md class)
 whose opcode has a semantics family; no Ghidra needed."""
 from concurrent.futures import ProcessPoolExecutor
 from functools import cache
@@ -48,7 +48,7 @@ def pytest_generate_tests(metafunc):
     metafunc.parametrize("lifted_class", params, ids=["-".join(p) for p in params])
 
 
-def test_sem_semantics(lifted_class, request):
+def test_lifted_semantics(lifted_class, request):
     arch, fp, family, cls = lifted_class
     cases = selected_cases(*selection(request.config))[lifted_class]
     failed = [(cases[j], found) for j, found in results(*selection(request.config))[lifted_class]]

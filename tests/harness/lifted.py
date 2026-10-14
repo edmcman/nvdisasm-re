@@ -1,4 +1,4 @@
-"""Run layer-4 emulator cases through the Ghidra-free semantics (`sass.semantics.lifter` + `sass.semantics.evaluate`)."""
+"""Run the emulator cases through the Ghidra-free semantics (`sass.semantics.lifter` + `sass.semantics.evaluate`)."""
 import re
 from functools import cache
 from sass.decode import ir, pydecode
@@ -11,7 +11,7 @@ PCODE_ONLY = ("__native", "__max_ops", "__events")
 
 
 def applies(case):
-    """Whether layer 4a can judge the case: a single instruction of an opcode with a family."""
+    """Whether the lifted semantics can judge the case: a single instruction of an opcode with a family."""
     r = case.request
     return "word" in r and not r.get("context") and \
         all(NAME.match(n) or n in ("RZ", "PT") for n in list(r.get("registers", {})) + list(r.get("observe", [])))
@@ -44,9 +44,9 @@ def run(arch, fp, case):
     except pydecode.NoMatch as e: return "illegal", [f"does not decode: {e}"]
     expected = {k: v for k, v in case.expected.items() if k not in PCODE_ONLY}
     opaque = "__opaque" in expected or str(expected.get("error", "")).startswith(("sass_opaque", "sass_prim"))
-    if lifted.status == "primitive": return "primitive", []   # the runtime primitive's values: layer 4
+    if lifted.status == "primitive": return "primitive", []   # the runtime primitive's values: test_pcode_semantics
     if lifted.status == "opaque":
-        if primitive_fallback(arch, lifted.cls): return "primitive", []   # the runtime primitive's values: layer 4
+        if primitive_fallback(arch, lifted.cls): return "primitive", []   # the runtime primitive's values: test_pcode_semantics
         return "opaque", [] if opaque else [f"unmodelled ({lifted.reason}), expected values"]
     if opaque: return "native", ["modelled, expected an opaque fallback"]
     if "error" in expected: return "native", []  # runtime errors (budgets, events) are emulator matters

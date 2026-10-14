@@ -1,51 +1,92 @@
 # Tests
 
-The tests are layered. Each layer checks one artifact against one oracle, so a failure points at
-one component. Markers only say what a test needs: `ghidra` (compiled SLEIGH languages and Ghidra's
-pyghidra venv) and `gpu` (an SM89 device).
+Each test checks one artifact against one oracle, so a failure points at one component. Tests are
+grouped by what they need to run; markers say only that: `ghidra` (compiled SLEIGH languages and
+Ghidra's pyghidra venv) and `gpu` (an SM89 device).
 
-| # | Question | Under test | Oracle | File |
-|---|---|---|---|---|
-| 0 | helpers right? | refs, softfloat, md expressions, cubin; every family runs on every class it covers | libm / hand values | `test_refs.py`, `test_softfloat.py`, `test_mdexpr.py`, `test_cubin.py`, `test_sem_families.py` |
-| 1 | decode like nvdisasm? | `sass.decode.pydecode` | nvdisasm | `test_pydecode_disassembly.py` (CLI `sass-compare-pydecode`) |
-| 2 | SLEIGH disassembles like pydecode? | `.sla` display | pydecode | `test_ghidra_disassembly.py` (ratchet `baseline/ghidra_SMxx.json`; CLI `sass-compare-ghidra`) |
-| 3 | p-code reads/writes the right registers? | `.sla` dataflow | md roles/spans, BRANCH_TYPE | `test_pcode_dataflow.py` (+ op-count ratchet `baseline/pcode_<variant>.json`) |
-| 4a | lifted semantics compute the right values? (no Ghidra) | `sass.semantics.lifter` + `evaluate` on families | `tests/refs/` | `test_sem_semantics.py` (same cases as layer 4) |
-| 4 | p-code computes the right values? | `.sla` p-code in Ghidra's emulator | `tests/refs/` | `test_pcode_semantics.py` (CLI `uv run python -m tests.semantics`) |
-| 5 | refs and emulator right? | refs + emulated p-code | SM89 GPU | `test_refs_against_gpu.py` (CLI `uv run python -m tests.observe FAMILY`) |
+### Python tests: `uv run pytest`
 
-`test_coverage.py` (`ghidra`) checks that the committed `processor/SASS/semantics/coverage.json`
-matches the generated languages' manifests.
+Need Python and the target nvdisasm only. Run them constantly.
+
+| File | Question | Under test | Oracle |
+|---|---|---|---|
+| `test_refs.py`, `test_softfloat.py` | are the references right? | `refs/`, softfloat | libm, brute force, hand values |
+| `test_mdexpr.py`, `test_fold.py`, `test_cubin.py` | are the helpers right? | md expressions, decode-time folding, cubin reader | hand values, evaluation |
+| `test_pydecode_disassembly.py` | does pydecode decode like nvdisasm? | `sass.decode.pydecode` | nvdisasm (ratchet `baseline/SMxx.json`; CLI `sass-compare-pydecode`) |
+| `test_family_lowering.py` | does every family lower on every class it covers? | `sass.semantics` families under the SLEIGH enumeration | no crash |
+| `test_lifted_semantics.py` | do the semantics compute the right values? | `sass.semantics.lifter` + `evaluate` | `refs/`, through the emulator cases |
+
+### Ghidra tests: `uv run pytest -m ghidra`
+
+Need languages built by `uv run sass-build-languages` (outside the sandbox). Run them when the
+SLEIGH generator, a lowering or a case changes.
+
+| File | Question | Under test | Oracle |
+|---|---|---|---|
+| `test_ghidra_disassembly.py` | does the SLEIGH disassemble like pydecode? | `.sla` display | pydecode (ratchet `baseline/ghidra_SMxx.json`; CLI `sass-compare-ghidra`) |
+| `test_pcode_dataflow.py` | does the p-code read and write the right registers? | `.sla` dataflow | md roles/spans, BRANCH_TYPE (+ op-count ratchet `baseline/pcode_<variant>.json`) |
+| `test_pcode_semantics.py` | does the p-code compute the right values? | `.sla` p-code in Ghidra's emulator | `refs/`, through the emulator cases (CLI `uv run python -m tests.semantics`) |
+| `test_fixtures_emulated.py` | do whole GPU-fixture kernels compute their references in the emulator? | emulated SM89 kernels | `refs/`, through the GPU fixtures |
+| `test_coverage.py` | is `processor/SASS/semantics/coverage.json` current? | committed coverage | the languages' manifests |
+
+### GPU tests: `uv run pytest -m gpu --require-gpu`
+
+Need an SM89 device (outside the sandbox), but not Ghidra. Run them only when GPU fixtures or
+references are added or changed: they check the references against hardware, and everything
+else is checked against the references.
+
+| File | Question | Under test | Oracle |
+|---|---|---|---|
+| `test_refs_on_gpu.py` | are the references right on hardware? | `refs/`, through the GPU fixtures | SM89 GPU (CLI `uv run python -m tests.observe FAMILY`) |
 
 ## Running
 
 ```sh
-uv run pytest                                          # layers 0, 1 and 4a, SM89 exact
+uv run pytest                                          # Python tests, SM89
 uv run pytest --arch all --fp all                      # the same on every architecture and lowering
-uv run sass-build-languages                        # before any Ghidra layer (outside the sandbox)
-uv run pytest -m ghidra --arch all --fp all            # layers 2-4 and coverage
-uv run pytest -m gpu --require-gpu                     # layer 5 (outside the sandbox)
+uv run sass-build-languages                            # before the Ghidra tests (outside the sandbox)
+uv run pytest -m ghidra --arch all --fp all            # Ghidra tests
+uv run pytest -m gpu --require-gpu                     # GPU tests (outside the sandbox)
 ```
 
 | Option | Meaning |
 |---|---|
-| `--arch SM89\|SM75,SM90\|all` | architectures for the semantics and Ghidra layers (default SM89) |
+| `--arch SM89\|SM75,SM90\|all` | architectures (default SM89) |
 | `--fp exact\|readable\|all` | floating-point lowering(s) (default exact) |
-| `--family F` (repeatable) | limit semantics and GPU tests to case families (`tests/cases/F.py`) |
+| `--family F` (repeatable) | limit semantics tests and GPU fixtures to case families (`tests/cases/F.py`) |
+| `--exhaustive` | emulate every case of the large F2FP sweeps (the Ghidra tests otherwise run a fixed quarter; the lifted semantics always run all) |
 | `--update-baseline` | accept current results into the ratchet baselines |
-| `--full` | layer 1 on the whole real corpus instead of a sample |
+| `--full` | `test_pydecode_disassembly` and `test_ghidra_disassembly` on the whole real corpus instead of a sample |
 | `--require-gpu` | fail instead of skipping without an SM89 device |
 
-While iterating, run only what a change touches (`--family conversions --arch SM89`); run the full
-sweep (all architectures, both lowerings, Ghidra and GPU layers) before committing.
+While iterating, run what a change touches (`--family conversions --arch SM89`). Before committing,
+run the Python and Ghidra tests on every architecture and lowering; run the GPU tests too if
+fixtures or references changed.
 
-Rough wall times on a 32-core machine: default suite on all architectures about 4 minutes, language
-build about 10, Ghidra layers on all languages about 15, GPU layer about 3.
+Rough wall times on a 32-core machine (2026-10-14): Python tests 25 s on SM89 and 6 minutes on
+every architecture and lowering; language build 2.5-5 minutes (compilers run as free memory
+allows); Ghidra tests on all languages 14 minutes cold and 2.5 minutes when cached (mostly
+building the cases); GPU tests 15 s.
 
-**Don't use pytest-xdist.** The expensive layers (4a, the family crash check, pydecode) compute
-all results once per session in a process pool sized to the CPUs, and each test looks its result
-up. xdist workers each repeat that precomputation with their own pool (32 x 32 processes, load
-average ~500). The Ghidra layers likewise run up to 24 JVMs themselves.
+**Don't use pytest-xdist.** The expensive tests compute all their results once per session in a
+process pool sized to the CPUs, and each test item looks its result up. xdist workers would each
+repeat that precomputation with their own pool (32 x 32 processes, load average ~500). The Ghidra
+tests likewise run up to 24 JVMs themselves.
+
+## Caches
+
+Everything below lives in `.cache/` and is safe to delete.
+
+| What | Keyed by |
+|---|---|
+| nvdisasm oracle results (`oracle.sqlite`) | nvdisasm hash, word, address |
+| parsed md IR (`ir/`) | md files and parser sources |
+| real-corpus words (`corpus/`) | the cubin set (paths, sizes, mtimes) |
+| Ghidra decode/emulation results (`ghidra/`) | the language's `.sla`, specs and coverage manifest, every `src/sass` source, Ghidra; then the request |
+| compiled kernels (`kernels/`), block emulator (`java/`), extracted library cubins (`cubins/`) | sources and flags |
+
+A stale `.sla` fails the Ghidra tests up front (`harness/select.require_languages`): Ghidra would
+recompile it on load, and concurrent compilers corrupt it.
 
 ## Prerequisites
 
@@ -53,45 +94,47 @@ average ~500). The Ghidra layers likewise run up to 24 JVMs themselves.
 |---|---|---|
 | target nvdisasm (CUDA 13.4, V13.4.92) | the cu13 wheel in `/tmp/.venv` or the uv cache | `NVDISASM` |
 | Ghidra 12.1.4 and its pyghidra venv | `~/Ghidra/ghidra_12.1.4_PUBLIC`, `~/.config/ghidra/ghidra_12.1.4_PUBLIC/venv` | `GHIDRA_INSTALL_DIR`, `GHIDRA_PY` |
-| CUDA toolkit (layer 5 kernels) | `/usr/local/cuda/bin/{nvcc,cuobjdump}` | `NVCC`, `CUOBJDUMP` |
+| CUDA toolkit (GPU-fixture kernels, Ghidra and GPU tests) | `/usr/local/cuda/bin/{nvcc,cuobjdump}` | `NVCC`, `CUOBJDUMP` |
 | generated languages | `processor/SASS/data/languages` | `SASS_SLEIGH_OUT` |
-| `javac` (cooperative layer-5 fixtures) | on `PATH` | |
-
-Results of the nvdisasm oracle, compiled kernels and the compiled block emulator are cached in
-`.cache/`. A stale `.sla` fails the Ghidra layers up front (`conftest.require_languages`): Ghidra
-would recompile it on load, and concurrent compilers corrupt it.
+| `javac` (cooperative GPU fixtures) | on `PATH` | |
 
 ## Ratchets
 
-Layers 1-3 compare against committed baselines in `baseline/`: a class that regresses fails, and a
-newly passing class is reported until accepted with `--update-baseline`. Review the diff of any
-baseline update; op-count increases (`pcode_<variant>.json`) should come only from classes the
-change touched.
+`test_pydecode_disassembly`, `test_ghidra_disassembly` and `test_pcode_dataflow` compare against
+committed baselines in `baseline/`: a class that regresses fails, and a newly passing class is
+reported until accepted with `--update-baseline`. Review the diff of any baseline update;
+op-count increases (`pcode_<variant>.json`) should come only from classes the change touched.
 
 ## Writing tests
 
 Each `cases/<family>.py` (listed in `cases/__init__.py` `FAMILIES`) provides:
 
-- `emulator_cases(c)`: layer 4 and 4a cases. `c.add(cls, fields, registers, expected, ...)`
-  encodes one instruction of md class `cls` with operand `fields`, seeds `registers`, and checks
-  `expected`; classes the architecture lacks are skipped. Helpers in `harness/case.py`: `put`
-  (place an operand value in a register, immediate or constant bank), `cx_source`,
-  `c.kernel(...)` (a one-instruction kernel expected to fail). Expectation keys are documented in
-  `harness/checks.py`: plain keys are observed registers; `__native`, `__max_ops`, `__counter`,
-  `__memory`, `__events`, `__fp8_nan`, `__opaque` and `error` are checks.
-- `gpu_fixtures()`: layer 5 `harness/gpu.Fixture`s. A fixture is a CUDA kernel
-  (`kernels/*.cu`, compiled for sm_89, optionally with patched SASS words: `harness/scalar.py`,
-  `harness/templates.py`) launched on the GPU and run whole in the emulator from entry to EXIT.
-  Each thread reads three inputs and writes one output; the GPU output is compared with
-  `expected` (the reference) and the emulator output with the GPU.
+- `emulator_cases(c)`: single-instruction cases for `test_lifted_semantics` and
+  `test_pcode_semantics`. `c.add(cls, fields, registers, expected, ...)` encodes one instruction
+  of md class `cls` with operand `fields`, seeds `registers`, and checks `expected`; classes the
+  architecture lacks are skipped. Helpers in `harness/case.py`: `put` (place an operand value in
+  a register, immediate or constant bank), `cx_source`, `c.kernel(...)` (a one-instruction kernel
+  expected to fail), `c.sweep(n)` (indices of a large sweep over codes or values, sampled unless
+  `--exhaustive`). Expectation keys are documented in `harness/checks.py`: plain keys are observed
+  registers; `__native`, `__max_ops`, `__counter`, `__memory`, `__events`, `__fp8_nan`,
+  `__opaque` and `error` are checks.
+- `gpu_fixtures()`: `harness/gpu.Fixture`s for `test_refs_on_gpu` and `test_fixtures_emulated`.
+  A fixture is a CUDA kernel (`kernels/*.cu`, compiled for sm_89, optionally with patched SASS
+  words: `harness/scalar.py`, `harness/templates.py`) and its reference outputs `expected`. Each
+  thread reads three inputs and writes one output. The GPU output is compared with `expected`
+  using `same`; the kernel, run whole in the emulator from entry to EXIT, is compared with
+  `expected` using `emulator_same` (default `same`), with `excused` admitting known emulator
+  defects.
 
 References in `refs/` are independent of the code under test: they may import only
-`sass.semantics.fp.softfloat` from `sass/` (`test_refs.py` enforces this). Every random block draws from its
-own named `random.Random`, so cases are reproducible and adding one block doesn't shift another.
+`sass.semantics.fp.softfloat` from `sass/` (`test_refs.py` enforces this). Every random block draws
+from its own named `random.Random`, so cases are reproducible and adding one block doesn't shift
+another.
 
 To derive a reference from hardware, draft a fixture with `expected=None`, run
-`uv run python -m tests.observe FAMILY`, write the reference from the observed outputs, and the fixture
-becomes a regression test.
+`uv run python -m tests.observe FAMILY` (`--diff` shows threads that disagree with the current
+reference), and write the reference from the observed outputs. A fixture without a reference
+fails both fixture tests.
 
 ## Multi-thread fixtures
 
@@ -113,6 +156,7 @@ package.
 
 ## Comparison tolerances
 
-GPU vs reference is exact, except F16 NaN payload/sign in F16 packs. GPU vs emulator tolerates
-floating-point NaN payload/sign, and excuses Ghidra 12.1.4's minimum-subnormal underflow
+GPU vs reference is exact, except F16 NaN payload/sign in F16 packs and packed F16 arithmetic,
+and the bits outside the converted width of the wide conversion fixtures. Emulator vs reference
+tolerates floating-point NaN payload/sign, and excuses Ghidra 12.1.4's minimum-subnormal underflow
 (fp16/32/64) only on its exact signature. FP8 emulator cases compare NaN class only (`__fp8_nan`).

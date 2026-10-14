@@ -226,7 +226,16 @@ def emulator_cases(c):
 
 def gpu_fixtures():
     from tests.harness import scalar
-    return [*scalar.generic("iadd3", "imad", "imad_hi", "lop3", "shf", "iabs", "imnmx", "prmt", "isetp", "sel"),
+    return [scalar.launch("iadd3", lambda a, b, c: (a + b + c) & MASK32),
+            scalar.launch("imad", lambda a, b, c: (a * b + c) & MASK32),
+            scalar.launch("imad_hi", lambda a, b, c: ((a * b >> 32) + c) & MASK32),
+            scalar.launch("lop3", lambda a, b, c: a ^ b ^ c),
+            scalar.launch("shf", lambda a, b, c: ((c << 32 | a) >> (b & 31)) & MASK32),
+            scalar.launch("iabs", lambda a, *_: abs(sext(a, 32)) & MASK32),
+            scalar.launch("imnmx", lambda a, b, _: min(a, b)),
+            scalar.launch("prmt", lambda a, b, c: prmt(a, c, b, "IDX")),
+            scalar.launch("isetp", lambda a, b, _: int(a < b)),
+            scalar.launch("sel", lambda a, b, c: a if c else b),
             # The 64-bit constant source joins the full product-plus-addend sum before the high word.
             scalar.launch("imad_hi_c", lambda x, y, _: ((x * y + 0x00000002ffffffff) >> 32) & MASK32),
             scalar.launch("isetp_ex", lambda x, y, _: int(x < y)),

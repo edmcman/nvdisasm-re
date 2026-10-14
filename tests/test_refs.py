@@ -1,4 +1,4 @@
-"""Layer 0: the independent references stay independent of the generated semantics, and their
+"""The independent references stay independent of the generated semantics, and their
 building blocks agree with hand values and brute force."""
 import ast
 from fractions import Fraction

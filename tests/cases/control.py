@@ -32,6 +32,12 @@ def emulator_cases(c):
         c.kernel(name, cls, fields, message)
 
 
+def branch(a, b, c):
+    """sem_branch: a, then b & 7 rounds of r = 3r + c."""
+    for _ in range(b & 7): a = (3 * a + c) & 0xffffffff
+    return a
+
+
 def gpu_fixtures():
     from tests.harness import scalar
-    return scalar.generic("branch")
+    return [scalar.launch("branch", branch)]

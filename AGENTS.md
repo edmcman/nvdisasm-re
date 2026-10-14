@@ -14,13 +14,13 @@ Local copy used so far: `/tmp/.venv/lib/python3.13/site-packages/nvidia/cu13/bin
 - `src/sass/oracle.py`: the nvdisasm oracle (sqlite cache in `.cache/`); `corpus.py`, `synth.py`: word corpora.
 - `src/sass/check/`: comparison/report CLIs (`pydecode_disasm`, `ghidra_disasm`, `census`).
 - `src/sass/paths.py`: repository paths and external tool locations.
-- `tests/`: test layers only (`harness/`, `cases/`, `refs/`, kernels, baselines); see `tests/README.md`.
+- `tests/`: tests only (`harness/`, `cases/`, `refs/`, kernels, baselines); see `tests/README.md`.
 - `processor/SASS/`: the Ghidra module (hand-written `.sinc`/`.pspec`/`.cspec`, generated languages, coverage/verification JSON).
 - `research/`: one-off investigations (ptxas, CuLifter, SLEIGH conditions).
 
 Modules are imported by their own names, never aliased (`from sass.md import parse`).
 
-Console scripts: `sass-extract-md`, `sass-layout-md`, `sass-decode`, `sass-gen-sleigh`, `sass-build-languages`, `sass-coverage`, `sass-compare-pydecode`, `sass-compare-ghidra`, `sass-census`. Tests: `uv run pytest` (see `tests/README.md` for the Ghidra and GPU layers).
+Console scripts: `sass-extract-md`, `sass-layout-md`, `sass-decode`, `sass-gen-sleigh`, `sass-build-languages`, `sass-coverage`, `sass-compare-pydecode`, `sass-compare-ghidra`, `sass-census`. Tests: `uv run pytest` runs the Python tests; `tests/README.md` describes them and the Ghidra (`-m ghidra`) and GPU (`-m gpu`) tests.
 
 ## Findings (docs/)
 - `docs/nvdisasm-binary.md`: GhidraMCP setup, function addresses, cipher, md blobs and aliases.
@@ -33,9 +33,20 @@ Console scripts: `sass-extract-md`, `sass-layout-md`, `sass-decode`, `sass-gen-s
 
 Record new findings in the matching `docs/` file, dated where it matters.
 
+## Writing new semantics
+Work from the reference outward, and run the cheapest test that can fail first (`tests/README.md` has the details):
+1. **Reference.** Write the instruction's behavior as a function in `tests/refs/`, independent of `src/sass` (it may import only `sass.semantics.fp.softfloat`). Prefer the obvious, even naive, formulation (enumerate bits, exact rationals) over a clever one. Base it on documented hardware behavior (`docs/hardware-facts.md`), PTX semantics, or GPU observation, never on the implementation.
+2. **Emulator cases.** In `tests/cases/<family>.py` `emulator_cases`, add cases whose expected values come from the reference: zeros of both signs, NaN/infinity/subnormal, saturation and overflow bounds, each modifier and operand form, aliased registers. Use `c.sweep(n)` for sweeps over every code or a long value list.
+3. **Semantics.** Implement the family in `src/sass/semantics/families/` and iterate on the Python tests only, which take seconds and need neither Ghidra nor a GPU: `uv run pytest -k "lifted or family_lowering" --family F` and then `--arch all --fp all`.
+4. **SLEIGH.** Build only the languages you need (`uv run sass-build-languages SM89 --fp exact`, outside the sandbox), then run `uv run pytest -m ghidra --family F --arch SM89`. Use `uv run python -m tests.semantics SM89 --family F` to see failing cases. Ghidra results are cached, so reruns only emulate what changed. Review op-count baseline changes before accepting them with `--update-baseline`.
+5. **Hardware.** If the behavior is not already established on hardware, add a GPU fixture with a reference to `gpu_fixtures()` (draft with `expected=None` and `uv run python -m tests.observe F --diff`). Then run `uv run pytest -m gpu --require-gpu --family F`. GPU runs are needed only when fixtures or references change. Record what the GPU established in `docs/hardware-facts.md`.
+6. **Before committing,** run the Python tests and the Ghidra tests on every architecture and lowering after a full language build.
+
+When tests disagree, fix the side that is wrong at its root cause. A reference that disagrees with the GPU is wrong. Semantics that disagree with a hardware-confirmed reference are wrong. Never loosen `same`/`emulator_same`/`excused` or a reference to make a failure pass without hardware evidence.
+
 ## Rules
 - Don't name a repo dir `ghidra/` (or a module directory on `sys.path` `ghidra`/`pyghidra`): Python treats it as a namespace package shadowing pyghidra's Java `ghidra` package (RecursionError).
-- SLEIGH compiler memory: compiling the SM100+ languages took 10-12 GiB of Java heap each, and `sass-build-languages` once ran all 18 compilers at once (no `MAXMEM` in `support/sleigh`, so each JVM may take a quarter of RAM); eight together exhausted 93 GiB and systemd-oomd killed whole terminals (2026-10-13). `sass-build-languages` now runs `MemAvailable // 16 GiB` compilers with `-Xmx16g` (`COMPILER_HEAP`). The test layers are small by comparison (one emulation JVM ~0.7 GB on SM90).
+- SLEIGH compiler memory: compiling the SM100+ languages took 10-12 GiB of Java heap each, and `sass-build-languages` once ran all 18 compilers at once (no `MAXMEM` in `support/sleigh`, so each JVM may take a quarter of RAM); eight together exhausted 93 GiB and systemd-oomd killed whole terminals (2026-10-13). `sass-build-languages` now runs `MemAvailable // 16 GiB` compilers with `-Xmx16g` (`COMPILER_HEAP`). The tests are small by comparison (one emulation JVM ~0.7 GB on SM90).
 - Complete SLEIGH generation/compilation before parallel language loading. Ghidra auto-compiles stale specs, and concurrent compilers writing one `.sla` can corrupt it.
 - Run language builds and GPU validation outside the sandbox. The user explicitly requested this; Ghidra's JDK/config setup and GPU/device access may fail inside the sandbox.
 - Architecture support and hardware verification are separate. Lack of hardware evidence beyond SM89 limits verification claims, not code generation: implement semantics for other architectures whenever the machine description and available evidence make the behavior reasonable, using conservative selector guards and fallback paths for unresolved forms. Record hardware verification by architecture and tested forms rather than gating native generation to SM89.

@@ -1,7 +1,7 @@
 """Discovery: run GPU fixtures on the SM89 device without asserting, to derive a reference.
 
 Draft a fixture with expected=None in a family's gpu_fixtures(), run this, write the reference
-from the observed outputs, then the fixture becomes a regression test in test_refs_against_gpu.
+from the observed outputs, then the fixture becomes a regression test in test_refs_on_gpu and test_fixtures_emulated.
 
 usage: python -m tests.observe FAMILY [--fixture SUBSTRING] [--diff] [--out FILE]
 """

@@ -4,7 +4,7 @@ import random
 from sass.semantics.fp import softfloat
 from tests.harness.case import cbank, pair
 from tests.refs.bits import f64
-from tests.refs.float import FCOMPARISONS, fcompare, readable, underflow_band
+from tests.refs.float import FCOMPARISONS, fcompare, ordered, readable, rounded, underflow_band
 from tests.refs.integer import combine
 
 ONE, TWO, THREE = 0x3ff0000000000000, 0x4000000000000000, 0x4008000000000000
@@ -86,4 +86,7 @@ def emulator_cases(c):
 
 def gpu_fixtures():
     from tests.harness import scalar
-    return [scalar.launch(f, underflow=True) for f in ("dadd", "dmul", "dfma")] + scalar.generic("dsetp", *sorted(f for f in scalar.ROUNDED if f.startswith("d")))
+    return [scalar.launch(f, lambda *v, op=f[1:]: rounded(op, v[:3 if op == "fma" else 2], 64), underflow=True) for f in ("dadd", "dmul", "dfma")] + \
+           [scalar.launch(f, lambda *v, op=f[1:4], m=f[-2:].upper(): rounded(op, v[:3 if op == "fma" else 2], 64, m))
+            for f in sorted(f for f in scalar.ROUNDED if f[0] == "d")] + \
+           [scalar.launch("dsetp", lambda a, b, _: int(fcompare(ordered(a, 64), ordered(b, 64), "LTU")))]

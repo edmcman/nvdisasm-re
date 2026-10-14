@@ -1,4 +1,4 @@
-"""Layer 0: decode-time folding (sass.sleigh.lower.Fold). SLEIGH constructor actions have only 64-bit
+"""Decode-time folding (sass.sleigh.lower.Fold). SLEIGH constructor actions have only 64-bit
 signed arithmetic and bit operations, so comparisons and ite are encoded arithmetically; the text
 Fold writes, evaluated with those semantics, must equal evaluate of the expression."""
 import ast, random

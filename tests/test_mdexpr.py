@@ -1,4 +1,4 @@
-"""Layer 0: md expressions: operand sizes that control register dependencies, and CONDITIONS."""
+"""md expressions: operand sizes that control register dependencies, and CONDITIONS."""
 import itertools
 import pytest
 from sass.decode import ir, pydecode

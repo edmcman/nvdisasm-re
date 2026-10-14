@@ -1,4 +1,4 @@
-"""Layer 0: the softfloat reference model against host libm (fp16/fp32/fp64) and hand values."""
+"""The softfloat reference model against host libm (fp16/fp32/fp64) and hand values."""
 import ctypes, math, random
 from fractions import Fraction
 import pytest

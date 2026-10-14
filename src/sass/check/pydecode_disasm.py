@@ -1,4 +1,4 @@
-"""Layer 1 report: pydecode vs the nvdisasm oracle.
+"""Report: pydecode vs the nvdisasm oracle.
 
 usage: python -m sass.check.pydecode_disasm SM89 [real|synthetic|mutated] [N] [--show K] [--cls REGEX]
 """

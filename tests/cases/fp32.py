@@ -5,7 +5,7 @@ import itertools, random
 from sass.semantics.fp import softfloat
 from tests.harness.case import cx_source, is_cx, put, source
 from tests.refs.bits import f32, ftz32, nan32
-from tests.refs.float import FCOMPARISONS, fchk_divide, fcompare, fmnmx, fmnmx3_pick, fmnmx_xorsign, readable, underflow_band
+from tests.refs.float import FCOMPARISONS, fchk_divide, fcompare, fmnmx, fmnmx3_pick, fmnmx_xorsign, ordered, readable, rounded, underflow_band
 
 ROUNDINGS = ("RN", "RZ", "RM", "RP")
 
@@ -181,8 +181,13 @@ def emulator_cases(c):
 
 def gpu_fixtures():
     from tests.harness import scalar
-    out = [scalar.launch(f, underflow=True) for f in ("fadd", "fmul", "ffma")]
-    out += scalar.generic("fsetp", "fsel", "fadd_ftz", "ffma_sat", *sorted(f for f in scalar.ROUNDED if f[0] == "f"))
+    out = [scalar.launch(f, lambda *v, op=f[1:]: rounded(op, v[:3 if op == "fma" else 2], 32), underflow=True) for f in ("fadd", "fmul", "ffma")]
+    out += [scalar.launch(f, lambda *v, op=f[1:4], m=f[-2:].upper(): rounded(op, v[:3 if op == "fma" else 2], 32, m))
+            for f in sorted(f for f in scalar.ROUNDED if f[0] == "f")]
+    out += [scalar.launch("fsetp", lambda a, b, _: int(fcompare(ordered(a, 32), ordered(b, 32), "LT"))),
+            scalar.launch("fsel", lambda a, b, c: a ^ 0x80000000 if c else b),
+            scalar.launch("fadd_ftz", lambda a, b, _: rounded("add", [a, b], 32, ftz=True)),
+            scalar.launch("ffma_sat", lambda *v: rounded("fma", v, 32, sat=True))]
     out += [scalar.launch(f, lambda x, y, _, f=f: fmnmx(x, y, f.startswith("fmin"), f.endswith("_nan"), "ftz" in f))
             for f in ("fmin", "fmax", "fmin_nan", "fmax_nan", "fmin_ftz_nan", "fmax_ftz_nan", "fmin_ftz", "fmax_ftz")]
     out.append(scalar.launch("fmin_xorsign", lambda x, y, _: fmnmx_xorsign(x, y, True)))

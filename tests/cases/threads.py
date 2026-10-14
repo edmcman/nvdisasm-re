@@ -1,5 +1,5 @@
-"""Semantics involving several threads: SHFL and VOTE with explicit warp context (layer 4), and
-cooperative blocks (warps in lockstep, shared memory, BAR.SYNC) against the SM89 GPU (layer 5)."""
+"""Semantics involving several threads: SHFL and VOTE with explicit warp context (emulator cases), and
+cooperative blocks (warps in lockstep, shared memory, BAR.SYNC) against the SM89 GPU (GPU fixtures)."""
 import random
 import struct
 

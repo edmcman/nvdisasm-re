@@ -1,4 +1,4 @@
-"""Layer 3: register dataflow and control flow of generated p-code against md operand roles,
+"""Register dataflow and control flow of generated p-code against md operand roles,
 exact spans and BRANCH_TYPE."""
 from sass.md import expression
 from sass.decode import pydecode

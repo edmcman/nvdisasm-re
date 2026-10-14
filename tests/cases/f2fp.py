@@ -148,7 +148,7 @@ def upconvert(c):
             top = 63 if fmt in FP6 else 255 if fmt == "E3M4" else 127
             for extract in c.labels(k, "extract_B", ("H0", "H1")):
                 for relu in ("norelu", "RELU"):
-                    for i in range(top + 1):
+                    for i in c.sweep(top + 1):
                         pair = i | ((top - i) << 8)
                         regs, fields = {}, {"Rd": 8, "dstfmt": "F16", "srcfmt": fmt, "merge": "UNPACK_B", "rndMode": "RN", "relu": relu, "extract_B": extract}
                         put(k, src, pair if extract == "H0" else pair << 16, fields, regs, None, reg)
@@ -162,7 +162,7 @@ def upconvert(c):
         for fmt in c.labels(k, "srcfmt", ("E2M1", "E0M3")):
             for selector in c.labels(k, "selB", ("B0", "B1", "B2", "B3")):
                 for relu in ("norelu", "RELU"):
-                    for byte in range(256):
+                    for byte in c.sweep(256):
                         fields, regs = {"Rd": 8, "dstfmt": "F16", "srcfmt": fmt, "merge": "UNPACK_B", "rndMode": "RN", "relu": relu, "selB": selector}, {}
                         put(k, src, byte << (int(selector[1:]) * 8), fields, regs, None, 2, ureg=4, imm=("F32Imm",))
                         lo, hi = fpf.widen(fmt, byte & 0xf), fpf.widen(fmt, byte >> 4)
@@ -176,7 +176,7 @@ def upconvert(c):
         for fmt in ("E2M1", "E0M3"):
             for selector in c.labels(k, "selB", ("B0", "B1", "B2", "B3")):
                 for relu in ("norelu", "RELU"):
-                    for byte in range(256):
+                    for byte in c.sweep(256):
                         scales = byte | ((255 - byte) << 8)
                         fields = {"Rd": 8, "dstfmt": "BF16", "srcfmt": fmt, "merge": "UNPACK_B", "rndMode": "RN", "satfinite": "SATFINITE", "relu": relu, "selB": selector, "iswzC": "H0"}
                         regs = {}
@@ -190,7 +190,7 @@ def upconvert(c):
         src = source(k, "Rb", "URb", "Sb")
         if src is None or not has(k, "dstfmt", "srcfmt", "merge", "rndMode", "extract_B"): continue
         for extract in ("H0", "H1"):
-            for byte in range(256):
+            for byte in c.sweep(256):
                 pair = byte | ((255 - byte) << 8)
                 fields, regs = {"Rd": 8, "dstfmt": "BF16", "srcfmt": "E8", "merge": "UNPACK_B", "rndMode": "RN", "extract_B": extract}, {}
                 put(k, src, pair if extract == "H0" else pair << 16, fields, regs, None, 2, ureg=4, imm=("F32Imm",))
@@ -217,8 +217,8 @@ def fp4_pack(c):
             # Pair each boundary with a different lane to catch lane swaps.
             for fmt in ("E2M1", "E0M3"):
                 for relu in ("norelu", "RELU"):
-                    for i, x in enumerate(vals):
-                        bword = x | (vals[(i * 7 + 3) % len(vals)] << 16)
+                    for i in c.sweep(len(vals)):
+                        bword = vals[i] | (vals[(i * 7 + 3) % len(vals)] << 16)
                         cword = vals[(i * 11 + 5) % len(vals)] | (vals[(i * 13 + 9) % len(vals)] << 16)
                         fields = {"Rd": 8, "dstfmt": fmt, "srcfmt": src, "merge": "UNPACK_B_MERGE_C", "rndMode": "RN", "satfinite": "SATFINITE", "relu": relu}
                         regs = {}
@@ -252,14 +252,14 @@ def fp8_down(c):
         c.add(k.name, fields, regs, {observed(k): ((carry >> 16 if extract == "H1" else carry & 0xffff) << 16) | packed, "__native": True, "__fp8_nan": fmt})
     for k in f32_classes:
         for fmt, relu, extract, rnd in itertools.product(("E4M3", "E5M2"), ("norelu", "RELU"), ("H0", "H1"), ["RN"] + c.labels(k, "rndMode", ("RP",))):
-            for i, a in enumerate(sample):
-                add(k, fmt, "F32", rnd, relu, extract, "SATFINITE", a, sample[(i * 7 + 3) % len(sample)], (0xa55a1234 ^ (i * 0x01010101)) & 0xffffffff)
+            for i in c.sweep(len(sample)):
+                add(k, fmt, "F32", rnd, relu, extract, "SATFINITE", sample[i], sample[(i * 7 + 3) % len(sample)], (0xa55a1234 ^ (i * 0x01010101)) & 0xffffffff)
     for k in half_classes:
         for srcfmt in c.labels(k, "srcfmt", ("F16", "BF16")):
             for fmt, relu, extract, rnd in itertools.product(("E4M3", "E5M2"), ("norelu", "RELU"), ("H0", "H1"), ["RN"] + c.labels(k, "rndMode", ("RP",))):
                 vals = fp8_samples(fmt, srcfmt)
-                for i, x in enumerate(vals):
-                    add(k, fmt, srcfmt, rnd, relu, extract, "SATFINITE", x, vals[(i * 11 + 7) % len(vals)], (0xd35a9c71 ^ (i * 0x01010101)) & 0xffffffff)
+                for i in c.sweep(len(vals)):
+                    add(k, fmt, srcfmt, rnd, relu, extract, "SATFINITE", vals[i], vals[(i * 11 + 7) % len(vals)], (0xd35a9c71 ^ (i * 0x01010101)) & 0xffffffff)
     f32_values = (0, 0x80000000, 0x3f800000, 0xbf800000, 0x477fe000, 0x477ff000, 0xc77ff000, 0x7f800000, 0xff800000, 0x7fc00000, 0xffc12345)
     half_values = (0, 0x8000, 0x3c00, 0xbc00, 0x7bff, 0xfbff, 0x7c00, 0xfc00, 0x7e00, 0xfe00)
     for k in f32_classes + half_classes:
@@ -267,8 +267,8 @@ def fp8_down(c):
         for srcfmt in c.labels(k, "srcfmt", ("F16", "BF16")) if half else ("F32",):
             samples = half_values if half else f32_values
             for fmt, rnd, relu, extract in itertools.product(("E4M3", "E5M2"), c.labels(k, "rndMode", ("RN", "RP")), ("norelu", "RELU"), ("H0", "H1")):
-                for i, x in enumerate(samples):
-                    add(k, fmt, srcfmt, rnd, relu, extract, "nosatfinite", x, samples[(i * 7 + 3) % len(samples)], (0xa55a1234 ^ (i * 0x01010101)) & 0xffffffff)
+                for i in c.sweep(len(samples)):
+                    add(k, fmt, srcfmt, rnd, relu, extract, "nosatfinite", samples[i], samples[(i * 7 + 3) % len(samples)], (0xa55a1234 ^ (i * 0x01010101)) & 0xffffffff)
 
 
 def fp8_samples(fmt, srcfmt):
@@ -353,8 +353,8 @@ def fp4_down(c):
                 edges.extend((t - 1, t, t + 1, t | 0x80000000, (t - 1) | 0x80000000, (t + 1) | 0x80000000))
             edges.extend(rng.getrandbits(32) for _ in range(20))
             for relu in ("norelu", "RELU"):
-                for i, a in enumerate(edges):
-                    b, carry = edges[(i * 7 + 5) % len(edges)], (0xa55a1234 ^ (i * 0x01010101)) & 0xffffffff
+                for i in c.sweep(len(edges)):
+                    a, b, carry = edges[i], edges[(i * 7 + 5) % len(edges)], (0xa55a1234 ^ (i * 0x01010101)) & 0xffffffff
                     fields = dict(Rd=8, dstfmt=fmt, srcfmt="F32", merge="PACK_AB_MERGE_C", rndMode="RN", satfinite="SATFINITE", relu=relu)
                     regs = {}
                     for group, reg, value in (("Ra/URa", 2, a), ("Rb/URb/Sb", 4, b), ("Rc/URc/Sc", 6, carry)): into(k, group, value, fields, regs, reg)
@@ -372,8 +372,8 @@ def mx8_down(c):
     first = {}
     for k in c.named("f2fp_f16_to_mx8_downconvert_scale__", "f2fp_f32_to_mx8_downconvert_scale__"):
         bf16 = k.name.startswith("f2fp_f16_")
-        for i, a in enumerate(floats):
-            b = floats[(i * 7 + 3) % len(floats)]
+        for i in c.sweep(len(floats)):
+            a, b = floats[i], floats[(i * 7 + 3) % len(floats)]
             if bf16: a, b = a & 0xffff0000, b & 0xffff0000
             for scale_a, scale_b in scale_pairs:
                 for relu in ("norelu", "RELU"):
@@ -394,12 +394,12 @@ def mx8_down(c):
 
 
 def scaled_up(c):
-    """Every byte and scale encoding for 8-bit scaled upconversion to BF16."""
+    """Every byte and scale encoding (exhaustive) for 8-bit scaled upconversion to BF16."""
     for k in c.named("f2fp_8b_upconvert_scale__"):
         bsrc, csrc = source(k, "Rb", "URb", "Sb"), source(k, "Rc", "URc", "Sc")
         for fmt in c.labels(k, "srcfmt", ("E5M2", "E4M3", "E2M3", "E3M2", "E3M4", "S2_6")):
             for extract, relu, satfinite in itertools.product(("H0", "H1"), ("norelu", "RELU"), ("nosatfinite", "SATFINITE")):
-                for i in range(256):
+                for i in c.sweep(256):
                     # Every byte and scale encoding per lane; the second lane permutes both, and
                     # the unselected half holds different data.
                     code0, scale0 = i, (i * 73 + 19) & 0xff
@@ -421,7 +421,7 @@ def e3m4_up(c):
         src = source(k, "Rb", "URb", "Sb")
         if src is None: continue
         for extract, relu in itertools.product(("H0", "H1"), ("norelu", "RELU")):
-            for code in range(256):
+            for code in c.sweep(256):
                 packed = code | ((code ^ 0xff) << 8)
                 fields, regs = dict(Rd=8, dstfmt="F16", srcfmt="E3M4", merge="UNPACK_B", rndMode="RN", relu=relu, extract_B=extract), {}
                 into(k, src, packed if extract == "H0" else packed << 16, fields, regs, 2)
@@ -508,7 +508,7 @@ def gpu_fixtures():
                               relu="RELU" if relu else "norelu", satfinite="SATFINITE" if sat else "nosatfinite", extract=extract, Pg=7),
                               [(bases[j % len(bases)], src if j == 0 else 0x3f800000, 0) for j in range(128)],
                               [(((bases[j % len(bases)] >> (16 if extract == "H1" else 0)) & 0xffff) << 16) | low for j in range(128)],
-                              **({"same": same, "emulator_same": lambda e, w: e == w} if same else {})))
+                              **({"same": same} if same else {})))
     # F2FP.E6M9 patched into the compiled F16 pack kernels (register, immediate and constant B).
     image = compile("scalar_semantics", "-diag-suppress=177")
     rng = random.Random(0xe6a9)

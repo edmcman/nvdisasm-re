@@ -219,9 +219,9 @@ The tests use `nvdisasm -b SMxx` as an oracle, over three corpora:
 ```sh
 uv run sass-compare-pydecode SM89 real 0       # pydecode vs nvdisasm (0 = whole corpus)
 uv run sass-compare-ghidra SM89 synthetic 0    # Ghidra (generated SLEIGH) vs pydecode
-uv run pytest tests                    # layers 0-1: helpers, per-class ratchet vs tests/baseline/
-uv run pytest tests -m ghidra --arch all --fp all   # layers 2-4 (compiled languages)
-uv run pytest tests -m gpu --require-gpu            # layer 5 (SM89 GPU)
+uv run pytest                                   # Python tests: helpers, pydecode ratchet, lifted semantics
+uv run pytest -m ghidra --arch all --fp all     # Ghidra tests (compiled languages)
+uv run pytest -m gpu --require-gpu              # GPU tests: references vs an SM89 GPU
 ```
 
 `nvdisasm` results are cached in `.cache/oracle.sqlite`. Tool locations live in `src/sass/paths.py`:

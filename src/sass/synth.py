@@ -6,7 +6,13 @@ from sass.decode.pydecode import resolve
 REGISTERS = ("Register", "NonZeroRegister", "UniformRegister", "NonZeroUniformRegister")
 
 
-def field_value(arch, k, f, rule, rng, aligned=False):
+CANDIDATES = {}
+
+
+def candidates(arch, k, f, rule, aligned):
+    """The values field f may take under `rule` (None: unconstrained), memoized per class and field."""
+    key = arch.name, k.name, f, rule, aligned
+    if key in CANDIDATES: return CANDIDATES[key]
     match rule:
         case ("op", name, _, _) if (a := k.operand_types.get(name)) and a.type in arch.enums:
             vals = [v for v in set(arch.enums[a.type].values()) if 0 <= v < 1 << f.width]
@@ -14,11 +20,16 @@ def field_value(arch, k, f, rule, rng, aligned=False):
                 # Registers that satisfy any md range and alignment condition (wide spans, UR0-UR63),
                 # and the zero register (the highest value), which some forms require (HADD2.F32 -RZ).
                 vals = sorted(v for v in vals if v % 8 == 0 and v < 64 or v == max(vals)) or vals
-            return rng.choice(vals) if vals else None
+            out = vals or None
         case ("table", tname, _) if tname in arch.tables:
-            outs = [o for o in (resolve(arch, r) for _, r in arch.tables[tname]) if isinstance(o, int) and 0 <= o < 1 << f.width]
-            return rng.choice(outs) if outs else None
-    return None
+            out = [o for o in (resolve(arch, r) for _, r in arch.tables[tname]) if isinstance(o, int) and 0 <= o < 1 << f.width] or None
+        case _: out = None
+    CANDIDATES[key] = out
+    return out
+
+
+def field_value(arch, k, f, rule, rng, aligned=False):
+    return rng.choice(vals) if (vals := candidates(arch, k, f, rule, aligned)) else None
 
 def word_for(arch, k, rng, aligned=False):
     w = rng.getrandbits(128) & ~k.constraint_mask | k.constraint_bits

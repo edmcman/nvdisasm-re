@@ -54,4 +54,5 @@ def emulator_cases(c):
 
 def gpu_fixtures():
     from tests.harness import scalar
-    return scalar.generic("shared", "local", "ldc")
+    return [scalar.launch("shared", lambda a, *_: a), scalar.launch("local", lambda a, b, c: (a + (c & 255) * b) & 0xffffffff),
+            scalar.launch("ldc", lambda a, *_: (a & 31) ** 2)]

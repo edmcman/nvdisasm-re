@@ -1,4 +1,4 @@
-"""Layer selection from the pytest options (see conftest.py) and the stale-language guard."""
+"""Test selection from the pytest options (see conftest.py) and the stale-language guard."""
 import pytest
 from sass.paths import LANGUAGES
 from sass.sleigh.build import ARCHES
@@ -6,13 +6,13 @@ from sass.sleigh.gen import MODES
 
 
 def selected(config, marker):
-    """Whether -m selects `marker` (expensive layers build their parameters only then)."""
+    """Whether -m selects `marker` (expensive tests build their parameters only then)."""
     expr = config.option.markexpr
     return marker in expr and f"not {marker}" not in expr
 
 
-def skipped(metafunc, name, marker):
-    metafunc.parametrize(name, [pytest.param(None, marks=pytest.mark.skip(f"{marker} layer not selected (-m {marker})"))])
+def skipped(metafunc, name, marker, reason=None):
+    metafunc.parametrize(name, [pytest.param(None, marks=pytest.mark.skip(reason or f"{marker} tests not selected (-m {marker})"))])
 
 
 def option_list(config, name, universe):

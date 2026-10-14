@@ -222,7 +222,7 @@ def ieee_fixtures():
         rng, mask = random.Random(name), (1 << bits) - 1
         vs = [[values[i] if i < len(values) else rng.getrandbits(64), 0, 0] for i in range(128)]
         out.append(scalar.fixture(name, vs, [reference(v[0]) for v in vs], targets=(target,), wide=True,
-                                  same=lambda g, w, m=mask: g & m == w, emulator_same=lambda e, g: e == g))
+                                  same=lambda g, w, m=mask: g & m == w))
     return out
 
 
@@ -237,7 +237,7 @@ def gpu_fixtures():
         fmt, *mode = f.split("_")[1:]; width, signed = int(fmt[1:]), fmt[0] == "s"
         sat, relu = {(): (True, False), ("nosat",): (False, False), ("satrelu",): (True, True)}[tuple(mode)]
         out.append(scalar.launch(f, lambda x, y, z, w=width, s=signed, sa=sat, r=relu: i2ip(sext(x, 32), sext(y, 32), z, w, s, sa, r, "H0")))
-    out += scalar.generic("i2f")
+    out.append(scalar.launch("i2f", lambda x, *_: ref.i2f(x, 32, True, 32, "RN")))
     out += ieee_fixtures()
     # CX source B for F2IP and I2IP; Rc aliases Ra.
     a_values = (0, 0x80000000, 0x3f000000, 0xbf000000, 0x3fc00000, 0xbfc00000, 0x40200000, 0xc0200000, 0x42ff0000, 0xc3000000, 0x43000000,
