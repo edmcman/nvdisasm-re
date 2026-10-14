@@ -213,13 +213,18 @@ class Runtime:
             valid=minimum<=target<=maximum if 0<=target<32 else False
             if valid and not active>>target&1:raise UnsupportedSemantics('inactive shuffle source has undefined value')
             return int(valid) if dest=='Pu' else int(warp['values'][target if valid else lane])
-        if op in ('BAR','BSSY','BSYNC'):
+        if op in ('BAR','BSSY','BSYNC','BMOV','BREAK','WARPSYNC'):
             # Synchronization is supplied by the environment. A missing handler
             # fails rather than silently treating reconvergence/barriers as no-ops.
             if 'Pp' in v and not integer('Pp'):return 0
-            if dest:raise UnsupportedSemantics(op+' reduction/result requires an environment handler')
-            key=op.lower()
-            if not self.context.get('synchronization',{}).get(key):raise UnsupportedSemantics(op+' synchronization context required')
-            self.events.append(dict(op=op,values=v));return 0
+            key=op.lower();handler=self.context.get('synchronization',{}).get(key)
+            if not handler:raise UnsupportedSemantics(op+' synchronization context required')
+            self.events.append(dict(op=op,values=v))
+            if not dest:return 0
+            # BMOV reads convergence-barrier state, which only the environment holds.
+            state=label('cbu_state')
+            if op!='BMOV' or not isinstance(handler,dict) or state not in handler:
+                raise UnsupportedSemantics(op+' reduction/result requires an environment handler')
+            return int(handler[state])
         if op=='MUFU':raise UnsupportedSemantics('MUFU approximation requires a hardware-specific implementation')
         raise UnsupportedSemantics('primitive '+op)

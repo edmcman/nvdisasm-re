@@ -53,9 +53,16 @@ def call_(i):
 
 @family("RET")
 def ret_(i):
-    """return to the absolute register address Ra + offset if Pp; only .NODEC is modelled."""
-    required(i, "addr", "ABS"); required(i, "depth", "NODEC")
-    return outputs(flow=ret(address(i, "Ra", "Ra_offset|Sa_offset"), condition(i)))
+    """return to Ra + offset (.ABS), or to the next instruction + Ra + offset (.REL: CALL.REL's
+    caller stores the function-relative return address in Ra and the offset leads back from the
+    next instruction to the function start), if Pp; only .NODEC is modelled."""
+    required(i, "depth", "NODEC")
+    target = address(i, "Ra", "Ra_offset|Sa_offset")
+    match i.select_fork("addr"):
+        case "ABS": pass
+        case "REL": target = target + i.addr() + 16
+        case other: unmodelled(f"addr {other}")
+    return outputs(flow=ret(target, condition(i)))
 
 
 @family("NOP")

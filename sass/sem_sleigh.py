@@ -423,8 +423,17 @@ class Lower:
         """v as a name (a local if it isn't one)."""
         return v if v.kind in ("name", "local") else self.local(w, v)
 
+    @staticmethod
+    def key(e):
+        """e's memo key: a zero-extension by its byte width, since zext(x, 31) and zext(x, 32) lower
+        alike (narrowing a hoisted zext must find it)."""
+        return Expr("zext", e.args, 8 * nbytes(e.w)) if e.op == "zext" else e
+
+    def remember(self, e, v): self.memo[-1][self.key(e)] = v
+
     def lookup(self, e):
-        return next((m[e] for m in reversed(self.memo) if e in m), None)
+        k = self.key(e)
+        return next((m[k] for m in reversed(self.memo) if k in m), None)
 
     def value(self, e):
         """The lowered value of e."""
@@ -432,7 +441,7 @@ class Lower:
         if (folded := self.folded(e)) is not None: return folded
         v = value_table(self.b, e) if e in self.hoisted else self.lower(e)
         if self.uses.get(e, 0) > 1 and not v.atom: v = self.local(e.w, v)
-        self.memo[-1][e] = v
+        self.remember(e, v)
         return v
 
     def truncated(self, v, src_w, n):
@@ -481,8 +490,10 @@ class Lower:
                     # The low bits of a value computed anyway; otherwise compute narrow.
                     return self.clean(e.w, self.truncated(self.value(x), x.w, n))
                 if lo == 0: return self.value(m)
-                v = self.value(x)
-                return self.clean(e.w, self.truncated(expr(f"{v} >> {lo}", v), x.w, n))
+                # Only the bytes up to bit hi: a register operand is read no wider than the field.
+                v, w = self.value(x), 8 * min(nbytes(hi + 1), nbytes(x.w))
+                if w < 8 * nbytes(x.w): v = self.truncated(v, x.w, w // 8)
+                return self.clean(e.w, self.truncated(expr(f"{v} >> {lo}", v), w, n))
             case "not" if e.w == 1: v = self.value(a[0]); return expr(f"!{v}", v)
             case "not": v = self.value(a[0]); return self.clean(e.w, expr(f"~{v}", v))
             case "xor" if sem.is_const(a[1]) and a[0].op == "zext" and a[0].args[0].w % 8 == 0 \
@@ -588,8 +599,10 @@ class Lower:
         return out
 
     def amount(self, n):
-        """A shift amount: p-code shifts take any size of amount, so a zero-extension is dropped."""
-        return self.value(n.args[0]) if n.op == "zext" and n.args[0].w % 8 == 0 else self.value(n)
+        """A shift amount: p-code shifts take any size of amount, so a zero-extension is dropped
+        (unless it was computed already, e.g. hoisted out of a choice: then it is read)."""
+        if n.op == "zext" and n.args[0].w % 8 == 0 and self.lookup(n) is None: return self.value(n.args[0])
+        return self.value(n)
 
     def param(self, name, w):
         if name == "__inst_start":
@@ -625,7 +638,7 @@ class Lower:
     def precompute(self, nodes):
         """Compute nodes (smallest first) before a branch, so its arms share them."""
         for n in sorted(nodes, key=size):
-            if self.lookup(n) is None: self.memo[-1][n] = self.named(self.value(n), n.w)
+            if self.lookup(n) is None: self.remember(n, self.named(self.value(n), n.w))
 
     def arm(self, target, e):
         """target = e, with e's temporaries local to this arm; a nested choice assigns target
@@ -639,7 +652,7 @@ class Lower:
         """A dynamic choice. Non-trivial subexpressions of both arms are computed before the branch.
         With a cheap arm (constant or value at hand) it is the default and the other arm overwrites
         it conditionally (one CBRANCH); otherwise a two-armed diamond."""
-        self.precompute(shared_subtrees([x, y]))
+        self.precompute(shared_subtrees([x, y], leaves=self.hoisted))
         r = into or Operand(self.label("se"), "local")
         declare = "" if into else "local "
         if self.cheap(x) or self.cheap(y):
@@ -766,23 +779,26 @@ def value_table(b, e):
 LOADS = ("constant-load", "cx-load")   # operands whose subtable does a memory access when built
 
 
-def shared_subtrees(trees, b=None):
+def shared_subtrees(trees, b=None, leaves=frozenset()):
     """Maximal non-trivial subtrees that occur in more than one of `trees`; with the Builder b, not
     those holding a loaded operand: a value table holding one would load again beside the arm's
-    own reference to it."""
-    def nodes(t):   # in a fixed order: Expr hashes are identities, so sets would vary per run
+    own reference to it. A subtree that the body itself never reads (it occurs only inside `leaves`,
+    nodes computed in their own value tables) is not hoisted: it would be a dead temporary."""
+    def nodes(t, leaves=leaves):   # in a fixed order: Expr hashes are identities, so sets would vary per run
         out, stack = {}, [t]
         while stack:
             n = stack.pop()
             if isinstance(n, Expr) and n not in out:
-                out[n] = None; stack.extend(reversed([a for a in n.args if isinstance(a, Expr)]))
+                out[n] = None
+                if n not in leaves: stack.extend(reversed([a for a in n.args if isinstance(a, Expr)]))
         return out
-    counts = defaultdict(int)
+    counts, direct = defaultdict(int), set()
     for t in trees:
-        for n in nodes(t): counts[n] += 1
+        for n in nodes(t, frozenset()): counts[n] += 1
+        direct |= nodes(t).keys()
     # Even small shared parts: measured on SM89, hoisting everything shared gives the smallest .sla.
-    loads = lambda n: b is not None and any(m.op == "param" and getattr(b.values.get(m.args[0]), "kind", None) in LOADS for m in nodes(n))
-    shared = [n for n, c in counts.items() if c > 1 and n.op not in ("const", "param", "reg") and not loads(n)]
+    loads = lambda n: b is not None and any(m.op == "param" and getattr(b.values.get(m.args[0]), "kind", None) in LOADS for m in nodes(n, frozenset()))
+    shared = [n for n, c in counts.items() if c > 1 and n in direct and n.op not in ("const", "param", "reg") and not loads(n)]
     def below(n, seen):
         for a in n.args:
             if isinstance(a, Expr) and a not in seen: seen.add(a); below(a, seen)

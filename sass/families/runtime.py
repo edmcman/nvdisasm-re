@@ -1,11 +1,11 @@
-"""Operations executed by runtime primitives (sass/runtime.py): warp collectives, synchronization,
-hardware approximations and integer-to-float conversions, the QSPC address-space query; and
+"""Operations executed by runtime primitives (sass/runtime.py): warp collectives, synchronization
+and convergence barriers, hardware approximations, the QSPC address-space query; and
 UP2UR, which packs uniform predicates."""
 from sass.sem import concat, const, extract, ite, reg, zext
 from sass.sem_family import family, outputs, primitive, unmodelled
 
 
-@family("I2F", "I2FP", "MUFU", "SHFL", "VOTE", "BAR", "BSSY", "BSYNC", fallback="prim")
+@family("MUFU", "SHFL", "VOTE", "BAR", "BSSY", "BSYNC", "BMOV", "BREAK", "WARPSYNC", fallback="prim")
 def runtime(i):
     """Multi-thread, synchronization or approximation semantics: every encoding goes to the
     runtime primitive, which validates its selectors (unsupported combinations raise there)."""

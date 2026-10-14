@@ -6,6 +6,9 @@ from sass.gen_sleigh import ENUM_FILE, REG_FILES, RESOURCE_FILE, Gen
 from tests.harness import ghidra
 
 
+PREFIX={'B0':1,'B1':2,'B2':3,'B3':4,'H0':2,'H1':4}   # bytes read up to a selected byte or half
+
+
 def part_selector(g,d,name):
     """The H0/H1/B0-B3 label of the selector modifier following operand `name` in the class's
     FORMAT (before the next comma), or None."""
@@ -15,7 +18,7 @@ def part_selector(g,d,name):
     for x in fmt[at+1:]:
         if x.kind=='lit' and x.name==',':return None
         if x.kind=='mod' and x.name in d.klass.operand_types:
-            names=set(g.arch.enums.get(x.type,{}))
+            names={n for n in g.arch.enums.get(x.type,{}) if not n.startswith('INVALID')}
             if names and names<={'H0','H1','B0','B1','B2','B3'}:
                 v=d.env.get(x.name,g.arch.enums[x.type].get(x.default))
                 return g.arch.rev_enums[x.type].get(v)
@@ -112,12 +115,14 @@ def expected(g, d, optimized=False):
                     atom=d.klass.operand_types[selector]
                     if d.env.get(selector)==g.arch.enums[atom.type].get('H0_H0'):
                         needed=set(range(base+size*index,base+size*index+2))
-            if optimized and role=='read' and span==1 and d.klass.mnemonic in ('F2FP','UF2FP','F2IP'):
-                # F2FP/F2IP read an operand's half or byte named by the selector after it in FORMAT
-                # (extract, extract_B, selB): H0 and B0 are the low bytes themselves, H1 and B1-B3
-                # a word shift.
+            if optimized and role=='read' and span==1 and d.klass.mnemonic in ('F2FP','UF2FP','F2IP','F2F','F2I','I2F','FRND'):
+                # F2FP/F2IP and the 16/8-bit conversion sources read an operand's half or byte named
+                # by the selector after it in FORMAT (extract, extract_B, selB, hsel, bsel): the bytes
+                # up to it (SLEIGH truncates to the low bytes, then shifts). F2FP's MERGE_C forms
+                # without a selector keep C's low half.
                 label=part_selector(g,d,o['name'])
-                if label in ('H0','B0'):needed=set(range(base+size*index,base+size*index+(2 if label=='H0' else 1)))
+                if label is None and d.klass.mnemonic=='F2FP' and o['name'] in ('Rc','URc') and 'mx8_downconvert' in d.klass.name:label='H0'
+                if label in PREFIX:needed=set(range(base+size*index,base+size*index+PREFIX[label]))
             if optimized and role=='read' and span==1 and d.klass.mnemonic in ('I2IP','UI2IP'):
                 # I2IP packs two width-bit lanes above the rest of C: only the bytes that reach the
                 # result are read (a lane's low byte without saturation or RELU; C's low 24/28 bits,
@@ -140,7 +145,10 @@ def expected(g, d, optimized=False):
                 needed=set(range(base+size*index,base+size*index+1))   # a 7-bit predicate mask
             if optimized and role=='read' and span==1 and d.klass.mnemonic=='R2P' and o['name']=='Ra':
                 at=int(g.arch.rev_enums[d.klass.operand_types['a_bsel'].type][d.env.get('a_bsel',0)][1])
-                needed={base+size*index} if at==0 else cells   # B1-B3: a word shift
+                needed=set(range(base+size*index,base+size*index+at+1))   # the bytes up to the selected one
+            if (optimized and role=='read' and span==1 and d.klass.mnemonic=='IDP' and o['name'] in ('Rb','URb')
+                    and g.arch.rev_enums[d.klass.operand_types['mode'].type].get(d.env.get('mode','')).lstrip('_')=='2A.LO'):
+                needed=set(range(base+size*index,base+size*index+2))   # 2A.LO multiplies B's low two bytes
             if optimized and role=='read' and o['name']=='Rb' and d.klass.mnemonic in ('STG','STS','STL'):
                 atom=d.klass.operand_types.get('sz');enums=g.arch.enums.get(atom.type,{}) if atom else {}
                 width=next((width for label,width in [('U8',1),('S8',1),('U16',2),('S16',2)]

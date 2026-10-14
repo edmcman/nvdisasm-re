@@ -8,9 +8,9 @@ SASS conversions differ there (SATFINITE, E4M3 without infinity, canonical NaNs)
 Independent of tests/refs/fpformat.py, which is the oracle.
 """
 from typing import NamedTuple
-from sass.sem import Expr, concat, const, extract, ite, lnot, sle, smax, umin, zext
+from sass.sem import Expr, concat, const, extract, ite, lnot, sle, slt, smax, umin, zext
 
-W = 32  # width of the exponent and significand arithmetic
+W = 32  # width of the exponent and significand arithmetic; 64 for formats wider than 32 bits
 
 
 class Format(NamedTuple):
@@ -38,7 +38,7 @@ FORMATS = {
     "F32": Format(8, 23, 127, "ieee"), "F16": Format(5, 10, 15, "ieee"), "BF16": Format(8, 7, 127, "ieee"),
     "E6M9": Format(6, 9, 31, "ieee"), "E5M2": Format(5, 2, 15, "ieee"), "E4M3": Format(4, 3, 7, "max"),
     "E3M4": Format(3, 4, 3, "max"), "E3M2": Format(3, 2, 3, None), "E2M3": Format(2, 3, 1, None),
-    "E2M1": Format(2, 1, 1, None), "E0M3": Format(0, 3, -2, None)}
+    "E2M1": Format(2, 1, 1, None), "E0M3": Format(0, 3, -2, None), "F64": Format(11, 52, 1023, "ieee")}
 
 ROUNDING = ("RN", "RZ", "RP", "RM")
 
@@ -93,11 +93,28 @@ class Rounding(NamedTuple):
 def rounding(rnd): return Rounding(*(rnd == m for m in ROUNDING))
 
 
+def chosen_rounding(i, name, modes):
+    """The Rounding an instruction's selector `name` chooses at decode time; modes maps its labels
+    to RN/RZ/RP/RM (other labels are unmodelled)."""
+    return Rounding(*(i.select_lookup_const(name, {l: int(m == mode) for l, m in modes.items()}, 1) for mode in ROUNDING))
+
+
+def round_up(r, kept, rest, half, negative):
+    """Whether Rounding r adds one unit to `kept`, given the dropped bits `rest` and half a unit."""
+    return value((r.rn & ((rest > half) | ((rest == half) & (extract(kept, 0, 0) == 1))))
+                 | (r.rp & (rest != 0) & lnot(negative)) | (r.rm & (rest != 0) & negative), 1)
+
+
 def value(x, w=W): return x if isinstance(x, Expr) else const(int(x), w)
 
 
+def arith(*fmts):
+    """The arithmetic width for values of these formats."""
+    return 64 if any(FORMATS[f].width > 32 for f in fmts) else W
+
+
 class Parts(NamedTuple):
-    """A value sign * sig * 2^lsb (sig, lsb W bits, lsb signed); top is the exponent of sig's leading
+    """A value sign * sig * 2^lsb (sig, lsb, top of one width, W or 64; lsb signed); top is the exponent of sig's leading
     bit, or an upper bound of it where that gives the same rounding (see parts)."""
     sign: Expr
     sig: Expr
@@ -107,14 +124,17 @@ class Parts(NamedTuple):
     inf: Expr
 
     def scaled(self, k):
-        """The value times 2^k (k a W-bit signed expression): exact, only the exponents move."""
+        """The value times 2^k (k a signed expression of the parts' width): exact, only the exponents move."""
         return self._replace(lsb=self.lsb + k, top=self.top + k)
 
 
 def leading(sig, bits):
-    """The position of the highest set bit of sig (< 2^bits); 0 for 0."""
-    lead = const(0, W)
-    for b in range(1, bits): lead = ite(extract(sig, b, b) == 1, const(b, W), lead)
+    """The position of the highest set bit of sig (< 2^bits); 0 for 0. A binary search: log2(bits) steps."""
+    lead, step = const(0, sig.w), 1 << (bits - 1).bit_length() - 1
+    while step:
+        high = (sig >> (lead + step)) != 0
+        lead = ite(high, lead + step, lead)
+        step >>= 1
     return lead
 
 
@@ -124,9 +144,10 @@ def parts(x, fmt, normalized=False):
     f = FORMATS[fmt]
     sign, e, m = fields(x, fmt)
     is_nan, is_inf = classify(x, fmt)
-    sig = zext(concat(e != 0, m), W) if f.ebits else zext(m, W)        # the implicit bit, then the fraction
-    lsb = (ite(e == 0, const(1, W), zext(e, W)) if f.ebits else const(1, W)) - (f.bias + f.mbits)
-    top = lsb + (leading(sig, f.mbits + 1) if normalized else const(f.mbits, W))
+    w = arith(fmt)
+    sig = zext(concat(e != 0, m), w) if f.ebits else zext(m, w)        # the implicit bit, then the fraction
+    lsb = (ite(e == 0, const(1, w), zext(e, w)) if f.ebits else const(1, w)) - (f.bias + f.mbits)
+    top = lsb + (leading(sig, f.mbits + 1) if normalized else const(f.mbits, w))
     return Parts(sign, sig, lsb, top, is_nan, is_inf)
 
 
@@ -138,9 +159,17 @@ def fixed_parts(x, frac_bits):
     return Parts(sign, sig, lsb, lsb + leading(sig, x.w + 1), const(0, 1), const(0, 1))
 
 
+def int_parts(x, signed):
+    """The Parts of the integer x (signed: two's complement), at width 64."""
+    sign = slt(x, const(0, x.w)) if signed else const(0, 1)            # a comparison of x itself: reads only x's bytes
+    sig = zext(ite(sign == 1, -x, x), 64)                               # the most negative value stays exact unsigned
+    lsb = const(0, 64)
+    return Parts(sign, sig, lsb, leading(sig, x.w), const(0, 1), const(0, 1))
+
+
 def narrow_parts(x, src, d, r, satfinite=False):
     """(sign, magnitude, source is NaN) of the narrowing of the `src` value x to Dest d with
-    Rounding r; sign is 1 bit, magnitude W bits. Requires the destination's minimum exponent at
+    Rounding r; sign is 1 bit, magnitude of the arithmetic width. Requires the destination's minimum exponent at
     least src's (a narrowing)."""
     return round_parts(parts(x, src), d, r, satfinite)
 
@@ -152,31 +181,32 @@ def round_parts(p, d, r, satfinite=False, general=False):
     need fewer bits than d keeps (shifted left, exact), and zero needs its own case; otherwise p
     comes from a wider format by parts(), whose zero and subnormals lie below d's minimum exponent."""
     sign, sig, lsb, is_nan, is_inf = p.sign, p.sig, p.lsb, p.nan, p.inf
-    q = smax(p.top, value(d.emin)) - d.mbits                            # exponent of the result's ulp
-    shift = umin(q - lsb, const(30, W))                                 # clamped: tiny values keep 0
-    kept, rest = sig >> shift, sig & ((const(1, W) << shift) - 1)
-    half = const(1, W) << (shift - 1)
+    w = sig.w
+    q = smax(p.top, value(d.emin, w)) - d.mbits                         # exponent of the result's ulp
+    shift = umin(q - lsb, const(w - 2, w))                              # clamped: tiny values keep 0
+    kept, rest = sig >> shift, sig & ((const(1, w) << shift) - 1)
+    half = const(1, w) << (shift - 1)
     negative = sign == 1
-    up = value((r.rn & ((rest > half) | ((rest == half) & (extract(kept, 0, 0) == 1))))
-               | (r.rp & (rest != 0) & lnot(negative)) | (r.rm & (rest != 0) & negative), 1)
-    code = ((q - (d.emin - d.mbits)) << d.mbits) + kept + zext(up, W)   # a carry renormalizes by itself
+    up = round_up(r, kept, rest, half, negative)
+    code = ((q - (d.emin - d.mbits)) << d.mbits) + kept + zext(up, w)   # a carry renormalizes by itself
     if general: code = ite(sle(q, lsb), exact_code(p, d), code)
     toward_zero = value(r.rz | (r.rp & negative) | (r.rm & lnot(negative)), 1)
     signed = lambda keep: ite(keep, negative, const(0, 1))
     away_sign = ite(satfinite, negative, signed(d.ovf_signed))
-    away_mag = ite(satfinite, value(d.max_code), value(d.ovf_mag))
-    big = code > d.max_code
+    away_mag = ite(satfinite, value(d.max_code, w), value(d.ovf_mag, w))
+    big = code > value(d.max_code, w)
     choose = lambda nan, inf, finite: ite(is_nan, nan, ite(is_inf, inf, finite))
     out_sign = choose(signed(d.nan_signed), away_sign, ite(big & lnot(toward_zero), away_sign, negative))
-    out_mag = choose(value(d.nan_mag), away_mag, ite(big, ite(toward_zero, value(d.max_code), away_mag), code))
+    out_mag = choose(value(d.nan_mag, w), away_mag, ite(big, ite(toward_zero, value(d.max_code, w), away_mag), code))
     return out_sign, out_mag, is_nan
 
 
 def exact_code(p, d):
     """The magnitude code of the Parts p when d holds it exactly (no bits below d's ulp): the
     significand shifted into place, its leading bit carrying into the exponent field."""
-    q = smax(p.top, value(d.emin)) - d.mbits
-    return ite(p.sig == 0, const(0, W), ((q - (d.emin - d.mbits)) << d.mbits) + (p.sig << (p.lsb - q)))
+    w = p.sig.w
+    q = smax(p.top, value(d.emin, w)) - d.mbits
+    return ite(p.sig == 0, const(0, w), ((q - (d.emin - d.mbits)) << d.mbits) + (p.sig << (p.lsb - q)))
 
 
 def widen(x, src, dst, nan=None):
@@ -187,18 +217,19 @@ def widen(x, src, dst, nan=None):
     if f.emin > s.emin or f.mbits < s.mbits: raise ValueError(f"{src} -> {dst} is not a widening")
     sign, e, m = fields(x, src)
     is_nan, is_inf = classify(x, src)
-    normal = ((zext(e, W) + (f.bias - s.bias)) << f.mbits) | (zext(m, W) << (f.mbits - s.mbits))
+    w = arith(src, dst)
+    normal = ((zext(e, w) + (f.bias - s.bias)) << f.mbits) | (zext(m, w) << (f.mbits - s.mbits))
     shift = (s.emin - s.mbits) - (f.emin - f.mbits)
-    if s.emin == f.emin: sub = zext(m, W) << shift                       # subnormals stay subnormal
+    if s.emin == f.emin: sub = zext(m, w) << shift                       # subnormals stay subnormal
     elif s.emin - s.mbits >= f.emin:                                    # subnormals are normal in dst
         # m * 2^(s.emin - s.mbits) with leading bit b: exponent b + s.emin - s.mbits, fraction below b.
-        sub = const(0, W)
+        sub = const(0, w)
         for b in range(s.mbits):
             sub = ite(extract(m, b, b) == 1, ((b + s.emin - s.mbits + f.bias) << f.mbits)
-                      | ((zext(m, W) << (f.mbits - b)) & ((1 << f.mbits) - 1)), sub)
+                      | ((zext(m, w) << (f.mbits - b)) & ((1 << f.mbits) - 1)), sub)
     else: sub = exact_code(parts(x, src, normalized=True), d)
     code = ite(e == 0, sub, normal) if s.ebits else sub
-    mag = ite(is_nan, value(d.nan_mag), ite(is_inf, const(f.inf_code or f.max_code, W), code))
+    mag = ite(is_nan, value(d.nan_mag, w), ite(is_inf, const(f.inf_code or f.max_code, w), code))
     return concat(ite(is_nan, const(int(d.nan_signed), 1) & sign, sign), extract(mag, f.ebits + f.mbits - 1, 0))
 
 

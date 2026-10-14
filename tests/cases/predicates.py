@@ -1,4 +1,5 @@
-"""Predicate transfers: UP2UR (uniform predicates into a uniform register) and P2R/R2P."""
+"""Predicate transfers and logic: UP2UR (uniform predicates into a uniform register), P2R/R2P and PLOP3."""
+from itertools import product
 from tests.harness.case import put, source
 
 
@@ -11,6 +12,19 @@ def emulator_cases(c):
     # A false uniform guard leaves the destination untouched.
     c.add("up2ur__Imm", {"UPg": 6, "URd": 8, "UPR": "UPR", "URa": 4, "Sb": 0x7f, "insert": "B0"},
           {"UR4": 0x12345678, "UR8": 0xdeadbeef, "UP6": 0, **{f"UP{i}": 1 for i in range(6)}}, {"UR8": 0xdeadbeef, "__native": True})
+    # PLOP3: two truth tables over the same three (optionally negated) predicates.
+    lut = lambda table, p, q, r: table >> (4 * p + 2 * q + r) & 1
+    for u, v in ((0xa8, 0), (0x2a, 0x80), (0xe0, 0x96), (0x6a, 0xff)):
+        for p, q, r in product((0, 1), repeat=3):
+            for nots in (0, 5):
+                xs = [x ^ (nots >> i & 1) for i, x in enumerate((p, q, r))]
+                fields = dict(Pu=0, Pv=1, Pp=2, Pq=3, uimm8=u, vimm8=v, **{f"{n}@not": nots >> i & 1 for i, n in enumerate(("Pp", "Pq"))})
+                expected = dict(P0=lut(u, *xs), P1=lut(v, *xs), __native=True)
+                c.add("plop3_lut_2out_", dict(fields, Pr=4, **{"Pr@not": nots >> 2 & 1}), dict(P2=p, P3=q, P4=r), expected)
+                c.add("plop3_lut_2out_uniform_", dict(fields, UPr=4, **{"UPr@not": nots >> 2 & 1}), dict(P2=p, P3=q, UP4=r), expected)
+                c.add("uplop3_lut_2out_", dict(UPu=0, UPv=1, UPp=2, UPq=3, UPr=4, uimm8=u, vimm8=v,
+                                               **{f"UP{n}@not": nots >> i & 1 for i, n in enumerate(("p", "q", "r"))}),
+                      dict(UP2=p, UP3=q, UP4=r), dict(UP0=lut(u, *xs), UP1=lut(v, *xs), __native=True))
     # P2R/R2P pack/unpack the seven writable predicates. Mask bits above 6 are ignored and
     # R2P preserves every unselected predicate.
     for op in ("P2R", "R2P"):
@@ -35,8 +49,8 @@ def emulator_cases(c):
 
 
 def gpu_fixtures():
-    """Patched carry-kernel slots: P2R/R2P after ISETPs establish P0..P6 = 0b1010101; UP2UR after
-    UISETPs set selected uniform predicates."""
+    """Patched carry-kernel slots: P2R/R2P and PLOP3 after ISETPs establish P0..P6 = 0b1010101; UP2UR
+    after UISETPs set selected uniform predicates."""
     from tests.harness.gpu import sm89
     from tests.harness.templates import slot_fixture
     data, nop = [(i, 0, 0) for i in range(128)], sm89("nop_")
@@ -54,6 +68,18 @@ def gpu_fixtures():
     # The selector chooses which source byte supplies the selected predicate bits.
     out += [slot_fixture(f"r2p_b{b}", [mov(0xa1b2c354)] + init + [r2p(4, 0x7f, f"B{b}"), nop, p2r("RZ", 0x7f, "B0")], data,
                          [(0xa1b2c354 >> 8 * b) & 0x7f] * 128, 0x150) for b in range(4)]
+    # PLOP3 after the same initialization; P2R reads all seven predicates back.
+    initial = [(0x55 >> i) & 1 for i in range(7)]
+    lut = lambda table, xs: table >> (4 * xs[0] + 2 * xs[1] + xs[2]) & 1
+    for n, (u, v, pu, pv, srcs, nots) in enumerate([(0xa8, 0x00, 5, 6, (0, 1, 2), 0), (0x2a, 0x80, 1, 3, (0, 2, 4), 0), (0xe0, 0x96, 0, 6, (1, 3, 6), 5),
+                                                  (0x6a, 0xfe, 2, 4, (6, 5, 4), 2), (0x80, 0x7f, 5, 1, (0, 7, 2), 7), (0x17, 0xe8, 3, 0, (2, 4, 6), 0)]):
+        xs = [(1 if p == 7 else initial[p]) ^ (nots >> i & 1) for i, p in enumerate(srcs)]
+        want = list(initial)
+        want[pu], want[pv] = lut(u, xs), lut(v, xs)
+        plop3 = sm89("plop3_lut_2out_", Pu=pu, Pv=pv, Pp=srcs[0], Pq=srcs[1], Pr=srcs[2], uimm8=u, vimm8=v,
+                     **{f"{x}@not": nots >> i & 1 for i, x in enumerate(("Pp", "Pq", "Pr"))})
+        out.append(slot_fixture(f"plop3_{n}", init + [plop3, nop, p2r("RZ", 0x7f, "B0"), nop], data,
+                                [sum(b << i for i, b in enumerate(want))] * 128, 0x140))
     bits = 0b1011010
     for mask in (0, 1, 2, 0x55, 0x7f, 0xff, 0x24, 0x80000024, 0xffffffff):
         remaining, prep = [b for b in range(7) if mask & (1 << b)], [sm89("umov__UI", URd=4, Sb=0x100)]

@@ -45,6 +45,14 @@ def mov(i):
     return outputs(Rd=resize(i.value('Sb|Sa|Ra|Rb'), i.width('Rd')))
 
 
+@family('R2UR')
+def r2ur(i):
+    """URd = Ra (the executing thread's value). Pu (whether Ra was warp-uniform), .OR and the
+    SM100+ fill/broadcast forms are unmodelled."""
+    if not i.is_true('Pu'): unmodelled('predicate output')
+    return outputs(Rd=i.value('Ra'))
+
+
 @family('SEL', 'USEL')
 def sel(i):
     """Rd = Pp ? Ra : Rb."""
@@ -150,6 +158,19 @@ def lop3(i):
             case 'POR': pu = pu | i.pred('Pp')
             case 'PAND': pu = pu & i.pred('Pp')
     return outputs(Rd=rd, Pu=pu)
+
+
+@family('PLOP3', 'UPLOP3', classes=lambda k: 'reg__' not in k.name)
+def plop3(i):
+    """Pu, Pv = the functions of Pp, Pq, Pr with truth tables uimm8, vimm8 (bit 4p+2q+r, as LOP3).
+    Pu's table is enumerated into a boolean expression; Pv (almost always PT) looks its bit up,
+    since enumerating both tables jointly costs 65536 rows. The register-source classes (a
+    register's sign as an input) are unmodelled."""
+    if i.select_fork('lut') != 'LUT': unmodelled('lut')
+    xs = [i.pred('Pp'), i.pred('Pq'), i.pred('Pr')]
+    index = (zext(xs[0], 8) << 2) | (zext(xs[1], 8) << 1) | zext(xs[2], 8)
+    pv = extract(trunc(i.imm('vimm8'), 8) >> index, 0, 0)
+    return outputs(Pu=truth_table(i.static('uimm8'), xs), Pv=pv, order=('Pv', 'Pu'))   # aliased: Pu wins (SM89)
 
 
 @family('PRMT', 'UPRMT')

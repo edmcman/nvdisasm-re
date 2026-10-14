@@ -29,7 +29,7 @@ def f2fp_8b_downconvert(i):
     (E2M3/E3M2) bytes (sign at bit 7) and packed above them with one half of Rc. RELU zeroes
     negative results except NaNs."""
     d = destination(i)
-    r = fpformat.Rounding(*(i.select_lookup_const("rndMode", {m: m == mode for m in ROUNDING}, 1) for mode in ROUNDING))
+    r = fpformat.chosen_rounding(i, "rndMode", {m: m for m in ROUNDING})
     sat = i.select_lookup_const("satfinite", {"SATFINITE": 1, "nosatfinite": 0}, 1)
     relu = i.select_lookup_const("relu", {"RELU": 1, "norelu": 0}, 1)
 
@@ -126,8 +126,7 @@ def f2fp_pack16(i):
     if merge_c and not i.has_operand("extract"): unmodelled("immediate C without extract: which half is kept")
     required(i, "merge", "MERGE_C" if merge_c else "PACK_AB")
     d = pack16_destination(i)
-    r = fpformat.Rounding(i.select_lookup_const("rndMode", {"RN": 1, "RZ": 0}, 1),
-                          i.select_lookup_const("rndMode", {"RN": 0, "RZ": 1}, 1), 0, 0)
+    r = fpformat.chosen_rounding(i, "rndMode", {"RN": "RN", "RZ": "RZ"})
     sat, relu = bit(i, "satfinite", "SATFINITE", "nosatfinite"), bit(i, "relu", "RELU", "norelu")
 
     def convert(x):

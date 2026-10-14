@@ -92,6 +92,62 @@ def f2i_trunc(bits):
     return (-magnitude if sign else magnitude) & 0xffffffff
 
 
+MANTISSA = {16: 10, 32: 23, 64: 52}
+
+
+def flush(bits, w):
+    """A denormal to zero of the same sign."""
+    return bits & (1 << w - 1) if bits >> MANTISSA[w] & ((1 << w - 1 - MANTISSA[w]) - 1) == 0 else bits
+
+
+def quiet(bits, src, dst):
+    """F2F's NaN: sign kept, payload aligned at the top of the fraction, quiet bit set (SM89)."""
+    ms, md = MANTISSA[src], MANTISSA[dst]
+    payload = bits & ((1 << ms) - 1)
+    payload = payload << md - ms if md > ms else payload >> ms - md
+    return (bits >> src - 1) << dst - 1 | ((1 << dst - 1) - (1 << md)) | payload | 1 << md - 1
+
+
+def frnd(bits, w, mode, ftz=False):
+    """FRND: round to an integral value, keeping a zero's sign; NaN: F32 0x7fffffff, F64 quieted (SM89)."""
+    if ftz: bits = flush(bits, w)
+    kind, sign, value = softfloat.unpack(bits, w)
+    if kind == "nan": return 0x7fffffff if w == 32 else quiet(bits, w, w)
+    if kind == "inf": return bits
+    return softfloat.pack(Fraction(softfloat.round_integer(value, mode)), w, "RN", zero_sign=sign)
+
+
+def f2i(bits, w, n, signed, mode, ntz, ftz=False):
+    """F2I: round by mode, saturate to n bits; NaN gives 0 (.NTZ) or the top bit (SM89, also unsigned)."""
+    if ftz: bits = flush(bits, w)
+    kind, sign, value = softfloat.unpack(bits, w)
+    lo, hi = (-(1 << n - 1), (1 << n - 1) - 1) if signed else (0, (1 << n) - 1)
+    if kind == "nan": return 0 if ntz else 1 << n - 1
+    r = (lo if sign else hi) if kind == "inf" else max(lo, min(hi, softfloat.round_integer(value, mode)))
+    return r & ((1 << n) - 1)
+
+
+def i2f(x, n, signed, w, mode):
+    """I2F: the n-bit integer x as a w-bit float, rounded once."""
+    x &= (1 << n) - 1
+    if signed and x >> n - 1: x -= 1 << n
+    return softfloat.pack(Fraction(x), w, mode)
+
+
+def f2f(bits, src, dst, mode):
+    """F2F: rounded once; a NaN keeps sign and payload, quieted (SM89)."""
+    kind, sign, value = softfloat.unpack(bits, src)
+    if kind == "nan": return quiet(bits, src, dst)
+    if kind == "inf": return sign << dst - 1 | ((1 << dst - 1) - (1 << MANTISSA[dst]))
+    return softfloat.pack(value, dst, mode, sign)
+
+
+def fchk_divide(a, b):
+    """FCHK.DIVIDE: 1 when a / b needs the slow path, from the biased exponents only (SM89)."""
+    ea, eb = a >> 23 & 255, b >> 23 & 255
+    return int(ea <= 24 or ea == 255 or eb <= 1 or eb >= 252 or ea - eb >= 127 or eb - ea >= 125)
+
+
 def f2ip_byte(bits, signed):
     """F2IP: round to nearest even, saturate to S8/U8; NaN gives 0."""
     x = f32(bits)
@@ -118,6 +174,14 @@ def underflow_band(op, inputs, width, scale=0):
     e, m = softfloat.FORMATS[width]
     tiny = Fraction(2) ** (2 - (1 << (e - 1)) - m)
     return tiny / 2 < exact < tiny
+
+
+def conversion_underflow(bits, src, dst):
+    """underflow_band for a conversion's RN narrowing (the readable lowering's float2float)."""
+    kind, _, value = softfloat.unpack(bits, src)
+    e, m = softfloat.FORMATS[dst]
+    tiny = Fraction(2) ** (2 - (1 << (e - 1)) - m)
+    return kind == "finite" and tiny / 2 < abs(value) < tiny
 
 
 def same_halves(got, want, fmt="F16"):

@@ -20,6 +20,12 @@
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
+      "frnd__bf16_I": "BF16",
+      "frnd__bf16_R": "BF16",
+      "frnd__bf16_URb": "BF16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
       "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RRI": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
@@ -38,32 +44,37 @@
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
       "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
       "ldl_memdesc_": "explicit descriptor",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
+      "r2ur_nonconformity__OR": "OR not modelled; predicate output",
+      "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
       "stg_memdesc__Ra64": "explicit descriptor",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
       "stl_memdesc_": "explicit descriptor",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
-      "up2ur__URb": "register mask"
+      "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMOV": {
+        "primitive": 10
       },
       "BMSK": {
         "native": 3
@@ -71,6 +82,9 @@
       "BRA": {
         "native": 2,
         "opaque": 2
+      },
+      "BREAK": {
+        "primitive": 2
       },
       "BREV": {
         "native": 3
@@ -103,18 +117,23 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 15
+      },
       "F2FP": {
         "native": 60,
         "opaque": 10
       },
       "F2I": {
-        "native": 3,
-        "primitive": 21
+        "native": 24
       },
       "F2IP": {
         "native": 5
       },
       "FADD": {
+        "native": 3
+      },
+      "FCHK": {
         "native": 3
       },
       "FFMA": {
@@ -132,6 +151,10 @@
       },
       "FMUL": {
         "native": 3
+      },
+      "FRND": {
+        "native": 6,
+        "opaque": 6
       },
       "FSEL": {
         "native": 3
@@ -156,10 +179,11 @@
         "native": 3
       },
       "I2F": {
-        "primitive": 24
+        "native": 24
       },
       "I2FP": {
-        "primitive": 6
+        "native": 4,
+        "primitive": 2
       },
       "I2IP": {
         "native": 9
@@ -190,16 +214,15 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 2,
-        "opaque": 7
+        "native": 4,
+        "opaque": 5
       },
       "LDL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "LDS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -223,6 +246,10 @@
       "P2R": {
         "native": 3
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 6
+      },
       "POPC": {
         "native": 3
       },
@@ -235,11 +262,17 @@
       "R2P": {
         "native": 3
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 3
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -255,16 +288,15 @@
         "primitive": 4
       },
       "STG": {
-        "native": 2,
-        "opaque": 7
+        "native": 4,
+        "opaque": 5
       },
       "STL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -310,6 +342,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -354,12 +390,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 4
       }
     },
     "status": {
-      "native": 347,
-      "opaque": 535,
-      "primitive": 96
+      "native": 435,
+      "opaque": 480,
+      "primitive": 63
     }
   },
   "SM100_READABLE": {
@@ -383,6 +422,12 @@
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
+      "frnd__bf16_I": "BF16",
+      "frnd__bf16_R": "BF16",
+      "frnd__bf16_URb": "BF16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
       "hfma2_relu__RIR": "RELU; ofmt",
       "hfma2_relu__RRI": "RELU; ofmt",
       "hfma2_relu__RRR": "RELU; ofmt",
@@ -401,32 +446,37 @@
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
       "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
       "ldl_memdesc_": "explicit descriptor",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
+      "r2ur_nonconformity__OR": "OR not modelled; predicate output",
+      "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
       "stg_memdesc__Ra64": "explicit descriptor",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
       "stl_memdesc_": "explicit descriptor",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
-      "up2ur__URb": "register mask"
+      "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMOV": {
+        "primitive": 10
       },
       "BMSK": {
         "native": 3
@@ -434,6 +484,9 @@
       "BRA": {
         "native": 2,
         "opaque": 2
+      },
+      "BREAK": {
+        "primitive": 2
       },
       "BREV": {
         "native": 3
@@ -466,18 +519,23 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 15
+      },
       "F2FP": {
         "native": 60,
         "opaque": 10
       },
       "F2I": {
-        "native": 3,
-        "primitive": 21
+        "native": 24
       },
       "F2IP": {
         "native": 5
       },
       "FADD": {
+        "native": 3
+      },
+      "FCHK": {
         "native": 3
       },
       "FFMA": {
@@ -495,6 +553,10 @@
       },
       "FMUL": {
         "native": 3
+      },
+      "FRND": {
+        "native": 6,
+        "opaque": 6
       },
       "FSEL": {
         "native": 3
@@ -519,10 +581,11 @@
         "native": 3
       },
       "I2F": {
-        "primitive": 24
+        "native": 24
       },
       "I2FP": {
-        "primitive": 6
+        "native": 4,
+        "primitive": 2
       },
       "I2IP": {
         "native": 9
@@ -553,16 +616,15 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 2,
-        "opaque": 7
+        "native": 4,
+        "opaque": 5
       },
       "LDL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "LDS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -586,6 +648,10 @@
       "P2R": {
         "native": 3
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 6
+      },
       "POPC": {
         "native": 3
       },
@@ -598,11 +664,17 @@
       "R2P": {
         "native": 3
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 3
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -618,16 +690,15 @@
         "primitive": 4
       },
       "STG": {
-        "native": 2,
-        "opaque": 7
+        "native": 4,
+        "opaque": 5
       },
       "STL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -673,6 +744,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -717,12 +792,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 4
       }
     },
     "status": {
-      "native": 347,
-      "opaque": 535,
-      "primitive": 96
+      "native": 435,
+      "opaque": 480,
+      "primitive": 63
     }
   },
   "SM101": {
@@ -736,6 +814,12 @@
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
+      "frnd__bf16_I": "BF16",
+      "frnd__bf16_R": "BF16",
+      "frnd__bf16_URb": "BF16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
       "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RRI": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
@@ -748,32 +832,37 @@
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
       "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
       "ldl_memdesc_": "explicit descriptor",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
+      "r2ur_nonconformity__OR": "OR not modelled; predicate output",
+      "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
       "stg_memdesc__Ra64": "explicit descriptor",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
       "stl_memdesc_": "explicit descriptor",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
-      "up2ur__URb": "register mask"
+      "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMOV": {
+        "primitive": 10
       },
       "BMSK": {
         "native": 3
@@ -781,6 +870,9 @@
       "BRA": {
         "native": 2,
         "opaque": 2
+      },
+      "BREAK": {
+        "primitive": 2
       },
       "BREV": {
         "native": 3
@@ -813,17 +905,22 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 15
+      },
       "F2FP": {
         "native": 60
       },
       "F2I": {
-        "native": 3,
-        "primitive": 21
+        "native": 24
       },
       "F2IP": {
         "native": 5
       },
       "FADD": {
+        "native": 3
+      },
+      "FCHK": {
         "native": 3
       },
       "FFMA": {
@@ -841,6 +938,10 @@
       },
       "FMUL": {
         "native": 3
+      },
+      "FRND": {
+        "native": 6,
+        "opaque": 6
       },
       "FSEL": {
         "native": 3
@@ -865,10 +966,10 @@
         "native": 3
       },
       "I2F": {
-        "primitive": 24
+        "native": 24
       },
       "I2FP": {
-        "primitive": 4
+        "native": 4
       },
       "I2IP": {
         "native": 9
@@ -899,16 +1000,15 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 2,
-        "opaque": 7
+        "native": 4,
+        "opaque": 5
       },
       "LDL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "LDS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -932,6 +1032,10 @@
       "P2R": {
         "native": 3
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 6
+      },
       "POPC": {
         "native": 3
       },
@@ -944,11 +1048,17 @@
       "R2P": {
         "native": 3
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 3
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -964,16 +1074,15 @@
         "primitive": 4
       },
       "STG": {
-        "native": 2,
-        "opaque": 7
+        "native": 4,
+        "opaque": 5
       },
       "STL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -1019,6 +1128,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -1063,12 +1176,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 4
       }
     },
     "status": {
-      "native": 333,
-      "opaque": 477,
-      "primitive": 94
+      "native": 421,
+      "opaque": 422,
+      "primitive": 61
     }
   },
   "SM101_READABLE": {
@@ -1082,6 +1198,12 @@
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
+      "frnd__bf16_I": "BF16",
+      "frnd__bf16_R": "BF16",
+      "frnd__bf16_URb": "BF16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
       "hfma2_relu__RIR": "RELU; ofmt",
       "hfma2_relu__RRI": "RELU; ofmt",
       "hfma2_relu__RRR": "RELU; ofmt",
@@ -1094,32 +1216,37 @@
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
       "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
       "ldl_memdesc_": "explicit descriptor",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
+      "r2ur_nonconformity__OR": "OR not modelled; predicate output",
+      "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
       "stg_memdesc__Ra64": "explicit descriptor",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
       "stl_memdesc_": "explicit descriptor",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
-      "up2ur__URb": "register mask"
+      "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMOV": {
+        "primitive": 10
       },
       "BMSK": {
         "native": 3
@@ -1127,6 +1254,9 @@
       "BRA": {
         "native": 2,
         "opaque": 2
+      },
+      "BREAK": {
+        "primitive": 2
       },
       "BREV": {
         "native": 3
@@ -1159,17 +1289,22 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 15
+      },
       "F2FP": {
         "native": 60
       },
       "F2I": {
-        "native": 3,
-        "primitive": 21
+        "native": 24
       },
       "F2IP": {
         "native": 5
       },
       "FADD": {
+        "native": 3
+      },
+      "FCHK": {
         "native": 3
       },
       "FFMA": {
@@ -1187,6 +1322,10 @@
       },
       "FMUL": {
         "native": 3
+      },
+      "FRND": {
+        "native": 6,
+        "opaque": 6
       },
       "FSEL": {
         "native": 3
@@ -1211,10 +1350,10 @@
         "native": 3
       },
       "I2F": {
-        "primitive": 24
+        "native": 24
       },
       "I2FP": {
-        "primitive": 4
+        "native": 4
       },
       "I2IP": {
         "native": 9
@@ -1245,16 +1384,15 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 2,
-        "opaque": 7
+        "native": 4,
+        "opaque": 5
       },
       "LDL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "LDS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -1278,6 +1416,10 @@
       "P2R": {
         "native": 3
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 6
+      },
       "POPC": {
         "native": 3
       },
@@ -1290,11 +1432,17 @@
       "R2P": {
         "native": 3
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 3
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -1310,16 +1458,15 @@
         "primitive": 4
       },
       "STG": {
-        "native": 2,
-        "opaque": 7
+        "native": 4,
+        "opaque": 5
       },
       "STL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -1365,6 +1512,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -1409,12 +1560,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 4
       }
     },
     "status": {
-      "native": 333,
-      "opaque": 477,
-      "primitive": 94
+      "native": 421,
+      "opaque": 422,
+      "primitive": 61
     }
   },
   "SM103": {
@@ -1438,6 +1592,12 @@
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
+      "frnd__bf16_I": "BF16",
+      "frnd__bf16_R": "BF16",
+      "frnd__bf16_URb": "BF16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
       "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RRI": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
@@ -1456,32 +1616,37 @@
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
       "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
       "ldl_memdesc_": "explicit descriptor",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
+      "r2ur_nonconformity__OR": "OR not modelled; predicate output",
+      "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
       "stg_memdesc__Ra64": "explicit descriptor",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
       "stl_memdesc_": "explicit descriptor",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
-      "up2ur__URb": "register mask"
+      "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMOV": {
+        "primitive": 10
       },
       "BMSK": {
         "native": 3
@@ -1489,6 +1654,9 @@
       "BRA": {
         "native": 2,
         "opaque": 2
+      },
+      "BREAK": {
+        "primitive": 2
       },
       "BREV": {
         "native": 3
@@ -1521,18 +1689,23 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 15
+      },
       "F2FP": {
         "native": 60,
         "opaque": 10
       },
       "F2I": {
-        "native": 3,
-        "primitive": 21
+        "native": 24
       },
       "F2IP": {
         "native": 5
       },
       "FADD": {
+        "native": 3
+      },
+      "FCHK": {
         "native": 3
       },
       "FFMA": {
@@ -1550,6 +1723,10 @@
       },
       "FMUL": {
         "native": 3
+      },
+      "FRND": {
+        "native": 6,
+        "opaque": 6
       },
       "FSEL": {
         "native": 3
@@ -1574,10 +1751,11 @@
         "native": 3
       },
       "I2F": {
-        "primitive": 24
+        "native": 24
       },
       "I2FP": {
-        "primitive": 6
+        "native": 4,
+        "primitive": 2
       },
       "I2IP": {
         "native": 9
@@ -1608,16 +1786,15 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 2,
-        "opaque": 7
+        "native": 4,
+        "opaque": 5
       },
       "LDL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "LDS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -1641,6 +1818,10 @@
       "P2R": {
         "native": 3
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 6
+      },
       "POPC": {
         "native": 3
       },
@@ -1653,11 +1834,17 @@
       "R2P": {
         "native": 3
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 3
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -1673,16 +1860,15 @@
         "primitive": 4
       },
       "STG": {
-        "native": 2,
-        "opaque": 7
+        "native": 4,
+        "opaque": 5
       },
       "STL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -1728,6 +1914,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -1772,12 +1962,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 4
       }
     },
     "status": {
-      "native": 347,
-      "opaque": 528,
-      "primitive": 99
+      "native": 435,
+      "opaque": 473,
+      "primitive": 66
     }
   },
   "SM103_READABLE": {
@@ -1801,6 +1994,12 @@
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
+      "frnd__bf16_I": "BF16",
+      "frnd__bf16_R": "BF16",
+      "frnd__bf16_URb": "BF16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
       "hfma2_relu__RIR": "RELU; ofmt",
       "hfma2_relu__RRI": "RELU; ofmt",
       "hfma2_relu__RRR": "RELU; ofmt",
@@ -1819,32 +2018,37 @@
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
       "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
       "ldl_memdesc_": "explicit descriptor",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
+      "r2ur_nonconformity__OR": "OR not modelled; predicate output",
+      "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
       "stg_memdesc__Ra64": "explicit descriptor",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
       "stl_memdesc_": "explicit descriptor",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
-      "up2ur__URb": "register mask"
+      "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMOV": {
+        "primitive": 10
       },
       "BMSK": {
         "native": 3
@@ -1852,6 +2056,9 @@
       "BRA": {
         "native": 2,
         "opaque": 2
+      },
+      "BREAK": {
+        "primitive": 2
       },
       "BREV": {
         "native": 3
@@ -1884,18 +2091,23 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 15
+      },
       "F2FP": {
         "native": 60,
         "opaque": 10
       },
       "F2I": {
-        "native": 3,
-        "primitive": 21
+        "native": 24
       },
       "F2IP": {
         "native": 5
       },
       "FADD": {
+        "native": 3
+      },
+      "FCHK": {
         "native": 3
       },
       "FFMA": {
@@ -1913,6 +2125,10 @@
       },
       "FMUL": {
         "native": 3
+      },
+      "FRND": {
+        "native": 6,
+        "opaque": 6
       },
       "FSEL": {
         "native": 3
@@ -1937,10 +2153,11 @@
         "native": 3
       },
       "I2F": {
-        "primitive": 24
+        "native": 24
       },
       "I2FP": {
-        "primitive": 6
+        "native": 4,
+        "primitive": 2
       },
       "I2IP": {
         "native": 9
@@ -1971,16 +2188,15 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 2,
-        "opaque": 7
+        "native": 4,
+        "opaque": 5
       },
       "LDL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "LDS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -2004,6 +2220,10 @@
       "P2R": {
         "native": 3
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 6
+      },
       "POPC": {
         "native": 3
       },
@@ -2016,11 +2236,17 @@
       "R2P": {
         "native": 3
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 3
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -2036,16 +2262,15 @@
         "primitive": 4
       },
       "STG": {
-        "native": 2,
-        "opaque": 7
+        "native": 4,
+        "opaque": 5
       },
       "STL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -2091,6 +2316,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -2135,12 +2364,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 4
       }
     },
     "status": {
-      "native": 347,
-      "opaque": 528,
-      "primitive": 99
+      "native": 435,
+      "opaque": 473,
+      "primitive": 66
     }
   },
   "SM120": {
@@ -2154,6 +2386,12 @@
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
+      "frnd__bf16_I": "BF16",
+      "frnd__bf16_R": "BF16",
+      "frnd__bf16_URb": "BF16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
       "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RRI": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
@@ -2191,26 +2429,25 @@
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
       "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
       "ldl_memdesc_": "explicit descriptor",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
+      "r2ur_nonconformity__OR": "OR not modelled; predicate output",
+      "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
       "stg_memdesc__Ra64": "explicit descriptor",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
       "stl_memdesc_": "explicit descriptor",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uimnmx_64__URIR_URsIUR": "SM120 predicates",
       "uimnmx_64__UUU_URURUR": "SM120 predicates",
@@ -2220,11 +2457,17 @@
       "uisetp_64__URsIUR_URIR": "S64 format; U64 format",
       "uisetp_64_optional_upr__URURUR_URURUR": "S64 format; U64 format",
       "uisetp_64_optional_upr__URsIUR_URIR": "S64 format; U64 format",
-      "up2ur__URb": "register mask"
+      "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMOV": {
+        "primitive": 10
       },
       "BMSK": {
         "native": 3
@@ -2232,6 +2475,9 @@
       "BRA": {
         "native": 2,
         "opaque": 2
+      },
+      "BREAK": {
+        "primitive": 2
       },
       "BREV": {
         "native": 3
@@ -2264,17 +2510,22 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 15
+      },
       "F2FP": {
         "native": 60
       },
       "F2I": {
-        "native": 3,
-        "primitive": 21
+        "native": 24
       },
       "F2IP": {
         "native": 5
       },
       "FADD": {
+        "native": 3
+      },
+      "FCHK": {
         "native": 3
       },
       "FFMA": {
@@ -2292,6 +2543,10 @@
       },
       "FMUL": {
         "native": 3
+      },
+      "FRND": {
+        "native": 6,
+        "opaque": 6
       },
       "FSEL": {
         "native": 3
@@ -2316,10 +2571,10 @@
         "native": 3
       },
       "I2F": {
-        "primitive": 24
+        "native": 24
       },
       "I2FP": {
-        "primitive": 4
+        "native": 4
       },
       "I2IP": {
         "native": 9
@@ -2352,16 +2607,15 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 2,
-        "opaque": 11
+        "native": 4,
+        "opaque": 9
       },
       "LDL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "LDS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -2385,6 +2639,10 @@
       "P2R": {
         "native": 3
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 6
+      },
       "POPC": {
         "native": 3
       },
@@ -2397,11 +2655,17 @@
       "R2P": {
         "native": 3
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 3
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -2417,16 +2681,15 @@
         "primitive": 4
       },
       "STG": {
-        "native": 2,
-        "opaque": 7
+        "native": 4,
+        "opaque": 5
       },
       "STL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -2473,6 +2736,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -2517,12 +2784,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 4
       }
     },
     "status": {
-      "native": 365,
-      "opaque": 556,
-      "primitive": 94
+      "native": 453,
+      "opaque": 501,
+      "primitive": 61
     }
   },
   "SM120_READABLE": {
@@ -2536,6 +2806,12 @@
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
+      "frnd__bf16_I": "BF16",
+      "frnd__bf16_R": "BF16",
+      "frnd__bf16_URb": "BF16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
       "hfma2_relu__RIR": "RELU; ofmt",
       "hfma2_relu__RRI": "RELU; ofmt",
       "hfma2_relu__RRR": "RELU; ofmt",
@@ -2573,26 +2849,25 @@
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
       "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
       "ldl_memdesc_": "explicit descriptor",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
+      "r2ur_nonconformity__OR": "OR not modelled; predicate output",
+      "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
       "stg_memdesc__Ra64": "explicit descriptor",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
       "stl_memdesc_": "explicit descriptor",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uimnmx_64__URIR_URsIUR": "SM120 predicates",
       "uimnmx_64__UUU_URURUR": "SM120 predicates",
@@ -2602,11 +2877,17 @@
       "uisetp_64__URsIUR_URIR": "S64 format; U64 format",
       "uisetp_64_optional_upr__URURUR_URURUR": "S64 format; U64 format",
       "uisetp_64_optional_upr__URsIUR_URIR": "S64 format; U64 format",
-      "up2ur__URb": "register mask"
+      "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMOV": {
+        "primitive": 10
       },
       "BMSK": {
         "native": 3
@@ -2614,6 +2895,9 @@
       "BRA": {
         "native": 2,
         "opaque": 2
+      },
+      "BREAK": {
+        "primitive": 2
       },
       "BREV": {
         "native": 3
@@ -2646,17 +2930,22 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 15
+      },
       "F2FP": {
         "native": 60
       },
       "F2I": {
-        "native": 3,
-        "primitive": 21
+        "native": 24
       },
       "F2IP": {
         "native": 5
       },
       "FADD": {
+        "native": 3
+      },
+      "FCHK": {
         "native": 3
       },
       "FFMA": {
@@ -2674,6 +2963,10 @@
       },
       "FMUL": {
         "native": 3
+      },
+      "FRND": {
+        "native": 6,
+        "opaque": 6
       },
       "FSEL": {
         "native": 3
@@ -2698,10 +2991,10 @@
         "native": 3
       },
       "I2F": {
-        "primitive": 24
+        "native": 24
       },
       "I2FP": {
-        "primitive": 4
+        "native": 4
       },
       "I2IP": {
         "native": 9
@@ -2734,16 +3027,15 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 2,
-        "opaque": 11
+        "native": 4,
+        "opaque": 9
       },
       "LDL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "LDS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -2767,6 +3059,10 @@
       "P2R": {
         "native": 3
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 6
+      },
       "POPC": {
         "native": 3
       },
@@ -2779,11 +3075,17 @@
       "R2P": {
         "native": 3
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 3
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -2799,16 +3101,15 @@
         "primitive": 4
       },
       "STG": {
-        "native": 2,
-        "opaque": 7
+        "native": 4,
+        "opaque": 5
       },
       "STL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -2855,6 +3156,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -2899,12 +3204,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 4
       }
     },
     "status": {
-      "native": 365,
-      "opaque": 556,
-      "primitive": 94
+      "native": 453,
+      "opaque": 501,
+      "primitive": 61
     }
   },
   "SM75": {
@@ -2918,6 +3226,8 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
+      "f2f_f64_downconvert__RCR_RCR": "32-bit source for F64; ftz",
+      "f2f_f64_downconvert__RCXR_RCXR": "32-bit source for F64; ftz",
       "f2fp_rs__RCR": "outside implemented operation families",
       "f2fp_rs__RCxR": "outside implemented operation families",
       "f2fp_rs__RIR": "outside implemented operation families",
@@ -2927,43 +3237,60 @@
       "f2fp_rs__RRR": "outside implemented operation families",
       "f2fp_rs__RRU": "outside implemented operation families",
       "f2fp_rs__RUR": "outside implemented operation families",
+      "frnd__f16_C": "F16",
+      "frnd__f16_CXb": "F16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
+      "frnd__f64_C": "32-bit source for F64",
+      "frnd__f64_CXb": "32-bit source for F64",
       "ldc_ur__URRzI": "bank",
       "ldc_ur__URnonRzI": "bank",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
-      "ldg_uniform__RaRZ": "Pu result; uniform address part",
       "ldg_zd__sImmOffset": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
       "ldg_zd__uImmOffset": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ldg_zd_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_zd_uniform__Ra64": "Pu result; uniform address part",
-      "ldg_zd_uniform__RaRZ": "Pu result; uniform address part",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
+      "ldg_zd_uniform__Ra32": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ldg_zd_uniform__Ra64": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ldg_zd_uniform__RaRZ": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
       "lds_zd__sImmOffset": "Pu result; size; sz U; sz U.128; sz U.64; sz U.S16; sz U.S8; sz U.U16; sz U.U8; zd not modelled",
       "lds_zd__uImmOffset": "Pu result; size; sz U; sz U.128; sz U.64; sz U.S16; sz U.S8; sz U.U16; sz U.U8; zd not modelled",
-      "lds_zd_uniform_": "Pu result; uniform address part",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
-      "stg_uniform__RaRZ": "uniform address part",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
+      "lds_zd_uniform_": "Pu result; size; sz U; sz U.128; sz U.64; sz U.S16; sz U.S8; sz U.U16; sz U.U8; zd not modelled",
+      "plop3_lut_2out_1reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
       "uldc_const__RCxR": "operand form",
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "register mask"
+      "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMOV": {
+        "primitive": 14
       },
       "BMSK": {
         "native": 5
       },
       "BRA": {
         "native": 1
+      },
+      "BREAK": {
+        "primitive": 1
       },
       "BREV": {
         "native": 5
@@ -3000,18 +3327,25 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 23,
+        "opaque": 2
+      },
       "F2FP": {
         "native": 14,
         "opaque": 9
       },
       "F2I": {
-        "native": 5,
-        "primitive": 25
+        "native": 26,
+        "primitive": 4
       },
       "F2IP": {
         "absent": 0
       },
       "FADD": {
+        "native": 5
+      },
+      "FCHK": {
         "native": 5
       },
       "FFMA": {
@@ -3028,6 +3362,10 @@
       },
       "FMUL": {
         "native": 5
+      },
+      "FRND": {
+        "native": 8,
+        "opaque": 7
       },
       "FSEL": {
         "native": 5
@@ -3051,7 +3389,8 @@
         "native": 5
       },
       "I2F": {
-        "primitive": 40
+        "native": 36,
+        "primitive": 4
       },
       "I2FP": {
         "absent": 0
@@ -3085,16 +3424,15 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 2,
-        "opaque": 8
+        "native": 5,
+        "opaque": 5
       },
       "LDL": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LDS": {
-        "native": 2,
-        "opaque": 4
+        "native": 3,
+        "opaque": 3
       },
       "LEA": {
         "native": 32
@@ -3117,6 +3455,10 @@
       "P2R": {
         "native": 5
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 12
+      },
       "POPC": {
         "native": 5
       },
@@ -3129,11 +3471,17 @@
       "R2P": {
         "native": 5
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 1
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -3149,16 +3497,13 @@
         "primitive": 4
       },
       "STG": {
-        "native": 2,
-        "opaque": 3
+        "native": 5
       },
       "STL": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -3204,6 +3549,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -3248,12 +3597,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 5
       }
     },
     "status": {
-      "native": 382,
-      "opaque": 408,
-      "primitive": 113
+      "native": 492,
+      "opaque": 335,
+      "primitive": 76
     }
   },
   "SM75_READABLE": {
@@ -3267,6 +3619,8 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
+      "f2f_f64_downconvert__RCR_RCR": "32-bit source for F64; ftz",
+      "f2f_f64_downconvert__RCXR_RCXR": "32-bit source for F64; ftz",
       "f2fp_rs__RCR": "outside implemented operation families",
       "f2fp_rs__RCxR": "outside implemented operation families",
       "f2fp_rs__RIR": "outside implemented operation families",
@@ -3276,43 +3630,60 @@
       "f2fp_rs__RRR": "outside implemented operation families",
       "f2fp_rs__RRU": "outside implemented operation families",
       "f2fp_rs__RUR": "outside implemented operation families",
+      "frnd__f16_C": "F16",
+      "frnd__f16_CXb": "F16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
+      "frnd__f64_C": "32-bit source for F64",
+      "frnd__f64_CXb": "32-bit source for F64",
       "ldc_ur__URRzI": "bank",
       "ldc_ur__URnonRzI": "bank",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
-      "ldg_uniform__RaRZ": "Pu result; uniform address part",
       "ldg_zd__sImmOffset": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
       "ldg_zd__uImmOffset": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ldg_zd_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_zd_uniform__Ra64": "Pu result; uniform address part",
-      "ldg_zd_uniform__RaRZ": "Pu result; uniform address part",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
+      "ldg_zd_uniform__Ra32": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ldg_zd_uniform__Ra64": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ldg_zd_uniform__RaRZ": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
       "lds_zd__sImmOffset": "Pu result; size; sz U; sz U.128; sz U.64; sz U.S16; sz U.S8; sz U.U16; sz U.U8; zd not modelled",
       "lds_zd__uImmOffset": "Pu result; size; sz U; sz U.128; sz U.64; sz U.S16; sz U.S8; sz U.U16; sz U.U8; zd not modelled",
-      "lds_zd_uniform_": "Pu result; uniform address part",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
-      "stg_uniform__RaRZ": "uniform address part",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
+      "lds_zd_uniform_": "Pu result; size; sz U; sz U.128; sz U.64; sz U.S16; sz U.S8; sz U.U16; sz U.U8; zd not modelled",
+      "plop3_lut_2out_1reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
       "uldc_const__RCxR": "operand form",
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "register mask"
+      "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMOV": {
+        "primitive": 14
       },
       "BMSK": {
         "native": 5
       },
       "BRA": {
         "native": 1
+      },
+      "BREAK": {
+        "primitive": 1
       },
       "BREV": {
         "native": 5
@@ -3349,18 +3720,25 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 23,
+        "opaque": 2
+      },
       "F2FP": {
         "native": 14,
         "opaque": 9
       },
       "F2I": {
-        "native": 5,
-        "primitive": 25
+        "native": 26,
+        "primitive": 4
       },
       "F2IP": {
         "absent": 0
       },
       "FADD": {
+        "native": 5
+      },
+      "FCHK": {
         "native": 5
       },
       "FFMA": {
@@ -3377,6 +3755,10 @@
       },
       "FMUL": {
         "native": 5
+      },
+      "FRND": {
+        "native": 8,
+        "opaque": 7
       },
       "FSEL": {
         "native": 5
@@ -3400,7 +3782,8 @@
         "native": 5
       },
       "I2F": {
-        "primitive": 40
+        "native": 36,
+        "primitive": 4
       },
       "I2FP": {
         "absent": 0
@@ -3434,16 +3817,15 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 2,
-        "opaque": 8
+        "native": 5,
+        "opaque": 5
       },
       "LDL": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LDS": {
-        "native": 2,
-        "opaque": 4
+        "native": 3,
+        "opaque": 3
       },
       "LEA": {
         "native": 32
@@ -3466,6 +3848,10 @@
       "P2R": {
         "native": 5
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 12
+      },
       "POPC": {
         "native": 5
       },
@@ -3478,11 +3864,17 @@
       "R2P": {
         "native": 5
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 1
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -3498,16 +3890,13 @@
         "primitive": 4
       },
       "STG": {
-        "native": 2,
-        "opaque": 3
+        "native": 5
       },
       "STL": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -3553,6 +3942,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -3597,12 +3990,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 5
       }
     },
     "status": {
-      "native": 382,
-      "opaque": 408,
-      "primitive": 113
+      "native": 492,
+      "opaque": 335,
+      "primitive": 76
     }
   },
   "SM80": {
@@ -3618,6 +4014,8 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
+      "f2f_f64_downconvert__RCR_RCR": "32-bit source for F64; ftz",
+      "f2f_f64_downconvert__RCXR_RCXR": "32-bit source for F64; ftz",
       "f2fp_rs__RCR": "outside implemented operation families",
       "f2fp_rs__RCxR": "outside implemented operation families",
       "f2fp_rs__RIR": "outside implemented operation families",
@@ -3627,6 +4025,13 @@
       "f2fp_rs__RRR": "outside implemented operation families",
       "f2fp_rs__RRU": "outside implemented operation families",
       "f2fp_rs__RUR": "outside implemented operation families",
+      "frnd__f16_C": "F16",
+      "frnd__f16_CXb": "F16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
+      "frnd__f64_C": "32-bit source for F64",
+      "frnd__f64_CXb": "32-bit source for F64",
       "hfma2_mma__RCR_norelu": "operand form",
       "hfma2_mma__RCR_relu": "operand form",
       "hfma2_mma__RCxR_norelu": "operand form",
@@ -3655,31 +4060,38 @@
       "hfma2_relu__RUR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
-      "ldg_uniform__RaRZ": "Pu result; uniform address part",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
-      "stg_uniform__RaRZ": "uniform address part",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
+      "plop3_lut_2out_1reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
       "uldc_const__RCxR": "operand form",
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "register mask"
+      "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMOV": {
+        "primitive": 14
       },
       "BMSK": {
         "native": 5
@@ -3687,6 +4099,9 @@
       "BRA": {
         "native": 1,
         "opaque": 2
+      },
+      "BREAK": {
+        "primitive": 1
       },
       "BREV": {
         "native": 5
@@ -3723,18 +4138,25 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 23,
+        "opaque": 2
+      },
       "F2FP": {
         "native": 14,
         "opaque": 9
       },
       "F2I": {
-        "native": 5,
-        "primitive": 25
+        "native": 26,
+        "primitive": 4
       },
       "F2IP": {
         "absent": 0
       },
       "FADD": {
+        "native": 5
+      },
+      "FCHK": {
         "native": 5
       },
       "FFMA": {
@@ -3751,6 +4173,10 @@
       },
       "FMUL": {
         "native": 5
+      },
+      "FRND": {
+        "native": 8,
+        "opaque": 7
       },
       "FSEL": {
         "native": 5
@@ -3776,7 +4202,8 @@
         "native": 5
       },
       "I2F": {
-        "primitive": 40
+        "native": 36,
+        "primitive": 4
       },
       "I2FP": {
         "absent": 0
@@ -3810,16 +4237,13 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 3,
-        "opaque": 3
+        "native": 6
       },
       "LDL": {
-        "native": 3,
-        "opaque": 1
+        "native": 4
       },
       "LDS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LEA": {
         "native": 32
@@ -3843,6 +4267,10 @@
       "P2R": {
         "native": 5
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 12
+      },
       "POPC": {
         "native": 5
       },
@@ -3855,11 +4283,17 @@
       "R2P": {
         "native": 5
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 1
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -3875,16 +4309,13 @@
         "primitive": 4
       },
       "STG": {
-        "native": 3,
-        "opaque": 3
+        "native": 6
       },
       "STL": {
-        "native": 3,
-        "opaque": 1
+        "native": 4
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -3930,6 +4361,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -3974,12 +4409,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 5
       }
     },
     "status": {
-      "native": 397,
-      "opaque": 457,
-      "primitive": 113
+      "native": 507,
+      "opaque": 384,
+      "primitive": 76
     }
   },
   "SM80_READABLE": {
@@ -3995,6 +4433,8 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
+      "f2f_f64_downconvert__RCR_RCR": "32-bit source for F64; ftz",
+      "f2f_f64_downconvert__RCXR_RCXR": "32-bit source for F64; ftz",
       "f2fp_rs__RCR": "outside implemented operation families",
       "f2fp_rs__RCxR": "outside implemented operation families",
       "f2fp_rs__RIR": "outside implemented operation families",
@@ -4004,6 +4444,13 @@
       "f2fp_rs__RRR": "outside implemented operation families",
       "f2fp_rs__RRU": "outside implemented operation families",
       "f2fp_rs__RUR": "outside implemented operation families",
+      "frnd__f16_C": "F16",
+      "frnd__f16_CXb": "F16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
+      "frnd__f64_C": "32-bit source for F64",
+      "frnd__f64_CXb": "32-bit source for F64",
       "hfma2_mma__RCR_norelu": "operand form",
       "hfma2_mma__RCR_relu": "operand form",
       "hfma2_mma__RCxR_norelu": "operand form",
@@ -4032,31 +4479,38 @@
       "hfma2_relu__RUR": "RELU; ofmt",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
-      "ldg_uniform__RaRZ": "Pu result; uniform address part",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
-      "stg_uniform__RaRZ": "uniform address part",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
+      "plop3_lut_2out_1reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
       "uldc_const__RCxR": "operand form",
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "register mask"
+      "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMOV": {
+        "primitive": 14
       },
       "BMSK": {
         "native": 5
@@ -4064,6 +4518,9 @@
       "BRA": {
         "native": 1,
         "opaque": 2
+      },
+      "BREAK": {
+        "primitive": 1
       },
       "BREV": {
         "native": 5
@@ -4100,18 +4557,25 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 23,
+        "opaque": 2
+      },
       "F2FP": {
         "native": 14,
         "opaque": 9
       },
       "F2I": {
-        "native": 5,
-        "primitive": 25
+        "native": 26,
+        "primitive": 4
       },
       "F2IP": {
         "absent": 0
       },
       "FADD": {
+        "native": 5
+      },
+      "FCHK": {
         "native": 5
       },
       "FFMA": {
@@ -4128,6 +4592,10 @@
       },
       "FMUL": {
         "native": 5
+      },
+      "FRND": {
+        "native": 8,
+        "opaque": 7
       },
       "FSEL": {
         "native": 5
@@ -4153,7 +4621,8 @@
         "native": 5
       },
       "I2F": {
-        "primitive": 40
+        "native": 36,
+        "primitive": 4
       },
       "I2FP": {
         "absent": 0
@@ -4187,16 +4656,13 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 3,
-        "opaque": 3
+        "native": 6
       },
       "LDL": {
-        "native": 3,
-        "opaque": 1
+        "native": 4
       },
       "LDS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LEA": {
         "native": 32
@@ -4220,6 +4686,10 @@
       "P2R": {
         "native": 5
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 12
+      },
       "POPC": {
         "native": 5
       },
@@ -4232,11 +4702,17 @@
       "R2P": {
         "native": 5
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 1
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -4252,16 +4728,13 @@
         "primitive": 4
       },
       "STG": {
-        "native": 3,
-        "opaque": 3
+        "native": 6
       },
       "STL": {
-        "native": 3,
-        "opaque": 1
+        "native": 4
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -4307,6 +4780,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -4351,12 +4828,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 5
       }
     },
     "status": {
-      "native": 397,
-      "opaque": 457,
-      "primitive": 113
+      "native": 507,
+      "opaque": 384,
+      "primitive": 76
     }
   },
   "SM86": {
@@ -4372,6 +4852,7 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
+      "f2f_f64_downconvert__RCXR_RCXR": "32-bit source for F64; ftz",
       "f2fp_rs__RCR": "outside implemented operation families",
       "f2fp_rs__RCxR": "outside implemented operation families",
       "f2fp_rs__RIR": "outside implemented operation families",
@@ -4381,6 +4862,12 @@
       "f2fp_rs__RRR": "outside implemented operation families",
       "f2fp_rs__RRU": "outside implemented operation families",
       "f2fp_rs__RUR": "outside implemented operation families",
+      "frnd__f16_C": "F16",
+      "frnd__f16_CXb": "F16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
+      "frnd__f64_CXb": "32-bit source for F64",
       "hfma2_mma__RCR_norelu": "operand form",
       "hfma2_mma__RCR_relu": "operand form",
       "hfma2_mma__RCxR_norelu": "operand form",
@@ -4409,32 +4896,39 @@
       "hfma2_relu__RUR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
-      "ldg_uniform__RaRZ": "Pu result; uniform address part",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
-      "stg_uniform__RaRZ": "uniform address part",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
+      "plop3_lut_2out_1reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uldc_const__RCxR": "operand form",
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "register mask"
+      "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMOV": {
+        "primitive": 14
       },
       "BMSK": {
         "native": 5
@@ -4442,6 +4936,9 @@
       "BRA": {
         "native": 1,
         "opaque": 2
+      },
+      "BREAK": {
+        "primitive": 1
       },
       "BREV": {
         "native": 5
@@ -4478,18 +4975,25 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 24,
+        "opaque": 1
+      },
       "F2FP": {
         "native": 14,
         "opaque": 9
       },
       "F2I": {
-        "native": 5,
-        "primitive": 25
+        "native": 28,
+        "primitive": 2
       },
       "F2IP": {
         "native": 9
       },
       "FADD": {
+        "native": 5
+      },
+      "FCHK": {
         "native": 5
       },
       "FFMA": {
@@ -4506,6 +5010,10 @@
       },
       "FMUL": {
         "native": 5
+      },
+      "FRND": {
+        "native": 9,
+        "opaque": 6
       },
       "FSEL": {
         "native": 5
@@ -4531,10 +5039,11 @@
         "native": 5
       },
       "I2F": {
-        "primitive": 40
+        "native": 38,
+        "primitive": 2
       },
       "I2FP": {
-        "primitive": 6
+        "native": 6
       },
       "I2IP": {
         "native": 15
@@ -4565,16 +5074,13 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 3,
-        "opaque": 3
+        "native": 6
       },
       "LDL": {
-        "native": 3,
-        "opaque": 1
+        "native": 4
       },
       "LDS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LEA": {
         "native": 32
@@ -4598,6 +5104,10 @@
       "P2R": {
         "native": 5
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 12
+      },
       "POPC": {
         "native": 5
       },
@@ -4610,11 +5120,17 @@
       "R2P": {
         "native": 5
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 1
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -4630,16 +5146,13 @@
         "primitive": 4
       },
       "STG": {
-        "native": 3,
-        "opaque": 3
+        "native": 6
       },
       "STL": {
-        "native": 3,
-        "opaque": 1
+        "native": 4
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -4686,6 +5199,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -4730,12 +5247,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 5
       }
     },
     "status": {
-      "native": 415,
-      "opaque": 470,
-      "primitive": 119
+      "native": 537,
+      "opaque": 395,
+      "primitive": 72
     }
   },
   "SM86_READABLE": {
@@ -4751,6 +5271,7 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
+      "f2f_f64_downconvert__RCXR_RCXR": "32-bit source for F64; ftz",
       "f2fp_rs__RCR": "outside implemented operation families",
       "f2fp_rs__RCxR": "outside implemented operation families",
       "f2fp_rs__RIR": "outside implemented operation families",
@@ -4760,6 +5281,12 @@
       "f2fp_rs__RRR": "outside implemented operation families",
       "f2fp_rs__RRU": "outside implemented operation families",
       "f2fp_rs__RUR": "outside implemented operation families",
+      "frnd__f16_C": "F16",
+      "frnd__f16_CXb": "F16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
+      "frnd__f64_CXb": "32-bit source for F64",
       "hfma2_mma__RCR_norelu": "operand form",
       "hfma2_mma__RCR_relu": "operand form",
       "hfma2_mma__RCxR_norelu": "operand form",
@@ -4788,32 +5315,39 @@
       "hfma2_relu__RUR": "RELU; ofmt",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
-      "ldg_uniform__RaRZ": "Pu result; uniform address part",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
-      "stg_uniform__RaRZ": "uniform address part",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
+      "plop3_lut_2out_1reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uldc_const__RCxR": "operand form",
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "register mask"
+      "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMOV": {
+        "primitive": 14
       },
       "BMSK": {
         "native": 5
@@ -4821,6 +5355,9 @@
       "BRA": {
         "native": 1,
         "opaque": 2
+      },
+      "BREAK": {
+        "primitive": 1
       },
       "BREV": {
         "native": 5
@@ -4857,18 +5394,25 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 24,
+        "opaque": 1
+      },
       "F2FP": {
         "native": 14,
         "opaque": 9
       },
       "F2I": {
-        "native": 5,
-        "primitive": 25
+        "native": 28,
+        "primitive": 2
       },
       "F2IP": {
         "native": 9
       },
       "FADD": {
+        "native": 5
+      },
+      "FCHK": {
         "native": 5
       },
       "FFMA": {
@@ -4885,6 +5429,10 @@
       },
       "FMUL": {
         "native": 5
+      },
+      "FRND": {
+        "native": 9,
+        "opaque": 6
       },
       "FSEL": {
         "native": 5
@@ -4910,10 +5458,11 @@
         "native": 5
       },
       "I2F": {
-        "primitive": 40
+        "native": 38,
+        "primitive": 2
       },
       "I2FP": {
-        "primitive": 6
+        "native": 6
       },
       "I2IP": {
         "native": 15
@@ -4944,16 +5493,13 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 3,
-        "opaque": 3
+        "native": 6
       },
       "LDL": {
-        "native": 3,
-        "opaque": 1
+        "native": 4
       },
       "LDS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LEA": {
         "native": 32
@@ -4977,6 +5523,10 @@
       "P2R": {
         "native": 5
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 12
+      },
       "POPC": {
         "native": 5
       },
@@ -4989,11 +5539,17 @@
       "R2P": {
         "native": 5
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 1
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -5009,16 +5565,13 @@
         "primitive": 4
       },
       "STG": {
-        "native": 3,
-        "opaque": 3
+        "native": 6
       },
       "STL": {
-        "native": 3,
-        "opaque": 1
+        "native": 4
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -5065,6 +5618,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -5109,12 +5666,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 5
       }
     },
     "status": {
-      "native": 415,
-      "opaque": 470,
-      "primitive": 119
+      "native": 537,
+      "opaque": 395,
+      "primitive": 72
     }
   },
   "SM89": {
@@ -5130,6 +5690,7 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
+      "f2f_f64_downconvert__RCXR_RCXR": "32-bit source for F64; ftz",
       "f2fp_rs__RCR": "outside implemented operation families",
       "f2fp_rs__RCxR": "outside implemented operation families",
       "f2fp_rs__RIR": "outside implemented operation families",
@@ -5139,6 +5700,12 @@
       "f2fp_rs__RRR": "outside implemented operation families",
       "f2fp_rs__RRU": "outside implemented operation families",
       "f2fp_rs__RUR": "outside implemented operation families",
+      "frnd__f16_C": "F16",
+      "frnd__f16_CXb": "F16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
+      "frnd__f64_CXb": "32-bit source for F64",
       "hfma2_mma__RCR_norelu": "operand form",
       "hfma2_mma__RCR_relu": "operand form",
       "hfma2_mma__RCxR_norelu": "operand form",
@@ -5171,36 +5738,43 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
-      "ldg_uniform__RaRZ": "Pu result; uniform address part",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
+      "plop3_lut_2out_1reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
-      "stg_uniform__RaRZ": "uniform address part",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uldc_const__RCxR": "operand form",
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "register mask"
+      "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMOV": {
+        "primitive": 14
       },
       "BMSK": {
         "native": 5
@@ -5208,6 +5782,9 @@
       "BRA": {
         "native": 1,
         "opaque": 2
+      },
+      "BREAK": {
+        "primitive": 1
       },
       "BREV": {
         "native": 5
@@ -5244,18 +5821,25 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 24,
+        "opaque": 1
+      },
       "F2FP": {
         "native": 42,
         "opaque": 9
       },
       "F2I": {
-        "native": 5,
-        "primitive": 25
+        "native": 28,
+        "primitive": 2
       },
       "F2IP": {
         "native": 9
       },
       "FADD": {
+        "native": 5
+      },
+      "FCHK": {
         "native": 5
       },
       "FFMA": {
@@ -5272,6 +5856,10 @@
       },
       "FMUL": {
         "native": 5
+      },
+      "FRND": {
+        "native": 9,
+        "opaque": 6
       },
       "FSEL": {
         "native": 5
@@ -5297,10 +5885,11 @@
         "native": 5
       },
       "I2F": {
-        "primitive": 40
+        "native": 38,
+        "primitive": 2
       },
       "I2FP": {
-        "primitive": 6
+        "native": 6
       },
       "I2IP": {
         "native": 15
@@ -5331,16 +5920,14 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 3,
-        "opaque": 7
+        "native": 6,
+        "opaque": 4
       },
       "LDL": {
-        "native": 3,
-        "opaque": 1
+        "native": 4
       },
       "LDS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LEA": {
         "native": 32
@@ -5364,6 +5951,10 @@
       "P2R": {
         "native": 5
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 12
+      },
       "POPC": {
         "native": 5
       },
@@ -5376,11 +5967,17 @@
       "R2P": {
         "native": 5
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 1
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -5396,16 +5993,14 @@
         "primitive": 4
       },
       "STG": {
-        "native": 3,
-        "opaque": 7
+        "native": 6,
+        "opaque": 4
       },
       "STL": {
-        "native": 3,
-        "opaque": 1
+        "native": 4
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -5452,6 +6047,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -5496,12 +6095,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 5
       }
     },
     "status": {
-      "native": 443,
-      "opaque": 492,
-      "primitive": 119
+      "native": 565,
+      "opaque": 417,
+      "primitive": 72
     }
   },
   "SM89_READABLE": {
@@ -5517,6 +6119,7 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
+      "f2f_f64_downconvert__RCXR_RCXR": "32-bit source for F64; ftz",
       "f2fp_rs__RCR": "outside implemented operation families",
       "f2fp_rs__RCxR": "outside implemented operation families",
       "f2fp_rs__RIR": "outside implemented operation families",
@@ -5526,6 +6129,12 @@
       "f2fp_rs__RRR": "outside implemented operation families",
       "f2fp_rs__RRU": "outside implemented operation families",
       "f2fp_rs__RUR": "outside implemented operation families",
+      "frnd__f16_C": "F16",
+      "frnd__f16_CXb": "F16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
+      "frnd__f64_CXb": "32-bit source for F64",
       "hfma2_mma__RCR_norelu": "operand form",
       "hfma2_mma__RCR_relu": "operand form",
       "hfma2_mma__RCxR_norelu": "operand form",
@@ -5558,36 +6167,43 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
-      "ldg_uniform__RaRZ": "Pu result; uniform address part",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
+      "plop3_lut_2out_1reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
-      "stg_uniform__RaRZ": "uniform address part",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uldc_const__RCxR": "operand form",
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "register mask"
+      "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "operations": {
       "BAR": {
         "primitive": 26
+      },
+      "BMOV": {
+        "primitive": 14
       },
       "BMSK": {
         "native": 5
@@ -5595,6 +6211,9 @@
       "BRA": {
         "native": 1,
         "opaque": 2
+      },
+      "BREAK": {
+        "primitive": 1
       },
       "BREV": {
         "native": 5
@@ -5631,18 +6250,25 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 24,
+        "opaque": 1
+      },
       "F2FP": {
         "native": 42,
         "opaque": 9
       },
       "F2I": {
-        "native": 5,
-        "primitive": 25
+        "native": 28,
+        "primitive": 2
       },
       "F2IP": {
         "native": 9
       },
       "FADD": {
+        "native": 5
+      },
+      "FCHK": {
         "native": 5
       },
       "FFMA": {
@@ -5659,6 +6285,10 @@
       },
       "FMUL": {
         "native": 5
+      },
+      "FRND": {
+        "native": 9,
+        "opaque": 6
       },
       "FSEL": {
         "native": 5
@@ -5684,10 +6314,11 @@
         "native": 5
       },
       "I2F": {
-        "primitive": 40
+        "native": 38,
+        "primitive": 2
       },
       "I2FP": {
-        "primitive": 6
+        "native": 6
       },
       "I2IP": {
         "native": 15
@@ -5718,16 +6349,14 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 3,
-        "opaque": 7
+        "native": 6,
+        "opaque": 4
       },
       "LDL": {
-        "native": 3,
-        "opaque": 1
+        "native": 4
       },
       "LDS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LEA": {
         "native": 32
@@ -5751,6 +6380,10 @@
       "P2R": {
         "native": 5
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 12
+      },
       "POPC": {
         "native": 5
       },
@@ -5763,11 +6396,17 @@
       "R2P": {
         "native": 5
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 1
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -5783,16 +6422,14 @@
         "primitive": 4
       },
       "STG": {
-        "native": 3,
-        "opaque": 7
+        "native": 6,
+        "opaque": 4
       },
       "STL": {
-        "native": 3,
-        "opaque": 1
+        "native": 4
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -5839,6 +6476,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -5883,12 +6524,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 5
       }
     },
     "status": {
-      "native": 443,
-      "opaque": 492,
-      "primitive": 119
+      "native": 565,
+      "opaque": 417,
+      "primitive": 72
     }
   },
   "SM90": {
@@ -5904,11 +6548,23 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
+      "f2f_f64_downconvert__RCXR_RCXR": "32-bit source for F64; BF16.F64; ftz",
       "fmnmx_pred__RCR_RCR": "is_A not modelled",
       "fmnmx_pred__RCxR_RCxR": "is_A not modelled",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
+      "frnd__bf16_C": "BF16",
+      "frnd__bf16_CXb": "BF16",
+      "frnd__bf16_I": "BF16",
+      "frnd__bf16_R": "BF16",
+      "frnd__bf16_URb": "BF16",
+      "frnd__f16_C": "F16",
+      "frnd__f16_CXb": "F16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
+      "frnd__f64_CXb": "32-bit source for F64",
       "hfma2_mma__RCR": "operand form",
       "hfma2_mma__RCxR": "operand form",
       "hfma2_mma__RIR": "operand form",
@@ -5938,29 +6594,35 @@
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
       "ldl_memdesc_": "explicit descriptor",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
+      "plop3_lut_2out_1reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
       "stg_memdesc__Ra64": "explicit descriptor",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
       "stl_memdesc_": "explicit descriptor",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uldc_const__RCxR": "operand form",
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
       "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families",
       "vimnmx_pred__RCR_RCR": "Pu output",
       "vimnmx_pred__RCxR_RCxR": "Pu output",
       "vimnmx_pred__RIR_RsIR": "Pu output",
@@ -5971,12 +6633,18 @@
       "BAR": {
         "primitive": 26
       },
+      "BMOV": {
+        "primitive": 14
+      },
       "BMSK": {
         "native": 5
       },
       "BRA": {
         "native": 2,
         "opaque": 2
+      },
+      "BREAK": {
+        "primitive": 1
       },
       "BREV": {
         "native": 5
@@ -6013,17 +6681,24 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 24,
+        "opaque": 1
+      },
       "F2FP": {
         "native": 42
       },
       "F2I": {
-        "native": 5,
-        "primitive": 35
+        "native": 38,
+        "primitive": 2
       },
       "F2IP": {
         "native": 9
       },
       "FADD": {
+        "native": 5
+      },
+      "FCHK": {
         "native": 5
       },
       "FFMA": {
@@ -6041,6 +6716,10 @@
       },
       "FMUL": {
         "native": 5
+      },
+      "FRND": {
+        "native": 9,
+        "opaque": 11
       },
       "FSEL": {
         "native": 5
@@ -6066,10 +6745,11 @@
         "native": 5
       },
       "I2F": {
-        "primitive": 40
+        "native": 38,
+        "primitive": 2
       },
       "I2FP": {
-        "primitive": 6
+        "native": 6
       },
       "I2IP": {
         "native": 15
@@ -6100,16 +6780,15 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 2,
-        "opaque": 3
+        "native": 4,
+        "opaque": 1
       },
       "LDL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "LDS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LEA": {
         "native": 32
@@ -6133,6 +6812,10 @@
       "P2R": {
         "native": 5
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 12
+      },
       "POPC": {
         "native": 5
       },
@@ -6145,11 +6828,17 @@
       "R2P": {
         "native": 5
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 1
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -6165,16 +6854,15 @@
         "primitive": 4
       },
       "STG": {
-        "native": 2,
-        "opaque": 3
+        "native": 4,
+        "opaque": 1
       },
       "STL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -6221,6 +6909,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -6266,12 +6958,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 4
       }
     },
     "status": {
-      "native": 469,
-      "opaque": 576,
-      "primitive": 128
+      "native": 599,
+      "opaque": 504,
+      "primitive": 70
     }
   },
   "SM90_READABLE": {
@@ -6287,11 +6982,23 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
+      "f2f_f64_downconvert__RCXR_RCXR": "32-bit source for F64; BF16.F64; ftz",
       "fmnmx_pred__RCR_RCR": "is_A not modelled",
       "fmnmx_pred__RCxR_RCxR": "is_A not modelled",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
+      "frnd__bf16_C": "BF16",
+      "frnd__bf16_CXb": "BF16",
+      "frnd__bf16_I": "BF16",
+      "frnd__bf16_R": "BF16",
+      "frnd__bf16_URb": "BF16",
+      "frnd__f16_C": "F16",
+      "frnd__f16_CXb": "F16",
+      "frnd__f16_I": "F16",
+      "frnd__f16_R": "F16",
+      "frnd__f16_URb": "F16",
+      "frnd__f64_CXb": "32-bit source for F64",
       "hfma2_mma__RCR": "operand form",
       "hfma2_mma__RCxR": "operand form",
       "hfma2_mma__RIR": "operand form",
@@ -6321,29 +7028,35 @@
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldg_uniform__Ra32": "Pu result; uniform address part",
-      "ldg_uniform__Ra64": "Pu result; uniform address part",
       "ldl_memdesc_": "explicit descriptor",
-      "ldl_uniform_": "uniform address part",
-      "lds_uniform_": "uniform address part",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
-      "ret__REL": "addr REL",
-      "ret__REL_UR": "addr REL",
+      "plop3_lut_2out_1reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_1reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_2reg__RUR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RCxR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
+      "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
+      "r2ur__OR": "OR not modelled; predicate output",
       "stg_memdesc__Ra64": "explicit descriptor",
-      "stg_uniform__Ra32": "uniform address part",
-      "stg_uniform__Ra64": "uniform address part",
       "stl_memdesc_": "explicit descriptor",
-      "stl_uniform_": "uniform address part",
-      "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uldc_const__RCxR": "operand form",
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
       "up2ur__URb": "register mask",
+      "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
+      "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families",
       "vimnmx_pred__RCR_RCR": "Pu output",
       "vimnmx_pred__RCxR_RCxR": "Pu output",
       "vimnmx_pred__RIR_RsIR": "Pu output",
@@ -6354,12 +7067,18 @@
       "BAR": {
         "primitive": 26
       },
+      "BMOV": {
+        "primitive": 14
+      },
       "BMSK": {
         "native": 5
       },
       "BRA": {
         "native": 2,
         "opaque": 2
+      },
+      "BREAK": {
+        "primitive": 1
       },
       "BREV": {
         "native": 5
@@ -6396,17 +7115,24 @@
       "EXIT": {
         "native": 1
       },
+      "F2F": {
+        "native": 24,
+        "opaque": 1
+      },
       "F2FP": {
         "native": 42
       },
       "F2I": {
-        "native": 5,
-        "primitive": 35
+        "native": 38,
+        "primitive": 2
       },
       "F2IP": {
         "native": 9
       },
       "FADD": {
+        "native": 5
+      },
+      "FCHK": {
         "native": 5
       },
       "FFMA": {
@@ -6424,6 +7150,10 @@
       },
       "FMUL": {
         "native": 5
+      },
+      "FRND": {
+        "native": 9,
+        "opaque": 11
       },
       "FSEL": {
         "native": 5
@@ -6449,10 +7179,11 @@
         "native": 5
       },
       "I2F": {
-        "primitive": 40
+        "native": 38,
+        "primitive": 2
       },
       "I2FP": {
-        "primitive": 6
+        "native": 6
       },
       "I2IP": {
         "native": 15
@@ -6483,16 +7214,15 @@
         "opaque": 2
       },
       "LDG": {
-        "native": 2,
-        "opaque": 3
+        "native": 4,
+        "opaque": 1
       },
       "LDL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "LDS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "LEA": {
         "native": 32
@@ -6516,6 +7246,10 @@
       "P2R": {
         "native": 5
       },
+      "PLOP3": {
+        "native": 2,
+        "opaque": 12
+      },
       "POPC": {
         "native": 5
       },
@@ -6528,11 +7262,17 @@
       "R2P": {
         "native": 5
       },
+      "R2UR": {
+        "native": 1,
+        "opaque": 1
+      },
       "RET": {
-        "native": 2,
-        "opaque": 2
+        "native": 4
       },
       "S2R": {
+        "native": 1
+      },
+      "S2UR": {
         "native": 1
       },
       "SEL": {
@@ -6548,16 +7288,15 @@
         "primitive": 4
       },
       "STG": {
-        "native": 2,
-        "opaque": 3
+        "native": 4,
+        "opaque": 1
       },
       "STL": {
-        "native": 2,
-        "opaque": 2
+        "native": 3,
+        "opaque": 1
       },
       "STS": {
-        "native": 2,
-        "opaque": 1
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -6604,6 +7343,10 @@
         "native": 1,
         "opaque": 1
       },
+      "UPLOP3": {
+        "native": 1,
+        "opaque": 3
+      },
       "UPOPC": {
         "native": 2
       },
@@ -6649,12 +7392,15 @@
       },
       "VOTE": {
         "primitive": 1
+      },
+      "WARPSYNC": {
+        "primitive": 4
       }
     },
     "status": {
-      "native": 469,
-      "opaque": 576,
-      "primitive": 128
+      "native": 599,
+      "opaque": 504,
+      "primitive": 70
     }
   }
 }

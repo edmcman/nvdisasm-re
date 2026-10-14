@@ -1,4 +1,4 @@
-"""Scalar floating-point families: FP32 (FADD/FMUL/FFMA/FSETP/FSEL/FMNMX/FMNMX3) and FP64
+"""Scalar floating-point families: FP32 (FADD/FMUL/FFMA/FSETP/FSEL/FMNMX/FMNMX3/FCHK) and FP64
 (DADD/DMUL/DFMA/DSETP).
 
 The exact lowering computes what the hardware does: rounding modes, .FTZ (denormal inputs and
@@ -173,6 +173,17 @@ def dsetp_(i):
     """Pu/Pv from comparing Ra with Rc (FP64)."""
     if i.width('Ra|Sa') != 64 or i.width('Rc|Sc') != 64: unmodelled('width')
     return set_predicates(i, comparison(i, 'test', i.fvalue('Ra|Sa'), i.fvalue('Rc|Sc')))
+
+
+@family('FCHK')
+def fchk(i):
+    """Pu = Ra / Rb needs the division slow path: from the biased exponents alone (signs, modifiers
+    and mantissas don't matter), Ra zero/denormal/tiny (ea <= 24) or Inf/NaN, Rb's reciprocal out of
+    range (eb <= 1 or eb >= 252), or the quotient's exponent out of range (SM89 GPU: exact on 1.1M
+    random and boundary pairs)."""
+    if i.select_fork('mode') != 'DIVIDE': unmodelled('mode')
+    ea, eb = (zext(extract(i.fvalue(n), 30, 23), 32) for n in ('Ra', 'Rb|Sb'))
+    return outputs(Pu=(ea <= 24) | (ea == 255) | (eb <= 1) | (eb >= 252) | sle(const(127, 32), ea - eb) | sle(const(125, 32), eb - ea))
 
 
 @family('FSEL')

@@ -1,10 +1,11 @@
 """FP32: FADD/FMUL/FFMA (every rounding mode, FTZ, SAT, FMUL scale) against the exact softfloat
-model; FSETP; FSEL/FMNMX/FMNMX3 selection rules; readable-lowering formulas."""
+model; FSETP; FSEL/FMNMX/FMNMX3 selection rules; FCHK's division slow-path test; readable-lowering
+formulas."""
 import itertools, random
 from sass import softfloat
-from tests.harness.case import put, source
+from tests.harness.case import cx_source, is_cx, put, source
 from tests.refs.bits import f32, ftz32, nan32
-from tests.refs.float import FCOMPARISONS, fcompare, fmnmx, fmnmx3_pick, fmnmx_xorsign, readable, underflow_band
+from tests.refs.float import FCOMPARISONS, fchk_divide, fcompare, fmnmx, fmnmx3_pick, fmnmx_xorsign, readable, underflow_band
 
 ROUNDINGS = ("RN", "RZ", "RM", "RP")
 
@@ -148,8 +149,34 @@ def readable_formulas(c):
               dict(R2=a, R4=b), dict(P0=int(f32(a) < f32(b)), P1=int(not f32(a) < f32(b)), __native=True), portable=True)
 
 
+def fchk_pairs():
+    """Both sides of every FCHK boundary for each numerator exponent, mantissa extremes and signs
+    alternating, then random pairs up to a multiple of 128 (a, b)."""
+    rng, out = random.Random("fchk"), []
+    mantissas, signs = (0, 0x7fffff, 1, 0x400000), (0, 1 << 31)
+    for ea in range(256):
+        for eb in sorted({x for t in (1, 251, ea - 127, ea + 124) for x in (t, t + 1) if 0 <= x < 256}):
+            n = len(out)
+            out.append((signs[n % 2] | ea << 23 | mantissas[n % 4], signs[n // 2 % 2] | eb << 23 | mantissas[(n + 1) % 4]))
+    return out + [(rng.getrandbits(32), rng.getrandbits(32)) for _ in range(-len(out) % 128 + 128)]
+
+
+def fchk_cases(c):
+    """FCHK.DIVIDE from every source kind, with sign modifiers (which it ignores)."""
+    pairs = fchk_pairs()[::16] + [(0, 0x3f800000), (0x3f800000, 0), (0x7fc00000, 0x3f800000), (0x3f800000, 0x40000000)]
+    for k in c.of("FCHK", cx=None):
+        cx = is_cx(k)
+        b = "Sb" if cx else source(k, "Rb", "URb", "Sb")
+        for n, (x, y) in enumerate(pairs):
+            fields, regs, memory = dict(Pu=1, Ra=2, **{"Ra@negate": n & 1, "Ra@absolute": n >> 1 & 1}), dict(R2=x), []
+            if cx:
+                cx_fields, cx_regs, memory = cx_source(c.arch, k, b, y); fields.update(cx_fields); regs.update(cx_regs)
+            else: put(k, b, y, fields, regs, memory, 4, ureg=6, bank=(0, 0x20), imm=("F32Imm",))
+            c.add(k.name, fields, regs, dict(P1=fchk_divide(x, y), __native=True), memory=memory, portable=True)
+
+
 def emulator_cases(c):
-    selection(c); arithmetic(c); compare(c); readable_formulas(c)
+    selection(c); arithmetic(c); compare(c); fchk_cases(c); readable_formulas(c)
 
 
 def gpu_fixtures():
@@ -159,4 +186,15 @@ def gpu_fixtures():
     out += [scalar.launch(f, lambda x, y, _, f=f: fmnmx(x, y, f.startswith("fmin"), f.endswith("_nan"), "ftz" in f))
             for f in ("fmin", "fmax", "fmin_nan", "fmax_nan", "fmin_ftz_nan", "fmax_ftz_nan", "fmin_ftz", "fmax_ftz")]
     out.append(scalar.launch("fmin_xorsign", lambda x, y, _: fmnmx_xorsign(x, y, True)))
+    # FCHK P0, R2, R5 in a probe slot, P0 read back through P2R into the stored R11.
+    from tests.harness.gpu import sm89
+    from tests.harness.templates import slot_fixture
+    nop, p2r = sm89("nop_"), sm89("p2r__RsIR_RIR", Rd=11, Pr="PR", Ra="RZ", Sb=1, insert="B0")
+    pairs = fchk_pairs()
+    for n in range(len(pairs) // 128):
+        rows = pairs[128 * n:128 * (n + 1)]
+        mods = {"Ra@negate": n & 1, "Rb@absolute": n >> 1 & 1}
+        fchk = sm89("fchk__RRR_RR", Pu=0, Ra=2, Rb=5, **mods)
+        out.append(slot_fixture(f"fchk_{n}", [fchk] + [nop] * 7, [(a, b, 0) for a, b in rows],
+                                [fchk_divide(a, b) for a, b in rows], 0x100, final=p2r))
     return out
