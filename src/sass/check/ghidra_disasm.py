@@ -5,7 +5,6 @@ usage: python -m sass.check.ghidra_disasm SM89 [real|synthetic|mutated] [N] [--s
 import re
 from sass.decode import ir, pydecode
 from sass.md import legal
-from sass.semantics.family import family_for
 from sass import oracle
 from sass.check.pydecode_disasm import arguments, report, sample
 from sass import ghidra_bridge
@@ -26,16 +25,16 @@ def loose(text):
 
 def compare(arch, words, fp="exact"):
     """{word: (status, cls, pydecode text, Ghidra text or error)} for words pydecode decodes;
-    status in ok, mismatch, error. The SLEIGH enforces md CONDITIONS only for classes lifted by
-    semantics families, except those on scheduling hints alone: their md-illegal words must fail to
-    decode (expected text None). Addresses come from the oracle (branch targets are absolute)."""
+    status in ok, mismatch, error. The SLEIGH enforces md CONDITIONS (`legal.operand_errors`):
+    their md-illegal words must fail to decode (expected text None). Addresses come from the oracle
+    (branch targets are absolute)."""
     addrs = {w: r.addr for w, r in oracle.Oracle().disasm(arch, words).items()}
     pydecode.FLOAT_HEX = True
     todo = []
     for w in words:
         try: d = pydecode.decode(arch, w, addrs[w], conditions=False)
         except pydecode.NoMatch: continue
-        todo.append((w, d.klass.name, None if family_for(d.klass) and legal.violation(ir.load(arch), d.klass, d.env, hints=False) else d.text))
+        todo.append((w, d.klass.name, None if legal.violation(ir.load(arch), d.klass, d.env, hints=False) else d.text))
     def status(exp, g):
         if exp is None: return "ok" if "error" in g else "mismatch"
         return "error" if "error" in g else "ok" if loose(g["text"]) == loose(exp) else "mismatch"
