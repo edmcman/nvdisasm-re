@@ -499,7 +499,7 @@ class Gen:
                 refs += r
         return "^".join(parts) or '""', refs
 
-    def build(self, k, pseudo=None, extra=()):
+    def build(self, k, pseudo=None, extra=(), known={}):
         arch = self.arch
         pseudo = pseudo or {}
         atoms = {a.name: a for a in k.format if a.kind in ("operand", "mod", "guard")}
@@ -539,7 +539,7 @@ class Gen:
         g = self.guard(k)
         disp = (f"^{g}^" if g else "") + mnem_disp
         if item_syms: disp += " " + "^".join(item_syms)
-        sem, srefs = self.semantics(k, g)
+        sem, srefs = self.semantics(k, g, known)
         pat = pattern(clauses, refs + srefs)
         if pat is None: raise NoMatch("unsatisfiable")
         subs = [s for s in [g] + item_syms if s]
@@ -692,30 +692,31 @@ class Gen:
                 out.append((dict(sig), clauses, dict(zip(ranges, map(set, box)))))
         return out if domains else [(a, b) for a, b, _ in out]
 
-    def semantics(self, k, guard):
+    def semantics(self, k, guard, known={}):
+        # known: operand values the constructor's own pattern decides (a pseudo-op's RZ operands).
         # Keep span decisions under their class rather than duplicating root
         # constructors: otherwise SLEIGH mixes modifiers from unrelated opcodes
         # into the global instruction decision tree.
         variants = self.span_variants(k, domains=True)
         if len(variants) == 1:
-            return self.fixed_semantics(k, guard, variants[0][0])
+            return self.fixed_semantics(k, guard, variants[0][0], known)
         cons = []
-        for fixed, clauses, domain in variants:
+        for spans, clauses, domain in variants:
             # md conditions that depend on the span fields hold per variant: checked here, over
             # the variant's own span values, not in the root pattern (where register range and
             # alignment rules on several fields multiply the global decision tree).
             legality, tables = self.conditions(k, domain)
             if legality is None: continue   # no legal encoding has this span
-            body, refs = self.fixed_semantics(k, None, fixed, nested=True)
+            body, refs = self.fixed_semantics(k, None, spans, known, nested=True)
             cons.append(('""', pattern(clauses + legality, refs + [("sub", t) for t in tables]), "", body))
         table = self.subtable("s", cons)
         body = f"build {guard}; " if guard else ""
         return body + f"build {table};", [("sub", table)]
 
-    def fixed_semantics(self, k, guard, spans, nested=False):
+    def fixed_semantics(self, k, guard, spans, known, nested=False):
         from sass.semantics.operands import emit
-        if nested:return emit(self, k, guard, spans)
-        body, refs = emit(self, k, None, spans)
+        if nested:return emit(self, k, guard, spans, known)
+        body, refs = emit(self, k, None, spans, known)
         table = self.subtable("s", [('""', pattern([], refs), "", body)])
         return (f"build {guard}; " if guard else "") + f"build {table};", [("sub", table)]
 
@@ -888,12 +889,13 @@ class Gen:
         return out
 
     def pseudo_variants(self, k):
-        """(alias values, extra clauses) per GetPseudoOp* row, in table order."""
+        """(alias values, extra clauses, decoded operand values they fix) per GetPseudoOp* row, in
+        table order."""
         (name, etype, table, args), = k.aliases
         out = []
         for ins, outv in self.arch.tables[table]:
             val = resolve(self.arch, outv)
-            clauses = []
+            clauses, known = [], {}
             for t, argname in zip(ins, args):
                 if t == "-": continue
                 want = resolve(self.arch, t)
@@ -904,19 +906,19 @@ class Gen:
                 raw, n = want // scale, f.width
                 if a is not None and a.type == "SImm" and not -(1 << n - 1) <= raw < 1 << n - 1:
                     clauses = None; break  # pydecode compares signed: e.g. 2147483648 never equals SImm(32)
-                clauses += eq(self, f, raw & ((1 << n) - 1))
+                clauses += eq(self, f, raw & ((1 << n) - 1)); known[argname] = want
             if clauses is None or val == 0: continue
             label = self.arch.rev_enums[etype][val]
-            out.append(({name: label}, clauses))
+            out.append(({name: label}, clauses, known))
         # blockers first: on invalid scheduling operands the first-matching constructor shows no pseudo-op
-        return [({name: None}, c) for c in self.sched_invalid(k)] + out
+        return [({name: None}, c, {}) for c in self.sched_invalid(k)] + out
 
     def generate(self):
         lines, seen = [], set()
         for k in self.arch.classes:
-            variants = self.pseudo_variants(k) if k.alternate and k.aliases else [] if k.alternate else [(None, [])]
-            for pseudo, extra in variants:
-                try: line, key = self.build(k, pseudo, extra)
+            variants = self.pseudo_variants(k) if k.alternate and k.aliases else [] if k.alternate else [(None, [], {})]
+            for pseudo, extra, known in variants:
+                try: line, key = self.build(k, pseudo, extra, known)
                 except NoMatch as e: self.skipped.append((k.name, str(e))); continue
                 if key in seen: self.skipped.append((k.name, "same constraints as an earlier constructor")); continue
                 seen.add(key); lines.append(line)

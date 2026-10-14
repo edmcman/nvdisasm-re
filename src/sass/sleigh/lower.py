@@ -46,7 +46,13 @@ class Symbolic(Instruction):
         if key not in self.assignment: raise Branch(key, [v for v in domain if clauses(self.b, key, v) is not None])
         return self.assignment[key]
 
-    def operand(self, name, width): return bitvec.param(name, width)
+    def operand(self, name, width):
+        # A register the class can only encode as RZ/URZ/PT (IMAD.MOV's Ra, Rb) is its constant, so
+        # the expression folds; lift likewise reads the zero register as a constant.
+        atom = self.atom(name)
+        if atom.type in REG_TYPES and name in self._encoded and clauses(self.b, ("zero", name), False) is None:
+            return bitvec.const(1 if REG_TYPES[atom.type] in ("P", "UP") else 0, width)
+        return bitvec.param(name, width)
 
     def modified(self, name, attr, v, f):
         # A decode-time choice of this value, not a branch of every row on the bit; except for a
@@ -76,8 +82,12 @@ def clauses(b, key, v):
     """Encoding clauses for static key == v; None if no encoding has that value."""
     from sass.sleigh.gen import pattern
     k = b.k
+    def where(name, test):
+        # A value the constructor's pattern fixes (a pseudo-op's RZ) holds or not, with no clauses.
+        if name in b.known: return [] if test(b.known[name]) else False
+        return b.g.values_where(k, name, test)
     if isinstance(key, tuple) and key[0] == "in":
-        c = b.g.values_where(k, key[1], (lambda x: x in key[2]) if v else (lambda x: x not in key[2]))
+        c = where(key[1], (lambda x: x in key[2]) if v else (lambda x: x not in key[2]))
     elif isinstance(key, tuple) and key[0] == "low":   # the low bits of an immediate's field
         from sass.decode import ir
         from sass.sleigh.gen import eq, pieces
@@ -88,9 +98,10 @@ def clauses(b, key, v):
         zero = b.g.register_zero(k, name) if atom.type in REG_TYPES else 0
         # A register type without its zero (Predicate_vimnmx: P0-P6) is never RZ/PT.
         if v and atom.type in REG_TYPES and zero not in b.g.arch.enums[atom.type].values(): return None
-        c = b.g.values_where(k, name, (lambda x: x == zero) if v else (lambda x: x != zero))
+        c = where(name, (lambda x: x == zero) if v else (lambda x: x != zero))
     else:
-        c = b.g.values_where(k, key, lambda x: x == v)
+        c = where(key, lambda x: x == v)
+    if c is False: return None
     if c is None: return []  # not encoded: every encoding has the (default) value
     return c if pattern(c) else None
 
