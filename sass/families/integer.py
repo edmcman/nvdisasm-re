@@ -260,10 +260,12 @@ def flo(i):
     if fmt not in ('S32', 'U32', '32'): unmodelled(f'{fmt} format')
     x0 = word_source(i)
     if fmt == 'S32': x0 = ~x0 if slt(x0, 0) else x0
+    # Binary search for the leading one, branch-free: each step shifts by its width when the top
+    # part is clear (a 1-bit test scaled to the shift, not a choice between two values).
     x, n = x0, const(0, 32)
-    for shift, m in ((16, 0xffff0000), (8, 0xff000000), (4, 0xf0000000), (2, 0xc0000000), (1, 0x80000000)):
-        low = (x & m) == 0
-        n, x = (n | shift if low else n), (x << shift if low else x)
+    for k, m in ((4, 0xffff0000), (3, 0xff000000), (2, 0xf0000000), (1, 0xc0000000), (0, 0x80000000)):
+        s = zext((x & m) == 0, 32) << k
+        n, x = n | s, x << s
     match i.select_fork('sh'):
         case 'nosh': r = 31 - n
         case 'SH': r = n

@@ -283,9 +283,18 @@ class Builder:
             pointer=self.expression(4,f'{base}:4 + {off}')
             return self.expression(8,f'(zext({bank}) << 32) | zext({pointer.symbol})','constant-address')
         if atom.type == 'C' and name+'_bank' in self.values and name+'_addr' in self.values:
+            size=self.source_size(name)
+            bank,off=(self.g.immediate_text(self.k,name+part) for part in ('_bank','_addr'))
+            if bank and off:
+                # Both parts are instruction bits: the cbank address is a decode-time constant.
+                from sass.gen_sleigh import pattern
+                addr=self.g.subtable('cbank',[('t',pattern([],bank[1]+off[1]),
+                    f' [ t = inst_start * 0 + (({bank[0]} << 32) | (({off[0]}) & 0xffffffff)); ]','export *[const]:8 t;')])
+                self.refs.append(('sub',addr))
+                return self.expression(size,f'*[cbank]:{size} {addr}','constant-load')
             bank=self.values[name+'_bank'].symbol;off=self.values[name+'_addr'].symbol
             addr=self.expression(8,f'(zext({bank}) << 32) | zext({off})')
-            return self.expression(self.source_size(name),f'*[cbank]:{self.source_size(name)} {addr.symbol}','constant-load')
+            return self.expression(size,f'*[cbank]:{size} {addr.symbol}','constant-load')
         if atom.type == 'SpecialRegister':
             return self.unknown(atom)
         # Stateful descriptors, attribute memory, dynamic-bank pointers, etc.

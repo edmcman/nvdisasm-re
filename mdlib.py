@@ -38,8 +38,10 @@ def between(text, start, end):
     return re.search(rf"^{start}\s*$(.*?)^{end}\s*$", text, re.S | re.M)[1]
 
 def load_classes(archdir):
+    """The arch's md classes, with the known md errors corrected (mdfixes.py)."""
+    import mdfixes
     files = [p for p in sorted((archdir / "md").glob("*.txt")) if not re.match(r"_\d\d_", p.name)]
-    return [c for p in files for c in parse_md(p.read_text())]
+    return mdfixes.fix(archdir.name, [c for p in files for c in parse_md(p.read_text())])
 
 # ---------- REGISTERS: enums ----------
 

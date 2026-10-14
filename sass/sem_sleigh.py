@@ -705,21 +705,10 @@ class Fold:
     def __init__(self, b): self.b, self.refs, self.memo = b, set(), {}
 
     def field(self, name, w):
-        from sass.gen_sleigh import pieces
-        k = self.b.k; atom = k.operand_types.get(name)
-        rule = next((r for f, r in k.rules if r[0] == "op" and r[1] == name), None)
-        src = self.b.g.source(k, name)
-        if atom is None or not atom.type.endswith("Imm") or atom.type == "F64Imm" or rule is None or rule[3] is not None \
-                or not src or src[0] != "field": raise Fold.No
-        _, f, scale = src
-        text, shift = None, 0
-        for tok, lo, hi, n in reversed(pieces(f)):
-            fname = self.b.g.field(tok, lo, hi, "u"); self.refs.add((tok, fname))
-            text = fname if text is None else f"(({fname} << {shift}) | {text})"
-            shift += n
-        if atom.type.startswith("S") or atom.type == "RSImm":
-            sb = 1 << (f.width - 1); text = f"(({text} ^ {sb:#x}) - {sb:#x})"
-        return self.mask(f"({text} * {scale})" if scale != 1 else text, w)
+        found = self.b.g.immediate_text(self.b.k, name)
+        if found is None: raise Fold.No
+        text, refs = found; self.refs.update(refs)
+        return self.mask(text, w)
 
     @staticmethod
     def mask(text, w): return f"(({text}) & {(1 << w) - 1:#x})"

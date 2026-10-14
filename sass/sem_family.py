@@ -213,8 +213,8 @@ def predicates(arch_name):
 
 
 def constant_width(arch_name, cls, name):
-    """Bits of a constant-bank operand's value: its source slot's md ISRC_<slot>_SIZE (Sc: ISRC_C_SIZE;
-    IMAD.WIDE c[][] is 64 on SM86+), else 32."""
+    """Bits of a constant-bank operand's value: its source slot's md ISRC_<slot>_SIZE (Sc:
+    ISRC_C_SIZE; corrected md errors in mdfixes.py), else 32."""
     size = predicates(arch_name).get(cls, {}).get(f"ISRC_{name[-1].upper()}_SIZE") if name[:1] == "S" else None
     return size if size in (32, 64) else 32
 

@@ -229,7 +229,10 @@ def fmnmx_(i):
     r = (const(CANONICAL_NAN, 32) if fnan(a) | fnan(b) else ordered_minmax(p, a, b)) if nan else numeric_minmax(p, a, b)
     if xorsign:
         sign = (i.value('Ra|Sa', modifiers=False) ^ i.value('Rb|Sb', modifiers=False)) & 0x80000000
-        r = r if fnan(r) else (r & 0x7fffffff) | sign
+        # The result is a NaN when an input is (.NAN) or both are (a number wins otherwise): asked of
+        # the inputs, not of r, so testing it doesn't repeat the comparison.
+        is_nan = (fnan(a) | fnan(b)) if nan else (fnan(a) & fnan(b))
+        r = r if is_nan else (r & 0x7fffffff) | sign
     return outputs(Rd=r)
 
 

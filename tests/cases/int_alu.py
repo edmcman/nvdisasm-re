@@ -1,8 +1,7 @@
 """Scalar integer and bit operations: IMAD/IADD3/LOP3/LEA/SHF/ISETP/PRMT, uniform aliases,
 BREV/POPC/FLO/SGXT and MOV."""
-import json, random
+import random
 from tests.harness.case import cbank, put, source
-from tests.paths import ROOT
 from tests.refs.bits import MASK32, MASK64, sext
 from tests.refs.integer import COMPARISONS, brev, combine, compare, flo, prmt, sgxt_byte
 
@@ -144,13 +143,19 @@ def fixed(c):
 
 
 def imad_constant(c):
-    """IMAD HI/WIDE with a constant-bank addend, whose width the md declares per architecture."""
-    records = json.loads((ROOT / "out" / c.arch / "semantics/IMAD.json").read_text())
-    hi = next((x for x in records if x["cls"] == "imad_hi__RRC_RRC"), next(x for x in records if x["cls"].startswith("imad_hi__")))
-    width = hi["sizes"]["ISRC_C_SIZE"]
+    """IMAD HI/WIDE with a constant-bank addend: 64 bits wide (the md's SM75/SM80 32 is corrected
+    in mdfixes.py; ptxas adds 64-bit pointer parameters this way)."""
+    from sass.sem_family import predicates
+    sizes = predicates(c.arch)
+    width = sizes.get("imad_hi__RRC_RRC", next(v for k, v in sizes.items() if k.startswith("imad_hi__")))["ISRC_C_SIZE"]
     memory = [dict(space="cbank", address=(2 << 32) | 16, hex="ffffffff02000000")]
     c.add("imad_wide__RRC_RRC", dict(Rd=8, Pu=0, Ra=2, Rb=4, Sc_bank=2, Sc_addr=16, fmt="U32"),
-          dict(R2=0xffffffff, R4=2), dict(R8=0xfffffffd, R9=2 if c.arch in ("SM75", "SM80") else 4, P0=0), memory=memory)
+          dict(R2=0xffffffff, R4=2), dict(R8=0xfffffffd, R9=4, P0=0), memory=memory)
+    # A pointer parameter plus a scaled index, as ptxas emits it: the constant's high word counts.
+    pointer = 0x00007f12_34560000
+    c.add("imad_wide__RRC_RRC", dict(Rd=8, Pu=0, Ra=2, Rb=4, Sc_bank=0, Sc_addr=0x160, fmt="U32"),
+          dict(R2=7, R4=4), dict(R8=(pointer + 28) & 0xffffffff, R9=(pointer + 28) >> 32, P0=0),
+          memory=[dict(space="cbank", address=0x160, hex=pointer.to_bytes(8, "little").hex())])
     c.add("imad_hi__RRC_RRC", dict(Rd=8, Pu=0, Ra=2, Rb=4, Sc_bank=2, Sc_addr=16, fmt="U32"),
           dict(R2=0xffffffff, R4=2), dict(R8=4, P0=0) if width > 32 else dict(R8=0, P0=1), memory=memory)
     if width == 32:
