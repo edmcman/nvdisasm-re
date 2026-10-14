@@ -1,0 +1,15 @@
+[project]
+name = "nvdisasm-re"
+version = "0"
+description = "nvdisasm reverse engineering: SASS decoding, semantics and Ghidra SLEIGH generation"
+requires-python = ">=3.13"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
