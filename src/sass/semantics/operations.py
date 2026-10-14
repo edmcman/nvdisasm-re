@@ -27,5 +27,5 @@ def dispatch(b, fallback="opaque", refs=()):
 
 def emit(b):
     if not family_for(b.k): return 'opaque', 'outside implemented operation families'
-    from sass.sleigh import lower as sem_sleigh
-    return sem_sleigh.emit(b)
+    from sass.sleigh import lower
+    return lower.emit(b)

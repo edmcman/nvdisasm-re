@@ -1,7 +1,7 @@
 """Layer 5: run GPU fixtures on the SM89 device and in the emulator, and report disagreements."""
-from sass.ghidra_bridge import client as ghidra
+from sass import ghidra_bridge
 from tests.harness.gpu import Driver, request
-from sass.sleigh.gen import MODES as FP_MODES
+from sass.sleigh.gen import MODES
 
 
 def first_mismatch(got, want, same):
@@ -27,7 +27,7 @@ def check(f, gpu, result):
     if f.targets:
         ops = executed(f, result["visited"])
         out += [f"target {t} never executed" for t in f.targets if not any(op == t or op.startswith(t + ".") for op in ops)]
-    emulated = ghidra.outputs(result)
+    emulated = ghidra_bridge.outputs(result)
     other = f.expected if f.emulator_vs == "reference" else gpu
     same = f.emulator_same or f.same
     bad = [i for i, (e, o) in enumerate(zip(emulated, other)) if not same(e, o) and not f.excused(i, e, o)]
@@ -36,13 +36,13 @@ def check(f, gpu, result):
     return out
 
 
-def run(fixtures, modes=FP_MODES):
+def run(fixtures, modes=MODES):
     """{(fixture name, mode): [problems]} for every fixture and each of its fp modes."""
     driver = Driver()
     try: gpu = {f.name: driver.run(f) for f in fixtures}
     finally: driver.close()
     jobs = {mode: ("SM89", mode, [request(f) for f in fixtures if mode in f.modes]) for mode in modes}
-    results = ghidra.concurrently(ghidra.emulate, jobs)
+    results = ghidra_bridge.concurrently(ghidra_bridge.emulate, jobs)
     out = {}
     for mode in modes:
         for f, result in zip((f for f in fixtures if mode in f.modes), results[mode]):

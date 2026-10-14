@@ -1,8 +1,8 @@
-"""Run layer-4 emulator cases through the Ghidra-free semantics (`sass.semantics.lift` + `sass.semantics.evaluate`)."""
+"""Run layer-4 emulator cases through the Ghidra-free semantics (`sass.semantics.lifter` + `sass.semantics.evaluate`)."""
 import re
 from functools import cache
 from sass.decode import ir, pydecode
-from sass.semantics import evaluate as sem_eval, lift as sem_lift
+from sass.semantics import evaluate, lifter
 from sass.semantics.family import family_for
 from tests.harness.checks import problems
 
@@ -18,7 +18,7 @@ def applies(case):
 
 
 def state(request):
-    s = sem_eval.State()
+    s = evaluate.State()
     for name, value in request.get("registers", {}).items():
         if m := NAME.match(name): s.write(m[1], int(m[2]), 1, int(value))
     for mem in request.get("memory", []):
@@ -34,7 +34,7 @@ def observe(s, names):
 @cache
 def lift(arch, word, address, fp):
     """Lifted once per word: exhaustive cases share few words (F2FP scaled upconverts: 12288 cases, 48 words)."""
-    return sem_lift.lift(arch, word, address, fp)
+    return lifter.lift(arch, word, address, fp)
 
 
 def run(arch, fp, case):
@@ -50,8 +50,8 @@ def run(arch, fp, case):
         return "opaque", [] if opaque else [f"unmodelled ({lifted.reason}), expected values"]
     if opaque: return "native", ["modelled, expected an opaque fallback"]
     if "error" in expected: return "native", []  # runtime errors (budgets, events) are emulator matters
-    try: out = sem_eval.execute(lifted, state(case.request))
-    except sem_eval.Unknown as e: return "native", [str(e)]
+    try: out = evaluate.execute(lifted, state(case.request))
+    except evaluate.Unknown as e: return "native", [str(e)]
     memory = [dict(hex=bytes(out.memory.get(m["space"], {}).get(m["address"] + j, 0) for j in range(m["size"])).hex())
               for m in case.request.get("observe_memory", [])]
     return "native", problems(expected, dict(registers=observe(out, case.request.get("observe", [])), counter=out.pc, memory=memory))

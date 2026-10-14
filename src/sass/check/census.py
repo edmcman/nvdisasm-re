@@ -3,22 +3,22 @@
 usage: python -m sass.check.census SM89 [SM90 ...] [--out DIR]
 
 Static counts: every word of every cubin, weighted by occurrence. Each word's status is what its
-family decides for that encoding (`sass.semantics.lift.lift`, the same family the SLEIGH selector
+family decides for that encoding (`sass.semantics.lifter.lift`, the same family the SLEIGH selector
 guards come from): native, primitive (a `primitive()` row, or an unmodelled encoding of a family
 that falls back to its primitive) or opaque. Classes without a family keep their manifest status.
 """
 import argparse, collections, json
 from multiprocessing import Pool
 from pathlib import Path
-from sass.oracle.corpus import cubins
+from sass.corpus import cubins
 from sass.decode import pydecode
-from sass.semantics import lift as sem_lift
+from sass.semantics import lifter
 from sass.decode.cubin import elf_arch, text_words
 from sass.sleigh.gen import OUT
 from sass.semantics.operations import PRIMITIVES
 
 def classify(archname, rows, word):
-    try: lifted = sem_lift.lift(archname, word)
+    try: lifted = lifter.lift(archname, word)
     except Exception: return ('undecodable', '?', '?', '')
     row = rows.get(lifted.cls)
     if row is None: return ('ungenerated', '?', lifted.cls, '')

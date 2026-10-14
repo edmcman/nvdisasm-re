@@ -2,7 +2,7 @@
 import re
 from dataclasses import dataclass, field
 from functools import cache, cached_property
-from sass.md import parse as mdlib
+from sass.md import parse
 
 # ---------- ENCODING ----------
 
@@ -45,7 +45,7 @@ ARG = re.compile(r"\s*([\w.]+)(?:@(\w+))?\s*$")
 
 def parse_arg(a):
     a = a.strip()
-    if re.fullmatch(r"-?(0x[0-9a-fA-F]+|0b[01_]+|\d+)", a): return ("const", mdlib.literal(a))
+    if re.fullmatch(r"-?(0x[0-9a-fA-F]+|0b[01_]+|\d+)", a): return ("const", parse.literal(a))
     name, attr = ARG.match(a).groups()
     return ("attr", name, attr) if attr else ("op", name, 1, None)
 
@@ -54,7 +54,7 @@ def parse_rule(rhs):
     match rhs:
         case "Opcode": return ("opcode",)
         case _ if rhs.startswith("*") and rhs[1:].strip()[:1].isdigit(): return ("ignore",)  # `*T(..)` still decodes
-        case _ if re.fullmatch(r"-?(0x[0-9a-fA-F]+|0b[01_]+|\d+)", rhs): return ("const", mdlib.literal(rhs))
+        case _ if re.fullmatch(r"-?(0x[0-9a-fA-F]+|0b[01_]+|\d+)", rhs): return ("const", parse.literal(rhs))
     star = rhs.startswith("*")
     rhs = rhs.lstrip("*").strip()
     if m := re.fullmatch(r"(\w+)\((.*)\)", rhs, re.S):
@@ -69,7 +69,7 @@ def parse_rule(rhs):
 
 def parse_encoding(text):
     rules = []
-    for stmt in filter(None, (s.strip() for s in mdlib.strip_comments(text).split(";"))):
+    for stmt in filter(None, (s.strip() for s in parse.strip_comments(text).split(";"))):
         if stmt.startswith("!") or not stmt.startswith("BITS_"): continue
         lhs, rhs = stmt.split("=", 1)
         fields = [parse_field(f.strip()) for f in lhs.split(",")]
@@ -84,7 +84,7 @@ def parse_encoding(text):
 
 def strict_operands(text):
     """Operands of `field=*X` and `field=*T(a, b, ..)`: their values must be valid enum members."""
-    text = mdlib.strip_comments(text)
+    text = parse.strip_comments(text)
     direct = re.findall(r"^BITS_[\w.]+\s*=\s*\*\s*([A-Za-z_][\w.]*)\s*;", text, re.M)
     tabled = [a.strip().split("@")[0] for args in re.findall(r"^BITS_[\w.]+\s*=\s*\*\s*\w+\(([^)]*)\)\s*;", text, re.M)
               for a in args.split(",")]
@@ -162,7 +162,7 @@ class Klass:
 CONDITION = re.compile(r'^(\w+)\s*\n(.*?):\s*\n?\s*"([^"]*)"', re.S | re.M)
 
 def parse_conditions(text):
-    return tuple((k, " ".join(e.split()), msg) for k, e, msg in CONDITION.findall(mdlib.strip_comments(text)))
+    return tuple((k, " ".join(e.split()), msg) for k, e, msg in CONDITION.findall(parse.strip_comments(text)))
 
 def build_class(c, order):
     rules = parse_encoding(c["sections"]["ENCODING"])
@@ -200,5 +200,5 @@ class Arch:
 
 @cache
 def load(arch):
-    md = mdlib.load_arch(arch)
+    md = parse.load_arch(arch)
     return Arch(arch, [build_class(c, i) for i, c in enumerate(md["classes"])], md["enums"], md["tables"], md["constants"])

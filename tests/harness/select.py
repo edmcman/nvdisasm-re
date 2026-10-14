@@ -2,7 +2,7 @@
 import pytest
 from sass.paths import LANGUAGES
 from sass.sleigh.build import ARCHES
-from sass.sleigh.gen import MODES as FP_MODES
+from sass.sleigh.gen import MODES
 
 
 def selected(config, marker):
@@ -21,7 +21,7 @@ def option_list(config, name, universe):
 
 
 def arches(config): return option_list(config, "--arch", ARCHES)
-def modes(config): return option_list(config, "--fp", FP_MODES)
+def modes(config): return option_list(config, "--fp", MODES)
 def families(config):
     from tests.cases import FAMILIES
     return config.getoption("--family") or list(FAMILIES)

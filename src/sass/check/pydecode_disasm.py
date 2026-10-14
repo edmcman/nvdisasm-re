@@ -5,7 +5,7 @@ usage: python -m sass.check.pydecode_disasm SM89 [real|synthetic|mutated] [N] [-
 import argparse, random, re
 from collections import Counter, defaultdict
 from sass.decode import pydecode
-from sass.oracle import corpus, nvdisasm as oracle, synth
+from sass import corpus, oracle, synth
 
 PASSING = ("ok", "both_err", "collision")  # both_err: both reject the word; collision: see compare_ghidra_disassembly
 

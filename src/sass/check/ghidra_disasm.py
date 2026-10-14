@@ -4,11 +4,11 @@ usage: python -m sass.check.ghidra_disasm SM89 [real|synthetic|mutated] [N] [--s
 """
 import re
 from sass.decode import ir, pydecode
-from sass.md import cond as mdcond
+from sass.md import legal
 from sass.semantics.family import family_for
-from sass.oracle import nvdisasm as oracle
+from sass import oracle
 from sass.check.pydecode_disasm import arguments, report, sample
-from sass.ghidra_bridge import client as ghidra
+from sass import ghidra_bridge
 
 
 def loose(text):
@@ -35,13 +35,13 @@ def compare(arch, words, fp="exact"):
     for w in words:
         try: d = pydecode.decode(arch, w, addrs[w], conditions=False)
         except pydecode.NoMatch: continue
-        todo.append((w, d.klass.name, None if family_for(d.klass) and mdcond.violation(ir.load(arch), d.klass, d.env, hints=False) else d.text))
+        todo.append((w, d.klass.name, None if family_for(d.klass) and legal.violation(ir.load(arch), d.klass, d.env, hints=False) else d.text))
     def status(exp, g):
         if exp is None: return "ok" if "error" in g else "mismatch"
         return "error" if "error" in g else "ok" if loose(g["text"]) == loose(exp) else "mismatch"
     def judge(todo):
         return {w: (status(exp, g), cls, exp or "(md-illegal: rejected)", g.get("text") or g.get("error"))
-                for (w, cls, exp), g in zip(todo, ghidra.disassemble(arch, fp, [(w, addrs[w]) for w, _, _ in todo]))}
+                for (w, cls, exp), g in zip(todo, ghidra_bridge.disassemble(arch, fp, [(w, addrs[w]) for w, _, _ in todo]))}
     out = judge(todo)
     # Ghidra caches instruction prototypes by a 32-bit hash of the constructor tree and trusts it
     # entirely (SleighLanguage.parse), so in a long batch a colliding tree reuses another

@@ -1,9 +1,9 @@
 """Layer 0: decode-time folding (sass.sleigh.lower.Fold). SLEIGH constructor actions have only 64-bit
 signed arithmetic and bit operations, so comparisons and ite are encoded arithmetically; the text
-Fold writes, evaluated with those semantics, must equal sem_eval of the expression."""
+Fold writes, evaluated with those semantics, must equal evaluate of the expression."""
 import ast, random
 import pytest
-from sass.semantics import bitvec as sem
+from sass.semantics import bitvec
 from sass.semantics.evaluate import evaluate
 from sass.sleigh.lower import Fold
 
@@ -48,7 +48,7 @@ class Fields:
 def expressions(rng, depth, w):
     """A random expression of width w over parameters p0..p2 (each w bits)."""
     if depth == 0 or rng.random() < 0.2:
-        return sem.param(f"p{rng.randrange(3)}", w) if rng.random() < 0.7 else sem.const(rng.getrandbits(w), w)
+        return bitvec.param(f"p{rng.randrange(3)}", w) if rng.random() < 0.7 else bitvec.const(rng.getrandbits(w), w)
     sub = lambda: expressions(rng, depth - 1, w)
     match rng.choice(["and", "or", "xor", "not", "neg", "add", "sub", "mul", "shl", "shr", "ite", "cmp", "extract", "concat"]):
         case "and": return sub() & sub()
@@ -63,12 +63,12 @@ def expressions(rng, depth, w):
         case "shr": return sub() >> rng.randrange(w)
         case "ite":
             x, y = sub(), sub()
-            return sem.ite(rng.choice([lambda: x == y, lambda: x != y, lambda: x < y, lambda: x <= y])(), sub(), sub())
+            return bitvec.ite(rng.choice([lambda: x == y, lambda: x != y, lambda: x < y, lambda: x <= y])(), sub(), sub())
         case "extract" if w > 1:
             lo = rng.randrange(w); x = expressions(rng, depth - 1, 64)
-            return sem.zext(sem.extract(x, lo + w - 1, lo), w) if lo + w <= 64 else sub()
+            return bitvec.zext(bitvec.extract(x, lo + w - 1, lo), w) if lo + w <= 64 else sub()
         case "concat" if w % 2 == 0:
-            return sem.concat(expressions(rng, depth - 1, w // 2), expressions(rng, depth - 1, w // 2))
+            return bitvec.concat(expressions(rng, depth - 1, w // 2), expressions(rng, depth - 1, w // 2))
     return sub()
 
 
@@ -78,7 +78,7 @@ def test_fold_matches_evaluation(w):
     checked = 0
     for _ in range(300):
         e = expressions(rng, 4, w)
-        if not isinstance(e, sem.Expr) or e.op in ("const", "param"): continue
+        if not isinstance(e, bitvec.Expr) or e.op in ("const", "param"): continue
         try: text = Fold(Fields()).text(e)
         except Fold.No: continue
         tree = ast.parse(text, mode="eval")

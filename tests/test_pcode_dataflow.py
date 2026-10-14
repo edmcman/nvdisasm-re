@@ -3,12 +3,12 @@ flow type matches BRANCH_TYPE; per-class p-code op counts are ratcheted in basel
 import json
 from collections import Counter
 import pytest
-from sass.oracle import synth
+from sass import synth
 from tests.cases import f2fp
 from sass.check.pydecode_disasm import sample
 from tests.harness.select import arches, modes, require_languages, selected, skipped
 from tests.harness import dataflow
-from sass.ghidra_bridge import client as ghidra
+from sass import ghidra_bridge
 from tests.harness.baseline import BASELINE
 from sass.sleigh.gen import variant
 
@@ -35,7 +35,7 @@ def dataflow_results(request):
     variants = [(a, f) for a in arches(request.config) for f in modes(request.config)]
     require_languages(variants)
     full = request.config.getoption("--full")
-    return ghidra.concurrently(dataflow_problems, {v: (*v, full) for v in variants})
+    return ghidra_bridge.concurrently(dataflow_problems, {v: (*v, full) for v in variants})
 
 
 @pytest.mark.ghidra
@@ -47,7 +47,7 @@ def test_pcode_dataflow(language, dataflow_results):
 def op_counts(arch, fp):
     """{class: {p-code op: count}} for one md-legal synthetic word per class."""
     labels = synth.synthetic(arch, 1, 0, legal=True)
-    results = ghidra.disassemble(arch, fp, [(w, 0) for w in labels], "--dataflow")
+    results = ghidra_bridge.disassemble(arch, fp, [(w, 0) for w in labels], "--dataflow")
     return {labels[w].removeprefix("synth:"): dict(sorted(Counter(op["op"] for op in r["ops"]).items())) if "ops" in r else {"error": 1}
             for w, r in zip(labels, results)}
 
@@ -56,7 +56,7 @@ def op_counts(arch, fp):
 def pcode_ops(request):
     variants = [(a, f) for a in arches(request.config) for f in modes(request.config)]
     require_languages(variants)
-    return ghidra.concurrently(op_counts, {v: v for v in variants})
+    return ghidra_bridge.concurrently(op_counts, {v: v for v in variants})
 
 
 @pytest.mark.ghidra

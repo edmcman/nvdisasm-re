@@ -8,7 +8,7 @@ operands are explicit runtime primitives, never fabricated constants.
 """
 from dataclasses import dataclass
 import re
-from sass.md import expr as mdexpr
+from sass.md import expression
 from sass.decode import pydecode
 
 

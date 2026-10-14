@@ -5,7 +5,7 @@ from concurrent.futures import ProcessPoolExecutor
 from functools import cache
 import pytest
 from tests.harness.select import arches, families, modes, require_languages, selected, skipped
-from sass.ghidra_bridge import client as ghidra
+from sass import ghidra_bridge
 from tests.harness.checks import problems
 
 
@@ -40,7 +40,7 @@ def semantic_results(request):
     require_languages(variants)
     cases = all_cases(variants, fams)
     flat = {v: [(family, c) for family, cs in fams_cases.items() for c in cs] for v, fams_cases in cases.items()}
-    results = ghidra.emulate_sharded({v: (*v, [c.request for _, c in flat[v]]) for v in variants})
+    results = ghidra_bridge.emulate_sharded({v: (*v, [c.request for _, c in flat[v]]) for v in variants})
     out = {}
     for v in variants:
         grouped = defaultdict(list)

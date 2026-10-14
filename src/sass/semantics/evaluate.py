@@ -6,7 +6,7 @@ module walks expressions and applies an instruction's writes. Registers are stor
 Widths are in bits; memory is byte-addressed.
 """
 from dataclasses import dataclass, field
-from sass.semantics import bitvec as sem
+from sass.semantics import bitvec
 from sass.semantics.bitvec import Expr, mask
 
 ELEMENT = {"R": 32, "UR": 32, "P": 1, "UP": 1, "SR": 32}
@@ -55,14 +55,14 @@ def evaluate(e, state, params=None, memo=None):
         case "ite":
             c, a, b = e.args
             v = evaluate(a if evaluate(c, state, params, memo) else b, state, params, memo)
-        case _: v = sem.OPS[e.op]([evaluate(a, state, params, memo) for a in e.args],
+        case _: v = bitvec.OPS[e.op]([evaluate(a, state, params, memo) for a in e.args],
                                   [a.w if isinstance(a, Expr) else None for a in e.args], e.w)
     memo[e] = v
     return v
 
 
 def execute(semantics, state, params=None):
-    """The state after one lifted instruction (`sass.semantics.lift.Semantics`): writes are evaluated
+    """The state after one lifted instruction (`sass.semantics.lifter.Semantics`): writes are evaluated
     against the state before any of them, then applied in order, if the guard holds."""
     memo = {}
     out = state.copy(); out.pc = semantics.addr + 16

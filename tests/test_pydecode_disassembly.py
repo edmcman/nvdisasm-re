@@ -3,7 +3,7 @@ Every architecture, decoded in parallel processes."""
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor
 import pytest
-from sass.oracle import corpus, synth
+from sass import corpus, synth
 from sass.check.pydecode_disasm import PASSING, compare, sample
 from sass.sleigh.build import ARCHES
 from tests.harness.baseline import BASELINE, ratchet

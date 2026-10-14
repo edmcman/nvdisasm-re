@@ -102,7 +102,7 @@ behavior. Keep seeds, vector counts and executable fixtures with the evidence.
 The repo's generator is `src/sass/sleigh/gen.py`; semantics are families in
 `src/sass/semantics/families/` (Python over the md-decoded instruction, `src/sass/semantics/family.py`),
 lowered to SLEIGH by `src/sass/sleigh/lower.py` and lifted without Ghidra by
-`src/sass/semantics/lift.py`. Explain these names if switching from discussing NVIDIA's
+`src/sass/semantics/lifter.py`. Explain these names if switching from discussing NVIDIA's
 compiler to the repo.
 
 Write or extend the opcode's `@family`. Ask every selector the semantics depend

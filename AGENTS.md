@@ -6,17 +6,19 @@ Local copy used so far: `/tmp/.venv/lib/python3.13/site-packages/nvidia/cu13/bin
 
 ## Layout
 `uv sync` installs the `sass` package (`src/sass`, editable) and its console scripts.
-- `src/sass/md/`: NVIDIA's machine descriptions as shipped: `extract` (decrypt from nvdisasm into `out/raw/`, gitignored), `layout` (split into the committed `out/SMxx/`), `parse` (classes/enums/tables), `fixes` (known md errors, applied by `parse.load_classes`), `cond`/`expr` (CONDITIONS and expressions).
+- `src/sass/md/`: NVIDIA's machine descriptions as shipped: `extract` (decrypt from nvdisasm into `out/raw/`, gitignored), `layout` (split into the committed `out/SMxx/`), `parse` (classes/enums/tables), `fixes` (known md errors, applied by `parse.load_classes`), `legal` (CONDITIONS as legality constraints), `expression` (md expressions).
 - `src/sass/decode/`: decode IR (`ir`), reference decoder (`pydecode`), encoder (`pyencode`), cubin ELF reader (`cubin`).
-- `src/sass/semantics/`: our value semantics (the md has none): bitvector IR (`bitvec`), family framework (`family`), families (`families/`), `lift`/`evaluate` (Ghidra-free), `operands`, `operations` (routing), `fp/` (`fpformat`, `softfloat`), `runtime` (test-only CPU primitives).
+- `src/sass/semantics/`: our value semantics (the md has none): bitvector IR (`bitvec`), family framework (`family`), families (`families/`), `lifter`/`evaluate` (Ghidra-free), `operands`, `operations` (routing), `fp/` (`fpformat`, `softfloat`), `runtime` (test-only CPU primitives).
 - `src/sass/sleigh/`: SLEIGH generator (`gen`), semantics lowering (`lower`), language build (`build`), coverage summary (`coverage`).
-- `src/sass/ghidra_bridge/`: programs run under Ghidra's pyghidra venv (`ghidra_decode`, `ghidra_emulate`, `BlockEmulator.java`) and `client`, the only path to them.
-- `src/sass/oracle/`: nvdisasm oracle (`nvdisasm`, sqlite cache in `.cache/`), word corpora (`corpus`, `synth`).
+- `src/sass/ghidra_bridge/`: programs run under Ghidra's pyghidra venv (`ghidra_decode`, `ghidra_emulate`, `BlockEmulator.java`) whose package module is the only path to them.
+- `src/sass/oracle.py`: the nvdisasm oracle (sqlite cache in `.cache/`); `corpus.py`, `synth.py`: word corpora.
 - `src/sass/check/`: comparison/report CLIs (`pydecode_disasm`, `ghidra_disasm`, `census`).
 - `src/sass/paths.py`: repository paths and external tool locations.
 - `tests/`: test layers only (`harness/`, `cases/`, `refs/`, kernels, baselines); see `tests/README.md`.
 - `processor/SASS/`: the Ghidra module (hand-written `.sinc`/`.pspec`/`.cspec`, generated languages, coverage/verification JSON).
 - `research/`: one-off investigations (ptxas, CuLifter, SLEIGH conditions).
+
+Modules are imported by their own names, never aliased (`from sass.md import parse`).
 
 Console scripts: `sass-extract-md`, `sass-layout-md`, `sass-decode`, `sass-gen-sleigh`, `sass-build-languages`, `sass-coverage`, `sass-compare-pydecode`, `sass-compare-ghidra`, `sass-census`. Tests: `uv run pytest` (see `tests/README.md` for the Ghidra and GPU layers).
 

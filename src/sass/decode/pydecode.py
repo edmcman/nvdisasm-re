@@ -10,7 +10,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from functools import cache
 from sass.decode import ir
-from sass.md import cond as mdcond
+from sass.md import legal
 
 IMM = re.compile(r"(?P<rel>R)?(?P<signed>S|U)Imm|(?P<float>F(?:16|32|64))Imm")
 PREFIX = {"C": "c", "CX": "cx", "A": "a", "DESC": "desc"}
@@ -257,7 +257,7 @@ def decode(archname, word: bytes, addr=0, conditions=True):
     for k in candidates(arch, w):
         try:
             env, widths = decode_env(arch, k, w)
-            if conditions and (bad := mdcond.violation(arch, k, env)):
+            if conditions and (bad := legal.violation(arch, k, env)):
                 raise NoMatch(f"{k.name}: {bad[0]}: {bad[1]}")
             env["__addr"], env["__strict"] = addr, k.strict
             pseudo = apply_aliases(arch, k, env, widths) and sched_valid(arch, k, env)

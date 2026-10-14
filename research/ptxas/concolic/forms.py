@@ -4,9 +4,9 @@ import json
 from functools import cache
 from pathlib import Path
 from sass.decode import cubin, ir, pydecode
-from sass.md import expr as mdexpr
+from sass.md import expression
 from sass.sleigh.gen import ENUM_FILE
-from sass.md import parse as mdlib
+from sass.md import parse
 
 ARCHITECTURES = ('SM75','SM80','SM86','SM89','SM90','SM100','SM101','SM103','SM120')
 TARGETS = {a: 'sm_' + ('110' if a == 'SM101' else a[2:]) for a in ARCHITECTURES}
@@ -26,7 +26,7 @@ def digest(value):
 
 @cache
 def roles(arch):
-    return {r['cls']: r for p in (mdlib.OUT / arch / 'semantics').glob('*.json')
+    return {r['cls']: r for p in (parse.OUT / arch / 'semantics').glob('*.json')
             for r in json.loads(p.read_text())}
 
 class Registers:
@@ -73,7 +73,7 @@ def signature(d, arch, registers=None, labels=None):
         item['roles'] = role.get('role') or []
         if a.type in ENUM_FILE:
             bank = ENUM_FILE[a.type]; span = role.get('span') or 1
-            if isinstance(span, str): span = int(mdexpr.evaluate(span, arch, env))
+            if isinstance(span, str): span = int(expression.evaluate(span, arch, env))
             item['bits'] = span * (1 if bank in ('P','UP') else 32)
             zero = {'R':255,'P':7,'UP':7}.get(bank, arch.enums['UniformRegister']['URZ'])
             if bank == 'UR' and a.name in widths: zero &= (1 << widths[a.name]) - 1

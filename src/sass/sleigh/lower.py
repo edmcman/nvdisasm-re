@@ -15,7 +15,7 @@ import itertools
 from functools import cache
 from collections import defaultdict
 from dataclasses import dataclass
-from sass.semantics import bitvec as sem
+from sass.semantics import bitvec
 from sass.semantics.bitvec import Expr
 from sass.semantics.family import Primitive, Instruction, Illegal, Unmodelled, PR_BITS, REG_TYPES, family_for
 import sass.semantics.families  # registers the families
@@ -46,7 +46,7 @@ class Symbolic(Instruction):
         if key not in self.assignment: raise Branch(key, [v for v in domain if clauses(self.b, key, v) is not None])
         return self.assignment[key]
 
-    def operand(self, name, width): return sem.param(name, width)
+    def operand(self, name, width): return bitvec.param(name, width)
 
     def modified(self, name, attr, v, f):
         # A decode-time choice of this value, not a branch of every row on the bit; except for a
@@ -62,7 +62,7 @@ class Symbolic(Instruction):
         v = self.b.outputs.get(name) or self.b.values.get(name)
         return v.size // nbytes(ELEMENT[REG_TYPES[self.atom(name).type]])
 
-    def addr(self): return sem.param("__inst_start", 64)
+    def addr(self): return bitvec.param("__inst_start", 64)
 
     def choice(self, name, values):
         # One yes/no question (in the table or not), then a decode-time choice of the value.
@@ -221,7 +221,7 @@ class Merger:
             if all(x == shapes[0] for x in shapes):
                 args = [self.merge([t.args[j] for t in trees], assignments) if isinstance(first.args[j], Expr) else first.args[j]
                         for j in range(len(first.args))]
-                return sem.ite(*args) if first.op == "ite" else Expr(first.op, tuple(args), first.w)
+                return bitvec.ite(*args) if first.op == "ite" else Expr(first.op, tuple(args), first.w)
         keys = self.keys(shapes, assignments)
         if len(keys) > 1:
             key = min(keys, key=lambda k: (len({a.get(k) for a in assignments}), repr(k)))
@@ -256,9 +256,9 @@ def specialize(e, assignment, memo=None):
             if arm is not None: out = specialize(arm, assignment, memo)
     else:
         args = [specialize(a, assignment, memo) for a in e.args]
-        out = (sem.ite(*args) if e.op == "ite" else sem.extract(*args) if e.op == "extract"
+        out = (bitvec.ite(*args) if e.op == "ite" else bitvec.extract(*args) if e.op == "extract"
                else Expr("tuple", tuple(args), 0) if e.op == "tuple"
-               else e if all(x is y for x, y in zip(args, e.args)) else sem.op(e.op, *args, w=e.w))
+               else e if all(x is y for x, y in zip(args, e.args)) else bitvec.op(e.op, *args, w=e.w))
     memo[e] = out
     return out
 
@@ -397,7 +397,7 @@ class Lower:
         fold = Fold(self.b)
         try: text = fold.text(e)
         except Fold.No: return None
-        if not fold.refs: return None   # constant already: sem simplifies it
+        if not fold.refs: return None   # constant already: bitvec simplifies it
         from sass.sleigh.gen import pattern
         table = self.b.g.subtable("fold", [("t", pattern([], sorted(fold.refs)), f" [ t = inst_start * 0 + ({text}); ]",
                                             f"export *[const]:{nbytes(e.w)} t;")])
@@ -452,7 +452,7 @@ class Lower:
 
     def clean(self, w, v):
         """v, a value in nbytes(w) bytes whose bits above w may be set, with those bits cleared."""
-        return v if w % 8 == 0 else expr(f"{v} & {sem.mask(w):#x}:{nbytes(w)}", v)
+        return v if w % 8 == 0 else expr(f"{v} & {bitvec.mask(w):#x}:{nbytes(w)}", v)
 
     def widened(self, e, w):
         """e's value zero-extended to nbytes(w) bytes (no operation if the byte size is the same)."""
@@ -486,7 +486,7 @@ class Lower:
             case "extract":
                 x, hi, lo = a
                 if lo == 0 and (self.uses.get(x, 0) > 1 or self.lookup(x) is not None or
-                                (m := sem.narrowed(x, e.w, frozenset(n for n, c in self.uses.items() if c > 1))) is e):
+                                (m := bitvec.narrowed(x, e.w, frozenset(n for n, c in self.uses.items() if c > 1))) is e):
                     # The low bits of a value computed anyway; otherwise compute narrow.
                     return self.clean(e.w, self.truncated(self.value(x), x.w, n))
                 if lo == 0: return self.value(m)
@@ -496,8 +496,8 @@ class Lower:
                 return self.clean(e.w, self.truncated(expr(f"{v} >> {lo}", v), w, n))
             case "not" if e.w == 1: v = self.value(a[0]); return expr(f"!{v}", v)
             case "not": v = self.value(a[0]); return self.clean(e.w, expr(f"~{v}", v))
-            case "xor" if sem.is_const(a[1]) and a[0].op == "zext" and a[0].args[0].w % 8 == 0 \
-                    and sem.value(a[1]) == sem.mask(a[0].args[0].w):
+            case "xor" if bitvec.is_const(a[1]) and a[0].op == "zext" and a[0].args[0].w % 8 == 0 \
+                    and bitvec.value(a[1]) == bitvec.mask(a[0].args[0].w):
                 # Inverting the low bytes of a zero-extended value: zext(~x), as compact as written.
                 v = self.value(a[0].args[0])
                 return self.local(e.w, expr(f"zext(~{v})", v))
@@ -660,7 +660,7 @@ class Lower:
             # Not c: its complement comparison, or the negation of c when c is computed already.
             known = self.lookup(c)
             cond = (self.value(c) if first is x else expr(f"!{known}", known) if known is not None
-                    else self.value(sem.complement(c)))
+                    else self.value(bitvec.complement(c)))
             init = self.value(first)
             self.code.add(f"{declare}{r.text}{'' if into else f':{nbytes(x.w)}'} = {init.text};", init)
             done = self.label("done")
@@ -742,7 +742,7 @@ class Fold:
             case "not": return self.mask(f"~{sub(a[0])}", w)
             case "neg": return self.mask(f"0 - {sub(a[0])}", w)   # two's complement, then masked
             case "add" | "sub" | "mul": return self.mask(f"{sub(a[0])} {dict(zip(('add', 'sub', 'mul'), '+-*'))[e.op]} {sub(a[1])}", w)
-            case "shl" | "shr" if sem.is_const(a[1]):
+            case "shl" | "shr" if bitvec.is_const(a[1]):
                 k = a[1].args[0]
                 # Action arithmetic is signed: a right shift is masked so no sign bits come in.
                 return "0x0" if k >= w else self.mask(f"{sub(a[0])} << {k}", w) if e.op == "shl" else self.mask(f"{sub(a[0])} >> {k}", w - k)
@@ -823,7 +823,7 @@ def pseudo(n): return n.startswith("__")       # flow, store and effect values m
 def predicate_writes(i, name, e):
     """A PR write is one write per predicate; other writes are themselves."""
     if i.atom(name).type != "PR": return [(name, e)]
-    return [(f"P{k}", sem.extract(e, k, k)) for k in range(PR_BITS)]
+    return [(f"P{k}", bitvec.extract(e, k, k)) for k in range(PR_BITS)]
 
 
 def lower_body(b, names, e):
@@ -868,7 +868,7 @@ def lower_writes(b, writes):
         dest = Operand(symbol, "name", frozenset([r] if (r := b.ref(symbol)) else []))
         code.add(f"{dest.text} = {v.text};", dest, v)
     for space, address, v, w in stores: code.add(f"*[{space}]:{nbytes(w)} {address.text} = {v.text};", address, v)
-    if flow: lower_flow(low, b.flow_kind, target, cond, sem.is_const(flow["__flow_cond"], 1))
+    if flow: lower_flow(low, b.flow_kind, target, cond, bitvec.is_const(flow["__flow_cond"], 1))
     return code
 
 
@@ -930,7 +930,7 @@ def emit(b):
         shapes = {shape(r) for _, r in native}
         if len(shapes) > 1: raise TypeError(f"{b.k.name}: rows differ in {attr} {sorted(shapes)}")
         setattr(b, attr, shapes.pop())
-    flow = lambda r: ([("__flow_target", r.flow.target), ("__flow_cond", r.flow.cond if r.flow.cond is not None else sem.const(1, 1))] if r.flow else []) \
+    flow = lambda r: ([("__flow_target", r.flow.target), ("__flow_cond", r.flow.cond if r.flow.cond is not None else bitvec.const(1, 1))] if r.flow else []) \
         + [w for k, s in enumerate(r.stores) for w in ((f"__store{k}_addr", s.address), (f"__store{k}_value", s.value))] \
         + [(f"__effect{k}_{j}", a) for k, e in enumerate(r.effects) for j, a in enumerate(e.args)]
     resolved = [(a, [w for n, e in r.ordered() if i.has_operand(n) for w in predicate_writes(i, i.resolve(n), e)] + flow(r))

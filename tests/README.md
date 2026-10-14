@@ -6,11 +6,11 @@ pyghidra venv) and `gpu` (an SM89 device).
 
 | # | Question | Under test | Oracle | File |
 |---|---|---|---|---|
-| 0 | helpers right? | refs, softfloat, mdexpr, cubin; every family runs on every class it covers | libm / hand values | `test_refs.py`, `test_softfloat.py`, `test_mdexpr.py`, `test_cubin.py`, `test_sem_families.py` |
+| 0 | helpers right? | refs, softfloat, md expressions, cubin; every family runs on every class it covers | libm / hand values | `test_refs.py`, `test_softfloat.py`, `test_mdexpr.py`, `test_cubin.py`, `test_sem_families.py` |
 | 1 | decode like nvdisasm? | `sass.decode.pydecode` | nvdisasm | `test_pydecode_disassembly.py` (CLI `sass-compare-pydecode`) |
 | 2 | SLEIGH disassembles like pydecode? | `.sla` display | pydecode | `test_ghidra_disassembly.py` (ratchet `baseline/ghidra_SMxx.json`; CLI `sass-compare-ghidra`) |
 | 3 | p-code reads/writes the right registers? | `.sla` dataflow | md roles/spans, BRANCH_TYPE | `test_pcode_dataflow.py` (+ op-count ratchet `baseline/pcode_<variant>.json`) |
-| 4a | lifted semantics compute the right values? (no Ghidra) | `sass/sem_lift` + `sem_eval` on families | `tests/refs/` | `test_sem_semantics.py` (same cases as layer 4) |
+| 4a | lifted semantics compute the right values? (no Ghidra) | `sass.semantics.lifter` + `evaluate` on families | `tests/refs/` | `test_sem_semantics.py` (same cases as layer 4) |
 | 4 | p-code computes the right values? | `.sla` p-code in Ghidra's emulator | `tests/refs/` | `test_pcode_semantics.py` (CLI `uv run python -m tests.semantics`) |
 | 5 | refs and emulator right? | refs + emulated p-code | SM89 GPU | `test_refs_against_gpu.py` (CLI `uv run python -m tests.observe FAMILY`) |
 

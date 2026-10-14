@@ -38,9 +38,9 @@ def between(text, start, end):
 
 def load_classes(archdir):
     """The arch's md classes, with the known md errors corrected (src/sass/md/fixes.py)."""
-    from sass.md import fixes as mdfixes
+    from sass.md import fixes
     files = [p for p in sorted((archdir / "md").glob("*.txt")) if not re.match(r"_\d\d_", p.name)]
-    return mdfixes.fix(archdir.name, [c for p in files for c in parse_md(p.read_text())])
+    return fixes.fix(archdir.name, [c for p in files for c in parse_md(p.read_text())])
 
 # ---------- REGISTERS: enums ----------
 

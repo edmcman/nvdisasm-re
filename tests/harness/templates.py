@@ -6,7 +6,7 @@
   (Ra=R2, Rb=R5, Rc=R6, Rd=R11; R11 is stored).
 """
 from functools import cache
-from sass.decode import cubin as elf
+from sass.decode import cubin
 from tests.harness.gpu import ENCODING, Template, compile, sm89
 
 SLOTS = tuple(range(0x100, 0x180, 16))
@@ -17,7 +17,7 @@ SCOREBOARDS = 0x3f << 116  # wait on every scoreboard (drains earlier loads)
 def cx_wrapper():
     """The checked CX wrapper template and the scheduling controls used for patched words."""
     t = Template(compile("bmsk_cx_semantics"), "sem_cx")
-    meta = elf.kernel_image(t.image, "sem_cx")
+    meta = cubin.kernel_image(t.image, "sem_cx")
     if meta["parameter_base"] != 0x160 or [p["size"] for p in meta["parameters"]] != [8, 8]: raise RuntimeError("unexpected CX wrapper parameter ABI")
     d = t.decoded
     expect = [all(d(o).klass.mnemonic == "BAR" for o in range(0xd0, 0x110, 16)), d(0x110).klass.name == "bmsk__RRR_RRR",

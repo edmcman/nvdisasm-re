@@ -3,7 +3,7 @@ the CUDA Driver API, and build the equivalent whole-kernel emulator request."""
 import ctypes as C, hashlib, struct, subprocess
 from dataclasses import dataclass, field
 from typing import Callable
-from sass.decode import cubin as elf, pydecode
+from sass.decode import cubin, pydecode
 from sass.decode.pyencode import word
 from sass.paths import CACHE, NVCC, ROOT
 
@@ -60,7 +60,7 @@ class Fixture:
 
 def request(f):
     """The emulator's whole-kernel request for fixture f (launch dimensions, stack, parameters)."""
-    image = elf.kernel_image(f.emulator_image or f.image, f.kernel)
+    image = cubin.kernel_image(f.emulator_image or f.image, f.kernel)
     if image["arch"] != "SM89": raise ValueError("SM89 cubin required")
     if [p["size"] for p in image["parameters"]] != [8, 8] + [size for size, _ in f.arguments]:
         raise ValueError(f"{f.name}: unexpected kernel parameter layout")
@@ -132,7 +132,7 @@ class Template:
 
     def __init__(self, image, kernel):
         self.image, self.kernel = image, kernel
-        self.code = elf.kernel_image(image, kernel)["code"]
+        self.code = cubin.kernel_image(image, kernel)["code"]
         self.start = section_offset(image, ".text." + kernel)
 
     def decoded(self, offset): return pydecode.decode("SM89", self.code[offset:offset + 16])

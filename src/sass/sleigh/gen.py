@@ -7,12 +7,12 @@ values and becomes one subtable constructor guarded by those conditions on the e
 usage: python3 -m sass.sleigh.gen SM89 [SM90 ...] [--fp=exact|readable]
 """
 import itertools, json, math, re, sys
-from sass.md import parse as mdlib
+from sass.md import parse
 from sass.paths import LANGUAGES
 from collections import defaultdict
 from pathlib import Path
 from sass.decode import ir, pydecode
-from sass.md import cond as mdcond, expr as mdexpr
+from sass.md import legal, expression
 from sass.decode.pydecode import IMM, PREFIX, NoMatch, resolve, sext, value_text
 
 OUT = LANGUAGES
@@ -154,7 +154,7 @@ def intervals(vs):
     return runs
 
 def restrict(fields, classes, legal, domain):
-    """mdcond.legal_classes' (fields, classes, legal) with the fields named in `domain` (ranges ->
+    """legal.legal_classes' (fields, classes, legal) with the fields named in `domain` (ranges ->
     raw values) narrowed to those values: classes lose the other values, legal its emptied classes."""
     keep = []
     for f, cls in zip(fields, classes):
@@ -230,13 +230,13 @@ class Gen:
         self.spans = {file: {1} for file in REG_FILES}
         self.special_spans = set()
         self.pcodeops = set()
-        md = mdlib.load_classes(mdlib.OUT / archname)
+        md = parse.load_classes(parse.OUT / archname)
         self.props = {c["cls"]: c["props"] for c in md}
         self.sizes = {c["cls"]: c["preds"] for c in md}
         self.coverage = {}
         self.temporaries = {}
         self._span_fields = {}
-        self.roles = {r["cls"]: r for p in (mdlib.OUT / archname / "semantics").glob("*.json") for r in json.loads(p.read_text())}
+        self.roles = {r["cls"]: r for p in (parse.OUT / archname / "semantics").glob("*.json") for r in json.loads(p.read_text())}
 
     def field(self, tok, lo, hi, kind=""):
         name = f"{tok}{lo}_{hi}{kind}"
@@ -660,7 +660,7 @@ class Gen:
         if not exprs: return [({}, [], {})] if domains else [({}, [])]
         fields = {}
         for e in exprs.values():
-            for v in sorted(mdexpr.free_vars(self.arch, e)):
+            for v in sorted(expression.free_vars(self.arch, e)):
                 src = self.source(k, v)
                 if not src or src[0] != "field":
                     raise ValueError(f"{k.name}: unsupported span dependency {v}")
@@ -672,7 +672,7 @@ class Gen:
         groups = defaultdict(list)
         for combo in combos:
             vals = {v: x * src[2] for (v, src), x in zip(fields.items(), combo)}
-            sig = tuple((n, int(mdexpr.evaluate(e, self.arch, vals))) for n, e in exprs.items())
+            sig = tuple((n, int(expression.evaluate(e, self.arch, vals))) for n, e in exprs.items())
             if any(s < 0 or s > 256 for _, s in sig):
                 raise ValueError(f"{k.name}: unsupported register spans {sig}")
             groups[sig].append(combo)
@@ -766,7 +766,7 @@ class Gen:
     def conditions(self, k, domain=None):
         """(root clauses, subtable refs) rejecting the class's md-illegal encodings, for the classes
         lifted by semantics families (for every class the .sla grows past Ghidra's limit), except
-        conditions on scheduling hints alone (`mdcond.operand_errors`).
+        conditions on scheduling hints alone (`legal.operand_errors`).
 
         A condition whose legal set is one cube constrains the root pattern directly. The others
         contribute their illegal cubes (over all the fields they read) to one shared subtable per
@@ -777,11 +777,11 @@ class Gen:
         clauses, dead, tables = [], set(), []
         if not family_for(k): return clauses, tables
         span = self.span_fields(k)
-        for _, expr, _ in mdcond.operand_errors(self.arch.name, k):
-            legal = mdcond.legal_classes(self.arch.name, k.name, expr)
-            if legal is None: continue
-            if not legal: raise NoMatch("md conditions never hold")
-            fields, classes, ok = legal
+        for _, expr, _ in legal.operand_errors(self.arch.name, k):
+            partition = legal.legal_classes(self.arch.name, k.name, expr)
+            if partition is None: continue
+            if not partition: raise NoMatch("md conditions never hold")
+            fields, classes, ok = partition
             # Conditions reading a span field belong to the span variants (domain: one variant's values).
             if any(f.ranges in span for f in fields) != (domain is not None): continue
             if domain is not None:

@@ -9,7 +9,7 @@ combination, and the legal combinations become Cartesian boxes of raw value sets
 import ast, itertools
 from functools import cache
 from sass.decode import ir, pydecode
-from sass.md import expr as mdexpr
+from sass.md import expression
 
 MAX_FIELD_BITS = 16    # raw values enumerated per field
 MAX_COMBINATIONS = 1 << 16
@@ -22,7 +22,7 @@ def errors(k):
 
 def violation(arch, k, env):
     """The first violated error condition, or None."""
-    return next(((kind, msg) for kind, expr, msg in errors(k) if not mdexpr.holds(arch, expr, env)), None)
+    return next(((kind, msg) for kind, expr, msg in errors(k) if not expression.holds(arch, expr, env)), None)
 
 
 def sources(k):
@@ -75,19 +75,19 @@ def legal_classes(arch_name, cls, expr):
     Raises ValueError when a field is too wide to enumerate."""
     arch = ir.load(arch_name)
     k = next(c for c in arch.classes if c.name == cls)
-    py, names, tables = mdexpr.condition_source(arch_name, expr)
+    py, names, tables = expression.condition_source(arch_name, expr)
     src = {**table_sources(arch, k), **sources(k)}
     field_of, fields = {}, {}
     for n in names:
-        key = mdexpr.env_key(n)
+        key = expression.env_key(n)
         if key in src:
             f = src[key][0]
             field_of[n.replace(".", "__")] = f.ranges; fields[f.ranges] = f
-    glb = mdexpr.condition_globals(arch_name, tables)
+    glb = expression.condition_globals(arch_name, tables)
     def env_for(raws):
         values = {}
         for n in names:
-            key = mdexpr.env_key(n)
+            key = expression.env_key(n)
             values[n.replace(".", "__")] = (src[key][1](raws[src[key][0].ranges]) if key in src else None) or 0
         return values
     code = compile(py, expr, "eval")

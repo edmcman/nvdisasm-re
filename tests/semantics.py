@@ -5,14 +5,14 @@ usage: python -m tests.semantics SM89 [exact|readable] [--family f2fp ...] [--sh
 import argparse
 from collections import defaultdict
 from tests.cases import FAMILIES, emulator_cases
-from sass.ghidra_bridge import client as ghidra
+from sass import ghidra_bridge
 from tests.harness.checks import problems
 
 
 def failures(arch, fp, families=FAMILIES, results=None):
     """(total, {(family, class): [(case, result, problems)]}) for one language."""
     cases = [(family, case) for family, cs in emulator_cases(arch, fp, families).items() for case in cs]
-    results = results or ghidra.emulate_sharded({0: (arch, fp, [case.request for _, case in cases])})[0]
+    results = results or ghidra_bridge.emulate_sharded({0: (arch, fp, [case.request for _, case in cases])})[0]
     out = defaultdict(list)
     for (family, case), result in zip(cases, results):
         if found := problems(case.expected, result): out[family, case.cls].append((case, result, found))

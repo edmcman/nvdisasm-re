@@ -1,5 +1,5 @@
 """Known errors in NVIDIA's machine descriptions, corrected when classes are loaded
-(`mdlib.load_classes`); `out/` keeps the md as shipped. Each entry names the architectures and
+(`parse.load_classes`); `out/` keeps the md as shipped. Each entry names the architectures and
 classes, the PREDICATES field and its corrected value, and the evidence."""
 
 PREDICATES = [
@@ -15,7 +15,7 @@ PREDICATES = [
 
 
 def fix(arch, classes):
-    """classes (mdlib class dicts) with the corrections for `arch` applied."""
+    """classes (parse class dicts) with the corrections for `arch` applied."""
     for archs, names, field, value, _ in PREDICATES:
         if arch in archs:
             for c in classes:

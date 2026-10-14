@@ -13,11 +13,11 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 from sass.decode.cubin import kernel_image
 from sass.decode import pydecode
-from sass.ghidra_bridge import client as ghidra
+from sass import ghidra_bridge
 
 
 def emulate(requests):
-    results = ghidra.emulate("SM100", "exact", requests)
+    results = ghidra_bridge.emulate("SM100", "exact", requests)
     for result in results:
         if "error" in result:
             raise RuntimeError(result["error"])

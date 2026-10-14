@@ -2,7 +2,7 @@
 import itertools
 import pytest
 from sass.decode import ir, pydecode
-from sass.md import expr as mdexpr
+from sass.md import expression
 from sass.decode import pyencode
 
 
@@ -12,22 +12,22 @@ def md(): return ir.load("SM89")
 
 def test_nested_ternary_arms(md):
     for values, expected in [({"a": 1, "b": 1}, 3), ({"a": 1, "b": 0}, 2), ({"a": 0, "c": 1}, 1), ({"a": 0, "c": 0}, 0)]:
-        assert mdexpr.evaluate("a ? b ? 3 : 2 : c ? 1 : 0", md, values) == expected
+        assert expression.evaluate("a ? b ? 3 : 2 : c ? 1 : 0", md, values) == expected
 
 
 def test_mask_population_span(md):
     expr = "ceil((((mask & 1) + ((mask >> 1) & 1) + ((mask >> 2) & 1)) * 32)/32)"
-    for mask in range(8): assert mdexpr.evaluate(expr, md, {"mask": mask}) == mask.bit_count()
+    for mask in range(8): assert expression.evaluate(expr, md, {"mask": mask}) == mask.bit_count()
 
 
 def test_enum_and_boolean(md):
     for flag, expected in ((0, 0), (1, 1)):
-        assert mdexpr.evaluate("r == `Register@RZ && !flag ? 0 : 1", md, {"r": 255, "flag": flag}) == expected
+        assert expression.evaluate("r == `Register@RZ && !flag ? 0 : 1", md, {"r": 255, "flag": flag}) == expected
 
 
 def test_dotted_operand(md):
-    assert mdexpr.free_vars(md, "size.ext ? 2 : 1") == {"size.ext"}
-    assert mdexpr.evaluate("size.ext ? 2 : 1", md, {"size.ext": 1}) == 2
+    assert expression.free_vars(md, "size.ext ? 2 : 1") == {"size.ext"}
+    assert expression.evaluate("size.ext ? 2 : 1", md, {"size.ext": 1}) == 2
 
 
 # ---- CONDITIONS: which encodings are md-illegal ----
@@ -39,21 +39,21 @@ def condition(md, cls, message):
 def test_attribute_implication(md):
     expr = condition(md, "iadd3_noimm__RRR_RRR", "nA-Rb")  # Ra@negate -> !Rb@negate
     for a, b in itertools.product((0, 1), repeat=2):
-        assert mdexpr.holds(md, expr, {("Ra", "negate"): a, ("Rb", "negate"): b}) == (not (a and b))
+        assert expression.holds(md, expr, {("Ra", "negate"): a, ("Rb", "negate"): b}) == (not (a and b))
 
 
 def test_register_range_parameter(md):
     expr = condition(md, "iadd3_noimm__RRR_RRR", "Register Rd is out of range")  # %MAX_REG_COUNT
-    assert [r for r in range(256) if not mdexpr.holds(md, expr, {"Rd": r})] == [254]
+    assert [r for r in range(256) if not expression.holds(md, expr, {"Rd": r})] == [254]
 
 
 def test_table_lookup_and_defined(md):
     k = next(k for k in md.classes if any("TABLES_mem_0(" in e for _, e, _ in k.conditions))
     expr = next(e for _, e, _ in k.conditions if "TABLES_mem_0(" in e)
-    key, out = next((key, out) for key, out in mdexpr.table_rows(md.name, "TABLES_mem_0") if None not in key)
+    key, out = next((key, out) for key, out in expression.table_rows(md.name, "TABLES_mem_0") if None not in key)
     env = dict(zip(("sem", "sco", "private"), key))
-    assert mdexpr.holds(md, expr, env) == (out not in (10, 12))
-    assert not mdexpr.holds(md, expr, {"sem": -1, "sco": -1, "private": -1})  # no row: not DEFINED
+    assert expression.holds(md, expr, env) == (out not in (10, 12))
+    assert not expression.holds(md, expr, {"sem": -1, "sco": -1, "private": -1})  # no row: not DEFINED
 
 
 def test_strict_decoding(md):

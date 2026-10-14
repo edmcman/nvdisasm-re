@@ -3,11 +3,11 @@ class against baseline/ghidra_SMxx.json. Synthetic words (64 per class) by defau
 the whole real corpus. Architectures run concurrently; display is identical for both lowerings."""
 from collections import defaultdict
 import pytest
-from sass.oracle import synth
+from sass import synth
 from sass.check.ghidra_disasm import compare
 from sass.check.pydecode_disasm import sample
 from tests.harness.select import arches, require_languages
-from sass.ghidra_bridge import client as ghidra
+from sass import ghidra_bridge
 from sass.sleigh.build import ARCHES
 from tests.harness.baseline import BASELINE, ratchet
 
@@ -23,7 +23,7 @@ def class_results(arch, full):
 def disassembly(request):
     selected = arches(request.config)
     require_languages([(a, "exact") for a in selected])
-    return ghidra.concurrently(class_results, {a: (a, request.config.getoption("--full")) for a in selected})
+    return ghidra_bridge.concurrently(class_results, {a: (a, request.config.getoption("--full")) for a in selected})
 
 
 @pytest.mark.ghidra

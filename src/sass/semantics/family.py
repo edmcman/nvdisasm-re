@@ -6,7 +6,7 @@
 
 `i` answers questions about the instruction. Static answers (class facts, modifier bits, enum
 selectors, yes/no questions about numeric fields) are Python values; dynamic ones (operand values)
-are `sass.semantics.bitvec` expressions. Backends supply the answers: `sass.semantics.lift` from a decoded word,
+are `sass.semantics.bitvec` expressions. Backends supply the answers: `sass.semantics.lifter` from a decoded word,
 `sass.sleigh.lower` by enumerating the static questions a family asks.
 
 `@family` rewrites the function's conditional expressions and boolean operators so that one syntax
@@ -16,9 +16,9 @@ values and build IR on dynamic ones.
 import ast, inspect, json, textwrap
 from dataclasses import dataclass, field
 from functools import cache
-from sass.md import parse as mdlib
+from sass.md import parse
 from sass.decode import ir
-from sass.semantics import bitvec as sem
+from sass.semantics import bitvec
 from sass.semantics.bitvec import Expr
 
 FAMILIES = {}   # opcode -> [(class filter or None, family function)]
@@ -100,25 +100,25 @@ def ret(target, cond=None): return Flow("return", target, cond)
 # ---- native conditionals: the rewrite target --------------------------------------------------
 
 def _cond(c, a, b):
-    if isinstance(c, Expr): return sem.ite(c, a(), b())
+    if isinstance(c, Expr): return bitvec.ite(c, a(), b())
     return a() if c else b()
 
 
 def _and(a, b):
     if not isinstance(a, Expr): return b() if a else a
     b = b()
-    if not isinstance(b, Expr): return a if b else sem.const(0, 1)
+    if not isinstance(b, Expr): return a if b else bitvec.const(0, 1)
     return a & b
 
 
 def _or(a, b):
     if not isinstance(a, Expr): return a if a else b()
     b = b()
-    if not isinstance(b, Expr): return sem.const(1, 1) if b else a
+    if not isinstance(b, Expr): return bitvec.const(1, 1) if b else a
     return a | b
 
 
-def _not(a): return sem.lnot(a)
+def _not(a): return bitvec.lnot(a)
 
 
 class Rewrite(ast.NodeTransformer):
@@ -198,7 +198,7 @@ REG_TYPES = {"Register": "R", "NonZeroRegister": "R", "ZeroRegister": "R",
 
 @cache
 def roles(arch_name):
-    return {r["cls"]: r for p in (mdlib.OUT / arch_name / "semantics").glob("*.json") for r in json.loads(p.read_text())}
+    return {r["cls"]: r for p in (parse.OUT / arch_name / "semantics").glob("*.json") for r in json.loads(p.read_text())}
 
 
 def compound(k):
@@ -211,7 +211,7 @@ def compound(k):
 @cache
 def predicates(arch_name):
     """md PREDICATES per class (IDEST_SIZE, ISRC_A_SIZE, ...; bits)."""
-    return {c["cls"]: c["preds"] for c in mdlib.load_classes(mdlib.OUT / arch_name)}
+    return {c["cls"]: c["preds"] for c in parse.load_classes(parse.OUT / arch_name)}
 
 
 def constant_width(arch_name, cls, name):
@@ -365,7 +365,7 @@ class Instruction:
     def select_lookup_const(self, names, table, w=32):
         """A w-bit number chosen by a selector's label (format constants, rounding-mode flags):
         select_lookup with constants, so one parametric computation serves every label."""
-        return self.select_lookup(names, {l: sem.const(v, w) for l, v in table.items()})
+        return self.select_lookup(names, {l: bitvec.const(v, w) for l, v in table.items()})
 
     def labels(self, names):
         """The labels the class's selector can take (its md enum's printed names)."""
@@ -387,8 +387,8 @@ class Instruction:
         operand models only its md default: other values are unmodelled (an IADD family silent on
         .SAT must not claim IADD.SAT; MOV ignores PixMaskU04 only at 0xf). Scheduling
         hints and .reuse don't change what the instruction does; the guard is the framework's."""
-        from sass.md import cond as mdcond
-        hints = mdcond.hints(self.k)
+        from sass.md import legal
+        hints = legal.hints(self.k)
         guard = next((a.name for a in self.k.format if a.kind == "guard"), None)   # applied by the framework
         selectors = {n for n, a in self.k.operand_types.items()
                      if a.type in self.arch.enums and a.type not in REG_TYPES and n not in compound(self.k)}
@@ -458,7 +458,7 @@ class Instruction:
         name = self.resolve(names); self.asked.add(name)
         v = self.operand(name, width or self.width(name))
         if not modifiers: return v
-        v = self.modified(name, "absolute", v, sem.iabs)
+        v = self.modified(name, "absolute", v, bitvec.iabs)
         v = self.modified(name, "negate", v, lambda x: -x)
         return self.modified(name, "invert", v, lambda x: ~x)
 
@@ -473,24 +473,24 @@ class Instruction:
     def pred(self, names, modifiers=True):
         name = self.resolve(names); self.asked.add(name)
         v = self.operand(name, 1)
-        return self.modified(name, "not", v, sem.lnot) if modifiers else v
+        return self.modified(name, "not", v, bitvec.lnot) if modifiers else v
 
     def encoding(self, names, w=32):
         """A selector's encoded value as a w-bit expression, for a call that interprets it itself
         (memory-ordering controls): the family models every label."""
         name = self.resolve(names); self.asked.add(name)
-        return sem.param(f"__enc:{name}", w)
+        return bitvec.param(f"__enc:{name}", w)
 
     def special(self, names, w):
         """The special register (view of w bits) a SpecialRegister operand names; SRZ reads 0."""
         name = self.resolve(names); self.asked.add(name)
-        return sem.param(f"__sr:{name}", w)
+        return bitvec.param(f"__sr:{name}", w)
 
     def branch_target(self, names):
         """The absolute address an RSImm (relative to the next instruction) or UImm (absolute)
         branch operand names: a direct target, unlike an address computed from values."""
         name = self.resolve(names); self.asked.add(name)
-        return sem.param(f"__target:{name}", 64)
+        return bitvec.param(f"__target:{name}", 64)
 
     def imm(self, names, width=None):
         if self.kind(names) not in ("immediate", "float-immediate"): raise TypeError(f"{names} is not an immediate")

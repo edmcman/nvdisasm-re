@@ -7,8 +7,8 @@ dropped; `sass.semantics.evaluate.execute` runs the result.
 """
 from dataclasses import dataclass, field
 from sass.decode import ir, pydecode
-from sass.md import expr as mdexpr
-from sass.semantics import bitvec as sem
+from sass.md import expression
+from sass.semantics import bitvec
 from sass.semantics.bitvec import Expr
 from sass.semantics.family import Instruction, Illegal, Primitive, Unmodelled, PR_BITS, REG_TYPES, family_for, roles
 import sass.semantics.families  # registers the families
@@ -61,7 +61,7 @@ class Lifted(Instruction):
     def span(self, name):
         record = next((o for o in roles(self.arch.name).get(self.cls, {}).get("operands", []) if o["name"] == name), {})
         span = record.get("span") or 1
-        return int(mdexpr.evaluate(span, self.arch, self.env)) if isinstance(span, str) else span
+        return int(expression.evaluate(span, self.arch, self.env)) if isinstance(span, str) else span
 
     def location(self, name):
         """(file, index, count) of a register operand, or None for RZ/URZ/PT."""
@@ -72,11 +72,11 @@ class Lifted(Instruction):
 
     def operand(self, name, width):
         a = self.atom(name)
-        if a.type == "PR": return sem.concat(*(sem.reg("P", k, 1, element=1) for k in reversed(range(PR_BITS))))
+        if a.type == "PR": return bitvec.concat(*(bitvec.reg("P", k, 1, element=1) for k in reversed(range(PR_BITS))))
         if a.type in REG_TYPES:
             loc = self.location(name)
-            if loc is None: return sem.const(1 if REG_TYPES[a.type] in ("P", "UP") else 0, width)
-            v = sem.reg(*loc, element=ELEMENT[loc[0]])
+            if loc is None: return bitvec.const(1 if REG_TYPES[a.type] in ("P", "UP") else 0, width)
+            v = bitvec.reg(*loc, element=ELEMENT[loc[0]])
         elif m := pydecode.IMM.match(a.type):
             raw = self.env.get(name)
             if raw is None: raw = int(a.args.split("/")[1], 0) if a.args.count("/") and a.args.split("/")[1] else 0
@@ -84,13 +84,13 @@ class Lifted(Instruction):
             # F64 supplies the high word: by the conversion rule when there is one (half
             # immediates are F64Imm converted to F16), else by the type.
             if self.env.get(("__fmt", name), "F64" if a.type == "F64Imm" else None) == "F64": raw <<= 32
-            v = sem.const(raw, max(width, 64 if a.type == "F64Imm" else width))
+            v = bitvec.const(raw, max(width, 64 if a.type == "F64Imm" else width))
         elif a.type == "C":
             bank, offset = self.env.get(name + "_bank", 0), self.env.get(name + "_addr", 0)
-            v = sem.load("cbank", sem.const(bank << 32 | offset & 0xffffffff, 64), width)
+            v = bitvec.load("cbank", bitvec.const(bank << 32 | offset & 0xffffffff, 64), width)
         elif a.type == "CX": v = self.cx(name, width)
         else: raise Unmodelled(f"{a.type} operand {name}")
-        return v if v.w == width else sem.zext(v, width) if v.w < width else sem.trunc(v, width)
+        return v if v.w == width else bitvec.zext(v, width) if v.w < width else bitvec.trunc(v, width)
 
     def cx(self, name, width):
         """A bounded constant-buffer load through a 64-bit uniform header plus a byte offset."""
@@ -101,37 +101,37 @@ class Lifted(Instruction):
             if child.kind == "operand": children.append(child)
         ur = next(c.name for c in children if c.type in ("UniformRegister", "NonZeroUniformRegister", "ZeroUniformRegister"))
         off = next(c.name for c in children if c.type in ("UImm", "SImm"))
-        header, offset = self.operand(ur, 64), sem.zext(self.operand(off, 32), 64)
+        header, offset = self.operand(ur, 64), bitvec.zext(self.operand(off, 32), 64)
         bits, shift = (51, 6) if self.arch.name == "SM90" else (45, 4)
         limit = (header >> bits) << 4
         address = ((header & ((1 << bits) - 1)) << shift) + offset
-        return sem.ite(limit < offset + width // 8, sem.const(0, width), sem.load("ram", address, width))
+        return bitvec.ite(limit < offset + width // 8, bitvec.const(0, width), bitvec.load("ram", address, width))
 
     def choice(self, name, values):
         v = self.env.get(name)
         if v not in values: raise Unmodelled(f"{name} {self.select_fork(name)}")
         return values[v]
 
-    def addr(self): return sem.const(self.at, 64)
+    def addr(self): return bitvec.const(self.at, 64)
 
     def encoding(self, names, w=32):
         name = self.resolve(names); self.asked.add(name)
-        return sem.const(self.env.get(name, 0), w)
+        return bitvec.const(self.env.get(name, 0), w)
 
     def special(self, names, w):
         name = self.resolve(names); self.asked.add(name)
         index = self.env.get(name, 0)
-        if index == self.arch.enums["SpecialRegister"]["SRZ"]: return sem.const(0, w)
-        return sem.reg("SR", index, w // 32, element=32)
+        if index == self.arch.enums["SpecialRegister"]["SRZ"]: return bitvec.const(0, w)
+        return bitvec.reg("SR", index, w // 32, element=32)
 
     def branch_target(self, names):
         name = self.resolve(names); self.asked.add(name)
         offset = self.imm(name, 64)
-        return sem.const(self.at + 16, 64) + offset if self.atom(name).type == "RSImm" else offset
+        return bitvec.const(self.at + 16, 64) + offset if self.atom(name).type == "RSImm" else offset
 
     def target(self, name="sImm"):
         a = self.atom(name); v = pydecode.sext(self.env.get(name, 0), self.widths.get(name, 32))
-        return sem.const(self.at + 16 + v if a.type == "RSImm" else v, 64)
+        return bitvec.const(self.at + 16 + v if a.type == "RSImm" else v, 64)
 
 
 def lift(arch_name, word, addr=0, fp="exact", conditions=True):
@@ -144,7 +144,7 @@ def lift(arch_name, word, addr=0, fp="exact", conditions=True):
     guard = next((a.name for a in d.klass.format if a.kind == "guard"), None)
     if guard:
         g = i.pred(guard)
-        out.guard = None if sem.is_const(g, 1) else g
+        out.guard = None if bitvec.is_const(g, 1) else g
     fam = family_for(d.klass)
     if fam is None:
         out.reason = "no family"; return out
@@ -157,14 +157,14 @@ def lift(arch_name, word, addr=0, fp="exact", conditions=True):
     for name, value in result.ordered():
         if not i.has_operand(name): continue  # e.g. no second carry output in this class
         if i.atom(i.resolve(name)).type == "PR":
-            out.writes += [(sem.reg("P", k, 1, element=1), sem.extract(value, k, k)) for k in range(PR_BITS)]
+            out.writes += [(bitvec.reg("P", k, 1, element=1), bitvec.extract(value, k, k)) for k in range(PR_BITS)]
             continue
         loc = i.location(i.resolve(name))
         if loc is None: continue
         width = loc[2] * ELEMENT[loc[0]]
         if value.w != width: raise TypeError(f"{d.klass.name}: {name} is {width} bits, value {value!r} is {value.w}")
-        out.writes.append((sem.reg(*loc, element=ELEMENT[loc[0]]), value))
-    out.writes = list(zip([l for l, _ in out.writes], sem.narrow([v for _, v in out.writes])))
+        out.writes.append((bitvec.reg(*loc, element=ELEMENT[loc[0]]), value))
+    out.writes = list(zip([l for l, _ in out.writes], bitvec.narrow([v for _, v in out.writes])))
     out.flow, out.stores = result.flow, list(result.stores)
     out.status = "native"
     return out

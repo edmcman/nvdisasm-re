@@ -1,10 +1,10 @@
 """Layer 3: register dataflow and control flow of generated p-code against md operand roles,
 exact spans and BRANCH_TYPE."""
-from sass.md import expr as mdexpr
+from sass.md import expression
 from sass.decode import pydecode
 from sass.semantics.family import family_for
 from sass.sleigh.gen import ENUM_FILE, REG_FILES, RESOURCE_FILE, Gen
-from sass.ghidra_bridge import client as ghidra
+from sass import ghidra_bridge
 
 
 PREFIX={'B0':1,'B1':2,'B2':3,'B3':4,'H0':2,'H1':4}   # bytes read up to a selected byte or half
@@ -77,7 +77,7 @@ def expected(g, d, optimized=False):
                 or o['name'] not in d.env or guard and o['name'] == guard.name):
             continue
         span = o['span']
-        if isinstance(span, str): span = int(mdexpr.evaluate(span, g.arch, d.env))
+        if isinstance(span, str): span = int(expression.evaluate(span, g.arch, d.env))
         index = d.env[o['name']]
         base, size, count, zero, _ = REG_FILES[file]
         zero = g.register_zero(d.klass, o['name'])
@@ -203,7 +203,7 @@ def problems(arch, fp, words):
         try: todo.append((w, pydecode.decode(arch, w)))
         except pydecode.NoMatch: pass
     out = []
-    for (w, d), result in zip(todo, ghidra.disassemble(arch, fp, [(w, 0) for w, _ in todo], "--dataflow")):
+    for (w, d), result in zip(todo, ghidra_bridge.disassemble(arch, fp, [(w, 0) for w, _ in todo], "--dataflow")):
         if "error" in result:
             out.append(f"{d.klass.name}: {result['error']}")
         elif (flow := result["flow"]) != (want_flow := expected_flow(gen, d)):
