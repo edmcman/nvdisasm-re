@@ -1,11 +1,11 @@
 """FP32: FADD/FMUL/FFMA (every rounding mode, FTZ, SAT, FMUL scale) against the exact softfloat
-model; FSETP; FSEL/FMNMX/FMNMX3 selection rules; FCHK's division slow-path test; readable-lowering
+model; FSETP and FSET; FSEL/FMNMX/FMNMX3 selection rules; FCHK's division slow-path test; readable-lowering
 formulas."""
 import itertools, random
 from sass.semantics.fp import softfloat
 from tests.harness.case import cx_source, is_cx, put, source
 from tests.refs.bits import f32, ftz32, nan32
-from tests.refs.float import FCOMPARISONS, fchk_divide, fcompare, fmnmx, fmnmx3_pick, fmnmx_xorsign, ordered, readable, rounded, underflow_band
+from tests.refs.float import FCOMPARISONS, fchk_divide, fcompare, fset, fmnmx, fmnmx3_pick, fmnmx_xorsign, ordered, readable, rounded, underflow_band
 
 ROUNDINGS = ("RN", "RZ", "RM", "RP")
 
@@ -120,6 +120,31 @@ def compare(c):
                       dict(R2=a, R4=b), dict(P0=int(result), P1=int(not result)))
 
 
+# Ordered/unordered, signed-zero, denormal (equal to zero under FTZ) and infinity pairs.
+SET_PAIRS = [(0x3f800000, 0x40000000), (0x40000000, 0x3f800000), (0x3f800000, 0x3f800000), (0, 0x80000000), (0x7fc00000, 0x3f800000),
+             (0x3f800000, 0xffc00000), (1, 0), (0x80000001, 1), (0x7f800000, 0x7f7fffff), (0xff800000, 0xff800000), (0x7fc00000, 0x7fc00000)]
+
+
+def fset_cases(c):
+    """FSET.BF: every comparison with and without FTZ; each bop against Pp, !Pp; each source form."""
+    for (a, b), cmp, ftz in itertools.product(SET_PAIRS, FCOMPARISONS + ("T", "F"), (False, True)):
+        c.add("fset__RRR_RRR", dict(Rd=8, Ra=2, Rb=4, Pp="PT", fcomp=cmp, bop="AND", ftz="FTZ" if ftz else "noftz"), dict(R2=a, R4=b),
+              dict(R8=fset(a, b, cmp, ftz=ftz and c.fp == "exact"), __native=True))
+    for (a, b), bop, p, inverted in itertools.product(SET_PAIRS[:3], ("AND", "OR", "XOR"), (0, 1), (0, 1)):
+        c.add("fset__RRR_RRR", dict(Rd=8, Ra=2, Rb=4, Pp=3, fcomp="LT", bop=bop, **{"Pp@not": inverted}), dict(R2=a, R4=b, P3=p),
+              dict(R8=fset(a, b, "LT", bop, bool(p) != bool(inverted)), __native=True))
+    for k in c.of("FSET", cx=None):
+        b = "Sb" if is_cx(k) else source(k, "Rb", "URb", "Sb")
+        for n, (x, y) in enumerate(SET_PAIRS[:6]):
+            fields, regs, memory = dict(Rd=8, Ra=2, Pp="PT", fcomp="LT", bop="AND", **{"Ra@negate": n & 1, "Ra@absolute": n >> 1 & 1}), dict(R2=x), []
+            if is_cx(k):
+                cx_fields, cx_regs, memory = cx_source(c.arch, k, b, y); fields.update(cx_fields); regs.update(cx_regs)
+            else: put(k, b, y, fields, regs, memory, 4, ureg=6, bank=(0, 0x20), imm=("F32Imm",))
+            a = x & 0x7fffffff if n & 2 else x
+            c.add(k.name, fields, regs, dict(R8=fset(a ^ 0x80000000 if n & 1 else a, y, "LT"), __native=True), memory=memory, portable=True)
+    c.add("fset__RRR_RRR", dict(Rd=2, Ra=2, Rb=2, Pp="PT", fcomp="EQ", bop="AND", **{"Rb@negate": 1}), dict(R2=0x80000000), dict(R2=0x3f800000, __native=True))
+
+
 def readable_formulas(c):
     """The readable language's plain unfused formula, which ignores rounding modes and flushing."""
     if c.fp != "readable": return
@@ -176,7 +201,7 @@ def fchk_cases(c):
 
 
 def emulator_cases(c):
-    selection(c); arithmetic(c); compare(c); fchk_cases(c); readable_formulas(c)
+    selection(c); arithmetic(c); compare(c); fset_cases(c); fchk_cases(c); readable_formulas(c)
 
 
 def gpu_fixtures():
@@ -191,6 +216,8 @@ def gpu_fixtures():
     out += [scalar.launch(f, lambda x, y, _, f=f: fmnmx(x, y, f.startswith("fmin"), f.endswith("_nan"), "ftz" in f))
             for f in ("fmin", "fmax", "fmin_nan", "fmax_nan", "fmin_ftz_nan", "fmax_ftz_nan", "fmin_ftz", "fmax_ftz")]
     out.append(scalar.launch("fmin_xorsign", lambda x, y, _: fmnmx_xorsign(x, y, True)))
+    out += [scalar.launch(f, lambda a, b, c, s=s: fset(a, b, s["fcomp"], s.get("bop", "AND"), (c != 0) != bool(s.get("Pp@not")), s.get("ftz") == "FTZ"))
+            for f, (m, s) in scalar.SETS.items() if m == "FSET"]
     # FCHK P0, R2, R5 in a probe slot, P0 read back through P2R into the stored R11.
     from tests.harness.gpu import sm89
     from tests.harness.templates import slot_fixture

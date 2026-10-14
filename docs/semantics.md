@@ -348,6 +348,17 @@ available SM89 GPU cannot execute the SM90+ form, and the patent does not
 independently establish every tie/NaN detail. The default two-NaN path's A
 flag is modeled but has not been measured on hardware.
 
+FSET, HSET2 and HSETP2 (2026-10-14, ported from CuLifter's handler list) reuse
+FSETP's comparison (`float_test`) and its `cond bop Pp` combiner. FSET writes
+1.0f or +0 (`.BF` is its only md form). HSET2 compares each lane and writes
+1.0 in the lane format (`.BF`: 0x3c00, SM90+ BF16_V2 0x3f80) or 0xffff (`.BM`),
+else 0. HSETP2 writes lane 0's result to Pu and lane 1's to Pv; with `.H_AND`
+it ANDs the lanes and writes `both bop Pp` and `!both bop Pp`, like FSETP's
+Pu/Pv. Lanes are widened exactly to binary32 before comparing, after F16 FTZ
+flushing; the md forbids FTZ with BF16. Every non-ALTERNATE class is native on
+SM75-SM120 (register, uniform, immediate, constant and SM75-SM90 CX sources).
+The `fset_simple`, `*_noBop` and SM100+ `*_fixed` classes are ALTERNATE.
+
 Runtime primitives cover the float fallbacks, F2I/I2F, PRMT, SHFL/VOTE,
 QSPC, and synchronization events. QSPC requires `context["address_spaces"]`,
 a mapping from `global`, `local`, and `shared` to half-open address intervals;

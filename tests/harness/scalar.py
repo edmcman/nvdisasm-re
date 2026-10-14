@@ -60,6 +60,17 @@ PATCHES = {
        for r, red in (("merge", "SIMD_MRG"), ("acc", "ACC"))},
     **{"hfma2_move_" + s: ("HFMA2", "hfma2_mma__RRI_norelu", dict(Ra=255, Rb=255, Sc=bits >> 16, Sc1=bits & 0xffff, **{"Ra@negate": 1, "Rb@negate": 0}))
        for s, bits in (("zero", 0x80000000), ("nan", 0xfe01fd01), ("denorm", 0x000103ff), ("inf", 0x7c00fc00))}}
+SET_COMPARISONS = ("LT", "EQ", "LE", "GT", "NE", "GE", "NUM", "NAN", "LTU", "EQU", "LEU", "GTU", "NEU", "GEU", "T", "F")
+SET_LANES = {"iswzA": "H1_H1", "iswzB_as_C": "H0_H0", "Ra@negate": 1, "Rc@absolute": 1}
+# FSET/HSET2/HSETP2 family -> (mnemonic, patched fields) over `cmp.AND P` carriers (.BF for HSET2).
+SETS = {**{f"{op}_{suffix}": (op.upper(), {"fcomp" if op == "fset" else "cmp": cmp, **extra}) for op in ("fset", "hset2", "hsetp2")
+           for suffix, cmp, extra in [*((c.lower(), c, {}) for c in SET_COMPARISONS), ("or", "GEU", dict(bop="OR")), ("xor", "LT", dict(bop="XOR")),
+                                      ("ftz", "LE", dict(ftz="FTZ")), ("notp", "LT", {"Pp@not": 1})]},
+        "hset2_bm": ("HSET2", dict(cmp="LT", bval="BM")), "hset2_bm_geu": ("HSET2", dict(cmp="GEU", bval="BM")),
+        "hset2_lanes": ("HSET2", dict(cmp="LT", **SET_LANES)), "hsetp2_lanes": ("HSETP2", dict(cmp="LT", **SET_LANES)),
+        **{f"hsetp2_hand{s}": ("HSETP2", dict(cmp=cmp, h_and="H_AND", **extra))
+           for s, cmp, extra in (("", "LT", {}), ("_or", "LE", dict(bop="OR")), ("_xor", "LT", dict(bop="XOR")), ("_nan", "NAN", {}))}}
+PATCHES.update({f: (m, None, fields) for f, (m, fields) in SETS.items()})
 # FP8 unpack kernels are compiled without RELU; both conversions get the RELU bit (75) set.
 RELU_UNPACK = tuple(f"f2fp_{f}_unpack_{h}_relu" for f in ("e4m3", "e5m2") for h in ("h0", "h1"))
 
@@ -168,6 +179,7 @@ TARGETS = {
     "f2fp_e4m3_pack": ("F2FP.SATFINITE.E4M3",), "f2fp_e5m2_pack": ("F2FP.SATFINITE.E5M2",),
     **{f"f2fp_{f}_unpack_{h}{r}": (f"F2FP.{'RELU.' if r else ''}F16.{f.upper()}.UNPACK_B",) for f in ("e4m3", "e5m2") for h in ("h0", "h1") for r in ("", "_relu")},
     "f2fp_e4m3_pack_nosat": ("F2FP.E4M3",), "f2fp_e5m2_pack_nosat": ("F2FP.E5M2",)}
+TARGETS.update({f: (m,) for f, (m, _) in SETS.items()})
 ROUNDED = {f"{op}_{m}" for op in ("fadd", "fmul", "ffma", "dadd", "dmul", "dfma") for m in ("rz", "rm", "rp")}  # directed-rounding kernels
 HALF_OUTPUTS = {"hadd2", "hfma2", "hmul2", "hmul2_sat", "hmul2_ftz", "hmul2_fmz", "hadd2_sat", "hfma2_sat", "hadd2_lanes", "hfma2_lanes", "hmul2_lanes"}
 WIDE = {"dadd", "dmul", "dfma", "dsetp", "isetp_ex"} | {f for f in ROUNDED if f.startswith("d")}
@@ -183,6 +195,14 @@ def scalar_vectors(family):
         case f if f.startswith("vabsdiff4_"):
             vs[:8] = [(0, 0xffffffff, 0xdeadbeef), (0x807f01ff, 0xff010080, 0x7f80ff01), (0x80808080, 0x7f7f7f7f, 0x01020304), (0xffffffff, 0, 0x80000000),
                       (0x7f000180, 0x80ff017f, 0xffffffff), (0x01020304, 0x05060708, 0), (0x80000000, 0x7fffffff, 0x7f80ff01), (0xdeadbeef, 0x12345678, 0xabcdef01)]
+        case f if f in SETS:
+            # Pairs of edges (equal pairs first), per lane for the packed forms; Pp from c.
+            values = [0, 0x80000000, 1, 0x80000001, 0x007fffff, 0x3f800000, 0xbf800000, 0x40000000, 0x7f800000, 0xff800000, 0x7fc00000, 0x7f7fffff] if f.startswith("fset") \
+                else [0, 0x8000, 1, 0x8001, 0x03ff, 0x3c00, 0xbc00, 0x4000, 0x7c00, 0xfc00, 0x7e00, 0x7bff]
+            n, rng = len(values), random.Random(f)
+            pair = lambda i: (values[i % n], values[(i + i // n) % n])
+            if f.startswith("fset"): vs = [[*pair(i), rng.getrandbits(1)] for i in range(128)]
+            else: vs = [[lo[0] | hi[0] << 16, lo[1] | hi[1] << 16, rng.getrandbits(1)] for i in range(128) for lo, hi in [(pair(i), pair(i * 7 + 3))]]
         case "imad_hi_c":
             vs[:8] = [(0xffffffff, 2, 0), (0x80000000, 2, 0), (0xffffffff, 0xffffffff, 0), (0x80000001, 0xffffffff, 0), (0x7fffffff, 0x7fffffff, 0),
                       (0x12345678, 0x87654321, 0), (0x40000000, 4, 0), (0xfffffffe, 3, 0)]

@@ -55,6 +55,39 @@ def fcompare(a, c, cmp):
             return {"LT": a < c, "EQ": a == c, "LE": a <= c, "GT": a > c, "NE": a != c, "GE": a >= c}[cmp.removesuffix("U")]
 
 
+BOPS = {"AND": lambda x, y: x and y, "OR": lambda x, y: x or y, "XOR": lambda x, y: x != y}
+
+
+def fset(a, b, cmp, bop="AND", p=True, ftz=False):
+    """FSET.BF: 1.0f where (a cmp b) bop p, else +0; FTZ flushes the inputs."""
+    if ftz: a, b = ftz32(a), ftz32(b)
+    return 0x3f800000 if BOPS[bop](fcompare(ordered(a, 32), ordered(b, 32), cmp), p) else 0
+
+
+HALF_VIEWS, HALF_ONE = {"F16": f16, "BF16": bf16}, {"F16": 0x3c00, "BF16": 0x3f80}
+
+
+def half_compares(a, b, cmp, ftz=False, fmt="F16"):
+    """The comparison of each 16-bit lane of a with b's (low lane first); FTZ flushes F16 inputs."""
+    def value(x):
+        v = HALF_VIEWS[fmt](ftz16(x) if ftz else x)
+        return None if math.isnan(v) else v
+    return [fcompare(value(a >> s & 0xffff), value(b >> s & 0xffff), cmp) for s in (0, 16)]
+
+
+def hset2(a, b, cmp, bop="AND", p=True, ftz=False, bf=True, fmt="F16"):
+    """HSET2: per lane 1.0 in the lane format (.BF) or 0xffff (.BM) where (lane cmp) bop p, else 0."""
+    true = HALF_ONE[fmt] if bf else 0xffff
+    return sum((true if BOPS[bop](c, p) else 0) << s for c, s in zip(half_compares(a, b, cmp, ftz, fmt), (0, 16)))
+
+
+def hsetp2(a, b, cmp, bop="AND", p=True, ftz=False, h_and=False, fmt="F16"):
+    """HSETP2 (Pu, Pv): each lane's comparison bop p; .H_AND: both lanes' AND and its negation."""
+    lo, hi = half_compares(a, b, cmp, ftz, fmt)
+    if h_and: lo, hi = lo and hi, not (lo and hi)
+    return BOPS[bop](lo, p), BOPS[bop](hi, p)
+
+
 def fmnmx(x, y, is_min, nan_mode=False, ftz=False):
     """FMNMX: numeric operand wins over NaN, two NaNs give 0x7fffffff (always with .NAN),
     -0 < +0, optional FTZ of both inputs."""

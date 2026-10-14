@@ -48,12 +48,12 @@ def expected(g, d, optimized=False):
             if all((lut>>v&1)==(lut>>(v^(1<<bit))&1) for v in range(8)):
                 unused.update(names)
         if d.env.get('Pu',d.env.get('UPu'))==7:unused.update(('Pp','UPp'))
-    if optimized and d.klass.mnemonic in ('ISETP','UISETP','FSETP','VISET'):
-        name='fcomp' if d.klass.mnemonic=='FSETP' else 'icmp'
+    if optimized and d.klass.mnemonic in ('ISETP','UISETP','FSETP','FSET','HSET2','HSETP2','VISET'):
+        name={'FSETP':'fcomp','FSET':'fcomp','HSET2':'cmp','HSETP2':'cmp'}.get(d.klass.mnemonic,'icmp')
         operand=d.klass.operand_types.get(name)
         if (operand and not d.env.get('ex') and
                 d.env.get(name) in {g.arch.enums[operand.type].get(n) for n in ('F','T')}):
-            unused.update(('Ra','Sa','Rb','Sb','URa','URb'))
+            unused.update(('Ra','Sa','Rb','Sb','Rc','Sc','URa','URb','URc'))
         ex=d.klass.operand_types.get('ex')
         if (d.klass.mnemonic=='ISETP' and 'Pr' in d.env and ex and
                 d.env.get('ex')==g.arch.enums[ex.type].get('noex')):
@@ -103,9 +103,9 @@ def expected(g, d, optimized=False):
                     h1h1=g.arch.enums[atom.type].get('H1_H1')
                     if d.env.get(selector)!=h1h1:
                         needed=set(range(base+size*index,base+size*index+2))
-            elif optimized and role=='read' and span==1 and (d.klass.mnemonic in ('HADD2','HFMA2','HMUL2','HMNMX2')
+            elif optimized and role=='read' and span==1 and (d.klass.mnemonic in ('HADD2','HFMA2','HMUL2','HMNMX2','HSET2','HSETP2')
                                                                or d.klass.mnemonic in ('FHADD2','FHFMA2') and o['name']=='Ra'):
-                # A low-half broadcast in HADD2/HFMA2/HMUL2/HMNMX2 (and FHADD2/FHFMA2's F16/BF16 A) reads only the two-byte
+                # A low-half broadcast in HADD2/HFMA2/HMUL2/HMNMX2/HSET2/HSETP2 (and FHADD2/FHFMA2's F16/BF16 A) reads only the two-byte
                 # register slice; |x| and -x apply to the half. Two-register CX address inputs
                 # retain the entire pointer.
                 selectors={'Ra':('iswzA',),'Rb':('iswzB','iswzC_as_B'),

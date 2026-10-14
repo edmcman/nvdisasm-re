@@ -1,10 +1,10 @@
 """Packed FP16: HADD2/HFMA2/HMUL2 lanes, broadcasts and modifiers; HMNMX2 (F16/BF16/E6M9,
-NaN, FTZ, XORSIGN, IS_A source predicates); HADD2.F32 widening; HFMA2.MMA constant moves."""
+NaN, FTZ, XORSIGN, IS_A source predicates); HSET2/HSETP2 comparisons; HADD2.F32 widening; HFMA2.MMA constant moves."""
 import itertools, random
 from itertools import product
 from sass.semantics.fp import softfloat
-from tests.harness.case import cbank, cx_header, cx_source, put, ram, source
-from tests.refs.float import half2, half_minmax, half_product, hmul2, readable, same_halves, underflow_band, widen_half
+from tests.harness.case import cbank, cx_header, cx_source, is_cx, put, ram, source
+from tests.refs.float import FCOMPARISONS, half2, hset2, hsetp2, half_minmax, half_product, hmul2, readable, same_halves, underflow_band, widen_half
 
 SWIZZLES = ("H1_H0", "H0_H0", "H1_H1")
 
@@ -195,6 +195,65 @@ def minmax(c):
         c.add(k.name, dict(fields, nan="NAN", **{"Pp@not": 1}), dict(regs), {"error": "sass_opaque_HMNMX2"}, memory=memory)
 
 
+# Lane pairs: ordered/unordered, signed zeros, denormals (equal to zero under FTZ), infinities.
+SET_LANES = {"F16": [(0x3c00, 0x4000), (0x4000, 0x3c00), (0x3c00, 0x3c00), (0, 0x8000), (0x7e00, 0x3c00), (0x3c00, 0xfe01), (1, 0), (0x8001, 1),
+                     (0x7c00, 0x7bff), (0xfc00, 0xfc00), (0x7e00, 0x7e00)],
+             "BF16": [(0x3f80, 0x4000), (0x4000, 0x3f80), (0x3f80, 0x3f80), (0, 0x8000), (0x7fc0, 0x3f80), (0x3f80, 0xffc1), (1, 0), (0x8001, 1),
+                      (0x7f80, 0x7f7f), (0xff80, 0xff80), (0x7fc0, 0x7fc0)]}
+
+
+def set_pairs(fmt):
+    """Packed (A, B) words, each lane from a different SET_LANES pair."""
+    ps = SET_LANES[fmt]
+    return [(x | ps[(n + 3) % len(ps)][0] << 16, y | ps[(n + 3) % len(ps)][1] << 16) for n, (x, y) in enumerate(ps)]
+
+
+def comparisons(c):
+    """HSET2 (.BF/.BM) and HSETP2 (with and without .H_AND): every comparison, FTZ, each bop
+    against Pp/!Pp, lane swizzles and modifiers, each source form and SM90+'s BF16 lanes."""
+    def fields(cls, **kw):
+        k = c.classes[cls]
+        out = dict(Ra=2, Pp="PT", bop="AND", iswzA="H1_H0", **({"Rd": 8} if "Rd" in k.operand_types else {"Pu": 0, "Pv": 1}))
+        if "iswzB_as_C" in k.operand_types: out["iswzB_as_C"] = "H1_H0"
+        return {**out, **kw}
+
+    def expect(cls, a, b, bf=True, h_and=False, **kw):
+        if cls.startswith("hset2"): return {"R8": hset2(a, b, bf=bf, **kw), "__native": True}
+        pu, pv = hsetp2(a, b, h_and=h_and, **kw)
+        return {"P0": int(pu), "P1": int(pv), "__native": True}
+
+    selectors = {"hset2__RR": [dict(bval="BF"), dict(bval="BM")], "hsetp2__RR": [dict(h_and="noh_and"), dict(h_and="H_AND")]}
+    flags = lambda sel: dict(bf=sel.get("bval") == "BF", h_and=sel.get("h_and") == "H_AND")
+    for cls, extra in selectors.items():
+        has_ofmt = "ofmt" in c.classes[cls].operand_types
+        for fmt in c.labels(c.classes[cls], "ofmt", ("F16_V2", "BF16_V2")) if has_ofmt else ["F16_V2"]:
+            for (a, b), cmp, ftz, sel in itertools.product(set_pairs(fmt[:-3]), FCOMPARISONS + ("T", "F"), (False, True), extra):
+                if ftz and fmt != "F16_V2": continue   # md-disallowed
+                f = fields(cls, Rc=4, cmp=cmp, ftz="FTZ" if ftz else "noftz", **sel, **({"ofmt": fmt} if has_ofmt else {}))
+                c.add(cls, f, dict(R2=a, R4=b), expect(cls, a, b, cmp=cmp, ftz=ftz and c.fp == "exact", fmt=fmt[:-3], **flags(sel)))
+        for (a, b), bop, p, inverted, sel in itertools.product(set_pairs("F16")[:4], ("AND", "OR", "XOR"), (0, 1), (0, 1), extra):
+            c.add(cls, fields(cls, Rc=4, cmp="LT", bop=bop, Pp=3, **sel, **{"Pp@not": inverted}), dict(R2=a, R4=b, P3=p),
+                  expect(cls, a, b, cmp="LT", bop=bop, p=bool(p) != bool(inverted), **flags(sel)))
+        for swizzle, absolute, negate in itertools.product(SWIZZLES, (0, 1), (0, 1)):
+            a, b = 0xbc004000, 0x3c00c200
+            mods = {"Ra@absolute": absolute, "Ra@negate": negate, "Rc@negate": negate ^ 1}
+            ref_a, ref_b = (x[0] | x[1] << 16 for x in (lanes(a, swizzle, absolute, negate), lanes(b, swizzle, negate=not negate)))
+            c.add(cls, fields(cls, Rc=4, cmp="LT", iswzA=swizzle, iswzB_as_C=swizzle, **extra[0], **mods), dict(R2=a, R4=b),
+                  expect(cls, ref_a, ref_b, cmp="LT"))
+    for mnemonic, sel in (("HSET2", dict(bval="BF")), ("HSETP2", dict(h_and="noh_and"))):
+        for k in c.of(mnemonic, cx=None):
+            b = "Sc" if is_cx(k) else source(k, "Rc", "URc", "Sc")
+            typ = k.operand_types[b].type
+            for a, y in set_pairs("F16")[:6]:
+                f, regs, memory = fields(k.name, cmp="LT", **sel), dict(R2=a), []
+                if "iswzB" in k.operand_types: f["iswzB"] = "H1_H0"
+                if is_cx(k):
+                    cx_fields, cx_regs, memory = cx_source(c.arch, k, b, y); f.update(cx_fields); regs.update(cx_regs)
+                elif typ in ("F16Imm", "F64Imm"): f.update(Sc=y >> 16, Sc1=y & 0xffff)
+                else: put(k, b, y, f, regs, memory, 4, ureg=6, bank=(0, 0x20))
+                c.add(k.name, f, regs, expect(k.name, a, y, cmp="LT"), memory=memory, portable=True)
+
+
 def widening(c):
     # HADD2.F32 adds two half lanes, takes the selected low result and widens it to F32. Its
     # first operand is -RZ; the second source's selector chooses the half for the low result.
@@ -253,7 +312,7 @@ def readable_formulas(c):
 
 
 def emulator_cases(c):
-    arithmetic(c); minmax(c); widening(c); readable_formulas(c)
+    arithmetic(c); minmax(c); comparisons(c); widening(c); readable_formulas(c)
 
 
 def hmnmx2_reference(family):
@@ -263,6 +322,19 @@ def hmnmx2_reference(family):
     fmt = "BF16" if family.startswith("hmnmx2_bf16") else "E6M9" if family.startswith("hmnmx2_e6m9") else "F16"
     return lambda a, b, _: half_minmax(a, 0x3c003c00 if rir else b, family.endswith("_min") or xorsign, "_nan_" in family, "_ftz_" in family,
                                        xorsign, xorsign and (not rir or family == "hmnmx2_xorsign_rir"), xorsign and not rir, fmt)
+
+
+def set_reference(mnemonic, s):
+    """The scalar.SETS fixture's output: HSET2's Rd, or HSETP2's Pu | Pv << 1."""
+    def packed(x, swizzle, **mods): return (l := lanes(x, swizzle, **mods))[0] | l[1] << 16
+
+    def ref(a, b, c):
+        a, b = packed(a, s.get("iswzA", "H1_H0"), negate=s.get("Ra@negate", 0)), packed(b, s.get("iswzB_as_C", "H1_H0"), absolute=s.get("Rc@absolute", 0))
+        kw = dict(cmp=s["cmp"], bop=s.get("bop", "AND"), p=(c != 0) != bool(s.get("Pp@not")), ftz=s.get("ftz") == "FTZ")
+        if mnemonic == "HSET2": return hset2(a, b, bf=s.get("bval", "BF") == "BF", **kw)
+        pu, pv = hsetp2(a, b, h_and=s.get("h_and") == "H_AND", **kw)
+        return int(pu) | int(pv) << 1
+    return ref
 
 
 def gpu_fixtures():
@@ -279,6 +351,7 @@ def gpu_fixtures():
             scalar.launch("hfma2_lanes", lambda a, b, c: half2("fma", [lanes(a, "H1_H1", negate=True), lanes(b, "H0_H0", absolute=True), lanes(c)]), same=same_halves),
             scalar.launch("hmul2_lanes", lambda a, b, _: half2("mul", [lanes(a, "H0_H0", absolute=True), lanes(b, "H1_H1", negate=True)]), same=same_halves)]
     out += [scalar.launch(f, hmnmx2_reference(f)) for f in scalar.TARGETS if f.startswith("hmnmx2_")]
+    out += [scalar.launch(f, set_reference(m, s)) for f, (m, s) in scalar.SETS.items() if m != "FSET"]
     # HMNMX2 with a CX source B: per-format edges in A, finite and NaN B words.
     masks = {"F16_V2": (0x7c00, 0x03ff), "BF16_V2": (0x7f80, 0x007f), "E6M9_V2": (0x7e00, 0x01ff)}
     edges = {"F16_V2": [0, 0x8000, 1, 0x8001, 0x03ff, 0x83ff, 0x0400, 0x8400, 0x3c00, 0xbc00, 0x7c00, 0xfc00, 0x7e01, 0x7c01],
