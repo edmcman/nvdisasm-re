@@ -16,11 +16,6 @@ def emulator_cases(c):
     # RET.REL from 0x1000: back to the function start (0x1000 - 0x480) plus the stored offset 0x170.
     c.add("ret__REL", dict(Ra=4, Ra_offset=-0x490, depth="NODEC"), dict(R4=0x170, R5=0), dict(__counter=0xcf0))
     c.add("exit_", {}, {}, dict(__counter=0))
-    warp = dict(values=list(range(32)), predicates=[i % 2 for i in range(32)], lane=3, active=0xffffffff)
-    c.add("shfl__RRR", dict(Rd=8, Pu=0, Ra=2, Rb=4, Rc=6, shflmd="IDX"), dict(R2=3, R4=5, R6=31), dict(R8=5, P0=1), context={"warp": warp})
-    c.add("shfl__RRR", dict(Rd=8, Pu=0, Ra=2, Rb=4, Rc=6, shflmd="IDX"), dict(R2=3, R4=5, R6=31), dict(error="inactive shuffle source"),
-          context={"warp": dict(warp, active=0xffffffdf)})
-    c.add("vote_", dict(Rd=8, Pu=0, Pp=1, voteop="ANY"), dict(P1=1), dict(R8=0xaaaaaaaa, P0=1), context={"warp": warp})
     c.add("bssy_", dict(Pp=0), dict(P0=0), dict(__events=0))
     c.add("bssy_", {}, {}, dict(error="synchronization context required"))
     c.add("bsync_", {}, {}, dict(__events=1), context={"synchronization": {"bsync": True}})

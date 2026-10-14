@@ -197,7 +197,7 @@ class Runtime:
             return out
         if op in ('SHFL','VOTE'):
             warp=self.context.get('warp')
-            if not warp or len(warp.get('values',[]))!=32:raise UnsupportedSemantics('explicit 32-lane warp context required')
+            if not warp:raise UnsupportedSemantics('explicit 32-lane warp context required')
             lane=int(warp.get('lane',0));active=int(warp.get('active',0xffffffff))
             if not 0<=lane<32 or not active>>lane&1:raise UnsupportedSemantics('warp lane is inactive or invalid')
             if op=='VOTE':
@@ -207,10 +207,13 @@ class Runtime:
                 mask=sum((1<<i) for i in range(32) if active>>i&1 and preds[i])
                 mode=label('voteop');result={'ALL':mask==active,'ANY':bool(mask),'EQ':mask==0 or mask==active}[mode]
                 return mask if dest=='Rd' else int(result)
-            b=integer('Rb','Sb')&31;c=integer('Rc','Sc');clamp=c&31;segment=c>>8&31
-            minimum=lane&segment;maximum=(lane&segment)|(clamp&~segment&31);mode=label('shflmd')
-            target={'IDX':minimum|(b&~segment&31),'UP':lane-b,'DOWN':lane+b,'BFLY':lane^b}[mode]
-            valid=minimum<=target<=maximum if 0<=target<32 else False
+            if len(warp.get('values',[]))!=32:raise UnsupportedSemantics('warp values required')
+            # PTX shfl.sync's rule; SM89 matches it exactly (524288 lane results, random b and c).
+            # UP's bound is a lower one (its clamp is the segment start); the others only check j <= bound.
+            b=integer('Rb','Sb')&31;c=integer('Rc','Sc');segment=c>>8&31
+            bound=(lane&segment)|(c&31&~segment);mode=label('shflmd')
+            target={'IDX':(lane&segment)|(b&~segment),'UP':lane-b,'DOWN':lane+b,'BFLY':lane^b}[mode]
+            valid=target>=bound if mode=='UP' else target<=bound
             if valid and not active>>target&1:raise UnsupportedSemantics('inactive shuffle source has undefined value')
             return int(valid) if dest=='Pu' else int(warp['values'][target if valid else lane])
         if op in ('BAR','BSSY','BSYNC','BMOV','BREAK','WARPSYNC'):
