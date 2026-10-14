@@ -87,7 +87,7 @@ Add GPU fixtures to the family's `gpu_fixtures()` in `tests/cases/<family>.py`
 (`tests/harness/gpu.py` `Fixture`/`Driver`, with `tests/harness/scalar.py` and
 `tests/harness/templates.py` for compiled and patched kernels). Verify the target
 instruction and selector, then compare GPU, reference and P-code outputs using the
-same input vectors; `python -m tests.observe <family>` shows raw GPU outputs for a
+same input vectors; `uv run python -m tests.observe <family>` shows raw GPU outputs for a
 draft fixture (`expected=None`).
 Check that the emulator actually visited the target instruction. When testing
 a patched instruction, preserve the kernel wrapper and document exactly which
@@ -99,10 +99,10 @@ behavior. Keep seeds, vector counts and executable fixtures with the evidence.
 
 ## Implement P-code when requested
 
-The repo's generator is `sass/gen_sleigh.py`; semantics are families in
-`sass/families/` (Python over the md-decoded instruction, `sass/sem_family.py`),
-lowered to SLEIGH by `sass/sem_sleigh.py` and lifted without Ghidra by
-`sass/sem_lift.py`. Explain these names if switching from discussing NVIDIA's
+The repo's generator is `src/sass/sleigh/gen.py`; semantics are families in
+`src/sass/semantics/families/` (Python over the md-decoded instruction, `src/sass/semantics/family.py`),
+lowered to SLEIGH by `src/sass/sleigh/lower.py` and lifted without Ghidra by
+`src/sass/semantics/lift.py`. Explain these names if switching from discussing NVIDIA's
 compiler to the repo.
 
 Write or extend the opcode's `@family`. Ask every selector the semantics depend
@@ -124,7 +124,7 @@ over a second decoding or execution framework.
 ## Build, verify and record
 
 Build the affected language first, then the architectures and exact/readable
-variants supported by the change. Use `sass.build_languages` so unused
+variants supported by the change. Use `sass.sleigh.build` so unused
 temporaries and Ghidra's decompressed SLA size limit are checked.
 
 Complete generation and compilation before parallel language loading. Ghidra
@@ -135,11 +135,11 @@ a `.sla`. For isolated output, use `SASS_SLEIGH_OUT` and copy the shared
 Typical checks, adjusted to the actual scope:
 
 ```sh
-python3 -m sass.build_languages SM89
-python -m tests.semantics SM89 exact --family <family>
-uv run --with pytest python -m pytest tests -m ghidra --arch SM89 --fp all
-uv run --with pytest python -m pytest tests -m gpu --require-gpu --family <family>
-python3 -m sass.coverage processor/SASS/data/languages --output processor/SASS/semantics/coverage.json
+uv run sass-build-languages SM89
+uv run python -m tests.semantics SM89 exact --family <family>
+uv run pytest tests -m ghidra --arch SM89 --fp all
+uv run pytest tests -m gpu --require-gpu --family <family>
+uv run sass-coverage processor/SASS/data/languages --output processor/SASS/semantics/coverage.json
 git diff --check
 ```
 
@@ -149,7 +149,7 @@ permission mechanism for device access or ptrace if the sandbox requires it;
 do not convert an unavailable GPU into a claimed hardware pass.
 
 Record the trace in `research/ptxas/ptxas-finalizer-notes.md`, semantic scope in
-`processor/SASS/semantics/README.md`, and measured results in
+`docs/semantics.md`, and measured results in
 `processor/SASS/semantics/verification.json`. Refresh coverage from generated
 manifests. Preserve earlier results with their dates and scopes; do not relabel
 old tests as newly run. Keep unrelated work intact.

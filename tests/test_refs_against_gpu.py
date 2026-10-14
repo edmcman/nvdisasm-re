@@ -2,7 +2,7 @@
 One item per (fixture, fp lowering); GPU kernels run one at a time, emulation per lowering in parallel."""
 from functools import cache
 import pytest
-from tests.conftest import families, require_languages, selected, skipped
+from tests.harness.select import families, require_languages, selected, skipped
 
 
 @cache

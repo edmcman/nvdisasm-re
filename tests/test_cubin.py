@@ -1,7 +1,7 @@
 """CUDA parameter metadata and whole-kernel launch setup regressions."""
 import struct
 import pytest
-from sass import cubin
+from sass.decode import cubin
 
 
 def record(attribute,payload):

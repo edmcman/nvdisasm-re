@@ -1,15 +1,13 @@
 """Layer 1: pydecode disassembles like nvdisasm, ratcheted per md class against baseline/SMxx.json.
 Every architecture, decoded in parallel processes."""
-import json
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor
-from pathlib import Path
 import pytest
-from tests import corpus, synth
-from tests.compare_pydecode_disassembly import PASSING, compare, sample
-from tests.paths import ARCHES
+from sass.oracle import corpus, synth
+from sass.check.pydecode_disasm import PASSING, compare, sample
+from sass.sleigh.build import ARCHES
+from tests.harness.baseline import BASELINE, ratchet
 
-BASELINE = Path(__file__).parent / "baseline"
 REAL_SAMPLE, MUTATED = 200_000, 50_000
 
 
@@ -29,17 +27,6 @@ def class_results(arch, full):
             key = labels[w].removeprefix("synth:") if labels else cls or f"<{(exp or '?').split()[0]}>"
             status[key] &= s in PASSING
     return dict(sorted(status.items()))
-
-
-def ratchet(path, now, update):
-    """Fail on classes that regressed against the baseline at `path`; report newly passing ones."""
-    if update: path.parent.mkdir(exist_ok=True); path.write_text(json.dumps(now, indent=0) + "\n")
-    if not path.exists(): pytest.fail(f"{path.name} missing: run with --update-baseline", pytrace=False)
-    base = json.loads(path.read_text())
-    regressed = sorted(c for c, ok in now.items() if base.get(c) and not ok)
-    improved = sorted(c for c, ok in now.items() if ok and base.get(c) is False)
-    if improved: print(f"{path.stem}: newly passing (run --update-baseline): {improved}")
-    assert not regressed, f"{path.stem}: classes regressed: {regressed}"
 
 
 @pytest.fixture(scope="session")

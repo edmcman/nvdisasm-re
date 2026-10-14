@@ -1,8 +1,9 @@
 """Layer 0: md expressions: operand sizes that control register dependencies, and CONDITIONS."""
 import itertools
 import pytest
-from sass import ir, mdexpr, pydecode
-from sass import pyencode
+from sass.decode import ir, pydecode
+from sass.md import expr as mdexpr
+from sass.decode import pyencode
 
 
 @pytest.fixture(scope="module")

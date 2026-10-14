@@ -676,7 +676,7 @@ Clamp position >=32 gives zero, width >=32 fills from a valid position to
 bit 31, and zero width gives zero. For example, position 32 and width 1 gives
 0 in clamp mode and 1 in wrap mode.
 
-`sass/operations.py::emit_BMSK` now emits these operations as native P-code.
+`src/sass/semantics/operations.py::emit_BMSK` now emits these operations as native P-code.
 Register, uniform-register, immediate and ordinary constant-bank forms are
 supported. The SM75-SM90 `bmsk__RCxR_RCxR` form prints, for example,
 `BMSK R8, R2, cx[UR4][0x10]`; its address reads a uniform-register pair plus
@@ -733,7 +733,7 @@ including size zero, the exact region boundary and the maximum encoded
 offset. Tests also exercise high size bits to distinguish address and size.
 The reference enumerates output mask bits independently of the P-code.
 
-`sass/semantic.py::Builder.compound` now supplies this bounded 32-bit `ram`
+`src/sass/semantics/operands.py::Builder.compound` now supplies this bounded 32-bit `ram`
 load specifically for BMSK CX on SM75-SM90. SM90 uses the Hopper layout at
 the user's request, with emulator validation but **no Hopper hardware pass**.
 Zero-on-out-of-bounds on SM90 follows the SM89 behavior and remains pending

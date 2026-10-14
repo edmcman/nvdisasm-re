@@ -2,7 +2,7 @@
 model; FSETP; FSEL/FMNMX/FMNMX3 selection rules; FCHK's division slow-path test; readable-lowering
 formulas."""
 import itertools, random
-from sass import softfloat
+from sass.semantics.fp import softfloat
 from tests.harness.case import cx_source, is_cx, put, source
 from tests.refs.bits import f32, ftz32, nan32
 from tests.refs.float import FCOMPARISONS, fchk_divide, fcompare, fmnmx, fmnmx3_pick, fmnmx_xorsign, readable, underflow_band

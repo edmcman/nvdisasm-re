@@ -30,13 +30,14 @@ computes `Rd = Ra*Sb + Rc`.
 ## Usage
 
 ```sh
-uv run extract_md.py /path/to/nvdisasm   # -> out/raw/{md,latencies,patterns}_SMxx.txt (gitignored)
-python3 build_out.py                     # -> out/SMxx/...
+uv sync                              # installs the `sass` package (src/sass) and its console scripts
+uv run sass-extract-md [nvdisasm]    # -> out/raw/{md,latencies,patterns}_SMxx.txt (gitignored)
+uv run sass-layout-md                # -> out/SMxx/...
 ```
 
-`extract_md.py` needs `objdump` and pulls in `lz4` through its inline uv script metadata.
+`sass-extract-md` needs `objdump`; without an argument it uses the nvdisasm located by `src/sass/paths.py`.
 The offsets are specific to the CUDA 13.4 build (V13.4.92); other builds will need new
-addresses (see `AGENTS.md`).
+addresses (see [`docs/nvdisasm-binary.md`](docs/nvdisasm-binary.md)).
 
 The generated output from CUDA 13.4 is committed, so you can browse it without
 running anything:
@@ -83,17 +84,17 @@ A list with one record per instruction class:
 
 ## Decoding SASS from the machine descriptions
 
-The `md` files are complete enough to decode instructions. `sass/` turns them into two
+The `md` files are complete enough to decode instructions. `src/sass/` turns them into two
 disassemblers, both checked against `nvdisasm` itself.
 
-### Reference decoder (`sass/pydecode.py`)
+### Reference decoder (`src/sass/decode/pydecode.py`)
 
 A pure-Python decoder that reproduces `nvdisasm`'s text exactly:
 
 ```sh
-python3 -m sass.pydecode kernel.cubin                    # arch from the ELF header, every .text.* section
-python3 -m sass.pydecode --arch SM89 code.bin            # raw instruction binary
-python3 -m sass.pydecode --arch SM89 0278050004000000000f000000e20f00 47790000f02700000000800300ea0f00
+uv run sass-decode kernel.cubin                               # arch from the ELF header, every .text.* section
+uv run sass-decode --arch SM89 code.bin                       # raw instruction binary
+uv run sass-decode --arch SM89 0278050004000000000f000000e20f00 47790000f02700000000800300ea0f00
 ```
 
 ```
@@ -105,7 +106,7 @@ It runs on the committed `out/` files with no dependencies. `--float-hex` prints
 immediates as raw bits, the way the Ghidra decoder does. From Python:
 
 ```python
-from sass import pydecode
+from sass.decode import pydecode
 d = pydecode.decode("SM89", bytes.fromhex("247210ffff00000002008e0700e40f10"), addr=0)
 d.text        # 'IMAD.MOV.U32 R16, RZ, RZ, R2.reuse'
 d.klass.name  # 'imad_pseudo__RRR_RRR' (the md CLASS that matched)
@@ -114,7 +115,7 @@ d.env         # decoded field values, e.g. d.env["Rd"] == 16
 
 Words that don't decode raise `pydecode.NoMatch`. The rules it implements (how classes are
 matched, which md conventions `nvdisasm` honours, and its printing quirks) are listed in
-[`AGENTS.md`](AGENTS.md#decoding-sass-tests).
+[`docs/decoding.md`](docs/decoding.md).
 
 ### Ghidra processor (`processor/SASS/`)
 
@@ -128,11 +129,11 @@ Ghidra 12.1.4.
 
    ```sh
    export GHIDRA_INSTALL_DIR=/path/to/ghidra_12.1.4_PUBLIC
-   python3 -m sass.build_languages
+   uv run sass-build-languages
    ```
 
    To build only selected architectures, pass them as arguments, for example
-   `python3 -m sass.build_languages SM89 SM90`. The default uses Ghidra's
+   `uv run sass-build-languages SM89 SM90`. The default uses Ghidra's
    `support/sleigh` launcher (`support/sleigh.bat` on Windows). For another compiler
    location, pass `--sleigh /path/to/sleigh` (or `sleigh.exe`). The build generates
    `.slaspec`, `.sla`, `sass.ldefs`, and coverage manifests in
@@ -164,7 +165,7 @@ Ghidra 12.1.4.
    parameters automatically. Disassemble the code and run analysis to view p-code
    and supported instruction semantics in the decompiler.
 
-`python3 -m sass.gen_sleigh SM75 SM80 ...` generates a SLEIGH spec per architecture
+`uv run sass-gen-sleigh SM75 SM80 ...` generates a SLEIGH spec per architecture
 (`sass_smXX.slaspec`, not committed: run the generator first) and `sass.ldefs` with languages `SASS:LE:64:smXX`
 (`--fp=readable` writes `sass_smXX_readable.slaspec`, language `SASS:LE:64:smXX_readable`). Ghidra
 compiles the `.sla` on first use. P-code preserves register reads and writes for every
@@ -172,7 +173,7 @@ class. Instruction semantics add native integer, move, memory, control-flow and
 floating-point overrides, plus runtime primitives for other floating-point and warp
 operations. Unsupported variants retain explicit opaque calls. Operand values,
 coverage, runtime interfaces and verification commands are documented in
-[`processor/SASS/semantics/README.md`](processor/SASS/semantics/README.md).
+[`docs/semantics.md`](docs/semantics.md).
 Predicates print glued to the mnemonic
 (`@P0:IMAD ...`) because SLEIGH can't put a space there, and float immediates print as raw bits.
 Computed 64-bit immediates may print as negative hexadecimal; the comparison tool checks
@@ -185,16 +186,16 @@ Operand types identify register resources: an immediate with a register-like lat
 connector (such as IPA's attribute offset) is not treated as a register. Spans extending
 past the register bank use a sink so unusual words still decode; their dataflow is undefined.
 
-For a scratch build, run `python3 -m sass.build_languages SM89 --output /tmp/sass-languages`
+For a scratch build, run `uv run sass-build-languages SM89 --output /tmp/sass-languages`
 (the build copies shared definitions automatically), then set
 `SASS_SLEIGH_OUT=/tmp/sass-languages` when running Ghidra tests. When using
-`sass.gen_sleigh` directly, copy `sass_common.sinc`, `sass.pspec`, and `sass.cspec`
+`sass.sleigh.gen` directly, copy `sass_common.sinc`, `sass.pspec`, and `sass.cspec`
 to the scratch directory first. Register dataflow is checked by
-`uv run --with pytest python -m pytest tests -m ghidra -k dataflow` (requires pyghidra; see Testing).
+`uv run pytest tests -m ghidra -k dataflow` (requires pyghidra; see Testing).
 
 ### GPU semantics oracle
 
-`uv run --with pytest python -m pytest tests -m gpu --require-gpu` compiles 100 SM89 CUDA kernels
+`uv run pytest tests -m gpu --require-gpu` compiles 100 SM89 CUDA kernels
 (and patched variants), runs them on the GPU, then executes the same kernel text in Ghidra's p-code
 emulator. It checks 12,800 random/edge output values, including address setup,
 constant parameters, memory operations, predication, and loops. Patched fixtures
@@ -203,7 +204,7 @@ execute the resulting cubin. A 64-bit PTX comparison checks the ptxas ISETP.EX
 lowering. F2FP fixtures cover packed F16/BF16 RN/RZ, E4M3/E5M2 FP8 packing
 with H1 C merges, and E4M3/E5M2 FP8-to-F16 UNPACK_B H0/H1 across all byte
 encodings. See
-[semantic coverage and limitations](processor/SASS/semantics/README.md) for the
+[semantic coverage and limitations](docs/semantics.md) for the
 verified modes and excluded warp/concurrency operations.
 
 ### Testing against nvdisasm
@@ -216,14 +217,14 @@ The tests use `nvdisasm -b SMxx` as an oracle, over three corpora:
 - **mutated**: real words with one or two bits flipped
 
 ```sh
-python -m tests.compare_pydecode_disassembly SM89 real 0       # pydecode vs nvdisasm (0 = whole corpus)
-python -m tests.compare_ghidra_disassembly SM89 synthetic 0    # Ghidra (generated SLEIGH) vs pydecode
-uv run --with pytest python -m pytest tests                    # layers 0-1: helpers, per-class ratchet vs tests/baseline/
-uv run --with pytest python -m pytest tests -m ghidra --arch all --fp all   # layers 2-4 (compiled languages)
-uv run --with pytest python -m pytest tests -m gpu --require-gpu            # layer 5 (SM89 GPU)
+uv run sass-compare-pydecode SM89 real 0       # pydecode vs nvdisasm (0 = whole corpus)
+uv run sass-compare-ghidra SM89 synthetic 0    # Ghidra (generated SLEIGH) vs pydecode
+uv run pytest tests                    # layers 0-1: helpers, per-class ratchet vs tests/baseline/
+uv run pytest tests -m ghidra --arch all --fp all   # layers 2-4 (compiled languages)
+uv run pytest tests -m gpu --require-gpu            # layer 5 (SM89 GPU)
 ```
 
-`nvdisasm` results are cached in `.cache/oracle.sqlite`. Tool locations live in `tests/paths.py`:
+`nvdisasm` results are cached in `.cache/oracle.sqlite`. Tool locations live in `src/sass/paths.py`:
 `NVDISASM` (default: the CUDA 13.4 copy in uv's cache or `/tmp/.venv`), `NVCC`, `CUOBJDUMP`,
 `GHIDRA_PY` and `SASS_SLEIGH_OUT` override them.
 
@@ -244,7 +245,7 @@ Current results (CUDA 13.4 `nvdisasm`):
   prints as `TARGET=` annotations. `--print-life-ranges` builds on the same framework,
   using the connector def/use data above.
 
-Function addresses and details are in [`AGENTS.md`](AGENTS.md).
+Function addresses and details are in [`docs/nvdisasm-binary.md`](docs/nvdisasm-binary.md).
 
 ## Disclaimer
 

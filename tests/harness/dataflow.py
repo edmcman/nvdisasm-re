@@ -1,9 +1,10 @@
 """Layer 3: register dataflow and control flow of generated p-code against md operand roles,
 exact spans and BRANCH_TYPE."""
-from sass import mdexpr, pydecode
-from sass.sem_family import family_for
-from sass.gen_sleigh import ENUM_FILE, REG_FILES, RESOURCE_FILE, Gen
-from tests.harness import ghidra
+from sass.md import expr as mdexpr
+from sass.decode import pydecode
+from sass.semantics.family import family_for
+from sass.sleigh.gen import ENUM_FILE, REG_FILES, RESOURCE_FILE, Gen
+from sass.ghidra_bridge import client as ghidra
 
 
 PREFIX={'B0':1,'B1':2,'B2':3,'B3':4,'H0':2,'H1':4}   # bytes read up to a selected byte or half

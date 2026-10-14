@@ -3,9 +3,9 @@ the CUDA Driver API, and build the equivalent whole-kernel emulator request."""
 import ctypes as C, hashlib, struct, subprocess
 from dataclasses import dataclass, field
 from typing import Callable
-from sass import cubin as elf, pydecode
-from sass.pyencode import word
-from tests.paths import CACHE, NVCC, ROOT
+from sass.decode import cubin as elf, pydecode
+from sass.decode.pyencode import word
+from sass.paths import CACHE, NVCC, ROOT
 
 ENCODING = (1 << 105) - 1  # instruction bits below the scheduling controls
 INPUT, OUTPUT = 0x100000000, 0x200000000

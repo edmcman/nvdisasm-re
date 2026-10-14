@@ -4,8 +4,8 @@ from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor
 from functools import cache
 import pytest
-from tests.conftest import arches, families, modes, require_languages, selected, skipped
-from tests.harness import ghidra
+from tests.harness.select import arches, families, modes, require_languages, selected, skipped
+from sass.ghidra_bridge import client as ghidra
 from tests.harness.checks import problems
 
 

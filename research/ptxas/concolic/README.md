@@ -162,7 +162,7 @@ Baseline (blocking AFL++ + SymQEMU custom mutator, SM100 only, `/tmp/ptx-concoli
 ## Tests
 
 ```sh
-uv run --with pytest python -m pytest research/ptxas/concolic/test_pipeline.py
+uv run pytest research/ptxas/concolic/test_pipeline.py
 cargo test --release --manifest-path research/ptxas/concolic/libafl/Cargo.toml
 # Include the pinned QEMU comparison fixture and C layout check (requires built tools and cc):
 cargo test --release --manifest-path research/ptxas/concolic/libafl/Cargo.toml -- --include-ignored

@@ -36,7 +36,7 @@ When using compiler probes, keep inputs runtime-dependent and outputs observable
 
 ## 3. Implement with explicit selector coverage
 
-Add or extend the family in `sass/operations.py`; obtain typed operand values through `sass/semantic.py`. Reuse existing generator and test helpers rather than inventing parallel frameworks.
+Add or extend the family in `src/sass/semantics/operations.py`; obtain typed operand values through `src/sass/semantics/operands.py`. Reuse existing generator and test helpers rather than inventing parallel frameworks.
 
 - Constrain supported selector combinations at decode time.
 - Keep unresolved encodings on an explicit opaque or primitive fallback.
@@ -51,7 +51,7 @@ Update semantic fixtures and dataflow expectations. Fixtures should assert value
 
 Try a GPU oracle whenever a usable device and toolchain are available. GPU validation is encouraged, but a device or compiler limitation must be reported as an environment limitation rather than a semantic conclusion.
 
-Add GPU fixtures to the family's `gpu_fixtures()` in `tests/cases/<family>.py`, reusing `tests/harness/scalar.py` (compiled scalar kernels), `tests/harness/templates.py` (patched CX wrapper and carry-kernel slots) and `tests/harness/gpu.py` (`Fixture`, `Driver`). While the behavior is unknown, draft the fixture with `expected=None` and run `python -m tests.observe <family>` to see raw GPU outputs; then write the reference in `tests/refs/` and the fixture becomes a regression test. A fixture:
+Add GPU fixtures to the family's `gpu_fixtures()` in `tests/cases/<family>.py`, reusing `tests/harness/scalar.py` (compiled scalar kernels), `tests/harness/templates.py` (patched CX wrapper and carry-kernel slots) and `tests/harness/gpu.py` (`Fixture`, `Driver`). While the behavior is unknown, draft the fixture with `expected=None` and run `uv run python -m tests.observe <family>` to see raw GPU outputs; then write the reference in `tests/refs/` and the fixture becomes a regression test. A fixture:
 
 1. Compiles a small kernel for the target architecture.
 2. Verifies the expected opcode and selector are present, or documents the exact word/fields patched into the kernel.
@@ -65,16 +65,16 @@ If GPU execution cannot be performed, state why (device unavailable, unsupported
 
 ## 5. Build and validate in a safe order
 
-Generate and compile languages before parallel Ghidra loading. Concurrent compiler writes to one `.sla` can corrupt it. Use `sass.build_languages`; select `--jobs` based on available CPU and memory, and keep build logs so failures can be classified.
+Generate and compile languages before parallel Ghidra loading. Concurrent compiler writes to one `.sla` can corrupt it. Use `sass.sleigh.build`; select `--jobs` based on available CPU and memory, and keep build logs so failures can be classified.
 
 Run focused checks first, then broaden to the architectures and exact/readable modes the change claims to support. Typical checks include:
 
 ```sh
-python3 -m sass.build_languages SM89
-python -m tests.semantics SM89 exact --family <family>
-uv run --with pytest python -m pytest tests -m ghidra --arch SM89 --fp all
-uv run --with pytest python -m pytest tests -m gpu --require-gpu --family <family>
-python3 -m sass.coverage processor/SASS/data/languages --output processor/SASS/semantics/coverage.json
+uv run sass-build-languages SM89
+uv run python -m tests.semantics SM89 exact --family <family>
+uv run pytest tests -m ghidra --arch SM89 --fp all
+uv run pytest tests -m gpu --require-gpu --family <family>
+uv run sass-coverage processor/SASS/data/languages --output processor/SASS/semantics/coverage.json
 git diff --check
 ```
 

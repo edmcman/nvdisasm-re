@@ -6,8 +6,8 @@ import json
 from pathlib import Path
 import sys
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from sass.cubin import text_sections
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
+from sass.decode.cubin import text_sections
 
 
 def validate(capture, cubin):

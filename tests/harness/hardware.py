@@ -1,7 +1,7 @@
 """Layer 5: run GPU fixtures on the SM89 device and in the emulator, and report disagreements."""
-from tests.harness import ghidra
+from sass.ghidra_bridge import client as ghidra
 from tests.harness.gpu import Driver, request
-from tests.paths import FP_MODES
+from sass.sleigh.gen import MODES as FP_MODES
 
 
 def first_mismatch(got, want, same):

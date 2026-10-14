@@ -1,7 +1,7 @@
 # Semantics limitation audit
 
 Worklist of semantics limitations identified in the 2026-10-11 review of
-`sass/operations.py`, compared with the checked-in CuLifter machine
+`src/sass/semantics/operations.py`, compared with the checked-in CuLifter machine
 descriptions and repository semantics policy. Remove each item when its
 implementation and evidence are complete.
 
@@ -22,7 +22,7 @@ TF32 and other architectures have emulator
 coverage but lack hardware evidence on the available SM89 GPU; that is a
 verification scope limit, not a reason to restrict generated semantics.
 
-The selector inventory is grounded in `sass.ir` classes and enums. On SM86,
+The selector inventory is grounded in `sass.decode.ir` classes and enums. On SM86,
 SM89, and SM90, the `f2fp__` family allows
 `DSTFMT=F16/BF16/E6M9/E8M7/E5M2/E4M3`; native F16/BF16 support is unchanged.
 E6M9 `PACK_AB` is now native for RN/RZ, RELU, SATFINITE, and combinations.

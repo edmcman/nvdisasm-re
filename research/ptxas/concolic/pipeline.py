@@ -20,7 +20,7 @@ import time
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
-sys.path.insert(0, str(REPO))
+sys.path.insert(0, str(REPO / "src"))
 from corpus import heads, instruction_region, name_key, sass_key, tokens
 from forms import ARCHITECTURES, TARGETS, canonical, decode_cubin, digest
 VERIFIED_COMPILER = 'daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2'

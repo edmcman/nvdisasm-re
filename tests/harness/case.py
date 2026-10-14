@@ -1,8 +1,8 @@
 """Single-instruction emulator cases: operand placement and the Case/Cases collections
-(words come from sass.pyencode)."""
+(words come from sass.decode.pyencode)."""
 from typing import NamedTuple
-from sass import ir
-from sass.pyencode import encode
+from sass.decode import ir
+from sass.decode.pyencode import encode
 
 IMMEDIATES = ("SImm", "UImm", "F32Imm")
 

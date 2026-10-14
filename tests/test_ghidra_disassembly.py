@@ -3,13 +3,13 @@ class against baseline/ghidra_SMxx.json. Synthetic words (64 per class) by defau
 the whole real corpus. Architectures run concurrently; display is identical for both lowerings."""
 from collections import defaultdict
 import pytest
-from tests import synth
-from tests.compare_ghidra_disassembly import compare
-from tests.compare_pydecode_disassembly import sample
-from tests.conftest import arches, require_languages
-from tests.harness import ghidra
-from tests.paths import ARCHES
-from tests.test_pydecode_disassembly import BASELINE, ratchet
+from sass.oracle import synth
+from sass.check.ghidra_disasm import compare
+from sass.check.pydecode_disasm import sample
+from tests.harness.select import arches, require_languages
+from sass.ghidra_bridge import client as ghidra
+from sass.sleigh.build import ARCHES
+from tests.harness.baseline import BASELINE, ratchet
 
 
 def class_results(arch, full):

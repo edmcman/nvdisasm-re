@@ -3,14 +3,14 @@ SLEIGH backend's enumeration: a family that crashes on some class shape fails he
 language build."""
 from concurrent.futures import ProcessPoolExecutor
 import pytest
-from tests.paths import ARCHES
+from sass.sleigh.build import ARCHES
 
 
 def crashes(arch):
-    from sass.gen_sleigh import Gen
-    from sass.semantic import Builder
-    from sass.sem_family import family_for
-    from sass.sem_sleigh import enumerate_rows
+    from sass.sleigh.gen import Gen
+    from sass.semantics.operands import Builder
+    from sass.semantics.family import family_for
+    from sass.sleigh.lower import enumerate_rows
     g, out = Gen(arch, "exact"), []
     for k in g.arch.classes:
         fam = family_for(k)

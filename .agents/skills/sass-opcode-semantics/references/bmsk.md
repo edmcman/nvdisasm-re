@@ -81,7 +81,7 @@ Specification: [PTX bmsk](https://docs.nvidia.com/cuda/parallel-thread-execution
 
 ## Implementation and verification
 
-`sass/operations.py::emit_BMSK` supports register, uniform-register, immediate
+`src/sass/semantics/operations.py::emit_BMSK` supports register, uniform-register, immediate
 and ordinary constant-bank width operands. It retains the unresolved CX form
 as an opaque fallback. UBMSK was not added in this change.
 
@@ -89,9 +89,9 @@ The fixtures are `tests/cases/bmsk.py` and `tests/kernels/bmsk_semantics.cu`.
 Focused value tests can run as:
 
 ```sh
-python -m tests.semantics SM89 exact --family bmsk
-python -m tests.semantics SM89 readable --family bmsk
-uv run --with pytest python -m pytest tests -m gpu --require-gpu --family bmsk
+uv run python -m tests.semantics SM89 exact --family bmsk
+uv run python -m tests.semantics SM89 readable --family bmsk
+uv run pytest tests -m gpu --require-gpu --family bmsk
 ```
 
 The SM89 hardware oracle compiles two whole kernels, verifies one BMSK in each

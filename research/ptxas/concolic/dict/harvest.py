@@ -7,7 +7,7 @@ import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-sys.path[:0] = [str(HERE.parent), str(HERE.parents[3])]
+sys.path[:0] = [str(HERE.parent), str(HERE.parents[3] / "src")]
 from forms import TARGETS
 
 def main():

@@ -66,7 +66,7 @@ def emulator_cases(c):
 
 def gpu_fixtures():
     """Compiled clamp/wrap kernels (differing only at bit 75) and the patched CX wrapper."""
-    from sass import ir
+    from sass.decode import ir
     from tests.harness.gpu import Fixture, Template, compile
     from tests.harness.templates import cx_fixture, rows
     image = compile("bmsk_semantics")

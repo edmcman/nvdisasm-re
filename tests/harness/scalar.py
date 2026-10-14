@@ -3,10 +3,10 @@ once, with arithmetic fields patched where PTX lowering cannot select a SASS mod
 three inputs per thread and write one output; families supply vectors and references."""
 import random
 from functools import cache
-from sass import ir, pydecode
-from sass.pyencode import encode, klass
+from sass.decode import ir, pydecode
+from sass.decode.pyencode import encode, klass
 from tests.harness.gpu import ENCODING, Fixture, Template, compile
-from sass import softfloat
+from sass.semantics.fp import softfloat
 from tests.refs.bits import nan16
 from tests.refs.float import underflow_band
 

@@ -144,8 +144,8 @@ def fixed(c):
 
 def imad_constant(c):
     """IMAD HI/WIDE with a constant-bank addend: 64 bits wide (the md's SM75/SM80 32 is corrected
-    in mdfixes.py; ptxas adds 64-bit pointer parameters this way)."""
-    from sass.sem_family import predicates
+    in src/sass/md/fixes.py; ptxas adds 64-bit pointer parameters this way)."""
+    from sass.semantics.family import predicates
     sizes = predicates(c.arch)
     width = sizes.get("imad_hi__RRC_RRC", next(v for k, v in sizes.items() if k.startswith("imad_hi__")))["ISRC_C_SIZE"]
     memory = [dict(space="cbank", address=(2 << 32) | 16, hex="ffffffff02000000")]

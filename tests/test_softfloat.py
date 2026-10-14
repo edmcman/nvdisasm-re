@@ -2,7 +2,7 @@
 import ctypes, math, random
 from fractions import Fraction
 import pytest
-from sass import softfloat
+from sass.semantics.fp import softfloat
 from tests.refs.bits import bits32, bits64, f16, f16_bits, f32, f64
 
 LIBM = ctypes.CDLL("libm.so.6")

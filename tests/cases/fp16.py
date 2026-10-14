@@ -2,7 +2,7 @@
 NaN, FTZ, XORSIGN, IS_A source predicates); HADD2.F32 widening; HFMA2.MMA constant moves."""
 import itertools, random
 from itertools import product
-from sass import softfloat
+from sass.semantics.fp import softfloat
 from tests.harness.case import cbank, cx_header, cx_source, put, ram, source
 from tests.refs.float import half_minmax, readable, underflow_band, widen_half
 

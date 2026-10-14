@@ -2,7 +2,7 @@
 known Ghidra emulator underflow band."""
 import math
 from fractions import Fraction
-from sass import softfloat
+from sass.semantics.fp import softfloat
 from tests.refs.bits import bf16, f16, f32, ftz16, ftz32, nan16, nan32, nan_bf16
 
 FCOMPARISONS = ("LT", "EQ", "LE", "GT", "NE", "GE", "LTU", "EQU", "LEU", "GTU", "NEU", "GEU", "NUM", "NAN")

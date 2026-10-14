@@ -1,0 +1,37 @@
+"""Layer selection from the pytest options (see conftest.py) and the stale-language guard."""
+import pytest
+from sass.paths import LANGUAGES
+from sass.sleigh.build import ARCHES
+from sass.sleigh.gen import MODES as FP_MODES
+
+
+def selected(config, marker):
+    """Whether -m selects `marker` (expensive layers build their parameters only then)."""
+    expr = config.option.markexpr
+    return marker in expr and f"not {marker}" not in expr
+
+
+def skipped(metafunc, name, marker):
+    metafunc.parametrize(name, [pytest.param(None, marks=pytest.mark.skip(f"{marker} layer not selected (-m {marker})"))])
+
+
+def option_list(config, name, universe):
+    value = config.getoption(name)
+    return list(universe) if value == "all" else value.split(",")
+
+
+def arches(config): return option_list(config, "--arch", ARCHES)
+def modes(config): return option_list(config, "--fp", FP_MODES)
+def families(config):
+    from tests.cases import FAMILIES
+    return config.getoption("--family") or list(FAMILIES)
+
+
+def require_languages(variants):
+    """Fail early on a stale .sla: Ghidra recompiles it on load, and concurrent compilers corrupt it."""
+    from sass.sleigh.gen import variant
+    sources = [LANGUAGES / "sass_common.sinc"]
+    for arch, fp in variants:
+        sla, spec = LANGUAGES / f"sass_{variant(arch, fp)}.sla", LANGUAGES / f"sass_{variant(arch, fp)}.slaspec"
+        if not sla.exists() or any(s.stat().st_mtime > sla.stat().st_mtime for s in [spec, *sources]):
+            pytest.fail(f"{sla.name} is missing or stale: run `python3 -m sass.sleigh.build` first", pytrace=False)

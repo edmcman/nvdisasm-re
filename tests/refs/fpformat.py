@@ -1,13 +1,13 @@
 """Exact rational minifloat formats and the conversion rules SASS instructions apply on top.
 
 Independent of the generated semantics: values are Fractions, rounding picks among enumerated
-encodings. Only sass.softfloat (the reference IEEE model) is used, to unpack fp16/32/64 sources.
+encodings. Only sass.semantics.fp.softfloat (the reference IEEE model) is used, to unpack fp16/32/64 sources.
 """
 from bisect import bisect_left
 from fractions import Fraction
 from functools import cache
 from typing import NamedTuple
-from sass import softfloat
+from sass.semantics.fp import softfloat
 
 
 class Format(NamedTuple):

@@ -5,7 +5,7 @@ usage: python -m tests.semantics SM89 [exact|readable] [--family f2fp ...] [--sh
 import argparse
 from collections import defaultdict
 from tests.cases import FAMILIES, emulator_cases
-from tests.harness import ghidra
+from sass.ghidra_bridge import client as ghidra
 from tests.harness.checks import problems
 
 

@@ -3,9 +3,10 @@ import hashlib
 import json
 from functools import cache
 from pathlib import Path
-from sass import cubin, ir, mdexpr, pydecode
-from sass.gen_sleigh import ENUM_FILE
-import mdlib
+from sass.decode import cubin, ir, pydecode
+from sass.md import expr as mdexpr
+from sass.sleigh.gen import ENUM_FILE
+from sass.md import parse as mdlib
 
 ARCHITECTURES = ('SM75','SM80','SM86','SM89','SM90','SM100','SM101','SM103','SM120')
 TARGETS = {a: 'sm_' + ('110' if a == 'SM101' else a[2:]) for a in ARCHITECTURES}

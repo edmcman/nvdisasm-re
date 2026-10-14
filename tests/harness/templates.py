@@ -6,7 +6,7 @@
   (Ra=R2, Rb=R5, Rc=R6, Rd=R11; R11 is stored).
 """
 from functools import cache
-from sass import cubin as elf
+from sass.decode import cubin as elf
 from tests.harness.gpu import ENCODING, Template, compile, sm89
 
 SLOTS = tuple(range(0x100, 0x180, 16))

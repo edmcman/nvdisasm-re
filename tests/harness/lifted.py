@@ -1,8 +1,9 @@
-"""Run layer-4 emulator cases through the Ghidra-free semantics (`sass.sem_lift` + `sass.sem_eval`)."""
+"""Run layer-4 emulator cases through the Ghidra-free semantics (`sass.semantics.lift` + `sass.semantics.evaluate`)."""
 import re
 from functools import cache
-from sass import ir, pydecode, sem_eval, sem_lift
-from sass.sem_family import family_for
+from sass.decode import ir, pydecode
+from sass.semantics import evaluate as sem_eval, lift as sem_lift
+from sass.semantics.family import family_for
 from tests.harness.checks import problems
 
 NAME = re.compile(r"(UR|UP|R|P)(\d+)$")

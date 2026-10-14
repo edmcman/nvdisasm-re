@@ -1,11 +1,11 @@
-"""Layer 0: decode-time folding (sass.sem_sleigh.Fold). SLEIGH constructor actions have only 64-bit
+"""Layer 0: decode-time folding (sass.sleigh.lower.Fold). SLEIGH constructor actions have only 64-bit
 signed arithmetic and bit operations, so comparisons and ite are encoded arithmetically; the text
 Fold writes, evaluated with those semantics, must equal sem_eval of the expression."""
 import ast, random
 import pytest
-from sass import sem
-from sass.sem_eval import evaluate
-from sass.sem_sleigh import Fold
+from sass.semantics import bitvec as sem
+from sass.semantics.evaluate import evaluate
+from sass.sleigh.lower import Fold
 
 MASK64 = (1 << 64) - 1
 

@@ -14,8 +14,8 @@ REFS = Path(__file__).parent / "refs"
 def test_refs_import_only_softfloat_from_sass(path):
     imports = {node.module for node in ast.walk(ast.parse(path.read_text())) if isinstance(node, ast.ImportFrom) and node.module}
     imports |= {alias.name for node in ast.walk(ast.parse(path.read_text())) if isinstance(node, ast.Import) for alias in node.names}
-    assert all(m == "sass" or not m.startswith("sass") for m in imports), sorted(imports)
-    names = {alias.name for node in ast.walk(ast.parse(path.read_text())) if isinstance(node, ast.ImportFrom) and node.module == "sass" for alias in node.names}
+    assert all(m == "sass.semantics.fp" or not m.startswith("sass") for m in imports), sorted(imports)
+    names = {alias.name for node in ast.walk(ast.parse(path.read_text())) if isinstance(node, ast.ImportFrom) and node.module == "sass.semantics.fp" for alias in node.names}
     assert names <= {"softfloat"}, names
 
 

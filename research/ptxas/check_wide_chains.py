@@ -10,10 +10,10 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT))
-from sass.cubin import kernel_image
-from sass import pydecode
-from tests.harness import ghidra
+sys.path.insert(0, str(ROOT / "src"))
+from sass.decode.cubin import kernel_image
+from sass.decode import pydecode
+from sass.ghidra_bridge import client as ghidra
 
 
 def emulate(requests):

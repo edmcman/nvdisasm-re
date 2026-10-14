@@ -1,7 +1,7 @@
 """FP64 DADD/DMUL/DFMA/DSETP: register pairs, overlap, modifiers and every rounding mode against
 exact rational arithmetic; readable-lowering formulas."""
 import random
-from sass import softfloat
+from sass.semantics.fp import softfloat
 from tests.harness.case import cbank, pair
 from tests.refs.bits import f64
 from tests.refs.float import FCOMPARISONS, fcompare, readable, underflow_band

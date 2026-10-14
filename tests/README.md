@@ -7,12 +7,12 @@ pyghidra venv) and `gpu` (an SM89 device).
 | # | Question | Under test | Oracle | File |
 |---|---|---|---|---|
 | 0 | helpers right? | refs, softfloat, mdexpr, cubin; every family runs on every class it covers | libm / hand values | `test_refs.py`, `test_softfloat.py`, `test_mdexpr.py`, `test_cubin.py`, `test_sem_families.py` |
-| 1 | decode like nvdisasm? | `sass/pydecode` | nvdisasm | `test_pydecode_disassembly.py` (CLI `compare_pydecode_disassembly`) |
-| 2 | SLEIGH disassembles like pydecode? | `.sla` display | pydecode | `test_ghidra_disassembly.py` (ratchet `baseline/ghidra_SMxx.json`; CLI `compare_ghidra_disassembly`) |
+| 1 | decode like nvdisasm? | `sass.decode.pydecode` | nvdisasm | `test_pydecode_disassembly.py` (CLI `sass-compare-pydecode`) |
+| 2 | SLEIGH disassembles like pydecode? | `.sla` display | pydecode | `test_ghidra_disassembly.py` (ratchet `baseline/ghidra_SMxx.json`; CLI `sass-compare-ghidra`) |
 | 3 | p-code reads/writes the right registers? | `.sla` dataflow | md roles/spans, BRANCH_TYPE | `test_pcode_dataflow.py` (+ op-count ratchet `baseline/pcode_<variant>.json`) |
 | 4a | lifted semantics compute the right values? (no Ghidra) | `sass/sem_lift` + `sem_eval` on families | `tests/refs/` | `test_sem_semantics.py` (same cases as layer 4) |
-| 4 | p-code computes the right values? | `.sla` p-code in Ghidra's emulator | `tests/refs/` | `test_pcode_semantics.py` (CLI `python -m tests.semantics`) |
-| 5 | refs and emulator right? | refs + emulated p-code | SM89 GPU | `test_refs_against_gpu.py` (CLI `python -m tests.observe FAMILY`) |
+| 4 | p-code computes the right values? | `.sla` p-code in Ghidra's emulator | `tests/refs/` | `test_pcode_semantics.py` (CLI `uv run python -m tests.semantics`) |
+| 5 | refs and emulator right? | refs + emulated p-code | SM89 GPU | `test_refs_against_gpu.py` (CLI `uv run python -m tests.observe FAMILY`) |
 
 `test_coverage.py` (`ghidra`) checks that the committed `processor/SASS/semantics/coverage.json`
 matches the generated languages' manifests.
@@ -22,7 +22,7 @@ matches the generated languages' manifests.
 ```sh
 uv run pytest                                          # layers 0, 1 and 4a, SM89 exact
 uv run pytest --arch all --fp all                      # the same on every architecture and lowering
-python3 -m sass.build_languages                        # before any Ghidra layer (outside the sandbox)
+uv run sass-build-languages                        # before any Ghidra layer (outside the sandbox)
 uv run pytest -m ghidra --arch all --fp all            # layers 2-4 and coverage
 uv run pytest -m gpu --require-gpu                     # layer 5 (outside the sandbox)
 ```
@@ -86,11 +86,11 @@ Each `cases/<family>.py` (listed in `cases/__init__.py` `FAMILIES`) provides:
   `expected` (the reference) and the emulator output with the GPU.
 
 References in `refs/` are independent of the code under test: they may import only
-`sass.softfloat` from `sass/` (`test_refs.py` enforces this). Every random block draws from its
+`sass.semantics.fp.softfloat` from `sass/` (`test_refs.py` enforces this). Every random block draws from its
 own named `random.Random`, so cases are reproducible and adding one block doesn't shift another.
 
 To derive a reference from hardware, draft a fixture with `expected=None`, run
-`python -m tests.observe FAMILY`, write the reference from the observed outputs, and the fixture
+`uv run python -m tests.observe FAMILY`, write the reference from the observed outputs, and the fixture
 becomes a regression test.
 
 ## Multi-thread fixtures

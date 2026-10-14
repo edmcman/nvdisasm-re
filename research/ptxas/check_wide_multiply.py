@@ -7,8 +7,8 @@ import random
 import sys
 from pathlib import Path
 from check_wide_chains import emulate, ROOT
-from sass.cubin import kernel_image
-from sass import pydecode
+from sass.decode.cubin import kernel_image
+from sass.decode import pydecode
 
 
 def main(unsigned_path, signed_path):

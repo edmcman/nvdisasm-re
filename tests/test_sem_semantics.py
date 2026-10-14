@@ -1,10 +1,10 @@
-"""Layer 4a: the Ghidra-free semantics (sass.sem families, lift + execute) compute the independent
+"""Layer 4a: the Ghidra-free semantics (sass.semantics.bitvec families, lift + execute) compute the independent
 references' values on the layer-4 emulator cases. One item per (architecture, fp, family, md class)
 whose opcode has a semantics family; no Ghidra needed."""
 from concurrent.futures import ProcessPoolExecutor
 from functools import cache
-from sass import ir
-from tests.conftest import arches, families, modes
+from sass.decode import ir
+from tests.harness.select import arches, families, modes
 from tests.harness import lifted
 
 

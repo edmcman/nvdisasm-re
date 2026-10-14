@@ -3,13 +3,14 @@ flow type matches BRANCH_TYPE; per-class p-code op counts are ratcheted in basel
 import json
 from collections import Counter
 import pytest
-from tests import synth
+from sass.oracle import synth
 from tests.cases import f2fp
-from tests.compare_pydecode_disassembly import sample
-from tests.conftest import arches, modes, require_languages, selected, skipped
-from tests.harness import dataflow, ghidra
-from tests.test_pydecode_disassembly import BASELINE
-from sass.gen_sleigh import variant
+from sass.check.pydecode_disasm import sample
+from tests.harness.select import arches, modes, require_languages, selected, skipped
+from tests.harness import dataflow
+from sass.ghidra_bridge import client as ghidra
+from tests.harness.baseline import BASELINE
+from sass.sleigh.gen import variant
 
 REAL_SAMPLE = 2000
 

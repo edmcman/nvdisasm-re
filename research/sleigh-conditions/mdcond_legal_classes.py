@@ -8,7 +8,8 @@ combination, and the legal combinations become Cartesian boxes of raw value sets
 """
 import ast, itertools
 from functools import cache
-from sass import ir, mdexpr, pydecode
+from sass.decode import ir, pydecode
+from sass.md import expr as mdexpr
 
 MAX_FIELD_BITS = 16    # raw values enumerated per field
 MAX_COMBINATIONS = 1 << 16

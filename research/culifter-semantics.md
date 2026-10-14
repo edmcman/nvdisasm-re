@@ -6,7 +6,7 @@ Upstream describes it as a SASS-to-LLVM lifter for SM75 with experimental
 support for newer targets. The source now also contains substantial SM90+
 NVVM and CPU backend code. This comparison reads the registered `@lift_for`
 handlers in `lift/lifter.py`, `lift/lifter_cpu.py`, and `lift/lifter_nvvm.py`,
-then compares their opcode names with this checkout's `sass/operations.py` and
+then compares their opcode names with this checkout's `src/sass/semantics/operations.py` and
 the generated architecture manifests in `processor/SASS/data/languages`.
 
 ## How to read the comparison
@@ -89,7 +89,7 @@ families in our implementation. CuLifter can still suggest uncovered forms:
 for example, its packed half min/max/comparisons extend our half arithmetic;
 its backend-specific atomics extend the ordinary ATOM family; and its matrix
 and async-memory code addresses forms we leave opaque. Our selector manifests
-and `processor/SASS/semantics/README.md` describe the specific supported forms.
+and `docs/semantics.md` describe the specific supported forms.
 
 Some registered upstream entries should not be counted as gained semantics:
 
@@ -154,7 +154,7 @@ forms take the opaque fallback on each of the four architectures. See the [PTX I
 specification](https://docs.nvidia.com/cuda/parallel-thread-execution/#data-movement-and-conversion-instructions-cvt).
 
 Reproduce the language builds outside the sandbox with
-`python3 -m sass.build_languages SM100 SM101 SM103 SM120 --jobs 4`. Run
+`uv run sass-build-languages SM100 SM101 SM103 SM120 --jobs 4`. Run
 `pytest tests -m ghidra --arch SMxx --fp all --family f2fp` outside the sandbox for
 the exact/readable value, dataflow, and fallback checks (the SATNARROW fallback cases
 live in `tests/cases/f2fp.py`, `mx8_down`).

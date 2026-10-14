@@ -4,7 +4,7 @@ nvdisasm prints md-illegal encodings; pydecode rejects them by default (`decode(
 opts out). Making SLEIGH reject them too cost +2.3 MB `.sla` on SM89 exact at best (SM90 exact
 reached 18.1 MB, over Ghidra's 16 MiB limit), so it's shelved until the semantics shrink.
 
-- `gen_sleigh_conditions.patch`: generator changes against `sass/gen_sleigh.py` at that time
+- `gen_sleigh_conditions.patch`: generator changes against `src/sass/sleigh/gen.py` at that time
   (per-condition decision subtables, bit-cube covers, catch-all + dead-end tables).
 - `mdcond_legal_classes.py`: `legal_classes`, partitioning each encoding field's raw values by the
   condition subexpressions that read only it.
