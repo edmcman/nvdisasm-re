@@ -1,4 +1,4 @@
-"""Memory: global/shared/local loads and stores, constant loads (LDC/ULDC), shared stride
+"""Memory: global/shared/local loads and stores, constant loads (LDC/ULDC/LDCU), shared stride
 addressing and QSPC address-space queries."""
 from tests.harness.case import cbank
 
@@ -23,6 +23,12 @@ def loads_stores(c):
                               ("32", "78563412", 0x12345678), ("64", "0100000002000000", 1)]:
         c.add("uldc_const__RCR", dict(URd=8, Sa_bank=2, Sa_addr=16, sz=label), {}, dict(UR8=want, **({"UR9": 2} if label == "64" else {})),
               memory=[dict(space="cbank", address=(2 << 32) | 16, hex=data)])
+        # SM100+'s LDCU: the same load at URa + Sa_offset (URZ: the offset alone).
+        for ura, regs in ((2, {"UR2": 0x100}), ("URZ", {})):
+            at = (0x100 if ura == 2 else 0) + 16
+            c.add("ldcu_const_RCR_", dict(URd=8, URa=ura, Sa_bank=2, Sa_offset=16, sz=label), regs, dict(UR8=want, **({"UR9": 2} if label == "64" else {})),
+                  memory=[dict(space="cbank", address=(2 << 32) | at, hex=data)])
+    c.add("ldcu_const_RCR_", dict(URd=8, URa="URZ", Sa_bank=2, Sa_offset=16, texunpack="TEXUNPACK"), {}, dict(error="sass_opaque_LDCU"))
 
 
 def qspc(c):

@@ -1,11 +1,12 @@
-"""Operations executed by runtime primitives (src/sass/semantics/runtime.py): warp collectives, synchronization
+"""Operations executed by runtime primitives (src/sass/semantics/runtime.py): warp collectives (SHFL,
+VOTE/VOTEU, MATCH, REDUX, ELECT), synchronization
 and convergence barriers, hardware approximations, the QSPC address-space query; and
 UP2UR, which packs uniform predicates."""
 from sass.semantics.bitvec import concat, const, extract, ite, reg, zext
 from sass.semantics.family import family, outputs, primitive, unmodelled
 
 
-@family("MUFU", "SHFL", "VOTE", "BAR", "BSSY", "BSYNC", "BMOV", "BREAK", "WARPSYNC", fallback="prim")
+@family("MUFU", "SHFL", "VOTE", "VOTEU", "MATCH", "REDUX", "BAR", "BSSY", "BSYNC", "BMOV", "BREAK", "WARPSYNC", fallback="prim")
 def runtime(i):
     """Multi-thread, synchronization or approximation semantics: every encoding goes to the
     runtime primitive, which validates its selectors (unsupported combinations raise there)."""
@@ -22,6 +23,15 @@ def qspc(i):
     space = i.select_fork("space")
     if space in ("G", "L", "S") or space == "D" and i.is_zero("Rd"): primitive("address-space query")
     unmodelled(f"space {space}")
+
+
+@family("ELECT")
+def elect(i):
+    """Pu = this lane leads: the lowest active lane in URa's mask (~URa with its invert bit), URd =
+    the leader's lane id (PTX elect.sync; no hardware here). The Pp form and .IGNOREKILL are unmodelled."""
+    if i.has_operand("Pp"): unmodelled("Pp form")
+    if i.select_fork("ignoreKill") != "noignore_kill": unmodelled("IGNOREKILL")
+    primitive("warp election")
 
 
 @family("UP2UR")

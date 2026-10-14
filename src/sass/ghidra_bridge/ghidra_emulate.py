@@ -10,8 +10,10 @@ import pyghidra
 from ghidra_decode import GHIDRA,load_language,parse
 from sass.semantics.runtime import Runtime
 
-# Warp collectives: the runtime warp-context key and the operand each lane contributes.
-WARP_INPUTS={'SHFL':('values','Ra'),'VOTE':('predicates','Pp')}
+# Warp collectives: the runtime warp-context key and the operand each lane contributes (None: only
+# the active mask).
+WARP_INPUTS={'SHFL':('values','Ra'),'VOTE':('predicates','Pp'),'VOTEU':('predicates','Pp'),'MATCH':('values','Ra'),
+             'REDUX':('values','Ra'),'ELECT':('values',None)}
 
 
 def block_emulator(jpype):
@@ -89,12 +91,18 @@ def main(ldefs,langid):
             sp=lang.getAddressFactory().getAddressSpace(mem['space']);data=bytes.fromhex(mem['hex'])
             state.setVar(Varnode(sp.getAddress(mem['address']),len(data)),jpype.JArray(jpype.JByte)(data))
     def operand(state,d,name):
-        """A decoded register operand's value in a thread's state; the zero registers (RZ, PT, ...)
-        are hardwired in p-code, not stored, so they read as their constants."""
+        """A decoded register operand's value in a thread's state, over its md span (MATCH.U64's
+        pair); the zero registers (RZ, PT, ...) are hardwired in p-code, not stored, so they read as
+        their constants."""
+        from sass.decode import ir
+        from sass.md import expression
+        from sass.semantics.family import roles
         from sass.sleigh.gen import ENUM_FILE, REG_FILES
         file=ENUM_FILE[d.klass.operand_types[name].type];zero=REG_FILES[file][3]
         if d.env[name]==zero:return int(file in ('P','UP'))
-        return int.from_bytes(bytes(state.getVar(lang.getRegister(file+str(d.env[name])),reason)),'little')
+        span=next((o['span'] for o in roles(arch)[d.klass.name]['operands'] if o['name']==name),1) if d.klass.name in roles(arch) else 1
+        span=int(expression.evaluate(span,ir.load(arch),d.env)) if isinstance(span,str) else span
+        return int.from_bytes(b''.join(bytes(state.getVar(lang.getRegister(file+str(d.env[name]+k)),reason)) for k in range(span)),'little')
     def run_kernel(request):
         """Threads start at the kernel entry and run to EXIT, each with its own emulator. With
         kernel.cooperative, a block shares one emulator (BlockEmulator: common memory, private
@@ -146,7 +154,7 @@ def main(ldefs,langid):
                 active=[t for t in active if t not in taking]
             elif inputs:=WARP_INPUTS.get(d.klass.mnemonic) if cooperative else None:
                 key,source=inputs;values=[0]*32
-                for t in taking:values[t['lane']%32]=operand(t['state'],d,source)
+                for t in taking:values[t['lane']%32]=operand(t['state'],d,source) if source else 0
                 context['warp']={'active':sum(1<<t['lane']%32 for t in taking),key:values}
             for t in active:
                 step(t,pc,dict(context,warp=dict(context['warp'],lane=t['lane']%32)) if inputs else context)

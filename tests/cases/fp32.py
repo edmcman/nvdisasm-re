@@ -1,11 +1,11 @@
 """FP32: FADD/FMUL/FFMA (every rounding mode, FTZ, SAT, FMUL scale) against the exact softfloat
-model; FSETP; FSEL/FMNMX/FMNMX3 selection rules; FCHK's division slow-path test; readable-lowering
+model; FSETP and FSET; SM120's uniform UFADD/UFMUL/UFFMA/UFSETP/UFSEL; FSEL/FMNMX/FMNMX3 selection rules; FCHK's division slow-path test; readable-lowering
 formulas."""
 import itertools, random
 from sass.semantics.fp import softfloat
 from tests.harness.case import cx_source, is_cx, put, source
 from tests.refs.bits import f32, ftz32, nan32
-from tests.refs.float import FCOMPARISONS, fchk_divide, fcompare, fmnmx, fmnmx3_pick, fmnmx_xorsign, ordered, readable, rounded, underflow_band
+from tests.refs.float import FCOMPARISONS, fchk_divide, fcompare, fset, fmnmx, fmnmx3_pick, fmnmx_xorsign, ordered, readable, rounded, underflow_band
 
 ROUNDINGS = ("RN", "RZ", "RM", "RP")
 
@@ -120,6 +120,64 @@ def compare(c):
                       dict(R2=a, R4=b), dict(P0=int(result), P1=int(not result)))
 
 
+# Ordered/unordered, signed-zero, denormal (equal to zero under FTZ) and infinity pairs.
+SET_PAIRS = [(0x3f800000, 0x40000000), (0x40000000, 0x3f800000), (0x3f800000, 0x3f800000), (0, 0x80000000), (0x7fc00000, 0x3f800000),
+             (0x3f800000, 0xffc00000), (1, 0), (0x80000001, 1), (0x7f800000, 0x7f7fffff), (0xff800000, 0xff800000), (0x7fc00000, 0x7fc00000)]
+
+
+def fset_cases(c):
+    """FSET.BF: every comparison with and without FTZ; each bop against Pp, !Pp; each source form."""
+    for (a, b), cmp, ftz in itertools.product(SET_PAIRS, FCOMPARISONS + ("T", "F"), (False, True)):
+        c.add("fset__RRR_RRR", dict(Rd=8, Ra=2, Rb=4, Pp="PT", fcomp=cmp, bop="AND", ftz="FTZ" if ftz else "noftz"), dict(R2=a, R4=b),
+              dict(R8=fset(a, b, cmp, ftz=ftz and c.fp == "exact"), __native=True))
+    for (a, b), bop, p, inverted in itertools.product(SET_PAIRS[:3], ("AND", "OR", "XOR"), (0, 1), (0, 1)):
+        c.add("fset__RRR_RRR", dict(Rd=8, Ra=2, Rb=4, Pp=3, fcomp="LT", bop=bop, **{"Pp@not": inverted}), dict(R2=a, R4=b, P3=p),
+              dict(R8=fset(a, b, "LT", bop, bool(p) != bool(inverted)), __native=True))
+    for k in c.of("FSET", cx=None):
+        b = "Sb" if is_cx(k) else source(k, "Rb", "URb", "Sb")
+        for n, (x, y) in enumerate(SET_PAIRS[:6]):
+            fields, regs, memory = dict(Rd=8, Ra=2, Pp="PT", fcomp="LT", bop="AND", **{"Ra@negate": n & 1, "Ra@absolute": n >> 1 & 1}), dict(R2=x), []
+            if is_cx(k):
+                cx_fields, cx_regs, memory = cx_source(c.arch, k, b, y); fields.update(cx_fields); regs.update(cx_regs)
+            else: put(k, b, y, fields, regs, memory, 4, ureg=6, bank=(0, 0x20), imm=("F32Imm",))
+            a = x & 0x7fffffff if n & 2 else x
+            c.add(k.name, fields, regs, dict(R8=fset(a ^ 0x80000000 if n & 1 else a, y, "LT"), __native=True), memory=memory, portable=True)
+    c.add("fset__RRR_RRR", dict(Rd=2, Ra=2, Rb=2, Pp="PT", fcomp="EQ", bop="AND", **{"Rb@negate": 1}), dict(R2=0x80000000), dict(R2=0x3f800000, __native=True))
+
+
+def uniform(c):
+    """SM120's uniform twins of FADD/FMUL/FFMA/FSETP/FSEL: every rounding mode and FTZ over edge
+    triples, every comparison and bop, and the immediate forms."""
+    edges = [0, 0x80000000, 1, 0x80000001, 0x00800000, 0x3f800000, 0xbf800000, 0x3fc00000, 0x7f7fffff, 0x7f800000, 0xff800000, 0x4b800001]
+    regs = lambda x, y, z: dict(UR2=x, UR4=y, UR6=z)
+    for (x, y, z), rnd, flush in itertools.product(vectors(edges), ROUNDINGS, (False, True)):
+        for op, cls, fields in [("add", "ufadd__URURUR_UUU", dict(URd=8, URa=2, URc=4, ftz="FTZ" if flush else "noftz")),
+                                ("mul", "ufmul__UUU", dict(URd=8, URa=2, URb=4, fmz="FTZ" if flush else "nofmz_hfma2")),
+                                ("fma", "uffma__UUU_UUU", dict(URd=8, URa=2, URb=4, URc=6, fmz="FTZ" if flush else "nofmz_hfma2"))]:
+            inputs = [x, y, z][:3 if op == "fma" else 2]
+            want = softfloat.arithmetic(op, inputs, 32, rnd, flush)
+            if nan32(want) or (rnd == "RN" and underflow_band(op, inputs, 32)): continue
+            c.add(cls, dict(fields, rnd=rnd), regs(x, y, z), dict(UR8=want, __native=True))
+    for cls, fields, inputs in [("ufadd__URURsI_URURI", dict(URd=8, URa=2, Sc=0x3fc00000), ("add", [0x40000000, 0x3fc00000])),
+                                ("ufmul__URIR", dict(URd=8, URa=2, Sb=0xc0400000), ("mul", [0x40000000, 0xc0400000])),
+                                ("uffma__URIUR_URIUR", dict(URd=8, URa=2, Sb=0x3fc00000, URc=6), ("fma", [0x40000000, 0x3fc00000, 0xbf800000])),
+                                ("uffma__URURI_URURI", dict(URd=8, URa=2, URb=4, Sc=0x3f800000), ("fma", [0x40000000, 0x40000000, 0x3f800000]))]:
+        c.add(cls, fields, regs(0x40000000, 0x40000000, 0xbf800000), dict(UR8=softfloat.arithmetic(*inputs, 32), __native=True), portable=True)
+    for (a, b), cmp, bop, p in itertools.product(SET_PAIRS, FCOMPARISONS + ("T", "F"), ("AND", "OR", "XOR"), (0, 1)):
+        result = fcompare(ordered(a, 32), ordered(b, 32), cmp)
+        combine = {"AND": lambda x: x and p, "OR": lambda x: x or p, "XOR": lambda x: x != p}[bop]
+        c.add("ufsetp__URURUR_UUU", dict(UPu=0, UPv=1, URa=2, URb=4, UPp=3, fcomp=cmp, bop=bop), dict(UR2=a, UR4=b, UP3=p),
+              dict(UP0=int(combine(result)), UP1=int(combine(not result)), __native=True), portable=True)
+    c.add("ufsetp__URsIUR_URIR", dict(UPu=0, UPv=1, URa=2, Sb=0x40000000, UPp="UPT", fcomp="LT", bop="AND"), dict(UR2=0x3f800000),
+          dict(UP0=1, UP1=0, __native=True), portable=True)
+    for p, inverted in itertools.product((0, 1), (0, 1)):
+        want = 0x3f800000 if bool(p) != bool(inverted) else 0xc0000000
+        c.add("ufsel__URURUR_UUU", dict(URd=8, URa=2, URb=4, UPp=3, **{"UPp@not": inverted}), dict(UR2=0x3f800000, UR4=0xc0000000, UP3=p),
+              dict(UR8=want, __native=True), portable=True)
+        c.add("ufsel__URsIUR_URIR", dict(URd=8, URa=2, Sb=0xc0000000, UPp=3, **{"UPp@not": inverted}), dict(UR2=0x3f800000, UP3=p),
+              dict(UR8=want, __native=True), portable=True)
+
+
 def readable_formulas(c):
     """The readable language's plain unfused formula, which ignores rounding modes and flushing."""
     if c.fp != "readable": return
@@ -176,7 +234,7 @@ def fchk_cases(c):
 
 
 def emulator_cases(c):
-    selection(c); arithmetic(c); compare(c); fchk_cases(c); readable_formulas(c)
+    selection(c); arithmetic(c); compare(c); fset_cases(c); uniform(c); fchk_cases(c); readable_formulas(c)
 
 
 def gpu_fixtures():
@@ -191,6 +249,8 @@ def gpu_fixtures():
     out += [scalar.launch(f, lambda x, y, _, f=f: fmnmx(x, y, f.startswith("fmin"), f.endswith("_nan"), "ftz" in f))
             for f in ("fmin", "fmax", "fmin_nan", "fmax_nan", "fmin_ftz_nan", "fmax_ftz_nan", "fmin_ftz", "fmax_ftz")]
     out.append(scalar.launch("fmin_xorsign", lambda x, y, _: fmnmx_xorsign(x, y, True)))
+    out += [scalar.launch(f, lambda a, b, c, s=s: fset(a, b, s["fcomp"], s.get("bop", "AND"), (c != 0) != bool(s.get("Pp@not")), s.get("ftz") == "FTZ"))
+            for f, (m, s) in scalar.SETS.items() if m == "FSET"]
     # FCHK P0, R2, R5 in a probe slot, P0 read back through P2R into the stored R11.
     from tests.harness.gpu import sm89
     from tests.harness.templates import slot_fixture

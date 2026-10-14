@@ -118,24 +118,26 @@ MODES = {"ROUND": "RN", "FLOOR": "RM", "CEIL": "RP", "TRUNC": "RZ", "RN": "RN", 
 
 
 def ieee(c):
-    """FRND, F2I, I2F/I2FP and F2F from a register: every rounding mode over edge values (exact
+    """FRND, F2I, I2F/I2FP and F2F (and SM120's uniform UFRND, UF2I, UI2F/UI2FP) from a register: every rounding mode over edge values (exact
     rounding; NaN results and F16 zero-extension as measured on SM89). The readable lowering keeps only modes it
     computes the same way."""
     def add(k, fields, x, src_w, value, dst_w):
-        regs = pair("R2", x) if src_w == 64 else {"R2": x & 0xffffffff}
-        out = pair("R8", value) if dst_w == 64 else {"R8": value}
-        c.add(k.name, dict(fields, Rd=8, Rb=2), regs, dict(out, __native=True), portable=True)
+        d, b = (n if n in k.operand_types else "U" + n for n in ("Rd", "Rb"))
+        regs = pair(f"{b[:-1]}2", x) if src_w == 64 else {f"{b[:-1]}2": x & 0xffffffff}
+        out = pair(f"{d[:-1]}8", value) if dst_w == 64 else {f"{d[:-1]}8": value}
+        c.add(k.name, dict(fields, **{d: 8, b: 2}), regs, dict(out, __native=True), portable=True)
+    register = lambda k: "Rb" in k.operand_types or "URb" in k.operand_types
     modes = lambda k: [l for l in c.labels(k, "rnd", MODES)]
-    for k in c.of("FRND"):
+    for k in c.of("FRND") + c.of("UFRND"):
         fmt = next((l for l in ("F32", "F64") if l in c.labels(k, "fmt", ("F32", "F64"))), None)
-        if "Rb" not in k.operand_types or not fmt: continue
+        if not register(k) or not fmt: continue
         w = int(fmt[1:])
         for rnd in modes(k):
             for ftz in ("noftz", "FTZ"):
                 for x in (F32 if w == 32 else F64)[::1 if ftz == "noftz" else 3]:
                     add(k, dict(fmt=fmt, rnd=rnd, ftz=ftz), x, w, ref.frnd(x, w, MODES[rnd], ftz == "FTZ"), w)
-    for k in c.of("F2I"):
-        if "Rb" not in k.operand_types: continue
+    for k in c.of("F2I") + c.of("UF2I"):
+        if not register(k): continue
         src = next((l for l in ("F16", "F32", "F64") if l in c.labels(k, "srcfmt", ("F16", "F32", "F64"))), None)
         if not src: continue
         w = int(src[1:])
@@ -150,8 +152,8 @@ def ieee(c):
                             word = (0xa5a5 << (16 if half == "H0" else 0)) | x << (16 if half == "H1" else 0) if half else x
                             fields = dict(srcfmt=src, dstfmt=dst, rnd=rnd, ntz=ntz, **({"hsel": half} if half else {}))
                             add(k, fields, word, max(w, 32), ref.f2i(x, w, n, signed, MODES[rnd], ntz == "NTZ"), n)
-    for k in c.of("I2F") + c.of("I2FP"):
-        if "Rb" not in k.operand_types: continue
+    for k in c.of("I2F") + c.of("I2FP") + c.of("UI2F") + c.of("UI2FP"):
+        if not register(k): continue
         for src in c.labels(k, "srcfmt", ("S8", "U8", "S16", "U16", "S32", "U32", "S64", "U64")):
             n, signed = int(src[1:]), src[0] == "S"
             selector = {8: "bsel", 16: "hsel"}.get(n)

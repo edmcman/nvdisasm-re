@@ -222,3 +222,19 @@ CVT(f2i_s32_f16_rz, "cvt.rzi.s32.f16", uint32_t, "r", uint16_t, "h")
 CVT(f2i_u32_f16_rm, "cvt.rmi.u32.f16", uint32_t, "r", uint16_t, "h")
 CVT(f2i_s64_f16_rn, "cvt.rni.s64.f16", uint64_t, "l", uint16_t, "h")
 CVT(f2i_u64_f16_rp, "cvt.rpi.u64.f16", uint64_t, "l", uint16_t, "h")
+// FSET/HSET2/HSETP2 carriers, Pp from c != 0; scalar.SETS patches the selectors.
+#define FSET_FIXTURE(name) KERNEL(name, asm("{ .reg .pred p; setp.ne.u32 p,%3,0; set.lt.and.f32.f32 %0,%1,%2,p; }":"=r"(r):"f"(__uint_as_float(a)),"f"(__uint_as_float(b)),"r"(c)))
+#define HSET2_FIXTURE(name) KERNEL(name, asm("{ .reg .pred p; setp.ne.u32 p,%3,0; set.lt.and.f16x2.f16x2 %0,%1,%2,p; }":"=r"(r):"r"(a),"r"(b),"r"(c)))
+#define HSETP2_FIXTURE(name) KERNEL(name, asm("{ .reg .pred p,q,s; .reg .b32 x; setp.ne.u32 s,%3,0; setp.lt.and.f16x2 p|q,%1,%2,s; selp.u32 %0,1,0,p; selp.u32 x,2,0,q; or.b32 %0,%0,x; }":"=r"(r):"r"(a),"r"(b),"r"(c)))
+#define SET_FIXTURES(op) op##_FIXTURE(op##_lt) op##_FIXTURE(op##_eq) op##_FIXTURE(op##_le) op##_FIXTURE(op##_gt) op##_FIXTURE(op##_ne) op##_FIXTURE(op##_ge) \
+ op##_FIXTURE(op##_num) op##_FIXTURE(op##_nan) op##_FIXTURE(op##_ltu) op##_FIXTURE(op##_equ) op##_FIXTURE(op##_leu) op##_FIXTURE(op##_gtu) \
+ op##_FIXTURE(op##_neu) op##_FIXTURE(op##_geu) op##_FIXTURE(op##_t) op##_FIXTURE(op##_f) op##_FIXTURE(op##_or) op##_FIXTURE(op##_xor) \
+ op##_FIXTURE(op##_ftz) op##_FIXTURE(op##_notp)
+#define fset_FIXTURE FSET_FIXTURE
+#define hset2_FIXTURE HSET2_FIXTURE
+#define hsetp2_FIXTURE HSETP2_FIXTURE
+SET_FIXTURES(fset)
+SET_FIXTURES(hset2)
+SET_FIXTURES(hsetp2)
+HSET2_FIXTURE(hset2_bm) HSET2_FIXTURE(hset2_bm_geu) HSET2_FIXTURE(hset2_lanes)
+HSETP2_FIXTURE(hsetp2_hand) HSETP2_FIXTURE(hsetp2_hand_or) HSETP2_FIXTURE(hsetp2_hand_xor) HSETP2_FIXTURE(hsetp2_hand_nan) HSETP2_FIXTURE(hsetp2_lanes)

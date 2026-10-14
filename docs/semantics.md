@@ -348,6 +348,35 @@ available SM89 GPU cannot execute the SM90+ form, and the patent does not
 independently establish every tie/NaN detail. The default two-NaN path's A
 flag is modeled but has not been measured on hardware.
 
+FSET, HSET2 and HSETP2 (2026-10-14, ported from CuLifter's handler list) reuse
+FSETP's comparison (`float_test`) and its `cond bop Pp` combiner. FSET writes
+1.0f or +0 (`.BF` is its only md form). HSET2 compares each lane and writes
+1.0 in the lane format (`.BF`: 0x3c00, SM90+ BF16_V2 0x3f80) or 0xffff (`.BM`),
+else 0. HSETP2 writes lane 0's result to Pu and lane 1's to Pv; with `.H_AND`
+it ANDs the lanes and writes `both bop Pp` and `!both bop Pp`, like FSETP's
+Pu/Pv. Lanes are widened exactly to binary32 before comparing, after F16 FTZ
+flushing; the md forbids FTZ with BF16. Every non-ALTERNATE class is native on
+SM75-SM120 (register, uniform, immediate, constant and SM75-SM90 CX sources).
+The `fset_simple`, `*_noBop` and SM100+ `*_fixed` classes are ALTERNATE.
+
+SM120's uniform floats (2026-10-14) register the scalar families on their
+uniform spellings: UFADD/UFMUL/UFFMA/UFSETP/UFSEL/UFRND/UF2I/UI2F/UI2FP share
+FADD/FMUL/FFMA/FSETP/FSEL/FRND/F2I/I2F's code (operand names resolve to URa,
+UPp, ...). The runtime primitives are scalar only, so the uniform twins' unmodelled
+encodings (F16/BF16 UFRND, UF2I's 8/16-bit destinations) are opaque. SM100+'s
+LDCU joins LDC: `URd = c[bank][URa + offset]` for `ldcu_const_RCR_`; CX,
+`ur_offs`, 256-bit and `.TEXUNPACK` forms stay opaque.
+
+VOTEU, MATCH, REDUX and ELECT are runtime primitives over the warp context, like
+VOTE and SHFL: VOTEU is VOTE into URd/UPu; MATCH.ANY gives the active lanes
+holding the lane's value (U32, or U64's register pair) and MATCH.ALL the active
+mask and Pu = 1 when they all agree (else 0, 0); REDUX reduces Ra over the active
+lanes into URd (SUM/AND/OR/XOR, MIN/MAX signed with `.S32`); ELECT's leader is
+the lowest active lane of URa's mask (`~URa` with its invert bit), Pu = this lane
+leads and URd = the leader's lane id, following PTX `elect.sync`. ELECT's `Pp`
+form and `.IGNOREKILL` are opaque. The block emulator gathers each lane's operand
+over its md span.
+
 Runtime primitives cover the float fallbacks, F2I/I2F, PRMT, SHFL/VOTE,
 QSPC, and synchronization events. QSPC requires `context["address_spaces"]`,
 a mapping from `global`, `local`, and `shared` to half-open address intervals;

@@ -1,11 +1,11 @@
-"""Memory and special registers: LDG/STG, LDS/STS, LDL/STL and LDC loads and stores, ULDC,
+"""Memory and special registers: LDG/STG, LDS/STS, LDL/STL and LDC loads and stores, ULDC and SM100+'s LDCU,
 S2R/CS2R/S2UR. Every access first records a memory-ordering event with its encoded controls (the
 runtime rejects INVALID ones). Explicit descriptors, dual registers,
 predicate results and non-IA address modes are unmodelled."""
 from sass.semantics.bitvec import const, extract, load, sext, trunc, zext
 from sass.semantics.family import effect, family, outputs, store, unmodelled
 
-SPACES = {"LDG": "ram", "STG": "ram", "LDS": "shared", "STS": "shared", "LDL": "localmem", "STL": "localmem", "LDC": "cbank"}
+SPACES = {"LDG": "ram", "STG": "ram", "LDS": "shared", "STS": "shared", "LDL": "localmem", "STL": "localmem", "LDC": "cbank", "LDCU": "cbank"}
 SIZES = {"U8": (8, False), "S8": (8, True), "U16": (16, False), "S16": (16, True), "32": (32, False), "64": (64, False), "128": (128, False)}
 CONTROLS = ("sem", "sco", "cop", "cop2", "private")
 
@@ -52,10 +52,10 @@ def address(i):
     return base + sext(i.imm("Ra_offset|Sa_offset"), 64) if i.has_operand("Ra_offset|Sa_offset") else base
 
 
-@family("LDG", "STG", "LDS", "STS", "LDL", "STL", "LDC")
+@family("LDG", "STG", "LDS", "STS", "LDL", "STL", "LDC", "LDCU")
 def memory(i):
     """Rd = sz bits at the address (sign- or zero-extended), or store Rb's low sz bits there; LDC
-    reads constant bank Sa_bank at the low 32 bits of the address."""
+    (LDCU into URd) reads constant bank Sa_bank at the low 32 bits of the address."""
     space = SPACES[i.opcode]
     for n in ("Pu", "Pv", "Pq"):   # predicate results are not assumed to mean success
         if i.has_operand(n) and not i.is_zero(n): unmodelled(f"{n} result")

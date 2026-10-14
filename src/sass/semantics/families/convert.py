@@ -77,7 +77,7 @@ def round_integral(x, fmt, r):
     return small if slt(e, const(0, 32)) else (middle if slt(e, const(f.mbits, 32)) else x)
 
 
-@family("FRND")
+@family("FRND", "UFRND")
 def frnd(i):
     """Rd = Rb rounded to an integral value (ROUND/FLOOR/CEIL/TRUNC), .FTZ flushing a denormal input.
     NaN: F32 gives 0x7fffffff, F64 keeps its payload, quieted (SM89 GPU). F16/BF16 are unmodelled."""
@@ -190,3 +190,7 @@ def f2f(i):
         r = concat(sign, extract(mag, d.width - 2, 0))
     r = quiet(x, src, dst) if is_nan(x, src) else r
     return outputs(Rd=resize(r, i.width("Rd")))
+
+
+# SM120's uniform twins; their unmodelled encodings are opaque (the runtime primitives are scalar only).
+for uniform, scalar in (("UF2I", f2i), ("UI2F", i2f), ("UI2FP", i2f)): family(uniform)(scalar.__wrapped__)

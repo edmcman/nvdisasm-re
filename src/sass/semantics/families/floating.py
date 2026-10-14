@@ -1,4 +1,4 @@
-"""Scalar floating-point families: FP32 (FADD/FMUL/FFMA/FSETP/FSEL/FMNMX/FMNMX3/FCHK) and FP64
+"""Scalar floating-point families: FP32 (FADD/FMUL/FFMA/FSETP/FSET/FSEL/FMNMX/FMNMX3/FCHK) and FP64
 (DADD/DMUL/DFMA/DSETP).
 
 The exact lowering computes what the hardware does: rounding modes, .FTZ (denormal inputs and
@@ -154,11 +154,15 @@ def comparison(i, names, x, y):
     return i.select_lookup(names, {label: float_test(label, x, y) for label in i.labels(names)})
 
 
+def combined(i, cond):
+    """cond bop Pp, or cond itself without a bop."""
+    return boolean(i.select_fork('bop'), cond, i.pred('Pp')) if i.has_operand('bop') else cond
+
+
 def set_predicates(i, cond):
     """Pu = cond bop Pp, Pv = !cond bop Pp (or Pu = cond without a bop)."""
     if not i.has_operand('bop'): return outputs(Pu=cond)
-    p, bop = i.pred('Pp'), i.select_fork('bop')
-    return outputs(Pu=boolean(bop, cond, p), Pv=boolean(bop, lnot(cond), p))
+    return outputs(Pu=combined(i, cond), Pv=combined(i, lnot(cond)))
 
 
 @family('FSETP', fallback='prim')
@@ -167,6 +171,15 @@ def fsetp_(i):
     if i.width('Ra|Sa') != 32 or i.width('Rb|Sb') != 32: unmodelled('width')
     _, (x, y) = float_inputs(i, 'Ra|Sa', 'Rb|Sb')
     return set_predicates(i, comparison(i, 'fcomp', x, y))
+
+
+@family('FSET')
+def fset_(i):
+    """Rd = 1.0 if (Ra compared with Rb) bop Pp, else +0 (.BF, the only form; FTZ flushes the inputs)."""
+    operand_width(i, 32, 'Ra|Sa', 'Rb|Sb')
+    i.select_fork('bf')
+    _, (x, y) = float_inputs(i, 'Ra|Sa', 'Rb|Sb')
+    return outputs(Rd=const(ONE[32], 32) if combined(i, comparison(i, 'fcomp', x, y)) else const(0, 32))
 
 
 @family('DSETP')
@@ -187,7 +200,7 @@ def fchk(i):
     return outputs(Pu=(ea <= 24) | (ea == 255) | (eb <= 1) | (eb >= 252) | sle(const(127, 32), ea - eb) | sle(const(125, 32), eb - ea))
 
 
-@family('FSEL')
+@family('FSEL', 'UFSEL')
 def fsel_(i):
     """Rd = Pp ? Ra : Rb (FTZ flushes)."""
     operand_width(i, 32, 'Ra|Sa', 'Rb|Sb')
@@ -263,7 +276,11 @@ def fmnmx3_(i):
     return outputs(Rd=r)
 
 
-# ---- packed binary16 (HADD2, HFMA2, HMUL2) ---------------------------------------------------------
+# SM120's uniform twins; their unmodelled encodings are opaque (the runtime primitives are scalar only).
+for uniform, scalar in (('UFADD', fadd_), ('UFMUL', fmul_), ('UFFMA', ffma_), ('UFSETP', fsetp_)): family(uniform)(scalar.__wrapped__)
+
+
+# ---- packed binary16 (HADD2, HFMA2, HMUL2, HSET2, HSETP2) -----------------------------------------
 
 HALF_SIGNS, HALF_ABS = 0x80008000, 0x7fff7fff
 
@@ -384,6 +401,41 @@ def hmul2(i):
         if mode == 'FMZ': r = const(0, 16) if ((x & 0x7c00) == 0) | ((y & 0x7c00) == 0) else r
         lanes.append(r)
     return outputs(Rd=concat(lanes[1], lanes[0]))
+
+
+def half_as_single(i, x, ftz):
+    """A F16 lane (flushed under .FTZ) or, by SM90+'s ofmt, a BF16 lane as binary32, exactly
+    (the md forbids .FTZ with BF16)."""
+    f16 = fconv(flushed(x) if ftz else x, 32)
+    if not i.has_operand('ofmt'): return f16
+    return i.select_lookup('ofmt', {'F16_V2': f16, 'BF16_V2': None if ftz else concat(x, const(0, 16))})
+
+
+def half_comparisons(i):
+    """Per lane (low first), A's lane compared with B's by the cmp selector."""
+    swizzles = ('iswzA', 'iswzB' if i.has_operand('iswzB') else 'iswzB_as_C')
+    ftz = flushes(i)
+    a, b = (half_lanes(i, n, s) for n, s in zip(('Ra|Sa', 'Rc|Sc'), swizzles))
+    return [comparison(i, 'cmp', half_as_single(i, x, ftz), half_as_single(i, y, ftz)) for x, y in zip(a, b)]
+
+
+@family('HSET2')
+def hset2(i):
+    """Rd lane = (A lane compared with B lane) bop Pp: true gives 1.0 in the lane format (.BF) or
+    0xffff (.BM), false +0."""
+    if i.width('Rd') != 32: unmodelled('width')
+    one = i.select_lookup_const('ofmt', {'F16_V2': 0x3c00, 'BF16_V2': 0x3f80}, 16) if i.has_operand('ofmt') else const(0x3c00, 16)
+    true = i.select_lookup('bval', {'BF': one, 'BM': const(0xffff, 16)})
+    lanes = [true if combined(i, c) else const(0, 16) for c in half_comparisons(i)]
+    return outputs(Rd=concat(lanes[1], lanes[0]))
+
+
+@family('HSETP2')
+def hsetp2(i):
+    """Pu = lane 0's comparison bop Pp, Pv = lane 1's; .H_AND: Pu = (both lanes) bop Pp, Pv = !(both lanes) bop Pp."""
+    low, high = half_comparisons(i)
+    if i.select_fork('h_and') == 'H_AND': return set_predicates(i, low & high)
+    return outputs(Pu=combined(i, low), Pv=combined(i, high))
 
 
 # ---- packed binary32 pairs: FADD2/FMUL2/FFMA2 and the mixed FHADD2/FHFMA2/FHMUL2 (SM107) ------------
