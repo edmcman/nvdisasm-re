@@ -45,12 +45,7 @@ class Expr:
         raise TypeError(f"dynamic condition {self!r} in a Python `if`/`while`/`and`/`or`; "
                         "use a ternary (`a if c else b`) or ite()")
 
-    def __repr__(self):
-        match self.op:
-            case "const": return f"{self.args[0]:#x}:{self.w}"
-            case "param": return f"{self.args[0]}:{self.w}"
-            case "reg": return f"{self.args[0]}{self.args[1]}" + (f"x{self.args[2]}" if self.args[2] > 1 else "")
-            case _: return f"({self.op} {' '.join(map(repr, self.args))})"
+    def __repr__(self): return show([(None, self)])
 
     def __add__(self, o): return binary("add", self, o)
     def __radd__(self, o): return binary("add", o, self)
@@ -447,8 +442,9 @@ FLIPPED = {"ult": ">", "ule": ">=", "slt": "s>", "sle": "s>="}
 
 
 def show(outputs):
-    """Readable text for [(destination, expression)]: infix operators, shared subexpressions bound
-    once as tN (in evaluation order), constants with their width only when it isn't 32 bits."""
+    """Readable text for [(destination, expression)] (a None destination prints the expression
+    alone): infix operators, shared subexpressions bound once as tN (in evaluation order),
+    constants with their width only when it isn't 32 bits."""
     uses, order = {}, []
     def count(e):
         if not isinstance(e, Expr): return
@@ -496,5 +492,5 @@ def show(outputs):
         if uses[e] > 1 and e.op not in ("const", "param", "reg"):
             lines.append(f"t{len(names)} = {text(e, True, True)}")
             names[e] = f"t{len(names)}"
-    lines += [f"{d} := {text(e, True)}" for d, e in outputs]
+    lines += [text(e, True) if d is None else f"{d} := {text(e, True)}" for d, e in outputs]
     return "\n".join(lines)
