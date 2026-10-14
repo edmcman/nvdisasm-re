@@ -78,10 +78,7 @@ These are CuLifter's `@lift_for` opcode names that are absent from
 opcodes is opaque in `processor/SASS/semantics/coverage.json`. Counts are md
 classes summed over all architectures (SM75–SM120).
 
-- **Value and warp:** SM120 uniform
-  float `UFADD`, `UFFMA`, `UFMUL`, `UFRND`, `UFSEL`, `UFSETP`, `UF2I`, `UI2F`,
-  `UI2FP` (31 together); `VOTEU` (10), `MATCH` (20), `REDUX` (9), `ELECT` (12).
-- **Memory:** `LD` (58), `ST` (53), `LDCU` (21), `ATOM` (163), `ATOMG` (103),
+- **Memory:** `LD` (58), `ST` (53), `ATOM` (163), `ATOMG` (103),
   `ATOMS` (97), `RED` (23), `REDG` (60), `REDAS` (12), `STAS` (12),
   `LDGSTS` (45), `LDSM` (22), `STSM` (12), `MOVM` (10).
 - **Matrix:** `HMMA` (39), `IMMA` (20), `DMMA` (9), `HGMMA` (6), `QGMMA` (6),
@@ -89,10 +86,13 @@ classes summed over all architectures (SM75–SM120).
 - **Async, synchronization, and miscellaneous:** `UTMALDG` (24), `UTMASTG` (14),
   `UTMACCTL` (12), `UBLKCP` (12), `UBLKRED` (12), `ARRIVES` (9), `ACQBULK` (6),
   `SYNCS` (51), `FENCE` (16), `MEMBAR` (16), `DEPBAR` (26), `ENDCOLLECTIVE` (6),
-  `USETMAXREG` (24), `NANOSLEEP` (49), `B2R` (30), `BPT` (20), `LEPC` (16).
+  `USETMAXREG` (24), `NANOSLEEP` (49), `B2R` (30), `BPT` (20), `LEPC` (16; its
+  value is not established, see `docs/open.md`).
 
 `FSET`, `HSET2` and `HSETP2` had no family until 2026-10-14; they now reuse
-FSETP's comparison (see `docs/semantics.md`).
+FSETP's comparison. The SM120 uniform floats, `LDCU`, `VOTEU`, `MATCH`, `REDUX`
+and `ELECT` were added the same day: the uniform floats and LDCU reuse the scalar
+families, the warp collectives are runtime primitives (see `docs/semantics.md`).
 
 Excluded names: `LOP`, `LOP32I`, `SHL`, `SHR`, `MOV32I`, `IADD32I`, `ISCADD`,
 `ULOP`, `ULOP32I`, `USHL`, `USHR`, and `PSETP` have only md `ALTERNATE` classes,

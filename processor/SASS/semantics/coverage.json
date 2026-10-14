@@ -7,6 +7,7 @@
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "elect_Pp_": "Pp form",
       "f2fp_rs_16b__RIR": "outside implemented operation families",
       "f2fp_rs_16b__RRI": "outside implemented operation families",
       "f2fp_rs_16b__RRR": "outside implemented operation families",
@@ -39,6 +40,8 @@
       "iadd_xor_noimm__RUR_RUR": "carry out; xor not modelled",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
+      "ldcu_const_RCxR_": "bank",
+      "ldcu_ur_offs_": "bank",
       "ldg_256_memdesc__Ra64": "dual registers",
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
@@ -113,6 +116,10 @@
       },
       "DSETP": {
         "native": 3
+      },
+      "ELECT": {
+        "opaque": 1,
+        "primitive": 1
       },
       "EXIT": {
         "native": 1
@@ -240,6 +247,10 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "native": 1,
+        "opaque": 2
+      },
       "LDG": {
         "native": 4,
         "opaque": 5
@@ -256,6 +267,9 @@
       },
       "LOP3": {
         "native": 3
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 4,
@@ -292,6 +306,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 3
+      },
+      "REDUX": {
+        "primitive": 1
       },
       "RET": {
         "native": 4
@@ -332,8 +349,35 @@
         "native": 4,
         "opaque": 1
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -421,14 +465,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 4
       }
     },
     "status": {
-      "native": 455,
-      "opaque": 460,
-      "primitive": 63
+      "native": 456,
+      "opaque": 454,
+      "primitive": 68
     }
   },
   "SM100_READABLE": {
@@ -439,6 +486,7 @@
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "elect_Pp_": "Pp form",
       "f2fp_rs_16b__RIR": "outside implemented operation families",
       "f2fp_rs_16b__RRI": "outside implemented operation families",
       "f2fp_rs_16b__RRR": "outside implemented operation families",
@@ -471,6 +519,8 @@
       "iadd_xor_noimm__RUR_RUR": "carry out; xor not modelled",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
+      "ldcu_const_RCxR_": "bank",
+      "ldcu_ur_offs_": "bank",
       "ldg_256_memdesc__Ra64": "dual registers",
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
@@ -545,6 +595,10 @@
       },
       "DSETP": {
         "native": 3
+      },
+      "ELECT": {
+        "opaque": 1,
+        "primitive": 1
       },
       "EXIT": {
         "native": 1
@@ -672,6 +726,10 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "native": 1,
+        "opaque": 2
+      },
       "LDG": {
         "native": 4,
         "opaque": 5
@@ -688,6 +746,9 @@
       },
       "LOP3": {
         "native": 3
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 4,
@@ -724,6 +785,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 3
+      },
+      "REDUX": {
+        "primitive": 1
       },
       "RET": {
         "native": 4
@@ -764,8 +828,35 @@
         "native": 4,
         "opaque": 1
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -853,14 +944,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 4
       }
     },
     "status": {
-      "native": 455,
-      "opaque": 460,
-      "primitive": 63
+      "native": 456,
+      "opaque": 454,
+      "primitive": 68
     }
   },
   "SM101": {
@@ -871,6 +965,7 @@
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "elect_Pp_": "Pp form",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
@@ -887,6 +982,8 @@
       "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
+      "ldcu_const_RCxR_": "bank",
+      "ldcu_ur_offs_": "bank",
       "ldg_256_memdesc__Ra64": "dual registers",
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
@@ -961,6 +1058,10 @@
       },
       "DSETP": {
         "native": 3
+      },
+      "ELECT": {
+        "opaque": 1,
+        "primitive": 1
       },
       "EXIT": {
         "native": 1
@@ -1086,6 +1187,10 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "native": 1,
+        "opaque": 2
+      },
       "LDG": {
         "native": 4,
         "opaque": 5
@@ -1102,6 +1207,9 @@
       },
       "LOP3": {
         "native": 3
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 4,
@@ -1138,6 +1246,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 3
+      },
+      "REDUX": {
+        "primitive": 1
       },
       "RET": {
         "native": 4
@@ -1178,8 +1289,35 @@
         "native": 4,
         "opaque": 1
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -1267,14 +1405,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 4
       }
     },
     "status": {
-      "native": 430,
-      "opaque": 413,
-      "primitive": 61
+      "native": 431,
+      "opaque": 407,
+      "primitive": 66
     }
   },
   "SM101_READABLE": {
@@ -1285,6 +1426,7 @@
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "elect_Pp_": "Pp form",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
@@ -1301,6 +1443,8 @@
       "hfma2_relu__RUR": "RELU; ofmt",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
+      "ldcu_const_RCxR_": "bank",
+      "ldcu_ur_offs_": "bank",
       "ldg_256_memdesc__Ra64": "dual registers",
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
@@ -1375,6 +1519,10 @@
       },
       "DSETP": {
         "native": 3
+      },
+      "ELECT": {
+        "opaque": 1,
+        "primitive": 1
       },
       "EXIT": {
         "native": 1
@@ -1500,6 +1648,10 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "native": 1,
+        "opaque": 2
+      },
       "LDG": {
         "native": 4,
         "opaque": 5
@@ -1516,6 +1668,9 @@
       },
       "LOP3": {
         "native": 3
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 4,
@@ -1552,6 +1707,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 3
+      },
+      "REDUX": {
+        "primitive": 1
       },
       "RET": {
         "native": 4
@@ -1592,8 +1750,35 @@
         "native": 4,
         "opaque": 1
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -1681,14 +1866,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 4
       }
     },
     "status": {
-      "native": 430,
-      "opaque": 413,
-      "primitive": 61
+      "native": 431,
+      "opaque": 407,
+      "primitive": 66
     }
   },
   "SM103": {
@@ -1699,6 +1887,7 @@
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "elect_Pp_": "Pp form",
       "f2fp_rs_16b__RIR": "outside implemented operation families",
       "f2fp_rs_16b__RRI": "outside implemented operation families",
       "f2fp_rs_16b__RRR": "outside implemented operation families",
@@ -1731,6 +1920,8 @@
       "iadd_xor_noimm__RUR_RUR": "carry out; xor not modelled",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
+      "ldcu_const_RCxR_": "bank",
+      "ldcu_ur_offs_": "bank",
       "ldg_256_memdesc__Ra64": "dual registers",
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
@@ -1805,6 +1996,10 @@
       },
       "DSETP": {
         "native": 3
+      },
+      "ELECT": {
+        "opaque": 1,
+        "primitive": 1
       },
       "EXIT": {
         "native": 1
@@ -1932,6 +2127,10 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "native": 1,
+        "opaque": 2
+      },
       "LDG": {
         "native": 4,
         "opaque": 5
@@ -1948,6 +2147,9 @@
       },
       "LOP3": {
         "native": 3
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 4,
@@ -1984,6 +2186,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 3
+      },
+      "REDUX": {
+        "primitive": 1
       },
       "RET": {
         "native": 4
@@ -2024,8 +2229,35 @@
         "native": 4,
         "opaque": 1
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -2113,14 +2345,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 4
       }
     },
     "status": {
-      "native": 455,
-      "opaque": 453,
-      "primitive": 66
+      "native": 456,
+      "opaque": 447,
+      "primitive": 71
     }
   },
   "SM103_READABLE": {
@@ -2131,6 +2366,7 @@
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "elect_Pp_": "Pp form",
       "f2fp_rs_16b__RIR": "outside implemented operation families",
       "f2fp_rs_16b__RRI": "outside implemented operation families",
       "f2fp_rs_16b__RRR": "outside implemented operation families",
@@ -2163,6 +2399,8 @@
       "iadd_xor_noimm__RUR_RUR": "carry out; xor not modelled",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
+      "ldcu_const_RCxR_": "bank",
+      "ldcu_ur_offs_": "bank",
       "ldg_256_memdesc__Ra64": "dual registers",
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
@@ -2237,6 +2475,10 @@
       },
       "DSETP": {
         "native": 3
+      },
+      "ELECT": {
+        "opaque": 1,
+        "primitive": 1
       },
       "EXIT": {
         "native": 1
@@ -2364,6 +2606,10 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "native": 1,
+        "opaque": 2
+      },
       "LDG": {
         "native": 4,
         "opaque": 5
@@ -2380,6 +2626,9 @@
       },
       "LOP3": {
         "native": 3
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 4,
@@ -2416,6 +2665,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 3
+      },
+      "REDUX": {
+        "primitive": 1
       },
       "RET": {
         "native": 4
@@ -2456,8 +2708,35 @@
         "native": 4,
         "opaque": 1
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -2545,14 +2824,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 4
       }
     },
     "status": {
-      "native": 455,
-      "opaque": 453,
-      "primitive": 66
+      "native": 456,
+      "opaque": 447,
+      "primitive": 71
     }
   },
   "SM107": {
@@ -2563,6 +2845,7 @@
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "elect_Pp_": "Pp form",
       "f2fp_rs_16b__RIR": "outside implemented operation families",
       "f2fp_rs_16b__RRI": "outside implemented operation families",
       "f2fp_rs_16b__RRR": "outside implemented operation families",
@@ -2616,6 +2899,11 @@
       "isetp_64__RsIR_RIR_noEX": "S64 format; U64 format",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
+      "ldcu_256_const_RCR_": "dual registers",
+      "ldcu_256_const_RCxR_": "dual registers",
+      "ldcu_256_ur_offs_": "dual registers",
+      "ldcu_const_RCxR_": "bank",
+      "ldcu_ur_offs_": "bank",
       "ldg_256_memdesc__Ra64": "dual registers",
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
@@ -2690,6 +2978,10 @@
       },
       "DSETP": {
         "native": 3
+      },
+      "ELECT": {
+        "opaque": 1,
+        "primitive": 1
       },
       "EXIT": {
         "native": 1
@@ -2819,6 +3111,10 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "native": 1,
+        "opaque": 5
+      },
       "LDG": {
         "native": 4,
         "opaque": 5
@@ -2835,6 +3131,9 @@
       },
       "LOP3": {
         "native": 3
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 7,
@@ -2871,6 +3170,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 3
+      },
+      "REDUX": {
+        "primitive": 1
       },
       "RET": {
         "native": 4
@@ -2911,8 +3213,35 @@
         "native": 4,
         "opaque": 1
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -3000,14 +3329,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 4
       }
     },
     "status": {
-      "native": 477,
-      "opaque": 401,
-      "primitive": 66
+      "native": 478,
+      "opaque": 395,
+      "primitive": 71
     }
   },
   "SM107_READABLE": {
@@ -3018,6 +3350,7 @@
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "elect_Pp_": "Pp form",
       "f2fp_rs_16b__RIR": "outside implemented operation families",
       "f2fp_rs_16b__RRI": "outside implemented operation families",
       "f2fp_rs_16b__RRR": "outside implemented operation families",
@@ -3071,6 +3404,11 @@
       "isetp_64__RsIR_RIR_noEX": "S64 format; U64 format",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
+      "ldcu_256_const_RCR_": "dual registers",
+      "ldcu_256_const_RCxR_": "dual registers",
+      "ldcu_256_ur_offs_": "dual registers",
+      "ldcu_const_RCxR_": "bank",
+      "ldcu_ur_offs_": "bank",
       "ldg_256_memdesc__Ra64": "dual registers",
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
@@ -3145,6 +3483,10 @@
       },
       "DSETP": {
         "native": 3
+      },
+      "ELECT": {
+        "opaque": 1,
+        "primitive": 1
       },
       "EXIT": {
         "native": 1
@@ -3274,6 +3616,10 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "native": 1,
+        "opaque": 5
+      },
       "LDG": {
         "native": 4,
         "opaque": 5
@@ -3290,6 +3636,9 @@
       },
       "LOP3": {
         "native": 3
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 7,
@@ -3326,6 +3675,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 3
+      },
+      "REDUX": {
+        "primitive": 1
       },
       "RET": {
         "native": 4
@@ -3366,8 +3718,35 @@
         "native": 4,
         "opaque": 1
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -3455,14 +3834,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 4
       }
     },
     "status": {
-      "native": 477,
-      "opaque": 401,
-      "primitive": 66
+      "native": 478,
+      "opaque": 395,
+      "primitive": 71
     }
   },
   "SM120": {
@@ -3473,6 +3855,7 @@
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "elect_Pp_": "Pp form",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
@@ -3510,6 +3893,11 @@
       "isetp_64__RsIR_RIR_noEX": "S64 format; U64 format",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
+      "ldcu_256_const_RCR_": "dual registers",
+      "ldcu_256_const_RCxR_": "dual registers",
+      "ldcu_256_ur_offs_": "dual registers",
+      "ldcu_const_RCxR_": "bank",
+      "ldcu_ur_offs_": "bank",
       "ldg_256_memdesc__Ra64": "dual registers",
       "ldg_256_rml2_memdesc__Ra64": "dual registers",
       "ldg_256_rml2_uniform__Ra32": "dual registers",
@@ -3539,6 +3927,10 @@
       "stg_memdesc__Ra64": "explicit descriptor",
       "stl_memdesc_": "explicit descriptor",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
+      "ufrnd__bf16_I": "BF16",
+      "ufrnd__bf16_URb": "BF16",
+      "ufrnd__f16_I": "F16",
+      "ufrnd__f16_URb": "F16",
       "uimnmx_64__URIR_URsIUR": "Pu/Pv/Pq predicates",
       "uimnmx_64__UUU_URURUR": "Pu/Pv/Pq predicates",
       "uimnmx__URIR_URsIUR": "Pu/Pv/Pq predicates",
@@ -3596,6 +3988,10 @@
       },
       "DSETP": {
         "native": 3
+      },
+      "ELECT": {
+        "opaque": 1,
+        "primitive": 1
       },
       "EXIT": {
         "native": 1
@@ -3723,6 +4119,10 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "native": 1,
+        "opaque": 5
+      },
       "LDG": {
         "native": 4,
         "opaque": 9
@@ -3739,6 +4139,9 @@
       },
       "LOP3": {
         "native": 3
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 7,
@@ -3775,6 +4178,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 3
+      },
+      "REDUX": {
+        "primitive": 1
       },
       "RET": {
         "native": 4
@@ -3815,8 +4221,36 @@
         "native": 14,
         "opaque": 1
       },
+      "UF2I": {
+        "native": 6
+      },
+      "UFADD": {
+        "native": 2
+      },
+      "UFFMA": {
+        "native": 3
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "native": 2
+      },
+      "UFRND": {
+        "native": 2,
+        "opaque": 4
+      },
+      "UFSEL": {
+        "native": 2
+      },
+      "UFSETP": {
+        "native": 2
+      },
+      "UI2F": {
+        "native": 5
+      },
+      "UI2FP": {
+        "native": 3
       },
       "UI2IP": {
         "native": 6
@@ -3905,14 +4339,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 4
       }
     },
     "status": {
-      "native": 462,
-      "opaque": 492,
-      "primitive": 61
+      "native": 490,
+      "opaque": 459,
+      "primitive": 66
     }
   },
   "SM120_READABLE": {
@@ -3923,6 +4360,7 @@
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "elect_Pp_": "Pp form",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
@@ -3960,6 +4398,11 @@
       "isetp_64__RsIR_RIR_noEX": "S64 format; U64 format",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
+      "ldcu_256_const_RCR_": "dual registers",
+      "ldcu_256_const_RCxR_": "dual registers",
+      "ldcu_256_ur_offs_": "dual registers",
+      "ldcu_const_RCxR_": "bank",
+      "ldcu_ur_offs_": "bank",
       "ldg_256_memdesc__Ra64": "dual registers",
       "ldg_256_rml2_memdesc__Ra64": "dual registers",
       "ldg_256_rml2_uniform__Ra32": "dual registers",
@@ -3989,6 +4432,10 @@
       "stg_memdesc__Ra64": "explicit descriptor",
       "stl_memdesc_": "explicit descriptor",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
+      "ufrnd__bf16_I": "BF16",
+      "ufrnd__bf16_URb": "BF16",
+      "ufrnd__f16_I": "F16",
+      "ufrnd__f16_URb": "F16",
       "uimnmx_64__URIR_URsIUR": "Pu/Pv/Pq predicates",
       "uimnmx_64__UUU_URURUR": "Pu/Pv/Pq predicates",
       "uimnmx__URIR_URsIUR": "Pu/Pv/Pq predicates",
@@ -4046,6 +4493,10 @@
       },
       "DSETP": {
         "native": 3
+      },
+      "ELECT": {
+        "opaque": 1,
+        "primitive": 1
       },
       "EXIT": {
         "native": 1
@@ -4173,6 +4624,10 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "native": 1,
+        "opaque": 5
+      },
       "LDG": {
         "native": 4,
         "opaque": 9
@@ -4189,6 +4644,9 @@
       },
       "LOP3": {
         "native": 3
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 7,
@@ -4225,6 +4683,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 3
+      },
+      "REDUX": {
+        "primitive": 1
       },
       "RET": {
         "native": 4
@@ -4265,8 +4726,36 @@
         "native": 14,
         "opaque": 1
       },
+      "UF2I": {
+        "native": 6
+      },
+      "UFADD": {
+        "native": 2
+      },
+      "UFFMA": {
+        "native": 3
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "native": 2
+      },
+      "UFRND": {
+        "native": 2,
+        "opaque": 4
+      },
+      "UFSEL": {
+        "native": 2
+      },
+      "UFSETP": {
+        "native": 2
+      },
+      "UI2F": {
+        "native": 5
+      },
+      "UI2FP": {
+        "native": 3
       },
       "UI2IP": {
         "native": 6
@@ -4355,14 +4844,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 4
       }
     },
     "status": {
-      "native": 462,
-      "opaque": 492,
-      "primitive": 61
+      "native": 490,
+      "opaque": 459,
+      "primitive": 66
     }
   },
   "SM75": {
@@ -4474,6 +4966,9 @@
         "native": 4,
         "opaque": 1
       },
+      "ELECT": {
+        "absent": 0
+      },
       "EXIT": {
         "native": 1
       },
@@ -4600,6 +5095,9 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "absent": 0
+      },
       "LDG": {
         "native": 5,
         "opaque": 5
@@ -4616,6 +5114,9 @@
       },
       "LOP3": {
         "native": 5
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 5
@@ -4651,6 +5152,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 1
+      },
+      "REDUX": {
+        "absent": 0
       },
       "RET": {
         "native": 4
@@ -4688,8 +5192,35 @@
       "UF2FP": {
         "absent": 0
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -4778,14 +5309,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 5
       }
     },
     "status": {
       "native": 507,
-      "opaque": 320,
-      "primitive": 76
+      "opaque": 317,
+      "primitive": 79
     }
   },
   "SM75_READABLE": {
@@ -4897,6 +5431,9 @@
         "native": 4,
         "opaque": 1
       },
+      "ELECT": {
+        "absent": 0
+      },
       "EXIT": {
         "native": 1
       },
@@ -5023,6 +5560,9 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "absent": 0
+      },
       "LDG": {
         "native": 5,
         "opaque": 5
@@ -5039,6 +5579,9 @@
       },
       "LOP3": {
         "native": 5
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 5
@@ -5074,6 +5617,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 1
+      },
+      "REDUX": {
+        "absent": 0
       },
       "RET": {
         "native": 4
@@ -5111,8 +5657,35 @@
       "UF2FP": {
         "absent": 0
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -5201,14 +5774,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 5
       }
     },
     "status": {
       "native": 507,
-      "opaque": 320,
-      "primitive": 76
+      "opaque": 317,
+      "primitive": 79
     }
   },
   "SM80": {
@@ -5345,6 +5921,9 @@
         "native": 4,
         "opaque": 1
       },
+      "ELECT": {
+        "absent": 0
+      },
       "EXIT": {
         "native": 1
       },
@@ -5473,6 +6052,9 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "absent": 0
+      },
       "LDG": {
         "native": 6
       },
@@ -5487,6 +6069,9 @@
       },
       "LOP3": {
         "native": 5
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 5,
@@ -5524,6 +6109,9 @@
         "native": 1,
         "opaque": 1
       },
+      "REDUX": {
+        "primitive": 1
+      },
       "RET": {
         "native": 4
       },
@@ -5560,8 +6148,35 @@
       "UF2FP": {
         "absent": 0
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -5650,14 +6265,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 5
       }
     },
     "status": {
       "native": 522,
-      "opaque": 369,
-      "primitive": 76
+      "opaque": 365,
+      "primitive": 80
     }
   },
   "SM80_READABLE": {
@@ -5794,6 +6412,9 @@
         "native": 4,
         "opaque": 1
       },
+      "ELECT": {
+        "absent": 0
+      },
       "EXIT": {
         "native": 1
       },
@@ -5922,6 +6543,9 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "absent": 0
+      },
       "LDG": {
         "native": 6
       },
@@ -5936,6 +6560,9 @@
       },
       "LOP3": {
         "native": 5
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 5,
@@ -5973,6 +6600,9 @@
         "native": 1,
         "opaque": 1
       },
+      "REDUX": {
+        "primitive": 1
+      },
       "RET": {
         "native": 4
       },
@@ -6009,8 +6639,35 @@
       "UF2FP": {
         "absent": 0
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -6099,14 +6756,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 5
       }
     },
     "status": {
       "native": 522,
-      "opaque": 369,
-      "primitive": 76
+      "opaque": 365,
+      "primitive": 80
     }
   },
   "SM86": {
@@ -6242,6 +6902,9 @@
         "native": 4,
         "opaque": 1
       },
+      "ELECT": {
+        "absent": 0
+      },
       "EXIT": {
         "native": 1
       },
@@ -6370,6 +7033,9 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "absent": 0
+      },
       "LDG": {
         "native": 6
       },
@@ -6384,6 +7050,9 @@
       },
       "LOP3": {
         "native": 5
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 5,
@@ -6420,6 +7089,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 1
+      },
+      "REDUX": {
+        "primitive": 1
       },
       "RET": {
         "native": 4
@@ -6458,8 +7130,35 @@
         "native": 4,
         "opaque": 1
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -6548,14 +7247,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 5
       }
     },
     "status": {
       "native": 552,
-      "opaque": 380,
-      "primitive": 72
+      "opaque": 376,
+      "primitive": 76
     }
   },
   "SM86_READABLE": {
@@ -6691,6 +7393,9 @@
         "native": 4,
         "opaque": 1
       },
+      "ELECT": {
+        "absent": 0
+      },
       "EXIT": {
         "native": 1
       },
@@ -6819,6 +7524,9 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "absent": 0
+      },
       "LDG": {
         "native": 6
       },
@@ -6833,6 +7541,9 @@
       },
       "LOP3": {
         "native": 5
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 5,
@@ -6869,6 +7580,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 1
+      },
+      "REDUX": {
+        "primitive": 1
       },
       "RET": {
         "native": 4
@@ -6907,8 +7621,35 @@
         "native": 4,
         "opaque": 1
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -6997,14 +7738,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 5
       }
     },
     "status": {
       "native": 552,
-      "opaque": 380,
-      "primitive": 72
+      "opaque": 376,
+      "primitive": 76
     }
   },
   "SM89": {
@@ -7148,6 +7892,9 @@
         "native": 4,
         "opaque": 1
       },
+      "ELECT": {
+        "absent": 0
+      },
       "EXIT": {
         "native": 1
       },
@@ -7276,6 +8023,9 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "absent": 0
+      },
       "LDG": {
         "native": 6,
         "opaque": 4
@@ -7291,6 +8041,9 @@
       },
       "LOP3": {
         "native": 5
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 5,
@@ -7327,6 +8080,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 1
+      },
+      "REDUX": {
+        "primitive": 1
       },
       "RET": {
         "native": 4
@@ -7366,8 +8122,35 @@
         "native": 4,
         "opaque": 1
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -7456,14 +8239,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 5
       }
     },
     "status": {
       "native": 580,
-      "opaque": 402,
-      "primitive": 72
+      "opaque": 398,
+      "primitive": 76
     }
   },
   "SM89_READABLE": {
@@ -7607,6 +8393,9 @@
         "native": 4,
         "opaque": 1
       },
+      "ELECT": {
+        "absent": 0
+      },
       "EXIT": {
         "native": 1
       },
@@ -7735,6 +8524,9 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "absent": 0
+      },
       "LDG": {
         "native": 6,
         "opaque": 4
@@ -7750,6 +8542,9 @@
       },
       "LOP3": {
         "native": 5
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 5,
@@ -7786,6 +8581,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 1
+      },
+      "REDUX": {
+        "primitive": 1
       },
       "RET": {
         "native": 4
@@ -7825,8 +8623,35 @@
         "native": 4,
         "opaque": 1
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -7915,14 +8740,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 5
       }
     },
     "status": {
       "native": 580,
-      "opaque": 402,
-      "primitive": 72
+      "opaque": 398,
+      "primitive": 76
     }
   },
   "SM90": {
@@ -7938,6 +8766,7 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
+      "elect_Pp_": "Pp form",
       "f2f_f64_downconvert__RCXR_RCXR": "32-bit source for F64; BF16.F64; ftz",
       "fmnmx_pred__RCR_RCR": "is_A not modelled",
       "fmnmx_pred__RCxR_RCxR": "is_A not modelled",
@@ -8068,6 +8897,10 @@
         "native": 4,
         "opaque": 1
       },
+      "ELECT": {
+        "opaque": 1,
+        "primitive": 1
+      },
       "EXIT": {
         "native": 1
       },
@@ -8196,6 +9029,9 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "absent": 0
+      },
       "LDG": {
         "native": 4,
         "opaque": 1
@@ -8212,6 +9048,9 @@
       },
       "LOP3": {
         "native": 5
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 5,
@@ -8248,6 +9087,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 1
+      },
+      "REDUX": {
+        "primitive": 1
       },
       "RET": {
         "native": 4
@@ -8288,8 +9130,35 @@
         "native": 4,
         "opaque": 1
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -8379,14 +9248,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 4
       }
     },
     "status": {
       "native": 614,
-      "opaque": 489,
-      "primitive": 70
+      "opaque": 484,
+      "primitive": 75
     }
   },
   "SM90_READABLE": {
@@ -8402,6 +9274,7 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
+      "elect_Pp_": "Pp form",
       "f2f_f64_downconvert__RCXR_RCXR": "32-bit source for F64; BF16.F64; ftz",
       "fmnmx_pred__RCR_RCR": "is_A not modelled",
       "fmnmx_pred__RCxR_RCxR": "is_A not modelled",
@@ -8532,6 +9405,10 @@
         "native": 4,
         "opaque": 1
       },
+      "ELECT": {
+        "opaque": 1,
+        "primitive": 1
+      },
       "EXIT": {
         "native": 1
       },
@@ -8660,6 +9537,9 @@
         "native": 2,
         "opaque": 2
       },
+      "LDCU": {
+        "absent": 0
+      },
       "LDG": {
         "native": 4,
         "opaque": 1
@@ -8676,6 +9556,9 @@
       },
       "LOP3": {
         "native": 5
+      },
+      "MATCH": {
+        "primitive": 2
       },
       "MOV": {
         "native": 5,
@@ -8712,6 +9595,9 @@
       "R2UR": {
         "native": 1,
         "opaque": 1
+      },
+      "REDUX": {
+        "primitive": 1
       },
       "RET": {
         "native": 4
@@ -8752,8 +9638,35 @@
         "native": 4,
         "opaque": 1
       },
+      "UF2I": {
+        "absent": 0
+      },
+      "UFADD": {
+        "absent": 0
+      },
+      "UFFMA": {
+        "absent": 0
+      },
       "UFLO": {
         "native": 2
+      },
+      "UFMUL": {
+        "absent": 0
+      },
+      "UFRND": {
+        "absent": 0
+      },
+      "UFSEL": {
+        "absent": 0
+      },
+      "UFSETP": {
+        "absent": 0
+      },
+      "UI2F": {
+        "absent": 0
+      },
+      "UI2FP": {
+        "absent": 0
       },
       "UI2IP": {
         "absent": 0
@@ -8843,14 +9756,17 @@
       "VOTE": {
         "primitive": 1
       },
+      "VOTEU": {
+        "primitive": 1
+      },
       "WARPSYNC": {
         "primitive": 4
       }
     },
     "status": {
       "native": 614,
-      "opaque": 489,
-      "primitive": 70
+      "opaque": 484,
+      "primitive": 75
     }
   }
 }

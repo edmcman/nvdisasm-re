@@ -27,7 +27,10 @@ def cache(program, arch, fp, opts):
     path = CACHE / "ghidra" / f"{prefix}{key}.sqlite"
     if not path.exists():
         path.parent.mkdir(parents=True, exist_ok=True)
-        for stale in path.parent.glob(f"{prefix}*.sqlite*"): stale.unlink(missing_ok=True)
+        # Only other stamps: a concurrent process may already have created (and opened) this one,
+        # and unlinking its database or WAL under it gives "no such table" or "disk I/O error".
+        for stale in path.parent.glob(f"{prefix}*.sqlite*"):
+            if not stale.name.startswith(path.name): stale.unlink(missing_ok=True)
     db = sqlite3.connect(path, timeout=600)
     db.execute("pragma journal_mode=wal")
     db.execute("create table if not exists results (request text primary key, result text)")

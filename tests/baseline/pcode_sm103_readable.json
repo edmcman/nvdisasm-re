@@ -6824,7 +6824,12 @@
 "ldcu_const_RCR_": {
 "CALLOTHER": 1,
 "CBRANCH": 1,
-"INT_NOTEQUAL": 1
+"COPY": 1,
+"INT_ADD": 1,
+"INT_NOTEQUAL": 1,
+"INT_OR": 1,
+"INT_ZEXT": 1,
+"LOAD": 1
 },
 "ldcu_const_RCxR_": {
 "CALLOTHER": 1,
@@ -7489,12 +7494,10 @@
 "CALLOTHER": 1,
 "CBRANCH": 1,
 "INT_NOTEQUAL": 1,
-"INT_ZEXT": 1,
 "SUBPIECE": 2
 },
 "match__ANY": {
-"CALLOTHER": 1,
-"INT_ZEXT": 1
+"CALLOTHER": 1
 },
 "membar_": {
 "CALLOTHER": 1,

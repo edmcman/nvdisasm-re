@@ -3,7 +3,7 @@
 Unknown operations fail explicitly. This is single-thread/explicit-warp context,
 not an implementation of CUDA's warp scheduler or memory concurrency model.
 """
-import json, math, re
+import functools, json, math, operator, re
 from fractions import Fraction
 from pathlib import Path
 from sass.decode import ir
@@ -48,11 +48,11 @@ class Runtime:
         ordinal,*values=args;arch=ir.load('SM'+str(sm));k=arch.classes[ordinal]
         variants=self.manifest(sm)[k.name]['variants']
         if len(variants)!=1:
-            # QSPC's E selector changes register spans, not its query inputs or
-            # outputs. P-code has already assembled the selected span into the
-            # integer argument consumed by the query.
+            # Selectors that change only register spans (QSPC's E, MATCH's U32/U64)
+            # keep one input/output signature: p-code has already assembled the
+            # selected span into the integer argument.
             signatures={(tuple(x['inputs']),tuple(x['outputs'].items())) for x in variants}
-            if k.mnemonic=='QSPC' and len(signatures)==1:
+            if len(signatures)==1:
                 inputs,outputs=variants[0]['inputs'],variants[0]['outputs']
             else:raise UnsupportedSemantics('primitive with modifier-dependent register spans '+k.name)
         else:inputs,outputs=variants[0]['inputs'],variants[0]['outputs']
@@ -196,18 +196,39 @@ class Runtime:
                 if mode=='IDX' and pick&8:byte=255 if byte&128 else 0
                 out|=byte<<(i*8)
             return out
-        if op in ('SHFL','VOTE'):
+        if op in ('SHFL','VOTE','VOTEU','MATCH','REDUX','ELECT'):
             warp=self.context.get('warp')
             if not warp:raise UnsupportedSemantics('explicit 32-lane warp context required')
             lane=int(warp.get('lane',0));active=int(warp.get('active',0xffffffff))
             if not 0<=lane<32 or not active>>lane&1:raise UnsupportedSemantics('warp lane is inactive or invalid')
-            if op=='VOTE':
+            lanes=[i for i in range(32) if active>>i&1]
+            if op=='ELECT':
+                # PTX elect.sync: the lowest active lane of the member mask leads; d is its lane id.
+                mask=integer('URa') if 'URa' in v else 0xffffffff
+                members=[i for i in lanes if mask>>i&1]
+                if not members:raise UnsupportedSemantics('ELECT without an active member lane')
+                return int(lane==members[0]) if dest=='Pu' else members[0]
+            if op in ('MATCH','REDUX'):
+                values=warp.get('values',[])
+                if len(values)!=32:raise UnsupportedSemantics('warp values required')
+            if op=='MATCH':
+                # PTX match.any/all.sync over the active lanes (Ra's span already gives U32/U64).
+                equal=sum(1<<i for i in lanes if values[i]==values[lane])
+                if label('op')=='ANY':return equal
+                return int(equal==active) if dest=='Pu' else (active if equal==active else 0)
+            if op=='REDUX':
+                # PTX redux.sync over the active lanes; MIN/MAX compare signed with .S32.
+                xs=[values[i]&0xffffffff for i in lanes];mode=label('op')
+                if label('sz','U32')=='S32' and mode in ('MIN','MAX'):xs=[x-(1<<32) if x>>31 else x for x in xs]
+                combine={'SUM':operator.add,'AND':operator.and_,'OR':operator.or_,'XOR':operator.xor,'MIN':min,'MAX':max}[mode]
+                return functools.reduce(combine,xs)&0xffffffff
+            if op in ('VOTE','VOTEU'):
                 preds=warp.get('predicates')
                 if preds is None or len(preds)!=32:raise UnsupportedSemantics('warp predicates required')
                 if v.get('Pp@not'):preds=[not x for x in preds]
                 mask=sum((1<<i) for i in range(32) if active>>i&1 and preds[i])
                 mode=label('voteop');result={'ALL':mask==active,'ANY':bool(mask),'EQ':mask==0 or mask==active}[mode]
-                return mask if dest=='Rd' else int(result)
+                return mask if dest in ('Rd','URd') else int(result)
             if len(warp.get('values',[]))!=32:raise UnsupportedSemantics('warp values required')
             # PTX shfl.sync's rule; SM89 matches it exactly (524288 lane results, random b and c).
             # UP's bound is a lower one (its clamp is the segment start); the others only check j <= bound.

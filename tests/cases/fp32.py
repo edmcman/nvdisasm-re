@@ -1,5 +1,5 @@
 """FP32: FADD/FMUL/FFMA (every rounding mode, FTZ, SAT, FMUL scale) against the exact softfloat
-model; FSETP and FSET; FSEL/FMNMX/FMNMX3 selection rules; FCHK's division slow-path test; readable-lowering
+model; FSETP and FSET; SM120's uniform UFADD/UFMUL/UFFMA/UFSETP/UFSEL; FSEL/FMNMX/FMNMX3 selection rules; FCHK's division slow-path test; readable-lowering
 formulas."""
 import itertools, random
 from sass.semantics.fp import softfloat
@@ -145,6 +145,39 @@ def fset_cases(c):
     c.add("fset__RRR_RRR", dict(Rd=2, Ra=2, Rb=2, Pp="PT", fcomp="EQ", bop="AND", **{"Rb@negate": 1}), dict(R2=0x80000000), dict(R2=0x3f800000, __native=True))
 
 
+def uniform(c):
+    """SM120's uniform twins of FADD/FMUL/FFMA/FSETP/FSEL: every rounding mode and FTZ over edge
+    triples, every comparison and bop, and the immediate forms."""
+    edges = [0, 0x80000000, 1, 0x80000001, 0x00800000, 0x3f800000, 0xbf800000, 0x3fc00000, 0x7f7fffff, 0x7f800000, 0xff800000, 0x4b800001]
+    regs = lambda x, y, z: dict(UR2=x, UR4=y, UR6=z)
+    for (x, y, z), rnd, flush in itertools.product(vectors(edges), ROUNDINGS, (False, True)):
+        for op, cls, fields in [("add", "ufadd__URURUR_UUU", dict(URd=8, URa=2, URc=4, ftz="FTZ" if flush else "noftz")),
+                                ("mul", "ufmul__UUU", dict(URd=8, URa=2, URb=4, fmz="FTZ" if flush else "nofmz_hfma2")),
+                                ("fma", "uffma__UUU_UUU", dict(URd=8, URa=2, URb=4, URc=6, fmz="FTZ" if flush else "nofmz_hfma2"))]:
+            inputs = [x, y, z][:3 if op == "fma" else 2]
+            want = softfloat.arithmetic(op, inputs, 32, rnd, flush)
+            if nan32(want) or (rnd == "RN" and underflow_band(op, inputs, 32)): continue
+            c.add(cls, dict(fields, rnd=rnd), regs(x, y, z), dict(UR8=want, __native=True))
+    for cls, fields, inputs in [("ufadd__URURsI_URURI", dict(URd=8, URa=2, Sc=0x3fc00000), ("add", [0x40000000, 0x3fc00000])),
+                                ("ufmul__URIR", dict(URd=8, URa=2, Sb=0xc0400000), ("mul", [0x40000000, 0xc0400000])),
+                                ("uffma__URIUR_URIUR", dict(URd=8, URa=2, Sb=0x3fc00000, URc=6), ("fma", [0x40000000, 0x3fc00000, 0xbf800000])),
+                                ("uffma__URURI_URURI", dict(URd=8, URa=2, URb=4, Sc=0x3f800000), ("fma", [0x40000000, 0x40000000, 0x3f800000]))]:
+        c.add(cls, fields, regs(0x40000000, 0x40000000, 0xbf800000), dict(UR8=softfloat.arithmetic(*inputs, 32), __native=True), portable=True)
+    for (a, b), cmp, bop, p in itertools.product(SET_PAIRS, FCOMPARISONS + ("T", "F"), ("AND", "OR", "XOR"), (0, 1)):
+        result = fcompare(ordered(a, 32), ordered(b, 32), cmp)
+        combine = {"AND": lambda x: x and p, "OR": lambda x: x or p, "XOR": lambda x: x != p}[bop]
+        c.add("ufsetp__URURUR_UUU", dict(UPu=0, UPv=1, URa=2, URb=4, UPp=3, fcomp=cmp, bop=bop), dict(UR2=a, UR4=b, UP3=p),
+              dict(UP0=int(combine(result)), UP1=int(combine(not result)), __native=True), portable=True)
+    c.add("ufsetp__URsIUR_URIR", dict(UPu=0, UPv=1, URa=2, Sb=0x40000000, UPp="UPT", fcomp="LT", bop="AND"), dict(UR2=0x3f800000),
+          dict(UP0=1, UP1=0, __native=True), portable=True)
+    for p, inverted in itertools.product((0, 1), (0, 1)):
+        want = 0x3f800000 if bool(p) != bool(inverted) else 0xc0000000
+        c.add("ufsel__URURUR_UUU", dict(URd=8, URa=2, URb=4, UPp=3, **{"UPp@not": inverted}), dict(UR2=0x3f800000, UR4=0xc0000000, UP3=p),
+              dict(UR8=want, __native=True), portable=True)
+        c.add("ufsel__URsIUR_URIR", dict(URd=8, URa=2, Sb=0xc0000000, UPp=3, **{"UPp@not": inverted}), dict(UR2=0x3f800000, UP3=p),
+              dict(UR8=want, __native=True), portable=True)
+
+
 def readable_formulas(c):
     """The readable language's plain unfused formula, which ignores rounding modes and flushing."""
     if c.fp != "readable": return
@@ -201,7 +234,7 @@ def fchk_cases(c):
 
 
 def emulator_cases(c):
-    selection(c); arithmetic(c); compare(c); fset_cases(c); fchk_cases(c); readable_formulas(c)
+    selection(c); arithmetic(c); compare(c); fset_cases(c); uniform(c); fchk_cases(c); readable_formulas(c)
 
 
 def gpu_fixtures():

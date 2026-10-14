@@ -200,7 +200,7 @@ def fchk(i):
     return outputs(Pu=(ea <= 24) | (ea == 255) | (eb <= 1) | (eb >= 252) | sle(const(127, 32), ea - eb) | sle(const(125, 32), eb - ea))
 
 
-@family('FSEL')
+@family('FSEL', 'UFSEL')
 def fsel_(i):
     """Rd = Pp ? Ra : Rb (FTZ flushes)."""
     operand_width(i, 32, 'Ra|Sa', 'Rb|Sb')
@@ -274,6 +274,10 @@ def fmnmx3_(i):
     r = numeric_pair3(p, numeric_pair3(p, a, b), c)
     if nan: r = const(CANONICAL_NAN, 32) if fnan(a) | fnan(b) | fnan(c) else r
     return outputs(Rd=r)
+
+
+# SM120's uniform twins; their unmodelled encodings are opaque (the runtime primitives are scalar only).
+for uniform, scalar in (('UFADD', fadd_), ('UFMUL', fmul_), ('UFFMA', ffma_), ('UFSETP', fsetp_)): family(uniform)(scalar.__wrapped__)
 
 
 # ---- packed binary16 (HADD2, HFMA2, HMUL2, HSET2, HSETP2) -----------------------------------------
