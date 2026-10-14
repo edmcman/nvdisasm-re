@@ -8,7 +8,7 @@ dropped; `sass.sem_eval.execute` runs the result.
 from dataclasses import dataclass, field
 from sass import ir, mdexpr, pydecode, sem
 from sass.sem import Expr
-from sass.sem_family import Instruction, Illegal, Unmodelled, PR_BITS, REG_TYPES, family_for, roles
+from sass.sem_family import Instruction, Illegal, Primitive, Unmodelled, PR_BITS, REG_TYPES, family_for, roles
 import sass.families  # registers the families
 
 ELEMENT = {"R": 32, "UR": 32, "P": 1, "UP": 1}
@@ -38,6 +38,7 @@ class Lifted(Instruction):
     def answer(self, key, domain):
         if isinstance(key, tuple) and key[0] == "zero": return self.zero(key[1])
         if isinstance(key, tuple) and key[0] == "in": return self.env.get(key[1], 0) in key[2]
+        if isinstance(key, tuple) and key[0] == "low": return self.env.get(key[1], 0) & ((1 << key[2]) - 1)
         return self.env.get(key, 0)
 
     def field_width(self, name):
@@ -148,6 +149,8 @@ def lift(arch_name, word, addr=0, fp="exact", conditions=True):
     try: result = fam(i)
     except Unmodelled as e:
         out.reason = str(e); return out
+    except Primitive as e:
+        out.status, out.reason = "primitive", str(e); return out
     except Illegal as e: raise pydecode.NoMatch(f"{d.klass.name}: {e} ({e.evidence})")
     for name, value in result.ordered():
         if not i.has_operand(name): continue  # e.g. no second carry output in this class

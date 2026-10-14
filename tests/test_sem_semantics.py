@@ -25,6 +25,19 @@ def selected_cases(variants, fams):
         return {k: v for part in pool.map(build, [(a, f, fams) for a, f in variants]) for k, v in part.items()}
 
 
+def evaluate(job):
+    """(item, [(case index, problems)]) for one item's cases, in a worker process."""
+    (arch, fp, *_), cases = job
+    return job[0], [(j, found) for j, case in enumerate(cases) if (found := lifted.run(arch, fp, case)[1])]
+
+
+@cache
+def results(variants, fams):
+    """Every item's failures, computed once across all cores (lift + execute is pure Python)."""
+    with ProcessPoolExecutor() as pool:
+        return dict(pool.map(evaluate, selected_cases(variants, fams).items(), chunksize=2))
+
+
 def selection(config):
     return tuple((a, f) for a in arches(config) for f in modes(config)), tuple(families(config))
 
@@ -38,6 +51,6 @@ def pytest_generate_tests(metafunc):
 def test_sem_semantics(lifted_class, request):
     arch, fp, family, cls = lifted_class
     cases = selected_cases(*selection(request.config))[lifted_class]
-    failed = [(case, found) for case in cases if (found := lifted.run(arch, fp, case)[1])]
+    failed = [(cases[j], found) for j, found in results(*selection(request.config))[lifted_class]]
     assert not failed, f"{len(failed)}/{len(cases)} cases failed\n" + "\n".join(
         f"  {found}: request {case.request}\n    expected {case.expected}" for case, found in failed[:5])

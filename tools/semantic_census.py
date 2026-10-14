@@ -2,38 +2,34 @@
 
 usage: python -m tools.semantic_census SM89 [SM90 ...] [--out DIR]
 
-Static counts: every word of every cubin, weighted by occurrence. A native class
-counts as a fallback when a decoded selector violates its recorded selector
-guards (other native constraints, such as register-bank guards, are not modelled).
+Static counts: every word of every cubin, weighted by occurrence. Each word's status is what its
+family decides for that encoding (`sass.sem_lift.lift`, the same family the SLEIGH selector
+guards come from): native, primitive (a `primitive()` row, or an unmodelled encoding of a family
+that falls back to its primitive) or opaque. Classes without a family keep their manifest status.
 """
 import argparse, collections, json
 from multiprocessing import Pool
 from pathlib import Path
 from tests.corpus import cubins
-from sass import ir, pydecode
+from sass import pydecode, sem_lift
 from sass.cubin import elf_arch, text_words
 from sass.gen_sleigh import OUT
 from sass.operations import PRIMITIVES
 
-def classify(arch, rows, word):
-    try: d = pydecode.decode(arch.name, word)
+def classify(archname, rows, word):
+    try: lifted = sem_lift.lift(archname, word)
     except Exception: return ('undecodable', '?', '?', '')
-    k = d.klass; row = rows.get(k.name)
-    if row is None: return ('ungenerated', k.mnemonic, k.name, '')
-    status = row['status']
-    if status == 'native':
-        for name, labels in row.get('selector_guards', {}).items():
-            atom = k.operand_types.get(name)
-            label = arch.rev_enums.get(atom.type, {}).get(d.env.get(name)) if atom else None
-            if label not in labels:
-                return ('primitive' if k.mnemonic in PRIMITIVES else 'opaque', k.mnemonic, k.name, f'{name}={label}')
-    return (status, k.mnemonic, k.name, '' if status == 'native' else row.get('reason', ''))
+    row = rows.get(lifted.cls)
+    if row is None: return ('ungenerated', '?', lifted.cls, '')
+    op = row['opcode']
+    if lifted.reason == 'no family': return (row['status'], op, lifted.cls, '' if row['status'] == 'native' else row.get('reason', ''))
+    status = 'primitive' if lifted.status == 'opaque' and op in PRIMITIVES else lifted.status
+    return (status, op, lifted.cls, '' if status == 'native' else lifted.reason)
 
 def work(args):
     archname, words = args
-    arch = ir.load(archname)
     rows = {r['cls']: r for r in json.loads((OUT / f'sass_{archname.lower()}_coverage.json').read_text())}
-    return [classify(arch, rows, w) for w in words]
+    return [classify(archname, rows, w) for w in words]
 
 def census(archname, pool):
     counts = collections.Counter()

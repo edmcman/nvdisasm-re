@@ -7,16 +7,16 @@
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
-      "f2fp_rs_16b__RIR": "class variant not yet described by a native override",
-      "f2fp_rs_16b__RRI": "class variant not yet described by a native override",
-      "f2fp_rs_16b__RRR": "class variant not yet described by a native override",
-      "f2fp_rs_16b__RRU": "class variant not yet described by a native override",
-      "f2fp_rs_16b__RUR": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RIR": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RRI": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RRR": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RRU": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RUR": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RIR": "outside implemented operation families",
+      "f2fp_rs_16b__RRI": "outside implemented operation families",
+      "f2fp_rs_16b__RRR": "outside implemented operation families",
+      "f2fp_rs_16b__RRU": "outside implemented operation families",
+      "f2fp_rs_16b__RUR": "outside implemented operation families",
+      "f2fp_rs_8b4b__RIR": "outside implemented operation families",
+      "f2fp_rs_8b4b__RRI": "outside implemented operation families",
+      "f2fp_rs_8b4b__RRR": "outside implemented operation families",
+      "f2fp_rs_8b4b__RRU": "outside implemented operation families",
+      "f2fp_rs_8b4b__RUR": "outside implemented operation families",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
@@ -59,7 +59,7 @@
       "stl_uniform_": "uniform address part",
       "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
-      "up2ur__URb": "unsupported class shape"
+      "up2ur__URb": "register mask"
     },
     "operations": {
       "BAR": {
@@ -230,7 +230,7 @@
         "native": 5
       },
       "QSPC": {
-        "native": 4
+        "primitive": 4
       },
       "R2P": {
         "native": 3
@@ -357,9 +357,9 @@
       }
     },
     "status": {
-      "native": 351,
+      "native": 347,
       "opaque": 535,
-      "primitive": 92
+      "primitive": 96
     }
   },
   "SM100_READABLE": {
@@ -370,16 +370,16 @@
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
-      "f2fp_rs_16b__RIR": "class variant not yet described by a native override",
-      "f2fp_rs_16b__RRI": "class variant not yet described by a native override",
-      "f2fp_rs_16b__RRR": "class variant not yet described by a native override",
-      "f2fp_rs_16b__RRU": "class variant not yet described by a native override",
-      "f2fp_rs_16b__RUR": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RIR": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RRI": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RRR": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RRU": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RUR": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RIR": "outside implemented operation families",
+      "f2fp_rs_16b__RRI": "outside implemented operation families",
+      "f2fp_rs_16b__RRR": "outside implemented operation families",
+      "f2fp_rs_16b__RRU": "outside implemented operation families",
+      "f2fp_rs_16b__RUR": "outside implemented operation families",
+      "f2fp_rs_8b4b__RIR": "outside implemented operation families",
+      "f2fp_rs_8b4b__RRI": "outside implemented operation families",
+      "f2fp_rs_8b4b__RRR": "outside implemented operation families",
+      "f2fp_rs_8b4b__RRU": "outside implemented operation families",
+      "f2fp_rs_8b4b__RUR": "outside implemented operation families",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
@@ -422,7 +422,7 @@
       "stl_uniform_": "uniform address part",
       "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
-      "up2ur__URb": "unsupported class shape"
+      "up2ur__URb": "register mask"
     },
     "operations": {
       "BAR": {
@@ -593,7 +593,7 @@
         "native": 5
       },
       "QSPC": {
-        "native": 4
+        "primitive": 4
       },
       "R2P": {
         "native": 3
@@ -720,9 +720,9 @@
       }
     },
     "status": {
-      "native": 351,
+      "native": 347,
       "opaque": 535,
-      "primitive": 92
+      "primitive": 96
     }
   },
   "SM101": {
@@ -769,7 +769,7 @@
       "stl_uniform_": "uniform address part",
       "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
-      "up2ur__URb": "unsupported class shape"
+      "up2ur__URb": "register mask"
     },
     "operations": {
       "BAR": {
@@ -939,7 +939,7 @@
         "native": 5
       },
       "QSPC": {
-        "native": 4
+        "primitive": 4
       },
       "R2P": {
         "native": 3
@@ -1066,9 +1066,9 @@
       }
     },
     "status": {
-      "native": 337,
+      "native": 333,
       "opaque": 477,
-      "primitive": 90
+      "primitive": 94
     }
   },
   "SM101_READABLE": {
@@ -1115,7 +1115,7 @@
       "stl_uniform_": "uniform address part",
       "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
-      "up2ur__URb": "unsupported class shape"
+      "up2ur__URb": "register mask"
     },
     "operations": {
       "BAR": {
@@ -1285,7 +1285,7 @@
         "native": 5
       },
       "QSPC": {
-        "native": 4
+        "primitive": 4
       },
       "R2P": {
         "native": 3
@@ -1412,9 +1412,9 @@
       }
     },
     "status": {
-      "native": 337,
+      "native": 333,
       "opaque": 477,
-      "primitive": 90
+      "primitive": 94
     }
   },
   "SM103": {
@@ -1425,16 +1425,16 @@
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
-      "f2fp_rs_16b__RIR": "class variant not yet described by a native override",
-      "f2fp_rs_16b__RRI": "class variant not yet described by a native override",
-      "f2fp_rs_16b__RRR": "class variant not yet described by a native override",
-      "f2fp_rs_16b__RRU": "class variant not yet described by a native override",
-      "f2fp_rs_16b__RUR": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RIR": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RRI": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RRR": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RRU": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RUR": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RIR": "outside implemented operation families",
+      "f2fp_rs_16b__RRI": "outside implemented operation families",
+      "f2fp_rs_16b__RRR": "outside implemented operation families",
+      "f2fp_rs_16b__RRU": "outside implemented operation families",
+      "f2fp_rs_16b__RUR": "outside implemented operation families",
+      "f2fp_rs_8b4b__RIR": "outside implemented operation families",
+      "f2fp_rs_8b4b__RRI": "outside implemented operation families",
+      "f2fp_rs_8b4b__RRR": "outside implemented operation families",
+      "f2fp_rs_8b4b__RRU": "outside implemented operation families",
+      "f2fp_rs_8b4b__RUR": "outside implemented operation families",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
@@ -1477,7 +1477,7 @@
       "stl_uniform_": "uniform address part",
       "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
-      "up2ur__URb": "unsupported class shape"
+      "up2ur__URb": "register mask"
     },
     "operations": {
       "BAR": {
@@ -1648,7 +1648,7 @@
         "native": 5
       },
       "QSPC": {
-        "native": 4
+        "primitive": 4
       },
       "R2P": {
         "native": 3
@@ -1775,9 +1775,9 @@
       }
     },
     "status": {
-      "native": 351,
+      "native": 347,
       "opaque": 528,
-      "primitive": 95
+      "primitive": 99
     }
   },
   "SM103_READABLE": {
@@ -1788,16 +1788,16 @@
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
-      "f2fp_rs_16b__RIR": "class variant not yet described by a native override",
-      "f2fp_rs_16b__RRI": "class variant not yet described by a native override",
-      "f2fp_rs_16b__RRR": "class variant not yet described by a native override",
-      "f2fp_rs_16b__RRU": "class variant not yet described by a native override",
-      "f2fp_rs_16b__RUR": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RIR": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RRI": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RRR": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RRU": "class variant not yet described by a native override",
-      "f2fp_rs_8b4b__RUR": "class variant not yet described by a native override",
+      "f2fp_rs_16b__RIR": "outside implemented operation families",
+      "f2fp_rs_16b__RRI": "outside implemented operation families",
+      "f2fp_rs_16b__RRR": "outside implemented operation families",
+      "f2fp_rs_16b__RRU": "outside implemented operation families",
+      "f2fp_rs_16b__RUR": "outside implemented operation families",
+      "f2fp_rs_8b4b__RIR": "outside implemented operation families",
+      "f2fp_rs_8b4b__RRI": "outside implemented operation families",
+      "f2fp_rs_8b4b__RRR": "outside implemented operation families",
+      "f2fp_rs_8b4b__RRU": "outside implemented operation families",
+      "f2fp_rs_8b4b__RUR": "outside implemented operation families",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
@@ -1840,7 +1840,7 @@
       "stl_uniform_": "uniform address part",
       "sts_uniform_": "uniform address part",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
-      "up2ur__URb": "unsupported class shape"
+      "up2ur__URb": "register mask"
     },
     "operations": {
       "BAR": {
@@ -2011,7 +2011,7 @@
         "native": 5
       },
       "QSPC": {
-        "native": 4
+        "primitive": 4
       },
       "R2P": {
         "native": 3
@@ -2138,9 +2138,9 @@
       }
     },
     "status": {
-      "native": 351,
+      "native": 347,
       "opaque": 528,
-      "primitive": 95
+      "primitive": 99
     }
   },
   "SM120": {
@@ -2220,7 +2220,7 @@
       "uisetp_64__URsIUR_URIR": "S64 format; U64 format",
       "uisetp_64_optional_upr__URURUR_URURUR": "S64 format; U64 format",
       "uisetp_64_optional_upr__URsIUR_URIR": "S64 format; U64 format",
-      "up2ur__URb": "unsupported class shape"
+      "up2ur__URb": "register mask"
     },
     "operations": {
       "BAR": {
@@ -2392,7 +2392,7 @@
         "native": 5
       },
       "QSPC": {
-        "native": 4
+        "primitive": 4
       },
       "R2P": {
         "native": 3
@@ -2520,9 +2520,9 @@
       }
     },
     "status": {
-      "native": 369,
+      "native": 365,
       "opaque": 556,
-      "primitive": 90
+      "primitive": 94
     }
   },
   "SM120_READABLE": {
@@ -2602,7 +2602,7 @@
       "uisetp_64__URsIUR_URIR": "S64 format; U64 format",
       "uisetp_64_optional_upr__URURUR_URURUR": "S64 format; U64 format",
       "uisetp_64_optional_upr__URsIUR_URIR": "S64 format; U64 format",
-      "up2ur__URb": "unsupported class shape"
+      "up2ur__URb": "register mask"
     },
     "operations": {
       "BAR": {
@@ -2774,7 +2774,7 @@
         "native": 5
       },
       "QSPC": {
-        "native": 4
+        "primitive": 4
       },
       "R2P": {
         "native": 3
@@ -2902,9 +2902,9 @@
       }
     },
     "status": {
-      "native": 369,
+      "native": 365,
       "opaque": 556,
-      "primitive": 90
+      "primitive": 94
     }
   },
   "SM75": {
@@ -2918,15 +2918,15 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
-      "f2fp_rs__RCR": "class variant not yet described by a native override",
-      "f2fp_rs__RCxR": "class variant not yet described by a native override",
-      "f2fp_rs__RIR": "class variant not yet described by a native override",
-      "f2fp_rs__RRC": "class variant not yet described by a native override",
-      "f2fp_rs__RRCx": "class variant not yet described by a native override",
-      "f2fp_rs__RRI": "class variant not yet described by a native override",
-      "f2fp_rs__RRR": "class variant not yet described by a native override",
-      "f2fp_rs__RRU": "class variant not yet described by a native override",
-      "f2fp_rs__RUR": "class variant not yet described by a native override",
+      "f2fp_rs__RCR": "outside implemented operation families",
+      "f2fp_rs__RCxR": "outside implemented operation families",
+      "f2fp_rs__RIR": "outside implemented operation families",
+      "f2fp_rs__RRC": "outside implemented operation families",
+      "f2fp_rs__RRCx": "outside implemented operation families",
+      "f2fp_rs__RRI": "outside implemented operation families",
+      "f2fp_rs__RRR": "outside implemented operation families",
+      "f2fp_rs__RRU": "outside implemented operation families",
+      "f2fp_rs__RUR": "outside implemented operation families",
       "ldc_ur__URRzI": "bank",
       "ldc_ur__URnonRzI": "bank",
       "ldg_uniform__Ra32": "Pu result; uniform address part",
@@ -2953,7 +2953,7 @@
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "unsupported class shape"
+      "up2ur__URb": "register mask"
     },
     "operations": {
       "BAR": {
@@ -3124,7 +3124,7 @@
         "native": 9
       },
       "QSPC": {
-        "native": 5
+        "primitive": 5
       },
       "R2P": {
         "native": 5
@@ -3251,9 +3251,9 @@
       }
     },
     "status": {
-      "native": 387,
+      "native": 382,
       "opaque": 408,
-      "primitive": 108
+      "primitive": 113
     }
   },
   "SM75_READABLE": {
@@ -3267,15 +3267,15 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
-      "f2fp_rs__RCR": "class variant not yet described by a native override",
-      "f2fp_rs__RCxR": "class variant not yet described by a native override",
-      "f2fp_rs__RIR": "class variant not yet described by a native override",
-      "f2fp_rs__RRC": "class variant not yet described by a native override",
-      "f2fp_rs__RRCx": "class variant not yet described by a native override",
-      "f2fp_rs__RRI": "class variant not yet described by a native override",
-      "f2fp_rs__RRR": "class variant not yet described by a native override",
-      "f2fp_rs__RRU": "class variant not yet described by a native override",
-      "f2fp_rs__RUR": "class variant not yet described by a native override",
+      "f2fp_rs__RCR": "outside implemented operation families",
+      "f2fp_rs__RCxR": "outside implemented operation families",
+      "f2fp_rs__RIR": "outside implemented operation families",
+      "f2fp_rs__RRC": "outside implemented operation families",
+      "f2fp_rs__RRCx": "outside implemented operation families",
+      "f2fp_rs__RRI": "outside implemented operation families",
+      "f2fp_rs__RRR": "outside implemented operation families",
+      "f2fp_rs__RRU": "outside implemented operation families",
+      "f2fp_rs__RUR": "outside implemented operation families",
       "ldc_ur__URRzI": "bank",
       "ldc_ur__URnonRzI": "bank",
       "ldg_uniform__Ra32": "Pu result; uniform address part",
@@ -3302,7 +3302,7 @@
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "unsupported class shape"
+      "up2ur__URb": "register mask"
     },
     "operations": {
       "BAR": {
@@ -3473,7 +3473,7 @@
         "native": 9
       },
       "QSPC": {
-        "native": 5
+        "primitive": 5
       },
       "R2P": {
         "native": 5
@@ -3600,9 +3600,9 @@
       }
     },
     "status": {
-      "native": 387,
+      "native": 382,
       "opaque": 408,
-      "primitive": 108
+      "primitive": 113
     }
   },
   "SM80": {
@@ -3618,32 +3618,32 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
-      "f2fp_rs__RCR": "class variant not yet described by a native override",
-      "f2fp_rs__RCxR": "class variant not yet described by a native override",
-      "f2fp_rs__RIR": "class variant not yet described by a native override",
-      "f2fp_rs__RRC": "class variant not yet described by a native override",
-      "f2fp_rs__RRCx": "class variant not yet described by a native override",
-      "f2fp_rs__RRI": "class variant not yet described by a native override",
-      "f2fp_rs__RRR": "class variant not yet described by a native override",
-      "f2fp_rs__RRU": "class variant not yet described by a native override",
-      "f2fp_rs__RUR": "class variant not yet described by a native override",
-      "hfma2_mma__RCR_norelu": "unsupported class shape",
-      "hfma2_mma__RCR_relu": "unsupported class shape",
-      "hfma2_mma__RCxR_norelu": "unsupported class shape",
-      "hfma2_mma__RCxR_relu": "unsupported class shape",
-      "hfma2_mma__RIR_norelu": "unsupported class shape",
-      "hfma2_mma__RIR_relu": "unsupported class shape",
-      "hfma2_mma__RRC_norelu": "unsupported class shape",
-      "hfma2_mma__RRC_relu": "unsupported class shape",
-      "hfma2_mma__RRCx_norelu": "unsupported class shape",
-      "hfma2_mma__RRCx_relu": "unsupported class shape",
-      "hfma2_mma__RRI_relu": "class selectors have no supported native combination",
-      "hfma2_mma__RRR_norelu": "unsupported class shape",
-      "hfma2_mma__RRR_relu": "unsupported class shape",
-      "hfma2_mma__RRU_norelu": "unsupported class shape",
-      "hfma2_mma__RRU_relu": "unsupported class shape",
-      "hfma2_mma__RUR_norelu": "unsupported class shape",
-      "hfma2_mma__RUR_relu": "unsupported class shape",
+      "f2fp_rs__RCR": "outside implemented operation families",
+      "f2fp_rs__RCxR": "outside implemented operation families",
+      "f2fp_rs__RIR": "outside implemented operation families",
+      "f2fp_rs__RRC": "outside implemented operation families",
+      "f2fp_rs__RRCx": "outside implemented operation families",
+      "f2fp_rs__RRI": "outside implemented operation families",
+      "f2fp_rs__RRR": "outside implemented operation families",
+      "f2fp_rs__RRU": "outside implemented operation families",
+      "f2fp_rs__RUR": "outside implemented operation families",
+      "hfma2_mma__RCR_norelu": "operand form",
+      "hfma2_mma__RCR_relu": "operand form",
+      "hfma2_mma__RCxR_norelu": "operand form",
+      "hfma2_mma__RCxR_relu": "operand form",
+      "hfma2_mma__RIR_norelu": "operand form",
+      "hfma2_mma__RIR_relu": "operand form",
+      "hfma2_mma__RRC_norelu": "operand form",
+      "hfma2_mma__RRC_relu": "operand form",
+      "hfma2_mma__RRCx_norelu": "operand form",
+      "hfma2_mma__RRCx_relu": "operand form",
+      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
+      "hfma2_mma__RRR_norelu": "operand form",
+      "hfma2_mma__RRR_relu": "operand form",
+      "hfma2_mma__RRU_norelu": "operand form",
+      "hfma2_mma__RRU_relu": "operand form",
+      "hfma2_mma__RUR_norelu": "operand form",
+      "hfma2_mma__RUR_relu": "operand form",
       "hfma2_relu__RCR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RCxR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RIR": "FMZ; FTZ; INVALID3; RELU; ofmt",
@@ -3675,7 +3675,7 @@
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "unsupported class shape"
+      "up2ur__URb": "register mask"
     },
     "operations": {
       "BAR": {
@@ -3850,7 +3850,7 @@
         "native": 9
       },
       "QSPC": {
-        "native": 5
+        "primitive": 5
       },
       "R2P": {
         "native": 5
@@ -3977,9 +3977,9 @@
       }
     },
     "status": {
-      "native": 402,
+      "native": 397,
       "opaque": 457,
-      "primitive": 108
+      "primitive": 113
     }
   },
   "SM80_READABLE": {
@@ -3995,32 +3995,32 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
-      "f2fp_rs__RCR": "class variant not yet described by a native override",
-      "f2fp_rs__RCxR": "class variant not yet described by a native override",
-      "f2fp_rs__RIR": "class variant not yet described by a native override",
-      "f2fp_rs__RRC": "class variant not yet described by a native override",
-      "f2fp_rs__RRCx": "class variant not yet described by a native override",
-      "f2fp_rs__RRI": "class variant not yet described by a native override",
-      "f2fp_rs__RRR": "class variant not yet described by a native override",
-      "f2fp_rs__RRU": "class variant not yet described by a native override",
-      "f2fp_rs__RUR": "class variant not yet described by a native override",
-      "hfma2_mma__RCR_norelu": "unsupported class shape",
-      "hfma2_mma__RCR_relu": "unsupported class shape",
-      "hfma2_mma__RCxR_norelu": "unsupported class shape",
-      "hfma2_mma__RCxR_relu": "unsupported class shape",
-      "hfma2_mma__RIR_norelu": "unsupported class shape",
-      "hfma2_mma__RIR_relu": "unsupported class shape",
-      "hfma2_mma__RRC_norelu": "unsupported class shape",
-      "hfma2_mma__RRC_relu": "unsupported class shape",
-      "hfma2_mma__RRCx_norelu": "unsupported class shape",
-      "hfma2_mma__RRCx_relu": "unsupported class shape",
-      "hfma2_mma__RRI_relu": "class selectors have no supported native combination",
-      "hfma2_mma__RRR_norelu": "unsupported class shape",
-      "hfma2_mma__RRR_relu": "unsupported class shape",
-      "hfma2_mma__RRU_norelu": "unsupported class shape",
-      "hfma2_mma__RRU_relu": "unsupported class shape",
-      "hfma2_mma__RUR_norelu": "unsupported class shape",
-      "hfma2_mma__RUR_relu": "unsupported class shape",
+      "f2fp_rs__RCR": "outside implemented operation families",
+      "f2fp_rs__RCxR": "outside implemented operation families",
+      "f2fp_rs__RIR": "outside implemented operation families",
+      "f2fp_rs__RRC": "outside implemented operation families",
+      "f2fp_rs__RRCx": "outside implemented operation families",
+      "f2fp_rs__RRI": "outside implemented operation families",
+      "f2fp_rs__RRR": "outside implemented operation families",
+      "f2fp_rs__RRU": "outside implemented operation families",
+      "f2fp_rs__RUR": "outside implemented operation families",
+      "hfma2_mma__RCR_norelu": "operand form",
+      "hfma2_mma__RCR_relu": "operand form",
+      "hfma2_mma__RCxR_norelu": "operand form",
+      "hfma2_mma__RCxR_relu": "operand form",
+      "hfma2_mma__RIR_norelu": "operand form",
+      "hfma2_mma__RIR_relu": "operand form",
+      "hfma2_mma__RRC_norelu": "operand form",
+      "hfma2_mma__RRC_relu": "operand form",
+      "hfma2_mma__RRCx_norelu": "operand form",
+      "hfma2_mma__RRCx_relu": "operand form",
+      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
+      "hfma2_mma__RRR_norelu": "operand form",
+      "hfma2_mma__RRR_relu": "operand form",
+      "hfma2_mma__RRU_norelu": "operand form",
+      "hfma2_mma__RRU_relu": "operand form",
+      "hfma2_mma__RUR_norelu": "operand form",
+      "hfma2_mma__RUR_relu": "operand form",
       "hfma2_relu__RCR": "RELU; ofmt",
       "hfma2_relu__RCxR": "RELU; ofmt",
       "hfma2_relu__RIR": "RELU; ofmt",
@@ -4052,7 +4052,7 @@
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "unsupported class shape"
+      "up2ur__URb": "register mask"
     },
     "operations": {
       "BAR": {
@@ -4227,7 +4227,7 @@
         "native": 9
       },
       "QSPC": {
-        "native": 5
+        "primitive": 5
       },
       "R2P": {
         "native": 5
@@ -4354,9 +4354,9 @@
       }
     },
     "status": {
-      "native": 402,
+      "native": 397,
       "opaque": 457,
-      "primitive": 108
+      "primitive": 113
     }
   },
   "SM86": {
@@ -4372,32 +4372,32 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
-      "f2fp_rs__RCR": "class variant not yet described by a native override",
-      "f2fp_rs__RCxR": "class variant not yet described by a native override",
-      "f2fp_rs__RIR": "class variant not yet described by a native override",
-      "f2fp_rs__RRC": "class variant not yet described by a native override",
-      "f2fp_rs__RRCx": "class variant not yet described by a native override",
-      "f2fp_rs__RRI": "class variant not yet described by a native override",
-      "f2fp_rs__RRR": "class variant not yet described by a native override",
-      "f2fp_rs__RRU": "class variant not yet described by a native override",
-      "f2fp_rs__RUR": "class variant not yet described by a native override",
-      "hfma2_mma__RCR_norelu": "unsupported class shape",
-      "hfma2_mma__RCR_relu": "unsupported class shape",
-      "hfma2_mma__RCxR_norelu": "unsupported class shape",
-      "hfma2_mma__RCxR_relu": "unsupported class shape",
-      "hfma2_mma__RIR_norelu": "unsupported class shape",
-      "hfma2_mma__RIR_relu": "unsupported class shape",
-      "hfma2_mma__RRC_norelu": "unsupported class shape",
-      "hfma2_mma__RRC_relu": "unsupported class shape",
-      "hfma2_mma__RRCx_norelu": "unsupported class shape",
-      "hfma2_mma__RRCx_relu": "unsupported class shape",
-      "hfma2_mma__RRI_relu": "class selectors have no supported native combination",
-      "hfma2_mma__RRR_norelu": "unsupported class shape",
-      "hfma2_mma__RRR_relu": "unsupported class shape",
-      "hfma2_mma__RRU_norelu": "unsupported class shape",
-      "hfma2_mma__RRU_relu": "unsupported class shape",
-      "hfma2_mma__RUR_norelu": "unsupported class shape",
-      "hfma2_mma__RUR_relu": "unsupported class shape",
+      "f2fp_rs__RCR": "outside implemented operation families",
+      "f2fp_rs__RCxR": "outside implemented operation families",
+      "f2fp_rs__RIR": "outside implemented operation families",
+      "f2fp_rs__RRC": "outside implemented operation families",
+      "f2fp_rs__RRCx": "outside implemented operation families",
+      "f2fp_rs__RRI": "outside implemented operation families",
+      "f2fp_rs__RRR": "outside implemented operation families",
+      "f2fp_rs__RRU": "outside implemented operation families",
+      "f2fp_rs__RUR": "outside implemented operation families",
+      "hfma2_mma__RCR_norelu": "operand form",
+      "hfma2_mma__RCR_relu": "operand form",
+      "hfma2_mma__RCxR_norelu": "operand form",
+      "hfma2_mma__RCxR_relu": "operand form",
+      "hfma2_mma__RIR_norelu": "operand form",
+      "hfma2_mma__RIR_relu": "operand form",
+      "hfma2_mma__RRC_norelu": "operand form",
+      "hfma2_mma__RRC_relu": "operand form",
+      "hfma2_mma__RRCx_norelu": "operand form",
+      "hfma2_mma__RRCx_relu": "operand form",
+      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
+      "hfma2_mma__RRR_norelu": "operand form",
+      "hfma2_mma__RRR_relu": "operand form",
+      "hfma2_mma__RRU_norelu": "operand form",
+      "hfma2_mma__RRU_relu": "operand form",
+      "hfma2_mma__RUR_norelu": "operand form",
+      "hfma2_mma__RUR_relu": "operand form",
       "hfma2_relu__RCR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RCxR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RIR": "FMZ; FTZ; INVALID3; RELU; ofmt",
@@ -4430,7 +4430,7 @@
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "unsupported class shape"
+      "up2ur__URb": "register mask"
     },
     "operations": {
       "BAR": {
@@ -4605,7 +4605,7 @@
         "native": 9
       },
       "QSPC": {
-        "native": 5
+        "primitive": 5
       },
       "R2P": {
         "native": 5
@@ -4733,9 +4733,9 @@
       }
     },
     "status": {
-      "native": 420,
+      "native": 415,
       "opaque": 470,
-      "primitive": 114
+      "primitive": 119
     }
   },
   "SM86_READABLE": {
@@ -4751,32 +4751,32 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
-      "f2fp_rs__RCR": "class variant not yet described by a native override",
-      "f2fp_rs__RCxR": "class variant not yet described by a native override",
-      "f2fp_rs__RIR": "class variant not yet described by a native override",
-      "f2fp_rs__RRC": "class variant not yet described by a native override",
-      "f2fp_rs__RRCx": "class variant not yet described by a native override",
-      "f2fp_rs__RRI": "class variant not yet described by a native override",
-      "f2fp_rs__RRR": "class variant not yet described by a native override",
-      "f2fp_rs__RRU": "class variant not yet described by a native override",
-      "f2fp_rs__RUR": "class variant not yet described by a native override",
-      "hfma2_mma__RCR_norelu": "unsupported class shape",
-      "hfma2_mma__RCR_relu": "unsupported class shape",
-      "hfma2_mma__RCxR_norelu": "unsupported class shape",
-      "hfma2_mma__RCxR_relu": "unsupported class shape",
-      "hfma2_mma__RIR_norelu": "unsupported class shape",
-      "hfma2_mma__RIR_relu": "unsupported class shape",
-      "hfma2_mma__RRC_norelu": "unsupported class shape",
-      "hfma2_mma__RRC_relu": "unsupported class shape",
-      "hfma2_mma__RRCx_norelu": "unsupported class shape",
-      "hfma2_mma__RRCx_relu": "unsupported class shape",
-      "hfma2_mma__RRI_relu": "class selectors have no supported native combination",
-      "hfma2_mma__RRR_norelu": "unsupported class shape",
-      "hfma2_mma__RRR_relu": "unsupported class shape",
-      "hfma2_mma__RRU_norelu": "unsupported class shape",
-      "hfma2_mma__RRU_relu": "unsupported class shape",
-      "hfma2_mma__RUR_norelu": "unsupported class shape",
-      "hfma2_mma__RUR_relu": "unsupported class shape",
+      "f2fp_rs__RCR": "outside implemented operation families",
+      "f2fp_rs__RCxR": "outside implemented operation families",
+      "f2fp_rs__RIR": "outside implemented operation families",
+      "f2fp_rs__RRC": "outside implemented operation families",
+      "f2fp_rs__RRCx": "outside implemented operation families",
+      "f2fp_rs__RRI": "outside implemented operation families",
+      "f2fp_rs__RRR": "outside implemented operation families",
+      "f2fp_rs__RRU": "outside implemented operation families",
+      "f2fp_rs__RUR": "outside implemented operation families",
+      "hfma2_mma__RCR_norelu": "operand form",
+      "hfma2_mma__RCR_relu": "operand form",
+      "hfma2_mma__RCxR_norelu": "operand form",
+      "hfma2_mma__RCxR_relu": "operand form",
+      "hfma2_mma__RIR_norelu": "operand form",
+      "hfma2_mma__RIR_relu": "operand form",
+      "hfma2_mma__RRC_norelu": "operand form",
+      "hfma2_mma__RRC_relu": "operand form",
+      "hfma2_mma__RRCx_norelu": "operand form",
+      "hfma2_mma__RRCx_relu": "operand form",
+      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
+      "hfma2_mma__RRR_norelu": "operand form",
+      "hfma2_mma__RRR_relu": "operand form",
+      "hfma2_mma__RRU_norelu": "operand form",
+      "hfma2_mma__RRU_relu": "operand form",
+      "hfma2_mma__RUR_norelu": "operand form",
+      "hfma2_mma__RUR_relu": "operand form",
       "hfma2_relu__RCR": "RELU; ofmt",
       "hfma2_relu__RCxR": "RELU; ofmt",
       "hfma2_relu__RIR": "RELU; ofmt",
@@ -4809,7 +4809,7 @@
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "unsupported class shape"
+      "up2ur__URb": "register mask"
     },
     "operations": {
       "BAR": {
@@ -4984,7 +4984,7 @@
         "native": 9
       },
       "QSPC": {
-        "native": 5
+        "primitive": 5
       },
       "R2P": {
         "native": 5
@@ -5112,9 +5112,9 @@
       }
     },
     "status": {
-      "native": 420,
+      "native": 415,
       "opaque": 470,
-      "primitive": 114
+      "primitive": 119
     }
   },
   "SM89": {
@@ -5130,32 +5130,32 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
-      "f2fp_rs__RCR": "class variant not yet described by a native override",
-      "f2fp_rs__RCxR": "class variant not yet described by a native override",
-      "f2fp_rs__RIR": "class variant not yet described by a native override",
-      "f2fp_rs__RRC": "class variant not yet described by a native override",
-      "f2fp_rs__RRCx": "class variant not yet described by a native override",
-      "f2fp_rs__RRI": "class variant not yet described by a native override",
-      "f2fp_rs__RRR": "class variant not yet described by a native override",
-      "f2fp_rs__RRU": "class variant not yet described by a native override",
-      "f2fp_rs__RUR": "class variant not yet described by a native override",
-      "hfma2_mma__RCR_norelu": "unsupported class shape",
-      "hfma2_mma__RCR_relu": "unsupported class shape",
-      "hfma2_mma__RCxR_norelu": "unsupported class shape",
-      "hfma2_mma__RCxR_relu": "unsupported class shape",
-      "hfma2_mma__RIR_norelu": "unsupported class shape",
-      "hfma2_mma__RIR_relu": "unsupported class shape",
-      "hfma2_mma__RRC_norelu": "unsupported class shape",
-      "hfma2_mma__RRC_relu": "unsupported class shape",
-      "hfma2_mma__RRCx_norelu": "unsupported class shape",
-      "hfma2_mma__RRCx_relu": "unsupported class shape",
-      "hfma2_mma__RRI_relu": "class selectors have no supported native combination",
-      "hfma2_mma__RRR_norelu": "unsupported class shape",
-      "hfma2_mma__RRR_relu": "unsupported class shape",
-      "hfma2_mma__RRU_norelu": "unsupported class shape",
-      "hfma2_mma__RRU_relu": "unsupported class shape",
-      "hfma2_mma__RUR_norelu": "unsupported class shape",
-      "hfma2_mma__RUR_relu": "unsupported class shape",
+      "f2fp_rs__RCR": "outside implemented operation families",
+      "f2fp_rs__RCxR": "outside implemented operation families",
+      "f2fp_rs__RIR": "outside implemented operation families",
+      "f2fp_rs__RRC": "outside implemented operation families",
+      "f2fp_rs__RRCx": "outside implemented operation families",
+      "f2fp_rs__RRI": "outside implemented operation families",
+      "f2fp_rs__RRR": "outside implemented operation families",
+      "f2fp_rs__RRU": "outside implemented operation families",
+      "f2fp_rs__RUR": "outside implemented operation families",
+      "hfma2_mma__RCR_norelu": "operand form",
+      "hfma2_mma__RCR_relu": "operand form",
+      "hfma2_mma__RCxR_norelu": "operand form",
+      "hfma2_mma__RCxR_relu": "operand form",
+      "hfma2_mma__RIR_norelu": "operand form",
+      "hfma2_mma__RIR_relu": "operand form",
+      "hfma2_mma__RRC_norelu": "operand form",
+      "hfma2_mma__RRC_relu": "operand form",
+      "hfma2_mma__RRCx_norelu": "operand form",
+      "hfma2_mma__RRCx_relu": "operand form",
+      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
+      "hfma2_mma__RRR_norelu": "operand form",
+      "hfma2_mma__RRR_relu": "operand form",
+      "hfma2_mma__RRU_norelu": "operand form",
+      "hfma2_mma__RRU_relu": "operand form",
+      "hfma2_mma__RUR_norelu": "operand form",
+      "hfma2_mma__RUR_relu": "operand form",
       "hfma2_relu__RCR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RCxR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RIR": "FMZ; FTZ; INVALID3; RELU; ofmt",
@@ -5196,7 +5196,7 @@
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "unsupported class shape"
+      "up2ur__URb": "register mask"
     },
     "operations": {
       "BAR": {
@@ -5371,7 +5371,7 @@
         "native": 9
       },
       "QSPC": {
-        "native": 5
+        "primitive": 5
       },
       "R2P": {
         "native": 5
@@ -5499,9 +5499,9 @@
       }
     },
     "status": {
-      "native": 448,
+      "native": 443,
       "opaque": 492,
-      "primitive": 114
+      "primitive": 119
     }
   },
   "SM89_READABLE": {
@@ -5517,32 +5517,32 @@
       "dfma__RRCx_RRCx": "width",
       "dmul__RCxR_RCx": "width",
       "dsetp__RRCx_RCx": "width",
-      "f2fp_rs__RCR": "class variant not yet described by a native override",
-      "f2fp_rs__RCxR": "class variant not yet described by a native override",
-      "f2fp_rs__RIR": "class variant not yet described by a native override",
-      "f2fp_rs__RRC": "class variant not yet described by a native override",
-      "f2fp_rs__RRCx": "class variant not yet described by a native override",
-      "f2fp_rs__RRI": "class variant not yet described by a native override",
-      "f2fp_rs__RRR": "class variant not yet described by a native override",
-      "f2fp_rs__RRU": "class variant not yet described by a native override",
-      "f2fp_rs__RUR": "class variant not yet described by a native override",
-      "hfma2_mma__RCR_norelu": "unsupported class shape",
-      "hfma2_mma__RCR_relu": "unsupported class shape",
-      "hfma2_mma__RCxR_norelu": "unsupported class shape",
-      "hfma2_mma__RCxR_relu": "unsupported class shape",
-      "hfma2_mma__RIR_norelu": "unsupported class shape",
-      "hfma2_mma__RIR_relu": "unsupported class shape",
-      "hfma2_mma__RRC_norelu": "unsupported class shape",
-      "hfma2_mma__RRC_relu": "unsupported class shape",
-      "hfma2_mma__RRCx_norelu": "unsupported class shape",
-      "hfma2_mma__RRCx_relu": "unsupported class shape",
-      "hfma2_mma__RRI_relu": "class selectors have no supported native combination",
-      "hfma2_mma__RRR_norelu": "unsupported class shape",
-      "hfma2_mma__RRR_relu": "unsupported class shape",
-      "hfma2_mma__RRU_norelu": "unsupported class shape",
-      "hfma2_mma__RRU_relu": "unsupported class shape",
-      "hfma2_mma__RUR_norelu": "unsupported class shape",
-      "hfma2_mma__RUR_relu": "unsupported class shape",
+      "f2fp_rs__RCR": "outside implemented operation families",
+      "f2fp_rs__RCxR": "outside implemented operation families",
+      "f2fp_rs__RIR": "outside implemented operation families",
+      "f2fp_rs__RRC": "outside implemented operation families",
+      "f2fp_rs__RRCx": "outside implemented operation families",
+      "f2fp_rs__RRI": "outside implemented operation families",
+      "f2fp_rs__RRR": "outside implemented operation families",
+      "f2fp_rs__RRU": "outside implemented operation families",
+      "f2fp_rs__RUR": "outside implemented operation families",
+      "hfma2_mma__RCR_norelu": "operand form",
+      "hfma2_mma__RCR_relu": "operand form",
+      "hfma2_mma__RCxR_norelu": "operand form",
+      "hfma2_mma__RCxR_relu": "operand form",
+      "hfma2_mma__RIR_norelu": "operand form",
+      "hfma2_mma__RIR_relu": "operand form",
+      "hfma2_mma__RRC_norelu": "operand form",
+      "hfma2_mma__RRC_relu": "operand form",
+      "hfma2_mma__RRCx_norelu": "operand form",
+      "hfma2_mma__RRCx_relu": "operand form",
+      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
+      "hfma2_mma__RRR_norelu": "operand form",
+      "hfma2_mma__RRR_relu": "operand form",
+      "hfma2_mma__RRU_norelu": "operand form",
+      "hfma2_mma__RRU_relu": "operand form",
+      "hfma2_mma__RUR_norelu": "operand form",
+      "hfma2_mma__RUR_relu": "operand form",
       "hfma2_relu__RCR": "RELU; ofmt",
       "hfma2_relu__RCxR": "RELU; ofmt",
       "hfma2_relu__RIR": "RELU; ofmt",
@@ -5583,7 +5583,7 @@
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "unsupported class shape"
+      "up2ur__URb": "register mask"
     },
     "operations": {
       "BAR": {
@@ -5758,7 +5758,7 @@
         "native": 9
       },
       "QSPC": {
-        "native": 5
+        "primitive": 5
       },
       "R2P": {
         "native": 5
@@ -5886,9 +5886,9 @@
       }
     },
     "status": {
-      "native": 448,
+      "native": 443,
       "opaque": 492,
-      "primitive": 114
+      "primitive": 119
     }
   },
   "SM90": {
@@ -5909,24 +5909,23 @@
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
-      "hfma2_mma__RCR": "unsupported class shape",
-      "hfma2_mma__RCxR": "unsupported class shape",
-      "hfma2_mma__RIR": "unsupported class shape",
-      "hfma2_mma__RRC": "unsupported class shape",
-      "hfma2_mma__RRCx": "unsupported class shape",
-      "hfma2_mma__RRI": "class selectors have no supported native combination",
-      "hfma2_mma__RRR": "unsupported class shape",
-      "hfma2_mma__RRU": "unsupported class shape",
-      "hfma2_mma__RUR": "unsupported class shape",
-      "hfma2_mma_relu__RCR": "unsupported class shape",
-      "hfma2_mma_relu__RCxR": "unsupported class shape",
-      "hfma2_mma_relu__RIR": "unsupported class shape",
-      "hfma2_mma_relu__RRC": "unsupported class shape",
-      "hfma2_mma_relu__RRCx": "unsupported class shape",
-      "hfma2_mma_relu__RRI": "class selectors have no supported native combination",
-      "hfma2_mma_relu__RRR": "unsupported class shape",
-      "hfma2_mma_relu__RRU": "unsupported class shape",
-      "hfma2_mma_relu__RUR": "unsupported class shape",
+      "hfma2_mma__RCR": "operand form",
+      "hfma2_mma__RCxR": "operand form",
+      "hfma2_mma__RIR": "operand form",
+      "hfma2_mma__RRC": "operand form",
+      "hfma2_mma__RRCx": "operand form",
+      "hfma2_mma__RRR": "operand form",
+      "hfma2_mma__RRU": "operand form",
+      "hfma2_mma__RUR": "operand form",
+      "hfma2_mma_relu__RCR": "operand form",
+      "hfma2_mma_relu__RCxR": "operand form",
+      "hfma2_mma_relu__RIR": "operand form",
+      "hfma2_mma_relu__RRC": "operand form",
+      "hfma2_mma_relu__RRCx": "operand form",
+      "hfma2_mma_relu__RRI": "fmz other than nofmz_hfma2; not the -RZ, RZ constant move; ofmt other than F16_V2; satrelu not modelled",
+      "hfma2_mma_relu__RRR": "operand form",
+      "hfma2_mma_relu__RRU": "operand form",
+      "hfma2_mma_relu__RUR": "operand form",
       "hfma2_relu__RCR": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RCxR": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
@@ -5961,7 +5960,7 @@
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "unsupported class shape",
+      "up2ur__URb": "register mask",
       "vimnmx_pred__RCR_RCR": "Pu output",
       "vimnmx_pred__RCxR_RCxR": "Pu output",
       "vimnmx_pred__RIR_RsIR": "Pu output",
@@ -6057,7 +6056,8 @@
         "opaque": 9
       },
       "HFMA2.MMA": {
-        "opaque": 18
+        "native": 1,
+        "opaque": 17
       },
       "HMNMX2": {
         "native": 10
@@ -6140,7 +6140,7 @@
         "native": 9
       },
       "QSPC": {
-        "native": 4
+        "primitive": 4
       },
       "R2P": {
         "native": 5
@@ -6269,9 +6269,9 @@
       }
     },
     "status": {
-      "native": 472,
-      "opaque": 577,
-      "primitive": 124
+      "native": 469,
+      "opaque": 576,
+      "primitive": 128
     }
   },
   "SM90_READABLE": {
@@ -6292,24 +6292,23 @@
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
       "fmnmx_pred__RUR_RUR": "is_A not modelled",
-      "hfma2_mma__RCR": "unsupported class shape",
-      "hfma2_mma__RCxR": "unsupported class shape",
-      "hfma2_mma__RIR": "unsupported class shape",
-      "hfma2_mma__RRC": "unsupported class shape",
-      "hfma2_mma__RRCx": "unsupported class shape",
-      "hfma2_mma__RRI": "class selectors have no supported native combination",
-      "hfma2_mma__RRR": "unsupported class shape",
-      "hfma2_mma__RRU": "unsupported class shape",
-      "hfma2_mma__RUR": "unsupported class shape",
-      "hfma2_mma_relu__RCR": "unsupported class shape",
-      "hfma2_mma_relu__RCxR": "unsupported class shape",
-      "hfma2_mma_relu__RIR": "unsupported class shape",
-      "hfma2_mma_relu__RRC": "unsupported class shape",
-      "hfma2_mma_relu__RRCx": "unsupported class shape",
-      "hfma2_mma_relu__RRI": "class selectors have no supported native combination",
-      "hfma2_mma_relu__RRR": "unsupported class shape",
-      "hfma2_mma_relu__RRU": "unsupported class shape",
-      "hfma2_mma_relu__RUR": "unsupported class shape",
+      "hfma2_mma__RCR": "operand form",
+      "hfma2_mma__RCxR": "operand form",
+      "hfma2_mma__RIR": "operand form",
+      "hfma2_mma__RRC": "operand form",
+      "hfma2_mma__RRCx": "operand form",
+      "hfma2_mma__RRR": "operand form",
+      "hfma2_mma__RRU": "operand form",
+      "hfma2_mma__RUR": "operand form",
+      "hfma2_mma_relu__RCR": "operand form",
+      "hfma2_mma_relu__RCxR": "operand form",
+      "hfma2_mma_relu__RIR": "operand form",
+      "hfma2_mma_relu__RRC": "operand form",
+      "hfma2_mma_relu__RRCx": "operand form",
+      "hfma2_mma_relu__RRI": "fmz other than nofmz_hfma2; not the -RZ, RZ constant move; ofmt other than F16_V2; satrelu not modelled",
+      "hfma2_mma_relu__RRR": "operand form",
+      "hfma2_mma_relu__RRU": "operand form",
+      "hfma2_mma_relu__RUR": "operand form",
       "hfma2_relu__RCR": "RELU; ofmt",
       "hfma2_relu__RCxR": "RELU; ofmt",
       "hfma2_relu__RIR": "RELU; ofmt",
@@ -6344,7 +6343,7 @@
       "uldc_imm_": "operand form",
       "uldc_ur_offs_": "operand form",
       "uldc_ur_offset_": "operand form",
-      "up2ur__URb": "unsupported class shape",
+      "up2ur__URb": "register mask",
       "vimnmx_pred__RCR_RCR": "Pu output",
       "vimnmx_pred__RCxR_RCxR": "Pu output",
       "vimnmx_pred__RIR_RsIR": "Pu output",
@@ -6440,7 +6439,8 @@
         "opaque": 9
       },
       "HFMA2.MMA": {
-        "opaque": 18
+        "native": 1,
+        "opaque": 17
       },
       "HMNMX2": {
         "native": 10
@@ -6523,7 +6523,7 @@
         "native": 9
       },
       "QSPC": {
-        "native": 4
+        "primitive": 4
       },
       "R2P": {
         "native": 5
@@ -6652,9 +6652,9 @@
       }
     },
     "status": {
-      "native": 472,
-      "opaque": 577,
-      "primitive": 124
+      "native": 469,
+      "opaque": 576,
+      "primitive": 128
     }
   }
 }

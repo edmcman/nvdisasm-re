@@ -52,6 +52,13 @@ class Outputs:
         return [(n, self.writes[n]) for n in names]
 
 
+class Primitive(Exception):
+    """This encoding is executed by its runtime primitive (sass_prim_*, sass/runtime.py)."""
+
+
+def primitive(reason="runtime primitive"): raise Primitive(reason)
+
+
 def outputs(order=(), flow=None, stores=(), effects=(), **writes):
     return Outputs(writes, tuple(order), flow, tuple(stores), tuple(effects))
 
@@ -418,6 +425,13 @@ class Instruction:
         width = next((f.width for f, r in self.k.rules if r[0] == "op" and r[1] == name), None)
         if width is None or width > max_bits: raise TypeError(f"{self.cls}.{name}: {width}-bit field is too wide to enumerate")
         return self.answer(name, tuple(range(1 << width)))
+
+    def static_low(self, names, bits):
+        """The low `bits` bits of a wide immediate as a Python int (UP2UR's predicate mask), the
+        rest of the field ignored: SLEIGH constrains only those bits."""
+        name = self.resolve(names); self.asked.add(name)
+        if self.kind(name) != "immediate": raise TypeError(f"{self.cls}.{name} is not an immediate")
+        return self.answer(("low", name, bits), tuple(range(1 << bits)))
 
     def is_zero(self, names):
         """Register operand is RZ/URZ, predicate is PT (the md's constant register), immediate is 0."""

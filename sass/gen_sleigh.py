@@ -624,8 +624,8 @@ class Gen:
 
     def dynamic_inputs(self, k):
         """Expression-sized read-only operands of opaque classes, sized by their own subtables."""
-        from sass.operations import REGISTRY
-        if k.mnemonic in REGISTRY: return set()
+        from sass.operations import OPERATION_FAMILIES
+        if k.mnemonic in OPERATION_FAMILIES: return set()
         return {o["name"] for o, _, _ in self.reg_operands(k) if isinstance(o["span"], str) and o["role"] == ["read"]}
 
     def span_variants(self, k, names=None, domains=False):
@@ -1003,6 +1003,9 @@ def sm_bits(sm, shift):
     for i in range(8): bits[31 - shift - i] = str(sm >> i & 1)
     return "0b " + " ".join("".join(bits[j:j + 4]) for j in range(0, 32, 4))
 
+MODES = ("exact", "readable")   # floating-point lowerings: hardware results, or the plain formula
+
+
 def variant(arch, fp="exact"):
     """Language variant: exact float semantics keep the plain smXX name."""
     return arch.lower() + ("" if fp == "exact" else "_" + fp)
@@ -1028,7 +1031,6 @@ def main(archs, fp="exact"):
     write_ldefs()
 
 if __name__ == "__main__":
-    from sass.fpops import MODES
     fp = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--fp=")), "exact")
     if fp not in MODES: sys.exit(f"--fp must be one of {MODES}")
     main([a for a in sys.argv[1:] if not a.startswith("--fp=")], fp)

@@ -17,7 +17,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from sass import sem
 from sass.sem import Expr
-from sass.sem_family import Instruction, Illegal, Unmodelled, PR_BITS, REG_TYPES, family_for
+from sass.sem_family import Primitive, Instruction, Illegal, Unmodelled, PR_BITS, REG_TYPES, family_for
 import sass.families  # registers the families
 
 ELEMENT = {"R": 32, "UR": 32, "P": 1, "UP": 1}   # bits per register element
@@ -78,6 +78,11 @@ def clauses(b, key, v):
     k = b.k
     if isinstance(key, tuple) and key[0] == "in":
         c = b.g.values_where(k, key[1], (lambda x: x in key[2]) if v else (lambda x: x not in key[2]))
+    elif isinstance(key, tuple) and key[0] == "low":   # the low bits of an immediate's field
+        from sass import ir
+        from sass.gen_sleigh import eq, pieces
+        (tok, lo, hi, width), = pieces(b.g.source(k, key[1])[1])
+        return eq(b.g, ir.Field("", ((lo + key[2] - 1, lo),)), v)
     elif isinstance(key, tuple) and key[0] == "zero":
         name = key[1]; atom = k.operand_types[name]
         zero = b.g.register_zero(k, name) if atom.type in REG_TYPES else 0
@@ -98,7 +103,7 @@ def enumerate_rows(b, fam):
         try: rows.append((assignment, fam(Symbolic(b, assignment))))
         except Branch as br:
             todo += [{**assignment, br.key: v} for v in reversed(br.domain)]
-        except Unmodelled as e: rows.append((assignment, e))
+        except (Unmodelled, Primitive) as e: rows.append((assignment, e))
         except Illegal as e: rows.append((assignment, e))
     return rows
 
@@ -384,6 +389,21 @@ class Lower:
         self.b, self.code, self.uses, self.memo, self.serial = b, code, uses, [{}], 0
         self.hoisted = hoisted   # subtrees that live in their own value subtable
 
+    def folded(self, e):
+        """e computed while decoding, when its leaves are constants and plain immediate fields: a
+        subtable whose constructor action evaluates it and exports the constant (one COPY where it
+        is used). Actions have no comparisons: they are carries of masked sums (see Fold)."""
+        if not isinstance(e, Expr) or e.op in ("const", "param") or e.w > 32: return None
+        fold = Fold(self.b)
+        try: text = fold.text(e)
+        except Fold.No: return None
+        if not fold.refs: return None   # constant already: sem simplifies it
+        from sass.gen_sleigh import pattern
+        table = self.b.g.subtable("fold", [("t", pattern([], sorted(fold.refs)), f" [ t = inst_start * 0 + ({text}); ]",
+                                            f"export *[const]:{nbytes(e.w)} t;")])
+        self.b.refs.append(("sub", table))
+        return Operand(table, "name", frozenset([("sub", table)]))
+
     def label(self, stem):
         self.serial += 1
         return f"{stem}{self.serial}"
@@ -409,6 +429,7 @@ class Lower:
     def value(self, e):
         """The lowered value of e."""
         if (hit := self.lookup(e)) is not None: return hit
+        if (folded := self.folded(e)) is not None: return folded
         v = value_table(self.b, e) if e in self.hoisted else self.lower(e)
         if self.uses.get(e, 0) > 1 and not v.atom: v = self.local(e.w, v)
         self.memo[-1][e] = v
@@ -445,6 +466,7 @@ class Lower:
                 if n > 8: return self.local(e.w, Operand(f"zext({a[0]:#x}:8)", "expr"))
                 return Operand(f"{a[0]:#x}:{n}", "const")
             case "param": return self.param(a[0], e.w)
+            case "reg" if a[2] == 1: return Operand(f"{a[0]}{a[1]}", "name")   # a fixed register (UP0)
             case "zext": return self.widened(a[0], e.w)
             case "sext" if a[0].w == 1:
                 v = self.widened(a[0], e.w)                    # 0 or 1, upper bits clear
@@ -659,6 +681,76 @@ class Lower:
         return Operand(table, "name", frozenset([("sub", table)]))
 
 
+class Fold:
+    """SLEIGH pattern-expression text for an Expr over constants and immediate fields, every value
+    masked to its width (at most 32 bits, so the 64-bit action arithmetic never overflows). An action
+    expression has no locals, so a shared subterm is written out at each use: text past MAX_TEXT
+    (deep ite chains double per level) is not folded, its run-time p-code is kept."""
+    class No(Exception): pass
+    MAX_TEXT = 4096
+
+    def __init__(self, b): self.b, self.refs, self.memo = b, set(), {}
+
+    def field(self, name, w):
+        from sass.gen_sleigh import pieces
+        k = self.b.k; atom = k.operand_types.get(name)
+        rule = next((r for f, r in k.rules if r[0] == "op" and r[1] == name), None)
+        src = self.b.g.source(k, name)
+        if atom is None or not atom.type.endswith("Imm") or atom.type == "F64Imm" or rule is None or rule[3] is not None \
+                or not src or src[0] != "field": raise Fold.No
+        _, f, scale = src
+        text, shift = None, 0
+        for tok, lo, hi, n in reversed(pieces(f)):
+            fname = self.b.g.field(tok, lo, hi, "u"); self.refs.add((tok, fname))
+            text = fname if text is None else f"(({fname} << {shift}) | {text})"
+            shift += n
+        if atom.type.startswith("S") or atom.type == "RSImm":
+            sb = 1 << (f.width - 1); text = f"(({text} ^ {sb:#x}) - {sb:#x})"
+        return self.mask(f"({text} * {scale})" if scale != 1 else text, w)
+
+    @staticmethod
+    def mask(text, w): return f"(({text}) & {(1 << w) - 1:#x})"
+
+    def nonzero(self, d, w): return f"((({d}) + {(1 << w) - 1:#x}) >> {w})"   # d in [0, 2^w): 1 iff d != 0
+
+    def text(self, e):
+        if e not in self.memo:
+            t = self.compose(e)
+            if len(t) > Fold.MAX_TEXT: raise Fold.No
+            self.memo[e] = t
+        return self.memo[e]
+
+    def compose(self, e):
+        if e.w > 32: raise Fold.No
+        a, w = e.args, e.w
+        sub = lambda x: self.text(x)
+        match e.op:
+            case "const": return f"{e.args[0]:#x}"
+            case "param": return self.field(a[0], w)
+            case "and" | "or" | "xor":
+                return f"({sub(a[0])} {dict(zip(('and', 'or', 'xor'), '&|^'))[e.op]} {sub(a[1])})"
+            case "not": return self.mask(f"~{sub(a[0])}", w)
+            case "neg": return self.mask(f"{1 << w:#x} - {sub(a[0])}", w)
+            case "add" | "sub" | "mul":
+                return self.mask(f"{sub(a[0])} {dict(zip(('add', 'sub', 'mul'), '+-*'))[e.op]} {sub(a[1])}" if e.op != "sub"
+                                 else f"{sub(a[0])} + {1 << w:#x} - {sub(a[1])}", w)
+            case "shl" | "shr" if sem.is_const(a[1]):
+                k = a[1].args[0]
+                return "0x0" if k >= w else self.mask(f"{sub(a[0])} << {k}", w) if e.op == "shl" else f"({sub(a[0])} >> {k})"
+            case "extract": return self.mask(f"{sub(a[0])} >> {a[2]}", w)
+            case "zext": return sub(a[0])
+            case "concat": return f"(({sub(a[0])} << {a[1].w}) | {sub(a[1])})"
+            case "eq" | "ne":
+                d = self.nonzero(f"{sub(a[0])} ^ {sub(a[1])}", a[0].w)
+                return d if e.op == "ne" else f"(1 - {d})"
+            case "ult" | "ule":   # a < b: no carry out of a + 2^n - b
+                x, y = (a[0], a[1]) if e.op == "ult" else (a[1], a[0])
+                n = x.w; ge = f"(({sub(x)} + {1 << n:#x} - {sub(y)}) >> {n})"
+                return f"(1 - {ge})" if e.op == "ult" else ge
+            case "ite": return f"({sub(a[2])} ^ (({sub(a[1])} ^ {sub(a[2])}) * {sub(a[0])}))"
+        raise Fold.No
+
+
 def value_table(b, e):
     """A subtable exporting e (shared by every constructor that uses it), as an operand."""
     tables = b.__dict__.setdefault("value_tables", {})
@@ -783,12 +875,36 @@ def lower_flow(low, kind, target, cond, always):
 
 # ---- the class -------------------------------------------------------------------------------
 
+def emit_primitive(b, rows):
+    """The runtime primitive for the encodings the family sends there (behind selector guards),
+    the opaque call for the rest."""
+    from sass.operations import dispatch
+    if any(not isinstance(r, Exception) for _, r in rows): raise TypeError(f"{b.k.name}: primitive rows mixed with native ones")
+    lines = b.call("prim"); refs = list(dict.fromkeys(b.call_refs)); b.body += lines
+    guard(b, rows, [isinstance(r, Primitive) for _, r in rows])
+    dispatch(b, "opaque", refs=sorted(refs, key=repr))
+    return "primitive", "; ".join(sorted({str(r) for _, r in rows if isinstance(r, Primitive)}))
+
+
+def guard(b, rows, modelled):
+    """Selector patterns admitting exactly the rows `modelled` marks (the rest fall back)."""
+    if all(modelled): b.selector_combinations = {}; return
+    deciding = determining_keys(modelled, [a for a, _ in rows])
+    values = sorted({tuple(a.get(k) for k in deciding) for (a, _), m in zip(rows, modelled) if m}, key=repr)
+    b.selector_patterns = [[c for k, v in zip(deciding, vals) if v is not None for c in clauses(b, k, v)] for vals in values]
+    (key,) = deciding if len(deciding) == 1 else (None,)
+    if isinstance(key, str) and None not in (vs := {v for v, in values}):
+        b.selector_patterns = [b.g.values_where(b.k, key, lambda x: x in vs) or []]
+    b.selector_combinations = {",".join(map(str, map(builder_key, deciding))): [list(v) for v in values]}
+
+
 def emit(b):
     """Lower the class's family into b.body; returns (status, reason) like operations.emit."""
     from sass.gen_sleigh import pattern
     from sass.operations import dispatch
     fam = family_for(b.k)
     rows = enumerate_rows(b, fam)
+    if any(isinstance(r, Primitive) for _, r in rows): return emit_primitive(b, rows)
     native = [(a, r) for a, r in rows if not isinstance(r, Exception)]
     why = "; ".join(sorted({str(r) for _, r in rows if isinstance(r, Exception)}))
     if not native:
@@ -833,21 +949,9 @@ def emit(b):
     else:
         table = b.g.subtable("live", [('""', code.pattern(cond), "", code.body()) for cond, code in bodies])
         b.refs.append(("sub", table)); b.body.append(f"build {table};"); refs = {("sub", table)}
-    # Unmodelled combinations keep the complete opaque fallback.
-    keys = sorted({k for a, _ in rows for k in a}, key=repr)
-    if len(native) < len(rows):
-        # The native encodings, over only the keys that decide native vs unmodelled.
-        modelled = [not isinstance(r, Exception) for _, r in rows]
-        deciding = determining_keys(modelled, [a for a, _ in rows])
-        native_values = sorted({tuple(a.get(k) for k in deciding) for a, r in rows if not isinstance(r, Exception)}, key=repr)
-        b.selector_patterns = [[c for k, v in zip(deciding, vals) if v is not None for c in clauses(b, k, v)] for vals in native_values]
-        (key,) = deciding if len(deciding) == 1 else (None,)
-        if isinstance(key, str) and None not in (vs := {v for v, in native_values}):
-            # One deciding selector: a single membership pattern instead of a row per value.
-            b.selector_patterns = [b.g.values_where(b.k, key, lambda x: x in vs) or []]
-    if len(native) < len(rows):
-        b.selector_combinations = {",".join(map(str, map(builder_key, deciding))): [list(v) for v in native_values]}
-    else: b.selector_combinations = {}
+    # Unmodelled combinations keep the complete opaque fallback, behind the native encodings'
+    # patterns over only the keys that decide native vs unmodelled.
+    guard(b, rows, [not isinstance(r, Exception) for _, r in rows])
     dispatch(b, fam.fallback, refs=sorted(refs, key=repr))
     return "native", ("decode-time selector guards retain complete opaque fallbacks" if len(native) < len(rows)
                       else "semantics family")

@@ -3,10 +3,17 @@ import argparse,json,os,shutil,subprocess,tempfile,zlib
 from concurrent.futures import ProcessPoolExecutor,ThreadPoolExecutor,as_completed
 from itertools import product
 from pathlib import Path
-from sass import gen_sleigh,coverage,fpops
+from sass import gen_sleigh,coverage
 
 ARCHES=['SM75','SM80','SM86','SM89','SM90','SM100','SM101','SM103','SM120']
 LIMIT=16*1024*1024
+COMPILER_HEAP=16  # GiB per SLEIGH compiler: the SM100+ languages reached 11.7 GiB each, and 18 at once exhausted 93 GiB (2026-10-13)
+
+
+def compile_workers(jobs,tasks):
+    """Parallel SLEIGH compilers that fit in the memory available now, each allowed COMPILER_HEAP."""
+    available=next(int(l.split()[1]) for l in open('/proc/meminfo') if l.startswith('MemAvailable:'))>>20
+    return max(1,min(jobs,tasks,available//COMPILER_HEAP))
 
 
 def generate_one(arch,fp,output):
@@ -26,7 +33,7 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument('architectures',nargs='*',metavar='SMxx')
     p.add_argument('--output',type=Path,default=gen_sleigh.OUT)
-    p.add_argument('--fp',choices=fpops.MODES,action='append',help='floating-point lowering (default: all)')
+    p.add_argument('--fp',choices=gen_sleigh.MODES,action='append',help='floating-point lowering (default: all)')
     p.add_argument('--jobs',type=int,default=os.cpu_count() or 1,
                    help='parallel SLEIGH compiler processes (default: available CPU count)')
     install=Path(os.environ.get('GHIDRA_INSTALL_DIR',str(Path.home()/'Ghidra/ghidra_12.1.4_PUBLIC')))
@@ -40,7 +47,7 @@ def main():
     source=Path(__file__).resolve().parents[1]/'processor/SASS/data/languages'
     for name in ('sass_common.sinc','sass.pspec','sass.cspec'):
         if (a.output/name).resolve()!=(source/name).resolve():shutil.copyfile(source/name,a.output/name)
-    a.output=a.output.resolve();gen_sleigh.OUT=a.output;modes=list(dict.fromkeys(a.fp or fpops.MODES))
+    a.output=a.output.resolve();gen_sleigh.OUT=a.output;modes=list(dict.fromkeys(a.fp or gen_sleigh.MODES))
     tasks=list(product(architectures,modes));generated={}
     with ProcessPoolExecutor(max_workers=min(a.jobs,len(tasks))) as pool:
         futures={pool.submit(generate_one,arch,fp,a.output):(arch,fp) for arch,fp in tasks}
@@ -54,7 +61,7 @@ def main():
         name=gen_sleigh.variant(arch,fp);spec=a.output/f'sass_{name}.slaspec'
         fd,tmp=tempfile.mkstemp(prefix=spec.stem+'-',suffix='.sla',dir=a.output);os.close(fd)
         try:
-            process=subprocess.run([str(a.sleigh),'-t','-e',str(spec),tmp],capture_output=True,text=True)
+            process=subprocess.run([str(a.sleigh),'-t','-e',str(spec),tmp],capture_output=True,text=True,env=heap)
             if process.returncode:raise RuntimeError(process.stdout+process.stderr)
             diagnostics=process.stdout+process.stderr
             if any(message in diagnostics for message in ('Temporary is written but not read',
@@ -67,7 +74,8 @@ def main():
         finally:
             if Path(tmp).exists():Path(tmp).unlink()
     completed={}
-    with ThreadPoolExecutor(max_workers=min(a.jobs,len(tasks))) as pool:
+    heap={**os.environ,'JAVA_TOOL_OPTIONS':f"{os.environ.get('JAVA_TOOL_OPTIONS','')} -Xmx{COMPILER_HEAP}g".strip()}
+    with ThreadPoolExecutor(max_workers=compile_workers(a.jobs,len(tasks))) as pool:
         futures={pool.submit(compile_one,arch,fp):(arch,fp) for arch,fp in tasks}
         for future in as_completed(futures):
             arch,fp=futures[future];result=future.result();completed[(arch,fp)]=result

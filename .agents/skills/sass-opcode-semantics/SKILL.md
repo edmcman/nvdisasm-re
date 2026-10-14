@@ -99,18 +99,22 @@ behavior. Keep seeds, vector counts and executable fixtures with the evidence.
 
 ## Implement P-code when requested
 
-The repo's generator is `sass/gen_sleigh.py`; operation emitters live in
-`sass/operations.py`, with operand values supplied by `sass/semantic.py`.
-Explain these names if switching from discussing NVIDIA's compiler to the repo.
+The repo's generator is `sass/gen_sleigh.py`; semantics are families in
+`sass/families/` (Python over the md-decoded instruction, `sass/sem_family.py`),
+lowered to SLEIGH by `sass/sem_sleigh.py` and lifted without Ghidra by
+`sass/sem_lift.py`. Explain these names if switching from discussing NVIDIA's
+compiler to the repo.
 
-Register the operation family and add `emit_OPCODE`. Check operand shapes and
-widths, constrain supported selectors at decode time, and preserve existing
-opaque fallbacks for unresolved combinations. Capture inputs before writing
-overlapping outputs. Respect hardwired zeros, guards and register spans.
+Write or extend the opcode's `@family`. Ask every selector the semantics depend
+on (`i.select_fork`, `i.select_lookup`); an unasked selector models only its md
+default, the rest stays opaque. Call `unmodelled(reason)` for unresolved
+combinations and `primitive()` for runtime-executed ones. Outputs are written
+simultaneously after all inputs are read; the backends handle hardwired zeros,
+guards, register spans and md conditions.
 
-Give rejected forms specific coverage reasons. A message such as
-`unsupported class shape` is a limitation of this emitter, not evidence that
-the GPU or ptxas lacks the instruction.
+Give rejected forms specific reasons (they become coverage reasons). A reason
+is a limitation of the family, not evidence that the GPU or ptxas lacks the
+instruction.
 
 Add value cases to the family's `emulator_cases()` in `tests/cases/<family>.py`
 and independent references to `tests/refs/` (which must not import the generated

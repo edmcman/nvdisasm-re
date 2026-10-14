@@ -2,7 +2,7 @@
 import os
 from pathlib import Path
 from sass.build_languages import ARCHES
-from sass.fpops import MODES as FP_MODES
+from sass.gen_sleigh import MODES as FP_MODES
 
 ROOT = Path(__file__).resolve().parent.parent
 LANGUAGES = Path(os.environ.get("SASS_SLEIGH_OUT", ROOT / "processor/SASS/data/languages")).resolve()

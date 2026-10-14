@@ -36,6 +36,7 @@ def run(arch, fp, case):
     except pydecode.NoMatch as e: return "illegal", [f"does not decode: {e}"]
     expected = {k: v for k, v in case.expected.items() if k not in PCODE_ONLY}
     opaque = "__opaque" in expected or str(expected.get("error", "")).startswith(("sass_opaque", "sass_prim"))
+    if lifted.status == "primitive": return "primitive", []   # the runtime primitive's values: layer 4
     if lifted.status == "opaque":
         if primitive_fallback(arch, lifted.cls): return "primitive", []   # the runtime primitive's values: layer 4
         return "opaque", [] if opaque else [f"unmodelled ({lifted.reason}), expected values"]

@@ -2,7 +2,7 @@
 
 The generator preserves register spans and predicates for every class. Value semantics
 add executable scalar values and native overrides or named runtime primitives
-for the opcode families registered in `sass/operations.py`. The test harness
+for the semantics families in `sass/families/` (routed by `sass/operations.py`). The test harness
 can load cubin text and run independent threads as whole kernels. The general
 Ghidra loader, warp scheduler, and concurrent memory model remain separate work.
 
@@ -194,8 +194,8 @@ Every architecture has two languages. `SASS:LE:64:smXX` (exact) models hardware
 results; `SASS:LE:64:smXX_readable` writes the plain formula for decompiler
 reading. They decode and display identically, and have the same register
 dataflow. Only floating-point value semantics differ. ELF opinions select the
-exact language; choose the readable one explicitly. `sass/fpops.py` holds both
-lowerings. `python3 -m sass.build_languages --fp=exact|readable` limits a
+exact language; choose the readable one explicitly. The SLEIGH backend
+(`sass/sem_sleigh.py`) holds both lowerings. `python3 -m sass.build_languages --fp=exact|readable` limits a
 build to one mode; both are built by default.
 
 The readable lowering uses native-width `f+`/`f*` (FFMA is `a f* b f+ c`, one
