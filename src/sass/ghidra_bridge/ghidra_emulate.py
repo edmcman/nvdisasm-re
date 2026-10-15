@@ -136,19 +136,29 @@ def session(ldefs,langid):
                 state.setVar(lang.getRegister(reg),jpype.JArray(jpype.JByte)(value.to_bytes(4,'little')))
             return dict(lane=lane,thread=thread,state=state,last=base,steps=0,waiting=False,released=False)
         counter=lambda t:int(t['thread'].getCounter().getOffset())
-        def registers(state):return {n:int.from_bytes(bytes(state.getVar(r,reason)),'little') for n,r in architectural}
+        def value(state,r):return int.from_bytes(bytes(state.getVar(r,reason)),'little')
+        named={int(r.getOffset()):(n,r) for n,r in architectural};written={}
+        def destinations(pc):
+            """The architectural registers the instruction at pc writes: its p-code's register outputs."""
+            if pc not in written:
+                outs=[(int(v.getOffset()),int(v.getSize())) for op in parse(lang,space.getAddress(pc),code[pc-base:pc-base+16]).getPcode()
+                      if (v:=op.getOutput()) is not None and v.isRegister()]
+                written[pc]=list(dict.fromkeys(named[o+k] for o,size in outs for k in range(size) if o+k in named))
+            return written[pc]
         def step(t,pc,context):
             if t['steps']>=max_steps:raise RuntimeError(f'kernel instruction limit ({max_steps}) at {pc:#x}, thread {t["lane"]}')
             runtime.context=context;runtime.events=[];runtime.last_error=None;t['last']=pc
-            before=registers(t['state']) if trace is not None and t['lane']<traced else None
+            traced_step=trace is not None and t['lane']<traced
+            # A write is reported even when it leaves the value unchanged; a predicated-off instruction writes nothing.
+            d=decode(pc);taken=traced_step and ('Pg' not in d.klass.operand_types or operand(t['state'],d,'Pg')^d.env.get(('Pg','not'),0))
             try:t['thread'].stepInstruction()
             except Exception as error:
                 runtime.last_error=f'kernel {name} thread {t["lane"]} at {pc-base:#x}: {runtime.last_error or error}'
                 raise RuntimeError(runtime.last_error) from error
             t['steps']+=1
-            if before is not None:
-                after=registers(t['state'])
-                trace.append(dict(thread=t['lane'],pc=pc-base,text=decode(pc).text,writes={n:v for n,v in after.items() if v!=before[n]}))
+            if traced_step:
+                trace.append(dict(thread=t['lane'],pc=pc-base,text=decode(pc).text,
+                                  writes={n:value(t['state'],r) for n,r in destinations(pc)} if taken else {}))
         def turn(warp):
             """One lockstep instruction of a warp; False if none of its lanes could move."""
             live=[t for t in warp if counter(t)!=0 and not t['waiting']]
