@@ -22,6 +22,8 @@ Modules are imported by their own names, never aliased (`from sass.md import par
 
 Console scripts: `sass-extract-md`, `sass-layout-md`, `sass-decode`, `sass-gen-sleigh`, `sass-build-languages`, `sass-coverage`, `sass-compare-pydecode`, `sass-compare-ghidra`, `sass-census`. Tests: `uv run pytest` runs the Python tests; `tests/README.md` describes them and the Ghidra (`-m ghidra`) and GPU (`-m gpu`) tests.
 
+Coverage: `processor/SASS/semantics/coverage.json`, `badge.json` (the README's opcode-coverage badge) and `coverage.html` (the visual report it links to) are committed (the report groups opcodes by `src/sass/sleigh/categories.json`, parsed from NVIDIA's SASS instruction set reference on 2026-10-15), and CI (`.github/workflows/coverage.yml`) fails when they differ from what the generator produces. Refresh them after any semantics change, without Ghidra: `uv run sass-build-languages --generate-only && uv run sass-coverage processor/SASS/data/languages --output processor/SASS/semantics/coverage.json`.
+
 ## Findings (docs/)
 - `docs/nvdisasm-binary.md`: GhidraMCP setup, function addresses, cipher, md blobs and aliases.
 - `docs/decoding.md`: md matching, oracle behavior, printing rules.

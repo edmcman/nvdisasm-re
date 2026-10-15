@@ -30,6 +30,35 @@ def generate_one(arch,fp,output):
                 skipped=generator.skipped)
 
 
+def compile_all(sleigh,output,tasks,jobs):
+    """Compile the generated specs, as many at once as memory allows."""
+    def compile_one(arch,fp):
+        name=gen.variant(arch,fp);spec=output/f'sass_{name}.slaspec'
+        fd,tmp=tempfile.mkstemp(prefix=spec.stem+'-',suffix='.sla',dir=output);os.close(fd)
+        try:
+            process=subprocess.run([str(sleigh),'-t','-e',str(spec),tmp],capture_output=True,text=True,env=heap)
+            if process.returncode:raise RuntimeError(process.stdout+process.stderr)
+            diagnostics=process.stdout+process.stderr
+            if any(message in diagnostics for message in ('Temporary is written but not read',
+                       'operations wrote to temporaries that were not read','read before written')):
+                raise RuntimeError(diagnostics)
+            size=len(zlib.decompress(Path(tmp).read_bytes()[4:]))
+            if size>=LIMIT:raise RuntimeError(f'{name}: decompressed SLA is {size}, limit {LIMIT}')
+            os.replace(tmp,spec.with_suffix('.sla'))
+            return dict(arch=arch,fp=fp,decompressed_bytes=size,dead_temporaries=0)
+        finally:
+            if Path(tmp).exists():Path(tmp).unlink()
+    completed={}
+    heap={**os.environ,'JAVA_TOOL_OPTIONS':f"{os.environ.get('JAVA_TOOL_OPTIONS','')} -Xmx{COMPILER_HEAP}g".strip()}
+    with ThreadPoolExecutor(max_workers=compile_workers(jobs,len(tasks))) as pool:
+        futures={pool.submit(compile_one,arch,fp):(arch,fp) for arch,fp in tasks}
+        for future in as_completed(futures):
+            arch,fp=futures[future];result=future.result();completed[(arch,fp)]=result
+            name=gen.variant(arch,fp)
+            print(f'{name}: compiled, {result["decompressed_bytes"]} decompressed bytes',flush=True)
+    return [completed[task] for task in tasks]
+
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument('architectures',nargs='*',metavar='SMxx')
@@ -37,13 +66,14 @@ def main():
     p.add_argument('--fp',choices=gen.MODES,action='append',help='floating-point lowering (default: all)')
     p.add_argument('--jobs',type=int,default=os.cpu_count() or 1,
                    help='parallel SLEIGH compiler processes (default: available CPU count)')
+    p.add_argument('--generate-only',action='store_true',help='write specs and coverage without compiling (no Ghidra needed)')
     install=Path(os.environ.get('GHIDRA_INSTALL_DIR',str(Path.home()/'Ghidra/ghidra_12.1.4_PUBLIC')))
     launcher='sleigh.bat' if os.name=='nt' else 'sleigh'
     p.add_argument('--sleigh',type=Path,default=install/'support'/launcher)
     a=p.parse_args();architectures=list(dict.fromkeys(a.architectures or ARCHES))
     if any(arch not in ARCHES for arch in architectures):p.error('supported architectures: '+', '.join(ARCHES))
     if a.jobs<1:p.error('--jobs must be at least 1')
-    if not a.sleigh.is_file():p.error('SLEIGH compiler launcher not found; set --sleigh')
+    if not a.generate_only and not a.sleigh.is_file():p.error('SLEIGH compiler launcher not found; set --sleigh')
     a.output.mkdir(parents=True,exist_ok=True)
     source=ROOT/'processor/SASS/data/languages'
     for name in ('sass_common.sinc','sass.pspec','sass.cspec'):
@@ -58,32 +88,9 @@ def main():
             print(f'{name}: generated {result["lines"]} lines, {result["subtables"]} subtables',flush=True)
             for klass,why in result['skipped'][:10]:print('   skipped',klass,why)
     gen.write_ldefs()
-    def compile_one(arch,fp):
-        name=gen.variant(arch,fp);spec=a.output/f'sass_{name}.slaspec'
-        fd,tmp=tempfile.mkstemp(prefix=spec.stem+'-',suffix='.sla',dir=a.output);os.close(fd)
-        try:
-            process=subprocess.run([str(a.sleigh),'-t','-e',str(spec),tmp],capture_output=True,text=True,env=heap)
-            if process.returncode:raise RuntimeError(process.stdout+process.stderr)
-            diagnostics=process.stdout+process.stderr
-            if any(message in diagnostics for message in ('Temporary is written but not read',
-                       'operations wrote to temporaries that were not read','read before written')):
-                raise RuntimeError(diagnostics)
-            size=len(zlib.decompress(Path(tmp).read_bytes()[4:]))
-            if size>=LIMIT:raise RuntimeError(f'{name}: decompressed SLA is {size}, limit {LIMIT}')
-            os.replace(tmp,spec.with_suffix('.sla'))
-            return dict(arch=arch,fp=fp,decompressed_bytes=size,dead_temporaries=0)
-        finally:
-            if Path(tmp).exists():Path(tmp).unlink()
-    completed={}
-    heap={**os.environ,'JAVA_TOOL_OPTIONS':f"{os.environ.get('JAVA_TOOL_OPTIONS','')} -Xmx{COMPILER_HEAP}g".strip()}
-    with ThreadPoolExecutor(max_workers=compile_workers(a.jobs,len(tasks))) as pool:
-        futures={pool.submit(compile_one,arch,fp):(arch,fp) for arch,fp in tasks}
-        for future in as_completed(futures):
-            arch,fp=futures[future];result=future.result();completed[(arch,fp)]=result
-            name=gen.variant(arch,fp)
-            print(f'{name}: compiled, {result["decompressed_bytes"]} decompressed bytes',flush=True)
-    results=[completed[task] for task in tasks]
-    (a.output/'build-results.json').write_text(json.dumps(results,indent=2)+'\n')
+    if not a.generate_only:
+        results=compile_all(a.sleigh,a.output,tasks,a.jobs)
+        (a.output/'build-results.json').write_text(json.dumps(results,indent=2)+'\n')
     (a.output/'coverage-summary.json').write_text(json.dumps(coverage.summarize(a.output),indent=2)+'\n')
 
 if __name__=='__main__':main()

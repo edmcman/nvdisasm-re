@@ -1,5 +1,8 @@
 # nvdisasm-re
 
+[![opcode semantics](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fedmcman%2Fnvdisasm-re%2Fmain%2Fprocessor%2FSASS%2Fsemantics%2Fbadge.json)](https://raw.githack.com/edmcman/nvdisasm-re/main/processor/SASS/semantics/coverage.html)
+[![coverage up to date](https://github.com/edmcman/nvdisasm-re/actions/workflows/coverage.yml/badge.svg)](https://github.com/edmcman/nvdisasm-re/actions/workflows/coverage.yml)
+
 Reverse engineering NVIDIA's `nvdisasm` (CUDA 13.4) to recover how it models SASS instructions.
 
 `nvdisasm` doesn't hard-code instruction knowledge. It embeds an encrypted, compressed

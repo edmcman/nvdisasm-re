@@ -1,0 +1,19 @@
+name: coverage
+on: [push, pull_request]
+jobs:
+  coverage-up-to-date:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+      - run: uv sync
+      - run: uv run sass-build-languages --generate-only
+      - run: uv run sass-coverage processor/SASS/data/languages --output processor/SASS/semantics/coverage.json
+      - name: committed coverage matches the generator
+        run: |
+          git diff --exit-code processor/SASS/semantics/ || {
+            echo "::error::Stale coverage. Run: uv run sass-build-languages --generate-only && uv run sass-coverage processor/SASS/data/languages --output processor/SASS/semantics/coverage.json"
+            exit 1; }
+          test -z "$(git status --porcelain processor/SASS/semantics/)"
