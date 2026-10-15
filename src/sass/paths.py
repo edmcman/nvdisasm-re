@@ -1,5 +1,5 @@
 """Repository paths and external tools."""
-import os
+import os, sysconfig
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -10,9 +10,9 @@ GHIDRA_PY = os.environ.get("GHIDRA_PY", os.path.expanduser("~/.config/ghidra/ghi
 NVCC = os.environ.get("NVCC", "/usr/local/cuda/bin/nvcc")
 CACHE = ROOT / ".cache"
 CUOBJDUMP = os.environ.get("CUOBJDUMP", "/usr/local/cuda/bin/cuobjdump")
-# The target nvdisasm (CUDA 13.4, V13.4.92); the oracle cache is keyed by its hash.
+# The target nvdisasm (CUDA 13.4, V13.4.92, the dev group's nvidia-cuda-nvdisasm); the oracle cache is keyed by its hash.
 NVDISASM = os.environ.get("NVDISASM") or next(
-    (str(p) for p in [Path("/tmp/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/nvdisasm"),
+    (str(p) for p in [Path(sysconfig.get_paths()["purelib"]) / "nvidia/cu13/bin/nvdisasm", Path("/tmp/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/nvdisasm"),
                       *Path.home().glob(".cache/uv/archive-v0/*/nvidia/cu13/bin/nvdisasm")] if p.exists()), "nvdisasm")
 
 

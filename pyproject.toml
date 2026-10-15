@@ -24,7 +24,7 @@ build-backend = "hatchling.build"
 packages = ["src/sass"]
 
 [dependency-groups]
-dev = ["pytest"]
+dev = ["pytest", "nvidia-cuda-nvdisasm==13.4.92; sys_platform == 'linux' and platform_machine == 'x86_64'"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

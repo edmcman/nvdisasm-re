@@ -1,7 +1,7 @@
 # nvdisasm reverse engineering
 
 Target: `nvdisasm` from CUDA 13.4 (V13.4.92, built 2026-09-01), stripped x86-64 PIE.
-Local copy used so far: `/tmp/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/nvdisasm`
+`uv sync` installs it from PyPI (`nvidia-cuda-nvdisasm==13.4.92`, dev group) into `.venv/lib/python3.13/site-packages/nvidia/cu13/bin/nvdisasm`
 (`sass.paths.NVDISASM` also looks in uv's cache). All addresses in `docs/` are specific to that build.
 
 ## Layout

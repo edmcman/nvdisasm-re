@@ -6,7 +6,7 @@ Ghidra's pyghidra venv) and `gpu` (an SM89 device).
 
 ### Python tests: `uv run pytest`
 
-Need Python and the target nvdisasm only. Run them constantly.
+Need Python and the target nvdisasm only. Run them constantly. CI (`.github/workflows/tests.yml`) runs them on every architecture and lowering for every push; on a runner the real corpus is empty (no CUDA libraries), so `test_pydecode_disassembly` checks synthetic and mutated words only.
 
 | File | Question | Under test | Oracle |
 |---|---|---|---|
@@ -92,7 +92,7 @@ recompile it on load, and concurrent compilers corrupt it.
 
 | What | Default | Override |
 |---|---|---|
-| target nvdisasm (CUDA 13.4, V13.4.92) | the cu13 wheel in `/tmp/.venv` or the uv cache | `NVDISASM` |
+| target nvdisasm (CUDA 13.4, V13.4.92) | the dev group's `nvidia-cuda-nvdisasm` in `.venv`, `/tmp/.venv` or the uv cache | `NVDISASM` |
 | Ghidra 12.1.4 and its pyghidra venv | `~/Ghidra/ghidra_12.1.4_PUBLIC`, `~/.config/ghidra/ghidra_12.1.4_PUBLIC/venv` | `GHIDRA_INSTALL_DIR`, `GHIDRA_PY` |
 | CUDA toolkit (GPU-fixture kernels, Ghidra and GPU tests) | `/usr/local/cuda/bin/{nvcc,cuobjdump}` | `NVCC`, `CUOBJDUMP` |
 | generated languages | `processor/SASS/data/languages` | `SASS_SLEIGH_OUT` |
