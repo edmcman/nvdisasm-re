@@ -86,7 +86,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: languages-${{ github.sha }}
         run: |
-          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" --prerelease \
+          # main's builds are full releases, so releases/latest is always main's newest; other branches' are pre-releases.
+          kind=$([ "$GITHUB_REF" = refs/heads/main ] && echo --latest || echo --prerelease)
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" $kind \
             --title "SLEIGH languages for ${GITHUB_SHA::7}" \
             --notes "Compiled SASS languages (all architectures, exact and readable) for ${GITHUB_SHA}. Unpack into processor/SASS/data/languages/."
           gh release upload "$TAG" sass-languages.tar.gz --clobber
