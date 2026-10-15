@@ -39,12 +39,25 @@ def verified(rows,found):
     return strongest([k for k in EVIDENCE if k in found.get(r['cls'],{})] for r in rows if r['status']!='opaque')
 
 def values(row,ev):
-    """[(modifier, label, status, evidence kinds)] of a class's modifier values; the class itself
-    (modifier None) when it has none. A value's evidence is the kinds whose forms ran it."""
+    """[(modifier, label, status, evidence kinds, combinations by status, tested combinations by
+    strongest kind)] of a class's modifier choices; the class itself (modifier None) when it has none.
+    A choice's evidence is the kinds whose forms ran it; its combinations are the class's legal ones
+    that make it."""
     mods={m:v for m,v in row.get('modifiers',{}).items() if v}
-    if not mods:return [(None,None,row['status'],[k for k in EVIDENCE if k in ev])]
-    names=ev.get('modifiers',[]);ran={k:{(m,lab) for f in forms for m,lab in zip(names,f)} for k,forms in ev.get('forms',{}).items()}
-    return [(m,lab,status,[k for k in EVIDENCE if (m,lab) in ran.get(k,())]) for m,vs in mods.items() for lab,status in vs.items()]
+    if not mods:return [(None,None,row['status'],[k for k in EVIDENCE if k in ev],{},{})]
+    names=ev.get('modifiers',[]);c=row['combinations']
+    forms={}
+    for kind,fs in ev.get('forms',{}).items():
+        for f in fs:forms.setdefault(tuple(f),set()).add(kind)
+    def count(m,lab):
+        i=c['decides'].index(m) if m in c['decides'] else None;out=Counter()
+        for *labs,s in c['table']:
+            if i is None or labs[i]==lab:out[s]+=c['free'] if i is not None else c['free']//len(c['labels'][m])
+        return dict(out)
+    def tested(m,lab):
+        return strongest(ks for f,ks in forms.items() if dict(zip(names,f)).get(m)==lab)
+    ran={k:{(m,lab) for f in fs for m,lab in zip(names,f)} for k,fs in ev.get('forms',{}).items()}
+    return [(m,lab,status,[k for k in EVIDENCE if (m,lab) in ran.get(k,())],count(m,lab),tested(m,lab)) for m,vs in mods.items() for lab,status in vs.items()]
 
 def combinations(row,ev):
     """(the class's modifier combinations by status, those with semantics by strongest evidence): a
