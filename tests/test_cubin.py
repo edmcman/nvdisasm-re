@@ -45,3 +45,24 @@ def test_bad_parameter_layout(monkeypatch,params):
 def test_inline_attribute_does_not_consume_following_record():
     assert list(cubin.info_records(struct.pack('<BBH',3,0x19,16)+record(0x37,b'abcd')))==[
         (0x19,b'\x10\x00'),(0x37,b'abcd')]
+
+
+@pytest.mark.parametrize('sm,arch',[(89,'SM89'),(87,'SM86'),(110,'SM101'),(121,'SM120')])
+def test_elf_arch_aliases(sm,arch):
+    header=bytearray(0x40);header[8]=8;struct.pack_into('<I',header,0x30,sm<<8)
+    assert cubin.elf_arch(bytes(header))==arch
+
+
+@pytest.mark.parametrize('arch,dims,stack',[('SM89',0x0,0x28),('SM90',0x0,0x28),('SM100',0x360,0x37c)])
+def test_launch_layout(arch,dims,stack):
+    from sass import ghidra_bridge
+    image=dict(name='k',arch=arch,code=b'',constants={0:bytes(0x400)},parameter_base=0x380,parameter_size=8,parameters=[dict(offset=0,size=8)])
+    bank=bytes.fromhex(ghidra_bridge.kernel_request(image,[0x1234],[],64,64,{})['memory'][0]['hex'])
+    assert struct.unpack_from('<III',bank,dims)==(64,1,1) and struct.unpack_from('<I',bank,stack)==(0x1000,)
+    assert struct.unpack_from('<Q',bank,0x380)==(0x1234,)
+
+
+def test_launch_layout_unknown():
+    from sass import ghidra_bridge
+    with pytest.raises(ValueError,match='SM107'):
+        ghidra_bridge.kernel_request(dict(name='k',arch='SM107',code=b'',constants={},parameter_base=0,parameter_size=0,parameters=[]),[],[],1,1,{})

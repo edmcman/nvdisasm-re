@@ -11,11 +11,14 @@ def sections(data):
     name = lambda o: data[strtab + o:data.index(b"\0", strtab + o)].decode()
     return {name(h[0]): data[h[4]:h[4] + h[5]] for h in hdrs if h[1] != 8}  # skip NOBITS
 
+# Targets nvdisasm decodes with another architecture's md (arch_family_name; docs/nvdisasm-binary.md).
+ALIASES = {"SM87": "SM86", "SM88": "SM86", "SM110": "SM101", "SM121": "SM120"}
+
 def elf_arch(data):
-    """Target from e_flags: low byte in ELF ABI v7, bits 8-15 from v8."""
+    """The md architecture for the target in e_flags (low byte in ELF ABI v7, bits 8-15 from v8)."""
     flags, = struct.unpack_from("<I", data, 0x30)
-    sm = (flags >> 8 if data[8] >= 8 else flags) & 0xff
-    return f"SM{sm}"
+    sm = f"SM{(flags >> 8 if data[8] >= 8 else flags) & 0xff}"
+    return ALIASES.get(sm, sm)
 
 def text_sections(data):
     return {name: body for name, body in sections(data).items() if name.startswith(".text.")}
