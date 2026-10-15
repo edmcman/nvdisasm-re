@@ -58,6 +58,7 @@ jobs:
           name: language-${{ matrix.arch }}-${{ matrix.fp }}
           path: |
             languages/sass_sm*.sla
+            languages/sass_sm*.slaspec
             languages/sass_sm*_coverage.json
             languages/build-results-*.json
   release:
@@ -80,6 +81,8 @@ jobs:
           cp processor/SASS/data/languages/{sass_common.sinc,sass.pspec,sass.cspec} languages/
           uv run python -c 'from pathlib import Path; from sass.sleigh import gen; gen.OUT = Path("languages"); gen.write_ldefs()'
           jq -s 'add' languages/build-results-*.json > languages/build-results.json && rm languages/build-results-*.json
+          # Ghidra recompiles a writable .sla whose .slaspec is missing or older than it or its includes.
+          touch languages/*.sla
           tar -czf sass-languages.tar.gz -C languages .
       - name: publish
         env:
