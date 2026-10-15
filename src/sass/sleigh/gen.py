@@ -288,13 +288,21 @@ class Gen:
             if rows: out[v] = rows[0][i]
         return out
 
+    def key_source(self, k, name):
+        return self.source(k, name) if not isinstance(name, tuple) else self.attr_source(k, *name)
+
+    def raw_values(self, k, name):
+        """(field, {raw value: decoded value of name}); None if not encoded or too wide to list."""
+        match self.key_source(k, name):
+            case ("field", f, scale) if f.width <= 16: return f, {v: v * scale for v in range(1 << f.width)}
+            case ("table", f, t, i): return f, self.table_values(f, t, i)
+        return None
+
     def values_where(self, k, name, test):
         """Clauses for `test(decoded value of name)`; None if the value is not encoded."""
-        src = self.source(k, name) if not isinstance(name, tuple) else self.attr_source(k, *name)
-        match src:
-            case ("field", f, scale): return member(self, f, {v for v in range(1 << f.width) if test(v * scale)}) \
-                if f.width <= 16 else (eq(self, f, 0) if test(0) and not test(1) else None)
-            case ("table", f, t, i): return member(self, f, {v for v, x in self.table_values(f, t, i).items() if test(x)})
+        if raw := self.raw_values(k, name): return member(self, raw[0], {v for v, x in raw[1].items() if test(x)})
+        match self.key_source(k, name):
+            case ("field", f, _) if test(0) and not test(1): return eq(self, f, 0)
         return None
 
     # --- display symbols ---
@@ -433,8 +441,7 @@ class Gen:
                 name, test, fixed, want = (name, attr), bool, False, 1
             case ("raw", name):
                 test, fixed, want = lambda x: x == 0, True, 0
-        src = self.source(k, name) if not isinstance(name, tuple) else self.attr_source(k, *name)
-        match src:
+        match self.key_source(k, name):
             case ("field", f, scale):
                 truth = lambda r: test(r * scale)
                 truth.want = want // scale if want % scale == 0 else None  # the raw value that makes it true

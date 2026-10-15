@@ -1,19 +1,23 @@
 """Per-class verification evidence, derived from the tests: SM89 GPU fixtures' data paths (`gpu`),
 annotated `tests/ptx` probes compiled by ptxas (`ptxas`) and emulator cases checked against
-`tests/refs` (`reference`). Writes sass_smXX_evidence.json beside the coverage manifests, which
+`tests/refs` (`reference`), each with the forms it ran: the modifier combinations decoded from the
+instruction words (FADD's `ftz=FTZ rnd=RZ sat=nosat ...`; src/sass/sleigh/modifiers.py), since
+one class spans them all. Writes
+sass_smXX_evidence.json beside the coverage manifests, which
 `sass-coverage` folds into processor/SASS/semantics/evidence.json and the report.
 
 usage: python -m tests.evidence [SMxx ...] [--output DIR]
 """
 import argparse, json, os, re, subprocess, tempfile
-from collections import Counter, defaultdict
+from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor
 from functools import cache
 from pathlib import Path
-from sass.decode import cubin, pydecode
+from sass.decode import cubin, ir, pydecode
 from sass.paths import LANGUAGES, PTXAS, ROOT
 from sass.sleigh.build import ARCHES
 from sass.sleigh.gen import MODES, Gen
+from sass.sleigh.modifiers import form, settings
 from tests.cases import emulator_cases, gpu_fixtures
 from tests.harness.dataflow import expected
 from tests.harness.gpu import Template, hits, mnemonic
@@ -30,8 +34,10 @@ def decoded(arch, code):
 
 
 def reference(arch):
-    """{class: case count} over both fp lowerings."""
-    return Counter(case.cls for fp in MODES for cases in emulator_cases(arch, fp).values() for case in cases)
+    """(class, settings, None) per emulator case, over both fp lowerings."""
+    cases = [case for fp in MODES for cases in emulator_cases(arch, fp).values() for case in cases]
+    words = {w: settings(arch, pydecode.decode(arch, bytes.fromhex(w))) for w in {c.request.get("word") for c in cases} - {None}}
+    return [(c.cls, words.get(c.request.get("word"), {}), None) for c in cases]
 
 
 LOADS, STORES = ("LDG", "LDS", "LDL", "LDC", "ULDC", "LD"), ("STG", "STS", "STL", "ST")
@@ -72,20 +78,19 @@ def on_data_path(g, code):
 
 @cache
 def gpu():
-    """{class: [fixture names]} for the SM89 classes on the data path of a GPU fixture that passed
-    on the GPU exactly as it is now (tests/baseline/gpu_passes.json, written by `pytest -m gpu`)."""
-    g, out = Gen("SM89"), defaultdict(set)
+    """(class, settings, fixture name) for the SM89 instructions on the data path of a GPU fixture
+    that passed on the GPU exactly as it is now (tests/baseline/gpu_passes.json, written by `pytest -m gpu`)."""
+    g, out = Gen("SM89"), []
     for f in (f for _, f in gpu_fixtures() if passed(f)):
         code = Template(f.image, f.kernel).code
         sliced = on_data_path(g, code)
-        for o, d in decoded("SM89", code):
-            if o in sliced: out[d.klass.name].add(f.name)
+        out += [(d.klass.name, settings("SM89", d), f.name) for o, d in decoded("SM89", code) if o in sliced]
     return out
 
 
 def ptxas(arch):
-    """{class: [probe paths]} from the annotated probes targeting `arch`; fails on a broken expectation."""
-    out, broken = defaultdict(set), []
+    """(class, settings, probe path) from the annotated probes targeting `arch`; fails on a broken expectation."""
+    out, broken = [], []
     for probe in sorted(PROBES.rglob("*.ptx")):
         text, name = probe.read_text(), str(probe.relative_to(PROBES))
         want = [t for line in re.findall(r"^// sass: (.+)$", text, re.M) for t in line.split()]
@@ -97,21 +102,29 @@ def ptxas(arch):
             image = Path(tmp) / "probe.cubin"
             subprocess.run([PTXAS, f"-arch={target}", "-O3", str(probe), "-o", str(image)], check=True, capture_output=True)
             data = image.read_bytes()
-        found = [(mnemonic(d), d.klass.name) for _, d in decoded(arch, b"".join(cubin.text_words(data)))]
+        found = [(mnemonic(d), d) for _, d in decoded(arch, b"".join(cubin.text_words(data)))]
         broken += [f"{name}: ptxas emitted no {t}" for t in want if not any(hits(op, t) for op, _ in found)]
         broken += [f"{name}: ptxas emitted {t}" for t in absent if any(hits(op, t) for op, _ in found)]
-        for op, cls in found:
-            if any(hits(op, t) for t in want): out[cls].add(name)
+        out += [(d.klass.name, settings(arch, d), name) for op, d in found if any(hits(op, t) for t in want)]
     if broken: raise SystemExit("\n".join(broken))
     return out
 
 
 def evidence(arch):
-    """{class: {"gpu": [...], "ptxas": [...], "reference": n}}, keys present only when non-empty."""
-    sources = {"gpu": gpu() if arch == "SM89" else {}, "ptxas": ptxas(arch), "reference": reference(arch)}
-    classes = sorted({cls for found in sources.values() for cls in found})
-    return {cls: {kind: sorted(found[cls]) if isinstance(found[cls], set) else found[cls]
-                  for kind, found in sources.items() if found.get(cls)} for cls in classes}
+    """{class: {"gpu": [fixtures], "ptxas": [probes], "reference": case count, "modifiers": [names],
+    "forms": {kind: [[label per modifier]]}}}, keys present only when non-empty: the forms are the
+    modifier combinations each kind of evidence ran."""
+    sources = {"gpu": gpu() if arch == "SM89" else [], "ptxas": ptxas(arch), "reference": reference(arch)}
+    out, forms = defaultdict(dict), defaultdict(lambda: defaultdict(dict))
+    for kind, rows in sources.items():
+        for cls, found, label in rows:
+            if label is None: out[cls][kind] = out[cls].get(kind, 0) + 1
+            else: out[cls].setdefault(kind, set()).add(label)
+            if found: forms[cls][kind][form(found)] = found
+    for cls, by_kind in forms.items():
+        names = sorted({m for found in by_kind.values() for s in found.values() for m in s})
+        out[cls] |= dict(modifiers=names, forms={k: [[s.get(m) for m in names] for _, s in sorted(f.items())] for k, f in by_kind.items()})
+    return {cls: {k: sorted(v) if isinstance(v, set) else v for k, v in sorted(e.items())} for cls, e in sorted(out.items())}
 
 
 def main():
