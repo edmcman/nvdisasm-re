@@ -25,6 +25,7 @@ Console scripts: `sass-extract-md`, `sass-layout-md`, `sass-decode`, `sass-gen-s
 Coverage: `processor/SASS/semantics/coverage.json`, `evidence.json` (per-class verification evidence, `tests/evidence.py`), `badge.json` (the README's opcode-coverage badge) and `coverage.html` (the visual report it links to) are committed (the report groups opcodes by `src/sass/sleigh/categories.json`, parsed from NVIDIA's SASS instruction set reference on 2026-10-15), and CI (`.github/workflows/coverage.yml`) fails when they differ from what the generator produces. Refresh them after any semantics, case, fixture or PTX probe change, without Ghidra or a GPU: `uv run sass-refresh-coverage` (manifests, evidence, then the committed files; about 4 minutes).
 
 ## Findings (docs/)
+- `docs/machine-descriptions.md`: embedded md/latencies/patterns blobs, `out/` layout and `semantics/*.json` format, re-extraction.
 - `docs/nvdisasm-binary.md`: GhidraMCP setup, function addresses, cipher, md blobs and aliases.
 - `docs/decoding.md`: md matching, oracle behavior, printing rules.
 - `docs/sleigh.md`: SLEIGH generator constraints and Ghidra limits/bugs.

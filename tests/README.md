@@ -35,6 +35,15 @@ Need an SM89 device (outside the sandbox), but not Ghidra. Run them only when GP
 references are added or changed: they check the references against hardware, and everything
 else is checked against the references.
 
+The fixtures compile 100 SM89 CUDA kernels (and patched variants), run them on the GPU, and
+execute the same kernel text in Ghidra's p-code emulator (`test_fixtures_emulated.py`): 12,800
+random and edge output values, including address setup, constant parameters, memory operations,
+predication and loops. Patched fixtures select specific FP16 lane/MMA modes and FMNMX NaN modes;
+both the GPU and the emulator execute the resulting cubin. A 64-bit PTX comparison checks the
+ptxas ISETP.EX lowering. F2FP fixtures cover packed F16/BF16 RN/RZ, E4M3/E5M2 FP8 packing with
+H1 C merges, and E4M3/E5M2 FP8-to-F16 UNPACK_B H0/H1 across all byte encodings. The verified
+modes and excluded warp/concurrency operations are in `docs/semantics.md`.
+
 | File | Question | Under test | Oracle |
 |---|---|---|---|
 | `test_refs_on_gpu.py` | are the references right on hardware? | `refs/`, through the GPU fixtures | SM89 GPU (CLI `uv run python -m tests.observe FAMILY`); records passing fixtures' fingerprints in `baseline/gpu_passes.json`, the source of `gpu` evidence (`tests/evidence.py`) |
@@ -73,6 +82,29 @@ process pool sized to the CPUs, and each test item looks its result up. xdist wo
 repeat that precomputation with their own pool (32 x 32 processes, load average ~500). The Ghidra
 tests likewise run up to 24 JVMs themselves.
 
+## Corpora and current results
+
+The disassembly tests use `nvdisasm -b SMxx` as an oracle over three corpora:
+
+- **real**: every instruction in the cubins inside the CUDA libraries (`cuobjdump -xelf`
+  of cuBLASLt, cuSPARSE, ...), about 3–6M unique words per architecture
+- **synthetic**: 64 random words per md class that satisfy its encoding constraints
+- **mutated**: real words with one or two bits flipped
+
+```sh
+uv run sass-compare-pydecode SM89 real 0       # pydecode vs nvdisasm (0 = whole corpus)
+uv run sass-compare-ghidra SM89 synthetic 0    # Ghidra (generated SLEIGH) vs pydecode
+```
+
+Current results (CUDA 13.4 `nvdisasm`):
+
+- pydecode matches `nvdisasm` on every real word for all eight architectures that have
+  cubins (about 38M words), and on all synthetic and mutated words except 17 SM75
+  HMMA words. Some valid encodings print as blank lines in `nvdisasm`; the cause is
+  still unknown, so those are excluded from the counts.
+- The generated SLEIGH matches pydecode on every SM75 and SM89 word in all three corpora.
+  The other architectures are still being run.
+
 ## Caches
 
 Everything below lives in `.cache/` and is safe to delete.
@@ -97,6 +129,10 @@ recompile it on load, and concurrent compilers corrupt it.
 | CUDA toolkit (GPU-fixture kernels, Ghidra and GPU tests) | `/usr/local/cuda/bin/{nvcc,cuobjdump}` | `NVCC`, `CUOBJDUMP` |
 | generated languages | `processor/SASS/data/languages` | `SASS_SLEIGH_OUT` |
 | `javac` (cooperative GPU fixtures) | on `PATH` | |
+
+For a scratch build, run `uv run sass-build-languages SM89 --output /tmp/sass-languages` (it
+copies the shared definitions), then set `SASS_SLEIGH_OUT=/tmp/sass-languages` for the Ghidra
+tests.
 
 ## Ratchets
 
