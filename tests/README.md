@@ -6,7 +6,7 @@ Ghidra's pyghidra venv) and `gpu` (an SM89 device).
 
 ### Python tests: `uv run pytest`
 
-Need Python and the target nvdisasm only. Run them constantly. CI (`.github/workflows/tests.yml`) runs them on every architecture and lowering for every push; on a runner the real corpus is empty (no CUDA libraries), so `test_pydecode_disassembly` checks synthetic and mutated words only.
+Need Python and the target nvdisasm only. Run them constantly. CI (`.github/workflows/ci.yml`) runs them on every architecture and lowering for every push; on a runner the real corpus is empty (no CUDA libraries), so `test_pydecode_disassembly` checks synthetic and mutated words only.
 
 | File | Question | Under test | Oracle |
 |---|---|---|---|

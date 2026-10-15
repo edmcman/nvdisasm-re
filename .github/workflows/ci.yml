@@ -1,4 +1,4 @@
-name: coverage
+name: CI
 on: [push, pull_request]
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -54,3 +54,17 @@ jobs:
             echo "::error::Stale coverage or evidence. Run: uv run sass-refresh-coverage"
             exit 1; }
           test -z "$(git status --porcelain processor/SASS/semantics/)"
+  python-tests:
+    needs: architectures
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: ${{ fromJSON(needs.architectures.outputs.list) }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.13"
+      - run: uv run pytest --arch ${{ matrix.arch }} --fp all
