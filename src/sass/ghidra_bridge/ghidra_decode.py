@@ -29,31 +29,36 @@ def parse(lang, addr, word):
     buf, ctx = ByteMemBufferImpl(addr, word, False), ProcessorContextImpl(lang)
     return PseudoInstruction(addr, lang.parse(buf, ctx, False), buf, ctx)
 
+def describe(lang, addr, word, pcode=False, dataflow=False):
+    """The instruction encoded by `word` at `addr` (an Address): its text, and optionally its p-code
+    and the dataflow of its ops; {"error": ...} if it doesn't decode."""
+    try:
+        ins = parse(lang, addr, word)
+        out = {"text": str(ins)}
+        if pcode: out["pcode"] = [str(op) for op in ins.getPcode()]
+        if dataflow:
+            ops = ins.getPcode()
+            flow = ins.getFlowType()
+            out["flow"] = {"jump": bool(flow.isJump()), "call": bool(flow.isCall()), "terminal": bool(flow.isTerminal())}
+            def node(v):
+                return {"space": str(v.getAddress().getAddressSpace().getName()),
+                        "offset": int(v.getOffset()), "size": int(v.getSize())}
+            out["ops"] = [{"op": str(op.getMnemonic()),
+                           "userop": str(lang.getUserDefinedOpName(int(op.getInput(0).getOffset())))
+                           if str(op.getMnemonic()) == 'CALLOTHER' else None,
+                           "inputs": [node(v) for v in op.getInputs()],
+                           "output": node(op.getOutput()) if op.getOutput() else None} for op in ops]
+        return out
+    except Exception as e:
+        return {"error": str(e).splitlines()[0]}
+
 def main(ldefs, lang_id, *opts):
     pyghidra.start(install_dir=GHIDRA)
     lang = load_language(ldefs, lang_id)
     space = lang.getDefaultSpace()
     for line in sys.stdin:
         a, w = line.split()
-        try:
-            ins = parse(lang, space.getAddress(int(a, 16)), bytes.fromhex(w))
-            out = {"text": str(ins)}
-            if "--pcode" in opts: out["pcode"] = [str(op) for op in ins.getPcode()]
-            if "--dataflow" in opts:
-                ops = ins.getPcode()
-                flow = ins.getFlowType()
-                out["flow"] = {"jump": bool(flow.isJump()), "call": bool(flow.isCall()), "terminal": bool(flow.isTerminal())}
-                def node(v):
-                    return {"space": str(v.getAddress().getAddressSpace().getName()),
-                            "offset": int(v.getOffset()), "size": int(v.getSize())}
-                out["ops"] = [{"op": str(op.getMnemonic()),
-                               "userop": str(lang.getUserDefinedOpName(int(op.getInput(0).getOffset())))
-                               if str(op.getMnemonic()) == 'CALLOTHER' else None,
-                               "inputs": [node(v) for v in op.getInputs()],
-                               "output": node(op.getOutput()) if op.getOutput() else None} for op in ops]
-        except Exception as e:
-            out = {"error": str(e).splitlines()[0]}
-        print(json.dumps(out), flush=False)
+        print(json.dumps(describe(lang, space.getAddress(int(a, 16)), bytes.fromhex(w), "--pcode" in opts, "--dataflow" in opts)), flush=False)
 
 if __name__ == "__main__":
     main(*sys.argv[1:])

@@ -3,6 +3,7 @@ the CUDA Driver API, and build the equivalent whole-kernel emulator request."""
 import ctypes as C, hashlib, struct, subprocess
 from dataclasses import dataclass, field
 from typing import Callable
+from sass import ghidra_bridge
 from sass.decode import cubin, pydecode
 from sass.decode.pyencode import word
 from sass.paths import CACHE, NVCC, ROOT
@@ -69,17 +70,10 @@ def request(f):
     if [p["size"] for p in image["parameters"]] != [8, 8] + [size for size, _ in f.arguments]:
         raise ValueError(f"{f.name}: unexpected kernel parameter layout")
     if not f.threads or len(f.data) % (3 * f.input_size) or f.threads % f.block or f.block % 32: raise ValueError("input must contain whole blocks of whole warps")
-    constants = dict(image["constants"]); bank = bytearray(constants[0])
-    # CUDA launch dimensions and local stack base precede the parameter region (SM89 compiler output).
-    struct.pack_into("<III", bank, 0, f.block, 1, 1)
-    struct.pack_into("<I", bank, 0x28, 0x1000)
-    for parameter, value in zip(image["parameters"], (INPUT, OUTPUT, *(v for _, v in f.arguments))):
-        struct.pack_into("<Q" if parameter["size"] == 8 else "<I", bank, image["parameter_base"] + parameter["offset"], value)
-    constants[0] = bytes(bank)
-    memory = [dict(space="cbank", address=index << 32, hex=value.hex()) for index, value in constants.items()]
-    memory += [dict(space="ram", address=INPUT, hex=f.data.hex()), dict(space="ram", address=OUTPUT, hex="cc" * f.threads * f.output_size)]
-    return dict(kernel=dict(name=image["name"], code=image["code"].hex(), threads=f.threads, block_size=f.block, cooperative=f.cooperative), memory=memory,
-                output=dict(address=OUTPUT, size=f.output_size, stride=f.output_size), context=dict(synchronization=dict(bssy=True, bsync=True, **({"bar": True} if f.cooperative else {}))))
+    memory = [dict(space="ram", address=INPUT, hex=f.data.hex()), dict(space="ram", address=OUTPUT, hex="cc" * f.threads * f.output_size)]
+    return ghidra_bridge.kernel_request(image, (INPUT, OUTPUT, *(v for _, v in f.arguments)), memory, f.threads, f.block,
+                                        dict(address=OUTPUT, size=f.output_size, stride=f.output_size), f.cooperative,
+                                        dict(synchronization=dict(bssy=True, bsync=True, **({"bar": True} if f.cooperative else {}))))
 
 
 class Driver:

@@ -8,7 +8,7 @@ from sass.paths import ROOT
 
 ARCHES=['SM75','SM80','SM86','SM89','SM90','SM100','SM101','SM103','SM107','SM120']
 LIMIT=16*1024*1024
-COMPILER_HEAP=16  # GiB per SLEIGH compiler: the SM100+ languages reached 11.7 GiB each, and 18 at once exhausted 93 GiB (2026-10-13)
+COMPILER_HEAP=int(os.environ.get('SASS_COMPILER_HEAP',16))  # GiB per SLEIGH compiler: the SM100+ languages reached 11.7 GiB each, and 18 at once exhausted 93 GiB (2026-10-13)
 
 
 def compile_workers(jobs,tasks):
