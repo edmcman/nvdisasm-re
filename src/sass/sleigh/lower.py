@@ -497,6 +497,8 @@ class Lower:
                 if n > 8: return self.local(e.w, Operand(f"zext({a[0]:#x}:8)", "expr"))
                 return Operand(f"{a[0]:#x}:{n}", "const")
             case "param": return self.param(a[0], e.w)
+            case "reg" if a[0] == "SR":   # a named special register (SR_SWINLO)
+                self.b.g.special_spans.add(a[2]); return Operand(self.b.g.special_name(a[1], a[2]), "name")
             case "reg" if a[2] == 1: return Operand(f"{a[0]}{a[1]}", "name")   # a fixed register (UP0)
             case "zext": return self.widened(a[0], e.w)
             case "sext" if a[0].w == 1:
@@ -882,14 +884,18 @@ def lower_writes(b, writes):
     keep = lambda v, e: low.local(e.w, v) if v.kind not in ("local", "const", "target") and writes else v
     later = [keep(low.value(e), e) for _, e in writes[1:]]
     target, cond = (keep(low.value(flow[n]), flow[n]) for n in FLOW) if flow else (None, None)
-    stores = [(space, *(keep(low.value(e), e) for e in (extra[f"__store{k}_addr"], extra[f"__store{k}_value"])), extra[f"__store{k}_value"].w)
+    stores = [(space, *(keep(low.value(e), e) for e in (extra[f"__store{k}_addr"], extra[f"__store{k}_value"])), extra[f"__store{k}_value"].w,
+               None if bitvec.is_const(cond := extra[f"__store{k}_cond"], 1) else keep(low.value(cond), cond))
               for k, space in enumerate(b.store_spaces)]
     first = [low.value(writes[0][1])] if writes else []
     for (n, _), v in zip(writes, first + later):
         symbol = n if n in FIXED else b.outputs[n].symbol
         dest = Operand(symbol, "name", frozenset([r] if (r := b.ref(symbol)) else []))
         code.add(f"{dest.text} = {v.text};", dest, v)
-    for space, address, v, w in stores: code.add(f"*[{space}]:{nbytes(w)} {address.text} = {v.text};", address, v)
+    for space, address, v, w, cond in stores:
+        if cond is None: code.add(f"*[{space}]:{nbytes(w)} {address.text} = {v.text};", address, v); continue
+        skip = low.label("skip")
+        code.add(f"if (!({cond.text})) goto <{skip}>; *[{space}]:{nbytes(w)} {address.text} = {v.text}; <{skip}>", address, v, cond)
     if flow: lower_flow(low, b.flow_kind, target, cond, bitvec.is_const(flow["__flow_cond"], 1))
     return code
 
@@ -902,7 +908,7 @@ def lower_flow(low, kind, target, cond, always):
     elif kind == "goto": low.code.add(f"if ({cond.text}) {transfer}", target, cond)
     else:
         skip = low.label("skip")
-        low.code.add(f"if (!{cond}) goto <{skip}>; {transfer} <{skip}>", target, cond)
+        low.code.add(f"if (!({cond})) goto <{skip}>; {transfer} <{skip}>", target, cond)
 
 
 # ---- the class -------------------------------------------------------------------------------
@@ -967,7 +973,8 @@ def emit(b):
         if len(shapes) > 1: raise TypeError(f"{b.k.name}: rows differ in {attr} {sorted(shapes)}")
         setattr(b, attr, shapes.pop())
     flow = lambda r: ([("__flow_target", r.flow.target), ("__flow_cond", r.flow.cond if r.flow.cond is not None else bitvec.const(1, 1))] if r.flow else []) \
-        + [w for k, s in enumerate(r.stores) for w in ((f"__store{k}_addr", s.address), (f"__store{k}_value", s.value))] \
+        + [w for k, s in enumerate(r.stores) for w in ((f"__store{k}_addr", s.address), (f"__store{k}_value", s.value),
+                                                       (f"__store{k}_cond", s.cond if s.cond is not None else bitvec.const(1, 1)))] \
         + [(f"__effect{k}_{j}", a) for k, e in enumerate(r.effects) for j, a in enumerate(e.args)]
     resolved = [(a, [w for n, e in r.ordered() if i.has_operand(n) for w in predicate_writes(i, i.resolve(n), e)] + flow(r))
                 for a, r in native]

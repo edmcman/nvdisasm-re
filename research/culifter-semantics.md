@@ -78,7 +78,7 @@ These are CuLifter's `@lift_for` opcode names that are absent from
 opcodes is opaque in `processor/SASS/semantics/coverage.json`. Counts are md
 classes summed over all architectures (SM75–SM120).
 
-- **Memory:** `LD` (58), `ST` (53), `ATOM` (163), `ATOMG` (103),
+- **Memory:** `ATOM` (163), `ATOMG` (103),
   `ATOMS` (97), `RED` (23), `REDG` (60), `REDAS` (12), `STAS` (12),
   `LDGSTS` (45), `LDSM` (22), `STSM` (12), `MOVM` (10).
 - **Matrix:** `HMMA` (39), `IMMA` (20), `DMMA` (9), `HGMMA` (6), `QGMMA` (6),
@@ -93,6 +93,11 @@ classes summed over all architectures (SM75–SM120).
 FSETP's comparison. The SM120 uniform floats, `LDCU`, `VOTEU`, `MATCH`, `REDUX`
 and `ELECT` were added the same day: the uniform floats and LDCU reuse the scalar
 families, the warp collectives are runtime primitives (see `docs/semantics.md`).
+Generic `LD`/`ST` joined the memory family on 2026-10-15. CuLifter's CPU backend
+redirects only addresses whose high word equals its lifted `SR_SWINHI` into
+shared memory and treats everything else as global. Here the shared and local
+windows come from the `SR_*WIN*` registers, as an SM89 probe established
+(`docs/hardware-facts.md`).
 
 Excluded names: `LOP`, `LOP32I`, `SHL`, `SHR`, `MOV32I`, `IADD32I`, `ISCADD`,
 `ULOP`, `ULOP32I`, `USHL`, `USHR`, and `PSETP` have only md `ALTERNATE` classes,

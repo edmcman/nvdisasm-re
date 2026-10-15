@@ -39,7 +39,7 @@ def expected(g, d, optimized=False, ignore=()):
     """md register cells (reads, writes) of decoded instruction d; `ignore` names operands whose reads to skip."""
     reads, writes = set(), set()
     unused=set(ignore)
-    if optimized and d.klass.mnemonic in ('LDG','STG','LDL','STL') and d.env.get('e_desc')==0:
+    if optimized and d.klass.mnemonic in ('LDG','STG','LDL','STL','LD','ST') and d.env.get('e_desc')==0:
         # Implicit pointer forms use their address registers directly.
         unused.update(('Ra_URb','Ra_URc'))
     if optimized and d.klass.mnemonic in ('LOP3','ULOP3') and 'imm8' in d.env:
@@ -153,7 +153,7 @@ def expected(g, d, optimized=False, ignore=()):
             if (optimized and role=='read' and span==1 and d.klass.mnemonic=='IDP' and o['name'] in ('Rb','URb')
                     and g.arch.rev_enums[d.klass.operand_types['mode'].type].get(d.env.get('mode','')).lstrip('_')=='2A.LO'):
                 needed=set(range(base+size*index,base+size*index+2))   # 2A.LO multiplies B's low two bytes
-            if optimized and role=='read' and o['name']=='Rb' and d.klass.mnemonic in ('STG','STS','STL'):
+            if optimized and role=='read' and o['name']=='Rb' and d.klass.mnemonic in ('STG','STS','STL','ST'):
                 atom=d.klass.operand_types.get('sz');enums=g.arch.enums.get(atom.type,{}) if atom else {}
                 width=next((width for label,width in [('U8',1),('S8',1),('U16',2),('S16',2)]
                             if enums.get(label)==d.env.get('sz')),None)
