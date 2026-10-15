@@ -1,6 +1,7 @@
-"""Memory: global/shared/local loads and stores, constant loads (LDC/ULDC/LDCU), shared stride
-addressing and QSPC address-space queries."""
+"""Memory: global/shared/local loads and stores, generic LD/ST, constant loads (LDC/ULDC/LDCU), shared
+stride addressing and QSPC address-space queries."""
 from tests.harness.case import cbank
+from tests.refs import memory
 
 
 def loads_stores(c):
@@ -31,6 +32,52 @@ def loads_stores(c):
     c.add("ldcu_const_RCR_", dict(URd=8, URa="URZ", Sa_bank=2, Sa_offset=16, texunpack="TEXUNPACK"), {}, dict(error="sass_opaque_LDCU"))
 
 
+SHARED, LOCAL = (0x7f00_59000000, 1 << 24), (0x7f00_57000000, 1 << 24)   # (base, size), as on the SM89 GPU
+WINDOWS = dict(SR_SWINHI=SHARED[0] >> 32, SR_SWINLO=SHARED[0] & 0xffffffff, SR_SWINSZ=SHARED[1],
+               SR_LWINHI=LOCAL[0] >> 32, SR_LWINLO=LOCAL[0] & 0xffffffff, SR_LWINSZ=LOCAL[1])
+# Window edges from both sides, an address above both windows, and a low global one.
+GENERIC = [SHARED[0], SHARED[0] + 0x100, sum(SHARED) - 4, sum(SHARED), LOCAL[0], LOCAL[0] + 0x40, sum(LOCAL) - 4, LOCAL[0] - 4,
+           0x7fff_00000000, 0x100000]
+
+
+def generic(c):
+    """LD/ST route a generic address through the windows the SR_*WIN* registers describe; a decoy at
+    the raw address in global memory and at the offset in the other window must not be touched."""
+    def decoys(space, at, addr, n):
+        out = [(s, a) for s, a in (("ram", addr), ("shared", at), ("localmem", at)) if (s, a) != (space, at)]
+        return [dict(space=s, address=a, hex="ee" * n) for s, a in out]
+    sizes = [("U8", "80", 0x80), ("S8", "80", 0xffffff80), ("U16", "3480", 0x8034), ("S16", "3480", 0xffff8034), ("32", "78563412", 0x12345678),
+             ("64", "0100000002000000", 1), ("128", "01000000020000000300000004000000", 1)]
+    for addr in GENERIC:
+        space, at = memory.generic(addr, SHARED, LOCAL)
+        for sz, data, want in sizes if addr in (SHARED[0] + 0x100, LOCAL[0] + 0x40, 0x100000) else sizes[4:5]:
+            n = len(data) // 2
+            expected = {"R8": want, **({"R9": 2} if sz in ("64", "128") else {}), **(dict(R10=3, R11=4) if sz == "128" else {})}
+            base = addr + 4
+            c.add("ld__sImmOffset", dict(Rd=8, Ra=2, Ra_offset=-4, sz=sz, e="E"), dict(WINDOWS, R2=base & 0xffffffff, R3=base >> 32), expected,
+                  memory=[dict(space=space, address=at, hex=data), *decoys(space, at, addr, n)])
+        for target in ("ram", "shared", "localmem"):
+            observed = at if target != "ram" else addr
+            c.add("st__sImmOffset", dict(Ra=2, Ra_offset=0, Rb=4, sz="32", e="E"), dict(WINDOWS, R2=addr & 0xffffffff, R3=addr >> 32, R4=0x12345678),
+                  dict(__memory="78563412" if (target, observed) == (space, at) else "00000000"),
+                  observe_memory=[dict(space=target, address=observed, size=4)])
+    # Uniform forms: Ra + URb, and URb alone.
+    addr = SHARED[0] + 0x200
+    c.add("ld_uniform__Ra64", dict(Rd=8, Ra=2, input_reg_sz_64_dist="64", Ra_URb=4, Ra_offset=8, sz="32", e="E"),
+          dict(WINDOWS, R2=0x100, R3=0, UR4=(addr - 0x108) & 0xffffffff, UR5=(addr - 0x108) >> 32), dict(R8=0x12345678),
+          memory=[dict(space="shared", address=0x200, hex="78563412")])
+    c.add("st_uniform__RaRZ", dict(Ra="RZ", Ra_URc=4, Ra_offset=0, Rb=6, sz="U16", e="E"),
+          dict(WINDOWS, UR4=(LOCAL[0] + 0x10) & 0xffffffff, UR5=LOCAL[0] >> 32, R6=0xabcd1234), dict(__memory="3412"),
+          observe_memory=[dict(space="localmem", address=0x10, size=2)])
+    c.add("ld__sImmOffset", dict(Rd=8, Ra=2, Ra_offset=0, sz="32", e="noe"), dict(WINDOWS, R2=0x100), dict(error="sass_opaque_LD"))
+    # An unsigned offset with its top bit set is a zero-extended absolute address.
+    for op, space in (("ld", "ram"), ("ldg", "ram"), ("lds", "shared")):
+        if k := c.classes.get(op + "__uImmOffset"):
+            at = 1 << int(k.operand_types["Ra_offset"].args.split("/")[0]) - 1 | 0x10
+            c.add(k.name, dict(Rd=8, Ra="RZ", Ra_offset=at, sz="32", **({} if op == "lds" else dict(e="E"))), WINDOWS, dict(R8=0x12345678),
+                  memory=[dict(space=space, address=at, hex="78563412")])
+
+
 def qspc(c):
     """QSPC reads generic-address provenance from the emulator's explicit address-space map,
     which uses model ranges rather than process or GPU virtual addresses."""
@@ -55,10 +102,10 @@ def qspc(c):
 
 
 def emulator_cases(c):
-    loads_stores(c); qspc(c)
+    loads_stores(c); generic(c); qspc(c)
 
 
 def gpu_fixtures():
     from tests.harness import scalar
     return [scalar.launch("shared", lambda a, *_: a), scalar.launch("local", lambda a, b, c: (a + (c & 255) * b) & 0xffffffff),
-            scalar.launch("ldc", lambda a, *_: (a & 31) ** 2)]
+            scalar.launch("ldc", lambda a, *_: (a & 31) ** 2), scalar.launch("generic", memory.generic_kernel)]

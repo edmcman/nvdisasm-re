@@ -6769,13 +6769,11 @@
 "ld__sImmOffset": {
 "BRANCH": 1,
 "CALLOTHER": 1,
-"INT_ZEXT": 1,
 "SUBPIECE": 2
 },
 "ld__uImmOffset": {
 "BRANCH": 1,
 "CALLOTHER": 1,
-"INT_ZEXT": 1,
 "SUBPIECE": 2
 },
 "ld_memdesc__Ra64": {
@@ -6788,7 +6786,6 @@
 "CALLOTHER": 1,
 "CBRANCH": 1,
 "INT_NOTEQUAL": 1,
-"INT_ZEXT": 2,
 "SUBPIECE": 2
 },
 "ld_uniform__Ra64": {
@@ -6996,7 +6993,7 @@
 "COPY": 1,
 "INT_ADD": 1,
 "INT_NOTEQUAL": 1,
-"INT_SEXT": 2,
+"INT_SEXT": 1,
 "INT_ZEXT": 1,
 "LOAD": 1
 },
@@ -7032,7 +7029,6 @@
 "COPY": 1,
 "INT_ADD": 1,
 "INT_EQUAL": 1,
-"INT_SEXT": 1,
 "INT_ZEXT": 1,
 "LOAD": 1
 },
@@ -8495,36 +8491,84 @@
 "INT_ZEXT": 2
 },
 "st__sImmOffset": {
+"BOOL_NEGATE": 5,
 "CALLOTHER": 1,
-"INT_ZEXT": 1
+"CBRANCH": 3,
+"COPY": 1,
+"INT_ADD": 1,
+"INT_AND": 2,
+"INT_LEFT": 2,
+"INT_LESS": 2,
+"INT_OR": 2,
+"INT_SEXT": 1,
+"INT_SUB": 2,
+"INT_ZEXT": 6,
+"STORE": 3
 },
 "st__uImmOffset": {
+"BOOL_NEGATE": 5,
 "CALLOTHER": 1,
-"CBRANCH": 1,
+"CBRANCH": 4,
+"COPY": 1,
+"INT_ADD": 1,
+"INT_AND": 2,
 "INT_EQUAL": 1,
-"INT_ZEXT": 1
+"INT_LEFT": 2,
+"INT_LESS": 2,
+"INT_OR": 2,
+"INT_SUB": 2,
+"INT_ZEXT": 6,
+"STORE": 3
 },
 "st_memdesc__Ra64": {
 "CALLOTHER": 1,
 "CBRANCH": 1,
-"INT_EQUAL": 1,
-"INT_ZEXT": 1
+"INT_EQUAL": 1
 },
 "st_uniform__Ra32": {
+"BOOL_NEGATE": 5,
 "CALLOTHER": 1,
-"CBRANCH": 1,
+"CBRANCH": 4,
+"COPY": 1,
+"INT_ADD": 2,
+"INT_AND": 2,
 "INT_EQUAL": 1,
-"INT_ZEXT": 1
+"INT_LEFT": 2,
+"INT_LESS": 2,
+"INT_OR": 2,
+"INT_SEXT": 1,
+"INT_SUB": 2,
+"INT_ZEXT": 6,
+"STORE": 3
 },
 "st_uniform__Ra64": {
+"BOOL_NEGATE": 5,
 "CALLOTHER": 1,
-"INT_ZEXT": 1
+"CBRANCH": 3,
+"INT_ADD": 2,
+"INT_AND": 2,
+"INT_LEFT": 2,
+"INT_LESS": 2,
+"INT_OR": 2,
+"INT_SEXT": 1,
+"INT_SUB": 2,
+"INT_ZEXT": 6,
+"STORE": 3
 },
 "st_uniform__RaRZ": {
+"BOOL_NEGATE": 5,
 "CALLOTHER": 1,
-"CBRANCH": 1,
+"CBRANCH": 4,
+"INT_ADD": 2,
+"INT_AND": 2,
+"INT_LEFT": 2,
+"INT_LESS": 2,
 "INT_NOTEQUAL": 1,
-"INT_ZEXT": 1
+"INT_OR": 2,
+"INT_SEXT": 1,
+"INT_SUB": 2,
+"INT_ZEXT": 6,
+"STORE": 3
 },
 "stas_64__Ra64": {
 "CALLOTHER": 1,
@@ -8576,7 +8620,6 @@
 "CBRANCH": 1,
 "INT_ADD": 1,
 "INT_NOTEQUAL": 1,
-"INT_SEXT": 1,
 "STORE": 1
 },
 "stg_memdesc__Ra64": {
@@ -8618,7 +8661,6 @@
 "CBRANCH": 1,
 "INT_ADD": 1,
 "INT_EQUAL": 1,
-"INT_SEXT": 1,
 "INT_ZEXT": 1,
 "STORE": 1
 },
@@ -8652,7 +8694,6 @@
 "CBRANCH": 1,
 "INT_ADD": 1,
 "INT_NOTEQUAL": 1,
-"INT_SEXT": 1,
 "INT_ZEXT": 1,
 "STORE": 1
 },

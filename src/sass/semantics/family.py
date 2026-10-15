@@ -66,10 +66,12 @@ def outputs(order=(), flow=None, stores=(), effects=(), **writes):
 
 @dataclass(frozen=True)
 class Store:
-    """Write value (a whole number of bytes) to memory space `space` at byte `address` (64 bits)."""
+    """Write value (a whole number of bytes) to memory space `space` at byte `address` (64 bits),
+    when cond (1 bit) is nonzero or always (None)."""
     space: str
     address: Expr
     value: Expr
+    cond: Expr | None = None
 
 
 @dataclass(frozen=True)
@@ -79,7 +81,7 @@ class Effect:
     args: tuple
 
 
-def store(space, address, value): return Store(space, address, value)
+def store(space, address, value, cond=None): return Store(space, address, value, cond)
 def effect(name, *args): return Effect(name, tuple(args))
 
 
@@ -485,6 +487,10 @@ class Instruction:
         """The special register (view of w bits) a SpecialRegister operand names; SRZ reads 0."""
         name = self.resolve(names); self.asked.add(name)
         return bitvec.param(f"__sr:{name}", w)
+
+    def special_register(self, name):
+        """The 32-bit special register `name` (SR_SWINLO), read whatever the encoding."""
+        return bitvec.reg("SR", self.arch.enums["SpecialRegister"][name], 1)
 
     def branch_target(self, names):
         """The absolute address an RSImm (relative to the next instruction) or UImm (absolute)

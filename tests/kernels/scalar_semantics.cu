@@ -138,6 +138,19 @@ KERNEL(fadd_ftz, asm("add.rn.ftz.f32 %0,%1,%2;":"=r"(r):"r"(a),"r"(b)))
 KERNEL(ffma_sat, asm("fma.rn.sat.f32 %0,%1,%2,%3;":"=r"(r):"r"(a),"r"(b),"r"(c)))
 KERNEL(shared, __shared__ uint32_t cell[32]; unsigned offset=threadIdx.x; unsigned addr=__cvta_generic_to_shared(&cell[offset]); asm volatile("st.volatile.shared.u32 [%1],%2; ld.volatile.shared.u32 %0,[%1];":"=r"(r):"r"(addr),"r"(a):"memory"))
 KERNEL(local, volatile uint32_t cell[256]; for (unsigned j=0;j<256;++j) cell[j]=a+j*b; r=cell[c&255])
+// Generic ST/LD through a pointer into shared, local or global memory (c % 3), then the word read back
+// through its own space.
+extern "C" __global__ void sem_generic(const uint32_t *in, uint32_t *out) {
+ unsigned i=threadIdx.x+blockIdx.x*blockDim.x;
+ uint32_t a=in[3*i],b=in[3*i+1],c=in[3*i+2],w,h,back;
+ __shared__ uint32_t cell[256]; uint32_t own[2]; unsigned space=c%3;
+ uint32_t *p=space==0?&cell[threadIdx.x]:space==1?&own[a&1]:(uint32_t *)&in[3*i+1];
+ asm volatile("st.u32 [%2],%3; st.u8 [%2+1],%4; ld.u32 %0,[%2]; ld.s16 %1,[%2+2];":"=r"(w),"=r"(h):"l"(p),"r"(a),"r"(b):"memory");
+ if (space==0) asm volatile("ld.shared.u32 %0,[%1];":"=r"(back):"r"((unsigned)__cvta_generic_to_shared(p)):"memory");
+ else if (space==1) asm volatile("ld.local.u32 %0,[%1];":"=r"(back):"l"(__cvta_generic_to_local(p)):"memory");
+ else asm volatile("ld.global.u32 %0,[%1];":"=r"(back):"l"(__cvta_generic_to_global(p)):"memory");
+ out[i]=(w^h)+3*back;
+}
 extern "C" __global__ void sem_branch(const uint32_t *in,uint32_t *out) {
  unsigned i=threadIdx.x+blockIdx.x*blockDim.x;
  uint32_t a=in[3*i],b=in[3*i+1],c=in[3*i+2],r=a;

@@ -132,7 +132,7 @@ def session(ldefs,langid):
             thread.overrideCounter(space.getAddress(base))
             # Registers start at Ghidra's default zero value. Seed only launch
             # inputs; hardwired RZ/PT come from the generated language.
-            for reg,value in {'SR_TID.X':lane%block,'SR_TID.Y':0,'SR_TID.Z':0,'SR_CTAID.X':lane//block,'SR_CTAID.Y':0,'SR_CTAID.Z':0}.items():
+            for reg,value in {**kernel.get('registers',{}),'SR_TID.X':lane%block,'SR_TID.Y':0,'SR_TID.Z':0,'SR_CTAID.X':lane//block,'SR_CTAID.Y':0,'SR_CTAID.Z':0}.items():
                 state.setVar(lang.getRegister(reg),jpype.JArray(jpype.JByte)(value.to_bytes(4,'little')))
             return dict(lane=lane,thread=thread,state=state,last=base,steps=0,waiting=False,released=False)
         counter=lambda t:int(t['thread'].getCounter().getOffset())

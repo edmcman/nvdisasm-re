@@ -7,6 +7,7 @@ from sass.semantics.family import family_for
 from tests.harness.checks import problems
 
 NAME = re.compile(r"(UR|UP|R|P)(\d+)$")
+SPECIAL = re.compile(r"SR_\w+$")   # a special register seeded by name (SR_SWINLO)
 PCODE_ONLY = ("__native", "__max_ops", "__events")
 
 
@@ -14,13 +15,15 @@ def applies(case):
     """Whether the lifted semantics can judge the case: a single instruction of an opcode with a family."""
     r = case.request
     return "word" in r and not r.get("context") and \
-        all(NAME.match(n) or n in ("RZ", "PT") for n in list(r.get("registers", {})) + list(r.get("observe", [])))
+        all(NAME.match(n) or n in ("RZ", "PT") for n in r.get("observe", [])) and \
+        all(NAME.match(n) or SPECIAL.match(n) or n in ("RZ", "PT") for n in r.get("registers", {}))
 
 
-def state(request):
+def state(arch, request):
     s = evaluate.State()
     for name, value in request.get("registers", {}).items():
         if m := NAME.match(name): s.write(m[1], int(m[2]), 1, int(value))
+        elif SPECIAL.match(name): s.write("SR", ir.load(arch).enums["SpecialRegister"][name], 1, int(value))
     for mem in request.get("memory", []):
         data = bytes.fromhex(mem["hex"])
         s.store(mem["space"], mem["address"], 8 * len(data), int.from_bytes(data, "little"))
@@ -50,7 +53,7 @@ def run(arch, fp, case):
         return "opaque", [] if opaque else [f"unmodelled ({lifted.reason}), expected values"]
     if opaque: return "native", ["modelled, expected an opaque fallback"]
     if "error" in expected: return "native", []  # runtime errors (budgets, events) are emulator matters
-    try: out = evaluate.execute(lifted, state(case.request))
+    try: out = evaluate.execute(lifted, state(arch, case.request))
     except evaluate.Unknown as e: return "native", [str(e)]
     memory = [dict(hex=bytes(out.memory.get(m["space"], {}).get(m["address"] + j, 0) for j in range(m["size"])).hex())
               for m in case.request.get("observe_memory", [])]
