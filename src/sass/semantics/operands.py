@@ -371,7 +371,7 @@ class Builder:
     def finish(self, status, reason=''):
         row=self.g.coverage.setdefault(self.k.name,dict(cls=self.k.name,opcode=self.k.mnemonic,
               status=status,reason=reason,operands=self.inventory,
-              inputs=list(self.values),outputs=list(self.outputs),hardware_verified=False,
+              inputs=list(self.values),outputs=list(self.outputs),
               implicit=self.g.roles.get(self.k.name,{}).get('implicit',[])))
         row['status']=status
         row['selector_guards']=self.selector_guards

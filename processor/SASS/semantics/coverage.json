@@ -1,7 +1,11 @@
 {
   "SM100": {
     "classes": 978,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 225,
+      "ptxas": 15,
+      "reference": 299
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -71,6 +75,379 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 9,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 3
+      },
+      "BRA": {
+        "none": 2
+      },
+      "BREAK": {
+        "none": 1,
+        "reference": 1
+      },
+      "BREV": {
+        "reference": 3
+      },
+      "BSSY": {
+        "none": 1,
+        "reference": 1
+      },
+      "BSYNC": {
+        "none": 1,
+        "reference": 1
+      },
+      "CALL": {
+        "none": 3,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 3
+      },
+      "DFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "ELECT": {
+        "reference": 1
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 10,
+        "reference": 5
+      },
+      "F2FP": {
+        "none": 1,
+        "ptxas": 2,
+        "reference": 59
+      },
+      "F2I": {
+        "none": 10,
+        "reference": 14
+      },
+      "F2IP": {
+        "reference": 5
+      },
+      "FADD": {
+        "none": 1,
+        "ptxas": 1,
+        "reference": 2
+      },
+      "FADD2": {
+        "reference": 3
+      },
+      "FCHK": {
+        "reference": 3
+      },
+      "FFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "FFMA2": {
+        "reference": 5
+      },
+      "FLO": {
+        "reference": 3
+      },
+      "FMNMX": {
+        "reference": 3
+      },
+      "FMNMX3": {
+        "ptxas": 1,
+        "reference": 3
+      },
+      "FMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FMUL2": {
+        "reference": 3
+      },
+      "FRND": {
+        "none": 2,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 3
+      },
+      "FSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 6
+      },
+      "HFMA2": {
+        "none": 1,
+        "reference": 4
+      },
+      "HMNMX2": {
+        "reference": 6
+      },
+      "HMUL2": {
+        "none": 1,
+        "reference": 2
+      },
+      "HSET2": {
+        "reference": 3
+      },
+      "HSETP2": {
+        "reference": 3
+      },
+      "I2F": {
+        "none": 7,
+        "reference": 17
+      },
+      "I2FP": {
+        "none": 4,
+        "reference": 2
+      },
+      "I2IP": {
+        "reference": 9
+      },
+      "IABS": {
+        "none": 2,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 3,
+        "ptxas": 1,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 4
+      },
+      "IMAD": {
+        "none": 21,
+        "ptxas": 2,
+        "reference": 8
+      },
+      "IMNMX": {
+        "none": 2,
+        "reference": 1
+      },
+      "ISETP": {
+        "none": 1,
+        "reference": 5
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDCU": {
+        "reference": 1
+      },
+      "LDG": {
+        "none": 3,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 2,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 13,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 2,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 2,
+        "reference": 2
+      },
+      "MUFU": {
+        "none": 5,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "reference": 3
+      },
+      "PRMT": {
+        "none": 4,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 2,
+        "reference": 2
+      },
+      "R2P": {
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 2,
+        "reference": 1
+      },
+      "SGXT": {
+        "reference": 3
+      },
+      "SHF": {
+        "none": 4,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 3,
+        "reference": 1
+      },
+      "STL": {
+        "none": 2,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UF2FP": {
+        "none": 4
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "ptxas": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "ptxas": 1,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "VABSDIFF4": {
+        "reference": 5
+      },
+      "VIADD": {
+        "none": 2,
+        "ptxas": 1,
+        "reference": 1
+      },
+      "VIADDMNMX": {
+        "ptxas": 2,
+        "reference": 5
+      },
+      "VIMNMX": {
+        "ptxas": 1,
+        "reference": 3
+      },
+      "VIMNMX3": {
+        "ptxas": 1,
+        "reference": 3
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 3,
+        "reference": 1
+      }
     },
     "opcodes": {
       "ACQBULK": {
@@ -1192,7 +1569,11 @@
   },
   "SM100_READABLE": {
     "classes": 978,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 225,
+      "ptxas": 15,
+      "reference": 299
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -1262,6 +1643,379 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 9,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 3
+      },
+      "BRA": {
+        "none": 2
+      },
+      "BREAK": {
+        "none": 1,
+        "reference": 1
+      },
+      "BREV": {
+        "reference": 3
+      },
+      "BSSY": {
+        "none": 1,
+        "reference": 1
+      },
+      "BSYNC": {
+        "none": 1,
+        "reference": 1
+      },
+      "CALL": {
+        "none": 3,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 3
+      },
+      "DFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "ELECT": {
+        "reference": 1
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 10,
+        "reference": 5
+      },
+      "F2FP": {
+        "none": 1,
+        "ptxas": 2,
+        "reference": 59
+      },
+      "F2I": {
+        "none": 10,
+        "reference": 14
+      },
+      "F2IP": {
+        "reference": 5
+      },
+      "FADD": {
+        "none": 1,
+        "ptxas": 1,
+        "reference": 2
+      },
+      "FADD2": {
+        "reference": 3
+      },
+      "FCHK": {
+        "reference": 3
+      },
+      "FFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "FFMA2": {
+        "reference": 5
+      },
+      "FLO": {
+        "reference": 3
+      },
+      "FMNMX": {
+        "reference": 3
+      },
+      "FMNMX3": {
+        "ptxas": 1,
+        "reference": 3
+      },
+      "FMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FMUL2": {
+        "reference": 3
+      },
+      "FRND": {
+        "none": 2,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 3
+      },
+      "FSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 6
+      },
+      "HFMA2": {
+        "none": 1,
+        "reference": 4
+      },
+      "HMNMX2": {
+        "reference": 6
+      },
+      "HMUL2": {
+        "none": 1,
+        "reference": 2
+      },
+      "HSET2": {
+        "reference": 3
+      },
+      "HSETP2": {
+        "reference": 3
+      },
+      "I2F": {
+        "none": 7,
+        "reference": 17
+      },
+      "I2FP": {
+        "none": 4,
+        "reference": 2
+      },
+      "I2IP": {
+        "reference": 9
+      },
+      "IABS": {
+        "none": 2,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 3,
+        "ptxas": 1,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 4
+      },
+      "IMAD": {
+        "none": 21,
+        "ptxas": 2,
+        "reference": 8
+      },
+      "IMNMX": {
+        "none": 2,
+        "reference": 1
+      },
+      "ISETP": {
+        "none": 1,
+        "reference": 5
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDCU": {
+        "reference": 1
+      },
+      "LDG": {
+        "none": 3,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 2,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 13,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 2,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 2,
+        "reference": 2
+      },
+      "MUFU": {
+        "none": 5,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "reference": 3
+      },
+      "PRMT": {
+        "none": 4,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 2,
+        "reference": 2
+      },
+      "R2P": {
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 2,
+        "reference": 1
+      },
+      "SGXT": {
+        "reference": 3
+      },
+      "SHF": {
+        "none": 4,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 3,
+        "reference": 1
+      },
+      "STL": {
+        "none": 2,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UF2FP": {
+        "none": 4
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "ptxas": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "ptxas": 1,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "VABSDIFF4": {
+        "reference": 5
+      },
+      "VIADD": {
+        "none": 2,
+        "ptxas": 1,
+        "reference": 1
+      },
+      "VIADDMNMX": {
+        "ptxas": 2,
+        "reference": 5
+      },
+      "VIMNMX": {
+        "ptxas": 1,
+        "reference": 3
+      },
+      "VIMNMX3": {
+        "ptxas": 1,
+        "reference": 3
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 3,
+        "reference": 1
+      }
     },
     "opcodes": {
       "ACQBULK": {
@@ -2383,7 +3137,10 @@
   },
   "SM101": {
     "classes": 904,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 221,
+      "reference": 276
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -2437,6 +3194,346 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 9,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 3
+      },
+      "BRA": {
+        "none": 2
+      },
+      "BREAK": {
+        "none": 1,
+        "reference": 1
+      },
+      "BREV": {
+        "reference": 3
+      },
+      "BSSY": {
+        "none": 1,
+        "reference": 1
+      },
+      "BSYNC": {
+        "none": 1,
+        "reference": 1
+      },
+      "CALL": {
+        "none": 3,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 3
+      },
+      "DFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "ELECT": {
+        "reference": 1
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 10,
+        "reference": 5
+      },
+      "F2FP": {
+        "none": 1,
+        "reference": 59
+      },
+      "F2I": {
+        "none": 10,
+        "reference": 14
+      },
+      "F2IP": {
+        "reference": 5
+      },
+      "FADD": {
+        "none": 1,
+        "reference": 2
+      },
+      "FCHK": {
+        "reference": 3
+      },
+      "FFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "FLO": {
+        "reference": 3
+      },
+      "FMNMX": {
+        "reference": 3
+      },
+      "FMNMX3": {
+        "reference": 3
+      },
+      "FMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FRND": {
+        "none": 2,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 3
+      },
+      "FSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 6
+      },
+      "HFMA2": {
+        "none": 1,
+        "reference": 4
+      },
+      "HMNMX2": {
+        "reference": 6
+      },
+      "HMUL2": {
+        "none": 1,
+        "reference": 2
+      },
+      "HSET2": {
+        "reference": 3
+      },
+      "HSETP2": {
+        "reference": 3
+      },
+      "I2F": {
+        "none": 7,
+        "reference": 17
+      },
+      "I2FP": {
+        "none": 2,
+        "reference": 2
+      },
+      "I2IP": {
+        "reference": 9
+      },
+      "IABS": {
+        "none": 2,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 3,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 4
+      },
+      "IMAD": {
+        "none": 21,
+        "reference": 8
+      },
+      "IMNMX": {
+        "none": 2,
+        "reference": 1
+      },
+      "ISETP": {
+        "none": 1,
+        "reference": 5
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDCU": {
+        "reference": 1
+      },
+      "LDG": {
+        "none": 3,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 2,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 13,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 2,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 2,
+        "reference": 2
+      },
+      "MUFU": {
+        "none": 5,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "reference": 3
+      },
+      "PRMT": {
+        "none": 4,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 2,
+        "reference": 2
+      },
+      "R2P": {
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 2,
+        "reference": 1
+      },
+      "SGXT": {
+        "reference": 3
+      },
+      "SHF": {
+        "none": 4,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 3,
+        "reference": 1
+      },
+      "STL": {
+        "none": 2,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UF2FP": {
+        "none": 4
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "VABSDIFF4": {
+        "reference": 5
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 3,
+        "reference": 1
+      }
     },
     "opcodes": {
       "ACQBULK": {
@@ -3497,7 +4594,10 @@
   },
   "SM101_READABLE": {
     "classes": 904,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 221,
+      "reference": 276
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -3551,6 +4651,346 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 9,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 3
+      },
+      "BRA": {
+        "none": 2
+      },
+      "BREAK": {
+        "none": 1,
+        "reference": 1
+      },
+      "BREV": {
+        "reference": 3
+      },
+      "BSSY": {
+        "none": 1,
+        "reference": 1
+      },
+      "BSYNC": {
+        "none": 1,
+        "reference": 1
+      },
+      "CALL": {
+        "none": 3,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 3
+      },
+      "DFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "ELECT": {
+        "reference": 1
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 10,
+        "reference": 5
+      },
+      "F2FP": {
+        "none": 1,
+        "reference": 59
+      },
+      "F2I": {
+        "none": 10,
+        "reference": 14
+      },
+      "F2IP": {
+        "reference": 5
+      },
+      "FADD": {
+        "none": 1,
+        "reference": 2
+      },
+      "FCHK": {
+        "reference": 3
+      },
+      "FFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "FLO": {
+        "reference": 3
+      },
+      "FMNMX": {
+        "reference": 3
+      },
+      "FMNMX3": {
+        "reference": 3
+      },
+      "FMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FRND": {
+        "none": 2,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 3
+      },
+      "FSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 6
+      },
+      "HFMA2": {
+        "none": 1,
+        "reference": 4
+      },
+      "HMNMX2": {
+        "reference": 6
+      },
+      "HMUL2": {
+        "none": 1,
+        "reference": 2
+      },
+      "HSET2": {
+        "reference": 3
+      },
+      "HSETP2": {
+        "reference": 3
+      },
+      "I2F": {
+        "none": 7,
+        "reference": 17
+      },
+      "I2FP": {
+        "none": 2,
+        "reference": 2
+      },
+      "I2IP": {
+        "reference": 9
+      },
+      "IABS": {
+        "none": 2,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 3,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 4
+      },
+      "IMAD": {
+        "none": 21,
+        "reference": 8
+      },
+      "IMNMX": {
+        "none": 2,
+        "reference": 1
+      },
+      "ISETP": {
+        "none": 1,
+        "reference": 5
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDCU": {
+        "reference": 1
+      },
+      "LDG": {
+        "none": 3,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 2,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 13,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 2,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 2,
+        "reference": 2
+      },
+      "MUFU": {
+        "none": 5,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "reference": 3
+      },
+      "PRMT": {
+        "none": 4,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 2,
+        "reference": 2
+      },
+      "R2P": {
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 2,
+        "reference": 1
+      },
+      "SGXT": {
+        "reference": 3
+      },
+      "SHF": {
+        "none": 4,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 3,
+        "reference": 1
+      },
+      "STL": {
+        "none": 2,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UF2FP": {
+        "none": 4
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "VABSDIFF4": {
+        "reference": 5
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 3,
+        "reference": 1
+      }
     },
     "opcodes": {
       "ACQBULK": {
@@ -4611,7 +6051,10 @@
   },
   "SM103": {
     "classes": 974,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 228,
+      "reference": 299
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -4681,6 +6124,368 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 9,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 3
+      },
+      "BRA": {
+        "none": 2
+      },
+      "BREAK": {
+        "none": 1,
+        "reference": 1
+      },
+      "BREV": {
+        "reference": 3
+      },
+      "BSSY": {
+        "none": 1,
+        "reference": 1
+      },
+      "BSYNC": {
+        "none": 1,
+        "reference": 1
+      },
+      "CALL": {
+        "none": 3,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 3
+      },
+      "DFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "ELECT": {
+        "reference": 1
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 10,
+        "reference": 5
+      },
+      "F2FP": {
+        "none": 1,
+        "reference": 59
+      },
+      "F2I": {
+        "none": 10,
+        "reference": 14
+      },
+      "F2IP": {
+        "reference": 5
+      },
+      "FADD": {
+        "none": 1,
+        "reference": 2
+      },
+      "FADD2": {
+        "reference": 3
+      },
+      "FCHK": {
+        "reference": 3
+      },
+      "FFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "FFMA2": {
+        "reference": 5
+      },
+      "FLO": {
+        "reference": 3
+      },
+      "FMNMX": {
+        "reference": 3
+      },
+      "FMNMX3": {
+        "reference": 3
+      },
+      "FMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FMUL2": {
+        "reference": 3
+      },
+      "FRND": {
+        "none": 2,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 3
+      },
+      "FSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 6
+      },
+      "HFMA2": {
+        "none": 1,
+        "reference": 4
+      },
+      "HMNMX2": {
+        "reference": 6
+      },
+      "HMUL2": {
+        "none": 1,
+        "reference": 2
+      },
+      "HSET2": {
+        "reference": 3
+      },
+      "HSETP2": {
+        "reference": 3
+      },
+      "I2F": {
+        "none": 7,
+        "reference": 17
+      },
+      "I2FP": {
+        "none": 4,
+        "reference": 2
+      },
+      "I2IP": {
+        "reference": 9
+      },
+      "IABS": {
+        "none": 2,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 3,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 4
+      },
+      "IMAD": {
+        "none": 21,
+        "reference": 8
+      },
+      "IMNMX": {
+        "none": 2,
+        "reference": 1
+      },
+      "ISETP": {
+        "none": 1,
+        "reference": 5
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDCU": {
+        "reference": 1
+      },
+      "LDG": {
+        "none": 3,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 2,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 13,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 2,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 2,
+        "reference": 2
+      },
+      "MUFU": {
+        "none": 8,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "reference": 3
+      },
+      "PRMT": {
+        "none": 4,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 2,
+        "reference": 2
+      },
+      "R2P": {
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 2,
+        "reference": 1
+      },
+      "SGXT": {
+        "reference": 3
+      },
+      "SHF": {
+        "none": 4,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 3,
+        "reference": 1
+      },
+      "STL": {
+        "none": 2,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UF2FP": {
+        "none": 4
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "VABSDIFF4": {
+        "reference": 5
+      },
+      "VIADD": {
+        "none": 2,
+        "reference": 1
+      },
+      "VIADDMNMX": {
+        "reference": 5
+      },
+      "VIMNMX": {
+        "reference": 3
+      },
+      "VIMNMX3": {
+        "reference": 3
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 3,
+        "reference": 1
+      }
     },
     "opcodes": {
       "ACQBULK": {
@@ -5796,7 +7601,10 @@
   },
   "SM103_READABLE": {
     "classes": 974,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 228,
+      "reference": 299
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -5866,6 +7674,368 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 9,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 3
+      },
+      "BRA": {
+        "none": 2
+      },
+      "BREAK": {
+        "none": 1,
+        "reference": 1
+      },
+      "BREV": {
+        "reference": 3
+      },
+      "BSSY": {
+        "none": 1,
+        "reference": 1
+      },
+      "BSYNC": {
+        "none": 1,
+        "reference": 1
+      },
+      "CALL": {
+        "none": 3,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 3
+      },
+      "DFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "ELECT": {
+        "reference": 1
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 10,
+        "reference": 5
+      },
+      "F2FP": {
+        "none": 1,
+        "reference": 59
+      },
+      "F2I": {
+        "none": 10,
+        "reference": 14
+      },
+      "F2IP": {
+        "reference": 5
+      },
+      "FADD": {
+        "none": 1,
+        "reference": 2
+      },
+      "FADD2": {
+        "reference": 3
+      },
+      "FCHK": {
+        "reference": 3
+      },
+      "FFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "FFMA2": {
+        "reference": 5
+      },
+      "FLO": {
+        "reference": 3
+      },
+      "FMNMX": {
+        "reference": 3
+      },
+      "FMNMX3": {
+        "reference": 3
+      },
+      "FMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FMUL2": {
+        "reference": 3
+      },
+      "FRND": {
+        "none": 2,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 3
+      },
+      "FSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 6
+      },
+      "HFMA2": {
+        "none": 1,
+        "reference": 4
+      },
+      "HMNMX2": {
+        "reference": 6
+      },
+      "HMUL2": {
+        "none": 1,
+        "reference": 2
+      },
+      "HSET2": {
+        "reference": 3
+      },
+      "HSETP2": {
+        "reference": 3
+      },
+      "I2F": {
+        "none": 7,
+        "reference": 17
+      },
+      "I2FP": {
+        "none": 4,
+        "reference": 2
+      },
+      "I2IP": {
+        "reference": 9
+      },
+      "IABS": {
+        "none": 2,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 3,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 4
+      },
+      "IMAD": {
+        "none": 21,
+        "reference": 8
+      },
+      "IMNMX": {
+        "none": 2,
+        "reference": 1
+      },
+      "ISETP": {
+        "none": 1,
+        "reference": 5
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDCU": {
+        "reference": 1
+      },
+      "LDG": {
+        "none": 3,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 2,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 13,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 2,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 2,
+        "reference": 2
+      },
+      "MUFU": {
+        "none": 8,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "reference": 3
+      },
+      "PRMT": {
+        "none": 4,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 2,
+        "reference": 2
+      },
+      "R2P": {
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 2,
+        "reference": 1
+      },
+      "SGXT": {
+        "reference": 3
+      },
+      "SHF": {
+        "none": 4,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 3,
+        "reference": 1
+      },
+      "STL": {
+        "none": 2,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UF2FP": {
+        "none": 4
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "VABSDIFF4": {
+        "reference": 5
+      },
+      "VIADD": {
+        "none": 2,
+        "reference": 1
+      },
+      "VIADDMNMX": {
+        "reference": 5
+      },
+      "VIMNMX": {
+        "reference": 3
+      },
+      "VIMNMX3": {
+        "reference": 3
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 3,
+        "reference": 1
+      }
     },
     "opcodes": {
       "ACQBULK": {
@@ -6981,7 +9151,10 @@
   },
   "SM107": {
     "classes": 944,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 237,
+      "reference": 312
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -7075,6 +9248,374 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 9,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 3
+      },
+      "BRA": {
+        "none": 2
+      },
+      "BREAK": {
+        "none": 1,
+        "reference": 1
+      },
+      "BREV": {
+        "reference": 3
+      },
+      "BSSY": {
+        "none": 1,
+        "reference": 1
+      },
+      "BSYNC": {
+        "none": 1,
+        "reference": 1
+      },
+      "CALL": {
+        "none": 3,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 3
+      },
+      "DFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "ELECT": {
+        "reference": 1
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 10,
+        "reference": 5
+      },
+      "F2FP": {
+        "none": 2,
+        "reference": 68
+      },
+      "F2I": {
+        "none": 10,
+        "reference": 14
+      },
+      "F2IP": {
+        "reference": 5
+      },
+      "FADD": {
+        "none": 1,
+        "reference": 2
+      },
+      "FADD2": {
+        "reference": 3
+      },
+      "FCHK": {
+        "reference": 3
+      },
+      "FFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "FFMA2": {
+        "reference": 5
+      },
+      "FHADD2": {
+        "reference": 6
+      },
+      "FHFMA2": {
+        "reference": 5
+      },
+      "FHMUL2": {
+        "reference": 3
+      },
+      "FLO": {
+        "reference": 3
+      },
+      "FMNMX": {
+        "reference": 3
+      },
+      "FMNMX3": {
+        "reference": 3
+      },
+      "FMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FMUL2": {
+        "reference": 3
+      },
+      "FRND": {
+        "none": 2,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 3
+      },
+      "FSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 6
+      },
+      "HFMA2": {
+        "none": 1,
+        "reference": 4
+      },
+      "HMNMX2": {
+        "reference": 6
+      },
+      "HMUL2": {
+        "none": 1,
+        "reference": 2
+      },
+      "HSET2": {
+        "reference": 3
+      },
+      "HSETP2": {
+        "reference": 3
+      },
+      "I2F": {
+        "none": 7,
+        "reference": 17
+      },
+      "I2FP": {
+        "none": 4,
+        "reference": 2
+      },
+      "I2IP": {
+        "reference": 9
+      },
+      "IABS": {
+        "none": 2,
+        "reference": 1
+      },
+      "IADD": {
+        "none": 2,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 3,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 4
+      },
+      "IMAD": {
+        "none": 21,
+        "reference": 8
+      },
+      "ISETP": {
+        "none": 1,
+        "reference": 5
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDCU": {
+        "reference": 1
+      },
+      "LDG": {
+        "none": 3,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 2,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 13,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 2,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 5,
+        "reference": 2
+      },
+      "MOV64IUR": {
+        "none": 2
+      },
+      "MUFU": {
+        "none": 8,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "reference": 3
+      },
+      "PRMT": {
+        "none": 4,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 2,
+        "reference": 2
+      },
+      "R2P": {
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 5,
+        "reference": 1
+      },
+      "SGXT": {
+        "reference": 3
+      },
+      "SHF": {
+        "none": 4,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 3,
+        "reference": 1
+      },
+      "STL": {
+        "none": 2,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UF2FP": {
+        "none": 4
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "VIADD": {
+        "none": 2,
+        "reference": 1
+      },
+      "VIMNMX": {
+        "reference": 3
+      },
+      "VISET": {
+        "reference": 3
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 3,
+        "reference": 1
+      }
     },
     "opcodes": {
       "ACQBULK": {
@@ -8125,7 +10666,10 @@
   },
   "SM107_READABLE": {
     "classes": 944,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 237,
+      "reference": 312
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -8219,6 +10763,374 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 9,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 3
+      },
+      "BRA": {
+        "none": 2
+      },
+      "BREAK": {
+        "none": 1,
+        "reference": 1
+      },
+      "BREV": {
+        "reference": 3
+      },
+      "BSSY": {
+        "none": 1,
+        "reference": 1
+      },
+      "BSYNC": {
+        "none": 1,
+        "reference": 1
+      },
+      "CALL": {
+        "none": 3,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 3
+      },
+      "DFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "ELECT": {
+        "reference": 1
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 10,
+        "reference": 5
+      },
+      "F2FP": {
+        "none": 2,
+        "reference": 68
+      },
+      "F2I": {
+        "none": 10,
+        "reference": 14
+      },
+      "F2IP": {
+        "reference": 5
+      },
+      "FADD": {
+        "none": 1,
+        "reference": 2
+      },
+      "FADD2": {
+        "reference": 3
+      },
+      "FCHK": {
+        "reference": 3
+      },
+      "FFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "FFMA2": {
+        "reference": 5
+      },
+      "FHADD2": {
+        "reference": 6
+      },
+      "FHFMA2": {
+        "reference": 5
+      },
+      "FHMUL2": {
+        "reference": 3
+      },
+      "FLO": {
+        "reference": 3
+      },
+      "FMNMX": {
+        "reference": 3
+      },
+      "FMNMX3": {
+        "reference": 3
+      },
+      "FMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FMUL2": {
+        "reference": 3
+      },
+      "FRND": {
+        "none": 2,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 3
+      },
+      "FSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 6
+      },
+      "HFMA2": {
+        "none": 1,
+        "reference": 4
+      },
+      "HMNMX2": {
+        "reference": 6
+      },
+      "HMUL2": {
+        "none": 1,
+        "reference": 2
+      },
+      "HSET2": {
+        "reference": 3
+      },
+      "HSETP2": {
+        "reference": 3
+      },
+      "I2F": {
+        "none": 7,
+        "reference": 17
+      },
+      "I2FP": {
+        "none": 4,
+        "reference": 2
+      },
+      "I2IP": {
+        "reference": 9
+      },
+      "IABS": {
+        "none": 2,
+        "reference": 1
+      },
+      "IADD": {
+        "none": 2,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 3,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 4
+      },
+      "IMAD": {
+        "none": 21,
+        "reference": 8
+      },
+      "ISETP": {
+        "none": 1,
+        "reference": 5
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDCU": {
+        "reference": 1
+      },
+      "LDG": {
+        "none": 3,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 2,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 13,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 2,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 5,
+        "reference": 2
+      },
+      "MOV64IUR": {
+        "none": 2
+      },
+      "MUFU": {
+        "none": 8,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "reference": 3
+      },
+      "PRMT": {
+        "none": 4,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 2,
+        "reference": 2
+      },
+      "R2P": {
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 5,
+        "reference": 1
+      },
+      "SGXT": {
+        "reference": 3
+      },
+      "SHF": {
+        "none": 4,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 3,
+        "reference": 1
+      },
+      "STL": {
+        "none": 2,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UF2FP": {
+        "none": 4
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "VIADD": {
+        "none": 2,
+        "reference": 1
+      },
+      "VIMNMX": {
+        "reference": 3
+      },
+      "VISET": {
+        "reference": 3
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 3,
+        "reference": 1
+      }
     },
     "opcodes": {
       "ACQBULK": {
@@ -9269,7 +12181,10 @@
   },
   "SM120": {
     "classes": 1015,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 260,
+      "reference": 296
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -9363,6 +12278,389 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 9,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 3
+      },
+      "BRA": {
+        "none": 2
+      },
+      "BREAK": {
+        "none": 1,
+        "reference": 1
+      },
+      "BREV": {
+        "reference": 3
+      },
+      "BSSY": {
+        "none": 1,
+        "reference": 1
+      },
+      "BSYNC": {
+        "none": 1,
+        "reference": 1
+      },
+      "CALL": {
+        "none": 3,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 3
+      },
+      "DFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "ELECT": {
+        "reference": 1
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 10,
+        "reference": 5
+      },
+      "F2FP": {
+        "none": 1,
+        "reference": 59
+      },
+      "F2I": {
+        "none": 10,
+        "reference": 14
+      },
+      "F2IP": {
+        "reference": 5
+      },
+      "FADD": {
+        "none": 1,
+        "reference": 2
+      },
+      "FCHK": {
+        "reference": 3
+      },
+      "FFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "FLO": {
+        "reference": 3
+      },
+      "FMNMX": {
+        "reference": 3
+      },
+      "FMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FRND": {
+        "none": 2,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 3
+      },
+      "FSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 6
+      },
+      "HFMA2": {
+        "none": 1,
+        "reference": 4
+      },
+      "HMNMX2": {
+        "reference": 6
+      },
+      "HMUL2": {
+        "none": 1,
+        "reference": 2
+      },
+      "HSET2": {
+        "reference": 3
+      },
+      "HSETP2": {
+        "reference": 3
+      },
+      "I2F": {
+        "none": 7,
+        "reference": 17
+      },
+      "I2FP": {
+        "none": 2,
+        "reference": 2
+      },
+      "I2IP": {
+        "reference": 9
+      },
+      "IABS": {
+        "none": 2,
+        "reference": 1
+      },
+      "IADD": {
+        "none": 2,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 3,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 4
+      },
+      "IMAD": {
+        "none": 21,
+        "reference": 8
+      },
+      "ISETP": {
+        "none": 1,
+        "reference": 5
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDCU": {
+        "reference": 1
+      },
+      "LDG": {
+        "none": 3,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 2,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 13,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 2,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 5,
+        "reference": 2
+      },
+      "MOV64IUR": {
+        "none": 2
+      },
+      "MUFU": {
+        "none": 5,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "reference": 3
+      },
+      "PRMT": {
+        "none": 4,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 2,
+        "reference": 2
+      },
+      "R2P": {
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 5,
+        "reference": 1
+      },
+      "SGXT": {
+        "reference": 3
+      },
+      "SHF": {
+        "none": 4,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 3,
+        "reference": 1
+      },
+      "STL": {
+        "none": 2,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UF2FP": {
+        "none": 8,
+        "reference": 6
+      },
+      "UF2I": {
+        "none": 4,
+        "reference": 2
+      },
+      "UFADD": {
+        "reference": 2
+      },
+      "UFFMA": {
+        "reference": 3
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UFMUL": {
+        "reference": 2
+      },
+      "UFRND": {
+        "none": 1,
+        "reference": 1
+      },
+      "UFSEL": {
+        "reference": 2
+      },
+      "UFSETP": {
+        "reference": 2
+      },
+      "UI2F": {
+        "none": 2,
+        "reference": 3
+      },
+      "UI2FP": {
+        "none": 2,
+        "reference": 1
+      },
+      "UI2IP": {
+        "none": 6
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 10,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "none": 2,
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 3,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "UVIMNMX": {
+        "none": 2
+      },
+      "VIADD": {
+        "none": 2,
+        "reference": 1
+      },
+      "VIMNMX": {
+        "reference": 3
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 3,
+        "reference": 1
+      }
     },
     "opcodes": {
       "ACQBULK": {
@@ -10485,7 +13783,10 @@
   },
   "SM120_READABLE": {
     "classes": 1015,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 260,
+      "reference": 296
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -10579,6 +13880,389 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 9,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 3
+      },
+      "BRA": {
+        "none": 2
+      },
+      "BREAK": {
+        "none": 1,
+        "reference": 1
+      },
+      "BREV": {
+        "reference": 3
+      },
+      "BSSY": {
+        "none": 1,
+        "reference": 1
+      },
+      "BSYNC": {
+        "none": 1,
+        "reference": 1
+      },
+      "CALL": {
+        "none": 3,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 3
+      },
+      "DFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "ELECT": {
+        "reference": 1
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 10,
+        "reference": 5
+      },
+      "F2FP": {
+        "none": 1,
+        "reference": 59
+      },
+      "F2I": {
+        "none": 10,
+        "reference": 14
+      },
+      "F2IP": {
+        "reference": 5
+      },
+      "FADD": {
+        "none": 1,
+        "reference": 2
+      },
+      "FCHK": {
+        "reference": 3
+      },
+      "FFMA": {
+        "none": 4,
+        "reference": 1
+      },
+      "FLO": {
+        "reference": 3
+      },
+      "FMNMX": {
+        "reference": 3
+      },
+      "FMUL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FRND": {
+        "none": 2,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 2,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 3
+      },
+      "FSETP": {
+        "none": 2,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 6
+      },
+      "HFMA2": {
+        "none": 1,
+        "reference": 4
+      },
+      "HMNMX2": {
+        "reference": 6
+      },
+      "HMUL2": {
+        "none": 1,
+        "reference": 2
+      },
+      "HSET2": {
+        "reference": 3
+      },
+      "HSETP2": {
+        "reference": 3
+      },
+      "I2F": {
+        "none": 7,
+        "reference": 17
+      },
+      "I2FP": {
+        "none": 2,
+        "reference": 2
+      },
+      "I2IP": {
+        "reference": 9
+      },
+      "IABS": {
+        "none": 2,
+        "reference": 1
+      },
+      "IADD": {
+        "none": 2,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 3,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 4
+      },
+      "IMAD": {
+        "none": 21,
+        "reference": 8
+      },
+      "ISETP": {
+        "none": 1,
+        "reference": 5
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDCU": {
+        "reference": 1
+      },
+      "LDG": {
+        "none": 3,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 2,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 13,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 2,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 5,
+        "reference": 2
+      },
+      "MOV64IUR": {
+        "none": 2
+      },
+      "MUFU": {
+        "none": 5,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "reference": 3
+      },
+      "PRMT": {
+        "none": 4,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 2,
+        "reference": 2
+      },
+      "R2P": {
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 5,
+        "reference": 1
+      },
+      "SGXT": {
+        "reference": 3
+      },
+      "SHF": {
+        "none": 4,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 3,
+        "reference": 1
+      },
+      "STL": {
+        "none": 2,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UF2FP": {
+        "none": 8,
+        "reference": 6
+      },
+      "UF2I": {
+        "none": 4,
+        "reference": 2
+      },
+      "UFADD": {
+        "reference": 2
+      },
+      "UFFMA": {
+        "reference": 3
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UFMUL": {
+        "reference": 2
+      },
+      "UFRND": {
+        "none": 1,
+        "reference": 1
+      },
+      "UFSEL": {
+        "reference": 2
+      },
+      "UFSETP": {
+        "reference": 2
+      },
+      "UI2F": {
+        "none": 2,
+        "reference": 3
+      },
+      "UI2FP": {
+        "none": 2,
+        "reference": 1
+      },
+      "UI2IP": {
+        "none": 6
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 10,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "none": 2,
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 3,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "UVIMNMX": {
+        "none": 2
+      },
+      "VIADD": {
+        "none": 2,
+        "reference": 1
+      },
+      "VIMNMX": {
+        "reference": 3
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 3,
+        "reference": 1
+      }
     },
     "opcodes": {
       "ACQBULK": {
@@ -11701,7 +15385,10 @@
   },
   "SM75": {
     "classes": 903,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 340,
+      "reference": 246
+    },
     "opaque_operations": {
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -11759,6 +15446,329 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 13,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 5
+      },
+      "BRA": {
+        "reference": 1
+      },
+      "BREAK": {
+        "reference": 1
+      },
+      "BREV": {
+        "none": 1,
+        "reference": 4
+      },
+      "BSSY": {
+        "reference": 1
+      },
+      "BSYNC": {
+        "reference": 1
+      },
+      "CALL": {
+        "none": 4,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 4
+      },
+      "DFMA": {
+        "none": 5,
+        "reference": 2
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 2
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 2
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 18,
+        "reference": 5
+      },
+      "F2FP": {
+        "none": 2,
+        "reference": 12
+      },
+      "F2I": {
+        "none": 16,
+        "reference": 14
+      },
+      "FADD": {
+        "none": 3,
+        "reference": 2
+      },
+      "FCHK": {
+        "reference": 5
+      },
+      "FFMA": {
+        "none": 8,
+        "reference": 1
+      },
+      "FLO": {
+        "none": 1,
+        "reference": 4
+      },
+      "FMNMX": {
+        "none": 4,
+        "reference": 1
+      },
+      "FMUL": {
+        "none": 4,
+        "reference": 1
+      },
+      "FRND": {
+        "none": 4,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 4,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 5
+      },
+      "FSETP": {
+        "none": 4,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 5
+      },
+      "HFMA2": {
+        "none": 2,
+        "reference": 7
+      },
+      "HMUL2": {
+        "reference": 5
+      },
+      "HSET2": {
+        "reference": 5
+      },
+      "HSETP2": {
+        "reference": 5
+      },
+      "I2F": {
+        "none": 23,
+        "reference": 17
+      },
+      "I2IP": {
+        "none": 2,
+        "reference": 13
+      },
+      "IABS": {
+        "none": 4,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 7,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 8
+      },
+      "IMAD": {
+        "none": 45,
+        "reference": 10
+      },
+      "IMNMX": {
+        "none": 4,
+        "reference": 1
+      },
+      "ISETP": {
+        "none": 1,
+        "reference": 4
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDG": {
+        "none": 4,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 2,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 25,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 4,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 2,
+        "reference": 3
+      },
+      "MUFU": {
+        "none": 9,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "none": 2,
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "none": 1,
+        "reference": 4
+      },
+      "PRMT": {
+        "none": 8,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 3,
+        "reference": 2
+      },
+      "R2P": {
+        "none": 2,
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 4,
+        "reference": 1
+      },
+      "SGXT": {
+        "none": 1,
+        "reference": 4
+      },
+      "SHF": {
+        "none": 8,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 4,
+        "reference": 1
+      },
+      "STL": {
+        "none": 2,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULDC": {
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "VABSDIFF4": {
+        "none": 1,
+        "reference": 8
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 4,
+        "reference": 1
+      }
     },
     "opcodes": {
       "AL2P": {
@@ -12666,7 +16676,10 @@
   },
   "SM75_READABLE": {
     "classes": 903,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 340,
+      "reference": 246
+    },
     "opaque_operations": {
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -12724,6 +16737,329 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 13,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 5
+      },
+      "BRA": {
+        "reference": 1
+      },
+      "BREAK": {
+        "reference": 1
+      },
+      "BREV": {
+        "none": 1,
+        "reference": 4
+      },
+      "BSSY": {
+        "reference": 1
+      },
+      "BSYNC": {
+        "reference": 1
+      },
+      "CALL": {
+        "none": 4,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 4
+      },
+      "DFMA": {
+        "none": 5,
+        "reference": 2
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 2
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 2
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 18,
+        "reference": 5
+      },
+      "F2FP": {
+        "none": 2,
+        "reference": 12
+      },
+      "F2I": {
+        "none": 16,
+        "reference": 14
+      },
+      "FADD": {
+        "none": 3,
+        "reference": 2
+      },
+      "FCHK": {
+        "reference": 5
+      },
+      "FFMA": {
+        "none": 8,
+        "reference": 1
+      },
+      "FLO": {
+        "none": 1,
+        "reference": 4
+      },
+      "FMNMX": {
+        "none": 4,
+        "reference": 1
+      },
+      "FMUL": {
+        "none": 4,
+        "reference": 1
+      },
+      "FRND": {
+        "none": 4,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 4,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 5
+      },
+      "FSETP": {
+        "none": 4,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 5
+      },
+      "HFMA2": {
+        "none": 2,
+        "reference": 7
+      },
+      "HMUL2": {
+        "reference": 5
+      },
+      "HSET2": {
+        "reference": 5
+      },
+      "HSETP2": {
+        "reference": 5
+      },
+      "I2F": {
+        "none": 23,
+        "reference": 17
+      },
+      "I2IP": {
+        "none": 2,
+        "reference": 13
+      },
+      "IABS": {
+        "none": 4,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 7,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 8
+      },
+      "IMAD": {
+        "none": 45,
+        "reference": 10
+      },
+      "IMNMX": {
+        "none": 4,
+        "reference": 1
+      },
+      "ISETP": {
+        "none": 1,
+        "reference": 4
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDG": {
+        "none": 4,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 2,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 25,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 4,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 2,
+        "reference": 3
+      },
+      "MUFU": {
+        "none": 9,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "none": 2,
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "none": 1,
+        "reference": 4
+      },
+      "PRMT": {
+        "none": 8,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 3,
+        "reference": 2
+      },
+      "R2P": {
+        "none": 2,
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 4,
+        "reference": 1
+      },
+      "SGXT": {
+        "none": 1,
+        "reference": 4
+      },
+      "SHF": {
+        "none": 8,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 4,
+        "reference": 1
+      },
+      "STL": {
+        "none": 2,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULDC": {
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "VABSDIFF4": {
+        "none": 1,
+        "reference": 8
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 4,
+        "reference": 1
+      }
     },
     "opcodes": {
       "AL2P": {
@@ -13631,7 +17967,10 @@
   },
   "SM80": {
     "classes": 967,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 344,
+      "reference": 258
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -13713,6 +18052,338 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 13,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 5
+      },
+      "BRA": {
+        "reference": 1
+      },
+      "BREAK": {
+        "reference": 1
+      },
+      "BREV": {
+        "none": 1,
+        "reference": 4
+      },
+      "BSSY": {
+        "reference": 1
+      },
+      "BSYNC": {
+        "reference": 1
+      },
+      "CALL": {
+        "none": 4,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 4
+      },
+      "DFMA": {
+        "none": 5,
+        "reference": 2
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 2
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 2
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 18,
+        "reference": 5
+      },
+      "F2FP": {
+        "none": 2,
+        "reference": 12
+      },
+      "F2I": {
+        "none": 16,
+        "reference": 14
+      },
+      "FADD": {
+        "none": 3,
+        "reference": 2
+      },
+      "FCHK": {
+        "reference": 5
+      },
+      "FFMA": {
+        "none": 8,
+        "reference": 1
+      },
+      "FLO": {
+        "none": 1,
+        "reference": 4
+      },
+      "FMNMX": {
+        "none": 1,
+        "reference": 4
+      },
+      "FMUL": {
+        "none": 4,
+        "reference": 1
+      },
+      "FRND": {
+        "none": 4,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 4,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 5
+      },
+      "FSETP": {
+        "none": 4,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 5
+      },
+      "HFMA2": {
+        "none": 2,
+        "reference": 7
+      },
+      "HFMA2.MMA": {
+        "reference": 1
+      },
+      "HMNMX2": {
+        "reference": 5
+      },
+      "HMUL2": {
+        "reference": 5
+      },
+      "HSET2": {
+        "reference": 5
+      },
+      "HSETP2": {
+        "reference": 5
+      },
+      "I2F": {
+        "none": 23,
+        "reference": 17
+      },
+      "I2IP": {
+        "none": 2,
+        "reference": 13
+      },
+      "IABS": {
+        "none": 4,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 7,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 8
+      },
+      "IMAD": {
+        "none": 45,
+        "reference": 10
+      },
+      "IMNMX": {
+        "none": 4,
+        "reference": 1
+      },
+      "ISETP": {
+        "none": 4,
+        "reference": 6
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDG": {
+        "none": 5,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 3,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 25,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 4,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 2,
+        "reference": 3
+      },
+      "MUFU": {
+        "none": 9,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "none": 2,
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "none": 1,
+        "reference": 4
+      },
+      "PRMT": {
+        "none": 8,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 3,
+        "reference": 2
+      },
+      "R2P": {
+        "none": 2,
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 4,
+        "reference": 1
+      },
+      "SGXT": {
+        "none": 1,
+        "reference": 4
+      },
+      "SHF": {
+        "none": 8,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 5,
+        "reference": 1
+      },
+      "STL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULDC": {
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "VABSDIFF4": {
+        "none": 1,
+        "reference": 8
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 4,
+        "reference": 1
+      }
     },
     "opcodes": {
       "AL2P": {
@@ -14639,7 +19310,10 @@
   },
   "SM80_READABLE": {
     "classes": 967,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 344,
+      "reference": 258
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -14721,6 +19395,338 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 13,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 5
+      },
+      "BRA": {
+        "reference": 1
+      },
+      "BREAK": {
+        "reference": 1
+      },
+      "BREV": {
+        "none": 1,
+        "reference": 4
+      },
+      "BSSY": {
+        "reference": 1
+      },
+      "BSYNC": {
+        "reference": 1
+      },
+      "CALL": {
+        "none": 4,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 4
+      },
+      "DFMA": {
+        "none": 5,
+        "reference": 2
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 2
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 2
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 18,
+        "reference": 5
+      },
+      "F2FP": {
+        "none": 2,
+        "reference": 12
+      },
+      "F2I": {
+        "none": 16,
+        "reference": 14
+      },
+      "FADD": {
+        "none": 3,
+        "reference": 2
+      },
+      "FCHK": {
+        "reference": 5
+      },
+      "FFMA": {
+        "none": 8,
+        "reference": 1
+      },
+      "FLO": {
+        "none": 1,
+        "reference": 4
+      },
+      "FMNMX": {
+        "none": 1,
+        "reference": 4
+      },
+      "FMUL": {
+        "none": 4,
+        "reference": 1
+      },
+      "FRND": {
+        "none": 4,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 4,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 5
+      },
+      "FSETP": {
+        "none": 4,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 5
+      },
+      "HFMA2": {
+        "none": 2,
+        "reference": 7
+      },
+      "HFMA2.MMA": {
+        "reference": 1
+      },
+      "HMNMX2": {
+        "reference": 5
+      },
+      "HMUL2": {
+        "reference": 5
+      },
+      "HSET2": {
+        "reference": 5
+      },
+      "HSETP2": {
+        "reference": 5
+      },
+      "I2F": {
+        "none": 23,
+        "reference": 17
+      },
+      "I2IP": {
+        "none": 2,
+        "reference": 13
+      },
+      "IABS": {
+        "none": 4,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 7,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 8
+      },
+      "IMAD": {
+        "none": 45,
+        "reference": 10
+      },
+      "IMNMX": {
+        "none": 4,
+        "reference": 1
+      },
+      "ISETP": {
+        "none": 4,
+        "reference": 6
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDG": {
+        "none": 5,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 3,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 25,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 4,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 2,
+        "reference": 3
+      },
+      "MUFU": {
+        "none": 9,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "none": 2,
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "none": 1,
+        "reference": 4
+      },
+      "PRMT": {
+        "none": 8,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 3,
+        "reference": 2
+      },
+      "R2P": {
+        "none": 2,
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 4,
+        "reference": 1
+      },
+      "SGXT": {
+        "none": 1,
+        "reference": 4
+      },
+      "SHF": {
+        "none": 8,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 5,
+        "reference": 1
+      },
+      "STL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULDC": {
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "VABSDIFF4": {
+        "none": 1,
+        "reference": 8
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 4,
+        "reference": 1
+      }
     },
     "opcodes": {
       "AL2P": {
@@ -15647,7 +20653,10 @@
   },
   "SM86": {
     "classes": 1004,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 353,
+      "reference": 275
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -15728,6 +20737,348 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 13,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 5
+      },
+      "BRA": {
+        "reference": 1
+      },
+      "BREAK": {
+        "reference": 1
+      },
+      "BREV": {
+        "none": 1,
+        "reference": 4
+      },
+      "BSSY": {
+        "reference": 1
+      },
+      "BSYNC": {
+        "reference": 1
+      },
+      "CALL": {
+        "none": 4,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 4
+      },
+      "DFMA": {
+        "none": 5,
+        "reference": 2
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 2
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 2
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 19,
+        "reference": 5
+      },
+      "F2FP": {
+        "reference": 14
+      },
+      "F2I": {
+        "none": 16,
+        "reference": 14
+      },
+      "F2IP": {
+        "none": 1,
+        "reference": 8
+      },
+      "FADD": {
+        "none": 3,
+        "reference": 2
+      },
+      "FCHK": {
+        "reference": 5
+      },
+      "FFMA": {
+        "none": 8,
+        "reference": 1
+      },
+      "FLO": {
+        "none": 1,
+        "reference": 4
+      },
+      "FMNMX": {
+        "none": 1,
+        "reference": 4
+      },
+      "FMUL": {
+        "none": 4,
+        "reference": 1
+      },
+      "FRND": {
+        "none": 5,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 4,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 5
+      },
+      "FSETP": {
+        "none": 4,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 10
+      },
+      "HFMA2": {
+        "none": 2,
+        "reference": 7
+      },
+      "HFMA2.MMA": {
+        "reference": 1
+      },
+      "HMNMX2": {
+        "reference": 5
+      },
+      "HMUL2": {
+        "reference": 5
+      },
+      "HSET2": {
+        "reference": 5
+      },
+      "HSETP2": {
+        "reference": 5
+      },
+      "I2F": {
+        "none": 23,
+        "reference": 17
+      },
+      "I2FP": {
+        "none": 4,
+        "reference": 2
+      },
+      "I2IP": {
+        "none": 2,
+        "reference": 13
+      },
+      "IABS": {
+        "none": 4,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 7,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 8
+      },
+      "IMAD": {
+        "none": 45,
+        "reference": 10
+      },
+      "IMNMX": {
+        "none": 4,
+        "reference": 1
+      },
+      "ISETP": {
+        "none": 4,
+        "reference": 6
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDG": {
+        "none": 5,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 3,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 25,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 4,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 2,
+        "reference": 3
+      },
+      "MUFU": {
+        "none": 9,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "none": 2,
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "none": 1,
+        "reference": 4
+      },
+      "PRMT": {
+        "none": 8,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 3,
+        "reference": 2
+      },
+      "R2P": {
+        "none": 2,
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 4,
+        "reference": 1
+      },
+      "SGXT": {
+        "none": 1,
+        "reference": 4
+      },
+      "SHF": {
+        "none": 8,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 5,
+        "reference": 1
+      },
+      "STL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UF2FP": {
+        "none": 4
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULDC": {
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "VABSDIFF4": {
+        "none": 1,
+        "reference": 8
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 4,
+        "reference": 1
+      }
     },
     "opcodes": {
       "AL2P": {
@@ -16689,7 +22040,10 @@
   },
   "SM86_READABLE": {
     "classes": 1004,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 353,
+      "reference": 275
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -16770,6 +22124,348 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 13,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 5
+      },
+      "BRA": {
+        "reference": 1
+      },
+      "BREAK": {
+        "reference": 1
+      },
+      "BREV": {
+        "none": 1,
+        "reference": 4
+      },
+      "BSSY": {
+        "reference": 1
+      },
+      "BSYNC": {
+        "reference": 1
+      },
+      "CALL": {
+        "none": 4,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 4
+      },
+      "DFMA": {
+        "none": 5,
+        "reference": 2
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 2
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 2
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 19,
+        "reference": 5
+      },
+      "F2FP": {
+        "reference": 14
+      },
+      "F2I": {
+        "none": 16,
+        "reference": 14
+      },
+      "F2IP": {
+        "none": 1,
+        "reference": 8
+      },
+      "FADD": {
+        "none": 3,
+        "reference": 2
+      },
+      "FCHK": {
+        "reference": 5
+      },
+      "FFMA": {
+        "none": 8,
+        "reference": 1
+      },
+      "FLO": {
+        "none": 1,
+        "reference": 4
+      },
+      "FMNMX": {
+        "none": 1,
+        "reference": 4
+      },
+      "FMUL": {
+        "none": 4,
+        "reference": 1
+      },
+      "FRND": {
+        "none": 5,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 4,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 5
+      },
+      "FSETP": {
+        "none": 4,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 10
+      },
+      "HFMA2": {
+        "none": 2,
+        "reference": 7
+      },
+      "HFMA2.MMA": {
+        "reference": 1
+      },
+      "HMNMX2": {
+        "reference": 5
+      },
+      "HMUL2": {
+        "reference": 5
+      },
+      "HSET2": {
+        "reference": 5
+      },
+      "HSETP2": {
+        "reference": 5
+      },
+      "I2F": {
+        "none": 23,
+        "reference": 17
+      },
+      "I2FP": {
+        "none": 4,
+        "reference": 2
+      },
+      "I2IP": {
+        "none": 2,
+        "reference": 13
+      },
+      "IABS": {
+        "none": 4,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 7,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 8
+      },
+      "IMAD": {
+        "none": 45,
+        "reference": 10
+      },
+      "IMNMX": {
+        "none": 4,
+        "reference": 1
+      },
+      "ISETP": {
+        "none": 4,
+        "reference": 6
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDG": {
+        "none": 5,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 3,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 25,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 4,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 2,
+        "reference": 3
+      },
+      "MUFU": {
+        "none": 9,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "none": 2,
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "none": 1,
+        "reference": 4
+      },
+      "PRMT": {
+        "none": 8,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 3,
+        "reference": 2
+      },
+      "R2P": {
+        "none": 2,
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 4,
+        "reference": 1
+      },
+      "SGXT": {
+        "none": 1,
+        "reference": 4
+      },
+      "SHF": {
+        "none": 8,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 5,
+        "reference": 1
+      },
+      "STL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UF2FP": {
+        "none": 4
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULDC": {
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "VABSDIFF4": {
+        "none": 1,
+        "reference": 8
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 4,
+        "reference": 1
+      }
     },
     "opcodes": {
       "AL2P": {
@@ -17731,7 +23427,12 @@
   },
   "SM89": {
     "classes": 1054,
-    "hardware_verified": false,
+    "evidence": {
+      "gpu": 119,
+      "none": 355,
+      "ptxas": 6,
+      "reference": 288
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -17820,6 +23521,418 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 13,
+        "reference": 1
+      },
+      "BMSK": {
+        "gpu": 2,
+        "ptxas": 1,
+        "reference": 5
+      },
+      "BRA": {
+        "gpu": 1,
+        "reference": 1
+      },
+      "BREAK": {
+        "reference": 1
+      },
+      "BREV": {
+        "gpu": 1,
+        "none": 1,
+        "reference": 4
+      },
+      "BSSY": {
+        "reference": 1
+      },
+      "BSYNC": {
+        "reference": 1
+      },
+      "CALL": {
+        "none": 4,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "DFMA": {
+        "gpu": 1,
+        "none": 5,
+        "reference": 2
+      },
+      "DMUL": {
+        "gpu": 1,
+        "none": 2,
+        "reference": 2
+      },
+      "DSETP": {
+        "gpu": 1,
+        "none": 2,
+        "reference": 2
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "gpu": 3,
+        "none": 19,
+        "reference": 5
+      },
+      "F2FP": {
+        "gpu": 7,
+        "none": 15,
+        "reference": 27
+      },
+      "F2I": {
+        "gpu": 6,
+        "none": 16,
+        "reference": 14
+      },
+      "F2IP": {
+        "gpu": 2,
+        "none": 1,
+        "ptxas": 1,
+        "reference": 8
+      },
+      "FADD": {
+        "gpu": 1,
+        "none": 3,
+        "reference": 2
+      },
+      "FCHK": {
+        "gpu": 1,
+        "reference": 5
+      },
+      "FFMA": {
+        "gpu": 1,
+        "none": 8,
+        "reference": 1
+      },
+      "FLO": {
+        "gpu": 1,
+        "none": 1,
+        "ptxas": 1,
+        "reference": 4
+      },
+      "FMNMX": {
+        "gpu": 1,
+        "none": 1,
+        "reference": 4
+      },
+      "FMUL": {
+        "gpu": 1,
+        "none": 4,
+        "reference": 1
+      },
+      "FRND": {
+        "gpu": 2,
+        "none": 5,
+        "reference": 4
+      },
+      "FSEL": {
+        "gpu": 1,
+        "none": 4,
+        "reference": 1
+      },
+      "FSET": {
+        "gpu": 1,
+        "reference": 5
+      },
+      "FSETP": {
+        "gpu": 1,
+        "none": 4,
+        "reference": 1
+      },
+      "HADD2": {
+        "gpu": 2,
+        "reference": 10
+      },
+      "HFMA2": {
+        "gpu": 1,
+        "none": 2,
+        "reference": 7
+      },
+      "HFMA2.MMA": {
+        "gpu": 1,
+        "reference": 1
+      },
+      "HMNMX2": {
+        "gpu": 3,
+        "reference": 5
+      },
+      "HMUL2": {
+        "gpu": 1,
+        "reference": 5
+      },
+      "HSET2": {
+        "gpu": 1,
+        "reference": 5
+      },
+      "HSETP2": {
+        "gpu": 1,
+        "reference": 5
+      },
+      "I2F": {
+        "gpu": 6,
+        "none": 23,
+        "reference": 17
+      },
+      "I2FP": {
+        "gpu": 1,
+        "none": 4,
+        "reference": 2
+      },
+      "I2IP": {
+        "gpu": 4,
+        "none": 2,
+        "ptxas": 3,
+        "reference": 13
+      },
+      "IABS": {
+        "gpu": 1,
+        "none": 4,
+        "reference": 1
+      },
+      "IADD3": {
+        "gpu": 3,
+        "none": 6,
+        "reference": 3
+      },
+      "IDP": {
+        "gpu": 2,
+        "reference": 8
+      },
+      "IMAD": {
+        "gpu": 11,
+        "none": 42,
+        "reference": 10
+      },
+      "IMNMX": {
+        "gpu": 1,
+        "none": 4,
+        "reference": 1
+      },
+      "ISETP": {
+        "gpu": 3,
+        "none": 3,
+        "reference": 6
+      },
+      "LDC": {
+        "gpu": 1,
+        "none": 1,
+        "reference": 1
+      },
+      "LDG": {
+        "gpu": 1,
+        "none": 4,
+        "reference": 1
+      },
+      "LDL": {
+        "gpu": 1,
+        "none": 3,
+        "reference": 1
+      },
+      "LDS": {
+        "gpu": 1,
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "gpu": 6,
+        "none": 25,
+        "reference": 7
+      },
+      "LOP3": {
+        "gpu": 2,
+        "none": 3,
+        "reference": 1
+      },
+      "MATCH": {
+        "gpu": 2,
+        "reference": 2
+      },
+      "MOV": {
+        "gpu": 3,
+        "none": 1,
+        "reference": 3
+      },
+      "MUFU": {
+        "none": 9,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "gpu": 1,
+        "none": 2,
+        "reference": 3
+      },
+      "PLOP3": {
+        "gpu": 1,
+        "reference": 2
+      },
+      "POPC": {
+        "gpu": 1,
+        "none": 1,
+        "reference": 4
+      },
+      "PRMT": {
+        "gpu": 1,
+        "none": 8,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 3,
+        "reference": 2
+      },
+      "R2P": {
+        "gpu": 1,
+        "none": 2,
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "gpu": 1,
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "gpu": 1,
+        "none": 3,
+        "reference": 1
+      },
+      "SGXT": {
+        "none": 1,
+        "reference": 4
+      },
+      "SHF": {
+        "gpu": 2,
+        "none": 7,
+        "reference": 1
+      },
+      "SHFL": {
+        "gpu": 1,
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "gpu": 1,
+        "none": 4,
+        "reference": 1
+      },
+      "STL": {
+        "gpu": 1,
+        "none": 3,
+        "reference": 1
+      },
+      "STS": {
+        "gpu": 1,
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UF2FP": {
+        "none": 4
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "reference": 4
+      },
+      "UISETP": {
+        "gpu": 1,
+        "none": 3,
+        "reference": 1
+      },
+      "ULDC": {
+        "gpu": 1,
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "gpu": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "gpu": 1,
+        "reference": 2
+      },
+      "UP2UR": {
+        "gpu": 1,
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "gpu": 1,
+        "none": 1,
+        "reference": 1
+      },
+      "VABSDIFF4": {
+        "gpu": 2,
+        "none": 1,
+        "reference": 8
+      },
+      "VOTE": {
+        "gpu": 1,
+        "reference": 1
+      },
+      "VOTEU": {
+        "gpu": 1,
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 4,
+        "reference": 1
+      }
     },
     "opcodes": {
       "AL2P": {
@@ -18788,7 +24901,12 @@
   },
   "SM89_READABLE": {
     "classes": 1054,
-    "hardware_verified": false,
+    "evidence": {
+      "gpu": 119,
+      "none": 355,
+      "ptxas": 6,
+      "reference": 288
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -18877,6 +24995,418 @@
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_2reg__URURUR": "outside implemented operation families",
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 13,
+        "reference": 1
+      },
+      "BMSK": {
+        "gpu": 2,
+        "ptxas": 1,
+        "reference": 5
+      },
+      "BRA": {
+        "gpu": 1,
+        "reference": 1
+      },
+      "BREAK": {
+        "reference": 1
+      },
+      "BREV": {
+        "gpu": 1,
+        "none": 1,
+        "reference": 4
+      },
+      "BSSY": {
+        "reference": 1
+      },
+      "BSYNC": {
+        "reference": 1
+      },
+      "CALL": {
+        "none": 4,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "DFMA": {
+        "gpu": 1,
+        "none": 5,
+        "reference": 2
+      },
+      "DMUL": {
+        "gpu": 1,
+        "none": 2,
+        "reference": 2
+      },
+      "DSETP": {
+        "gpu": 1,
+        "none": 2,
+        "reference": 2
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "gpu": 3,
+        "none": 19,
+        "reference": 5
+      },
+      "F2FP": {
+        "gpu": 7,
+        "none": 15,
+        "reference": 27
+      },
+      "F2I": {
+        "gpu": 6,
+        "none": 16,
+        "reference": 14
+      },
+      "F2IP": {
+        "gpu": 2,
+        "none": 1,
+        "ptxas": 1,
+        "reference": 8
+      },
+      "FADD": {
+        "gpu": 1,
+        "none": 3,
+        "reference": 2
+      },
+      "FCHK": {
+        "gpu": 1,
+        "reference": 5
+      },
+      "FFMA": {
+        "gpu": 1,
+        "none": 8,
+        "reference": 1
+      },
+      "FLO": {
+        "gpu": 1,
+        "none": 1,
+        "ptxas": 1,
+        "reference": 4
+      },
+      "FMNMX": {
+        "gpu": 1,
+        "none": 1,
+        "reference": 4
+      },
+      "FMUL": {
+        "gpu": 1,
+        "none": 4,
+        "reference": 1
+      },
+      "FRND": {
+        "gpu": 2,
+        "none": 5,
+        "reference": 4
+      },
+      "FSEL": {
+        "gpu": 1,
+        "none": 4,
+        "reference": 1
+      },
+      "FSET": {
+        "gpu": 1,
+        "reference": 5
+      },
+      "FSETP": {
+        "gpu": 1,
+        "none": 4,
+        "reference": 1
+      },
+      "HADD2": {
+        "gpu": 2,
+        "reference": 10
+      },
+      "HFMA2": {
+        "gpu": 1,
+        "none": 2,
+        "reference": 7
+      },
+      "HFMA2.MMA": {
+        "gpu": 1,
+        "reference": 1
+      },
+      "HMNMX2": {
+        "gpu": 3,
+        "reference": 5
+      },
+      "HMUL2": {
+        "gpu": 1,
+        "reference": 5
+      },
+      "HSET2": {
+        "gpu": 1,
+        "reference": 5
+      },
+      "HSETP2": {
+        "gpu": 1,
+        "reference": 5
+      },
+      "I2F": {
+        "gpu": 6,
+        "none": 23,
+        "reference": 17
+      },
+      "I2FP": {
+        "gpu": 1,
+        "none": 4,
+        "reference": 2
+      },
+      "I2IP": {
+        "gpu": 4,
+        "none": 2,
+        "ptxas": 3,
+        "reference": 13
+      },
+      "IABS": {
+        "gpu": 1,
+        "none": 4,
+        "reference": 1
+      },
+      "IADD3": {
+        "gpu": 3,
+        "none": 6,
+        "reference": 3
+      },
+      "IDP": {
+        "gpu": 2,
+        "reference": 8
+      },
+      "IMAD": {
+        "gpu": 11,
+        "none": 42,
+        "reference": 10
+      },
+      "IMNMX": {
+        "gpu": 1,
+        "none": 4,
+        "reference": 1
+      },
+      "ISETP": {
+        "gpu": 3,
+        "none": 3,
+        "reference": 6
+      },
+      "LDC": {
+        "gpu": 1,
+        "none": 1,
+        "reference": 1
+      },
+      "LDG": {
+        "gpu": 1,
+        "none": 4,
+        "reference": 1
+      },
+      "LDL": {
+        "gpu": 1,
+        "none": 3,
+        "reference": 1
+      },
+      "LDS": {
+        "gpu": 1,
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "gpu": 6,
+        "none": 25,
+        "reference": 7
+      },
+      "LOP3": {
+        "gpu": 2,
+        "none": 3,
+        "reference": 1
+      },
+      "MATCH": {
+        "gpu": 2,
+        "reference": 2
+      },
+      "MOV": {
+        "gpu": 3,
+        "none": 1,
+        "reference": 3
+      },
+      "MUFU": {
+        "none": 9,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "gpu": 1,
+        "none": 2,
+        "reference": 3
+      },
+      "PLOP3": {
+        "gpu": 1,
+        "reference": 2
+      },
+      "POPC": {
+        "gpu": 1,
+        "none": 1,
+        "reference": 4
+      },
+      "PRMT": {
+        "gpu": 1,
+        "none": 8,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 3,
+        "reference": 2
+      },
+      "R2P": {
+        "gpu": 1,
+        "none": 2,
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "gpu": 1,
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "gpu": 1,
+        "none": 3,
+        "reference": 1
+      },
+      "SGXT": {
+        "none": 1,
+        "reference": 4
+      },
+      "SHF": {
+        "gpu": 2,
+        "none": 7,
+        "reference": 1
+      },
+      "SHFL": {
+        "gpu": 1,
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "gpu": 1,
+        "none": 4,
+        "reference": 1
+      },
+      "STL": {
+        "gpu": 1,
+        "none": 3,
+        "reference": 1
+      },
+      "STS": {
+        "gpu": 1,
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UF2FP": {
+        "none": 4
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "reference": 4
+      },
+      "UISETP": {
+        "gpu": 1,
+        "none": 3,
+        "reference": 1
+      },
+      "ULDC": {
+        "gpu": 1,
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "gpu": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "gpu": 1,
+        "reference": 2
+      },
+      "UP2UR": {
+        "gpu": 1,
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "gpu": 1,
+        "none": 1,
+        "reference": 1
+      },
+      "VABSDIFF4": {
+        "gpu": 2,
+        "none": 1,
+        "reference": 8
+      },
+      "VOTE": {
+        "gpu": 1,
+        "reference": 1
+      },
+      "VOTEU": {
+        "gpu": 1,
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 4,
+        "reference": 1
+      }
     },
     "opcodes": {
       "AL2P": {
@@ -19845,7 +26375,10 @@
   },
   "SM90": {
     "classes": 1173,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 379,
+      "reference": 310
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -19937,6 +26470,367 @@
       "vimnmx_pred__RIR_RsIR": "Pu output",
       "vimnmx_pred__RRR_RRR": "Pu output",
       "vimnmx_pred__RUR_RUR": "Pu output"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 13,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 5
+      },
+      "BRA": {
+        "none": 2
+      },
+      "BREAK": {
+        "reference": 1
+      },
+      "BREV": {
+        "none": 1,
+        "reference": 4
+      },
+      "BSSY": {
+        "reference": 1
+      },
+      "BSYNC": {
+        "reference": 1
+      },
+      "CALL": {
+        "none": 4,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 4
+      },
+      "DFMA": {
+        "none": 5,
+        "reference": 2
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 2
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 2
+      },
+      "ELECT": {
+        "reference": 1
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 19,
+        "reference": 5
+      },
+      "F2FP": {
+        "none": 15,
+        "reference": 27
+      },
+      "F2I": {
+        "none": 26,
+        "reference": 14
+      },
+      "F2IP": {
+        "none": 1,
+        "reference": 8
+      },
+      "FADD": {
+        "none": 3,
+        "reference": 2
+      },
+      "FCHK": {
+        "reference": 5
+      },
+      "FFMA": {
+        "none": 8,
+        "reference": 1
+      },
+      "FLO": {
+        "none": 1,
+        "reference": 4
+      },
+      "FMNMX": {
+        "none": 1,
+        "reference": 4
+      },
+      "FMUL": {
+        "none": 4,
+        "reference": 1
+      },
+      "FRND": {
+        "none": 5,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 4,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 5
+      },
+      "FSETP": {
+        "none": 4,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 10
+      },
+      "HFMA2": {
+        "none": 2,
+        "reference": 7
+      },
+      "HFMA2.MMA": {
+        "none": 1
+      },
+      "HMNMX2": {
+        "reference": 10
+      },
+      "HMUL2": {
+        "none": 1,
+        "reference": 4
+      },
+      "HSET2": {
+        "reference": 5
+      },
+      "HSETP2": {
+        "reference": 5
+      },
+      "I2F": {
+        "none": 23,
+        "reference": 17
+      },
+      "I2FP": {
+        "none": 4,
+        "reference": 2
+      },
+      "I2IP": {
+        "none": 2,
+        "reference": 13
+      },
+      "IABS": {
+        "none": 4,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 7,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 8
+      },
+      "IMAD": {
+        "none": 45,
+        "reference": 10
+      },
+      "IMNMX": {
+        "none": 4,
+        "reference": 1
+      },
+      "ISETP": {
+        "none": 4,
+        "reference": 6
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDG": {
+        "none": 3,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 2,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 25,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 4,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 2,
+        "reference": 3
+      },
+      "MUFU": {
+        "none": 9,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "none": 2,
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "none": 1,
+        "reference": 4
+      },
+      "PRMT": {
+        "none": 8,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 2,
+        "reference": 2
+      },
+      "R2P": {
+        "none": 2,
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 4,
+        "reference": 1
+      },
+      "SGXT": {
+        "none": 1,
+        "reference": 4
+      },
+      "SHF": {
+        "none": 8,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 3,
+        "reference": 1
+      },
+      "STL": {
+        "none": 2,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UF2FP": {
+        "none": 4
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULDC": {
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "VABSDIFF4": {
+        "none": 1,
+        "reference": 8
+      },
+      "VIADD": {
+        "none": 4,
+        "reference": 1
+      },
+      "VIADDMNMX": {
+        "none": 1,
+        "reference": 8
+      },
+      "VIMNMX": {
+        "reference": 5
+      },
+      "VIMNMX3": {
+        "reference": 5
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 3,
+        "reference": 1
+      }
     },
     "opcodes": {
       "ACQBULK": {
@@ -21006,7 +27900,10 @@
   },
   "SM90_READABLE": {
     "classes": 1173,
-    "hardware_verified": false,
+    "evidence": {
+      "none": 379,
+      "reference": 310
+    },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
@@ -21098,6 +27995,367 @@
       "vimnmx_pred__RIR_RsIR": "Pu output",
       "vimnmx_pred__RRR_RRR": "Pu output",
       "vimnmx_pred__RUR_RUR": "Pu output"
+    },
+    "opcode_evidence": {
+      "BAR": {
+        "none": 25,
+        "reference": 1
+      },
+      "BMOV": {
+        "none": 13,
+        "reference": 1
+      },
+      "BMSK": {
+        "reference": 5
+      },
+      "BRA": {
+        "none": 2
+      },
+      "BREAK": {
+        "reference": 1
+      },
+      "BREV": {
+        "none": 1,
+        "reference": 4
+      },
+      "BSSY": {
+        "reference": 1
+      },
+      "BSYNC": {
+        "reference": 1
+      },
+      "CALL": {
+        "none": 4,
+        "reference": 1
+      },
+      "CS2R": {
+        "reference": 1
+      },
+      "DADD": {
+        "reference": 4
+      },
+      "DFMA": {
+        "none": 5,
+        "reference": 2
+      },
+      "DMUL": {
+        "none": 2,
+        "reference": 2
+      },
+      "DSETP": {
+        "none": 2,
+        "reference": 2
+      },
+      "ELECT": {
+        "reference": 1
+      },
+      "EXIT": {
+        "reference": 1
+      },
+      "F2F": {
+        "none": 19,
+        "reference": 5
+      },
+      "F2FP": {
+        "none": 15,
+        "reference": 27
+      },
+      "F2I": {
+        "none": 26,
+        "reference": 14
+      },
+      "F2IP": {
+        "none": 1,
+        "reference": 8
+      },
+      "FADD": {
+        "none": 3,
+        "reference": 2
+      },
+      "FCHK": {
+        "reference": 5
+      },
+      "FFMA": {
+        "none": 8,
+        "reference": 1
+      },
+      "FLO": {
+        "none": 1,
+        "reference": 4
+      },
+      "FMNMX": {
+        "none": 1,
+        "reference": 4
+      },
+      "FMUL": {
+        "none": 4,
+        "reference": 1
+      },
+      "FRND": {
+        "none": 5,
+        "reference": 4
+      },
+      "FSEL": {
+        "none": 4,
+        "reference": 1
+      },
+      "FSET": {
+        "reference": 5
+      },
+      "FSETP": {
+        "none": 4,
+        "reference": 1
+      },
+      "HADD2": {
+        "reference": 10
+      },
+      "HFMA2": {
+        "none": 2,
+        "reference": 7
+      },
+      "HFMA2.MMA": {
+        "none": 1
+      },
+      "HMNMX2": {
+        "reference": 10
+      },
+      "HMUL2": {
+        "none": 1,
+        "reference": 4
+      },
+      "HSET2": {
+        "reference": 5
+      },
+      "HSETP2": {
+        "reference": 5
+      },
+      "I2F": {
+        "none": 23,
+        "reference": 17
+      },
+      "I2FP": {
+        "none": 4,
+        "reference": 2
+      },
+      "I2IP": {
+        "none": 2,
+        "reference": 13
+      },
+      "IABS": {
+        "none": 4,
+        "reference": 1
+      },
+      "IADD3": {
+        "none": 7,
+        "reference": 3
+      },
+      "IDP": {
+        "reference": 8
+      },
+      "IMAD": {
+        "none": 45,
+        "reference": 10
+      },
+      "IMNMX": {
+        "none": 4,
+        "reference": 1
+      },
+      "ISETP": {
+        "none": 4,
+        "reference": 6
+      },
+      "LDC": {
+        "none": 1,
+        "reference": 1
+      },
+      "LDG": {
+        "none": 3,
+        "reference": 1
+      },
+      "LDL": {
+        "none": 2,
+        "reference": 1
+      },
+      "LDS": {
+        "none": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "none": 25,
+        "reference": 7
+      },
+      "LOP3": {
+        "none": 4,
+        "reference": 1
+      },
+      "MATCH": {
+        "reference": 2
+      },
+      "MOV": {
+        "none": 2,
+        "reference": 3
+      },
+      "MUFU": {
+        "none": 9,
+        "reference": 1
+      },
+      "NOP": {
+        "none": 1
+      },
+      "P2R": {
+        "none": 2,
+        "reference": 3
+      },
+      "PLOP3": {
+        "reference": 2
+      },
+      "POPC": {
+        "none": 1,
+        "reference": 4
+      },
+      "PRMT": {
+        "none": 8,
+        "reference": 1
+      },
+      "QSPC": {
+        "none": 2,
+        "reference": 2
+      },
+      "R2P": {
+        "none": 2,
+        "reference": 3
+      },
+      "R2UR": {
+        "reference": 1
+      },
+      "REDUX": {
+        "reference": 1
+      },
+      "RET": {
+        "none": 2,
+        "reference": 2
+      },
+      "S2R": {
+        "reference": 1
+      },
+      "S2UR": {
+        "reference": 1
+      },
+      "SEL": {
+        "none": 4,
+        "reference": 1
+      },
+      "SGXT": {
+        "none": 1,
+        "reference": 4
+      },
+      "SHF": {
+        "none": 8,
+        "reference": 1
+      },
+      "SHFL": {
+        "none": 3,
+        "reference": 1
+      },
+      "STG": {
+        "none": 3,
+        "reference": 1
+      },
+      "STL": {
+        "none": 2,
+        "reference": 1
+      },
+      "STS": {
+        "none": 2,
+        "reference": 1
+      },
+      "UBREV": {
+        "none": 2
+      },
+      "UF2FP": {
+        "none": 4
+      },
+      "UFLO": {
+        "none": 2
+      },
+      "UIADD3": {
+        "none": 2,
+        "reference": 2
+      },
+      "UIMAD": {
+        "none": 6,
+        "reference": 4
+      },
+      "UISETP": {
+        "none": 3,
+        "reference": 1
+      },
+      "ULDC": {
+        "reference": 1
+      },
+      "ULEA": {
+        "none": 11,
+        "reference": 3
+      },
+      "ULOP3": {
+        "none": 1,
+        "reference": 1
+      },
+      "UMOV": {
+        "reference": 2
+      },
+      "UP2UR": {
+        "reference": 1
+      },
+      "UPLOP3": {
+        "reference": 1
+      },
+      "UPOPC": {
+        "none": 2
+      },
+      "UPRMT": {
+        "none": 1,
+        "reference": 1
+      },
+      "USEL": {
+        "none": 1,
+        "reference": 1
+      },
+      "USGXT": {
+        "none": 2
+      },
+      "USHF": {
+        "none": 2,
+        "reference": 1
+      },
+      "VABSDIFF4": {
+        "none": 1,
+        "reference": 8
+      },
+      "VIADD": {
+        "none": 4,
+        "reference": 1
+      },
+      "VIADDMNMX": {
+        "none": 1,
+        "reference": 8
+      },
+      "VIMNMX": {
+        "reference": 5
+      },
+      "VIMNMX3": {
+        "reference": 5
+      },
+      "VOTE": {
+        "reference": 1
+      },
+      "VOTEU": {
+        "reference": 1
+      },
+      "WARPSYNC": {
+        "none": 3,
+        "reference": 1
+      }
     },
     "opcodes": {
       "ACQBULK": {

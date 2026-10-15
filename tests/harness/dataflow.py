@@ -35,9 +35,10 @@ def discarded(g, d):
             and all(d.env.get(o['name']) == g.register_zero(d.klass, o['name']) for o in outs))
 
 
-def expected(g, d, optimized=False):
+def expected(g, d, optimized=False, ignore=()):
+    """md register cells (reads, writes) of decoded instruction d; `ignore` names operands whose reads to skip."""
     reads, writes = set(), set()
-    unused=set()
+    unused=set(ignore)
     if optimized and d.klass.mnemonic in ('LDG','STG','LDL','STL') and d.env.get('e_desc')==0:
         # Implicit pointer forms use their address registers directly.
         unused.update(('Ra_URb','Ra_URc'))

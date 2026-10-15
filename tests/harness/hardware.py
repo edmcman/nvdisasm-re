@@ -1,9 +1,23 @@
 """GPU fixtures: their emulated outputs against the references (no GPU), and the references against
 the SM89 GPU."""
+import json
 from functools import cache
 from sass import ghidra_bridge
+from sass.paths import ROOT
 from sass.sleigh.gen import MODES
-from tests.harness.gpu import Driver, Template, request
+from tests.harness.gpu import Driver, Template, hits, mnemonic, request
+
+
+PASSES = ROOT / "tests/baseline/gpu_passes.json"  # {fixture: {fingerprint, device}} of the last passing GPU run
+
+
+def passes():
+    return json.loads(PASSES.read_text()) if PASSES.exists() else {}
+
+
+def passed(f):
+    """Whether fixture f, exactly as it is now, has passed on the GPU."""
+    return passes().get(f.name, {}).get("fingerprint") == f.fingerprint
 
 
 @cache
@@ -24,7 +38,7 @@ def mismatch(f, side, got, bad):
 def executed(f, visited):
     """Mnemonics (with modifiers) of the instructions the emulator visited."""
     t = Template(f.emulator_image or f.image, f.kernel)
-    return {t.decoded(o).text.split()[1 if t.decoded(o).text.startswith("@") else 0] for o in visited}
+    return {mnemonic(t.decoded(o)) for o in visited}
 
 
 def emulated_problems(f, result):
@@ -35,7 +49,7 @@ def emulated_problems(f, result):
     if f.exit and result.get("exit") != "EXIT": out.append("emulator did not reach EXIT")
     if f.targets:
         ops = executed(f, result["visited"])
-        out += [f"target {t} never executed" for t in f.targets if not any(op == t or op.startswith(t + ".") for op in ops)]
+        out += [f"target {t} never executed" for t in f.targets if not any(hits(op, t) for op in ops)]
     emulated = ghidra_bridge.outputs(result)
     if len(emulated) != len(f.expected): out.append(f"emulator produced {len(emulated)} outputs, expected {len(f.expected)}")
     if bad := mismatches(emulated, f.expected, f.emulator_same or f.same, f.excused): out.append(mismatch(f, "emulator", emulated, bad))
@@ -56,7 +70,14 @@ def emulate(fixtures, modes=MODES):
 
 
 def run(fixtures):
-    """{fixture name: [problems]} from running every fixture on the SM89 GPU."""
+    """{fixture name: [problems]} from running every fixture on the SM89 GPU, recording each
+    passing fixture's fingerprint in PASSES (and dropping failing ones) for tests/evidence.py."""
     driver = Driver()
-    try: return {f.name: hardware_problems(f, driver.run(f)) for f in fixtures}
+    try: found = {f.name: hardware_problems(f, driver.run(f)) for f in fixtures}
     finally: driver.close()
+    record = passes()
+    for f in fixtures:
+        if found[f.name]: record.pop(f.name, None)
+        else: record[f.name] = dict(fingerprint=f.fingerprint, device=driver.device)
+    PASSES.write_text(json.dumps(record, indent=1, sort_keys=True) + "\n")
+    return found

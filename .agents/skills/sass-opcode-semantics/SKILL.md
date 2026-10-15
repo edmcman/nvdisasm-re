@@ -139,7 +139,7 @@ uv run sass-build-languages SM89
 uv run python -m tests.semantics SM89 exact --family <family>
 uv run pytest tests -m ghidra --arch SM89 --fp all
 uv run pytest tests -m gpu --require-gpu --family <family>
-uv run sass-coverage processor/SASS/data/languages --output processor/SASS/semantics/coverage.json
+uv run sass-refresh-coverage
 git diff --check
 ```
 
@@ -149,10 +149,10 @@ permission mechanism for device access or ptrace if the sandbox requires it;
 do not convert an unavailable GPU into a claimed hardware pass.
 
 Record the trace in `research/ptxas/ptxas-finalizer-notes.md`, semantic scope in
-`docs/semantics.md`, and measured results in
-`processor/SASS/semantics/verification.json`. Refresh coverage from generated
-manifests. Preserve earlier results with their dates and scopes; do not relabel
-old tests as newly run. Keep unrelated work intact.
+`docs/semantics.md`. Verification evidence is derived per class from the tests
+(GPU fixtures, `tests/ptx` probes, emulator cases) into `processor/SASS/semantics/evidence.json`:
+add tests rather than recording results by hand. Refresh coverage from generated
+manifests. Keep unrelated work intact.
 
 Report the verified PTX-to-SASS mapping, functional rule, implementation scope,
 tests and remaining uncertainty. Answer questions about the currently discussed

@@ -1,19 +1,56 @@
 name: coverage
 on: [push, pull_request]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  coverage-up-to-date:
+  architectures:
     runs-on: ubuntu-latest
+    outputs:
+      list: ${{ steps.list.outputs.list }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
         with:
           python-version: "3.13"
-      - run: uv sync
-      - run: uv run sass-build-languages --generate-only
+      - id: list
+        run: echo "list=$(uv run python -c 'import json; from sass.sleigh.build import ARCHES; print(json.dumps(ARCHES))')" >> "$GITHUB_OUTPUT"
+  generate:
+    needs: architectures
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: ${{ fromJSON(needs.architectures.outputs.list) }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.13"
+      - run: uv run sass-build-languages --generate-only ${{ matrix.arch }}
+      - run: uv run python -m tests.evidence ${{ matrix.arch }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: coverage-${{ matrix.arch }}
+          path: |
+            processor/SASS/data/languages/sass_sm*_coverage.json
+            processor/SASS/data/languages/sass_sm*_evidence.json
+  up-to-date:
+    needs: generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.13"
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: coverage-*
+          merge-multiple: true
+          path: processor/SASS/data/languages
       - run: uv run sass-coverage processor/SASS/data/languages --output processor/SASS/semantics/coverage.json
       - name: committed coverage matches the generator
         run: |
           git diff --exit-code processor/SASS/semantics/ || {
-            echo "::error::Stale coverage. Run: uv run sass-build-languages --generate-only && uv run sass-coverage processor/SASS/data/languages --output processor/SASS/semantics/coverage.json"
+            echo "::error::Stale coverage or evidence. Run: uv run sass-refresh-coverage"
             exit 1; }
           test -z "$(git status --porcelain processor/SASS/semantics/)"

@@ -104,9 +104,8 @@ still choose an opaque fallback. It does not mean every encoding in the class
 has value semantics. `primitive` means the runtime validates and executes the
 operation or rejects an unsupported selector/context. `opaque` means the md's
 register effects, registers and immediates are passed without asserting a result.
-The coverage ledger's architecture-wide `hardware_verified` flag remains false:
-GPU comparisons currently cover the 144 whole-kernel SM89 fixtures (18,432 output comparisons) recorded in
-[verification.json](verification.json), rather than every class and selector.
+Verification evidence is per class, derived from the tests into
+[evidence.json](../processor/SASS/semantics/evidence.json): SM89 GPU fixture targets, `tests/ptx` probes and reference emulator cases.
 
 IMAD.HI adds a 64-bit addend to the full product before selecting the high
 word. A 32-bit non-pair addend is added to the selected high word. IMAD.WIDE
@@ -720,4 +719,3 @@ Use `NVCC` to select the toolkit. Without a GPU, `pytest -m gpu` skips; `--requi
 `uv run python -m tests.observe FAMILY` runs a family's fixtures and prints raw GPU outputs without asserting.
 CUDA device access requires running outside the restricted sandbox here.
 
-Recorded results for this implementation are in [verification.json](verification.json).

@@ -62,7 +62,11 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "nvidia-cuda-crt", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "nvidia-cuda-nvcc", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "nvidia-cuda-nvdisasm", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "nvidia-cuda-runtime", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
+    { name = "nvidia-nvvm", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "pytest" },
 ]
 
@@ -71,8 +75,33 @@ requires-dist = [{ name = "lz4" }]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "nvidia-cuda-crt", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'", specifier = "==13.0.88" },
+    { name = "nvidia-cuda-nvcc", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'", specifier = "==13.0.88" },
     { name = "nvidia-cuda-nvdisasm", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'", specifier = "==13.4.92" },
+    { name = "nvidia-cuda-runtime", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'", specifier = "==13.0.96" },
+    { name = "nvidia-nvvm", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'", specifier = "==13.0.88" },
     { name = "pytest" },
+]
+
+[[package]]
+name = "nvidia-cuda-crt"
+version = "13.0.88"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/05/69/a1ec4d9f0747d85964206feb47bf359f48a2d6af74c0add8abba6efe3dda/nvidia_cuda_crt-13.0.88-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:2c8043c7c9e02492716426e9919fc78d2c5b3b2a7a768a88e952676b08aa55a4", size = 134086, upload-time = "2025-09-04T08:25:40.741Z" },
+]
+
+[[package]]
+name = "nvidia-cuda-nvcc"
+version = "13.0.88"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "nvidia-cuda-crt" },
+    { name = "nvidia-cuda-runtime" },
+    { name = "nvidia-nvvm" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/71/8b/a546c12881fffeba927d810598987df25d74b8b241788c7db8dfc93b0173/nvidia_cuda_nvcc-13.0.88-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:56fe502eb77625a12f25172caa3cdddb4e4c8ba2c8c17dba44b164761b380f03", size = 37384532, upload-time = "2025-09-04T08:27:37.916Z" },
 ]
 
 [[package]]
@@ -81,6 +110,22 @@ version = "13.4.92"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/59/ea/b83b98288fd3d37b16c0da8846987d9c8719e9ff49ab974c1988d9e63f5a/nvidia_cuda_nvdisasm-13.4.92-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:f35a5b6ddb64b6758c22c0b078c5b6ff6d54f7c240cd74bf131ab5bf13b6c3fe", size = 5203296, upload-time = "2026-09-16T20:38:39.558Z" },
+]
+
+[[package]]
+name = "nvidia-cuda-runtime"
+version = "13.0.96"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2e/24/d1558f3b68b1d26e706813b1d10aa1d785e4698c425af8db8edc3dced472/nvidia_cuda_runtime-13.0.96-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:7f82250d7782aa23b6cfe765ecc7db554bd3c2870c43f3d1821f1d18aebf0548", size = 2243632, upload-time = "2025-10-09T08:55:36.117Z" },
+]
+
+[[package]]
+name = "nvidia-nvvm"
+version = "13.0.88"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/15/b0/ee41e6d1108d959b5097163e7190c2d0f7857dea75606ce358f0275891b4/nvidia_nvvm-13.0.88-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl", hash = "sha256:c5f41ffeb6466944a026dfa5317d7d85355c119bbec279205d22f1869d1054e0", size = 61601415, upload-time = "2025-09-04T08:37:09.142Z" },
 ]
 
 [[package]]

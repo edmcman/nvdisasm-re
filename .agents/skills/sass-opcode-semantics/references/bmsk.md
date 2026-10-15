@@ -112,6 +112,5 @@ Recorded results for the completed investigation:
   decompressed; the largest was SM90 exact at 12,190,260 bytes.
 
 Hardware evidence covers SM89 register-input kernels. Other operand forms and
-architectures have emulator evidence. Full records are in
-`processor/SASS/semantics/verification.json` and the trace is in
+architectures have emulator evidence. The trace is in
 `research/ptxas/ptxas-finalizer-notes.md`.

@@ -74,7 +74,7 @@ uv run sass-build-languages SM89
 uv run python -m tests.semantics SM89 exact --family <family>
 uv run pytest tests -m ghidra --arch SM89 --fp all
 uv run pytest tests -m gpu --require-gpu --family <family>
-uv run sass-coverage processor/SASS/data/languages --output processor/SASS/semantics/coverage.json
+uv run sass-refresh-coverage
 git diff --check
 ```
 

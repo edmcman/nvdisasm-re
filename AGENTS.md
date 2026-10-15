@@ -15,14 +15,14 @@ Target: `nvdisasm` from CUDA 13.4 (V13.4.92, built 2026-09-01), stripped x86-64 
 - `src/sass/check/`: comparison/report CLIs (`pydecode_disasm`, `ghidra_disasm`, `census`).
 - `src/sass/paths.py`: repository paths and external tool locations.
 - `tests/`: tests only (`harness/`, `cases/`, `refs/`, kernels, baselines); see `tests/README.md`.
-- `processor/SASS/`: the Ghidra module (hand-written `.sinc`/`.pspec`/`.cspec`, generated languages, coverage/verification JSON).
+- `processor/SASS/`: the Ghidra module (hand-written `.sinc`/`.pspec`/`.cspec`, generated languages, coverage/evidence JSON and report).
 - `research/`: one-off investigations (ptxas, CuLifter, SLEIGH conditions).
 
 Modules are imported by their own names, never aliased (`from sass.md import parse`).
 
-Console scripts: `sass-extract-md`, `sass-layout-md`, `sass-decode`, `sass-gen-sleigh`, `sass-build-languages`, `sass-coverage`, `sass-compare-pydecode`, `sass-compare-ghidra`, `sass-census`. Tests: `uv run pytest` runs the Python tests; `tests/README.md` describes them and the Ghidra (`-m ghidra`) and GPU (`-m gpu`) tests.
+Console scripts: `sass-extract-md`, `sass-layout-md`, `sass-decode`, `sass-gen-sleigh`, `sass-build-languages`, `sass-coverage`, `sass-refresh-coverage`, `sass-compare-pydecode`, `sass-compare-ghidra`, `sass-census`. Tests: `uv run pytest` runs the Python tests; `tests/README.md` describes them and the Ghidra (`-m ghidra`) and GPU (`-m gpu`) tests.
 
-Coverage: `processor/SASS/semantics/coverage.json`, `badge.json` (the README's opcode-coverage badge) and `coverage.html` (the visual report it links to) are committed (the report groups opcodes by `src/sass/sleigh/categories.json`, parsed from NVIDIA's SASS instruction set reference on 2026-10-15), and CI (`.github/workflows/coverage.yml`) fails when they differ from what the generator produces. Refresh them after any semantics change, without Ghidra: `uv run sass-build-languages --generate-only && uv run sass-coverage processor/SASS/data/languages --output processor/SASS/semantics/coverage.json`.
+Coverage: `processor/SASS/semantics/coverage.json`, `evidence.json` (per-class verification evidence, `tests/evidence.py`), `badge.json` (the README's opcode-coverage badge) and `coverage.html` (the visual report it links to) are committed (the report groups opcodes by `src/sass/sleigh/categories.json`, parsed from NVIDIA's SASS instruction set reference on 2026-10-15), and CI (`.github/workflows/coverage.yml`) fails when they differ from what the generator produces. Refresh them after any semantics, case, fixture or PTX probe change, without Ghidra or a GPU: `uv run sass-refresh-coverage` (manifests, evidence, then the committed files; about 4 minutes).
 
 ## Findings (docs/)
 - `docs/nvdisasm-binary.md`: GhidraMCP setup, function addresses, cipher, md blobs and aliases.

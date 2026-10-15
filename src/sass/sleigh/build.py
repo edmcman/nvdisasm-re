@@ -3,7 +3,7 @@ import argparse,json,os,shutil,subprocess,tempfile,zlib
 from concurrent.futures import ProcessPoolExecutor,ThreadPoolExecutor,as_completed
 from itertools import product
 from pathlib import Path
-from sass.sleigh import gen, coverage
+from sass.sleigh import gen
 from sass.paths import ROOT
 
 ARCHES=['SM75','SM80','SM86','SM89','SM90','SM100','SM101','SM103','SM107','SM120']
@@ -91,6 +91,5 @@ def main():
     if not a.generate_only:
         results=compile_all(a.sleigh,a.output,tasks,a.jobs)
         (a.output/'build-results.json').write_text(json.dumps(results,indent=2)+'\n')
-    (a.output/'coverage-summary.json').write_text(json.dumps(coverage.summarize(a.output),indent=2)+'\n')
 
 if __name__=='__main__':main()

@@ -12,6 +12,7 @@ sass-decode = "sass.decode.pydecode:main"
 sass-gen-sleigh = "sass.sleigh.gen:cli"
 sass-build-languages = "sass.sleigh.build:main"
 sass-coverage = "sass.sleigh.coverage:main"
+sass-refresh-coverage = "sass.sleigh.coverage:refresh"
 sass-compare-pydecode = "sass.check.pydecode_disasm:main"
 sass-compare-ghidra = "sass.check.ghidra_disasm:main"
 sass-census = "sass.check.census:main"
@@ -24,7 +25,15 @@ build-backend = "hatchling.build"
 packages = ["src/sass"]
 
 [dependency-groups]
-dev = ["pytest", "nvidia-cuda-nvdisasm==13.4.92; sys_platform == 'linux' and platform_machine == 'x86_64'"]
+dev = [
+    "pytest",
+    # The target nvdisasm, and the CUDA 13.0 toolchain the GPU fixtures and PTX probes were built with.
+    "nvidia-cuda-nvdisasm==13.4.92; sys_platform == 'linux' and platform_machine == 'x86_64'",
+    "nvidia-cuda-nvcc==13.0.88; sys_platform == 'linux' and platform_machine == 'x86_64'",
+    "nvidia-nvvm==13.0.88; sys_platform == 'linux' and platform_machine == 'x86_64'",
+    "nvidia-cuda-crt==13.0.88; sys_platform == 'linux' and platform_machine == 'x86_64'",
+    "nvidia-cuda-runtime==13.0.96; sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

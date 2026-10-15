@@ -27,7 +27,7 @@ SLEIGH generator, a lowering or a case changes.
 | `test_pcode_dataflow.py` | does the p-code read and write the right registers? | `.sla` dataflow | md roles/spans, BRANCH_TYPE (+ op-count ratchet `baseline/pcode_<variant>.json`) |
 | `test_pcode_semantics.py` | does the p-code compute the right values? | `.sla` p-code in Ghidra's emulator | `refs/`, through the emulator cases (CLI `uv run python -m tests.semantics`) |
 | `test_fixtures_emulated.py` | do whole GPU-fixture kernels compute their references in the emulator? | emulated SM89 kernels | `refs/`, through the GPU fixtures |
-| `test_coverage.py` | is `processor/SASS/semantics/coverage.json` current? | committed coverage | the languages' manifests |
+| `test_coverage.py` | is `processor/SASS/semantics/coverage.json` current? | committed coverage | the languages' manifests and `tests/evidence.py`'s evidence |
 
 ### GPU tests: `uv run pytest -m gpu --require-gpu`
 
@@ -37,7 +37,7 @@ else is checked against the references.
 
 | File | Question | Under test | Oracle |
 |---|---|---|---|
-| `test_refs_on_gpu.py` | are the references right on hardware? | `refs/`, through the GPU fixtures | SM89 GPU (CLI `uv run python -m tests.observe FAMILY`) |
+| `test_refs_on_gpu.py` | are the references right on hardware? | `refs/`, through the GPU fixtures | SM89 GPU (CLI `uv run python -m tests.observe FAMILY`); records passing fixtures' fingerprints in `baseline/gpu_passes.json`, the source of `gpu` evidence (`tests/evidence.py`) |
 
 ## Running
 

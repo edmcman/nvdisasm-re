@@ -6,6 +6,13 @@ target architecture and a single clearly marked instruction of interest.
 Record the compiler version and expected SASS behavior here or alongside the
 fixture when either is version-dependent.
 
+A fixture's first line names its instruction of interest: `// sass: MNEMONIC[.MODS] ...` (each
+must be emitted, matched like a GPU fixture target: equal or a `.`-extended prefix) or
+`// sass-absent: MNEMONIC` (must not be). `python -m tests.evidence` compiles every annotated
+fixture with the dev group's ptxas (CUDA 13.0.88) for its `.target`, fails on a broken
+expectation, and records each emitted `sass:` class as ptxas evidence. Unannotated fixtures
+(`f2fp/f8_scaled_upconvert.ptx`, PTX 9.2) are documentation only.
+
 | Fixture | Target | PTX feature / observed SASS |
 |---|---|---|
 | `arithmetic/add_f32.ptx` | SM100 | Rounded fp32 add lowering |

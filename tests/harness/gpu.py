@@ -55,6 +55,12 @@ class Fixture:
     @property
     def threads(self): return len(self.data) // (3 * self.input_size)
 
+    @property
+    def fingerprint(self):
+        """What a GPU run checks: the kernel image, launch, inputs and reference outputs."""
+        launch = (self.kernel, self.input_size, self.output_size, self.arguments, self.block, self.expected)
+        return hashlib.sha256(self.image + self.data + repr(launch).encode()).hexdigest()[:16]
+
 
 def request(f):
     """The emulator's whole-kernel request for fixture f (launch dimensions, stack, parameters)."""
@@ -86,6 +92,9 @@ class Driver:
         self.call("cuDeviceGetAttribute", C.byref(major), 75, device); self.call("cuDeviceGetAttribute", C.byref(minor), 76, device)
         if (major.value, minor.value) != (8, 9): raise RuntimeError(f"SM89 GPU required, found {(major.value, minor.value)}")
         self.call("cuCtxCreate_v2", C.byref(self.ctx), 0, device)
+        name, version = C.create_string_buffer(256), C.c_int()
+        self.call("cuDeviceGetName", name, 256, device); self.call("cuDriverGetVersion", C.byref(version))
+        self.device = f"{name.value.decode()}, CUDA driver API {version.value // 1000}.{version.value % 1000 // 10}"
 
     def call(self, name, *args):
         if rc := getattr(self.lib, name)(*args): raise RuntimeError(f"{name}: CUDA status {rc}")
@@ -144,5 +153,15 @@ class Template:
             out[self.start + offset:self.start + offset + 16] = ((encoding & ENCODING) | control).to_bytes(16, "little")
         return bytes(out)
 
+
+
+def mnemonic(decoded):
+    """The instruction's mnemonic with modifiers, without its guard predicate."""
+    return decoded.text.split()[1 if decoded.text.startswith("@") else 0]
+
+
+def hits(op, target):
+    """Whether mnemonic `op` is fixture/probe target `target` (equal, or `target` plus modifiers)."""
+    return op == target or op.startswith(target + ".")
 
 def sm89(cls, **fields): return word("SM89", cls, **fields)
