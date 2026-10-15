@@ -10,6 +10,7 @@ from dataclasses import dataclass
 import re
 from sass.md import expression
 from sass.decode import pydecode
+from sass.sleigh import modifiers
 
 
 def prune_unused_values(lines):
@@ -41,6 +42,7 @@ class Builder:
         self.selector_guards = {}
         self.selector_combinations = {}
         self.selector_patterns = []
+        self.rows = []   # the generator's [(static assignment, status)], for each modifier value's status
         self.serial = 0
         from sass.semantics.operations import OPERATION_FAMILIES
         self.decode_values = klass.mnemonic in OPERATION_FAMILIES
@@ -376,6 +378,9 @@ class Builder:
         row['status']=status
         row['selector_guards']=self.selector_guards
         row['selector_combinations']=self.selector_combinations
+        found=modifiers.combinations(self,self.rows or [({},status)])
+        row['combinations']=modifiers.merge(row['combinations'],found) if 'combinations' in row else found
+        row['modifiers']=modifiers.value_statuses(row['combinations'])
         row['raw_bits_preserved']=True
         row['flow']={n:v for n,v in self.g.props.get(self.k.name,{}).items() if n.startswith('BRANCH_')}
         variant=dict(spans=self.spans,inputs=list(self.values),outputs={n:v.size for n,v in self.outputs.items()})

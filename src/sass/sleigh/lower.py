@@ -907,11 +907,24 @@ def lower_flow(low, kind, target, cond, always):
 
 # ---- the class -------------------------------------------------------------------------------
 
+def statuses(rows, unmodelled):
+    """[(assignment, status)]: what each row lowers to, with `unmodelled` for the fallback's and
+    None for an illegal encoding's."""
+    def status(r):
+        match r:
+            case Primitive(): return "primitive"
+            case Illegal(): return None
+            case Exception(): return unmodelled
+            case _: return "native"
+    return [(a, status(r)) for a, r in rows]
+
+
 def emit_primitive(b, rows):
     """The runtime primitive for the encodings the family sends there (behind selector guards),
     the opaque call for the rest."""
     from sass.semantics.operations import dispatch
     if any(not isinstance(r, Exception) for _, r in rows): raise TypeError(f"{b.k.name}: primitive rows mixed with native ones")
+    b.rows = statuses(rows, "opaque")
     lines = b.call("prim"); refs = list(dict.fromkeys(b.call_refs)); b.body += lines
     guard(b, rows, [isinstance(r, Primitive) for _, r in rows])
     dispatch(b, "opaque", refs=sorted(refs, key=repr))
@@ -937,6 +950,7 @@ def emit(b):
     fam = family_for(b.k)
     rows = enumerate_rows(b, fam)
     if any(isinstance(r, Primitive) for _, r in rows): return emit_primitive(b, rows)
+    b.rows = statuses(rows, "primitive" if fam.fallback == "prim" else "opaque")
     native = [(a, r) for a, r in rows if not isinstance(r, Exception)]
     why = "; ".join(sorted({str(r) for _, r in rows if isinstance(r, Exception)}))
     if not native:
