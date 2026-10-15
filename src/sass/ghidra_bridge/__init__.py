@@ -1,6 +1,6 @@
 """Batch requests through the Ghidra-side programs, which run under the pyghidra venv. Results are
 cached per language and program (see `stamp`), so reruns only send requests Ghidra hasn't answered."""
-import hashlib, json, os, sqlite3, subprocess
+import hashlib, json, os, sqlite3, struct, subprocess
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from pathlib import Path
 from sass.paths import CACHE, GHIDRA_PY, LANGUAGES, LDEFS, ROOT, language
@@ -60,6 +60,29 @@ def run(program, arch, fp, lines, *opts, fresh=False):
 
 def emulate(arch, fp, requests):
     return run("ghidra_emulate.py", arch, fp, [json.dumps(r) for r in requests]) if requests else []
+
+
+# Architectures whose compilers read blockDim from c[0x0][0x0] and the local stack base from
+# c[0x0][0x28] (nvcc 13.0 output, 2026-10-15). SM90 and SM100+ move them (0x208.., 0x358..).
+LAUNCH_LAYOUT = ("SM80", "SM86", "SM89")
+
+
+def kernel_request(image, arguments, memory, threads, block, output, cooperative=False, context=None):
+    """The emulator's whole-kernel request for `image` (`sass.decode.cubin.kernel_image`) launched as
+    `threads` threads in blocks of `block`: `arguments` are the kernel parameter values in order, packed
+    into constant bank 0 with the launch dimensions and local stack base; `memory` adds regions
+    [{space, address, hex}]; `output` is {address, size, stride}, read back per thread."""
+    if image["arch"] not in LAUNCH_LAYOUT: raise ValueError(f"{image['arch']}: launch constant layout unknown (known: {', '.join(LAUNCH_LAYOUT)})")
+    constants = dict(image["constants"]); bank = bytearray(constants.get(0, b""))
+    bank.extend(bytes(max(0, image["parameter_base"] + image["parameter_size"] - len(bank))))
+    struct.pack_into("<III", bank, 0, block, 1, 1)
+    struct.pack_into("<I", bank, 0x28, 0x1000)
+    for parameter, value in zip(image["parameters"], arguments):
+        struct.pack_into("<Q" if parameter["size"] == 8 else "<I", bank, image["parameter_base"] + parameter["offset"], value)
+    constants[0] = bytes(bank)
+    return dict(kernel=dict(name=image["name"], code=image["code"].hex(), threads=threads, block_size=block, cooperative=cooperative),
+                memory=[dict(space="cbank", address=index << 32, hex=value.hex()) for index, value in constants.items()] + memory,
+                output=output, context=context or {})
 
 
 def disassemble(arch, fp, words, *opts, fresh=False):

@@ -1037,7 +1037,7 @@ def variant(arch, fp="exact"):
     return arch.lower() + ("" if fp == "exact" else "_" + fp)
 
 def write_ldefs():
-    variants = sorted(p.stem.removeprefix("sass_") for p in OUT.glob("sass_sm*.slaspec"))
+    variants = sorted({p.name.split(".")[0].removeprefix("sass_") for p in OUT.glob("sass_sm*.sla*")})  # specs, or compiled languages alone
     (OUT / "sass.ldefs").write_text(LDEFS.format("".join(
         LANG.format(v=v, V=v.split("_")[0].upper(), D="".join(f" {m} floating point" for m in v.split("_")[1:]))
         for v in variants)))

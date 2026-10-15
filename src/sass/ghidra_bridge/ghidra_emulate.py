@@ -1,7 +1,9 @@
 """Execute generated instruction p-code with Ghidra's PcodeEmulator.
 
 Run under pyghidra's Python. stdin JSON lines: word, address, registers,
-memory [{space,address,hex}], observe registers/memory, optional runtime context.
+memory [{space,address,hex}], observe registers/memory, optional runtime context; or a whole-kernel
+request (`sass.ghidra_bridge.kernel_request`), whose kernel.trace adds each step's register writes for
+the first kernel.trace_threads threads. In-process callers start the JVM and use `session`.
 """
 import json,sys,os
 from pathlib import Path
@@ -36,8 +38,8 @@ def block_emulator(jpype):
     return jpype.JClass(Class.forName('sass.BlockEmulator',True,loader))
 
 
-def main(ldefs,langid):
-    pyghidra.start(install_dir=GHIDRA)
+def session(ldefs,langid):
+    """A request handler (request dict -> result dict) for one language; the JVM must be running."""
     import jpype
     from java.util import HashMap,ArrayList
     from java.lang import Class
@@ -46,6 +48,8 @@ def main(ldefs,langid):
     from ghidra.program.model.pcode import Varnode
     lang=load_language(ldefs,langid);space=lang.getDefaultSpace();variant=langid.rsplit(':',1)[1];arch=variant.split('_')[0].upper();runtime=Runtime(Path(ldefs).parent,int(arch[2:]),variant=variant)
     reason=PcodeExecutorStatePiece.Reason.INSPECT
+    from sass.sleigh.gen import REG_FILES
+    architectural=[(name,lang.getRegister(name)) for file,(_,_,count,zero,_) in REG_FILES.items() for i in range(count) if i!=zero for name in [file+str(i)]]
     definition=jpype.JClass('ghidra.pcode.exec.PcodeUseropLibrary$PcodeUseropDefinition')
     refs=[]
     class Userop:
@@ -114,6 +118,7 @@ def main(ldefs,langid):
         kernel=request['kernel'];code=bytes.fromhex(kernel['code']);base=int(kernel.get('address',0x100000))
         count=int(kernel['threads']);block=int(kernel.get('block_size',32));outputs=[];steps=0;visited=set()
         max_steps=int(kernel.get('max_steps',10000));name=kernel.get('name');cooperative=bool(kernel.get('cooperative'))
+        trace=[] if kernel.get('trace') else None;traced=int(kernel.get('trace_threads',1))
         if count<=0 or block<=0 or max_steps<=0 or not code or len(code)%16:
             raise ValueError('invalid kernel launch or instruction text')
         decoded={}
@@ -131,14 +136,19 @@ def main(ldefs,langid):
                 state.setVar(lang.getRegister(reg),jpype.JArray(jpype.JByte)(value.to_bytes(4,'little')))
             return dict(lane=lane,thread=thread,state=state,last=base,steps=0,waiting=False,released=False)
         counter=lambda t:int(t['thread'].getCounter().getOffset())
+        def registers(state):return {n:int.from_bytes(bytes(state.getVar(r,reason)),'little') for n,r in architectural}
         def step(t,pc,context):
             if t['steps']>=max_steps:raise RuntimeError(f'kernel instruction limit ({max_steps}) at {pc:#x}, thread {t["lane"]}')
             runtime.context=context;runtime.events=[];runtime.last_error=None;t['last']=pc
+            before=registers(t['state']) if trace is not None and t['lane']<traced else None
             try:t['thread'].stepInstruction()
             except Exception as error:
                 runtime.last_error=f'kernel {name} thread {t["lane"]} at {pc-base:#x}: {runtime.last_error or error}'
                 raise RuntimeError(runtime.last_error) from error
             t['steps']+=1
+            if before is not None:
+                after=registers(t['state'])
+                trace.append(dict(thread=t['lane'],pc=pc-base,text=decode(pc).text,writes={n:v for n,v in after.items() if v!=before[n]}))
         def turn(warp):
             """One lockstep instruction of a warp; False if none of its lanes could move."""
             live=[t for t in warp if counter(t)!=0 and not t['waiting']]
@@ -175,54 +185,58 @@ def main(ldefs,langid):
                 if decode(t['last']).klass.mnemonic!='EXIT':raise RuntimeError('kernel terminated without EXIT')
                 out=request['output'];offset=int(out['address'])+t['lane']*int(out.get('stride',4));size=int(out.get('size',4))
                 outputs.append(bytes(t['state'].getVar(Varnode(space.getAddress(offset),size),reason)).hex())
-        return dict(outputs=outputs,threads=count,steps=steps,visited=sorted(visited),exit='EXIT')
-    for line in sys.stdin:
-        request=json.loads(line)
-        try:
-            if 'kernel' in request:
-                out=run_kernel(request);print(json.dumps(out),flush=True);continue
-            emulator=PcodeEmulator(lang);thread=emulator.newThread();state=thread.getState()
-            address=int(request.get('address',0x1000));addr=space.getAddress(address)
-            thread.overrideCounter(addr)
-            runtime.context=request.get('context',{});runtime.events=[];runtime.last_error=None
-            # Initialize architectural registers, so tests may also inspect untouched ones.
-            from sass.sleigh.gen import REG_FILES
-            for file,(_,size,count,zero,zero_name) in REG_FILES.items():
-                for i in range(count):
-                    name=zero_name if i==zero else file+str(i)
-                    reg=lang.getRegister(name)
-                    initial=1 if name in ('PT','UPT') else 0
-                    state.setVar(reg,jpype.JArray(jpype.JByte)(initial.to_bytes(size,'little')))
-                if zero>=count:
-                    state.setVar(lang.getRegister(zero_name),jpype.JArray(jpype.JByte)(bytes(size)))
-            for name,value in request.get('registers',{}).items():
-                reg=lang.getRegister(name);size=int(reg.getMinimumByteSize());value=int(value)&((1<<(size*8))-1)
-                if name in ('RZ','URZ'):value=0
-                if name in ('PT','UPT'):value=1
-                state.setVar(reg,jpype.JArray(jpype.JByte)(value.to_bytes(size,'little')))
-            write_memory(state,request.get('memory',[]))
-            ins=parse(lang,addr,bytes.fromhex(request['word']))
-            program=ArrayList()
-            for op in ins.getPcode():program.add(op)
-            # Execute with the actual Ghidra byte arithmetic and state machinery.
-            thread.overrideCounter(space.getAddress(address+16))
-            thread.getExecutor().execute(program,HashMap(),lib)
-            registers={}
-            for name in request.get('observe',[]):
-                registers[name]=int.from_bytes(bytes(state.getVar(lang.getRegister(name),reason)),'little')
-            memories=[]
-            for mem in request.get('observe_memory',[]):
-                sp=lang.getAddressFactory().getAddressSpace(mem['space'])
-                data=bytes(state.getVar(Varnode(sp.getAddress(mem['address']),mem['size']),reason))
-                memories.append(dict(mem,hex=data.hex()))
-            out=dict(text=str(ins),registers=registers,memory=memories,counter=int(thread.getCounter().getOffset()),events=runtime.events)
-            if request.get('inspect_pcode'):
-                out['pcode_ops']=[str(op.getMnemonic()) for op in ins.getPcode()]
+        return dict(outputs=outputs,threads=count,steps=steps,visited=sorted(visited),exit='EXIT',**({'trace':trace} if trace is not None else {}))
+    def instruction(request):
+        emulator=PcodeEmulator(lang);thread=emulator.newThread();state=thread.getState()
+        address=int(request.get('address',0x1000));addr=space.getAddress(address)
+        thread.overrideCounter(addr)
+        runtime.context=request.get('context',{});runtime.events=[];runtime.last_error=None
+        # Initialize architectural registers, so tests may also inspect untouched ones.
+        for file,(_,size,count,zero,zero_name) in REG_FILES.items():
+            for i in range(count):
+                name=zero_name if i==zero else file+str(i)
+                reg=lang.getRegister(name)
+                initial=1 if name in ('PT','UPT') else 0
+                state.setVar(reg,jpype.JArray(jpype.JByte)(initial.to_bytes(size,'little')))
+            if zero>=count:
+                state.setVar(lang.getRegister(zero_name),jpype.JArray(jpype.JByte)(bytes(size)))
+        for name,value in request.get('registers',{}).items():
+            reg=lang.getRegister(name);size=int(reg.getMinimumByteSize());value=int(value)&((1<<(size*8))-1)
+            if name in ('RZ','URZ'):value=0
+            if name in ('PT','UPT'):value=1
+            state.setVar(reg,jpype.JArray(jpype.JByte)(value.to_bytes(size,'little')))
+        write_memory(state,request.get('memory',[]))
+        ins=parse(lang,addr,bytes.fromhex(request['word']))
+        program=ArrayList()
+        for op in ins.getPcode():program.add(op)
+        # Execute with the actual Ghidra byte arithmetic and state machinery.
+        thread.overrideCounter(space.getAddress(address+16))
+        thread.getExecutor().execute(program,HashMap(),lib)
+        registers={}
+        for name in request.get('observe',[]):
+            registers[name]=int.from_bytes(bytes(state.getVar(lang.getRegister(name),reason)),'little')
+        memories=[]
+        for mem in request.get('observe_memory',[]):
+            sp=lang.getAddressFactory().getAddressSpace(mem['space'])
+            data=bytes(state.getVar(Varnode(sp.getAddress(mem['address']),mem['size']),reason))
+            memories.append(dict(mem,hex=data.hex()))
+        out=dict(text=str(ins),registers=registers,memory=memories,counter=int(thread.getCounter().getOffset()),events=runtime.events)
+        if request.get('inspect_pcode'):
+            out['pcode_ops']=[str(op.getMnemonic()) for op in ins.getPcode()]
+        return out
+    def handle(request):
+        try:return run_kernel(request) if 'kernel' in request else instruction(request)
         except Exception as error:
             import traceback
             traceback.print_exc(file=sys.stderr)
-            out={'error':runtime.last_error or str(error)}
-        print(json.dumps(out),flush=True)
+            return {'error':runtime.last_error or str(error)}
+    return handle
+
+
+def main(ldefs,langid):
+    pyghidra.start(install_dir=GHIDRA)
+    handle=session(ldefs,langid)
+    for line in sys.stdin:print(json.dumps(handle(json.loads(line))),flush=True)
 
 
 if __name__=='__main__':main(*sys.argv[1:])
