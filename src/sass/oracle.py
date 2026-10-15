@@ -1,5 +1,5 @@
 """nvdisasm as a decode oracle over raw 128-bit instruction words."""
-import hashlib, os, re, sqlite3, subprocess, tempfile
+import fcntl, hashlib, os, re, sqlite3, subprocess, tempfile
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
@@ -59,9 +59,12 @@ class Oracle:
     def __init__(self, path=CACHE):
         path.parent.mkdir(exist_ok=True)
         # Parallel workers fill one cache: WAL keeps readers from blocking the writer, the timeout serializes writers.
-        self.db = sqlite3.connect(path, timeout=60)
-        self.db.execute("pragma journal_mode=wal")
-        self.db.execute("create table if not exists r (tool text, arch text, word blob, addr int, text text, error text, primary key (tool, arch, word))")
+        # Switching a new database to WAL ignores the timeout, so workers opening it at once set it up one at a time.
+        with open(path.with_suffix(".lock"), "w") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            self.db = sqlite3.connect(path, timeout=60)
+            self.db.execute("pragma journal_mode=wal")
+            self.db.execute("create table if not exists r (tool text, arch text, word blob, addr int, text text, error text, primary key (tool, arch, word))")
 
     def disasm(self, arch, words):
         """Results for unique words; each is decoded at the address it got in its batch."""
