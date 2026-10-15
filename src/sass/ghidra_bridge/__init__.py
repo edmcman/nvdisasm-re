@@ -62,9 +62,10 @@ def emulate(arch, fp, requests):
     return run("ghidra_emulate.py", arch, fp, [json.dumps(r) for r in requests]) if requests else []
 
 
-# Architectures whose compilers read blockDim from c[0x0][0x0] and the local stack base from
-# c[0x0][0x28] (nvcc 13.0 output, 2026-10-15). SM90 and SM100+ move them (0x208.., 0x358..).
-LAUNCH_LAYOUT = ("SM80", "SM86", "SM89")
+# Launch constants in bank 0: (blockDim.xyz, local stack base) offsets, from nvcc 13.0 probe kernels
+# reading each value (2026-10-15; docs/testing.md). SM107 has no nvcc target to check.
+LAUNCH_LAYOUT = {**dict.fromkeys(("SM75", "SM80", "SM86", "SM89", "SM90"), (0x0, 0x28)),
+                 **dict.fromkeys(("SM100", "SM101", "SM103", "SM120"), (0x360, 0x37c))}
 
 
 def kernel_request(image, arguments, memory, threads, block, output, cooperative=False, context=None):
@@ -73,10 +74,11 @@ def kernel_request(image, arguments, memory, threads, block, output, cooperative
     into constant bank 0 with the launch dimensions and local stack base; `memory` adds regions
     [{space, address, hex}]; `output` is {address, size, stride}, read back per thread."""
     if image["arch"] not in LAUNCH_LAYOUT: raise ValueError(f"{image['arch']}: launch constant layout unknown (known: {', '.join(LAUNCH_LAYOUT)})")
+    dims, stack = LAUNCH_LAYOUT[image["arch"]]
     constants = dict(image["constants"]); bank = bytearray(constants.get(0, b""))
     bank.extend(bytes(max(0, image["parameter_base"] + image["parameter_size"] - len(bank))))
-    struct.pack_into("<III", bank, 0, block, 1, 1)
-    struct.pack_into("<I", bank, 0x28, 0x1000)
+    struct.pack_into("<III", bank, dims, block, 1, 1)
+    struct.pack_into("<I", bank, stack, 0x1000)
     for parameter, value in zip(image["parameters"], arguments):
         struct.pack_into("<Q" if parameter["size"] == 8 else "<I", bank, image["parameter_base"] + parameter["offset"], value)
     constants[0] = bytes(bank)
