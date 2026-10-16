@@ -1,87 +1,97 @@
 ---
 name: sass-opcode-semantics
-description: Investigate a SASS opcode in nvdisasm-re by tracing PTX through ptxas, checking functional behavior against a GPU, and implementing or validating Ghidra P-code. Use for opcode semantics, modifier bits, and PTX-to-SASS evidence.
+description: Investigate a SASS opcode in nvdisasm-re (including CuLifter opcodes) by tracing PTX through ptxas, checking functional behavior against a GPU, and implementing or validating Ghidra P-code. Use for opcode semantics, modifier bits, opcode variants and PTX-to-SASS evidence.
 ---
 
 # SASS opcode semantics
 
 Produce reproducible evidence connecting a PTX probe, a specific SASS encoding,
 and its value semantics. Add P-code when implementation is part of the user's
-request. An explanation or compiler trace alone does not require changing the
-repository's semantics implementation.
+request; an explanation or compiler trace alone does not require changing the
+semantics implementation.
 
-Work from the user's `nvdisasm-re` checkout and read its `AGENTS.md`. The files
-and commands below are relative to that checkout. For a completed example,
+Work from the user's `nvdisasm-re` checkout and read its `AGENTS.md`: its
+"Writing new semantics" section is the authoritative implementation, test, build
+and verification order, and this skill does not repeat it. For a completed example,
 read [references/bmsk.md](references/bmsk.md).
+
+Label every finding as either **semantics** (the decoded operation, implementation
+or expected value is wrong or unresolved) or **testing/environment** (a probe was
+not generated, did not execute the target, had a harness/build/device problem, or
+lacked coverage). A test failure alone does not establish a semantics bug; classify
+a mismatch only after checking probe construction, target execution, data layout
+and reference independence.
 
 ## Establish the target and scope
 
-- Select an opcode from `out/SMxx/md/OPCODE.txt`. Record the architecture,
-  class names, input/output roles, widths, selectors, and encoded fields.
-  Distinguish the mnemonic from its operand variants and modifier combinations.
-- Pin the compiler path, version and SHA256 before using recorded addresses.
-  The BMSK example uses CUDA 13.0.88 ptxas; the repository's extracted nvdisasm
-  tables come from another build. Keep those identities separate.
-- Query the active Ghidra program/server. Use the user's server URL, not a port
-  remembered from a previous session. Function lookups require exact entries.
-  Confirm the image base: do not apply nvdisasm's address adjustment to ptxas.
-- Check primary NVIDIA documentation before assuming a semantic detail is
-  undocumented. PTX ISA, CUDA-GDB and the CUDA Debugger API can each supply
-  relevant evidence. State precisely which detail is still uninvestigated.
+- Select an opcode from `out/SMxx/md/OPCODE.txt` and the parsed md. Record the
+  architecture, every matching non-alias class, operand order and roles, widths and
+  register spans, encoded fields, enum values, defaults, selector tables, predicate
+  outputs, carry inputs/outputs, and which forms appear in real cubins.
+- Treat the mnemonic as a family of forms and build a form matrix: for each form,
+  its disposition (native P-code, primitive, opaque, uninvestigated) and why. One
+  form's evidence never stands in for another's.
+- Pin the compiler path, version and SHA256 before using recorded addresses. The
+  BMSK example uses CUDA 13.0.88 ptxas; the extracted nvdisasm tables come from
+  another build. Keep those identities separate.
+- Query the active Ghidra program/server (the user's URL, not a remembered port).
+  Function lookups require exact entries. Confirm the image base: do not apply
+  nvdisasm's address adjustment to ptxas.
+- Check primary NVIDIA documentation (PTX ISA, CUDA-GDB, the Debugger API) before
+  assuming a detail is undocumented, and state which detail is still uninvestigated.
 
 ## Obtain a controlled PTX-to-SASS pair
 
-Write a small kernel that loads runtime inputs, performs the operation and
-stores its result. Compile and inspect the actual kernel text. Keep inputs live
-and the result observable so optimization cannot erase the target operation.
-Use thread-dependent inputs when necessary to prevent a uniform opcode alias.
+Write a small kernel that loads runtime inputs, performs the operation and stores
+its result. Keep inputs live and the result observable so optimization cannot erase
+the operation; use thread-dependent inputs to prevent a uniform opcode alias.
 
 Change one semantic selector at a time. Compare the target 128-bit words and
-decoded operands. Account for register allocation and scheduling differences;
-only claim that one bit selects a mode when the evidence isolates that bit.
-Record word bytes as little-endian bytes, and bit numbers from the integer
-formed with `int.from_bytes(word, 'little')`.
+decoded operands, accounting for register allocation and scheduling; claim that a
+bit selects a mode only when the evidence isolates that bit. Record word bytes as
+little-endian and bit numbers from `int.from_bytes(word, 'little')`.
 
-Do not treat a disassembler-accepted synthetic word as proof that ptxas emits
-it. Label compiler-generated, manually patched and synthetic samples separately.
+Label compiler-generated, manually patched and synthetic samples separately: a
+disassembler-accepted synthetic word does not prove ptxas emits it.
 
 ## Trace the live compiler path
 
-Start with the ORI conversion dispatcher or an established target-class
-handler, then follow operand construction and the final encoder. Useful stages
-in the demonstrated build are `dispatch_ori_opcode_conversion`, the operation
-lowerer, the target builder, the finalizer directory, and the native encoder.
+Start with the ORI conversion dispatcher or an established target-class handler,
+then follow operand construction and the final encoder (in the demonstrated build:
+`dispatch_ori_opcode_conversion`, the operation lowerer, the target builder, the
+finalizer directory, the native encoder).
 
-- Use Ghidra to form hypotheses about dispatch cases, builder slots, operand
-  roles and selectors. Confirm the relevant path with live GDB breakpoints.
-- Verify the requested architecture hits the handler. A shared-looking
-  dispatcher can be active on one architecture and bypassed on another.
-- Extend `research/ptxas/capture_finalizer.py` narrowly for the selected ORI
-  opcode when needed. Inspect its existing breakpoint/address assumptions.
-- Capture lowering, operand materialization, native dispatch and encoded words.
-  Use a fresh capture path: the script appends records.
-- Validate the capture against the cubin produced by that same compiler run:
+- Use Ghidra to form hypotheses; confirm the path with live GDB breakpoints.
+- Verify the requested architecture hits the handler: a shared-looking dispatcher
+  can be bypassed on another architecture.
+- Extend `research/ptxas/capture_finalizer.py` narrowly for the ORI opcode if
+  needed, and use a fresh capture path (the script appends records).
+- Validate the capture against the cubin from the same compiler run:
 
   ```sh
   python3 research/ptxas/validate_capture.py CAPTURE.jsonl OUTPUT.cubin
   ```
 
-An encoder establishes bit placement and operand identity. Functional semantics
-need a specification, an informative lowering, or execution evidence. Preserve
-that distinction in comments and conclusions. Rename functions only after their
-roles are established; keep addresses and build identity in the research notes.
+An encoder establishes bit placement and operand identity; functional semantics
+need a specification, an informative lowering, or execution evidence. Preserve that
+distinction. Rename functions only after their roles are established; keep
+addresses and build identity in the research notes.
 
 ## Establish value semantics independently
 
-Write a reference calculation independently of the proposed P-code expression.
-For BMSK, enumerate selected output bits rather than duplicating its shift
-formula. Include boundaries that distinguish plausible interpretations, not
-just random ordinary inputs.
+Follow AGENTS.md step 1: the reference lives in `tests/refs/`, independent of the
+code under test. For BMSK, enumerate selected output bits rather than duplicating
+the shift formula. Include boundaries that distinguish plausible interpretations,
+and cover count/width limits, signedness, zero registers, predicates, source/
+destination aliases, discarded results, and each supported operand form. Record
+unresolved forms individually.
 
-Cover applicable count/width limits, signedness, zero registers, predicates,
-source/destination aliases, discarded results, and supported operand forms.
-Record unresolved forms individually rather than inferring them from another
-form's success.
+For GPU fixtures (AGENTS.md step 5), verify the target instruction and selector are
+present or document exactly which word or fields were patched, preserving the
+kernel wrapper and its scheduling/control fields. Check the emulator visited the
+target. Investigate scheduling hazards before calling a patched-word mismatch a
+semantics failure. Report the architecture, device, compiler, form matrix, vector
+count, seeds and any normalizations or exclusions.
 
 For SM89 single-instruction discovery, prefer `Cases.probe` and
 `tests.harness.device_cases.observe`, or `uv run python -m tests.probe INPUT.json
@@ -97,28 +107,29 @@ When patching an existing kernel, preserve its wrapper and record which words or
 fields changed. A synthetic instruction's successful execution is functional
 evidence, not evidence that ptxas emits it.
 
-Report hardware support only for the tested device architecture and forms.
-An all-architecture emulator pass does not establish all-architecture hardware
-behavior. Keep seeds, vector counts and executable fixtures with the evidence.
+Report hardware support only for the tested device architecture and forms; an
+all-architecture emulator pass does not establish all-architecture hardware
+behavior. Keep seeds, vector counts and executable fixtures with the evidence. If
+the GPU cannot run (device, permissions, compile or harness failure), say why,
+finish the emulator and static checks, and mark hardware validation pending. Never
+claim a hardware pass from emulator coverage, or report a cancelled run as a pass.
 
 ## Implement P-code when requested
 
-The repo's generator is `src/sass/sleigh/gen.py`; semantics are families in
-`src/sass/semantics/families/` (Python over the md-decoded instruction, `src/sass/semantics/family.py`),
-lowered to SLEIGH by `src/sass/sleigh/lower.py` and lifted without Ghidra by
-`src/sass/semantics/lifter.py`. Explain these names if switching from discussing NVIDIA's
-compiler to the repo.
+Semantics are families in `src/sass/semantics/families/` (Python over the
+md-decoded instruction, `family.py`), lowered by `src/sass/sleigh/lower.py` and
+lifted Ghidra-free by `lifter.py`; `operations.py` only routes classes to families.
+Typed operand values come from `operands.py`.
 
-Write or extend the opcode's `@family`. Ask every selector the semantics depend
-on (`i.select_fork`, `i.select_lookup`); an unasked selector models only its md
-default, the rest stays opaque. Call `unmodelled(reason)` for unresolved
-combinations and `primitive()` for runtime-executed ones. Outputs are written
-simultaneously after all inputs are read; the backends handle hardwired zeros,
-guards, register spans and md conditions.
-
-Give rejected forms specific reasons (they become coverage reasons). A reason
-is a limitation of the family, not evidence that the GPU or ptxas lacks the
-instruction.
+- Ask every selector the semantics depend on (`i.select_fork`, `i.select_lookup`);
+  an unasked selector models only its md default and the rest stays opaque.
+- Call `unmodelled(reason)` for unresolved combinations and `primitive()` for
+  runtime-executed ones. Give a specific reason: it becomes the coverage reason and
+  is a limitation of the family, not evidence that hardware or ptxas lacks the form.
+- Outputs are written simultaneously after all inputs are read. Model predicate
+  outputs and carry chains individually (conditional, complementary, or preserving
+  old state). The backends handle hardwired zeros, guards, register spans and md
+  conditions.
 
 Promote probes to value cases in the family's `emulator_cases()` in `tests/cases/<family>.py`
 and independent references to `tests/refs/` (which must not import the generated
@@ -127,37 +138,16 @@ over a second decoding or execution framework.
 
 ## Build, verify and record
 
-Build the affected language first, then the architectures and exact/readable
-variants supported by the change. Use `sass.sleigh.build` so unused
-temporaries and Ghidra's decompressed SLA size limit are checked.
+Build, test and refresh coverage as AGENTS.md describes, focused checks first.
+Inspect what a command's arguments mean before launching an expansive suite, and
+stop one that is unexpectedly broad or slow. Add tests rather than recording
+verification results by hand.
 
-Complete generation and compilation before parallel language loading. Ghidra
-may automatically compile stale specifications; concurrent writers can corrupt
-a `.sla`. For isolated output, use `SASS_SLEIGH_OUT` and copy the shared
-`.sinc`, `.pspec` and `.cspec` as described in `AGENTS.md`.
+Record the compiler trace in `research/ptxas/ptxas-finalizer-notes.md`, semantic
+scope in `docs/semantics.md`, and hardware-established behavior in
+`docs/hardware-facts.md`. Keep unrelated work intact.
 
-Typical checks, adjusted to the actual scope:
-
-```sh
-uv run sass-build-languages SM89
-uv run python -m tests.semantics SM89 exact --family <family>
-uv run pytest tests -m ghidra --arch SM89 --fp all
-uv run pytest tests -m gpu --require-gpu --family <family>
-uv run sass-refresh-coverage
-git diff --check
-```
-
-Run focused value tests across every architecture whose support is claimed.
-Run the relevant hardware oracle when hardware evidence is available. Use the
-permission mechanism for device access or ptrace if the sandbox requires it;
-do not convert an unavailable GPU into a claimed hardware pass.
-
-Record the trace in `research/ptxas/ptxas-finalizer-notes.md`, semantic scope in
-`docs/semantics.md`. Verification evidence is derived per class from the tests
-(GPU fixtures, `tests/ptx` probes, emulator cases) into `processor/SASS/semantics/evidence.json`:
-add tests rather than recording results by hand. Refresh coverage from generated
-manifests. Keep unrelated work intact.
-
-Report the verified PTX-to-SASS mapping, functional rule, implementation scope,
-tests and remaining uncertainty. Answer questions about the currently discussed
-bit or function directly before introducing another operand variant.
+Report the PTX-to-SASS mapping, the functional rule, implementation scope, the
+tests with their scope, remaining fallbacks, any failures labelled semantics or
+testing/environment, and the exact commands to reproduce. Do not claim an opcode
+family is fully supported when only a subset of its selectors was verified.
