@@ -98,6 +98,7 @@ def env_key(name):
     """Python name in a condition -> pydecode env key."""
     return tuple(name.split("__AT__")) if "__AT__" in name else name
 
+@cache
 def condition_globals(arch_name, tables):
     return {"ceil": math.ceil, "__builtins__": {}, **{f"__defined_{t}": defined(arch_name, t) for t in tables},
             **{f"__table_{t}": lookup(arch_name, t) for t in tables}}
