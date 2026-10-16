@@ -81,7 +81,7 @@ Specification: [PTX bmsk](https://docs.nvidia.com/cuda/parallel-thread-execution
 
 ## Implementation and verification
 
-`src/sass/semantics/operations.py::emit_BMSK` supports register, uniform-register, immediate
+The BMSK family (`src/sass/semantics/families/integer.py`; originally `emit_BMSK` in `operations.py`) supports register, uniform-register, immediate
 and ordinary constant-bank width operands. It retains the unresolved CX form
 as an opaque fallback. UBMSK was not added in this change.
 
