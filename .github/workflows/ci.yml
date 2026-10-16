@@ -4,6 +4,31 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  coverage-comment:
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      REPORT_DIR: ${{ github.workspace }}/.coverage-comment
+      BASE_SHA: ${{ github.event.pull_request.base.sha }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Fetch PR base
+        run: git fetch --no-tags --depth=1 origin "$BASE_SHA"
+      - name: Compare committed coverage
+        run: python3 .github/scripts/coverage_comment.py report --directory "$REPORT_DIR"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: coverage-comment-report
+          path: ${{ env.REPORT_DIR }}/coverage-changes.md
+      - name: Update PR coverage comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 .github/scripts/coverage_comment.py publish --directory "$REPORT_DIR"
   architectures:
     runs-on: ubuntu-latest
     outputs:
