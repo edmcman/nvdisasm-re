@@ -14,7 +14,7 @@ Ghidra decodes at run time, so a class's semantics must cover every word of the 
 import itertools
 from functools import cache
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from sass.semantics import bitvec
 from sass.semantics.bitvec import Expr
 from sass.semantics.family import Primitive, Instruction, Illegal, Unmodelled, PR_BITS, REG_TYPES, family_for
@@ -97,16 +97,23 @@ def clauses(b, key, v):
     if isinstance(key, tuple) and key[0] == "in":
         c = where(key[1], (lambda x: x in key[2]) if v else (lambda x: x not in key[2]))
     elif isinstance(key, tuple) and key[0] == "bits":
-        from sass.decode import ir
-        from sass.sleigh.gen import eq, pieces
+        from sass.sleigh.gen import eq
         _, name, offset, width = key
         if name in b.known:
             return [] if (b.known[name] >> offset) & bitvec.mask(width) == v else None
-        source = b.g.source(k, name)
-        if source[0] != "field" or source[2] != 1: raise TypeError(f"{name}: bit slices require an unscaled field")
-        (_, lo, hi, _), = pieces(source[1])
-        if offset + width > hi - lo + 1: raise ValueError(f"{name}: bit slice outside encoded field")
-        return eq(b.g, ir.Field("", ((lo + offset + width - 1, lo + offset),)), v)
+        return eq(b.g, bit_slice(b, name, offset, width), v)
+    elif isinstance(key, tuple) and key[0] == "bits_in":   # every slice's value in its set (or not)
+        from sass.sleigh.gen import member
+        _, name, slices = key
+        if name in b.known:
+            c = [] if all((b.known[name] >> lo) & bitvec.mask(n) in values for lo, n, values in slices) == v else False
+        elif v: c = [cl for lo, n, values in slices for cl in member(b.g, bit_slice(b, name, lo, n), values)]
+        else:
+            # Some slice outside its set: the disjunction of each slice's complement, as clauses.
+            outside = [member(b.g, bit_slice(b, name, lo, n), set(range(1 << n)) - values) for lo, n, values in slices]
+            outside = [o for o in outside if [] not in o]   # an empty complement is unsatisfiable
+            c = False if not outside else [] if [] in outside else \
+                [[l for cl in choice for l in cl] for choice in itertools.product(*outside)]
     elif isinstance(key, tuple) and key[0] == "low":   # the low bits of an immediate's field
         from sass.decode import ir
         from sass.sleigh.gen import eq, pieces
@@ -125,12 +132,58 @@ def clauses(b, key, v):
     return c if pattern(c) else None
 
 
+def bit_slice(b, name, offset, width):
+    """The encoding field of bits offset..offset + width - 1 of the immediate name."""
+    from sass.decode import ir
+    source = b.g.source(b.k, name)
+    if source[0] != "field" or source[2] != 1: raise TypeError(f"{name}: bit slices require an unscaled field")
+    (hi, lo), = source[1].ranges
+    if offset + width > hi - lo + 1: raise ValueError(f"{name}: bit slice outside encoded field")
+    return ir.Field("", ((lo + offset + width - 1, lo + offset),))
+
+
+def constant_slices(b, e):
+    """e, with its value when every bit-slice choice of an immediate in it picks a constant arm
+    chosen at decode time: lowered as separate subtables, the choices hide their constants from the
+    expression combining them (PRMT R3, R2, 0x7654, RZ is zero)."""
+    choices, seen = defaultdict(list), set()
+    def visit(x):
+        if not isinstance(x, Expr) or x in seen: return
+        seen.add(x)
+        if x.op != "sel": return [visit(a) for a in x.args]
+        match x.args[0]:
+            case (("bits", name, _, _),): choices[name].append(x)
+    visit(e)
+    for name, sels in choices.items():
+        constant = {s: {v for (v,), t in s.args[1] if bitvec.is_const(t)} for s in sels}
+        if all(len(constant[s]) == len(s.args[1]) for s in sels): continue   # nothing to specialize
+        values = {s: {bitvec.value(t) for (v,), t in s.args[1] if v in constant[s]} for s in sels}
+        if any(len(vs) != 1 for vs in values.values()): continue
+        folded = bitvec.substitute(e, lambda x: bitvec.const(next(iter(values[x])), x.w) if x in values else None)
+        if not bitvec.is_const(folded): continue
+        # One condition per slice: choices on the same slice (F4E's four bytes) all pick constants
+        # when its value is in every set; partly overlapping slices are not specialized.
+        slices = {}
+        for s in sels:
+            at = s.args[0][0][2:]
+            slices[at] = slices.get(at, constant[s]) & constant[s]
+        ranges = sorted(slices)
+        if any(lo + n > lo2 for (lo, n), (lo2, _) in zip(ranges, ranges[1:])) or not all(slices.values()): continue
+        key = ("bits_in", name, tuple((lo, n, frozenset(slices[lo, n])) for lo, n in ranges))
+        if clauses(b, key, True) is None: continue
+        if clauses(b, key, False) is None: return folded
+        return sel((key,), [((True,), folded), ((False,), e)], e.w)
+    return e
+
+
 def enumerate_rows(b, fam):
     """[(assignment, Outputs | Unmodelled)] over the static questions the family asks."""
     rows, todo = [], [{}]
     while todo:
         assignment = todo.pop()
-        try: rows.append((assignment, fam(Symbolic(b, assignment))))
+        try:
+            out = fam(Symbolic(b, assignment))
+            rows.append((assignment, replace(out, writes={n: constant_slices(b, t) for n, t in out.writes.items()})))
         except Branch as br:
             todo += [{**assignment, br.key: v} for v in reversed(br.domain)]
         except (Unmodelled, Primitive) as e: rows.append((assignment, e))
@@ -403,7 +456,8 @@ class Code:
         """The constructor body, optionally exporting a value of w bits."""
         lines = list(self.lines)
         if export is not None:
-            lines.append(f"export {export.text};" if export.kind in ("name", "local") else f"local t:{nbytes(w)} = {export.text}; export t;")
+            # A constant is exported as a constant varnode: a COPY into a local would be run-time p-code.
+            lines.append(f"export {export.text};" if export.kind in ("name", "local", "const") else f"local t:{nbytes(w)} = {export.text}; export t;")
             self.refs |= export.refs
         return " ".join(lines)
 
@@ -506,6 +560,22 @@ class Lower:
         if v.kind == "unsized": v = self.local(e.w, v)   # zext() can't size a float2float
         return self.local(w, expr(f"zext({v.text})", v))
 
+    def concatenated(self, e):
+        """The parts of a concatenation chain, most significant first. An inner concatenation stays
+        one part when shared or already lowered (computed once), foldable, or when widening its parts
+        costs more zexts than widening it (two nibbles sharing a byte: I2IP.24)."""
+        if e.op != "concat": return [e]
+        def foldable(x):
+            try: Fold(self.b).text(x); return True
+            except Fold.No: return False
+        def flat(x):
+            if not (x.op == "concat" and self.uses.get(x, 0) <= 1 and x not in self.hoisted
+                    and self.lookup(x) is None and not foldable(x)): return False
+            zexts = lambda parts, w: sum(nbytes(p.w) < nbytes(w) for p in parts)
+            parts = self.concatenated(x)
+            return zexts(parts, e.w) <= zexts(parts, x.w) + (nbytes(x.w) < nbytes(e.w))
+        return [p for x in e.args for p in (self.concatenated(x) if flat(x) else [x])]
+
     def signed(self, e):
         """e's value sign-extended from bit e.w - 1 to its whole bytes (for signed operations)."""
         v = self.value(e)
@@ -552,8 +622,17 @@ class Lower:
                 return self.local(e.w, expr(f"zext(~{v})", v))
             case "neg": v = self.value(a[0]); return self.clean(e.w, expr(f"-{v}", v))
             case "concat":
-                hi, lo = self.widened(a[0], e.w), self.widened(a[1], e.w)
-                return self.local(e.w, expr(f"({hi} << {a[1].w}) | {lo}", hi, lo))
+                # A chain of concatenations at full width (each narrower level would need its own
+                # zext), its constant parts one constant, zero parts left out.
+                parts, offset, constant = [], 0, 0
+                for leaf in reversed(self.concatenated(e)):
+                    if bitvec.is_const(leaf): constant |= bitvec.value(leaf) << offset
+                    else:
+                        v = self.value(bitvec.zext(leaf, e.w))   # remembered: RC8 repeats one byte
+                        parts.append(v if offset == 0 else expr(f"{v} << {offset}", v))
+                    offset += leaf.w
+                if constant: parts.append(self.value(bitvec.const(constant, e.w)))
+                return self.local(e.w, expr(" | ".join(map(str, reversed(parts))), *parts))
             case "ite": return self.ite(*a)
             case "fadd" | "fmul" | "ffma": return self.float_op(e)
             case "fconv": v = self.value(a[0]); return self.local(e.w, expr(f"float2float({v})", v))   # sized by its local
