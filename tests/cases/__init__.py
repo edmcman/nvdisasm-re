@@ -14,6 +14,8 @@ def emulator_cases(arch, fp, families=FAMILIES, exhaustive=True):
     out = {}
     for family in families:
         out[family] = Cases(arch, fp, exhaustive); module(family).emulator_cases(out[family])
+        if any((case.hardware or {}).get('probe') for case in out[family]):
+            raise ValueError(f'{family}: draft probes need reference expectations before entering regression suites')
     return out
 
 

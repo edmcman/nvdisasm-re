@@ -85,6 +85,10 @@ def gpu():
         code = Template(f.image, f.kernel).code
         sliced = on_data_path(g, code)
         out += [(d.klass.name, settings("SM89", d), f.name) for o, d in decoded("SM89", code) if o in sliced]
+    from tests.harness import device_evidence
+    for family, word in device_evidence.verified_words():
+        d = pydecode.decode('SM89', bytes.fromhex(word))
+        out.append((d.klass.name, settings('SM89', d), 'cases/' + family))
     return out
 
 

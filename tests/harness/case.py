@@ -1,5 +1,6 @@
 """Single-instruction emulator cases: operand placement and the Case/Cases collections
 (words come from sass.decode.pyencode)."""
+import hashlib, json
 from typing import NamedTuple
 from sass.decode import ir
 from sass.decode.pyencode import encode
@@ -74,6 +75,13 @@ class Case(NamedTuple):
     cls: str
     request: dict
     expected: dict
+    hardware: dict | None = None
+
+    @property
+    def id(self):
+        """Stable identity of a scenario, independent of reference and p-code checks."""
+        request = {k: v for k, v in self.request.items() if k != "inspect_pcode"}
+        return self.cls + "-" + hashlib.sha256(json.dumps(request, sort_keys=True).encode()).hexdigest()[:16]
 
 
 # Mnemonics whose readable lowering differs from the exact one: their exact-mode cases do
@@ -91,7 +99,7 @@ class Cases(list):
         self.arch, self.fp, self.md, self.exhaustive = arch, fp, ir.load(arch), exhaustive
         self.classes = {k.name: k for k in self.md.classes if not k.alternate}
 
-    def add(self, cls, fields, registers, expected, portable=False, observe=None, **extras):
+    def add(self, cls, fields, registers, expected, portable=False, observe=None, hardware=None, **extras):
         """portable: valid for both lowerings even if the mnemonic is in READABLE_FLOATS."""
         if cls not in self.classes: return
         if self.fp == "readable" and not portable and self.classes[cls].mnemonic in READABLE_FLOATS: return
@@ -99,7 +107,19 @@ class Cases(list):
         request = dict(word=encode(self.arch, cls, **fields), registers=registers,
                        observe=[n for n in expected if not n.startswith("__")] if observe is None else observe, **extras)
         if "__max_ops" in expected or "__native" in expected: request["inspect_pcode"] = True
-        self.append(Case(cls, request, expected))
+        self.append(Case(cls, request, expected, hardware))
+
+    def probe(self, cls, fields, registers, observe=(), hardware=None, **extras):
+        """A draft hardware scenario with explicit observations and no reference values.
+
+        Kept separate from regression suites: tests.probe/device_cases.observe
+        returns raw outputs; emulator_cases rejects drafts until expectations exist.
+        """
+        if not observe and not extras.get('observe_memory'):
+            raise ValueError('a probe needs registers or memory to observe')
+        if cls not in self.classes: raise ValueError(f'{self.arch}: unknown probe class {cls}')
+        self.add(cls, fields, registers, {}, observe=list(observe), hardware=dict(hardware or {}, probe=True), **extras)
+        return self[-1]
 
     def sweep(self, n):
         """Indices of a sweep over n codes or values: range(n), or when not exhaustive those near 0,

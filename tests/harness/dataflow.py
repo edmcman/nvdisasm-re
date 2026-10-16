@@ -40,9 +40,6 @@ def expected(g, d, optimized=False, ignore=()):
     """md register cells (reads, writes) of decoded instruction d; `ignore` names operands whose reads to skip."""
     reads, writes = set(), set()
     unused=set(ignore)
-    if optimized and d.klass.mnemonic in ('LDG','STG','LDL','STL','LD','ST') and d.env.get('e_desc')==0:
-        # Implicit pointer forms use their address registers directly.
-        unused.update(('Ra_URb','Ra_URc'))
     if optimized and d.klass.mnemonic in ('LOP3','ULOP3') and 'imm8' in d.env:
         lut=d.env['imm8']
         for bit,names in [(2,('Ra','Sa','URa')),(1,('Rb','Sb','URb')),(0,('Rc','Sc','URc'))]:
@@ -53,9 +50,9 @@ def expected(g, d, optimized=False, ignore=()):
     if optimized and d.klass.mnemonic in ('ISETP','UISETP','FSETP','FSET','HSET2','HSETP2','VISET'):
         name={'FSETP':'fcomp','FSET':'fcomp','HSET2':'cmp','HSETP2':'cmp'}.get(d.klass.mnemonic,'icmp')
         operand=d.klass.operand_types.get(name)
-        if (operand and not d.env.get('ex') and
+        if (operand and
                 d.env.get(name) in {g.arch.enums[operand.type].get(n) for n in ('F','T')}):
-            unused.update(('Ra','Sa','Rb','Sb','Rc','Sc','URa','URb','URc'))
+            unused.update(('Ra','Sa','Rb','Sb','Rc','Sc','URa','URb','URc','Pr','UPr'))
         ex=d.klass.operand_types.get('ex')
         if (d.klass.mnemonic=='ISETP' and 'Pr' in d.env and ex and
                 d.env.get('ex')==g.arch.enums[ex.type].get('noex')):

@@ -85,7 +85,7 @@ DESCRIPTORS = [0, 0x14f0000000000000, 0x1230000000000000, 0xf2a74de452e6b438, 0x
 
 def descriptors(c):
     """desc[URx] forms access memory as their implicit forms do whatever the descriptor, except that a
-    range-form descriptor stops at the runtime; SM75-SM89's implicit form (e_desc noexp_desc) ignores URx."""
+    range-form descriptor stops at the runtime; SM89 reads URx even with noexp_desc."""
     for desc in DESCRIPTORS:
         neutral = memory.descriptor_neutral(desc)
         for op, space, ra in (("ldg", "ram", 64), ("ld", "shared", 64), ("ldl", "localmem", 32)):
@@ -93,17 +93,17 @@ def descriptors(c):
             if not (k := c.classes.get(cls)): continue
             for exp in ("EXP", "noexp_desc") if "e_desc" in k.operand_types else ("EXP",):
                 addr = SHARED[0] + 0x100 if space == "shared" else 0x100
-                regs = dict(WINDOWS, R2=(addr + 4) & 0xffffffff, R3=addr >> 32, UR4=desc & 0xffffffff, UR5=desc >> 32)
-                fields = dict(Rd=8, Ra=2, Ra_URb=4, Ra_offset=-4, sz="32", **({"e_desc": exp} if "e_desc" in k.operand_types else {}),
+                regs = dict(WINDOWS, R2=(addr + 4) & 0xffffffff, R3=addr >> 32, UR8=desc & 0xffffffff, UR9=desc >> 32)
+                fields = dict(Rd=8, Ra=2, Ra_URb=8, Ra_offset=-4, sz="32", **({"e_desc": exp} if "e_desc" in k.operand_types else {}),
                               **({} if ra == 32 else dict(e="E", input_reg_sz_64_dist="64")))
-                want = dict(R8=0x12345678) if neutral or exp == "noexp_desc" else dict(error="range-form memory descriptor")
+                want = dict(R8=0x12345678) if neutral else dict(error="range-form memory descriptor")
                 c.add(cls, fields, regs, want, memory=[dict(space=space, address=0x100, hex="78563412")])
         for op, space, ra in (("stg", "ram", 64), ("st", "localmem", 64), ("stl", "localmem", 32)):
             cls = op + ("_memdesc__Ra64" if ra == 64 else "_memdesc_")
             if not (k := c.classes.get(cls)): continue
             addr = LOCAL[0] + 0x40 if op == "st" else 0x40
-            regs = dict(WINDOWS, R2=addr & 0xffffffff, R3=addr >> 32, R6=0x12345678, UR4=desc & 0xffffffff, UR5=desc >> 32)
-            fields = dict(Ra=2, Ra_URc=4, Ra_offset=0, Rb=6, sz="32", **({"e_desc": "EXP"} if "e_desc" in k.operand_types else {}),
+            regs = dict(WINDOWS, R2=addr & 0xffffffff, R3=addr >> 32, R6=0x12345678, UR8=desc & 0xffffffff, UR9=desc >> 32)
+            fields = dict(Ra=2, Ra_URc=8, Ra_offset=0, Rb=6, sz="32", **({"e_desc": "EXP"} if "e_desc" in k.operand_types else {}),
                           **({} if ra == 32 else dict(e="E", input_reg_sz_64_dist="64")))
             c.add(cls, fields, regs, dict(__memory="78563412") if neutral else dict(error="range-form memory descriptor"),
                   observe_memory=[dict(space=space, address=0x40, size=4)])
@@ -146,9 +146,32 @@ def qspc(c):
             c.add(k.name, dict(Pg="PT", Pu=1, Rd="RZ", e=e, space="S", Ra=2, input_reg_sz_32_dist="U32", Ra_URb=4, Ra_offset=0),
                   {"R2": 0x100, "UR4": 0x120}, {"P1": 1}, context=context)
 
+    # Hardware-representable generic pointers use a 64-bit base. The adapter binds
+    # these model addresses to real global/shared/local allocations/window bases.
+    if k := c.classes.get('qspc__RaNonRZ'):
+        for origin, base, classification in (('global', 0x100020, 1), ('shared', 0x220, 2), ('local', 0x420, 4)):
+            for query in ('G', 'S', 'L'):
+                c.add(k.name, dict(Pg='PT', Pu=1, Rd=8, e='E', Ra=2, Ra_offset=0, space=query),
+                      dict(R2=base, R3=0), dict(P1=int(query == origin[0].upper()), R8=classification),
+                      context=context, hardware={'adapter': 'qspc', 'space': origin})
+
 
 def emulator_cases(c):
     loads_stores(c); generic(c); descriptors(c); zero_fill(c); qspc(c)
+
+    from sass.decode import pydecode, pyencode
+    for index, case in enumerate(list(c)):
+        hw = case.hardware or {'adapter': 'memory'}
+        if case.cls.startswith('qspc') and not case.hardware:
+            hw = {'skip': 'synthetic 32-bit address-provenance map; paired E cases use physical addresses'}
+        c[index] = case._replace(hardware=hw)
+        if 'word' not in case.request or 'error' in case.expected: continue
+        d = pydecode.decode(c.arch, bytes.fromhex(case.request['word']))
+        if d.klass.mnemonic in ('LDG', 'STG') and d.env.get('e') == 0:
+            fields = {n: d.env[n] for n in d.klass.operand_types if n in d.env}
+            fields.update({'@'.join(n): value for n, value in d.env.items() if isinstance(n, tuple)})
+            encoded = pyencode.encode(c.arch, case.cls, **dict(fields, e='E'))
+            c.append(case._replace(request=dict(case.request, word=encoded), hardware={'adapter': 'memory'}))
 
 
 def pnz_fixture():

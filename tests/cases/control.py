@@ -31,6 +31,26 @@ def emulator_cases(c):
                                        ("fallthrough", "nop_", {}, "PC outside kernel")]:
         c.kernel(name, cls, fields, message)
 
+    for index, case in enumerate(c):
+        if 'error' in case.expected or '__opaque' in case.expected: continue
+        if case.cls == 's2ur_':
+            c[index] = case._replace(hardware={'adapter': 'ctaid'})
+            continue
+        if any(n.startswith('SR_') for n in case.request.get('registers', {})):
+            reason = 'synthetic special-register state; hardware registers are read-only'
+        elif case.cls == 'bra_':
+            c[index] = case._replace(hardware={'adapter': 'branch'})
+            continue
+        elif '__counter' in case.expected:
+            reason = 'isolated emulator PC assertion; hardware control flow is covered by whole-kernel fixtures'
+        elif '__events' in case.expected:
+            reason = 'emulator runtime-event assertion; synchronization is covered by cooperative fixtures'
+        else: continue
+        c[index] = case._replace(hardware={'skip': reason})
+
+    c.add('s2r_', dict(Rd=8, SRa='SR_LANEID'), dict(SR_LANEID=3), dict(R8=3),
+          hardware={'adapter': 'lane'})
+
 
 def branch(a, b, c):
     """sem_branch: a, then b & 7 rounds of r = 3r + c."""

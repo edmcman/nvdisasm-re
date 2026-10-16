@@ -32,21 +32,33 @@ SLEIGH generator, a lowering or a case changes.
 
 ### GPU tests: `uv run pytest -m gpu --require-gpu`
 
-Need an SM89 device (outside the sandbox), but not Ghidra. Run them only when GPU fixtures or
-references are added or changed: they check the references against hardware, and everything
-else is checked against the references.
+Need an SM89 device (outside the sandbox), but not Ghidra. Run these when shared cases,
+GPU fixtures, references or the GPU harness change.
 
-The fixtures compile 100 SM89 CUDA kernels (and patched variants), run them on the GPU, and
-execute the same kernel text in Ghidra's p-code emulator (`test_fixtures_emulated.py`): 12,800
-random and edge output values, including address setup, constant parameters, memory operations,
-predication and loops. Patched fixtures select specific FP16 lane/MMA modes and FMNMX NaN modes;
-both the GPU and the emulator execute the resulting cubin. A 64-bit PTX comparison checks the
-ptxas ISETP.EX lowering. F2FP fixtures cover packed F16/BF16 RN/RZ, E4M3/E5M2 FP8 packing with
-H1 C merges, and E4M3/E5M2 FP8-to-F16 UNPACK_B H0/H1 across all byte encodings. The verified
-modes and excluded warp/concurrency operations are in `docs/semantics.md`.
+`test_cases_on_gpu.py` runs the hardware-valid cases from `emulator_cases(c)` directly:
+encoded words, seeded registers, constants and independent reference outputs are shared
+with the Python and Ghidra tests. Native cubin wrappers initialize state, execute the
+original instruction encoding (with dependency-safe scheduling), and capture registers,
+predicates and memory. Scalar cases are batched; uniform state is isolated between
+scenarios, and warp contexts become actual lane inputs and active masks. Memory adapters
+bind logical addresses to real allocations and runtime shared/local windows. No CUDA
+compiler is needed for these generated probes.
+
+Sweeps use the same deterministic sample as Ghidra by default; `--exhaustive` runs every
+case. Each invocation executes the selected tests, even when passing evidence exists.
+The terminal summary reports passed, failed, sampled-out and emulator-only scenarios,
+including exclusion reasons. Emulator errors, runtime events, impossible synthetic
+state and reserved launch constants remain emulator-only. Unknown case state fails
+classification; an adapter failure is a test failure. Worker processes time out after
+30 seconds; device faults are bisected to individual cases in fresh CUDA contexts.
+
+Existing CUDA and patched whole-kernel fixtures remain integration tests: they cover
+address setup, constants, memory operations, predication, loops and cooperative blocks.
+They continue to run both on hardware and in Ghidra.
 
 | File | Question | Under test | Oracle |
 |---|---|---|---|
+| `test_cases_on_gpu.py` | do shared instruction cases agree with hardware? | `refs/`, through generated native probes | SM89 GPU; passing complete families are fingerprinted in `baseline/gpu_case_passes.json` |
 | `test_refs_on_gpu.py` | are the references right on hardware? | `refs/`, through the GPU fixtures | SM89 GPU (CLI `uv run python -m tests.observe FAMILY`); records passing fixtures' fingerprints in `baseline/gpu_passes.json`, the source of `gpu` evidence (`tests/evidence.py`, per class and per form: the modifier combinations that ran) |
 | `test_assemble.py::test_native_cubin_on_gpu` | do native cubins load and execute? | self-contained kernels assembled without compiled templates | SM89 Driver API: parameters, branches, constants, shared memory, multiple entries |
 
@@ -65,14 +77,14 @@ uv run pytest -m gpu --require-gpu                     # GPU tests (outside the 
 | `--arch SM89\|SM75,SM90\|all` | architectures (default SM89) |
 | `--fp exact\|readable\|all` | floating-point lowering(s) (default exact) |
 | `--family F` (repeatable) | limit semantics tests and GPU fixtures to case families (`tests/cases/F.py`) |
-| `--exhaustive` | emulate every case of the large F2FP sweeps (the Ghidra tests otherwise run a fixed quarter; the lifted semantics always run all) |
+| `--exhaustive` | run complete GPU and Ghidra sweeps (otherwise deterministically sampled; lifted semantics always run all) |
 | `--update-baseline` | accept current results into the ratchet baselines |
 | `--full` | `test_pydecode_disassembly` and `test_ghidra_disassembly` on the whole real corpus instead of a sample |
 | `--require-gpu` | fail instead of skipping without an SM89 device |
 
 While iterating, run what a change touches (`--family conversions --arch SM89`). Before committing,
 run the Python and Ghidra tests on every architecture and lowering; run the GPU tests too if
-fixtures or references changed.
+shared cases, fixtures, references or the GPU harness changed.
 
 Rough wall times on a 32-core machine (2026-10-14): Python tests 25 s on SM89 and 6 minutes on
 every architecture and lowering; language build 2.5-5 minutes (compilers run as free memory
@@ -151,8 +163,8 @@ op-count increases (`pcode_<variant>.json`) should come only from classes the ch
 
 Each `cases/<family>.py` (listed in `cases/__init__.py` `FAMILIES`) provides:
 
-- `emulator_cases(c)`: single-instruction cases for `test_lifted_semantics` and
-  `test_pcode_semantics`. `c.add(cls, fields, registers, expected, ...)` encodes one instruction
+- `emulator_cases(c)`: shared single-instruction cases for `test_lifted_semantics`,
+  `test_pcode_semantics` and `test_cases_on_gpu` (hardware expectations use exact mode). `c.add(cls, fields, registers, expected, ...)` encodes one instruction
   of md class `cls` with operand `fields`, seeds `registers`, and checks `expected`; classes the
   architecture lacks are skipped. Helpers in `harness/case.py`: `put` (place an operand value in
   a register, immediate or constant bank), `cx_source`, `c.kernel(...)` (a one-instruction kernel
@@ -160,6 +172,12 @@ Each `cases/<family>.py` (listed in `cases/__init__.py` `FAMILIES`) provides:
   `--exhaustive`). Expectation keys are documented in `harness/checks.py`: plain keys are observed
   registers; `__native`, `__max_ops`, `__counter`, `__memory`, `__events`, `__fp8_nan`,
   `__opaque` and `error` are checks.
+  Ordinary scalar cases automatically run on the GPU. `hardware={"adapter": ...}` binds
+  memory, warp, branch or special-register scenarios; the family suites demonstrate
+  these adapters. `hardware={"skip": "reason"}` explicitly marks model-only state.
+  `__native`, `__max_ops` and runtime checks remain emulator assertions. Readable-mode
+  approximations never become hardware expectations. The runner retains input/output
+  register aliases and compares all expected registers and observed memory.
 - `gpu_fixtures()`: `harness/gpu.Fixture`s for `test_refs_on_gpu` and `test_fixtures_emulated`.
   A fixture is a CUDA kernel (`kernels/*.cu`, compiled for sm_89, optionally with patched SASS
   words: `harness/scalar.py`, `harness/templates.py`) and its reference outputs `expected`. Each
@@ -205,3 +223,25 @@ GPU vs reference is exact, except F16 NaN payload/sign in F16 packs and packed F
 and the bits outside the converted width of the wide conversion fixtures. Emulator vs reference
 tolerates floating-point NaN payload/sign, and excuses Ghidra 12.1.4's minimum-subnormal underflow
 (fp16/32/64) only on its exact signature. FP8 emulator cases compare NaN class only (`__fp8_nan`).
+
+### Shared-case hardware evidence
+
+`baseline/gpu_case_passes.json` records a passing family's selected inputs/expectations,
+exact instruction words, sampler mode, generator/reference source digest, device and
+executed cubin hashes. Changing any of these invalidates its evidence. A partial or
+failing family run drops that family's shared-case evidence; unchanged other families
+remain recorded. `tests/evidence.py` credits the target instruction directly as
+`cases/FAMILY`, independent of wrapper instructions and whole-kernel data-path slicing.
+Evidence refresh needs neither a GPU nor Ghidra and does not execute recorded passes.
+
+### Raw single-instruction probes
+
+Use `Cases.probe(cls, fields, registers, observe=[...], ...)` and
+`tests.harness.device_cases.observe(cases)` to discover outputs without a reference.
+It uses the same generated wrappers and setup adapters, returning raw registers and
+observed memory without comparisons or evidence updates. `python -m tests.probe
+INPUT.json --out OUTPUT.json` accepts a JSON list of the same arguments. Draft probes
+cannot enter a regression suite until converted to `c.add` with an independent
+reference. Whole-kernel discovery through `tests.observe` remains available.
+The investigation skill's [probe guide](../.agents/skills/sass-opcode-semantics/references/gpu-probes.md)
+contains runnable examples and memory/warp setup notes.

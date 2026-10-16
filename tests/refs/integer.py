@@ -25,7 +25,10 @@ def flo(value, shift_amount, signed=False):
     return (32 - value.bit_length()) if shift_amount else value.bit_length() - 1
 
 
-def sgxt_byte(value, index): return sext(value >> (8 * (index & 3)), 8) & MASK32
+def sgxt_width(value, width):
+    """SGXT.C.S32: sign-extend the low min(width, 32) bits; width zero gives zero (SM89)."""
+    width = min(width & MASK32, 32)
+    return sext(value & ((1 << width) - 1), width) & MASK32 if width else 0
 
 
 def bmsk(position, width, mode):

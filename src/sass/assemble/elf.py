@@ -114,6 +114,17 @@ def build(module, filename='<string>'):
         nop = instruction.assemble(module.arch, 'NOP')[0]
         kernel.code += nop * ((source.align(len(kernel.code), 256) - len(kernel.code)) // 16)
 
+    return link(module)
+
+
+def link(module):
+    """Link prepared Kernel.code/instructions into a native cubin.
+
+    Used by the test harness to retain exact encoded probe words. Callers must
+    supply resource declarations, instruction metadata and fetch-block padding.
+    Normal source assembly goes through build(), including its validation.
+    """
+    profile = PROFILES[module.arch]
     sections = [Section('', type=0), Section('.shstrtab', type=3), Section('.strtab', type=3),
                 Section('.symtab', type=2, alignment=8, link=2, entsize=24),
                 Section('.nv.info', type=0x70000000, alignment=4, link=3)]
@@ -139,6 +150,7 @@ def build(module, filename='<string>'):
     sections.append(Section('.nv.callgraph', type=0x70000001, alignment=4, link=3, entsize=8,
                             body=b''.join(struct.pack('<Ii', 0, sentinel) for sentinel in (-1, -2, -3, -4))))
     groups = []
+    global_constants = {}
     infos, constants = {}, {}
     for kernel in module.kernels:
         infos[kernel.name] = len(sections)
@@ -156,9 +168,17 @@ def build(module, filename='<string>'):
             sections.append(Section('.nv.shared.' + kernel.name, type=8, flags=3, alignment=16,
                                     info=text_index, size=kernel.shared))
         for bank, body in sorted(kernel.constants.items()):
-            sections.append(Section(f'.nv.constant{bank}.{kernel.name}', flags=0x42, alignment=4,
-                                    body=body, info=text_index))
+            if bank == 2:
+                sections.append(Section(f'.nv.constant{bank}.{kernel.name}', flags=0x42, alignment=4,
+                                        body=body, info=text_index))
+            else:
+                if bank in global_constants and global_constants[bank] != body:
+                    raise AssemblyError(f'constant bank {bank} is module-wide; kernels declare conflicting contents')
+                global_constants[bank] = body
         groups.append((kernel, text_index, const_index, info_index))
+
+    for bank, body in sorted(global_constants.items()):
+        sections.append(Section(f'.nv.constant{bank}', flags=2, alignment=4, body=body))
 
     strings = bytearray(b'\0')
     names = {}
@@ -180,7 +200,7 @@ def build(module, filename='<string>'):
         symbols.append(struct.pack('<IBBHQQ', string(kernel.name), 0x12, 0x10, text, 0, len(kernel.code)))
         sections[text].info = kernel.registers << 24 | sym
         sections[info].body = metadata(kernel, profile, section_symbols[const])
-        for attribute, value in ((0x2f, kernel.registers), (0x11, 0), (0x12, 0)):
+        for attribute, value in ((0x2f, kernel.registers), (0x11, kernel.frame_size), (0x12, kernel.frame_size)):
             global_info += record(attribute, struct.pack('<II', sym, value))
     sections[4].body = global_info
     sections[3].body = b''.join(symbols)
