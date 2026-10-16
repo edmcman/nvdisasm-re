@@ -736,3 +736,5 @@ replacement, I2F's high-word 64-bit immediate, F16/F32 F2F NaN canonicalization,
 and descriptor reads under `noexp_desc`. F16/F64 F2F preserves quieted NaN payloads.
 Hardware verification remains SM89-specific; other architectures retain guarded
 native generation and independent reference checks.
+
+Concat expressions (2026-10-16) store all operands directly, most significant first, with width equal to their summed widths. `concat(x)` returns `x`; zero operands raise `TypeError`. Explicitly nested concats remain nested so lowering can preserve shared intermediates and avoid extra widening of sub-byte parts. Extraction simplifies slices contained in any one operand; slices crossing operand boundaries remain extracts.
