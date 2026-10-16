@@ -1,0 +1,23 @@
+// sass: ATOMG.E.CAS ATOMG.E.CAS.64
+.version 8.8
+.target sm_89
+.address_size 64
+
+// atom.cas d, [a], b, c lowers to ATOMG.E.CAS Rd, [Ra], Rb, Rc with b (the compare value) in Rb
+// and c (the new value) in Rc; for .b64 both are register pairs.
+.visible .entry global_cas(.param .u64 in, .param .u64 out) {
+    .reg .b32 %r<4>;
+    .reg .b64 %d<8>;
+
+    ld.param.u64 %d1, [in];
+    ld.param.u64 %d2, [out];
+    ld.global.u32 %r1, [%d1];
+    ld.global.u32 %r2, [%d1+4];
+    ld.global.u64 %d3, [%d1+8];
+    ld.global.u64 %d4, [%d1+16];
+    atom.global.cas.b32 %r3, [%d2], %r1, %r2;
+    atom.global.cas.b64 %d5, [%d2+8], %d3, %d4;
+    st.global.u32 [%d1+24], %r3;
+    st.global.u64 [%d1+32], %d5;
+    ret;
+}

@@ -2,7 +2,7 @@
 exact spans and BRANCH_TYPE."""
 from sass.md import expression
 from sass.decode import pydecode
-from sass.semantics.family import family_for
+from sass.semantics.operations import ghidra_family
 from sass.sleigh.gen import ENUM_FILE, REG_FILES, RESOURCE_FILE, Gen
 from sass import ghidra_bridge
 from tests.refs.integer import prmt
@@ -40,7 +40,7 @@ def expected(g, d, optimized=False, ignore=()):
     """md register cells (reads, writes) of decoded instruction d; `ignore` names operands whose reads to skip."""
     reads, writes = set(), set()
     unused=set(ignore)
-    if optimized and d.klass.mnemonic in ('LDG','STG','LDL','STL','LD','ST') and d.env.get('e_desc')==0:
+    if optimized and 'e_desc' in d.klass.operand_types and d.env.get('e_desc')==0:
         # Implicit pointer forms use their address registers directly.
         unused.update(('Ra_URb','Ra_URc'))
     if optimized and d.klass.mnemonic in ('LOP3','ULOP3') and 'imm8' in d.env:
@@ -184,7 +184,7 @@ def expected(g, d, optimized=False, ignore=()):
         cells=set(range(base,base+size*7))
         reads.update(cells)
         if d.klass.mnemonic=='R2P':writes.update(cells)
-    if optimized and family_for(d.klass) and discarded(g, d):
+    if optimized and ghidra_family(g.arch.name, d.klass) and discarded(g, d):
         reads = set()   # every destination is RZ/PT: native code computes nothing
     if guard:
         file = ENUM_FILE[guard.type]

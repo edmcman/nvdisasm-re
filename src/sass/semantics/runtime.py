@@ -13,6 +13,9 @@ from sass.semantics.fp import softfloat
 class UnsupportedSemantics(NotImplementedError): pass
 
 
+MEMORY_CONTROLS=('sem','sco','cop','cop2','private')   # the encodings memory-ordering calls pass, in this order
+
+
 class Runtime:
     def __init__(self, language_dir, sm, context=None, handlers=None, variant=None):
         self.sm=sm;self.handlers=handlers or {};self.variant=variant or f'sm{sm}'
@@ -25,6 +28,9 @@ class Runtime:
             rows=json.loads(path.read_text())
             self.manifests[sm]={r['cls']:r for r in rows}
         return self.manifests[sm]
+
+    def open_atomic(self):
+        return next((e for e in self.events if e.get('atomic')=='open'),None)
 
     def call(self,name,args,size):
         if name in self.handlers:return self.handlers[name](args,size,self.context)
@@ -40,12 +46,20 @@ class Runtime:
             key=k.name+'.'+atom.name
             if key not in supplied:raise UnsupportedSemantics('operand '+key)
             return int(supplied[key])
-        if name=='sass_memory_order':
+        if name in ('sass_memory_order','sass_atomic_begin'):
             ordinal,*controls=args;k=ir.load('SM'+str(sm)).classes[ordinal]
-            for key,value in zip((n for n in ('sem','sco','cop','cop2','private') if n in k.operand_types),controls):
+            for key,value in zip((n for n in MEMORY_CONTROLS if n in k.operand_types),controls):
                 atom=k.operand_types[key];label=ir.load('SM'+str(sm)).rev_enums[atom.type].get(value,'INVALID')
                 if label.startswith('INVALID'):raise UnsupportedSemantics('memory control '+label)
-            self.events.append(dict(op=k.mnemonic,controls=controls));return 0
+            event=dict(op=k.mnemonic,controls=controls)
+            if name=='sass_atomic_begin':
+                if self.open_atomic():raise UnsupportedSemantics('nested atomic region')
+                event['atomic']='open'
+            self.events.append(event);return 0
+        if name=='sass_atomic_end':
+            event=self.open_atomic()
+            if event is None:raise UnsupportedSemantics('atomic region end without a begin')
+            event['atomic']='closed';return 0
         if name=='sass_memory_descriptor':
             # Bit 59 marks a range-form L2 policy; some of those trap on SM89 and which ones is unknown.
             descriptor,=args

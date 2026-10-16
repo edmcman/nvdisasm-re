@@ -28,6 +28,7 @@ class Semantics:
     writes: list = field(default_factory=list)   # [(register location, value)], simultaneous
     flow: object = None                          # sem_family.Flow over concrete values, or None
     stores: list = field(default_factory=list)   # [sem_family.Store], after the writes
+    atomic: object = None                        # sem_family.Atomic: the loads and stores are indivisible
 
 
 class Lifted(Instruction):
@@ -168,7 +169,7 @@ def lift(arch_name, word, addr=0, fp="exact", conditions=True):
         if value.w != width: raise TypeError(f"{d.klass.name}: {name} is {width} bits, value {value!r} is {value.w}")
         out.writes.append((bitvec.reg(*loc, element=ELEMENT[loc[0]]), value))
     out.writes = list(zip([l for l, _ in out.writes], bitvec.narrow([v for _, v in out.writes])))
-    out.flow, out.stores = result.flow, list(result.stores)
+    out.flow, out.stores, out.atomic = result.flow, list(result.stores), result.atomic
     if out.flow is not None and bitvec.is_const(out.flow.cond, 1):
         out.flow = replace(out.flow, cond=None)
     out.status = "native"
