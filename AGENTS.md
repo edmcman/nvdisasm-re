@@ -37,6 +37,8 @@ Coverage: `processor/SASS/semantics/coverage.json`, `evidence.json` (per-class v
 Record new findings in the matching `docs/` file, dated where it matters.
 
 ## Writing new semantics
+To investigate an opcode's forms and compiler encoding first (form matrix, ptxas tracing, labelling findings), use the `sass-opcode-semantics` skill (`.agents/skills/`, linked into `.claude/skills/`); it defers to this section for the implementation and test steps.
+
 Work from the reference outward, and run the cheapest test that can fail first (`tests/README.md` has the details):
 1. **Reference.** Write the instruction's behavior as a function in `tests/refs/`, independent of `src/sass` (it may import only `sass.semantics.fp.softfloat`). Prefer the obvious, even naive, formulation (enumerate bits, exact rationals) over a clever one. Base it on documented hardware behavior (`docs/hardware-facts.md`), PTX semantics, or GPU observation, never on the implementation.
 2. **Emulator cases.** In `tests/cases/<family>.py` `emulator_cases`, add cases whose expected values come from the reference: zeros of both signs, NaN/infinity/subnormal, saturation and overflow bounds, each modifier and operand form, aliased registers. Use `c.sweep(n)` for sweeps over every code or a long value list.
