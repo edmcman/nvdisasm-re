@@ -39,9 +39,9 @@ def descriptor(i):
     policy that never changes the value accessed (SM89 GPU, docs/hardware-facts.md)."""
     if not i.has_operand("memoryDescriptor"): return []
     i.ignore("memoryDescriptor")
-    # SM75-SM89 select the implicit descriptor of ordinary CUDA pointers (noexp_desc) or URx (EXP);
-    # SM90+ always name URx. The implicit form passes 0 (SM89's c[0x0][0x118]), keeping one effect shape.
-    if i.has_operand("e_desc") and i.select_fork("e_desc") == "noexp_desc": return [effect("sass_memory_descriptor", const(0, 64))]
+    # SM89 reads the selected UR pair even when noexp_desc hides it in the
+    # disassembly. A range descriptor can trap with either value of bit 101.
+    if i.has_operand("e_desc"): i.ignore("e_desc")
     return [effect("sass_memory_descriptor", i.value(i.resolve("Ra_URb|Ra_URc"), modifiers=False))]
 
 

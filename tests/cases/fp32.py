@@ -248,7 +248,7 @@ def gpu_fixtures():
             scalar.launch("ffma_sat", lambda *v: rounded("fma", v, 32, sat=True))]
     out += [scalar.launch(f, lambda x, y, _, f=f: fmnmx(x, y, f.startswith("fmin"), f.endswith("_nan"), "ftz" in f))
             for f in ("fmin", "fmax", "fmin_nan", "fmax_nan", "fmin_ftz_nan", "fmax_ftz_nan", "fmin_ftz", "fmax_ftz")]
-    out.append(scalar.launch("fmin_xorsign", lambda x, y, _: fmnmx_xorsign(x, y, True)))
+    out.append(scalar.launch("fmin_xorsign", lambda x, y, _: fmnmx_xorsign(x, y, True, absolute=True)))
     out += [scalar.launch(f, lambda a, b, c, s=s: fset(a, b, s["fcomp"], s.get("bop", "AND"), (c != 0) != bool(s.get("Pp@not")), s.get("ftz") == "FTZ"))
             for f, (m, s) in scalar.SETS.items() if m == "FSET"]
     # FCHK P0, R2, R5 in a probe slot, P0 read back through P2R into the stored R11.

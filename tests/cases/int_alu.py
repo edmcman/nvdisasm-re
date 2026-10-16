@@ -3,7 +3,7 @@ BREV/POPC/FLO/SGXT and MOV."""
 import random
 from tests.harness.case import cbank, put, source
 from tests.refs.bits import MASK32, MASK64, sext
-from tests.refs.integer import COMPARISONS, brev, combine, compare, flo, prmt, sgxt_byte
+from tests.refs.integer import COMPARISONS, brev, combine, compare, flo, prmt, sgxt_width
 
 
 def bit_ops(c):
@@ -37,15 +37,15 @@ def bit_ops(c):
                     fields, regs, memory = {"Rd": 2, "Pu": "PT", "fmt": fmt, "sh": mode}, {}, []
                     put(k, src, value, fields, regs, memory, 4, bank=(2, 16), imm=(k.operand_types[src].type,))
                     c.add(k.name, fields, regs, {"R2": flo(value, mode == "SH", fmt == "S32"), "__native": True}, memory=memory)
-    # SGXT selects one signed byte using the low two index bits.
+    # SGXT.C sign-extends the low B bits of A, clamping the width to 32.
     for k in c.of("SGXT"):
         src = source(k, "Rb", "URb", "Sb")
         if src is None: continue
-        for index in range(4):
-            for value in (0, 0x7f80ff01, 0x80ff007f, 0xdeadbeef):
-                fields, regs, memory = {"Rd": 2, "Ra": 4, "cw": "C", "fmt": "S32"}, {"R4": index}, []
-                put(k, src, value, fields, regs, memory, 6, bank=(2, 16), imm=(k.operand_types[src].type,))
-                c.add(k.name, fields, regs, {"R2": sgxt_byte(value, index), "__native": True}, memory=memory)
+        for index in (0, 1, 2, 7, 8, 15, 16, 30, 31, 32, 33, 63, 0xffffffff):
+            for value in (0, 1, 0x80000000, 0xffffffff, 0x7f80ff01, 0x80ff007f, 0xdeadbeef):
+                fields, regs, memory = {"Rd": 2, "Ra": 4, "cw": "C", "fmt": "S32"}, {"R4": value}, []
+                put(k, src, index, fields, regs, memory, 6, bank=(2, 16), imm=(k.operand_types[src].type,))
+                c.add(k.name, fields, regs, {"R2": sgxt_width(value, index), "__native": True}, memory=memory)
 
 
 def arithmetic(c):
@@ -234,7 +234,7 @@ def isetp_ex(c):
                     for op in COMPARISONS:
                         for bop in ("AND", "OR", "XOR"):
                             for predicate, pr_not, p_not in ((0, 0, 0), (1, 0, 0), (0, 1, 0), (1, 1, 1)):
-                                cond = (low ^ pr_not) if ex_mode == "EX" and av == bv else compare(sa, sb, op)
+                                cond = (low ^ pr_not) if ex_mode == "EX" and op not in ("F", "T") and av == bv else compare(sa, sb, op)
                                 fields = {"Pu": 0, "Pv": 1, "Ra": 2, "Pp": 4, "Pr": 5, "icmp": op, "fmt": fmt, "bop": bop,
                                           "ex": ex_mode, "Pp@not": p_not, "Pr@not": pr_not}
                                 regs, memory = {"R2": av, "P4": predicate, "P5": low}, []

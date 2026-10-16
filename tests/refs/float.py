@@ -99,15 +99,16 @@ def fmnmx(x, y, is_min, nan_mode=False, ftz=False):
     return x if (f32(x) < f32(y)) == is_min else y
 
 
-def fmnmx_xorsign(x, y, is_min, nan_mode=False, ftz=False):
-    """min/max.xorsign.abs: select on magnitudes, then the XOR of the source signs unless NaN."""
+def fmnmx_xorsign(x, y, is_min, nan_mode=False, ftz=False, absolute=False):
+    """FMNMX.XORSIGN: compare signed operands, then replace the result sign with XOR (SM89)."""
     if ftz: x, y = ftz32(x), ftz32(y)
     sign = (x ^ y) & 0x80000000
+    if absolute: x, y = x & 0x7fffffff, y & 0x7fffffff
     if nan_mode and (nan32(x) or nan32(y)): return 0x7fffffff
     if nan32(x): return 0x7fffffff if nan32(y) else (y & 0x7fffffff) | sign
     if nan32(y): return (x & 0x7fffffff) | sign
-    ax, ay = x & 0x7fffffff, y & 0x7fffffff
-    return (ax if (f32(ax) < f32(ay)) == is_min else ay) | sign
+    chosen = fmnmx(x, y, is_min)
+    return (chosen & 0x7fffffff) | sign
 
 
 def fmnmx3_pick(x, y, is_min, exact):
@@ -219,9 +220,9 @@ def i2f(x, n, signed, w, mode):
 
 
 def f2f(bits, src, dst, mode):
-    """F2F: rounded once; a NaN keeps sign and payload, quieted (SM89)."""
+    """F2F: rounded once; F16/F32 conversions canonicalize NaN, other widths quiet its payload (SM89)."""
     kind, sign, value = softfloat.unpack(bits, src)
-    if kind == "nan": return quiet(bits, src, dst)
+    if kind == "nan": return (1 << (dst - 1)) - 1 if {src, dst} == {16, 32} else quiet(bits, src, dst)
     if kind == "inf": return sign << dst - 1 | ((1 << dst - 1) - (1 << MANTISSA[dst]))
     return softfloat.pack(value, dst, mode, sign)
 

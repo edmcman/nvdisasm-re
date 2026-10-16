@@ -14,7 +14,7 @@ def scalar(c):
             ("f2i__Rb_32b", dict(Rd=8, Rb=2, dstfmt="S32", rnd="TRUNC"), dict(R2=0x3fc00000), dict(R8=1)),
             ("i2f__Rb_32b", dict(Rd=8, Rb=2), dict(R2=7), dict(R8=0x40e00000)),
             ("i2fp__RRR", dict(Rd=8, Rb=2, srcfmt="S32", dstfmt="F32"), dict(R2=0xfffffffe), dict(R8=0xc0000000)),
-            ("i2f__IS_64b", dict(Rd=8, Sb=-1, dstfmt="F32"), {}, dict(R8=0xbf800000)),
+            ("i2f__IS_64b", dict(Rd=8, Sb=-1, dstfmt="F32"), {}, dict(R8=0xcf800000)),
             ("f2i__Ib_16b", dict(Rd=8, Sb=0x3e00, rnd="TRUNC"), {}, dict(R8=1)),
             ("f2i__Ib_64b", dict(Rd=8, Sb=0x40080000, rnd="TRUNC"), {}, dict(R8=3))]:
         c.add(cls, fields, regs, expected)
