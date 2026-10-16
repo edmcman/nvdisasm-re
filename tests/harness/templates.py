@@ -32,16 +32,17 @@ def cx_wrapper():
     return t, control
 
 
-def cx_image(cls, fields, units=128, offset=4):
-    """CX wrapper with the descriptor built from c[0][0x160] (size `units` x 16 bytes) in UR0/UR1
-    and `cls` at 0x110 reading source B at descriptor byte `offset`."""
+def cx_image(cls, fields, units=128, offset=4, after=("nop_", {})):
+    """CX wrapper with the descriptor built from c[0][0x160] (size `units` x 16 bytes) in UR0/UR1,
+    `cls` at 0x110 reading source B at descriptor byte `offset`, and `after` at 0x130 (before the
+    store of R7)."""
     t, control = cx_wrapper()
     words = {0xd0: ("uldc_const__RCR", dict(URd=0, Sa_bank=0, Sa_addr=0x160, sz="64")),
              0xe0: ("ushf__URuIUR_URIR", dict(URd=0, URa=0, Sb=4, URc=1, dir="R", fmt="U64", hilo="LO")),
              0xf0: ("ushf__URuIUR_URIR", dict(URd=1, URa="URZ", Sb=4, URc=1, dir="R", fmt="U32", hilo="HI")),
              0x100: ("ulop3_lut__URuIUR_URIR", dict(URd=1, URa=1, Sb=units << 13, URc="URZ", imm8=0xfc, UPp="UPT")),
              0x110: (cls, dict(fields, URb=0, Sb_offset=offset) if "Sb_offset" not in fields else fields),
-             0x130: ("nop_", {})}
+             0x130: after}
     image = t.patch({o: (sm89(c, **f), control) for o, (c, f) in words.items()})
     if Template(image, "sem_cx").decoded(0x110).klass.name != cls: raise RuntimeError(f"{cls}: patched word decoded differently")
     return image
@@ -78,11 +79,11 @@ def rows(triples):
     return b"".join(struct.pack("<III", *t) for t in triples)
 
 
-def cx_fixture(name, cls, fields, triples, expected, units=128, offset=4, **kw):
+def cx_fixture(name, cls, fields, triples, expected, units=128, offset=4, after=("nop_", {}), **kw):
     """A CX wrapper launch: thread i loads triples[i][0] into R2; the descriptor (c[0][0x160])
     points at the input array, so source B is the word at byte `offset` of the first record."""
     from tests.harness.gpu import Fixture
-    return Fixture(name=name, image=cx_image(cls, fields, units, offset), kernel="sem_cx", data=rows(triples), expected=expected,
+    return Fixture(name=name, image=cx_image(cls, fields, units, offset, after), kernel="sem_cx", data=rows(triples), expected=expected,
                    visited=(0x110,), modes=("exact", "readable"), **kw)
 
 
