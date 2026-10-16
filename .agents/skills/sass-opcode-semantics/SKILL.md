@@ -83,15 +83,19 @@ source/destination aliases, discarded results, and supported operand forms.
 Record unresolved forms individually rather than inferring them from another
 form's success.
 
-Add GPU fixtures to the family's `gpu_fixtures()` in `tests/cases/<family>.py`
-(`tests/harness/gpu.py` `Fixture`/`Driver`, with `tests/harness/scalar.py` and
-`tests/harness/templates.py` for compiled and patched kernels). Verify the target
-instruction and selector, then compare GPU, reference and P-code outputs using the
-same input vectors; `uv run python -m tests.observe <family>` shows raw GPU outputs for a
-draft fixture (`expected=None`).
-Check that the emulator actually visited the target instruction. When testing
-a patched instruction, preserve the kernel wrapper and document exactly which
-word or fields were changed.
+For SM89 single-instruction discovery, prefer `Cases.probe` and
+`tests.harness.device_cases.observe`, or `uv run python -m tests.probe INPUT.json
+--out OUTPUT.json`. They use the regression runner's generated wrappers and return
+raw registers/memory without a reference or evidence credit. Read
+[generated GPU probes](references/gpu-probes.md) for the API, JSON input, memory/warp
+setup, and how to promote observations into independent reference-backed cases.
+
+Keep `gpu_fixtures()` and `tests.observe` for whole-kernel, cooperative or
+compiler-generated probes. Verify the target instruction and selector, keep the
+result observable, and compare GPU, reference and P-code using the same inputs.
+When patching an existing kernel, preserve its wrapper and record which words or
+fields changed. A synthetic instruction's successful execution is functional
+evidence, not evidence that ptxas emits it.
 
 Report hardware support only for the tested device architecture and forms.
 An all-architecture emulator pass does not establish all-architecture hardware
@@ -116,7 +120,7 @@ Give rejected forms specific reasons (they become coverage reasons). A reason
 is a limitation of the family, not evidence that the GPU or ptxas lacks the
 instruction.
 
-Add value cases to the family's `emulator_cases()` in `tests/cases/<family>.py`
+Promote probes to value cases in the family's `emulator_cases()` in `tests/cases/<family>.py`
 and independent references to `tests/refs/` (which must not import the generated
 semantics). Prefer `tests/harness/case.py` helpers (`Cases.add`, `put`, `cx_source`)
 over a second decoding or execution framework.

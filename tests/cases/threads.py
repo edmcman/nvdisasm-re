@@ -49,6 +49,9 @@ def emulator_cases(c):
               context={"warp": dict(warp, lane=lane)})
     c.add("elect_Pp_", dict(Pu=0, URd=8, Pp=1), {}, dict(error="sass_opaque_ELECT"), context={"warp": warp})
 
+    for index, case in enumerate(c):
+        c[index] = case._replace(hardware={'adapter': 'warp'})
+
 
 WARPS = 16
 
