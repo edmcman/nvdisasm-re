@@ -10,6 +10,7 @@ import itertools, json, math, re, sys
 from sass.md import parse
 from sass.paths import LANGUAGES
 from collections import defaultdict
+from functools import cache
 from pathlib import Path
 from sass.decode import ir, pydecode
 from sass.md import legal, expression
@@ -95,6 +96,11 @@ def merge_boxes(boxes):
 def cubes(values, n):
     """A small cover of `values` by cubes (mask of fixed bits, their values): Quine-McCluskey prime
     implicants and a greedy cover."""
+    return prime_cover(frozenset(values), n)
+
+@cache
+def prime_cover(values, n):
+    """`cubes`, memoized: classes share fields and legal value sets."""
     current, primes = {((1 << n) - 1, v) for v in values}, set()
     while current:
         merged, nxt = set(), set()
@@ -108,7 +114,7 @@ def cubes(values, n):
     while left:
         best = max(sorted(covers), key=lambda c: len(covers[c] & left))
         cover.append(best); left -= covers[best]
-    return sorted(cover)
+    return tuple(sorted(cover))
 
 def split_cubes(values, n):
     """Cubes from splitting on the top bit: equal halves leave that bit free (cheap, for wide fields)."""
