@@ -526,10 +526,11 @@ def byte_offset(label):
 
 @family('P2R')
 def p2r(i):
-    """Rd = Ra with byte `insert` replaced by the predicates P0-P6 (PR) selected by the mask Rb."""
+    """Rd = Ra with the bits of byte `insert` selected by the mask's low byte replaced by P0-P6 (PR);
+    there is no P7, so mask bit 7 clears bit 7 (SM89 GPU)."""
     at = byte_offset(i.select_fork('insert'))
-    picked = zext(i.value('Pr') & trunc(i.value('Rb|Sb'), 7), 32)
-    return outputs(Rd=(i.value('Ra') & ~const(0xff << at, 32)) | (picked << at))
+    mask = zext(trunc(i.value('Rb|Sb'), 8), 32) << at
+    return outputs(Rd=(i.value('Ra') & ~mask) | ((zext(i.value('Pr'), 32) << at) & mask))
 
 
 @family('R2P')

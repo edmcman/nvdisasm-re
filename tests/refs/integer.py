@@ -123,3 +123,12 @@ def carry(cls, fields, observe, vector):
     total = ((x * y) & MASK64) + addend + p
     if observe == "pu": return int(total > MASK64)
     return (total >> 32) & MASK32 if observe == "high" or "_hi_" in cls else total & MASK32
+
+
+def p2r(predicates, base, mask, byte):
+    """P2R: bit i of the selected byte of base becomes P_i where mask bit i (0-7) is set; there is
+    no P7, so mask bit 7 clears bit 7 (SM89 GPU). Higher mask bits are ignored."""
+    for i in range(8):
+        bit = 8 * byte + i
+        if mask >> i & 1: base = base & ~(1 << bit) | (predicates >> i & 1 if i < 7 else 0) << bit
+    return base & MASK32
