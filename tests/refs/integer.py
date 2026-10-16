@@ -25,10 +25,12 @@ def flo(value, shift_amount, signed=False):
     return (32 - value.bit_length()) if shift_amount else value.bit_length() - 1
 
 
-def sgxt_width(value, width):
-    """SGXT.C.S32: sign-extend the low min(width, 32) bits; width zero gives zero (SM89)."""
-    width = min(width & MASK32, 32)
-    return sext(value & ((1 << width) - 1), width) & MASK32 if width else 0
+def sgxt(value, width, wrap, signed):
+    """SGXT: keep the low n bits of value and extend them from bit n-1 (sign or zero), by
+    enumeration; n is width & 31 when wrapping, min(width, 32) when clamping (SM89 GPU)."""
+    n = width & 31 if wrap else min(width, 32)
+    fill = (value >> (n - 1)) & 1 if signed and n else 0
+    return sum(((value >> i & 1) if i < n else fill) << i for i in range(32))
 
 
 def bmsk(position, width, mode):

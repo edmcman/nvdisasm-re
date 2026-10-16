@@ -243,8 +243,9 @@ class Runtime:
             bound=(lane&segment)|(c&31&~segment);mode=label('shflmd')
             target={'IDX':(lane&segment)|(b&~segment),'UP':lane-b,'DOWN':lane+b,'BFLY':lane^b}[mode]
             valid=target>=bound if mode=='UP' else target<=bound
-            if valid and not active>>target&1:raise UnsupportedSemantics('inactive shuffle source has undefined value')
-            return int(valid) if dest=='Pu' else int(warp['values'][target if valid else lane])
+            if dest=='Pu':return int(valid)
+            # A valid source lane that is not executing the shuffle yields 0 (SM89, idle or exited lanes alike).
+            return int(warp['values'][target]) if valid and active>>target&1 else 0 if valid else int(warp['values'][lane])
         if op in ('BAR','BSSY','BSYNC','BMOV','BREAK','WARPSYNC'):
             # Synchronization is supplied by the environment. A missing handler
             # fails rather than silently treating reconvergence/barriers as no-ops.

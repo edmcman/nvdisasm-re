@@ -679,12 +679,13 @@ immediate, and ordinary constant-bank sources where present. FLO supports
 32-bit sources with `.S32` and `.SH`/default mode: the default result is the
 highest set-bit index, `.SH` returns the leading-zero shift, and zero returns
 `0xffffffff` in both modes. Its predicate destination is supported only when
-encoded as `PT`. SGXT supports `.S32`/`.C`: sign-extend the low `min(B, 32)`
-bits of A; width zero gives zero (SM89 GPU, 2026-10-16). The
+encoded as `PT`. SGXT supports `.C`/`.W` with `.S32`/`.U32`: keep the low n bits of A and
+extend them from bit n-1 (sign or zero), with n = `min(B, 32)` for `.C` and `B & 31` for `.W`; n = 0 gives zero
+(SM89 GPU, 2026-10-16; `docs/hardware-facts.md`). The
 shared provider materializes CX operands on SM75-SM90 where those classes
-exist; other FLO and SGXT selectors retain opaque fallbacks. The tests compare BREV against a per-bit reversal reference,
+exist; other FLO selectors retain opaque fallbacks. The tests compare BREV against a per-bit reversal reference,
 POPC against `bit_count`, FLO against the bit length/leading-zero definitions,
-and SGXT against independent low-bit-field sign extension.
+and SGXT against an independent bit-by-bit extension.
 
 IDP has native guarded semantics for `IDP.4A` and `IDP.2A.LO/.HI` R, URb,
 ordinary constant-bank, and SM75-SM90 CX B forms. `.4A` multiplies four independently
