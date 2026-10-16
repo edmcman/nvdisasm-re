@@ -132,3 +132,8 @@ def p2r(predicates, base, mask, byte):
         bit = 8 * byte + i
         if mask >> i & 1: base = base & ~(1 << bit) | (predicates >> i & 1 if i < 7 else 0) << bit
     return base & MASK32
+
+
+def r2p(predicates, source, mask, byte):
+    """R2P: P_i (0-6, packed) becomes bit i of the selected byte of source where mask bit i is set."""
+    return sum((source >> 8 * byte + i & 1 if mask >> i & 1 else predicates >> i & 1) << i for i in range(7))
