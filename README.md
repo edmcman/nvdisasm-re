@@ -4,7 +4,7 @@
 [![CI](https://github.com/edmcman/nvdisasm-re/actions/workflows/ci.yml/badge.svg)](https://github.com/edmcman/nvdisasm-re/actions/workflows/ci.yml)
 
 Reverse engineering NVIDIA's `nvdisasm` (CUDA 13.4) to recover how it models SASS instructions,
-and building on that a SASS disassembler and a Ghidra processor with instruction semantics.
+and building on that a SASS assembler, disassembler, and Ghidra processor with instruction semantics.
 
 `nvdisasm` doesn't hard-code instruction knowledge: it embeds an encrypted, compressed
 **machine description** per GPU architecture. This repo extracts them and derives a
@@ -22,7 +22,22 @@ out/SM80/latencies.txt            connectors, operation sets, latency tables
 the `out/` layout and JSON format, and how to re-extract them.
 
 The machine descriptions are complete enough to decode instructions. `src/sass/` turns them
-into two disassemblers, both checked against `nvdisasm` itself. Install with `uv sync`.
+into an assembler and two disassemblers, checked against `nvdisasm` itself. Install with `uv sync`.
+
+## Assembler (`src/sass/assemble/`)
+
+Assemble nvdisasm-style SASS into raw code or native CUDA cubins, with labels,
+explicit scheduling controls, parameters, shared memory, constants, and multiple kernels:
+
+```sh
+uv run sass-assemble examples/assembler/write_value.sass -o write_value.cubin
+uv run sass-assemble --format raw --arch SM89 code.sass -o code.bin
+```
+
+Assembly needs no CUDA tools. Raw output supports every committed machine description;
+cubin output supports established ABI profiles (SM107 is raw-only). Native execution
+is verified on SM89. See [`docs/assembling.md`](docs/assembling.md) for syntax, the
+Python API, scheduling responsibilities, and architecture-specific limits.
 
 ## Reference decoder (`src/sass/decode/pydecode.py`)
 

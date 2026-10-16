@@ -1,0 +1,17 @@
+// SM89 kernel: write the scalar value to the supplied device pointer.
+.target SM89
+.kernel write_value
+.param output, 8, 8
+.param value, 4, 4
+.registers 8, 8
+
+// Explicit, deliberately slow scheduling for this small example.
+.schedule usched_info=WAIT15_END_GROUP, req_bit_set=63
+MOV R1, c[0][0x28];
+MOV R2, c[0][$output];
+MOV R3, c[0][$output+4];
+MOV R5, c[0][$value];
+ULDC.64 UR4, c[0][0x118];
+STG.E [R2.64], R5;
+EXIT;
+.endkernel
