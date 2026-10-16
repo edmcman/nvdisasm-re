@@ -89,9 +89,6 @@ def frnd(i):
     return outputs(Rd=nan if is_nan(x, fmt) else round_integral(x, fmt, rounding(i)))
 
 
-INTEGERS = {"S32": (32, True), "U32": (32, False), "S64": (64, True), "U64": (64, False)}
-
-
 @helper
 def float_to_int(x, fmt, n, signed, r, nan):
     """x rounded to an integer with Rounding r and saturated to n bits, signed (a 1-bit expression)

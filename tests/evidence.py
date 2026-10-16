@@ -40,7 +40,8 @@ def reference(arch):
     return [(c.cls, words.get(c.request.get("word"), {}), None) for c in cases]
 
 
-LOADS, STORES = ("LDG", "LDS", "LDL", "LDC", "ULDC", "LD"), ("STG", "STS", "STL", "ST")
+ATOMICS = ("ATOMG", "ATOMS", "ATOM")   # each loads and stores; RED/REDG only store
+LOADS, STORES = ("LDG", "LDS", "LDL", "LDC", "ULDC", "LD", *ATOMICS), ("STG", "STS", "STL", "ST", "RED", "REDG", *ATOMICS)
 
 
 def address(d):

@@ -1,7 +1,7 @@
 """Single-instruction emulator cases: operand placement and the Case/Cases collections
 (words come from sass.decode.pyencode)."""
 from typing import NamedTuple
-from sass.decode import ir
+from sass.decode import ir, pydecode
 from sass.decode.pyencode import encode
 
 IMMEDIATES = ("SImm", "UImm", "F32Imm")
@@ -96,10 +96,16 @@ class Cases(list):
         if cls not in self.classes: return
         if self.fp == "readable" and not portable and self.classes[cls].mnemonic in READABLE_FLOATS: return
         if not extras.get("memory", True): del extras["memory"]
-        request = dict(word=encode(self.arch, cls, **fields), registers=registers,
+        request = dict(word=encode(self.arch, cls, conditions="illegal" not in expected, **fields), registers=registers,
                        observe=[n for n in expected if not n.startswith("__")] if observe is None else observe, **extras)
-        if "__max_ops" in expected or "__native" in expected: request["inspect_pcode"] = True
+        if {"__max_ops", "__native", "__atomic"} & set(expected): request["inspect_pcode"] = True
         self.append(Case(cls, request, expected))
+
+    def legal(self, cls, fields):
+        """Whether the md's conditions allow class `cls` with these field values (operation and size
+        combinations, for instance)."""
+        try: return pydecode.decode(self.arch, bytes.fromhex(encode(self.arch, cls, **fields))).klass.name == cls
+        except pydecode.NoMatch: return False
 
     def sweep(self, n):
         """Indices of a sweep over n codes or values: range(n), or when not exhaustive those near 0,

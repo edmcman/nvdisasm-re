@@ -28,8 +28,9 @@ def table_raw(arch, table, args, wanted):
     return min(candidates)[1]
 
 
-def encode(arch, cls, **values):
-    """Hex word for `cls` with operand values (enum labels or numbers); `name@attr` sets modifiers."""
+def encode(arch, cls, conditions=True, **values):
+    """Hex word for `cls` with operand values (enum labels or numbers); `name@attr` sets modifiers.
+    conditions=False also encodes what the md's conditions forbid (to test that it is rejected)."""
     md, k = ir.load(arch), klass(arch, cls)
     desired = {}
     for atom in k.operand_types.values():
@@ -50,7 +51,7 @@ def encode(arch, cls, **values):
             case _: continue
         word = (word & ~f.mask) | f.put(raw & ((1 << f.width) - 1))
     data = ((word & ~k.constraint_mask) | k.constraint_bits).to_bytes(16, "little")
-    decoded = pydecode.decode(arch, data)
+    decoded = pydecode.decode(arch, data, conditions=conditions)
     if decoded.klass.name != cls: raise ValueError((cls, decoded.klass.name))
     for name, value in values.items():
         key = tuple(name.split("@")) if "@" in name else name

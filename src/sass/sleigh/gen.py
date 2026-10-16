@@ -665,8 +665,8 @@ class Gen:
 
     def dynamic_inputs(self, k):
         """Expression-sized read-only operands of opaque classes, sized by their own subtables."""
-        from sass.semantics.operations import OPERATION_FAMILIES
-        if k.mnemonic in OPERATION_FAMILIES: return set()
+        from sass.semantics.operations import ghidra_lowers
+        if ghidra_lowers(self.arch.name, k.mnemonic): return set()
         return {o["name"] for o, _, _ in self.reg_operands(k) if isinstance(o["span"], str) and o["role"] == ["read"]}
 
     def span_variants(self, k, names=None, domains=False):
@@ -791,9 +791,9 @@ class Gen:
         class: a catch-all constructor plus, per illegal cube, a more specific constructor leading
         to a dead end (`never`), so those words fail to decode. Conditions whose illegal set is
         large keep a positive decision subtable."""
-        from sass.semantics.family import family_for
+        from sass.semantics.operations import ghidra_family
         clauses, dead, tables = [], set(), []
-        if not family_for(k): return clauses, tables
+        if not ghidra_family(self.arch.name, k): return clauses, tables
         span = self.span_fields(k)
         for _, expr, _ in legal.operand_errors(self.arch.name, k):
             partition = legal.legal_classes(self.arch.name, k.name, expr)

@@ -232,7 +232,9 @@ def session(ldefs,langid):
             memories.append(dict(mem,hex=data.hex()))
         out=dict(text=str(ins),registers=registers,memory=memories,counter=int(thread.getCounter().getOffset()),events=runtime.events)
         if request.get('inspect_pcode'):
-            out['pcode_ops']=[str(op.getMnemonic()) for op in ins.getPcode()]
+            pcode=list(ins.getPcode());out['pcode_ops']=[str(op.getMnemonic()) for op in pcode]
+            # The same ops with each CALLOTHER named by its user op (sass_atomic_begin, ...).
+            out['pcode_sequence']=[str(lang.getUserDefinedOpName(int(op.getInput(0).getOffset()))) if str(op.getMnemonic())=='CALLOTHER' else str(op.getMnemonic()) for op in pcode]
         return out
     def handle(request):
         try:return run_kernel(request) if 'kernel' in request else instruction(request)

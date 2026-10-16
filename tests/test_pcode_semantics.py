@@ -10,9 +10,9 @@ from tests.harness.checks import problems
 
 
 def build(job):
-    from tests.cases import emulator_cases
+    from tests.cases import ghidra_cases
     arch, fp, fams, exhaustive = job
-    return {family: list(cases) for family, cases in emulator_cases(arch, fp, fams, exhaustive).items()}
+    return {family: list(cases) for family, cases in ghidra_cases(arch, fp, fams, exhaustive).items()}
 
 
 @cache
