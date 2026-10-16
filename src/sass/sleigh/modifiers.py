@@ -3,6 +3,7 @@ scheduling hints (FADD's `ftz`, `rnd`, `sat`), and `operand@flag` per operand fl
 set or unset. A form is one combination of their values. Shared by the generator (each value's
 semantics status), tests/evidence.py (the forms the tests ran) and the coverage report."""
 import itertools, math
+from functools import cache
 from sass.decode import ir
 from sass.md import expression, legal
 
@@ -84,13 +85,41 @@ def labelled(b, rows):
 
 
 def conditions(b, dom):
-    """The class's md error conditions that read only its modifiers, and the modifiers they read:
-    the legal combinations (F2FP: srcfmt F32 only with dstfmt F16, E6M9 or BF16)."""
+    """The class's md error conditions that read only its modifiers, as (keys read, the legal value
+    tuples of those keys), and every modifier they read: the legal combinations (F2FP: srcfmt F32
+    only with dstfmt F16, E6M9 or BF16)."""
     out, read = [], set()
     for _, expr, _ in legal.operand_errors(b.g.arch.name, b.k):
         names = {expression.env_key(n) for n in expression.condition_source(b.g.arch.name, expr)[1]}
-        if names and names <= dom.keys(): out.append(expr); read |= names
+        if names and names <= dom.keys():
+            keys = tuple(key for key in dom if key in names)
+            out.append((keys, holding(b.g.arch.name, expr, tuple((key, tuple(dom[key].values())) for key in keys))))
+            read |= names
     return out, read
+
+
+@cache
+def holding(arch_name, expr, domains):
+    """The value tuples over `domains` ((key, values) per modifier the condition reads) for which
+    md condition `expr` holds. Each condition reads a few modifiers, so checking a combination's
+    projections replaces evaluating every condition on every combination (SUATOM: 84k)."""
+    arch, keys = ir.load(arch_name), [key for key, _ in domains]
+    return frozenset(vs for vs in itertools.product(*(values for _, values in domains))
+                     if expression.holds(arch, expr, dict(zip(keys, vs))))
+
+
+def legal_product(choices, checks):
+    """itertools.product(*choices) of (label, value) pairs, in its order, keeping the tuples whose
+    values pass every check (positions, legal value tuples). Each check prunes as soon as its last
+    position is chosen: SUATOM's 1.6M combinations have 84k legal ones."""
+    due = [[] for _ in choices]
+    for at, legal in checks: due[max(at)].append((at, legal))
+    def walk(i, chosen, values):
+        if i == len(choices): yield chosen; return
+        for choice in choices[i]:
+            vs = values + (choice[1],)
+            if all(tuple(vs[j] for j in at) in legal for at, legal in due[i]): yield from walk(i + 1, chosen + (choice,), vs)
+    return walk(0, (), ())
 
 
 def combinations(b, rows):
@@ -99,13 +128,16 @@ def combinations(b, rows):
     some md condition reads; each entry stands for `free` combinations of the other modifiers, which
     change neither. Combinations only illegal rows admit are left out too."""
     dom, rows = labelled(b, rows)
-    exprs, read = conditions(b, dom)
+    checks, read = conditions(b, dom)
     decides = [key for key in dom if key in read or any(not admits(a, key, v) for a, _ in rows for v in dom[key].values())]
+    # Per row, the values it admits of each deciding modifier it restricts (by position in decides).
+    restricts = [(s, [(i, {v for v in dom[key].values() if admits(a, key, v)}) for i, key in enumerate(decides)
+                      if not all(admits(a, key, v) for v in dom[key].values())]) for a, s in rows]
+    checks = [(tuple(decides.index(key) for key in keys), legal) for keys, legal in checks]
     table = []
-    for labs in itertools.product(*(dom[key].items() for key in decides)):
-        env = {key: v for key, (_, v) in zip(decides, labs)}
-        if not all(expression.holds(b.g.arch, e, env) for e in exprs): continue
-        if ss := {s for a, s in rows if all(admits(a, key, v) for key, v in env.items())}:
+    for labs in legal_product([list(dom[key].items()) for key in decides], checks):
+        vs = tuple(v for _, v in labs)
+        if ss := {s for s, allowed in restricts if all(vs[i] in values for i, values in allowed)}:
             table.append([*(lab for lab, _ in labs), combined(ss)])
     labels = {name(k): list(dom[k]) for k in dom}
     return minimal(dict(labels=labels, decides=[name(k) for k in decides], table=table,
