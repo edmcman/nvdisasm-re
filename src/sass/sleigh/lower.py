@@ -214,8 +214,9 @@ def reads_memory(e): return any(n.op == "load" for n in nodes_of(e))
 
 
 def reread_choice(e):
-    """A decode-time choice of e that reads a load e also reads elsewhere (outside every choice, or
-    in another one), or None. A choice is a subtable of its own, so that load would run twice."""
+    """A decode-time choice in e that reads a load its constructor also reads elsewhere (outside every
+    choice, or in another one), or None. A choice is a subtable of its own, so that load would run
+    twice; each arm is a constructor too, so its own choices are checked the same way."""
     outside, choices, seen, stack = set(), [], set(), [e]
     while stack:
         n = stack.pop()
@@ -227,7 +228,7 @@ def reread_choice(e):
             stack.extend(n.args)
     for n, loads in choices:
         if loads & outside or any(loads & other for m, other in choices if m is not n): return n
-    return None
+    return next((found for n, _ in choices for _, arm in n.args[1] if (found := reread_choice(arm)) is not None), None)
 
 
 def shape(t):
@@ -945,7 +946,7 @@ LOADS = ("constant-load", "cx-load")   # operands whose subtable does a memory a
 
 def shared_subtrees(trees, b=None, leaves=frozenset()):
     """Maximal non-trivial subtrees that occur in more than one of `trees`; with the Builder b, not
-    those holding a loaded operand: a value table holding one would load again beside the arm's
+    those holding a load or loaded operand: a value table holding one would load again beside the arm's
     own reference to it. A subtree that the body itself never reads (it occurs only inside `leaves`,
     nodes computed in their own value tables) is not hoisted: it would be a dead temporary."""
     def nodes(t, leaves=leaves):   # in a fixed order: Expr hashes are identities, so sets would vary per run
@@ -961,7 +962,8 @@ def shared_subtrees(trees, b=None, leaves=frozenset()):
         for n in nodes(t, frozenset()): counts[n] += 1
         direct |= nodes(t).keys()
     # Even small shared parts: measured on SM89, hoisting everything shared gives the smallest .sla.
-    loads = lambda n: b is not None and any(m.op == "param" and getattr(b.values.get(m.args[0]), "kind", None) in LOADS for m in nodes(n, frozenset()))
+    loads = lambda n: b is not None and (reads_memory(n) or any(m.op == "param" and getattr(b.values.get(m.args[0]), "kind", None) in LOADS
+                                                                for m in nodes(n, frozenset())))
     shared = [n for n, c in counts.items() if c > 1 and n in direct and n.op not in ("const", "param", "reg") and not loads(n)]
     def below(n, seen):
         for a in n.args:

@@ -2,6 +2,14 @@
   "SM100": {
     "classes": 978,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 29703,
+        "reference": 33
+      },
+      "ATOMS": {
+        "none": 155,
+        "reference": 22
+      },
       "BAR": {
         "none": 69,
         "reference": 1
@@ -269,6 +277,10 @@
       "R2UR": {
         "reference": 1
       },
+      "REDG": {
+        "none": 25172,
+        "reference": 28
+      },
       "REDUX": {
         "none": 4,
         "reference": 8
@@ -429,10 +441,12 @@
         "opaque": 57960
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 24552,
+        "partially native": 29736
       },
       "ATOMS": {
-        "opaque": 279
+        "opaque": 102,
+        "partially native": 177
       },
       "B2R": {
         "opaque": 3
@@ -832,7 +846,8 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 22176,
+        "partially native": 25200
       },
       "REDUX": {
         "primitive": 12
@@ -1150,11 +1165,52 @@
       }
     },
     "evidence": {
-      "none": 225,
+      "none": 226,
       "ptxas": 15,
-      "reference": 298
+      "reference": 302
     },
     "opaque_operations": {
+      "atom_arrive__Ra32_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_cas__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_cas__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_arrive__arrive": "op ARRIVE",
+      "atoms_arrive__popcinc": "op POPC.INC",
+      "atoms_cas__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_cas__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_cast_destPu__RaNonRZ": "CAST; Pu result",
+      "atoms_cast_destPu__RaRZ": "CAST; Pu result",
+      "atoms_cast_destRd__RaNonRZ": "CAST",
+      "atoms_cast_destRd__RaRZ": "CAST",
+      "atoms_uniform_": "decode-time selector guards retain complete opaque fallbacks",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -1210,6 +1266,11 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
+      "redg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
@@ -1467,6 +1528,10 @@
       },
       "R2UR": {
         "reference": 1
+      },
+      "REDG": {
+        "none": 1,
+        "reference": 4
       },
       "REDUX": {
         "reference": 1
@@ -2005,7 +2070,8 @@
         "opaque": 2
       },
       "REDG": {
-        "opaque": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "REDUX": {
         "primitive": 1
@@ -2313,6 +2379,15 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 18
+      },
+      "ATOMG": {
+        "opaque": 12
+      },
+      "ATOMS": {
+        "opaque": 11
+      },
       "BAR": {
         "primitive": 26
       },
@@ -2553,6 +2628,13 @@
         "opaque": 3,
         "partially native": 1
       },
+      "RED": {
+        "absent": 0
+      },
+      "REDG": {
+        "opaque": 5,
+        "partially native": 5
+      },
       "REDUX": {
         "primitive": 1
       },
@@ -2722,8 +2804,8 @@
     },
     "status": {
       "native": 311,
-      "opaque": 440,
-      "partially native": 159,
+      "opaque": 435,
+      "partially native": 164,
       "partially primitive": 5,
       "primitive": 63
     }
@@ -2731,6 +2813,14 @@
   "SM100_READABLE": {
     "classes": 978,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 29703,
+        "reference": 33
+      },
+      "ATOMS": {
+        "none": 155,
+        "reference": 22
+      },
       "BAR": {
         "none": 69,
         "reference": 1
@@ -2998,6 +3088,10 @@
       "R2UR": {
         "reference": 1
       },
+      "REDG": {
+        "none": 25172,
+        "reference": 28
+      },
       "REDUX": {
         "none": 4,
         "reference": 8
@@ -3158,10 +3252,12 @@
         "opaque": 57960
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 24552,
+        "partially native": 29736
       },
       "ATOMS": {
-        "opaque": 279
+        "opaque": 102,
+        "partially native": 177
       },
       "B2R": {
         "opaque": 3
@@ -3558,7 +3654,8 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 22176,
+        "partially native": 25200
       },
       "REDUX": {
         "primitive": 12
@@ -3876,11 +3973,52 @@
       }
     },
     "evidence": {
-      "none": 225,
+      "none": 226,
       "ptxas": 15,
-      "reference": 298
+      "reference": 302
     },
     "opaque_operations": {
+      "atom_arrive__Ra32_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_cas__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_cas__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_arrive__arrive": "op ARRIVE",
+      "atoms_arrive__popcinc": "op POPC.INC",
+      "atoms_cas__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_cas__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_cast_destPu__RaNonRZ": "CAST; Pu result",
+      "atoms_cast_destPu__RaRZ": "CAST; Pu result",
+      "atoms_cast_destRd__RaNonRZ": "CAST",
+      "atoms_cast_destRd__RaRZ": "CAST",
+      "atoms_uniform_": "decode-time selector guards retain complete opaque fallbacks",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -3936,6 +4074,11 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
+      "redg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
@@ -4193,6 +4336,10 @@
       },
       "R2UR": {
         "reference": 1
+      },
+      "REDG": {
+        "none": 1,
+        "reference": 4
       },
       "REDUX": {
         "reference": 1
@@ -4731,7 +4878,8 @@
         "opaque": 2
       },
       "REDG": {
-        "opaque": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "REDUX": {
         "primitive": 1
@@ -5039,6 +5187,15 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 18
+      },
+      "ATOMG": {
+        "opaque": 12
+      },
+      "ATOMS": {
+        "opaque": 11
+      },
       "BAR": {
         "primitive": 26
       },
@@ -5279,6 +5436,13 @@
         "opaque": 3,
         "partially native": 1
       },
+      "RED": {
+        "absent": 0
+      },
+      "REDG": {
+        "opaque": 5,
+        "partially native": 5
+      },
       "REDUX": {
         "primitive": 1
       },
@@ -5448,8 +5612,8 @@
     },
     "status": {
       "native": 311,
-      "opaque": 440,
-      "partially native": 159,
+      "opaque": 435,
+      "partially native": 164,
       "partially primitive": 5,
       "primitive": 63
     }
@@ -5457,6 +5621,14 @@
   "SM101": {
     "classes": 904,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 29703,
+        "reference": 33
+      },
+      "ATOMS": {
+        "none": 155,
+        "reference": 22
+      },
       "BAR": {
         "none": 69,
         "reference": 1
@@ -5707,6 +5879,10 @@
       "R2UR": {
         "reference": 1
       },
+      "REDG": {
+        "none": 25172,
+        "reference": 28
+      },
       "REDUX": {
         "none": 4,
         "reference": 8
@@ -5847,10 +6023,12 @@
         "opaque": 57960
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 24552,
+        "partially native": 29736
       },
       "ATOMS": {
-        "opaque": 279
+        "opaque": 102,
+        "partially native": 177
       },
       "B2R": {
         "opaque": 3
@@ -6213,7 +6391,8 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 22176,
+        "partially native": 25200
       },
       "REDUX": {
         "primitive": 12
@@ -6502,10 +6681,51 @@
       }
     },
     "evidence": {
-      "none": 221,
-      "reference": 290
+      "none": 222,
+      "reference": 294
     },
     "opaque_operations": {
+      "atom_arrive__Ra32_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_cas__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_cas__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_arrive__arrive": "op ARRIVE",
+      "atoms_arrive__popcinc": "op POPC.INC",
+      "atoms_cas__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_cas__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_cast_destPu__RaNonRZ": "CAST; Pu result",
+      "atoms_cast_destPu__RaRZ": "CAST; Pu result",
+      "atoms_cast_destRd__RaNonRZ": "CAST",
+      "atoms_cast_destRd__RaRZ": "CAST",
+      "atoms_uniform_": "decode-time selector guards retain complete opaque fallbacks",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -6545,6 +6765,11 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
+      "redg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
@@ -6788,6 +7013,10 @@
       },
       "R2UR": {
         "reference": 1
+      },
+      "REDG": {
+        "none": 1,
+        "reference": 4
       },
       "REDUX": {
         "reference": 1
@@ -7277,7 +7506,8 @@
         "opaque": 2
       },
       "REDG": {
-        "opaque": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "REDUX": {
         "primitive": 1
@@ -7558,6 +7788,15 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 18
+      },
+      "ATOMG": {
+        "opaque": 12
+      },
+      "ATOMS": {
+        "opaque": 11
+      },
       "BAR": {
         "primitive": 26
       },
@@ -7796,6 +8035,13 @@
         "opaque": 3,
         "partially native": 1
       },
+      "RED": {
+        "absent": 0
+      },
+      "REDG": {
+        "opaque": 5,
+        "partially native": 5
+      },
       "REDUX": {
         "primitive": 1
       },
@@ -7965,8 +8211,8 @@
     },
     "status": {
       "native": 308,
-      "opaque": 393,
-      "partially native": 137,
+      "opaque": 388,
+      "partially native": 142,
       "partially primitive": 5,
       "primitive": 61
     }
@@ -7974,6 +8220,14 @@
   "SM101_READABLE": {
     "classes": 904,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 29703,
+        "reference": 33
+      },
+      "ATOMS": {
+        "none": 155,
+        "reference": 22
+      },
       "BAR": {
         "none": 69,
         "reference": 1
@@ -8224,6 +8478,10 @@
       "R2UR": {
         "reference": 1
       },
+      "REDG": {
+        "none": 25172,
+        "reference": 28
+      },
       "REDUX": {
         "none": 4,
         "reference": 8
@@ -8364,10 +8622,12 @@
         "opaque": 57960
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 24552,
+        "partially native": 29736
       },
       "ATOMS": {
-        "opaque": 279
+        "opaque": 102,
+        "partially native": 177
       },
       "B2R": {
         "opaque": 3
@@ -8728,7 +8988,8 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 22176,
+        "partially native": 25200
       },
       "REDUX": {
         "primitive": 12
@@ -9017,10 +9278,51 @@
       }
     },
     "evidence": {
-      "none": 221,
-      "reference": 290
+      "none": 222,
+      "reference": 294
     },
     "opaque_operations": {
+      "atom_arrive__Ra32_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_cas__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_cas__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_arrive__arrive": "op ARRIVE",
+      "atoms_arrive__popcinc": "op POPC.INC",
+      "atoms_cas__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_cas__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_cast_destPu__RaNonRZ": "CAST; Pu result",
+      "atoms_cast_destPu__RaRZ": "CAST; Pu result",
+      "atoms_cast_destRd__RaNonRZ": "CAST",
+      "atoms_cast_destRd__RaRZ": "CAST",
+      "atoms_uniform_": "decode-time selector guards retain complete opaque fallbacks",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -9060,6 +9362,11 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
+      "redg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
@@ -9303,6 +9610,10 @@
       },
       "R2UR": {
         "reference": 1
+      },
+      "REDG": {
+        "none": 1,
+        "reference": 4
       },
       "REDUX": {
         "reference": 1
@@ -9792,7 +10103,8 @@
         "opaque": 2
       },
       "REDG": {
-        "opaque": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "REDUX": {
         "primitive": 1
@@ -10073,6 +10385,15 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 18
+      },
+      "ATOMG": {
+        "opaque": 12
+      },
+      "ATOMS": {
+        "opaque": 11
+      },
       "BAR": {
         "primitive": 26
       },
@@ -10311,6 +10632,13 @@
         "opaque": 3,
         "partially native": 1
       },
+      "RED": {
+        "absent": 0
+      },
+      "REDG": {
+        "opaque": 5,
+        "partially native": 5
+      },
       "REDUX": {
         "primitive": 1
       },
@@ -10480,8 +10808,8 @@
     },
     "status": {
       "native": 308,
-      "opaque": 393,
-      "partially native": 137,
+      "opaque": 388,
+      "partially native": 142,
       "partially primitive": 5,
       "primitive": 61
     }
@@ -10489,6 +10817,14 @@
   "SM103": {
     "classes": 974,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 29703,
+        "reference": 33
+      },
+      "ATOMS": {
+        "none": 155,
+        "reference": 22
+      },
       "BAR": {
         "none": 69,
         "reference": 1
@@ -10751,6 +11087,10 @@
       "R2UR": {
         "reference": 1
       },
+      "REDG": {
+        "none": 25172,
+        "reference": 28
+      },
       "REDUX": {
         "none": 4,
         "reference": 8
@@ -10906,10 +11246,12 @@
         "opaque": 57960
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 24552,
+        "partially native": 29736
       },
       "ATOMS": {
-        "opaque": 279
+        "opaque": 102,
+        "partially native": 177
       },
       "B2R": {
         "opaque": 3
@@ -11309,7 +11651,8 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 22176,
+        "partially native": 25200
       },
       "REDUX": {
         "primitive": 12
@@ -11621,10 +11964,51 @@
       }
     },
     "evidence": {
-      "none": 228,
-      "reference": 313
+      "none": 229,
+      "reference": 317
     },
     "opaque_operations": {
+      "atom_arrive__Ra32_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_cas__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_cas__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_arrive__arrive": "op ARRIVE",
+      "atoms_arrive__popcinc": "op POPC.INC",
+      "atoms_cas__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_cas__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_cast_destPu__RaNonRZ": "CAST; Pu result",
+      "atoms_cast_destPu__RaRZ": "CAST; Pu result",
+      "atoms_cast_destRd__RaNonRZ": "CAST",
+      "atoms_cast_destRd__RaRZ": "CAST",
+      "atoms_uniform_": "decode-time selector guards retain complete opaque fallbacks",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -11680,6 +12064,11 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
+      "redg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
@@ -11932,6 +12321,10 @@
       },
       "R2UR": {
         "reference": 1
+      },
+      "REDG": {
+        "none": 1,
+        "reference": 4
       },
       "REDUX": {
         "reference": 1
@@ -12466,7 +12859,8 @@
         "opaque": 2
       },
       "REDG": {
-        "opaque": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "REDUX": {
         "primitive": 1
@@ -12768,6 +13162,15 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 18
+      },
+      "ATOMG": {
+        "opaque": 12
+      },
+      "ATOMS": {
+        "opaque": 11
+      },
       "BAR": {
         "primitive": 26
       },
@@ -13008,6 +13411,13 @@
         "opaque": 3,
         "partially native": 1
       },
+      "RED": {
+        "absent": 0
+      },
+      "REDG": {
+        "opaque": 5,
+        "partially native": 5
+      },
       "REDUX": {
         "primitive": 1
       },
@@ -13177,8 +13587,8 @@
     },
     "status": {
       "native": 311,
-      "opaque": 433,
-      "partially native": 159,
+      "opaque": 428,
+      "partially native": 164,
       "partially primitive": 5,
       "primitive": 66
     }
@@ -13186,6 +13596,14 @@
   "SM103_READABLE": {
     "classes": 974,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 29703,
+        "reference": 33
+      },
+      "ATOMS": {
+        "none": 155,
+        "reference": 22
+      },
       "BAR": {
         "none": 69,
         "reference": 1
@@ -13448,6 +13866,10 @@
       "R2UR": {
         "reference": 1
       },
+      "REDG": {
+        "none": 25172,
+        "reference": 28
+      },
       "REDUX": {
         "none": 4,
         "reference": 8
@@ -13603,10 +14025,12 @@
         "opaque": 57960
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 24552,
+        "partially native": 29736
       },
       "ATOMS": {
-        "opaque": 279
+        "opaque": 102,
+        "partially native": 177
       },
       "B2R": {
         "opaque": 3
@@ -14003,7 +14427,8 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 22176,
+        "partially native": 25200
       },
       "REDUX": {
         "primitive": 12
@@ -14315,10 +14740,51 @@
       }
     },
     "evidence": {
-      "none": 228,
-      "reference": 313
+      "none": 229,
+      "reference": 317
     },
     "opaque_operations": {
+      "atom_arrive__Ra32_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_cas__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_cas__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_arrive__arrive": "op ARRIVE",
+      "atoms_arrive__popcinc": "op POPC.INC",
+      "atoms_cas__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_cas__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_cast_destPu__RaNonRZ": "CAST; Pu result",
+      "atoms_cast_destPu__RaRZ": "CAST; Pu result",
+      "atoms_cast_destRd__RaNonRZ": "CAST",
+      "atoms_cast_destRd__RaRZ": "CAST",
+      "atoms_uniform_": "decode-time selector guards retain complete opaque fallbacks",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -14374,6 +14840,11 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
+      "redg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
@@ -14626,6 +15097,10 @@
       },
       "R2UR": {
         "reference": 1
+      },
+      "REDG": {
+        "none": 1,
+        "reference": 4
       },
       "REDUX": {
         "reference": 1
@@ -15160,7 +15635,8 @@
         "opaque": 2
       },
       "REDG": {
-        "opaque": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "REDUX": {
         "primitive": 1
@@ -15462,6 +15938,15 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 18
+      },
+      "ATOMG": {
+        "opaque": 12
+      },
+      "ATOMS": {
+        "opaque": 11
+      },
       "BAR": {
         "primitive": 26
       },
@@ -15702,6 +16187,13 @@
         "opaque": 3,
         "partially native": 1
       },
+      "RED": {
+        "absent": 0
+      },
+      "REDG": {
+        "opaque": 5,
+        "partially native": 5
+      },
       "REDUX": {
         "primitive": 1
       },
@@ -15871,8 +16363,8 @@
     },
     "status": {
       "native": 311,
-      "opaque": 433,
-      "partially native": 159,
+      "opaque": 428,
+      "partially native": 164,
       "partially primitive": 5,
       "primitive": 66
     }
@@ -16962,6 +17454,44 @@
       "reference": 326
     },
     "opaque_operations": {
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_cas__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_cas__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_arrive__popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cas__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cas__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cast_destPu__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cast_destPu__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cast_destRd__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cast_destRd__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_uniform_": "not lowered for Ghidra (16 MiB .sla limit)",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -17041,6 +17571,16 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
+      "redg_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
@@ -18068,6 +18608,15 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 16
+      },
+      "ATOMG": {
+        "opaque": 12
+      },
+      "ATOMS": {
+        "opaque": 10
+      },
       "BAR": {
         "primitive": 26
       },
@@ -18309,6 +18858,12 @@
       "R2UR": {
         "opaque": 3,
         "partially native": 1
+      },
+      "RED": {
+        "absent": 0
+      },
+      "REDG": {
+        "opaque": 10
       },
       "REDUX": {
         "primitive": 1
@@ -19567,6 +20122,44 @@
       "reference": 326
     },
     "opaque_operations": {
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_cas__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_cas__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_arrive__popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cas__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cas__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cast_destPu__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cast_destPu__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cast_destRd__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cast_destRd__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_uniform_": "not lowered for Ghidra (16 MiB .sla limit)",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -19646,6 +20239,16 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
+      "redg_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
@@ -20673,6 +21276,15 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 16
+      },
+      "ATOMG": {
+        "opaque": 12
+      },
+      "ATOMS": {
+        "opaque": 10
+      },
       "BAR": {
         "primitive": 26
       },
@@ -20915,6 +21527,12 @@
         "opaque": 3,
         "partially native": 1
       },
+      "RED": {
+        "absent": 0
+      },
+      "REDG": {
+        "opaque": 10
+      },
       "REDUX": {
         "primitive": 1
       },
@@ -21093,6 +21711,14 @@
   "SM120": {
     "classes": 1015,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 29703,
+        "reference": 33
+      },
+      "ATOMS": {
+        "none": 155,
+        "reference": 22
+      },
       "BAR": {
         "none": 69,
         "reference": 1
@@ -21342,6 +21968,10 @@
       "R2UR": {
         "reference": 1
       },
+      "REDG": {
+        "none": 25172,
+        "reference": 28
+      },
       "REDUX": {
         "none": 4,
         "reference": 8
@@ -21531,10 +22161,12 @@
         "opaque": 57960
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 24552,
+        "partially native": 29736
       },
       "ATOMS": {
-        "opaque": 279
+        "opaque": 102,
+        "partially native": 177
       },
       "B2R": {
         "opaque": 3
@@ -21908,7 +22540,8 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 22176,
+        "partially native": 25200
       },
       "REDUX": {
         "primitive": 12
@@ -22248,10 +22881,51 @@
       }
     },
     "evidence": {
-      "none": 260,
-      "reference": 310
+      "none": 261,
+      "reference": 314
     },
     "opaque_operations": {
+      "atom_arrive__Ra32_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_cas__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_cas__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_arrive__arrive": "op ARRIVE",
+      "atoms_arrive__popcinc": "op POPC.INC",
+      "atoms_cas__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_cas__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_cast_destPu__RaNonRZ": "CAST; Pu result",
+      "atoms_cast_destPu__RaRZ": "CAST; Pu result",
+      "atoms_cast_destRd__RaNonRZ": "CAST",
+      "atoms_cast_destRd__RaRZ": "CAST",
+      "atoms_uniform_": "decode-time selector guards retain complete opaque fallbacks",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -22319,6 +22993,11 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
+      "redg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
@@ -22574,6 +23253,10 @@
       },
       "R2UR": {
         "reference": 1
+      },
+      "REDG": {
+        "none": 1,
+        "reference": 4
       },
       "REDUX": {
         "reference": 1
@@ -23117,7 +23800,8 @@
         "opaque": 2
       },
       "REDG": {
-        "opaque": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "REDUX": {
         "primitive": 1
@@ -23446,6 +24130,15 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 18
+      },
+      "ATOMG": {
+        "opaque": 12
+      },
+      "ATOMS": {
+        "opaque": 11
+      },
       "BAR": {
         "primitive": 26
       },
@@ -23686,6 +24379,13 @@
         "opaque": 3,
         "partially native": 1
       },
+      "RED": {
+        "absent": 0
+      },
+      "REDG": {
+        "opaque": 5,
+        "partially native": 5
+      },
       "REDUX": {
         "primitive": 1
       },
@@ -23858,8 +24558,8 @@
     },
     "status": {
       "native": 353,
-      "opaque": 445,
-      "partially native": 151,
+      "opaque": 440,
+      "partially native": 156,
       "partially primitive": 5,
       "primitive": 61
     }
@@ -23867,6 +24567,14 @@
   "SM120_READABLE": {
     "classes": 1015,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 29703,
+        "reference": 33
+      },
+      "ATOMS": {
+        "none": 155,
+        "reference": 22
+      },
       "BAR": {
         "none": 69,
         "reference": 1
@@ -24116,6 +24824,10 @@
       "R2UR": {
         "reference": 1
       },
+      "REDG": {
+        "none": 25172,
+        "reference": 28
+      },
       "REDUX": {
         "none": 4,
         "reference": 8
@@ -24305,10 +25017,12 @@
         "opaque": 57960
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 24552,
+        "partially native": 29736
       },
       "ATOMS": {
-        "opaque": 279
+        "opaque": 102,
+        "partially native": 177
       },
       "B2R": {
         "opaque": 3
@@ -24680,7 +25394,8 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 22176,
+        "partially native": 25200
       },
       "REDUX": {
         "primitive": 12
@@ -25018,10 +25733,51 @@
       }
     },
     "evidence": {
-      "none": 260,
-      "reference": 310
+      "none": 261,
+      "reference": 314
     },
     "opaque_operations": {
+      "atom_arrive__Ra32_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_cas__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_cas__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_int_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_arrive__arrive": "op ARRIVE",
+      "atoms_arrive__popcinc": "op POPC.INC",
+      "atoms_cas__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_cas__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atoms_cast_destPu__RaNonRZ": "CAST; Pu result",
+      "atoms_cast_destPu__RaRZ": "CAST; Pu result",
+      "atoms_cast_destRd__RaNonRZ": "CAST",
+      "atoms_cast_destRd__RaRZ": "CAST",
+      "atoms_uniform_": "decode-time selector guards retain complete opaque fallbacks",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -25089,6 +25845,11 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
+      "redg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "redg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
@@ -25344,6 +26105,10 @@
       },
       "R2UR": {
         "reference": 1
+      },
+      "REDG": {
+        "none": 1,
+        "reference": 4
       },
       "REDUX": {
         "reference": 1
@@ -25887,7 +26652,8 @@
         "opaque": 2
       },
       "REDG": {
-        "opaque": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "REDUX": {
         "primitive": 1
@@ -26216,6 +26982,15 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 18
+      },
+      "ATOMG": {
+        "opaque": 12
+      },
+      "ATOMS": {
+        "opaque": 11
+      },
       "BAR": {
         "primitive": 26
       },
@@ -26456,6 +27231,13 @@
         "opaque": 3,
         "partially native": 1
       },
+      "RED": {
+        "absent": 0
+      },
+      "REDG": {
+        "opaque": 5,
+        "partially native": 5
+      },
       "REDUX": {
         "primitive": 1
       },
@@ -26628,8 +27410,8 @@
     },
     "status": {
       "native": 358,
-      "opaque": 445,
-      "partially native": 146,
+      "opaque": 440,
+      "partially native": 151,
       "partially primitive": 5,
       "primitive": 61
     }
@@ -26637,6 +27419,14 @@
   "SM75": {
     "classes": 903,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 25311,
+        "reference": 33
+      },
+      "ATOMS": {
+        "none": 147,
+        "reference": 21
+      },
       "BAR": {
         "none": 69,
         "reference": 1
@@ -26870,6 +27660,10 @@
       "R2UR": {
         "reference": 1
       },
+      "RED": {
+        "none": 21572,
+        "reference": 28
+      },
       "RET": {
         "none": 6,
         "reference": 2
@@ -26999,10 +27793,12 @@
         "opaque": 29376
       },
       "ATOMG": {
-        "opaque": 27936
+        "opaque": 2592,
+        "partially native": 25344
       },
       "ATOMS": {
-        "opaque": 198
+        "opaque": 30,
+        "partially native": 168
       },
       "B2R": {
         "opaque": 3
@@ -27310,7 +28106,8 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 23328
+        "opaque": 1728,
+        "partially native": 21600
       },
       "RET": {
         "native": 8,
@@ -27510,10 +28307,21 @@
       }
     },
     "evidence": {
-      "none": 341,
-      "reference": 255
+      "none": 345,
+      "reference": 268
     },
     "opaque_operations": {
+      "atom__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cas__RaNonRZ_CAST": "CAST",
+      "atoms_cas__RaRZ_CAST": "CAST",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "dadd__RRCx_RCx": "width",
@@ -27577,6 +28385,14 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "none": 2,
+        "reference": 5
+      },
+      "ATOMS": {
+        "none": 1,
+        "reference": 4
+      },
       "BAR": {
         "none": 25,
         "reference": 1
@@ -27794,6 +28610,10 @@
       "R2UR": {
         "reference": 1
       },
+      "RED": {
+        "none": 1,
+        "reference": 4
+      },
       "RET": {
         "none": 2,
         "reference": 2
@@ -27920,10 +28740,11 @@
         "opaque": 9
       },
       "ATOMG": {
-        "opaque": 7
+        "partially native": 7
       },
       "ATOMS": {
-        "opaque": 7
+        "opaque": 2,
+        "partially native": 5
       },
       "B2R": {
         "opaque": 3
@@ -28218,7 +29039,7 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 5
+        "partially native": 5
       },
       "RET": {
         "partially native": 4
@@ -28408,6 +29229,16 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 9
+      },
+      "ATOMG": {
+        "partially native": 7
+      },
+      "ATOMS": {
+        "opaque": 2,
+        "partially native": 5
+      },
       "BAR": {
         "primitive": 26
       },
@@ -28646,6 +29477,12 @@
         "opaque": 1,
         "partially native": 1
       },
+      "RED": {
+        "partially native": 5
+      },
+      "REDG": {
+        "absent": 0
+      },
       "REDUX": {
         "absent": 0
       },
@@ -28814,14 +29651,22 @@
     },
     "status": {
       "native": 385,
-      "opaque": 307,
-      "partially native": 132,
+      "opaque": 290,
+      "partially native": 149,
       "primitive": 79
     }
   },
   "SM75_READABLE": {
     "classes": 903,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 25311,
+        "reference": 33
+      },
+      "ATOMS": {
+        "none": 147,
+        "reference": 21
+      },
       "BAR": {
         "none": 69,
         "reference": 1
@@ -29055,6 +29900,10 @@
       "R2UR": {
         "reference": 1
       },
+      "RED": {
+        "none": 21572,
+        "reference": 28
+      },
       "RET": {
         "none": 6,
         "reference": 2
@@ -29184,10 +30033,12 @@
         "opaque": 29376
       },
       "ATOMG": {
-        "opaque": 27936
+        "opaque": 2592,
+        "partially native": 25344
       },
       "ATOMS": {
-        "opaque": 198
+        "opaque": 30,
+        "partially native": 168
       },
       "B2R": {
         "opaque": 3
@@ -29493,7 +30344,8 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 23328
+        "opaque": 1728,
+        "partially native": 21600
       },
       "RET": {
         "native": 8,
@@ -29693,10 +30545,21 @@
       }
     },
     "evidence": {
-      "none": 341,
-      "reference": 255
+      "none": 345,
+      "reference": 268
     },
     "opaque_operations": {
+      "atom__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cas__RaNonRZ_CAST": "CAST",
+      "atoms_cas__RaRZ_CAST": "CAST",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "dadd__RRCx_RCx": "width",
@@ -29760,6 +30623,14 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "none": 2,
+        "reference": 5
+      },
+      "ATOMS": {
+        "none": 1,
+        "reference": 4
+      },
       "BAR": {
         "none": 25,
         "reference": 1
@@ -29977,6 +30848,10 @@
       "R2UR": {
         "reference": 1
       },
+      "RED": {
+        "none": 1,
+        "reference": 4
+      },
       "RET": {
         "none": 2,
         "reference": 2
@@ -30103,10 +30978,11 @@
         "opaque": 9
       },
       "ATOMG": {
-        "opaque": 7
+        "partially native": 7
       },
       "ATOMS": {
-        "opaque": 7
+        "opaque": 2,
+        "partially native": 5
       },
       "B2R": {
         "opaque": 3
@@ -30401,7 +31277,7 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 5
+        "partially native": 5
       },
       "RET": {
         "partially native": 4
@@ -30591,6 +31467,16 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 9
+      },
+      "ATOMG": {
+        "partially native": 7
+      },
+      "ATOMS": {
+        "opaque": 2,
+        "partially native": 5
+      },
       "BAR": {
         "primitive": 26
       },
@@ -30829,6 +31715,12 @@
         "opaque": 1,
         "partially native": 1
       },
+      "RED": {
+        "partially native": 5
+      },
+      "REDG": {
+        "absent": 0
+      },
       "REDUX": {
         "absent": 0
       },
@@ -30997,14 +31889,22 @@
     },
     "status": {
       "native": 385,
-      "opaque": 307,
-      "partially native": 132,
+      "opaque": 290,
+      "partially native": 149,
       "primitive": 79
     }
   },
   "SM80": {
     "classes": 967,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 40286,
+        "reference": 34
+      },
+      "ATOMS": {
+        "none": 147,
+        "reference": 21
+      },
       "BAR": {
         "none": 69,
         "reference": 1
@@ -31245,6 +32145,10 @@
       "R2UR": {
         "reference": 1
       },
+      "RED": {
+        "none": 34621,
+        "reference": 29
+      },
       "REDUX": {
         "none": 4,
         "reference": 8
@@ -31381,10 +32285,12 @@
         "opaque": 46872
       },
       "ATOMG": {
-        "opaque": 44280
+        "opaque": 3960,
+        "partially native": 40320
       },
       "ATOMS": {
-        "opaque": 206
+        "opaque": 38,
+        "partially native": 168
       },
       "B2R": {
         "opaque": 3
@@ -31711,7 +32617,8 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 37422
+        "opaque": 2772,
+        "partially native": 34650
       },
       "REDUX": {
         "primitive": 12
@@ -31901,10 +32808,30 @@
       }
     },
     "evidence": {
-      "none": 341,
-      "reference": 273
+      "none": 345,
+      "reference": 288
     },
     "opaque_operations": {
+      "atom__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__RaRZ_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__RaRZ_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_arrive__arrive": "op ARRIVE",
+      "atoms_arrive__popcinc": "op POPC.INC",
+      "atoms_cas__RaNonRZ_CAST": "CAST",
+      "atoms_cas__RaRZ_CAST": "CAST",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -31987,6 +32914,14 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "none": 2,
+        "reference": 6
+      },
+      "ATOMS": {
+        "none": 1,
+        "reference": 4
+      },
       "BAR": {
         "none": 25,
         "reference": 1
@@ -32210,6 +33145,10 @@
       "R2UR": {
         "reference": 1
       },
+      "RED": {
+        "none": 1,
+        "reference": 5
+      },
       "REDUX": {
         "reference": 1
       },
@@ -32342,10 +33281,11 @@
         "opaque": 16
       },
       "ATOMG": {
-        "opaque": 8
+        "partially native": 8
       },
       "ATOMS": {
-        "opaque": 9
+        "opaque": 4,
+        "partially native": 5
       },
       "B2R": {
         "opaque": 3
@@ -32662,7 +33602,7 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 6
+        "partially native": 6
       },
       "REDUX": {
         "primitive": 1
@@ -32843,6 +33783,16 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 16
+      },
+      "ATOMG": {
+        "partially native": 8
+      },
+      "ATOMS": {
+        "opaque": 4,
+        "partially native": 5
+      },
       "BAR": {
         "primitive": 26
       },
@@ -33082,6 +34032,12 @@
         "opaque": 1,
         "partially native": 1
       },
+      "RED": {
+        "partially native": 6
+      },
+      "REDG": {
+        "absent": 0
+      },
       "REDUX": {
         "primitive": 1
       },
@@ -33250,14 +34206,22 @@
     },
     "status": {
       "native": 410,
-      "opaque": 353,
-      "partially native": 124,
+      "opaque": 334,
+      "partially native": 143,
       "primitive": 80
     }
   },
   "SM80_READABLE": {
     "classes": 967,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 40286,
+        "reference": 34
+      },
+      "ATOMS": {
+        "none": 147,
+        "reference": 21
+      },
       "BAR": {
         "none": 69,
         "reference": 1
@@ -33498,6 +34462,10 @@
       "R2UR": {
         "reference": 1
       },
+      "RED": {
+        "none": 34621,
+        "reference": 29
+      },
       "REDUX": {
         "none": 4,
         "reference": 8
@@ -33634,10 +34602,12 @@
         "opaque": 46872
       },
       "ATOMG": {
-        "opaque": 44280
+        "opaque": 3960,
+        "partially native": 40320
       },
       "ATOMS": {
-        "opaque": 206
+        "opaque": 38,
+        "partially native": 168
       },
       "B2R": {
         "opaque": 3
@@ -33962,7 +34932,8 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 37422
+        "opaque": 2772,
+        "partially native": 34650
       },
       "REDUX": {
         "primitive": 12
@@ -34152,10 +35123,30 @@
       }
     },
     "evidence": {
-      "none": 341,
-      "reference": 273
+      "none": 345,
+      "reference": 288
     },
     "opaque_operations": {
+      "atom__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__RaRZ_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__RaRZ_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_arrive__arrive": "op ARRIVE",
+      "atoms_arrive__popcinc": "op POPC.INC",
+      "atoms_cas__RaNonRZ_CAST": "CAST",
+      "atoms_cas__RaRZ_CAST": "CAST",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -34238,6 +35229,14 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "none": 2,
+        "reference": 6
+      },
+      "ATOMS": {
+        "none": 1,
+        "reference": 4
+      },
       "BAR": {
         "none": 25,
         "reference": 1
@@ -34461,6 +35460,10 @@
       "R2UR": {
         "reference": 1
       },
+      "RED": {
+        "none": 1,
+        "reference": 5
+      },
       "REDUX": {
         "reference": 1
       },
@@ -34593,10 +35596,11 @@
         "opaque": 16
       },
       "ATOMG": {
-        "opaque": 8
+        "partially native": 8
       },
       "ATOMS": {
-        "opaque": 9
+        "opaque": 4,
+        "partially native": 5
       },
       "B2R": {
         "opaque": 3
@@ -34913,7 +35917,7 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 6
+        "partially native": 6
       },
       "REDUX": {
         "primitive": 1
@@ -35094,6 +36098,16 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 16
+      },
+      "ATOMG": {
+        "partially native": 8
+      },
+      "ATOMS": {
+        "opaque": 4,
+        "partially native": 5
+      },
       "BAR": {
         "primitive": 26
       },
@@ -35333,6 +36347,12 @@
         "opaque": 1,
         "partially native": 1
       },
+      "RED": {
+        "partially native": 6
+      },
+      "REDG": {
+        "absent": 0
+      },
       "REDUX": {
         "primitive": 1
       },
@@ -35501,14 +36521,22 @@
     },
     "status": {
       "native": 410,
-      "opaque": 353,
-      "partially native": 124,
+      "opaque": 334,
+      "partially native": 143,
       "primitive": 80
     }
   },
   "SM86": {
     "classes": 1004,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 40286,
+        "reference": 34
+      },
+      "ATOMS": {
+        "none": 147,
+        "reference": 21
+      },
       "BAR": {
         "none": 69,
         "reference": 1
@@ -35757,6 +36785,10 @@
       "R2UR": {
         "reference": 1
       },
+      "RED": {
+        "none": 34621,
+        "reference": 29
+      },
       "REDUX": {
         "none": 4,
         "reference": 8
@@ -35896,10 +36928,12 @@
         "opaque": 46872
       },
       "ATOMG": {
-        "opaque": 44280
+        "opaque": 3960,
+        "partially native": 40320
       },
       "ATOMS": {
-        "opaque": 206
+        "opaque": 38,
+        "partially native": 168
       },
       "B2R": {
         "opaque": 3
@@ -36234,7 +37268,8 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 37422
+        "opaque": 2772,
+        "partially native": 34650
       },
       "REDUX": {
         "primitive": 12
@@ -36452,10 +37487,30 @@
       }
     },
     "evidence": {
-      "none": 350,
-      "reference": 290
+      "none": 354,
+      "reference": 305
     },
     "opaque_operations": {
+      "atom__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__RaRZ_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__RaRZ_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_arrive__arrive": "op ARRIVE",
+      "atoms_arrive__popcinc": "op POPC.INC",
+      "atoms_cas__RaNonRZ_CAST": "CAST",
+      "atoms_cas__RaRZ_CAST": "CAST",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -36537,6 +37592,14 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "none": 2,
+        "reference": 6
+      },
+      "ATOMS": {
+        "none": 1,
+        "reference": 4
+      },
       "BAR": {
         "none": 25,
         "reference": 1
@@ -36767,6 +37830,10 @@
       "R2UR": {
         "reference": 1
       },
+      "RED": {
+        "none": 1,
+        "reference": 5
+      },
       "REDUX": {
         "reference": 1
       },
@@ -36902,10 +37969,11 @@
         "opaque": 16
       },
       "ATOMG": {
-        "opaque": 8
+        "partially native": 8
       },
       "ATOMS": {
-        "opaque": 9
+        "opaque": 4,
+        "partially native": 5
       },
       "B2R": {
         "opaque": 3
@@ -37230,7 +38298,7 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 6
+        "partially native": 6
       },
       "REDUX": {
         "primitive": 1
@@ -37439,6 +38507,16 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 16
+      },
+      "ATOMG": {
+        "partially native": 8
+      },
+      "ATOMS": {
+        "opaque": 4,
+        "partially native": 5
+      },
       "BAR": {
         "primitive": 26
       },
@@ -37680,6 +38758,12 @@
         "opaque": 1,
         "partially native": 1
       },
+      "RED": {
+        "partially native": 6
+      },
+      "REDG": {
+        "absent": 0
+      },
       "REDUX": {
         "primitive": 1
       },
@@ -37849,14 +38933,22 @@
     },
     "status": {
       "native": 426,
-      "opaque": 364,
-      "partially native": 138,
+      "opaque": 345,
+      "partially native": 157,
       "primitive": 76
     }
   },
   "SM86_READABLE": {
     "classes": 1004,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 40286,
+        "reference": 34
+      },
+      "ATOMS": {
+        "none": 147,
+        "reference": 21
+      },
       "BAR": {
         "none": 69,
         "reference": 1
@@ -38105,6 +39197,10 @@
       "R2UR": {
         "reference": 1
       },
+      "RED": {
+        "none": 34621,
+        "reference": 29
+      },
       "REDUX": {
         "none": 4,
         "reference": 8
@@ -38244,10 +39340,12 @@
         "opaque": 46872
       },
       "ATOMG": {
-        "opaque": 44280
+        "opaque": 3960,
+        "partially native": 40320
       },
       "ATOMS": {
-        "opaque": 206
+        "opaque": 38,
+        "partially native": 168
       },
       "B2R": {
         "opaque": 3
@@ -38579,7 +39677,8 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 37422
+        "opaque": 2772,
+        "partially native": 34650
       },
       "REDUX": {
         "primitive": 12
@@ -38797,10 +39896,30 @@
       }
     },
     "evidence": {
-      "none": 350,
-      "reference": 290
+      "none": 354,
+      "reference": 305
     },
     "opaque_operations": {
+      "atom__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__RaRZ_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__RaRZ_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_arrive__arrive": "op ARRIVE",
+      "atoms_arrive__popcinc": "op POPC.INC",
+      "atoms_cas__RaNonRZ_CAST": "CAST",
+      "atoms_cas__RaRZ_CAST": "CAST",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -38882,6 +40001,14 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "none": 2,
+        "reference": 6
+      },
+      "ATOMS": {
+        "none": 1,
+        "reference": 4
+      },
       "BAR": {
         "none": 25,
         "reference": 1
@@ -39112,6 +40239,10 @@
       "R2UR": {
         "reference": 1
       },
+      "RED": {
+        "none": 1,
+        "reference": 5
+      },
       "REDUX": {
         "reference": 1
       },
@@ -39247,10 +40378,11 @@
         "opaque": 16
       },
       "ATOMG": {
-        "opaque": 8
+        "partially native": 8
       },
       "ATOMS": {
-        "opaque": 9
+        "opaque": 4,
+        "partially native": 5
       },
       "B2R": {
         "opaque": 3
@@ -39574,7 +40706,7 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 6
+        "partially native": 6
       },
       "REDUX": {
         "primitive": 1
@@ -39783,6 +40915,16 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 16
+      },
+      "ATOMG": {
+        "partially native": 8
+      },
+      "ATOMS": {
+        "opaque": 4,
+        "partially native": 5
+      },
       "BAR": {
         "primitive": 26
       },
@@ -40023,6 +41165,12 @@
         "opaque": 1,
         "partially native": 1
       },
+      "RED": {
+        "partially native": 6
+      },
+      "REDG": {
+        "absent": 0
+      },
       "REDUX": {
         "primitive": 1
       },
@@ -40192,14 +41340,26 @@
     },
     "status": {
       "native": 431,
-      "opaque": 364,
-      "partially native": 133,
+      "opaque": 345,
+      "partially native": 152,
       "primitive": 76
     }
   },
   "SM89": {
     "classes": 1054,
     "combination_evidence": {
+      "ATOMG": {
+        "gpu": 20,
+        "none": 40265,
+        "ptxas": 1,
+        "reference": 34
+      },
+      "ATOMS": {
+        "gpu": 5,
+        "none": 140,
+        "ptxas": 3,
+        "reference": 20
+      },
       "BAR": {
         "none": 69,
         "reference": 1
@@ -40398,8 +41558,8 @@
         "reference": 29
       },
       "IMAD": {
-        "gpu": 25,
-        "none": 284,
+        "gpu": 26,
+        "none": 283,
         "reference": 3
       },
       "IMNMX": {
@@ -40412,8 +41572,8 @@
         "reference": 620
       },
       "LD": {
-        "gpu": 3,
-        "none": 12922,
+        "gpu": 4,
+        "none": 12921,
         "reference": 11
       },
       "LDC": {
@@ -40421,8 +41581,8 @@
         "none": 11
       },
       "LDG": {
-        "gpu": 4,
-        "none": 20315,
+        "gpu": 6,
+        "none": 20313,
         "reference": 9
       },
       "LDL": {
@@ -40493,6 +41653,11 @@
       "R2UR": {
         "gpu": 1
       },
+      "RED": {
+        "gpu": 3,
+        "none": 34618,
+        "reference": 29
+      },
       "REDUX": {
         "gpu": 8,
         "none": 4
@@ -40526,13 +41691,13 @@
         "none": 12
       },
       "ST": {
-        "gpu": 3,
-        "none": 6169,
+        "gpu": 4,
+        "none": 6168,
         "reference": 2
       },
       "STG": {
-        "gpu": 3,
-        "none": 9698,
+        "gpu": 5,
+        "none": 9696,
         "reference": 1
       },
       "STL": {
@@ -40645,10 +41810,12 @@
         "opaque": 46872
       },
       "ATOMG": {
-        "opaque": 44280
+        "opaque": 3960,
+        "partially native": 40320
       },
       "ATOMS": {
-        "opaque": 206
+        "opaque": 38,
+        "partially native": 168
       },
       "B2R": {
         "opaque": 3
@@ -40986,7 +42153,8 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 37422
+        "opaque": 2772,
+        "partially native": 34650
       },
       "REDUX": {
         "primitive": 12
@@ -41205,11 +42373,32 @@
       }
     },
     "evidence": {
-      "gpu": 124,
-      "none": 353,
-      "reference": 191
+      "gpu": 130,
+      "none": 355,
+      "ptxas": 2,
+      "reference": 200
     },
     "opaque_operations": {
+      "atom__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__RaRZ_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__RaRZ_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_arrive__arrive": "op ARRIVE",
+      "atoms_arrive__popcinc": "op POPC.INC",
+      "atoms_cas__RaNonRZ_CAST": "CAST",
+      "atoms_cas__RaRZ_CAST": "CAST",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -41299,6 +42488,16 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "gpu": 2,
+        "none": 2,
+        "reference": 4
+      },
+      "ATOMS": {
+        "gpu": 2,
+        "ptxas": 2,
+        "reference": 1
+      },
       "BAR": {
         "none": 25,
         "reference": 1
@@ -41478,8 +42677,8 @@
         "reference": 6
       },
       "IMAD": {
-        "gpu": 13,
-        "none": 41,
+        "gpu": 14,
+        "none": 40,
         "reference": 1
       },
       "IMNMX": {
@@ -41569,6 +42768,11 @@
       },
       "R2UR": {
         "gpu": 1
+      },
+      "RED": {
+        "gpu": 1,
+        "none": 1,
+        "reference": 4
       },
       "REDUX": {
         "gpu": 1
@@ -41712,10 +42916,11 @@
         "opaque": 16
       },
       "ATOMG": {
-        "opaque": 8
+        "partially native": 8
       },
       "ATOMS": {
-        "opaque": 9
+        "opaque": 4,
+        "partially native": 5
       },
       "B2R": {
         "opaque": 3
@@ -42044,7 +43249,7 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 6
+        "partially native": 6
       },
       "REDUX": {
         "primitive": 1
@@ -42254,6 +43459,16 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 16
+      },
+      "ATOMG": {
+        "partially native": 8
+      },
+      "ATOMS": {
+        "opaque": 4,
+        "partially native": 5
+      },
       "BAR": {
         "primitive": 26
       },
@@ -42496,6 +43711,12 @@
         "opaque": 1,
         "partially native": 1
       },
+      "RED": {
+        "partially native": 6
+      },
+      "REDG": {
+        "absent": 0
+      },
       "REDUX": {
         "primitive": 1
       },
@@ -42666,14 +43887,26 @@
     },
     "status": {
       "native": 454,
-      "opaque": 386,
-      "partially native": 138,
+      "opaque": 367,
+      "partially native": 157,
       "primitive": 76
     }
   },
   "SM89_READABLE": {
     "classes": 1054,
     "combination_evidence": {
+      "ATOMG": {
+        "gpu": 20,
+        "none": 40265,
+        "ptxas": 1,
+        "reference": 34
+      },
+      "ATOMS": {
+        "gpu": 5,
+        "none": 140,
+        "ptxas": 3,
+        "reference": 20
+      },
       "BAR": {
         "none": 69,
         "reference": 1
@@ -42872,8 +44105,8 @@
         "reference": 29
       },
       "IMAD": {
-        "gpu": 25,
-        "none": 284,
+        "gpu": 26,
+        "none": 283,
         "reference": 3
       },
       "IMNMX": {
@@ -42886,8 +44119,8 @@
         "reference": 620
       },
       "LD": {
-        "gpu": 3,
-        "none": 12922,
+        "gpu": 4,
+        "none": 12921,
         "reference": 11
       },
       "LDC": {
@@ -42895,8 +44128,8 @@
         "none": 11
       },
       "LDG": {
-        "gpu": 4,
-        "none": 20315,
+        "gpu": 6,
+        "none": 20313,
         "reference": 9
       },
       "LDL": {
@@ -42967,6 +44200,11 @@
       "R2UR": {
         "gpu": 1
       },
+      "RED": {
+        "gpu": 3,
+        "none": 34618,
+        "reference": 29
+      },
       "REDUX": {
         "gpu": 8,
         "none": 4
@@ -43000,13 +44238,13 @@
         "none": 12
       },
       "ST": {
-        "gpu": 3,
-        "none": 6169,
+        "gpu": 4,
+        "none": 6168,
         "reference": 2
       },
       "STG": {
-        "gpu": 3,
-        "none": 9698,
+        "gpu": 5,
+        "none": 9696,
         "reference": 1
       },
       "STL": {
@@ -43119,10 +44357,12 @@
         "opaque": 46872
       },
       "ATOMG": {
-        "opaque": 44280
+        "opaque": 3960,
+        "partially native": 40320
       },
       "ATOMS": {
-        "opaque": 206
+        "opaque": 38,
+        "partially native": 168
       },
       "B2R": {
         "opaque": 3
@@ -43457,7 +44697,8 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 37422
+        "opaque": 2772,
+        "partially native": 34650
       },
       "REDUX": {
         "primitive": 12
@@ -43676,11 +44917,32 @@
       }
     },
     "evidence": {
-      "gpu": 124,
-      "none": 353,
-      "reference": 191
+      "gpu": 130,
+      "none": 355,
+      "ptxas": 2,
+      "reference": 200
     },
     "opaque_operations": {
+      "atom__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__RaRZ_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__RaRZ_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_arrive__arrive": "op ARRIVE",
+      "atoms_arrive__popcinc": "op POPC.INC",
+      "atoms_cas__RaNonRZ_CAST": "CAST",
+      "atoms_cas__RaRZ_CAST": "CAST",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -43770,6 +45032,16 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "gpu": 2,
+        "none": 2,
+        "reference": 4
+      },
+      "ATOMS": {
+        "gpu": 2,
+        "ptxas": 2,
+        "reference": 1
+      },
       "BAR": {
         "none": 25,
         "reference": 1
@@ -43949,8 +45221,8 @@
         "reference": 6
       },
       "IMAD": {
-        "gpu": 13,
-        "none": 41,
+        "gpu": 14,
+        "none": 40,
         "reference": 1
       },
       "IMNMX": {
@@ -44040,6 +45312,11 @@
       },
       "R2UR": {
         "gpu": 1
+      },
+      "RED": {
+        "gpu": 1,
+        "none": 1,
+        "reference": 4
       },
       "REDUX": {
         "gpu": 1
@@ -44183,10 +45460,11 @@
         "opaque": 16
       },
       "ATOMG": {
-        "opaque": 8
+        "partially native": 8
       },
       "ATOMS": {
-        "opaque": 9
+        "opaque": 4,
+        "partially native": 5
       },
       "B2R": {
         "opaque": 3
@@ -44514,7 +45792,7 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 6
+        "partially native": 6
       },
       "REDUX": {
         "primitive": 1
@@ -44724,6 +46002,16 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 16
+      },
+      "ATOMG": {
+        "partially native": 8
+      },
+      "ATOMS": {
+        "opaque": 4,
+        "partially native": 5
+      },
       "BAR": {
         "primitive": 26
       },
@@ -44965,6 +46253,12 @@
         "opaque": 1,
         "partially native": 1
       },
+      "RED": {
+        "partially native": 6
+      },
+      "REDG": {
+        "absent": 0
+      },
       "REDUX": {
         "primitive": 1
       },
@@ -45135,8 +46429,8 @@
     },
     "status": {
       "native": 459,
-      "opaque": 386,
-      "partially native": 133,
+      "opaque": 367,
+      "partially native": 152,
       "primitive": 76
     }
   },
@@ -46208,6 +47502,45 @@
       "reference": 324
     },
     "opaque_operations": {
+      "atom_arrive__Ra32_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_cas__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_cas__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_arrive__arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_arrive__popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_uniform_": "not lowered for Ghidra (16 MiB .sla limit)",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -46280,6 +47613,16 @@
       "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
       "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
       "r2ur__OR": "OR not modelled; predicate output",
+      "redg_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uldc_const__RCxR": "operand form",
       "uldc_imm_": "operand form",
@@ -47315,6 +48658,15 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 18
+      },
+      "ATOMG": {
+        "opaque": 12
+      },
+      "ATOMS": {
+        "opaque": 9
+      },
       "BAR": {
         "primitive": 26
       },
@@ -47556,6 +48908,12 @@
       "R2UR": {
         "opaque": 1,
         "partially native": 1
+      },
+      "RED": {
+        "absent": 0
+      },
+      "REDG": {
+        "opaque": 10
       },
       "REDUX": {
         "primitive": 1
@@ -48799,6 +50157,45 @@
       "reference": 324
     },
     "opaque_operations": {
+      "atom_arrive__Ra32_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra32_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_arrive__Ra64_popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atom_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_cas__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_cas__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atomg_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_arrive__arrive": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_arrive__popcinc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cas__RaNonRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cas__RaNonRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cas__RaRZ_CAS": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_cas__RaRZ_CAST": "not lowered for Ghidra (16 MiB .sla limit)",
+      "atoms_uniform_": "not lowered for Ghidra (16 MiB .sla limit)",
       "bra_uniform_": "uniform target or predicate",
       "bra_uniform_pred_": "uniform target or predicate",
       "call_rel__RRR": "depth INC; relative register target",
@@ -48871,6 +50268,16 @@
       "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
       "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
       "r2ur__OR": "OR not modelled; predicate output",
+      "redg_fp__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_fp__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_fp_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_fp_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_fp_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int__RaNonRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int__RaRZ": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int_uniform__Ra32": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int_uniform__Ra64": "not lowered for Ghidra (16 MiB .sla limit)",
+      "redg_int_uniform__memdesc": "not lowered for Ghidra (16 MiB .sla limit)",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uldc_const__RCxR": "operand form",
       "uldc_imm_": "operand form",
@@ -49906,6 +51313,15 @@
       }
     },
     "operations": {
+      "ATOM": {
+        "opaque": 18
+      },
+      "ATOMG": {
+        "opaque": 12
+      },
+      "ATOMS": {
+        "opaque": 9
+      },
       "BAR": {
         "primitive": 26
       },
@@ -50147,6 +51563,12 @@
       "R2UR": {
         "opaque": 1,
         "partially native": 1
+      },
+      "RED": {
+        "absent": 0
+      },
+      "REDG": {
+        "opaque": 10
       },
       "REDUX": {
         "primitive": 1

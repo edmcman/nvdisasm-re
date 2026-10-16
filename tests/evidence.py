@@ -34,8 +34,9 @@ def decoded(arch, code):
 
 
 def reference(arch):
-    """(class, settings, None) per emulator case, over both fp lowerings."""
-    cases = [case for fp in MODES for cases in emulator_cases(arch, fp).values() for case in cases]
+    """(class, settings, None) per emulator case, over both fp lowerings; a case whose word must not
+    decode (`illegal`) checks the decoder, not semantics."""
+    cases = [case for fp in MODES for cases in emulator_cases(arch, fp).values() for case in cases if "illegal" not in case.expected]
     words = {w: settings(arch, pydecode.decode(arch, bytes.fromhex(w))) for w in {c.request.get("word") for c in cases} - {None}}
     return [(c.cls, words.get(c.request.get("word"), {}), None) for c in cases]
 
