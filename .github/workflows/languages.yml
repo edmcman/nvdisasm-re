@@ -59,7 +59,7 @@ jobs:
           path: |
             languages/sass_sm*.sla
             languages/sass_sm*.slaspec
-            languages/sass_sm*_coverage.json
+            languages/sass_sm*_runtime.json
             languages/build-results-*.json
   release:
     needs: compile

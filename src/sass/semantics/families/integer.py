@@ -180,8 +180,36 @@ def prmt(i):
     from Rb & 3; RC8/RC16: replicate a byte/half; ECL/ECR: edge clamp left/right (SM89 GPU). UPRMT
     is IDX only."""
     if any(i.width(n) != 32 for n in ('Rd', 'Ra|Sa', 'Rb|Sb', 'Rc|Sc')): unmodelled('width')
-    s, data = i.value('Rb|Sb'), concat(i.value('Rc|Sc'), i.value('Ra|Sa'))
+    # Make encoded zero registers visible before building expressions, so their arithmetic folds.
+    for source in ('Ra|Sa', 'Rc|Sc'):
+        if i.kind(source) in ('register', 'uniform'): i.is_zero(source)
+    a, b = i.value('Ra|Sa'), i.value('Rc|Sc')
     mode = i.select_fork('pmode|idx')   # UPRMT spells its only mode /IDXOnly("IDX"):idx
+    if i.kind('Rb|Sb') == 'immediate':
+        # Select bytes at decode time. Keeping an immediate as a run-time shift amount leaves
+        # shifts by zero and concatenation with RZ in raw p-code; independent small tables avoid
+        # a 65,536-row table over the whole selector.
+        picked = []
+        for j in range(4):
+            bits = 4 if mode == 'IDX' else 1 if mode == 'RC16' else 2
+            table = {}
+            for v in range(1 << bits):
+                match mode:
+                    case 'IDX': p = v & 7
+                    case 'F4E': p = v + j
+                    case 'B4E': p = (v - j) & 7
+                    case 'RC8': p = v
+                    case 'RC16': p = v * 2 + (j & 1)
+                    case 'ECL': p = max(v, j)
+                    case 'ECR': p = min(v, j)
+                    case other: unmodelled(f'{other} mode')
+                source = a if p < 4 else b
+                byte = extract(source, (p & 3) * 8 + 7, (p & 3) * 8)
+                if mode == 'IDX' and v & 8: byte = sext(extract(byte, 7, 7), 8)
+                table[v] = byte
+            picked.append(i.select_bits('Rb|Sb', 4 * j if mode == 'IDX' else 0, bits, table))
+        return outputs(Rd=concat(*reversed(picked)))
+    s, data = i.value('Rb|Sb'), concat(b, a)
     picked = []
     for j in range(4):
         match mode:

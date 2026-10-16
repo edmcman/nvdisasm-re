@@ -17,15 +17,14 @@ def compile_workers(jobs,tasks):
     return max(1,min(jobs,tasks,available//COMPILER_HEAP))
 
 
-def generate_one(arch,fp,output):
-    """Generate one independent spec/coverage pair in a worker process."""
+def generate_one(arch,fp,output,coverage=False):
+    """Generate one spec and its manifests in a worker process."""
     output=Path(output)
     gen.OUT=output
-    generator=gen.Gen(arch,fp)
+    generator=gen.Gen(arch,fp,coverage=coverage)
     text=generator.slaspec()
     (output/f'sass_{gen.variant(arch,fp)}.slaspec').write_text(text)
-    (output/f'sass_{gen.variant(arch,fp)}_coverage.json').write_text(
-        json.dumps(list(generator.coverage.values()),indent=2)+'\n')
+    generator.write_manifests(output)
     return dict(arch=arch,fp=fp,lines=text.count('\n'),subtables=len(generator.tables),
                 skipped=generator.skipped)
 
@@ -66,7 +65,8 @@ def main():
     p.add_argument('--fp',choices=gen.MODES,action='append',help='floating-point lowering (default: all)')
     p.add_argument('--jobs',type=int,default=os.cpu_count() or 1,
                    help='parallel SLEIGH compiler processes (default: available CPU count)')
-    p.add_argument('--generate-only',action='store_true',help='write specs and coverage without compiling (no Ghidra needed)')
+    p.add_argument('--coverage',action='store_true',help='collect detailed semantic coverage (slower)')
+    p.add_argument('--generate-only',action='store_true',help='write specs and manifests without compiling (no Ghidra needed)')
     install=Path(os.environ.get('GHIDRA_INSTALL_DIR',str(Path.home()/'Ghidra/ghidra_12.1.4_PUBLIC')))
     launcher='sleigh.bat' if os.name=='nt' else 'sleigh'
     p.add_argument('--sleigh',type=Path,default=install/'support'/launcher)
@@ -81,7 +81,7 @@ def main():
     a.output=a.output.resolve();gen.OUT=a.output;modes=list(dict.fromkeys(a.fp or gen.MODES))
     tasks=list(product(architectures,modes));generated={}
     with ProcessPoolExecutor(max_workers=min(a.jobs,len(tasks))) as pool:
-        futures={pool.submit(generate_one,arch,fp,a.output):(arch,fp) for arch,fp in tasks}
+        futures={pool.submit(generate_one,arch,fp,a.output,a.coverage):(arch,fp) for arch,fp in tasks}
         for future in as_completed(futures):
             arch,fp=futures[future];result=future.result();generated[(arch,fp)]=result
             name=gen.variant(arch,fp)

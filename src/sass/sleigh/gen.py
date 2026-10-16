@@ -4,7 +4,7 @@ Display reuses pydecode.render_items() symbolically: for every FORMAT item, each
 conditions that change its shape (operand at default, flag set, ...) is rendered once with placeholder
 values and becomes one subtable constructor guarded by those conditions on the encoding.
 
-usage: python3 -m sass.sleigh.gen SM89 [SM90 ...] [--fp=exact|readable]
+usage: python3 -m sass.sleigh.gen SM89 [SM90 ...] [--fp=exact|readable] [--coverage]
 """
 import itertools, json, math, re, sys
 from sass.md import parse
@@ -217,7 +217,7 @@ def group(groups):
 # ---------- generator ----------
 
 class Gen:
-    def __init__(self, archname, fp="exact"):
+    def __init__(self, archname, fp="exact", *, coverage=False):
         self.arch = ir.load(archname)
         self.fp = fp
         self.fields = {}              # (tok, lo, hi, kind) -> name
@@ -233,10 +233,20 @@ class Gen:
         md = parse.load_classes(parse.OUT / archname)
         self.props = {c["cls"]: c["props"] for c in md}
         self.sizes = {c["cls"]: c["preds"] for c in md}
+        self.collect_coverage = coverage
         self.coverage = {}
+        self.runtime = {}
         self.temporaries = {}
         self._span_fields = {}
         self.roles = {r["cls"]: r for p in (parse.OUT / archname / "semantics").glob("*.json") for r in json.loads(p.read_text())}
+
+    def write_manifests(self, directory):
+        """Always write primitive calling conventions; detailed coverage is opt-in."""
+        directory = Path(directory)
+        prefix = directory / f"sass_{variant(self.arch.name, self.fp)}"
+        Path(str(prefix) + "_runtime.json").write_text(json.dumps(list(self.runtime.values()), indent=2) + "\n")
+        if self.collect_coverage:
+            Path(str(prefix) + "_coverage.json").write_text(json.dumps(list(self.coverage.values()), indent=2) + "\n")
 
     def field(self, tok, lo, hi, kind=""):
         name = f"{tok}{lo}_{hi}{kind}"
@@ -1053,12 +1063,12 @@ def write_ldefs():
         f'    <constraint primary="190" processor="SASS" endian="little" size="64" variant="{v}" secondary="{sm_bits(int(v[2:]), shift)}"/>\n'
         for v in variants if "_" not in v for shift in (0, 8))))
 
-def main(archs, fp="exact"):
+def main(archs, fp="exact", *, coverage=False):
     for arch in archs:
-        g = Gen(arch, fp)
+        g = Gen(arch, fp, coverage=coverage)
         text = g.slaspec()
         (OUT / f"sass_{variant(arch, fp)}.slaspec").write_text(text)
-        (OUT / f"sass_{variant(arch, fp)}_coverage.json").write_text(json.dumps(list(g.coverage.values()), indent=2) + "\n")
+        g.write_manifests(OUT)
         print(f"{variant(arch, fp)}: {text.count(chr(10))} lines, {len(g.tables)} subtables, {len(g.skipped)} skipped")
         for name, why in g.skipped[:10]: print("   skipped", name, why)
     write_ldefs()
@@ -1066,7 +1076,8 @@ def main(archs, fp="exact"):
 def cli():
     fp = next((a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--fp=")), "exact")
     if fp not in MODES: sys.exit(f"--fp must be one of {MODES}")
-    main([a for a in sys.argv[1:] if not a.startswith("--fp=")], fp)
+    main([a for a in sys.argv[1:] if not a.startswith("--fp=") and a != "--coverage"], fp,
+         coverage="--coverage" in sys.argv[1:])
 
 
 if __name__ == "__main__":

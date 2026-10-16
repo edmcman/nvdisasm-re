@@ -50,7 +50,8 @@ class Symbolic(Instruction):
         # A register the class can only encode as RZ/URZ/PT (IMAD.MOV's Ra, Rb) is its constant, so
         # the expression folds; lift likewise reads the zero register as a constant.
         atom = self.atom(name)
-        if atom.type in REG_TYPES and name in self._encoded and clauses(self.b, ("zero", name), False) is None:
+        if atom.type in REG_TYPES and (self.assignment.get(("zero", name)) is True or
+                                      name in self._encoded and clauses(self.b, ("zero", name), False) is None):
             return bitvec.const(1 if REG_TYPES[atom.type] in ("P", "UP") else 0, width)
         return bitvec.param(name, width)
 
@@ -77,6 +78,13 @@ class Symbolic(Instruction):
         if all(e is cases[0][1] for _, e in cases): return cases[0][1]
         return sel((name,), cases, cases[0][1].w)
 
+    def choice_bits(self, name, lo, bits, table):
+        key = ("bits", name, lo, bits)
+        cases = [((v,), tree) for v, tree in sorted(table.items()) if clauses(self.b, key, v) is not None]
+        if not cases: raise ValueError(f"{name}: no legal immediate slice values")
+        if all(tree is cases[0][1] for _, tree in cases): return cases[0][1]
+        return sel((key,), cases, cases[0][1].w)
+
 
 def clauses(b, key, v):
     """Encoding clauses for static key == v; None if no encoding has that value."""
@@ -88,6 +96,17 @@ def clauses(b, key, v):
         return b.g.values_where(k, name, test)
     if isinstance(key, tuple) and key[0] == "in":
         c = where(key[1], (lambda x: x in key[2]) if v else (lambda x: x not in key[2]))
+    elif isinstance(key, tuple) and key[0] == "bits":
+        from sass.decode import ir
+        from sass.sleigh.gen import eq, pieces
+        _, name, offset, width = key
+        if name in b.known:
+            return [] if (b.known[name] >> offset) & bitvec.mask(width) == v else None
+        source = b.g.source(k, name)
+        if source[0] != "field" or source[2] != 1: raise TypeError(f"{name}: bit slices require an unscaled field")
+        (_, lo, hi, _), = pieces(source[1])
+        if offset + width > hi - lo + 1: raise ValueError(f"{name}: bit slice outside encoded field")
+        return eq(b.g, ir.Field("", ((lo + offset + width - 1, lo + offset),)), v)
     elif isinstance(key, tuple) and key[0] == "low":   # the low bits of an immediate's field
         from sass.decode import ir
         from sass.sleigh.gen import eq, pieces
@@ -476,6 +495,12 @@ class Lower:
 
     def widened(self, e, w):
         """e's value zero-extended to nbytes(w) bytes (no operation if the byte size is the same)."""
+        if (nbytes(e.w) != nbytes(w) and e.op == "sel" and self.uses.get(e, 0) <= 1
+                and e not in self.hoisted and self.lookup(e) is None):
+            # Export the widened result, so a byte slice needn't be copied into a temporary
+            # solely to cross the subtable boundary before its zero-extension.
+            keys, cases = e.args
+            return self.value(sel(keys, [(values, bitvec.zext(tree, w)) for values, tree in cases], w))
         v = self.value(e)
         if nbytes(e.w) == nbytes(w): return v
         if v.kind == "unsized": v = self.local(e.w, v)   # zext() can't size a float2float

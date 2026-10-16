@@ -5,7 +5,7 @@ opcode's family once with every static question answered from the decoded fields
 writes over concrete machine locations. RZ/URZ reads are 0, PT reads 1, writes to them are
 dropped; `sass.semantics.evaluate.execute` runs the result.
 """
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from sass.decode import ir, pydecode
 from sass.md import expression
 from sass.semantics import bitvec
@@ -42,6 +42,9 @@ class Lifted(Instruction):
         if isinstance(key, tuple) and key[0] == "in": return self.env.get(key[1], 0) in key[2]
         if isinstance(key, tuple) and key[0] == "low": return self.env.get(key[1], 0) & ((1 << key[2]) - 1)
         return self.env.get(key, 0)
+
+    def choice_bits(self, name, lo, bits, table):
+        return table[(self.env[name] >> lo) & bitvec.mask(bits)]
 
     def field_width(self, name):
         return next((f.width for f, r in self.k.rules if r[0] == "op" and r[1] == name), None)
@@ -166,5 +169,7 @@ def lift(arch_name, word, addr=0, fp="exact", conditions=True):
         out.writes.append((bitvec.reg(*loc, element=ELEMENT[loc[0]]), value))
     out.writes = list(zip([l for l, _ in out.writes], bitvec.narrow([v for _, v in out.writes])))
     out.flow, out.stores = result.flow, list(result.stores)
+    if out.flow is not None and bitvec.is_const(out.flow.cond, 1):
+        out.flow = replace(out.flow, cond=None)
     out.status = "native"
     return out

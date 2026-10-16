@@ -5,6 +5,7 @@ from sass.decode import pydecode
 from sass.semantics.family import family_for
 from sass.sleigh.gen import ENUM_FILE, REG_FILES, RESOURCE_FILE, Gen
 from sass import ghidra_bridge
+from tests.refs.integer import prmt
 
 
 PREFIX={'B0':1,'B1':2,'B2':3,'B3':4,'H0':2,'H1':4}   # bytes read up to a selected byte or half
@@ -120,6 +121,16 @@ def expected(g, d, optimized=False, ignore=()):
                     atom=d.klass.operand_types[selector]
                     if d.env.get(selector)==g.arch.enums[atom.type].get('H0_H0'):
                         needed=set(range(base+size*index,base+size*index+2))
+            if (optimized and role=='read' and span==1 and d.klass.mnemonic in ('PRMT','UPRMT')
+                    and 'Sb' in d.env and o['name'] in ('Ra','Rc','URa','URc')):
+                # Probe the independent byte-permutation reference: the direct selection reads
+                # only the low prefix through the highest byte that can affect the result.
+                mode=(g.arch.rev_enums[d.klass.operand_types['pmode'].type][d.env['pmode']]
+                      if 'pmode' in d.klass.operand_types else 'IDX')
+                right=o['name'] in ('Rc','URc')
+                used=[j for j in range(4) if prmt(0 if right else 255<<(8*j),d.env['Sb'],
+                                                 255<<(8*j) if right else 0,mode)]
+                needed=set(range(base+size*index,base+size*index+max(used,default=-1)+1))
             if optimized and role=='read' and span==1 and d.klass.mnemonic in ('F2FP','UF2FP','F2IP','F2F','F2I','I2F','FRND'):
                 # F2FP/F2IP and the 16/8-bit conversion sources read an operand's half or byte named
                 # by the selector after it in FORMAT (extract, extract_B, selB, hsel, bsel): the bytes
