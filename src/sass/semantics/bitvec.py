@@ -406,11 +406,12 @@ def all_of(*cs): return reduce(lambda x, y: x & y, cs)
 
 
 def substitute(e, mapping, memo=None):
-    """`e` with leaves replaced: mapping(node) -> Expr or None (keep), applied to params and regs."""
+    """`e` with leaves replaced: mapping(node) -> Expr or None (keep), applied to params, regs and
+    decode-time choices (whose arms are not expression arguments)."""
     memo = {} if memo is None else memo
     if not isinstance(e, Expr): return e
     if e in memo: return memo[e]
-    if e.op in ("param", "reg", "const"):
+    if e.op in ("param", "reg", "const", "sel"):
         m = mapping(e)
         out = e if m is None else m
     else:

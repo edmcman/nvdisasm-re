@@ -135,9 +135,9 @@ def permute(c):
 
     # Byte reversal stays compact without copies solely for byte truncation.
     c.add("prmt__RuIR_RIR", dict(Rd=3, Ra=2, Sb=0x0123, Rc="RZ", pmode="IDX"),
-          dict(R2=0x80ff017f), dict(R3=0x7f01ff80, __native=True, __max_ops=16))
+          dict(R2=0x80ff017f), dict(R3=0x7f01ff80, __native=True, __max_ops=14))
     c.add("prmt__RuIR_RIR", dict(Rd=3, Ra=2, Sb=0x7654, Rc="RZ", pmode="IDX"),
-          dict(R2=0x80ff017f), dict(R3=0, __native=True))
+          dict(R2=0x80ff017f), dict(R3=0, __native=True, __max_ops=1))
 
 
 def fixed(c):
