@@ -237,20 +237,21 @@ mixed bases (including URd == URa) established the merge. The PTX
 lowering probe did not emit UP2UR, so this hardware result comes from patched
 SASS rather than a PTX lowering.
 
-P2R and R2P support `.B0`–`.B3` with immediate, R, or UR masks on all nine
-architectures. P2R replaces the bits of the selected byte of its base that the
+P2R and R2P support `.B0`–`.B3` with immediate, R, UR and `c[][]` masks on all
+nine architectures, and CX masks (`cx[URb][offset]`, the bounded descriptor load
+shared with BMSK) on SM75–SM90. P2R replaces the bits of the selected byte of its base that the
 mask's low byte selects with `P0`–`P6`; mask bit 7 clears bit 7 (there is no
 P7), higher mask bits are ignored, and the other base bits are kept (SM89 GPU,
 2026-10-16; `docs/hardware-facts.md`). R2P reads the selected source byte and
 updates only the selected predicates, preserving the others; its mask bits
-above 6 are ignored. Constant-bank/CX mask sources remain opaque because their `URb`
-operands are address components, not plain masks. Exact and readable emulator
-fixtures cover every selector, empty, sparse, full, bit-7 and register masks,
-all-ones and mixed bases, and Rd == Ra. Focused dataflow checks pass for all 18 exact/readable architecture
+above 6 are ignored. Exact and readable emulator cases cover every selector and
+mask source, empty, sparse, full and bit-7 masks, a CX mask past the
+descriptor's size (it reads 0), all-ones and mixed bases, and Rd == Ra. Focused dataflow checks pass for all 18 exact/readable architecture
 languages, with 24/24 native cases per language. The patched SM89 whole-kernel
 GPU probe passed 2,304 GPU/reference/exact-p-code comparisons across 18
-selector/mask cases, and 44 more P2R fixtures with nonzero bases establish
-the merge rule. Hardware evidence covers SM89 only.
+selector/mask cases. 44 more P2R fixtures with nonzero bases establish the
+merge rule, and 53 cover the R, UR, `c[0x0][0x0]` (blockDim.x) and CX mask
+forms of both opcodes. Hardware evidence covers SM89 only.
 
 ### Exact and readable floating point
 
