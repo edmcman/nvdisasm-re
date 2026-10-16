@@ -302,10 +302,12 @@ def flo(i):
 
 @family('SGXT', 'USGXT')
 def sgxt(i):
-    """Rd = sext(byte Ra & 3 of Rb)."""
+    """Rd = sign-extend the low min(Rb, 32) bits of Ra; zero width gives zero (SM89)."""
     if i.select_fork('cw') != 'C' or i.select_fork('fmt') not in ('S32', '32'): unmodelled('cw/fmt')
     if i.width('Rd') != 32: unmodelled('width')
-    return outputs(Rd=sext(trunc(i.value('Rb|Sb') >> ((i.value('Ra') & 3) << 3), 8), 32))
+    x, width = i.value('Ra'), umin(i.value('Rb|Sb'), 32)
+    shift = const(32, 32) - width
+    return outputs(Rd=const(0, 32) if width == 0 else sar(x << shift, shift))
 
 
 def compare(label, a, b, signed):
@@ -339,10 +341,12 @@ def isetp(i):
     if fmt not in ('U32', 'S32'): unmodelled(f'{fmt} format')
     a, b = i.value('Ra|Sa'), i.value('Rb|Sb')
     if a.w != 32 or b.w != 32: unmodelled('width')
-    cond = compare(i.select_fork('icmp'), a, b, fmt == 'S32')
+    comparison = i.select_fork('icmp')
+    cond = compare(comparison, a, b, fmt == 'S32')
     if i.has_operand('ex') and i.select_fork('ex') == 'EX':
         if not i.has_operand('Pr'): unmodelled('EX without Pr')
-        cond = cond if a != b else i.pred('Pr')
+        low = i.pred('Pr')
+        if comparison not in ('F', 'T'): cond = cond if a != b else low
     elif i.has_operand('Pr'): i.ignore('Pr')
     p, bop = i.pred('Pp'), i.select_fork('bop')
     return outputs(Pu=boolean(bop, cond, p), Pv=boolean(bop, lnot(cond), p))

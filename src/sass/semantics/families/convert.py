@@ -141,7 +141,10 @@ def integer_source(i, n):
     """The n-bit integer source: a byte (bsel) or half (hsel) of a register, or the whole value."""
     name = i.resolve("Rb|Sb")
     x = i.value(name, modifiers=False)
-    if x.w < n and i.kind(name) == "immediate": return (sext if i.atom(name).type == "SImm" else zext)(x, n)
+    if x.w < n and i.kind(name) == "immediate":
+        # SM89 I2F's 64-bit immediates carry the high word, as F64 immediates do.
+        if n == 64 and x.w == 32: return zext(x, 64) << 32
+        return (sext if i.atom(name).type == "SImm" else zext)(x, n)
     if n < x.w:
         selector = "bsel" if n == 8 else "hsel"
         part = str(i.select_fork(selector)) if i.has_operand(selector) else ("B0" if n == 8 else "H0")
@@ -175,7 +178,8 @@ def i2f(i):
 @family("F2F")
 def f2f(i):
     """Rd = Rb converted between F16, F32 and F64, rounded once in rnd's mode (narrowing); a NaN
-    keeps its sign and payload, quieted (SM89 GPU). The readable lowering rounds to nearest.
+    is canonicalized for F16/F32 conversions, otherwise keeps its quieted sign/payload (SM89 GPU).
+    The readable lowering rounds to nearest.
     .FTZ and the BF16/E8M7/E6M9 formats are unmodelled."""
     dst, src = str(i.select_fork("dstfmt.srcfmt")).split(".")
     if src not in FLOATS.values() or dst not in FLOATS.values(): unmodelled(f"{dst}.{src}")
@@ -188,7 +192,8 @@ def f2f(i):
     else:
         sign, mag, _ = fpformat.round_parts(fpformat.parts(x, src), fpformat.dest(dst), r)
         r = concat(sign, extract(mag, d.width - 2, 0))
-    r = quiet(x, src, dst) if is_nan(x, src) else r
+    nan = const((1 << (d.width - 1)) - 1, d.width) if {s.width, d.width} == {16, 32} else quiet(x, src, dst)
+    r = nan if is_nan(x, src) else r
     return outputs(Rd=resize(r, i.width("Rd")))
 
 

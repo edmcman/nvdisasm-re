@@ -294,6 +294,16 @@ def test_cli(tmp_path):
     assert output.read_bytes() == b'keep on failure'
 
 
+def test_module_constant_banks():
+    kernel = '.target SM89\n.kernel first\n.registers 8\n.constant 3, "78563412"\nMOV R0, c[3][0]; EXIT;\n.endkernel\n'
+    other = kernel.replace('first', 'second')
+    image = assemble_cubin(kernel + other)
+    assert cubin.kernel_image(image, 'first')['constants'][3] == bytes.fromhex('78563412')
+    assert cubin.kernel_image(image, 'second')['constants'][3] == bytes.fromhex('78563412')
+    with pytest.raises(AssemblyError, match='module-wide'):
+        assemble_cubin(kernel + other.replace('78563412', '01000000'))
+
+
 @pytest.mark.gpu
 def test_native_cubin_on_gpu(request):
     """Execute native entry points without compiling or patching any cubin template."""
@@ -323,13 +333,14 @@ STG.E [R2.64], R6;''')
 S2R R5, SR_CTAID.Z @sched(dst_wr_sb=0);
 IMAD.WIDE.U32 R2, R5, 4, R2;''')
     empty = '.kernel empty\n.registers 4\nEXIT;\n.endkernel\n'
-    data = assemble_cubin(SIMPLE + loop + constant + shared + dynamic + cta + empty)
+    module_constant = constant.replace('constant_value', 'module_constant_value').replace('.constant 2,', '.constant 3,').replace('c[2][0]', 'c[3][0]')
+    data = assemble_cubin(SIMPLE + loop + constant + module_constant + shared + dynamic + cta + empty)
     module = ctypes.c_void_p(); pointer = ctypes.c_uint64()
     try:
         driver.call('cuModuleLoadData', ctypes.byref(module), ctypes.c_char_p(data))
         driver.call('cuMemAlloc_v2', ctypes.byref(pointer), ctypes.c_size_t(12))
         for name, expected, dynamic_bytes in [('write_value', 19, 0), ('loop_value', 22, 0),
-                                               ('constant_value', 0x12345678, 0), ('shared_value', 19, 0),
+                                               ('constant_value', 0x12345678, 0), ('module_constant_value', 0x12345678, 0), ('shared_value', 19, 0),
                                                ('dynamic_value', 19, 4)]:
             fn = ctypes.c_void_p(); value = ctypes.c_uint32(19)
             driver.call('cuModuleGetFunction', ctypes.byref(fn), module, name.encode())

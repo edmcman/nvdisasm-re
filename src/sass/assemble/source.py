@@ -34,6 +34,7 @@ class Kernel:
     registers: int | None = None
     uniform_registers: int = 0
     shared: int = 0
+    frame_size: int = 0
     constants: dict = field(default_factory=dict)
     code: bytes = b''
     instructions: list = field(default_factory=list)

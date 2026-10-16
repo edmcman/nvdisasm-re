@@ -231,14 +231,13 @@ def numeric_minmax(p, x, y):
 @family('FMNMX')
 def fmnmx_(i):
     """Rd = Pp ? min(Ra, Rb) : max(Ra, Rb). .NAN: a NaN input gives the canonical NaN. .XORSIGN:
-    the magnitudes are compared and the result takes the XOR of the encoded signs (before |x|)."""
+    the modified operands are compared and the result takes the XOR of the encoded signs (before |x|)."""
     operand_width(i, 32, 'Ra|Sa', 'Rb|Sb')
     _, (a, b) = float_inputs(i, 'Ra|Sa', 'Rb|Sb')
     p = i.pred('Pp')
     xorsign = i.has_operand('xorsign') and i.select_fork('xorsign') == 'XORSIGN'
     nan = i.has_operand('nan') and i.select_fork('nan') == 'NAN'
     if readable(i): return outputs(Rd=pick(p, a, b))
-    if xorsign: a, b = a & 0x7fffffff, b & 0x7fffffff
     # .NAN: any NaN gives the canonical NaN, so only numbers reach the comparison.
     r = (const(CANONICAL_NAN, 32) if fnan(a) | fnan(b) else ordered_minmax(p, a, b)) if nan else numeric_minmax(p, a, b)
     if xorsign:
