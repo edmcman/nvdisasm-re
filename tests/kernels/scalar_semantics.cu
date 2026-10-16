@@ -151,6 +151,35 @@ extern "C" __global__ void sem_generic(const uint32_t *in, uint32_t *out) {
  else asm volatile("ld.global.u32 %0,[%1];":"=r"(back):"l"(__cvta_generic_to_global(p)):"memory");
  out[i]=(w^h)+3*back;
 }
+// L2 cache-policy descriptors (desc[URx]) from the inputs, bit 59 clear (uniform registers: R2UR likely
+// leaves one lane's per warp on the GPU): LDG and STG through one, and
+// ST/LD through a pointer into shared, local or global memory (c % 3), read back through its own space.
+extern "C" __global__ void sem_desc(const uint32_t *in, uint32_t *out) {
+ unsigned i=threadIdx.x+blockIdx.x*blockDim.x;
+ uint32_t a,b=in[3*i+1],c=in[3*i+2],w,back; uint64_t pol=(uint64_t)(b&~(1u<<27))<<32|c;
+ __shared__ uint32_t cell[256]; uint32_t own[2]; unsigned space=c%3;
+ asm volatile("ld.global.L2::cache_hint.u32 %0,[%1],%2;":"=r"(a):"l"(in+3*i),"l"(pol):"memory");
+ uint32_t *p=space==0?&cell[threadIdx.x]:space==1?&own[a&1]:(uint32_t *)&in[3*i+1];
+ asm volatile("st.L2::cache_hint.u32 [%1],%2,%3; ld.relaxed.gpu.L2::cache_hint.u32 %0,[%1],%3;":"=r"(w):"l"(p),"r"(a^b),"l"(pol):"memory");
+ if (space==0) asm volatile("ld.shared.u32 %0,[%1];":"=r"(back):"r"((unsigned)__cvta_generic_to_shared(p)):"memory");
+ else if (space==1) asm volatile("ld.local.u32 %0,[%1];":"=r"(back):"l"(__cvta_generic_to_local(p)):"memory");
+ else asm volatile("ld.global.u32 %0,[%1];":"=r"(back):"l"(__cvta_generic_to_global(p)):"memory");
+ asm volatile("st.global.L2::cache_hint.u32 [%0],%1,%2;"::"l"(out+i),"r"((w^c)+3*back),"l"(pol):"memory");
+}
+// LDG and STG through the descriptor `pol`, a kernel parameter: one value for every warp.
+extern "C" __global__ void sem_desc_param(const uint32_t *in, uint32_t *out, uint64_t pol) {
+ unsigned i=threadIdx.x+blockIdx.x*blockDim.x; uint32_t a;
+ asm volatile("ld.global.L2::cache_hint.u32 %0,[%1],%2;":"=r"(a):"l"(in+3*i),"l"(pol):"memory");
+ asm volatile("st.global.L2::cache_hint.u32 [%0],%1,%2;"::"l"(out+i),"r"(a*3+1),"l"(pol):"memory");
+}
+// A guarded generic load through &in[3i] when c is odd, else the unmapped 0x10; scalar.PATCHES moves
+// the guard into LD's Pnz, which must zero-fill the even lanes without touching memory.
+extern "C" __global__ void sem_pnz(const uint32_t *in, uint32_t *out) {
+ unsigned i=threadIdx.x+blockIdx.x*blockDim.x;
+ uint32_t c=in[3*i+2],r=0xdeadbeef; const uint32_t *p=c&1?&in[3*i]:(const uint32_t *)16;
+ asm volatile("{ .reg .pred q; setp.ne.u32 q,%2,0; @q ld.u32 %0,[%1]; }":"+r"(r):"l"(p),"r"(c&1):"memory");
+ out[i]=r;
+}
 extern "C" __global__ void sem_branch(const uint32_t *in,uint32_t *out) {
  unsigned i=threadIdx.x+blockIdx.x*blockDim.x;
  uint32_t a=in[3*i],b=in[3*i+1],c=in[3*i+2],r=a;

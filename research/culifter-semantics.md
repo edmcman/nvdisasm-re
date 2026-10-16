@@ -98,6 +98,15 @@ redirects only addresses whose high word equals its lifted `SR_SWINHI` into
 shared memory and treats everything else as global. Here the shared and local
 windows come from the `SR_*WIN*` registers, as an SM89 probe established
 (`docs/hardware-facts.md`).
+Explicit memory descriptors joined the memory family the same day. CuLifter
+adds `desc[URx]` to the address as a 64-bit base (`_resolve_descriptor_addr`,
+`lift/lifter.py` and `lift/lifter_cpu.py`), which is harmless only because its
+emulated constant memory leaves the default descriptor 0. Its TMA lifting
+ignores the `desc[URm]` "cache/access memdesc" after mistaking it for the
+tensor map faulted at 0x14f0000000000000, the value
+`createpolicy.fractional.L2::evict_last 1.0` gives. On SM89 the descriptor is
+an L2 cache policy that never changes the address or the value
+(`docs/hardware-facts.md`), so here it reaches only a runtime check.
 
 Excluded names: `LOP`, `LOP32I`, `SHL`, `SHR`, `MOV32I`, `IADD32I`, `ISCADD`,
 `ULOP`, `ULOP32I`, `USHL`, `USHR`, and `PSETP` have only md `ALTERNATE` classes,

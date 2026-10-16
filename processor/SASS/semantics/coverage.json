@@ -198,8 +198,8 @@
         "reference": 481
       },
       "LD": {
-        "none": 3687,
-        "reference": 9
+        "none": 9229,
+        "reference": 11
       },
       "LDC": {
         "none": 11,
@@ -210,12 +210,12 @@
         "reference": 6
       },
       "LDG": {
-        "none": 6462,
-        "reference": 6
+        "none": 14774,
+        "reference": 10
       },
       "LDL": {
-        "none": 121,
-        "reference": 5
+        "none": 162,
+        "reference": 6
       },
       "LDS": {
         "none": 54,
@@ -299,16 +299,16 @@
         "reference": 4
       },
       "ST": {
-        "none": 3527,
-        "reference": 1
+        "none": 4408,
+        "reference": 2
       },
       "STG": {
-        "none": 4997,
-        "reference": 1
+        "none": 5710,
+        "reference": 2
       },
       "STL": {
-        "none": 125,
-        "reference": 1
+        "none": 166,
+        "reference": 2
       },
       "STS": {
         "none": 62,
@@ -708,8 +708,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 55440,
-        "partially native": 3696
+        "native": 6600,
+        "opaque": 49896,
+        "partially native": 2640
       },
       "LDC": {
         "native": 10,
@@ -722,8 +723,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 65340,
-        "partially native": 6468
+        "opaque": 57024,
+        "partially native": 14784
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -735,9 +736,8 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "LDS": {
         "native": 45,
@@ -875,22 +875,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 2520,
-        "opaque": 3528,
-        "partially native": 1008
+        "native": 3150,
+        "opaque": 2646,
+        "partially native": 1260
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 3570,
-        "opaque": 3162,
-        "partially native": 1428
+        "native": 4080,
+        "opaque": 2448,
+        "partially native": 1632
       },
       "STL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "STS": {
         "native": 45,
@@ -1154,7 +1153,7 @@
     "evidence": {
       "none": 227,
       "ptxas": 15,
-      "reference": 290
+      "reference": 296
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -1192,7 +1191,6 @@
       "iadd_xor_imm__RsIR_RIR": "carry out; xor not modelled",
       "iadd_xor_noimm__RRR_RRR": "carry out; xor not modelled",
       "iadd_xor_noimm__RUR_RUR": "carry out; xor not modelled",
-      "ld_memdesc__Ra64": "explicit descriptor",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldcu_const_RCxR_": "bank",
@@ -1201,8 +1199,6 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldl_memdesc_": "explicit descriptor",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -1215,13 +1211,10 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
-      "st_memdesc__Ra64": "explicit descriptor",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
-      "stg_memdesc__Ra64": "explicit descriptor",
-      "stl_memdesc_": "explicit descriptor",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "up2ur__URb": "register mask",
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
@@ -1410,7 +1403,7 @@
       },
       "LD": {
         "none": 1,
-        "reference": 3
+        "reference": 4
       },
       "LDC": {
         "none": 1,
@@ -1421,11 +1414,11 @@
       },
       "LDG": {
         "none": 2,
-        "reference": 2
+        "reference": 3
       },
       "LDL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "LDS": {
         "none": 1,
@@ -1506,15 +1499,15 @@
       },
       "ST": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STG": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "STS": {
         "none": 2,
@@ -1896,8 +1889,7 @@
         "opaque": 1
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -1908,8 +1900,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -1921,8 +1913,7 @@
         "opaque": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -2055,19 +2046,17 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STAS": {
         "opaque": 2
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -2500,8 +2489,7 @@
         "native": 6
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -2512,12 +2500,11 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -2593,16 +2580,14 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -2739,8 +2724,8 @@
     },
     "status": {
       "native": 311,
-      "opaque": 446,
-      "partially native": 153,
+      "opaque": 440,
+      "partially native": 159,
       "partially primitive": 5,
       "primitive": 63
     }
@@ -2944,8 +2929,8 @@
         "reference": 481
       },
       "LD": {
-        "none": 3687,
-        "reference": 9
+        "none": 9229,
+        "reference": 11
       },
       "LDC": {
         "none": 11,
@@ -2956,12 +2941,12 @@
         "reference": 6
       },
       "LDG": {
-        "none": 6462,
-        "reference": 6
+        "none": 14774,
+        "reference": 10
       },
       "LDL": {
-        "none": 121,
-        "reference": 5
+        "none": 162,
+        "reference": 6
       },
       "LDS": {
         "none": 54,
@@ -3045,16 +3030,16 @@
         "reference": 4
       },
       "ST": {
-        "none": 3527,
-        "reference": 1
+        "none": 4408,
+        "reference": 2
       },
       "STG": {
-        "none": 4997,
-        "reference": 1
+        "none": 5710,
+        "reference": 2
       },
       "STL": {
-        "none": 125,
-        "reference": 1
+        "none": 166,
+        "reference": 2
       },
       "STS": {
         "none": 62,
@@ -3451,8 +3436,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 55440,
-        "partially native": 3696
+        "native": 6600,
+        "opaque": 49896,
+        "partially native": 2640
       },
       "LDC": {
         "native": 10,
@@ -3465,8 +3451,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 65340,
-        "partially native": 6468
+        "opaque": 57024,
+        "partially native": 14784
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -3478,9 +3464,8 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "LDS": {
         "native": 45,
@@ -3618,22 +3603,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 2520,
-        "opaque": 3528,
-        "partially native": 1008
+        "native": 3150,
+        "opaque": 2646,
+        "partially native": 1260
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 3570,
-        "opaque": 3162,
-        "partially native": 1428
+        "native": 4080,
+        "opaque": 2448,
+        "partially native": 1632
       },
       "STL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "STS": {
         "native": 45,
@@ -3897,7 +3881,7 @@
     "evidence": {
       "none": 227,
       "ptxas": 15,
-      "reference": 290
+      "reference": 296
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -3935,7 +3919,6 @@
       "iadd_xor_imm__RsIR_RIR": "carry out; xor not modelled",
       "iadd_xor_noimm__RRR_RRR": "carry out; xor not modelled",
       "iadd_xor_noimm__RUR_RUR": "carry out; xor not modelled",
-      "ld_memdesc__Ra64": "explicit descriptor",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldcu_const_RCxR_": "bank",
@@ -3944,8 +3927,6 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldl_memdesc_": "explicit descriptor",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -3958,13 +3939,10 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
-      "st_memdesc__Ra64": "explicit descriptor",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
-      "stg_memdesc__Ra64": "explicit descriptor",
-      "stl_memdesc_": "explicit descriptor",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "up2ur__URb": "register mask",
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
@@ -4153,7 +4131,7 @@
       },
       "LD": {
         "none": 1,
-        "reference": 3
+        "reference": 4
       },
       "LDC": {
         "none": 1,
@@ -4164,11 +4142,11 @@
       },
       "LDG": {
         "none": 2,
-        "reference": 2
+        "reference": 3
       },
       "LDL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "LDS": {
         "none": 1,
@@ -4249,15 +4227,15 @@
       },
       "ST": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STG": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "STS": {
         "none": 2,
@@ -4639,8 +4617,7 @@
         "opaque": 1
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -4651,8 +4628,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -4664,8 +4641,7 @@
         "opaque": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -4798,19 +4774,17 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STAS": {
         "opaque": 2
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -5243,8 +5217,7 @@
         "native": 6
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -5255,12 +5228,11 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -5336,16 +5308,14 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -5482,8 +5452,8 @@
     },
     "status": {
       "native": 311,
-      "opaque": 446,
-      "partially native": 153,
+      "opaque": 440,
+      "partially native": 159,
       "partially primitive": 5,
       "primitive": 63
     }
@@ -5670,8 +5640,8 @@
         "reference": 481
       },
       "LD": {
-        "none": 3687,
-        "reference": 9
+        "none": 9229,
+        "reference": 11
       },
       "LDC": {
         "none": 11,
@@ -5682,12 +5652,12 @@
         "reference": 6
       },
       "LDG": {
-        "none": 6462,
-        "reference": 6
+        "none": 14774,
+        "reference": 10
       },
       "LDL": {
-        "none": 121,
-        "reference": 5
+        "none": 162,
+        "reference": 6
       },
       "LDS": {
         "none": 54,
@@ -5771,16 +5741,16 @@
         "reference": 4
       },
       "ST": {
-        "none": 3527,
-        "reference": 1
+        "none": 4408,
+        "reference": 2
       },
       "STG": {
-        "none": 4997,
-        "reference": 1
+        "none": 5710,
+        "reference": 2
       },
       "STL": {
-        "none": 125,
-        "reference": 1
+        "none": 166,
+        "reference": 2
       },
       "STS": {
         "none": 62,
@@ -6132,8 +6102,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 55440,
-        "partially native": 3696
+        "native": 6600,
+        "opaque": 49896,
+        "partially native": 2640
       },
       "LDC": {
         "native": 10,
@@ -6146,8 +6117,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 65340,
-        "partially native": 6468
+        "opaque": 57024,
+        "partially native": 14784
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -6159,9 +6130,8 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "LDS": {
         "native": 45,
@@ -6286,22 +6256,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 2520,
-        "opaque": 3528,
-        "partially native": 1008
+        "native": 3150,
+        "opaque": 2646,
+        "partially native": 1260
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 3570,
-        "opaque": 3162,
-        "partially native": 1428
+        "native": 4080,
+        "opaque": 2448,
+        "partially native": 1632
       },
       "STL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "STS": {
         "native": 45,
@@ -6539,7 +6508,7 @@
     },
     "evidence": {
       "none": 223,
-      "reference": 282
+      "reference": 288
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -6561,7 +6530,6 @@
       "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "ld_memdesc__Ra64": "explicit descriptor",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldcu_const_RCxR_": "bank",
@@ -6570,8 +6538,6 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldl_memdesc_": "explicit descriptor",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -6584,13 +6550,10 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
-      "st_memdesc__Ra64": "explicit descriptor",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
-      "stg_memdesc__Ra64": "explicit descriptor",
-      "stl_memdesc_": "explicit descriptor",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "up2ur__URb": "register mask",
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
@@ -6765,7 +6728,7 @@
       },
       "LD": {
         "none": 1,
-        "reference": 3
+        "reference": 4
       },
       "LDC": {
         "none": 1,
@@ -6776,11 +6739,11 @@
       },
       "LDG": {
         "none": 2,
-        "reference": 2
+        "reference": 3
       },
       "LDL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "LDS": {
         "none": 1,
@@ -6861,15 +6824,15 @@
       },
       "ST": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STG": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "STS": {
         "none": 2,
@@ -7211,8 +7174,7 @@
         "opaque": 1
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -7223,8 +7185,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -7236,8 +7198,7 @@
         "opaque": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -7358,19 +7319,17 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STAS": {
         "opaque": 2
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -7777,8 +7736,7 @@
         "native": 6
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -7789,12 +7747,11 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -7870,16 +7827,14 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -8016,8 +7971,8 @@
     },
     "status": {
       "native": 308,
-      "opaque": 399,
-      "partially native": 131,
+      "opaque": 393,
+      "partially native": 137,
       "partially primitive": 5,
       "primitive": 61
     }
@@ -8204,8 +8159,8 @@
         "reference": 481
       },
       "LD": {
-        "none": 3687,
-        "reference": 9
+        "none": 9229,
+        "reference": 11
       },
       "LDC": {
         "none": 11,
@@ -8216,12 +8171,12 @@
         "reference": 6
       },
       "LDG": {
-        "none": 6462,
-        "reference": 6
+        "none": 14774,
+        "reference": 10
       },
       "LDL": {
-        "none": 121,
-        "reference": 5
+        "none": 162,
+        "reference": 6
       },
       "LDS": {
         "none": 54,
@@ -8305,16 +8260,16 @@
         "reference": 4
       },
       "ST": {
-        "none": 3527,
-        "reference": 1
+        "none": 4408,
+        "reference": 2
       },
       "STG": {
-        "none": 4997,
-        "reference": 1
+        "none": 5710,
+        "reference": 2
       },
       "STL": {
-        "none": 125,
-        "reference": 1
+        "none": 166,
+        "reference": 2
       },
       "STS": {
         "none": 62,
@@ -8664,8 +8619,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 55440,
-        "partially native": 3696
+        "native": 6600,
+        "opaque": 49896,
+        "partially native": 2640
       },
       "LDC": {
         "native": 10,
@@ -8678,8 +8634,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 65340,
-        "partially native": 6468
+        "opaque": 57024,
+        "partially native": 14784
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -8691,9 +8647,8 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "LDS": {
         "native": 45,
@@ -8818,22 +8773,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 2520,
-        "opaque": 3528,
-        "partially native": 1008
+        "native": 3150,
+        "opaque": 2646,
+        "partially native": 1260
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 3570,
-        "opaque": 3162,
-        "partially native": 1428
+        "native": 4080,
+        "opaque": 2448,
+        "partially native": 1632
       },
       "STL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "STS": {
         "native": 45,
@@ -9071,7 +9025,7 @@
     },
     "evidence": {
       "none": 223,
-      "reference": 282
+      "reference": 288
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -9093,7 +9047,6 @@
       "hfma2_relu__RRR": "RELU; ofmt",
       "hfma2_relu__RRU": "RELU; ofmt",
       "hfma2_relu__RUR": "RELU; ofmt",
-      "ld_memdesc__Ra64": "explicit descriptor",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldcu_const_RCxR_": "bank",
@@ -9102,8 +9055,6 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldl_memdesc_": "explicit descriptor",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -9116,13 +9067,10 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
-      "st_memdesc__Ra64": "explicit descriptor",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
-      "stg_memdesc__Ra64": "explicit descriptor",
-      "stl_memdesc_": "explicit descriptor",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "up2ur__URb": "register mask",
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
@@ -9297,7 +9245,7 @@
       },
       "LD": {
         "none": 1,
-        "reference": 3
+        "reference": 4
       },
       "LDC": {
         "none": 1,
@@ -9308,11 +9256,11 @@
       },
       "LDG": {
         "none": 2,
-        "reference": 2
+        "reference": 3
       },
       "LDL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "LDS": {
         "none": 1,
@@ -9393,15 +9341,15 @@
       },
       "ST": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STG": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "STS": {
         "none": 2,
@@ -9743,8 +9691,7 @@
         "opaque": 1
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -9755,8 +9702,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -9768,8 +9715,7 @@
         "opaque": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -9890,19 +9836,17 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STAS": {
         "opaque": 2
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -10309,8 +10253,7 @@
         "native": 6
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -10321,12 +10264,11 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -10402,16 +10344,14 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -10548,8 +10488,8 @@
     },
     "status": {
       "native": 308,
-      "opaque": 399,
-      "partially native": 131,
+      "opaque": 393,
+      "partially native": 137,
       "partially primitive": 5,
       "primitive": 61
     }
@@ -10748,8 +10688,8 @@
         "reference": 481
       },
       "LD": {
-        "none": 3687,
-        "reference": 9
+        "none": 9229,
+        "reference": 11
       },
       "LDC": {
         "none": 11,
@@ -10760,12 +10700,12 @@
         "reference": 6
       },
       "LDG": {
-        "none": 6462,
-        "reference": 6
+        "none": 14774,
+        "reference": 10
       },
       "LDL": {
-        "none": 121,
-        "reference": 5
+        "none": 162,
+        "reference": 6
       },
       "LDS": {
         "none": 54,
@@ -10849,16 +10789,16 @@
         "reference": 4
       },
       "ST": {
-        "none": 3527,
-        "reference": 1
+        "none": 4408,
+        "reference": 2
       },
       "STG": {
-        "none": 4997,
-        "reference": 1
+        "none": 5710,
+        "reference": 2
       },
       "STL": {
-        "none": 125,
-        "reference": 1
+        "none": 166,
+        "reference": 2
       },
       "STS": {
         "none": 62,
@@ -11253,8 +11193,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 55440,
-        "partially native": 3696
+        "native": 6600,
+        "opaque": 49896,
+        "partially native": 2640
       },
       "LDC": {
         "native": 10,
@@ -11267,8 +11208,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 65340,
-        "partially native": 6468
+        "opaque": 57024,
+        "partially native": 14784
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -11280,9 +11221,8 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "LDS": {
         "native": 45,
@@ -11420,22 +11360,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 2520,
-        "opaque": 3528,
-        "partially native": 1008
+        "native": 3150,
+        "opaque": 2646,
+        "partially native": 1260
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 3570,
-        "opaque": 3162,
-        "partially native": 1428
+        "native": 4080,
+        "opaque": 2448,
+        "partially native": 1632
       },
       "STL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "STS": {
         "native": 45,
@@ -11692,7 +11631,7 @@
     },
     "evidence": {
       "none": 230,
-      "reference": 305
+      "reference": 311
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -11730,7 +11669,6 @@
       "iadd_xor_imm__RsIR_RIR": "carry out; xor not modelled",
       "iadd_xor_noimm__RRR_RRR": "carry out; xor not modelled",
       "iadd_xor_noimm__RUR_RUR": "carry out; xor not modelled",
-      "ld_memdesc__Ra64": "explicit descriptor",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldcu_const_RCxR_": "bank",
@@ -11739,8 +11677,6 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldl_memdesc_": "explicit descriptor",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -11753,13 +11689,10 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
-      "st_memdesc__Ra64": "explicit descriptor",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
-      "stg_memdesc__Ra64": "explicit descriptor",
-      "stl_memdesc_": "explicit descriptor",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "up2ur__URb": "register mask",
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
@@ -11943,7 +11876,7 @@
       },
       "LD": {
         "none": 1,
-        "reference": 3
+        "reference": 4
       },
       "LDC": {
         "none": 1,
@@ -11954,11 +11887,11 @@
       },
       "LDG": {
         "none": 2,
-        "reference": 2
+        "reference": 3
       },
       "LDL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "LDS": {
         "none": 1,
@@ -12039,15 +11972,15 @@
       },
       "ST": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STG": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "STS": {
         "none": 2,
@@ -12425,8 +12358,7 @@
         "opaque": 1
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -12437,8 +12369,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -12450,8 +12382,7 @@
         "opaque": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -12584,19 +12515,17 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STAS": {
         "opaque": 2
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -13023,8 +12952,7 @@
         "native": 6
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -13035,12 +12963,11 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -13116,16 +13043,14 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -13262,8 +13187,8 @@
     },
     "status": {
       "native": 311,
-      "opaque": 439,
-      "partially native": 153,
+      "opaque": 433,
+      "partially native": 159,
       "partially primitive": 5,
       "primitive": 66
     }
@@ -13462,8 +13387,8 @@
         "reference": 481
       },
       "LD": {
-        "none": 3687,
-        "reference": 9
+        "none": 9229,
+        "reference": 11
       },
       "LDC": {
         "none": 11,
@@ -13474,12 +13399,12 @@
         "reference": 6
       },
       "LDG": {
-        "none": 6462,
-        "reference": 6
+        "none": 14774,
+        "reference": 10
       },
       "LDL": {
-        "none": 121,
-        "reference": 5
+        "none": 162,
+        "reference": 6
       },
       "LDS": {
         "none": 54,
@@ -13563,16 +13488,16 @@
         "reference": 4
       },
       "ST": {
-        "none": 3527,
-        "reference": 1
+        "none": 4408,
+        "reference": 2
       },
       "STG": {
-        "none": 4997,
-        "reference": 1
+        "none": 5710,
+        "reference": 2
       },
       "STL": {
-        "none": 125,
-        "reference": 1
+        "none": 166,
+        "reference": 2
       },
       "STS": {
         "none": 62,
@@ -13964,8 +13889,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 55440,
-        "partially native": 3696
+        "native": 6600,
+        "opaque": 49896,
+        "partially native": 2640
       },
       "LDC": {
         "native": 10,
@@ -13978,8 +13904,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 65340,
-        "partially native": 6468
+        "opaque": 57024,
+        "partially native": 14784
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -13991,9 +13917,8 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "LDS": {
         "native": 45,
@@ -14131,22 +14056,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 2520,
-        "opaque": 3528,
-        "partially native": 1008
+        "native": 3150,
+        "opaque": 2646,
+        "partially native": 1260
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 3570,
-        "opaque": 3162,
-        "partially native": 1428
+        "native": 4080,
+        "opaque": 2448,
+        "partially native": 1632
       },
       "STL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "STS": {
         "native": 45,
@@ -14403,7 +14327,7 @@
     },
     "evidence": {
       "none": 230,
-      "reference": 305
+      "reference": 311
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -14441,7 +14365,6 @@
       "iadd_xor_imm__RsIR_RIR": "carry out; xor not modelled",
       "iadd_xor_noimm__RRR_RRR": "carry out; xor not modelled",
       "iadd_xor_noimm__RUR_RUR": "carry out; xor not modelled",
-      "ld_memdesc__Ra64": "explicit descriptor",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldcu_const_RCxR_": "bank",
@@ -14450,8 +14373,6 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldl_memdesc_": "explicit descriptor",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -14464,13 +14385,10 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
-      "st_memdesc__Ra64": "explicit descriptor",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
-      "stg_memdesc__Ra64": "explicit descriptor",
-      "stl_memdesc_": "explicit descriptor",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "up2ur__URb": "register mask",
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
@@ -14654,7 +14572,7 @@
       },
       "LD": {
         "none": 1,
-        "reference": 3
+        "reference": 4
       },
       "LDC": {
         "none": 1,
@@ -14665,11 +14583,11 @@
       },
       "LDG": {
         "none": 2,
-        "reference": 2
+        "reference": 3
       },
       "LDL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "LDS": {
         "none": 1,
@@ -14750,15 +14668,15 @@
       },
       "ST": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STG": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "STS": {
         "none": 2,
@@ -15136,8 +15054,7 @@
         "opaque": 1
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -15148,8 +15065,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -15161,8 +15078,7 @@
         "opaque": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -15295,19 +15211,17 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STAS": {
         "opaque": 2
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -15734,8 +15648,7 @@
         "native": 6
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -15746,12 +15659,11 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -15827,16 +15739,14 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -15973,8 +15883,8 @@
     },
     "status": {
       "native": 311,
-      "opaque": 439,
-      "partially native": 153,
+      "opaque": 433,
+      "partially native": 159,
       "partially primitive": 5,
       "primitive": 66
     }
@@ -16185,8 +16095,8 @@
         "reference": 481
       },
       "LD": {
-        "none": 3687,
-        "reference": 9
+        "none": 9229,
+        "reference": 11
       },
       "LDC": {
         "none": 11,
@@ -16197,12 +16107,12 @@
         "reference": 6
       },
       "LDG": {
-        "none": 6462,
-        "reference": 6
+        "none": 14774,
+        "reference": 10
       },
       "LDL": {
-        "none": 121,
-        "reference": 5
+        "none": 162,
+        "reference": 6
       },
       "LDS": {
         "none": 54,
@@ -16289,16 +16199,16 @@
         "reference": 4
       },
       "ST": {
-        "none": 3527,
-        "reference": 1
+        "none": 4408,
+        "reference": 2
       },
       "STG": {
-        "none": 4997,
-        "reference": 1
+        "none": 5710,
+        "reference": 2
       },
       "STL": {
-        "none": 125,
-        "reference": 1
+        "none": 166,
+        "reference": 2
       },
       "STS": {
         "none": 62,
@@ -16675,8 +16585,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 55440,
-        "partially native": 3696
+        "native": 6600,
+        "opaque": 49896,
+        "partially native": 2640
       },
       "LDC": {
         "native": 10,
@@ -16689,8 +16600,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 65340,
-        "partially native": 6468
+        "opaque": 57024,
+        "partially native": 14784
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -16702,9 +16613,8 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "LDS": {
         "native": 45,
@@ -16824,22 +16734,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 2520,
-        "opaque": 3528,
-        "partially native": 1008
+        "native": 3150,
+        "opaque": 2646,
+        "partially native": 1260
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 3570,
-        "opaque": 3162,
-        "partially native": 1428
+        "native": 4080,
+        "opaque": 2448,
+        "partially native": 1632
       },
       "STL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "STS": {
         "native": 45,
@@ -17063,7 +16972,7 @@
     },
     "evidence": {
       "none": 239,
-      "reference": 318
+      "reference": 324
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -17122,7 +17031,6 @@
       "isetp_64__RUR_RUR_noEX": "S64 format; U64 format",
       "isetp_64__RsIR_RIR_EX": "S64 format; U64 format",
       "isetp_64__RsIR_RIR_noEX": "S64 format; U64 format",
-      "ld_memdesc__Ra64": "explicit descriptor",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldcu_256_const_RCR_": "dual registers",
@@ -17134,8 +17042,6 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldl_memdesc_": "explicit descriptor",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -17148,13 +17054,10 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
-      "st_memdesc__Ra64": "explicit descriptor",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
-      "stg_memdesc__Ra64": "explicit descriptor",
-      "stl_memdesc_": "explicit descriptor",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "up2ur__URb": "register mask",
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
@@ -17347,7 +17250,7 @@
       },
       "LD": {
         "none": 1,
-        "reference": 3
+        "reference": 4
       },
       "LDC": {
         "none": 1,
@@ -17358,11 +17261,11 @@
       },
       "LDG": {
         "none": 2,
-        "reference": 2
+        "reference": 3
       },
       "LDL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "LDS": {
         "none": 1,
@@ -17446,15 +17349,15 @@
       },
       "ST": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STG": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "STS": {
         "none": 2,
@@ -17810,8 +17713,7 @@
         "opaque": 1
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -17822,8 +17724,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -17835,8 +17737,7 @@
         "opaque": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -17951,19 +17852,17 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STAS": {
         "opaque": 2
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -18359,8 +18258,7 @@
         "opaque": 6
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -18371,12 +18269,11 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -18452,16 +18349,14 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -18598,8 +18493,8 @@
     },
     "status": {
       "native": 306,
-      "opaque": 387,
-      "partially native": 180,
+      "opaque": 381,
+      "partially native": 186,
       "partially primitive": 5,
       "primitive": 66
     }
@@ -18810,8 +18705,8 @@
         "reference": 481
       },
       "LD": {
-        "none": 3687,
-        "reference": 9
+        "none": 9229,
+        "reference": 11
       },
       "LDC": {
         "none": 11,
@@ -18822,12 +18717,12 @@
         "reference": 6
       },
       "LDG": {
-        "none": 6462,
-        "reference": 6
+        "none": 14774,
+        "reference": 10
       },
       "LDL": {
-        "none": 121,
-        "reference": 5
+        "none": 162,
+        "reference": 6
       },
       "LDS": {
         "none": 54,
@@ -18914,16 +18809,16 @@
         "reference": 4
       },
       "ST": {
-        "none": 3527,
-        "reference": 1
+        "none": 4408,
+        "reference": 2
       },
       "STG": {
-        "none": 4997,
-        "reference": 1
+        "none": 5710,
+        "reference": 2
       },
       "STL": {
-        "none": 125,
-        "reference": 1
+        "none": 166,
+        "reference": 2
       },
       "STS": {
         "none": 62,
@@ -19297,8 +19192,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 55440,
-        "partially native": 3696
+        "native": 6600,
+        "opaque": 49896,
+        "partially native": 2640
       },
       "LDC": {
         "native": 10,
@@ -19311,8 +19207,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 65340,
-        "partially native": 6468
+        "opaque": 57024,
+        "partially native": 14784
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -19324,9 +19220,8 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "LDS": {
         "native": 45,
@@ -19446,22 +19341,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 2520,
-        "opaque": 3528,
-        "partially native": 1008
+        "native": 3150,
+        "opaque": 2646,
+        "partially native": 1260
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 3570,
-        "opaque": 3162,
-        "partially native": 1428
+        "native": 4080,
+        "opaque": 2448,
+        "partially native": 1632
       },
       "STL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "STS": {
         "native": 45,
@@ -19685,7 +19579,7 @@
     },
     "evidence": {
       "none": 239,
-      "reference": 318
+      "reference": 324
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -19744,7 +19638,6 @@
       "isetp_64__RUR_RUR_noEX": "S64 format; U64 format",
       "isetp_64__RsIR_RIR_EX": "S64 format; U64 format",
       "isetp_64__RsIR_RIR_noEX": "S64 format; U64 format",
-      "ld_memdesc__Ra64": "explicit descriptor",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldcu_256_const_RCR_": "dual registers",
@@ -19756,8 +19649,6 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldl_memdesc_": "explicit descriptor",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -19770,13 +19661,10 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
-      "st_memdesc__Ra64": "explicit descriptor",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
-      "stg_memdesc__Ra64": "explicit descriptor",
-      "stl_memdesc_": "explicit descriptor",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "up2ur__URb": "register mask",
       "uplop3_lut_2out_1reg__URURUR": "outside implemented operation families",
@@ -19969,7 +19857,7 @@
       },
       "LD": {
         "none": 1,
-        "reference": 3
+        "reference": 4
       },
       "LDC": {
         "none": 1,
@@ -19980,11 +19868,11 @@
       },
       "LDG": {
         "none": 2,
-        "reference": 2
+        "reference": 3
       },
       "LDL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "LDS": {
         "none": 1,
@@ -20068,15 +19956,15 @@
       },
       "ST": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STG": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "STS": {
         "none": 2,
@@ -20432,8 +20320,7 @@
         "opaque": 1
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -20444,8 +20331,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -20457,8 +20344,7 @@
         "opaque": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -20573,19 +20459,17 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STAS": {
         "opaque": 2
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -20981,8 +20865,7 @@
         "opaque": 6
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -20993,12 +20876,11 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -21074,16 +20956,14 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -21220,8 +21100,8 @@
     },
     "status": {
       "native": 306,
-      "opaque": 387,
-      "partially native": 180,
+      "opaque": 381,
+      "partially native": 186,
       "partially primitive": 5,
       "primitive": 66
     }
@@ -21404,8 +21284,8 @@
         "reference": 481
       },
       "LD": {
-        "none": 3687,
-        "reference": 9
+        "none": 9229,
+        "reference": 11
       },
       "LDC": {
         "none": 11,
@@ -21416,12 +21296,12 @@
         "reference": 6
       },
       "LDG": {
-        "none": 6462,
-        "reference": 6
+        "none": 14774,
+        "reference": 10
       },
       "LDL": {
-        "none": 121,
-        "reference": 5
+        "none": 162,
+        "reference": 6
       },
       "LDS": {
         "none": 54,
@@ -21508,16 +21388,16 @@
         "reference": 4
       },
       "ST": {
-        "none": 3527,
-        "reference": 1
+        "none": 4408,
+        "reference": 2
       },
       "STG": {
-        "none": 4997,
-        "reference": 1
+        "none": 5710,
+        "reference": 2
       },
       "STL": {
-        "none": 125,
-        "reference": 1
+        "none": 166,
+        "reference": 2
       },
       "STS": {
         "none": 62,
@@ -21923,8 +21803,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 55440,
-        "partially native": 3696
+        "native": 6600,
+        "opaque": 49896,
+        "partially native": 2640
       },
       "LDC": {
         "native": 10,
@@ -21937,8 +21818,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 65724,
-        "partially native": 6468
+        "opaque": 57408,
+        "partially native": 14784
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -21950,9 +21831,8 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "LDS": {
         "native": 45,
@@ -22083,22 +21963,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 2520,
-        "opaque": 3528,
-        "partially native": 1008
+        "native": 3150,
+        "opaque": 2646,
+        "partially native": 1260
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 3570,
-        "opaque": 3162,
-        "partially native": 1428
+        "native": 4080,
+        "opaque": 2448,
+        "partially native": 1632
       },
       "STL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "STS": {
         "native": 45,
@@ -22387,7 +22266,7 @@
     },
     "evidence": {
       "none": 262,
-      "reference": 302
+      "reference": 308
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -22430,7 +22309,6 @@
       "isetp_64__RUR_RUR_noEX": "S64 format; U64 format",
       "isetp_64__RsIR_RIR_EX": "S64 format; U64 format",
       "isetp_64__RsIR_RIR_noEX": "S64 format; U64 format",
-      "ld_memdesc__Ra64": "explicit descriptor",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldcu_256_const_RCR_": "dual registers",
@@ -22446,8 +22324,6 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldl_memdesc_": "explicit descriptor",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -22460,13 +22336,10 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
-      "st_memdesc__Ra64": "explicit descriptor",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
-      "stg_memdesc__Ra64": "explicit descriptor",
-      "stl_memdesc_": "explicit descriptor",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "ufrnd__bf16_I": "BF16",
       "ufrnd__bf16_URb": "BF16",
@@ -22650,7 +22523,7 @@
       },
       "LD": {
         "none": 1,
-        "reference": 3
+        "reference": 4
       },
       "LDC": {
         "none": 1,
@@ -22661,11 +22534,11 @@
       },
       "LDG": {
         "none": 2,
-        "reference": 2
+        "reference": 3
       },
       "LDL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "LDS": {
         "none": 1,
@@ -22749,15 +22622,15 @@
       },
       "ST": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STG": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "STS": {
         "none": 2,
@@ -23147,8 +23020,7 @@
         "opaque": 1
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -23159,8 +23031,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 9,
-        "partially native": 4
+        "opaque": 8,
+        "partially native": 5
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -23172,8 +23044,7 @@
         "opaque": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -23300,19 +23171,17 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STAS": {
         "opaque": 2
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -23769,8 +23638,7 @@
         "opaque": 6
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -23781,12 +23649,11 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 9,
-        "partially native": 4
+        "opaque": 8,
+        "partially native": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -23862,16 +23729,14 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -24011,8 +23876,8 @@
     },
     "status": {
       "native": 353,
-      "opaque": 451,
-      "partially native": 145,
+      "opaque": 445,
+      "partially native": 151,
       "partially primitive": 5,
       "primitive": 61
     }
@@ -24195,8 +24060,8 @@
         "reference": 481
       },
       "LD": {
-        "none": 3687,
-        "reference": 9
+        "none": 9229,
+        "reference": 11
       },
       "LDC": {
         "none": 11,
@@ -24207,12 +24072,12 @@
         "reference": 6
       },
       "LDG": {
-        "none": 6462,
-        "reference": 6
+        "none": 14774,
+        "reference": 10
       },
       "LDL": {
-        "none": 121,
-        "reference": 5
+        "none": 162,
+        "reference": 6
       },
       "LDS": {
         "none": 54,
@@ -24299,16 +24164,16 @@
         "reference": 4
       },
       "ST": {
-        "none": 3527,
-        "reference": 1
+        "none": 4408,
+        "reference": 2
       },
       "STG": {
-        "none": 4997,
-        "reference": 1
+        "none": 5710,
+        "reference": 2
       },
       "STL": {
-        "none": 125,
-        "reference": 1
+        "none": 166,
+        "reference": 2
       },
       "STS": {
         "none": 62,
@@ -24712,8 +24577,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 55440,
-        "partially native": 3696
+        "native": 6600,
+        "opaque": 49896,
+        "partially native": 2640
       },
       "LDC": {
         "native": 10,
@@ -24726,8 +24592,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 65724,
-        "partially native": 6468
+        "opaque": 57408,
+        "partially native": 14784
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -24739,9 +24605,8 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "LDS": {
         "native": 45,
@@ -24872,22 +24737,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 2520,
-        "opaque": 3528,
-        "partially native": 1008
+        "native": 3150,
+        "opaque": 2646,
+        "partially native": 1260
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 3570,
-        "opaque": 3162,
-        "partially native": 1428
+        "native": 4080,
+        "opaque": 2448,
+        "partially native": 1632
       },
       "STL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "STS": {
         "native": 45,
@@ -25174,7 +25038,7 @@
     },
     "evidence": {
       "none": 262,
-      "reference": 302
+      "reference": 308
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -25217,7 +25081,6 @@
       "isetp_64__RUR_RUR_noEX": "S64 format; U64 format",
       "isetp_64__RsIR_RIR_EX": "S64 format; U64 format",
       "isetp_64__RsIR_RIR_noEX": "S64 format; U64 format",
-      "ld_memdesc__Ra64": "explicit descriptor",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldcu_256_const_RCR_": "dual registers",
@@ -25233,8 +25096,6 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldl_memdesc_": "explicit descriptor",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -25247,13 +25108,10 @@
       "r2ur__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__OR": "OR not modelled; predicate output",
       "r2ur_nonconformity__noOR": "nonconformity not modelled; predicate output",
-      "st_memdesc__Ra64": "explicit descriptor",
       "stg_256_memdesc__Ra64": "dual registers",
       "stg_256_uniform__Ra32": "dual registers",
       "stg_256_uniform__Ra64": "dual registers",
       "stg_256_uniform__RaRZ": "dual registers",
-      "stg_memdesc__Ra64": "explicit descriptor",
-      "stl_memdesc_": "explicit descriptor",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "ufrnd__bf16_I": "BF16",
       "ufrnd__bf16_URb": "BF16",
@@ -25437,7 +25295,7 @@
       },
       "LD": {
         "none": 1,
-        "reference": 3
+        "reference": 4
       },
       "LDC": {
         "none": 1,
@@ -25448,11 +25306,11 @@
       },
       "LDG": {
         "none": 2,
-        "reference": 2
+        "reference": 3
       },
       "LDL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "LDS": {
         "none": 1,
@@ -25536,15 +25394,15 @@
       },
       "ST": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STG": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "STS": {
         "none": 2,
@@ -25934,8 +25792,7 @@
         "opaque": 1
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -25946,8 +25803,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 9,
-        "partially native": 4
+        "opaque": 8,
+        "partially native": 5
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -25959,8 +25816,7 @@
         "opaque": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -26087,19 +25943,17 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STAS": {
         "opaque": 2
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -26556,8 +26410,7 @@
         "opaque": 6
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -26568,12 +26421,11 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 9,
-        "partially native": 4
+        "opaque": 8,
+        "partially native": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -26649,16 +26501,14 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STG": {
-        "opaque": 5,
-        "partially native": 4
+        "opaque": 4,
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -26798,8 +26648,8 @@
     },
     "status": {
       "native": 358,
-      "opaque": 451,
-      "partially native": 140,
+      "opaque": 445,
+      "partially native": 146,
       "partially primitive": 5,
       "primitive": 61
     }
@@ -26971,16 +26821,16 @@
         "reference": 1152
       },
       "LD": {
-        "none": 6711,
-        "reference": 9
+        "none": 13430,
+        "reference": 10
       },
       "LDC": {
         "none": 11,
         "reference": 1
       },
       "LDG": {
-        "none": 12090,
-        "reference": 6
+        "none": 24184,
+        "reference": 8
       },
       "LDL": {
         "none": 121,
@@ -27390,8 +27240,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 159168,
-        "partially native": 6720
+        "native": 9600,
+        "opaque": 152448,
+        "partially native": 3840
       },
       "LDC": {
         "native": 10,
@@ -27399,8 +27250,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 153792,
-        "partially native": 12096
+        "opaque": 141696,
+        "partially native": 24192
       },
       "LDL": {
         "native": 90,
@@ -27709,18 +27560,18 @@
       "frnd__f16_URb": "F16",
       "frnd__f64_C": "32-bit source for F64",
       "frnd__f64_CXb": "32-bit source for F64",
-      "ld_zd__sImmOffset": "32-bit generic address; Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ld_zd__uImmOffset": "32-bit generic address; Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ld_zd_uniform__Ra32": "32-bit generic address; Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ld_zd_uniform__Ra64": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ld_zd_uniform__RaRZ": "32-bit generic address; Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ld_zd__sImmOffset": "32-bit generic address; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ld_zd__uImmOffset": "32-bit generic address; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ld_zd_uniform__Ra32": "32-bit generic address; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ld_zd_uniform__Ra64": "Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ld_zd_uniform__RaRZ": "32-bit generic address; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
       "ldc_ur__URRzI": "bank",
       "ldc_ur__URnonRzI": "bank",
-      "ldg_zd__sImmOffset": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ldg_zd__uImmOffset": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ldg_zd_uniform__Ra32": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ldg_zd_uniform__Ra64": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ldg_zd_uniform__RaRZ": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ldg_zd__sImmOffset": "Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ldg_zd__uImmOffset": "Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ldg_zd_uniform__Ra32": "Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ldg_zd_uniform__Ra64": "Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ldg_zd_uniform__RaRZ": "Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
       "lds_zd__sImmOffset": "Pu result; size; sz U; sz U.128; sz U.64; sz U.S16; sz U.S8; sz U.U16; sz U.U8; zd not modelled",
       "lds_zd__uImmOffset": "Pu result; size; sz U; sz U.128; sz U.64; sz U.S16; sz U.S8; sz U.U16; sz U.U8; zd not modelled",
       "lds_zd_uniform_": "Pu result; size; sz U; sz U.128; sz U.64; sz U.S16; sz U.S8; sz U.U16; sz U.U8; zd not modelled",
@@ -29157,16 +29008,16 @@
         "reference": 1152
       },
       "LD": {
-        "none": 6711,
-        "reference": 9
+        "none": 13430,
+        "reference": 10
       },
       "LDC": {
         "none": 11,
         "reference": 1
       },
       "LDG": {
-        "none": 12090,
-        "reference": 6
+        "none": 24184,
+        "reference": 8
       },
       "LDL": {
         "none": 121,
@@ -29574,8 +29425,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 159168,
-        "partially native": 6720
+        "native": 9600,
+        "opaque": 152448,
+        "partially native": 3840
       },
       "LDC": {
         "native": 10,
@@ -29583,8 +29435,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 153792,
-        "partially native": 12096
+        "opaque": 141696,
+        "partially native": 24192
       },
       "LDL": {
         "native": 90,
@@ -29893,18 +29745,18 @@
       "frnd__f16_URb": "F16",
       "frnd__f64_C": "32-bit source for F64",
       "frnd__f64_CXb": "32-bit source for F64",
-      "ld_zd__sImmOffset": "32-bit generic address; Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ld_zd__uImmOffset": "32-bit generic address; Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ld_zd_uniform__Ra32": "32-bit generic address; Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ld_zd_uniform__Ra64": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ld_zd_uniform__RaRZ": "32-bit generic address; Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ld_zd__sImmOffset": "32-bit generic address; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ld_zd__uImmOffset": "32-bit generic address; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ld_zd_uniform__Ra32": "32-bit generic address; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ld_zd_uniform__Ra64": "Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ld_zd_uniform__RaRZ": "32-bit generic address; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
       "ldc_ur__URRzI": "bank",
       "ldc_ur__URnonRzI": "bank",
-      "ldg_zd__sImmOffset": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ldg_zd__uImmOffset": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ldg_zd_uniform__Ra32": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ldg_zd_uniform__Ra64": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
-      "ldg_zd_uniform__RaRZ": "Pnz; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ldg_zd__sImmOffset": "Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ldg_zd__uImmOffset": "Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ldg_zd_uniform__Ra32": "Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ldg_zd_uniform__Ra64": "Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
+      "ldg_zd_uniform__RaRZ": "Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
       "lds_zd__sImmOffset": "Pu result; size; sz U; sz U.128; sz U.64; sz U.S16; sz U.S8; sz U.U16; sz U.U8; zd not modelled",
       "lds_zd__uImmOffset": "Pu result; size; sz U; sz U.128; sz U.64; sz U.S16; sz U.S8; sz U.U16; sz U.U8; zd not modelled",
       "lds_zd_uniform_": "Pu result; size; sz U; sz U.128; sz U.64; sz U.S16; sz U.S8; sz U.U16; sz U.U8; zd not modelled",
@@ -31348,20 +31200,20 @@
         "reference": 625
       },
       "LD": {
-        "none": 5535,
-        "reference": 9
+        "none": 12924,
+        "reference": 12
       },
       "LDC": {
         "none": 11,
         "reference": 1
       },
       "LDG": {
-        "none": 9234,
-        "reference": 6
+        "none": 20317,
+        "reference": 11
       },
       "LDL": {
-        "none": 163,
-        "reference": 5
+        "none": 203,
+        "reference": 7
       },
       "LDS": {
         "none": 54,
@@ -31448,16 +31300,16 @@
         "reference": 4
       },
       "ST": {
-        "none": 5290,
-        "reference": 2
+        "none": 6171,
+        "reference": 3
       },
       "STG": {
-        "none": 8819,
-        "reference": 1
+        "none": 9700,
+        "reference": 2
       },
       "STL": {
-        "none": 167,
-        "reference": 1
+        "none": 208,
+        "reference": 2
       },
       "STS": {
         "none": 62,
@@ -31787,8 +31639,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 61908,
-        "partially native": 5544
+        "native": 9240,
+        "opaque": 54516,
+        "partially native": 3696
       },
       "LDC": {
         "native": 10,
@@ -31796,8 +31649,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 58212,
-        "partially native": 9240
+        "opaque": 47124,
+        "partially native": 20328
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -31806,9 +31659,8 @@
         "opaque": 16128
       },
       "LDL": {
-        "native": 120,
-        "opaque": 42,
-        "partially native": 48
+        "native": 150,
+        "partially native": 60
       },
       "LDS": {
         "native": 45,
@@ -31928,19 +31780,17 @@
         "opaque": 25
       },
       "ST": {
-        "native": 3780,
-        "opaque": 4410,
-        "partially native": 1512
+        "native": 4410,
+        "opaque": 3528,
+        "partially native": 1764
       },
       "STG": {
-        "native": 6300,
-        "opaque": 882,
-        "partially native": 2520
+        "native": 6930,
+        "partially native": 2772
       },
       "STL": {
-        "native": 120,
-        "opaque": 42,
-        "partially native": 48
+        "native": 150,
+        "partially native": 60
       },
       "STS": {
         "native": 45,
@@ -32076,8 +31926,8 @@
       }
     },
     "evidence": {
-      "none": 349,
-      "reference": 265
+      "none": 343,
+      "reference": 271
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -32318,20 +32168,20 @@
         "reference": 6
       },
       "LD": {
-        "none": 3,
-        "reference": 3
+        "none": 2,
+        "reference": 4
       },
       "LDC": {
         "none": 1,
         "reference": 1
       },
       "LDG": {
-        "none": 4,
-        "reference": 2
+        "none": 3,
+        "reference": 3
       },
       "LDL": {
-        "none": 3,
-        "reference": 1
+        "none": 2,
+        "reference": 2
       },
       "LDS": {
         "none": 1,
@@ -32415,16 +32265,16 @@
         "reference": 1
       },
       "ST": {
+        "none": 3,
+        "reference": 3
+      },
+      "STG": {
         "none": 4,
         "reference": 2
       },
-      "STG": {
-        "none": 5,
-        "reference": 1
-      },
       "STL": {
-        "none": 3,
-        "reference": 1
+        "none": 2,
+        "reference": 2
       },
       "STS": {
         "none": 2,
@@ -33605,20 +33455,20 @@
         "reference": 625
       },
       "LD": {
-        "none": 5535,
-        "reference": 9
+        "none": 12924,
+        "reference": 12
       },
       "LDC": {
         "none": 11,
         "reference": 1
       },
       "LDG": {
-        "none": 9234,
-        "reference": 6
+        "none": 20317,
+        "reference": 11
       },
       "LDL": {
-        "none": 163,
-        "reference": 5
+        "none": 203,
+        "reference": 7
       },
       "LDS": {
         "none": 54,
@@ -33705,16 +33555,16 @@
         "reference": 4
       },
       "ST": {
-        "none": 5290,
-        "reference": 2
+        "none": 6171,
+        "reference": 3
       },
       "STG": {
-        "none": 8819,
-        "reference": 1
+        "none": 9700,
+        "reference": 2
       },
       "STL": {
-        "none": 167,
-        "reference": 1
+        "none": 208,
+        "reference": 2
       },
       "STS": {
         "none": 62,
@@ -34042,8 +33892,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 61908,
-        "partially native": 5544
+        "native": 9240,
+        "opaque": 54516,
+        "partially native": 3696
       },
       "LDC": {
         "native": 10,
@@ -34051,8 +33902,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 58212,
-        "partially native": 9240
+        "opaque": 47124,
+        "partially native": 20328
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -34061,9 +33912,8 @@
         "opaque": 16128
       },
       "LDL": {
-        "native": 120,
-        "opaque": 42,
-        "partially native": 48
+        "native": 150,
+        "partially native": 60
       },
       "LDS": {
         "native": 45,
@@ -34183,19 +34033,17 @@
         "opaque": 25
       },
       "ST": {
-        "native": 3780,
-        "opaque": 4410,
-        "partially native": 1512
+        "native": 4410,
+        "opaque": 3528,
+        "partially native": 1764
       },
       "STG": {
-        "native": 6300,
-        "opaque": 882,
-        "partially native": 2520
+        "native": 6930,
+        "partially native": 2772
       },
       "STL": {
-        "native": 120,
-        "opaque": 42,
-        "partially native": 48
+        "native": 150,
+        "partially native": 60
       },
       "STS": {
         "native": 45,
@@ -34331,8 +34179,8 @@
       }
     },
     "evidence": {
-      "none": 349,
-      "reference": 265
+      "none": 343,
+      "reference": 271
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -34573,20 +34421,20 @@
         "reference": 6
       },
       "LD": {
-        "none": 3,
-        "reference": 3
+        "none": 2,
+        "reference": 4
       },
       "LDC": {
         "none": 1,
         "reference": 1
       },
       "LDG": {
-        "none": 4,
-        "reference": 2
+        "none": 3,
+        "reference": 3
       },
       "LDL": {
-        "none": 3,
-        "reference": 1
+        "none": 2,
+        "reference": 2
       },
       "LDS": {
         "none": 1,
@@ -34670,16 +34518,16 @@
         "reference": 1
       },
       "ST": {
+        "none": 3,
+        "reference": 3
+      },
+      "STG": {
         "none": 4,
         "reference": 2
       },
-      "STG": {
-        "none": 5,
-        "reference": 1
-      },
       "STL": {
-        "none": 3,
-        "reference": 1
+        "none": 2,
+        "reference": 2
       },
       "STS": {
         "none": 2,
@@ -35868,20 +35716,20 @@
         "reference": 625
       },
       "LD": {
-        "none": 5535,
-        "reference": 9
+        "none": 12924,
+        "reference": 12
       },
       "LDC": {
         "none": 11,
         "reference": 1
       },
       "LDG": {
-        "none": 9234,
-        "reference": 6
+        "none": 20317,
+        "reference": 11
       },
       "LDL": {
-        "none": 163,
-        "reference": 5
+        "none": 203,
+        "reference": 7
       },
       "LDS": {
         "none": 54,
@@ -35968,16 +35816,16 @@
         "reference": 4
       },
       "ST": {
-        "none": 5290,
-        "reference": 2
+        "none": 6171,
+        "reference": 3
       },
       "STG": {
-        "none": 8819,
-        "reference": 1
+        "none": 9700,
+        "reference": 2
       },
       "STL": {
-        "none": 167,
-        "reference": 1
+        "none": 208,
+        "reference": 2
       },
       "STS": {
         "none": 62,
@@ -36318,8 +36166,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 75768,
-        "partially native": 5544
+        "native": 9240,
+        "opaque": 68376,
+        "partially native": 3696
       },
       "LDC": {
         "native": 10,
@@ -36327,8 +36176,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 72072,
-        "partially native": 9240
+        "opaque": 60984,
+        "partially native": 20328
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -36337,9 +36186,8 @@
         "opaque": 16128
       },
       "LDL": {
-        "native": 120,
-        "opaque": 42,
-        "partially native": 48
+        "native": 150,
+        "partially native": 60
       },
       "LDS": {
         "native": 45,
@@ -36459,19 +36307,17 @@
         "opaque": 25
       },
       "ST": {
-        "native": 3780,
-        "opaque": 4410,
-        "partially native": 1512
+        "native": 4410,
+        "opaque": 3528,
+        "partially native": 1764
       },
       "STG": {
-        "native": 6300,
-        "opaque": 882,
-        "partially native": 2520
+        "native": 6930,
+        "partially native": 2772
       },
       "STL": {
-        "native": 120,
-        "opaque": 42,
-        "partially native": 48
+        "native": 150,
+        "partially native": 60
       },
       "STS": {
         "native": 45,
@@ -36635,8 +36481,8 @@
       }
     },
     "evidence": {
-      "none": 358,
-      "reference": 282
+      "none": 352,
+      "reference": 288
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -36883,20 +36729,20 @@
         "reference": 6
       },
       "LD": {
-        "none": 3,
-        "reference": 3
+        "none": 2,
+        "reference": 4
       },
       "LDC": {
         "none": 1,
         "reference": 1
       },
       "LDG": {
-        "none": 4,
-        "reference": 2
+        "none": 3,
+        "reference": 3
       },
       "LDL": {
-        "none": 3,
-        "reference": 1
+        "none": 2,
+        "reference": 2
       },
       "LDS": {
         "none": 1,
@@ -36980,16 +36826,16 @@
         "reference": 1
       },
       "ST": {
+        "none": 3,
+        "reference": 3
+      },
+      "STG": {
         "none": 4,
         "reference": 2
       },
-      "STG": {
-        "none": 5,
-        "reference": 1
-      },
       "STL": {
-        "none": 3,
-        "reference": 1
+        "none": 2,
+        "reference": 2
       },
       "STS": {
         "none": 2,
@@ -38220,20 +38066,20 @@
         "reference": 625
       },
       "LD": {
-        "none": 5535,
-        "reference": 9
+        "none": 12924,
+        "reference": 12
       },
       "LDC": {
         "none": 11,
         "reference": 1
       },
       "LDG": {
-        "none": 9234,
-        "reference": 6
+        "none": 20317,
+        "reference": 11
       },
       "LDL": {
-        "none": 163,
-        "reference": 5
+        "none": 203,
+        "reference": 7
       },
       "LDS": {
         "none": 54,
@@ -38320,16 +38166,16 @@
         "reference": 4
       },
       "ST": {
-        "none": 5290,
-        "reference": 2
+        "none": 6171,
+        "reference": 3
       },
       "STG": {
-        "none": 8819,
-        "reference": 1
+        "none": 9700,
+        "reference": 2
       },
       "STL": {
-        "none": 167,
-        "reference": 1
+        "none": 208,
+        "reference": 2
       },
       "STS": {
         "none": 62,
@@ -38667,8 +38513,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 75768,
-        "partially native": 5544
+        "native": 9240,
+        "opaque": 68376,
+        "partially native": 3696
       },
       "LDC": {
         "native": 10,
@@ -38676,8 +38523,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 72072,
-        "partially native": 9240
+        "opaque": 60984,
+        "partially native": 20328
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -38686,9 +38533,8 @@
         "opaque": 16128
       },
       "LDL": {
-        "native": 120,
-        "opaque": 42,
-        "partially native": 48
+        "native": 150,
+        "partially native": 60
       },
       "LDS": {
         "native": 45,
@@ -38808,19 +38654,17 @@
         "opaque": 25
       },
       "ST": {
-        "native": 3780,
-        "opaque": 4410,
-        "partially native": 1512
+        "native": 4410,
+        "opaque": 3528,
+        "partially native": 1764
       },
       "STG": {
-        "native": 6300,
-        "opaque": 882,
-        "partially native": 2520
+        "native": 6930,
+        "partially native": 2772
       },
       "STL": {
-        "native": 120,
-        "opaque": 42,
-        "partially native": 48
+        "native": 150,
+        "partially native": 60
       },
       "STS": {
         "native": 45,
@@ -38984,8 +38828,8 @@
       }
     },
     "evidence": {
-      "none": 358,
-      "reference": 282
+      "none": 352,
+      "reference": 288
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -39232,20 +39076,20 @@
         "reference": 6
       },
       "LD": {
-        "none": 3,
-        "reference": 3
+        "none": 2,
+        "reference": 4
       },
       "LDC": {
         "none": 1,
         "reference": 1
       },
       "LDG": {
-        "none": 4,
-        "reference": 2
+        "none": 3,
+        "reference": 3
       },
       "LDL": {
-        "none": 3,
-        "reference": 1
+        "none": 2,
+        "reference": 2
       },
       "LDS": {
         "none": 1,
@@ -39329,16 +39173,16 @@
         "reference": 1
       },
       "ST": {
+        "none": 3,
+        "reference": 3
+      },
+      "STG": {
         "none": 4,
         "reference": 2
       },
-      "STG": {
-        "none": 5,
-        "reference": 1
-      },
       "STL": {
-        "none": 3,
-        "reference": 1
+        "none": 2,
+        "reference": 2
       },
       "STS": {
         "none": 2,
@@ -40586,9 +40430,9 @@
         "reference": 29
       },
       "IMAD": {
-        "gpu": 24,
+        "gpu": 25,
         "none": 284,
-        "reference": 4
+        "reference": 3
       },
       "IMNMX": {
         "gpu": 1,
@@ -40600,23 +40444,23 @@
         "reference": 620
       },
       "LD": {
-        "gpu": 2,
-        "none": 5533,
-        "reference": 9
+        "gpu": 3,
+        "none": 12922,
+        "reference": 11
       },
       "LDC": {
         "gpu": 1,
         "none": 11
       },
       "LDG": {
-        "gpu": 3,
-        "none": 9231,
-        "reference": 6
+        "gpu": 4,
+        "none": 20315,
+        "reference": 9
       },
       "LDL": {
         "gpu": 1,
-        "none": 163,
-        "reference": 4
+        "none": 203,
+        "reference": 6
       },
       "LDS": {
         "gpu": 2,
@@ -40679,7 +40523,7 @@
         "reference": 8
       },
       "R2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "REDUX": {
         "gpu": 8,
@@ -40714,19 +40558,19 @@
         "none": 12
       },
       "ST": {
-        "gpu": 2,
-        "none": 5288,
+        "gpu": 3,
+        "none": 6169,
         "reference": 2
       },
       "STG": {
-        "gpu": 2,
-        "none": 8817,
+        "gpu": 3,
+        "none": 9698,
         "reference": 1
       },
       "STL": {
         "gpu": 1,
-        "none": 166,
-        "reference": 1
+        "none": 207,
+        "reference": 2
       },
       "STS": {
         "gpu": 1,
@@ -41075,8 +40919,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 75768,
-        "partially native": 5544
+        "native": 9240,
+        "opaque": 68376,
+        "partially native": 3696
       },
       "LDC": {
         "native": 10,
@@ -41084,8 +40929,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 87912,
-        "partially native": 9240
+        "opaque": 76824,
+        "partially native": 20328
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -41094,9 +40939,8 @@
         "opaque": 16128
       },
       "LDL": {
-        "native": 120,
-        "opaque": 42,
-        "partially native": 48
+        "native": 150,
+        "partially native": 60
       },
       "LDS": {
         "native": 45,
@@ -41219,19 +41063,18 @@
         "opaque": 25
       },
       "ST": {
-        "native": 3780,
-        "opaque": 4410,
-        "partially native": 1512
+        "native": 4410,
+        "opaque": 3528,
+        "partially native": 1764
       },
       "STG": {
-        "native": 6300,
-        "opaque": 2772,
-        "partially native": 2520
+        "native": 6930,
+        "opaque": 1890,
+        "partially native": 2772
       },
       "STL": {
-        "native": 120,
-        "opaque": 42,
-        "partially native": 48
+        "native": 150,
+        "partially native": 60
       },
       "STS": {
         "native": 45,
@@ -41395,8 +41238,8 @@
       }
     },
     "evidence": {
-      "gpu": 122,
-      "none": 357,
+      "gpu": 124,
+      "none": 355,
       "reference": 189
     },
     "opaque_operations": {
@@ -41668,9 +41511,9 @@
         "reference": 6
       },
       "IMAD": {
-        "gpu": 12,
+        "gpu": 13,
         "none": 41,
-        "reference": 2
+        "reference": 1
       },
       "IMNMX": {
         "gpu": 1,
@@ -41697,7 +41540,8 @@
       },
       "LDL": {
         "gpu": 1,
-        "none": 3
+        "none": 2,
+        "reference": 1
       },
       "LDS": {
         "gpu": 1,
@@ -41756,7 +41600,7 @@
         "reference": 2
       },
       "R2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "REDUX": {
         "gpu": 1
@@ -41800,7 +41644,8 @@
       },
       "STL": {
         "gpu": 1,
-        "none": 3
+        "none": 2,
+        "reference": 1
       },
       "STS": {
         "gpu": 1,
@@ -43060,9 +42905,9 @@
         "reference": 29
       },
       "IMAD": {
-        "gpu": 24,
+        "gpu": 25,
         "none": 284,
-        "reference": 4
+        "reference": 3
       },
       "IMNMX": {
         "gpu": 1,
@@ -43074,23 +42919,23 @@
         "reference": 620
       },
       "LD": {
-        "gpu": 2,
-        "none": 5533,
-        "reference": 9
+        "gpu": 3,
+        "none": 12922,
+        "reference": 11
       },
       "LDC": {
         "gpu": 1,
         "none": 11
       },
       "LDG": {
-        "gpu": 3,
-        "none": 9231,
-        "reference": 6
+        "gpu": 4,
+        "none": 20315,
+        "reference": 9
       },
       "LDL": {
         "gpu": 1,
-        "none": 163,
-        "reference": 4
+        "none": 203,
+        "reference": 6
       },
       "LDS": {
         "gpu": 2,
@@ -43153,7 +42998,7 @@
         "reference": 8
       },
       "R2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "REDUX": {
         "gpu": 8,
@@ -43188,19 +43033,19 @@
         "none": 12
       },
       "ST": {
-        "gpu": 2,
-        "none": 5288,
+        "gpu": 3,
+        "none": 6169,
         "reference": 2
       },
       "STG": {
-        "gpu": 2,
-        "none": 8817,
+        "gpu": 3,
+        "none": 9698,
         "reference": 1
       },
       "STL": {
         "gpu": 1,
-        "none": 166,
-        "reference": 1
+        "none": 207,
+        "reference": 2
       },
       "STS": {
         "gpu": 1,
@@ -43546,8 +43391,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 75768,
-        "partially native": 5544
+        "native": 9240,
+        "opaque": 68376,
+        "partially native": 3696
       },
       "LDC": {
         "native": 10,
@@ -43555,8 +43401,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 87912,
-        "partially native": 9240
+        "opaque": 76824,
+        "partially native": 20328
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -43565,9 +43411,8 @@
         "opaque": 16128
       },
       "LDL": {
-        "native": 120,
-        "opaque": 42,
-        "partially native": 48
+        "native": 150,
+        "partially native": 60
       },
       "LDS": {
         "native": 45,
@@ -43690,19 +43535,18 @@
         "opaque": 25
       },
       "ST": {
-        "native": 3780,
-        "opaque": 4410,
-        "partially native": 1512
+        "native": 4410,
+        "opaque": 3528,
+        "partially native": 1764
       },
       "STG": {
-        "native": 6300,
-        "opaque": 2772,
-        "partially native": 2520
+        "native": 6930,
+        "opaque": 1890,
+        "partially native": 2772
       },
       "STL": {
-        "native": 120,
-        "opaque": 42,
-        "partially native": 48
+        "native": 150,
+        "partially native": 60
       },
       "STS": {
         "native": 45,
@@ -43866,8 +43710,8 @@
       }
     },
     "evidence": {
-      "gpu": 122,
-      "none": 357,
+      "gpu": 124,
+      "none": 355,
       "reference": 189
     },
     "opaque_operations": {
@@ -44139,9 +43983,9 @@
         "reference": 6
       },
       "IMAD": {
-        "gpu": 12,
+        "gpu": 13,
         "none": 41,
-        "reference": 2
+        "reference": 1
       },
       "IMNMX": {
         "gpu": 1,
@@ -44168,7 +44012,8 @@
       },
       "LDL": {
         "gpu": 1,
-        "none": 3
+        "none": 2,
+        "reference": 1
       },
       "LDS": {
         "gpu": 1,
@@ -44227,7 +44072,7 @@
         "reference": 2
       },
       "R2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "REDUX": {
         "gpu": 1
@@ -44271,7 +44116,8 @@
       },
       "STL": {
         "gpu": 1,
-        "none": 3
+        "none": 2,
+        "reference": 1
       },
       "STS": {
         "gpu": 1,
@@ -45512,20 +45358,20 @@
         "reference": 625
       },
       "LD": {
-        "none": 3687,
-        "reference": 9
+        "none": 9229,
+        "reference": 11
       },
       "LDC": {
         "none": 11,
         "reference": 1
       },
       "LDG": {
-        "none": 6462,
-        "reference": 6
+        "none": 14774,
+        "reference": 10
       },
       "LDL": {
-        "none": 121,
-        "reference": 5
+        "none": 162,
+        "reference": 6
       },
       "LDS": {
         "none": 54,
@@ -45612,16 +45458,16 @@
         "reference": 4
       },
       "ST": {
-        "none": 3527,
-        "reference": 1
+        "none": 4408,
+        "reference": 2
       },
       "STG": {
-        "none": 6173,
-        "reference": 1
+        "none": 7054,
+        "reference": 2
       },
       "STL": {
-        "none": 125,
-        "reference": 1
+        "none": 166,
+        "reference": 2
       },
       "STS": {
         "none": 62,
@@ -46003,8 +45849,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 55440,
-        "partially native": 3696
+        "native": 6600,
+        "opaque": 49896,
+        "partially native": 2640
       },
       "LDC": {
         "native": 10,
@@ -46012,8 +45859,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 52668,
-        "partially native": 6468
+        "opaque": 44352,
+        "partially native": 14784
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -46025,9 +45872,8 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "LDS": {
         "native": 45,
@@ -46157,22 +46003,20 @@
         "opaque": 25
       },
       "ST": {
-        "native": 2520,
-        "opaque": 3528,
-        "partially native": 1008
+        "native": 3150,
+        "opaque": 2646,
+        "partially native": 1260
       },
       "STAS": {
         "opaque": 12
       },
       "STG": {
-        "native": 4410,
-        "opaque": 882,
-        "partially native": 1764
+        "native": 5040,
+        "partially native": 2016
       },
       "STL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "STS": {
         "native": 45,
@@ -46396,7 +46240,7 @@
     },
     "evidence": {
       "none": 381,
-      "reference": 316
+      "reference": 322
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -46452,11 +46296,8 @@
       "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "ld_memdesc__Ra64": "explicit descriptor",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
-      "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldl_memdesc_": "explicit descriptor",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
@@ -46474,9 +46315,6 @@
       "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
       "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
       "r2ur__OR": "OR not modelled; predicate output",
-      "st_memdesc__Ra64": "explicit descriptor",
-      "stg_memdesc__Ra64": "explicit descriptor",
-      "stl_memdesc_": "explicit descriptor",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uldc_const__RCxR": "operand form",
       "uldc_imm_": "operand form",
@@ -46662,7 +46500,7 @@
       },
       "LD": {
         "none": 1,
-        "reference": 3
+        "reference": 4
       },
       "LDC": {
         "none": 1,
@@ -46670,11 +46508,11 @@
       },
       "LDG": {
         "none": 2,
-        "reference": 2
+        "reference": 3
       },
       "LDL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "LDS": {
         "none": 1,
@@ -46759,15 +46597,15 @@
       },
       "ST": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STG": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "STS": {
         "none": 2,
@@ -47140,16 +46978,14 @@
         "opaque": 1
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
         "partially native": 2
       },
       "LDG": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -47161,8 +46997,7 @@
         "opaque": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -47288,19 +47123,16 @@
         "opaque": 1
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STAS": {
         "opaque": 2
       },
       "STG": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -47698,8 +47530,7 @@
         "native": 10
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -47709,12 +47540,10 @@
         "absent": 0
       },
       "LDG": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -47789,16 +47618,13 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STG": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -47937,8 +47763,8 @@
     },
     "status": {
       "native": 483,
-      "opaque": 476,
-      "partially native": 139,
+      "opaque": 470,
+      "partially native": 145,
       "partially primitive": 5,
       "primitive": 70
     }
@@ -48127,20 +47953,20 @@
         "reference": 625
       },
       "LD": {
-        "none": 3687,
-        "reference": 9
+        "none": 9229,
+        "reference": 11
       },
       "LDC": {
         "none": 11,
         "reference": 1
       },
       "LDG": {
-        "none": 6462,
-        "reference": 6
+        "none": 14774,
+        "reference": 10
       },
       "LDL": {
-        "none": 121,
-        "reference": 5
+        "none": 162,
+        "reference": 6
       },
       "LDS": {
         "none": 54,
@@ -48227,16 +48053,16 @@
         "reference": 4
       },
       "ST": {
-        "none": 3527,
-        "reference": 1
+        "none": 4408,
+        "reference": 2
       },
       "STG": {
-        "none": 6173,
-        "reference": 1
+        "none": 7054,
+        "reference": 2
       },
       "STL": {
-        "none": 125,
-        "reference": 1
+        "none": 166,
+        "reference": 2
       },
       "STS": {
         "none": 62,
@@ -48616,8 +48442,9 @@
         "opaque": 2
       },
       "LD": {
-        "opaque": 55440,
-        "partially native": 3696
+        "native": 6600,
+        "opaque": 49896,
+        "partially native": 2640
       },
       "LDC": {
         "native": 10,
@@ -48625,8 +48452,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 52668,
-        "partially native": 6468
+        "opaque": 44352,
+        "partially native": 14784
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -48638,9 +48465,8 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "LDS": {
         "native": 45,
@@ -48770,22 +48596,20 @@
         "opaque": 25
       },
       "ST": {
-        "native": 2520,
-        "opaque": 3528,
-        "partially native": 1008
+        "native": 3150,
+        "opaque": 2646,
+        "partially native": 1260
       },
       "STAS": {
         "opaque": 12
       },
       "STG": {
-        "native": 4410,
-        "opaque": 882,
-        "partially native": 1764
+        "native": 5040,
+        "partially native": 2016
       },
       "STL": {
-        "native": 90,
-        "opaque": 42,
-        "partially native": 36
+        "native": 120,
+        "partially native": 48
       },
       "STS": {
         "native": 45,
@@ -49009,7 +48833,7 @@
     },
     "evidence": {
       "none": 381,
-      "reference": 316
+      "reference": 322
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -49065,11 +48889,8 @@
       "hfma2_relu__RRR": "RELU; ofmt",
       "hfma2_relu__RRU": "RELU; ofmt",
       "hfma2_relu__RUR": "RELU; ofmt",
-      "ld_memdesc__Ra64": "explicit descriptor",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
-      "ldg_memdesc__Ra64": "Pu result; explicit descriptor",
-      "ldl_memdesc_": "explicit descriptor",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
@@ -49087,9 +48908,6 @@
       "plop3_lut_2out_3reg__RRR": "outside implemented operation families",
       "plop3_lut_2out_3reg__RUR": "outside implemented operation families",
       "r2ur__OR": "OR not modelled; predicate output",
-      "st_memdesc__Ra64": "explicit descriptor",
-      "stg_memdesc__Ra64": "explicit descriptor",
-      "stl_memdesc_": "explicit descriptor",
       "uf2fp_merge_c__URURI": "immediate C without extract: which half is kept",
       "uldc_const__RCxR": "operand form",
       "uldc_imm_": "operand form",
@@ -49275,7 +49093,7 @@
       },
       "LD": {
         "none": 1,
-        "reference": 3
+        "reference": 4
       },
       "LDC": {
         "none": 1,
@@ -49283,11 +49101,11 @@
       },
       "LDG": {
         "none": 2,
-        "reference": 2
+        "reference": 3
       },
       "LDL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "LDS": {
         "none": 1,
@@ -49372,15 +49190,15 @@
       },
       "ST": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STG": {
         "none": 3,
-        "reference": 1
+        "reference": 2
       },
       "STL": {
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "STS": {
         "none": 2,
@@ -49753,16 +49571,14 @@
         "opaque": 1
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
         "partially native": 2
       },
       "LDG": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -49774,8 +49590,7 @@
         "opaque": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -49901,19 +49716,16 @@
         "opaque": 1
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STAS": {
         "opaque": 2
       },
       "STG": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -50311,8 +50123,7 @@
         "native": 10
       },
       "LD": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -50322,12 +50133,10 @@
         "absent": 0
       },
       "LDG": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "LDL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "LDS": {
         "partially native": 3
@@ -50402,16 +50211,13 @@
         "primitive": 4
       },
       "ST": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STG": {
-        "opaque": 1,
-        "partially native": 4
+        "partially native": 5
       },
       "STL": {
-        "opaque": 1,
-        "partially native": 3
+        "partially native": 4
       },
       "STS": {
         "partially native": 3
@@ -50550,8 +50356,8 @@
     },
     "status": {
       "native": 483,
-      "opaque": 476,
-      "partially native": 139,
+      "opaque": 470,
+      "partially native": 145,
       "partially primitive": 5,
       "primitive": 70
     }

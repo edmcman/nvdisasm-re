@@ -6991,10 +6991,20 @@
 "SUBPIECE": 2
 },
 "ld_uniform__RaRZ": {
+"BOOL_NEGATE": 1,
+"BRANCH": 2,
 "CALLOTHER": 1,
-"CBRANCH": 1,
+"CBRANCH": 4,
+"COPY": 3,
+"INT_ADD": 2,
+"INT_LEFT": 2,
+"INT_LESS": 2,
 "INT_NOTEQUAL": 1,
-"SUBPIECE": 2
+"INT_OR": 2,
+"INT_SEXT": 1,
+"INT_SUB": 2,
+"INT_ZEXT": 7,
+"LOAD": 3
 },
 "ldc__RaNonRZ": {
 "CALLOTHER": 1
@@ -7069,10 +7079,14 @@
 "SUBPIECE": 3
 },
 "ldg__uImmOffset": {
+"BOOL_NEGATE": 1,
 "CALLOTHER": 1,
-"CBRANCH": 1,
+"CBRANCH": 2,
+"COPY": 4,
+"INT_ADD": 1,
 "INT_EQUAL": 1,
-"SUBPIECE": 3
+"INT_ZEXT": 2,
+"LOAD": 1
 },
 "ldg_memdesc__Ra64": {
 "CALLOTHER": 1,
@@ -7194,9 +7208,13 @@
 "LOAD": 1
 },
 "ldl_memdesc_": {
-"CALLOTHER": 1,
+"CALLOTHER": 2,
 "CBRANCH": 1,
-"INT_NOTEQUAL": 1
+"COPY": 1,
+"INT_ADD": 1,
+"INT_NOTEQUAL": 1,
+"INT_SEXT": 2,
+"LOAD": 1
 },
 "ldl_uniform_": {
 "CALLOTHER": 1,
@@ -8700,9 +8718,20 @@
 "STORE": 3
 },
 "st_memdesc__Ra64": {
-"CALLOTHER": 1,
-"CBRANCH": 1,
-"INT_EQUAL": 1
+"BOOL_NEGATE": 5,
+"CALLOTHER": 2,
+"CBRANCH": 4,
+"COPY": 1,
+"INT_ADD": 1,
+"INT_AND": 2,
+"INT_EQUAL": 1,
+"INT_LEFT": 2,
+"INT_LESS": 2,
+"INT_OR": 2,
+"INT_SEXT": 1,
+"INT_SUB": 2,
+"INT_ZEXT": 6,
+"STORE": 3
 },
 "st_uniform__Ra32": {
 "BOOL_NEGATE": 5,
@@ -8802,7 +8831,10 @@
 },
 "stg_memdesc__Ra64": {
 "BRANCH": 1,
-"CALLOTHER": 1
+"CALLOTHER": 2,
+"INT_ADD": 1,
+"INT_SEXT": 1,
+"STORE": 1
 },
 "stg_uniform__Ra32": {
 "CALLOTHER": 1,
@@ -8840,9 +8872,12 @@
 "STORE": 1
 },
 "stl_memdesc_": {
-"CALLOTHER": 1,
+"CALLOTHER": 2,
 "CBRANCH": 1,
-"INT_NOTEQUAL": 1
+"INT_ADD": 1,
+"INT_NOTEQUAL": 1,
+"INT_SEXT": 1,
+"STORE": 1
 },
 "stl_uniform_": {
 "CALLOTHER": 1,
