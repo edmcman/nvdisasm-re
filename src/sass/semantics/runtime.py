@@ -44,6 +44,11 @@ class Runtime:
                 atom=k.operand_types[key];label=ir.load('SM'+str(sm)).rev_enums[atom.type].get(value,'INVALID')
                 if label.startswith('INVALID'):raise UnsupportedSemantics('memory control '+label)
             self.events.append(dict(op=k.mnemonic,controls=controls));return 0
+        if name=='sass_memory_descriptor':
+            # Bit 59 marks a range-form L2 policy; some of those trap on SM89 and which ones is unknown.
+            descriptor,=args
+            if descriptor>>59&1:raise UnsupportedSemantics(f'range-form memory descriptor {descriptor:#x}')
+            return 0
         if not name.startswith('sass_prim_'):raise UnsupportedSemantics(name)
         ordinal,*values=args;arch=ir.load('SM'+str(sm));k=arch.classes[ordinal]
         variants=self.manifest(sm)[k.name]['variants']

@@ -169,7 +169,7 @@ TARGETS = {
     "hmnmx2_bf16_nan_min": ("HMNMX2.BF16_V2.NAN",), "hmnmx2_bf16_nan_max": ("HMNMX2.BF16_V2.NAN",), "hmnmx2_bf16_xorsign": ("HMNMX2.BF16_V2.XORSIGN",),
     "hmnmx2_e6m9_min": ("HMNMX2.E6M9_V2",), "hmnmx2_e6m9_max": ("HMNMX2.E6M9_V2",),
     "hmnmx2_e6m9_nan_min": ("HMNMX2.E6M9_V2.NAN",), "hmnmx2_e6m9_nan_max": ("HMNMX2.E6M9_V2.NAN",), "hmnmx2_e6m9_xorsign": ("HMNMX2.E6M9_V2.XORSIGN",),
-    "i2f": ("I2FP",), "fadd_ftz": ("FADD.FTZ",), "ffma_sat": ("FFMA.SAT",), "shared": ("LDS", "STS"), "local": ("LDL", "STL"), "generic": ("LD", "ST"),
+    "i2f": ("I2FP",), "fadd_ftz": ("FADD.FTZ",), "ffma_sat": ("FFMA.SAT",), "shared": ("LDS", "STS"), "local": ("LDL", "STL"), "generic": ("LD", "ST"), "desc": ("LDG", "STG", "LD", "ST"), "pnz": ("LD",), "desc_param": ("LDG", "STG"),
     "branch": ("BRA", "BSSY", "BSYNC"), "ldc": ("LDC",),
     **{f"{op}_{m}": (f"{op.upper()}.{m.upper()}",) for op in ("fadd", "fmul", "ffma", "dadd", "dmul", "dfma") for m in ("rz", "rm", "rp")},
     "f2fp_f16_pack_rn": ("F2FP.F16",), "f2fp_f16_pack_rz": ("F2FP.F16",), "f2fp_bf16_pack_rn": ("F2FP.BF16",), "f2fp_bf16_pack_rz": ("F2FP.BF16",),

@@ -1,4 +1,4 @@
-"""Memory: global/shared/local loads and stores, generic LD/ST, constant loads (LDC/ULDC/LDCU), shared
+"""Memory: global/shared/local loads and stores, generic LD/ST, explicit descriptors, constant loads (LDC/ULDC/LDCU), shared
 stride addressing and QSPC address-space queries."""
 from tests.harness.case import cbank
 from tests.refs import memory
@@ -78,6 +78,52 @@ def generic(c):
                   memory=[dict(space=space, address=at, hex="78563412")])
 
 
+# createpolicy's fractional evict_last (1.0) and evict_first (0.25), bit-59-clear random values, all but bit 59, and
+# range forms (bit 59).
+DESCRIPTORS = [0, 0x14f0000000000000, 0x1230000000000000, 0xf2a74de452e6b438, 0x6513270e269e0d37, 0xf7ffffffffffffff, 0x1d00002000000000, 0x0800000000000000]
+
+
+def descriptors(c):
+    """desc[URx] forms access memory as their implicit forms do whatever the descriptor, except that a
+    range-form descriptor stops at the runtime; SM75-SM89's implicit form (e_desc noexp_desc) ignores URx."""
+    for desc in DESCRIPTORS:
+        neutral = memory.descriptor_neutral(desc)
+        for op, space, ra in (("ldg", "ram", 64), ("ld", "shared", 64), ("ldl", "localmem", 32)):
+            cls = op + ("_memdesc__Ra64" if ra == 64 else "_memdesc_")
+            if not (k := c.classes.get(cls)): continue
+            for exp in ("EXP", "noexp_desc") if "e_desc" in k.operand_types else ("EXP",):
+                addr = SHARED[0] + 0x100 if space == "shared" else 0x100
+                regs = dict(WINDOWS, R2=(addr + 4) & 0xffffffff, R3=addr >> 32, UR4=desc & 0xffffffff, UR5=desc >> 32)
+                fields = dict(Rd=8, Ra=2, Ra_URb=4, Ra_offset=-4, sz="32", **({"e_desc": exp} if "e_desc" in k.operand_types else {}),
+                              **({} if ra == 32 else dict(e="E", input_reg_sz_64_dist="64")))
+                want = dict(R8=0x12345678) if neutral or exp == "noexp_desc" else dict(error="range-form memory descriptor")
+                c.add(cls, fields, regs, want, memory=[dict(space=space, address=0x100, hex="78563412")])
+        for op, space, ra in (("stg", "ram", 64), ("st", "localmem", 64), ("stl", "localmem", 32)):
+            cls = op + ("_memdesc__Ra64" if ra == 64 else "_memdesc_")
+            if not (k := c.classes.get(cls)): continue
+            addr = LOCAL[0] + 0x40 if op == "st" else 0x40
+            regs = dict(WINDOWS, R2=addr & 0xffffffff, R3=addr >> 32, R6=0x12345678, UR4=desc & 0xffffffff, UR5=desc >> 32)
+            fields = dict(Ra=2, Ra_URc=4, Ra_offset=0, Rb=6, sz="32", **({"e_desc": "EXP"} if "e_desc" in k.operand_types else {}),
+                          **({} if ra == 32 else dict(e="E", input_reg_sz_64_dist="64")))
+            c.add(cls, fields, regs, dict(__memory="78563412") if neutral else dict(error="range-form memory descriptor"),
+                  observe_memory=[dict(space=space, address=0x40, size=4)])
+
+
+def zero_fill(c):
+    """A load's Pnz input: false (after its `!`) gives 0, true the loaded value; PT with `!` is always false. Pnz
+    itself is written back unchanged."""
+    for cls, space, addr, extra in (("ldg__sImmOffset", "ram", 0x100, {}), ("ldg_memdesc__Ra64", "ram", 0x100, dict(e_desc="noexp_desc")),
+                                    ("ld__sImmOffset", "shared", SHARED[0] + 0x100, {})):
+        if not (k := c.classes.get(cls)) or "Pnz" not in k.operand_types: continue
+        for p, negate in ((0, 0), (0, 1), ("PT", 1)):
+            for value in (0, 1):
+                pnz = (value if p == 0 else 1) ^ negate
+                regs = dict(WINDOWS, R2=(addr + 4) & 0xffffffff, R3=addr >> 32, P0=value)
+                fields = dict(Rd=8, Ra=2, Ra_offset=-4, sz="32", e="E", Pnz=p, **{"Pnz@not": negate}, **{n: v for n, v in extra.items() if n in k.operand_types},
+                              **({"input_reg_sz_64_dist": "64"} if "input_reg_sz_64_dist" in k.operand_types else {}))
+                c.add(cls, fields, regs, dict(R8=memory.zero_filled(0x12345678, pnz), P0=value), memory=[dict(space=space, address=0x100, hex="78563412")])
+
+
 def qspc(c):
     """QSPC reads generic-address provenance from the emulator's explicit address-space map,
     which uses model ranges rather than process or GPU virtual addresses."""
@@ -102,10 +148,39 @@ def qspc(c):
 
 
 def emulator_cases(c):
-    loads_stores(c); generic(c); qspc(c)
+    loads_stores(c); generic(c); descriptors(c); zero_fill(c); qspc(c)
+
+
+def pnz_fixture():
+    """sem_pnz with its guarded LD always issued: the branch around it never taken (@!PT) and its
+    predicate, inverted, as LD's Pnz."""
+    from dataclasses import replace
+    from sass.decode.pyencode import encode
+    from tests.harness import scalar
+    from tests.harness.gpu import Template
+    f = scalar.launch("pnz", memory.pnz_kernel)
+    t = Template(f.image, "sem_pnz")
+    code = {o: t.decoded(o) for o in range(0, len(t.code), 16)}
+    skip, = [d for d in code.values() if d.klass.mnemonic == "BRA" and d.env["Pg"] != 7]
+    word = lambda d, **fields: (int.from_bytes(bytes.fromhex(encode("SM89", d.klass.name, **{**scalar.operands(d), **fields})), "little"), t.control(o))
+    words = {}
+    for o, d in code.items():
+        match d.klass.mnemonic:
+            case "LD": words[o] = word(d, Pnz=skip.env["Pg"], **{"Pnz@not": 1 - skip.env.get(("Pg", "not"), 0)})
+            case "BRA" if d is skip: words[o] = word(d, Pg=7, **{"Pg@not": 1})
+    return replace(f, image=t.patch(words))
+
+
+def desc_param_fixtures():
+    """sem_desc_param once per bit-59-clear descriptor in DESCRIPTORS (range forms may trap)."""
+    from dataclasses import replace
+    from tests.harness import scalar
+    f = scalar.launch("desc_param", memory.desc_param_kernel)
+    return [replace(f, name=f"desc_param_{d:x}", arguments=((8, d),)) for d in DESCRIPTORS if memory.descriptor_neutral(d)]
 
 
 def gpu_fixtures():
     from tests.harness import scalar
     return [scalar.launch("shared", lambda a, *_: a), scalar.launch("local", lambda a, b, c: (a + (c & 255) * b) & 0xffffffff),
-            scalar.launch("ldc", lambda a, *_: (a & 31) ** 2), scalar.launch("generic", memory.generic_kernel)]
+            scalar.launch("ldc", lambda a, *_: (a & 31) ** 2), scalar.launch("generic", memory.generic_kernel),
+            scalar.launch("desc", memory.desc_kernel), pnz_fixture(), *desc_param_fixtures()]

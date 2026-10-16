@@ -1,7 +1,8 @@
 """Memory and special registers: LDG/STG, LDS/STS, LDL/STL, generic LD/ST and LDC loads and stores, ULDC
 and SM100+'s LDCU, S2R/CS2R/S2UR. Every access first records a memory-ordering event with its encoded controls (the
-runtime rejects INVALID ones). Explicit descriptors, dual registers,
-predicate results and non-IA address modes are unmodelled."""
+runtime rejects INVALID ones); an explicit descriptor (desc[URx]) is passed to the runtime, which rejects
+range-form ones, and otherwise doesn't change the access (SM89 GPU). Dual registers,
+predicate results and non-IA address modes are unmodelled; a load's Pnz input zero-fills."""
 from sass.semantics.bitvec import concat, const, extract, ite, load, sext, trunc, zext
 from sass.semantics.family import effect, family, outputs, store, unmodelled
 
@@ -33,6 +34,17 @@ def size(i):
 def extended(v, w, signed): return v if v.w == w else (sext if signed else zext)(v, w)
 
 
+def descriptor(i):
+    """[the sass_memory_descriptor effect] of a class with a descriptor operand, else []: an L2 cache
+    policy that never changes the value accessed (SM89 GPU, docs/hardware-facts.md)."""
+    if not i.has_operand("memoryDescriptor"): return []
+    i.ignore("memoryDescriptor")
+    # SM75-SM89 select the implicit descriptor of ordinary CUDA pointers (noexp_desc) or URx (EXP);
+    # SM90+ always name URx. The implicit form passes 0 (SM89's c[0x0][0x118]), keeping one effect shape.
+    if i.has_operand("e_desc") and i.select_fork("e_desc") == "noexp_desc": return [effect("sass_memory_descriptor", const(0, 64))]
+    return [effect("sass_memory_descriptor", i.value(i.resolve("Ra_URb|Ra_URc"), modifiers=False))]
+
+
 def address(i):
     """Ra (zero-extended to 64 bits, scaled by .X4/.X8/.X16) plus the uniform part and the offset (SImm
     sign-extended, UImm zero-extended)."""
@@ -40,13 +52,8 @@ def address(i):
     # .E and the one-label input_reg_sz_* selectors name Ra's width, which its span already gives.
     for n in ("e", "input_reg_sz_32_dist", "input_reg_sz_64_dist", "input_reg_sz_32_bit75_dist", "input_reg_sz_64_bit75_dist"):
         if i.has_operand(n): i.select_fork(n)
-    if i.has_operand("memoryDescriptor"):
-        if not i.has_operand("e_desc"): unmodelled("explicit descriptor")
-        required(i, "e_desc", "noexp_desc")   # the implicit descriptor of ordinary CUDA pointers: ram
-        i.ignore("memoryDescriptor")
     if i.has_operand("ad"): required(i, "ad", "IA")
     if i.has_operand("sp2"): required(i, "sp2", "nosp2")
-    if i.has_operand("Pnz") and not i.is_true("Pnz"): unmodelled("Pnz")
     base = i.value("Ra", modifiers=False)
     base = zext(base, 64) if base.w < 64 else base
     if i.has_operand("stride"):
@@ -74,6 +81,7 @@ def memory(i):
     space = SPACES[i.opcode]
     for n in ("Pu", "Pv", "Pq"):   # predicate results are not assumed to mean success
         if i.has_operand(n) and not i.is_zero(n): unmodelled(f"{n} result")
+    effects = [ordering(i), *descriptor(i)]
     addr = address(i)
     if space == "generic" and i.has_operand("e") and i.select_fork("e") == "noe": unmodelled("32-bit generic address")
     if space == "cbank":
@@ -85,7 +93,11 @@ def memory(i):
         tried, (s, a) = windows(i, space, addr)
         loaded = load(s, a, w)
         for s, a, inside in reversed(tried): loaded = ite(inside, load(s, a, w), loaded)
-        return outputs(effects=[ordering(i)], Rd=extended(loaded, i.width("Rd"), signed))
+        # A false Pnz gives 0 without accessing memory (SM89 GPU: an unmapped address doesn't trap).
+        if i.has_operand("Pnz"): loaded = ite(i.pred("Pnz"), loaded, const(0, w))
+        # The md also writes Pnz; SM89 hardware leaves its value unchanged.
+        kept = {"Pnz": i.pred("Pnz", modifiers=False)} if i.has_operand("Pnz") else {}
+        return outputs(effects=effects, Rd=extended(loaded, i.width("Rd"), signed), **kept)
     value = i.value("Rb", modifiers=False)
     if w > value.w: unmodelled("size")
     value = trunc(value, w) if value.w > w else value
@@ -94,7 +106,7 @@ def memory(i):
     for ws, wa, inside in tried:
         stores.append(store(ws, wa, value, inside if outside is None else outside & inside))
         outside = ~inside if outside is None else outside & ~inside
-    return outputs(effects=[ordering(i)], stores=[*stores, store(s, a, value, outside)])
+    return outputs(effects=effects, stores=[*stores, store(s, a, value, outside)])
 
 
 @family("ULDC")
