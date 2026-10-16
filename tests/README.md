@@ -166,7 +166,10 @@ Each `cases/<family>.py` (listed in `cases/__init__.py` `FAMILIES`) provides:
   thread reads three inputs and writes one output. The GPU output is compared with `expected`
   using `same`; the kernel, run whole in the emulator from entry to EXIT, is compared with
   `expected` using `emulator_same` (default `same`), with `excused` admitting known emulator
-  defects.
+  defects. Patched carry-kernel slots (`templates.slot_fixture`) must leave UR4/UR5 alone: the
+  kernel loads its default memory descriptor there (`ULDC.64 UR4, c[0x0][0x118]` at 0x30) and its
+  final `STG.E` uses it implicitly, so a value with bit 27 set in UR5
+  (descriptor bit 59) traps with CUDA_ERROR_ILLEGAL_INSTRUCTION (715).
 
 References in `refs/` are independent of the code under test: they may import only
 `sass.semantics.fp.softfloat` from `sass/` (`test_refs.py` enforces this). Every random block draws
