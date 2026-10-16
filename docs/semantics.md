@@ -726,3 +726,5 @@ Use `NVCC` to select the toolkit. Without a GPU, `pytest -m gpu` skips; `--requi
 `uv run python -m tests.observe FAMILY` runs a family's fixtures and prints raw GPU outputs without asserting.
 CUDA device access requires running outside the restricted sandbox here.
 
+
+Concat expressions (2026-10-16) store all operands directly, most significant first, with width equal to their summed widths. `concat(x)` returns `x`; zero operands raise `TypeError`. Explicitly nested concats remain nested so lowering can preserve shared intermediates and avoid extra widening of sub-byte parts. Extraction simplifies slices contained in any one operand; slices crossing operand boundaries remain extracts.

@@ -2,7 +2,7 @@
 
 Every value has a width in bits and means an unsigned integer modulo 2^w, like an SMT-LIB
 bitvector; booleans are 1 bit and signedness lives in operators. `extract(x, hi, lo)` and
-`concat(hi, lo)` take bitvectors apart and put them together. Nodes are interned (equal nodes are the same object), so sharing is identity and
+`concat(hi, ..., lo)` take bitvectors apart and put them together. Nodes are interned (equal nodes are the same object), so sharing is identity and
 backends can memoize by node. `OPS` gives each operator's concrete meaning; constant folding here
 and `sass.semantics.evaluate` both use it, so the IR has exactly one definition.
 
@@ -120,7 +120,7 @@ OPS = {
     "zext": lambda v, ws, w: v[0],
     "sext": lambda v, ws, w: signed(v[0], ws[0]) & mask(w),
     "extract": lambda v, ws, w: v[0] >> v[2] & mask(w),
-    "concat": lambda v, ws, w: v[0] << ws[1] | v[1],
+    "concat": lambda v, ws, w: reduce(lambda acc, part: (acc << part[1]) | part[0], zip(v, ws), 0),
     # Floating point on IEEE encodings (16, 32, 64 bits): exactly rounded per mode, NaN results
     # canonical; comparisons are false when either side is NaN.
     "fadd": lambda v, ws, w: softfloat.arithmetic("add", v[:2], w, v[2]),
@@ -257,8 +257,12 @@ def extract(x, hi, lo):
         case "zext" if lo >= a[0].w: return const(0, w)
         case "zext" if lo == 0: return zext(a[0], w)
         case "sext" if lo == 0: return sext(a[0], w)
-        case "concat" if lo >= a[1].w: return extract(a[0], hi - a[1].w, lo - a[1].w)
-        case "concat" if hi < a[1].w: return extract(a[1], hi, lo)
+        case "concat":
+            offset = 0
+            for part in reversed(a):
+                if offset <= lo and hi < offset + part.w:
+                    return extract(part, hi - offset, lo - offset)
+                offset += part.w
     return op("extract", x, hi, lo, w=w)
 
 
@@ -315,7 +319,9 @@ def narrow(roots):
 
 def concat(*parts):
     """The bitvector of `parts`, most significant first."""
-    return reduce(lambda hi, lo: op("concat", hi, lo, w=hi.w + lo.w), parts)
+    if not parts: raise TypeError("concat needs at least one operand")
+    if len(parts) == 1: return parts[0]
+    return op("concat", *parts, w=sum(part.w for part in parts))
 
 
 def bits(x, lo, n, w=None):
@@ -481,7 +487,7 @@ def show(outputs):
             case "not" | "neg": return ("!" if e.op == "not" and e.w == 1 else "~" if e.op == "not" else "-") + text(a[0])
             case "zext" | "sext": return f"{e.op}{e.w}({text(a[0], True)})"
             case "extract": return f"{text(a[0])}[{a[1]}:{a[2]}]" if a[1] != a[2] else f"{text(a[0])}[{a[1]}]"
-            case "concat": return f"concat({text(a[0], True)}, {text(a[1], True)})"
+            case "concat": return f"concat({', '.join(text(x, True) for x in a)})"
             case "ult" | "ule" | "slt" | "sle" if is_const(a[0]) and not is_const(a[1]):
                 # Comparisons are canonically < / <=; print `x > k` the way it is usually written.
                 s = f"{text(a[1])} {FLIPPED[e.op]} {number(a[0], e.op[0] == 's')}"

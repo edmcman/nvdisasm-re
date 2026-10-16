@@ -876,7 +876,10 @@ class Fold:
                 return "0x0" if k >= w else self.mask(f"{sub(a[0])} << {k}", w) if e.op == "shl" else self.mask(f"{sub(a[0])} >> {k}", w - k)
             case "extract": return self.mask(f"{sub(a[0])} >> {a[2]}", w)
             case "zext": return sub(a[0])
-            case "concat": return f"(({sub(a[0])} << {a[1].w}) | {sub(a[1])})"
+            case "concat":
+                result = sub(a[0])
+                for part in a[1:]: result = f"(({result} << {part.w}) | {sub(part)})"
+                return result
             case "eq" | "ne":
                 d = self.nonzero(f"{sub(a[0])} ^ {sub(a[1])}")
                 return d if e.op == "ne" else f"(1 - {d})"
