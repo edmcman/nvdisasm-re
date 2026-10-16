@@ -364,6 +364,17 @@ class Instruction:
             return e
         return self.choice(name, {enum[l]: e for l, e in table.items() if l in enum})
 
+    def select_bits(self, names, lo, bits, table):
+        """Choose an expression by a small bit slice of an immediate, without enumerating
+        unrelated slices (PRMT's four independent selector nibbles)."""
+        name = self.resolve(names); self.asked.add(name)
+        if self.kind(name) != "immediate": raise TypeError(f"{name} is not an immediate")
+        if lo < 0 or bits < 1 or lo + bits > self.width(name): raise ValueError("invalid immediate bit slice")
+        return self.choice_bits(name, lo, bits, table)
+
+    def choice_bits(self, name, lo, bits, table):
+        raise NotImplementedError
+
     def select_lookup_const(self, names, table, w=32):
         """A w-bit number chosen by a selector's label (format constants, rounding-mode flags):
         select_lookup with constants, so one parametric computation serves every label."""

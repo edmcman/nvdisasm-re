@@ -83,7 +83,9 @@ The generator uses the committed `out/` descriptions.
    ```
 
    To build only selected architectures, pass them as arguments, for example
-   `uv run sass-build-languages SM89 SM90`. The default uses Ghidra's
+   `uv run sass-build-languages SM89 SM90`. Detailed semantic coverage is opt-in
+   with `--coverage`; normal builds write only the small runtime calling-convention
+   manifest. The default uses Ghidra's
    `support/sleigh` launcher (`support/sleigh.bat` on Windows). For another compiler
    location, pass `--sleigh /path/to/sleigh` (or `sleigh.exe`).
 

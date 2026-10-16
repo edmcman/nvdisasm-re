@@ -177,7 +177,7 @@ def main():
 
 def refresh():
     """sass-refresh-coverage [SMxx ...]: regenerate the manifests (no Ghidra) and evidence, then the committed summary, evidence, badge and report."""
-    for module in ('sass.sleigh.build','--generate-only'),('tests.evidence',):
+    for module in ('sass.sleigh.build','--generate-only','--coverage'),('tests.evidence',):
         subprocess.run([sys.executable,'-m',*module,*sys.argv[1:]],cwd=ROOT,check=True)
     write(LANGUAGES,ROOT/'processor/SASS/semantics/coverage.json')
 

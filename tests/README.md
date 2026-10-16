@@ -132,6 +132,10 @@ recompile it on load, and concurrent compilers corrupt it.
 | generated languages | `processor/SASS/data/languages` | `SASS_SLEIGH_OUT` |
 | `javac` (cooperative GPU fixtures) | on `PATH` | |
 
+Detailed coverage enumeration is opt-in (`sass-build-languages --coverage`). Normal builds
+write only the lightweight runtime manifest needed by primitive emulation.
+`sass-refresh-coverage` and CI enable coverage explicitly.
+
 For a scratch build, run `uv run sass-build-languages SM89 --output /tmp/sass-languages` (it
 copies the shared definitions), then set `SASS_SLEIGH_OUT=/tmp/sass-languages` for the Ghidra
 tests.

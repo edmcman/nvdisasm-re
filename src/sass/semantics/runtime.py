@@ -20,7 +20,9 @@ class Runtime:
 
     def manifest(self,sm):
         if sm not in self.manifests:
-            rows=json.loads((self.language_dir/f'sass_{self.variant}_coverage.json').read_text())
+            path=self.language_dir/f'sass_{self.variant}_runtime.json'
+            if not path.exists():path=self.language_dir/f'sass_{self.variant}_coverage.json'
+            rows=json.loads(path.read_text())
             self.manifests[sm]={r['cls']:r for r in rows}
         return self.manifests[sm]
 

@@ -26,7 +26,7 @@ jobs:
       - uses: astral-sh/setup-uv@v10.3.0
         with:
           python-version: "3.13"
-      - run: uv run sass-build-languages --generate-only ${{ matrix.arch }}
+      - run: uv run sass-build-languages --generate-only --coverage ${{ matrix.arch }}
       - run: uv run python -m tests.evidence ${{ matrix.arch }}
       - uses: actions/upload-artifact@v7
         with:

@@ -371,20 +371,23 @@ class Builder:
         return lines
 
     def finish(self, status, reason=''):
-        row=self.g.coverage.setdefault(self.k.name,dict(cls=self.k.name,opcode=self.k.mnemonic,
-              status=status,reason=reason,operands=self.inventory,
-              inputs=list(self.values),outputs=list(self.outputs),
-              implicit=self.g.roles.get(self.k.name,{}).get('implicit',[])))
-        row['status']=status
-        row['selector_guards']=self.selector_guards
-        row['selector_combinations']=self.selector_combinations
-        found=modifiers.combinations(self,self.rows or [({},status)])
-        row['combinations']=modifiers.merge(row['combinations'],found) if 'combinations' in row else found
-        row['modifiers']=modifiers.value_statuses(row['combinations'])
-        row['raw_bits_preserved']=True
-        row['flow']={n:v for n,v in self.g.props.get(self.k.name,{}).items() if n.startswith('BRANCH_')}
         variant=dict(spans=self.spans,inputs=list(self.values),outputs={n:v.size for n,v in self.outputs.items()})
-        if variant not in row.setdefault('variants',[]):row['variants'].append(variant)
+        runtime=self.g.runtime.setdefault(self.k.name,dict(cls=self.k.name,variants=[]))
+        if variant not in runtime['variants']:runtime['variants'].append(variant)
+        if self.g.collect_coverage:
+            row=self.g.coverage.setdefault(self.k.name,dict(cls=self.k.name,opcode=self.k.mnemonic,
+                  status=status,reason=reason,operands=self.inventory,
+                  inputs=list(self.values),outputs=list(self.outputs),
+                  implicit=self.g.roles.get(self.k.name,{}).get('implicit',[])))
+            row['status']=status
+            row['selector_guards']=self.selector_guards
+            row['selector_combinations']=self.selector_combinations
+            found=modifiers.combinations(self,self.rows or [({},status)])
+            row['combinations']=modifiers.merge(row['combinations'],found) if 'combinations' in row else found
+            row['modifiers']=modifiers.value_statuses(row['combinations'])
+            row['raw_bits_preserved']=True
+            row['flow']={n:v for n,v in self.g.props.get(self.k.name,{}).items() if n.startswith('BRANCH_')}
+            if variant not in row.setdefault('variants',[]):row['variants'].append(variant)
         body=' '.join(prune_unused_values(self.body))
         names=set(re.findall(r'\b\w+\b',body))
         return body,[r for r in self.refs if r[1] in names]

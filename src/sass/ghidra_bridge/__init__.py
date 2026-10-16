@@ -10,10 +10,12 @@ SOURCES = ROOT / "src" / "sass"
 
 def stamp(arch, fp):
     """Hash of everything a Ghidra-side answer depends on: the compiled language and its specs,
-    coverage manifest (runtime primitives), every sass source and the Ghidra install."""
+    runtime manifest (or legacy coverage manifest), every sass source and the Ghidra install."""
     from sass.sleigh.gen import variant
     name = variant(arch, fp)
-    files = [LANGUAGES / f"sass_{name}.sla", LANGUAGES / f"sass_{name}_coverage.json", LDEFS, LANGUAGES / "sass.pspec", LANGUAGES / "sass.cspec",
+    manifest = LANGUAGES / f"sass_{name}_runtime.json"
+    if not manifest.exists(): manifest = LANGUAGES / f"sass_{name}_coverage.json"
+    files = [LANGUAGES / f"sass_{name}.sla", manifest, LDEFS, LANGUAGES / "sass.pspec", LANGUAGES / "sass.cspec",
              *sorted(p for p in SOURCES.rglob("*") if p.suffix in (".py", ".java"))]
     h = hashlib.sha256(GHIDRA_PY.encode() + os.environ.get("GHIDRA_INSTALL_DIR", "").encode())
     for f in files: h.update(str(f).encode()); h.update(f.read_bytes() if f.exists() else b"")

@@ -115,6 +115,30 @@ def permute(c):
                                  ("RC16", 1, 0x03020302), ("ECL", 2, 0x03020202), ("ECR", 2, 0x02020100)]:
         c.add("prmt__RRR_RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6, pmode=mode), dict(R2=0x03020100, R4=selector, R6=0x07060504), dict(R8=want))
 
+    # Immediate selectors specialize each byte independently, including sign replication and RZ.
+    for opcode in ('PRMT', 'UPRMT'):
+        for k in c.of(opcode):
+            if 'Sb' not in k.operand_types or k.operand_types['Sb'].type != 'UImm': continue
+            uniform = opcode == 'UPRMT'
+            dest, left, right = ('URd', 'URa', 'URc') if uniform else ('Rd', 'Ra', 'Rc')
+            file, zero = ('UR', 'URZ') if uniform else ('R', 'RZ')
+            modes = ('IDX',) if uniform else ('IDX', 'F4E', 'B4E', 'RC8', 'RC16', 'ECL', 'ECR')
+            for mode in modes:
+                for selector in [v * 0x1111 for v in range(16)] + [0x0123, 0x6420, 0x89ab, 0xffff7654]:
+                    for zero_left, zero_right in ((False, False), (False, True), (True, False), (True, True)):
+                        a, b = (0 if zero_left else 0x80ff017f), (0 if zero_right else 0x55aa0081)
+                        fields = {dest: 2, left: zero if zero_left else 2, right: zero if zero_right else 6, 'Sb': selector}
+                        if not uniform: fields['pmode'] = mode
+                        c.add(k.name, fields, {file + '2': a, file + '6': b},
+                              {file + '2': prmt(a, selector, b, mode), '__native': True})
+
+
+    # Byte reversal stays compact without copies solely for byte truncation.
+    c.add("prmt__RuIR_RIR", dict(Rd=3, Ra=2, Sb=0x0123, Rc="RZ", pmode="IDX"),
+          dict(R2=0x80ff017f), dict(R3=0x7f01ff80, __native=True, __max_ops=16))
+    c.add("prmt__RuIR_RIR", dict(Rd=3, Ra=2, Sb=0x7654, Rc="RZ", pmode="IDX"),
+          dict(R2=0x80ff017f), dict(R3=0, __native=True))
+
 
 def fixed(c):
     c.add("mov__RI", dict(Rd=3, Sb=0xdeadbeef, PixMaskU04=15), {}, dict(R3=0xdeadbeef, __max_ops=1))
