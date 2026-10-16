@@ -115,6 +115,26 @@ def hoisted_voteu(image, name, negate):
     return t.patch({slot: (vote if src == v else word(src), t.control(src)) for slot, src in zip(range(v, lop + 16, 16), order)}, image)
 
 
+DIVERGENT_PATTERNS = (0x55555555, 0x0000ffff, 0xaaaaaaaa, 0x00000020, 0xffff0000, 0x0f0f0f0f, 0x80000001, 0xfffffffe)
+
+
+def divergent_inputs(rng):
+    """Per warp a member-lane pattern (c bit 0), with random a and b."""
+    return [(rng.getrandbits(32), rng.getrandbits(32), rng.getrandbits(31) << 1 | DIVERGENT_PATTERNS[w % len(DIVERGENT_PATTERNS)] >> lane & 1)
+            for w in range(WARPS) for lane in range(32)]
+
+
+def divergent_expected(vs, warp_result):
+    """out = result | activemask << 32 for member lanes, 0 elsewhere; warp_result(members, vs of the warp) -> {lane: result}."""
+    out = []
+    for w in range(WARPS):
+        lanes = vs[32 * w:32 * w + 32]
+        members = [lane for lane, v in enumerate(lanes) if v[2] & 1]
+        mask, results = sum(1 << lane for lane in members), warp_result(members, lanes)
+        out += [results[lane] | mask << 32 if lane in members else 0 for lane in range(32)]
+    return out
+
+
 def gpu_fixtures():
     from tests.harness.gpu import Fixture, compile
     from tests.refs import warp
@@ -141,6 +161,18 @@ def gpu_fixtures():
         vs = redux_inputs(random.Random(f"redux_{name}"))
         out.append(fixture(f"redux_{name}", vs, [warp.redux(op, [a for a, _, _ in vs[32 * w:32 * w + 32]], signed)
                                                  for w in range(WARPS) for _ in range(32)], ("REDUX",)))
+    vs = divergent_inputs(random.Random("divergent"))
+    preds = lambda lanes: [v[0] & 1 for v in lanes]
+    values = lambda lanes, members: [lanes[lane][0] for lane in members]
+    divergent = {"ballot": ("VOTE.ANY", lambda m, L: warp.vote_members(preds(L), m)[0]),
+                 "any": ("VOTE.ANY", lambda m, L: warp.vote_members(preds(L), m)[1]),
+                 "all": ("VOTE.ALL", lambda m, L: warp.vote_members(preds(L), m)[2]),
+                 **{f"redux_{op}": ("REDUX", lambda m, L, op=op: warp.redux(op, values(L, m))) for op in ("add", "and", "or", "min")},
+                 # A source lane outside the executing set (idle at the reconvergence point, or exited) yields 0, not its register.
+                 **{f"shfl_{name}": ("SHFL.IDX", lambda m, L: [L[j][0] if j in m else 0 for j in (v[1] & 31 for v in L)]) for name in ("idle", "exit")}}
+    for name, (target, result) in divergent.items():
+        expected = divergent_expected(vs, lambda m, L, result=result: (lambda r: {l: r[l] if isinstance(r, list) else r for l in m})(result(m, L)))
+        out.append(fixture(f"div_{name}", vs, expected, (target,), output_size=8))
     voteu = image
     for name, negate in (("voteu", 0), ("voteu_not", 1)): voteu = hoisted_voteu(voteu, name, negate)
     vs = [(0, 0, a) for a, _, _ in vote_inputs(random.Random("voteu"))]

@@ -302,12 +302,20 @@ def flo(i):
 
 @family('SGXT', 'USGXT')
 def sgxt(i):
-    """Rd = sign-extend the low min(Rb, 32) bits of Ra; zero width gives zero (SM89)."""
-    if i.select_fork('cw') != 'C' or i.select_fork('fmt') not in ('S32', '32'): unmodelled('cw/fmt')
+    """Rd = the low n bits of Ra extended from bit n-1 (sign for S32, zero for U32); n is Rb & 31
+    for .W, min(Rb, 32) for .C, and n = 0 gives 0 (SM89 GPU)."""
     if i.width('Rd') != 32: unmodelled('width')
-    x, width = i.value('Ra'), umin(i.value('Rb|Sb'), 32)
-    shift = const(32, 32) - width
-    return outputs(Rd=const(0, 32) if width == 0 else sar(x << shift, shift))
+    a, width = i.value('Ra'), i.value('Rb|Sb')
+    match i.select_fork('cw'):
+        case 'W': n = width & 31
+        case 'C': n = umin(width, 32)
+        case _: unmodelled('cw selector')
+    shift = (const(32, 32) - n) & 31
+    match i.select_fork('fmt'):
+        case 'S32': extended = sar(a << shift, shift)
+        case 'U32' | '32': extended = (a << shift) >> shift
+        case _: unmodelled('fmt selector')
+    return outputs(Rd=ite(n == 0, const(0, 32), extended))
 
 
 def compare(label, a, b, signed):
