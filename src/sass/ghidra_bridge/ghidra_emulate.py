@@ -6,6 +6,7 @@ request (`sass.ghidra_bridge.kernel_request`), whose kernel.trace adds each step
 the first kernel.trace_threads threads. In-process callers start the JVM and use `session`.
 """
 import json,sys,os
+from collections import Counter
 from pathlib import Path
 sys.path[:0]=[str(Path(__file__).parent),str(Path(__file__).parents[2])]
 import pyghidra
@@ -196,20 +197,16 @@ def session(ldefs,langid):
                 out=request['output'];offset=int(out['address'])+t['lane']*int(out.get('stride',4));size=int(out.get('size',4))
                 outputs.append(bytes(t['state'].getVar(Varnode(space.getAddress(offset),size),reason)).hex())
         return dict(outputs=outputs,threads=count,steps=steps,visited=sorted(visited),exit='EXIT',**({'trace':trace} if trace is not None else {}))
+    true_registers=[(lang.getRegister(name),jpype.JArray(jpype.JByte)(b'\x01'+bytes(REG_FILES[file][1]-1)))
+                    for file,name in (('P','PT'),('UP','UPT')) if file in REG_FILES]
     def instruction(request):
         emulator=PcodeEmulator(lang);thread=emulator.newThread();state=thread.getState()
         address=int(request.get('address',0x1000));addr=space.getAddress(address)
         thread.overrideCounter(addr)
         runtime.context=request.get('context',{});runtime.events=[];runtime.last_error=None
-        # Initialize architectural registers, so tests may also inspect untouched ones.
-        for file,(_,size,count,zero,zero_name) in REG_FILES.items():
-            for i in range(count):
-                name=zero_name if i==zero else file+str(i)
-                reg=lang.getRegister(name)
-                initial=1 if name in ('PT','UPT') else 0
-                state.setVar(reg,jpype.JArray(jpype.JByte)(initial.to_bytes(size,'little')))
-            if zero>=count:
-                state.setVar(lang.getRegister(zero_name),jpype.JArray(jpype.JByte)(bytes(size)))
+        # Architectural registers start at Ghidra's default zero value, so tests may also inspect
+        # untouched ones; only PT/UPT start nonzero.
+        for reg,value in true_registers:state.setVar(reg,value)
         for name,value in request.get('registers',{}).items():
             reg=lang.getRegister(name);size=int(reg.getMinimumByteSize());value=int(value)&((1<<(size*8))-1)
             if name in ('RZ','URZ'):value=0
@@ -217,8 +214,8 @@ def session(ldefs,langid):
             state.setVar(reg,jpype.JArray(jpype.JByte)(value.to_bytes(size,'little')))
         write_memory(state,request.get('memory',[]))
         ins=parse(lang,addr,bytes.fromhex(request['word']))
-        program=ArrayList()
-        for op in ins.getPcode():program.add(op)
+        ops=ins.getPcode();program=ArrayList()
+        for op in ops:program.add(op)
         # Execute with the actual Ghidra byte arithmetic and state machinery.
         thread.overrideCounter(space.getAddress(address+16))
         thread.getExecutor().execute(program,HashMap(),lib)
@@ -232,7 +229,7 @@ def session(ldefs,langid):
             memories.append(dict(mem,hex=data.hex()))
         out=dict(text=str(ins),registers=registers,memory=memories,counter=int(thread.getCounter().getOffset()),events=runtime.events)
         if request.get('inspect_pcode'):
-            out['pcode_ops']=[str(op.getMnemonic()) for op in ins.getPcode()]
+            out['pcode_ops']=dict(Counter(str(op.getMnemonic()) for op in ops))
         return out
     def handle(request):
         try:return run_kernel(request) if 'kernel' in request else instruction(request)

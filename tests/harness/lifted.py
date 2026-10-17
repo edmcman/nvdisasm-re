@@ -1,6 +1,6 @@
 """Run the emulator cases through the Ghidra-free semantics (`sass.semantics.lifter` + `sass.semantics.evaluate`)."""
 import re
-from functools import cache
+from functools import lru_cache
 from sass.decode import ir, pydecode
 from sass.semantics import evaluate, lifter
 from sass.semantics.family import family_for
@@ -34,9 +34,10 @@ def observe(s, names):
     return {n: 0 if n == "RZ" else 1 if n == "PT" else s.read(m[1], int(m[2]), 1) for n in names if (m := NAME.match(n)) or n in ("RZ", "PT")}
 
 
-@cache
+@lru_cache(maxsize=4096)
 def lift(arch, word, address, fp):
-    """Lifted once per word: exhaustive cases share few words (F2FP scaled upconverts: 12288 cases, 48 words)."""
+    """Lifted once per recent word: sweep cases share few words (F2FP scaled upconverts: 12288 cases,
+    48 words); bounded, since a worker lifts hundreds of thousands of words over a session."""
     return lifter.lift(arch, word, address, fp)
 
 
@@ -64,7 +65,3 @@ def primitive_fallback(arch, cls):
     """Whether the class's unmodelled encodings fall back to a runtime primitive (FADD, F2I, ...)."""
     fam = family_for(next(k for k in ir.load(arch).classes if k.name == cls))
     return getattr(fam, "fallback", "opaque") == "prim"
-
-
-def has_family(md, cls):
-    return family_for(next(k for k in md.classes if k.name == cls)) is not None
