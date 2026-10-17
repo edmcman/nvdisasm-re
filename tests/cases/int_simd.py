@@ -4,7 +4,7 @@ import random
 from tests.harness.case import cx_header, cx_source, put, ram, source, flagged
 from tests.refs.bits import MASK32
 from tests.harness.manual import retained
-from tests.refs.integer import COMPARISONS, dot2, dot4, vabsdiff4, viaddmnmx, vminmax, vset_mask
+from tests.refs.integer import dot2, dot4, vabsdiff4, viaddmnmx, vminmax
 
 FMTS = [("S32", 32, True), ("U32", 32, False), ("S16x2", 16, True), ("U16x2", 16, False), ("S8x4", 8, True), ("U8x4", 8, False)]
 
@@ -60,11 +60,13 @@ def vabsdiff(c):
         c.add(k.name, fields, regs, {"R8": vabsdiff4(a, b, acc, True, "ACC"), "__native": True}, memory=memory)
 
 
+@retained("Partial VIMNMX predicate-output forms, explicit CX descriptors, and VIADDMNMX/VIMNMX3 without adapters.")
 def minmax(c):
     # CuLifter's VIMNMX is predicate-selected (PT: min) scalar or packed min/max.
     rng = random.Random("vimnmx")
     words = [0, 0xffffffff, 0x80007fff, 0x7fff8000, 0x12345678, 0xdeadbeef] + [rng.getrandbits(32) for _ in range(8)]
     for k in c.of("VIMNMX"):
+        if not any(p in k.operand_types for p in ("Pu", "Pv")): continue
         srcb = source(k, "Rb", "URb", "Sb")
         if not srcb: continue
         # vimnmx_pred's Pu/Pv (P0-P6, no PT) are written with unknown meaning: unmodelled.
@@ -144,23 +146,8 @@ def minmax(c):
         c.add(k.name, fields, {"R2": a, "R6": d, **cx_regs}, {"R8": vminmax((a, b, d), 32, True, True), "__native": True}, memory=memory)
 
 
-def viset(c):
-    """SM107's VISET.BM: lane masks of every comparison and format, from each B source kind."""
-    rng = random.Random("viset")
-    words = [0, 0xffffffff, 0x80007fff, 0x7fff8000, 0x7f80ff01, 0x12345678] + [rng.getrandbits(32) for _ in range(6)]
-    for k in c.of("VISET"):
-        srcb = source(k, "Rb", "URb", "Sb")
-        for (fmt, width, signed), op in ((f, op) for f in FMTS for op in COMPARISONS):
-            for j, a in enumerate(words):
-                b = a if j % 4 == 0 else words[(j * 5 + 1) % len(words)]
-                rd = 4 if j % 3 == 0 else 8
-                fields, regs = {"Rd": rd, "Ra": 4, "fmt": fmt, "icmp": op}, {"R4": a}
-                put(k, srcb, b, fields, regs, None, 6, ureg=10, imm=("UImm",))
-                c.add(k.name, fields, regs, {f"R{rd}": vset_mask(a, b, width, signed, op), "__native": True})
-
-
 def emulator_cases(c):
-    cx_regressions(c); vabsdiff(c); minmax(c); viset(c)
+    cx_regressions(c); vabsdiff(c); minmax(c)
 
 
 def gpu_fixtures():

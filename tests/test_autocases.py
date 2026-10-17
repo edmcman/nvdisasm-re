@@ -196,3 +196,40 @@ def test_mask_profile_preserves_the_dense_domain_and_seed():
     rng = random.Random(18)
     expected = (rng.getrandbits(32), rng.getrandbits(32))
     assert autocase_profiles.vectors('mask_edges')[144][:2] == expected
+
+
+@pytest.mark.parametrize('arch,cls,form', [
+    ('SM107', 'vimnmx__RRR_RRR', {'fmt':'S8x4', 'relu':'RELU', 'Pp@not':'set'}),
+    ('SM120', 'vimnmx__RIR_RsIR', {'fmt':'S16x2', 'relu':'norelu', 'Pp@not':'unset'}),
+    ('SM107', 'vimnmx__RUR_RUR', {'fmt':'U32', 'relu':'norelu', 'Pp@not':'unset'}),
+    ('SM107', 'viset__RRR_RRR', {'fmt':'S8x4', 'icmp':'LT'}),
+    ('SM107', 'viset__RUR_RUR', {'fmt':'U16x2', 'icmp':'GE'}),
+    ('SM107', 'viset__RuIR_RIR', {'fmt':'S32', 'icmp':'NE'}),
+])
+def test_packed_generated_cases(arch, cls, form):
+    cases = tests.harness.autocases.generate(arch, cls, form)
+    assert cases
+    for case in cases:
+        status, problems = lifted.run(arch, 'exact', case)
+        assert status == 'native' and not problems, (status, problems)
+
+
+def test_packed_partial_predicate_outputs_stay_explicit():
+    with pytest.raises(tests.harness.autocases.Unsupported, match='predicate outputs'):
+        tests.harness.autocases.generate('SM100', 'vimnmx__RRR_RRR',
+            {'fmt':'U32', 'relu':'norelu', 'Pp@not':'unset'})
+
+
+@pytest.mark.parametrize('profile,seed,count,edges', [
+    ('packed_minmax', 'vimnmx', 8, (0, 0xffffffff, 0x80007fff, 0x7fff8000, 0x12345678, 0xdeadbeef)),
+    ('packed_compare', 'viset', 6, (0, 0xffffffff, 0x80007fff, 0x7fff8000, 0x7f80ff01, 0x12345678)),
+])
+def test_packed_profiles_preserve_manual_corpora(profile, seed, count, edges):
+    import random
+    from tests.harness import autocase_profiles
+    rng = random.Random(seed)
+    words = [*edges, *(rng.getrandbits(32) for _ in range(count))]
+    expected = {(a, words[(j + 3) % len(words)] if profile == 'packed_minmax' else
+                 a if j % 4 == 0 else words[(j * 5 + 1) % len(words)], 0, pred, 0)
+                for j, a in enumerate(words) for pred in ((0, 1) if profile == 'packed_minmax' else (0,))}
+    assert set(autocase_profiles.vectors(profile)) == expected

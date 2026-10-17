@@ -20,3 +20,5 @@ See `tests/README.md` for the Python, Ghidra and GPU tests, commands, options, c
 - Pseudo print forms (`IMAD.MOV`/`IADD`/`SHL`, alternate classes with the base class's constraint bits) are accepted by the permissive encoder: a case on `imad__RsIR_RIR` with B = 0 or 1 is the same instruction and also evidences `imad_pseudo__RsIR_RIR` (2026-10-17).
 
 - Generated scalar coverage expansion (2026-10-17): IABS, UMOV, BMSK and fully modelled MOV forms use reference-backed adapters. BMSK routes to its existing family and moves ordinary dense/seeded inputs into profiles; descriptor bounds, header layouts, special registers and guards remain named manual regressions. MOV's 64-bit register-pair cases check the high word, while partial pixel-mask behavior remains explicit and unresolved.
+
+- Generated packed coverage expansion (2026-10-17): VIMNMX and VISET use independent lane references and declarative seeded corpora. Fully modelled forms replace ordinary manual sweeps; VIMNMX with unresolved predicate outputs retains its PT-only subset, and explicit CX descriptor regressions remain manual.

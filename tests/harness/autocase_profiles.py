@@ -13,6 +13,8 @@ VECTORS = ((0, 0, 0, 0, 0), (0, 0, 1, 0, 1), (0, 0, MASK32, 1, 0), (0, 0, 0x8000
            (MASK32, 0, 0x12345678, 1, 1), (0x807f01ff, 0x7f80ff00, 0x10203040, 0, 0))
 
 PROFILES = {
+    'packed_minmax': dict(words=(0, MASK32, 0x80007fff, 0x7fff8000, 0x12345678, 0xdeadbeef), random=('vimnmx', 8), packed='minmax'),
+    'packed_compare': dict(words=(0, MASK32, 0x80007fff, 0x7fff8000, 0x7f80ff01, 0x12345678), random=('viset', 6), packed='compare'),
     'absolute': dict(values=(0, 1, 0xffffffff, 0x7fffffff, 0x80000000, 0x80000001),
                      random=('int_alu', 20), component=1),
     'move32': dict(values=(0, 1, 0xffffffff, 0x7fffffff, 0x80000000, 0x01234567, 0xaaaaaaaa),
@@ -65,7 +67,9 @@ SUPPLEMENTS = (
 
 
 def names(op, cls, form):
-    if op == 'IABS': out = ['absolute']
+    if op == 'VIMNMX': out = ['integer_edges', 'packed_minmax']
+    elif op == 'VISET': out = ['integer_edges', 'packed_compare']
+    elif op == 'IABS': out = ['absolute']
     elif op in ('MOV', 'UMOV'): out = ['move64' if form.get('size') == '64' else 'move32']
     elif op == 'BMSK': out = ['mask_edges']
     elif op in ('BREV', 'POPC', 'FLO'): out = ['bits']
@@ -95,6 +99,11 @@ def values(name):
 def vectors(name):
     spec = PROFILES[name]
     if 'vectors' in spec: return spec['vectors']
+    if 'packed' in spec:
+        words = values(name)
+        return tuple((a, words[(j + 3) % len(words)] if spec['packed'] == 'minmax' else
+                      a if j % 4 == 0 else words[(j * 5 + 1) % len(words)], 0, pred, 0)
+                     for j, a in enumerate(words) for pred in ((0, 1) if spec['packed'] == 'minmax' else (0,)))
     if 'pairs' in spec:
         pairs = list(spec['pairs'])
         if 'random' in spec:

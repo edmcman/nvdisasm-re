@@ -41547,6 +41547,846 @@
         "shift_edges"
       ],
       "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCR_RCR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCR_RCR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCR_RCR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCR_RCR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RIR_RsIR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RIR_RsIR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RIR_RsIR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RIR_RsIR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RIR_RsIR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RIR_RsIR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RIR_RsIR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RIR_RsIR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RIR_RsIR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RIR_RsIR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RIR_RsIR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RIR_RsIR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RRR_RRR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RRR_RRR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RUR_RUR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RUR_RUR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax"
+      ],
+      "native": true
     }
   ]
 }

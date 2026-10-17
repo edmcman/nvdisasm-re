@@ -2,9 +2,9 @@
   "counts": {
     "legal": 3552001,
     "unresolved_semantics": 2730747,
-    "manual": 2747,
-    "blocked": 815861,
-    "generated": 2646
+    "manual": 2722,
+    "blocked": 815826,
+    "generated": 2706
   },
   "gaps": [
     {
@@ -5333,53 +5333,543 @@
       "reason": "needs a reference/operand adapter"
     },
     {
-      "cls": "vimnmx__RCR_RCR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "vimnmx__RCxR_RCxR",
-      "count": 11,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "vimnmx__RIR_RsIR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "vimnmx__RRR_RRR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "vimnmx__RUR_RUR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
+      "cls": "vimnmx_pred__RCR_RCR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
     },
     {
       "cls": "vimnmx_pred__RCR_RCR",
-      "count": 12,
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCR_RCR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCR_RCR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
       "reason": "unresolved semantics"
     },
     {
       "cls": "vimnmx_pred__RCxR_RCxR",
-      "count": 12,
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCxR_RCxR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCxR_RCxR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCxR_RCxR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
       "reason": "unresolved semantics"
     },
     {
       "cls": "vimnmx_pred__RIR_RsIR",
-      "count": 12,
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RIR_RsIR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RIR_RsIR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RIR_RsIR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RIR_RsIR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RIR_RsIR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RIR_RsIR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RIR_RsIR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RIR_RsIR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RIR_RsIR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RIR_RsIR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RIR_RsIR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
       "reason": "unresolved semantics"
     },
     {
       "cls": "vimnmx_pred__RRR_RRR",
-      "count": 12,
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RRR_RRR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RRR_RRR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
       "reason": "unresolved semantics"
     },
     {
       "cls": "vimnmx_pred__RUR_RUR",
-      "count": 12,
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RUR_RUR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RUR_RUR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vimnmx_pred__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
       "reason": "unresolved semantics"
     },
     {

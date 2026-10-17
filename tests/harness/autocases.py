@@ -11,7 +11,9 @@ from tests.harness import autocase_profiles
 PLANS = ROOT / 'tests/cases/generated'
 OPS = {'BREV', 'POPC', 'FLO', 'SGXT', 'PRMT', 'UPRMT', 'IABS', 'MOV', 'UMOV', 'BMSK'}
 INTEGER_OPS = {'ISETP', 'UISETP', 'IMNMX', 'SEL', 'USEL', 'IDP', 'SHF', 'USHF'}
-FAMILIES = {op: 'int_simd' if op == 'IDP' else 'bmsk' if op == 'BMSK' else 'int_alu' for op in OPS | INTEGER_OPS}
+PACKED_OPS = {'VIMNMX', 'VISET'}
+INTEGER_OPS |= PACKED_OPS
+FAMILIES = {op: 'int_simd' if op in PACKED_OPS | {'IDP'} else 'bmsk' if op == 'BMSK' else 'int_alu' for op in OPS | INTEGER_OPS}
 OPS |= INTEGER_OPS
 OWNED = OPS - {'FLO'}  # FLO's partially modelled predicate outputs retain explicit PT-only cases.
 
@@ -31,6 +33,7 @@ def generate(arch, cls, form, fp='exact', profiles=None, native=True):
         raise Unsupported('empty or unknown input profile')
     if k.mnemonic in ('IABS', 'MOV', 'UMOV', 'BMSK'):
         return finish(scalar_cases(c, k, form, profiles), native)
+    if k.mnemonic in PACKED_OPS: return finish(packed_cases(c, k, form, profiles), native)
     if k.mnemonic in INTEGER_OPS: return finish(integer_cases(c, k, form, profiles), native)
     profile = 'permutation' if k.mnemonic in ('PRMT', 'UPRMT') else 'sgxt' if k.mnemonic == 'SGXT' else 'bits'
     if profiles != [profile]: raise Unsupported('incompatible input profiles')
@@ -170,6 +173,30 @@ def scalar_cases(c, k, form, profiles):
                 prefix = 'UR' if name.startswith('UR') else 'R'
                 expected[prefix + str(rd + 1)] = result >> 32
             s.add(expected, form)
+    return c
+
+
+def packed_cases(c, k, form, profiles):
+    allowed = {'fmt', 'relu', 'Pp@not'} if k.mnemonic == 'VIMNMX' else {'fmt', 'icmp'}
+    if set(form) - allowed: raise Unsupported('unhandled modifiers: ' + ', '.join(sorted(set(form) - allowed)))
+    formats = {'U32':(32, False), 'S32':(32, True), 'U16x2':(16, False),
+               'S16x2':(16, True), 'U8x4':(8, False), 'S8x4':(8, True)}
+    if form.get('fmt') not in formats: raise Unsupported('unsupported packed integer format')
+    width, signed = formats[form['fmt']]
+    if k.mnemonic == 'VIMNMX':
+        if any(n in k.operand_types for n in ('Pu', 'Pv')):
+            raise Unsupported('unresolved packed min/max predicate outputs')
+        if form.get('relu') not in ('norelu', 'RELU') or (not signed and form['relu'] == 'RELU'):
+            raise Unsupported('unsupported packed min/max RELU mode')
+    elif form.get('icmp') not in integer.COMPARISONS: raise Unsupported('unsupported packed comparison')
+    for j, (a, b, _, pred, _) in enumerate(vector for profile in profiles for vector in autocase_profiles.vectors(profile)):
+        s = Inputs(c, k, form)
+        s.operand(('Ra',), a, 4); s.operand(('Sb', 'Rb', 'URb'), b, 6)
+        if k.mnemonic == 'VIMNMX':
+            s.predicate(('Pp',), pred, 0)
+            result = integer.vminmax((a, b), width, signed, pred ^ (form.get('Pp@not') == 'set'), form['relu'] == 'RELU')
+        else: result = integer.vset_mask(a, b, width, signed, form['icmp'])
+        s.add({s.output(('Rd',), (4, 6, 2)[j % 3]):result}, form)
     return c
 
 
