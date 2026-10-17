@@ -226,10 +226,10 @@ and the bits outside the converted width of the wide conversion fixtures. Emulat
 tolerates floating-point NaN payload/sign, and excuses Ghidra 12.1.4's minimum-subnormal underflow
 (fp16/32/64) only on its exact signature. FP8 emulator cases compare NaN class only (`__fp8_nan`).
 
-### Generating missing shared cases
+### Generating shared cases
 
 `python -m tests.autocases SM89 --write --report /tmp/shared-case-gaps.json`
-compares the exact-language coverage manifest with the manual shared cases, expands
+reads the exact-language coverage manifest, expands
 its legal modifier combinations (including the factored free modifiers), and writes
 `cases/generated/SM89.json`. Run through `uv run` in the normal development environment.
 If manifests are missing, first run
@@ -237,20 +237,32 @@ If manifests are missing, first run
 `--manifest-dir DIR` selects another manifest directory. Omit `--write` for a dry run.
 Rerunning replaces the plan deterministically; prior generated cases are excluded
 from the comparison. `--check` fails if regeneration would change the saved plan.
-Repeat for another architecture to create its plan.
+Plans are committed for all ten supported architectures; regenerate each affected plan.
 
-Plans store class/form choices, not captured outputs. The normal `emulator_cases`
-loader expands them into shared cases for Python, Ghidra, and the GPU, calculating
-expectations from the independent references at runtime. Adapters cover BREV, POPC,
-FLO, SGXT, PRMT, UPRMT, ISETP, UISETP, IMNMX, SEL, USEL, IDP, SHF and USHF in
+Plans store class/form choices, named input profiles and native assertions, not
+captured outputs. The normal `emulator_cases` loader expands them into shared cases for Python, Ghidra, and the GPU, calculating
+expectations from the independent references at runtime. Plans cover BREV, POPC,
+SGXT, PRMT, UPRMT, ISETP, UISETP, IMNMX, SEL, USEL, IDP, SHF and USHF through
 `harness/autocases.py`. The planner routes IDP cases to `int_simd` and the other
 operations to `int_alu`. Comparison cases exercise both predicate outputs, .EX's
 low-word result, signed boundaries, predicate inversion and input/output aliases.
 Dot-product cases cover lane signedness and negated accumulators; funnel shifts
-exercise counts around both 32- and 64-bit wrap/clamp boundaries. CX setup is limited
-to the architectures already established by the BMSK tests. Strict encoding and a
-decode round trip reject forms that the chosen operand setup cannot preserve.
+exercise counts around both 32- and 64-bit wrap/clamp boundaries. CX setup uses the
+same descriptor/header helpers as the manual cases on each architecture. Strict
+encoding and a decode round trip reject forms that the chosen operand setup cannot preserve.
 Add an adapter only when an independent reference and operand setup are available.
+
+`harness/autocase_profiles.py` declares edge values, seeded random corpora and
+representative supplements. Ordinary cases for adapter-owned operations belong there,
+rather than in parallel manual loops. Retained manual regressions do not suppress
+generation of the same form. Each retained case for these operations must have a
+`@retained(reason)` justification, checked by a test. Current reasons are FLO's
+partially modelled predicate outputs (explicit PT-only subset), PRMT/UPRMT zero
+registers and p-code costs, ISETP's constant PT input, SHF p-code cost, IDP CX
+descriptor/header regressions,
+and opaque IMNMX outputs on newer architectures. Operations without adapters remain
+manual until an independent reference and operand setup support migration.
+Hand-calculated PRMT examples also check the reference directly in `test_refs.py`.
 
 The JSON report counts manual, generated, blocked, and unresolved forms. Unsupported
 operations are grouped by class to keep millions of gaps manageable; their exact

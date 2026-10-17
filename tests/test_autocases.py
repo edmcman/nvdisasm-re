@@ -17,6 +17,7 @@ def test_factored_legal_forms():
 
 
 @pytest.mark.parametrize('cls,form', [
+    ('uprmt__URURUR', {'idx':'IDX'}),
     ('popc__RRR_RRR', {'Rb@invert':'set'}),
     ('popc__RCR_RCR', {'Sb@invert':'set'}),
     ('sgxt__RRR_RRR', {'fmt':'S32','cw':'W'}),
@@ -54,13 +55,13 @@ def test_unsupported_form_never_enters_suite():
 
 def test_saved_plan_joins_existing_family(tmp_path, monkeypatch):
     monkeypatch.setattr(tests.harness.autocases, 'PLANS', tmp_path)
-    (tmp_path / 'SM89.json').write_text(json.dumps(dict(version=1, forms=[
-        dict(family='int_alu', cls='popc__RRR_RRR', settings={'Rb@invert':'set'})])))
+    (tmp_path / 'SM89.json').write_text(json.dumps(dict(version=2, arch="SM89", forms=[
+        dict(family='int_alu', cls='popc__RRR_RRR', settings={'Rb@invert':'set'}, profiles=['bits'], native=True)])))
     c = Cases('SM89')
     tests.harness.autocases.append(c, 'memory')
     assert not c
     tests.harness.autocases.append(c, 'int_alu')
-    assert len(c) == len(tests.harness.autocases.VALUES)
+    assert len(c) == len(tests.harness.autocases.generate('SM89', 'popc__RRR_RRR', {'Rb@invert':'set'}))
 
 
 def test_plan_reproducible_and_reports_blocked(monkeypatch):
@@ -77,14 +78,14 @@ def test_plan_reproducible_and_reports_blocked(monkeypatch):
     assert report['gaps'][0]['cls'] == 'other'
 
 
-def test_manual_forms_are_not_regenerated(monkeypatch):
+def test_manual_regressions_do_not_suppress_generated_coverage(monkeypatch):
     cases = tests.harness.autocases.generate('SM89', 'popc__RRR_RRR', {'Rb@invert':'set'})
     monkeypatch.setattr(tests.autocases, 'emulator_cases', lambda *a, **kw: {'int_alu':cases})
     row = dict(cls='popc__RRR_RRR', opcode='POPC', combinations=dict(
         labels={'Rb@invert':['unset','set']}, decides=[], table=[['native']], free=2))
     generated, report = tests.autocases.plan('SM89', [row])
-    assert [e['settings'] for e in generated['forms']] == [{'Rb@invert':'unset'}]
-    assert report['counts']['manual'] == report['counts']['generated'] == 1
+    assert [e['settings'] for e in generated['forms']] == [{'Rb@invert':'unset'}, {'Rb@invert':'set'}]
+    assert report['counts']['generated'] == 2
 
 
 def test_unresolved_forms_are_reported_without_generating(monkeypatch):
@@ -94,7 +95,7 @@ def test_unresolved_forms_are_reported_without_generating(monkeypatch):
     generated, report = tests.autocases.plan('SM89', [row])
     assert not generated['forms']
     assert report['counts']['unresolved_semantics'] == 1
-    assert report['gaps'] == [dict(cls='flo__RRR_RRR', settings={}, reason='unresolved semantics')]
+    assert report['gaps'] == [dict(cls='flo__RRR_RRR', count=1, reason='unresolved semantics')]
 
 
 def test_simd_plan_uses_its_own_family(monkeypatch):
@@ -105,3 +106,61 @@ def test_simd_plan_uses_its_own_family(monkeypatch):
     plan, report = tests.autocases.plan('SM89', [row])
     assert report['counts']['generated'] == 1
     assert plan['forms'][0]['family'] == 'int_simd'
+
+
+def test_retained_adapter_cases_have_reasons():
+    from tests.cases import emulator_cases
+    for arch in ('SM89', 'SM120'):
+        for cases in emulator_cases(arch, 'exact', ('int_alu', 'int_simd', 'carry'), False, generated=False).values():
+            for case in cases:
+                k = cases.classes[case.cls]
+                if k.mnemonic in tests.harness.autocases.OPS:
+                    assert case.id in cases.manual_reasons, case.cls
+
+
+def test_unknown_or_empty_profile_is_rejected():
+    for profiles in ([], ['missing']):
+        with pytest.raises(tests.harness.autocases.Unsupported, match='profile'):
+            tests.harness.autocases.generate('SM89', 'sel__RRR_RRR', {}, profiles=profiles)
+
+
+def test_declarative_profiles_keep_boundary_and_random_inputs():
+    import random
+    from tests.harness import autocase_profiles
+    assert {0, 1, 7, 8, 31, 32, 33, 255, 0xffffffff} <= set(autocase_profiles.PROFILES['sgxt']['widths'])
+    rng = random.Random('int_alu')
+    expected = tuple(rng.getrandbits(32) for _ in range(3))
+    assert autocase_profiles.vectors('select_random')[0][:3] == expected
+    assert len(autocase_profiles.vectors('carry_select')) == 34
+    assert set(range(16)) | {0xffff7654, 0x89ab, 0x6420} <= set(autocase_profiles.PROFILES['permutation']['other'])
+    form = {'fmt':'U32', 'Pp@not':'unset'}
+    assert 'minmax_random' in autocase_profiles.names('IMNMX', 'imnmx__RRR_RRR', form)
+    assert 'minmax_random' not in autocase_profiles.names('IMNMX', 'imnmx__RRR_RRR', dict(form, fmt='S32'))
+
+
+def test_missing_plan_cannot_silently_drop_migrated_coverage(tmp_path, monkeypatch):
+    monkeypatch.setattr(tests.harness.autocases, 'PLANS', tmp_path)
+    with pytest.raises(ValueError, match='missing generated coverage plan'):
+        tests.harness.autocases.append(Cases('SM89'), 'int_alu')
+
+
+def test_overlapping_profiles_are_unioned_and_conflicts_rejected():
+    cases = tests.harness.autocases.generate('SM89', 'popc__RRR_RRR', {'Rb@invert':'set'})
+    first = cases[0]
+    cases.append(first)
+    size = len(cases) - 1
+    assert len(tests.harness.autocases.finish(cases, True)) == size
+    cases.append(first._replace(expected={**first.expected, 'R2':-1}))
+    with pytest.raises(ValueError, match='conflicting generated expectations'):
+        tests.harness.autocases.finish(cases, True)
+
+
+@pytest.mark.parametrize('arch', ['SM100', 'SM103', 'SM107'])
+def test_newer_shift_retains_explicit_noxor_form(arch):
+    form = dict(fmt='S32', dir='R', cw='C', hilo='HI', xor='noxor')
+    cases = tests.harness.autocases.generate(arch, 'shf__RRR_RRR', form)
+    assert cases
+    for case in cases:
+        assert not lifted.run(arch, 'exact', case)[1]
+    with pytest.raises(tests.harness.autocases.Unsupported, match='XOR funnel shifts'):
+        tests.harness.autocases.generate(arch, 'shf__RRR_RRR', dict(form, xor='XOR'))

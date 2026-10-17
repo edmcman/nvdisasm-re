@@ -78,3 +78,13 @@ def test_integer_rules():
     assert dot4(0x01020304, 0x05060708, 10, False, False) == 10 + 5 + 12 + 21 + 32
     assert prmt(0x03020100, 0x6420, 0x07060504, "IDX") == 0x06040200
     assert i2ip(300, -140, 0x12345678, 8, True, True, False, "H1") == 0x12347f80
+
+
+@pytest.mark.parametrize('mode,selector,result', [
+    ('IDX', 0x6420, 0x06040200), ('F4E', 1, 0x04030201),
+    ('B4E', 1, 0x06070001), ('RC8', 2, 0x02020202),
+    ('RC16', 1, 0x03020302), ('ECL', 2, 0x03020202),
+    ('ECR', 2, 0x02020100),
+])
+def test_permutation_hand_calculated_examples(mode, selector, result):
+    assert prmt(0x03020100, selector, 0x07060504, mode) == result

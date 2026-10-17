@@ -13,7 +13,7 @@ def generator():
     paths = [*sorted((ROOT / 'src/sass').rglob('*.py')),
              *sorted((ROOT / 'tests/refs').glob('*.py')),
              *sorted(p for p in (ROOT / 'out/SM89').rglob('*') if p.is_file()),
-             *(ROOT / 'tests/harness' / n for n in ('device_cases.py', 'device_setup.py', 'device_runner.py', 'device_evidence.py', 'gpu.py', 'case.py', 'autocases.py'))]
+             *(ROOT / 'tests/harness' / n for n in ('device_cases.py', 'device_setup.py', 'device_runner.py', 'device_evidence.py', 'gpu.py', 'case.py', 'autocases.py', 'autocase_profiles.py'))]
     digest = hashlib.sha256()
     for path in paths:
         digest.update(str(path.relative_to(ROOT)).encode()); digest.update(path.read_bytes())

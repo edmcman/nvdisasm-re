@@ -1,4 +1,4 @@
-"""Find uncovered legal forms and write reference-backed shared-case plans.
+"""Own ordinary legal-form coverage through reference-backed shared-case plans.
 
 python -m tests.autocases SM89 --manifest-dir DIR [--write] [--report gaps.json]
 """
@@ -13,6 +13,7 @@ from sass.sleigh.build import ARCHES
 from sass.sleigh.modifiers import settings
 from tests.cases import emulator_cases
 from tests.harness import autocases
+from tests.harness import autocase_profiles
 
 
 def forms(row):
@@ -44,7 +45,7 @@ def plan(arch, rows):
     for row in rows:
         c = row.get('combinations')
         if c is None: raise ValueError(f"{row['cls']}: missing combination table; regenerate with --coverage")
-        if row['opcode'] not in autocases.OPS:
+        if row['opcode'] not in autocases.OWNED:
             total = len(c['table']) * c['free']
             supported = sum(c['free'] for r in c['table'] if r[-1] in ('native', 'primitive'))
             lookup = {tuple(r[:-1]): r[-1] for r in c['table']}
@@ -64,18 +65,18 @@ def plan(arch, rows):
                 counts['unresolved_semantics'] += 1
                 gaps.append(dict(cls=row['cls'], settings=form, reason='unresolved semantics'))
                 continue
-            if identity(row['cls'], form) in covered:
-                counts['manual'] += 1
-                continue
+            # Retained regressions supplement ordinary coverage; they must not suppress it.
+            profiles = autocase_profiles.names(row['opcode'], row['cls'], form)
             try:
-                autocases.generate(arch, row['cls'], form)
+                autocases.generate(arch, row['cls'], form, profiles=profiles, native=status == 'native')
             except (autocases.Unsupported, ValueError) as error:
                 counts['blocked'] += 1
                 gaps.append(dict(cls=row['cls'], settings=form, reason=str(error)))
             else:
                 counts['generated'] += 1
-                entries.append(dict(family=autocases.FAMILIES[row['opcode']], cls=row['cls'], settings=form))
-    return dict(version=1, arch=arch, forms=entries), dict(counts=counts, gaps=gaps)
+                entries.append(dict(family=autocases.FAMILIES[row['opcode']], cls=row['cls'], settings=form,
+                                    profiles=profiles, native=status == 'native'))
+    return dict(version=2, arch=arch, forms=entries), dict(counts=counts, gaps=gaps)
 
 
 def main():

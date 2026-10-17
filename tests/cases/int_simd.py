@@ -3,6 +3,7 @@ including CX (constant-descriptor) source forms."""
 import random
 from tests.harness.case import cx_header, cx_source, put, ram, source, flagged
 from tests.refs.bits import MASK32
+from tests.harness.manual import retained
 from tests.refs.integer import COMPARISONS, dot2, dot4, vabsdiff4, viaddmnmx, vminmax, vset_mask
 
 FMTS = [("S32", 32, True), ("U32", 32, False), ("S16x2", 16, True), ("U16x2", 16, False), ("S8x4", 8, True), ("U8x4", 8, False)]
@@ -15,44 +16,14 @@ def cx_name(k):
 def relus(signed): return ("norelu", "RELU") if signed else ("norelu",)
 
 
-def idp(c):
+@retained("Explicit CX header register/base regressions: the descriptor child is an address, not operand data.")
+def cx_regressions(c):
     # CX children URb/Sb_offset describe a bounded constant-buffer address; the dot
     # product consumes the loaded 32-bit word from Sb.
     for k in c.of("IDP", "idp_4a__", cx=True)[:1]:
         c.add(k.name, dict(Rd=8, Ra=2, URb=4, Sb_offset=0, Rc=6, mode="4A", SrcAFmt="U8", SrcBFmt="U8"),
               {"R2": 0x04030201, "R6": 10, **cx_header(c.arch, 4, 0x1000)}, {"R8": 30, "__native": True},
               memory=[ram(0x1000, 0x01020304)])
-    # CuLifter's IDP.4A: unpack each byte signed or unsigned, accumulate four products mod 2^32.
-    rng = random.Random("idp4a")
-    words = [0, 0xffffffff, 0x807f01ff, 0x01020304, 0x7f80ff00] + [rng.getrandbits(32) for _ in range(8)]
-    for k in c.of("IDP", "idp_4a__"):
-        srcb = source(k, "Rb", "URb", "Sb")
-        if srcb is None: continue
-        for afmt, bfmt in (("S8", "S8"), ("U8", "U8"), ("S8", "U8"), ("U8", "S8")):
-            for j, a in enumerate(words):
-                b, acc = words[(j + 3) % len(words)], words[(j + 5) % len(words)]
-                rd = 2 if j % 3 == 0 else 8
-                fields, regs, memory = {"Rd": rd, "Ra": 4, "Rc": 6, "mode": "4A", "SrcAFmt": afmt, "SrcBFmt": bfmt}, {"R4": a, "R6": acc}, []
-                put(k, srcb, b, fields, regs, memory, 10, bank=(2, 16), imm=())
-                if j == 1 and flagged(k, "Rc", "negate"): fields["Rc@negate"] = 1; acc = -acc & MASK32
-                c.add(k.name, fields, regs, {f"R{rd}": dot4(a, b, acc, afmt == "S8", bfmt == "S8"), "__native": True}, memory=memory)
-    # PTX dp2a: two 16-bit A lanes multiply the selected byte pair of B, accumulated into C.
-    rng = random.Random("idp2a")
-    words = [0, 0xffffffff, 0x80017fff, 0x7fff8001, 0x01020304] + [rng.getrandbits(32) for _ in range(8)]
-    for k in c.of("IDP", "idp_2a__"):
-        srcb = source(k, "Rb", "URb", "Sb")
-        if srcb is None: continue
-        for afmt in ("S16", "U16"):
-            for bfmt in ("S8", "U8"):
-                for mode in ("2A.LO", "2A.HI"):
-                    for j, a in enumerate(words):
-                        b, acc = words[(j + 3) % len(words)], words[(j + 5) % len(words)]
-                        rd = 2 if j % 3 == 0 else 8
-                        fields, regs, memory = {"Rd": rd, "Ra": 4, "Rc": 6, "mode": mode, "SrcAFmt": afmt, "SrcBFmt": bfmt}, {"R4": a, "R6": acc}, []
-                        put(k, srcb, b, fields, regs, memory, 10, bank=(2, 16), imm=())
-                        if j == 1 and flagged(k, "Rc", "negate"): fields["Rc@negate"] = 1; acc = -acc & MASK32
-                        c.add(k.name, fields, regs, {f"R{rd}": dot2(a, b, acc, afmt == "S16", bfmt == "S8", mode.endswith("HI")), "__native": True},
-                              memory=memory)
     for k in c.of("IDP", "idp_2a__", cx=True):
         a, b, acc = 0x80017fff, 0x807f01ff, 0x12345678
         fields = {"Rd": 8, "Ra": 2, "Rc": 6, "mode": "2A.HI", "SrcAFmt": "S16", "SrcBFmt": "S8"}
@@ -189,7 +160,7 @@ def viset(c):
 
 
 def emulator_cases(c):
-    idp(c); vabsdiff(c); minmax(c); viset(c)
+    cx_regressions(c); vabsdiff(c); minmax(c); viset(c)
 
 
 def gpu_fixtures():
