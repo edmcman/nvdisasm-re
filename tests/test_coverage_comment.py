@@ -51,8 +51,13 @@ def test_coverage_gain_and_regression(reverse):
     assert "**LDG**" in report["body"]
     assert "**FADD**" not in report["body"]
     assert "| Metric | Before | After |" in report["body"]
-    assert "<summary>SM89 · 1 changed opcode</summary>" in report["body"]
+    tally = "🔴 1 regressed" if reverse else "🟢 1 improved"
+    assert f"<summary>SM89 · 1 changed opcode · {tally}</summary>" in report["body"]
+    assert ("🔴 **LDG**" if reverse else "🟢 **LDG**") in report["body"]
     assert "<summary>How to read this report</summary>" in report["body"]
+    assert "### Opcode coverage" in report["body"]
+    assert ("[!WARNING]" in report["body"]) == reverse
+    assert "[!CAUTION]" not in report["body"]
 
 
 @pytest.mark.parametrize("field,label", coverage_comment.FIELDS[1:])
@@ -65,6 +70,57 @@ def test_combination_and_verification_only_changes(field, label):
     assert "⚪ +0 pp" in report["body"]
     assert f"| {label} |" in report["body"]
     assert "🔵 gpu: **3**" in report["body"]
+    assert "<summary>Opcode coverage: ⚪ unchanged</summary>" in report["body"]
+    assert "### Opcode coverage" not in report["body"]
+
+
+def gpu_demoted():
+    before = summary()
+    before["SM89"]["opcode_evidence"]["FADD"] = {"gpu": 1}
+    before["SM89"]["combination_evidence"]["FADD"] = {"gpu": 2, "none": 6}
+    return before, summary()
+
+
+def test_gpu_evidence_drop_is_called_out():
+    report = render(*gpu_demoted())
+    body = report["body"]
+    assert body.index("[!CAUTION]") < body.index("### Verification changes")
+    assert "**GPU evidence decreased**" in body
+    assert "**SM89**: classes **-1**, combinations **-2** · 1 opcode: FADD" in body
+    assert "pytest -m gpu" in body
+    # The demotion to reference is neutral: nothing became less verified than reference.
+    assert "🔴 gpu **-1**<br>⚪ reference **+1**" in body
+    assert "or stronger evidence decreased" not in body
+    assert "| SM89 | 🔴 classes **-1**<br>🔴 combinations **-2** | — | ⚪ classes **+1**<br>⚪ combinations **+2** | — |" in body
+    assert "🔴 **FADD**" in body
+
+
+def test_gpu_evidence_gain_is_green():
+    after, before = gpu_demoted()
+    body = render(before, after)["body"]
+    assert "[!CAUTION]" not in body
+    assert "🟢 gpu **+1**<br>⚪ reference **-1**" in body
+    assert "· 🟢 1 improved</summary>" in body
+
+
+def test_lost_verification_names_the_strongest_level_once():
+    before, after = gpu_demoted()
+    after["SM89"]["opcode_evidence"]["FADD"] = {"none": 1}
+    after["SM89"]["combination_evidence"]["FADD"] = {"none": 8}
+    body = render(before, after)["body"]
+    assert body.count("[!CAUTION]") == 1
+    assert "🔴 none **+1**" in body
+
+
+def test_regressions_sort_first_and_callouts_truncate_names():
+    ops = [f"OP{i:02}" for i in range(20)] + ["AAA"]
+    before = {"SM89": {"opcodes": {op: {"native": 1} for op in ops},
+                       "opcode_evidence": {op: {"none" if op == "AAA" else "gpu": 1} for op in ops}}}
+    after = copy.deepcopy(before)
+    after["SM89"]["opcode_evidence"] = {op: {"reference": 1} for op in before["SM89"]["opcode_evidence"]}
+    body = render(before, after)["body"]
+    assert "20 opcodes: OP00, OP01" in body and "OP11 and 8 more" in body
+    assert body.index("🔴 **OP00**") < body.index("🟢 **AAA**")
 
 
 def test_detail_status_colors_and_escaping():
