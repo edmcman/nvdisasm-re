@@ -87,9 +87,10 @@ def test_comment_truncation_preserves_full_report():
 
 
 class GitHub:
-    def __init__(self, pages=(), head="head", base="base", state="open"):
+    def __init__(self, pages=(), head="head", base="base", state="open", labels=()):
         self.pages = pages
-        self.pr = {"state": state, "head": {"sha": head}, "base": {"sha": base}}
+        self.pr = {"state": state, "head": {"sha": head}, "base": {"sha": base},
+                   "labels": [{"name": n} for n in labels]}
         self.calls = []
 
     def __call__(self, method, path, payload=None):
@@ -114,13 +115,21 @@ def publish(report, github):
 def test_create_and_no_change_silence():
     report = render({}, summary())
     calls = publish(report, GitHub())
-    assert calls == [("POST", "/repos/owner/repo/issues/7/comments", {"body": report["body"]})]
+    assert calls == [("POST", "/repos/owner/repo/issues/7/labels", {"labels": ["coverage"]}),
+                     ("POST", "/repos/owner/repo/issues/7/comments", {"body": report["body"]})]
     assert publish(render(summary(), summary()), GitHub()) == []
+
+
+def test_label_follows_changes():
+    changed, unchanged = render({}, summary()), render(summary(), summary())
+    assert publish(changed, GitHub(labels=["coverage"]))[0][1].endswith("/comments")
+    assert publish(unchanged, GitHub(labels=["coverage"])) == [
+        ("DELETE", "/repos/owner/repo/issues/7/labels/coverage", None)]
 
 
 def test_paginated_update_ignores_human_marker():
     report = render({}, summary())
-    github = GitHub(pages=[[comment(user="human")] * 100, [comment()]])
+    github = GitHub(pages=[[comment(user="human")] * 100, [comment()]], labels=["coverage"])
     assert publish(report, github) == [
         ("PATCH", "/repos/owner/repo/issues/comments/42", {"body": report["body"]})]
     assert any("page=2" in path for _, path, _ in github.calls)
