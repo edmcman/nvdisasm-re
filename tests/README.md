@@ -241,8 +241,13 @@ Repeat for another architecture to create its plan.
 
 Plans store class/form choices, not captured outputs. The normal `emulator_cases`
 loader expands them into shared cases for Python, Ghidra, and the GPU, calculating
-expectations from the independent references at runtime. The initial adapters cover
-BREV, POPC, FLO, SGXT, PRMT and UPRMT in `harness/autocases.py`; CX setup is limited
+expectations from the independent references at runtime. Adapters cover BREV, POPC,
+FLO, SGXT, PRMT, UPRMT, ISETP, UISETP, IMNMX, SEL, USEL, IDP, SHF and USHF in
+`harness/autocases.py`. The planner routes IDP cases to `int_simd` and the other
+operations to `int_alu`. Comparison cases exercise both predicate outputs, .EX's
+low-word result, signed boundaries, predicate inversion and input/output aliases.
+Dot-product cases cover lane signedness and negated accumulators; funnel shifts
+exercise counts around both 32- and 64-bit wrap/clamp boundaries. CX setup is limited
 to the architectures already established by the BMSK tests. Strict encoding and a
 decode round trip reject forms that the chosen operand setup cannot preserve.
 Add an adapter only when an independent reference and operand setup are available.

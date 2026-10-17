@@ -74,7 +74,7 @@ def plan(arch, rows):
                 gaps.append(dict(cls=row['cls'], settings=form, reason=str(error)))
             else:
                 counts['generated'] += 1
-                entries.append(dict(family='int_alu', cls=row['cls'], settings=form))
+                entries.append(dict(family=autocases.FAMILIES[row['opcode']], cls=row['cls'], settings=form))
     return dict(version=1, arch=arch, forms=entries), dict(counts=counts, gaps=gaps)
 
 

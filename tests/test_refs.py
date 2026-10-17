@@ -5,9 +5,34 @@ from fractions import Fraction
 from pathlib import Path
 import pytest
 from tests.refs import fpformat as fpf
-from tests.refs.integer import bmsk, dot4, i2ip, prmt
+from tests.refs.integer import bmsk, dot4, i2ip, prmt, isetp, shf
 
 REFS = Path(__file__).parent / "refs"
+
+
+def test_isetp_extended_reference():
+    assert isetp(7, 7, 'LT', 'AND', True, low=True) == (1, 0)
+    assert isetp(7, 7, 'LT', 'AND', True, low=False) == (0, 1)
+    assert isetp(7, 7, 'F', 'OR', False, low=True) == (0, 1)
+    assert isetp(7, 7, 'T', 'XOR', True, low=False) == (0, 1)
+    assert isetp(0xffffffff, 0, 'LT', 'AND', True, signed=True) == (1, 0)
+    assert isetp(0xffffffff, 0, 'LT', 'AND', True) == (0, 1)
+
+
+@pytest.mark.parametrize('fmt', ['U32', 'S32', 'U64', 'S64'])
+@pytest.mark.parametrize('direction', ['L', 'R'])
+@pytest.mark.parametrize('mode', ['C', 'W'])
+@pytest.mark.parametrize('half', ['LO', 'HI'])
+def test_shf_reference_matches_integer_bit_string(fmt, direction, mode, half):
+    for a, c in ((0, 0), (0xffffffff, 0x80000000), (0x01234567, 0x89abcdef)):
+        for shift in (0, 1, 31, 32, 33, 63, 64, 65, 0xffffffff):
+            width = int(fmt[1:])
+            count = min(shift, width) if mode == 'C' else shift % width
+            data = (c << 32) | a
+            if fmt.startswith('S') and data >> 63: data -= 1 << 64
+            shifted = data >> count if direction == 'R' else data << count
+            expected = (shifted >> (32 if half == 'HI' else 0)) & 0xffffffff
+            assert shf(a, shift, c, fmt, direction, mode, half) == expected
 
 
 @pytest.mark.parametrize("path", sorted(REFS.glob("*.py")), ids=lambda p: p.name)

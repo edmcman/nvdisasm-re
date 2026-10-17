@@ -14,6 +14,30 @@ def combine(value, predicate, bop):
     return int({"AND": value and predicate, "OR": value or predicate, "XOR": value ^ predicate}[bop])
 
 
+def isetp(a, b, comparison, bop, predicate, signed=False, low=None):
+    """Integer compare and complementary predicate results. In .EX, equal high words
+    inherit the low-word comparison (except the constant F/T comparisons)."""
+    x, y = (sext(a, 32), sext(b, 32)) if signed else (a, b)
+    condition = bool(low) if low is not None and a == b and comparison not in ('F', 'T') else compare(x, y, comparison)
+    return combine(condition, predicate, bop), combine(not condition, predicate, bop)
+
+
+def shf(a, count, c, fmt, direction, mode, half):
+    """Select a word from a shifted {c,a} bit string (the existing SHF case definition).
+    Enumerate source bit positions; a signed right shift extends bit 63."""
+    width = {'U32':32, 'S32':32, 'U64':64, 'S64':64}[fmt]
+    if direction not in ('L', 'R') or mode not in ('C', 'W') or half not in ('LO', 'HI'):
+        raise ValueError('unknown SHF mode')
+    count = min(count, width) if mode == 'C' else count % width
+    data, base = (c << 32) | a, 32 if half == 'HI' else 0
+    result = 0
+    for bit in range(32):
+        index = base + bit + (count if direction == 'R' else -count)
+        value = (data >> index) & 1 if 0 <= index < 64 else int(index >= 64 and direction == 'R' and fmt.startswith('S') and bool(c >> 31))
+        result |= value << bit
+    return result
+
+
 def brev(value): return sum(((value >> bit) & 1) << (31 - bit) for bit in range(32))
 
 
