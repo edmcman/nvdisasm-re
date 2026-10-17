@@ -45,11 +45,14 @@ def test_coverage_gain_and_regression(reverse):
         before, after = after, before
     report = render(before, after)
     assert report["changed"]
-    assert ("-50 pp" if reverse else "+50 pp") in report["body"]
+    assert ("🔴 -50 pp" if reverse else "🟢 +50 pp") in report["body"]
     assert "1/2 (50%)" in report["body"]
     assert "2/2 (100%)" in report["body"]
     assert "**LDG**" in report["body"]
     assert "**FADD**" not in report["body"]
+    assert "| Metric | Before | After |" in report["body"]
+    assert "<summary>SM89 · 1 changed opcode</summary>" in report["body"]
+    assert "<summary>How to read this report</summary>" in report["body"]
 
 
 @pytest.mark.parametrize("field,label", coverage_comment.FIELDS[1:])
@@ -59,9 +62,9 @@ def test_combination_and_verification_only_changes(field, label):
     after["SM89"][field]["FADD"] = {"gpu": 3}
     report = render(before, after)
     assert report["changed"]
-    assert "+0 pp" in report["body"]
-    assert f"{label}:" in report["body"]
-    assert "gpu: 3" in report["body"]
+    assert "⚪ +0 pp" in report["body"]
+    assert f"| {label} |" in report["body"]
+    assert "gpu: **3**" in report["body"]
 
 
 def test_added_removed_architectures_and_opcodes():

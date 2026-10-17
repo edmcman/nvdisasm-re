@@ -24,7 +24,8 @@ FIELDS = (
 
 
 def counts(values):
-    return ", ".join(f"{html.escape(k)}: {v:,}" for k, v in sorted(values.items())) or "—"
+    return "<br>".join(f"{html.escape(k).replace('|', '&#124;')}: **{v:,}**"
+                      for k, v in sorted(values.items())) or "—"
 
 
 def opcode_totals(entry):
@@ -55,30 +56,40 @@ def render(base, head, base_sha, head_sha, run_url):
             for field, _ in FIELDS)]
         if before is not None and after is not None and not changed:
             continue
-        delta = (f"{opcode_totals(after)[2] - opcode_totals(before)[2]:+d} pp"
-                 if before is not None and after is not None else "added" if after is not None else "removed")
+        if before is not None and after is not None:
+            change = opcode_totals(after)[2] - opcode_totals(before)[2]
+            indicator = "🟢" if change > 0 else "🔴" if change < 0 else "⚪"
+            delta = f"{indicator} {change:+d} pp"
+        else:
+            delta = "added" if after is not None else "removed"
         rows.append(f"| {arch} | {totals_text(before)} | {totals_text(after)} | {delta} |")
-        details = [f"<details>\n<summary>{arch}: {len(changed)} changed opcodes</summary>\n"]
+        noun = "opcode" if len(changed) == 1 else "opcodes"
+        details = [f"<details>\n<summary>{arch} · {len(changed)} changed {noun}</summary>\n"]
         for op in changed:
             label = " (added)" if op not in old.get("opcodes", {}) else " (removed)" if op not in new.get("opcodes", {}) else ""
             details.append(f"\n**{html.escape(op)}{label}**\n")
+            details.extend(["| Metric | Before | After |", "| :--- | ---: | ---: |"])
             for field, title in FIELDS:
                 b, h = old.get(field, {}).get(op, {}), new.get(field, {}).get(op, {})
                 if b != h:
-                    details.append(f"- {title}: {counts(b)} → {counts(h)}")
+                    details.append(f"| {title} | {counts(b)} | {counts(h)} |")
         details.append("\n</details>\n")
         sections.append("\n".join(details))
-    header = (f"{MARKER}\n## Semantic coverage changes\n\n"
-              f"Base `{base_sha}` → head `{head_sha}` · [CI run]({run_url})\n\n")
+    header = (f"{MARKER}\n## 🧪 Semantic coverage\n\n"
+              f"Comparing `{base_sha[:7]}` → `{head_sha[:7]}` · [View CI run]({run_url})\n\n")
     if not rows:
         body = header + "No semantic coverage changes compared with the PR base.\n"
         return {"full": body, "body": body, "changed": False}
     summary = (header + "| Architecture | Before | After | Change |\n"
-               "| --- | --- | --- | --- |\n" + "\n".join(rows) + "\n\n"
-               "Opcode coverage counts opcodes with at least one class with semantics, including partial or primitive semantics. "
-               "Verification counts are by strongest evidence (GPU, ptxas, reference, or none); "
-               "they do not imply hardware verification on other architectures. "
-               "Readable variants share the exact variants' coverage and are omitted.\n\n")
+                "| :--- | ---: | ---: | ---: |\n" + "\n".join(rows) + "\n\n"
+                "<details>\n<summary>How to read this report</summary>\n\n"
+                "- **Opcode coverage** counts opcodes with at least one class with semantics, including partial or primitive semantics.\n"
+                "- **Change** is measured in percentage points (pp).\n"
+                "  🟢 increased · 🔴 decreased · ⚪ unchanged.\n"
+                "- **Verification** counts use the strongest evidence: GPU, ptxas, reference, or none. "
+                "They do not imply hardware verification on other architectures.\n"
+                "- Readable variants share the exact variants' coverage and are omitted.\n\n"
+                "</details>\n\n### Changed opcodes\n\n")
     full = summary + "\n".join(sections)
     body = full
     if len(full.encode("utf-8")) > COMMENT_LIMIT:
