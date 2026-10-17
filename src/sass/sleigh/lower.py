@@ -221,8 +221,8 @@ class Merger:
         index = {}
         partition = tuple(index.setdefault(v, len(index)) for v in values)
         memo = (partition, id(assignments))
-        if memo not in self.deciding: self.deciding[memo] = determining_keys(partition, assignments)
-        return self.deciding[memo]
+        if memo not in self.deciding: self.deciding[memo] = (determining_keys(partition, assignments), assignments)   # keep the id's owner alive
+        return self.deciding[memo][0]
 
     def choice(self, keys, cases, w):
         """sel over keys with cases {values: tree}; the most common arm becomes a default row (no
@@ -292,7 +292,8 @@ class Merger:
         first = trees[0]
         if all(t is first for t in trees): return first
         memo = (tuple(map(id, trees)), id(assignments))
-        if memo not in self.merged: self.merged[memo] = (self.merge_rows(trees, assignments), assignments)   # keep the rows alive
+        # Keep what the ids name alive (interned trees are freed when unused), so no id is reused.
+        if memo not in self.merged: self.merged[memo] = (self.merge_rows(trees, assignments), trees, assignments)
         return self.merged[memo][0]
 
     def merge_rows(self, trees, assignments):

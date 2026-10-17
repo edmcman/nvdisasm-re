@@ -4,25 +4,24 @@ whose opcode has a semantics family; no Ghidra needed."""
 from concurrent.futures import ProcessPoolExecutor
 from functools import cache
 from sass.decode import ir
+from sass.semantics.family import family_for
+from tests.cases import built_cases
 from tests.harness.select import arches, families, modes
 from tests.harness import lifted
 
 
-def build(job):
-    """{(arch, fp, family, cls): [case]} for one language (cases are built in worker processes)."""
-    from tests.cases import emulator_cases
-    arch, fp, fams = job
-    md, out = ir.load(arch), {}
-    for family, cases in emulator_cases(arch, fp, fams).items():
-        for case in cases:
-            if lifted.applies(case) and lifted.has_family(md, case.cls): out.setdefault((arch, fp, family, case.cls), []).append(case)
-    return out
-
-
 @cache
-def selected_cases(variants, fams):
-    with ProcessPoolExecutor() as pool:
-        return {k: v for part in pool.map(build, [(a, f, fams) for a, f in variants]) for k, v in part.items()}
+def selected_cases(variants, fams, exhaustive):
+    """{(arch, fp, family, cls): [case]}: the emulator cases the lifted semantics can judge."""
+    out = {}
+    for (arch, fp), built in built_cases(variants, fams, exhaustive).items():
+        first = {}
+        for k in ir.load(arch).classes: first.setdefault(k.name, k)
+        modelled = {name for name, k in first.items() if family_for(k)}
+        for family, cases in built.items():
+            for case in cases:
+                if case.cls in modelled and lifted.applies(case): out.setdefault((arch, fp, family, case.cls), []).append(case)
+    return out
 
 
 def evaluate(job):
@@ -32,14 +31,14 @@ def evaluate(job):
 
 
 @cache
-def results(variants, fams):
+def results(variants, fams, exhaustive):
     """Every item's failures, computed once across all cores (lift + execute is pure Python)."""
     with ProcessPoolExecutor() as pool:
-        return dict(pool.map(evaluate, selected_cases(variants, fams).items(), chunksize=2))
+        return dict(pool.map(evaluate, selected_cases(variants, fams, exhaustive).items(), chunksize=2))
 
 
 def selection(config):
-    return tuple((a, f) for a in arches(config) for f in modes(config)), tuple(families(config))
+    return tuple((a, f) for a in arches(config) for f in modes(config)), tuple(families(config)), config.getoption("--exhaustive")
 
 
 def pytest_generate_tests(metafunc):

@@ -2,8 +2,9 @@
 
 Every value has a width in bits and means an unsigned integer modulo 2^w, like an SMT-LIB
 bitvector; booleans are 1 bit and signedness lives in operators. `extract(x, hi, lo)` and
-`concat(hi, ..., lo)` take bitvectors apart and put them together. Nodes are interned (equal nodes are the same object), so sharing is identity and
-backends can memoize by node. `OPS` gives each operator's concrete meaning; constant folding here
+`concat(hi, ..., lo)` take bitvectors apart and put them together. Nodes are interned (equal live nodes are the
+same object; the table holds them weakly, so unused ones are freed), so sharing is identity and backends
+can memoize by node. `OPS` gives each operator's concrete meaning; constant folding here
 and `sass.semantics.evaluate` both use it, so the IR has exactly one definition.
 
 Python operators build IR: + - * & | ^ ~ (unary -) << >> (logical) and the unsigned comparisons
@@ -11,6 +12,7 @@ Python operators build IR: + - * & | ^ ~ (unary -) << >> (logical) and the unsig
 value has no truth value: a Python `if` on one raises (use a ternary, which `@family` rewrites).
 """
 from functools import reduce
+from weakref import WeakValueDictionary
 from sass.semantics.fp import softfloat
 
 
@@ -19,23 +21,26 @@ def signed(v, w): return v - (1 << w) if v >> (w - 1) & 1 else v
 
 
 def identity(a):
-    """A hashable key for nested tuples of expressions and plain values (expressions by identity)."""
-    if isinstance(a, Expr): return ("e", id(a))
-    if isinstance(a, tuple): return ("t", tuple(identity(x) for x in a))
+    """A hashable key for nested tuples of expressions and plain values: an expression is its id (an
+    int), anything else a tuple, so the two never compare equal (and `==` never reaches an Expr)."""
+    if type(a) is Expr: return id(a)
+    if type(a) is tuple: return ("t", *[identity(x) for x in a])
     return ("v", a)
 
 
 class Expr:
     __slots__ = ("op", "args", "w", "__weakref__")
-    _interned = {}
+    _interned = WeakValueDictionary()
 
     def __new__(cls, op, args, w):
-        # Keyed by child identity: children are interned, and `==` on them builds IR.
-        key = (op, identity(tuple(args)), w)
+        # Keyed by child identity: children are interned, and `==` on them builds IR. A child's id
+        # can't be reused while a key names it: the entry lives only as long as its node, which holds the child.
+        args = tuple(args)
+        key = (op, w, *[id(a) if type(a) is Expr else identity(a) for a in args])
         node = cls._interned.get(key)
         if node is None:
             node = object.__new__(cls)
-            node.op, node.args, node.w = op, tuple(args), w
+            node.op, node.args, node.w = op, args, w
             cls._interned[key] = node
         return node
 

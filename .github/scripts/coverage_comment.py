@@ -12,6 +12,7 @@ import urllib.request
 
 
 MARKER = "<!-- nvdisasm-re:coverage -->"
+LABEL = "coverage"
 COVERAGE = "processor/SASS/semantics/coverage.json"
 COMMENT_LIMIT = 60_000  # Leave room below GitHub's comment size limit.
 FIELDS = (
@@ -116,6 +117,11 @@ def publish(report, repo, number, base_sha, head_sha, request=api):
     if pr["state"] != "open" or pr["head"]["sha"] != head_sha or pr["base"]["sha"] != base_sha:
         print("Skipping obsolete coverage comparison.")
         return
+    has_label = any(label["name"] == LABEL for label in pr.get("labels", []))
+    if report["changed"] and not has_label:
+        request("POST", f"{root}/issues/{number}/labels", {"labels": [LABEL]})
+    elif has_label and not report["changed"]:
+        request("DELETE", f"{root}/issues/{number}/labels/{LABEL}")
     existing = None
     page = 1
     while True:

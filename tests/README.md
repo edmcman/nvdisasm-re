@@ -77,7 +77,7 @@ uv run pytest -m gpu --require-gpu                     # GPU tests (outside the 
 | `--arch SM89\|SM75,SM90\|all` | architectures (default SM89) |
 | `--fp exact\|readable\|all` | floating-point lowering(s) (default exact) |
 | `--family F` (repeatable) | limit semantics tests and GPU fixtures to case families (`tests/cases/F.py`) |
-| `--exhaustive` | run complete GPU and Ghidra sweeps (otherwise deterministically sampled; lifted semantics always run all) |
+| `--exhaustive` | run complete GPU, Ghidra and lifted sweeps (otherwise deterministically sampled) |
 | `--update-baseline` | accept current results into the ratchet baselines |
 | `--full` | `test_pydecode_disassembly` and `test_ghidra_disassembly` on the whole real corpus instead of a sample |
 | `--require-gpu` | fail instead of skipping without an SM89 device |
@@ -86,10 +86,12 @@ While iterating, run what a change touches (`--family conversions --arch SM89`).
 run the Python and Ghidra tests on every architecture and lowering; run the GPU tests too if
 shared cases, fixtures, references or the GPU harness changed.
 
-Rough wall times on a 32-core machine (2026-10-14): Python tests 25 s on SM89 and 6 minutes on
-every architecture and lowering; language build 2.5-5 minutes (compilers run as free memory
-allows); Ghidra tests on all languages 14 minutes cold and 2.5 minutes when cached (mostly
-building the cases); GPU tests 15 s.
+Rough wall times and peak memory (summed PSS) on a 32-core, 93 GiB machine with other work running (2026-10-16): Python
+tests 25 s and 10 GiB on SM89, 3 minutes and 13 GiB on every architecture and lowering (25 GiB with `--exhaustive`); language
+build 1.75 minutes and 27 GiB (about 17 compilers at once); Ghidra tests on all languages 8 minutes and
+25 GiB cold, 2.5 minutes when cached (mostly building the cases); GPU tests 15 s. Ghidra results are
+cached per program by the sources it imports (`ghidra_bridge.sources`), so an edit elsewhere in
+`src/sass` keeps them.
 
 **Don't use pytest-xdist.** The expensive tests compute all their results once per session in a
 process pool sized to the CPUs, and each test item looks its result up. xdist workers would each
@@ -128,7 +130,7 @@ Everything below lives in `.cache/` and is safe to delete.
 | nvdisasm oracle results (`oracle.sqlite`) | nvdisasm hash, word, address |
 | parsed md IR (`ir/`) | md files and parser sources |
 | real-corpus words (`corpus/`) | the cubin set (paths, sizes, mtimes) |
-| Ghidra decode/emulation results (`ghidra/`) | the language's `.sla`, specs and coverage manifest, every `src/sass` source, Ghidra; then the request |
+| Ghidra decode/emulation results (`ghidra/`) | the language's `.sla`, specs and coverage manifest, the `src/sass` sources the Ghidra program imports, Ghidra; then the request |
 | compiled kernels (`kernels/`), block emulator (`java/`), extracted library cubins (`cubins/`) | sources and flags |
 
 A stale `.sla` fails the Ghidra tests up front (`harness/select.require_languages`): Ghidra would

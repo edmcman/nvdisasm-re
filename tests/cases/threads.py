@@ -7,8 +7,13 @@ import struct
 def emulator_cases(c):
     warp = dict(values=list(range(32)), predicates=[i % 2 for i in range(32)], lane=3, active=0xffffffff)
     c.add("shfl__RRR", dict(Rd=8, Pu=0, Ra=2, Rb=4, Rc=6, shflmd="IDX"), dict(R2=3, R4=5, R6=31), dict(R8=5, P0=1), context={"warp": warp})
-    c.add("shfl__RRR", dict(Rd=8, Pu=0, Ra=2, Rb=4, Rc=6, shflmd="IDX"), dict(R2=3, R4=5, R6=31), dict(error="inactive shuffle source"),
-          context={"warp": dict(warp, active=0xffffffdf)})
+    # A valid source lane outside the active mask yields 0 with Pu true (SM89 GPU); an out-of-range one keeps the lane's own value.
+    for mode, lane, b, cval in [("IDX", 3, 5, 31), ("IDX", 0, 5, 31), ("DOWN", 3, 2, 31), ("DOWN", 4, 4, 31), ("BFLY", 4, 4, 31), ("BFLY", 1, 5, 31), ("UP", 6, 2, 0), ("UP", 8, 3, 0)]:
+        for active in (mask | 1 << lane for mask in (0xffffffdf, 0x55555555, 0x0000ffff, 0x80000001)):
+            source = {"IDX": b, "UP": lane - b, "DOWN": lane + b, "BFLY": lane ^ b}[mode]
+            if not 0 <= source < 32 or active >> source & 1: continue
+            c.add("shfl__RRR", dict(Rd=8, Pu=0, Ra=2, Rb=4, Rc=6, shflmd=mode), dict(R2=lane, R4=b, R6=cval), dict(R8=0, P0=1),
+                  context={"warp": dict(warp, lane=lane, active=active)})
     # SM89 GPU results (lane, b, c -> source lane, Pu): UP's bound is the segment start, BFLY may
     # leave the segment downward, b's bits above 4 are ignored.
     for mode, lane, b, cval, src, ok in [("UP", 13, 35, 0x0, 10, 1), ("UP", 29, 26, 0x4, 29, 0),
@@ -20,6 +25,7 @@ def emulator_cases(c):
     from tests.refs import warp as ref
     # Inactive lanes take no part: the context's active mask, not the reference's whole warp.
     half = dict(warp, active=0x0000ffff)
+    patterns = (warp, half) + tuple(dict(warp, active=mask) for mask in (0xaaaaaaaa, 0x00000008, 0x80000009, 0x0f0f0f0f))  # all include lane 3
     for ctx, predicates in ((warp, warp["predicates"]), (half, warp["predicates"][:16] + [0] * 16)):
         ballot, any_, all_, uni = ref.vote(predicates)
         full = ctx["active"] == 0xffffffff
@@ -38,7 +44,7 @@ def emulator_cases(c):
     words = [(0x9e3779b9 * l) & 0xffffffff for l in range(32)]
     for op, label, signed in (("add", "SUM", False), ("and", "AND", False), ("or", "OR", False), ("xor", "XOR", False),
                               ("min", "MIN", False), ("max", "MAX", False), ("min", "MIN", True), ("max", "MAX", True)):
-        for ctx in (warp, half):
+        for ctx in patterns:
             want = ref.redux(op, [x for l, x in enumerate(words) if ctx["active"] >> l & 1], signed)
             c.add("redux_", dict(URd=8, Ra=2, op=label, sz="S32" if signed else "U32"), dict(R2=words[3]), dict(UR8=want),
                   context={"warp": dict(ctx, values=words)})
@@ -115,6 +121,26 @@ def hoisted_voteu(image, name, negate):
     return t.patch({slot: (vote if src == v else word(src), t.control(src)) for slot, src in zip(range(v, lop + 16, 16), order)}, image)
 
 
+DIVERGENT_PATTERNS = (0x55555555, 0x0000ffff, 0xaaaaaaaa, 0x00000020, 0xffff0000, 0x0f0f0f0f, 0x80000001, 0xfffffffe)
+
+
+def divergent_inputs(rng):
+    """Per warp a member-lane pattern (c bit 0), with random a and b."""
+    return [(rng.getrandbits(32), rng.getrandbits(32), rng.getrandbits(31) << 1 | DIVERGENT_PATTERNS[w % len(DIVERGENT_PATTERNS)] >> lane & 1)
+            for w in range(WARPS) for lane in range(32)]
+
+
+def divergent_expected(vs, warp_result):
+    """out = result | activemask << 32 for member lanes, 0 elsewhere; warp_result(members, vs of the warp) -> {lane: result}."""
+    out = []
+    for w in range(WARPS):
+        lanes = vs[32 * w:32 * w + 32]
+        members = [lane for lane, v in enumerate(lanes) if v[2] & 1]
+        mask, results = sum(1 << lane for lane in members), warp_result(members, lanes)
+        out += [results[lane] | mask << 32 if lane in members else 0 for lane in range(32)]
+    return out
+
+
 def gpu_fixtures():
     from tests.harness.gpu import Fixture, compile
     from tests.refs import warp
@@ -141,6 +167,18 @@ def gpu_fixtures():
         vs = redux_inputs(random.Random(f"redux_{name}"))
         out.append(fixture(f"redux_{name}", vs, [warp.redux(op, [a for a, _, _ in vs[32 * w:32 * w + 32]], signed)
                                                  for w in range(WARPS) for _ in range(32)], ("REDUX",)))
+    vs = divergent_inputs(random.Random("divergent"))
+    preds = lambda lanes: [v[0] & 1 for v in lanes]
+    values = lambda lanes, members: [lanes[lane][0] for lane in members]
+    divergent = {"ballot": ("VOTE.ANY", lambda m, L: warp.vote_members(preds(L), m)[0]),
+                 "any": ("VOTE.ANY", lambda m, L: warp.vote_members(preds(L), m)[1]),
+                 "all": ("VOTE.ALL", lambda m, L: warp.vote_members(preds(L), m)[2]),
+                 **{f"redux_{op}": ("REDUX", lambda m, L, op=op: warp.redux(op, values(L, m))) for op in ("add", "and", "or", "min")},
+                 # A source lane outside the executing set (idle at the reconvergence point, or exited) yields 0, not its register.
+                 **{f"shfl_{name}": ("SHFL.IDX", lambda m, L: [L[j][0] if j in m else 0 for j in (v[1] & 31 for v in L)]) for name in ("idle", "exit")}}
+    for name, (target, result) in divergent.items():
+        expected = divergent_expected(vs, lambda m, L, result=result: (lambda r: {l: r[l] if isinstance(r, list) else r for l in m})(result(m, L)))
+        out.append(fixture(f"div_{name}", vs, expected, (target,), output_size=8))
     voteu = image
     for name, negate in (("voteu", 0), ("voteu_not", 1)): voteu = hoisted_voteu(voteu, name, negate)
     vs = [(0, 0, a) for a, _, _ in vote_inputs(random.Random("voteu"))]

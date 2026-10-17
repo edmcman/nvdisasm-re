@@ -8,7 +8,7 @@ def pytest_addoption(parser):
     parser.addoption("--arch", default="SM89", help="architecture(s): SMxx[,SMyy] or all")
     parser.addoption("--fp", default="exact", help="fp lowering(s): exact, readable or all")
     parser.addoption("--family", action="append", help="limit semantics/GPU tests to these case families")
-    parser.addoption("--exhaustive", action="store_true", help="run complete GPU/Ghidra sweeps (Python lifted tests always run all)")
+    parser.addoption("--exhaustive", action="store_true", help="run complete GPU, Ghidra and lifted sweeps instead of a deterministic sample")
     parser.addoption("--require-gpu", action="store_true", help="fail instead of skipping without an SM89 device")
 
 

@@ -34,8 +34,9 @@ def decoded(arch, code):
 
 
 def reference(arch):
-    """(class, settings, None) per emulator case, over both fp lowerings."""
-    cases = [case for fp in MODES for cases in emulator_cases(arch, fp).values() for case in cases]
+    """(class, settings, None) per emulator case, over both fp lowerings. The large sweeps are
+    sampled as in the tests: the full sweeps run no modifier form the sample misses."""
+    cases = [case for fp in MODES for cases in emulator_cases(arch, fp, exhaustive=False).values() for case in cases]
     words = {w: settings(arch, pydecode.decode(arch, bytes.fromhex(w))) for w in {c.request.get("word") for c in cases} - {None}}
     return [(c.cls, words.get(c.request.get("word"), {}), None) for c in cases]
 

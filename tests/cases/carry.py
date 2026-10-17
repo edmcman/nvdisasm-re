@@ -4,6 +4,7 @@ overlapping predicate destinations capture their inputs first."""
 import random
 from itertools import product
 from tests.refs.bits import MASK32, MASK64, sext
+from tests.refs.integer import carry as reference
 
 
 def emulator_cases(c):
@@ -33,6 +34,7 @@ def emulator_cases(c):
         total = a * b + ((b << 32) | d) + 1
         c.add("uimad_wide_x__URURUR_URURUR", dict(URd=2, UPu=0, URa=2, URb=4, URc=6, UPp=0, fmt="U32"),
               dict(UR2=a, UR4=b, UR6=d, UR7=b, UP0=1), dict(UR2=total & MASK32, UR3=total >> 32 & MASK32, UP0=int(total > MASK64), __native=True))
+        uniform_plain(c, a, b, d)
         # Aliased predicate outputs: Pu wins.
         for ext in (False, True):
             cls = "iadd3_x_noimm__RRR_RRR" if ext else "iadd3_noimm__RRR_RRR"
@@ -76,15 +78,32 @@ def emulator_cases(c):
                             c.add(cls, fields, dict(regs, R7=b, P0=p), expected)
 
 
+def uniform_plain(c, a, b, d):
+    """The plain uniform twins against the per-thread references: UIADD3 with negated sources, UIMAD, UIMAD.WIDE and USEL."""
+    regs = dict(UR2=a, UR4=b, UR6=d)
+    for flags in (0, 1, 2, 4):
+        negations = {n + "@negate": flags >> i & 1 for i, n in enumerate(("URa", "URb", "URc"))}
+        fields = dict(URd=2, UPu=0, UPv=1, URa=2, URb=4, URc=6, **negations)
+        ref = lambda observe: reference("iadd3_noimm__RRR_RRR", {n.replace("UR", "R"): v for n, v in negations.items()}, observe, (a, b, d))
+        c.add("uiadd3__URURUR_URURUR", fields, regs, dict(UR2=ref("result"), UP0=ref("pu"), UP1=int(ref("carry") >> 1), __native=True))
+    for fmt in ("U32", "S32"):
+        c.add("uimad__URURUR_URURUR", dict(URd=2, URa=2, URb=4, URc=6, fmt=fmt), regs, dict(UR2=reference("imad__RRR_RRR", dict(fmt=fmt), "result", (a, b, d)), __native=True))
+        wide = lambda observe: reference("imad_wide__RRR_RRR", dict(fmt=fmt), observe, (a, b, d))
+        c.add("uimad_wide__URURUR_URURUR", dict(URd=2, UPu=0, URa=2, URb=4, URc=6, fmt=fmt), dict(regs, UR7=b),
+              dict(UR2=wide("low"), UR3=wide("high"), UP0=wide("pu"), __native=True))
+    for p in (0, 1):
+        for negate in (0, 1):
+            c.add("usel__URURUR_UUU", dict(URd=2, URa=2, URb=4, UPp=0, **{"UPp@not": negate}), dict(regs, UP0=p), dict(UR2=a if p ^ negate else b, __native=True))
+
+
 def gpu_fixtures():
     """Patched carry kernel: four slots set P2/P3 from input C, then the target instruction, then
     readback of its result, carry predicates, or high/low words into R11."""
     import itertools
     from tests.harness.gpu import sm89
     from tests.harness.templates import slot_fixture
-    from tests.refs.integer import carry as reference
     rng = random.Random(44); edges = [0, 1, 2, 3, MASK32, 0xfffffffe, 0x7fffffff, 0x80000000, 0x80000001, 0xffff0000]
-    vectors = [(a, b, edges[(i * 7 + 4) % len(edges)]) for i, (a, b) in enumerate(itertools.product(edges, repeat=2))]
+    vectors = [(a, b, edges[(i * 7 + 4) % len(edges)]) for i, (a, b) in enumerate(product(edges, repeat=2))]
     vectors += [(MASK32, MASK32, MASK32), (MASK32, MASK32, 3), (0x80000000, 0x80000000, 0)] + [tuple(rng.getrandbits(32) for _ in range(3)) for _ in range(25)]
     prep = [sm89("lop3_lut__RuIR_RIR", Rd=0, Ra=6, Sb=1, Rc=255, imm8=0xc0, Pp=7),
             sm89("isetp__RsIR_RIR_noEX", Pu=2, Pv=7, Ra=0, Sb=0, icmp="NE", bop="AND", Pp=7, fmt="U32"),

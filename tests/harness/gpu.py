@@ -58,9 +58,9 @@ class Fixture:
 
     @property
     def fingerprint(self):
-        """What a GPU run checks: the kernel image, launch, inputs and reference outputs."""
-        launch = (self.kernel, self.input_size, self.output_size, self.arguments, self.block, self.expected)
-        return hashlib.sha256(self.image + self.data + repr(launch).encode()).hexdigest()[:16]
+        """What a GPU run checks: the kernel (text, constants, parameters; not the other kernels sharing its cubin), launch, inputs and reference outputs."""
+        launch = (cubin.kernel_image(self.image, self.kernel), self.kernel, self.input_size, self.output_size, self.arguments, self.block, self.expected)
+        return hashlib.sha256(self.data + repr(launch).encode()).hexdigest()[:16]
 
 
 def request(f):

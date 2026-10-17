@@ -1,22 +1,47 @@
 """Batch requests through the Ghidra-side programs, which run under the pyghidra venv. Results are
 cached per language and program (see `stamp`), so reruns only send requests Ghidra hasn't answered."""
-import hashlib, json, os, sqlite3, struct, subprocess
+import ast, hashlib, json, os, sqlite3, struct, subprocess
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from functools import cache as memoize
 from pathlib import Path
 from sass.paths import CACHE, GHIDRA_PY, LANGUAGES, LDEFS, ROOT, language
 
-SOURCES = ROOT / "src" / "sass"
+SOURCES = ROOT / "src"
 
 
-def stamp(arch, fp):
+def module_file(module):
+    p = SOURCES / module.replace(".", "/")
+    return next((f for f in (p.with_suffix(".py"), p / "__init__.py") if f.exists()), None)
+
+
+@memoize
+def sources(program):
+    """The sass sources `program` (a module of this package) can run: its transitive sass imports,
+    function-level ones included, with their packages, and this package's Java."""
+    seen, todo = set(), [f"{__name__}.{Path(program).stem}"]
+    while todo:
+        if (module := todo.pop()) in seen or not (f := module_file(module)): continue
+        seen.add(module)
+        parts = module.split(".")
+        package = parts if f.name == "__init__.py" else parts[:-1]
+        todo += [".".join(parts[:i]) for i in range(1, len(parts))]
+        for n in ast.walk(ast.parse(f.read_text())):
+            if isinstance(n, ast.Import): todo += [a.name for a in n.names]
+            elif isinstance(n, ast.ImportFrom):
+                base = ".".join(package[:len(package) - n.level + 1] + [n.module or ""]).strip(".") if n.level else n.module
+                todo += [base, *(f"{base}.{a.name}" for a in n.names)]
+    return sorted({module_file(m) for m in seen} | set(Path(__file__).parent.glob("*.java")))
+
+
+def stamp(program, arch, fp):
     """Hash of everything a Ghidra-side answer depends on: the compiled language and its specs,
-    runtime manifest (or legacy coverage manifest), every sass source and the Ghidra install."""
+    runtime manifest (or legacy coverage manifest), the sass sources the program runs and the
+    Ghidra install."""
     from sass.sleigh.gen import variant
     name = variant(arch, fp)
     manifest = LANGUAGES / f"sass_{name}_runtime.json"
     if not manifest.exists(): manifest = LANGUAGES / f"sass_{name}_coverage.json"
-    files = [LANGUAGES / f"sass_{name}.sla", manifest, LDEFS, LANGUAGES / "sass.pspec", LANGUAGES / "sass.cspec",
-             *sorted(p for p in SOURCES.rglob("*") if p.suffix in (".py", ".java"))]
+    files = [LANGUAGES / f"sass_{name}.sla", manifest, LDEFS, LANGUAGES / "sass.pspec", LANGUAGES / "sass.cspec", *sources(program)]
     h = hashlib.sha256(GHIDRA_PY.encode() + os.environ.get("GHIDRA_INSTALL_DIR", "").encode())
     for f in files: h.update(str(f).encode()); h.update(f.read_bytes() if f.exists() else b"")
     return name, h.hexdigest()[:16]
@@ -24,7 +49,7 @@ def stamp(arch, fp):
 
 def cache(program, arch, fp, opts):
     """The sqlite result cache for (program, options) on one language; stale stamps are removed."""
-    name, key = stamp(arch, fp)
+    name, key = stamp(program, arch, fp)
     prefix = f"{Path(program).stem}{''.join(opts)}-{name}-"
     path = CACHE / "ghidra" / f"{prefix}{key}.sqlite"
     if not path.exists():

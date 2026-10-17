@@ -1,9 +1,12 @@
 """Scalar integer and bit operations: IMAD/IADD3/LOP3/LEA/SHF/ISETP/PRMT, uniform aliases,
 BREV/POPC/FLO/SGXT and MOV."""
-import random
+import itertools, random
 from tests.harness.case import cbank, put, source
 from tests.refs.bits import MASK32, MASK64, sext
-from tests.refs.integer import COMPARISONS, brev, combine, compare, flo, prmt, sgxt_width
+from tests.refs.integer import COMPARISONS, brev, combine, compare, flo, prmt, sgxt
+
+SGXT_VALUES = [0, 0x7f, 0x80, 0xff, 0x7fffffff, 0x80000000, MASK32]
+SGXT_WIDTHS = [0, 1, 7, 8, 31, 32, 33, 0xff, MASK32]
 
 
 def bit_ops(c):
@@ -37,15 +40,13 @@ def bit_ops(c):
                     fields, regs, memory = {"Rd": 2, "Pu": "PT", "fmt": fmt, "sh": mode}, {}, []
                     put(k, src, value, fields, regs, memory, 4, bank=(2, 16), imm=(k.operand_types[src].type,))
                     c.add(k.name, fields, regs, {"R2": flo(value, mode == "SH", fmt == "S32"), "__native": True}, memory=memory)
-    # SGXT.C sign-extends the low B bits of A, clamping the width to 32.
     for k in c.of("SGXT"):
         src = source(k, "Rb", "URb", "Sb")
         if src is None: continue
-        for index in (0, 1, 2, 7, 8, 15, 16, 30, 31, 32, 33, 63, 0xffffffff):
-            for value in (0, 1, 0x80000000, 0xffffffff, 0x7f80ff01, 0x80ff007f, 0xdeadbeef):
-                fields, regs, memory = {"Rd": 2, "Ra": 4, "cw": "C", "fmt": "S32"}, {"R4": value}, []
-                put(k, src, index, fields, regs, memory, 6, bank=(2, 16), imm=(k.operand_types[src].type,))
-                c.add(k.name, fields, regs, {"R2": sgxt_width(value, index), "__native": True}, memory=memory)
+        for cw, fmt, width, value in itertools.product(("C", "W"), ("S32", "U32"), SGXT_WIDTHS, SGXT_VALUES):
+            fields, regs, memory = {"Rd": 2, "Ra": 4, "cw": cw, "fmt": fmt}, {"R4": value}, []
+            put(k, src, width, fields, regs, memory, 6, bank=(2, 16), imm=(k.operand_types[src].type,))
+            c.add(k.name, fields, regs, {"R2": sgxt(value, width, cw == "W", fmt == "S32"), "__native": True}, memory=memory)
 
 
 def arithmetic(c):
