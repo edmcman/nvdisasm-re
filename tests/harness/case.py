@@ -1,9 +1,14 @@
 """Single-instruction emulator cases: operand placement and the Case/Cases collections
-(words come from sass.decode.pyencode)."""
+(words come from sass.assemble.encoding)."""
 import hashlib, json
 from typing import NamedTuple
 from sass.decode import ir
-from sass.decode.pyencode import encode
+from functools import partial
+from sass.assemble import encoding
+
+# Cases include deliberate edge values (wide immediates, misaligned pairs), which the strict encoder rejects.
+encode = partial(encoding.encode, permissive=True)
+word = partial(encoding.word, permissive=True)
 
 IMMEDIATES = ("SImm", "UImm", "F32Imm")
 

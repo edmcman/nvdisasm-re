@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 from typing import Callable
 from sass import ghidra_bridge
 from sass.decode import cubin, pydecode
-from sass.decode.pyencode import word
+from tests.harness.case import word
 from sass.paths import CACHE, NVCC, ROOT
 
 ENCODING = (1 << 105) - 1  # instruction bits below the scheduling controls

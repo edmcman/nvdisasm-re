@@ -2,7 +2,7 @@
 (SATFINITE, RELU, RN/RZ/RP, uniform destinations); 8-bit, 4-bit and UE8M0 upconversion,
 plain and scaled; S2_6 scaled fixed point; CX sources; opaque fallbacks."""
 import itertools, random, struct
-from sass.decode.pyencode import encode
+from tests.harness.case import encode
 from tests.harness.case import Case, Cases, cx_source, put, source
 from tests.refs import fpformat as fpf
 

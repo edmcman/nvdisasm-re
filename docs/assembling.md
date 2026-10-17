@@ -135,8 +135,10 @@ image = assemble_cubin(open("examples/assembler/write_value.sass").read())
 ```
 
 The APIs return `bytes`. Invalid source raises `sass.assemble.AssemblyError`, a
-`ValueError` with filename, line, column, and a diagnostic. The existing
-`sass.decode.pyencode` API retains its harness-oriented behavior.
+`ValueError` with filename, line, column, and a diagnostic. `encoding.encode`/`word` (arch, class, operand
+values) are the harness-facing API over the same encoder; `permissive=True` truncates out-of-range and
+misaligned values, picks the nearest table row and skips legality and rendering checks, for the
+semantics harness's synthetic cases (`tests/harness/case.py` passes it). Both modes write starred literals.
 
 ```sh
 uv run pytest tests/test_assemble.py --arch all
