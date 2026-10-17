@@ -115,13 +115,17 @@ def imad(i):
     if mode == 'LO': return outputs(Rd=a * b + resize(c, 32) + trunc(cin, 32))
     ext = sext if fmt == 'S32' else zext
     product = ext(a, 64) * ext(b, 64)
+    # A negated addend enters as ~c + 1, so -0 carries (SM89 GPU, like IADD3).
+    negated = i.operand_negated('Rc|Sc')
+    if negated: c, cin = i.value('Rc|Sc', modifiers=False), const(1, 64)
+    addend = lambda w: ~resize(c, w) if negated else resize(c, w)
     pair = i.kind('Rc|Sc') in ('register', 'uniform') and c.w == 64
     if mode == 'HI' and not pair and c.w <= 32:
-        full = zext(trunc(product >> 32, 32), 64) + zext(c, 64) + cin
+        full = zext(trunc(product >> 32, 32), 64) + zext(addend(32), 64) + cin
         return outputs(Rd=trunc(full, 32), Pu=full >= 1 << 32)
-    summed = product + resize(c, 64)
+    summed = product + addend(64)
     full = summed + cin
-    overflow = (summed < product) | (full < summed) if x else summed < product
+    overflow = (summed < product) | (full < summed) if x or negated else summed < product
     return outputs(Rd=resize(full >> 32 if mode == 'HI' else full, i.width('Rd')), Pu=overflow)
 
 

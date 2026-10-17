@@ -2,7 +2,7 @@
 exact rational arithmetic; readable-lowering formulas."""
 import random
 from sass.semantics.fp import softfloat
-from tests.harness.case import cbank, pair
+from tests.harness.case import cbank, cx_source, pair
 from tests.refs.bits import f64
 from tests.refs.float import FCOMPARISONS, fcompare, ordered, readable, rounded, underflow_band
 from tests.refs.integer import combine
@@ -49,6 +49,16 @@ def arithmetic(c):
     for cls, fields, result in [("dmul__RCR_RC", dict(Rd=8, Ra=2, Sb_bank=0, Sb_addr=0x100), TWO),
                                 ("dfma__RCR_RCR", dict(Rd=8, Ra=2, Sb_bank=0, Sb_addr=0x100, Rc=4), THREE)]:
         c.add(cls, fields, {**pair("R2", ONE), **pair("R4", ONE)}, dict(pair("R8", result), __native=True), memory=two)
+    # The same through a bindless cx[][] constant, whose 64-bit value runs on the GPU too.
+    for cls, name, fields, regs, result in [("dadd__RRCx_RCx", "Sc", dict(Rd=8, Ra=2), pair("R2", ONE), pair("R8", THREE)),
+                                            ("dmul__RCxR_RCx", "Sb", dict(Rd=8, Ra=2), pair("R2", ONE), pair("R8", TWO)),
+                                            ("dfma__RCxR_RCxR", "Sb", dict(Rd=8, Ra=2, Rc=4), {**pair("R2", ONE), **pair("R4", ONE)}, pair("R8", THREE)),
+                                            ("dfma__RRCx_RRCx", "Sc", dict(Rd=8, Ra=2, Rb=4), {**pair("R2", ONE), **pair("R4", ONE)}, pair("R8", THREE)),
+                                            ("dsetp__RRCx_RCx", "Sc", dict(Pu=0, Pv=1, Pp="PT", Ra=2, test="LT", bop="AND"), pair("R2", ONE), dict(P0=1, P1=0)),
+                                            ("f2f_f64_downconvert__RCXR_RCXR", "Sb", {"Rd": 8, "dstfmt.srcfmt": "F32.F64", "rnd": "RN"}, {}, dict(R8=0x40000000))]:
+        if cls not in c.classes: continue
+        cx_fields, header, memory = cx_source(c.arch, c.classes[cls], name, TWO, ur=10, size=8)
+        c.add(cls, dict(fields, **cx_fields), dict(regs, **header), dict(result, __native=True), memory=memory)
     c.add("dadd__RRR_RR", dict(Rd=8, Ra=2, Rc=4, Pg=0), dict(pair("R2", ONE), P0=0, R8=7, R9=9), dict(R8=7, R9=9))
     c.add("dadd__RRR_RR", dict(Rd=8, Ra="RZ", Rc=4), pair("R4", TWO), dict(pair("R8", TWO), __native=True))
 

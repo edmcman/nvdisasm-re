@@ -186,8 +186,10 @@ def encode_environment(md, k, requested, permissive=False, base=None):
             try:
                 env, widths = pydecode.decode_env(md, k, word)
                 if permissive:
-                    if (got := pydecode.decode(md.name, word.to_bytes(16, 'little')).klass.name) != k.name:
-                        raise ValueError(f'{k.name} encodes as {got}')
+                    got = pydecode.decode(md.name, word.to_bytes(16, 'little')).klass
+                    # A pseudo alias (IMAD.MOV for IMAD with a zero source) is the same instruction printed differently.
+                    if got.name != k.name and not (got.alternate and (got.constraint_mask, got.constraint_bits) == (k.constraint_mask, k.constraint_bits)):
+                        raise ValueError(f'{k.name} encodes as {got.name}')
                     return word.to_bytes(16, 'little'), env, widths
                 if bad := legal.violation(md, k, env):
                     raise ValueError(f'{bad[0]}: {bad[1]}')

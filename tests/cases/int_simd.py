@@ -1,7 +1,7 @@
 """Packed integer lanes: IDP.4A/2A dot products, VABSDIFF4, VIMNMX, VIADDMNMX, VIMNMX3, VISET,
 including CX (constant-descriptor) source forms."""
 import random
-from tests.harness.case import cx_header, cx_source, put, ram, source
+from tests.harness.case import cx_header, cx_source, put, ram, source, flagged
 from tests.refs.bits import MASK32
 from tests.refs.integer import COMPARISONS, dot2, dot4, vabsdiff4, viaddmnmx, vminmax, vset_mask
 
@@ -34,7 +34,7 @@ def idp(c):
                 rd = 2 if j % 3 == 0 else 8
                 fields, regs, memory = {"Rd": rd, "Ra": 4, "Rc": 6, "mode": "4A", "SrcAFmt": afmt, "SrcBFmt": bfmt}, {"R4": a, "R6": acc}, []
                 put(k, srcb, b, fields, regs, memory, 10, bank=(2, 16), imm=())
-                if j == 1 and "Rc@negate" in k.operand_types: fields["Rc@negate"] = 1; acc = -acc & MASK32
+                if j == 1 and flagged(k, "Rc", "negate"): fields["Rc@negate"] = 1; acc = -acc & MASK32
                 c.add(k.name, fields, regs, {f"R{rd}": dot4(a, b, acc, afmt == "S8", bfmt == "S8"), "__native": True}, memory=memory)
     # PTX dp2a: two 16-bit A lanes multiply the selected byte pair of B, accumulated into C.
     rng = random.Random("idp2a")
@@ -50,7 +50,7 @@ def idp(c):
                         rd = 2 if j % 3 == 0 else 8
                         fields, regs, memory = {"Rd": rd, "Ra": 4, "Rc": 6, "mode": mode, "SrcAFmt": afmt, "SrcBFmt": bfmt}, {"R4": a, "R6": acc}, []
                         put(k, srcb, b, fields, regs, memory, 10, bank=(2, 16), imm=())
-                        if j == 1 and "Rc@negate" in k.operand_types: fields["Rc@negate"] = 1; acc = -acc & MASK32
+                        if j == 1 and flagged(k, "Rc", "negate"): fields["Rc@negate"] = 1; acc = -acc & MASK32
                         c.add(k.name, fields, regs, {f"R{rd}": dot2(a, b, acc, afmt == "S16", bfmt == "S8", mode.endswith("HI")), "__native": True},
                               memory=memory)
     for k in c.of("IDP", "idp_2a__", cx=True):
@@ -128,7 +128,7 @@ def minmax(c):
                 for is_min in (True, False):
                     for j, a in enumerate(words):
                         b, bound = words[(j + 1) % len(words)], words[(j + 4) % len(words)]
-                        negate = bool(j & 1 and srcb + "@negate" in k.operand_types)
+                        negate = bool(j & 1 and flagged(k, srcb, "negate"))
                         rd = 2 if j % 2 else 8
                         fields, regs, memory = {"Rd": rd, "Ra": 4, "fmt": fmt, "relu": relu, "Pp": "PT" if is_min else "P0"}, {"R4": a}, []
                         put(k, srcb, b, fields, regs, memory, 10, bank=(0, 0), imm=("SImm", "UImm"))
