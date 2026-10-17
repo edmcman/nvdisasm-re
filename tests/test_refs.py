@@ -88,3 +88,16 @@ def test_integer_rules():
 ])
 def test_permutation_hand_calculated_examples(mode, selector, result):
     assert prmt(0x03020100, selector, 0x07060504, mode) == result
+
+
+@pytest.mark.parametrize('value,result', [(0,0), (1,1), (0xffffffff,1),
+    (0x7fffffff,0x7fffffff), (0x80000000,0x80000000), (0x80000001,0x7fffffff)])
+def test_integer_absolute_boundaries(value, result):
+    from tests.refs import integer
+    assert integer.iabs(value) == result
+
+
+def test_move_preserves_high_word():
+    from tests.refs import integer
+    assert integer.mov(0x8123456789abcdef, 64) == 0x8123456789abcdef
+    assert integer.mov(0x8123456789abcdef, 32) == 0x89abcdef

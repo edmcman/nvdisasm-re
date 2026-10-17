@@ -2,9 +2,9 @@
   "counts": {
     "legal": 10137015,
     "unresolved_semantics": 9709804,
-    "manual": 3244,
-    "blocked": 422144,
-    "generated": 1823
+    "manual": 3235,
+    "blocked": 422142,
+    "generated": 1834
   },
   "gaps": [
     {
@@ -2303,16 +2303,6 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "iabs__RUR_UR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "iabs__RsIR_I",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "iadd_x_xor_imm__RIR_RIR",
       "count": 4,
       "reason": "unresolved semantics"
@@ -2999,38 +2989,40 @@
     },
     {
       "cls": "mov__RI",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov__RR",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov__RU",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov_indexedRF_IRFd__Ib",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov_indexedRF_IRFd__Rb",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov_indexedRF_Rd_",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov_nonconformity__RU",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
+      "settings": {
+        "nonconformity": "SPILL"
+      },
+      "reason": "unhandled modifiers: nonconformity"
     },
     {
       "cls": "movm_",

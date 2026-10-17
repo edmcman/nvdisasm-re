@@ -3,6 +3,118 @@
   "arch": "SM80",
   "forms": [
     {
+      "family": "bmsk",
+      "cls": "bmsk__RCR_RCR",
+      "settings": {
+        "cw": "C"
+      },
+      "profiles": [
+        "mask_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "bmsk",
+      "cls": "bmsk__RCR_RCR",
+      "settings": {
+        "cw": "W"
+      },
+      "profiles": [
+        "mask_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "bmsk",
+      "cls": "bmsk__RCxR_RCxR",
+      "settings": {
+        "cw": "C"
+      },
+      "profiles": [
+        "mask_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "bmsk",
+      "cls": "bmsk__RCxR_RCxR",
+      "settings": {
+        "cw": "W"
+      },
+      "profiles": [
+        "mask_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "bmsk",
+      "cls": "bmsk__RRR_RRR",
+      "settings": {
+        "cw": "C"
+      },
+      "profiles": [
+        "mask_edges",
+        "mask_domain"
+      ],
+      "native": true
+    },
+    {
+      "family": "bmsk",
+      "cls": "bmsk__RRR_RRR",
+      "settings": {
+        "cw": "W"
+      },
+      "profiles": [
+        "mask_edges",
+        "mask_domain"
+      ],
+      "native": true
+    },
+    {
+      "family": "bmsk",
+      "cls": "bmsk__RUR_RUR",
+      "settings": {
+        "cw": "C"
+      },
+      "profiles": [
+        "mask_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "bmsk",
+      "cls": "bmsk__RUR_RUR",
+      "settings": {
+        "cw": "W"
+      },
+      "profiles": [
+        "mask_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "bmsk",
+      "cls": "bmsk__RuIR_RIR",
+      "settings": {
+        "cw": "C"
+      },
+      "profiles": [
+        "mask_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "bmsk",
+      "cls": "bmsk__RuIR_RIR",
+      "settings": {
+        "cw": "W"
+      },
+      "profiles": [
+        "mask_edges"
+      ],
+      "native": true
+    },
+    {
       "family": "int_alu",
       "cls": "brev__RCR_RCR",
       "settings": {},
@@ -44,6 +156,51 @@
       "settings": {},
       "profiles": [
         "bits"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "iabs__RCR_C",
+      "settings": {},
+      "profiles": [
+        "absolute"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "iabs__RCxR_Cx",
+      "settings": {},
+      "profiles": [
+        "absolute"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "iabs__RRR_R",
+      "settings": {},
+      "profiles": [
+        "absolute"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "iabs__RUR_UR",
+      "settings": {},
+      "profiles": [
+        "absolute"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "iabs__RsIR_I",
+      "settings": {},
+      "profiles": [
+        "absolute"
       ],
       "native": true
     },
@@ -39956,6 +40113,24 @@
       "profiles": [
         "integer_edges",
         "comparison_legacy"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "umov__UI",
+      "settings": {},
+      "profiles": [
+        "move32"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "umov__UR",
+      "settings": {},
+      "profiles": [
+        "move32"
       ],
       "native": true
     },

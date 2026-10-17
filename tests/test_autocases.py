@@ -111,7 +111,7 @@ def test_simd_plan_uses_its_own_family(monkeypatch):
 def test_retained_adapter_cases_have_reasons():
     from tests.cases import emulator_cases
     for arch in ('SM89', 'SM120'):
-        for cases in emulator_cases(arch, 'exact', ('int_alu', 'int_simd', 'carry'), False, generated=False).values():
+        for cases in emulator_cases(arch, 'exact', ('int_alu', 'int_simd', 'carry', 'bmsk'), False, generated=False).values():
             for case in cases:
                 k = cases.classes[case.cls]
                 if k.mnemonic in tests.harness.autocases.OPS:
@@ -131,6 +131,7 @@ def test_declarative_profiles_keep_boundary_and_random_inputs():
     rng = random.Random('int_alu')
     expected = tuple(rng.getrandbits(32) for _ in range(3))
     assert autocase_profiles.vectors('select_random')[0][:3] == expected
+    assert autocase_profiles.values('absolute')[6] == expected[1]
     assert len(autocase_profiles.vectors('carry_select')) == 34
     assert set(range(16)) | {0xffff7654, 0x89ab, 0x6420} <= set(autocase_profiles.PROFILES['permutation']['other'])
     form = {'fmt':'U32', 'Pp@not':'unset'}
@@ -164,3 +165,34 @@ def test_newer_shift_retains_explicit_noxor_form(arch):
         assert not lifted.run(arch, 'exact', case)[1]
     with pytest.raises(tests.harness.autocases.Unsupported, match='XOR funnel shifts'):
         tests.harness.autocases.generate(arch, 'shf__RRR_RRR', dict(form, xor='XOR'))
+
+
+@pytest.mark.parametrize('arch,cls,form', [
+    ('SM89', 'iabs__RRR_R', {}),
+    ('SM89', 'iabs__RCR_C', {}),
+    ('SM89', 'iabs__RCxR_Cx', {}),
+    ('SM89', 'umov__UI', {}),
+    ('SM89', 'umov__UR', {}),
+    ('SM89', 'bmsk__RRR_RRR', {'cw':'W'}),
+    ('SM89', 'bmsk__RCxR_RCxR', {'cw':'C'}),
+    ('SM107', 'mov_64__RR', {'size':'64'}),
+    ('SM107', 'mov_64__RU', {'size':'64'}),
+    ('SM120', 'umov_64__UR', {'size':'64'}),
+])
+def test_expanded_scalar_adapters(arch, cls, form):
+    cases = tests.harness.autocases.generate(arch, cls, form)
+    assert cases
+    for case in cases:
+        assert settings(arch, pydecode.decode(arch, bytes.fromhex(case.request['word']))) == form
+        status, problems = lifted.run(arch, 'exact', case)
+        assert status == 'native' and not problems, (case, status, problems)
+
+
+def test_mask_profile_preserves_the_dense_domain_and_seed():
+    import random
+    from tests.harness import autocase_profiles
+    pairs = {(a, b) for a, b, *_ in autocase_profiles.vectors('mask_domain')}
+    assert pairs == {(a, b) for a in range(34) for b in range(34)}
+    rng = random.Random(18)
+    expected = (rng.getrandbits(32), rng.getrandbits(32))
+    assert autocase_profiles.vectors('mask_edges')[144][:2] == expected

@@ -21,7 +21,7 @@ def flo_subset(c):
                     c.add(k.name, fields, regs, {"R2": flo(value, mode == "SH", fmt == "S32"), "__native": True}, memory=memory)
 
 
-@retained("These operations do not yet have reference adapters; generated coverage cannot replace their manual cases.")
+@retained("Operations without adapters, plus explicit UMOV p-code cost contracts.")
 def arithmetic(c):
     rng = random.Random("int_alu")
     for i in range(20):
@@ -31,7 +31,6 @@ def arithmetic(c):
         c.add("imad__RRR_RRR", dict(common, fmt="U32"), regs, {f"R{rd}": (a * b + d) & MASK32})
         c.add("imad_hi__RRR_RRR", dict(common, fmt="U32"), regs, {f"R{rd}": ((a * b + d) & MASK64) >> 32})
         c.add("iadd3_noimm__RRR_RRR", common, regs, {f"R{rd}": (a + b + d) & MASK32})
-        c.add("iabs__RRR_R", dict(Rd=rd, Rb=4), regs, {f"R{rd}": abs(sext(b, 32)) & MASK32})
         c.add("lop3_lut__RRR_RRR", dict(common, imm8=0x96, Pp="PT"), regs, {f"R{rd}": a ^ b ^ d})
         c.add("lea_lo_noimm__RRR_RRR", dict(Rd=rd, Ra=2, Rb=4, scaleU5=i % 8), regs, {f"R{rd}": ((a << (i % 8)) + b) & MASK32})
     # Mixed register banks and uniform aliases retain original md operand names.
@@ -91,7 +90,7 @@ def permute_register_regressions(c):
           dict(R2=0x80ff017f), dict(R3=0, __native=True, __max_ops=1))
 
 
-@retained("Special/zero/guard registers and p-code cost contracts, plus operations without reference adapters.")
+@retained("Special/zero/guard registers, p-code costs, partial MOV pixel masks, and operations without adapters.")
 def fixed(c):
     # Preserve the old mixed-bank comparison's constant predicate encoding; profiles
     # use writable predicate inputs, so a true value alone does not test PT.
@@ -99,6 +98,7 @@ def fixed(c):
           dict(R2=2, UR4=3), dict(P0=1, P1=0, __native=True))
     c.add("mov__RI", dict(Rd=3, Sb=0xdeadbeef, PixMaskU04=15), {}, dict(R3=0xdeadbeef, __max_ops=1))
     c.add("mov__RR", dict(Rd=3, Rb=2, PixMaskU04=15), dict(R2=0xdeadbeef), dict(R3=0xdeadbeef, __max_ops=1))
+    # MOV pixel masks are only partly modelled; retain its explicit full-mask alias subset.
     c.add("mov__RR", dict(Rd=2, Rb=2, PixMaskU04=15), dict(R2=0xdeadbeef), dict(R2=0xdeadbeef))
     # Compact p-code: ordinary forms lower to a fixed number of operations.
     for cls, fields, registers, result, limit in [

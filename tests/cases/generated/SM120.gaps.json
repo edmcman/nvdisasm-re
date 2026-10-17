@@ -2,9 +2,9 @@
   "counts": {
     "legal": 2694556,
     "unresolved_semantics": 2261673,
-    "manual": 3500,
-    "blocked": 427562,
-    "generated": 1821
+    "manual": 3491,
+    "blocked": 427555,
+    "generated": 1837
   },
   "gaps": [
     {
@@ -2116,16 +2116,6 @@
       "cls": "i2i__RsIR_RIR",
       "count": 4,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "iabs__RUR_UR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "iabs__RsIR_I",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "iadd_64_imm__RsIR_RIR",
@@ -13047,54 +13037,41 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "mov_64__RR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "mov_64__RU",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "mov__RI",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov__RR",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov__RU",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
-      "cls": "mov_imm64_",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "mov_indexedRF_IRFd__Ib",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov_indexedRF_IRFd__Rb",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov_indexedRF_Rd_",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov_nonconformity__RU",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
+      "settings": {
+        "nonconformity": "SPILL"
+      },
+      "reason": "unhandled modifiers: nonconformity"
     },
     {
       "cls": "mov64iur_imm_",
@@ -21168,16 +21145,6 @@
       "cls": "umemsets_",
       "count": 1,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "umov_64__UR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "umov_imm64_",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "up2ur__Imm",

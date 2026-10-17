@@ -2,9 +2,9 @@
   "counts": {
     "legal": 1385354,
     "unresolved_semantics": 943093,
-    "manual": 4331,
-    "blocked": 436113,
-    "generated": 1817
+    "manual": 4322,
+    "blocked": 436108,
+    "generated": 1831
   },
   "gaps": [
     {
@@ -2436,16 +2436,6 @@
       "cls": "i2i__RsIR_RIR",
       "count": 4,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "iabs__RUR_UR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "iabs__RsIR_I",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "iadd_64_imm__RsIR_RIR",
@@ -13392,54 +13382,41 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "mov_64__RR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "mov_64__RU",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "mov__RI",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov__RR",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov__RU",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
-      "cls": "mov_imm64_",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "mov_indexedRF_IRFd__Ib",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov_indexedRF_IRFd__Rb",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov_indexedRF_Rd_",
-      "count": 1,
+      "settings": {},
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov_nonconformity__RU",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
+      "settings": {
+        "nonconformity": "SPILL"
+      },
+      "reason": "unhandled modifiers: nonconformity"
     },
     {
       "cls": "mov64iur_imm_",

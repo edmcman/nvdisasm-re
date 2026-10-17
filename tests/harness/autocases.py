@@ -9,9 +9,9 @@ from tests.refs import integer
 from tests.harness import autocase_profiles
 
 PLANS = ROOT / 'tests/cases/generated'
-OPS = {'BREV', 'POPC', 'FLO', 'SGXT', 'PRMT', 'UPRMT'}
+OPS = {'BREV', 'POPC', 'FLO', 'SGXT', 'PRMT', 'UPRMT', 'IABS', 'MOV', 'UMOV', 'BMSK'}
 INTEGER_OPS = {'ISETP', 'UISETP', 'IMNMX', 'SEL', 'USEL', 'IDP', 'SHF', 'USHF'}
-FAMILIES = {op: 'int_simd' if op == 'IDP' else 'int_alu' for op in OPS | INTEGER_OPS}
+FAMILIES = {op: 'int_simd' if op == 'IDP' else 'bmsk' if op == 'BMSK' else 'int_alu' for op in OPS | INTEGER_OPS}
 OPS |= INTEGER_OPS
 OWNED = OPS - {'FLO'}  # FLO's partially modelled predicate outputs retain explicit PT-only cases.
 
@@ -29,6 +29,8 @@ def generate(arch, cls, form, fp='exact', profiles=None, native=True):
     profiles = autocase_profiles.names(k.mnemonic, cls, form) if profiles is None else profiles
     if not profiles or any(name not in autocase_profiles.PROFILES for name in profiles):
         raise Unsupported('empty or unknown input profile')
+    if k.mnemonic in ('IABS', 'MOV', 'UMOV', 'BMSK'):
+        return finish(scalar_cases(c, k, form, profiles), native)
     if k.mnemonic in INTEGER_OPS: return finish(integer_cases(c, k, form, profiles), native)
     profile = 'permutation' if k.mnemonic in ('PRMT', 'UPRMT') else 'sgxt' if k.mnemonic == 'SGXT' else 'bits'
     if profiles != [profile]: raise Unsupported('incompatible input profiles')
@@ -99,18 +101,18 @@ class Inputs:
         self.registers, self.memory = {}, []
         self.bank = bank
 
-    def operand(self, names, value, reg):
+    def operand(self, names, value, reg, size=4):
         name = source(self.k, *names)
         if name is None: raise Unsupported('unsupported operand layout: ' + '/'.join(names))
         kind = self.k.operand_types[name].type
         if kind == 'CX':
-            fs, rs, ms = cx_source(self.c.arch, self.k, name, value, ur=10)
+            fs, rs, ms = cx_source(self.c.arch, self.k, name, value, ur=10, size=size)
             self.fields.update(fs); self.registers.update(rs); self.memory.extend(ms)
         else:
             # Signed immediates encode the signed interpretation of the same input bits.
             value = integer.sext(value, 32) if kind == 'SImm' else value
             if not put(self.k, name, value, self.fields, self.registers, self.memory, reg,
-                       bank=self.bank or (2, reg * 4), imm=('SImm', 'UImm')):
+                       bank=self.bank or (2, reg * 4), imm=('SImm', 'UImm'), size=size):
                 raise Unsupported('unsupported source type: ' + kind)
         return name
 
@@ -136,6 +138,39 @@ class Inputs:
         if decoded.klass.name != self.k.name or settings(self.c.arch, decoded) != form:
             raise Unsupported('encoded instruction does not preserve the requested class/form')
         self.c.add(self.k.name, self.fields, self.registers, expected, memory=self.memory)
+
+
+def scalar_cases(c, k, form, profiles):
+    """Bit-mask, absolute-value and bit-preserving moves, including register pairs."""
+    op = k.mnemonic
+    allowed = {'cw'} if op == 'BMSK' else {'size'} if op in ('MOV', 'UMOV') else set()
+    if set(form) - allowed: raise Unsupported('unhandled modifiers: ' + ', '.join(sorted(set(form) - allowed)))
+    if op == 'BMSK':
+        if form.get('cw') not in ('C', 'W'): raise Unsupported('unknown BMSK mode')
+        for j, (a, b, *_) in enumerate(vector for profile in profiles for vector in autocase_profiles.vectors(profile)):
+            s = Inputs(c, k, form)
+            s.operand(('Ra',), a, 4); s.operand(('Sb', 'Rb', 'URb'), b, 6)
+            s.add({s.output(('Rd',), (4, 6, 2)[j % 3]):integer.bmsk(a, b, form['cw'])}, form)
+    else:
+        width = 64 if form.get('size') == '64' else 32
+        if form.get('size', '32') not in ('32', '64'): raise Unsupported('unknown move width')
+        src = source(k, 'Sb', 'Rb', 'URb')
+        if src is None: raise Unsupported('unsupported move/absolute source')
+        if width == 64 and k.operand_types[src].type not in ('Register', 'UniformRegister'):
+            raise Unsupported('64-bit moves need a register-pair source')
+        for j, value in enumerate(value for profile in profiles for value in autocase_profiles.values(profile)):
+            s = Inputs(c, k, form)
+            s.operand((src,), value, 4, size=width // 8)
+            if 'PixMaskU04' in k.operand_types: s.fields['PixMaskU04'] = 15
+            rd = 4 if j & 1 else 2
+            name = s.output(('Rd', 'URd'), rd)
+            result = integer.iabs(value) if op == 'IABS' else integer.mov(value, width)
+            expected = {name:result & 0xffffffff}
+            if width == 64:
+                prefix = 'UR' if name.startswith('UR') else 'R'
+                expected[prefix + str(rd + 1)] = result >> 32
+            s.add(expected, form)
+    return c
 
 
 def integer_cases(c, k, form, profiles):

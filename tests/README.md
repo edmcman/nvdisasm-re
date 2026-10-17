@@ -242,8 +242,9 @@ Plans are committed for all ten supported architectures; regenerate each affecte
 Plans store class/form choices, named input profiles and native assertions, not
 captured outputs. The normal `emulator_cases` loader expands them into shared cases for Python, Ghidra, and the GPU, calculating
 expectations from the independent references at runtime. Plans cover BREV, POPC,
-SGXT, PRMT, UPRMT, ISETP, UISETP, IMNMX, SEL, USEL, IDP, SHF and USHF through
-`harness/autocases.py`. The planner routes IDP cases to `int_simd` and the other
+SGXT, PRMT, UPRMT, ISETP, UISETP, IMNMX, SEL, USEL, IDP, SHF, USHF, IABS,
+UMOV, BMSK and MOV register-pair forms through
+`harness/autocases.py`. The planner routes IDP cases to `int_simd`, BMSK to `bmsk`, and the other
 operations to `int_alu`. Comparison cases exercise both predicate outputs, .EX's
 low-word result, signed boundaries, predicate inversion and input/output aliases.
 Dot-product cases cover lane signedness and negated accumulators; funnel shifts
@@ -262,6 +263,12 @@ registers and p-code costs, ISETP's constant PT input, SHF p-code cost, IDP CX
 descriptor/header regressions,
 and opaque IMNMX outputs on newer architectures. Operations without adapters remain
 manual until an independent reference and operand setup support migration.
+BMSK profiles preserve the complete 0..33 position/width domain and seeded edge
+pairs. Its manual cases retain descriptor bounds, unusual headers, special
+registers and guard behavior. IABS profiles include the signed minimum and the
+former random inputs; UMOV retains explicit p-code cost tests. MOV/UMOV register-pair
+profiles verify both words; partially modelled pixel-mask forms stay manual and
+unresolved in the planner.
 Hand-calculated PRMT examples also check the reference directly in `test_refs.py`.
 
 The JSON report counts manual, generated, blocked, and unresolved forms. Unsupported

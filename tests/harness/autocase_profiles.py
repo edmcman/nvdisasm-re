@@ -1,8 +1,9 @@
 """Declarative input corpora shared by every architecture's generated form plan.
 
-The seeds and edge lists preserve the ordinary cases formerly in int_alu/int_simd.
+The seeds and edge lists preserve the ordinary cases formerly in int_alu/int_simd/bmsk.
 Reference calculations and operand placement belong to autocases, not these profiles.
 """
+import itertools
 import random
 from functools import cache
 
@@ -12,6 +13,15 @@ VECTORS = ((0, 0, 0, 0, 0), (0, 0, 1, 0, 1), (0, 0, MASK32, 1, 0), (0, 0, 0x8000
            (MASK32, 0, 0x12345678, 1, 1), (0x807f01ff, 0x7f80ff00, 0x10203040, 0, 0))
 
 PROFILES = {
+    'absolute': dict(values=(0, 1, 0xffffffff, 0x7fffffff, 0x80000000, 0x80000001),
+                     random=('int_alu', 20), component=1),
+    'move32': dict(values=(0, 1, 0xffffffff, 0x7fffffff, 0x80000000, 0x01234567, 0xaaaaaaaa),
+                   random=('uniform', 12), component=1),
+    'move64': dict(values=(0, 1, 0xffffffff, 0x100000000, 0x8000000000000000,
+                          0xffffffffffffffff, 0x0123456789abcdef, 0xffffffff00000000)),
+    'mask_edges': dict(pairs=tuple(itertools.product((0, 1, 15, 30, 31, 32, 33, 63, 64, 0x7fffffff, 0x80000000, MASK32), repeat=2)),
+                       random=(18, 32)),
+    'mask_domain': dict(pairs=tuple(itertools.product(range(34), repeat=2))),
     'bits': dict(values=(0, 1, 0x80000000, MASK32, 0x01234567, 0xaaaaaaaa, 0x55555555, 0x80000001, 0x80ff017f),
                  random=('brev_popc', 20), banks=((2, 16), (3, 24))),
     'sgxt': dict(values=(0, 1, 0x7f, 0x80, 0xff, 0x7fffffff, 0x80000000, MASK32, 0x80ff017f, 0x55555555),
@@ -41,6 +51,7 @@ PROFILES = {
 # Supplements preserve seeded/manual input strategies on representative forms without
 # multiplying random sweeps across the entire modifier product.
 SUPPLEMENTS = (
+    ('bmsk__RRR_RRR', {}, 'mask_domain'),
     ('sel__RRR_RRR', {'Pp@not':'unset'}, 'select_random'),
     ('imnmx__RRR_RRR', {'fmt':'U32', 'Pp@not':'unset'}, 'minmax_random'),
     ('usel__URURUR_UUU', {}, 'carry_select'),
@@ -54,7 +65,10 @@ SUPPLEMENTS = (
 
 
 def names(op, cls, form):
-    if op in ('BREV', 'POPC', 'FLO'): out = ['bits']
+    if op == 'IABS': out = ['absolute']
+    elif op in ('MOV', 'UMOV'): out = ['move64' if form.get('size') == '64' else 'move32']
+    elif op == 'BMSK': out = ['mask_edges']
+    elif op in ('BREV', 'POPC', 'FLO'): out = ['bits']
     elif op == 'SGXT': out = ['sgxt']
     elif op in ('PRMT', 'UPRMT'): out = ['permutation']
     elif op in ('SHF', 'USHF'): out = ['shift_edges']
@@ -72,7 +86,8 @@ def values(name):
     out = list(spec.get('values', spec.get('words', ())))
     if 'random' in spec:
         seed, count = spec['random']; rng = random.Random(seed)
-        out += [rng.getrandbits(32) for _ in range(count)]
+        out += [tuple(rng.getrandbits(32) for _ in range(3))[spec['component']] if 'component' in spec
+                else rng.getrandbits(32) for _ in range(count)]
     return tuple(out)
 
 
@@ -80,6 +95,12 @@ def values(name):
 def vectors(name):
     spec = PROFILES[name]
     if 'vectors' in spec: return spec['vectors']
+    if 'pairs' in spec:
+        pairs = list(spec['pairs'])
+        if 'random' in spec:
+            seed, count = spec['random']; rng = random.Random(seed)
+            pairs += [(rng.getrandbits(32), rng.getrandbits(32)) for _ in range(count)]
+        return tuple((a, b, 0, 0, 0) for a, b in pairs)
     if 'offsets' in spec:
         words = values(name); b, c = spec['offsets']
         return tuple((a, words[(j + b) % len(words)], words[(j + c) % len(words)], 0, 0) for j, a in enumerate(words))

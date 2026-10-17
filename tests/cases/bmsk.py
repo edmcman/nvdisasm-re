@@ -2,27 +2,15 @@
 import itertools, random
 from tests.harness.case import cbank, cx_header, ram
 from tests.refs.integer import bmsk
+from tests.harness.manual import retained
 
 CX_CLASS = "bmsk__RCxR_RCxR"
 CX_ARCHES = ("SM75", "SM80", "SM86", "SM89", "SM90")
 CX_WIDTHS = [0, 1, 2, 15, 31, 32, 33, 63, 64, 0x7fffffff, 0x80000000, 0xffffffff]
 
 
+@retained("Explicit RZ/URZ encodings, same-input registers, destination discard, and guard predicate behavior.")
 def direct(c):
-    edges = [0, 1, 15, 30, 31, 32, 33, 63, 64, 0x7fffffff, 0x80000000, 0xffffffff]
-    rng = random.Random(18)
-    varied = list(itertools.product(edges, repeat=2)) + [(rng.getrandbits(32), rng.getrandbits(32)) for _ in range(32)]
-    for cls, shape in [("bmsk__RRR_RRR", "R"), ("bmsk__RUR_RUR", "UR"), ("bmsk__RuIR_RIR", "I"), ("bmsk__RCR_RCR", "C")]:
-        vectors = list(itertools.product(range(34), repeat=2)) + varied if shape == "R" else varied
-        for mode in ("C", "W"):
-            for i, (a, n) in enumerate(vectors):
-                rd = (2, 4, 8)[i % 3]; fields = dict(Rd=rd, Ra=2, cw=mode); regs = dict(R2=a); extras = {}
-                match shape:
-                    case "R": fields["Rb"] = 4; regs["R4"] = n
-                    case "UR": fields["URb"] = 4; regs["UR4"] = n
-                    case "I": fields["Sb"] = n
-                    case "C": fields.update(Sb_bank=2, Sb_addr=16); extras["memory"] = [cbank(2, 16, n)]
-                c.add(cls, fields, regs, {f"R{rd}": bmsk(a, n, mode), "__native": True}, inspect_pcode=True, **extras)
     for mode in ("C", "W"):
         for a, n in [(0, 0), (31, 32), (32, 33), (0xffffffff, 0xffffffff)]:
             c.add("bmsk__RRR_RRR", dict(Rd=8, Ra="RZ", Rb=4, cw=mode), dict(R4=n), dict(R8=bmsk(0, n, mode), __native=True), inspect_pcode=True)
@@ -36,6 +24,7 @@ def direct(c):
                   inspect_pcode=True)
 
 
+@retained("CX descriptor bounds, high bases, offsets and header registers need explicit memory-context regressions.")
 def cx(c):
     """The CX header holds a base and a size in 16-byte units; loads past the size read 0."""
     if c.arch not in CX_ARCHES: return

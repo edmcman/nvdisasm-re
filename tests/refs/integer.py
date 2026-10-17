@@ -38,6 +38,17 @@ def shf(a, count, c, fmt, direction, mode, half):
     return result
 
 
+def iabs(value):
+    """32-bit two's-complement absolute value; INT_MIN wraps to its original bits."""
+    return abs(sext(value, 32)) & MASK32
+
+
+def mov(value, width=32):
+    """Copy a word or register pair without changing its bits."""
+    if width not in (32, 64): raise ValueError('unsupported move width')
+    return value & ((1 << width) - 1)
+
+
 def brev(value): return sum(((value >> bit) & 1) << (31 - bit) for bit in range(32))
 
 
