@@ -1,10 +1,10 @@
 {
   "counts": {
     "legal": 2900674,
-    "unresolved_semantics": 2313005,
-    "manual": 3020,
-    "blocked": 582761,
-    "generated": 1888
+    "unresolved_semantics": 2310989,
+    "manual": 3289,
+    "blocked": 584546,
+    "generated": 1850
   },
   "gaps": [
     {
@@ -769,8 +769,8 @@
     },
     {
       "cls": "dadd__RRCx_RCx",
-      "count": 64,
-      "reason": "unresolved semantics"
+      "count": 63,
+      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "dadd__RRR_RR",
@@ -804,8 +804,8 @@
     },
     {
       "cls": "dfma__RCxR_RCxR",
-      "count": 256,
-      "reason": "unresolved semantics"
+      "count": 255,
+      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "dfma__RRC_RRC",
@@ -814,8 +814,8 @@
     },
     {
       "cls": "dfma__RRCx_RRCx",
-      "count": 256,
-      "reason": "unresolved semantics"
+      "count": 255,
+      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "dfma__RRR_RRR",
@@ -854,8 +854,8 @@
     },
     {
       "cls": "dmul__RCxR_RCx",
-      "count": 64,
-      "reason": "unresolved semantics"
+      "count": 63,
+      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "dmul__RRR_RR",
@@ -884,7 +884,12 @@
     },
     {
       "cls": "dsetp__RRCx_RCx",
-      "count": 1536,
+      "count": 1343,
+      "reason": "needs a reference/operand adapter"
+    },
+    {
+      "cls": "dsetp__RRCx_RCx",
+      "count": 192,
       "reason": "unresolved semantics"
     },
     {
@@ -1044,7 +1049,12 @@
     },
     {
       "cls": "f2f_f64_downconvert__RCXR_RCXR",
-      "count": 64,
+      "count": 31,
+      "reason": "needs a reference/operand adapter"
+    },
+    {
+      "cls": "f2f_f64_downconvert__RCXR_RCXR",
+      "count": 32,
       "reason": "unresolved semantics"
     },
     {
@@ -2923,108 +2933,23 @@
       "reason": "needs a reference/operand adapter"
     },
     {
-      "cls": "imad__RCR_RCR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad__RCxR_RCxR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad__RRC_RRC",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad__RRCx_RRCx",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad__RRR_RRR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad__RRU_RRU",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad__RRsI_RRI",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad__RUR_RUR",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad__RsIR_RIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_hi__RCR_RCR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_hi__RCxR_RCxR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_hi__RRC_RRC",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_hi__RRCx_RRCx",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_hi__RRR_RRR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_hi__RRU_RRU",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_hi__RUR_RUR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_hi__RsIR_RIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "imad_hi_x__RCR_RCR",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "imad_hi_x__RCxR_RCxR",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "imad_hi_x__RRC_RRC",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "imad_hi_x__RRCx_RRCx",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
@@ -3034,17 +2959,17 @@
     },
     {
       "cls": "imad_hi_x__RRU_RRU",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "imad_hi_x__RUR_RUR",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "imad_hi_x__RsIR_RIR",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
@@ -3073,63 +2998,23 @@
       "reason": "needs a reference/operand adapter"
     },
     {
-      "cls": "imad_wide__RCR_RCR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_wide__RCxR_RCxR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_wide__RRC_RRC",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_wide__RRCx_RRCx",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_wide__RRR_RRR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_wide__RRU_RRU",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_wide__RUR_RUR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_wide__RsIR_RIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "imad_wide_x__RCR_RCR",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "imad_wide_x__RCxR_RCxR",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "imad_wide_x__RRC_RRC",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "imad_wide_x__RRCx_RRCx",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
@@ -3139,37 +3024,37 @@
     },
     {
       "cls": "imad_wide_x__RRU_RRU",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "imad_wide_x__RUR_RUR",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "imad_wide_x__RsIR_RIR",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "imad_x__RCR_RCR",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "imad_x__RCxR_RCxR",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "imad_x__RRC_RRC",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "imad_x__RRCx_RRCx",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
@@ -3179,22 +3064,22 @@
     },
     {
       "cls": "imad_x__RRU_RRU",
-      "count": 8,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_x__RRsI_RRI",
       "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
+      "cls": "imad_x__RRsI_RRI",
+      "count": 2,
+      "reason": "needs a reference/operand adapter"
+    },
+    {
       "cls": "imad_x__RUR_RUR",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "imad_x__RsIR_RIR",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
@@ -4858,18 +4743,13 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "uiadd3__URURUR_URURUR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "uiadd3__URsIUR_RIR",
       "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "uiadd3_x__URURUR_URURUR",
-      "count": 23,
+      "count": 18,
       "reason": "needs a reference/operand adapter"
     },
     {
@@ -4878,53 +4758,28 @@
       "reason": "needs a reference/operand adapter"
     },
     {
-      "cls": "uimad__URURUR_URURUR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "uimad__URURsI_URURI",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "uimad__URsIUR_URIUR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "uimad_wide__URURUR_URURUR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "uimad_wide__URsIUR_URIUR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "uimad_wide_x__URURUR_URURUR",
-      "count": 7,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "uimad_wide_x__URsIUR_URIUR",
-      "count": 8,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "uimad_x__URURUR_URURUR",
-      "count": 7,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "uimad_x__URURsI_URURI",
       "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
+      "cls": "uimad_x__URURUR_URURUR",
+      "count": 4,
+      "reason": "needs a reference/operand adapter"
+    },
+    {
+      "cls": "uimad_x__URURsI_URURI",
+      "count": 2,
+      "reason": "needs a reference/operand adapter"
+    },
+    {
       "cls": "uimad_x__URsIUR_URIUR",
-      "count": 8,
+      "count": 4,
       "reason": "needs a reference/operand adapter"
     },
     {
@@ -4983,23 +4838,13 @@
       "reason": "needs a reference/operand adapter"
     },
     {
-      "cls": "ulea_hi_noimm__URURUR_URURUR",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ulea_hi_noimm_sx32__URURUR_URURUR",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "ulea_hi_noimm_sx32_x__URURUR_URURUR",
-      "count": 6,
+      "count": 3,
       "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "ulea_hi_noimm_x__URURUR_URURUR",
-      "count": 5,
+      "count": 3,
       "reason": "needs a reference/operand adapter"
     },
     {
@@ -5013,13 +4858,8 @@
       "reason": "needs a reference/operand adapter"
     },
     {
-      "cls": "ulea_lo_noimm__URURUR_URURUR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "ulea_lo_noimm_x__URURUR_URURUR",
-      "count": 5,
+      "count": 3,
       "reason": "needs a reference/operand adapter"
     },
     {
