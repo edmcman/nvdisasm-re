@@ -12,7 +12,7 @@ from tests.harness.gpu import Driver
 
 CLASSES = ("zero", "subnormal", "normal", "inf", "nan")
 CAP = 64  # distances above this share the last histogram bucket
-OUT = Path(__file__).parent
+OUT = Path(__file__).parents[2] / "tests" / "refs"  # the results are reference data
 
 
 def classify(u, exponent_bits, fraction_bits):
@@ -114,8 +114,8 @@ def main():
                 if c % 64 == 0: print(f"{op} chunk {c}/{chunks} {time.time() - t0:.0f}s", flush=True)
             runner.close(); results[op] = stats.summary(); print(op, "done", f"{time.time() - t0:.0f}s", flush=True)
             if a.limit_chunks is None:
-                (OUT / "survey.json").write_text(json.dumps(results, indent=1) + "\n")
-                (OUT / "samples.json").write_text(json.dumps(dict(inputs="".join(f"{x:08x}" for x in samples), outputs={k: "".join(f"{x:08x}" for x in v) for k, v in sampled.items()})) + "\n")
+                (OUT / "mufu_survey.json").write_text(json.dumps(results, indent=1) + "\n")
+                (OUT / "mufu_samples.json").write_text(json.dumps(dict(inputs="".join(f"{x:08x}" for x in samples), outputs={k: "".join(f"{x:08x}" for x in v) for k, v in sampled.items()})) + "\n")
     finally: driver.close()
     if a.limit_chunks is not None: print(json.dumps(results, indent=1))
 

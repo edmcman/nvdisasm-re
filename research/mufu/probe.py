@@ -17,8 +17,8 @@ def mufu_fixture(op, inputs=(0, 0, 0, 0)):
 class Runner:
     """One loaded MUFU kernel and reusable device buffers for chunks of `n` inputs."""
 
-    def __init__(self, driver, op, n):
-        f = mufu_fixture(op, [0] * 32)
+    def __init__(self, driver, op, n, word=None):
+        f = mufu_fixture(op, [0] * 32) if word is None else variable_latency_fixture(f"mufu_{op}", word, [(0, 0, 0)] * 32, None)
         self.d, self.n = driver, n
         self.module, self.fn = C.c_void_p(), C.c_void_p()
         d = driver

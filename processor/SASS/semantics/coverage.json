@@ -40390,8 +40390,8 @@
         "reference": 1
       },
       "MATCH": {
-        "gpu": 3,
-        "none": 1
+        "none": 1,
+        "reference": 3
       },
       "MOV": {
         "gpu": 3,
@@ -40399,8 +40399,8 @@
         "reference": 1
       },
       "MUFU": {
-        "none": 433,
-        "reference": 1
+        "gpu": 10,
+        "none": 424
       },
       "NOP": {
         "none": 1
@@ -40436,8 +40436,8 @@
         "gpu": 1
       },
       "REDUX": {
-        "gpu": 8,
-        "none": 4
+        "none": 4,
+        "reference": 8
       },
       "RET": {
         "none": 6,
@@ -40464,8 +40464,8 @@
         "reference": 31
       },
       "SHFL": {
-        "gpu": 4,
-        "none": 12
+        "none": 12,
+        "reference": 4
       },
       "ST": {
         "gpu": 3,
@@ -40557,12 +40557,12 @@
         "reference": 24
       },
       "VOTE": {
-        "gpu": 1,
-        "none": 5
+        "none": 5,
+        "reference": 1
       },
       "VOTEU": {
-        "gpu": 4,
-        "none": 2
+        "none": 2,
+        "reference": 4
       },
       "WARPSYNC": {
         "none": 11,
@@ -41144,9 +41144,9 @@
       }
     },
     "evidence": {
-      "gpu": 131,
+      "gpu": 126,
       "none": 349,
-      "reference": 188
+      "reference": 193
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -41464,7 +41464,7 @@
         "none": 3
       },
       "MATCH": {
-        "gpu": 2
+        "reference": 2
       },
       "MOV": {
         "gpu": 3,
@@ -41472,8 +41472,8 @@
         "reference": 1
       },
       "MUFU": {
-        "none": 9,
-        "reference": 1
+        "gpu": 1,
+        "none": 9
       },
       "NOP": {
         "none": 1
@@ -41506,7 +41506,7 @@
         "gpu": 1
       },
       "REDUX": {
-        "gpu": 1
+        "reference": 1
       },
       "RET": {
         "none": 2,
@@ -41532,8 +41532,8 @@
         "none": 7
       },
       "SHFL": {
-        "gpu": 1,
-        "none": 3
+        "none": 3,
+        "reference": 1
       },
       "ST": {
         "gpu": 1,
@@ -41620,10 +41620,10 @@
         "reference": 6
       },
       "VOTE": {
-        "gpu": 1
+        "reference": 1
       },
       "VOTEU": {
-        "gpu": 1
+        "reference": 1
       },
       "WARPSYNC": {
         "none": 4,
@@ -42855,8 +42855,8 @@
         "reference": 1
       },
       "MATCH": {
-        "gpu": 3,
-        "none": 1
+        "none": 1,
+        "reference": 3
       },
       "MOV": {
         "gpu": 3,
@@ -42864,8 +42864,8 @@
         "reference": 1
       },
       "MUFU": {
-        "none": 433,
-        "reference": 1
+        "gpu": 10,
+        "none": 424
       },
       "NOP": {
         "none": 1
@@ -42901,8 +42901,8 @@
         "gpu": 1
       },
       "REDUX": {
-        "gpu": 8,
-        "none": 4
+        "none": 4,
+        "reference": 8
       },
       "RET": {
         "none": 6,
@@ -42929,8 +42929,8 @@
         "reference": 31
       },
       "SHFL": {
-        "gpu": 4,
-        "none": 12
+        "none": 12,
+        "reference": 4
       },
       "ST": {
         "gpu": 3,
@@ -43022,12 +43022,12 @@
         "reference": 24
       },
       "VOTE": {
-        "gpu": 1,
-        "none": 5
+        "none": 5,
+        "reference": 1
       },
       "VOTEU": {
-        "gpu": 4,
-        "none": 2
+        "none": 2,
+        "reference": 4
       },
       "WARPSYNC": {
         "none": 11,
@@ -43606,9 +43606,9 @@
       }
     },
     "evidence": {
-      "gpu": 131,
+      "gpu": 126,
       "none": 349,
-      "reference": 188
+      "reference": 193
     },
     "opaque_operations": {
       "bra_uniform_": "uniform target or predicate",
@@ -43926,7 +43926,7 @@
         "none": 3
       },
       "MATCH": {
-        "gpu": 2
+        "reference": 2
       },
       "MOV": {
         "gpu": 3,
@@ -43934,8 +43934,8 @@
         "reference": 1
       },
       "MUFU": {
-        "none": 9,
-        "reference": 1
+        "gpu": 1,
+        "none": 9
       },
       "NOP": {
         "none": 1
@@ -43968,7 +43968,7 @@
         "gpu": 1
       },
       "REDUX": {
-        "gpu": 1
+        "reference": 1
       },
       "RET": {
         "none": 2,
@@ -43994,8 +43994,8 @@
         "none": 7
       },
       "SHFL": {
-        "gpu": 1,
-        "none": 3
+        "none": 3,
+        "reference": 1
       },
       "ST": {
         "gpu": 1,
@@ -44082,10 +44082,10 @@
         "reference": 6
       },
       "VOTE": {
-        "gpu": 1
+        "reference": 1
       },
       "VOTEU": {
-        "gpu": 1
+        "reference": 1
       },
       "WARPSYNC": {
         "none": 4,
