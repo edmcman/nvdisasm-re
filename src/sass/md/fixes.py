@@ -11,6 +11,11 @@ PREDICATES = [
      "forms say 64, SM86+ say 64 for exactly these classes (plain IMAD stays 32), and ptxas adds a "
      "64-bit pointer parameter with `IMAD.WIDE.U32 R2, R2, R3, c[0x0][0x160]` then `STG [R2]` "
      "(sm_75 and sm_80, 2026-10-14)."),
+    (("SM75", "SM80"), ("f2f_f64_downconvert__RCR_RCR",), "ISRC_B_SIZE", 64,
+     "F2F.F32/F16.F64's c[][] source is a 64-bit double: the md says 32 here, but the register, uniform and "
+     "cx[][] forms say 64, SM86+ say 64 for this class, and ptxas converts an .f64 kernel parameter in place "
+     "with `F2F.F32.F64 R0, c[0x0][0x160]`, the next parameter at 0x168 (sm_75 and sm_80, "
+     "tests/ptx/f2f/, 2026-10-17)."),
 ]
 
 

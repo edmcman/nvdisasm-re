@@ -1,7 +1,7 @@
 """Scalar integer and bit operations: IMAD/IADD3/LOP3/LEA/SHF/ISETP/PRMT, uniform aliases,
 BREV/POPC/FLO/SGXT and MOV."""
 import itertools, random
-from tests.harness.case import cbank, put, source
+from tests.harness.case import cbank, put, source, flagged
 from tests.refs.bits import MASK32, MASK64, sext
 from tests.refs.integer import COMPARISONS, brev, combine, compare, flo, prmt, sgxt
 
@@ -20,14 +20,14 @@ def bit_ops(c):
             if k.operand_types[src].type == "C":
                 for bank, offset, value in ((2, 16, 0x01234567), (3, 24, 0x80000001)):
                     fields = {"Rd": 2, "Sb_bank": bank, "Sb_addr": offset}
-                    if "Sb@invert" in k.operand_types: fields["Sb@invert"] = 1; value_in = ~value & MASK32
+                    if flagged(k, "Sb", "invert"): fields["Sb@invert"] = 1; value_in = ~value & MASK32
                     else: value_in = value
                     c.add(k.name, fields, {}, {"R2": ref(value_in), "__native": True}, memory=[cbank(bank, offset, value)])
                 continue
             for i, value in enumerate(vectors):
                 fields, regs = {"Rd": 2}, {}
                 put(k, src, value, fields, regs, [], 4, imm=(k.operand_types[src].type,))
-                if i == 1 and src + "@invert" in k.operand_types: fields[src + "@invert"] = 1; value = ~value & MASK32
+                if i == 1 and flagged(k, src, "invert"): fields[src + "@invert"] = 1; value = ~value & MASK32
                 c.add(k.name, fields, regs, {"R2": ref(value), "__native": True})
     # FLO returns the highest set-bit index, .SH the normalization shift; zero gives -1; .S32
     # searches the complement of negative values.
