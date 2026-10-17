@@ -10,7 +10,7 @@ from tests.harness import autocase_profiles
 
 PLANS = ROOT / 'tests/cases/generated'
 OPS = {'BREV', 'POPC', 'FLO', 'SGXT', 'PRMT', 'UPRMT', 'IABS', 'MOV', 'UMOV', 'BMSK'}
-INTEGER_OPS = {'ISETP', 'UISETP', 'IMNMX', 'SEL', 'USEL', 'IDP', 'SHF', 'USHF'}
+INTEGER_OPS = {'ISETP', 'UISETP', 'IMNMX', 'SEL', 'USEL', 'IDP', 'SHF', 'USHF', 'LOP3', 'ULOP3'}
 PACKED_OPS = {'VIMNMX', 'VISET', 'VIADDMNMX', 'VIMNMX3'}
 INTEGER_OPS |= PACKED_OPS
 FAMILIES = {op: 'int_simd' if op in PACKED_OPS | {'IDP'} else 'bmsk' if op == 'BMSK' else 'int_alu' for op in OPS | INTEGER_OPS}
@@ -33,6 +33,7 @@ def generate(arch, cls, form, fp='exact', profiles=None, native=True):
         raise Unsupported('empty or unknown input profile')
     if k.mnemonic in ('IABS', 'MOV', 'UMOV', 'BMSK'):
         return finish(scalar_cases(c, k, form, profiles), native)
+    if k.mnemonic in ('LOP3', 'ULOP3'): return finish(logic_cases(c, k, form, profiles), native)
     if k.mnemonic in PACKED_OPS: return finish(packed_cases(c, k, form, profiles), native)
     if k.mnemonic in INTEGER_OPS: return finish(integer_cases(c, k, form, profiles), native)
     profile = 'permutation' if k.mnemonic in ('PRMT', 'UPRMT') else 'sgxt' if k.mnemonic == 'SGXT' else 'bits'
@@ -173,6 +174,30 @@ def scalar_cases(c, k, form, profiles):
                 prefix = 'UR' if name.startswith('UR') else 'R'
                 expected[prefix + str(rd + 1)] = result >> 32
             s.add(expected, form)
+    return c
+
+
+def logic_cases(c, k, form, profiles):
+    p = source(k, 'Pp', 'UPp')
+    if p is None: raise Unsupported('unsupported logic predicate layout')
+    if set(form) - {'pop', p + '@not'}: raise Unsupported('unhandled logic modifiers')
+    if form.get('pop') not in ('POR', 'PAND'): raise Unsupported('unsupported logic predicate combiner')
+    index = 0
+    for profile in profiles:
+        spec = autocase_profiles.PROFILES[profile]
+        if not spec.get('selectors'): raise Unsupported('logic profiles need truth-table selectors')
+        for a, b, acc, pred, _ in autocase_profiles.vectors(profile):
+            for table in spec['selectors']:
+                s = Inputs(c, k, form)
+                s.operand(('Ra', 'URa'), a, 4); s.operand(('Sb', 'Rb', 'URb'), b, 6)
+                s.operand(('Sc', 'Rc', 'URc'), acc, 8)
+                s.predicate((p,), pred, 0)
+                s.fields['imm8'] = table
+                result, output = integer.lop3(a, b, acc, table, pred ^ (form.get(p + '@not') == 'set'), form['pop'])
+                expected = {s.output(('Rd', 'URd'), (4, 6, 8, 2)[index % 4]):result,
+                            s.output(('Pu', 'UPu'), index % 2):output}
+                s.add(expected, form)
+                index += 1
     return c
 
 

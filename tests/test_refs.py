@@ -101,3 +101,16 @@ def test_move_preserves_high_word():
     from tests.refs import integer
     assert integer.mov(0x8123456789abcdef, 64) == 0x8123456789abcdef
     assert integer.mov(0x8123456789abcdef, 32) == 0x89abcdef
+
+
+def test_lop3_complete_bit_sliced_truth_tables():
+    from tests.refs.integer import lop3
+    # Each byte contains all eight Boolean input combinations, in LUT-bit order.
+    for table in range(256):
+        result, predicate = lop3(0xf0f0f0f0, 0xcccccccc, 0xaaaaaaaa, table, 0, 'POR')
+        assert result == table * 0x01010101
+        assert predicate == int(table != 0)
+    for table, nonzero in ((0, 0), (0xff, 1)):
+        for pred in (0, 1):
+            assert lop3(0, 0, 0, table, pred, 'POR')[1] == (nonzero | pred)
+            assert lop3(0, 0, 0, table, pred, 'PAND')[1] == (nonzero & pred)

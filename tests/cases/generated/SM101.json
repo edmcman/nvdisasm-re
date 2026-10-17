@@ -15200,6 +15200,164 @@
     },
     {
       "family": "int_alu",
+      "cls": "lop3_lut__RRR_RRR",
+      "settings": {
+        "pop": "POR",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges",
+        "logic_legacy",
+        "logic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "lop3_lut__RRR_RRR",
+      "settings": {
+        "pop": "POR",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "lop3_lut__RRR_RRR",
+      "settings": {
+        "pop": "PAND",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "lop3_lut__RRR_RRR",
+      "settings": {
+        "pop": "PAND",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "lop3_lut__RUR_RUR",
+      "settings": {
+        "pop": "POR",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "lop3_lut__RUR_RUR",
+      "settings": {
+        "pop": "POR",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "lop3_lut__RUR_RUR",
+      "settings": {
+        "pop": "PAND",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "lop3_lut__RUR_RUR",
+      "settings": {
+        "pop": "PAND",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "lop3_lut__RuIR_RIR",
+      "settings": {
+        "pop": "POR",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "lop3_lut__RuIR_RIR",
+      "settings": {
+        "pop": "POR",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "lop3_lut__RuIR_RIR",
+      "settings": {
+        "pop": "PAND",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "lop3_lut__RuIR_RIR",
+      "settings": {
+        "pop": "PAND",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
       "cls": "popc__RRR_RRR",
       "settings": {
         "Rb@invert": "unset"
@@ -27525,6 +27683,111 @@
       "profiles": [
         "integer_edges",
         "comparison_legacy"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "ulop3_lut__URURUR_URURUR",
+      "settings": {
+        "pop": "POR",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges",
+        "uniform_logic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "ulop3_lut__URURUR_URURUR",
+      "settings": {
+        "pop": "POR",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "ulop3_lut__URURUR_URURUR",
+      "settings": {
+        "pop": "PAND",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "ulop3_lut__URURUR_URURUR",
+      "settings": {
+        "pop": "PAND",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "ulop3_lut__URuIUR_URIR",
+      "settings": {
+        "pop": "POR",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "ulop3_lut__URuIUR_URIR",
+      "settings": {
+        "pop": "POR",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "ulop3_lut__URuIUR_URIR",
+      "settings": {
+        "pop": "PAND",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "ulop3_lut__URuIUR_URIR",
+      "settings": {
+        "pop": "PAND",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "logic_domain",
+        "logic_edges"
       ],
       "native": true
     },

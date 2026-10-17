@@ -22,6 +22,18 @@ def isetp(a, b, comparison, bop, predicate, signed=False, low=None):
     return combine(condition, predicate, bop), combine(not condition, predicate, bop)
 
 
+def lop3(a, b, c, table, predicate, pop):
+    """PTX lop3: bit 4*a+2*b+c selects a LUT bit; .and/.or combines
+    the nonzero result with the predicate input (SASS PAND/POR).
+    NVIDIA PTX ISA: Logic and Shift Instructions, lop3."""
+    if not 0 <= table < 256: raise ValueError('invalid 8-bit truth table')
+    result = 0
+    for bit in range(32):
+        index = 4 * ((a >> bit) & 1) + 2 * ((b >> bit) & 1) + ((c >> bit) & 1)
+        result |= ((table >> index) & 1) << bit
+    return result, combine(result != 0, predicate, {'PAND':'AND', 'POR':'OR'}[pop])
+
+
 def shf(a, count, c, fmt, direction, mode, half):
     """Select a word from a shifted {c,a} bit string (the existing SHF case definition).
     Enumerate source bit positions; a signed right shift extends bit 63."""

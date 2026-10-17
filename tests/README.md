@@ -243,7 +243,7 @@ Plans store class/form choices, named input profiles and native assertions, not
 captured outputs. The normal `emulator_cases` loader expands them into shared cases for Python, Ghidra, and the GPU, calculating
 expectations from the independent references at runtime. Plans cover BREV, POPC,
 SGXT, PRMT, UPRMT, ISETP, UISETP, IMNMX, SEL, USEL, IDP, SHF, USHF, IABS,
-UMOV, BMSK, VIMNMX, VISET, VIADDMNMX, VIMNMX3 and MOV register-pair forms through
+UMOV, BMSK, VIMNMX, VISET, VIADDMNMX, VIMNMX3, LOP3, ULOP3 and MOV register-pair forms through
 `harness/autocases.py`. The planner routes IDP and packed-integer cases to `int_simd`, BMSK to `bmsk`, and the other
 operations to `int_alu`. Comparison cases exercise both predicate outputs, .EX's
 low-word result, signed boundaries, predicate inversion and input/output aliases.
@@ -274,6 +274,11 @@ They exercise every supported lane width, signedness, comparison, predicate inve
 and RELU form, with destination aliases. Three-input profiles also exercise
 modular lane addition, B-source negation, three-way min/max and aliases with each source. VIMNMX forms with unresolved predicate
 outputs retain explicit PT-only manual coverage.
+LOP3/ULOP3 profiles cover all 256 truth tables with all eight Boolean input
+combinations packed into each byte. Edge and seeded profiles check zero/nonzero
+predicate results, POR/PAND, predicate inversion, register aliases and the former
+manual selector/random corpora. Constant PT/UPT inputs and the XOR p-code cost
+contract remain explicit manual regressions.
 Hand-calculated PRMT examples also check the reference directly in `test_refs.py`.
 
 The JSON report counts manual, generated, blocked, and unresolved forms. Unsupported

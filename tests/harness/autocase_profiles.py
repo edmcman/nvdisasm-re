@@ -13,6 +13,11 @@ VECTORS = ((0, 0, 0, 0, 0), (0, 0, 1, 0, 1), (0, 0, MASK32, 1, 0), (0, 0, 0x8000
            (MASK32, 0, 0x12345678, 1, 1), (0x807f01ff, 0x7f80ff00, 0x10203040, 0, 0))
 
 PROFILES = {
+    'logic_domain': dict(vectors=((0xf0f0f0f0, 0xcccccccc, 0xaaaaaaaa, 0, 0),), selectors=tuple(range(256))),
+    'logic_edges': dict(vectors=VECTORS, selectors=(0, 0xff, 0x96, 0xe8, 0xca, 0xf0, 0xcc, 0xaa)),
+    'logic_legacy': dict(vectors=((0x81234567, 0x76543210, 0xa5a5f0f0, 1, 0),), selectors=tuple(range(256))),
+    'logic_random': dict(random=('int_alu', 20), predicate='true', selectors=(0x96,)),
+    'uniform_logic_random': dict(random=('uniform', 12), predicate='true', selectors=(0x96,)),
     'packed_add_minmax': dict(words=(0, MASK32, 0x80007fff, 0x7fff8000, 0x12345678, 0xdeadbeef), random=('vimnmx', 8), offsets=(1, 4), predicate='both'),
     'packed_minmax3': dict(words=(0, MASK32, 0x80007fff, 0x7fff8000, 0x12345678, 0xdeadbeef), random=('vimnmx3', 6), offsets=(2, 4), predicate='both'),
     'packed_minmax': dict(words=(0, MASK32, 0x80007fff, 0x7fff8000, 0x12345678, 0xdeadbeef), random=('vimnmx', 8), packed='minmax'),
@@ -55,6 +60,9 @@ PROFILES = {
 # Supplements preserve seeded/manual input strategies on representative forms without
 # multiplying random sweeps across the entire modifier product.
 SUPPLEMENTS = (
+    ('lop3_lut__RRR_RRR', {'pop':'POR', 'Pp@not':'unset'}, 'logic_legacy'),
+    ('lop3_lut__RRR_RRR', {'pop':'POR', 'Pp@not':'unset'}, 'logic_random'),
+    ('ulop3_lut__URURUR_URURUR', {'pop':'POR', 'UPp@not':'unset'}, 'uniform_logic_random'),
     ('bmsk__RRR_RRR', {}, 'mask_domain'),
     ('sel__RRR_RRR', {'Pp@not':'unset'}, 'select_random'),
     ('imnmx__RRR_RRR', {'fmt':'U32', 'Pp@not':'unset'}, 'minmax_random'),
@@ -69,7 +77,8 @@ SUPPLEMENTS = (
 
 
 def names(op, cls, form):
-    if op == 'VIADDMNMX': out = ['integer_edges', 'packed_add_minmax']
+    if op in ('LOP3', 'ULOP3'): out = ['logic_domain', 'logic_edges']
+    elif op == 'VIADDMNMX': out = ['integer_edges', 'packed_add_minmax']
     elif op == 'VIMNMX3': out = ['integer_edges', 'packed_minmax3']
     elif op == 'VIMNMX': out = ['integer_edges', 'packed_minmax']
     elif op == 'VISET': out = ['integer_edges', 'packed_compare']

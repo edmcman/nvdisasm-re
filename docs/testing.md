@@ -24,3 +24,5 @@ See `tests/README.md` for the Python, Ghidra and GPU tests, commands, options, c
 - Generated packed coverage expansion (2026-10-17): VIMNMX and VISET use independent lane references and declarative seeded corpora. Fully modelled forms replace ordinary manual sweeps; VIMNMX with unresolved predicate outputs retains its PT-only subset, and explicit CX descriptor regressions remain manual.
 
 - Generated three-input packed expansion (2026-10-17): VIADDMNMX and VIMNMX3 use independent modular-add/minmax references, preserving their seeded operand rotations in profiles. Every supported B-source negation and predicate inversion is expanded from the MD. Constant PT and explicit CX descriptors remain focused manual regressions.
+
+- Generated Boolean coverage expansion (2026-10-17): LOP3/ULOP3 profiles test every LUT bit with bit-sliced A/B/C words (F0/CC/AA per byte), all 256 selectors, POR/PAND, input predicate inversion and output aliases. The old selector sweep used input combinations 0..5 only; its original words remain a supplemental profile. The reference enumerates bits using the PTX truth-table definition and checks the live predicate result.

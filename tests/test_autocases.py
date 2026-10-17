@@ -264,3 +264,32 @@ def test_three_input_profiles_preserve_manual_corpora(profile, seed, count, offs
     expected = {(a, words[(j + offsets[0]) % len(words)], words[(j + offsets[1]) % len(words)], pred, 0)
                 for j, a in enumerate(words) for pred in (0, 1)}
     assert set(autocase_profiles.vectors(profile)) == expected
+
+
+@pytest.mark.parametrize('arch,cls,form', [
+    ('SM89', 'lop3_lut__RRR_RRR', {'pop':'POR', 'Pp@not':'unset'}),
+    ('SM89', 'lop3_lut__RCxR_RCxR', {'pop':'PAND', 'Pp@not':'set'}),
+    ('SM89', 'lop3_lut__RUR_RUR', {'pop':'POR', 'Pp@not':'set'}),
+    ('SM120', 'lop3_lut__RuIR_RIR', {'pop':'PAND', 'Pp@not':'unset'}),
+    ('SM89', 'ulop3_lut__URURUR_URURUR', {'pop':'POR', 'UPp@not':'set'}),
+    ('SM120', 'ulop3_lut__URuIUR_URIR', {'pop':'PAND', 'UPp@not':'unset'}),
+])
+def test_generated_logic_domain(arch, cls, form):
+    cases = tests.harness.autocases.generate(arch, cls, form)
+    tables = set()
+    for case in cases:
+        decoded = pydecode.decode(arch, bytes.fromhex(case.request['word']))
+        tables.add(decoded.env['imm8'])
+        status, problems = lifted.run(arch, 'exact', case)
+        assert status == 'native' and not problems, (status, problems)
+    assert tables == set(range(256))
+
+
+def test_logic_seeded_profiles_preserve_manual_inputs():
+    import random
+    from tests.harness import autocase_profiles
+    for profile, seed, count in (('logic_random', 'int_alu', 20), ('uniform_logic_random', 'uniform', 12)):
+        rng = random.Random(seed)
+        expected = {(*(rng.getrandbits(32) for _ in range(3)), 1, 0) for _ in range(count)}
+        assert set(autocase_profiles.vectors(profile)) == expected
+    assert autocase_profiles.vectors('logic_legacy') == ((0x81234567, 0x76543210, 0xa5a5f0f0, 1, 0),)

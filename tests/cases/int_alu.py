@@ -31,7 +31,6 @@ def arithmetic(c):
         c.add("imad__RRR_RRR", dict(common, fmt="U32"), regs, {f"R{rd}": (a * b + d) & MASK32})
         c.add("imad_hi__RRR_RRR", dict(common, fmt="U32"), regs, {f"R{rd}": ((a * b + d) & MASK64) >> 32})
         c.add("iadd3_noimm__RRR_RRR", common, regs, {f"R{rd}": (a + b + d) & MASK32})
-        c.add("lop3_lut__RRR_RRR", dict(common, imm8=0x96, Pp="PT"), regs, {f"R{rd}": a ^ b ^ d})
         c.add("lea_lo_noimm__RRR_RRR", dict(Rd=rd, Ra=2, Rb=4, scaleU5=i % 8), regs, {f"R{rd}": ((a << (i % 8)) + b) & MASK32})
     # Mixed register banks and uniform aliases retain original md operand names.
     rng = random.Random("uniform")
@@ -45,7 +44,6 @@ def arithmetic(c):
         common = dict(URd=2, URa=2, URb=4, URc=6)
         c.add("uiadd3__URURUR_URURUR", common, regs, dict(UR2=(a + b + d) & MASK32, __max_ops=2))
         c.add("uimad__URURUR_URURUR", dict(common, fmt="U32"), regs, dict(UR2=(a * b + d) & MASK32, __max_ops=2))
-        c.add("ulop3_lut__URURUR_URURUR", dict(common, imm8=0x96, UPp="UPT"), regs, dict(UR2=a ^ b ^ d))
         c.add("ulea_lo_noimm__URURUR_URURUR", dict(URd=2, URa=2, URb=4, scaleU5=3), regs, dict(UR2=((a << 3) + b) & MASK32))
         c.add("umov__UR", dict(URd=2, URb=4), regs, dict(UR2=b, __max_ops=1))
         c.add("umov__UI", dict(URd=2, Sb=b), {}, dict(UR2=b, __max_ops=1))
@@ -145,13 +143,14 @@ def imad_constant(c):
                   memory=[dict(space="cbank", address=(2 << 32) | 16, hex="ffffffff")])
 
 
-@retained("LOP3 has no reference adapter yet; retain its exhaustive truth-table selector coverage.")
-def selector_domains(c):
-    # Exhaust the selector domains changed by decode-time specialization.
-    x, y, z = 0x81234567, 0x76543210, 0xa5a5f0f0
-    for lut in range(256):
-        result = sum(((lut >> (((x >> i & 1) << 2) | ((y >> i & 1) << 1) | (z >> i & 1))) & 1) << i for i in range(32))
-        c.add("lop3_lut__RRR_RRR", dict(Rd=2, Ra=2, Rb=4, Rc=6, imm8=lut, Pp="PT"), dict(R2=x, R4=y, R6=z), dict(R2=result))
+@retained("Constant PT/UPT inputs with live predicate outputs supplement the generated register-predicate cases.")
+def logic_constants(c):
+    for cls, prefix in (('lop3_lut__RRR_RRR', ''), ('ulop3_lut__URURUR_URURUR', 'U')):
+        for invert in (0, 1):
+            fields = {prefix+'Rd':2, prefix+'Ra':2, prefix+'Rb':4, prefix+'Rc':6,
+                      prefix+'Pu':0, prefix+'Pp':prefix+'PT', prefix+'Pp@not':invert, 'imm8':0x96, 'pop':'PAND'}
+            c.add(cls, fields, {prefix+'R2':1, prefix+'R4':2, prefix+'R6':4},
+                  {prefix+'R2':7, prefix+'P0':1-invert, '__native':True})
 
 
 @retained("SM107/SM120 IMNMX adds predicate operands/results whose behavior remains explicitly opaque.")
@@ -162,7 +161,7 @@ def opaque_imnmx(c):
 
 
 def emulator_cases(c):
-    for part in (flo_subset, arithmetic, permute_register_regressions, fixed, imad_constant, selector_domains, opaque_imnmx): part(c)
+    for part in (flo_subset, arithmetic, permute_register_regressions, fixed, imad_constant, logic_constants, opaque_imnmx): part(c)
 
 
 def gpu_fixtures():
