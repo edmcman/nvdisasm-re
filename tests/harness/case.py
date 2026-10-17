@@ -5,6 +5,7 @@ from typing import NamedTuple
 from sass.decode import ir
 from functools import partial
 from sass.assemble import encoding
+from sass.sleigh.modifiers import modifiers
 
 # Cases include deliberate edge values (wide immediates, misaligned pairs), which the strict encoder rejects.
 encode = partial(encoding.encode, permissive=True)
@@ -36,30 +37,36 @@ def source(k, *names):
     return next((n for n in names if n in k.operand_types), None)
 
 
+
+def flagged(k, name, flag):
+    """Whether operand `name` of `k` takes the md flag `flag` (negate, invert, not, absolute)."""
+    return ((name, flag), None) in modifiers(k)
+
 def labels(md, k, operand, wanted):
     """The labels in `wanted` that operand's enum defines, in order."""
     enum = md.enums[k.operand_types[operand].type]
     return [label for label in wanted if label in enum]
 
 
-def put(k, name, value, fields, regs, memory, reg, ureg=None, bank=None, imm=IMMEDIATES):
+def put(k, name, value, fields, regs, memory, reg, ureg=None, bank=None, imm=IMMEDIATES, size=4):
     """Place `value` in operand `name` by its md type: register `reg`, uniform `ureg` (default
-    `reg`), constant bank/offset `bank` (if given), or an immediate of a type in `imm`.
-    False if the type is not accepted."""
+    `reg`), constant bank/offset `bank` (if given), or an immediate of a type in `imm`. A size-8
+    value fills a register pair. False if the type is not accepted."""
+    place = lambda r: regs.update(pair(r, value) if size == 8 else {r: value})
     match k.operand_types[name].type:
-        case "Register": fields[name] = reg; regs[f"R{reg}"] = value
+        case "Register": fields[name] = reg; place(f"R{reg}")
         case "UniformRegister":
             ureg = reg if ureg is None else ureg
-            fields[name] = ureg; regs[f"UR{ureg}"] = value
+            fields[name] = ureg; place(f"UR{ureg}")
         case "C" if bank:
             fields.update({name + "_bank": bank[0], name + "_addr": bank[1]})
-            memory.append(cbank(*bank, value))
+            memory.append(cbank(*bank, value, size))
         case t if t in imm: fields[name] = value
         case _: return False
     return True
 
 
-def cx_source(arch, k, name, value, ur=4, offset=0, base=0x2000):
+def cx_source(arch, k, name, value, ur=4, offset=0, base=0x2000, size=4):
     """Encode a CX header in URur/URur+1 and map the loaded word in GPU virtual memory."""
     atom = k.operand_types[name]; children = []
     for child in k.format[k.format.index(atom) + 1:]:
@@ -67,7 +74,7 @@ def cx_source(arch, k, name, value, ur=4, offset=0, base=0x2000):
         if child.kind == "operand": children.append(child)
     ur_name = next(c.name for c in children if c.type in ("UniformRegister", "NonZeroUniformRegister", "ZeroUniformRegister"))
     off_name = next(c.name for c in children if c.type in ("UImm", "SImm"))
-    return {ur_name: ur, off_name: offset}, cx_header(arch, ur, base), [ram(base + offset, value)]
+    return {ur_name: ur, off_name: offset}, cx_header(arch, ur, base), [ram(base + offset, value, size)]
 
 
 def cx_header(arch, ur, base, units=1):

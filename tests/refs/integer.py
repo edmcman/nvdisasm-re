@@ -104,6 +104,22 @@ def i2ip(a, b, c, width, signed, sat, relu, extract):
     return packed & MASK32
 
 
+def imad_wide(a, b, c, signed, negate=0, invert=0, carry_in=0):
+    """IMAD.HI/.WIDE's unbounded sum of the 64-bit product and the 64-bit addend c, whose carry-out is
+    bit 64: a negated c enters as ~c + 1, so -0 carries (SM89 GPU, like IADD3); .X's inverted c as ~c."""
+    x, y = (sext(a, 32), sext(b, 32)) if signed else (a, b)
+    if negate or invert: c = (c ^ MASK64) + negate
+    return ((x * y) & MASK64) + c + carry_in
+
+
+
+def imad(a, b, c, mode, signed, negate=0, invert=0, carry_in=0):
+    """(Rd, Pu) of IMAD/UIMAD: LO keeps the low word of a*b + c (32-bit c, negated or .X-inverted, no
+    carry-out); HI/WIDE keep the high word or all 64 bits of `imad_wide`, Pu its carry-out."""
+    if mode == "LO": return (a * b + ((c ^ MASK32) + negate if negate or invert else c) + carry_in) & MASK32, None
+    total = imad_wide(a, b, c, signed, negate, invert, carry_in)
+    return (total >> 32 & MASK32 if mode == "HI" else total & MASK64), int(total > MASK64)
+
 def carry(cls, fields, observe, vector):
     """IADD3/LEA/IMAD (.X) results and carry predicates for the patched carry kernel.
     observe: result | carry (Pu + 2*Pv) | pu | low | high."""
@@ -121,11 +137,12 @@ def carry(cls, fields, observe, vector):
         suffix = "@invert" if extended else "@negate"
         total = flip(shifted, "Ra" + suffix) + flip(b, "Rb" + suffix) + p
         return total & MASK32 if observe == "result" else int(total > MASK32)
-    x, y = (sext(a, 32), sext(b, 32)) if fields["fmt"] == "S32" else (a, b)
-    wide = "_hi_" in cls or "_wide_" in cls
-    addend = (b << 32) | c if wide else c
-    if fields.get("Rc@invert"): addend ^= MASK64 if wide else MASK32
-    total = ((x * y) & MASK64) + addend + p
+    signed = fields["fmt"] == "S32"
+    if "_hi_" in cls or "_wide_" in cls:
+        total = imad_wide(a, b, (b << 32) | c, signed, fields.get("Rc@negate", 0), fields.get("Rc@invert", 0), p)
+    else:
+        x, y = (sext(a, 32), sext(b, 32)) if signed else (a, b)
+        total = ((x * y) & MASK64) + (c ^ MASK32 if fields.get("Rc@invert") else c) + p
     if observe == "pu": return int(total > MASK64)
     return (total >> 32) & MASK32 if observe == "high" or "_hi_" in cls else total & MASK32
 

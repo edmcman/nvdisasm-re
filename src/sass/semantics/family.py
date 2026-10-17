@@ -218,9 +218,26 @@ def predicates(arch_name):
 
 def constant_width(arch_name, cls, name):
     """Bits of a constant-bank operand's value: its source slot's md ISRC_<slot>_SIZE (Sc:
-    ISRC_C_SIZE; corrected md errors in src/sass/md/fixes.py), else 32."""
+    ISRC_C_SIZE; corrected md errors in src/sass/md/fixes.py), else 32. A CX operand's md size is
+    its 64-bit header's, so its value has the width of the same operand in the class group's
+    c[][] form (IMAD.WIDE's cx[][] addend: 64 bits, SM89 GPU)."""
+    if getattr(md_classes(arch_name)[cls].operand_types.get(name), "type", None) == "CX":
+        direct = direct_constant(arch_name, cls, name)
+        return constant_width(arch_name, direct, name) if direct else 32
     size = predicates(arch_name).get(cls, {}).get(f"ISRC_{name[-1].upper()}_SIZE") if name[:1] == "S" else None
     return size if size in (32, 64) else 32
+
+
+@cache
+def md_classes(arch_name): return {k.name: k for k in ir.load(arch_name).classes}
+
+
+@cache
+def direct_constant(arch_name, cls, name):
+    """The class in `cls`'s md group (its name before "__") whose operand `name` is a c[][] constant."""
+    group = cls.split("__")[0]
+    return next((k.name for k in md_classes(arch_name).values() if not k.alternate and k.name.split("__")[0] == group
+                 and getattr(k.operand_types.get(name), "type", None) == "C"), None)
 
 
 @cache
@@ -316,7 +333,7 @@ class Instruction:
     def width(self, names):
         name = self.resolve(names); a = self.atom(name)
         if a.type in REG_TYPES: return self.span(name) * (1 if REG_TYPES[a.type] in ("P", "UP") else 32)
-        if a.type == "C": return constant_width(self.arch.name, self.cls, name)
+        if a.type in ("C", "CX"): return constant_width(self.arch.name, self.cls, name)
         if a.type == "PR": return PR_BITS
         bits = int((a.args.split("/")[0] or "32").split(",")[0]) if a.args and a.type.endswith("Imm") else 32
         return {"F16Imm": 16, "F32Imm": 32, "F64Imm": 64}.get(a.type, 64 if bits > 32 else 32)

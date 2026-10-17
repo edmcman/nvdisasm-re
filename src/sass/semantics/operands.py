@@ -235,7 +235,7 @@ class Builder:
             if len(widths)==1:return max(4,next(iter(widths))//8)
         from sass.semantics.family import constant_width, family_for
         atom=self.k.operand_types.get(name)
-        if atom and atom.type=='C' and family_for(self.k):return constant_width(self.g.arch.name,self.k.name,name)//8
+        if atom and atom.type in ('C','CX') and family_for(self.k):return constant_width(self.g.arch.name,self.k.name,name)//8
         if self.k.mnemonic=='MOV':
             rd=next((o for o in self.g.roles.get(self.k.name,{}).get('operands',[]) if o['name']=='Rd'),{})
             if isinstance(rd.get('span'),int):return 4*rd['span']
