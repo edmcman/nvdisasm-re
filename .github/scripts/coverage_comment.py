@@ -21,10 +21,15 @@ FIELDS = (
     ("opcode_evidence", "Class verification"),
     ("combination_evidence", "Combination verification"),
 )
+STATUS_COLORS = {
+    "native": "🟢", "primitive": "🟡", "opaque": "🔴",
+    "partially native": "🟡", "partially primitive": "🟡",
+    "gpu": "🔵", "ptxas": "🟤", "reference": "🟢", "none": "⚪",
+}
 
 
 def counts(values):
-    return "<br>".join(f"{html.escape(k).replace('|', '&#124;')}: **{v:,}**"
+    return "<br>".join(f"{STATUS_COLORS.get(k, '⚪')} {html.escape(k).replace('|', '&#124;')}: **{v:,}**"
                       for k, v in sorted(values.items())) or "—"
 
 
@@ -86,7 +91,9 @@ def render(base, head, base_sha, head_sha, run_url):
                 "- **Opcode coverage** counts opcodes with at least one class with semantics, including partial or primitive semantics.\n"
                 "- **Change** is measured in percentage points (pp).\n"
                 "  🟢 increased · 🔴 decreased · ⚪ unchanged.\n"
+                "- **Detail colors** indicate status: 🟢 native, 🟡 partial or primitive, 🔴 opaque.\n"
                 "- **Verification** counts use the strongest evidence: GPU, ptxas, reference, or none. "
+                "Colors: 🔵 GPU · 🟤 ptxas · 🟢 reference · ⚪ none. "
                 "They do not imply hardware verification on other architectures.\n"
                 "- Readable variants share the exact variants' coverage and are omitted.\n\n"
                 "</details>\n\n### Changed opcodes\n\n")

@@ -64,7 +64,18 @@ def test_combination_and_verification_only_changes(field, label):
     assert report["changed"]
     assert "⚪ +0 pp" in report["body"]
     assert f"| {label} |" in report["body"]
-    assert "gpu: **3**" in report["body"]
+    assert "🔵 gpu: **3**" in report["body"]
+
+
+def test_detail_status_colors_and_escaping():
+    assert coverage_comment.counts({}) == "—"
+    assert coverage_comment.counts({"native": 1000, "opaque": 2}) == (
+        "🟢 native: **1,000**<br>🔴 opaque: **2**")
+    assert coverage_comment.counts({"partially native": 1}) == "🟡 partially native: **1**"
+    assert coverage_comment.counts({"primitive": 1}) == "🟡 primitive: **1**"
+    assert coverage_comment.counts({"reference": 1, "ptxas": 2, "none": 3}) == (
+        "⚪ none: **3**<br>🟤 ptxas: **2**<br>🟢 reference: **1**")
+    assert coverage_comment.counts({"<unknown>|": 1}) == "⚪ &lt;unknown&gt;&#124;: **1**"
 
 
 def test_added_removed_architectures_and_opcodes():
