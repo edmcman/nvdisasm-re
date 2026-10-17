@@ -144,15 +144,54 @@ def test_label_follows_changes():
 def test_paginated_update_ignores_human_marker():
     report = render({}, summary())
     github = GitHub(pages=[[comment(user="human")] * 100, [comment()]], labels=["coverage"])
-    assert publish(report, github) == [
-        ("PATCH", "/repos/owner/repo/issues/comments/42", {"body": report["body"]})]
+    calls = publish(report, github)
+    assert calls[0] == ("POST", "/repos/owner/repo/issues/7/comments", {"body": report["body"]})
+    assert calls[1][:2] == ("PATCH", "/repos/owner/repo/issues/comments/42")
+    archived = calls[1][2]["body"]
+    assert archived.startswith(coverage_comment.OUTDATED_MARKER)
+    assert "**Outdated:**" in archived
+    assert "<summary>Outdated coverage report</summary>" in archived
+    assert "<details open" not in archived
     assert any("page=2" in path for _, path, _ in github.calls)
 
 
 def test_clear_previous_change_and_identical_body():
     report = render(summary(), summary())
-    assert publish(report, GitHub(pages=[[comment()]]))[0][0] == "PATCH"
+    assert publish(report, GitHub(pages=[[comment()]]))[0][0] == "POST"
     assert publish(report, GitHub(pages=[[comment(report["body"])]])) == []
+
+
+def test_retry_archives_remaining_old_reports_without_duplicate_post():
+    report = render({}, summary())
+    old = {**comment("%s\nOld report\n<details>\n<summary>SM89</summary>\n\nData\n</details>" % coverage_comment.MARKER), "id": 41}
+    github = GitHub(pages=[[old], [comment(report["body"])]], labels=["coverage"])
+    # Put the current report on the next page to exercise full pagination.
+    github.pages[0] += [comment(user="human")] * 99
+    calls = publish(report, github)
+    assert len(calls) == 1
+    assert calls[0][:2] == ("PATCH", "/repos/owner/repo/issues/comments/41")
+    archived = calls[0][2]["body"]
+    assert old["body"].removeprefix(coverage_comment.MARKER).lstrip() in archived
+    assert archived.count("<details>") == archived.count("</details>")
+
+
+def test_already_archived_reports_are_ignored():
+    report = render({}, summary())
+    github = GitHub(pages=[[comment(coverage_comment.OUTDATED_MARKER), comment(report["body"])]], labels=["coverage"])
+    assert publish(report, github) == []
+
+
+def test_failed_post_leaves_previous_report_visible():
+    github = GitHub(pages=[[comment()]], labels=["coverage"])
+
+    def request(method, path, payload=None):
+        if method == "POST":
+            raise RuntimeError("GitHub unavailable")
+        return github(method, path, payload)
+
+    with pytest.raises(RuntimeError, match="GitHub unavailable"):
+        coverage_comment.publish(render({}, summary()), "owner/repo", 7, "base", "head", request=request)
+    assert all(method == "GET" for method, _, _ in github.calls)
 
 
 @pytest.mark.parametrize("kwargs", [{"head": "newer"}, {"base": "newer"}, {"state": "closed"}])

@@ -1,4 +1,4 @@
-"""Compare committed semantic coverage and maintain one same-repository PR comment.
+"""Compare committed semantic coverage and archive superseded PR comments.
 
 Uses only the standard library; does not import or regenerate SASS semantics.
 """
@@ -12,6 +12,7 @@ import urllib.request
 
 
 MARKER = "<!-- nvdisasm-re:coverage -->"
+OUTDATED_MARKER = "<!-- nvdisasm-re:coverage-outdated -->"
 LABEL = "coverage"
 COVERAGE = "processor/SASS/semantics/coverage.json"
 COMMENT_LIMIT = 60_000  # Leave room below GitHub's comment size limit.
@@ -140,23 +141,31 @@ def publish(report, repo, number, base_sha, head_sha, request=api):
         request("POST", f"{root}/issues/{number}/labels", {"labels": [LABEL]})
     elif has_label and not report["changed"]:
         request("DELETE", f"{root}/issues/{number}/labels/{LABEL}")
-    existing = None
+    existing = []
     page = 1
     while True:
         comments = request("GET", f"{root}/issues/{number}/comments?per_page=100&page={page}")
         for comment in comments:
             if (comment["user"]["login"] == "github-actions[bot]"
                     and (comment.get("body") or "").startswith(MARKER)):
-                existing = comment
-                break
-        if existing or len(comments) < 100:
+                existing.append(comment)
+        if len(comments) < 100:
             break
         page += 1
-    if existing:
-        if existing["body"] != report["body"]:
-            request("PATCH", f"{root}/issues/comments/{existing['id']}", {"body": report["body"]})
-    elif report["changed"]:
+    current = next((comment for comment in existing if comment["body"] == report["body"]), None)
+    # Publish first: if archiving fails, a retry finds the current report and
+    # finishes archiving without posting another copy.
+    if current is None and (existing or report["changed"]):
         request("POST", f"{root}/issues/{number}/comments", {"body": report["body"]})
+    for comment in existing:
+        if current is not None and comment["id"] == current["id"]:
+            continue
+        archived = (f"{OUTDATED_MARKER}\n"
+                    "> **Outdated:** A newer coverage report below supersedes this comparison.\n\n"
+                    "<details>\n<summary>Outdated coverage report</summary>\n\n"
+                    + comment["body"].removeprefix(MARKER).lstrip()
+                    + "\n\n</details>\n")
+        request("PATCH", f"{root}/issues/comments/{comment['id']}", {"body": archived})
 
 
 def main():
