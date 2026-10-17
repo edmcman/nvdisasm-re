@@ -64,6 +64,16 @@ def test_case_identity_and_evidence_changes():
     assert not device_evidence.valid(dict(record, kernels=[]), [first])
 
 
+def test_generator_digest_covers_only_probe_sources():
+    """Semantics, references and case lists reach a record through its signature, not the digest:
+    a change to them must not drop every family's hardware evidence."""
+    found = {str(p.relative_to(device_evidence.ROOT)) for p in device_evidence.sources()}
+    assert {'tests/harness/device_cases.py', 'src/sass/assemble/encoding.py', 'tests/refs/fpformat.py',
+            'src/sass/semantics/fp/softfloat.py'} <= found
+    assert not any(p.startswith(('src/sass/semantics/families/', 'tests/cases/')) for p in found)
+    assert {'tests/refs/integer.py', 'tests/harness/device_evidence.py'}.isdisjoint(found)
+
+
 def test_cx_backing_and_bounds_survive_relocation():
     from tests.harness.case import cx_header
     c = Cases('SM89')
