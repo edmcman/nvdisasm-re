@@ -243,8 +243,8 @@ Plans store class/form choices, named input profiles and native assertions, not
 captured outputs. The normal `emulator_cases` loader expands them into shared cases for Python, Ghidra, and the GPU, calculating
 expectations from the independent references at runtime. Plans cover BREV, POPC,
 SGXT, PRMT, UPRMT, ISETP, UISETP, IMNMX, SEL, USEL, IDP, SHF, USHF, IABS,
-UMOV, BMSK, VIMNMX, VISET and MOV register-pair forms through
-`harness/autocases.py`. The planner routes IDP, VIMNMX and VISET cases to `int_simd`, BMSK to `bmsk`, and the other
+UMOV, BMSK, VIMNMX, VISET, VIADDMNMX, VIMNMX3 and MOV register-pair forms through
+`harness/autocases.py`. The planner routes IDP and packed-integer cases to `int_simd`, BMSK to `bmsk`, and the other
 operations to `int_alu`. Comparison cases exercise both predicate outputs, .EX's
 low-word result, signed boundaries, predicate inversion and input/output aliases.
 Dot-product cases cover lane signedness and negated accumulators; funnel shifts
@@ -271,7 +271,8 @@ profiles verify both words; partially modelled pixel-mask forms stay manual and
 unresolved in the planner.
 Packed min/max and comparison profiles preserve the former seeded lane patterns.
 They exercise every supported lane width, signedness, comparison, predicate inversion
-and RELU form, with destination aliases. VIMNMX forms with unresolved predicate
+and RELU form, with destination aliases. Three-input profiles also exercise
+modular lane addition, B-source negation, three-way min/max and aliases with each source. VIMNMX forms with unresolved predicate
 outputs retain explicit PT-only manual coverage.
 Hand-calculated PRMT examples also check the reference directly in `test_refs.py`.
 

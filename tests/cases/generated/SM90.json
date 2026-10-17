@@ -41550,6 +41550,3054 @@
     },
     {
       "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Sb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Sb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Sb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Sb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Sb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Sb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Sb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Sb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Sb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Sb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Sb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Sb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Sb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Sb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Sb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Sb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Sb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Sb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Sb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Sb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Sb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Sb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Sb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Sb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Sb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Sb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Sb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Sb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Sb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Sb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Sb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Sb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Sb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Sb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Sb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Sb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Sb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Sb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Sb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Sb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Sb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Sb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Sb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Sb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Sb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Sb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Sb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Sb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRC_RRC",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRCx_RRCx",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRU_RRU",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RRuI_RRI",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Rb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "URb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "URb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "URb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "URb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "URb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "URb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "URb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "URb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "URb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "URb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "URb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "URb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "URb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "URb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "URb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "URb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "URb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "URb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "URb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "URb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "URb@negate": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "URb@negate": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "URb@negate": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "URb@negate": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RuIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RuIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RuIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RuIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RuIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RuIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RuIR_RIR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RuIR_RIR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RuIR_RIR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RuIR_RIR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RuIR_RIR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "viaddmnmx__RuIR_RIR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_add_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
       "cls": "vimnmx__RCR_RCR",
       "settings": {
         "fmt": "U32",
@@ -42385,6 +45433,846 @@
       "profiles": [
         "integer_edges",
         "packed_minmax"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCR_RCR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCR_RCR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCR_RCR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCR_RCR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCR_RCR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCxR_RCxR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCxR_RCxR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCxR_RCxR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCxR_RCxR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCxR_RCxR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RCxR_RCxR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RRR_RRR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RRR_RRR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RRR_RRR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RUR_RUR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RUR_RUR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RUR_RUR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RuIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RuIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RuIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RuIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RuIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RuIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RuIR_RIR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RuIR_RIR",
+      "settings": {
+        "fmt": "U16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RuIR_RIR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RuIR_RIR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "norelu",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RuIR_RIR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_simd",
+      "cls": "vimnmx3__RuIR_RIR",
+      "settings": {
+        "fmt": "S16x2",
+        "relu": "RELU",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "integer_edges",
+        "packed_minmax3"
       ],
       "native": true
     }

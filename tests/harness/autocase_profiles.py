@@ -13,6 +13,8 @@ VECTORS = ((0, 0, 0, 0, 0), (0, 0, 1, 0, 1), (0, 0, MASK32, 1, 0), (0, 0, 0x8000
            (MASK32, 0, 0x12345678, 1, 1), (0x807f01ff, 0x7f80ff00, 0x10203040, 0, 0))
 
 PROFILES = {
+    'packed_add_minmax': dict(words=(0, MASK32, 0x80007fff, 0x7fff8000, 0x12345678, 0xdeadbeef), random=('vimnmx', 8), offsets=(1, 4), predicate='both'),
+    'packed_minmax3': dict(words=(0, MASK32, 0x80007fff, 0x7fff8000, 0x12345678, 0xdeadbeef), random=('vimnmx3', 6), offsets=(2, 4), predicate='both'),
     'packed_minmax': dict(words=(0, MASK32, 0x80007fff, 0x7fff8000, 0x12345678, 0xdeadbeef), random=('vimnmx', 8), packed='minmax'),
     'packed_compare': dict(words=(0, MASK32, 0x80007fff, 0x7fff8000, 0x7f80ff01, 0x12345678), random=('viset', 6), packed='compare'),
     'absolute': dict(values=(0, 1, 0xffffffff, 0x7fffffff, 0x80000000, 0x80000001),
@@ -67,7 +69,9 @@ SUPPLEMENTS = (
 
 
 def names(op, cls, form):
-    if op == 'VIMNMX': out = ['integer_edges', 'packed_minmax']
+    if op == 'VIADDMNMX': out = ['integer_edges', 'packed_add_minmax']
+    elif op == 'VIMNMX3': out = ['integer_edges', 'packed_minmax3']
+    elif op == 'VIMNMX': out = ['integer_edges', 'packed_minmax']
     elif op == 'VISET': out = ['integer_edges', 'packed_compare']
     elif op == 'IABS': out = ['absolute']
     elif op in ('MOV', 'UMOV'): out = ['move64' if form.get('size') == '64' else 'move32']
@@ -112,7 +116,8 @@ def vectors(name):
         return tuple((a, b, 0, 0, 0) for a, b in pairs)
     if 'offsets' in spec:
         words = values(name); b, c = spec['offsets']
-        return tuple((a, words[(j + b) % len(words)], words[(j + c) % len(words)], 0, 0) for j, a in enumerate(words))
+        return tuple((a, words[(j + b) % len(words)], words[(j + c) % len(words)], pred, 0)
+                     for j, a in enumerate(words) for pred in ((0, 1) if spec.get('predicate') == 'both' else (0,)))
     words = list(spec.get('words', ()))
     if 'random' in spec:
         seed, count = spec['random']; rng = random.Random(seed)

@@ -22,3 +22,5 @@ See `tests/README.md` for the Python, Ghidra and GPU tests, commands, options, c
 - Generated scalar coverage expansion (2026-10-17): IABS, UMOV, BMSK and fully modelled MOV forms use reference-backed adapters. BMSK routes to its existing family and moves ordinary dense/seeded inputs into profiles; descriptor bounds, header layouts, special registers and guards remain named manual regressions. MOV's 64-bit register-pair cases check the high word, while partial pixel-mask behavior remains explicit and unresolved.
 
 - Generated packed coverage expansion (2026-10-17): VIMNMX and VISET use independent lane references and declarative seeded corpora. Fully modelled forms replace ordinary manual sweeps; VIMNMX with unresolved predicate outputs retains its PT-only subset, and explicit CX descriptor regressions remain manual.
+
+- Generated three-input packed expansion (2026-10-17): VIADDMNMX and VIMNMX3 use independent modular-add/minmax references, preserving their seeded operand rotations in profiles. Every supported B-source negation and predicate inversion is expanded from the MD. Constant PT and explicit CX descriptors remain focused manual regressions.

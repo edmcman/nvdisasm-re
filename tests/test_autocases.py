@@ -233,3 +233,34 @@ def test_packed_profiles_preserve_manual_corpora(profile, seed, count, edges):
                  a if j % 4 == 0 else words[(j * 5 + 1) % len(words)], 0, pred, 0)
                 for j, a in enumerate(words) for pred in ((0, 1) if profile == 'packed_minmax' else (0,))}
     assert set(autocase_profiles.vectors(profile)) == expected
+
+
+@pytest.mark.parametrize('arch,cls,form', [
+    ('SM90', 'viaddmnmx__RCxR_RCxR', {'fmt':'S16x2', 'relu':'RELU', 'Sb@negate':'set', 'Pp@not':'set'}),
+    ('SM90', 'viaddmnmx__RRCx_RRCx', {'fmt':'U32', 'relu':'norelu', 'Rb@negate':'set', 'Pp@not':'unset'}),
+    ('SM100', 'viaddmnmx__RUR_RUR', {'fmt':'S32', 'relu':'RELU', 'URb@negate':'set', 'Pp@not':'set'}),
+    ('SM103', 'viaddmnmx__RuIR_RIR', {'fmt':'U16x2', 'relu':'norelu', 'Pp@not':'unset'}),
+    ('SM90', 'vimnmx3__RCxR_RCxR', {'fmt':'S16x2', 'relu':'RELU', 'Pp@not':'set'}),
+    ('SM103', 'vimnmx3__RuIR_RIR', {'fmt':'S32', 'relu':'norelu', 'Pp@not':'unset'}),
+])
+def test_three_input_packed_generated_cases(arch, cls, form):
+    cases = tests.harness.autocases.generate(arch, cls, form)
+    assert cases
+    for case in cases:
+        status, problems = lifted.run(arch, 'exact', case)
+        assert status == 'native' and not problems, (status, problems)
+
+
+@pytest.mark.parametrize('profile,seed,count,offsets', [
+    ('packed_add_minmax', 'vimnmx', 8, (1, 4)),
+    ('packed_minmax3', 'vimnmx3', 6, (2, 4)),
+])
+def test_three_input_profiles_preserve_manual_corpora(profile, seed, count, offsets):
+    import random
+    from tests.harness import autocase_profiles
+    rng = random.Random(seed)
+    words = [0, 0xffffffff, 0x80007fff, 0x7fff8000, 0x12345678, 0xdeadbeef]
+    words += [rng.getrandbits(32) for _ in range(count)]
+    expected = {(a, words[(j + offsets[0]) % len(words)], words[(j + offsets[1]) % len(words)], pred, 0)
+                for j, a in enumerate(words) for pred in (0, 1)}
+    assert set(autocase_profiles.vectors(profile)) == expected

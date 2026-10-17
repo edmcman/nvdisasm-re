@@ -11,7 +11,7 @@ from tests.harness import autocase_profiles
 PLANS = ROOT / 'tests/cases/generated'
 OPS = {'BREV', 'POPC', 'FLO', 'SGXT', 'PRMT', 'UPRMT', 'IABS', 'MOV', 'UMOV', 'BMSK'}
 INTEGER_OPS = {'ISETP', 'UISETP', 'IMNMX', 'SEL', 'USEL', 'IDP', 'SHF', 'USHF'}
-PACKED_OPS = {'VIMNMX', 'VISET'}
+PACKED_OPS = {'VIMNMX', 'VISET', 'VIADDMNMX', 'VIMNMX3'}
 INTEGER_OPS |= PACKED_OPS
 FAMILIES = {op: 'int_simd' if op in PACKED_OPS | {'IDP'} else 'bmsk' if op == 'BMSK' else 'int_alu' for op in OPS | INTEGER_OPS}
 OPS |= INTEGER_OPS
@@ -177,26 +177,37 @@ def scalar_cases(c, k, form, profiles):
 
 
 def packed_cases(c, k, form, profiles):
-    allowed = {'fmt', 'relu', 'Pp@not'} if k.mnemonic == 'VIMNMX' else {'fmt', 'icmp'}
+    op = k.mnemonic
+    srcb = source(k, 'Sb', 'Rb', 'URb')
+    allowed = {'fmt', 'icmp'} if op == 'VISET' else {'fmt', 'relu', 'Pp@not'}
+    if op == 'VIADDMNMX' and srcb: allowed.add(srcb + '@negate')
     if set(form) - allowed: raise Unsupported('unhandled modifiers: ' + ', '.join(sorted(set(form) - allowed)))
     formats = {'U32':(32, False), 'S32':(32, True), 'U16x2':(16, False),
                'S16x2':(16, True), 'U8x4':(8, False), 'S8x4':(8, True)}
     if form.get('fmt') not in formats: raise Unsupported('unsupported packed integer format')
     width, signed = formats[form['fmt']]
-    if k.mnemonic == 'VIMNMX':
+    if op != 'VISET':
         if any(n in k.operand_types for n in ('Pu', 'Pv')):
             raise Unsupported('unresolved packed min/max predicate outputs')
         if form.get('relu') not in ('norelu', 'RELU') or (not signed and form['relu'] == 'RELU'):
             raise Unsupported('unsupported packed min/max RELU mode')
     elif form.get('icmp') not in integer.COMPARISONS: raise Unsupported('unsupported packed comparison')
-    for j, (a, b, _, pred, _) in enumerate(vector for profile in profiles for vector in autocase_profiles.vectors(profile)):
+    destinations = (4, 6, 8, 2) if op in ('VIADDMNMX', 'VIMNMX3') else (4, 6, 2)
+    for j, (a, b, acc, pred, _) in enumerate(vector for profile in profiles for vector in autocase_profiles.vectors(profile)):
         s = Inputs(c, k, form)
         s.operand(('Ra',), a, 4); s.operand(('Sb', 'Rb', 'URb'), b, 6)
-        if k.mnemonic == 'VIMNMX':
+        if op != 'VISET':
             s.predicate(('Pp',), pred, 0)
-            result = integer.vminmax((a, b), width, signed, pred ^ (form.get('Pp@not') == 'set'), form['relu'] == 'RELU')
+            effective = pred ^ (form.get('Pp@not') == 'set')
+            if op in ('VIADDMNMX', 'VIMNMX3'): s.operand(('Sc', 'Rc', 'URc'), acc, 8)
+            if op == 'VIADDMNMX':
+                b = -b & 0xffffffff if form.get(srcb + '@negate') == 'set' else b
+                result = integer.viaddmnmx(a, b, acc, width, signed, effective, form['relu'] == 'RELU')
+            else:
+                inputs = (a, b, acc) if op == 'VIMNMX3' else (a, b)
+                result = integer.vminmax(inputs, width, signed, effective, form['relu'] == 'RELU')
         else: result = integer.vset_mask(a, b, width, signed, form['icmp'])
-        s.add({s.output(('Rd',), (4, 6, 2)[j % 3]):result}, form)
+        s.add({s.output(('Rd',), destinations[j % len(destinations)]):result}, form)
     return c
 
 
