@@ -2,7 +2,7 @@
 BREV/POPC/FLO/SGXT and MOV."""
 import random
 from tests.harness.case import put, source
-from tests.refs.bits import MASK32, MASK64, sext
+from tests.refs.bits import MASK32, sext
 from tests.refs.integer import brev, flo, prmt
 from tests.harness.manual import retained
 
@@ -21,30 +21,16 @@ def flo_subset(c):
                     c.add(k.name, fields, regs, {"R2": flo(value, mode == "SH", fmt == "S32"), "__native": True}, memory=memory)
 
 
-@retained("Operations without adapters, plus explicit UMOV p-code cost contracts.")
+@retained("Uniform arithmetic/move p-code cost contracts, zero/special registers, and IADD/VIADD without adapters.")
 def arithmetic(c):
-    rng = random.Random("int_alu")
-    for i in range(20):
-        a, b, d = [rng.getrandbits(32) for _ in range(3)]; regs = {"R2": a, "R4": b, "R6": d}
-        rd = 2 if i % 2 else 8  # overlap source/destination
-        common = dict(Rd=rd, Ra=2, Rb=4, Rc=6)
-        c.add("imad__RRR_RRR", dict(common, fmt="U32"), regs, {f"R{rd}": (a * b + d) & MASK32})
-        c.add("imad_hi__RRR_RRR", dict(common, fmt="U32"), regs, {f"R{rd}": ((a * b + d) & MASK64) >> 32})
-        c.add("iadd3_noimm__RRR_RRR", common, regs, {f"R{rd}": (a + b + d) & MASK32})
-        c.add("lea_lo_noimm__RRR_RRR", dict(Rd=rd, Ra=2, Rb=4, scaleU5=i % 8), regs, {f"R{rd}": ((a << (i % 8)) + b) & MASK32})
     # Mixed register banks and uniform aliases retain original md operand names.
     rng = random.Random("uniform")
     for i in range(12):
         a, b, d = [rng.getrandbits(32) for _ in range(3)]
         regs = dict(R2=a, R4=b, R6=d, UR2=a, UR4=b, UR6=d)
-        c.add("imad__RUR_RUR", dict(Rd=2, Ra=2, URb=4, Rc=6, fmt="U32"), regs, dict(R2=(a * b + d) & MASK32))
-        c.add("imad__RRU_RRU", dict(Rd=2, Ra=2, Rb=4, URc=6, fmt="U32"), regs, dict(R2=(a * b + d) & MASK32))
-        c.add("iadd3_noimm__RUR_RUR", dict(Rd=2, Ra=2, URb=4, Rc=6), regs, dict(R2=(a + b + d) & MASK32))
-        c.add("lea_lo_noimm__RUR_RUR", dict(Rd=2, Ra=2, URb=4, scaleU5=3), regs, dict(R2=((a << 3) + b) & MASK32))
         common = dict(URd=2, URa=2, URb=4, URc=6)
         c.add("uiadd3__URURUR_URURUR", common, regs, dict(UR2=(a + b + d) & MASK32, __max_ops=2))
         c.add("uimad__URURUR_URURUR", dict(common, fmt="U32"), regs, dict(UR2=(a * b + d) & MASK32, __max_ops=2))
-        c.add("ulea_lo_noimm__URURUR_URURUR", dict(URd=2, URa=2, URb=4, scaleU5=3), regs, dict(UR2=((a << 3) + b) & MASK32))
         c.add("umov__UR", dict(URd=2, URb=4), regs, dict(UR2=b, __max_ops=1))
         c.add("umov__UI", dict(URd=2, Sb=b), {}, dict(UR2=b, __max_ops=1))
         if "viadd__RRR_RRR" in c.classes:
@@ -88,7 +74,7 @@ def permute_register_regressions(c):
           dict(R2=0x80ff017f), dict(R3=0, __native=True, __max_ops=1))
 
 
-@retained("Special/zero/guard registers, p-code costs, partial MOV pixel masks, and operations without adapters.")
+@retained("Special/zero/guard registers, p-code costs, partial MOV pixel masks, and hand-calculated signed/pair arithmetic regressions.")
 def fixed(c):
     # Preserve the old mixed-bank comparison's constant predicate encoding; profiles
     # use writable predicate inputs, so a true value alone does not test PT.
@@ -118,6 +104,7 @@ def fixed(c):
     c.add("imad_hi__RRR_RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6, fmt="U32"), dict(R2=0xffffffff, R4=2, R6=3, R7=1), dict(R8=3))
 
 
+@retained("Explicit constant-bank addresses and narrow HI carry boundaries guard the MD addend-width correction.")
 def imad_constant(c):
     """IMAD HI/WIDE with a constant-bank addend: 64 bits wide (the md's SM75/SM80 32 is corrected
     in src/sass/md/fixes.py; ptxas adds 64-bit pointer parameters this way)."""

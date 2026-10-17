@@ -1,5 +1,7 @@
 """Reference adapters for generated shared-case form plans. No implementation-derived outputs."""
 import json
+from functools import cache
+from sass.md import parse
 from sass.paths import ROOT
 from sass.assemble import encoding
 from sass.decode import pydecode
@@ -9,11 +11,13 @@ from tests.refs import integer
 from tests.harness import autocase_profiles
 
 PLANS = ROOT / 'tests/cases/generated'
-OPS = {'BREV', 'POPC', 'FLO', 'SGXT', 'PRMT', 'UPRMT', 'IABS', 'MOV', 'UMOV', 'BMSK'}
+OPS = {'BREV', 'POPC', 'FLO', 'SGXT', 'PRMT', 'UPRMT', 'IABS', 'MOV', 'UMOV', 'BMSK', 'UBREV', 'UPOPC', 'USGXT'}
 INTEGER_OPS = {'ISETP', 'UISETP', 'IMNMX', 'SEL', 'USEL', 'IDP', 'SHF', 'USHF', 'LOP3', 'ULOP3'}
+CARRY_OPS = {'IADD3', 'UIADD3', 'LEA', 'ULEA', 'IMAD', 'UIMAD'}
+INTEGER_OPS |= CARRY_OPS
 PACKED_OPS = {'VIMNMX', 'VISET', 'VIADDMNMX', 'VIMNMX3'}
 INTEGER_OPS |= PACKED_OPS
-FAMILIES = {op: 'int_simd' if op in PACKED_OPS | {'IDP'} else 'bmsk' if op == 'BMSK' else 'int_alu' for op in OPS | INTEGER_OPS}
+FAMILIES = {op: 'carry' if op in CARRY_OPS else 'int_simd' if op in PACKED_OPS | {'IDP'} else 'bmsk' if op == 'BMSK' else 'int_alu' for op in OPS | INTEGER_OPS}
 OPS |= INTEGER_OPS
 OWNED = OPS - {'FLO'}  # FLO's partially modelled predicate outputs retain explicit PT-only cases.
 
@@ -33,16 +37,17 @@ def generate(arch, cls, form, fp='exact', profiles=None, native=True):
         raise Unsupported('empty or unknown input profile')
     if k.mnemonic in ('IABS', 'MOV', 'UMOV', 'BMSK'):
         return finish(scalar_cases(c, k, form, profiles), native)
+    if k.mnemonic in CARRY_OPS: return finish(carry_cases(c, k, form, profiles), native)
     if k.mnemonic in ('LOP3', 'ULOP3'): return finish(logic_cases(c, k, form, profiles), native)
     if k.mnemonic in PACKED_OPS: return finish(packed_cases(c, k, form, profiles), native)
     if k.mnemonic in INTEGER_OPS: return finish(integer_cases(c, k, form, profiles), native)
-    profile = 'permutation' if k.mnemonic in ('PRMT', 'UPRMT') else 'sgxt' if k.mnemonic == 'SGXT' else 'bits'
+    profile = 'permutation' if k.mnemonic in ('PRMT', 'UPRMT') else 'sgxt' if k.mnemonic in ('SGXT', 'USGXT') else 'bits'
     if profiles != [profile]: raise Unsupported('incompatible input profiles')
     src = source(k, 'Sb') if 'Sb' in k.operand_types else source(k, 'Rb', 'URb')
     dest = source(k, 'Rd', 'URd')
     if src is None or dest is None:
         raise Unsupported('unsupported operand layout')
-    allowed = {'fmt', 'sh'} if k.mnemonic == 'FLO' else {'fmt', 'cw'} if k.mnemonic == 'SGXT' else {'pmode', 'idx'} if k.mnemonic in ('PRMT', 'UPRMT') else set()
+    allowed = {'fmt', 'sh'} if k.mnemonic == 'FLO' else {'fmt', 'cw'} if k.mnemonic in ('SGXT', 'USGXT') else {'pmode', 'idx'} if k.mnemonic in ('PRMT', 'UPRMT') else set()
     allowed |= {src + '@invert'}
     if set(form) - allowed:
         raise Unsupported('unhandled modifiers: ' + ', '.join(sorted(set(form) - allowed)))
@@ -63,22 +68,22 @@ def generate(arch, cls, form, fp='exact', profiles=None, native=True):
     else:
         spec = autocase_profiles.PROFILES[profile]
         for value in autocase_profiles.values(profile):
-            for width in (spec['widths'] if k.mnemonic == 'SGXT' else (None,)):
+            for width in (spec['widths'] if k.mnemonic in ('SGXT', 'USGXT') else (None,)):
                 banks = spec.get('banks', ((2, 16),)) if k.operand_types[src].type == 'C' else ((2, 16),)
                 for bank in banks:
                     s = Inputs(c, k, form, bank=bank)
                     operand = value if width is None else width
                     s.operand((src,), operand, 6)
                     operand = (~operand & 0xffffffff) if form.get(src + '@invert') == 'set' else operand
-                    if k.mnemonic == 'BREV': result = integer.brev(operand)
-                    elif k.mnemonic == 'POPC': result = operand.bit_count()
+                    if k.mnemonic in ('BREV', 'UBREV'): result = integer.brev(operand)
+                    elif k.mnemonic in ('POPC', 'UPOPC'): result = operand.bit_count()
                     elif k.mnemonic == 'FLO':
                         if form.get('sh', 'nosh') not in ('SH', 'nosh'): raise Unsupported('unknown FLO mode')
                         s.fields['Pu'] = 'PT'
                         result = integer.flo(operand, form.get('sh') == 'SH', form.get('fmt') == 'S32')
                     else:
                         if form.get('cw', 'C') not in ('C', 'W'): raise Unsupported('unknown SGXT mode')
-                        s.operand(('Ra',), value, 4)
+                        s.operand(('Ra', 'URa'), value, 4)
                         result = integer.sgxt(value, operand, form.get('cw') == 'W', form.get('fmt') == 'S32')
                     s.add({s.output((dest,), 2):result}, form)
     return finish(c, native)
@@ -136,10 +141,13 @@ class Inputs:
         self.fields[name] = reg
         return prefix + str(reg)
 
-    def add(self, expected, form):
+    def add(self, expected, form, imad_alias=False):
         word = encoding.encode(self.c.arch, self.k.name, **self.fields)
         decoded = pydecode.decode(self.c.arch, bytes.fromhex(word))
-        if decoded.klass.name != self.k.name or settings(self.c.arch, decoded) != form:
+        found = settings(self.c.arch, decoded)
+        alias = imad_alias and self.k.name == 'imad__RsIR_RIR' and decoded.klass.name == 'imad_pseudo__RsIR_RIR'
+        if alias: found = {n:v for n,v in found.items() if n != 'pseudo_opcode'}
+        if (decoded.klass.name != self.k.name and not alias) or found != form:
             raise Unsupported('encoded instruction does not preserve the requested class/form')
         self.c.add(self.k.name, self.fields, self.registers, expected, memory=self.memory)
 
@@ -174,6 +182,70 @@ def scalar_cases(c, k, form, profiles):
                 prefix = 'UR' if name.startswith('UR') else 'R'
                 expected[prefix + str(rd + 1)] = result >> 32
             s.add(expected, form)
+    return c
+
+
+@cache
+def operand_sizes(arch):
+    """Operand geometry comes from the machine description, including its documented fixes."""
+    return {r['cls']:r['preds'] for r in parse.load_classes(parse.OUT / arch)}
+
+
+def carry_cases(c, k, form, profiles):
+    op = k.mnemonic.lstrip('U')
+    a_name, b_name, c_name = source(k, 'Ra', 'URa'), source(k, 'Sb', 'Rb', 'URb'), source(k, 'Sc', 'Rc', 'URc')
+    p, q = source(k, 'Pp', 'UPp'), source(k, 'Pq', 'UPq')
+    extended = 'X' in k.operand_types
+    suffix = '@invert' if extended else '@negate'
+    operands = (a_name, b_name, c_name) if op == 'IADD3' else (a_name, b_name) if op == 'LEA' else (c_name,)
+    allowed = {n + suffix for n in operands if n} | {n + '@not' for n in (p, q) if n} | {'X'}
+    allowed |= {'hilo', 'sx32'} if op == 'LEA' else {'fmt'} if op == 'IMAD' else set()
+    if set(form) - allowed: raise Unsupported('unhandled arithmetic modifiers: ' + ', '.join(sorted(set(form)-allowed)))
+    if form.get('X', 'X') != 'X': raise Unsupported('unknown extended arithmetic mode')
+    if op == 'IMAD' and form.get('fmt') not in ('U32', 'S32'): raise Unsupported('unknown IMAD signedness')
+    if op == 'LEA' and (form.get('hilo') not in ('LO', 'HI') or form.get('sx32', 'SX32') != 'SX32'):
+        raise Unsupported('unknown LEA word selection')
+    mode = 'WIDE' if '_wide' in k.name else 'HI' if '_hi' in k.name else 'LO'
+    sizes = operand_sizes(c.arch)
+    geometry = sizes[k.name.replace('Cx', 'C')] if 'Cx' in k.name else sizes[k.name]
+    c_width = geometry.get('ISRC_C_SIZE', 32) if op == 'IMAD' else 32
+    if c_width not in (32,64): raise Unsupported('unsupported arithmetic addend width')
+    index = 0
+    for profile in profiles:
+        spec = autocase_profiles.PROFILES[profile]
+        for j, (a, b, acc, pred, prior) in enumerate(autocase_profiles.vectors(profile)):
+            paired = spec.get('predicate') == 'pair' or spec.get('carry_pairs')
+            if paired and (not extended and pred or (op != 'IADD3' or not extended) and prior): continue
+            if spec.get('predicate') == 'both' and not extended and pred: continue
+            if op == 'IMAD': acc &= (1 << c_width) - 1
+            else: acc &= 0xffffffff
+            shifts = (j % 8,) if spec.get('shifts') == 'index8' else spec.get('shifts', (0, 1, 5, 31))
+            for shift in (shifts if op == 'LEA' else (0,)):
+                s = Inputs(c, k, form)
+                s.operand((a_name,), a, 4); s.operand((b_name,), b, 6)
+                if c_name and (op != 'LEA' or form['hilo'] == 'HI' and form.get('sx32') != 'SX32'):
+                    s.operand((c_name,), acc, 8, size=c_width // 8 if op == 'IMAD' else 4)
+                effective = []
+                for n, value, reg in ((p, pred, 0), (q, prior, 1)):
+                    if n:
+                        s.predicate((n,), value, reg)
+                        effective.append(value ^ (form.get(n + '@not') == 'set'))
+                    else: effective.append(0)
+                flips = tuple(form.get(n + suffix) == 'set' for n in operands)
+                if op == 'IADD3': result, pu, pv = integer.iadd3(a, b, acc, flips, extended, *effective)
+                elif op == 'LEA':
+                    s.fields['scaleU5'] = shift
+                    result, pu = integer.lea(a, b, acc, shift, form['hilo']=='HI', form.get('sx32')=='SX32', flips, extended, effective[0])
+                else:
+                    result, pu = integer.imad(a,b,acc,mode,form['fmt']=='S32',flips[0] and not extended,flips[0] and extended,effective[0],addend_width=c_width)
+                rd = (4, 6, 8, 2)[index % 4]
+                expected = {s.output(('Rd','URd'),rd):result & 0xffffffff}
+                if op == 'IMAD' and mode == 'WIDE':
+                    expected[('UR' if k.mnemonic.startswith('U') else 'R') + str(rd+1)] = result >> 32
+                if pu is not None and source(k, 'Pu','UPu'): expected[s.output(('Pu','UPu'),0)] = pu
+                if op == 'IADD3' and source(k, 'Pv','UPv'): expected[s.output(('Pv','UPv'),1)] = pv
+                s.add(expected, form, imad_alias=op == 'IMAD')
+                index += 1
     return c
 
 

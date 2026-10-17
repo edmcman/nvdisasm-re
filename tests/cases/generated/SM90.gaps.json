@@ -2,9 +2,9 @@
   "counts": {
     "legal": 3552001,
     "unresolved_semantics": 2730747,
-    "manual": 2592,
-    "blocked": 815664,
-    "generated": 2998
+    "manual": 2298,
+    "blocked": 815224,
+    "generated": 3732
   },
   "gaps": [
     {
@@ -2783,51 +2783,6 @@
       "reason": "needs a reference/operand adapter"
     },
     {
-      "cls": "iadd3_imm__RsIR_RIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "iadd3_noimm__RCR_RCR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "iadd3_noimm__RCxR_RCxR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "iadd3_noimm__RUR_RUR",
-      "count": 5,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "iadd3_x_imm__RIR_RIR",
-      "count": 16,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "iadd3_x_noimm__RCR_RCR",
-      "count": 24,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "iadd3_x_noimm__RCxR_RCxR",
-      "count": 24,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "iadd3_x_noimm__RRR_RRR",
-      "count": 18,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "iadd3_x_noimm__RUR_RUR",
-      "count": 24,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "igmma_Ra_URb_Rc_",
       "count": 288,
       "reason": "unresolved semantics"
@@ -2858,154 +2813,146 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "imad_hi_x__RCR_RCR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_hi_x__RCxR_RCxR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_hi_x__RRC_RRC",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_hi_x__RRCx_RRCx",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_hi_x__RRR_RRR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_hi_x__RRU_RRU",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_hi_x__RUR_RUR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_hi_x__RsIR_RIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
+      "cls": "imad_pseudo__RCR_RCR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "unset"
+      },
+      "reason": "alternate or absent instruction class"
     },
     {
       "cls": "imad_pseudo__RCR_RCR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "set"
+      },
+      "reason": "alternate or absent instruction class"
+    },
+    {
+      "cls": "imad_pseudo__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "unset"
+      },
+      "reason": "alternate or absent instruction class"
+    },
+    {
+      "cls": "imad_pseudo__RCR_RCR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "set"
+      },
+      "reason": "alternate or absent instruction class"
     },
     {
       "cls": "imad_pseudo__RRC_RRC",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
+      "settings": {
+        "fmt": "U32",
+        "Sc@negate": "unset"
+      },
+      "reason": "alternate or absent instruction class"
+    },
+    {
+      "cls": "imad_pseudo__RRC_RRC",
+      "settings": {
+        "fmt": "U32",
+        "Sc@negate": "set"
+      },
+      "reason": "alternate or absent instruction class"
+    },
+    {
+      "cls": "imad_pseudo__RRC_RRC",
+      "settings": {
+        "fmt": "S32",
+        "Sc@negate": "unset"
+      },
+      "reason": "alternate or absent instruction class"
+    },
+    {
+      "cls": "imad_pseudo__RRC_RRC",
+      "settings": {
+        "fmt": "S32",
+        "Sc@negate": "set"
+      },
+      "reason": "alternate or absent instruction class"
     },
     {
       "cls": "imad_pseudo__RRR_RRR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "unset"
+      },
+      "reason": "alternate or absent instruction class"
+    },
+    {
+      "cls": "imad_pseudo__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "set"
+      },
+      "reason": "alternate or absent instruction class"
+    },
+    {
+      "cls": "imad_pseudo__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "unset"
+      },
+      "reason": "alternate or absent instruction class"
+    },
+    {
+      "cls": "imad_pseudo__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "set"
+      },
+      "reason": "alternate or absent instruction class"
     },
     {
       "cls": "imad_pseudo__RRsI_RRI",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
+      "settings": {
+        "fmt": "U32"
+      },
+      "reason": "alternate or absent instruction class"
+    },
+    {
+      "cls": "imad_pseudo__RRsI_RRI",
+      "settings": {
+        "fmt": "S32"
+      },
+      "reason": "alternate or absent instruction class"
     },
     {
       "cls": "imad_pseudo__RsIR_RIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "unset"
+      },
+      "reason": "alternate or absent instruction class"
     },
     {
-      "cls": "imad_wide_x__RCR_RCR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
+      "cls": "imad_pseudo__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "set"
+      },
+      "reason": "alternate or absent instruction class"
     },
     {
-      "cls": "imad_wide_x__RCxR_RCxR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
+      "cls": "imad_pseudo__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "unset"
+      },
+      "reason": "alternate or absent instruction class"
     },
     {
-      "cls": "imad_wide_x__RRC_RRC",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_wide_x__RRCx_RRCx",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_wide_x__RRR_RRR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_wide_x__RRU_RRU",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_wide_x__RUR_RUR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_wide_x__RsIR_RIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_x__RCR_RCR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_x__RCxR_RCxR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_x__RRC_RRC",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_x__RRCx_RRCx",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_x__RRR_RRR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_x__RRU_RRU",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_x__RRsI_RRI",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_x__RUR_RUR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "imad_x__RsIR_RIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
+      "cls": "imad_pseudo__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "set"
+      },
+      "reason": "alternate or absent instruction class"
     },
     {
       "cls": "imma_",
@@ -3366,151 +3313,6 @@
       "cls": "ldtram_",
       "count": 2,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "lea_hi_imm__RRuI_RRI",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_imm__RuIR_RIR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_imm_sx32__RuIR_RIR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_imm_sx32_x__RuIR_RIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_imm_x__RRuI_RRI",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_imm_x__RuIR_RIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_noimm__RCR_RCR",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_noimm__RCxR_RCxR",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_noimm__RUR_RUR",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_noimm_sx32__RCR_RCR",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_noimm_sx32__RCxR_RCxR",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_noimm_sx32__RUR_RUR",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_noimm_sx32_x__RCR_RCR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_noimm_sx32_x__RCxR_RCxR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_noimm_sx32_x__RRR_RRR",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_noimm_sx32_x__RUR_RUR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_noimm_x__RCR_RCR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_noimm_x__RCxR_RCxR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_noimm_x__RRR_RRR",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_hi_noimm_x__RUR_RUR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_lo_imm__RuIR_RIR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_lo_imm_x__RuIR_RIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_lo_noimm__RCR_RCR",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_lo_noimm__RCxR_RCxR",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_lo_noimm__RUR_RUR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_lo_noimm_x__RCR_RCR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_lo_noimm_x__RCxR_RCxR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_lo_noimm_x__RRR_RRR",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lea_lo_noimm_x__RUR_RUR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "lepc__RRR",
@@ -4703,16 +4505,6 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ubrev__URURUR_URUR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ubrev__URuIUR_URI",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "ucgabar_arrive_",
       "count": 2,
       "reason": "unresolved semantics"
@@ -4788,46 +4580,6 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "uiadd3__URsIUR_RIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "uiadd3_x__URURUR_URURUR",
-      "count": 18,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "uiadd3_x__URsIUR_RIR",
-      "count": 16,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "uimad_wide_x__URURUR_URURUR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "uimad_wide_x__URsIUR_URIUR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "uimad_x__URURUR_URURUR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "uimad_x__URURsI_URURI",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "uimad_x__URsIUR_URIUR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "uldc_const__RCR",
       "count": 1,
       "reason": "unresolved semantics"
@@ -4851,61 +4603,6 @@
       "cls": "uldc_ur_offset_",
       "count": 6,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ulea_hi_imm__RRuI_RRI",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ulea_hi_imm__RuIR_URIR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ulea_hi_imm_sx32__RuIR_URIUR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ulea_hi_imm_sx32_x__RuIR_URIUR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ulea_hi_imm_x__RRuI_RRI",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ulea_hi_imm_x__RuIR_URIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ulea_hi_noimm_sx32_x__URURUR_URURUR",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ulea_hi_noimm_x__URURUR_URURUR",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ulea_lo_imm__URuIUR_URIUR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ulea_lo_imm_x__URuIUR_URIUR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ulea_lo_noimm_x__URURUR_URURUR",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "ulepc__URURUR",
@@ -4946,16 +4643,6 @@
       "cls": "uplop3_lut_2out_3reg__URURUR",
       "count": 1,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "upopc__URURUR_URUUR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "upopc__URuIUR_URIR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "ur2up__Imm",
@@ -5001,16 +4688,6 @@
       "cls": "usetshmsz__URb",
       "count": 1,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "usgxt__URURUR_UUU",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "usgxt__URuIUR_URIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "utmacctl_",

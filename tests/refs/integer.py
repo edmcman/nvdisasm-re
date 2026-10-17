@@ -22,6 +22,22 @@ def isetp(a, b, comparison, bop, predicate, signed=False, low=None):
     return combine(condition, predicate, bop), combine(not condition, predicate, bop)
 
 
+def iadd3(a, b, c, modifications=(False, False, False), extended=False, p=0, q=0):
+    """Unbounded unsigned sum: ordinary negation keeps ~x+1; .X uses ~x and two carry inputs."""
+    total = sum((MASK32 - x + (not extended)) if flip else x
+                for x, flip in zip((a, b, c), modifications)) + (p + q if extended else 0)
+    return total & MASK32, int(total > MASK32), int(total > 0x1ffffffff)
+
+
+def lea(a, b, c, shift, high=False, signed_high=False, modifications=(False, False), extended=False, carry_in=0):
+    """Select the shifted low/high word before operand negation/complement and carry addition."""
+    data = (sext(a, 32) if signed_high else (c << 32) | a) if high else a
+    shifted = ((data << shift) >> (32 if high else 0)) & MASK32
+    total = sum((MASK32 - x + (not extended)) if flip else x
+                for x, flip in zip((shifted, b), modifications)) + (carry_in if extended else 0)
+    return total & MASK32, int(total > MASK32)
+
+
 def lop3(a, b, c, table, predicate, pop):
     """PTX lop3: bit 4*a+2*b+c selects a LUT bit; .and/.or combines
     the nonzero result with the predicate input (SASS PAND/POR).
@@ -160,10 +176,16 @@ def imad_wide(a, b, c, signed, negate=0, invert=0, carry_in=0):
 
 
 
-def imad(a, b, c, mode, signed, negate=0, invert=0, carry_in=0):
+def imad(a, b, c, mode, signed, negate=0, invert=0, carry_in=0, addend_width=64):
     """(Rd, Pu) of IMAD/UIMAD: LO keeps the low word of a*b + c (32-bit c, negated or .X-inverted, no
-    carry-out); HI/WIDE keep the high word or all 64 bits of `imad_wide`, Pu its carry-out."""
+    carry-out); HI/WIDE keep the high word or all 64 bits of `imad_wide`, Pu its carry-out.
+    With a narrow HI addend, add C after extracting the product high word and report 32-bit carry."""
     if mode == "LO": return (a * b + ((c ^ MASK32) + negate if negate or invert else c) + carry_in) & MASK32, None
+    if mode == 'HI' and addend_width == 32:
+        x, y = (sext(a,32), sext(b,32)) if signed else (a,b)
+        addend = (MASK32-c+negate) if negate or invert else c
+        total = ((x*y & MASK64) >> 32) + addend + carry_in
+        return total & MASK32, int(total > MASK32)
     total = imad_wide(a, b, c, signed, negate, invert, carry_in)
     return (total >> 32 & MASK32 if mode == "HI" else total & MASK64), int(total > MASK64)
 

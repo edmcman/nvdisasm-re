@@ -293,3 +293,76 @@ def test_logic_seeded_profiles_preserve_manual_inputs():
         expected = {(*(rng.getrandbits(32) for _ in range(3)), 1, 0) for _ in range(count)}
         assert set(autocase_profiles.vectors(profile)) == expected
     assert autocase_profiles.vectors('logic_legacy') == ((0x81234567, 0x76543210, 0xa5a5f0f0, 1, 0),)
+
+
+@pytest.mark.parametrize('arch,cls,form', [
+    ('SM89','iadd3_x_noimm__RCxR_RCxR',{'X':'X','Ra@invert':'set','Sb@invert':'unset','Rc@invert':'set','Pp@not':'set','Pq@not':'unset'}),
+    ('SM120','uiadd3_x__URURUR_URURUR',{'X':'X','URa@invert':'unset','URb@invert':'set','URc@invert':'unset','UPp@not':'set','UPq@not':'set'}),
+    ('SM89','lea_hi_noimm__RCR_RCR',{'hilo':'HI','Ra@negate':'set','Sb@negate':'unset'}),
+    ('SM89','ulea_hi_noimm_sx32_x__URURUR_URURUR',{'hilo':'HI','sx32':'SX32','X':'X','URa@invert':'set','URb@invert':'unset','UPp@not':'set'}),
+    ('SM75','imad_hi__RRC_RRC',{'fmt':'S32','Sc@negate':'set'}),
+    ('SM89','imad__RsIR_RIR',{'fmt':'U32','Rc@negate':'unset'}),
+    ('SM120','uimad_wide_x__URURUR_URURUR',{'fmt':'S32','X':'X','URc@invert':'set','UPp@not':'set'}),
+])
+def test_generated_carry_arithmetic(arch,cls,form):
+    cases=tests.harness.autocases.generate(arch,cls,form)
+    assert cases
+    for case in cases:
+        status,problems=lifted.run(arch,'exact',case)
+        assert status=='native' and not problems,(status,problems)
+
+
+def test_imad_alias_requires_explicit_permission():
+    adapter=tests.harness.autocases
+    c=Cases('SM89')
+    form={'fmt':'U32','Rc@negate':'unset'}
+    s=adapter.Inputs(c,c.classes['imad__RsIR_RIR'],form)
+    s.operand(('Ra',),3,4);s.operand(('Sb',),0,6);s.operand(('Rc',),7,8)
+    expected={s.output(('Rd',),2):7}
+    with pytest.raises(adapter.Unsupported,match='does not preserve'):
+        s.add(expected,form)
+    s.add(expected,form,imad_alias=True)
+    assert len(c)==1
+    assert pydecode.decode('SM89',bytes.fromhex(c[0].request['word'])).klass.name=='imad_pseudo__RsIR_RIR'
+
+
+@pytest.mark.parametrize('profile,seed,count', [('imad_forms','imad-forms',4),('imad_negated','imad-negate',24)])
+def test_imad_profiles_preserve_wide_random_inputs(profile,seed,count):
+    import random
+    from tests.harness import autocase_profiles
+    rng=random.Random(seed)
+    expected={(rng.getrandbits(32),rng.getrandbits(32),rng.getrandbits(64)) for _ in range(count)}
+    assert expected <= {v[:3] for v in autocase_profiles.vectors(profile)}
+
+
+def test_carry_profile_preserves_both_carry_inputs():
+    from tests.harness import autocase_profiles
+    vectors=autocase_profiles.vectors('carry_words')
+    assert len(vectors)==17*4
+    assert {(v[3],v[4]) for v in vectors}=={(0,0),(0,1),(1,0),(1,1)}
+
+
+@pytest.mark.parametrize('cls,form',[
+    ('ubrev__URURUR_URUR',{}),
+    ('ubrev__URuIUR_URI',{}),
+    ('upopc__URURUR_URUUR',{'URb@invert':'set'}),
+    ('upopc__URuIUR_URIR',{}),
+    ('usgxt__URURUR_UUU',{'cw':'W','fmt':'S32'}),
+    ('usgxt__URuIUR_URIR',{'cw':'C','fmt':'U32'}),
+])
+def test_uniform_bit_adapters(cls,form):
+    cases=tests.harness.autocases.generate('SM89',cls,form)
+    assert cases
+    for case in cases:
+        status,problems=lifted.run('SM89','exact',case)
+        assert status=='native' and not problems,(status,problems)
+
+
+def test_carry_seed_and_pair_addends_are_preserved():
+    import random
+    from tests.harness import autocase_profiles
+    rng=random.Random('carry')
+    words=[(0,0,0),(0xffffffff,0xffffffff,0xffffffff),(0x80000000,0x80000000,0),(0xffffffff,1,0),(0,0xffffffff,1)]
+    words += [tuple(rng.getrandbits(32) for _ in range(3)) for _ in range(12)]
+    assert {v[:3] for v in autocase_profiles.vectors('carry_words')}==set(words)
+    assert {v[:3] for v in autocase_profiles.vectors('imad_carry_words')}=={(a,b,(b<<32)|c) for a,b,c in words}

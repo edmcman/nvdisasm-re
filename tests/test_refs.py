@@ -114,3 +114,13 @@ def test_lop3_complete_bit_sliced_truth_tables():
         for pred in (0, 1):
             assert lop3(0, 0, 0, table, pred, 'POR')[1] == (nonzero | pred)
             assert lop3(0, 0, 0, table, pred, 'PAND')[1] == (nonzero & pred)
+
+
+def test_arithmetic_carry_boundaries():
+    from tests.refs.integer import iadd3, lea, imad
+    assert iadd3(0,0,0,(True,False,False)) == (0,1,0)
+    assert iadd3(0xffffffff,0xffffffff,0xffffffff) == (0xfffffffd,1,1)
+    assert iadd3(0,0,0,(True,False,False),True,1,0) == (0,1,0)
+    assert lea(0,0,0,0,modifications=(True,False)) == (0,1)
+    assert lea(1,0,1,31,high=True) == (0x80000000,0)
+    assert imad(0,0,0xffffffff,'HI',False,carry_in=1,addend_width=32) == (0,1)

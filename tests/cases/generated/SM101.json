@@ -125,6 +125,1255 @@
       "native": true
     },
     {
+      "family": "carry",
+      "cls": "iadd3_imm__RsIR_RIR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_imm__RsIR_RIR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_imm__RsIR_RIR",
+      "settings": {
+        "Ra@negate": "set",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_imm__RsIR_RIR",
+      "settings": {
+        "Ra@negate": "set",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_noimm__RRR_RRR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Rb@negate": "unset",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words",
+        "arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_noimm__RRR_RRR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Rb@negate": "unset",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_noimm__RRR_RRR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Rb@negate": "set",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_noimm__RRR_RRR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Rb@negate": "set",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_noimm__RRR_RRR",
+      "settings": {
+        "Ra@negate": "set",
+        "Rb@negate": "unset",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_noimm__RRR_RRR",
+      "settings": {
+        "Ra@negate": "set",
+        "Rb@negate": "unset",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_noimm__RUR_RUR",
+      "settings": {
+        "Ra@negate": "unset",
+        "URb@negate": "unset",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_noimm__RUR_RUR",
+      "settings": {
+        "Ra@negate": "unset",
+        "URb@negate": "unset",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_noimm__RUR_RUR",
+      "settings": {
+        "Ra@negate": "unset",
+        "URb@negate": "set",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_noimm__RUR_RUR",
+      "settings": {
+        "Ra@negate": "unset",
+        "URb@negate": "set",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_noimm__RUR_RUR",
+      "settings": {
+        "Ra@negate": "set",
+        "URb@negate": "unset",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_noimm__RUR_RUR",
+      "settings": {
+        "Ra@negate": "set",
+        "URb@negate": "unset",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_imm__RIR_RIR",
+      "settings": {
+        "X": "X",
+        "Ra@invert": "unset",
+        "Rc@invert": "unset",
+        "Pp@not": "unset",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_imm__RIR_RIR",
+      "settings": {
+        "X": "X",
+        "Ra@invert": "unset",
+        "Rc@invert": "unset",
+        "Pp@not": "unset",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_imm__RIR_RIR",
+      "settings": {
+        "X": "X",
+        "Ra@invert": "unset",
+        "Rc@invert": "unset",
+        "Pp@not": "set",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_imm__RIR_RIR",
+      "settings": {
+        "X": "X",
+        "Ra@invert": "unset",
+        "Rc@invert": "unset",
+        "Pp@not": "set",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_imm__RIR_RIR",
+      "settings": {
+        "X": "X",
+        "Ra@invert": "unset",
+        "Rc@invert": "set",
+        "Pp@not": "unset",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_imm__RIR_RIR",
+      "settings": {
+        "X": "X",
+        "Ra@invert": "unset",
+        "Rc@invert": "set",
+        "Pp@not": "unset",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_imm__RIR_RIR",
+      "settings": {
+        "X": "X",
+        "Ra@invert": "unset",
+        "Rc@invert": "set",
+        "Pp@not": "set",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_imm__RIR_RIR",
+      "settings": {
+        "X": "X",
+        "Ra@invert": "unset",
+        "Rc@invert": "set",
+        "Pp@not": "set",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_imm__RIR_RIR",
+      "settings": {
+        "X": "X",
+        "Ra@invert": "set",
+        "Rc@invert": "unset",
+        "Pp@not": "unset",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_imm__RIR_RIR",
+      "settings": {
+        "X": "X",
+        "Ra@invert": "set",
+        "Rc@invert": "unset",
+        "Pp@not": "unset",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_imm__RIR_RIR",
+      "settings": {
+        "X": "X",
+        "Ra@invert": "set",
+        "Rc@invert": "unset",
+        "Pp@not": "set",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_imm__RIR_RIR",
+      "settings": {
+        "X": "X",
+        "Ra@invert": "set",
+        "Rc@invert": "unset",
+        "Pp@not": "set",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_imm__RIR_RIR",
+      "settings": {
+        "X": "X",
+        "Ra@invert": "set",
+        "Rc@invert": "set",
+        "Pp@not": "unset",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_imm__RIR_RIR",
+      "settings": {
+        "X": "X",
+        "Ra@invert": "set",
+        "Rc@invert": "set",
+        "Pp@not": "unset",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_imm__RIR_RIR",
+      "settings": {
+        "X": "X",
+        "Ra@invert": "set",
+        "Rc@invert": "set",
+        "Pp@not": "set",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_imm__RIR_RIR",
+      "settings": {
+        "X": "X",
+        "Ra@invert": "set",
+        "Rc@invert": "set",
+        "Pp@not": "set",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "set",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "set",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "set",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "set",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "set",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "set",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "set",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "set",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "set",
+        "Rb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "set",
+        "Rb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "set",
+        "Rb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "set",
+        "Rb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "set",
+        "Rb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "set",
+        "Rb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "set",
+        "Rb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RRR_RRR",
+      "settings": {
+        "Ra@invert": "set",
+        "Rb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "set",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "set",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "set",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "set",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "set",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "set",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "set",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "set",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "set",
+        "URb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "set",
+        "URb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "set",
+        "URb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "set",
+        "URb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "set",
+        "URb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "set",
+        "URb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "set",
+        "URb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set",
+        "Pq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "iadd3_x_noimm__RUR_RUR",
+      "settings": {
+        "Ra@invert": "set",
+        "URb@invert": "unset",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set",
+        "Pq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
       "family": "int_simd",
       "cls": "idp_2a__R",
       "settings": {
@@ -841,6 +2090,2202 @@
       "profiles": [
         "integer_edges",
         "dot4"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RRsI_RRI",
+      "settings": {
+        "fmt": "U32"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RRsI_RRI",
+      "settings": {
+        "fmt": "S32"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words",
+        "arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words",
+        "arithmetic_random",
+        "imad_negated"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words",
+        "arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words",
+        "arithmetic_random",
+        "imad_negated"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_hi_x__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words",
+        "imad_negated"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words",
+        "imad_negated"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "Rc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_wide_x__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRR_RRR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRR_RRR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRU_RRU",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRU_RRU",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRsI_RRI",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRsI_RRI",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRsI_RRI",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RRsI_RRI",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RUR_RUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RUR_RUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RsIR_RIR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "imad_x__RsIR_RIR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "Rc@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
       ],
       "native": true
     },
@@ -15199,6 +18644,1155 @@
       "native": true
     },
     {
+      "family": "carry",
+      "cls": "lea_hi_imm__RRuI_RRI",
+      "settings": {
+        "hilo": "HI",
+        "Ra@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_imm__RRuI_RRI",
+      "settings": {
+        "hilo": "HI",
+        "Ra@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_imm__RuIR_RIR",
+      "settings": {
+        "hilo": "HI",
+        "Ra@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_imm__RuIR_RIR",
+      "settings": {
+        "hilo": "HI",
+        "Ra@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_imm_sx32__RuIR_RIR",
+      "settings": {
+        "hilo": "HI",
+        "sx32": "SX32",
+        "Ra@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_imm_sx32__RuIR_RIR",
+      "settings": {
+        "hilo": "HI",
+        "sx32": "SX32",
+        "Ra@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_imm_sx32_x__RuIR_RIR",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "Ra@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_imm_sx32_x__RuIR_RIR",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "Ra@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_imm_sx32_x__RuIR_RIR",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "Ra@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_imm_sx32_x__RuIR_RIR",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "Ra@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_imm_x__RRuI_RRI",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "Ra@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_imm_x__RRuI_RRI",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "Ra@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_imm_x__RRuI_RRI",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "Ra@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_imm_x__RRuI_RRI",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "Ra@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_imm_x__RuIR_RIR",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "Ra@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_imm_x__RuIR_RIR",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "Ra@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_imm_x__RuIR_RIR",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "Ra@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_imm_x__RuIR_RIR",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "Ra@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm__RRR_RRR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Rb@negate": "unset",
+        "hilo": "HI"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm__RRR_RRR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Rb@negate": "set",
+        "hilo": "HI"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm__RRR_RRR",
+      "settings": {
+        "Ra@negate": "set",
+        "Rb@negate": "unset",
+        "hilo": "HI"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm__RUR_RUR",
+      "settings": {
+        "Ra@negate": "unset",
+        "URb@negate": "unset",
+        "hilo": "HI"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm__RUR_RUR",
+      "settings": {
+        "Ra@negate": "unset",
+        "URb@negate": "set",
+        "hilo": "HI"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm__RUR_RUR",
+      "settings": {
+        "Ra@negate": "set",
+        "URb@negate": "unset",
+        "hilo": "HI"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32__RRR_RRR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Rb@negate": "unset",
+        "hilo": "HI",
+        "sx32": "SX32"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32__RRR_RRR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Rb@negate": "set",
+        "hilo": "HI",
+        "sx32": "SX32"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32__RRR_RRR",
+      "settings": {
+        "Ra@negate": "set",
+        "Rb@negate": "unset",
+        "hilo": "HI",
+        "sx32": "SX32"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32__RUR_RUR",
+      "settings": {
+        "Ra@negate": "unset",
+        "URb@negate": "unset",
+        "hilo": "HI",
+        "sx32": "SX32"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32__RUR_RUR",
+      "settings": {
+        "Ra@negate": "unset",
+        "URb@negate": "set",
+        "hilo": "HI",
+        "sx32": "SX32"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32__RUR_RUR",
+      "settings": {
+        "Ra@negate": "set",
+        "URb@negate": "unset",
+        "hilo": "HI",
+        "sx32": "SX32"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "set",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "set",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "set",
+        "Rb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "set",
+        "Rb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "set",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "set",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "set",
+        "URb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_sx32_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "set",
+        "URb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "set",
+        "hilo": "HI",
+        "X": "X",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "set",
+        "hilo": "HI",
+        "X": "X",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "set",
+        "Rb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "set",
+        "Rb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "set",
+        "hilo": "HI",
+        "X": "X",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "set",
+        "hilo": "HI",
+        "X": "X",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "set",
+        "URb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_hi_noimm_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "set",
+        "URb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_imm__RuIR_RIR",
+      "settings": {
+        "hilo": "LO",
+        "Ra@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_imm__RuIR_RIR",
+      "settings": {
+        "hilo": "LO",
+        "Ra@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_imm_x__RuIR_RIR",
+      "settings": {
+        "hilo": "LO",
+        "X": "X",
+        "Ra@invert": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_imm_x__RuIR_RIR",
+      "settings": {
+        "hilo": "LO",
+        "X": "X",
+        "Ra@invert": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_imm_x__RuIR_RIR",
+      "settings": {
+        "hilo": "LO",
+        "X": "X",
+        "Ra@invert": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_imm_x__RuIR_RIR",
+      "settings": {
+        "hilo": "LO",
+        "X": "X",
+        "Ra@invert": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm__RRR_RRR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Rb@negate": "unset",
+        "hilo": "LO"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words",
+        "arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm__RRR_RRR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Rb@negate": "set",
+        "hilo": "LO"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm__RRR_RRR",
+      "settings": {
+        "Ra@negate": "set",
+        "Rb@negate": "unset",
+        "hilo": "LO"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm__RUR_RUR",
+      "settings": {
+        "Ra@negate": "unset",
+        "URb@negate": "unset",
+        "hilo": "LO"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm__RUR_RUR",
+      "settings": {
+        "Ra@negate": "unset",
+        "URb@negate": "set",
+        "hilo": "LO"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm__RUR_RUR",
+      "settings": {
+        "Ra@negate": "set",
+        "URb@negate": "unset",
+        "hilo": "LO"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "unset",
+        "hilo": "LO",
+        "X": "X",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "unset",
+        "hilo": "LO",
+        "X": "X",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "set",
+        "hilo": "LO",
+        "X": "X",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "unset",
+        "Rb@invert": "set",
+        "hilo": "LO",
+        "X": "X",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "set",
+        "Rb@invert": "unset",
+        "hilo": "LO",
+        "X": "X",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm_x__RRR_RRR",
+      "settings": {
+        "Ra@invert": "set",
+        "Rb@invert": "unset",
+        "hilo": "LO",
+        "X": "X",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "unset",
+        "hilo": "LO",
+        "X": "X",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "unset",
+        "hilo": "LO",
+        "X": "X",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "set",
+        "hilo": "LO",
+        "X": "X",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "unset",
+        "URb@invert": "set",
+        "hilo": "LO",
+        "X": "X",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "set",
+        "URb@invert": "unset",
+        "hilo": "LO",
+        "X": "X",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "lea_lo_noimm_x__RUR_RUR",
+      "settings": {
+        "Ra@invert": "set",
+        "URb@invert": "unset",
+        "hilo": "LO",
+        "X": "X",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
       "family": "int_alu",
       "cls": "lop3_lut__RRR_RRR",
       "settings": {
@@ -18274,6 +22868,1608 @@
       },
       "profiles": [
         "shift_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "ubrev__URURUR_URUR",
+      "settings": {},
+      "profiles": [
+        "bits"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "ubrev__URuIUR_URI",
+      "settings": {},
+      "profiles": [
+        "bits"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3__URURUR_URURUR",
+      "settings": {
+        "URa@negate": "unset",
+        "URb@negate": "unset",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3__URURUR_URURUR",
+      "settings": {
+        "URa@negate": "unset",
+        "URb@negate": "unset",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3__URURUR_URURUR",
+      "settings": {
+        "URa@negate": "unset",
+        "URb@negate": "set",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3__URURUR_URURUR",
+      "settings": {
+        "URa@negate": "unset",
+        "URb@negate": "set",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3__URURUR_URURUR",
+      "settings": {
+        "URa@negate": "set",
+        "URb@negate": "unset",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3__URURUR_URURUR",
+      "settings": {
+        "URa@negate": "set",
+        "URb@negate": "unset",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3__URsIUR_RIR",
+      "settings": {
+        "URa@negate": "unset",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3__URsIUR_RIR",
+      "settings": {
+        "URa@negate": "unset",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3__URsIUR_RIR",
+      "settings": {
+        "URa@negate": "set",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3__URsIUR_RIR",
+      "settings": {
+        "URa@negate": "set",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "unset",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "unset",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "unset",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "unset",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "unset",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "set",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "unset",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "set",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "unset",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "unset",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "unset",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "unset",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "unset",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "set",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "unset",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "set",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "set",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "unset",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "set",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "unset",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "set",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "set",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "set",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "set",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "set",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "unset",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "set",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "unset",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "set",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "set",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "set",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "set",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "set",
+        "URb@invert": "unset",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "unset",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "set",
+        "URb@invert": "unset",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "unset",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "set",
+        "URb@invert": "unset",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "set",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "set",
+        "URb@invert": "unset",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "set",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "set",
+        "URb@invert": "unset",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "unset",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "set",
+        "URb@invert": "unset",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "unset",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "set",
+        "URb@invert": "unset",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "set",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "set",
+        "URb@invert": "unset",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "set",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URsIUR_RIR",
+      "settings": {
+        "X": "X",
+        "URa@invert": "unset",
+        "URc@invert": "unset",
+        "UPp@not": "unset",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URsIUR_RIR",
+      "settings": {
+        "X": "X",
+        "URa@invert": "unset",
+        "URc@invert": "unset",
+        "UPp@not": "unset",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URsIUR_RIR",
+      "settings": {
+        "X": "X",
+        "URa@invert": "unset",
+        "URc@invert": "unset",
+        "UPp@not": "set",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URsIUR_RIR",
+      "settings": {
+        "X": "X",
+        "URa@invert": "unset",
+        "URc@invert": "unset",
+        "UPp@not": "set",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URsIUR_RIR",
+      "settings": {
+        "X": "X",
+        "URa@invert": "unset",
+        "URc@invert": "set",
+        "UPp@not": "unset",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URsIUR_RIR",
+      "settings": {
+        "X": "X",
+        "URa@invert": "unset",
+        "URc@invert": "set",
+        "UPp@not": "unset",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URsIUR_RIR",
+      "settings": {
+        "X": "X",
+        "URa@invert": "unset",
+        "URc@invert": "set",
+        "UPp@not": "set",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URsIUR_RIR",
+      "settings": {
+        "X": "X",
+        "URa@invert": "unset",
+        "URc@invert": "set",
+        "UPp@not": "set",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URsIUR_RIR",
+      "settings": {
+        "X": "X",
+        "URa@invert": "set",
+        "URc@invert": "unset",
+        "UPp@not": "unset",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URsIUR_RIR",
+      "settings": {
+        "X": "X",
+        "URa@invert": "set",
+        "URc@invert": "unset",
+        "UPp@not": "unset",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URsIUR_RIR",
+      "settings": {
+        "X": "X",
+        "URa@invert": "set",
+        "URc@invert": "unset",
+        "UPp@not": "set",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URsIUR_RIR",
+      "settings": {
+        "X": "X",
+        "URa@invert": "set",
+        "URc@invert": "unset",
+        "UPp@not": "set",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URsIUR_RIR",
+      "settings": {
+        "X": "X",
+        "URa@invert": "set",
+        "URc@invert": "set",
+        "UPp@not": "unset",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URsIUR_RIR",
+      "settings": {
+        "X": "X",
+        "URa@invert": "set",
+        "URc@invert": "set",
+        "UPp@not": "unset",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URsIUR_RIR",
+      "settings": {
+        "X": "X",
+        "URa@invert": "set",
+        "URc@invert": "set",
+        "UPp@not": "set",
+        "UPq@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uiadd3_x__URsIUR_RIR",
+      "settings": {
+        "X": "X",
+        "URa@invert": "set",
+        "URc@invert": "set",
+        "UPp@not": "set",
+        "UPq@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad__URURUR_URURUR",
+      "settings": {
+        "fmt": "U32",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad__URURUR_URURUR",
+      "settings": {
+        "fmt": "U32",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad__URURUR_URURUR",
+      "settings": {
+        "fmt": "S32",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad__URURUR_URURUR",
+      "settings": {
+        "fmt": "S32",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad__URURsI_URURI",
+      "settings": {
+        "fmt": "U32"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad__URURsI_URURI",
+      "settings": {
+        "fmt": "S32"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad__URsIUR_URIUR",
+      "settings": {
+        "fmt": "U32",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad__URsIUR_URIUR",
+      "settings": {
+        "fmt": "U32",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad__URsIUR_URIUR",
+      "settings": {
+        "fmt": "S32",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad__URsIUR_URIUR",
+      "settings": {
+        "fmt": "S32",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide__URURUR_URURUR",
+      "settings": {
+        "fmt": "U32",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide__URURUR_URURUR",
+      "settings": {
+        "fmt": "U32",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words",
+        "imad_negated"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide__URURUR_URURUR",
+      "settings": {
+        "fmt": "S32",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide__URURUR_URURUR",
+      "settings": {
+        "fmt": "S32",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words",
+        "imad_negated"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide__URsIUR_URIUR",
+      "settings": {
+        "fmt": "U32",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide__URsIUR_URIUR",
+      "settings": {
+        "fmt": "U32",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide__URsIUR_URIUR",
+      "settings": {
+        "fmt": "S32",
+        "URc@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide__URsIUR_URIUR",
+      "settings": {
+        "fmt": "S32",
+        "URc@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide_x__URURUR_URURUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide_x__URURUR_URURUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide_x__URURUR_URURUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide_x__URURUR_URURUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide_x__URURUR_URURUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide_x__URURUR_URURUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide_x__URURUR_URURUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide_x__URURUR_URURUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "imad_carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide_x__URsIUR_URIUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide_x__URsIUR_URIUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide_x__URsIUR_URIUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide_x__URsIUR_URIUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide_x__URsIUR_URIUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide_x__URsIUR_URIUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide_x__URsIUR_URIUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_wide_x__URsIUR_URIUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URURUR_URURUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URURUR_URURUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URURUR_URURUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URURUR_URURUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URURUR_URURUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URURUR_URURUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URURUR_URURUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URURUR_URURUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URURsI_URURI",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URURsI_URURI",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URURsI_URURI",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URURsI_URURI",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URsIUR_URIUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URsIUR_URIUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URsIUR_URIUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URsIUR_URIUR",
+      "settings": {
+        "fmt": "U32",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URsIUR_URIUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URsIUR_URIUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "unset",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URsIUR_URIUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "uimad_x__URsIUR_URIUR",
+      "settings": {
+        "fmt": "S32",
+        "X": "X",
+        "URc@invert": "set",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "imad_forms"
       ],
       "native": true
     },
@@ -27687,6 +33883,758 @@
       "native": true
     },
     {
+      "family": "carry",
+      "cls": "ulea_hi_imm__RRuI_RRI",
+      "settings": {
+        "hilo": "HI",
+        "URa@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_imm__RRuI_RRI",
+      "settings": {
+        "hilo": "HI",
+        "URa@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_imm__RuIR_URIR",
+      "settings": {
+        "hilo": "HI",
+        "URa@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_imm__RuIR_URIR",
+      "settings": {
+        "hilo": "HI",
+        "URa@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_imm_sx32__RuIR_URIUR",
+      "settings": {
+        "hilo": "HI",
+        "sx32": "SX32",
+        "URa@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_imm_sx32__RuIR_URIUR",
+      "settings": {
+        "hilo": "HI",
+        "sx32": "SX32",
+        "URa@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_imm_sx32_x__RuIR_URIUR",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "URa@invert": "unset",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_imm_sx32_x__RuIR_URIUR",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "URa@invert": "unset",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_imm_sx32_x__RuIR_URIUR",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "URa@invert": "set",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_imm_sx32_x__RuIR_URIUR",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "URa@invert": "set",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_imm_x__RRuI_RRI",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "URa@invert": "unset",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_imm_x__RRuI_RRI",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "URa@invert": "unset",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_imm_x__RRuI_RRI",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "URa@invert": "set",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_imm_x__RRuI_RRI",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "URa@invert": "set",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_imm_x__RuIR_URIR",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "URa@invert": "unset",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_imm_x__RuIR_URIR",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "URa@invert": "unset",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_imm_x__RuIR_URIR",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "URa@invert": "set",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_imm_x__RuIR_URIR",
+      "settings": {
+        "hilo": "HI",
+        "X": "X",
+        "URa@invert": "set",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm__URURUR_URURUR",
+      "settings": {
+        "URa@negate": "unset",
+        "URb@negate": "unset",
+        "hilo": "HI"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm__URURUR_URURUR",
+      "settings": {
+        "URa@negate": "unset",
+        "URb@negate": "set",
+        "hilo": "HI"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm__URURUR_URURUR",
+      "settings": {
+        "URa@negate": "set",
+        "URb@negate": "unset",
+        "hilo": "HI"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm_sx32__URURUR_URURUR",
+      "settings": {
+        "URa@negate": "unset",
+        "URb@negate": "unset",
+        "hilo": "HI",
+        "sx32": "SX32"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm_sx32__URURUR_URURUR",
+      "settings": {
+        "URa@negate": "unset",
+        "URb@negate": "set",
+        "hilo": "HI",
+        "sx32": "SX32"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm_sx32__URURUR_URURUR",
+      "settings": {
+        "URa@negate": "set",
+        "URb@negate": "unset",
+        "hilo": "HI",
+        "sx32": "SX32"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm_sx32_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm_sx32_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm_sx32_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "set",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm_sx32_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "set",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm_sx32_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "set",
+        "URb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm_sx32_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "set",
+        "URb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "sx32": "SX32",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "set",
+        "hilo": "HI",
+        "X": "X",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "set",
+        "hilo": "HI",
+        "X": "X",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "set",
+        "URb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_hi_noimm_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "set",
+        "URb@invert": "unset",
+        "hilo": "HI",
+        "X": "X",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_lo_imm__URuIUR_URIUR",
+      "settings": {
+        "hilo": "LO",
+        "URa@negate": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_lo_imm__URuIUR_URIUR",
+      "settings": {
+        "hilo": "LO",
+        "URa@negate": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_lo_imm_x__URuIUR_URIUR",
+      "settings": {
+        "hilo": "LO",
+        "X": "X",
+        "URa@invert": "unset",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_lo_imm_x__URuIUR_URIUR",
+      "settings": {
+        "hilo": "LO",
+        "X": "X",
+        "URa@invert": "unset",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_lo_imm_x__URuIUR_URIUR",
+      "settings": {
+        "hilo": "LO",
+        "X": "X",
+        "URa@invert": "set",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_lo_imm_x__URuIUR_URIUR",
+      "settings": {
+        "hilo": "LO",
+        "X": "X",
+        "URa@invert": "set",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_lo_noimm__URURUR_URURUR",
+      "settings": {
+        "URa@negate": "unset",
+        "URb@negate": "unset",
+        "hilo": "LO"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_lo_noimm__URURUR_URURUR",
+      "settings": {
+        "URa@negate": "unset",
+        "URb@negate": "set",
+        "hilo": "LO"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_lo_noimm__URURUR_URURUR",
+      "settings": {
+        "URa@negate": "set",
+        "URb@negate": "unset",
+        "hilo": "LO"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words",
+        "uniform_arithmetic_random"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_lo_noimm_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "unset",
+        "hilo": "LO",
+        "X": "X",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_lo_noimm_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "unset",
+        "hilo": "LO",
+        "X": "X",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_lo_noimm_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "set",
+        "hilo": "LO",
+        "X": "X",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_lo_noimm_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "unset",
+        "URb@invert": "set",
+        "hilo": "LO",
+        "X": "X",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_lo_noimm_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "set",
+        "URb@invert": "unset",
+        "hilo": "LO",
+        "X": "X",
+        "UPp@not": "unset"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
+      "family": "carry",
+      "cls": "ulea_lo_noimm_x__URURUR_URURUR",
+      "settings": {
+        "URa@invert": "set",
+        "URb@invert": "unset",
+        "hilo": "LO",
+        "X": "X",
+        "UPp@not": "set"
+      },
+      "profiles": [
+        "arithmetic_edges",
+        "carry_words"
+      ],
+      "native": true
+    },
+    {
       "family": "int_alu",
       "cls": "ulop3_lut__URURUR_URURUR",
       "settings": {
@@ -27811,6 +34759,37 @@
     },
     {
       "family": "int_alu",
+      "cls": "upopc__URURUR_URUUR",
+      "settings": {
+        "URb@invert": "unset"
+      },
+      "profiles": [
+        "bits"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "upopc__URURUR_URUUR",
+      "settings": {
+        "URb@invert": "set"
+      },
+      "profiles": [
+        "bits"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "upopc__URuIUR_URIR",
+      "settings": {},
+      "profiles": [
+        "bits"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
       "cls": "uprmt__URIUR",
       "settings": {
         "idx": "IDX"
@@ -27875,6 +34854,102 @@
       },
       "profiles": [
         "integer_edges"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "usgxt__URURUR_UUU",
+      "settings": {
+        "cw": "C",
+        "fmt": "U32"
+      },
+      "profiles": [
+        "sgxt"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "usgxt__URURUR_UUU",
+      "settings": {
+        "cw": "C",
+        "fmt": "S32"
+      },
+      "profiles": [
+        "sgxt"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "usgxt__URURUR_UUU",
+      "settings": {
+        "cw": "W",
+        "fmt": "U32"
+      },
+      "profiles": [
+        "sgxt"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "usgxt__URURUR_UUU",
+      "settings": {
+        "cw": "W",
+        "fmt": "S32"
+      },
+      "profiles": [
+        "sgxt"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "usgxt__URuIUR_URIR",
+      "settings": {
+        "cw": "C",
+        "fmt": "U32"
+      },
+      "profiles": [
+        "sgxt"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "usgxt__URuIUR_URIR",
+      "settings": {
+        "cw": "C",
+        "fmt": "S32"
+      },
+      "profiles": [
+        "sgxt"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "usgxt__URuIUR_URIR",
+      "settings": {
+        "cw": "W",
+        "fmt": "U32"
+      },
+      "profiles": [
+        "sgxt"
+      ],
+      "native": true
+    },
+    {
+      "family": "int_alu",
+      "cls": "usgxt__URuIUR_URIR",
+      "settings": {
+        "cw": "W",
+        "fmt": "S32"
+      },
+      "profiles": [
+        "sgxt"
       ],
       "native": true
     },

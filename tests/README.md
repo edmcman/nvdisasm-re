@@ -243,8 +243,8 @@ Plans store class/form choices, named input profiles and native assertions, not
 captured outputs. The normal `emulator_cases` loader expands them into shared cases for Python, Ghidra, and the GPU, calculating
 expectations from the independent references at runtime. Plans cover BREV, POPC,
 SGXT, PRMT, UPRMT, ISETP, UISETP, IMNMX, SEL, USEL, IDP, SHF, USHF, IABS,
-UMOV, BMSK, VIMNMX, VISET, VIADDMNMX, VIMNMX3, LOP3, ULOP3 and MOV register-pair forms through
-`harness/autocases.py`. The planner routes IDP and packed-integer cases to `int_simd`, BMSK to `bmsk`, and the other
+UMOV, BMSK, VIMNMX, VISET, VIADDMNMX, VIMNMX3, LOP3, ULOP3, IADD3, UIADD3, LEA, ULEA, IMAD, UIMAD, UBREV, UPOPC, USGXT and MOV register-pair forms through
+`harness/autocases.py`. The planner routes IDP and packed-integer cases to `int_simd`, BMSK to `bmsk`, arithmetic/carry adapters to `carry`, and the other
 operations to `int_alu`. Comparison cases exercise both predicate outputs, .EX's
 low-word result, signed boundaries, predicate inversion and input/output aliases.
 Dot-product cases cover lane signedness and negated accumulators; funnel shifts
@@ -279,6 +279,13 @@ combinations packed into each byte. Edge and seeded profiles check zero/nonzero
 predicate results, POR/PAND, predicate inversion, register aliases and the former
 manual selector/random corpora. Constant PT/UPT inputs and the XOR p-code cost
 contract remain explicit manual regressions.
+Arithmetic profiles preserve seeded carry vectors, LEA shifts, wide IMAD addends
+and dense negation boundaries. References retain the carry from ordinary negation
+and distinguish .X complement/carry inputs. The IMAD immediate adapter explicitly
+recognizes its printing alias while retaining strict checks for all other class/form
+changes; printing-only alternate plan rows remain explicit adapter gaps. Constant
+UPT inputs, overlapping predicate outputs, p-code costs and hand-calculated width
+regressions stay manual.
 Hand-calculated PRMT examples also check the reference directly in `test_refs.py`.
 
 The JSON report counts manual, generated, blocked, and unresolved forms. Unsupported
