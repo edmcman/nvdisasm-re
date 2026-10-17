@@ -226,6 +226,35 @@ and the bits outside the converted width of the wide conversion fixtures. Emulat
 tolerates floating-point NaN payload/sign, and excuses Ghidra 12.1.4's minimum-subnormal underflow
 (fp16/32/64) only on its exact signature. FP8 emulator cases compare NaN class only (`__fp8_nan`).
 
+### Generating missing shared cases
+
+`python -m tests.autocases SM89 --write --report /tmp/shared-case-gaps.json`
+compares the exact-language coverage manifest with the manual shared cases, expands
+its legal modifier combinations (including the factored free modifiers), and writes
+`cases/generated/SM89.json`. Run through `uv run` in the normal development environment.
+If manifests are missing, first run
+`uv run sass-build-languages SM89 --fp exact --generate-only --coverage`.
+`--manifest-dir DIR` selects another manifest directory. Omit `--write` for a dry run.
+Rerunning replaces the plan deterministically; prior generated cases are excluded
+from the comparison. `--check` fails if regeneration would change the saved plan.
+Repeat for another architecture to create its plan.
+
+Plans store class/form choices, not captured outputs. The normal `emulator_cases`
+loader expands them into shared cases for Python, Ghidra, and the GPU, calculating
+expectations from the independent references at runtime. The initial adapters cover
+BREV, POPC, FLO, SGXT, PRMT and UPRMT in `harness/autocases.py`; CX setup is limited
+to the architectures already established by the BMSK tests. Strict encoding and a
+decode round trip reject forms that the chosen operand setup cannot preserve.
+Add an adapter only when an independent reference and operand setup are available.
+
+The JSON report counts manual, generated, blocked, and unresolved forms. Unsupported
+operations are grouped by class to keep millions of gaps manageable; their exact
+forms remain in the manifest. Opaque and partially modelled combinations are counted
+as unresolved rather than covered. These counts measure instruction forms, not all
+input values or proof of correct behavior. After changing a plan or adapter, run the
+shared Python, Ghidra and GPU tests and `uv run sass-refresh-coverage`. Generating a
+plan gives no GPU evidence; only an actual passing hardware run does.
+
 ### Shared-case hardware evidence
 
 `baseline/gpu_case_passes.json` records a passing family's selected inputs/expectations,

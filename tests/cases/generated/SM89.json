@@ -1,0 +1,421 @@
+{
+  "version": 1,
+  "arch": "SM89",
+  "forms": [
+    {
+      "family": "int_alu",
+      "cls": "brev__RCxR_RCxR",
+      "settings": {}
+    },
+    {
+      "family": "int_alu",
+      "cls": "popc__RCR_RCR",
+      "settings": {
+        "Sb@invert": "set"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "popc__RCxR_RCxR",
+      "settings": {
+        "Sb@invert": "unset"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "popc__RCxR_RCxR",
+      "settings": {
+        "Sb@invert": "set"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "popc__RRR_RRR",
+      "settings": {
+        "Rb@invert": "set"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "popc__RUR_RUR",
+      "settings": {
+        "URb@invert": "set"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RCR_RCR",
+      "settings": {
+        "pmode": "IDX"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RCR_RCR",
+      "settings": {
+        "pmode": "F4E"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RCR_RCR",
+      "settings": {
+        "pmode": "B4E"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RCR_RCR",
+      "settings": {
+        "pmode": "RC8"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RCR_RCR",
+      "settings": {
+        "pmode": "ECL"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RCR_RCR",
+      "settings": {
+        "pmode": "ECR"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RCR_RCR",
+      "settings": {
+        "pmode": "RC16"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RCxR_RCxR",
+      "settings": {
+        "pmode": "IDX"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RCxR_RCxR",
+      "settings": {
+        "pmode": "F4E"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RCxR_RCxR",
+      "settings": {
+        "pmode": "B4E"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RCxR_RCxR",
+      "settings": {
+        "pmode": "RC8"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RCxR_RCxR",
+      "settings": {
+        "pmode": "ECL"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RCxR_RCxR",
+      "settings": {
+        "pmode": "ECR"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RCxR_RCxR",
+      "settings": {
+        "pmode": "RC16"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRC_RRC",
+      "settings": {
+        "pmode": "IDX"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRC_RRC",
+      "settings": {
+        "pmode": "F4E"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRC_RRC",
+      "settings": {
+        "pmode": "B4E"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRC_RRC",
+      "settings": {
+        "pmode": "RC8"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRC_RRC",
+      "settings": {
+        "pmode": "ECL"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRC_RRC",
+      "settings": {
+        "pmode": "ECR"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRC_RRC",
+      "settings": {
+        "pmode": "RC16"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRCx_RRCx",
+      "settings": {
+        "pmode": "IDX"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRCx_RRCx",
+      "settings": {
+        "pmode": "F4E"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRCx_RRCx",
+      "settings": {
+        "pmode": "B4E"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRCx_RRCx",
+      "settings": {
+        "pmode": "RC8"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRCx_RRCx",
+      "settings": {
+        "pmode": "ECL"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRCx_RRCx",
+      "settings": {
+        "pmode": "ECR"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRCx_RRCx",
+      "settings": {
+        "pmode": "RC16"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRU_RRU",
+      "settings": {
+        "pmode": "IDX"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRU_RRU",
+      "settings": {
+        "pmode": "F4E"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRU_RRU",
+      "settings": {
+        "pmode": "B4E"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRU_RRU",
+      "settings": {
+        "pmode": "RC8"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRU_RRU",
+      "settings": {
+        "pmode": "ECL"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRU_RRU",
+      "settings": {
+        "pmode": "ECR"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRU_RRU",
+      "settings": {
+        "pmode": "RC16"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRuI_RRI",
+      "settings": {
+        "pmode": "IDX"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRuI_RRI",
+      "settings": {
+        "pmode": "F4E"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRuI_RRI",
+      "settings": {
+        "pmode": "B4E"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRuI_RRI",
+      "settings": {
+        "pmode": "RC8"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRuI_RRI",
+      "settings": {
+        "pmode": "ECL"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRuI_RRI",
+      "settings": {
+        "pmode": "ECR"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RRuI_RRI",
+      "settings": {
+        "pmode": "RC16"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RUR_RUR",
+      "settings": {
+        "pmode": "IDX"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RUR_RUR",
+      "settings": {
+        "pmode": "F4E"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RUR_RUR",
+      "settings": {
+        "pmode": "B4E"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RUR_RUR",
+      "settings": {
+        "pmode": "RC8"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RUR_RUR",
+      "settings": {
+        "pmode": "ECL"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RUR_RUR",
+      "settings": {
+        "pmode": "ECR"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "prmt__RUR_RUR",
+      "settings": {
+        "pmode": "RC16"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "sgxt__RCxR_RCxR",
+      "settings": {
+        "cw": "C",
+        "fmt": "U32"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "sgxt__RCxR_RCxR",
+      "settings": {
+        "cw": "C",
+        "fmt": "S32"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "sgxt__RCxR_RCxR",
+      "settings": {
+        "cw": "W",
+        "fmt": "U32"
+      }
+    },
+    {
+      "family": "int_alu",
+      "cls": "sgxt__RCxR_RCxR",
+      "settings": {
+        "cw": "W",
+        "fmt": "S32"
+      }
+    }
+  ]
+}
