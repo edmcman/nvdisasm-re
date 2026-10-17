@@ -24,7 +24,7 @@ def summary():
 
 
 def render(before, after):
-    return coverage_comment.render(before, after, "base", "head", "https://example.com/run")
+    return coverage_comment.render(before, after, "base", "head", "https://example.com/run", "owner/repo")
 
 
 def test_unchanged_and_readable_duplicates():
@@ -293,3 +293,10 @@ def test_report_cli_reads_commits_and_writes_artifact(tmp_path, monkeypatch):
     assert "https://github.com/owner/repo/actions/runs/123" in report["body"]
     assert (tmp_path / "coverage-changes.md").read_text() == report["full"]
     assert commands == [["git", "show", f"{sha}:{coverage_comment.COVERAGE}"] for sha in ("base", "head")]
+
+
+def test_comment_leads_with_head_pinned_coverage_badge():
+    body = render(summary(), summary())["body"]
+    assert ("https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fowner%2Frepo%2Fhead"
+            "%2Fprocessor%2FSASS%2Fsemantics%2Fbadge.json") in body
+    assert "(https://raw.githack.com/owner/repo/head/processor/SASS/semantics/coverage.html)" in body

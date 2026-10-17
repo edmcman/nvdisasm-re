@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import urllib.parse
 import urllib.request
 
 
@@ -15,6 +16,7 @@ MARKER = "<!-- nvdisasm-re:coverage -->"
 OUTDATED_MARKER = "<!-- nvdisasm-re:coverage-outdated -->"
 LABEL = "coverage"
 COVERAGE = "processor/SASS/semantics/coverage.json"
+BADGE = "processor/SASS/semantics/badge.json"
 COMMENT_LIMIT = 60_000  # Leave room below GitHub's comment size limit.
 FIELDS = (
     ("opcodes", "Classes"),
@@ -156,7 +158,14 @@ def verification_table(compared):
             "| :--- | " + " | ".join("---:" for _ in EVIDENCE_ORDER) + " |\n" + "\n".join(rows) + "\n")
 
 
-def render(base, head, base_sha, head_sha, run_url):
+def badge(repo, sha):
+    """The README's opcode-coverage badge, read from the PR head's committed badge.json."""
+    raw = urllib.parse.quote(f"https://raw.githubusercontent.com/{repo}/{sha}/{BADGE}", safe="")
+    report = f"https://raw.githack.com/{repo}/{sha}/{BADGE.replace('badge.json', 'coverage.html')}"
+    return f"[![opcode semantics](https://img.shields.io/endpoint?url={raw})]({report})"
+
+
+def render(base, head, base_sha, head_sha, run_url, repo):
     """Return the full report, bounded comment, and whether reportable data changed."""
     archs = sorted((a for a in base.keys() | head.keys() if "_" not in a),
                    key=lambda a: int(a.removeprefix("SM")))
@@ -197,7 +206,7 @@ def render(base, head, base_sha, head_sha, run_url):
                     details.append(f"| {title} | {counts(b)} | {counts(h)} | {change(field, b, h)} |")
         details.append("\n</details>\n")
         sections.append("\n".join(details))
-    header = (f"{MARKER}\n## 🧪 Semantic coverage\n\n"
+    header = (f"{MARKER}\n## 🧪 Semantic coverage\n\n{badge(repo, head_sha)}\n\n"
               f"Comparing `{base_sha[:7]}` → `{head_sha[:7]}` · [View CI run]({run_url})\n\n")
     if not rows:
         body = header + "No semantic coverage changes compared with the PR base.\n"
@@ -307,7 +316,7 @@ def main():
     path = args.directory / "report.json"
     if args.command == "report":
         run_url = f"{os.environ['GITHUB_SERVER_URL']}/{repo}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
-        report = render(read_coverage(base_sha), read_coverage(head_sha), base_sha, head_sha, run_url)
+        report = render(read_coverage(base_sha), read_coverage(head_sha), base_sha, head_sha, run_url, repo)
         args.directory.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(report), encoding="utf-8")
         (args.directory / "coverage-changes.md").write_text(report["full"], encoding="utf-8")

@@ -1,9 +1,10 @@
 """Packed integer lanes: IDP.4A/2A dot products, VABSDIFF4, VIMNMX, VIADDMNMX, VIMNMX3, VISET,
 including CX (constant-descriptor) source forms."""
 import random
-from tests.harness.case import cx_header, cx_source, put, ram, source, flagged
+from tests.harness.case import cx_header, cx_source, put, ram, source
 from tests.refs.bits import MASK32
-from tests.refs.integer import COMPARISONS, dot2, dot4, vabsdiff4, viaddmnmx, vminmax, vset_mask
+from tests.harness.manual import retained
+from tests.refs.integer import dot2, dot4, vabsdiff4, viaddmnmx, vminmax
 
 FMTS = [("S32", 32, True), ("U32", 32, False), ("S16x2", 16, True), ("U16x2", 16, False), ("S8x4", 8, True), ("U8x4", 8, False)]
 
@@ -15,44 +16,14 @@ def cx_name(k):
 def relus(signed): return ("norelu", "RELU") if signed else ("norelu",)
 
 
-def idp(c):
+@retained("Explicit CX header register/base regressions: the descriptor child is an address, not operand data.")
+def cx_regressions(c):
     # CX children URb/Sb_offset describe a bounded constant-buffer address; the dot
     # product consumes the loaded 32-bit word from Sb.
     for k in c.of("IDP", "idp_4a__", cx=True)[:1]:
         c.add(k.name, dict(Rd=8, Ra=2, URb=4, Sb_offset=0, Rc=6, mode="4A", SrcAFmt="U8", SrcBFmt="U8"),
               {"R2": 0x04030201, "R6": 10, **cx_header(c.arch, 4, 0x1000)}, {"R8": 30, "__native": True},
               memory=[ram(0x1000, 0x01020304)])
-    # CuLifter's IDP.4A: unpack each byte signed or unsigned, accumulate four products mod 2^32.
-    rng = random.Random("idp4a")
-    words = [0, 0xffffffff, 0x807f01ff, 0x01020304, 0x7f80ff00] + [rng.getrandbits(32) for _ in range(8)]
-    for k in c.of("IDP", "idp_4a__"):
-        srcb = source(k, "Rb", "URb", "Sb")
-        if srcb is None: continue
-        for afmt, bfmt in (("S8", "S8"), ("U8", "U8"), ("S8", "U8"), ("U8", "S8")):
-            for j, a in enumerate(words):
-                b, acc = words[(j + 3) % len(words)], words[(j + 5) % len(words)]
-                rd = 2 if j % 3 == 0 else 8
-                fields, regs, memory = {"Rd": rd, "Ra": 4, "Rc": 6, "mode": "4A", "SrcAFmt": afmt, "SrcBFmt": bfmt}, {"R4": a, "R6": acc}, []
-                put(k, srcb, b, fields, regs, memory, 10, bank=(2, 16), imm=())
-                if j == 1 and flagged(k, "Rc", "negate"): fields["Rc@negate"] = 1; acc = -acc & MASK32
-                c.add(k.name, fields, regs, {f"R{rd}": dot4(a, b, acc, afmt == "S8", bfmt == "S8"), "__native": True}, memory=memory)
-    # PTX dp2a: two 16-bit A lanes multiply the selected byte pair of B, accumulated into C.
-    rng = random.Random("idp2a")
-    words = [0, 0xffffffff, 0x80017fff, 0x7fff8001, 0x01020304] + [rng.getrandbits(32) for _ in range(8)]
-    for k in c.of("IDP", "idp_2a__"):
-        srcb = source(k, "Rb", "URb", "Sb")
-        if srcb is None: continue
-        for afmt in ("S16", "U16"):
-            for bfmt in ("S8", "U8"):
-                for mode in ("2A.LO", "2A.HI"):
-                    for j, a in enumerate(words):
-                        b, acc = words[(j + 3) % len(words)], words[(j + 5) % len(words)]
-                        rd = 2 if j % 3 == 0 else 8
-                        fields, regs, memory = {"Rd": rd, "Ra": 4, "Rc": 6, "mode": mode, "SrcAFmt": afmt, "SrcBFmt": bfmt}, {"R4": a, "R6": acc}, []
-                        put(k, srcb, b, fields, regs, memory, 10, bank=(2, 16), imm=())
-                        if j == 1 and flagged(k, "Rc", "negate"): fields["Rc@negate"] = 1; acc = -acc & MASK32
-                        c.add(k.name, fields, regs, {f"R{rd}": dot2(a, b, acc, afmt == "S16", bfmt == "S8", mode.endswith("HI")), "__native": True},
-                              memory=memory)
     for k in c.of("IDP", "idp_2a__", cx=True):
         a, b, acc = 0x80017fff, 0x807f01ff, 0x12345678
         fields = {"Rd": 8, "Ra": 2, "Rc": 6, "mode": "2A.HI", "SrcAFmt": "S16", "SrcBFmt": "S8"}
@@ -89,11 +60,13 @@ def vabsdiff(c):
         c.add(k.name, fields, regs, {"R8": vabsdiff4(a, b, acc, True, "ACC"), "__native": True}, memory=memory)
 
 
+@retained("Partial VIMNMX predicate-output forms, constant PT inputs, and explicit CX descriptor regressions.")
 def minmax(c):
     # CuLifter's VIMNMX is predicate-selected (PT: min) scalar or packed min/max.
     rng = random.Random("vimnmx")
     words = [0, 0xffffffff, 0x80007fff, 0x7fff8000, 0x12345678, 0xdeadbeef] + [rng.getrandbits(32) for _ in range(8)]
     for k in c.of("VIMNMX"):
+        if not any(p in k.operand_types for p in ("Pu", "Pv")): continue
         srcb = source(k, "Rb", "URb", "Sb")
         if not srcb: continue
         # vimnmx_pred's Pu/Pv (P0-P6, no PT) are written with unknown meaning: unmodelled.
@@ -118,25 +91,6 @@ def minmax(c):
         fields = {"Rd": 8, "Ra": 2, "fmt": "S32", "relu": "norelu", "Pp": "PT"}
         cx_fields, cx_regs, memory = cx_source(c.arch, k, name, b); fields.update(cx_fields)
         c.add(k.name, fields, {"R2": a, **cx_regs}, {"R8": vminmax((a, b), 32, True, True), "__native": True}, memory=memory)
-    # CuLifter's VIADDMNMX adds modulo each lane width before min/max.
-    for k in c.of("VIADDMNMX"):
-        srcb, srcc = source(k, "Rb", "URb", "Sb"), source(k, "Rc", "URc", "Sc")
-        if not srcb or not srcc: continue
-        for fmt, width, signed in FMTS[:4]:
-            if fmt not in c.enum(k, "fmt"): continue
-            for relu in relus(signed):
-                for is_min in (True, False):
-                    for j, a in enumerate(words):
-                        b, bound = words[(j + 1) % len(words)], words[(j + 4) % len(words)]
-                        negate = bool(j & 1 and flagged(k, srcb, "negate"))
-                        rd = 2 if j % 2 else 8
-                        fields, regs, memory = {"Rd": rd, "Ra": 4, "fmt": fmt, "relu": relu, "Pp": "PT" if is_min else "P0"}, {"R4": a}, []
-                        put(k, srcb, b, fields, regs, memory, 10, bank=(0, 0), imm=("SImm", "UImm"))
-                        put(k, srcc, bound, fields, regs, memory, 12, bank=(0, 4), imm=("SImm", "UImm"))
-                        if negate: fields[srcb + "@negate"] = 1
-                        if not is_min: regs["P0"] = 0
-                        want = viaddmnmx(a, -b & MASK32 if negate else b, bound, width, signed, is_min, relu == "RELU")
-                        c.add(k.name, fields, regs, {f"R{rd}": want, "__native": True}, memory=memory)
     for k in c.of("VIADDMNMX", cx=True):
         name = cx_name(k)
         if name not in ("Sb", "Rb"): continue
@@ -144,26 +98,6 @@ def minmax(c):
         fields = {"Rd": 8, "Ra": 2, "Rc": 6, "fmt": "U32", "relu": "norelu", "Pp": "PT"}
         cx_fields, cx_regs, memory = cx_source(c.arch, k, name, b); fields.update(cx_fields)
         c.add(k.name, fields, {"R2": a, "R6": bound, **cx_regs}, {"R8": viaddmnmx(a, b, bound, 32, False, True), "__native": True}, memory=memory)
-    # CuLifter's VIMNMX3 is a three-input lane-wise min/max; PT selects min and !PT max.
-    rng = random.Random("vimnmx3")
-    words = [0, 0xffffffff, 0x80007fff, 0x7fff8000, 0x12345678, 0xdeadbeef] + [rng.getrandbits(32) for _ in range(6)]
-    for k in c.of("VIMNMX3"):
-        srcb, srcc = source(k, "Rb", "URb", "Sb"), source(k, "Rc", "URc", "Sc")
-        if not srcb or not srcc: continue
-        for fmt, width, signed in FMTS[:4]:
-            if fmt not in c.enum(k, "fmt"): continue
-            for relu in relus(signed):
-                for pred, pred_not, is_min in (("PT", 0, True), ("P0", 0, False), ("PT", 1, False)):
-                    for j, a in enumerate(words):
-                        b, d = words[(j + 2) % len(words)], words[(j + 4) % len(words)]
-                        rd = 2 if j % 3 == 0 else 8
-                        fields = {"Rd": rd, "Ra": 2, "Rc": 6, "fmt": fmt, "relu": relu, "Pp": pred, "Pp@not": pred_not}
-                        regs, memory = {"R2": a, "R6": d}, []
-                        put(k, srcb, b, fields, regs, memory, 10, bank=(0, 0), imm=("SImm", "UImm"))
-                        if srcc != "Rc": put(k, srcc, d, fields, regs, memory, 12, bank=(0, 4), imm=("SImm", "UImm"))
-                        if not is_min: regs["P0"] = 0
-                        c.add(k.name, fields, regs, {f"R{rd}": vminmax((a, b, d), width, signed, is_min, relu == "RELU"), "__native": True},
-                              memory=memory)
     for k in c.of("VIMNMX3", cx=True):
         name = cx_name(k)
         if name not in ("Sb", "Rb"): continue
@@ -171,25 +105,20 @@ def minmax(c):
         fields = {"Rd": 8, "Ra": 2, "Rc": 6, "fmt": "S32", "relu": "norelu", "Pp": "PT"}
         cx_fields, cx_regs, memory = cx_source(c.arch, k, name, b); fields.update(cx_fields)
         c.add(k.name, fields, {"R2": a, "R6": d, **cx_regs}, {"R8": vminmax((a, b, d), 32, True, True), "__native": True}, memory=memory)
-
-
-def viset(c):
-    """SM107's VISET.BM: lane masks of every comparison and format, from each B source kind."""
-    rng = random.Random("viset")
-    words = [0, 0xffffffff, 0x80007fff, 0x7fff8000, 0x7f80ff01, 0x12345678] + [rng.getrandbits(32) for _ in range(6)]
-    for k in c.of("VISET"):
-        srcb = source(k, "Rb", "URb", "Sb")
-        for (fmt, width, signed), op in ((f, op) for f in FMTS for op in COMPARISONS):
-            for j, a in enumerate(words):
-                b = a if j % 4 == 0 else words[(j * 5 + 1) % len(words)]
-                rd = 4 if j % 3 == 0 else 8
-                fields, regs = {"Rd": rd, "Ra": 4, "fmt": fmt, "icmp": op}, {"R4": a}
-                put(k, srcb, b, fields, regs, None, 6, ureg=10, imm=("UImm",))
-                c.add(k.name, fields, regs, {f"R{rd}": vset_mask(a, b, width, signed, op), "__native": True})
+    # PT is a constant input, so exercise it directly rather than replacing it with P0.
+    for op in ('VIADDMNMX', 'VIMNMX3'):
+        for k in c.of(op, op.lower() + '__RRR_RRR'):
+            a, b, bound = 0x80007fff, 0x7fff8000, 0xffffffff
+            for invert in (0, 1):
+                fields = dict(Rd=2, Ra=4, Rb=6, Rc=8, fmt='S16x2', relu='RELU', Pp='PT')
+                fields['Pp@not'] = invert
+                want = (viaddmnmx(a, b, bound, 16, True, not invert, True) if op == 'VIADDMNMX'
+                        else vminmax((a, b, bound), 16, True, not invert, True))
+                c.add(k.name, fields, {'R4':a, 'R6':b, 'R8':bound}, {'R2':want, '__native':True})
 
 
 def emulator_cases(c):
-    idp(c); vabsdiff(c); minmax(c); viset(c)
+    cx_regressions(c); vabsdiff(c); minmax(c)
 
 
 def gpu_fixtures():

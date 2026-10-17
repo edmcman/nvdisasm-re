@@ -142,13 +142,10 @@ def imad_forms(c):
                 c.add(k.name, fields, regs, expected, memory=memory)
 
 def uniform_plain(c, a, b, d):
-    """The uniform twins without a per-thread case here (see `with_uniform_twin`): UIMAD and USEL against the per-thread references."""
+    """The uniform twins without a per-thread case here (see `with_uniform_twin`): UIMAD against the per-thread reference; USEL is generated from profiles."""
     regs = dict(UR2=a, UR4=b, UR6=d)
     for fmt in ("U32", "S32"):
         c.add("uimad__URURUR_URURUR", dict(URd=2, URa=2, URb=4, URc=6, fmt=fmt), regs, dict(UR2=reference("imad__RRR_RRR", dict(fmt=fmt), "result", (a, b, d)), __native=True))
-    for p in (0, 1):
-        for negate in (0, 1):
-            c.add("usel__URURUR_UUU", dict(URd=2, URa=2, URb=4, UPp=0, **{"UPp@not": negate}), dict(regs, UP0=p), dict(UR2=a if p ^ negate else b, __native=True))
 
 
 def gpu_fixtures():
