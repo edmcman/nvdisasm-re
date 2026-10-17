@@ -26,6 +26,12 @@ def vote(predicates):
     return ballot, int(ballot != 0), int(ballot == 0xffffffff), int(ballot in (0, 0xffffffff))
 
 
+def vote_members(predicates, members):
+    """vote.sync ballot, any, all over the member lanes only (members: iterable of lane numbers)."""
+    ballot = sum(bool(predicates[lane]) << lane for lane in members)
+    return ballot, int(ballot != 0), int(all(predicates[lane] for lane in members))
+
+
 def match_any(values):
     """match.any.sync: per lane, the mask of lanes holding the same value."""
     return [sum(1 << j for j, y in enumerate(values) if y == x) for x in values]

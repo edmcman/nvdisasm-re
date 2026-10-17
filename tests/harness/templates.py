@@ -67,6 +67,21 @@ def slot_image(sequence, final=None):
     return t.patch(words)
 
 
+def schedule(base, stall=4, wrb=7, wait=0):
+    """`base` controls with the stall count, write-barrier index (7: none) and barrier wait mask replaced."""
+    return (base & ~(0x1fffff << 105)) | stall << 105 | wrb << 110 | 7 << 113 | wait << 116
+
+
+def variable_latency_fixture(name, op, triples, expected, **kw):
+    """One variable-latency instruction (MUFU) in the first carry-kernel slot: it writes scoreboard 0 and the
+    placeholder after it waits on that barrier, so the kernel's store sees the result."""
+    from tests.harness.gpu import Fixture
+    t = carry_slots(); base = t.control(0x180); nop = sm89("nop_")
+    words = {o: (op if i == 0 else nop, schedule(base, stall=2 if i == 0 else 1, wrb=0 if i == 0 else 7, wait=0x3f if i == 0 else 0)) for i, o in enumerate(SLOTS)}
+    words[0x180] = (nop, schedule(base, stall=4, wait=1))
+    return Fixture(name=name, image=t.patch(words), kernel="sem_probe", data=rows(triples), expected=expected, visited=(SLOTS[0],), exit=True, **kw)
+
+
 def without_barriers(image):
     """The BAR slots replaced by NOPs (emulated threads are independent)."""
     t = carry_slots()
