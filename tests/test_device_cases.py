@@ -88,7 +88,7 @@ def test_sweep_policy_and_all_cases_classified():
 
 
 def test_variable_latency_alu_uses_scoreboard():
-    from sass.decode.pyencode import word
+    from tests.harness.case import word
     for cls in ('dsetp__RRR_RR', 'fchk__RRR_RR', 'brev__RCR_RCR'):
         scheduled = device_cases.scheduled(word('SM89', cls))
         assert scheduled >> 110 & 7 == 0

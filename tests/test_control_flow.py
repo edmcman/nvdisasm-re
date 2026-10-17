@@ -1,6 +1,7 @@
 """Unconditional lifted control flow uses no condition; false and dynamic predicates survive."""
 import pytest
-from sass.decode import ir, pyencode
+from sass.assemble import encoding
+from sass.decode import ir
 from sass.semantics import bitvec, evaluate, lifter
 from tests.harness.select import arches
 
@@ -20,7 +21,7 @@ def pytest_generate_tests(metafunc):
 def test_flow_conditions(control_arch, cls, fields, kind, target, predicate, invert):
     if cls == "bra_" and not any(k.name == cls for k in ir.load(control_arch).classes):
         cls, fields = "bra__U", {**fields, "cond": "U"}
-    word = bytes.fromhex(pyencode.encode(control_arch, cls, **fields, Pp=predicate, **{"Pp@not": invert}))
+    word = bytes.fromhex(encoding.encode(control_arch, cls, **fields, Pp=predicate, **{"Pp@not": invert}))
     sem = lifter.lift(control_arch, word, 0x1000)
     assert sem.status == "native"
     assert sem.flow.kind == kind

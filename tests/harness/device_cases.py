@@ -12,10 +12,9 @@ from functools import cache
 
 from sass.assemble import elf, source
 from sass.decode import ir, pydecode
-from sass.decode.pyencode import word
 from sass.md import expression
 from tests.cases import emulator_cases
-from tests.harness.case import Case
+from tests.harness.case import Case, word
 from tests.harness.gpu import Driver, ENCODING
 from tests.refs.fpformat import same_fp8
 

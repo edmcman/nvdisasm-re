@@ -159,7 +159,8 @@ def qspc(c):
 def emulator_cases(c):
     loads_stores(c); generic(c); descriptors(c); zero_fill(c); qspc(c)
 
-    from sass.decode import pydecode, pyencode
+    from sass.decode import pydecode
+    from tests.harness.case import encode
     for index, case in enumerate(list(c)):
         hw = case.hardware or {'adapter': 'memory'}
         if case.cls.startswith('qspc') and not case.hardware:
@@ -170,7 +171,7 @@ def emulator_cases(c):
         if d.klass.mnemonic in ('LDG', 'STG') and d.env.get('e') == 0:
             fields = {n: d.env[n] for n in d.klass.operand_types if n in d.env}
             fields.update({'@'.join(n): value for n, value in d.env.items() if isinstance(n, tuple)})
-            encoded = pyencode.encode(c.arch, case.cls, **dict(fields, e='E'))
+            encoded = encode(c.arch, case.cls, **dict(fields, e='E'))
             c.append(case._replace(request=dict(case.request, word=encoded), hardware={'adapter': 'memory'}))
 
 
@@ -178,7 +179,7 @@ def pnz_fixture():
     """sem_pnz with its guarded LD always issued: the branch around it never taken (@!PT) and its
     predicate, inverted, as LD's Pnz."""
     from dataclasses import replace
-    from sass.decode.pyencode import encode
+    from tests.harness.case import encode
     from tests.harness import scalar
     from tests.harness.gpu import Template
     f = scalar.launch("pnz", memory.pnz_kernel)

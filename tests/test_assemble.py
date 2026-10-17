@@ -138,11 +138,11 @@ def test_exact_tables_and_shared_fields():
     md = ir.load('SM89')
     k = next(c for c in md.classes if c.mnemonic == 'MOV' and c.name == 'mov__RR')
     with pytest.raises(ValueError, match='outside'):
-        encoding.encode(md, k, {'Rd': 256, 'Ra': 0})
+        encoding.encode_class(md, k, {'Rd': 256, 'Ra': 0})
     f = ir.Field('shared', ((7, 0),))
     k = replace(k, rules=[(f, ('table', 'IDENTICAL', (('op', 'a', 1, None), ('op', 'b', 1, None))))])
     with pytest.raises(ValueError, match='IDENTICAL'):
-        encoding.encode(md, k, {'a': 1, 'b': 2})
+        encoding.encode_class(md, k, {'a': 1, 'b': 2})
 
 
 def test_machine_description_roundtrips(assembler_arch):
@@ -368,3 +368,15 @@ IMAD.WIDE.U32 R2, R5, 4, R2;''')
         if module.value:
             driver.call('cuModuleUnload', module)
         driver.close()
+
+
+@pytest.mark.parametrize('permissive', [False, True])
+def test_starred_literals_are_written(permissive):
+    word = encoding.word('SM89', 'imad__RRR_RRR', permissive=permissive)
+    assert word >> 81 & 7 == 7
+
+
+def test_permissive_truncates_where_strict_raises():
+    with pytest.raises(ValueError, match='outside'):
+        encoding.encode('SM89', 'mov__RR', Rd=256)
+    assert encoding.encode('SM89', 'mov__RR', Rd=256, permissive=True) == encoding.encode('SM89', 'mov__RR', Rd=0, permissive=True)

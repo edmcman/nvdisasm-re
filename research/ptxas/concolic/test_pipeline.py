@@ -6,7 +6,7 @@ sys.path[:0] = [str(HERE), str(HERE.parents[2] / "src")]
 from corpus import instruction_region, name_key, token_key
 import os, subprocess, pytest
 from forms import decode_section, digest
-from sass.decode.pyencode import encode
+from sass.assemble.encoding import encode
 from pipeline import Coordinator, SCHEMA, afl_statistics
 
 
