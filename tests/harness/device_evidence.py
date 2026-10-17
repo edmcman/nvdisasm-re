@@ -1,19 +1,51 @@
 """Hardware evidence for complete shared-case families; recorded passes never skip execution."""
+import ast
 import hashlib
+import importlib.util
 import json
 from functools import cache
+from pathlib import Path
 from sass.paths import ROOT
 from tests.harness import device_cases
 
 PASSES = ROOT / 'tests/baseline/gpu_case_passes.json'
 
 
+# Modules a recorded pass does not depend on: the semantics under test never run on the GPU, and
+# the cases (their requests, expected values and target words) are already in the signature.
+# softfloat is the one semantics module references may use (fpformat compares FP8 NaNs with it).
+INDEPENDENT = ('sass.semantics', 'tests.cases', 'tests.harness.autocases')
+SHARED = ('sass.semantics.fp.softfloat',)
+HARNESS = ('tests.harness.device_cases', 'tests.harness.device_setup', 'tests.harness.device_runner')
+
+
+def imports(path):
+    """Absolute module names imported anywhere in a source file, with `from X import y` also naming X.y."""
+    out = []
+    for node in ast.walk(ast.parse(path.read_text())):
+        if isinstance(node, ast.Import): out += [a.name for a in node.names]
+        elif isinstance(node, ast.ImportFrom) and node.module and not node.level:
+            out += [node.module, *(f'{node.module}.{a.name}' for a in node.names)]
+    return out
+
+
+def sources():
+    """Source files that build, run and compare a GPU case: the harness modules' import closure within
+    sass and tests, minus INDEPENDENT."""
+    seen, todo = {}, list(HARNESS)
+    while todo:
+        name = todo.pop()
+        if name in seen or not name.startswith(('sass.', 'tests.')) or name.startswith(INDEPENDENT) and name not in SHARED: continue
+        try: spec = importlib.util.find_spec(name)
+        except ModuleNotFoundError: spec = None
+        seen[name] = spec and spec.origin and Path(spec.origin)
+        if seen[name]: todo += imports(seen[name])
+    return sorted({p for p in seen.values() if p})
+
+
 @cache
 def generator():
-    paths = [*sorted((ROOT / 'src/sass').rglob('*.py')),
-             *sorted((ROOT / 'tests/refs').glob('*.py')),
-             *sorted(p for p in (ROOT / 'out/SM89').rglob('*') if p.is_file()),
-             *(ROOT / 'tests/harness' / n for n in ('device_cases.py', 'device_setup.py', 'device_runner.py', 'device_evidence.py', 'gpu.py', 'case.py', 'autocases.py', 'autocase_profiles.py'))]
+    paths = [*sources(), *sorted(p for p in (ROOT / 'out/SM89').rglob('*') if p.is_file())]
     digest = hashlib.sha256()
     for path in paths:
         digest.update(str(path.relative_to(ROOT)).encode()); digest.update(path.read_bytes())

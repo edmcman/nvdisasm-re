@@ -275,8 +275,11 @@ plan gives no GPU evidence; only an actual passing hardware run does.
 ### Shared-case hardware evidence
 
 `baseline/gpu_case_passes.json` records a passing family's selected inputs/expectations,
-exact instruction words, sampler mode, generator/reference source digest, device and
-executed cubin hashes. Changing any of these invalidates its evidence. A partial or
+exact instruction words, sampler mode, probe-source digest, device and executed cubin
+hashes. Changing any of these invalidates its evidence. The digest covers only the sources
+that build, run and compare a probe (the import closure of `harness/device_cases.py`,
+`device_setup.py` and `device_runner.py`, plus `out/SM89`), not semantics, references
+or case lists, whose effect on a family is already in its signature. A partial or
 failing family run drops that family's shared-case evidence; unchanged other families
 remain recorded. `tests/evidence.py` credits the target instruction directly as
 `cases/FAMILY`, independent of wrapper instructions and whole-kernel data-path slicing.
