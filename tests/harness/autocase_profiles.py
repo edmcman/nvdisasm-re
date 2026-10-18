@@ -107,6 +107,11 @@ SUPPLEMENTS = (
 
 def names(op, cls, form):
     from tests.harness import autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp
+    if op in ('FHADD2','FHMUL2','FHFMA2'): return ['mixed_pair_forms']
+    if op in ('LDC','LDCU','ULDC'): return ['constant_load_forms']
+    if op in ('S2R','CS2R','S2UR'): return ['special_register_forms']
+    if op == 'QSPC': return ['address_query_forms']
+    if op in ('BRA','CALL','RET','EXIT','NOP'): return ['control_flow_forms']
     if op == 'MOV64IUR': return ['move64']
     if op == 'UI2IP': return ['packed_conversion_forms']
     if op == 'UVIMNMX': return ['packed_minmax']
@@ -375,3 +380,28 @@ PROFILES['float_pack_forms'] = {
 }
 
 PROFILES['half_comparison_forms'] = dict(inputs='half_forms', selection='half_comparison_inputs.json', supplement='unmasked_ftz_witness')
+
+
+PROFILES['mixed_pair_forms'] = {
+    'F32': (0x3f800000,0xc0200000,0x3f000001,0x40800000,0x38800000,0x477fe000),
+    'F16': (0x3c00,0xc100,0x3801,0x4400,0x0400,0x7bff),
+    'BF16': (0x3f80,0xc020,0x3f01,0x4080,0x0080,0x477f),
+}
+PROFILES['constant_load_forms'] = {
+    'words': (0,0xffffffffffffffff,0x800180ff,0x89abcdef01234567,0x12345678,0x0000000200000001),
+    'banks': (2,3), 'offsets': (-16,16),
+}
+PROFILES['special_register_forms'] = {
+    'sources': ('SR_LANEID','SR_CTAID.X','SRZ'),
+    'words': (0,0x89abcdef,0xffffffff), 'high': 0x12345678,
+}
+PROFILES['control_flow_forms'] = {
+    'predicates': (0,1), 'offsets': (-64,0,32), 'target': 0x4560, 'pc': 0x1000,
+    'sentinels': {'R8':0x12345678,'R9':0x89abcdef,'P1':1,'UR8':0xa53c91e7},
+}
+PROFILES['address_query_forms'] = {
+    'ranges': {'global': [[0x100000,0x100100]], 'shared': [[0x200,0x300]],
+               'local': [[0x400,0x500]], 'shared_cluster': [[0x600,0x700]]},
+    'queries': ('global','shared','local'), 'positions': (0,1,0xff),
+    'offsets': (-16,16),
+}

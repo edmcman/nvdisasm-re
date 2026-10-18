@@ -1,5 +1,6 @@
 """Memory: global/shared/local loads and stores, generic LD/ST, explicit descriptors, constant loads (LDC/ULDC/LDCU), shared
 stride addressing and QSPC address-space queries."""
+from tests.harness.manual import retained
 from tests.harness.case import cbank
 from tests.refs import memory
 
@@ -18,17 +19,14 @@ def loads_stores(c):
     for stride, factor in [("X4", 4), ("X8", 8), ("X16", 16)]:
         c.add("lds__sImmOffset", dict(Rd=8, Ra=2, Ra_offset=4, stride=stride), dict(R2=0x10), dict(R8=0x12345678),
               memory=[dict(space="shared", address=0x10 * factor + 4, hex="78563412")])
-    c.add("ldc__RaNonRZ", dict(Rd=8, Ra=2, Ra_offset=16, Sa_bank=3), dict(R2=0x100), dict(R8=0x12345678), memory=[cbank(3, 0x110, 0x12345678)])
     c.add("mov__RC", dict(Rd=8, Sb_bank=2, Sb_addr=16, PixMaskU04=15), {}, dict(R8=0x12345678), memory=[cbank(2, 16, 0x12345678)])
-    for label, data, want in [("U8", "ff", 255), ("S8", "ff", 0xffffffff), ("U16", "ffff", 65535), ("S16", "ffff", 0xffffffff),
-                              ("32", "78563412", 0x12345678), ("64", "0100000002000000", 1)]:
-        c.add("uldc_const__RCR", dict(URd=8, Sa_bank=2, Sa_addr=16, sz=label), {}, dict(UR8=want, **({"UR9": 2} if label == "64" else {})),
-              memory=[dict(space="cbank", address=(2 << 32) | 16, hex=data)])
-        # SM100+'s LDCU: the same load at URa + Sa_offset (URZ: the offset alone).
-        for ura, regs in ((2, {"UR2": 0x100}), ("URZ", {})):
-            at = (0x100 if ura == 2 else 0) + 16
-            c.add("ldcu_const_RCR_", dict(URd=8, URa=ura, Sa_bank=2, Sa_offset=16, sz=label), regs, dict(UR8=want, **({"UR9": 2} if label == "64" else {})),
-                  memory=[dict(space="cbank", address=(2 << 32) | at, hex=data)])
+    # Aligned 64-bit constant pairs remain partially native in the manifest and
+    # cannot be owned by the planner's ordinary native-form enumeration.
+    c.add("uldc_const__RCR", dict(URd=8, Sa_bank=2, Sa_addr=16, sz="64"), {}, dict(UR8=1, UR9=2),
+          memory=[cbank(2,16,0x200000001,size=8)])
+    for ura,regs,at in ((2,{"UR2":0x100},0x110),("URZ",{},16)):
+        c.add("ldcu_const_RCR_", dict(URd=8, URa=ura, Sa_bank=2, Sa_offset=16, sz="64"), regs,
+              dict(UR8=1, UR9=2), memory=[cbank(2,at,0x200000001,size=8)])
     c.add("ldcu_const_RCR_", dict(URd=8, URa="URZ", Sa_bank=2, Sa_offset=16, texunpack="TEXUNPACK"), {}, dict(error="sass_opaque_LDCU"))
 
 
@@ -135,8 +133,6 @@ def qspc(c):
         for space, base, offset, expected in (("G", 0x100020, -32, 1), ("S", 0x220, 0, 1), ("L", 0x420, 0, 1), ("G", 0x420, 0, 0)):
             c.add(k.name, dict(fields, Rd="RZ", space=space, Ra_offset=offset), {"R2": base}, {"P1": expected}, context=context)
         c.add(k.name, dict(fields, Rd="RZ", space="G"), {"R2": 0x100000}, dict(error="address_spaces.global context required"))
-        for base, expected in ((0x100000, {"P1": 1, "R8": 1}), (0x420, {"P1": 0, "R8": 4}), (0x220, {"P1": 0, "R8": 2})):
-            c.add(k.name, dict(fields, Rd=8, space="G"), {"R2": base}, expected, context=context)
         if "D" in c.enum(k, "space"):
             c.add(k.name, dict(fields, Rd="RZ", space="D"), {"R2": 0x620}, {"P1": 1}, context=context)
             c.add(k.name, dict(fields, Rd="RZ", space="D"), {"R2": 0x420}, {"P1": 0}, context=context)
@@ -156,6 +152,7 @@ def qspc(c):
                       context=context, hardware={'adapter': 'qspc', 'space': origin})
 
 
+@retained("Aligned constant pairs are partially native; window edges/decoys, descriptors, zero-fill guards, masked/cluster queries, physical query anchors and error cases exceed generated ordinary profiles.")
 def emulator_cases(c):
     loads_stores(c); generic(c); descriptors(c); zero_fill(c); qspc(c)
 

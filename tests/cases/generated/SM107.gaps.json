@@ -2,9 +2,9 @@
   "counts": {
     "legal": 1385354,
     "unresolved_semantics": 943093,
-    "manual": 196,
-    "blocked": 409259,
-    "generated": 32806
+    "manual": 56,
+    "blocked": 396710,
+    "generated": 45495
   },
   "gaps": [
     {
@@ -414,18 +414,8 @@
     },
     {
       "cls": "bra__CONV_DIV",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bra__CONV_DIV",
       "count": 16,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "bra__U",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "bra__U",
@@ -484,18 +474,8 @@
     },
     {
       "cls": "call_abs__RIR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "call_abs__RIR",
       "count": 2,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "call_abs__RRR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "call_abs__RRR",
@@ -505,17 +485,7 @@
     {
       "cls": "call_abs__URIR",
       "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "call_abs__URIR",
-      "count": 2,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "call_rel__RIR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "call_rel__RIR",
@@ -716,11 +686,6 @@
       "cls": "credux_",
       "count": 12,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "cs2r_",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "cs2ur_",
@@ -6359,11 +6324,6 @@
     },
     {
       "cls": "exit_",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "exit_",
       "count": 8,
       "reason": "unresolved semantics"
     },
@@ -7369,38 +7329,18 @@
     },
     {
       "cls": "fhadd2_a16b_imm__RIR",
-      "count": 146,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "fhadd2_a16b_imm__RIR",
       "count": 192,
       "reason": "unresolved semantics"
     },
     {
       "cls": "fhadd2_a16b_rc__RRR",
-      "count": 753,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "fhadd2_a16b_rc__RRR",
       "count": 3840,
       "reason": "unresolved semantics"
     },
     {
       "cls": "fhadd2_a16b_urc__RUR",
-      "count": 753,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "fhadd2_a16b_urc__RUR",
       "count": 3840,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "fhadd2_d16b_imm__RIR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "fhadd2_d16b_imm__RIR",
@@ -7409,18 +7349,8 @@
     },
     {
       "cls": "fhadd2_d16b_rc__RRR",
-      "count": 32,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "fhadd2_d16b_rc__RRR",
       "count": 1120,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "fhadd2_d16b_urc__RUR",
-      "count": 32,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "fhadd2_d16b_urc__RUR",
@@ -7444,18 +7374,8 @@
     },
     {
       "cls": "fhfma2_a16b_rb_rc__RRR",
-      "count": 3072,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "fhfma2_a16b_rb_rc__RRR",
       "count": 52224,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "fhfma2_a16b_rb_urc__RRU",
-      "count": 3072,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "fhfma2_a16b_rb_urc__RRU",
@@ -7464,18 +7384,8 @@
     },
     {
       "cls": "fhfma2_a16b_rb_x__RRI",
-      "count": 753,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "fhfma2_a16b_rb_x__RRI",
       "count": 3840,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "fhfma2_a16b_urb_rc__RUR",
-      "count": 3072,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "fhfma2_a16b_urb_rc__RUR",
@@ -7484,18 +7394,8 @@
     },
     {
       "cls": "fhfma2_a16b_x_rc__RIR",
-      "count": 753,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "fhfma2_a16b_x_rc__RIR",
       "count": 3840,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "fhmul2_d16b_imm__RIR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "fhmul2_d16b_imm__RIR",
@@ -7504,18 +7404,8 @@
     },
     {
       "cls": "fhmul2_d16b_rb__RRR",
-      "count": 32,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "fhmul2_d16b_rb__RRR",
       "count": 544,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "fhmul2_d16b_urb__RUR",
-      "count": 32,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "fhmul2_d16b_urb__RUR",
@@ -30304,18 +30194,8 @@
     },
     {
       "cls": "ldc__RaNonRZ",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ldc__RaNonRZ",
       "count": 19,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldc__RaRZ",
-      "count": 5,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "ldc__RaRZ",
@@ -30695,11 +30575,6 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "nop_",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "plop3_lut_2out_1reg__RRR",
       "settings": {
         "Pp@not": "unset",
@@ -30818,28 +30693,13 @@
     },
     {
       "cls": "qspc__RaRZ",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "qspc__RaRZ",
       "count": 2,
       "reason": "unresolved semantics"
     },
     {
       "cls": "qspc_urb__Ra32",
-      "count": 5,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "qspc_urb__Ra32",
       "count": 2,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "qspc_urb__Ra64",
-      "count": 3,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "qspc_urb__Ra64",
@@ -30933,18 +30793,8 @@
     },
     {
       "cls": "ret__ABS",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ret__ABS",
       "count": 2,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ret__ABS_UR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "ret__ABS_UR",
@@ -30953,18 +30803,8 @@
     },
     {
       "cls": "ret__REL",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ret__REL",
       "count": 2,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ret__REL_UR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "ret__REL_UR",

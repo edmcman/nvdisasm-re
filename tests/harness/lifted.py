@@ -7,7 +7,7 @@ from sass.semantics.family import family_for
 from tests.harness.checks import problems
 
 NAME = re.compile(r"(UR|UP|R|P)(\d+)$")
-SPECIAL = re.compile(r"SR_\w+$")   # a special register seeded by name (SR_SWINLO)
+SPECIAL = re.compile(r"SR_[\w.]+$")   # a special register seeded by name (SR_SWINLO)
 PCODE_ONLY = ("__native", "__max_ops", "__events")
 
 

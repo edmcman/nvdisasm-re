@@ -48,3 +48,24 @@ See `tests/README.md` for the Python, Ghidra and GPU tests, commands, options, c
 
 
 - Reduced half-comparison inputs (2026-10-18): HSET2/HSETP2 use the named half_comparison_forms profile and an audited input-only selection table. Every generated form and both lowerings remain. Selected seeds preserve both predicate values, separate/aliased HSET2 destinations, and the existing reference-level fault distinctions; additional unmasked subnormal inputs expose FTZ in 22,080 forms where seed/predicate correlation previously hid it. The comparison matrix falls from 4,571,136 to 1,957,914 cases per engine (57.2%). Expected outputs still come from independent references at runtime. The table records its numeric corpus and fails when stale; regression checks verify fault preservation and deterministic regeneration. See research/shared-case-matrix-audit.md and regenerate with python -m research.audit_shared_cases OUTPUT.json --write-inputs tests/harness/data/half_comparison_inputs.json. Dense manual exceptional-value cases remain unchanged.
+
+### Generated system and mixed-pair forms (2026-10-18)
+
+The next 15-opcode batch adds FHADD2/FHMUL2/FHFMA2, S2R/CS2R/S2UR,
+BRA/CALL/RET/EXIT/NOP, LDC/LDCU/ULDC and QSPC. Named profiles describe
+finite mixed-lane inputs, constant bytes/banks/offsets, synthetic special
+registers, control-flow predicates/displacements and mapped address ranges.
+Expectations come from independent references. The mixed numerical helpers
+are shared with the unchanged dense manual corpus in `tests/refs/mixed.py`.
+
+Pure instructions retain the strict native p-code assertion. Constant loads
+with ordering require exactly the `sass_memory_order` userop plus one event;
+NOP requires an inspected zero-op body. Structured p-code bounds are emulator
+assertions and do not change GPU expectations or hardware classification.
+QSPC is classified as primitive in Python; its values are checked in Ghidra.
+
+Ordinary constant-load and scalar control/register cases move to the profiles.
+Manual aligned 64-bit constant pairs remain because their manifest forms are
+partially native. Masked/cluster QSPC, missing-context failures, physical
+branch/lane/CTA/query anchors, synchronization, kernel termination errors and
+dense mixed floating-point corpora remain with explicit reasons.

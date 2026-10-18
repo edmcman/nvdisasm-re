@@ -340,3 +340,13 @@ absolute/negated sources on FSEL/UFSEL, FRND/UFRND and FCHK. The named
 fixtures retain the identical full 1,792-pair corpus. Ordinary manual FCHK cases
 are therefore removed. Source modifiers on other floating operations, FMZ and
 XORSIGN still have explicit gaps and retained numerical regressions.
+
+Generated system profiles use an integer `__max_ops` for the existing strict
+nonempty, branch-free, CALLOTHER-free limit. A structured `__max_ops` value,
+`{"count": N, "userops": [...]}`, additionally requires the exact named userops
+and rejects every other runtime call. LDC/LDCU permit only `sass_memory_order`,
+with one runtime event; NOP requires zero p-code operations and zero events.
+Structured limits require inspection metadata, including the userop names.
+The existing `__native` assertion stays strict. QSPC values run in Ghidra's
+explicit provenance context and remain marked as primitive checks rather than
+native Python value validation.

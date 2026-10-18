@@ -13,7 +13,7 @@ from sass.sleigh.build import ARCHES
 from sass.sleigh.modifiers import settings
 from tests.cases import emulator_cases
 from tests.harness import autocases
-from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp
+from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp, autocase_system, autocase_mixed_fp
 
 
 def forms(row):
@@ -34,7 +34,8 @@ def identity(cls, form): return cls, tuple(sorted(form.items()))
 
 def plan(arch, rows):
     # Ignore prior generated plans: rerunning must reproduce them, not delete them.
-    manual = emulator_cases(arch, 'exact', exhaustive=False, generated=False)
+    manual = emulator_cases(arch, 'exact', exhaustive=False, generated=False) if any(
+        row['opcode'] not in autocases.OWNED for row in rows) else {}
     covered = set()
     for cases in manual.values():
         for case in cases:
@@ -61,7 +62,7 @@ def plan(arch, rows):
             continue
         blocked_reasons = Counter()
         unresolved = 0
-        compact = row['opcode'] in autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS
+        compact = row['opcode'] in autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS | autocase_system.OPS | autocase_mixed_fp.OPS
         for form, status in forms(row):
             counts['legal'] += 1
             if status not in ('native', 'primitive'):
@@ -77,7 +78,7 @@ def plan(arch, rows):
                 autocases.generate(arch, row['cls'], form, profiles=profiles, native=status == 'native')
             except (autocases.Unsupported, ValueError) as error:
                 counts['blocked'] += 1
-                if row['opcode'] in autocase_extended.OPS | autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS:
+                if row['opcode'] in autocase_extended.OPS | autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS | autocase_system.OPS | autocase_mixed_fp.OPS:
                     blocked_reasons[str(error)] += 1
                 else: gaps.append(dict(cls=row['cls'], settings=form, reason=str(error)))
             else:

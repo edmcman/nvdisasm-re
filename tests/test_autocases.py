@@ -110,9 +110,10 @@ def test_simd_plan_uses_its_own_family(monkeypatch):
 
 def test_retained_adapter_cases_have_reasons():
     from tests.cases import emulator_cases
-    for arch in ('SM89', 'SM120'):
-        for cases in emulator_cases(arch, 'exact', ('int_alu', 'int_simd', 'carry', 'bmsk', 'fp32', 'fp64', 'fp16', 'fp32x2', 'f2fp', 'predicates', 'conversions'), False, generated=False).values():
+    for arch in ('SM89', 'SM107', 'SM120'):
+        for cases in emulator_cases(arch, 'exact', ('int_alu', 'int_simd', 'carry', 'bmsk', 'fp32', 'fp64', 'fp16', 'fp32x2', 'f2fp', 'predicates', 'conversions', 'memory', 'control'), False, generated=False).values():
             for case in cases:
+                if case.cls not in cases.classes: continue  # whole-kernel termination tests
                 k = cases.classes[case.cls]
                 if k.mnemonic in tests.harness.autocases.OPS:
                     assert case.id in cases.manual_reasons, case.cls
