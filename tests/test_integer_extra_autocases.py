@@ -3,27 +3,25 @@ import json
 import pytest
 from sass.assemble import encoding
 from sass.decode import pydecode
-from sass.paths import LANGUAGES
 from sass.sleigh.modifiers import settings
-from tests.autocases import forms
 from tests.harness import autocases, autocase_integer_extra, lifted
+from tests.harness.case import Cases
 
 
 @pytest.mark.parametrize('arch', ['SM90','SM100','SM103','SM107','SM120'])
 @pytest.mark.parametrize('fp', ['exact','readable'])
 def test_additional_integer_native_forms(arch,fp):
+    classes=Cases(arch).classes
+    plan=json.loads((autocases.PLANS/(arch+'.json')).read_text())['forms']
+    forms=[f for f in plan if f['native'] and classes[f['cls']].mnemonic in autocase_integer_extra.OPS]
     count=0
-    rows=json.loads((LANGUAGES/('sass_'+arch.lower()+'_coverage.json')).read_text())
-    for row in rows:
-        if row['opcode'] not in autocase_integer_extra.OPS:continue
-        for form,status in forms(row):
-            if status!='native':continue
-            cases=autocases.generate(arch,row['cls'],form,fp)
-            assert cases
-            for case in cases:
-                actual,problems=lifted.run(arch,fp,case)
-                assert actual=='native' and not problems,(case,problems)
-            count+=len(cases)
+    for f in forms:
+        cases=autocases.generate(arch,f['cls'],f['settings'],fp,f['profiles'],True)
+        assert cases
+        for case in cases:
+            actual,problems=lifted.run(arch,fp,case)
+            assert actual=='native' and not problems,(case,problems)
+        count+=len(cases)
     assert count
 
 
