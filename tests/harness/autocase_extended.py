@@ -73,10 +73,10 @@ def floating(c,k,form):
         vectors += [(a,b,0) for a,b in (*autocase_profiles.fchk_pairs()[::spec['stride']],*spec['extra_pairs'])]
     for j,raw in enumerate(vectors):
         s=autocases.Inputs(c,k,form)
-        xs,raws=[],[]
+        xs=[]
         for n,v,r in zip(names,raw,(4,6,8)):
-            value=operand(s,n,v,r,width); raws.append(value)
-            xs.append(float.source_modifiers(value,width,form.get(n+'@absolute')=='set',form.get(n+'@negate')=='set'))
+            value=operand(s,n,v,r,width)
+            xs.append((float.conversion_source if op=='FRND' else float.source_modifiers)(value,width,form.get(n+'@absolute')=='set',form.get(n+'@negate')=='set'))
         p=source(k,'Pp','UPp')
         pred=j&1
         if p:
@@ -96,7 +96,7 @@ def floating(c,k,form):
         elif op=='FRND':
             mode={'ROUND':'RN','TRUNC':'RZ','FLOOR':'RM','CEIL':'RP'}.get(form['rnd'])
             if mode is None: raise autocases.Unsupported('unknown integral rounding mode')
-            result=float.frnd(raws[0] if softfloat.unpack(raws[0],width)[0]=='nan' else xs[0],width,mode,form.get('ftz')=='FTZ')
+            result=float.frnd(xs[0],width,mode,form.get('ftz')=='FTZ')
         elif op=='FCHK':
             s.add({s.output(('Pu',),1):float.fchk_divide(*xs)},form,portable=True); continue
         elif op in ('FSETP','UFSETP','DSETP','FSET'):

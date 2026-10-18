@@ -113,7 +113,7 @@ def pack(c,k,form):
                 result=((base>>(16 if extract=='H1' else 0))&0xffff)<<16 | fpformat.pack16(b,dst,rnd,sat,relu)
             else:
                 result=fpformat.tf32(b,rnd=='RN')
-                if relu:result=0x7fffffff if result&0x7f800000==0x7f800000 and result&0x7fffff else 0 if result&0x80000000 else result
+                if relu:result=result if result&0x7fffffff>0x7f800000 else 0 if result&0x80000000 else result
         dest=s.output(('Rd','URd'),4 if j&1 else 2)
         s.add({dest:result},form,portable=True)
     return c

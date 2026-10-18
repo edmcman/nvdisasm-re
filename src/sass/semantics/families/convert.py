@@ -179,7 +179,7 @@ def i2f(i):
 @family("F2F")
 def f2f(i):
     """Rd = Rb converted between F16, F32 and F64, rounded once in rnd's mode (narrowing); a NaN
-    is canonicalized for F16/F32 conversions, otherwise keeps its quieted sign/payload (SM89 GPU).
+    is canonicalized for F16/F32 conversions, otherwise keeps the register's quieted sign/payload, ignoring -/|.| (SM89 GPU).
     The readable lowering rounds to nearest.
     .FTZ and the BF16/E8M7/E6M9 formats are unmodelled."""
     dst, src = str(i.select_fork("dstfmt.srcfmt")).split(".")
@@ -193,7 +193,7 @@ def f2f(i):
     else:
         sign, mag, _ = fpformat.round_parts(fpformat.parts(x, src), fpformat.dest(dst), r)
         r = concat(sign, extract(mag, d.width - 2, 0))
-    nan = const((1 << (d.width - 1)) - 1, d.width) if {s.width, d.width} == {16, 32} else quiet(x, src, dst)
+    nan = const((1 << (d.width - 1)) - 1, d.width) if {s.width, d.width} == {16, 32} else quiet(source(i, "Rb|Sb", s.width, modified=False), src, dst)
     r = nan if is_nan(x, src) else r
     return outputs(Rd=resize(r, i.width("Rd")))
 

@@ -105,9 +105,9 @@ def widen(fmt, code, dst="F16", nan=0x7fff):
 
 
 def f32_to_f16(bits, rnd="RN"):
-    """F2FP F16 pack: canonical signed NaN 0x7e00, Inf kept, RZ overflow saturates at max finite."""
+    """F2FP F16 pack: NaN is +0x7fff (SM89 GPU, either sign and payload), Inf kept, RZ overflow saturates at max finite."""
     kind, sign, _ = unpack(bits, "F32")
-    if kind == "nan": return (sign << 15) | 0x7e00
+    if kind == "nan": return 0x7fff
     if kind == "inf": return (sign << 15) | 0x7c00
     return narrow(bits, "F32", "F16", rnd, satfinite=rnd == "RZ")
 
@@ -180,8 +180,9 @@ def fp4(bits, fmt, relu=False, src="F32", relu_nan=False):
 
 
 def tf32(bits, rn):
-    """F2FP TF32: keep 10 fraction bits; Inf/NaN truncate."""
+    """F2FP TF32: keep 10 fraction bits; Inf truncates and any NaN is 0x7fffe000 (SM89 GPU, with or without RELU)."""
     sign, mag = bits & 0x80000000, bits & 0x7fffffff
+    if mag & 0x7fffffff > 0x7f800000: return 0x7fffe000
     if mag & 0x7f800000 == 0x7f800000: return bits & 0xffffe000
     base, discarded = mag & 0xffffe000, mag & 0x1fff
     if rn and (discarded > 0x1000 or (discarded == 0x1000 and (base >> 13) & 1)): base += 0x2000

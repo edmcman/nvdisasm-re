@@ -40,7 +40,7 @@ def tf32(c):
                 if not put(k, src, bits, fields, regs, memory, 4, ureg=10, bank=(2, 0x100), imm=("F32Imm",)): continue
                 result = fpformat.tf32(bits, rnd == "RN")
                 c.add(k.name, fields, regs, {"R8": result, "__native": True}, memory=memory)
-                relu = 0x7fffffff if result & 0x7f800000 == 0x7f800000 and result & 0x7fffff else 0 if result & 0x80000000 else result
+                relu = result if result & 0x7fffffff > 0x7f800000 else 0 if result & 0x80000000 else result
                 c.add(k.name, dict(fields, relu="RELU"), regs, {"R8": relu, "__native": True}, memory=memory)
 
 

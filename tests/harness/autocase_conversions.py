@@ -51,7 +51,7 @@ def generate(c,k,form,profiles):
         else:
             effective=autocase_extended.operand(s,name,word,4,max(sw,32))
             value=(effective>>shift)&((1<<sw)-1)
-            value=float.source_modifiers(value,sw,form.get(name+'@absolute')=='set',form.get(name+'@negate')=='set')
+            value=float.conversion_source(value,sw,form.get(name+'@absolute')=='set',form.get(name+'@negate')=='set')
             if op=='F2I':
                 result=float.f2i(value,sw,dw,dst.startswith('S'),mode if c.fp=='exact' else 'RZ',form.get('ntz')=='NTZ',form.get('ftz')=='FTZ')
             else:
