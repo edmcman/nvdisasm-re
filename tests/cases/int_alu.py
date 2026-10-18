@@ -21,7 +21,7 @@ def flo_subset(c):
                     c.add(k.name, fields, regs, {"R2": flo(value, mode == "SH", fmt == "S32"), "__native": True}, memory=memory)
 
 
-@retained("Uniform arithmetic/move p-code cost contracts, zero/special registers, and IADD/VIADD without adapters.")
+@retained("Uniform arithmetic/move p-code cost contracts, zero/special registers, and opaque IADD anchors.")
 def arithmetic(c):
     # Mixed register banks and uniform aliases retain original md operand names.
     rng = random.Random("uniform")
@@ -33,9 +33,6 @@ def arithmetic(c):
         c.add("uimad__URURUR_URURUR", dict(common, fmt="U32"), regs, dict(UR2=(a * b + d) & MASK32, __max_ops=2))
         c.add("umov__UR", dict(URd=2, URb=4), regs, dict(UR2=b, __max_ops=1))
         c.add("umov__UI", dict(URd=2, Sb=b), {}, dict(UR2=b, __max_ops=1))
-        if "viadd__RRR_RRR" in c.classes:
-            fmt = c.enum(c.classes["viadd__RRR_RRR"], "fmt")
-            c.add("viadd__RRR_RRR", dict(Rd=2, Ra=2, Rb=4, fmt="U32" if "U32" in fmt else "32"), regs, dict(R2=(a + b) & MASK32))
         c.add("iadd_noimm__RRR_RRR", dict(Rd=2, Ra=2, Rb=4), regs, dict(R2=(a + b) & MASK32))
     # URZ is 63 in SM75-SM90 but 255 in SM100+, where 63 is the ordinary UR63
     # (ptxas emits UIMAD.WIDE.U32 ..., URZ with the eight-bit encoding).

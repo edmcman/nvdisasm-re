@@ -1,9 +1,10 @@
 """Compare one emulator result with a Case's expectations.
 
-Plain keys are observed registers; `__` keys are flags: __native (p-code without CALLOTHER),
-__max_ops (at most N ops, no branches or CALLOTHER; the emulator reports {op: count}), __counter (final PC), __memory (first
-observed memory hex), __events (runtime event count), __fp8_nan (an FP8 format: packed
-byte lanes match if equal or both NaN), __opaque (CALLOTHER p-code or an error starting with
+Plain keys are observed registers; `__` keys are flags: __native (nonempty p-code without CALLOTHER),
+__max_ops (integer: at most N ops, no branches or CALLOTHER; dict: count bound and exact userop list),
+__counter (final PC), __memory (first observed memory hex), __events (runtime event count),
+__fp8_nan (an FP8 format: packed byte lanes match if equal or both NaN),
+__opaque (CALLOTHER p-code or an error starting with
 the given text). `error` expects a failure message.
 """
 from tests.refs.fpformat import same_fp8
@@ -24,6 +25,18 @@ def problems(expected, result):
         ("__memory" in expected, bool(result.get("memory")) and result["memory"][0]["hex"] == expected.get("__memory"), "memory"),
         ("__events" in expected, len(result.get("events", [])) == expected.get("__events"), "events"),
         ("__native" in expected, bool(ops) and "CALLOTHER" not in ops, "native p-code"),
-        ("__max_ops" in expected, bool(ops) and sum(ops.values()) <= expected.get("__max_ops", 0)
-         and not set(ops) & {"CBRANCH", "CALLOTHER"}, "p-code op count")]
+        ("__max_ops" in expected, within_pcode_limit(expected.get("__max_ops"),result), "p-code op count")]
     return [name for wanted, ok, name in checks if wanted and not ok]
+
+
+def within_pcode_limit(limit,result):
+    """Keep integer limits strict; structured limits require every named effect and reject all others."""
+    ops=result.get('pcode_ops')
+    if isinstance(limit,dict):
+        if set(limit)!={'count','userops'}:return False
+        effects=result.get('pcode_userops')
+        return (isinstance(ops,dict) and effects is not None
+                and sum(ops.values())<=limit['count'] and 'CBRANCH' not in ops
+                and ops.get('CALLOTHER',0)==len(limit['userops'])
+                and sorted(effects)==sorted(limit['userops']))
+    return bool(ops) and limit is not None and sum(ops.values())<=limit and not set(ops)&{'CBRANCH','CALLOTHER'}

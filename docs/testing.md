@@ -30,3 +30,42 @@ See `tests/README.md` for the Python, Ghidra and GPU tests, commands, options, c
 - Generated arithmetic/carry expansion (2026-10-17): IADD3/UIADD3, LEA/ULEA and IMAD/UIMAD move ordinary seeded sweeps into profiles. References retain negate-zero carry, .X predicate inputs, LEA shifted-word selection, IMAD pair addends and older narrow HI carry boundaries. Operand widths come from corrected MD metadata. IMAD immediate B=0/1 printing aliases receive an explicit class/settings check; alternate-only constructors remain reported gaps. Manual tests retain constant UPT, aliased-output precedence, costs, special registers and independent literal boundary examples.
 
 - Uniform bit adapters (2026-10-17): UBREV/UPOPC/USGXT reuse the independent reversal/popcount/sign-extension references and shared bit profiles. These add new coverage; the arithmetic migration routes generated cases through the existing carry family. Expanded carry and int_alu hardware signatures require new passing GPU runs.
+
+- Generated floating/predicate expansion (2026-10-17): add adapters for FADD/FMUL/FFMA, DADD/DMUL/DFMA, FSEL/FMNMX/FMNMX3, FSET/FSETP/UFSETP/DSETP, FCHK/FRND, PLOP3/UPLOP3 and P2R/R2P/UP2UR. FP64 immediates encode the high word; constants and registers use full pairs. Exact/readable references differ for unfused arithmetic, flushing and ordered min/max selection. Initial floating profiles own unmodified data sources; source-sign, XORSIGN and FMZ corpora remain manual, with explicit counted adapter gaps. Existing dense seeded, exponent-boundary, exceptional-result and cost regressions still provide input coverage beyond the generated profile. Predicate LUTs check all eight inputs, both outputs and input/output overlap; transfer cases check masked preservation and destination aliases. Expanded fp32/fp64/conversions/predicates families require fresh hardware passes.
+
+- Floating modifier/uniform follow-up (2026-10-18): FSEL, FRND and FCHK now apply source absolute value before negation at the operand width, including negative zero and NaN payloads. FCHK ignores those sign bits in its independent exponent test. The original 1,792-pair boundary/seed corpus is shared by fixtures and a named profile; the ordinary manual FCHK loop is removed. Add UFADD/UFMUL/UFFMA/UFSEL/UFRND adapters, using the appropriate exact/readable formulas and routing UFRND through conversions. Other FP source-sign, FMZ and XORSIGN gaps remain explicit.
+  The same no-flush enum spelling also occurs on older mixed-source FMUL/FFMA forms; it is accepted as a no-flush alias and validated with the ordinary independent arithmetic references.
+
+- Scalar conversion form profiles (2026-10-18): F2I/UF2I, I2F/I2FP/UI2F/UI2FP and F2F use independent conversion references for IEEE F16/F32/F64, integer widths, selectors and source signs. Selected byte/half inputs carry nonzero filler in the other slices; destinations alternate between separate and aliased registers. Floating and integer 64-bit immediates supply the high word, unlike full register/constant pairs. Readable F2I truncates and readable F2F rounds to nearest; I2F retains its rounding mode. Named eight-value profiles cover ordinary forms; an unmodified-register boundary supplement owns the former scalar conversion corpora, while literal hardware/encoding anchors remain manual with recorded reasons. BF16/other formats, narrow F2I outputs, F2F FTZ and limited conversion runtime fallbacks remain explicit gaps or unresolved semantics. No instruction semantics or hardware credits are added by generation.
+
+- Packed half/conversion form profiles (2026-10-18): add named form profiles for F2IP/I2IP and HADD2/HMUL2/HFMA2/HMNMX2/HSET2/HSETP2. Ordinary half profiles cover lane broadcasts, separate packed immediates, constants/CX/uniform sources, predicate combines and destination overlap. Mixed formats, source signs, XORSIGN/source-predicate outputs and predicate-controlled RELU retain explicit gaps and denser manual regressions. Move the former F2I/I2F/I2FP/F2F register boundary corpora into `conversion_boundaries`, including the legacy F2F half-input corpus; fixtures reuse the same lists, and ordinary scalar conversion loops are removed.
+
+- Packed binary32/float-pack form profiles (2026-10-18): ordinary FADD2/FMUL2/FFMA2 profiles add asymmetric binary32 pairs, lane swaps/broadcasts, NP lane signs, rounding/FTZ, uniform sources and pair overlap. F2FP/UF2FP profiles add ordinary F32 PACK_AB/MERGE_C to F16/BF16/E6M9 and TF32 PACK_B, including rounding, RELU/SATFINITE and preserved-half selection. FP8/FP6/FP4, scaling and specialized layouts remain named gaps and dense manual regressions. Record manual retention reasons throughout packed FP families.
+
+- Larger generated matrices (2026-10-18): keep the version-2 JSON schema, with one form per line to reduce generated diff size. New scalar/packed adapter families aggregate unresolved gaps by class, preserving counts; modifier-specific semantics still live in the coverage manifest's factored table. Case generation and eligibility are unchanged.
+
+- Additional integer profiles (2026-10-18): native VIADD, UVIMNMX, UI2IP and MOV64IUR forms now use generated shared cases. VIADD reuses the original twelve seeded uniform arithmetic input pairs, replacing their manual loop. Uniform min/max checks signed/unsigned packed lanes and both predicate values; integer packing checks saturation, preserved C bits and aliased destinations. The SM120 SATRELU_ui2ip enum gives SATRELU and RELU the same encoding, so the printed RELU spelling includes saturation. Pair moves check both words of 64-bit immediates and uniform-register pairs. Packed/saturating VIADD and opaque IADD remain explicit gaps.
+
+
+- Reduced half-comparison inputs (2026-10-18): HSET2/HSETP2 use the named half_comparison_forms profile and an audited input-only selection table. Every generated form and both lowerings remain. Selected seeds preserve both predicate values, separate/aliased HSET2 destinations, and the existing reference-level fault distinctions; additional unmasked subnormal inputs expose FTZ in 22,080 forms where seed/predicate correlation previously hid it. The comparison matrix falls from 4,571,136 to 1,957,914 cases per engine (57.2%). Expected outputs still come from independent references at runtime. The table records its numeric corpus and fails when stale; regression checks verify fault preservation and deterministic regeneration. See research/shared-case-matrix-audit.md and regenerate with python -m research.audit_shared_cases OUTPUT.json --write-inputs tests/harness/data/half_comparison_inputs.json. Dense manual exceptional-value cases remain unchanged.
+
+### Generated system and mixed-pair forms (2026-10-18)
+
+The next 15-opcode batch adds FHADD2/FHMUL2/FHFMA2, S2R/CS2R/S2UR,
+BRA/CALL/RET/EXIT/NOP, LDC/LDCU/ULDC and QSPC. Named profiles describe
+finite mixed-lane inputs, constant bytes/banks/offsets, synthetic special
+registers, control-flow predicates/displacements and mapped address ranges.
+Expectations come from independent references. The mixed numerical helpers
+are shared with the unchanged dense manual corpus in `tests/refs/mixed.py`.
+
+Pure instructions retain the strict native p-code assertion. Constant loads
+with ordering require exactly the `sass_memory_order` userop plus one event;
+NOP requires an inspected zero-op body. Structured p-code bounds are emulator
+assertions and do not change GPU expectations or hardware classification.
+QSPC is classified as primitive in Python; its values are checked in Ghidra.
+
+Ordinary constant-load and scalar control/register cases move to the profiles.
+Manual aligned 64-bit constant pairs remain because their manifest forms are
+partially native. Masked/cluster QSPC, missing-context failures, physical
+branch/lane/CTA/query anchors, synchronization, kernel termination errors and
+dense mixed floating-point corpora remain with explicit reasons.

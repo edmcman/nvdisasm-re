@@ -95,19 +95,20 @@ def half(i, names, selector):
 @family("F2FP", "UF2FP", classes=form("f2fp_tf32"))
 def f2fp_tf32(i):
     """Rd = Rb (F32) keeping 10 fraction bits: RN-even or RZ on the 13 discarded bits, Inf/NaN
-    truncated. RELU: NaN gives 0x7fffffff, negative values +0."""
+    truncated, any NaN giving 0x7fffe000 (also with RELU); RELU makes negative values +0 (SM89 GPU)."""
     required(i, "dstfmt", "TF32"); required(i, "srcfmt", "F32"); required(i, "merge", "PACK_B")
     x = i.value("Rb|Sb", modifiers=False)
     rn = i.select_lookup_const("rndMode", {"RN": 1, "RZ": 0}, 1)
     special = extract(x, 30, 23) == 0xff
     r = ite(rn & lnot(special), (x + 0xfff + zext(extract(x, 13, 13), 32)) & 0xffffe000, x & 0xffffe000)
-    nan = special & (extract(r, 22, 0) != 0)
+    nan = extract(x, 30, 23) == 0xff
+    nan = nan & (extract(x, 22, 0) != 0)
     relu = bit(i, "relu", "RELU", "norelu")
-    return outputs(Rd=ite(relu & nan, const(0x7fffffff, 32), relu_zero(relu, extract(r, 31, 31) == 1, r)))
+    return outputs(Rd=ite(nan, const(0x7fffe000, 32), relu_zero(relu, extract(r, 31, 31) == 1, r)))
 
 
 def pack16_destination(i):
-    """F16 keeps a NaN's sign (0x7e00), BF16 and E6M9 give 0x7fff; overflow is signed infinity.
+    """A NaN packs to +0x7fff in every format (SM89 GPU); overflow is signed infinity.
     SM86-SM90 UF2FP name the formats together (dfmt.sfmt, only F16.F32)."""
     if i.has_operand("dfmt.sfmt"):
         required(i, "dfmt.sfmt", "F16.F32")
@@ -118,7 +119,7 @@ def pack16_destination(i):
     return fpformat.Dest(
         mbits=param(lambda n: FORMATS[n].mbits), emin=param(lambda n: FORMATS[n].emin),
         max_code=param(lambda n: FORMATS[n].max_code),
-        nan_signed=param(lambda n: n == "F16", 1), nan_mag=param(lambda n: 0x7e00 if n == "F16" else 0x7fff),
+        nan_signed=param(lambda n: False, 1), nan_mag=param(lambda n: 0x7fff),
         ovf_signed=1, ovf_mag=param(lambda n: FORMATS[n].inf_code))
 
 

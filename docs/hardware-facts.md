@@ -36,3 +36,7 @@
 
 ## Starred encoding literals (2026-10-16, SM89)
 `BITS_3_83_81_Pu=*7;`-style starred literals are ignored by the decoder but ptxas writes them. Plain `IMAD` with bits 83:81 = k < 7 clears `Pk` (checked for P0-P3); ptxas emitted 7 in 623 of 623 plain IMAD words in the repo's compiled kernels, and all 9 starred field/value kinds occurring in 10,152 ptxas-emitted instructions matched the md literal every time. The encoder (`sass.assemble.encoding`) writes them in strict and permissive modes (issue #24: the old `pyencode` left them 0).
+
+- FRND.F64 NaN (SM89 RTX 4070 Laptop, 2026-10-18): the result is the register's own NaN, quieted, with sign and payload untouched by `-` and `|.|` (`-R4` and `-|R4|` of 0x7ff81234 give 0x7ff81234, of 0xfff81234 give 0xfff81234); non-NaN sources are negated/abs'd as usual. The earlier reference applied the modifiers before quieting, flipping the NaN's sign.
+
+- F2F.F64 NaN and F2FP NaN (SM89 RTX 4070 Laptop, 2026-10-18): F2F with an F64 source or destination ignores `-` and `|.|` on a NaN and returns the register's own quieted NaN (as FRND.F64). F2FP packs any NaN, of either sign, signaling or quiet, to +0x7fff in F16 as well as BF16 and E6M9 (scalar and uniform, PACK_AB and MERGE_C); F2FP.TF32 turns any NaN into 0x7fffe000, with or without RELU. The earlier references kept F16's NaN sign (0x7e00) and gave RELU TF32 0x7fffffff; manual cases had not covered those NaNs or compared them by class.

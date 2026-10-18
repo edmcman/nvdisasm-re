@@ -230,6 +230,8 @@ def session(ldefs,langid):
         out=dict(text=str(ins),registers=registers,memory=memories,counter=int(thread.getCounter().getOffset()),events=runtime.events)
         if request.get('inspect_pcode'):
             out['pcode_ops']=dict(Counter(str(op.getMnemonic()) for op in ops))
+            out['pcode_userops']=[str(lang.getUserDefinedOpName(int(op.getInput(0).getOffset())))
+                                  for op in ops if str(op.getMnemonic())=='CALLOTHER']
         return out
     def handle(request):
         try:return run_kernel(request) if 'kernel' in request else instruction(request)

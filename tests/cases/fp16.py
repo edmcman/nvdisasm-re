@@ -1,5 +1,6 @@
 """Packed FP16: HADD2/HFMA2/HMUL2 lanes, broadcasts and modifiers; HMNMX2 (F16/BF16/E6M9,
 NaN, FTZ, XORSIGN, IS_A source predicates); HSET2/HSETP2 comparisons; HADD2.F32 widening; HFMA2.MMA constant moves."""
+from tests.harness.manual import retained
 import itertools, random
 from itertools import product
 from sass.semantics.fp import softfloat
@@ -35,6 +36,7 @@ MUL_FORMATS = {"F16_V2": ("F16", "F16", "F16"), "BF16_V2": ("BF16", "BF16", "BF1
 def format_operand(k): return next(n for n in ("ofmt", "Dfmt.Afmt.Bfmt") if n in k.operand_types)
 
 
+@retained('Seeded packed arithmetic, sign combinations, FMZ/FTZ, literal lane encodings and CX memory anchors exceed the ordinary form profile.')
 def arithmetic(c):
     rng = random.Random("fp16")
     packed = [0, 0x80008000, 0x00010001, 0x80010001, 0x03ff0400, 0x3c004000, 0xbc00c000, 0x7bfffbff, 0x7c003c00, 0x3c007e00, 0x3c014001]
@@ -104,6 +106,7 @@ def arithmetic(c):
             c.add(k.name, dict(fields, **cx_fields), dict(regs, **cx_regs), {"R8": want, "__native": True}, memory=memory, portable=True)
 
 
+@retained('Dense exceptional min/max, XORSIGN and source-selection predicate corpora exceed the ordinary profile.')
 def minmax(c):
     if "hmnmx2__RRR" in c.classes:
         rrr = c.classes["hmnmx2__RRR"]; has_xor = "xorsign" in rrr.operand_types
@@ -208,6 +211,7 @@ def set_pairs(fmt):
     return [(x | ps[(n + 3) % len(ps)][0] << 16, y | ps[(n + 3) % len(ps)][1] << 16) for n, (x, y) in enumerate(ps)]
 
 
+@retained('Dense format-specific exceptional comparison pairs and source-sign corpora exceed the ordinary profile.')
 def comparisons(c):
     """HSET2 (.BF/.BM) and HSETP2 (with and without .H_AND): every comparison, FTZ, each bop
     against Pp/!Pp, lane swizzles and modifiers, each source form and SM90+'s BF16 lanes."""
@@ -254,6 +258,7 @@ def comparisons(c):
                 c.add(k.name, f, regs, expect(k.name, a, y, cmp="LT"), memory=memory, portable=True)
 
 
+@retained('Mixed F32/half widening and literal half-lane boundaries remain outside the initial packed form adapter.')
 def widening(c):
     # HADD2.F32 adds two half lanes, takes the selected low result and widens it to F32. Its
     # first operand is -RZ; the second source's selector chooses the half for the low result.
@@ -298,6 +303,7 @@ def widening(c):
         c.add("hfma2_mma__RRI_norelu", dict(Rd=8, Ra=2, Rb="RZ", Sc=0x3c00, Sc1=0x4000, **{"Ra@negate": 1}), {}, dict(error="sass_opaque_HFMA2_MMA"))
 
 
+@retained('Seeded unfused and FTZ/FMZ readable formula regressions exceed the ordinary form profile.')
 def readable_formulas(c):
     if c.fp != "readable": return
     rng = random.Random("readable_fp16")

@@ -1,4 +1,5 @@
 """Predicate transfers and logic: UP2UR (uniform predicates into a uniform register), P2R/R2P and PLOP3."""
+from tests.harness.manual import retained
 import random
 from itertools import product
 from tests.harness.case import cx_header, is_cx, put, ram, source
@@ -8,6 +9,7 @@ from tests.refs.integer import p2r as p2r_ref, r2p as r2p_ref
 def bits_of(packed): return {f"P{i}": packed >> i & 1 for i in range(7)}
 
 
+@retained('Independent pairs of LUT tables, crossed mask/base/byte values, false guards and explicit out-of-bounds CX descriptors exceed the generated profile.')
 def emulator_cases(c):
     # Immediate UP2UR merges the selected UP0..UP6 into URa's low byte as P2R does.
     for mask, base in product((0, 1, 0x2a, 0x55, 0x7f, 0x80, 0xff), (0xa5a50000, 0xffffffff, 0xa5a5a5a5)):

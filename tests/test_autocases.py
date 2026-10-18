@@ -110,9 +110,10 @@ def test_simd_plan_uses_its_own_family(monkeypatch):
 
 def test_retained_adapter_cases_have_reasons():
     from tests.cases import emulator_cases
-    for arch in ('SM89', 'SM120'):
-        for cases in emulator_cases(arch, 'exact', ('int_alu', 'int_simd', 'carry', 'bmsk'), False, generated=False).values():
+    for arch in ('SM89', 'SM107', 'SM120'):
+        for cases in emulator_cases(arch, 'exact', ('int_alu', 'int_simd', 'carry', 'bmsk', 'fp32', 'fp64', 'fp16', 'fp32x2', 'f2fp', 'predicates', 'conversions', 'memory', 'control'), False, generated=False).values():
             for case in cases:
+                if case.cls not in cases.classes: continue  # whole-kernel termination tests
                 k = cases.classes[case.cls]
                 if k.mnemonic in tests.harness.autocases.OPS:
                     assert case.id in cases.manual_reasons, case.cls
@@ -366,3 +367,13 @@ def test_carry_seed_and_pair_addends_are_preserved():
     words += [tuple(rng.getrandbits(32) for _ in range(3)) for _ in range(12)]
     assert {v[:3] for v in autocase_profiles.vectors('carry_words')}==set(words)
     assert {v[:3] for v in autocase_profiles.vectors('imad_carry_words')}=={(a,b,(b<<32)|c) for a,b,c in words}
+
+
+def test_packed_unresolved_gaps_preserve_counts(monkeypatch):
+    monkeypatch.setattr(tests.autocases,'emulator_cases',lambda *a,**kw:{})
+    row=dict(cls='half_example',opcode='HADD2',combinations=dict(
+        labels={'mode':['A','B']},decides=[],table=[['opaque']],free=2))
+    plan,report=tests.autocases.plan('SM89',[row])
+    assert not plan['forms']
+    assert report['counts']['unresolved_semantics']==2
+    assert report['gaps']==[dict(cls='half_example',count=2,reason='unresolved semantics')]

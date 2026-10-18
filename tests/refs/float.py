@@ -287,3 +287,20 @@ def readable(op, inputs, width, sat=False, scale=0):
         value = softfloat.arithmetic(o, xs, width, sat=sat and i == len(steps) - 1)
         if softfloat.unpack(value, width)[0] == "nan": return None
     return value
+
+
+def fmnmx_readable(x, y, is_min):
+    """Readable FMNMX's documented ordered comparison; ties/unordered choose the second source for min."""
+    return x if (f32(x) < f32(y)) == is_min else y
+
+
+def source_modifiers(bits, width, absolute=False, negate=False):
+    """Apply floating-source absolute value before negation, preserving payload and magnitude bits."""
+    sign = 1 << (width - 1)
+    if absolute: bits &= sign - 1
+    return bits ^ sign if negate else bits
+
+
+def conversion_source(bits, width, absolute=False, negate=False):
+    """The source a conversion sees: a NaN ignores `|.|` and `-` and keeps the register's own sign (SM89 FRND.F64, F2F)."""
+    return bits if softfloat.unpack(bits, width)[0] == "nan" else source_modifiers(bits, width, absolute, negate)

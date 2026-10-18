@@ -1,5 +1,6 @@
 """FP64 DADD/DMUL/DFMA/DSETP: register pairs, overlap, modifiers and every rounding mode against
 exact rational arithmetic; readable-lowering formulas."""
+from tests.harness.manual import retained
 import random
 from sass.semantics.fp import softfloat
 from tests.harness.case import cbank, cx_source, pair
@@ -15,6 +16,7 @@ OPS = [("add", "dadd__RRR_RR", dict(Rd=2, Ra=2, Rc=4)), ("mul", "dmul__RRR_RR", 
 def pairs(x, y, z): return {**pair("R2", x), **pair("R4", y), **pair("R6", z)}
 
 
+@retained('Seeded 64-bit rounding/cancellation, source signs, guards, zero registers and explicit pair-layout regressions exceed the form profile.')
 def arithmetic(c):
     rng = random.Random("fp64")
     edges = [0, 1 << 63, 1, (1 << 63) | 1, 0x000fffffffffffff, 0x0010000000000000, ONE, 0xbff0000000000000,
@@ -63,6 +65,7 @@ def arithmetic(c):
     c.add("dadd__RRR_RR", dict(Rd=8, Ra="RZ", Rc=4), pair("R4", TWO), dict(pair("R8", TWO), __native=True))
 
 
+@retained('Exceptional FP64 comparison pairs and constant PT inputs exceed the generated profile.')
 def compare(c):
     c.add("dsetp__RRC_RC", dict(Pu=0, Pv=1, Pp="PT", Ra=2, Sc_bank=0, Sc_addr=0x100, test="LT", bop="AND"),
           pair("R2", ONE), dict(P0=1, P1=0, __native=True), memory=[cbank(0, 0x100, TWO, 8)])
@@ -78,6 +81,7 @@ def compare(c):
         c.add("dsetp__RRR_RR", dict(test=cmp), {}, dict(error="sass_opaque_DSETP"))
 
 
+@retained('Seeded FP64 unfused/underflow inputs exceed the generated readable profile.')
 def readable_formulas(c):
     if c.fp != "readable": return
     rng = random.Random("readable_fp64")

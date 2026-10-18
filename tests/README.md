@@ -320,3 +320,33 @@ cannot enter a regression suite until converted to `c.add` with an independent
 reference. Whole-kernel discovery through `tests.observe` remains available.
 The investigation skill's [probe guide](../.agents/skills/sass-opcode-semantics/references/gpu-probes.md)
 contains runnable examples and memory/warp setup notes.
+
+The extended adapters in `harness/autocase_extended.py` cover FADD/FMUL/FFMA,
+DADD/DMUL/DFMA, FSEL/FMNMX/FMNMX3, FSET/FSETP/UFSETP/DSETP, FCHK/FRND,
+PLOP3/UPLOP3 and P2R/R2P/UP2UR. Floating profiles include signed zeros,
+subnormal, finite, infinity and NaN inputs. Arithmetic skips undefined NaN payload
+comparisons and the documented Ghidra RN underflow band, matching the existing
+reference policy. Readable formulas have separate expectations. Source modifiers are supported for FSEL/UFSEL, FRND/UFRND and FCHK.
+Other floating source-sign modifiers, FMZ and XORSIGN remain explicit gaps
+with retained manual numerical corpora. Existing manual numerical
+sweeps remain because they cover denser seeded inputs, exponent boundaries,
+exceptional results and costs absent from the new form profile. Predicate profiles
+exercise all eight LUT inputs and masked transfers. Repeated extended-adapter gap
+reasons are counted by class to keep reports compact.
+
+The 2026-10-18 follow-up adds UFADD/UFMUL/UFFMA/UFSEL/UFRND and supports
+absolute/negated sources on FSEL/UFSEL, FRND/UFRND and FCHK. The named
+`fchk_boundaries` profile preserves the old manual exponent/seed corpus, while
+fixtures retain the identical full 1,792-pair corpus. Ordinary manual FCHK cases
+are therefore removed. Source modifiers on other floating operations, FMZ and
+XORSIGN still have explicit gaps and retained numerical regressions.
+
+Generated system profiles use an integer `__max_ops` for the existing strict
+nonempty, branch-free, CALLOTHER-free limit. A structured `__max_ops` value,
+`{"count": N, "userops": [...]}`, additionally requires the exact named userops
+and rejects every other runtime call. LDC/LDCU permit only `sass_memory_order`,
+with one runtime event; NOP requires zero p-code operations and zero events.
+Structured limits require inspection metadata, including the userop names.
+The existing `__native` assertion stays strict. QSPC values run in Ghidra's
+explicit provenance context and remain marked as primitive checks rather than
+native Python value validation.

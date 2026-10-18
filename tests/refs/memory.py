@@ -45,3 +45,16 @@ def zero_filled(value, pnz):
     """A load with predicate input Pnz (after its `!`): the value when Pnz is true, else 0 (SM89 GPU:
     nothing is read, so an unmapped address doesn't trap)."""
     return value if pnz else 0
+
+
+def constant(data, signed=False):
+    """Little-endian constant load, extended to a 32-bit register (or a full 64-bit pair)."""
+    return int.from_bytes(data, 'little', signed=signed) & ((1 << max(32,8*len(data))) - 1)
+
+
+def query(address, ranges, space):
+    """Whether a half-open mapped interval contains the address, and its one-hot provenance tag."""
+    tags = {'global':1,'shared':2,'local':4,'shared_cluster':8}
+    found = [name for name, intervals in ranges.items() if any(lo <= address < hi for lo,hi in intervals)]
+    if len(found) != 1: raise ValueError('query fixture must have one mapped provenance')
+    return int(space in found), tags[found[0]]

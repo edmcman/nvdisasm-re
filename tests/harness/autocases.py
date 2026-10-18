@@ -8,7 +8,7 @@ from sass.decode import pydecode
 from sass.sleigh.modifiers import settings
 from tests.harness.case import Cases, put, source, cx_source
 from tests.refs import integer
-from tests.harness import autocase_profiles
+from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp, autocase_integer_extra, autocase_system, autocase_mixed_fp
 
 PLANS = ROOT / 'tests/cases/generated'
 OPS = {'BREV', 'POPC', 'FLO', 'SGXT', 'PRMT', 'UPRMT', 'IABS', 'MOV', 'UMOV', 'BMSK', 'UBREV', 'UPOPC', 'USGXT'}
@@ -18,7 +18,14 @@ INTEGER_OPS |= CARRY_OPS
 PACKED_OPS = {'VIMNMX', 'VISET', 'VIADDMNMX', 'VIMNMX3'}
 INTEGER_OPS |= PACKED_OPS
 FAMILIES = {op: 'carry' if op in CARRY_OPS else 'int_simd' if op in PACKED_OPS | {'IDP'} else 'bmsk' if op == 'BMSK' else 'int_alu' for op in OPS | INTEGER_OPS}
-OPS |= INTEGER_OPS
+OPS |= autocase_system.OPS | autocase_mixed_fp.OPS | autocase_integer_extra.OPS | INTEGER_OPS | autocase_extended.OPS | autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS
+FAMILIES.update(autocase_system.FAMILIES)
+FAMILIES.update(autocase_mixed_fp.FAMILIES)
+FAMILIES.update(autocase_integer_extra.FAMILIES)
+FAMILIES.update(autocase_extended.FAMILIES)
+FAMILIES.update(autocase_packed_fp.FAMILIES)
+FAMILIES.update(autocase_wide_fp.FAMILIES)
+FAMILIES.update({op:"conversions" for op in autocase_conversions.OPS})
 OWNED = OPS - {'FLO'}  # FLO's partially modelled predicate outputs retain explicit PT-only cases.
 
 
@@ -35,6 +42,24 @@ def generate(arch, cls, form, fp='exact', profiles=None, native=True):
     profiles = autocase_profiles.names(k.mnemonic, cls, form) if profiles is None else profiles
     if not profiles or any(name not in autocase_profiles.PROFILES for name in profiles):
         raise Unsupported('empty or unknown input profile')
+    if k.mnemonic in autocase_system.OPS:
+        return finish(autocase_system.generate(c,k,form,profiles),native)
+    if k.mnemonic in autocase_mixed_fp.OPS:
+        if not native: raise Unsupported('mixed floating runtime fallback remains unresolved')
+        return finish(autocase_mixed_fp.generate(c,k,form,profiles),native)
+    if k.mnemonic in autocase_integer_extra.OPS:
+        if not native: raise Unsupported('additional integer runtime fallback is unresolved')
+        return finish(autocase_integer_extra.generate(c,k,form,profiles),native)
+    if k.mnemonic in autocase_wide_fp.OPS:
+        if not native: raise Unsupported('wide floating runtime fallback cannot execute the full numerical profile')
+        return finish(autocase_wide_fp.generate(c,k,form,profiles),native)
+    if k.mnemonic in autocase_packed_fp.OPS:
+        if not native: raise Unsupported('packed runtime fallback cannot execute the full numerical profile')
+        return finish(autocase_packed_fp.generate(c,k,form,profiles),native)
+    if k.mnemonic in autocase_conversions.OPS:
+        if not native: raise Unsupported('conversion runtime fallback cannot execute the full numerical profile')
+        return finish(autocase_conversions.generate(c,k,form,profiles),native)
+    if k.mnemonic in autocase_extended.OPS: return finish(autocase_extended.generate(c,k,form,profiles),native)
     if k.mnemonic in ('IABS', 'MOV', 'UMOV', 'BMSK'):
         return finish(scalar_cases(c, k, form, profiles), native)
     if k.mnemonic in CARRY_OPS: return finish(carry_cases(c, k, form, profiles), native)
@@ -95,7 +120,9 @@ def finish(c, native):
     unique = {}
     for case in c:
         if native:
-            case = case._replace(expected={**case.expected, '__native':True}, request={**case.request, 'inspect_pcode':True})
+            # Explicit op/effect bounds cover native memory ordering and an empty NOP.
+            guard = {} if isinstance(case.expected.get('__max_ops'),dict) else {'__native':True}
+            case = case._replace(expected={**case.expected, **guard}, request={**case.request, 'inspect_pcode':True})
         if case.id in unique and unique[case.id] != case: raise ValueError(f'{case.id}: conflicting generated expectations')
         unique[case.id] = case
     c[:] = unique.values()
@@ -141,7 +168,7 @@ class Inputs:
         self.fields[name] = reg
         return prefix + str(reg)
 
-    def add(self, expected, form, imad_alias=False):
+    def add(self, expected, form, imad_alias=False, portable=False, **extras):
         word = encoding.encode(self.c.arch, self.k.name, **self.fields)
         decoded = pydecode.decode(self.c.arch, bytes.fromhex(word))
         found = settings(self.c.arch, decoded)
@@ -149,7 +176,7 @@ class Inputs:
         if alias: found = {n:v for n,v in found.items() if n != 'pseudo_opcode'}
         if (decoded.klass.name != self.k.name and not alias) or found != form:
             raise Unsupported('encoded instruction does not preserve the requested class/form')
-        self.c.add(self.k.name, self.fields, self.registers, expected, memory=self.memory)
+        self.c.add(self.k.name, self.fields, self.registers, expected, memory=self.memory, portable=portable, **extras)
 
 
 def scalar_cases(c, k, form, profiles):
