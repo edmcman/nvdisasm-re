@@ -30,8 +30,8 @@ def flush(i, x, fmt):
     return const(0, x.w) | (x & (1 << f.width - 1)) if extract(x, f.width - 2, f.mbits) == 0 else x
 
 
-def source(i, names, w):
-    """The float source of width w (F16 from the register's H0/H1 half), with |x| and -x."""
+def source(i, names, w, modified=True):
+    """The float source of width w (F16 from the register's H0/H1 half), with |x| and -x unless not `modified`."""
     name = i.resolve(names)
     v = i.value(name, modifiers=False)
     if w == 16 and v.w > 16:
@@ -40,6 +40,7 @@ def source(i, names, w):
             case "H1": v = extract(v, 31, 16)
             case other: unmodelled(f"hsel {other}")
     if v.w != w: unmodelled(f"{v.w}-bit source for F{w}")
+    if not modified: return v
     sign = 1 << w - 1
     v = i.modified(name, "absolute", v, lambda x: x & (sign - 1))
     return i.modified(name, "negate", v, lambda x: x ^ sign)
@@ -80,12 +81,12 @@ def round_integral(x, fmt, r):
 @family("FRND", "UFRND")
 def frnd(i):
     """Rd = Rb rounded to an integral value (ROUND/FLOOR/CEIL/TRUNC), .FTZ flushing a denormal input.
-    NaN: F32 gives 0x7fffffff, F64 keeps its payload, quieted (SM89 GPU). F16/BF16 are unmodelled."""
+    NaN: F32 gives 0x7fffffff, F64 keeps the register's sign and payload, quieted, ignoring -/|.| (SM89 GPU). F16/BF16 are unmodelled."""
     fmt = str(i.select_fork("fmt"))
     if fmt not in ("F32", "F64"): unmodelled(fmt)
     w = int(fmt[1:])
     x = flush(i, source(i, "Rb|Sb", w), fmt)
-    nan = const(0x7fffffff, 32) if w == 32 else quiet(x, "F64", "F64")
+    nan = const(0x7fffffff, 32) if w == 32 else quiet(source(i, "Rb|Sb", w, modified=False), "F64", "F64")
     return outputs(Rd=nan if is_nan(x, fmt) else round_integral(x, fmt, rounding(i)))
 
 

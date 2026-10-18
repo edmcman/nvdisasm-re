@@ -36,3 +36,5 @@
 
 ## Starred encoding literals (2026-10-16, SM89)
 `BITS_3_83_81_Pu=*7;`-style starred literals are ignored by the decoder but ptxas writes them. Plain `IMAD` with bits 83:81 = k < 7 clears `Pk` (checked for P0-P3); ptxas emitted 7 in 623 of 623 plain IMAD words in the repo's compiled kernels, and all 9 starred field/value kinds occurring in 10,152 ptxas-emitted instructions matched the md literal every time. The encoder (`sass.assemble.encoding`) writes them in strict and permissive modes (issue #24: the old `pyencode` left them 0).
+
+- FRND.F64 NaN (SM89 RTX 4070 Laptop, 2026-10-18): the result is the register's own NaN, quieted, with sign and payload untouched by `-` and `|.|` (`-R4` and `-|R4|` of 0x7ff81234 give 0x7ff81234, of 0xfff81234 give 0xfff81234); non-NaN sources are negated/abs'd as usual. The earlier reference applied the modifiers before quieting, flipping the NaN's sign.
