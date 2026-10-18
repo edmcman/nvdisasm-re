@@ -2,9 +2,9 @@
   "counts": {
     "legal": 3552001,
     "unresolved_semantics": 2730747,
-    "manual": 1939,
-    "blocked": 811698,
-    "generated": 7617
+    "manual": 76,
+    "blocked": 761144,
+    "generated": 60034
   },
   "gaps": [
     {
@@ -11451,28 +11451,13 @@
     },
     {
       "cls": "f2f_f32_downconvert__RCR_RCR",
-      "count": 16,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2f_f32_downconvert__RCR_RCR",
       "count": 80,
       "reason": "unresolved semantics"
     },
     {
       "cls": "f2f_f32_downconvert__RCXR_RCXR",
-      "count": 16,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2f_f32_downconvert__RCXR_RCXR",
       "count": 80,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2f_f32_downconvert__RIR_RIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "f2f_f32_downconvert__RIR_RIR",
@@ -11481,18 +11466,8 @@
     },
     {
       "cls": "f2f_f32_downconvert__RRR_RRR",
-      "count": 12,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2f_f32_downconvert__RRR_RRR",
       "count": 80,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2f_f32_downconvert__RUR_RUR",
-      "count": 16,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "f2f_f32_downconvert__RUR_RUR",
@@ -11501,28 +11476,13 @@
     },
     {
       "cls": "f2f_f32_upconvert__RCR_RCR",
-      "count": 32,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2f_f32_upconvert__RCR_RCR",
       "count": 288,
       "reason": "unresolved semantics"
     },
     {
       "cls": "f2f_f32_upconvert__RCXR_RCXR",
-      "count": 32,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2f_f32_upconvert__RCXR_RCXR",
       "count": 288,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2f_f32_upconvert__RIR_RIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "f2f_f32_upconvert__RIR_RIR",
@@ -11531,18 +11491,8 @@
     },
     {
       "cls": "f2f_f32_upconvert__RRR_RRR",
-      "count": 31,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2f_f32_upconvert__RRR_RRR",
       "count": 288,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2f_f32_upconvert__RUR_RUR",
-      "count": 32,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "f2f_f32_upconvert__RUR_RUR",
@@ -11551,28 +11501,13 @@
     },
     {
       "cls": "f2f_f64_downconvert__RCR_RCR",
-      "count": 32,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2f_f64_downconvert__RCR_RCR",
       "count": 64,
       "reason": "unresolved semantics"
     },
     {
       "cls": "f2f_f64_downconvert__RCXR_RCXR",
-      "count": 31,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2f_f64_downconvert__RCXR_RCXR",
       "count": 64,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2f_f64_downconvert__RIR_RIR",
-      "count": 8,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "f2f_f64_downconvert__RIR_RIR",
@@ -11581,18 +11516,8 @@
     },
     {
       "cls": "f2f_f64_downconvert__RRR_RRR",
-      "count": 24,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2f_f64_downconvert__RRR_RRR",
       "count": 64,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2f_f64_downconvert__RUR_RUR",
-      "count": 32,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "f2f_f64_downconvert__RUR_RUR",
@@ -11602,17 +11527,7 @@
     {
       "cls": "f2f_f64_upconvert__R_32I_R_RIR",
       "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2f_f64_upconvert__R_32I_R_RIR",
-      "count": 4,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2f_f64_upconvert__R_C16_R_RCR",
-      "count": 32,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "f2f_f64_upconvert__R_C16_R_RCR",
@@ -11622,17 +11537,7 @@
     {
       "cls": "f2f_f64_upconvert__R_C32_R_RCR",
       "count": 16,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2f_f64_upconvert__R_C32_R_RCR",
-      "count": 16,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2f_f64_upconvert__R_CX16_R_RCXR",
-      "count": 32,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "f2f_f64_upconvert__R_CX16_R_RCXR",
@@ -11642,17 +11547,7 @@
     {
       "cls": "f2f_f64_upconvert__R_CX32_R_RCXR",
       "count": 16,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2f_f64_upconvert__R_CX32_R_RCXR",
-      "count": 16,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2f_f64_upconvert__R_I16_R_RIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "f2f_f64_upconvert__R_I16_R_RIR",
@@ -11661,18 +11556,8 @@
     },
     {
       "cls": "f2f_f64_upconvert__R_R16_R_RRR",
-      "count": 31,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2f_f64_upconvert__R_R16_R_RRR",
       "count": 96,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2f_f64_upconvert__R_R32_R_RRR",
-      "count": 15,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "f2f_f64_upconvert__R_R32_R_RRR",
@@ -11681,18 +11566,8 @@
     },
     {
       "cls": "f2f_f64_upconvert__R_UR16_R_RUR",
-      "count": 32,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2f_f64_upconvert__R_UR16_R_RUR",
       "count": 96,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2f_f64_upconvert__R_UR32_R_RUR",
-      "count": 16,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "f2f_f64_upconvert__R_UR32_R_RUR",
@@ -11702,347 +11577,277 @@
     {
       "cls": "f2fp_8b_upconvert__RCR",
       "count": 8,
-      "reason": "needs a reference/operand adapter"
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_8b_upconvert__RCxR",
       "count": 8,
-      "reason": "needs a reference/operand adapter"
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_8b_upconvert__RIR",
       "count": 8,
-      "reason": "needs a reference/operand adapter"
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
-      "cls": "f2fp__RCR",
-      "count": 16,
-      "reason": "needs a reference/operand adapter"
+      "cls": "f2fp_8b_upconvert__RRR",
+      "count": 8,
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
-      "cls": "f2fp__RCxR",
-      "count": 23,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2fp__RIR",
-      "count": 16,
-      "reason": "needs a reference/operand adapter"
+      "cls": "f2fp_8b_upconvert__RUR",
+      "count": 8,
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f16_to_8b_downconvert__RCR",
       "count": 16,
-      "reason": "needs a reference/operand adapter"
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f16_to_8b_downconvert__RCxR",
       "count": 16,
-      "reason": "needs a reference/operand adapter"
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f16_to_8b_downconvert__RIR",
       "count": 16,
-      "reason": "needs a reference/operand adapter"
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f16_to_8b_downconvert__RRC",
       "count": 16,
-      "reason": "needs a reference/operand adapter"
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f16_to_8b_downconvert__RRCx",
       "count": 16,
-      "reason": "needs a reference/operand adapter"
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f16_to_8b_downconvert__RRI",
       "count": 16,
-      "reason": "needs a reference/operand adapter"
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f16_to_8b_downconvert__RRR",
       "count": 16,
-      "reason": "needs a reference/operand adapter"
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f16_to_8b_downconvert__RRU",
       "count": 16,
-      "reason": "needs a reference/operand adapter"
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f16_to_8b_downconvert__RUR",
       "count": 16,
-      "reason": "needs a reference/operand adapter"
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f32_to_8b_downconvert__RCR",
-      "count": 12,
-      "reason": "needs a reference/operand adapter"
+      "count": 16,
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f32_to_8b_downconvert__RCxR",
       "count": 16,
-      "reason": "needs a reference/operand adapter"
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f32_to_8b_downconvert__RIR",
-      "count": 12,
-      "reason": "needs a reference/operand adapter"
+      "count": 16,
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f32_to_8b_downconvert__RRC",
-      "count": 12,
-      "reason": "needs a reference/operand adapter"
+      "count": 16,
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f32_to_8b_downconvert__RRCx",
       "count": 16,
-      "reason": "needs a reference/operand adapter"
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f32_to_8b_downconvert__RRI",
-      "count": 12,
-      "reason": "needs a reference/operand adapter"
+      "count": 16,
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f32_to_8b_downconvert__RRR",
-      "count": 12,
-      "reason": "needs a reference/operand adapter"
+      "count": 16,
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f32_to_8b_downconvert__RRU",
-      "count": 12,
-      "reason": "needs a reference/operand adapter"
+      "count": 16,
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2fp_f32_to_8b_downconvert__RUR",
-      "count": 12,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2fp_merge_c__RCxR",
-      "count": 47,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2fp_merge_c__RRCx",
-      "count": 47,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2fp_tf32__RCxR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2i_Rd64__CXb_16b",
-      "count": 256,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2i_Rd64__CXb_32b",
-      "count": 128,
-      "reason": "needs a reference/operand adapter"
+      "count": 16,
+      "reason": "low-precision, upconversion and scaled format corpora remain manual"
     },
     {
       "cls": "f2i_Rd64__CXb_64b",
       "count": 128,
-      "reason": "needs a reference/operand adapter"
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "f2i_Rd64__CXb_bf16",
       "count": 256,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2i_Rd64__Cb_16b",
-      "count": 256,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2i_Rd64__Cb_32b",
-      "count": 128,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2i_Rd64__Cb_64b",
-      "count": 128,
-      "reason": "needs a reference/operand adapter"
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "f2i_Rd64__Cb_bf16",
       "count": 256,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2i_Rd64__IU_32b",
-      "count": 32,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2i_Rd64__Ib_16b",
-      "count": 32,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2i_Rd64__Ib_64b",
-      "count": 32,
-      "reason": "needs a reference/operand adapter"
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "f2i_Rd64__Ib_bf16",
       "count": 32,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2i_Rd64__Rb_16b",
-      "count": 224,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2i_Rd64__Rb_32b",
-      "count": 112,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2i_Rd64__Rb_64b",
-      "count": 112,
-      "reason": "needs a reference/operand adapter"
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "f2i_Rd64__Rb_bf16",
       "count": 256,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2i_Rd64__URb_16b",
-      "count": 224,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2i_Rd64__URb_32b",
-      "count": 112,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2i_Rd64__URb_64b",
-      "count": 112,
-      "reason": "needs a reference/operand adapter"
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "f2i_Rd64__URb_bf16",
       "count": 256,
-      "reason": "needs a reference/operand adapter"
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "f2i__CXb_16b",
-      "count": 768,
-      "reason": "needs a reference/operand adapter"
+      "count": 512,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "f2i__CXb_32b",
-      "count": 384,
-      "reason": "needs a reference/operand adapter"
+      "count": 256,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "f2i__CXb_64b",
       "count": 384,
-      "reason": "needs a reference/operand adapter"
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "f2i__CXb_bf16",
-      "count": 768,
-      "reason": "needs a reference/operand adapter"
+      "count": 512,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+    },
+    {
+      "cls": "f2i__CXb_bf16",
+      "count": 256,
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "f2i__Cb_16b",
-      "count": 768,
-      "reason": "needs a reference/operand adapter"
+      "count": 512,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "f2i__Cb_32b",
-      "count": 384,
-      "reason": "needs a reference/operand adapter"
+      "count": 256,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "f2i__Cb_64b",
-      "count": 384,
-      "reason": "needs a reference/operand adapter"
+      "count": 256,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "f2i__Cb_bf16",
-      "count": 768,
-      "reason": "needs a reference/operand adapter"
+      "count": 512,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+    },
+    {
+      "cls": "f2i__Cb_bf16",
+      "count": 256,
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "f2i__IU_32b",
-      "count": 96,
-      "reason": "needs a reference/operand adapter"
+      "count": 64,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "f2i__Ib_16b",
-      "count": 95,
-      "reason": "needs a reference/operand adapter"
+      "count": 64,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "f2i__Ib_64b",
-      "count": 95,
-      "reason": "needs a reference/operand adapter"
+      "count": 64,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "f2i__Ib_bf16",
-      "count": 96,
-      "reason": "needs a reference/operand adapter"
+      "count": 64,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+    },
+    {
+      "cls": "f2i__Ib_bf16",
+      "count": 32,
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "f2i__Rb_16b",
-      "count": 736,
-      "reason": "needs a reference/operand adapter"
+      "count": 512,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "f2i__Rb_32b",
-      "count": 365,
-      "reason": "needs a reference/operand adapter"
+      "count": 256,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "f2i__Rb_64b",
-      "count": 368,
-      "reason": "needs a reference/operand adapter"
+      "count": 256,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "f2i__Rb_bf16",
-      "count": 768,
-      "reason": "needs a reference/operand adapter"
+      "count": 512,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+    },
+    {
+      "cls": "f2i__Rb_bf16",
+      "count": 256,
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "f2i__URb_16b",
-      "count": 736,
-      "reason": "needs a reference/operand adapter"
+      "count": 512,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "f2i__URb_32b",
-      "count": 368,
-      "reason": "needs a reference/operand adapter"
+      "count": 256,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "f2i__URb_64b",
-      "count": 368,
-      "reason": "needs a reference/operand adapter"
+      "count": 256,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "f2i__URb_bf16",
-      "count": 768,
-      "reason": "needs a reference/operand adapter"
+      "count": 512,
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+    },
+    {
+      "cls": "f2i__URb_bf16",
+      "count": 256,
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "f2ip__RCR",
       "count": 22,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2ip__RCxR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "f2ip__RCxR",
@@ -12061,13 +11866,13 @@
     },
     {
       "cls": "f2ip__RRCx",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "f2ip__RRCx",
       "count": 22,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "f2ip__RRI",
+      "count": 2,
+      "reason": "unsupported source type: F32Imm"
     },
     {
       "cls": "f2ip__RRI",
@@ -35288,33 +35093,33 @@
     },
     {
       "cls": "hadd2_F32__RC",
-      "count": 96,
-      "reason": "needs a reference/operand adapter"
+      "count": 144,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hadd2_F32__RCx",
-      "count": 143,
-      "reason": "needs a reference/operand adapter"
+      "count": 144,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hadd2_F32__RI",
-      "count": 8,
-      "reason": "needs a reference/operand adapter"
+      "count": 12,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hadd2_F32__RR",
-      "count": 96,
-      "reason": "needs a reference/operand adapter"
+      "count": 144,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hadd2_F32__RU",
-      "count": 96,
-      "reason": "needs a reference/operand adapter"
+      "count": 144,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hadd2__RC",
-      "count": 287,
-      "reason": "needs a reference/operand adapter"
+      "count": 270,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hadd2__RC",
@@ -35323,8 +35128,8 @@
     },
     {
       "cls": "hadd2__RCx",
-      "count": 287,
-      "reason": "needs a reference/operand adapter"
+      "count": 270,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hadd2__RCx",
@@ -35333,8 +35138,8 @@
     },
     {
       "cls": "hadd2__RI",
-      "count": 23,
-      "reason": "needs a reference/operand adapter"
+      "count": 18,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hadd2__RI",
@@ -35343,8 +35148,8 @@
     },
     {
       "cls": "hadd2__RR",
-      "count": 264,
-      "reason": "needs a reference/operand adapter"
+      "count": 270,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hadd2__RR",
@@ -35353,8 +35158,8 @@
     },
     {
       "cls": "hadd2__RU",
-      "count": 287,
-      "reason": "needs a reference/operand adapter"
+      "count": 270,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hadd2__RU",
@@ -35453,8 +35258,8 @@
     },
     {
       "cls": "hfma2__RCR",
-      "count": 3455,
-      "reason": "needs a reference/operand adapter"
+      "count": 3402,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hfma2__RCR",
@@ -35463,8 +35268,8 @@
     },
     {
       "cls": "hfma2__RCxR",
-      "count": 3455,
-      "reason": "needs a reference/operand adapter"
+      "count": 3402,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hfma2__RCxR",
@@ -35473,8 +35278,8 @@
     },
     {
       "cls": "hfma2__RIR",
-      "count": 287,
-      "reason": "needs a reference/operand adapter"
+      "count": 270,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hfma2__RIR",
@@ -35483,8 +35288,8 @@
     },
     {
       "cls": "hfma2__RRC",
-      "count": 3455,
-      "reason": "needs a reference/operand adapter"
+      "count": 3402,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hfma2__RRC",
@@ -35493,8 +35298,8 @@
     },
     {
       "cls": "hfma2__RRCx",
-      "count": 3456,
-      "reason": "needs a reference/operand adapter"
+      "count": 3402,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hfma2__RRCx",
@@ -35503,8 +35308,8 @@
     },
     {
       "cls": "hfma2__RRI",
-      "count": 287,
-      "reason": "needs a reference/operand adapter"
+      "count": 270,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hfma2__RRI",
@@ -35513,8 +35318,8 @@
     },
     {
       "cls": "hfma2__RRR",
-      "count": 3408,
-      "reason": "needs a reference/operand adapter"
+      "count": 3402,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hfma2__RRR",
@@ -35523,8 +35328,8 @@
     },
     {
       "cls": "hfma2__RRU",
-      "count": 3455,
-      "reason": "needs a reference/operand adapter"
+      "count": 3402,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hfma2__RRU",
@@ -35533,8 +35338,8 @@
     },
     {
       "cls": "hfma2__RUR",
-      "count": 3456,
-      "reason": "needs a reference/operand adapter"
+      "count": 3402,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hfma2__RUR",
@@ -35638,8 +35443,8 @@
     },
     {
       "cls": "hmnmx2__RCR",
-      "count": 2879,
-      "reason": "needs a reference/operand adapter"
+      "count": 2736,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hmnmx2__RCR",
@@ -35648,8 +35453,8 @@
     },
     {
       "cls": "hmnmx2__RCxR",
-      "count": 2879,
-      "reason": "needs a reference/operand adapter"
+      "count": 2736,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hmnmx2__RCxR",
@@ -35658,13 +35463,18 @@
     },
     {
       "cls": "hmnmx2__RIR",
-      "count": 379,
-      "reason": "needs a reference/operand adapter"
+      "count": 288,
+      "reason": "packed source-sign numerical corpus remains manual"
+    },
+    {
+      "cls": "hmnmx2__RIR",
+      "count": 48,
+      "reason": "min/max XORSIGN and source-predicate outputs remain manual"
     },
     {
       "cls": "hmnmx2__RRR",
-      "count": 2858,
-      "reason": "needs a reference/operand adapter"
+      "count": 2736,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hmnmx2__RRR",
@@ -35673,8 +35483,8 @@
     },
     {
       "cls": "hmnmx2__RUR",
-      "count": 2879,
-      "reason": "needs a reference/operand adapter"
+      "count": 2736,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hmnmx2__RUR",
@@ -35683,8 +35493,13 @@
     },
     {
       "cls": "hmnmx2_pred__RCR",
-      "count": 1438,
-      "reason": "needs a reference/operand adapter"
+      "count": 72,
+      "reason": "min/max XORSIGN and source-predicate outputs remain manual"
+    },
+    {
+      "cls": "hmnmx2_pred__RCR",
+      "count": 1368,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hmnmx2_pred__RCR",
@@ -35693,8 +35508,13 @@
     },
     {
       "cls": "hmnmx2_pred__RCxR",
-      "count": 1438,
-      "reason": "needs a reference/operand adapter"
+      "count": 72,
+      "reason": "min/max XORSIGN and source-predicate outputs remain manual"
+    },
+    {
+      "cls": "hmnmx2_pred__RCxR",
+      "count": 1368,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hmnmx2_pred__RCxR",
@@ -35703,8 +35523,13 @@
     },
     {
       "cls": "hmnmx2_pred__RIR",
-      "count": 190,
-      "reason": "needs a reference/operand adapter"
+      "count": 48,
+      "reason": "min/max XORSIGN and source-predicate outputs remain manual"
+    },
+    {
+      "cls": "hmnmx2_pred__RIR",
+      "count": 144,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hmnmx2_pred__RIR",
@@ -35713,8 +35538,13 @@
     },
     {
       "cls": "hmnmx2_pred__RRR",
-      "count": 1438,
-      "reason": "needs a reference/operand adapter"
+      "count": 72,
+      "reason": "min/max XORSIGN and source-predicate outputs remain manual"
+    },
+    {
+      "cls": "hmnmx2_pred__RRR",
+      "count": 1368,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hmnmx2_pred__RRR",
@@ -35723,8 +35553,13 @@
     },
     {
       "cls": "hmnmx2_pred__RUR",
-      "count": 1438,
-      "reason": "needs a reference/operand adapter"
+      "count": 72,
+      "reason": "min/max XORSIGN and source-predicate outputs remain manual"
+    },
+    {
+      "cls": "hmnmx2_pred__RUR",
+      "count": 1368,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hmnmx2_pred__RUR",
@@ -35733,258 +35568,208 @@
     },
     {
       "cls": "hmul2__RC",
-      "count": 984,
-      "reason": "needs a reference/operand adapter"
+      "count": 945,
+      "reason": "packed source-sign numerical corpus remains manual"
+    },
+    {
+      "cls": "hmul2__RC",
+      "count": 9,
+      "reason": "mixed-format packed arithmetic remains manual"
     },
     {
       "cls": "hmul2__RCx",
-      "count": 1007,
-      "reason": "needs a reference/operand adapter"
+      "count": 945,
+      "reason": "packed source-sign numerical corpus remains manual"
+    },
+    {
+      "cls": "hmul2__RCx",
+      "count": 9,
+      "reason": "mixed-format packed arithmetic remains manual"
     },
     {
       "cls": "hmul2__RI",
-      "count": 84,
-      "reason": "needs a reference/operand adapter"
+      "count": 63,
+      "reason": "packed source-sign numerical corpus remains manual"
+    },
+    {
+      "cls": "hmul2__RI",
+      "count": 3,
+      "reason": "mixed-format packed arithmetic remains manual"
     },
     {
       "cls": "hmul2__RR",
-      "count": 980,
-      "reason": "needs a reference/operand adapter"
+      "count": 945,
+      "reason": "packed source-sign numerical corpus remains manual"
+    },
+    {
+      "cls": "hmul2__RR",
+      "count": 9,
+      "reason": "mixed-format packed arithmetic remains manual"
     },
     {
       "cls": "hmul2__RU",
-      "count": 984,
-      "reason": "needs a reference/operand adapter"
+      "count": 945,
+      "reason": "packed source-sign numerical corpus remains manual"
+    },
+    {
+      "cls": "hmul2__RU",
+      "count": 9,
+      "reason": "mixed-format packed arithmetic remains manual"
     },
     {
       "cls": "hset2__RC",
-      "count": 82943,
-      "reason": "needs a reference/operand adapter"
+      "count": 77760,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hset2__RCx",
-      "count": 82943,
-      "reason": "needs a reference/operand adapter"
+      "count": 77760,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hset2__RI",
-      "count": 6911,
-      "reason": "needs a reference/operand adapter"
+      "count": 5184,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hset2__RR",
-      "count": 82826,
-      "reason": "needs a reference/operand adapter"
+      "count": 77760,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hset2__RU",
-      "count": 82943,
-      "reason": "needs a reference/operand adapter"
+      "count": 77760,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hsetp2__RC",
-      "count": 82943,
-      "reason": "needs a reference/operand adapter"
+      "count": 77760,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hsetp2__RCx",
-      "count": 82943,
-      "reason": "needs a reference/operand adapter"
+      "count": 77760,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hsetp2__RI",
-      "count": 6911,
-      "reason": "needs a reference/operand adapter"
+      "count": 5184,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hsetp2__RR",
-      "count": 82826,
-      "reason": "needs a reference/operand adapter"
+      "count": 77760,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hsetp2__RU",
-      "count": 82943,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "i2f_Rd64__CX_16b",
-      "count": 16,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "i2f_Rd64__CX_32b",
-      "count": 8,
-      "reason": "needs a reference/operand adapter"
+      "count": 77760,
+      "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "i2f_Rd64__CX_64b",
       "count": 8,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "i2f_Rd64__CX_8b",
-      "count": 32,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "i2f_Rd64__Cb_16b",
-      "count": 16,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "i2f_Rd64__Cb_32b",
-      "count": 8,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "i2f_Rd64__Cb_64b",
-      "count": 8,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "i2f_Rd64__Cb_8b",
-      "count": 32,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "i2f_Rd64__IS_32b",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "i2f_Rd64__IS_64b",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "i2f_Rd64__IU_32b",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "i2f_Rd64__IU_64b",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "i2f__CX_16b",
-      "count": 48,
-      "reason": "needs a reference/operand adapter"
+      "count": 16,
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__CX_32b",
-      "count": 24,
-      "reason": "needs a reference/operand adapter"
+      "count": 8,
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__CX_64b",
       "count": 24,
-      "reason": "needs a reference/operand adapter"
+      "reason": "conversion runtime fallback cannot execute the full numerical profile"
     },
     {
       "cls": "i2f__CX_8b",
-      "count": 96,
-      "reason": "needs a reference/operand adapter"
+      "count": 32,
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__Cb_16b",
-      "count": 48,
-      "reason": "needs a reference/operand adapter"
+      "count": 16,
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__Cb_32b",
-      "count": 24,
-      "reason": "needs a reference/operand adapter"
+      "count": 8,
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__Cb_64b",
-      "count": 24,
-      "reason": "needs a reference/operand adapter"
+      "count": 8,
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__Cb_8b",
-      "count": 96,
-      "reason": "needs a reference/operand adapter"
+      "count": 32,
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__IS_32b",
-      "count": 12,
-      "reason": "needs a reference/operand adapter"
+      "count": 4,
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__IS_64b",
-      "count": 11,
-      "reason": "needs a reference/operand adapter"
+      "count": 4,
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__IU_32b",
-      "count": 12,
-      "reason": "needs a reference/operand adapter"
+      "count": 4,
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__IU_64b",
-      "count": 12,
-      "reason": "needs a reference/operand adapter"
+      "count": 4,
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__Rb_16b",
       "count": 16,
-      "reason": "needs a reference/operand adapter"
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__Rb_32b",
       "count": 8,
-      "reason": "needs a reference/operand adapter"
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__Rb_64b",
       "count": 8,
-      "reason": "needs a reference/operand adapter"
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__Rb_8b",
       "count": 32,
-      "reason": "needs a reference/operand adapter"
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__UR_16b",
       "count": 16,
-      "reason": "needs a reference/operand adapter"
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__UR_32b",
       "count": 8,
-      "reason": "needs a reference/operand adapter"
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__UR_64b",
       "count": 8,
-      "reason": "needs a reference/operand adapter"
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2f__UR_8b",
       "count": 32,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "i2fp__RCR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "i2fp__RCxR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "i2fp__RsIR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "i2fp__RuIR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
+      "reason": "conversion format outside scalar IEEE profile"
     },
     {
       "cls": "i2i__RCR_RCR",
@@ -36010,21 +35795,6 @@
       "cls": "i2i__RsIR_RIR",
       "count": 4,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "i2ip_24__RCxR_RCxR",
-      "count": 5,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "i2ip_28__RCxR_RCxR",
-      "count": 5,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "i2ip__RCxR_RCxR",
-      "count": 18,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "igmma_Ra_URb_Rc_",
@@ -37903,29 +37673,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "uf2fp__URIUR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "uf2fp__URURUR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "uf2fp_merge_c__URIUR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "uf2fp_merge_c__URURI",
       "count": 2,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "uf2fp_merge_c__URURUR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "uflo__URURUR_URURUR",
@@ -38329,52 +38079,73 @@
     },
     {
       "cls": "viadd__RCR_RCR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
+      "settings": {
+        "fmt": "16x2",
+        "Sb@negate": "unset"
+      },
+      "reason": "unresolved semantics"
     },
     {
       "cls": "viadd__RCR_RCR",
-      "count": 2,
+      "settings": {
+        "fmt": "16x2",
+        "Sb@negate": "set"
+      },
       "reason": "unresolved semantics"
     },
     {
       "cls": "viadd__RCxR_RCxR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
+      "settings": {
+        "fmt": "16x2",
+        "Sb@negate": "unset"
+      },
+      "reason": "unresolved semantics"
     },
     {
       "cls": "viadd__RCxR_RCxR",
-      "count": 2,
+      "settings": {
+        "fmt": "16x2",
+        "Sb@negate": "set"
+      },
       "reason": "unresolved semantics"
     },
     {
       "cls": "viadd__RRR_RRR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
+      "settings": {
+        "fmt": "16x2",
+        "Rb@negate": "unset"
+      },
+      "reason": "unresolved semantics"
     },
     {
       "cls": "viadd__RRR_RRR",
-      "count": 2,
+      "settings": {
+        "fmt": "16x2",
+        "Rb@negate": "set"
+      },
       "reason": "unresolved semantics"
     },
     {
       "cls": "viadd__RUR_RUR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
+      "settings": {
+        "fmt": "16x2",
+        "URb@negate": "unset"
+      },
+      "reason": "unresolved semantics"
     },
     {
       "cls": "viadd__RUR_RUR",
-      "count": 2,
+      "settings": {
+        "fmt": "16x2",
+        "URb@negate": "set"
+      },
       "reason": "unresolved semantics"
     },
     {
       "cls": "viadd__RuIR_RIR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "viadd__RuIR_RIR",
-      "count": 1,
+      "settings": {
+        "fmt": "16x2"
+      },
       "reason": "unresolved semantics"
     },
     {

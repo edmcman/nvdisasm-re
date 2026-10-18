@@ -21,7 +21,7 @@ def operand(s, name, value, reg, width):
         s.operand((name,), value, reg, size=width//8)
         return value
     encoded = value >> 32 if width == 64 and kind == 'F64Imm' else value
-    if not put(s.k,name,encoded,s.fields,s.registers,s.memory,reg,bank=(2,reg*8),imm=('F32Imm','F64Imm','UImm'),size=width//8):
+    if not put(s.k,name,encoded,s.fields,s.registers,s.memory,reg,bank=(2,reg*8),imm=('F16Imm','F32Imm','F64Imm','UImm'),size=width//8):
         raise autocases.Unsupported('unsupported floating source type: '+kind)
     return (encoded << 32 if width == 64 else encoded) if kind == 'F64Imm' else value
 

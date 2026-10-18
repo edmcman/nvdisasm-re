@@ -2,6 +2,7 @@
 softfloat per lane. Source lanes follow ptxas's folding of f32x2 operands (sm_107a, CUDA 13.4): a
 register pair is (lane 0 = Rn, lane 1 = Rn+1), .LO_HI swaps it, .F32 and immediates broadcast one
 value; |x| applies to both lanes, -x to lane 0 and, XOR NEGA .NP, to lane 1, after the swizzle."""
+from tests.harness.manual import retained
 import random
 from sass.semantics.fp import softfloat
 from tests.harness.case import pair, source
@@ -67,6 +68,7 @@ def half_values(rng):
     return [0, 0x8000, 1, 0x3c00, 0xbc00, 0x7bff, 0x7c00, 0x03ff, 0x3f80, 0xbf80, 0x7f7f, 0x0080] + [rng.getrandbits(16) for _ in range(8)]
 
 
+@retained('Seeded wide/mixed lane, source-sign/NP and directed-rounding corpora exceed the ordinary packed binary32 form profile.')
 def arithmetic(c):
     rng = random.Random("fp32x2")
     f32s, f16s = values(rng), half_values(rng)
@@ -113,6 +115,7 @@ def arithmetic(c):
                 c.add(k.name, fields, regs, dict(R8=want, __native=True) if dst else dict(pair("R8", want), __native=True))
 
 
+@retained('Seeded unfused readable pair regressions exceed the ordinary packed form profile.')
 def readable_formulas(c):
     """The readable lowering: round to nearest per lane, no flushing, rounding mode ignored."""
     if c.fp != "readable": return

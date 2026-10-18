@@ -8,7 +8,7 @@ from sass.decode import pydecode
 from sass.sleigh.modifiers import settings
 from tests.harness.case import Cases, put, source, cx_source
 from tests.refs import integer
-from tests.harness import autocase_profiles, autocase_extended
+from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp, autocase_integer_extra
 
 PLANS = ROOT / 'tests/cases/generated'
 OPS = {'BREV', 'POPC', 'FLO', 'SGXT', 'PRMT', 'UPRMT', 'IABS', 'MOV', 'UMOV', 'BMSK', 'UBREV', 'UPOPC', 'USGXT'}
@@ -18,8 +18,12 @@ INTEGER_OPS |= CARRY_OPS
 PACKED_OPS = {'VIMNMX', 'VISET', 'VIADDMNMX', 'VIMNMX3'}
 INTEGER_OPS |= PACKED_OPS
 FAMILIES = {op: 'carry' if op in CARRY_OPS else 'int_simd' if op in PACKED_OPS | {'IDP'} else 'bmsk' if op == 'BMSK' else 'int_alu' for op in OPS | INTEGER_OPS}
-OPS |= INTEGER_OPS | autocase_extended.OPS
+OPS |= autocase_integer_extra.OPS | INTEGER_OPS | autocase_extended.OPS | autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS
+FAMILIES.update(autocase_integer_extra.FAMILIES)
 FAMILIES.update(autocase_extended.FAMILIES)
+FAMILIES.update(autocase_packed_fp.FAMILIES)
+FAMILIES.update(autocase_wide_fp.FAMILIES)
+FAMILIES.update({op:"conversions" for op in autocase_conversions.OPS})
 OWNED = OPS - {'FLO'}  # FLO's partially modelled predicate outputs retain explicit PT-only cases.
 
 
@@ -36,6 +40,18 @@ def generate(arch, cls, form, fp='exact', profiles=None, native=True):
     profiles = autocase_profiles.names(k.mnemonic, cls, form) if profiles is None else profiles
     if not profiles or any(name not in autocase_profiles.PROFILES for name in profiles):
         raise Unsupported('empty or unknown input profile')
+    if k.mnemonic in autocase_integer_extra.OPS:
+        if not native: raise Unsupported('additional integer runtime fallback is unresolved')
+        return finish(autocase_integer_extra.generate(c,k,form,profiles),native)
+    if k.mnemonic in autocase_wide_fp.OPS:
+        if not native: raise Unsupported('wide floating runtime fallback cannot execute the full numerical profile')
+        return finish(autocase_wide_fp.generate(c,k,form,profiles),native)
+    if k.mnemonic in autocase_packed_fp.OPS:
+        if not native: raise Unsupported('packed runtime fallback cannot execute the full numerical profile')
+        return finish(autocase_packed_fp.generate(c,k,form,profiles),native)
+    if k.mnemonic in autocase_conversions.OPS:
+        if not native: raise Unsupported('conversion runtime fallback cannot execute the full numerical profile')
+        return finish(autocase_conversions.generate(c,k,form,profiles),native)
     if k.mnemonic in autocase_extended.OPS: return finish(autocase_extended.generate(c,k,form,profiles),native)
     if k.mnemonic in ('IABS', 'MOV', 'UMOV', 'BMSK'):
         return finish(scalar_cases(c, k, form, profiles), native)

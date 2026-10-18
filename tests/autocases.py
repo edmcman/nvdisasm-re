@@ -13,7 +13,7 @@ from sass.sleigh.build import ARCHES
 from sass.sleigh.modifiers import settings
 from tests.cases import emulator_cases
 from tests.harness import autocases
-from tests.harness import autocase_profiles, autocase_extended
+from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp
 
 
 def forms(row):
@@ -60,21 +60,24 @@ def plan(arch, rows):
                 gaps.append(dict(cls=row['cls'], count=total-supported, reason='unresolved semantics'))
             continue
         blocked_reasons = Counter()
+        unresolved = 0
+        compact = row['opcode'] in autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS
         for form, status in forms(row):
             counts['legal'] += 1
             if status not in ('native', 'primitive'):
                 counts['unresolved_semantics'] += 1
-                gaps.append(dict(cls=row['cls'], settings=form, reason='unresolved semantics'))
+                if compact: unresolved += 1
+                else: gaps.append(dict(cls=row['cls'], settings=form, reason='unresolved semantics'))
                 continue
             # Retained regressions supplement ordinary coverage; they must not suppress it.
             profiles = autocase_profiles.names(row['opcode'], row['cls'], form)
             try:
-                reason = autocase_extended.blocked_reason(row['opcode'],form)
+                reason = autocase_extended.blocked_reason(row['opcode'],form) or autocase_packed_fp.blocked_reason(row['opcode'],form) or autocase_wide_fp.blocked_reason(row['opcode'],form)
                 if reason: raise autocases.Unsupported(reason)
                 autocases.generate(arch, row['cls'], form, profiles=profiles, native=status == 'native')
             except (autocases.Unsupported, ValueError) as error:
                 counts['blocked'] += 1
-                if row['opcode'] in autocase_extended.OPS:
+                if row['opcode'] in autocase_extended.OPS | autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS:
                     blocked_reasons[str(error)] += 1
                 else: gaps.append(dict(cls=row['cls'], settings=form, reason=str(error)))
             else:
@@ -82,7 +85,16 @@ def plan(arch, rows):
                 entries.append(dict(family=autocases.FAMILIES[row['opcode']], cls=row['cls'], settings=form,
                                     profiles=profiles, native=status == 'native'))
         gaps.extend(dict(cls=row['cls'], count=count, reason=reason) for reason,count in blocked_reasons.items())
+        if unresolved: gaps.append(dict(cls=row['cls'], count=unresolved, reason='unresolved semantics'))
     return dict(version=2, arch=arch, forms=entries), dict(counts=counts, gaps=gaps)
+
+
+def plan_text(plan):
+    """Keep large generated matrices reviewable: one complete form per line, same JSON schema."""
+    entries=',\n'.join('    '+json.dumps(e,separators=(',',':')) for e in plan['forms'])
+    return ('{\n  "version": '+json.dumps(plan['version'])+',\n  "arch": '+json.dumps(plan['arch'])+
+            ',\n  "forms": [\n'+entries+'\n  ]\n}\n')
+
 
 
 def main():
@@ -103,7 +115,7 @@ def main():
     if a.write:
         autocases.PLANS.mkdir(parents=True, exist_ok=True)
         tmp = target.with_suffix('.tmp')
-        tmp.write_text(json.dumps(generated, indent=2) + '\n'); tmp.replace(target)
+        tmp.write_text(plan_text(generated)); tmp.replace(target)
     if a.report: a.report.write_text(json.dumps(report, indent=2) + '\n')
     print(json.dumps(report['counts'], sort_keys=True))
 

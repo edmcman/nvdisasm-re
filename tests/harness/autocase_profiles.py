@@ -106,7 +106,15 @@ SUPPLEMENTS = (
 
 
 def names(op, cls, form):
-    from tests.harness import autocase_extended
+    from tests.harness import autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp
+    if op == 'MOV64IUR': return ['move64']
+    if op == 'UI2IP': return ['packed_conversion_forms']
+    if op == 'UVIMNMX': return ['packed_minmax']
+    if op == 'VIADD': return ['integer_edges','uniform_arithmetic_random']
+    if op in autocase_wide_fp.OPS: return ['binary32_pair_forms'] if op in autocase_wide_fp.PAIR_OPS else ['float_pack_forms']
+    if op in ('HSET2','HSETP2'): return ['half_comparison_forms']
+    if op in autocase_packed_fp.OPS: return ['packed_conversion_forms'] if op in autocase_packed_fp.PACK_OPS else ['half_forms']
+    if op in autocase_conversions.OPS: return ["conversion_forms","conversion_boundaries"]
     if op in autocase_extended.PREDICATE_OPS: return ['predicate_forms']
     if op=='FCHK': return ['floating_forms','fchk_boundaries']
     if op in autocase_extended.FLOAT_OPS: return ['floating_forms']
@@ -196,3 +204,174 @@ def fchk_pairs():
             n=len(out)
             out.append((signs[n%2] | ea<<23 | mantissas[n%4], signs[n//2%2] | eb<<23 | mantissas[(n+1)%4]))
     return tuple(out+[(rng.getrandbits(32),rng.getrandbits(32)) for _ in range(-len(out)%128+128)])
+
+
+PROFILES["conversion_forms"] = {
+    "floats": {
+        16: (0,0x8000,1,0x3e00,0xbe00,0x7bff,0x7c00,0x7e01),
+        32: (0,0x80000000,1,0x3fc00000,0xbfc00000,0x4f000000,0x7f800000,0x7fc12345),
+        64: (0,1<<63,1,0x3ff8000000000000,0xbff8000000000000,0x43f0000000000000,0x7ff0000000000000,0x7ff8123456789abc),
+    },
+    "integers": (0,1,0xffffffffffffffff,0x8000000000000000,0x80000000,0x01000001,0x8001,0x81),
+    "filler": 0xa5a5a5a5,
+}
+
+
+PROFILES['packed_conversion_forms'] = {
+    'floats': (0,0x80000000,0x3fc00000,0xbfc00000,0x43000000,0xc3000000,0x7f800000,0x7fc12345),
+    'integers': (0,1,0xffffffff,0x7fffffff,0x80000000,0x7f,0x80,0x12345678),
+    'preserved': 0xa53c91e7,
+}
+PROFILES['half_forms'] = {
+    'F16': (0,0x80000000,0x3c004000,0xbc00c000,0x00018001,0x7bfffbff,0x7c003c00,0x3c007e01),
+    'BF16': (0,0x80000000,0x3f804000,0xbf80c000,0x00018001,0x7f7fff7f,0x7f803f80,0x3f807fc1),
+    'E6M9': (0,0x80000000,0x3e004000,0xbe00c000,0x00018001,0x7dfffdff,0x7e003e00,0x3e007f01),
+}
+
+
+PROFILES["conversion_boundaries"] = {'when': 'unmodified_register_noftz',
+ 'floats': {16: (0,
+                 32768,
+                 1,
+                 32769,
+                 1023,
+                 14336,
+                 47104,
+                 15872,
+                 48640,
+                 16640,
+                 49408,
+                 14848,
+                 46080,
+                 31743,
+                 64511,
+                 31744,
+                 64512,
+                 32256,
+                 64769,
+                 25600,
+                 25599,
+                 22528),
+            32: (0,
+                 2147483648,
+                 1,
+                 2147483649,
+                 8388607,
+                 1056964608,
+                 3204448256,
+                 1069547520,
+                 3217031168,
+                 1075838976,
+                 3223322624,
+                 1061158912,
+                 3196059648,
+                 1258291201,
+                 2139095039,
+                 4286578687,
+                 2139095040,
+                 4286578688,
+                 2143289344,
+                 4286578689,
+                 1325400064,
+                 3472883713,
+                 1602224127,
+                 3741319168),
+            64: (0,
+                 9223372036854775808,
+                 1,
+                 9223372036854775809,
+                 4602678819172646912,
+                 13826050856027422720,
+                 4609434218613702656,
+                 13832806255468478464,
+                 4612811918334230528,
+                 13836183955189006336,
+                 9218868437227405311,
+                 9218868437227405312,
+                 18442240474082181120,
+                 9219994337134247936,
+                 18444492273895866369,
+                 4746794007248502784,
+                 13970166044105375744,
+                 4895412794951729152,
+                 3931642474694443009,
+                 13155014511549218817,
+                 5183643170835005439,
+                 5183643170835005440,
+                 4679237813814689792,
+                 4607182419068452864)},
+ 'integers': (0,
+              1,
+              4294967295,
+              2147483647,
+              2147483648,
+              16777217,
+              16777219,
+              4294967167,
+              18446744073709551615,
+              9223372036854775808,
+              9223372036854775809,
+              9007199254740993,
+              18446744073709551614,
+              9223372586610589696,
+              65519,
+              65520,
+              65520,
+              32768,
+              128,
+              127),
+ 'f2f16': (0,
+           0,
+           1,
+           1,
+           65535,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           1,
+           65535,
+           65535,
+           0,
+           0,
+           0,
+           1,
+           0,
+           1,
+           65535,
+           0,
+           31744,
+           64512,
+           32257,
+           64769,
+           1,
+           32769,
+           31743),
+ 'fixture_integers': (0,
+                      1,
+                      4294967295,
+                      2147483647,
+                      2147483648,
+                      16777217,
+                      16777219,
+                      4294967167,
+                      18446744073709551615,
+                      9223372036854775808,
+                      9223372036854775809,
+                      9007199254740993,
+                      18446744073709551614,
+                      9223372586610589696)}
+
+
+PROFILES['binary32_pair_forms'] = {
+    'words': (0,0x80000000,1,0x3f800000,0xc0200000,0x7f7fffff,0x7f800000,0x3f000001),
+}
+PROFILES['float_pack_forms'] = {
+    'words': (0,0x80000000,0x3f800000,0xbf800000,0x3f801000,0x477ff000,0x7f800000,0x7fc12345),
+}
+
+PROFILES['half_comparison_forms'] = dict(inputs='half_forms', selection='half_comparison_inputs.json', supplement='unmasked_ftz_witness')
