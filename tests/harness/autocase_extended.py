@@ -6,10 +6,10 @@ from tests.harness.case import source, put
 from tests.refs import integer
 from tests.refs import float
 
-FLOAT_OPS = {'FADD','FMUL','FFMA','DADD','DMUL','DFMA','FSEL','FMNMX','FMNMX3','FSET','FSETP','UFSETP','DSETP','FCHK','FRND'}
+FLOAT_OPS = {'FADD','FMUL','FFMA','DADD','DMUL','DFMA','FSEL','FMNMX','FMNMX3','FSET','FSETP','UFSETP','DSETP','FCHK','FRND','UFADD','UFMUL','UFFMA','UFSEL','UFRND'}
 PREDICATE_OPS = {'PLOP3','UPLOP3','P2R','R2P','UP2UR'}
 OPS = FLOAT_OPS | PREDICATE_OPS
-FAMILIES = {op:'predicates' if op in PREDICATE_OPS else 'fp64' if op.startswith('D') else 'conversions' if op=='FRND' else 'fp32' for op in OPS}
+FAMILIES = {op:'predicates' if op in PREDICATE_OPS else 'fp64' if op.startswith('D') else 'conversions' if op in ('FRND','UFRND') else 'fp32' for op in OPS}
 
 
 def operand(s, name, value, reg, width):
@@ -28,8 +28,8 @@ def operand(s, name, value, reg, width):
 
 def generate(c,k,form,profiles):
     from tests.harness import autocases
-    expected_profile = 'predicate_forms' if k.mnemonic in PREDICATE_OPS else 'floating_forms'
-    if profiles != [expected_profile]: raise autocases.Unsupported('incompatible extended profiles')
+    expected_profiles = ['predicate_forms'] if k.mnemonic in PREDICATE_OPS else ['floating_forms','fchk_boundaries'] if k.mnemonic=='FCHK' else ['floating_forms']
+    if profiles != expected_profiles: raise autocases.Unsupported('incompatible extended profiles')
     if k.mnemonic in PREDICATE_OPS: return predicates(c,k,form)
     reason = blocked_reason(k.mnemonic,form)
     if reason: raise autocases.Unsupported(reason)
@@ -39,16 +39,16 @@ def generate(c,k,form,profiles):
 def blocked_reason(op,form):
     """Cheap profile eligibility check shared with planning; no case/MD construction needed."""
     if op not in FLOAT_OPS: return None
-    if any('@' in n and not n.endswith('@not') and v != 'unset' for n,v in form.items()):
+    if op.removeprefix('U') not in ('FCHK','FRND','FSEL') and any('@' in n and not n.endswith('@not') and v != 'unset' for n,v in form.items()):
         return 'source-sign modifier corpus remains manual'
     if form.get('xorsign','noxorsign') != 'noxorsign': return 'XORSIGN remains a focused manual regression'
-    if form.get('fmz','nofmz') not in ('nofmz','FTZ'): return 'FMZ zero/Inf corpus remains manual'
+    if form.get('fmz','nofmz') not in ('nofmz','nofmz_hfma2','FTZ'): return 'FMZ zero/Inf corpus remains manual'
     return None
 
 
 def floating(c,k,form):
     from tests.harness import autocases
-    op=k.mnemonic
+    op=k.mnemonic.removeprefix('U')
     allowed={'rnd','ftz','fmz','sat','scale','nan','xorsign','fcomp','bop','test','fmt'}
     if any(n not in allowed and not n.endswith(('@not','@absolute','@negate')) for n in form):
         raise autocases.Unsupported('unhandled floating modifiers')
@@ -67,12 +67,16 @@ def floating(c,k,form):
     if any(n in k.operand_types for n in ('Pu','Pv')) and op in ('FMNMX','FMNMX3'):
         raise autocases.Unsupported('unresolved min/max predicate outputs')
     values=autocase_profiles.PROFILES['floating_forms'][width]
-    for j,a in enumerate(values):
+    vectors=[(a,values[(j+3)%len(values)],values[(j+5)%len(values)]) for j,a in enumerate(values)]
+    if op=='FCHK':
+        spec=autocase_profiles.PROFILES['fchk_boundaries']
+        vectors += [(a,b,0) for a,b in (*autocase_profiles.fchk_pairs()[::spec['stride']],*spec['extra_pairs'])]
+    for j,raw in enumerate(vectors):
         s=autocases.Inputs(c,k,form)
-        raw=(a,values[(j+3)%len(values)],values[(j+5)%len(values)])
         xs=[]
         for n,v,r in zip(names,raw,(4,6,8)):
-            xs.append(operand(s,n,v,r,width))
+            value=operand(s,n,v,r,width)
+            xs.append(float.source_modifiers(value,width,form.get(n+'@absolute')=='set',form.get(n+'@negate')=='set'))
         p=source(k,'Pp','UPp')
         pred=j&1
         if p:
@@ -111,8 +115,9 @@ def floating(c,k,form):
             else: result=float.fmnmx3_pick(float.fmnmx3_pick(xs[0],xs[1],bool(pred),exact),xs[2],bool(pred),exact)
         else: raise autocases.Unsupported('missing floating reference')
         rd=(4,6,8,2)[j%4]
-        expected={s.output(('Rd','URd'),rd):result & 0xffffffff}
-        if width==64: expected['R'+str(rd+1)]=result>>32
+        dest=s.output(('Rd','URd'),rd)
+        expected={dest:result & 0xffffffff}
+        if width==64: expected[dest.rstrip('0123456789')+str(rd+1)]=result>>32
         s.add(expected,form,portable=True)
     return c
 

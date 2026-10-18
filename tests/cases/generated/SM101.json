@@ -5673,7 +5673,47 @@
         "Ra@absolute": "unset"
       },
       "profiles": [
-        "floating_forms"
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RIR_RI",
+      "settings": {
+        "Ra@negate": "unset",
+        "Ra@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RIR_RI",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RIR_RI",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
       ],
       "native": true
     },
@@ -5687,7 +5727,233 @@
         "Rb@absolute": "unset"
       },
       "profiles": [
-        "floating_forms"
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RRR_RR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RRR_RR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RRR_RR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RRR_RR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RRR_RR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RRR_RR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RRR_RR",
+      "settings": {
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RRR_RR",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RRR_RR",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RRR_RR",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RRR_RR",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RRR_RR",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RRR_RR",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RRR_RR",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RRR_RR",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
       ],
       "native": true
     },
@@ -5701,6 +5967,368 @@
         "URb@absolute": "unset"
       },
       "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RUR_RU",
+      "settings": {
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RUR_RU",
+      "settings": {
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RUR_RU",
+      "settings": {
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RUR_RU",
+      "settings": {
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RUR_RU",
+      "settings": {
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RUR_RU",
+      "settings": {
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RUR_RU",
+      "settings": {
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RUR_RU",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RUR_RU",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RUR_RU",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RUR_RU",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RUR_RU",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RUR_RU",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RUR_RU",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fchk__RUR_RU",
+      "settings": {
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms",
+        "fchk_boundaries"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RIR_RIR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RIR_RIR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RIR_RIR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RIR_RIR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RIR_RIR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RIR_RIR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RIR_RIR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RIR_RIR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
         "floating_forms"
       ],
       "native": true
@@ -5845,6 +6473,142 @@
       "family": "fp32",
       "cls": "ffma__RRI_RRI",
       "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRI_RRI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRI_RRI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRI_RRI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRI_RRI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRI_RRI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRI_RRI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRI_RRI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRI_RRI",
+      "settings": {
         "fmz": "FTZ",
         "rnd": "RN",
         "sat": "nosat",
@@ -5971,6 +6735,158 @@
         "Ra@absolute": "unset",
         "Rb@negate": "unset",
         "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRR_RRR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRR_RRR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRR_RRR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRR_RRR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRR_RRR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRR_RRR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRR_RRR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRR_RRR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
       },
       "profiles": [
         "floating_forms"
@@ -6133,6 +7049,158 @@
       "family": "fp32",
       "cls": "ffma__RRU_RRU",
       "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "URc@negate": "unset",
+        "URc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRU_RRU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "URc@negate": "unset",
+        "URc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRU_RRU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "URc@negate": "unset",
+        "URc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRU_RRU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "URc@negate": "unset",
+        "URc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRU_RRU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "URc@negate": "unset",
+        "URc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRU_RRU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "URc@negate": "unset",
+        "URc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRU_RRU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "URc@negate": "unset",
+        "URc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRU_RRU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "URc@negate": "unset",
+        "URc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RRU_RRU",
+      "settings": {
         "fmz": "FTZ",
         "rnd": "RN",
         "sat": "nosat",
@@ -6275,6 +7343,158 @@
         "Rb@absolute": "unset",
         "URc@negate": "unset",
         "URc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RUR_RUR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RUR_RUR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RUR_RUR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RUR_RUR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RUR_RUR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RUR_RUR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RUR_RUR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "ffma__RUR_RUR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Rc@negate": "unset",
+        "Rc@absolute": "unset"
       },
       "profiles": [
         "floating_forms"
@@ -7293,6 +8513,902 @@
       "family": "fp32",
       "cls": "fmul__RIR_RI",
       "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RIR_RI",
+      "settings": {
         "fmz": "FTZ",
         "scale": "D8",
         "rnd": "RN",
@@ -8189,6 +10305,1014 @@
       "family": "fp32",
       "cls": "fmul__RRR_RR",
       "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RRR_RR",
+      "settings": {
         "fmz": "FTZ",
         "scale": "D8",
         "rnd": "RN",
@@ -9187,6 +12311,1014 @@
         "Ra@absolute": "unset",
         "Rb@negate": "unset",
         "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D8",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D4",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "D2",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "noscale",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M2",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M4",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RN",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RN",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RM",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RM",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RP",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RP",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RZ",
+        "sat": "nosat",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fmul__RUR_RU",
+      "settings": {
+        "fmz": "nofmz_hfma2",
+        "scale": "M8",
+        "rnd": "RZ",
+        "sat": "SAT",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
       },
       "profiles": [
         "floating_forms"
@@ -10326,9 +14458,99 @@
       "settings": {
         "ftz": "noftz",
         "fmt": "F32",
+        "rnd": "ROUND",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "ROUND",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "ROUND",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
         "rnd": "FLOOR",
         "Rb@negate": "unset",
         "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "FLOOR",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "FLOOR",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "FLOOR",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
       },
       "profiles": [
         "floating_forms"
@@ -10356,9 +14578,99 @@
       "settings": {
         "ftz": "noftz",
         "fmt": "F32",
+        "rnd": "CEIL",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "CEIL",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "CEIL",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
         "rnd": "TRUNC",
         "Rb@negate": "unset",
         "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "TRUNC",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "TRUNC",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "TRUNC",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
       },
       "profiles": [
         "floating_forms"
@@ -10386,9 +14698,99 @@
       "settings": {
         "ftz": "FTZ",
         "fmt": "F32",
+        "rnd": "ROUND",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "ROUND",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "ROUND",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
         "rnd": "FLOOR",
         "Rb@negate": "unset",
         "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "FLOOR",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "FLOOR",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "FLOOR",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
       },
       "profiles": [
         "floating_forms"
@@ -10416,6 +14818,51 @@
       "settings": {
         "ftz": "FTZ",
         "fmt": "F32",
+        "rnd": "CEIL",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "CEIL",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "CEIL",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
         "rnd": "TRUNC",
         "Rb@negate": "unset",
         "Rb@absolute": "unset"
@@ -10427,6 +14874,51 @@
     },
     {
       "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "TRUNC",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "TRUNC",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "TRUNC",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
       "cls": "frnd__f32_URb",
       "settings": {
         "ftz": "noftz",
@@ -10434,6 +14926,51 @@
         "rnd": "ROUND",
         "URb@negate": "unset",
         "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "ROUND",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "ROUND",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "ROUND",
+        "URb@negate": "set",
+        "URb@absolute": "set"
       },
       "profiles": [
         "floating_forms"
@@ -10461,7 +14998,112 @@
       "settings": {
         "ftz": "noftz",
         "fmt": "F32",
+        "rnd": "FLOOR",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "FLOOR",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "FLOOR",
+        "URb@negate": "set",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
         "rnd": "CEIL",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "CEIL",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "CEIL",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "CEIL",
+        "URb@negate": "set",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "TRUNC",
         "URb@negate": "unset",
         "URb@absolute": "unset"
       },
@@ -10478,7 +15120,37 @@
         "fmt": "F32",
         "rnd": "TRUNC",
         "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "TRUNC",
+        "URb@negate": "set",
         "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F32",
+        "rnd": "TRUNC",
+        "URb@negate": "set",
+        "URb@absolute": "set"
       },
       "profiles": [
         "floating_forms"
@@ -10506,9 +15178,99 @@
       "settings": {
         "ftz": "FTZ",
         "fmt": "F32",
+        "rnd": "ROUND",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "ROUND",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "ROUND",
+        "URb@negate": "set",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
         "rnd": "FLOOR",
         "URb@negate": "unset",
         "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "FLOOR",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "FLOOR",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "FLOOR",
+        "URb@negate": "set",
+        "URb@absolute": "set"
       },
       "profiles": [
         "floating_forms"
@@ -10536,9 +15298,99 @@
       "settings": {
         "ftz": "FTZ",
         "fmt": "F32",
+        "rnd": "CEIL",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "CEIL",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "CEIL",
+        "URb@negate": "set",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
         "rnd": "TRUNC",
         "URb@negate": "unset",
         "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "TRUNC",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "TRUNC",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f32_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F32",
+        "rnd": "TRUNC",
+        "URb@negate": "set",
+        "URb@absolute": "set"
       },
       "profiles": [
         "floating_forms"
@@ -10670,9 +15522,99 @@
       "settings": {
         "ftz": "noftz",
         "fmt": "F64",
+        "rnd": "ROUND",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "ROUND",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "ROUND",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
         "rnd": "FLOOR",
         "Rb@negate": "unset",
         "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "FLOOR",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "FLOOR",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "FLOOR",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
       },
       "profiles": [
         "floating_forms"
@@ -10700,9 +15642,99 @@
       "settings": {
         "ftz": "noftz",
         "fmt": "F64",
+        "rnd": "CEIL",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "CEIL",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "CEIL",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
         "rnd": "TRUNC",
         "Rb@negate": "unset",
         "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "TRUNC",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "TRUNC",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "TRUNC",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
       },
       "profiles": [
         "floating_forms"
@@ -10730,9 +15762,99 @@
       "settings": {
         "ftz": "FTZ",
         "fmt": "F64",
+        "rnd": "ROUND",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "ROUND",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "ROUND",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
         "rnd": "FLOOR",
         "Rb@negate": "unset",
         "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "FLOOR",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "FLOOR",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "FLOOR",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
       },
       "profiles": [
         "floating_forms"
@@ -10760,6 +15882,51 @@
       "settings": {
         "ftz": "FTZ",
         "fmt": "F64",
+        "rnd": "CEIL",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "CEIL",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "CEIL",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
         "rnd": "TRUNC",
         "Rb@negate": "unset",
         "Rb@absolute": "unset"
@@ -10771,6 +15938,51 @@
     },
     {
       "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "TRUNC",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "TRUNC",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_R",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "TRUNC",
+        "Rb@negate": "set",
+        "Rb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
       "cls": "frnd__f64_URb",
       "settings": {
         "ftz": "noftz",
@@ -10778,6 +15990,51 @@
         "rnd": "ROUND",
         "URb@negate": "unset",
         "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "ROUND",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "ROUND",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "ROUND",
+        "URb@negate": "set",
+        "URb@absolute": "set"
       },
       "profiles": [
         "floating_forms"
@@ -10805,7 +16062,112 @@
       "settings": {
         "ftz": "noftz",
         "fmt": "F64",
+        "rnd": "FLOOR",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "FLOOR",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "FLOOR",
+        "URb@negate": "set",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
         "rnd": "CEIL",
+        "URb@negate": "unset",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "CEIL",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "CEIL",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "CEIL",
+        "URb@negate": "set",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "TRUNC",
         "URb@negate": "unset",
         "URb@absolute": "unset"
       },
@@ -10822,7 +16184,37 @@
         "fmt": "F64",
         "rnd": "TRUNC",
         "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "TRUNC",
+        "URb@negate": "set",
         "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "noftz",
+        "fmt": "F64",
+        "rnd": "TRUNC",
+        "URb@negate": "set",
+        "URb@absolute": "set"
       },
       "profiles": [
         "floating_forms"
@@ -10850,9 +16242,99 @@
       "settings": {
         "ftz": "FTZ",
         "fmt": "F64",
+        "rnd": "ROUND",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "ROUND",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "ROUND",
+        "URb@negate": "set",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
         "rnd": "FLOOR",
         "URb@negate": "unset",
         "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "FLOOR",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "FLOOR",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "FLOOR",
+        "URb@negate": "set",
+        "URb@absolute": "set"
       },
       "profiles": [
         "floating_forms"
@@ -10880,6 +16362,51 @@
       "settings": {
         "ftz": "FTZ",
         "fmt": "F64",
+        "rnd": "CEIL",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "CEIL",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "CEIL",
+        "URb@negate": "set",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
         "rnd": "TRUNC",
         "URb@negate": "unset",
         "URb@absolute": "unset"
@@ -10890,6 +16417,51 @@
       "native": true
     },
     {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "TRUNC",
+        "URb@negate": "unset",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "TRUNC",
+        "URb@negate": "set",
+        "URb@absolute": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "conversions",
+      "cls": "frnd__f64_URb",
+      "settings": {
+        "ftz": "FTZ",
+        "fmt": "F64",
+        "rnd": "TRUNC",
+        "URb@negate": "set",
+        "URb@absolute": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
       "family": "fp32",
       "cls": "fsel__RIR_RIR",
       "settings": {
@@ -10921,6 +16493,90 @@
       "family": "fp32",
       "cls": "fsel__RIR_RIR",
       "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RIR_RIR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RIR_RIR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RIR_RIR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RIR_RIR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RIR_RIR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RIR_RIR",
+      "settings": {
         "ftz": "FTZ",
         "Ra@negate": "unset",
         "Ra@absolute": "unset",
@@ -10938,6 +16594,90 @@
         "ftz": "FTZ",
         "Ra@negate": "unset",
         "Ra@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RIR_RIR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RIR_RIR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RIR_RIR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RIR_RIR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RIR_RIR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RIR_RIR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
         "Pp@not": "set"
       },
       "profiles": [
@@ -10981,6 +16721,486 @@
       "family": "fp32",
       "cls": "fsel__RRR_RRR",
       "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
         "ftz": "FTZ",
         "Ra@negate": "unset",
         "Ra@absolute": "unset",
@@ -11011,6 +17231,486 @@
     },
     {
       "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "Rb@negate": "set",
+        "Rb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "unset",
+        "Rb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RRR_RRR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "Rb@negate": "set",
+        "Rb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
       "cls": "fsel__RUR_RUR",
       "settings": {
         "ftz": "noftz",
@@ -11045,6 +17745,486 @@
       "family": "fp32",
       "cls": "fsel__RUR_RUR",
       "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "noftz",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
         "ftz": "FTZ",
         "Ra@negate": "unset",
         "Ra@absolute": "unset",
@@ -11066,6 +18246,486 @@
         "Ra@absolute": "unset",
         "URb@negate": "unset",
         "URb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "unset",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "unset",
+        "URb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "unset",
+        "URb@negate": "set",
+        "URb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "unset",
+        "URb@absolute": "set",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "unset",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "unset",
+        "Pp@not": "set"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "set",
+        "Pp@not": "unset"
+      },
+      "profiles": [
+        "floating_forms"
+      ],
+      "native": true
+    },
+    {
+      "family": "fp32",
+      "cls": "fsel__RUR_RUR",
+      "settings": {
+        "ftz": "FTZ",
+        "Ra@negate": "set",
+        "Ra@absolute": "set",
+        "URb@negate": "set",
+        "URb@absolute": "set",
         "Pp@not": "set"
       },
       "profiles": [

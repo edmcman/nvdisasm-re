@@ -292,3 +292,10 @@ def readable(op, inputs, width, sat=False, scale=0):
 def fmnmx_readable(x, y, is_min):
     """Readable FMNMX's documented ordered comparison; ties/unordered choose the second source for min."""
     return x if (f32(x) < f32(y)) == is_min else y
+
+
+def source_modifiers(bits, width, absolute=False, negate=False):
+    """Apply floating-source absolute value before negation, preserving payload and magnitude bits."""
+    sign = 1 << (width - 1)
+    if absolute: bits &= sign - 1
+    return bits ^ sign if negate else bits

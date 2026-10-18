@@ -150,7 +150,7 @@ def fset_cases(c):
     c.add("fset__RRR_RRR", dict(Rd=2, Ra=2, Rb=2, Pp="PT", fcomp="EQ", bop="AND", **{"Rb@negate": 1}), dict(R2=0x80000000), dict(R2=0x3f800000, __native=True))
 
 
-@retained('Uniform exceptional comparisons and constant UPT inputs supplement generated UFSETP forms; other uniform FP operations remain unadapted.')
+@retained('Uniform seeded arithmetic, exceptional comparison pairs and constant UPT inputs exceed the generated form profile.')
 def uniform(c):
     """SM120's uniform twins of FADD/FMUL/FFMA/FSETP/FSEL: every rounding mode and FTZ over edge
     triples, every comparison and bop, and the immediate forms."""
@@ -215,34 +215,12 @@ def readable_formulas(c):
 
 
 def fchk_pairs():
-    """Both sides of every FCHK boundary for each numerator exponent, mantissa extremes and signs
-    alternating, then random pairs up to a multiple of 128 (a, b)."""
-    rng, out = random.Random("fchk"), []
-    mantissas, signs = (0, 0x7fffff, 1, 0x400000), (0, 1 << 31)
-    for ea in range(256):
-        for eb in sorted({x for t in (1, 251, ea - 127, ea + 124) for x in (t, t + 1) if 0 <= x < 256}):
-            n = len(out)
-            out.append((signs[n % 2] | ea << 23 | mantissas[n % 4], signs[n // 2 % 2] | eb << 23 | mantissas[(n + 1) % 4]))
-    return out + [(rng.getrandbits(32), rng.getrandbits(32)) for _ in range(-len(out) % 128 + 128)]
-
-
-@retained('Dense biased-exponent boundary pairs and source modifiers exceed the generated FCHK profile.')
-def fchk_cases(c):
-    """FCHK.DIVIDE from every source kind, with sign modifiers (which it ignores)."""
-    pairs = fchk_pairs()[::16] + [(0, 0x3f800000), (0x3f800000, 0), (0x7fc00000, 0x3f800000), (0x3f800000, 0x40000000)]
-    for k in c.of("FCHK", cx=None):
-        cx = is_cx(k)
-        b = "Sb" if cx else source(k, "Rb", "URb", "Sb")
-        for n, (x, y) in enumerate(pairs):
-            fields, regs, memory = dict(Pu=1, Ra=2, **{"Ra@negate": n & 1, "Ra@absolute": n >> 1 & 1}), dict(R2=x), []
-            if cx:
-                cx_fields, cx_regs, memory = cx_source(c.arch, k, b, y); fields.update(cx_fields); regs.update(cx_regs)
-            else: put(k, b, y, fields, regs, memory, 4, ureg=6, bank=(0, 0x20), imm=("F32Imm",))
-            c.add(k.name, fields, regs, dict(P1=fchk_divide(x, y), __native=True), memory=memory, portable=True)
+    from tests.harness import autocase_profiles
+    return list(autocase_profiles.fchk_pairs())
 
 
 def emulator_cases(c):
-    selection(c); arithmetic(c); compare(c); fset_cases(c); uniform(c); fchk_cases(c); readable_formulas(c)
+    selection(c); arithmetic(c); compare(c); fset_cases(c); uniform(c); readable_formulas(c)
 
 
 def gpu_fixtures():

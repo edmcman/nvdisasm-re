@@ -13,6 +13,7 @@ VECTORS = ((0, 0, 0, 0, 0), (0, 0, 1, 0, 1), (0, 0, MASK32, 1, 0), (0, 0, 0x8000
            (MASK32, 0, 0x12345678, 1, 1), (0x807f01ff, 0x7f80ff00, 0x10203040, 0, 0))
 
 PROFILES = {
+    'fchk_boundaries': dict(seed='fchk', mantissas=(0,0x7fffff,1,0x400000), divisor_boundaries=(1,251), differences=(-127,124), stride=16, extra_pairs=((0,0x3f800000),(0x3f800000,0),(0x7fc00000,0x3f800000),(0x3f800000,0x40000000))),
     'floating_forms': {32:(0,0x80000000,0x3f800000,0xc0200000,1,0x7f800000,0x7fc12345,0x3f000001), 64:(0,1<<63,0x3ff0000000000000,0xc004000000000000,1,0x7ff0000000000000,0x7ff8123456789abc,0x3fe0000000000001)},
     'predicate_forms': dict(tables=(0,255,0x96,0xe8,0xca,0x80,0x01,0x7e),masks=(0,1,0x25,0x7f,0x80,0xff,0xffffffff)),
     'arithmetic_edges': dict(vectors=VECTORS + ((0xffffffff,1,0,1,1), (0,0,0,1,1), (0xffffffff,0xffffffff,0xffffffff,0,1), (1,0xffffffff,1,1,0))),
@@ -107,6 +108,7 @@ SUPPLEMENTS = (
 def names(op, cls, form):
     from tests.harness import autocase_extended
     if op in autocase_extended.PREDICATE_OPS: return ['predicate_forms']
+    if op=='FCHK': return ['floating_forms','fchk_boundaries']
     if op in autocase_extended.FLOAT_OPS: return ['floating_forms']
     if op in ('IMAD','UIMAD'): out = ['arithmetic_edges','imad_forms']
     elif op in ('IADD3','UIADD3','LEA','ULEA'): out = ['arithmetic_edges']
@@ -181,3 +183,16 @@ def vectors(name):
         words += [tuple(rng.getrandbits(32) for _ in range(3)) for _ in range(count)]
     return tuple((a, b, c, p, 0) for j, (a, b, c) in enumerate(words)
                  for p in ((0, 1) if spec['predicate'] == 'both' else (1 if spec['predicate'] == 'true' else j & 1,)))
+
+
+@cache
+def fchk_pairs():
+    """Original FCHK exponent-boundary and seeded GPU corpus, shared by profiles and fixtures."""
+    spec=PROFILES['fchk_boundaries']; rng=random.Random(spec['seed']); out=[]
+    mantissas=spec['mantissas']; signs=(0,1<<31)
+    for ea in range(256):
+        boundaries=(*spec['divisor_boundaries'], *(ea+d for d in spec['differences']))
+        for eb in sorted({x for t in boundaries for x in (t,t+1) if 0<=x<256}):
+            n=len(out)
+            out.append((signs[n%2] | ea<<23 | mantissas[n%4], signs[n//2%2] | eb<<23 | mantissas[(n+1)%4]))
+    return tuple(out+[(rng.getrandbits(32),rng.getrandbits(32)) for _ in range(-len(out)%128+128)])

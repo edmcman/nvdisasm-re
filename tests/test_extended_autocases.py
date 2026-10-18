@@ -15,6 +15,7 @@ from tests.refs import integer
         'fchk__RRR_RR','frnd__f32_R','plop3_lut_2out_','uplop3_lut_2out_',
         'p2r__RRR_RRR','r2p__RRR','up2ur__Imm')],
     ('SM100','fmnmx3__RRR_RRR'),('SM120','ufsetp__URURUR_UUU'),
+    *[('SM120',cls) for cls in ('ufadd__URURUR_UUU','ufmul__UUU','uffma__UUU_UUU','ufsel__URURUR_UUU','ufrnd__f32_URb')],
 ])
 @pytest.mark.parametrize('fp',['exact','readable'])
 def test_extended_reference_adapters(arch,cls,fp):
@@ -82,3 +83,35 @@ def test_extended_adapter_imports_before_dispatcher():
     import sys
     result=subprocess.run([sys.executable,'-c','from tests.harness import autocase_extended, autocases; assert autocase_extended.OPS <= autocases.OWNED'],capture_output=True,text=True)
     assert result.returncode==0,result.stderr
+
+
+@pytest.mark.parametrize('cls',['fsel__RRR_RRR','fchk__RRR_RR','frnd__f32_R','frnd__f64_R'])
+@pytest.mark.parametrize('fp',['exact','readable'])
+def test_source_sign_modifiers(cls,fp):
+    form=settings('SM89',pydecode.decode('SM89',bytes.fromhex(encoding.encode('SM89',cls))))
+    flags=[n for n in form if n.endswith(('@absolute','@negate'))]
+    for values in itertools.product(('unset','set'),repeat=len(flags)):
+        modified=form | dict(zip(flags,values))
+        for case in autocases.generate('SM89',cls,modified,fp):
+            _,found=lifted.run('SM89',fp,case)
+            assert not found,(modified,case,found)
+
+
+def test_floating_absolute_precedes_negation():
+    from tests.refs import float
+    assert float.source_modifiers(0xbf800000,32,True,True)==0xbf800000
+    assert float.source_modifiers(0xfff8123456789abc,64,True,False)==0x7ff8123456789abc
+    assert float.source_modifiers(0x80000000,32,True,False)==0
+
+
+def test_uniform_round_routes_to_conversion_family():
+    assert autocases.FAMILIES['UFRND']=='conversions'
+
+
+@pytest.mark.parametrize('fp',['exact','readable'])
+def test_mixed_source_no_flush_alias(fp):
+    cls='fmul__RUR_RU'
+    form=settings('SM90',pydecode.decode('SM90',bytes.fromhex(encoding.encode('SM90',cls,fmz='nofmz_hfma2',scale='M8'))))
+    for case in autocases.generate('SM90',cls,form,fp):
+        _,found=lifted.run('SM90',fp,case)
+        assert not found,(case,found)
