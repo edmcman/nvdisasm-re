@@ -14,6 +14,69 @@ def combine(value, predicate, bop):
     return int({"AND": value and predicate, "OR": value or predicate, "XOR": value ^ predicate}[bop])
 
 
+def isetp(a, b, comparison, bop, predicate, signed=False, low=None):
+    """Integer compare and complementary predicate results. In .EX, equal high words
+    inherit the low-word comparison (except the constant F/T comparisons)."""
+    x, y = (sext(a, 32), sext(b, 32)) if signed else (a, b)
+    condition = bool(low) if low is not None and a == b and comparison not in ('F', 'T') else compare(x, y, comparison)
+    return combine(condition, predicate, bop), combine(not condition, predicate, bop)
+
+
+def iadd3(a, b, c, modifications=(False, False, False), extended=False, p=0, q=0):
+    """Unbounded unsigned sum: ordinary negation keeps ~x+1; .X uses ~x and two carry inputs."""
+    total = sum((MASK32 - x + (not extended)) if flip else x
+                for x, flip in zip((a, b, c), modifications)) + (p + q if extended else 0)
+    return total & MASK32, int(total > MASK32), int(total > 0x1ffffffff)
+
+
+def lea(a, b, c, shift, high=False, signed_high=False, modifications=(False, False), extended=False, carry_in=0):
+    """Select the shifted low/high word before operand negation/complement and carry addition."""
+    data = (sext(a, 32) if signed_high else (c << 32) | a) if high else a
+    shifted = ((data << shift) >> (32 if high else 0)) & MASK32
+    total = sum((MASK32 - x + (not extended)) if flip else x
+                for x, flip in zip((shifted, b), modifications)) + (carry_in if extended else 0)
+    return total & MASK32, int(total > MASK32)
+
+
+def lop3(a, b, c, table, predicate, pop):
+    """PTX lop3: bit 4*a+2*b+c selects a LUT bit; .and/.or combines
+    the nonzero result with the predicate input (SASS PAND/POR).
+    NVIDIA PTX ISA: Logic and Shift Instructions, lop3."""
+    if not 0 <= table < 256: raise ValueError('invalid 8-bit truth table')
+    result = 0
+    for bit in range(32):
+        index = 4 * ((a >> bit) & 1) + 2 * ((b >> bit) & 1) + ((c >> bit) & 1)
+        result |= ((table >> index) & 1) << bit
+    return result, combine(result != 0, predicate, {'PAND':'AND', 'POR':'OR'}[pop])
+
+
+def shf(a, count, c, fmt, direction, mode, half):
+    """Select a word from a shifted {c,a} bit string (the existing SHF case definition).
+    Enumerate source bit positions; a signed right shift extends bit 63."""
+    width = {'U32':32, 'S32':32, 'U64':64, 'S64':64}[fmt]
+    if direction not in ('L', 'R') or mode not in ('C', 'W') or half not in ('LO', 'HI'):
+        raise ValueError('unknown SHF mode')
+    count = min(count, width) if mode == 'C' else count % width
+    data, base = (c << 32) | a, 32 if half == 'HI' else 0
+    result = 0
+    for bit in range(32):
+        index = base + bit + (count if direction == 'R' else -count)
+        value = (data >> index) & 1 if 0 <= index < 64 else int(index >= 64 and direction == 'R' and fmt.startswith('S') and bool(c >> 31))
+        result |= value << bit
+    return result
+
+
+def iabs(value):
+    """32-bit two's-complement absolute value; INT_MIN wraps to its original bits."""
+    return abs(sext(value, 32)) & MASK32
+
+
+def mov(value, width=32):
+    """Copy a word or register pair without changing its bits."""
+    if width not in (32, 64): raise ValueError('unsupported move width')
+    return value & ((1 << width) - 1)
+
+
 def brev(value): return sum(((value >> bit) & 1) << (31 - bit) for bit in range(32))
 
 
@@ -113,10 +176,16 @@ def imad_wide(a, b, c, signed, negate=0, invert=0, carry_in=0):
 
 
 
-def imad(a, b, c, mode, signed, negate=0, invert=0, carry_in=0):
+def imad(a, b, c, mode, signed, negate=0, invert=0, carry_in=0, addend_width=64):
     """(Rd, Pu) of IMAD/UIMAD: LO keeps the low word of a*b + c (32-bit c, negated or .X-inverted, no
-    carry-out); HI/WIDE keep the high word or all 64 bits of `imad_wide`, Pu its carry-out."""
+    carry-out); HI/WIDE keep the high word or all 64 bits of `imad_wide`, Pu its carry-out.
+    With a narrow HI addend, add C after extracting the product high word and report 32-bit carry."""
     if mode == "LO": return (a * b + ((c ^ MASK32) + negate if negate or invert else c) + carry_in) & MASK32, None
+    if mode == 'HI' and addend_width == 32:
+        x, y = (sext(a,32), sext(b,32)) if signed else (a,b)
+        addend = (MASK32-c+negate) if negate or invert else c
+        total = ((x*y & MASK64) >> 32) + addend + carry_in
+        return total & MASK32, int(total > MASK32)
     total = imad_wide(a, b, c, signed, negate, invert, carry_in)
     return (total >> 32 & MASK32 if mode == "HI" else total & MASK64), int(total > MASK64)
 

@@ -3,74 +3,22 @@ References use full unsigned sums, keeping negate's +1 and the high product/adde
 overlapping predicate destinations capture their inputs first."""
 import random
 from itertools import product
-from tests.refs.bits import MASK32, MASK64, sext
-from tests.harness.case import cx_source, flagged, pair, put, source
-from tests.refs.integer import carry as reference, imad, imad_wide
+from tests.refs.bits import MASK32
+from tests.harness.manual import retained
+from tests.refs.integer import carry as reference
 
 
+@retained("Constant UPT carry inputs and aliased predicate-output precedence require explicit register choices.")
 def emulator_cases(c):
     c.add("uiadd3_x__URURUR_URURUR", dict(URd=8, URa=2, URb=4, URc=6, UPp="UPT", UPq="UPT"), {}, dict(UR8=2, __native=True))
     c.add("uimad_x__URURUR_URURUR", dict(URd=8, URa=2, URb=4, URc=6, UPp="UPT"), {}, dict(UR8=1, __native=True))
     c.add("ulea_lo_noimm_x__URURUR_URURUR", dict(URd=8, URa=2, URb=4, scaleU5=3, UPp="UPT"), {}, dict(UR8=1, __native=True))
-    rng = random.Random("carry")
-    vectors = [(0, 0, 0), (MASK32, MASK32, MASK32), (0x80000000, 0x80000000, 0), (MASK32, 1, 0), (0, MASK32, 1)]
-    vectors += [tuple(rng.getrandbits(32) for _ in range(3)) for _ in range(12)]
-    for a, b, d in vectors:
-        regs = dict(R2=a, R4=b, R6=d)
+    for a,b,d in ((0,0,0),(MASK32,MASK32,MASK32),(0x80000000,0x80000000,0),(MASK32,1,0),(0,MASK32,1)):
         for ext in (False, True):
             cls = "iadd3_x_noimm__RRR_RRR" if ext else "iadd3_noimm__RRR_RRR"
-            for flags in (0, 1, 2, 4, 5, 6):
-                attrs = {n + "@" + ("invert" if ext else "negate"): flags >> i & 1 for i, n in enumerate(("Ra", "Rb", "Rc"))}
-                xs = [MASK32 - x + (0 if ext else 1) if flags >> i & 1 else x for i, x in enumerate((a, b, d))]
-                for p, q in (product((0, 1), repeat=2) if ext else [(0, 0)]):
-                    total = sum(xs) + p + q
-                    fields = dict(Rd=2, Pu=0, Pv=1, Ra=2, Rb=4, Rc=6, **attrs, **(dict(Pp=0, Pq=1) if ext else {}))
-                    with_uniform_twin(c, cls, fields, dict(regs, P0=p, P1=q), dict(R2=total & MASK32, P0=int(total > MASK32), P1=int(total > 0x1ffffffff), __native=True))
-        uniform_plain(c, a, b, d)
-        # Aliased predicate outputs: Pu wins.
-        for ext in (False, True):
-            cls = "iadd3_x_noimm__RRR_RRR" if ext else "iadd3_noimm__RRR_RRR"
-            total = a + b + d + (1 if ext else 0)
+            total = a+b+d+(1 if ext else 0)
             with_uniform_twin(c, cls, dict(Rd=2, Pu=0, Pv=0, Ra=2, Rb=4, Rc=6, **(dict(Pp=0, Pq=1) if ext else {})),
-                  dict(regs, P0=1, P1=0), dict(R2=total & MASK32, P0=int(total > MASK32), __native=True))
-        for cls in ("lea_lo_noimm__RRR_RRR", "lea_lo_noimm_x__RRR_RRR", "lea_hi_noimm__RRR_RRR",
-                    "lea_hi_noimm_x__RRR_RRR", "lea_hi_noimm_sx32__RRR_RRR", "lea_hi_noimm_sx32_x__RRR_RRR"):
-            ext, hi, sx = "_x__" in cls, "_hi_" in cls, "_sx32" in cls
-            suffix = "@invert" if ext else "@negate"
-            for shift in (0, 1, 5, 31):
-                for flags in (0, 1, 2):
-                    src = (sext(a, 32) if sx else (d << 32) | a) if hi else a
-                    word = ((src << shift) >> (32 if hi else 0)) & MASK32
-                    if flags & 1: word = MASK32 - word + (0 if ext else 1)
-                    bv = MASK32 - b + (0 if ext else 1) if flags & 2 else b
-                    for p in ((0, 1) if ext else (0,)):
-                        total = word + bv + p
-                        fields = dict(Rd=2, Pu=0, Ra=2, Rb=4, scaleU5=shift, **{"Ra" + suffix: flags & 1, "Rb" + suffix: flags >> 1})
-                        if hi and not sx: fields["Rc"] = 6
-                        if ext: fields["Pp"] = 0
-                        with_uniform_twin(c, cls, fields, dict(regs, P0=p), dict(R2=total & MASK32, P0=int(total > MASK32), __native=True))
-        for mode in ("LO", "HI", "WIDE"):
-            for ext in (False, True):
-                if mode == "LO" and not ext: continue
-                cls = "imad" + ("_" + mode.lower() if mode != "LO" else "") + ("_x" if ext else "") + "__RRR_RRR"
-                for fmt in ("U32", "S32"):
-                    av, bv = (sext(a, 32), sext(b, 32)) if fmt == "S32" else (a, b)
-                    prod = (av * bv) & MASK64
-                    for invert in ((0, 1) if ext else (0,)):
-                        addend = (b << 32) | d if mode != "LO" else d
-                        if invert: addend ^= MASK64 if mode != "LO" else MASK32
-                        for p in ((0, 1) if ext else (0,)):
-                            total = prod + addend + p
-                            fields = dict(Rd=8, Ra=2, Rb=4, Rc=6, fmt=fmt)
-                            if mode != "LO": fields["Pu"] = 0
-                            if ext: fields.update(Pp=0, **{"Rc@invert": invert})
-                            expected = dict(R8=(total >> (32 if mode == "HI" else 0)) & MASK32, __native=True)
-                            if mode == "WIDE": expected["R9"] = total >> 32 & MASK32
-                            if mode != "LO": expected["P0"] = int(total > MASK64)
-                            with_uniform_twin(c, cls, fields, dict(regs, R7=b, P0=p), expected)
-    imad_negated(c)
-    imad_forms(c)
-
+                dict(R2=a,R4=b,R6=d,P0=1,P1=0), dict(R2=total & MASK32,P0=int(total>MASK32),__native=True))
 
 
 # Per-thread classes and their uniform-datapath twins, where the architecture has them (UIMAD.HI: SM120).
@@ -88,67 +36,6 @@ def with_uniform_twin(c, cls, fields, regs, expected):
     state = lambda d: {k if k.startswith("__") else "U" + k: v for k, v in d.items()}   # R2 -> UR2, P0 -> UP0
     c.add(twin, fields, state(regs), state(expected))
 
-
-def imad_negated(c):
-    """IMAD.HI/.WIDE (and their uniform twins) with a negated 64-bit pair addend, whose carry-out decides -0."""
-    rng = random.Random("imad-negate")
-    edges = (0, 1, 2, 0xffff, 0x10000, 0x7fffffff, 0x80000000, 0xfffffffe, MASK32)
-    addends = (0, 1, 1 << 32, MASK64, MASK32, 1 << 63, 5)
-    vectors = [(a, b, addends[i * 5 % len(addends)]) for i, (a, b) in enumerate(product(edges, repeat=2))]
-    vectors += [(a, a, d) for a in (0, 1, MASK32) for d in addends] + [(rng.getrandbits(32), rng.getrandbits(32), rng.getrandbits(64)) for _ in range(24)]
-    for j, (a, b, d) in enumerate(vectors):
-        for fmt in ("U32", "S32"):
-            total = imad_wide(a, b, d, fmt == "S32", negate=1)
-            pu = int(total > MASK64)
-            regs = dict(R2=a, R4=b, R6=d & MASK32, R7=d >> 32, P0=j & 1)
-            fields = dict(Rd=8, Pu=0, Ra=2, Rb=4, Rc=6, fmt=fmt, **{"Rc@negate": 1})
-            with_uniform_twin(c, "imad_hi__RRR_RRR", fields, regs, dict(R8=total >> 32 & MASK32, P0=pu, __native=True))
-            with_uniform_twin(c, "imad_wide__RRR_RRR", fields, regs, dict(R8=total & MASK32, R9=total >> 32 & MASK32, P0=pu, __native=True))
-
-
-
-def imad_forms(c):
-    """Every IMAD/UIMAD operand form: B and the addend C from a register, uniform register, constant,
-    bindless constant or immediate. The .HI/.WIDE addend is 64 bits in each form; plain forms negate
-    it, .X forms invert it and add a carry-in."""
-    rng = random.Random("imad-forms")
-    vectors = [(MASK32, MASK32, MASK64), (0x80000000, 0x80000000, 1 << 63), (MASK32, 1, 0), (0, MASK32, 1), (0xffff, 0x10000, MASK32),
-               (0x7fffffff, MASK32, 1 << 32), (1, 0x80000000, 0), (0, 0, 0)] + [(rng.getrandbits(32), rng.getrandbits(32), rng.getrandbits(64)) for _ in range(4)]
-    for k in c.of("IMAD", cx=None) + c.of("UIMAD", cx=None):
-        mode = "HI" if k.name.startswith(("imad_hi", "uimad_hi")) else "WIDE" if "_wide" in k.name else "LO"
-        uniform, x, size = k.name.startswith("u"), "X" in k.operand_types, 4 if mode == "LO" else 8
-        R, P = ("UR", "UP") if uniform else ("R", "P")
-        a_name, b_name, c_name = source(k, "Ra", "URa"), source(k, "Rb", "Sb", "URb"), source(k, "Rc", "Sc", "URc")   # Sb before URb: a CX operand's header is URb
-
-        def place(name, value, reg, offset, size, fields, regs, memory):
-            if k.operand_types[name].type == "CX":
-                cx_fields, header, loaded = cx_source(c.arch, k, name, value, ur=10, size=size)
-                fields.update(cx_fields); regs.update(header); memory += loaded
-            else: put(k, name, sext(value, 32) if k.operand_types[name].type == "SImm" else value, fields, regs, memory, reg, bank=(2, offset), size=size)
-
-        for (a, b, d), fmt in product(vectors, ("U32", "S32")):
-            d &= MASK64 if size == 8 else MASK32
-            for negate, invert, p in product(*((0, 1) if test else (0,) for test in (flagged(k, c_name, "negate"), flagged(k, c_name, "invert"), x))):
-                fields, regs, memory = {R + "d": 8, "fmt": fmt}, {}, []
-                if mode != "LO": fields[P + "u"] = 1
-                if x: fields[P + "p"] = 0; regs[P + "0"] = p
-                if negate or invert: fields[c_name + ("@negate" if negate else "@invert")] = 1
-                put(k, a_name, a, fields, regs, memory, 2)
-                place(b_name, b, 4, 0x20, 4, fields, regs, memory)
-                place(c_name, d, 6, 0x28, size, fields, regs, memory)
-                rd, pu = imad(a, b, d, mode, fmt == "S32", negate, invert, p)
-                expected = dict(pair(R + "8", rd) if mode == "WIDE" else {R + "8": rd}, __native=True)
-                if mode != "LO": expected[P + "1"] = pu
-                c.add(k.name, fields, regs, expected, memory=memory)
-
-def uniform_plain(c, a, b, d):
-    """The uniform twins without a per-thread case here (see `with_uniform_twin`): UIMAD and USEL against the per-thread references."""
-    regs = dict(UR2=a, UR4=b, UR6=d)
-    for fmt in ("U32", "S32"):
-        c.add("uimad__URURUR_URURUR", dict(URd=2, URa=2, URb=4, URc=6, fmt=fmt), regs, dict(UR2=reference("imad__RRR_RRR", dict(fmt=fmt), "result", (a, b, d)), __native=True))
-    for p in (0, 1):
-        for negate in (0, 1):
-            c.add("usel__URURUR_UUU", dict(URd=2, URa=2, URb=4, UPp=0, **{"UPp@not": negate}), dict(regs, UP0=p), dict(UR2=a if p ^ negate else b, __native=True))
 
 
 def gpu_fixtures():

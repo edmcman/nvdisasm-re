@@ -226,6 +226,76 @@ and the bits outside the converted width of the wide conversion fixtures. Emulat
 tolerates floating-point NaN payload/sign, and excuses Ghidra 12.1.4's minimum-subnormal underflow
 (fp16/32/64) only on its exact signature. FP8 emulator cases compare NaN class only (`__fp8_nan`).
 
+### Generating shared cases
+
+`python -m tests.autocases SM89 --write --report /tmp/shared-case-gaps.json`
+reads the exact-language coverage manifest, expands
+its legal modifier combinations (including the factored free modifiers), and writes
+`cases/generated/SM89.json`. Run through `uv run` in the normal development environment.
+If manifests are missing, first run
+`uv run sass-build-languages SM89 --fp exact --generate-only --coverage`.
+`--manifest-dir DIR` selects another manifest directory. Omit `--write` for a dry run.
+Rerunning replaces the plan deterministically; prior generated cases are excluded
+from the comparison. `--check` fails if regeneration would change the saved plan.
+Plans are committed for all ten supported architectures; regenerate each affected plan.
+
+Plans store class/form choices, named input profiles and native assertions, not
+captured outputs. The normal `emulator_cases` loader expands them into shared cases for Python, Ghidra, and the GPU, calculating
+expectations from the independent references at runtime. Plans cover BREV, POPC,
+SGXT, PRMT, UPRMT, ISETP, UISETP, IMNMX, SEL, USEL, IDP, SHF, USHF, IABS,
+UMOV, BMSK, VIMNMX, VISET, VIADDMNMX, VIMNMX3, LOP3, ULOP3, IADD3, UIADD3, LEA, ULEA, IMAD, UIMAD, UBREV, UPOPC, USGXT and MOV register-pair forms through
+`harness/autocases.py`. The planner routes IDP and packed-integer cases to `int_simd`, BMSK to `bmsk`, arithmetic/carry adapters to `carry`, and the other
+operations to `int_alu`. Comparison cases exercise both predicate outputs, .EX's
+low-word result, signed boundaries, predicate inversion and input/output aliases.
+Dot-product cases cover lane signedness and negated accumulators; funnel shifts
+exercise counts around both 32- and 64-bit wrap/clamp boundaries. CX setup uses the
+same descriptor/header helpers as the manual cases on each architecture. Strict
+encoding and a decode round trip reject forms that the chosen operand setup cannot preserve.
+Add an adapter only when an independent reference and operand setup are available.
+
+`harness/autocase_profiles.py` declares edge values, seeded random corpora and
+representative supplements. Ordinary cases for adapter-owned operations belong there,
+rather than in parallel manual loops. Retained manual regressions do not suppress
+generation of the same form. Each retained case for these operations must have a
+`@retained(reason)` justification, checked by a test. Current reasons are FLO's
+partially modelled predicate outputs (explicit PT-only subset), PRMT/UPRMT zero
+registers and p-code costs, ISETP's constant PT input, SHF p-code cost, IDP CX
+descriptor/header regressions,
+and opaque IMNMX outputs on newer architectures. Operations without adapters remain
+manual until an independent reference and operand setup support migration.
+BMSK profiles preserve the complete 0..33 position/width domain and seeded edge
+pairs. Its manual cases retain descriptor bounds, unusual headers, special
+registers and guard behavior. IABS profiles include the signed minimum and the
+former random inputs; UMOV retains explicit p-code cost tests. MOV/UMOV register-pair
+profiles verify both words; partially modelled pixel-mask forms stay manual and
+unresolved in the planner.
+Packed min/max and comparison profiles preserve the former seeded lane patterns.
+They exercise every supported lane width, signedness, comparison, predicate inversion
+and RELU form, with destination aliases. Three-input profiles also exercise
+modular lane addition, B-source negation, three-way min/max and aliases with each source. VIMNMX forms with unresolved predicate
+outputs retain explicit PT-only manual coverage.
+LOP3/ULOP3 profiles cover all 256 truth tables with all eight Boolean input
+combinations packed into each byte. Edge and seeded profiles check zero/nonzero
+predicate results, POR/PAND, predicate inversion, register aliases and the former
+manual selector/random corpora. Constant PT/UPT inputs and the XOR p-code cost
+contract remain explicit manual regressions.
+Arithmetic profiles preserve seeded carry vectors, LEA shifts, wide IMAD addends
+and dense negation boundaries. References retain the carry from ordinary negation
+and distinguish .X complement/carry inputs. The IMAD immediate adapter explicitly
+recognizes its printing alias while retaining strict checks for all other class/form
+changes; printing-only alternate plan rows remain explicit adapter gaps. Constant
+UPT inputs, overlapping predicate outputs, p-code costs and hand-calculated width
+regressions stay manual.
+Hand-calculated PRMT examples also check the reference directly in `test_refs.py`.
+
+The JSON report counts manual, generated, blocked, and unresolved forms. Unsupported
+operations are grouped by class to keep millions of gaps manageable; their exact
+forms remain in the manifest. Opaque and partially modelled combinations are counted
+as unresolved rather than covered. These counts measure instruction forms, not all
+input values or proof of correct behavior. After changing a plan or adapter, run the
+shared Python, Ghidra and GPU tests and `uv run sass-refresh-coverage`. Generating a
+plan gives no GPU evidence; only an actual passing hardware run does.
+
 ### Shared-case hardware evidence
 
 `baseline/gpu_case_passes.json` records a passing family's selected inputs/expectations,
