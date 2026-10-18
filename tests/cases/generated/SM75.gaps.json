@@ -2,9 +2,9 @@
   "counts": {
     "legal": 3093438,
     "unresolved_semantics": 2518319,
-    "manual": 42,
-    "blocked": 531465,
-    "generated": 43612
+    "manual": 0,
+    "blocked": 511424,
+    "generated": 63695
   },
   "gaps": [
     {
@@ -208,204 +208,39 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "bar__ARV_II_II",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__ARV_IR_IR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__ARV_RI_RI",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__ARV_RR_RR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__RED_II_optionalCount_II",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__RED_IR_optionalCount_IR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__RED_RI_optionalCount_RI",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__RED_RR_RR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__RED_dfrBlk_II_optionalCount_II",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__RED_dfrBlk_IR_optionalCount_IR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__RED_dfrBlk_RI_optionalCount_RI",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__RED_dfrBlk_RR_RR",
-      "count": 6,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__SCAN_II_II",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__SCAN_IR_IR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__SCAN_RI_RI",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__SCAN_RR_RR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__SYNCALL_dfrBlk_noSrc_II",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__SYNC_II_optionalCount_II",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__SYNC_IR_optionalCount_IR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__SYNC_RI_optionalCount_RI",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__SYNC_RR_RR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__SYNC_dfrBlk_II_optionalCount_II",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__SYNC_dfrBlk_IR_optionalCount_IR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__SYNC_dfrBlk_RI_optionalCount_RI",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bar__SYNC_dfrBlk_RR_RR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "bmma_88128_",
       "count": 1,
       "reason": "unresolved semantics"
     },
     {
-      "cls": "bmov_clear__Rd",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bmov_clear_barrier_",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bmov_clear_bd__Bd",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bmov_dst64__C",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bmov_dst64__CX",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bmov_dst64__I",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bmov_dst64__R",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bmov_dst64__UR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "bmov_pquad__RCR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
+      "count": 1,
+      "reason": "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination ( rule name: pquad)"
     },
     {
       "cls": "bmov_pquad__RCXR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
+      "count": 1,
+      "reason": "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination ( rule name: pquad)"
     },
     {
       "cls": "bmov_pquad__RIR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
+      "count": 1,
+      "reason": "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination ( rule name: pquad)"
     },
     {
       "cls": "bmov_pquad__RRR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
+      "count": 1,
+      "reason": "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination ( rule name: pquad)"
     },
     {
       "cls": "bmov_pquad__RUR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
+      "count": 1,
+      "reason": "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination ( rule name: pquad)"
     },
     {
       "cls": "bmov_pquad_bar__RBR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
+      "count": 1,
+      "reason": "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination ( rule name: pquad)"
     },
     {
       "cls": "bpt__WAIT",
@@ -423,11 +258,6 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "break_inst_",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "brx_",
       "count": 6,
       "reason": "unresolved semantics"
@@ -436,16 +266,6 @@
       "cls": "brxu_",
       "count": 24,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "bssy_",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "bsync_",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "call_abs__RCR",
@@ -16291,18 +16111,8 @@
     },
     {
       "cls": "ld__sImmOffset",
-      "count": 1914,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ld__sImmOffset",
       "count": 16512,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ld__uImmOffset",
-      "count": 1919,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "ld__uImmOffset",
@@ -16311,28 +16121,13 @@
     },
     {
       "cls": "ld_uniform__Ra32",
-      "count": 1920,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ld_uniform__Ra32",
       "count": 16512,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ld_uniform__Ra64",
-      "count": 1919,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "ld_uniform__Ra64",
       "count": 7296,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ld_uniform__RaRZ",
-      "count": 1920,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "ld_uniform__RaRZ",
@@ -16436,18 +16231,8 @@
     },
     {
       "cls": "ldl__sImmOffset",
-      "count": 27,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ldl__sImmOffset",
       "count": 12,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldl__uImmOffset",
-      "count": 30,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "ldl__uImmOffset",
@@ -16456,18 +16241,8 @@
     },
     {
       "cls": "ldl_uniform_",
-      "count": 30,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "ldl_uniform_",
       "count": 12,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "lds__sImmOffset",
-      "count": 14,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "lds__sImmOffset",
@@ -16476,18 +16251,8 @@
     },
     {
       "cls": "lds__uImmOffset",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "lds__uImmOffset",
       "count": 9,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "lds_uniform_",
-      "count": 20,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "lds_uniform_",
@@ -16540,11 +16305,6 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "match__ALL",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "membar_",
       "count": 30,
       "reason": "unresolved semantics"
@@ -16582,52 +16342,52 @@
     {
       "cls": "mufu__RCR_RC",
       "count": 40,
-      "reason": "needs a reference/operand adapter"
+      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
     },
     {
       "cls": "mufu__RCxR_RCx",
       "count": 40,
-      "reason": "needs a reference/operand adapter"
+      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
     },
     {
       "cls": "mufu__RIR_RI",
       "count": 10,
-      "reason": "needs a reference/operand adapter"
+      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
     },
     {
       "cls": "mufu__RRR_RR",
       "count": 40,
-      "reason": "needs a reference/operand adapter"
+      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
     },
     {
       "cls": "mufu__RUR_RU",
       "count": 40,
-      "reason": "needs a reference/operand adapter"
+      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
     },
     {
       "cls": "mufu_fp16__RC",
       "count": 64,
-      "reason": "needs a reference/operand adapter"
+      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
     },
     {
       "cls": "mufu_fp16__RCx",
       "count": 64,
-      "reason": "needs a reference/operand adapter"
+      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
     },
     {
       "cls": "mufu_fp16__RI",
       "count": 8,
-      "reason": "needs a reference/operand adapter"
+      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
     },
     {
       "cls": "mufu_fp16__RR",
       "count": 64,
-      "reason": "needs a reference/operand adapter"
+      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
     },
     {
       "cls": "mufu_fp16__RU",
       "count": 64,
-      "reason": "needs a reference/operand adapter"
+      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
     },
     {
       "cls": "nanosleep__C",
@@ -17014,34 +16774,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "shfl__RII",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "shfl__RIR",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "shfl__RRI",
-      "count": 4,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "st__sImmOffset",
-      "count": 719,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
       "cls": "st__sImmOffset",
       "count": 1584,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "st__uImmOffset",
-      "count": 720,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "st__uImmOffset",
@@ -17050,18 +16785,8 @@
     },
     {
       "cls": "st_uniform__Ra32",
-      "count": 720,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "st_uniform__Ra32",
       "count": 1584,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "st_uniform__Ra64",
-      "count": 720,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "st_uniform__Ra64",
@@ -17070,28 +16795,13 @@
     },
     {
       "cls": "st_uniform__RaRZ",
-      "count": 719,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "st_uniform__RaRZ",
       "count": 1584,
       "reason": "unresolved semantics"
     },
     {
       "cls": "stg__sImmOffset",
-      "count": 1438,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "stg__sImmOffset",
       "count": 864,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stg__uImmOffset",
-      "count": 1440,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "stg__uImmOffset",
@@ -17100,18 +16810,8 @@
     },
     {
       "cls": "stg_uniform__Ra32",
-      "count": 1440,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "stg_uniform__Ra32",
       "count": 864,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stg_uniform__Ra64",
-      "count": 720,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "stg_uniform__Ra64",
@@ -17120,28 +16820,13 @@
     },
     {
       "cls": "stg_uniform__RaRZ",
-      "count": 1440,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "stg_uniform__RaRZ",
       "count": 864,
       "reason": "unresolved semantics"
     },
     {
       "cls": "stl__sImmOffset",
-      "count": 29,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "stl__sImmOffset",
       "count": 12,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stl__uImmOffset",
-      "count": 30,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "stl__uImmOffset",
@@ -17150,18 +16835,8 @@
     },
     {
       "cls": "stl_uniform_",
-      "count": 30,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "stl_uniform_",
       "count": 12,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "sts__sImmOffset",
-      "count": 19,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "sts__sImmOffset",
@@ -17170,18 +16845,8 @@
     },
     {
       "cls": "sts__uImmOffset",
-      "count": 5,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "sts__uImmOffset",
       "count": 2,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "sts_uniform_",
-      "count": 20,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "sts_uniform_",
@@ -17827,41 +17492,6 @@
       "cls": "vabsdiff4__RuIR_RIR",
       "count": 4,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "vote_",
-      "count": 5,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "voteu_",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "warpsync__RCR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "warpsync__RCXR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "warpsync__RIR",
-      "count": 1,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "warpsync__RRR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
-    },
-    {
-      "cls": "warpsync__RUR",
-      "count": 2,
-      "reason": "needs a reference/operand adapter"
     },
     {
       "cls": "yield_inst_",

@@ -106,6 +106,8 @@ SUPPLEMENTS = (
 
 
 def names(op, cls, form):
+    from tests.harness import autocase_remaining
+    if op in autocase_remaining.OPS: return ['remaining_forms']
     from tests.harness import autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp
     if op in ('FHADD2','FHMUL2','FHFMA2'): return ['mixed_pair_forms']
     if op in ('LDC','LDCU','ULDC'): return ['constant_load_forms']
@@ -405,3 +407,6 @@ PROFILES['address_query_forms'] = {
     'queries': ('global','shared','local'), 'positions': (0,1,0xff),
     'offsets': (-16,16),
 }
+
+
+PROFILES['remaining_forms'] = {'words': (0,0x89abcdef,0xffffffff)}

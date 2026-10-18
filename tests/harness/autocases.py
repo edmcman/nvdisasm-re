@@ -8,7 +8,7 @@ from sass.decode import pydecode
 from sass.sleigh.modifiers import settings
 from tests.harness.case import Cases, put, source, cx_source
 from tests.refs import integer
-from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp, autocase_integer_extra, autocase_system, autocase_mixed_fp
+from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp, autocase_integer_extra, autocase_system, autocase_mixed_fp, autocase_remaining
 
 PLANS = ROOT / 'tests/cases/generated'
 OPS = {'BREV', 'POPC', 'FLO', 'SGXT', 'PRMT', 'UPRMT', 'IABS', 'MOV', 'UMOV', 'BMSK', 'UBREV', 'UPOPC', 'USGXT'}
@@ -18,7 +18,8 @@ INTEGER_OPS |= CARRY_OPS
 PACKED_OPS = {'VIMNMX', 'VISET', 'VIADDMNMX', 'VIMNMX3'}
 INTEGER_OPS |= PACKED_OPS
 FAMILIES = {op: 'carry' if op in CARRY_OPS else 'int_simd' if op in PACKED_OPS | {'IDP'} else 'bmsk' if op == 'BMSK' else 'int_alu' for op in OPS | INTEGER_OPS}
-OPS |= autocase_system.OPS | autocase_mixed_fp.OPS | autocase_integer_extra.OPS | INTEGER_OPS | autocase_extended.OPS | autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS
+OPS |= autocase_remaining.OPS | autocase_system.OPS | autocase_mixed_fp.OPS | autocase_integer_extra.OPS | INTEGER_OPS | autocase_extended.OPS | autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS
+FAMILIES.update(autocase_remaining.FAMILIES)
 FAMILIES.update(autocase_system.FAMILIES)
 FAMILIES.update(autocase_mixed_fp.FAMILIES)
 FAMILIES.update(autocase_integer_extra.FAMILIES)
@@ -42,6 +43,8 @@ def generate(arch, cls, form, fp='exact', profiles=None, native=True):
     profiles = autocase_profiles.names(k.mnemonic, cls, form) if profiles is None else profiles
     if not profiles or any(name not in autocase_profiles.PROFILES for name in profiles):
         raise Unsupported('empty or unknown input profile')
+    if k.mnemonic in autocase_remaining.OPS:
+        return finish(autocase_remaining.generate(c,k,form,profiles),native)
     if k.mnemonic in autocase_system.OPS:
         return finish(autocase_system.generate(c,k,form,profiles),native)
     if k.mnemonic in autocase_mixed_fp.OPS:
