@@ -13,6 +13,8 @@ VECTORS = ((0, 0, 0, 0, 0), (0, 0, 1, 0, 1), (0, 0, MASK32, 1, 0), (0, 0, 0x8000
            (MASK32, 0, 0x12345678, 1, 1), (0x807f01ff, 0x7f80ff00, 0x10203040, 0, 0))
 
 PROFILES = {
+    'floating_forms': {32:(0,0x80000000,0x3f800000,0xc0200000,1,0x7f800000,0x7fc12345,0x3f000001), 64:(0,1<<63,0x3ff0000000000000,0xc004000000000000,1,0x7ff0000000000000,0x7ff8123456789abc,0x3fe0000000000001)},
+    'predicate_forms': dict(tables=(0,255,0x96,0xe8,0xca,0x80,0x01,0x7e),masks=(0,1,0x25,0x7f,0x80,0xff,0xffffffff)),
     'arithmetic_edges': dict(vectors=VECTORS + ((0xffffffff,1,0,1,1), (0,0,0,1,1), (0xffffffff,0xffffffff,0xffffffff,0,1), (1,0xffffffff,1,1,0))),
     'imad_carry_words': dict(carry_pairs=True),
     'carry_words': dict(words=((0,0,0),(MASK32,MASK32,MASK32),(0x80000000,0x80000000,0),(MASK32,1,0),(0,MASK32,1)), random=('carry',12), predicate='pair', shifts=(0,1,5,31)),
@@ -103,6 +105,9 @@ SUPPLEMENTS = (
 
 
 def names(op, cls, form):
+    from tests.harness import autocase_extended
+    if op in autocase_extended.PREDICATE_OPS: return ['predicate_forms']
+    if op in autocase_extended.FLOAT_OPS: return ['floating_forms']
     if op in ('IMAD','UIMAD'): out = ['arithmetic_edges','imad_forms']
     elif op in ('IADD3','UIADD3','LEA','ULEA'): out = ['arithmetic_edges']
     elif op in ('LOP3', 'ULOP3'): out = ['logic_domain', 'logic_edges']

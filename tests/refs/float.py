@@ -287,3 +287,8 @@ def readable(op, inputs, width, sat=False, scale=0):
         value = softfloat.arithmetic(o, xs, width, sat=sat and i == len(steps) - 1)
         if softfloat.unpack(value, width)[0] == "nan": return None
     return value
+
+
+def fmnmx_readable(x, y, is_min):
+    """Readable FMNMX's documented ordered comparison; ties/unordered choose the second source for min."""
+    return x if (f32(x) < f32(y)) == is_min else y

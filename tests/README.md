@@ -320,3 +320,16 @@ cannot enter a regression suite until converted to `c.add` with an independent
 reference. Whole-kernel discovery through `tests.observe` remains available.
 The investigation skill's [probe guide](../.agents/skills/sass-opcode-semantics/references/gpu-probes.md)
 contains runnable examples and memory/warp setup notes.
+
+The extended adapters in `harness/autocase_extended.py` cover FADD/FMUL/FFMA,
+DADD/DMUL/DFMA, FSEL/FMNMX/FMNMX3, FSET/FSETP/UFSETP/DSETP, FCHK/FRND,
+PLOP3/UPLOP3 and P2R/R2P/UP2UR. Floating profiles include signed zeros,
+subnormal, finite, infinity and NaN inputs. Arithmetic skips undefined NaN payload
+comparisons and the documented Ghidra RN underflow band, matching the existing
+reference policy. Readable formulas have separate expectations. The first floating
+profiles cover unmodified data sources: source-sign modifiers, FMZ and XORSIGN
+remain explicit gaps with their existing manual corpora. Existing manual numerical
+sweeps remain because they cover denser seeded inputs, exponent boundaries,
+exceptional results and costs absent from the new form profile. Predicate profiles
+exercise all eight LUT inputs and masked transfers. Repeated extended-adapter gap
+reasons are counted by class to keep reports compact.

@@ -1,6 +1,7 @@
 """FP32: FADD/FMUL/FFMA (every rounding mode, FTZ, SAT, FMUL scale) against the exact softfloat
 model; FSETP and FSET; SM120's uniform UFADD/UFMUL/UFFMA/UFSETP/UFSEL; FSEL/FMNMX/FMNMX3 selection rules; FCHK's division slow-path test; readable-lowering
 formulas."""
+from tests.harness.manual import retained
 import itertools, random
 from sass.semantics.fp import softfloat
 from tests.harness.case import cx_source, is_cx, put, source
@@ -21,6 +22,7 @@ def vectors(floats):
     return [(floats[i], floats[(i * 7 + 3) % len(floats)], floats[(i * 5 + 1) % len(floats)]) for i in range(len(floats))]
 
 
+@retained('Dense Cartesian signed-zero/NaN selection, source modifiers, constant PT, XORSIGN and partial predicate-output regressions exceed the form profile.')
 def selection(c):
     edges = [0, 0x80000000, 1, 0x80000001, 0x007fffff, 0x3f800000, 0xbf800000, 0x7f800000, 0xff800000, 0x7fc00000, 0x7f800001, 0xffc01234]
     for a, b in itertools.product(edges, repeat=2):
@@ -71,6 +73,7 @@ def selection(c):
                 c.add(k.name, fields, {"R2": a, "R4": b}, {"R8": fmnmx_xorsign(a, b, is_min, nan == "NAN", ftz == "FTZ"), "__native": True})
 
 
+@retained('Seeded rounding/cancellation and exponent boundaries, source-sign/FMZ modes, literal examples and p-code costs exceed the form profile.')
 def arithmetic(c):
     for cls, fields, regs, expected in [
             ("fadd__RRR_RR", dict(Rd=8, Ra=2, Rc=4), dict(R2=0x3f800000, R4=0x40000000), dict(R8=0x40400000)),
@@ -108,6 +111,7 @@ def arithmetic(c):
             c.add(cls, dict(fields, rnd=rnd), dict(zip(("R2", "R4", "R6"), inputs)), dict(R8=softfloat.arithmetic(op, inputs, 32, rnd), __native=True))
 
 
+@retained('Exceptional comparison pairs and constant PT/aliased-predicate regressions exceed the form profile.')
 def compare(c):
     c.add("fsetp__RRR_RRR", dict(Pu=0, Pv=1, Pp=2, Ra=2, Rb=4, fcomp="LT", bop="AND"), dict(R2=0x3f800000, R4=0x40000000, P2=1), dict(P0=1, P1=0))
     c.add("fsetp__RRR_RRR", dict(Pu=0, Pv=1, Pp=0, Ra=2, Rb=4, fcomp="NAN", bop="AND"), dict(R2=0x7fc00000, R4=0, P0=1), dict(P0=1, P1=0))
@@ -125,6 +129,7 @@ SET_PAIRS = [(0x3f800000, 0x40000000), (0x40000000, 0x3f800000), (0x3f800000, 0x
              (0x3f800000, 0xffc00000), (1, 0), (0x80000001, 1), (0x7f800000, 0x7f7fffff), (0xff800000, 0xff800000), (0x7fc00000, 0x7fc00000)]
 
 
+@retained('Exceptional FSET pair corpora, source-sign and alias regressions exceed the form profile.')
 def fset_cases(c):
     """FSET.BF: every comparison with and without FTZ; each bop against Pp, !Pp; each source form."""
     for (a, b), cmp, ftz in itertools.product(SET_PAIRS, FCOMPARISONS + ("T", "F"), (False, True)):
@@ -145,6 +150,7 @@ def fset_cases(c):
     c.add("fset__RRR_RRR", dict(Rd=2, Ra=2, Rb=2, Pp="PT", fcomp="EQ", bop="AND", **{"Rb@negate": 1}), dict(R2=0x80000000), dict(R2=0x3f800000, __native=True))
 
 
+@retained('Uniform exceptional comparisons and constant UPT inputs supplement generated UFSETP forms; other uniform FP operations remain unadapted.')
 def uniform(c):
     """SM120's uniform twins of FADD/FMUL/FFMA/FSETP/FSEL: every rounding mode and FTZ over edge
     triples, every comparison and bop, and the immediate forms."""
@@ -178,6 +184,7 @@ def uniform(c):
               dict(UR8=want, __native=True), portable=True)
 
 
+@retained('Seeded unfused/underflow, source-sign/FMZ and p-code-cost regressions exceed the readable form profile.')
 def readable_formulas(c):
     """The readable language's plain unfused formula, which ignores rounding modes and flushing."""
     if c.fp != "readable": return
@@ -219,6 +226,7 @@ def fchk_pairs():
     return out + [(rng.getrandbits(32), rng.getrandbits(32)) for _ in range(-len(out) % 128 + 128)]
 
 
+@retained('Dense biased-exponent boundary pairs and source modifiers exceed the generated FCHK profile.')
 def fchk_cases(c):
     """FCHK.DIVIDE from every source kind, with sign modifiers (which it ignores)."""
     pairs = fchk_pairs()[::16] + [(0, 0x3f800000), (0x3f800000, 0), (0x7fc00000, 0x3f800000), (0x3f800000, 0x40000000)]

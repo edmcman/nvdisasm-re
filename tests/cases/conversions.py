@@ -1,5 +1,6 @@
 """Integer/float conversions: F2I, I2F/I2FP, FRND, F2F, F2IP (F32 pair to saturated bytes) and
 I2IP (saturated/truncated integer pack)."""
+from tests.harness.manual import retained
 from tests.harness.case import cx_source, pair, put
 from tests.refs import float as ref
 from tests.refs.float import f2i_trunc, f2ip_byte
@@ -117,6 +118,7 @@ INTS = [0, 1, 0xffffffff, 0x7fffffff, 0x80000000, 0x01000001, 0x01000003, 0xffff
 MODES = {"ROUND": "RN", "FLOOR": "RM", "CEIL": "RP", "TRUNC": "RZ", "RN": "RN", "RM": "RM", "RP": "RP", "RZ": "RZ"}
 
 
+@retained('Width-specific exceptional/NaN and rounding corpora exceed the initial FRND form profile; other conversions remain unadapted.')
 def ieee(c):
     """FRND, F2I, I2F/I2FP and F2F (and SM120's uniform UFRND, UF2I, UI2F/UI2FP) from a register: every rounding mode over edge values (exact
     rounding; NaN results and F16 zero-extension as measured on SM89). The readable lowering keeps only modes it

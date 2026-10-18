@@ -13,7 +13,7 @@ from sass.sleigh.build import ARCHES
 from sass.sleigh.modifiers import settings
 from tests.cases import emulator_cases
 from tests.harness import autocases
-from tests.harness import autocase_profiles
+from tests.harness import autocase_profiles, autocase_extended
 
 
 def forms(row):
@@ -59,6 +59,7 @@ def plan(arch, rows):
             if total > supported:
                 gaps.append(dict(cls=row['cls'], count=total-supported, reason='unresolved semantics'))
             continue
+        blocked_reasons = Counter()
         for form, status in forms(row):
             counts['legal'] += 1
             if status not in ('native', 'primitive'):
@@ -68,14 +69,19 @@ def plan(arch, rows):
             # Retained regressions supplement ordinary coverage; they must not suppress it.
             profiles = autocase_profiles.names(row['opcode'], row['cls'], form)
             try:
+                reason = autocase_extended.blocked_reason(row['opcode'],form)
+                if reason: raise autocases.Unsupported(reason)
                 autocases.generate(arch, row['cls'], form, profiles=profiles, native=status == 'native')
             except (autocases.Unsupported, ValueError) as error:
                 counts['blocked'] += 1
-                gaps.append(dict(cls=row['cls'], settings=form, reason=str(error)))
+                if row['opcode'] in autocase_extended.OPS:
+                    blocked_reasons[str(error)] += 1
+                else: gaps.append(dict(cls=row['cls'], settings=form, reason=str(error)))
             else:
                 counts['generated'] += 1
                 entries.append(dict(family=autocases.FAMILIES[row['opcode']], cls=row['cls'], settings=form,
                                     profiles=profiles, native=status == 'native'))
+        gaps.extend(dict(cls=row['cls'], count=count, reason=reason) for reason,count in blocked_reasons.items())
     return dict(version=2, arch=arch, forms=entries), dict(counts=counts, gaps=gaps)
 
 

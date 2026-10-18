@@ -228,3 +228,10 @@ def p2r(predicates, base, mask, byte):
 def r2p(predicates, source, mask, byte):
     """R2P: P_i (0-6, packed) becomes bit i of the selected byte of source where mask bit i is set."""
     return sum((source >> 8 * byte + i & 1 if mask >> i & 1 else predicates >> i & 1) << i for i in range(7))
+
+
+def predicate_lut(u, v, p, q, r):
+    """PLOP3's independent 3-bit predicate index, with two 8-bit truth tables."""
+    if not 0 <= u < 256 or not 0 <= v < 256: raise ValueError('invalid predicate truth table')
+    index = 4 * p + 2 * q + r
+    return (u >> index) & 1, (v >> index) & 1

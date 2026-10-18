@@ -111,7 +111,7 @@ def test_simd_plan_uses_its_own_family(monkeypatch):
 def test_retained_adapter_cases_have_reasons():
     from tests.cases import emulator_cases
     for arch in ('SM89', 'SM120'):
-        for cases in emulator_cases(arch, 'exact', ('int_alu', 'int_simd', 'carry', 'bmsk'), False, generated=False).values():
+        for cases in emulator_cases(arch, 'exact', ('int_alu', 'int_simd', 'carry', 'bmsk', 'fp32', 'fp64', 'predicates', 'conversions'), False, generated=False).values():
             for case in cases:
                 k = cases.classes[case.cls]
                 if k.mnemonic in tests.harness.autocases.OPS:
