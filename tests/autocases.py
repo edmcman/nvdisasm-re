@@ -73,7 +73,7 @@ def plan(arch, rows):
             # Retained regressions supplement ordinary coverage; they must not suppress it.
             profiles = autocase_profiles.names(row['opcode'], row['cls'], form)
             try:
-                reason = ('MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage' if row['opcode']=='MUFU' else None) or autocase_extended.blocked_reason(row['opcode'],form) or autocase_packed_fp.blocked_reason(row['opcode'],form) or autocase_wide_fp.blocked_reason(row['opcode'],form)
+                reason = autocase_remaining.blocked_reason(row['opcode'],row['cls'],form) or autocase_extended.blocked_reason(row['opcode'],form) or autocase_packed_fp.blocked_reason(row['opcode'],form) or autocase_wide_fp.blocked_reason(row['opcode'],form)
                 if reason: raise autocases.Unsupported(reason)
                 autocases.generate(arch, row['cls'], form, profiles=profiles, native=status == 'native')
             except (autocases.Unsupported, ValueError) as error:

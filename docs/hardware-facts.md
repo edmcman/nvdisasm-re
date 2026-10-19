@@ -3,7 +3,7 @@
 - Native assembler execution (2026-10-15, `tests/test_assemble.py::test_native_cubin_on_gpu`): cubins written directly by `sass.assemble`, without compiling or patching templates, load and execute on the SM89 device. Verified pointer/scalar parameters, multiple entry points including a zero-parameter entry, a backward branch loop, initialized constant bank 2, static/dynamic shared-memory accesses with BAR.SYNC, and CTAID.Z in a three-dimensional grid. These are executable/ABI checks, not hardware evidence for every instruction or other architecture.
 
 - `pytest -m gpu --require-gpu` (`test_refs_on_gpu`) compiles the SM89 fixture kernels, runs them on the GPU via ctypes CUDA Driver API, and compares 128 random/edge vectors each with the fixture's reference. `pytest -m ghidra` (`test_fixtures_emulated`) runs the same kernels whole in Ghidra's `PcodeEmulator`, verifies target mnemonics are executed, and compares with the same reference (no GPU).
-- The SM89 device is an NVIDIA GeForce RTX 4070 Laptop GPU, driver 580.178.04. Fixture kernels are built with CUDA 13.0.88 (`/usr/local/cuda` or the dev group's identical wheels). GPU comparisons exclude warp collectives, cross-thread shared memory and memory ordering, MUFU approximation, device calls/returns and barrier reductions. The per-run record (144 kernels, 2026-10-12) was in `processor/SASS/semantics/verification.json` (git history); per-class evidence is now derived from the fixtures into `processor/SASS/semantics/evidence.json`.
+- The SM89 device is an NVIDIA GeForce RTX 4070 Laptop GPU, driver 580.178.04. Fixture kernels are built with CUDA 13.0.88 (`/usr/local/cuda` or the dev group's identical wheels). GPU comparisons exclude warp collectives, cross-thread shared memory and memory ordering, MUFU operations other than full-width SIN/COS, device calls/returns and barrier reductions. The per-run record (144 kernels, 2026-10-12) was in `processor/SASS/semantics/verification.json` (git history); per-class evidence is now derived from the fixtures into `processor/SASS/semantics/evidence.json`.
 - `src/sass/decode/cubin.py::kernel_image` reads actual text, constant sections and CUDA parameter metadata. The harness seeds bank 0 launch dimensions, metadata-defined pointers, and named TID/CTAID registers. It runs independent threads from entry to EXIT, with PC bounds and an instruction budget. GPU access works outside the sandbox.
 - Cooperative fixtures (`Fixture(cooperative=True, block=N)`): one `BlockEmulator` per block, warps in lockstep, SHFL/VOTE gathered across lanes, BAR.SYNC as a whole-block barrier; details in `tests/README.md`.
 - Hardware-established SM89 behavior: PRMT SASS source order is data A, selector, data B. F2I.TRUNC.NTZ to S32 returns 0 for NaNs and clamps infinities/finite overflow. Other NTZ formats/modes remain unsupported. Implicit memory descriptor forms use ordinary global/local pointers (see below for explicit ones). Shared-memory X4 addressing scales the base register without changing its value.
@@ -26,13 +26,167 @@
 
 - SGXT (2026-10-16, SM89; shared cases in `tests/cases/int_alu.py`): the width n is B for `.C` (clamped to 32) and B & 31 for `.W`; the result keeps A's low n bits and extends them from bit n-1 (sign for `.S32`, zero for `.U32`); n = 0 gives 0 and a clamped n = 32 returns A. Checked on values {0, 0x7f, 0x80, 0xff, 0x7fffffff, 0x80000000, 0xffffffff} and widths {0, 1, 7, 8, 31, 32, 33, 0xff, 0xffffffff} for register, uniform, immediate and constant sources. The earlier byte-select model (Ra & 3 indexing a byte of Rb) was wrong.
 - Plain IMAD has no carry output (2026-10-16, patched `imad__RRR_RRR` words): the md gives it no `Pu` field, bits 81-83 are `PT` in ptxas output, and nvdisasm prints the same `IMAD.U32` for any value there. Hardware treats them as a predicate destination and writes false to `Pk` when they are `k` < 7 (checked for P0-P3, U32/S32, plain and negated addend, vectors from {0, 1, 0xffff, 0x10000, 0x7fffffff, 0x80000000, 0xffffffff} x C in {0, 1, 0xffffffff}), whether or not the low sum or the 64-bit product-plus-addend overflows. So `IMAD R0, P0, R1, R2, R3` is not a carry form; carries exist only on `.HI`, `.WIDE` and the `.X` forms. The result is lo32(A*B) + C (or - C) as usual. The md names these bits `Pu` (83:81, plus `Pp` at 89:87) on the plain IMAD/UIMAD classes but marks them `ignore`; the semantics do not model the write. See issue #24.
-- MUFU (2026-10-16, SM89 RTX 4070 Laptop, raw `MUFU.<op> R11, R2` patched into the carry kernel; `research/mufu/`, data in `tests/refs/mufu_samples.json` and `mufu_survey.json`, fixtures `mufu_*` in `tests/cases/mufu.py`): every 32-bit input was run for COS, SIN, EX2, LG2, RCP, RSQ, RCP64H, RSQ64H, SQRT and TANH and compared with the correctly rounded float64 result (ulp distance on the f32 bit pattern; on the high word for the 64H ops). Bit-exact fraction and worst distance for normal inputs with normal results: RCP 86.8% / 1 ulp, RCP64H 93.1% / 1, RSQ64H 94.3% / 1, SQRT 83.1% / 1, RSQ 78.3% / 2, EX2 91.5% / 2, TANH 94.4% / about 130 (|x| from 2^-7 to 2), COS 87.8%, LG2 49.7%, SIN 4.8%. SIN and COS take their argument in turns (`MUFU.SIN(0.25) = 1.0`) and have an absolute error of up to 3.4e-7 (2^-21.5) across arguments from 2^-31 to 2^33, so their ulp distance explodes near zero crossings: for |x| below about 1e-7 SIN returns +/-0 (sign kept), and SIN/COS return +/-0 at integer and half-integer arguments from 2^25 up. LG2 is likewise absolute-error-limited near 1.0 (up to about 0.9M ulps in the two exponent buckets around 1). Subnormal inputs are flushed (RCP of 0x007fffff is +inf, LG2/RSQ/SQRT of a subnormal flush to the zero/inf results), NaNs come out as 0x7fffffff, and overflow and underflow go to inf and zero. The 64H ops take and return the high word of a double. A single ulp bound therefore cannot describe SIN, COS, LG2 and TANH; the ops with tight bounds are RCP, RSQ, SQRT, EX2 and the 64H forms. Modelling this is tracked in #21. The `mufu_*` fixtures compare 1,440 inputs per op (specials, powers of two and neighbours, values around 1, large arguments, random bit patterns) with the recorded outputs; MUFU stays a runtime primitive and is not emulated. The half-precision forms (`mufu_fp16__*`, `research/mufu/fp16.py`) are much more regular: `.H0`/`.H1` select the half read, the result lands in Rd's low half with the high half zero, NaN results are 0x7fff, subnormal inputs are not flushed, and RCP and SQRT equal round-toward-zero of the exact result for every normal input (EX2, LG2 and RSQ with a handful of exceptions; TANH returns small inputs unchanged). Their fixtures and data are not in the repo yet (#21).
+- MUFU (2026-10-16, SM89 RTX 4070 Laptop, raw `MUFU.<op> R11, R2` patched into the carry kernel; `research/mufu/`, data in `tests/refs/mufu_samples.json` and `mufu_survey.json`, fixtures `mufu_*` in `tests/cases/mufu.py`): every 32-bit input was run for COS, SIN, EX2, LG2, RCP, RSQ, RCP64H, RSQ64H, SQRT and TANH and compared with the correctly rounded float64 result (ulp distance on the f32 bit pattern; on the high word for the 64H ops). Bit-exact fraction and worst distance for normal inputs with normal results: RCP 86.8% / 1 ulp, RCP64H 93.1% / 1, RSQ64H 94.3% / 1, SQRT 83.1% / 1, RSQ 78.3% / 2, EX2 91.5% / 2, TANH 94.4% / about 130 (|x| from 2^-7 to 2), COS 87.8%, LG2 49.7%, SIN 4.8%. SIN and COS take their argument in turns (`MUFU.SIN(0.25) = 1.0`) and have an absolute error of up to 3.4e-7 (2^-21.5) across arguments from 2^-31 to 2^33, so their ulp distance explodes near zero crossings: for |x| below 2^-25 SIN returns +/-0 (sign kept), and SIN returns +/-0 at integer and half-integer arguments from 2^22 up; COS is near +/-1 there (thresholds and reduction checked separately on 2026-10-19, below). LG2 is likewise absolute-error-limited near 1.0 (up to about 0.9M ulps in the two exponent buckets around 1). Subnormal inputs are flushed (RCP of 0x007fffff is +inf, LG2/RSQ/SQRT of a subnormal flush to the zero/inf results), NaNs come out as 0x7fffffff, and overflow and underflow go to inf and zero. The 64H ops take and return the high word of a double. A single ulp bound therefore cannot describe SIN, COS, LG2 and TANH; the ops with tight bounds are RCP, RSQ, SQRT, EX2 and the 64H forms. Modelling this is tracked in #21. The `mufu_*` fixtures compare 1,462 inputs per op (specials, powers of two and neighbours, values around 1, large arguments, random bit patterns) with the recorded outputs; MUFU stays a runtime primitive; the SIN/COS CPU handler is described below. The half-precision forms (`mufu_fp16__*`, `research/mufu/fp16.py`) are much more regular: `.H0`/`.H1` select the half read, the result lands in Rd's low half with the high half zero, NaN results are 0x7fff, subnormal inputs are not flushed, and RCP and SQRT equal round-toward-zero of the exact result for every normal input (EX2, LG2 and RSQ with a handful of exceptions; TANH returns small inputs unchanged). Their fixtures and data are not in the repo yet (#21).
 - Divergent warps (2026-10-16, fixtures `div_*` in `tests/cases/threads.py`, kernels in `tests/kernels/threads_semantics.cu`): with only the lanes whose C bit 0 is set executing (patterns 0x55555555, 0x0000ffff, 0xaaaaaaaa, a single lane, ...), VOTE ballot/any/all and REDUX add/and/or/min range over the executing lanes, and the hardware activemask equals that set. SHFL (all four modes; shared cases in `tests/cases/threads.py`, observing Pu too): a valid source lane that is not executing the shuffle (idle at the reconvergence point or exited, even with a non-zero register) returns 0 with Pu true; an out-of-range source keeps the lane's own value with Pu false. In the compiled `__reduce_*_sync` kernels, the bare `REDUX` mnemonic is the AND reduction (`.SUM`, `.MIN`/`.MAX` with `.S32` for signed, `.OR`, `.XOR` are the others). In the Ghidra emulator these whole-kernel fixtures stop at the `BRA.DIV UR, slow_path` that ptxas puts before each `*_sync` intrinsic (taken when the mask's lanes are not converged); BRA.DIV is unmodelled (2026-10-17).
 - Uniform datapath twins (2026-10-16, shared cases `uniform_plain` in `tests/cases/carry.py`): UIADD3 (result, both carry-outs, negated sources), UIMAD (U32/S32), UIMAD.WIDE (low, high, carry-out) and USEL (with `!UP`) match their per-thread counterparts on the carry vectors, and so do the shared `IDP.4A` register-form cases for all four S8/U8 pairs. The uniform `.X` shared cases also run on the GPU, but narrowly (2026-10-17): UIADD3.X, UIMAD.WIDE.X (U32) and ULEA.HI.X on the carry vectors with carry-in 1 and no inverted sources; UIMAD.X and ULEA.LO.X with one all-zero case each.
 - Shared native GPU probes (2026-10-16, SM89 RTX 4070 Laptop): SGXT.C.S32 sign-extends A's low `min(B,32)` bits, with B=0 producing zero; it is not indexed byte extraction (all four cw/fmt variants: see the SGXT entry above). Controlled inputs include 0, 1, 0x80000000, 0xffffffff and 0xdeadbeef, widths 0/1/2/7/8/15/16/30/31/32/33/63/0xffffffff, and register/uniform/immediate/constant sources. ISETP.EX keeps F false and T true even for equal high words; Pr decides equal operands only for the other six comparisons. FMNMX.XORSIGN compares the modified signed inputs, then replaces the numeric result's sign with their raw sign XOR; `.abs` source modifiers account for the magnitude comparison in the earlier PTX `min.xorsign.abs` probe. I2F.S64's 32-bit immediate is the high word of its 64-bit source (`-1` encodes -2^32, producing F32 0xcf800000), rather than a sign-extended low word.
 - F2F NaNs (same probes/device/date): F32-to-F16 produces 0x7fff and F16-to-F32 produces 0x7fffffff regardless of source sign/payload. F64-to-F16 and F16-to-F64 retain the quieted, aligned payload and sign, as do F32/F64 conversions. Packed F16 arithmetic and F2FP retain their existing NaN-class comparison policy; preserved MERGE_C lanes are compared exactly.
 - Descriptor visibility (same probes/device/date): LDG, generic LD into shared storage, and LDL with descriptor bit 59 alone trap with CUDA status 715 even when bit 101 is clear (`e_desc=noexp_desc`, descriptor omitted from disassembly). This also happens when the selected pair is UR8/UR9, independent of the wrapper's UR4/UR5 default descriptor. Bit-59-clear descriptor cases pass for both e_desc settings. The emulator now reads the selected descriptor in both forms and conservatively rejects range forms; this does not establish every range descriptor's behavior.
 - Native probe setup (same date): variable-latency scheduling must cover constant-source ALU, FCHK and DSETP as well as loads. Assigning write/read scoreboards from the md scheduling fields and draining them resolves stale-output failures. Native local storage uses EIATTR_MIN_STACK_SIZE (0x12) and EIATTR_FRAME_SIZE (0x11), matching the compiled `sem_local` kernel's 1024-byte records; local addresses include c[0][0x28]. Constant bank 2 is per-kernel, while bank 3 uses a module-wide `.nv.constant3` section, matching ptxas output; `.nv.constant3.kernel` leaves bank-3 inputs unreadable as intended data.
+
+## MUFU.SIN/COS argument reduction (2026-10-19, SM89)
+
+**Semantics finding:** new observations on the RTX 4070 Laptop GPU (CUDA driver
+API 13.0) support sass2cu's proposed 25-bit fixed-point reduction, including
+complement reflection. `research/mufu/sincos_reduction.py` issued 84,488 unique
+synthetic register-form probes through `Cases.probe` / `device_cases.observe`.
+Inputs, raw outputs, instruction encodings, device/run identity and the analysis
+report are committed under `research/mufu/sincos-reduction/`; its README gives
+GPU-run and CPU-replay commands. These are discovery observations, not regression
+verification evidence. No PTX/compiler mapping or other architecture was tested.
+
+For finite x in turns, the supported model is:
+
+1. `F = floor(abs(x) * 2^25) mod 2^25` (truncate, rather than round).
+2. COS adds `2^23` modulo `2^25` and ignores x's sign.
+3. Split F into quadrant `q = F >> 23` and `r = F & (2^23 - 1)`.
+   In descending quadrants 1 and 3, replace r with `2^23 - 1 - r`, one step
+   short of ordinary reflection.
+4. Evaluate the same function as SIN at `r * 2^-25`. Negate for quadrants 2/3;
+   SIN also applies x's sign, including signed zero.
+
+The comparison uses the GPU's SIN output at that reduced argument, rather than
+an ideal mathematical sine. All 36,248 finite target inputs per operation match
+this identity bit for bit (including direct first-quadrant controls). The vectors
+select 4,096 offsets across a quadrant, both input signs, all four quadrants,
+whole-turn translations, boundary neighbors and large inputs. They are rounded
+to binary32 before deriving the expected coordinate. There are zero mismatches
+in 1,280 within-cell comparisons across 768 groups (operation/sign/cell), 720
+predicted signed-zero checks, 32 zero/subnormal checks, and 20 nonfinite checks
+(all give `0x7fffffff`). Ordinary reflection, measured against its own direct SIN
+baseline, disagrees on 14,866 SIN and 16,488 COS target inputs. Scheduling changes
+only control bits; the generated wrappers retain the target's low 105 encoding
+bits verbatim.
+
+The distinguishing cases include `SIN(0x32ffffff) = +0`,
+`SIN(0x33000000) = 0x34491200`, `SIN(0x3effffff) = +0`, and
+`COS(0x3e7fffff) = +0`. The model explains the first nonzero SIN input at
+2^-25 turns and the zero-only SIN range for finite |x| >= 2^22, where binary32
+spacing is at least half a turn; at |x| >= 2^23 every input is a whole turn.
+COS at integer/half-integer inputs is near +1/-1, respectively, rather than zero.
+
+This finite experiment supports the reduction identity throughout the sampled
+quadrants, including their interiors; it is not an exhaustive proof or evidence
+that the physical implementation literally uses a bitwise complement. The final
+evaluator was initially left to the GPU (the fixed-point follow-up below models
+it). Maximum residuals against ideal sine *after* this
+reduction are 1.584e-7 for SIN and 1.571e-7 for COS on these vectors, not universal
+error bounds. MUFU remains a runtime primitive.
+
+**Reduced-angle evaluator fit (2026-10-19, SM89):**
+`research/mufu/sin_fit.py` captured all 8,388,609 SIN outputs at
+`r * 2^-25` for integer `0 <= r <= 2^23`, including the quarter-turn endpoint.
+The existing bulk MUFU runner (`MUFU.SIN R11, R2` at 0x100 in the pinned CUDA
+13.0.88 carry wrapper, variable-latency scoreboard scheduling) agrees with all
+16,262 distinct offsets observed previously through the independent shared
+native-case harness. Repeated full captures have the same output checksum.
+Lossless compressed outputs, the executed cubin, capture identity, fitted
+coefficients and replayable analysis are in `research/mufu/sin-fit/`.
+
+Fitting uses only those 16,262 earlier offsets. A separate 83,760-offset sample
+compares global odd polynomials (degrees 3–15) and 16–512 aligned segments with
+quadratic/cubic fits. There is a marked improvement from 32 to 64 quadratic
+pieces; larger tables and cubic pieces add little on that validation set.
+The compact 64-quadratic model then matches 85.78% of the remaining 8,288,587
+offsets exactly and 99.95% within one ulp (worst 6 ulps). Including training and
+validation, its complete reduced-domain results are 85.76% exact, 99.91% within
+one ulp, worst 14 ulps, maximum absolute difference 5.960e-8. Ordinary sine
+(float64 then float32) on the same complete domain is 28.49% exact, worst 699
+ulps and maximum absolute difference 1.788e-7. These describe the captured reduced
+domain, rather than an exhaustive test of argument reduction on all binary32 inputs.
+
+**None of these initial smooth fits is exact everywhere.** Exhaustive per-segment comparisons
+are in `segments.json`: the best is segment 22 (121,874/131,072 exact, 92.98%,
+otherwise one ulp away). Float64 Horner evaluation of fitted coefficients followed
+by float32 rounding is an approximation; the hardware's internal coefficient
+representation, arithmetic and rounding remain unresolved. The 64 pieces are a
+supported modelling hypothesis, not a recovered physical table. The first
+segment's fitted linear gain over ideal sine is 4.165e-5, close to the hardware
+step gain of 4.169e-5; the first 127 nonzero offsets are exactly proportional to
+the measured step. No semantics, independent regression reference or verification
+evidence is added by this fit.
+
+Residual plots and boundary comparisons (`research/mufu/sin_structure.py`, same
+date/device/data) strengthen the aligned 64-segment hypothesis: on the same
+101,864 validation offsets, a dense 64-piece fit is 82.62% exact, versus 31.37%
+with a half-segment shift; the earlier sparse fit is 82.65%. An aligned 128-piece
+fit reaches 82.93%. One- or two-grid-position shifts are indistinguishable here;
+arbitrary nonuniform segmentations remain untested. The first four residual
+curves show discontinuities at candidate boundaries, and the near-zero nonlinear
+correction is a staircase. On segment 22, a linear-programming feasibility check
+over all 131,072 rounding intervals finds that no real quadratic with only one
+final nearest float32 rounding fits them all: its minimum additional allowance
+is 0.297874 ulp (solver tolerance 1e-9 in ulp units). This is numerical evidence
+for missing internal quantization or finer structure, not a formal reconstruction
+of hardware arithmetic. Plots (`residuals.png`/`.svg`), alternative fit coefficients
+and the detailed comparisons (`structure.json`) are in `research/mufu/sin-fit/`.
+
+### Bit-exact reduced-angle evaluator (follow-up, 2026-10-19)
+
+**Semantics finding:** replacing the ordinary square with a truncated sum of
+square partial products and converting the final fixed-point value toward zero
+gives a compact model that matches all 8,388,608 captured reduced offsets, with
+every one of the 64 segments exact. `research/mufu/sin_quantization.py` recovers
+integer coefficients from 8,192 offsets per segment (524,288 fitting positions),
+snaps them to fixed grids, and checks all remaining 7,864,320 coefficient
+holdouts. The arithmetic was discovered retrospectively from segment 0's
+captured staircase, before applying it to the other segments.
+
+For reduced offset `r`, let `segment = r >> 17` and `d = r & 0x1ffff`.
+Calculate the modified square `I` by retaining individual diagonal terms
+`2^(2i)` only for `2i >= 19`, and combined symmetric cross terms
+`2^(i+j+1)` only for `i+j+1 >= 19`, then adding them in units of `2^19`.
+Equivalently, with `H = d >> 10` and `L = d & 1023`:
+
+```python
+I = 2 * H * H
+for k in range(7):
+    I += ((H >> k) & 1) * (L >> (8 - k))
+```
+
+Select integer coefficients `[a0,a1,a2]` from `quantized-model.json` and form
+`N = (a0 << 12) + a1*d + a2*I`. Convert `N * 2^-37` to float32 toward zero.
+The first segment's triple is `[0,25737,-14]`; its modified square is zero for
+all `d < 1024`. This explains both the small-angle gain and the initially linear
+outputs, followed by the nonlinear staircase. All arithmetic before conversion
+is integer arithmetic, with N fitting in 38 bits. These are behavioral scales
+and a successful coefficient table, not measured physical register widths or a
+table extracted from the binary.
+
+Using the same coefficients but squaring normally before dropping low bits
+matches only 77.75% of reduced outputs; changing final conversion to nearest-even
+matches 50.04%. Normalized versions of this arithmetic fitted with 32/128
+segments match 6.51%/45.70%; those comparisons do not exclude every alternative
+parameterization. The 64-entry model also matches the quarter-turn endpoint
+after folding, all 84,488 earlier shared-harness observations, and all 1,462
+original SIN samples and 1,462 COS samples, including signs/zeros/NaNs. Scalar
+enumeration independently checks the fast square and integer float conversion.
+
+`research/mufu/sin-fit/QUANTIZATION.md` explains the recovery and reproduction;
+`quantization.json` has per-segment training/holdout results and arithmetic
+ablations, and `quantization.png`/`.svg` show the corrected errors. This is an
+exact model of the captured SM89 reduced domain. Outer argument reduction has
+not been exhaustively checked on every binary32 input, and the physical
+circuit is not uniquely identified. Other architectures have not
+been hardware verified.
+
+The full-width SIN/COS CPU runtime now uses this model
+(`src/sass/semantics/fp/mufu.py`). The independent regression reference enumerates
+square terms and rounds exact rationals; production uses the fast high/low
+decomposition and integer float encoding. Runtime tests compare every captured
+reduced grid point with `--exhaustive`, and the shared cases target all 64
+segment boundaries, retained-square thresholds, source modifiers and operand
+forms. Other MUFU operations and FP16 remain unresolved.
 
 ## Starred encoding literals (2026-10-16, SM89)
 `BITS_3_83_81_Pu=*7;`-style starred literals are ignored by the decoder but ptxas writes them. Plain `IMAD` with bits 83:81 = k < 7 clears `Pk` (checked for P0-P3); ptxas emitted 7 in 623 of 623 plain IMAD words in the repo's compiled kernels, and all 9 starred field/value kinds occurring in 10,152 ptxas-emitted instructions matched the md literal every time. The encoder (`sass.assemble.encoding`) writes them in strict and permissive modes (issue #24: the old `pyencode` left them 0).

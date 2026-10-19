@@ -1,9 +1,9 @@
 """Memory, collective and environment-contract profiles for the remaining modeled operations.
 
-MUFU profiles verify the explicit unsupported-approximation contract, not numerical results.
+MUFU SIN/COS profiles use the independently formulated SM89 fixed-point reference.
 Synchronization profiles verify environment events, not a simulated multithread scheduler.
 """
-from tests.refs import warp, memory
+from tests.refs import warp, memory, mufu
 from tests.harness import autocase_profiles
 
 MEMORY = set('LD LDL LDS ST STG STL STS'.split())
@@ -11,14 +11,42 @@ WARP = set('ELECT MATCH REDUX SHFL VOTE VOTEU'.split())
 SYNC = set('BAR BMOV BREAK BSSY BSYNC WARPSYNC'.split())
 OPS = MEMORY | WARP | SYNC | {'MUFU'}
 FAMILIES = {op:'memory' if op in MEMORY else 'threads' if op in WARP else 'control' for op in OPS}
+FAMILIES['MUFU'] = 'mufu'
+
+
+def blocked_reason(op, cls, form):
+    if op == 'MUFU' and (not cls.startswith('mufu__') or form.get('mufuop', form.get('op')) not in ('SIN', 'COS')):
+        return 'MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage'
 
 
 def generate(c,k,form,profiles):
     from tests.harness.autocases import Unsupported
+    if k.mnemonic == 'MUFU' and not blocked_reason('MUFU', k.name, form):
+        if profiles != ['mufu_sincos']: raise Unsupported('incompatible MUFU SIN/COS profile')
+        return trigonometric(c, k, form)
     if profiles != ['remaining_forms']: raise Unsupported('incompatible remaining-operation profile')
     if k.mnemonic in MEMORY: return access(c,k,form)
     if k.mnemonic in WARP: return collective(c,k,form)
     return environment(c,k,form)
+
+
+def trigonometric(c, k, form):
+    from tests.harness.autocases import Inputs, Unsupported
+    from tests.harness.case import source
+    src = source(k, 'Rb', 'Sb', 'URb')
+    if src is None or set(form) - {'mufuop', 'op', src+'@absolute', src+'@negate'}:
+        raise Unsupported('unhandled MUFU source/modifiers')
+    for index, value in enumerate(autocase_profiles.PROFILES['mufu_sincos']['words']):
+        s = Inputs(c, k, form)
+        if k.operand_types[src].type == 'F64Imm':
+            # convertFloatType chooses the encoded F32 bits for SIN/COS.
+            s.fields[src] = value
+        else:
+            s.operand((src,), value, 2)
+        result = mufu.sincos(value, form.get('mufuop', form.get('op')),
+            form.get(src+'@absolute') == 'set', form.get(src+'@negate') == 'set')
+        s.add({s.output(('Rd',), 2 if index % 3 == 0 else 8): result}, form)
+    return c
 
 
 def environment(c,k,form):
