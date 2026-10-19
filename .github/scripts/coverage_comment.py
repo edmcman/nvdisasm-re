@@ -165,8 +165,9 @@ def badge(repo, sha):
     return f"[![opcode semantics](https://img.shields.io/endpoint?url={raw})]({report})"
 
 
-def render(base, head, base_sha, head_sha, run_url, repo):
-    """Return the full report, bounded comment, and whether reportable data changed."""
+def render(base, head, base_sha, head_sha, run_url=None, repo=None):
+    """Return the full report, bounded comment, and whether reportable data changed; without a
+    repository or run (a local comparison) the badge and CI-run link are omitted."""
     archs = sorted((a for a in base.keys() | head.keys() if "_" not in a),
                    key=lambda a: int(a.removeprefix("SM")))
     rows, sections, compared, moved = [], [], [], False
@@ -206,8 +207,8 @@ def render(base, head, base_sha, head_sha, run_url, repo):
                     details.append(f"| {title} | {counts(b)} | {counts(h)} | {change(field, b, h)} |")
         details.append("\n</details>\n")
         sections.append("\n".join(details))
-    header = (f"{MARKER}\n## 🧪 Semantic coverage\n\n{badge(repo, head_sha)}\n\n"
-              f"Comparing `{base_sha[:7]}` → `{head_sha[:7]}` · [View CI run]({run_url})\n\n")
+    header = (f"{MARKER}\n## 🧪 Semantic coverage\n\n" + (f"{badge(repo, head_sha)}\n\n" if repo else "")
+              + f"Comparing `{base_sha[:7]}` → `{head_sha[:7]}`" + (f" · [View CI run]({run_url})" if run_url else "") + "\n\n")
     if not rows:
         body = header + "No semantic coverage changes compared with the PR base.\n"
         return {"full": body, "body": body, "changed": False}
@@ -301,11 +302,24 @@ def publish(report, repo, number, base_sha, head_sha, request=api):
         request("PATCH", f"{root}/issues/comments/{comment['id']}", {"body": archived})
 
 
+def local(rev):
+    """The full report comparing `rev`'s committed coverage with the working tree's."""
+    head = json.loads((Path(__file__).resolve().parents[2] / COVERAGE).read_text())
+    return render(read_coverage(rev), head, rev, "working tree")["full"]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("report", "publish"))
-    parser.add_argument("--directory", type=Path, required=True)
+    parser.add_argument("command", choices=("report", "publish", "local"),
+                        help="local: print the report comparing REV with the working tree, outside CI")
+    parser.add_argument("rev", nargs="?", default="HEAD")
+    parser.add_argument("--directory", type=Path)
     args = parser.parse_args()
+    if args.command == "local":
+        print(local(args.rev))
+        return
+    if args.directory is None:
+        parser.error(f"{args.command} requires --directory")
     event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text())
     pr = event.get("pull_request", {})
     repo = os.environ["GITHUB_REPOSITORY"]
