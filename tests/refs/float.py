@@ -55,6 +55,18 @@ def fcompare(a, c, cmp):
             return {"LT": a < c, "EQ": a == c, "LE": a <= c, "GT": a > c, "NE": a != c, "GE": a >= c}[cmp.removesuffix("U")]
 
 
+def dsetp_compare(a, c, cmp, width=64):
+    """DSETP's comparison of two encodings. MIN/MAX (SM89 GPU) order a before c (MIN: a <= c, MAX: a > c)
+    by totalOrder, so -0 < +0 and subnormals count, but are true for any NaN c and false for a NaN a.
+    Their Pv output is 1 only when both are NaN, whatever the combiner and Pp."""
+    if cmp not in ("MIN", "MAX"): return fcompare(ordered(a, width), ordered(c, width), cmp)
+    if ordered(a, width) is None: return False
+    if ordered(c, width) is None: return True
+    magnitude = (1 << width - 1) - 1
+    key = lambda bits: ~(bits & magnitude) if bits >> width - 1 else bits
+    return key(a) <= key(c) if cmp == "MIN" else key(a) > key(c)
+
+
 BOPS = {"AND": lambda x, y: x and y, "OR": lambda x, y: x or y, "XOR": lambda x, y: x != y}
 
 

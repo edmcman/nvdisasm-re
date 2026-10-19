@@ -52,6 +52,7 @@ jobs:
         with:
           python-version: "3.13"
       - run: uv run sass-build-languages --generate-only --coverage ${{ matrix.arch }}
+      - run: uv run python -m tests.autocases ${{ matrix.arch }} --check
       - run: uv run python -m tests.evidence ${{ matrix.arch }}
       - uses: actions/upload-artifact@v7
         with:

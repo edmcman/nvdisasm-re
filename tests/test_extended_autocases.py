@@ -85,10 +85,15 @@ def test_extended_adapter_imports_before_dispatcher():
     assert result.returncode==0,result.stderr
 
 
-@pytest.mark.parametrize('cls',['fsel__RRR_RRR','fchk__RRR_RR','frnd__f32_R','frnd__f64_R'])
+@pytest.mark.parametrize('cls',['fsel__RRR_RRR','fchk__RRR_RR','frnd__f32_R','frnd__f64_R',
+    'dsetp__RRR_RR','dsetp__RRU_RU','dsetp__RRsI_RI','dsetp__RRC_RC','dsetp__RRCx_RCx'])
 @pytest.mark.parametrize('fp',['exact','readable'])
 def test_source_sign_modifiers(cls,fp):
-    form=settings('SM89',pydecode.decode('SM89',bytes.fromhex(encoding.encode('SM89',cls))))
+    fields={'test':'LT'} if cls.startswith('dsetp') else {}
+    if cls=='dsetp__RRsI_RI': fields['Sc']=0
+    if cls=='dsetp__RRC_RC': fields.update(Sc_bank=2,Sc_addr=0)
+    if cls=='dsetp__RRCx_RCx': fields['Sc_offset']=0
+    form=settings('SM89',pydecode.decode('SM89',bytes.fromhex(encoding.encode('SM89',cls,**fields))))
     flags=[n for n in form if n.endswith(('@absolute','@negate'))]
     for values in itertools.product(('unset','set'),repeat=len(flags)):
         modified=form | dict(zip(flags,values))
@@ -102,6 +107,23 @@ def test_floating_absolute_precedes_negation():
     assert float.source_modifiers(0xbf800000,32,True,True)==0xbf800000
     assert float.source_modifiers(0xfff8123456789abc,64,True,False)==0x7ff8123456789abc
     assert float.source_modifiers(0x80000000,32,True,False)==0
+
+
+@pytest.mark.parametrize('cls',['dsetp__RRR_RR','dsetp__RRU_RU','dsetp__RRsI_RI','dsetp__RRC_RC','dsetp__RRCx_RCx'])
+@pytest.mark.parametrize('fp',['exact','readable'])
+@pytest.mark.parametrize('comparison',['MIN','MAX'])
+@pytest.mark.parametrize('bop',['AND','OR','XOR'])
+def test_dsetp_comparison_endpoints(cls,fp,comparison,bop):
+    fields=dict(test=comparison,bop=bop)
+    if cls=='dsetp__RRsI_RI': fields['Sc']=0
+    if cls=='dsetp__RRC_RC': fields.update(Sc_bank=2,Sc_addr=0)
+    if cls=='dsetp__RRCx_RCx': fields['Sc_offset']=0
+    form=settings('SM89',pydecode.decode('SM89',bytes.fromhex(encoding.encode('SM89',cls,**fields))))
+    cases=autocases.generate('SM89',cls,form,fp)
+    assert cases
+    for case in cases:
+        _,found=lifted.run('SM89',fp,case)
+        assert not found,(case,found)
 
 
 def test_uniform_round_routes_to_conversion_family():

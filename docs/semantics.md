@@ -34,7 +34,7 @@
 - Expressions over constants and plain immediate fields are computed while decoding (`sass.sleigh.lower.Fold`: a constructor action exports the constant; comparisons and `ite` are carries of 64-bit masked sums), so the HFMA2.MMA constant move is one COPY. A register the constructor can only encode as RZ/URZ/PT is that constant in the family IR, so it folds like lift's: pseudo-op variants pass the operand values their pattern fixes (`Builder.known`, from `pseudo_variants`), and IMAD.MOV `Rd, RZ, RZ, Rc` is `Rd = Rc`. Where a register may or may not be RZ, no zero choice is made: it would shorten only the RZ path, and the cost counts the longest. Unused operand values and unreachable subtables are omitted; `sass-build-languages` rejects unused-temporary diagnostics.
 - Compact p-code regression fixtures assert one operation for immediate/register MOV, two for ordinary IMAD/IADD3 and three for LOP3 XOR with discarded predicate output. Dataflow checks still require exact reads/writes, adjusted for unused boolean/constant-comparison inputs and byte-width store sources; opaque fallbacks retain full md reads.
 
-- FP64 DADD/DMUL/DFMA are native for RN with pair/uniform/immediate/constant operands and absolute/negate flags. DSETP shares ordered/unordered comparison logic, including complementary predicates and AND/OR/XOR. Directed rounding and DSETP MIN/MAX stay opaque. DFMA uses binary128: exact product, rare possible double rounding on the sum/narrowing. FP64 has the same Ghidra minimum-subnormal underflow band exclusion. SM89 hardware fixtures cover all four families.
+- FP64 DADD/DMUL/DFMA are native for RN with pair/uniform/immediate/constant operands and absolute/negate flags. DSETP supports every comparison selector, including totalOrder MIN/MAX, complementary predicates and AND/OR/XOR. DFMA uses binary128: exact product, rare possible double rounding on the sum/narrowing. FP64 has the same Ghidra minimum-subnormal underflow band exclusion. SM89 hardware fixtures cover all four families; DSETP MIN/MAX hardware verification is pending.
 
 - Packed FP16 HADD2/HFMA2 support H1_H0/H0_H0/H1_H1, per-half absolute/negate, SAT, packed register/uniform/constant inputs and separate immediate lanes (high first in FORMAT). HFMA2 widens to binary128 for an exact finite product/sum and narrows once; HADD2 widens to fp64; HMUL2 multiplies natively. Low-half broadcasts read only two bytes in native p-code, with or without |x|/-x (applied to the half). Families (`src/sass/semantics/families/floating.py`, 2026-10-13): HADD2/HFMA2 F16_V2 (exact: FTZ/FMZ opaque; readable ignores them, also on SM100+ `hfma2_mma` classes), HADD2.F32 with FTZ/SAT, HMUL2 with FTZ/FMZ/SAT, HMNMX2 F16/BF16/E6M9 with .NAN/.XORSIGN/F16 FTZ/.IS_A. Swizzles and HMNMX2's per-format NaN test/order are `select_lookup` values (forking on them made SM90 18.75 MB). BF16/E6M9 arithmetic formats, F32/H0_NH1 inputs and RELU stay opaque. HFMA2.MMA is native only for `-RZ, RZ, immediate` with nofmz/nosat: it preserves zeros/infinities/denormals but maps each NaN to 0x7fff (SM89 hardware). Decode-time canonicalization keeps it one COPY. Seven GPU fixtures patch only an arithmetic word for lane/modifier/MMA testing, then execute the same cubin on GPU and emulator.
 
@@ -299,9 +299,19 @@ modifiers. DFMA uses a 16-byte binary128 intermediate: the product is exact,
 but under round-to-nearest the wide sum followed by narrowing can double-round
 in rare midpoint cases. Directed rounding uses the exact residual correction
 above. DSETP shares the ordered/unordered FP32
-comparison logic and combines complementary results with AND/OR/XOR; MIN/MAX
-selectors retain opaque fallbacks. Dynamic constant operands still require an
+comparison logic and combines complementary results with AND/OR/XOR. The comparison
+MIN and MAX are not the constant masks their nibble values suggest: they order Ra
+against Rc by totalOrder (MIN: Ra <= Rc, MAX: Ra > Rc), true for a NaN Rc and
+false for a NaN Ra, and Pv is the uncombined both-NaN flag (hardware-facts.md).
+Dynamic constant operands still require an
 explicit operand provider. The same Ghidra underflow limitation applies to FP64.
+
+DSETP coverage (2026-10-19): generated reference cases include absolute/negate
+combinations on both sources across register, uniform, high-word immediate,
+constant-bank and bindless constant forms. Focused cases also distinguish adjacent
+FP64 mantissas and the subnormal/normal boundary, and cover input/output predicate
+aliasing, inverted predicate inputs, discarded PT outputs and false instruction
+guards. These extend emulator coverage; fresh SM89 hardware validation is pending.
 
 HADD2/HFMA2/HMUL2 implement packed FP16 under RN, including per-lane absolute/negate,
 H1_H0/H0_H0/H1_H1 selection, saturation, register/uniform inputs, separate lane

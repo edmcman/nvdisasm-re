@@ -132,6 +132,15 @@ def dfma_(i):
 
 
 @helper
+def minmax_order(label, x, y):
+    """DSETP.MIN/MAX (SM89 GPU): x is totalOrder-below-or-equal (MIN) or above (MAX) y, true for a
+    NaN y and false for a NaN x."""
+    key = lambda v: ite(extract(v, v.w - 1, v.w - 1) != 0, ~v, v | const(1 << v.w - 1, v.w))
+    order = key(x) <= key(y) if label == 'MIN' else key(y) < key(x)
+    return lnot(fnan(x)) & (fnan(y) | order)
+
+
+@helper
 def float_test(label, x, y):
     """The md comparison `label`: ordered tests are false with a NaN, ...U ones true; NEU is
     plain inequality, NUM/NAN test for NaN."""
@@ -141,6 +150,7 @@ def float_test(label, x, y):
     match str(label):   # FSETP's fcomp and DSETP's test spell the same comparisons
         case 'T': return const(1, 1)
         case 'F': return const(0, 1)
+        case 'MIN' | 'MAX' as name: return minmax_order(name, x, y)
         case 'NUM': return lnot(unordered)
         case 'NAN': return unordered
         case 'NEU': return lnot(feq(x, y))
@@ -159,10 +169,12 @@ def combined(i, cond):
     return boolean(i.select_fork('bop'), cond, i.pred('Pp')) if i.has_operand('bop') else cond
 
 
-def set_predicates(i, cond):
-    """Pu = cond bop Pp, Pv = !cond bop Pp (or Pu = cond without a bop)."""
+def set_predicates(i, cond, minmax=None):
+    """Pu = cond bop Pp, Pv = !cond bop Pp (or Pu = cond without a bop); under `minmax` Pv is the
+    uncombined both-inputs-NaN flag."""
     if not i.has_operand('bop'): return outputs(Pu=cond)
-    return outputs(Pu=combined(i, cond), Pv=combined(i, lnot(cond)))
+    pv = combined(i, lnot(cond))
+    return outputs(Pu=combined(i, cond), Pv=pv if minmax is None else ite(minmax[0], minmax[1], pv))
 
 
 @family('FSETP', fallback='prim')
@@ -186,7 +198,9 @@ def fset_(i):
 def dsetp_(i):
     """Pu/Pv from comparing Ra with Rc (FP64)."""
     if i.width('Ra|Sa') != 64 or i.width('Rc|Sc') != 64: unmodelled('width')
-    return set_predicates(i, comparison(i, 'test', i.fvalue('Ra|Sa'), i.fvalue('Rc|Sc')))
+    x, y = i.fvalue('Ra|Sa'), i.fvalue('Rc|Sc')
+    minmax = i.select_lookup('test', {l: const(int(l in ('MIN', 'MAX')), 1) for l in i.labels('test')})
+    return set_predicates(i, comparison(i, 'test', x, y), (minmax, fnan(x) & fnan(y)))
 
 
 @family('FCHK')
