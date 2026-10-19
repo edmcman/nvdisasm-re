@@ -4,8 +4,7 @@ from tests.harness.manual import retained
 import random
 from sass.semantics.fp import softfloat
 from tests.harness.case import cbank, cx_source, pair
-from tests.refs.bits import f64
-from tests.refs.float import FCOMPARISONS, fcompare, ordered, readable, rounded, underflow_band
+from tests.refs.float import FCOMPARISONS, dsetp_compare, fcompare, ordered, readable, rounded, underflow_band
 from tests.refs.integer import combine
 
 ONE, TWO, THREE = 0x3ff0000000000000, 0x4000000000000000, 0x4008000000000000
@@ -72,13 +71,13 @@ def compare(c):
     for a, b in [(0, 1 << 63), (1, 0), (0x7ff0000000000000, ONE), (0x7ff8000000000000, 0), (0, 0x7ff0000000000001), (ONE, TWO),
                  (ONE, ONE + 1), (ONE + 1, ONE), (0x000fffffffffffff, 0x0010000000000000),
                  (0x8000000000000001, 0), (0xfff0000000000000, 0x7ff0000000000000)]:
-        fa, fb = (None if v != v else v for v in (f64(a), f64(b)))
         for cmp in FCOMPARISONS + ("MIN", "MAX"):
-            result = fcompare(fa, fb, cmp)
+            result = dsetp_compare(a, b, cmp)
             for bop in ("AND", "OR", "XOR"):
                 for p in (0, 1):
+                    pv = int(ordered(a, 64) is None and ordered(b, 64) is None) if cmp in ("MIN", "MAX") else combine(not result, p, bop)
                     c.add("dsetp__RRR_RR", dict(Pu=0, Pv=1, Pp=0, Ra=2, Rc=4, test=cmp, bop=bop), dict(pair("R2", a), **pair("R4", b), P0=p),
-                          dict(P0=combine(result, p, bop), P1=combine(not result, p, bop), __native=True))
+                          dict(P0=combine(result, p, bop), P1=pv, __native=True))
     # Read Pp before either output is written, invert it before combining, and discard
     # either output through PT. Both predicate destinations can alias the input.
     for pu, pv in [(0, 1), (1, 0), ("PT", 0), (0, "PT")]:

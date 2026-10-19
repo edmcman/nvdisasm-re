@@ -102,8 +102,9 @@ def floating(c,k,form):
             s.add({s.output(('Pu',),1):float.fchk_divide(*xs)},form,portable=True); continue
         elif op in ('FSETP','UFSETP','DSETP','FSET'):
             prepared=[float.flush(x,width) if ftz else x for x in xs]
-            condition=float.fcompare(*(float.ordered(x,width) for x in prepared),cmp)
+            condition=float.dsetp_compare(*prepared,cmp,width)
             yes=integer.combine(condition,pred,form['bop']); no=integer.combine(not condition,pred,form['bop'])
+            if cmp in ('MIN','MAX'): no=all(float.ordered(x,width) is None for x in prepared)
             if op!='FSET':
                 s.add({s.output(('Pu','UPu'),0):yes,s.output(('Pv','UPv'),1):no},form,portable=True); continue
             result=0x3f800000 if yes else 0
