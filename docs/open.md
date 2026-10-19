@@ -12,7 +12,7 @@
 - Semantics roadmap, ordered by `src/sass/check/census.py` (2026-10-08; share = average fraction of all real-corpus instructions across SM75-SM120). After the control-flow fix: native 58-76% per arch, opaque 16-36%, primitive 6-8%.
   1. Done: control flow on every fallback branch; native SM90+ BRA.
   2. Done: cheap coverage (~10%): `URb`/`URc` operand names in IMAD/ISETP/IADD3/LEA emitters (~3.5%, ~7% on SM90); alias uniform/variant ops to existing emitters (UIADD3, UIMAD, USHF, ULEA, UISETP, ULOP3, USEL, UMOV, VIADD, IADD; ~3.5%); native PRMT (1.6%); FSEL (1.1%), FMNMX (0.6%, NaN/±0 rules).
-  3. Done: native RN fp64 DFMA/DADD/DMUL and ordered/unordered DSETP (~5%); DFMA via Ghidra's 16-byte float, where the double product is exact. Directed rounding and DSETP MIN/MAX stay opaque.
+  3. Done: native fp64 DFMA/DADD/DMUL and every DSETP comparison (~5%); DFMA via Ghidra's 16-byte float, where the double product is exact. DSETP MIN/MAX are totalOrder tests verified on SM89.
   4. Done: native packed fp16x2 HADD2/HFMA2 (~2%) with lane broadcasts/modifiers and SAT, including the `HFMA2.MMA Rd, -RZ, RZ, imm` constant move. FTZ/FMZ, alternate formats, RELU and other MMA forms stay opaque.
   5. Done: carry chains IADD3.X, LEA.HI.X, IMAD.X and ordinary predicate outputs (SM89 hardware-established; all-architecture emulator/dataflow checks).
   6. Kernel parameters as named constant-bank-0 variables in the decompiler (offsets/sizes from `.nv.info`, `src/sass/decode/cubin.py`).

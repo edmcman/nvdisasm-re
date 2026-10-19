@@ -10,6 +10,25 @@ from tests.refs.integer import bmsk, dot4, i2ip, prmt, isetp, shf
 REFS = Path(__file__).parent / "refs"
 
 
+def test_dsetp_minmax_total_order():
+    from tests.refs.float import dsetp_compare
+    one, two, nan, neg_nan = 0x3ff0 << 48, 0x4000 << 48, 0x7ff8 << 48, 0xfff8 << 48
+    # (a, c, MIN, MAX)
+    for a, c, minimum, maximum in [(one, two, 1, 0), (two, one, 0, 1), (one, one, 1, 0), (0, 1 << 63, 0, 1), (1 << 63, 0, 1, 0), (1, 0, 0, 1),
+                                   (0xbff0 << 48, 0, 1, 0), (nan, one, 0, 0), (nan, nan, 0, 0), (neg_nan, one, 0, 0), (one, nan, 1, 1), (one, neg_nan, 1, 1)]:
+        assert dsetp_compare(a, c, 'MIN') == bool(minimum) and dsetp_compare(a, c, 'MAX') == bool(maximum)
+
+
+def test_double_comparison_masks():
+    from tests.refs.float import fcompare
+    # The comparison nibble selects LT, EQ, GT and unordered outcome bits.
+    labels = ('MIN','LT','EQ','LE','GT','NE','GE','NUM','NAN','LTU','EQU','LEU','GTU','NEU','GEU','MAX')
+    for code, label in enumerate(labels):
+        if label in ('MIN', 'MAX'): continue
+        for a, b, outcome in [(1,2,1),(0.0,-0.0,2),(2,1,4),(None,0,8),(0,None,8),(None,None,8)]:
+            assert fcompare(a,b,label) == bool(code & outcome)
+
+
 def test_isetp_extended_reference():
     assert isetp(7, 7, 'LT', 'AND', True, low=True) == (1, 0)
     assert isetp(7, 7, 'LT', 'AND', True, low=False) == (0, 1)
