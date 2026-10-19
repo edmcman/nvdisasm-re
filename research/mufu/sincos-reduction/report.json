@@ -1,0 +1,308 @@
+{
+  "metadata": {
+    "arch": "SM89",
+    "base_commit": "3afcd2c171dce5eb7f80d1be03e7791162205fcc",
+    "script_sha256": "78e612cc0c5026a1a6c8a7f2a1d52ffd8d1e22742695b799c50ab3e455aa94df",
+    "input_sha256": "9b1e18d16f5afdb042f99f35be45ff4e61eefa0fc6b5a701fc830d4fef6184c7",
+    "started_utc": "2026-10-19T12:33:50.884773+00:00",
+    "instruction_origin": "synthetic Cases.probe",
+    "batch_size": 2048,
+    "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0"
+  },
+  "observations": 84488,
+  "selected_offsets": 4096,
+  "cells": 768,
+  "checks": {
+    "complement_COS": {
+      "checked": 36248,
+      "mismatches": 0,
+      "examples": []
+    },
+    "boundary_COS": {
+      "checked": 572,
+      "mismatches": 0,
+      "examples": []
+    },
+    "cell_COS": {
+      "checked": 1024,
+      "mismatches": 0,
+      "examples": []
+    },
+    "quadrant_COS": {
+      "checked": 32766,
+      "mismatches": 0,
+      "examples": []
+    },
+    "special_COS": {
+      "checked": 22,
+      "mismatches": 0,
+      "examples": []
+    },
+    "sign": {
+      "checked": 72496,
+      "mismatches": 0,
+      "examples": []
+    },
+    "ordinary_reflection_COS": {
+      "checked": 36248,
+      "mismatches": 16488,
+      "examples": [
+        {
+          "op": "COS",
+          "input": "34600000",
+          "got": "3f7fffff",
+          "want": "3f800000",
+          "canonical_input": "3e7ffff2"
+        },
+        {
+          "op": "COS",
+          "input": "34700000",
+          "got": "3f7fffff",
+          "want": "3f800000",
+          "canonical_input": "3e7ffff2"
+        },
+        {
+          "op": "COS",
+          "input": "347fffff",
+          "got": "3f7fffff",
+          "want": "3f800000",
+          "canonical_input": "3e7ffff2"
+        },
+        {
+          "op": "COS",
+          "input": "34800000",
+          "got": "3f800000",
+          "want": "3f7fffff",
+          "canonical_input": "3e7ffff0"
+        },
+        {
+          "op": "COS",
+          "input": "34880000",
+          "got": "3f800000",
+          "want": "3f7fffff",
+          "canonical_input": "3e7ffff0"
+        },
+        {
+          "op": "COS",
+          "input": "348fffff",
+          "got": "3f800000",
+          "want": "3f7fffff",
+          "canonical_input": "3e7ffff0"
+        },
+        {
+          "op": "COS",
+          "input": "34b00000",
+          "got": "3f7fffff",
+          "want": "3f800000",
+          "canonical_input": "3e7fffea"
+        },
+        {
+          "op": "COS",
+          "input": "34b80000",
+          "got": "3f7fffff",
+          "want": "3f800000",
+          "canonical_input": "3e7fffea"
+        },
+        {
+          "op": "COS",
+          "input": "34bfffff",
+          "got": "3f7fffff",
+          "want": "3f800000",
+          "canonical_input": "3e7fffea"
+        },
+        {
+          "op": "COS",
+          "input": "34c00000",
+          "got": "3f800000",
+          "want": "3f7fffff",
+          "canonical_input": "3e7fffe8"
+        },
+        {
+          "op": "COS",
+          "input": "34c80000",
+          "got": "3f800000",
+          "want": "3f7fffff",
+          "canonical_input": "3e7fffe8"
+        },
+        {
+          "op": "COS",
+          "input": "34cfffff",
+          "got": "3f800000",
+          "want": "3f7fffff",
+          "canonical_input": "3e7fffe8"
+        }
+      ]
+    },
+    "subnormal_or_zero": {
+      "checked": 32,
+      "mismatches": 0,
+      "examples": []
+    },
+    "cell_constancy": {
+      "checked": 1280,
+      "mismatches": 0,
+      "examples": []
+    },
+    "signed_zero": {
+      "checked": 720,
+      "mismatches": 0,
+      "examples": []
+    },
+    "translation_COS": {
+      "checked": 1280,
+      "mismatches": 0,
+      "examples": []
+    },
+    "large_COS": {
+      "checked": 636,
+      "mismatches": 0,
+      "examples": []
+    },
+    "nonfinite": {
+      "checked": 20,
+      "mismatches": 0,
+      "examples": []
+    },
+    "complement_SIN": {
+      "checked": 36248,
+      "mismatches": 0,
+      "examples": []
+    },
+    "boundary_SIN": {
+      "checked": 572,
+      "mismatches": 0,
+      "examples": []
+    },
+    "canonical_SIN": {
+      "checked": 4291,
+      "mismatches": 0,
+      "examples": []
+    },
+    "cell_SIN": {
+      "checked": 1024,
+      "mismatches": 0,
+      "examples": []
+    },
+    "quadrant_SIN": {
+      "checked": 32766,
+      "mismatches": 0,
+      "examples": []
+    },
+    "special_SIN": {
+      "checked": 22,
+      "mismatches": 0,
+      "examples": []
+    },
+    "ordinary_reflection_SIN": {
+      "checked": 36248,
+      "mismatches": 14866,
+      "examples": [
+        {
+          "op": "SIN",
+          "input": "3e800010",
+          "got": "3f800000",
+          "want": "3f7fffff",
+          "canonical_input": "3e7fffe0"
+        },
+        {
+          "op": "SIN",
+          "input": "3e800040",
+          "got": "3f800000",
+          "want": "3f7fffff",
+          "canonical_input": "3e7fff80"
+        },
+        {
+          "op": "SIN",
+          "input": "3e800801",
+          "got": "3f7ffffe",
+          "want": "3f7fffff",
+          "canonical_input": "3e7feffe"
+        },
+        {
+          "op": "SIN",
+          "input": "3e803804",
+          "got": "3f7fffc4",
+          "want": "3f7fffc3",
+          "canonical_input": "3e7f8ff8"
+        },
+        {
+          "op": "SIN",
+          "input": "3e80f00f",
+          "got": "3f7ffbaa",
+          "want": "3f7ffbab",
+          "canonical_input": "3e7e1fe2"
+        },
+        {
+          "op": "SIN",
+          "input": "3e810811",
+          "got": "3f7ffac1",
+          "want": "3f7ffac2",
+          "canonical_input": "3e7defde"
+        },
+        {
+          "op": "SIN",
+          "input": "3e811812",
+          "got": "3f7ffa19",
+          "want": "3f7ffa1a",
+          "canonical_input": "3e7dcfdc"
+        },
+        {
+          "op": "SIN",
+          "input": "3e817017",
+          "got": "3f7ff5cd",
+          "want": "3f7ff5ce",
+          "canonical_input": "3e7d1fd2"
+        },
+        {
+          "op": "SIN",
+          "input": "3e819019",
+          "got": "3f7ff3f3",
+          "want": "3f7ff3f4",
+          "canonical_input": "3e7cdfce"
+        },
+        {
+          "op": "SIN",
+          "input": "3e81c81d",
+          "got": "3f7ff056",
+          "want": "3f7ff057",
+          "canonical_input": "3e7c6fc6"
+        },
+        {
+          "op": "SIN",
+          "input": "3e81d01d",
+          "got": "3f7fefc8",
+          "want": "3f7fefc9",
+          "canonical_input": "3e7c5fc6"
+        },
+        {
+          "op": "SIN",
+          "input": "3e826026",
+          "got": "3f7fe427",
+          "want": "3f7fe428",
+          "canonical_input": "3e7b3fb4"
+        }
+      ]
+    },
+    "translation_SIN": {
+      "checked": 1280,
+      "mismatches": 0,
+      "examples": []
+    },
+    "large_SIN": {
+      "checked": 636,
+      "mismatches": 0,
+      "examples": []
+    }
+  },
+  "sample_evaluator_residual": {
+    "SIN": {
+      "max_absolute_error": 1.5838137035206756e-07,
+      "input": "3dd5cd58"
+    },
+    "COS": {
+      "max_absolute_error": 1.571463024152564e-07,
+      "input": "3f5ab9ac"
+    }
+  },
+  "interpretation": "Exact identities test reduction; residuals are sample bounds only. Ordinary-reflection failures are a control, not failures of the proposed model."
+}
