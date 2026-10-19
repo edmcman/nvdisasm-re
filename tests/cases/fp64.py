@@ -65,20 +65,33 @@ def arithmetic(c):
     c.add("dadd__RRR_RR", dict(Rd=8, Ra="RZ", Rc=4), pair("R4", TWO), dict(pair("R8", TWO), __native=True))
 
 
-@retained('Exceptional FP64 comparison pairs and constant PT inputs exceed the generated profile.')
+@retained('Exceptional and low-mantissa FP64 comparisons, predicate aliases, inversion and guards exceed the generated profile.')
 def compare(c):
     c.add("dsetp__RRC_RC", dict(Pu=0, Pv=1, Pp="PT", Ra=2, Sc_bank=0, Sc_addr=0x100, test="LT", bop="AND"),
           pair("R2", ONE), dict(P0=1, P1=0, __native=True), memory=[cbank(0, 0x100, TWO, 8)])
-    for a, b in [(0, 1 << 63), (1, 0), (0x7ff0000000000000, ONE), (0x7ff8000000000000, 0), (0, 0x7ff0000000000001), (ONE, TWO)]:
+    for a, b in [(0, 1 << 63), (1, 0), (0x7ff0000000000000, ONE), (0x7ff8000000000000, 0), (0, 0x7ff0000000000001), (ONE, TWO),
+                 (ONE, ONE + 1), (ONE + 1, ONE), (0x000fffffffffffff, 0x0010000000000000),
+                 (0x8000000000000001, 0), (0xfff0000000000000, 0x7ff0000000000000)]:
         fa, fb = (None if v != v else v for v in (f64(a), f64(b)))
-        for cmp in FCOMPARISONS:
+        for cmp in FCOMPARISONS + ("MIN", "MAX"):
             result = fcompare(fa, fb, cmp)
             for bop in ("AND", "OR", "XOR"):
                 for p in (0, 1):
                     c.add("dsetp__RRR_RR", dict(Pu=0, Pv=1, Pp=0, Ra=2, Rc=4, test=cmp, bop=bop), dict(pair("R2", a), **pair("R4", b), P0=p),
                           dict(P0=combine(result, p, bop), P1=combine(not result, p, bop), __native=True))
-    for cmp in ("MIN", "MAX"):
-        c.add("dsetp__RRR_RR", dict(test=cmp), {}, dict(error="sass_opaque_DSETP"))
+    # Read Pp before either output is written, invert it before combining, and discard
+    # either output through PT. Both predicate destinations can alias the input.
+    for pu, pv in [(0, 1), (1, 0), ("PT", 0), (0, "PT")]:
+        for bop in ("AND", "OR", "XOR"):
+            for p in (0, 1):
+                for inverted in (0, 1):
+                    expected = {f"P{dest}": int(combine(cond, p ^ inverted, bop))
+                                for dest, cond in [(pu, True), (pv, False)] if dest != "PT"}
+                    c.add("dsetp__RRR_RR", dict(Pu=pu, Pv=pv, Pp=0, Ra=2, Rc=4, test="LT", bop=bop, **{"Pp@not": inverted}),
+                          dict(pair("R2", ONE), **pair("R4", TWO), P0=p, P1=1), dict(expected, __native=True))
+    for guard, inverted in [(0, 0), (1, 1)]:
+        c.add("dsetp__RRR_RR", dict(Pu=0, Pv=1, Pp="PT", Pg=2, Ra=2, Rc=4, test="LT", bop="AND", **{"Pg@not": inverted}),
+              dict(pair("R2", ONE), **pair("R4", TWO), P0=0, P1=1, P2=guard), dict(P0=0, P1=1))
 
 
 @retained('Seeded FP64 unfused/underflow inputs exceed the generated readable profile.')

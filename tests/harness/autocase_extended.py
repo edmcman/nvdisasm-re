@@ -39,7 +39,7 @@ def generate(c,k,form,profiles):
 def blocked_reason(op,form):
     """Cheap profile eligibility check shared with planning; no case/MD construction needed."""
     if op not in FLOAT_OPS: return None
-    if op.removeprefix('U') not in ('FCHK','FRND','FSEL') and any('@' in n and not n.endswith('@not') and v != 'unset' for n,v in form.items()):
+    if op.removeprefix('U') not in ('FCHK','FRND','FSEL','DSETP') and any('@' in n and not n.endswith('@not') and v != 'unset' for n,v in form.items()):
         return 'source-sign modifier corpus remains manual'
     if form.get('xorsign','noxorsign') != 'noxorsign': return 'XORSIGN remains a focused manual regression'
     if form.get('fmz','nofmz') not in ('nofmz','nofmz_hfma2','FTZ'): return 'FMZ zero/Inf corpus remains manual'
@@ -61,6 +61,7 @@ def floating(c,k,form):
     elif op not in ('FFMA','DFMA','FMNMX3'): names=names[:2]
     if not all(names): raise autocases.Unsupported('unsupported floating operand layout')
     allowed_comp=set(float.FCOMPARISONS)|{'F','T'}
+    if op=='DSETP': allowed_comp |= {'MIN','MAX'}
     cmp=form.get('fcomp',form.get('test'))
     if op in ('FSET','FSETP','UFSETP','DSETP') and cmp not in allowed_comp:
         raise autocases.Unsupported('unresolved floating comparison')

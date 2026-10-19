@@ -139,8 +139,9 @@ def float_test(label, x, y):
     ordered = {'LT': lambda: flt(x, y), 'EQ': lambda: feq(x, y), 'LE': lambda: fle(x, y),
                'GT': lambda: flt(y, x), 'GE': lambda: fle(y, x), 'NE': lambda: lnot(unordered) & lnot(feq(x, y))}
     match str(label):   # FSETP's fcomp and DSETP's test spell the same comparisons
-        case 'T': return const(1, 1)
-        case 'F': return const(0, 1)
+        # DSETP names the empty/full four-outcome comparison masks MIN/MAX.
+        case 'T' | 'MAX': return const(1, 1)
+        case 'F' | 'MIN': return const(0, 1)
         case 'NUM': return lnot(unordered)
         case 'NAN': return unordered
         case 'NEU': return lnot(feq(x, y))

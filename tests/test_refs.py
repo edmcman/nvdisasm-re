@@ -10,6 +10,15 @@ from tests.refs.integer import bmsk, dot4, i2ip, prmt, isetp, shf
 REFS = Path(__file__).parent / "refs"
 
 
+def test_double_comparison_masks():
+    from tests.refs.float import fcompare
+    # The comparison nibble selects LT, EQ, GT and unordered outcome bits.
+    labels = ('MIN','LT','EQ','LE','GT','NE','GE','NUM','NAN','LTU','EQU','LEU','GTU','NEU','GEU','MAX')
+    for code, label in enumerate(labels):
+        for a, b, outcome in [(1,2,1),(0.0,-0.0,2),(2,1,4),(None,0,8),(0,None,8),(None,None,8)]:
+            assert fcompare(a,b,label) == bool(code & outcome)
+
+
 def test_isetp_extended_reference():
     assert isetp(7, 7, 'LT', 'AND', True, low=True) == (1, 0)
     assert isetp(7, 7, 'LT', 'AND', True, low=False) == (0, 1)

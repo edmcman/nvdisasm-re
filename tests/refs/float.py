@@ -46,8 +46,8 @@ def fcompare(a, c, cmp):
     """FSETP/DSETP comparison of two numbers (None marks NaN); U suffix is true when unordered."""
     unordered = a is None or c is None
     match cmp:
-        case "T": return True
-        case "F": return False
+        case "T" | "MAX": return True
+        case "F" | "MIN": return False
         case "NUM": return not unordered
         case "NAN": return unordered
         case _ if unordered: return cmp.endswith("U")
