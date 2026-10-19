@@ -295,6 +295,24 @@ def test_report_cli_reads_commits_and_writes_artifact(tmp_path, monkeypatch):
     assert commands == [["git", "show", f"{sha}:{coverage_comment.COVERAGE}"] for sha in ("base", "head")]
 
 
+def test_local_cli_compares_revision_with_working_tree(monkeypatch, capsys):
+    for key in ("GITHUB_EVENT_PATH", "GITHUB_EVENT_NAME", "GITHUB_REPOSITORY"):
+        monkeypatch.delenv(key, raising=False)
+    commands = []
+
+    def git(args, text):
+        commands.append(args)
+        return json.dumps({})
+
+    monkeypatch.setattr(subprocess, "check_output", git)
+    monkeypatch.setattr("sys.argv", ["coverage_comment.py", "local", "main"])
+    coverage_comment.main()
+    out = capsys.readouterr().out
+    assert commands == [["git", "show", f"main:{coverage_comment.COVERAGE}"]]
+    assert "Comparing `main` → `working`" in out and "### Changed opcodes" in out
+    assert "img.shields.io" not in out and "View CI run" not in out
+
+
 def test_comment_leads_with_head_pinned_coverage_badge():
     body = render(summary(), summary())["body"]
     assert ("https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fowner%2Frepo%2Fhead"
