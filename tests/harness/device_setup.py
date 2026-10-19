@@ -46,13 +46,16 @@ def cx(code, case, temp, arena):
     code.emit('ulop3_lut__URuIUR_URIR', URd=ur + 1, URa=ur + 1, Sb=units << 13, URc='URZ', imm8=0xfc, UPp='UPT')
 
 
+ADDRESSED = ('LD', 'ST', 'LDG', 'STG', 'LDL', 'STL', 'LDS', 'STS')
+
+
 def memory_binding(case):
     """Translate the seeded logical address, retaining its register/offset decomposition."""
     d = device_cases.decoded(case.request['word']); regs = case.request['registers']
     if d.klass.mnemonic in ('LDC', 'ULDC', 'MOV'): return None
     ra = d.env.get('Ra', 255)
     address = regs.get(f'R{ra}', 0) | regs.get(f'R{ra + 1}', 0) << 32
-    uniform = next((n for n in ('Ra_URb', 'Ra_URc') if n in d.env and d.klass.name.startswith(('ld_uniform', 'st_uniform'))), None)
+    uniform = next((n for n in ('Ra_URb', 'Ra_URc') if n in d.env and d.klass.mnemonic in ADDRESSED and '_uniform' in d.klass.name), None)
     if uniform:
         u = d.env[uniform]
         address += regs.get(f'UR{u}', 0) | regs.get(f'UR{u + 1}', 0) << 32
@@ -102,7 +105,8 @@ def memory(code, case, temp, arena):
     regions = case.request.get('memory', []) + [dict(m, hex='00' * m['size']) for m in case.request.get('observe_memory', [])]
     if binding and binding[0] == 'ram':
         offset = d.env.get('Ra_offset', 0)
-        if offset & (1 << 23): offset -= 1 << 24
+        bits = int(d.klass.operand_types['Ra_offset'].args.split('/')[0]) if 'Ra_offset' in d.klass.operand_types else 24
+        if offset >> bits - 1 & 1: offset -= 1 << bits
         if not any(m['space'] == 'ram' and m['address'] <= binding[1] + offset < m['address'] + len(bytes.fromhex(m['hex'])) for m in regions):
             regions.append(dict(space='ram', address=binding[1] + offset, hex='00' * 16))
     ram = [m for m in regions if m['space'] == 'ram']
@@ -127,6 +131,7 @@ def memory(code, case, temp, arena):
                       sz={1: 'U8', 2: 'U16', 4: '32'}[len(part)])
         if space == 'shared': shared = max(shared, logical + len(data))
         else: frame = max(frame, logical + len(data))
+    rebound = ()
     if binding:
         space, logical, ra, uniform = binding
         if space == 'shared': shared = max(shared, logical + 16)
@@ -149,13 +154,14 @@ def memory(code, case, temp, arena):
             code.mov(f'R{temp + 2}', original)
             code.emit('iadd3_noimm__RRR_RRR', Rd=temp, Ra=temp, Rb=temp + 2, Rc='RZ', **{'Rb@negate': 1})
             for i in (0, 1): code.emit('r2ur__noOR', URd=u + i, Ra=temp + i, Pu='PT')
+            rebound = (u, u + 1)
         else:
             code.copy(ra, f'R{temp}')
             if space == 'ram' or d.klass.mnemonic in ('LD', 'ST'): code.copy(ra + 1, f'R{temp + 1}')
     # Setup used predicates and UR4/5; restore case state, then the bound address is
     # retained. Explicit descriptor inputs are data under test, not wrapper scratch.
     for i in (4, 5):
-        if f'UR{i}' in case.request['registers'] and not (binding and binding[3] and i in (d.env[binding[3]], d.env[binding[3]] + 1)): code.mov(f'UR{i}', case.request['registers'][f'UR{i}'])
+        if f'UR{i}' in case.request['registers'] and i not in rebound: code.mov(f'UR{i}', case.request['registers'][f'UR{i}'])
     device_cases.predicates(code, case.request['registers'], temp + 2)
     return (max(shared, 16) + 15) & ~15, (max(frame, 16) + 15) & ~15, base, start
 
