@@ -296,6 +296,14 @@ input values or proof of correct behavior. After changing a plan or adapter, run
 shared Python, Ghidra and GPU tests and `uv run sass-refresh-coverage`. Generating a
 plan gives no GPU evidence; only an actual passing hardware run does.
 
+The remaining-operation adapters in `harness/autocase_remaining.py` use memory and
+warp references for values, and supplied synchronization handlers for event contracts.
+An explicit `branches: true` in a structured p-code limit permits generic-memory
+window routing; its exact named-effect guard still rejects value/opaque primitives.
+MUFU error profiles are diagnostic contracts only: the planner leaves numerical
+coverage blocked until an independent hardware-specific approximation oracle exists.
+Synchronization profiles do not claim to validate a multithread scheduler.
+
 ### Shared-case hardware evidence
 
 `baseline/gpu_case_passes.json` records a passing family's selected inputs/expectations,

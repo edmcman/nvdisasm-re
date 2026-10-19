@@ -9,16 +9,10 @@ def loads_stores(c):
     for op, space in [("ldg", "ram"), ("lds", "shared"), ("ldl", "localmem")]:
         for sz, data, want in [("S8", "ff", 0xffffffff), ("U16", "3412", 0x1234), ("32", "78563412", 0x12345678),
                                ("64", "0100000002000000", 1), ("128", "01000000020000000300000004000000", 1)]:
+            if op != "ldg" and sz not in ("64","128"): continue  # LDG remains partial; ordinary narrow LDS/LDL accesses are generated.
             expected = {"R8": want, **({"R9": 2} if sz in ("64", "128") else {}), **(dict(R10=3, R11=4) if sz == "128" else {})}
             c.add(op + "__sImmOffset", dict(Rd=8, Ra=2, Ra_offset=-4, sz=sz), dict(R2=0x104, R3=0), expected,
                   memory=[dict(space=space, address=0x100, hex=data)])
-    for op, space in [("stg", "ram"), ("sts", "shared"), ("stl", "localmem")]:
-        c.add(op + "__sImmOffset", dict(Ra=2, Ra_offset=0, Rb=4, sz="32"), dict(R2=0x100, R3=0, R4=0x12345678), dict(__memory="78563412"),
-              observe_memory=[dict(space=space, address=0x100, size=4)])
-    # Shared-memory X4/X8/X16 addressing scales the base register without changing it.
-    for stride, factor in [("X4", 4), ("X8", 8), ("X16", 16)]:
-        c.add("lds__sImmOffset", dict(Rd=8, Ra=2, Ra_offset=4, stride=stride), dict(R2=0x10), dict(R8=0x12345678),
-              memory=[dict(space="shared", address=0x10 * factor + 4, hex="78563412")])
     c.add("mov__RC", dict(Rd=8, Sb_bank=2, Sb_addr=16, PixMaskU04=15), {}, dict(R8=0x12345678), memory=[cbank(2, 16, 0x12345678)])
     # Aligned 64-bit constant pairs remain partially native in the manifest and
     # cannot be owned by the planner's ordinary native-form enumeration.
@@ -152,7 +146,7 @@ def qspc(c):
                       context=context, hardware={'adapter': 'qspc', 'space': origin})
 
 
-@retained("Aligned constant pairs are partially native; window edges/decoys, descriptors, zero-fill guards, masked/cluster queries, physical query anchors and error cases exceed generated ordinary profiles.")
+@retained("LDG predicate-output forms and aligned memory/constant register pairs are partially native; window edges/decoys, descriptors, zero-fill guards, masked/cluster queries, physical query anchors and error cases exceed generated ordinary profiles.")
 def emulator_cases(c):
     loads_stores(c); generic(c); descriptors(c); zero_fill(c); qspc(c)
 

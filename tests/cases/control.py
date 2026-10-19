@@ -4,7 +4,7 @@ whole-kernel execution limits."""
 from tests.harness.manual import retained
 
 
-@retained("Hardware special-register anchors, opaque guards, runtime synchronization events and kernel termination errors exercise contracts beyond generated value/PC profiles.")
+@retained("Hardware special-register anchors, opaque guards, missing synchronization-context/MUFU approximation errors and kernel termination limits exercise contracts beyond generated profiles.")
 def emulator_cases(c):
     # Physical zero-SR pair: seeded destinations prove overwrite; generated SR profiles use synthetic state.
     c.add("cs2r_", dict(Rd=8, SRa="SRZ", sz="64"), dict(R8=1, R9=2), dict(R8=0, R9=0))
@@ -15,15 +15,9 @@ def emulator_cases(c):
     # The physical branch adapter currently supports this exact displacement.
     c.add("bra_", dict(sImm=32), {}, dict(__counter=0x1030))
     c.add("bra_", dict(sImm=32, Pp=0), dict(P0=0), dict(__counter=0x1010))
-    c.add("bssy_", dict(Pp=0), dict(P0=0), dict(__events=0))
     c.add("bssy_", {}, {}, dict(error="synchronization context required"))
-    c.add("bsync_", {}, {}, dict(__events=1), context={"synchronization": {"bsync": True}})
-    c.add("bar__SYNCALL_noSrc_II", {}, {}, dict(__events=1), context={"synchronization": {"bar": True}})
-    # Convergence-barrier state and warp synchronization come from the environment, like BSSY/BSYNC.
-    c.add("bmov_clear__Rd", dict(Rd=8, cbu_state="B0"), {}, dict(R8=0x55, __events=1), context={"synchronization": {"bmov": {"B0": 0x55}}})
+    # Missing convergence state must fail instead of silently treating BMOV as a no-op.
     c.add("bmov_clear__Rd", dict(Rd=8, cbu_state="B0"), {}, dict(error="synchronization context required"))
-    c.add("break_inst_", dict(barReg="B1"), {}, dict(__events=1), context={"synchronization": {"break": True}})
-    c.add("warpsync__RIR", dict(Sb=0xffffffff), {}, dict(__events=1), context={"synchronization": {"warpsync": True}})
     c.add("mufu__RRR_RR", dict(Rd=8, Rb=2), dict(R2=0x3f800000), dict(error="MUFU approximation"))
     for name, cls, fields, message in [("loop_limit", "bra_", dict(sImm=-16), "kernel instruction limit"),
                                        ("zero_target", "bra_", dict(sImm=-0x100010), "terminated without EXIT"),

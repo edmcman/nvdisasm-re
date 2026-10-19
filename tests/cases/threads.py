@@ -2,58 +2,45 @@
 cooperative blocks (warps in lockstep, shared memory, BAR.SYNC) against the SM89 GPU (GPU fixtures)."""
 import random
 import struct
+from tests.harness.manual import retained
 
 
+@retained("Hardware-established inactive-source/segment shuffle vectors, same-low-word wide matches, sparse/single-lane reductions and ELECT member masks supplement generated form profiles; opaque ELECT remains unresolved.")
 def emulator_cases(c):
-    warp = dict(values=list(range(32)), predicates=[i % 2 for i in range(32)], lane=3, active=0xffffffff)
-    c.add("shfl__RRR", dict(Rd=8, Pu=0, Ra=2, Rb=4, Rc=6, shflmd="IDX"), dict(R2=3, R4=5, R6=31), dict(R8=5, P0=1), context={"warp": warp})
+    whole = dict(values=list(range(32)), predicates=[i % 2 for i in range(32)], lane=3, active=0xffffffff)
     # A valid source lane outside the active mask yields 0 with Pu true (SM89 GPU); an out-of-range one keeps the lane's own value.
     for mode, lane, b, cval in [("IDX", 3, 5, 31), ("IDX", 0, 5, 31), ("DOWN", 3, 2, 31), ("DOWN", 4, 4, 31), ("BFLY", 4, 4, 31), ("BFLY", 1, 5, 31), ("UP", 6, 2, 0), ("UP", 8, 3, 0)]:
         for active in (mask | 1 << lane for mask in (0xffffffdf, 0x55555555, 0x0000ffff, 0x80000001)):
             source = {"IDX": b, "UP": lane - b, "DOWN": lane + b, "BFLY": lane ^ b}[mode]
             if not 0 <= source < 32 or active >> source & 1: continue
             c.add("shfl__RRR", dict(Rd=8, Pu=0, Ra=2, Rb=4, Rc=6, shflmd=mode), dict(R2=lane, R4=b, R6=cval), dict(R8=0, P0=1),
-                  context={"warp": dict(warp, lane=lane, active=active)})
+                  context={"warp": dict(whole, lane=lane, active=active)})
     # SM89 GPU results (lane, b, c -> source lane, Pu): UP's bound is the segment start, BFLY may
     # leave the segment downward, b's bits above 4 are ignored.
     for mode, lane, b, cval, src, ok in [("UP", 13, 35, 0x0, 10, 1), ("UP", 29, 26, 0x4, 29, 0),
                                          ("BFLY", 25, 25, 0x100, 0, 1), ("BFLY", 25, 22, 0x1f10, 15, 1), ("BFLY", 1, 41, 0x0, 1, 0),
                                          ("DOWN", 3, 5, 0xc, 8, 1), ("DOWN", 1, 41, 0x0, 1, 0), ("IDX", 9, 2227890262, 0x181f, 14, 1)]:
         c.add("shfl__RRR", dict(Rd=8, Pu=0, Ra=2, Rb=4, Rc=6, shflmd=mode), dict(R2=lane, R4=b, R6=cval),
-              dict(R8=src, P0=ok), context={"warp": dict(warp, lane=lane)})
-    c.add("vote_", dict(Rd=8, Pu=0, Pp=1, voteop="ANY"), dict(P1=1), dict(R8=0xaaaaaaaa, P0=1), context={"warp": warp})
-    from tests.refs import warp as ref
+              dict(R8=src, P0=ok), context={"warp": dict(whole, lane=lane)})
+    from tests.refs import warp
     # Inactive lanes take no part: the context's active mask, not the reference's whole warp.
-    half = dict(warp, active=0x0000ffff)
-    patterns = (warp, half) + tuple(dict(warp, active=mask) for mask in (0xaaaaaaaa, 0x00000008, 0x80000009, 0x0f0f0f0f))  # all include lane 3
-    for ctx, predicates in ((warp, warp["predicates"]), (half, warp["predicates"][:16] + [0] * 16)):
-        ballot, any_, all_, uni = ref.vote(predicates)
-        full = ctx["active"] == 0xffffffff
-        for mode, result in (("ANY", any_), ("ALL", all_ if full else int(ballot == ctx["active"])), ("EQ", uni if full else int(ballot in (0, ctx["active"])))):
-            c.add("voteu_", dict(URd=8, UPu=0, Pp=1, voteop=mode), dict(P1=1), dict(UR8=ballot, UP0=result), context={"warp": ctx})
-        c.add("voteu_", dict(URd=8, UPu=0, Pp=1, voteop="ANY", **{"Pp@not": 1}), dict(P1=1), dict(UR8=ctx["active"] & ~ballot, UP0=1), context={"warp": ctx})
-    values = [l % 3 for l in range(32)]
-    for ctx in (warp, half):
-        lanes = [v if ctx["active"] >> l & 1 else None for l, v in enumerate(values)]
-        c.add("match__ANY", dict(Rd=8, Ra=2), dict(R2=values[3]), dict(R8=sum(1 << l for l, v in enumerate(lanes) if v == values[3])),
-              context={"warp": dict(ctx, values=values)})
-        for ws, same in ((values, 0), ([7] * 32, 1)):
-            c.add("match__ALL", dict(Pu=0, Rd=8, Ra=2), dict(R2=ws[3]), dict(R8=ctx["active"] if same else 0, P0=same), context={"warp": dict(ctx, values=ws)})
+    half = dict(whole, active=0x0000ffff)
+    patterns = (whole, half) + tuple(dict(whole, active=mask) for mask in (0xaaaaaaaa, 0x00000008, 0x80000009, 0x0f0f0f0f))  # all include lane 3
     wide = [(l % 2) << 32 | 5 for l in range(32)]
-    c.add("match__ANY", dict(Rd=8, Ra=2, sz="U64"), dict(R2=5, R3=1), dict(R8=ref.match_any(wide)[3]), context={"warp": dict(warp, values=wide)})
+    c.add("match__ANY", dict(Rd=8, Ra=2, sz="U64"), dict(R2=5, R3=1), dict(R8=warp.match_any(wide)[3]), context={"warp": dict(whole, values=wide)})
     words = [(0x9e3779b9 * l) & 0xffffffff for l in range(32)]
     for op, label, signed in (("add", "SUM", False), ("and", "AND", False), ("or", "OR", False), ("xor", "XOR", False),
                               ("min", "MIN", False), ("max", "MAX", False), ("min", "MIN", True), ("max", "MAX", True)):
         for ctx in patterns:
-            want = ref.redux(op, [x for l, x in enumerate(words) if ctx["active"] >> l & 1], signed)
+            want = warp.redux(op, [x for l, x in enumerate(words) if ctx["active"] >> l & 1], signed)
             c.add("redux_", dict(URd=8, Ra=2, op=label, sz="S32" if signed else "U32"), dict(R2=words[3]), dict(UR8=want),
                   context={"warp": dict(ctx, values=words)})
     # ELECT (SM90+): the lowest active member of URa's mask (~URa with the invert bit) leads.
     for mask, invert, lane in ((0xffffffff, 0, 0), (0xfff00000, 0, 20), (0xfff00000, 1, 3), (0x00f00000, 0, 20)):
-        leader, flags = ref.elect((~mask if invert else mask) & 0xffffffff)
+        leader, flags = warp.elect((~mask if invert else mask) & 0xffffffff)
         c.add("elect_", dict(Pu=0, URd=8, URa=4, **{"URa@invert": invert}), dict(UR4=mask), dict(P0=flags[lane], UR8=leader),
-              context={"warp": dict(warp, lane=lane)})
-    c.add("elect_Pp_", dict(Pu=0, URd=8, Pp=1), {}, dict(error="sass_opaque_ELECT"), context={"warp": warp})
+              context={"warp": dict(whole, lane=lane)})
+    c.add("elect_Pp_", dict(Pu=0, URd=8, Pp=1), {}, dict(error="sass_opaque_ELECT"), context={"warp": whole})
 
     for index, case in enumerate(c):
         c[index] = case._replace(hardware={'adapter': 'warp'})

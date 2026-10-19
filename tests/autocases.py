@@ -13,7 +13,7 @@ from sass.sleigh.build import ARCHES
 from sass.sleigh.modifiers import settings
 from tests.cases import emulator_cases
 from tests.harness import autocases
-from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp, autocase_system, autocase_mixed_fp
+from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp, autocase_system, autocase_mixed_fp, autocase_remaining
 
 
 def forms(row):
@@ -62,7 +62,7 @@ def plan(arch, rows):
             continue
         blocked_reasons = Counter()
         unresolved = 0
-        compact = row['opcode'] in autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS | autocase_system.OPS | autocase_mixed_fp.OPS
+        compact = row['opcode'] in autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS | autocase_system.OPS | autocase_mixed_fp.OPS | autocase_remaining.OPS
         for form, status in forms(row):
             counts['legal'] += 1
             if status not in ('native', 'primitive'):
@@ -73,12 +73,12 @@ def plan(arch, rows):
             # Retained regressions supplement ordinary coverage; they must not suppress it.
             profiles = autocase_profiles.names(row['opcode'], row['cls'], form)
             try:
-                reason = autocase_extended.blocked_reason(row['opcode'],form) or autocase_packed_fp.blocked_reason(row['opcode'],form) or autocase_wide_fp.blocked_reason(row['opcode'],form)
+                reason = ('MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage' if row['opcode']=='MUFU' else None) or autocase_extended.blocked_reason(row['opcode'],form) or autocase_packed_fp.blocked_reason(row['opcode'],form) or autocase_wide_fp.blocked_reason(row['opcode'],form)
                 if reason: raise autocases.Unsupported(reason)
                 autocases.generate(arch, row['cls'], form, profiles=profiles, native=status == 'native')
             except (autocases.Unsupported, ValueError) as error:
                 counts['blocked'] += 1
-                if row['opcode'] in autocase_extended.OPS | autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS | autocase_system.OPS | autocase_mixed_fp.OPS:
+                if row['opcode'] in autocase_extended.OPS | autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS | autocase_system.OPS | autocase_mixed_fp.OPS | autocase_remaining.OPS:
                     blocked_reasons[str(error)] += 1
                 else: gaps.append(dict(cls=row['cls'], settings=form, reason=str(error)))
             else:
