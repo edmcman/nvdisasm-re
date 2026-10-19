@@ -143,7 +143,30 @@ to regenerate `quantization.png` and its SVG version.
 
 All measured evaluator offsets are covered, but the outer reduction rule has
 not been exhaustively checked across every binary32 input. The resulting
-SIN/COS model is exact on the saved full-input observations; other architectures,
-modifiers and half-precision forms are untested. This remains research code,
-with no runtime handler or new regression verification credit. Matching the
-data establishes a behavioral implementation, not a unique physical circuit.
+SIN/COS model is exact on the saved full-input observations. Other architectures
+and half-precision forms remain unverified on hardware. The runtime integration
+also checks full-width SIN/COS operand forms and source modifiers through shared
+SM89 GPU cases. Matching the data establishes a behavioral implementation, not a
+unique physical circuit.
+
+## Runtime integration
+
+The production CPU primitive is `src/sass/semantics/fp/mufu.py`, connected through
+`runtime.py` for full-width SIN/COS. It embeds the coefficient table and needs no
+research files or NumPy. `tests/refs/mufu.py` independently enumerates the retained
+square terms and uses exact rational rounding. `tests/test_mufu.py --exhaustive`
+compares the production evaluator against every captured reduced-grid output.
+
+Runtime checks (from the repository root):
+
+```sh
+uv run pytest tests/test_mufu.py tests/test_remaining_autocases.py --arch all --exhaustive
+uv run pytest --arch all --fp all
+uv run sass-build-languages
+uv run pytest -m ghidra --family mufu --arch all --fp all
+uv run pytest -m gpu --require-gpu --family mufu
+```
+
+Language builds and GPU checks run outside the sandbox. The targeted shared
+regressions supplement the generated ordinary forms; the saved corpus is checked
+by runtime tests and whole-kernel fixtures rather than duplicated as manual cases.

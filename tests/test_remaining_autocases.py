@@ -44,9 +44,20 @@ def test_explicit_branch_permission_keeps_effect_guard():
 
 
 def test_mufu_error_contract_does_not_claim_values():
-    cases=generated('SM89','mufu__RRR_RR',{},'exact')
+    cases=generated('SM89','mufu__RRR_RR',{'mufuop':'RCP'},'exact')
     assert cases
     assert all(c.expected=={'error':'MUFU approximation'} for c in cases)
+
+
+@pytest.mark.parametrize('op', ['SIN', 'COS'])
+def test_mufu_sincos_profiles_have_values(op):
+    from tests.refs import mufu
+    cases=generated('SM89','mufu__RRR_RR',{'mufuop':op},'exact')
+    assert cases
+    for case in cases:
+        destination=next(iter(case.expected))
+        assert case.expected[destination] == mufu.sincos(case.request['registers']['R2'],op)
+        assert not case.hardware or not case.hardware.get('skip')
 
 
 def test_mufu_error_checks_never_enter_value_coverage(monkeypatch):

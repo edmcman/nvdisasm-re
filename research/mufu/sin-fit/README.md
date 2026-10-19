@@ -167,4 +167,6 @@ It is calibrated against 16,262 offsets from the earlier independent
 `Cases.probe` / `device_cases.observe` wrappers. The reduced domain was captured
 in bulk for throughput; no expected values enter the GPU runner. Only SM89's
 plain register SIN form is measured here. Reusing this evaluator for COS depends
-on the separately tested reduction identity. No verification coverage is claimed.
+on the separately tested reduction identity. This bulk capture alone does not
+create verification credit. The subsequent CPU runtime integration and shared
+operand/modifier regressions are described in [QUANTIZATION.md](QUANTIZATION.md#runtime-integration).

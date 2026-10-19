@@ -22,7 +22,7 @@
 - `src/sass/semantics/operands.py` preserves exact register effects for all classes, and materializes typed immediate/table/modifier/constant-bank values for supported operations. CX/descriptors/attribute/stateful operands require an explicit `sass_operand_value` provider.
 - Every opcode with semantics is a family (`src/sass/semantics/families/`, Phase 6c, 2026-10-13); `src/sass/semantics/operations.py` only routes a class to its family and `dispatch`es the native body behind decode-time selector patterns, with the opaque call or the family's runtime primitive (`fallback='prim'`, or `primitive()` rows such as QSPC and the warp/synchronization/MUFU family in `src/sass/semantics/families/runtime.py`) for the rest. Unknown conventions remain opaque: ISETP.EX, SM120 extra IMNMX predicates, extended memory and the descriptors of opcodes without a family, branch-stack CALL/RET depth changes.
 - FADD/FMUL/FFMA/FSETP are native p-code with .FTZ/.SAT/FMUL scale; only .FMZ uses `sass_prim_*` (`dispatch(b,'prim')`). RN FFMA is `float2float(fp64 a*b + c)`: double rounding, rare 1-ulp differences. Ghidra 12.1.4's emulator rounds results in (2^-150, 2^-149) to zero instead of 2^-149 (`FloatFormat.getEncoding` `n < 0` branch); tests exclude that band.
-- `src/sass/semantics/runtime.py` (test-only; Ghidra never loads it) supplies strict CPU primitives; `src/sass/semantics/fp/softfloat.py` uses exact rational IEEE rounding. MUFU requires a hardware-specific handler. Warp operations use explicit 32-lane context (cooperative kernels gather it per instruction); synchronization events require acknowledgement and do not implement a scheduler. Barrier reductions require a handler.
+- `src/sass/semantics/runtime.py` (test-only; Ghidra never loads it) supplies strict CPU primitives; `src/sass/semantics/fp/softfloat.py` uses exact rational IEEE rounding. MUFU.SIN/COS use the recovered SM89 integer model in `fp/mufu.py`; other MUFU operations and FP16 forms require a hardware-specific handler. Warp operations use explicit 32-lane context (cooperative kernels gather it per instruction); synchronization events require acknowledgement and do not implement a scheduler. Barrier reductions require a handler.
 - Special registers are a register file at offset 0x3000 named from the md `SpecialRegister` enum (`SR_CTAID.X`; `_64` views for CS2R.64); S2R/CS2R are plain copies and SRZ reads 0. Emulation seeds them by name like any register; unseeded ones read 0.
 - Spaces: `ram`, `cbank` (bank << 32 | uint32(offset)), `shared`, `localmem`. The identifier `local` is reserved in SLEIGH. The Phase 5 test harness reads parameter offsets from cubin PARAM_CBANK/KPARAM_INFO records; these SM89 pointer kernels use bank 0 base 0x160. The general loader/compiler prototype remains Phase 6 work.
 - Detailed per-class coverage manifests are generated beside each `.sla` with `--coverage`; committed `processor/SASS/semantics/coverage.json` summarizes all architectures. Native status records a candidate override with selector guards, not all-encoding coverage.
@@ -584,8 +584,13 @@ values, predicates, active mask, and lane index. Inactive shuffle sources
 are rejected because their values are undefined. BAR/BSSY/BSYNC require an
 explicit synchronization event context; recording an acknowledged event is
 not a warp-scheduling implementation. Barrier reductions/results require a
-handler. MUFU is a named primitive that requires a hardware-specific handler;
-it does not substitute host approximations silently. CPU arithmetic references
+handler. MUFU remains a named primitive. Its CPU runtime implements full-width
+SIN/COS with fixed-point turn reduction, 64 integer coefficient triples, retained
+square terms, and final float32 rounding toward zero (`fp/mufu.py`, 2026-10-19).
+Register, uniform, immediate and constant sources use the same evaluator after
+source modifiers. The model is generated wherever those forms exist; hardware
+evidence is SM89 only. Other MUFU operations and FP16 forms still require a
+handler. CPU arithmetic references
 use the [NVIDIA PTX arithmetic definitions](https://docs.nvidia.com/cuda/parallel-thread-execution/)
 as reference conventions; GPU checks are needed to establish SASS equivalence.
 
@@ -720,7 +725,7 @@ for a PTX vabsdiff4 instruction.
 Floating results are bit-exact except that two NaNs compare equal regardless
 of payload/sign (independently for each packed half). MMA move constants are
 compared bit-exactly, including NaN canonicalization. FTZ and saturation have no additional numeric tolerance.
-MUFU approximations, warp collectives, device calls/returns, barrier reductions,
+MUFU operations other than full-width SIN/COS, warp collectives, device calls/returns, barrier reductions,
 and cross-thread memory ordering remain outside this hardware validation.
 The loop fixture explicitly acknowledges BSSY/BSYNC events; this verifies its
 per-thread result without asserting a warp scheduler.
