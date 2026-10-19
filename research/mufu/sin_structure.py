@@ -132,6 +132,58 @@ def plots(outputs, original):
     matplotlib.pyplot.close(figure)
 
 
+def quantization_plots(outputs, original):
+    from research.mufu import sin_quantization
+
+    path = OUT / 'quantized-model.json'
+    if not path.exists():
+        return
+    model = json.loads(path.read_text())
+    figure, axes = matplotlib.pyplot.subplots(2, 2, figsize=(13, 8), constrained_layout=True)
+    r = numpy.arange(4096, dtype=numpy.int64)
+    ordinary = (r*r) >> 19
+    truncated = sin_quantization.square_products(r)
+    axes[0, 0].plot(r, ordinary, label='Ordinary square, then discard low bits', linewidth=1)
+    axes[0, 0].plot(r, truncated, label='Discard small product terms, then add', linewidth=1)
+    axes[0, 0].set(title='The square operation differs before coefficient multiplication',
+        xlabel='Local offset d', ylabel='Square in units of 2¹⁹')
+    axes[0, 0].legend(fontsize=8)
+    linear = r * sin_fit.values(outputs[1:2])[0]
+    actual = sin_fit.values(outputs[r])
+    predicted = sin_fit.values(sin_quantization.evaluate(model, r))
+    axes[0, 1].plot(r, (actual-linear)*1e12, color='black', linewidth=1.7, label='GPU')
+    axes[0, 1].plot(r, (predicted-linear)*1e12, color='C1', linestyle='--', linewidth=.8,
+                     label='Integer model (exact overlap)')
+    axes[0, 1].set(title='The corrected model reproduces the nonlinear staircase',
+        xlabel='Reduced offset r', ylabel='Output minus r × hardware step, × 10¹²')
+    axes[0, 1].legend(fontsize=8)
+    r = numpy.arange(22*131072, 23*131072, dtype=numpy.int64)
+    initial = sin_fit.evaluate(original, r).astype(numpy.float32).view(numpy.uint32)
+    corrected = sin_quantization.evaluate(model, r)
+    for words, label, color in ((initial, 'Earlier smooth quadratic', 'C0'),
+                                (corrected, 'Integer model', 'C1')):
+        error = words.astype(numpy.int64) - outputs[r].astype(numpy.int64)
+        envelope(axes[1, 0], r / 131072 - 22, error, 128, label=label, color=color)
+    axes[1, 0].set(title='Segment 22: every corrected output is exact',
+        xlabel='Position within segment 22', ylabel='Predicted minus GPU, in ulps')
+    axes[1, 0].legend(fontsize=8)
+    earlier = json.loads((OUT / 'segments.json').read_text())
+    axes[1, 1].bar(range(64), [100*s['exact_fraction'] for s in earlier],
+                   label='Earlier smooth quadratic', color='C0')
+    axes[1, 1].plot(range(64), [100]*64, color='C1', label='Integer model: all 64 exact')
+    axes[1, 1].set(title='Exhaustive comparisons across every segment',
+        xlabel='Segment', ylabel='Bit-exact outputs (%)', ylim=(0, 105))
+    axes[1, 1].legend(fontsize=8)
+    for axis in axes.flat:
+        axis.grid(alpha=.15)
+    figure.suptitle('SM89 MUFU.SIN: truncated product terms and final rounding toward zero', fontsize=13)
+    figure.savefig(OUT / 'quantization.png', dpi=180)
+    figure.savefig(OUT / 'quantization.svg', metadata={'Date': None})
+    vector = OUT / 'quantization.svg'
+    vector.write_text('\n'.join(line.rstrip() for line in vector.read_text().splitlines()) + '\n')
+    matplotlib.pyplot.close(figure)
+
+
 def main():
     outputs, metadata = sin_fit.read_table(OUT)
     original = json.loads((OUT / 'model.json').read_text())
@@ -163,6 +215,7 @@ def main():
     (OUT / 'structure.json').write_text(json.dumps(report, indent=2) + '\n')
     (OUT / 'dense-model.json').write_text(json.dumps(dense_model, indent=2) + '\n')
     plots(outputs, original)
+    quantization_plots(outputs, original)
     print(json.dumps(feasibility, indent=2))
 
 

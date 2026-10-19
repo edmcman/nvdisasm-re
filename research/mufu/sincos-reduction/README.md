@@ -2,7 +2,9 @@
 
 This investigation checks the argument reduction proposed by sass2cu on
 2026-10-18, using new GPU observations rather than fitting the saved MUFU sample.
-It does not implement a MUFU runtime handler or establish a bit-exact evaluator.
+The later [quantization investigation](../sin-fit/QUANTIZATION.md) provides a
+bit-exact evaluator for the complete captured reduced domain. This file describes
+the argument-reduction experiment; both investigations remain research code.
 
 Run from the repository root, outside the sandbox for GPU access:
 
@@ -101,5 +103,6 @@ COS input `0x3e7fffff` produces `0x00000000`.
 
 The largest evaluator residuals after reduction are about 1.584e-7 for SIN
 and 1.571e-7 for COS on this sample. The reduction hypothesis passes these
-checks; the evaluator itself remains unresolved. No runtime semantics, shared
+checks; the later integer model resolves evaluation on the captured reduced
+domain. No runtime semantics, shared
 regression cases, coverage manifests, or verification evidence were changed.

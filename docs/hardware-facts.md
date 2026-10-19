@@ -78,7 +78,8 @@ COS at integer/half-integer inputs is near +1/-1, respectively, rather than zero
 This finite experiment supports the reduction identity throughout the sampled
 quadrants, including their interiors; it is not an exhaustive proof or evidence
 that the physical implementation literally uses a bitwise complement. The final
-evaluator remains unmodelled. Maximum residuals against ideal sine *after* this
+evaluator was initially left to the GPU (the fixed-point follow-up below models
+it). Maximum residuals against ideal sine *after* this
 reduction are 1.584e-7 for SIN and 1.571e-7 for COS on these vectors, not universal
 error bounds. MUFU remains a runtime primitive.
 
@@ -104,7 +105,7 @@ one ulp, worst 14 ulps, maximum absolute difference 5.960e-8. Ordinary sine
 ulps and maximum absolute difference 1.788e-7. These describe the captured reduced
 domain, rather than an exhaustive test of argument reduction on all binary32 inputs.
 
-**No fitted segment is exact everywhere.** Exhaustive per-segment comparisons
+**None of these initial smooth fits is exact everywhere.** Exhaustive per-segment comparisons
 are in `segments.json`: the best is segment 22 (121,874/131,072 exact, 92.98%,
 otherwise one ulp away). Float64 Horner evaluation of fitted coefficients followed
 by float32 rounding is an approximation; the hardware's internal coefficient
@@ -129,6 +130,55 @@ is 0.297874 ulp (solver tolerance 1e-9 in ulp units). This is numerical evidence
 for missing internal quantization or finer structure, not a formal reconstruction
 of hardware arithmetic. Plots (`residuals.png`/`.svg`), alternative fit coefficients
 and the detailed comparisons (`structure.json`) are in `research/mufu/sin-fit/`.
+
+### Bit-exact reduced-angle evaluator (follow-up, 2026-10-19)
+
+**Semantics finding:** replacing the ordinary square with a truncated sum of
+square partial products and converting the final fixed-point value toward zero
+gives a compact model that matches all 8,388,608 captured reduced offsets, with
+every one of the 64 segments exact. `research/mufu/sin_quantization.py` recovers
+integer coefficients from 8,192 offsets per segment (524,288 fitting positions),
+snaps them to fixed grids, and checks all remaining 7,864,320 coefficient
+holdouts. The arithmetic was discovered retrospectively from segment 0's
+captured staircase, before applying it to the other segments.
+
+For reduced offset `r`, let `segment = r >> 17` and `d = r & 0x1ffff`.
+Calculate the modified square `I` by retaining individual diagonal terms
+`2^(2i)` only for `2i >= 19`, and combined symmetric cross terms
+`2^(i+j+1)` only for `i+j+1 >= 19`, then adding them in units of `2^19`.
+Equivalently, with `H = d >> 10` and `L = d & 1023`:
+
+```python
+I = 2 * H * H
+for k in range(7):
+    I += ((H >> k) & 1) * (L >> (8 - k))
+```
+
+Select integer coefficients `[a0,a1,a2]` from `quantized-model.json` and form
+`N = (a0 << 12) + a1*d + a2*I`. Convert `N * 2^-37` to float32 toward zero.
+The first segment's triple is `[0,25737,-14]`; its modified square is zero for
+all `d < 1024`. This explains both the small-angle gain and the initially linear
+outputs, followed by the nonlinear staircase. All arithmetic before conversion
+is integer arithmetic, with N fitting in 38 bits. These are behavioral scales
+and a successful coefficient table, not measured physical register widths or a
+table extracted from the binary.
+
+Using the same coefficients but squaring normally before dropping low bits
+matches only 77.75% of reduced outputs; changing final conversion to nearest-even
+matches 50.04%. Normalized versions of this arithmetic fitted with 32/128
+segments match 6.51%/45.70%; those comparisons do not exclude every alternative
+parameterization. The 64-entry model also matches the quarter-turn endpoint
+after folding, all 84,488 earlier shared-harness observations, and all 1,462
+original SIN samples and 1,462 COS samples, including signs/zeros/NaNs. Scalar
+enumeration independently checks the fast square and integer float conversion.
+
+`research/mufu/sin-fit/QUANTIZATION.md` explains the recovery and reproduction;
+`quantization.json` has per-segment training/holdout results and arithmetic
+ablations, and `quantization.png`/`.svg` show the corrected errors. This is an
+exact model of the captured SM89 reduced domain. Outer argument reduction has
+not been exhaustively checked on every binary32 input, other architectures and
+forms are untested, and the physical circuit is not uniquely identified. Runtime
+semantics and regression verification evidence are unchanged.
 
 ## Starred encoding literals (2026-10-16, SM89)
 `BITS_3_83_81_Pu=*7;`-style starred literals are ignored by the decoder but ptxas writes them. Plain `IMAD` with bits 83:81 = k < 7 clears `Pk` (checked for P0-P3); ptxas emitted 7 in 623 of 623 plain IMAD words in the repo's compiled kernels, and all 9 starred field/value kinds occurring in 10,152 ptxas-emitted instructions matched the md literal every time. The encoder (`sass.assemble.encoding`) writes them in strict and permissive modes (issue #24: the old `pyencode` left them 0).

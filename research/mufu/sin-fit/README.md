@@ -1,11 +1,13 @@
 # Fitting the reduced SM89 sine evaluator
 
 2026-10-19, NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0.
-This is a research approximation, not runtime semantics or a reconstruction of
-NVIDIA's internal coefficients. **None of the 64 fitted segment formulas matches
-every output in its segment.**
+This directory contains the initial smooth fits and the subsequent
+[bit-exact integer model](QUANTIZATION.md). **The corrected model matches all
+8,388,608 reduced grid positions, with all 64 segments exact throughout.**
+It uses truncated square product terms and final conversion toward zero.
+This is research code; the physical circuit and storage formats are not established.
 
-## Results
+## Initial smooth fits
 
 We captured SIN at every reduced grid position `r / 2^25`, for integer
 `0 <= r <= 2^23`: 8,388,609 outputs including the quarter-turn endpoint. Fit
@@ -29,7 +31,8 @@ small offsets, where the relative error is larger.
 Segment 22 is the most accurate: 121,874 of 131,072 positions match exactly
 (92.98%), with all remaining positions one ulp away. Segment 63 is the least
 accurate at 62.82% exact, also within one ulp throughout. `segments.json` reports
-every segment, including the endpoint in segment 63. No segment is 100% exact.
+every initial smooth fit, including the endpoint in segment 63. None of those
+smooth fits is 100% exact; the later integer model is exact in every segment.
 
 The degree/segment sweep in `report.json` shows a sharp improvement between 32
 and 64 quadratic pieces; 128–512 pieces and cubic fits offer little benefit on
@@ -87,7 +90,7 @@ PYTHONPATH=. uv run --no-project --python 3.11 --with numpy --with matplotlib \
   --with scipy python research/mufu/sin_structure.py
 ```
 
-## Formula and examples
+## Formula and examples for the initial smooth fit
 
 After argument reduction gives offset `r`, select segment and local position:
 
