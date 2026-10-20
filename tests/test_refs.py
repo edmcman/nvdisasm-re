@@ -19,6 +19,15 @@ def test_dsetp_minmax_total_order():
         assert dsetp_compare(a, c, 'MIN') == bool(minimum) and dsetp_compare(a, c, 'MAX') == bool(maximum)
 
 
+def test_divergence_branch_observations():
+    from tests.refs.control import divergence_branch
+    # (cond, mask, waiting lanes, Pp, taken) from research/bra_div/observations.json (SM89)
+    for cond, mask, waiting, pp, taken in [("DIV", 0xffffffff, 0, 1, 0), ("CONV", 0xffffffff, 0, 1, 1), ("DIV", 0xffffffff, 0xffff0000, 1, 1),
+                                           ("CONV", 0x0000ff00, 0xffff0000, 1, 1), ("CONV", 0x00ffff00, 0xffff0000, 1, 0), ("DIV", 0, 0xffff0000, 1, 0),
+                                           ("DIV", 0x3, 0xfffffffe, 1, 1), ("CONV", 0xffffffff, 0, 0, 0), ("DIV", 0xffffffff, 0xffff0000, 0, 0)]:
+        assert divergence_branch(cond, mask, waiting, pp) == bool(taken)
+
+
 def test_double_comparison_masks():
     from tests.refs.float import fcompare
     # The comparison nibble selects LT, EQ, GT and unordered outcome bits.

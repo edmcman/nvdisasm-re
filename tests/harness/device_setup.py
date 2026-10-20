@@ -183,7 +183,9 @@ def capture_memory(code, case, temp, output, base, start):
     return output, names
 
 
-def lane_guard(code, temp, value, predicate=6, mask=False):
+def lane_guard(code, temp, value, predicate=6, mask=False, waiting=False):
+    """Lanes outside `value` (a lane id, or a lane mask) exit, or with `waiting` stay alive at a
+    convergence barrier: the returned join, emitted after the capture, is where they wait."""
     code.emit('s2r_', Rd=temp + 4, SRa='SR_LANEID')
     if mask:
         code.mov(f'R{temp + 2}', value)
@@ -192,11 +194,25 @@ def lane_guard(code, temp, value, predicate=6, mask=False):
         code.emit('isetp__RsIR_RIR_noEX', Pu=predicate, Pv='PT', Ra=temp + 2, Sb=0, Pp='PT', icmp='NE', fmt='U32', bop='AND')
     else:
         code.emit('isetp__RsIR_RIR_noEX', Pu=predicate, Pv='PT', Ra=temp + 4, Sb=value, Pp='PT', icmp='EQ', fmt='U32', bop='AND')
-    code.emit('exit_', Pg=predicate, **{'Pg@not': 1})
+    if not waiting: return code.emit('exit_', Pg=predicate, **{'Pg@not': 1})
+    start = len(code.words)
+    code.emit('nop_'); code.emit('nop_')
+    def join():
+        to = lambda i: (len(code.words) - i - 1) * 16
+        code.words[start] = device_cases.scheduled(device_cases.op('bssy_', barReg='B0', Sa=to(start)))
+        code.words[start + 1] = device_cases.scheduled(device_cases.op('bra_', Pg=predicate, **{'Pg@not': 1}, sImm=to(start + 1)))
+        code.emit('bsync_', barReg='B0'); code.emit('exit_')
+    return join
 
 
 def warp(code, case, temp, arena):
     context = case.request['context']['warp']; d = device_cases.decoded(case.request['word'])
+    # A branch reads no lane values, only which lanes execute it and which of the others still live:
+    # every inactive lane exits, or every one waits at a convergence barrier.
+    if d.klass.mnemonic == 'BRA':
+        waiting = context.get('waiting', 0)
+        if waiting not in (0, ~context['active'] & 0xffffffff): raise ValueError(f'{case.id}: waiting lanes must be none or every inactive lane')
+        return lane_guard(code, temp, context['active'], mask=True, waiting=bool(waiting))
     values = context.get('predicates') if d.klass.mnemonic in ('VOTE', 'VOTEU') else context.get('values')
     if values is None or len(values) != 32: raise ValueError(f'{case.id}: warp requires 32 lane inputs')
     start = (len(arena) + 255) & ~255
@@ -212,7 +228,7 @@ def warp(code, case, temp, arena):
     else:
         code.emit('ldg__sImmOffset', Rd=d.env['Ra'], Ra=temp, Ra_offset=0,
                   sz='64' if any(v > 0xffffffff for v in values) else '32', e='E')
-    lane_guard(code, temp, context['active'], mask=True)
+    return lane_guard(code, temp, context['active'], mask=True)
 
 
 def qspc(code, case, temp, arena):

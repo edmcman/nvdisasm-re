@@ -118,8 +118,8 @@ Iterate cheapest-first, as AGENTS.md orders:
    pass for the whole family to record evidence. A reference that disagrees with the
    GPU is wrong; never loosen `same`/`excused` to make it pass.
 5. Regenerate every plan the change affects:
-   `for a in SM75 SM80 SM86 SM89 SM90 SM100 SM101 SM103 SM107 SM120; do uv run python -m tests.autocases $a --write; done`
-   (minutes each; run in the background). Then run the full-architecture Python and
+   `for a in SM75 SM80 SM86 SM89 SM90 SM100 SM101 SM103 SM107 SM120; do uv run python -m tests.autocases $a --write & done; wait`
+   (minutes each, one core per architecture, so run them in parallel and in the background). Then run the full-architecture Python and
    Ghidra tests.
 6. `uv run sass-refresh-coverage` (~7 min, background), then rerun `gaps.py OP` for
    the remaining gaps.

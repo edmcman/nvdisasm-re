@@ -5,45 +5,24 @@ memory [{space,address,hex}], observe registers/memory, optional runtime context
 request (`sass.ghidra_bridge.kernel_request`), whose kernel.trace adds each step's register writes for
 the first kernel.trace_threads threads. In-process callers start the JVM and use `session`.
 """
-import json,sys,os
+import json,sys
 from collections import Counter
 from pathlib import Path
 sys.path[:0]=[str(Path(__file__).parent),str(Path(__file__).parents[2])]
 import pyghidra
-from ghidra_decode import GHIDRA,load_language,parse
+from ghidra_decode import GHIDRA,java_class,load_language,parse
 from sass.semantics.runtime import Runtime
 
-# Warp collectives: the runtime warp-context key and the operand each lane contributes (None: only
-# the active mask).
+# Instructions reading warp state (collectives, BRA.DIV/.CONV): the runtime warp-context key and the
+# operand each lane contributes (None: only the active and waiting masks).
 WARP_INPUTS={'SHFL':('values','Ra'),'VOTE':('predicates','Pp'),'VOTEU':('predicates','Pp'),'MATCH':('values','Ra'),
-             'REDUX':('values','Ra'),'ELECT':('values',None)}
-
-
-def block_emulator(jpype):
-    """src/sass/ghidra_bridge/BlockEmulator.java, compiled against this Ghidra into the cache and loaded beside it."""
-    import hashlib,subprocess,tempfile
-    from sass.paths import CACHE
-    from java.io import File
-    from java.net import URL,URLClassLoader
-    from java.lang import Class
-    from ghidra.pcode.emu import PcodeEmulator
-    source=Path(__file__).parent/'BlockEmulator.java'
-    out=CACHE/'java'/hashlib.sha256(source.read_bytes()+GHIDRA.encode()).hexdigest()[:16]
-    if not out.exists():
-        jars=':'.join(map(str,Path(GHIDRA,'Ghidra').rglob('*.jar')))
-        tmp=tempfile.mkdtemp(dir=out.parent.mkdir(parents=True,exist_ok=True) or out.parent)
-        subprocess.run(['javac','-proc:none','-nowarn','-cp',jars,'-d',tmp,str(source)],check=True)
-        try:os.rename(tmp,out)
-        except OSError:pass   # a concurrent process compiled it first
-    loader=URLClassLoader(jpype.JArray(URL)([File(str(out)).toURI().toURL()]),PcodeEmulator.class_.getClassLoader())
-    return jpype.JClass(Class.forName('sass.BlockEmulator',True,loader))
+             'REDUX':('values','Ra'),'ELECT':('values',None),'BRA':('values',None)}
 
 
 def session(ldefs,langid):
     """A request handler (request dict -> result dict) for one language; the JVM must be running."""
     import jpype
     from java.util import HashMap,ArrayList
-    from java.lang import Class
     from ghidra.pcode.emu import PcodeEmulator
     from ghidra.pcode.exec import PcodeUseropLibrary,PcodeExecutorStatePiece
     from ghidra.program.model.pcode import Varnode
@@ -86,11 +65,7 @@ def session(ldefs,langid):
     # library field is protected; composing it preserves Ghidra's built-in ops.
     thread_class=jpype.JClass('ghidra.pcode.emu.DefaultPcodeThread')
     library_field=thread_class.class_.getDeclaredField('library');library_field.setAccessible(True)
-    class Lazy:
-        def __call__(self,language):
-            if not hasattr(self,'cls'):self.cls=block_emulator(jpype)
-            return self.cls(language)
-    BlockEmulator=Lazy()
+    BlockEmulator=java_class('BlockEmulator')
     def write_memory(state,memory):
         for mem in memory:
             sp=lang.getAddressFactory().getAddressSpace(mem['space']);data=bytes.fromhex(mem['hex'])
@@ -176,7 +151,9 @@ def session(ldefs,langid):
             elif inputs:=WARP_INPUTS.get(d.klass.mnemonic) if cooperative else None:
                 key,source=inputs;values=[0]*32
                 for t in taking:values[t['lane']%32]=operand(t['state'],d,source) if source else 0
-                context['warp']={'active':sum(1<<t['lane']%32 for t in taking),key:values}
+                # waiting: lanes still alive that are not at this instruction (BRA.DIV/.CONV)
+                context['warp']={'active':sum(1<<t['lane']%32 for t in taking),key:values,
+                                 'waiting':sum(1<<t['lane']%32 for t in warp if counter(t)!=0 and t not in active)}
             for t in active:
                 step(t,pc,dict(context,warp=dict(context['warp'],lane=t['lane']%32)) if inputs else context)
                 t['released']=False

@@ -13,7 +13,7 @@
         "reference": 6
       },
       "BRA": {
-        "reference": 4
+        "reference": 12
       },
       "BREAK": {
         "reference": 4
@@ -34,16 +34,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DFMA": {
-        "none": 872,
-        "reference": 24
+        "reference": 896
       },
       "DMUL": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DSETP": {
         "reference": 3456
@@ -409,8 +406,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 76
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -1108,11 +1105,10 @@
     "evidence": {
       "none": 22,
       "ptxas": 15,
-      "reference": 501
+      "reference": 502
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "elect_Pp_": "Pp form",
@@ -1187,7 +1183,7 @@
         "reference": 3
       },
       "BRA": {
-        "reference": 2
+        "reference": 3
       },
       "BREAK": {
         "reference": 2
@@ -1551,8 +1547,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -2232,8 +2228,8 @@
         "native": 3
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -2631,8 +2627,8 @@
     },
     "status": {
       "native": 319,
-      "opaque": 440,
-      "partially native": 151,
+      "opaque": 439,
+      "partially native": 152,
       "partially primitive": 5,
       "primitive": 63
     }
@@ -2651,7 +2647,7 @@
         "reference": 6
       },
       "BRA": {
-        "reference": 4
+        "reference": 12
       },
       "BREAK": {
         "reference": 4
@@ -2672,16 +2668,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DFMA": {
-        "none": 872,
-        "reference": 24
+        "reference": 896
       },
       "DMUL": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DSETP": {
         "reference": 3456
@@ -3047,8 +3040,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 76
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -3743,11 +3736,10 @@
     "evidence": {
       "none": 22,
       "ptxas": 15,
-      "reference": 501
+      "reference": 502
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "elect_Pp_": "Pp form",
@@ -3822,7 +3814,7 @@
         "reference": 3
       },
       "BRA": {
-        "reference": 2
+        "reference": 3
       },
       "BREAK": {
         "reference": 2
@@ -4186,8 +4178,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -4867,8 +4859,8 @@
         "native": 3
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -5266,8 +5258,8 @@
     },
     "status": {
       "native": 319,
-      "opaque": 440,
-      "partially native": 151,
+      "opaque": 439,
+      "partially native": 152,
       "partially primitive": 5,
       "primitive": 63
     }
@@ -5286,7 +5278,7 @@
         "reference": 6
       },
       "BRA": {
-        "reference": 4
+        "reference": 12
       },
       "BREAK": {
         "reference": 4
@@ -5307,16 +5299,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DFMA": {
-        "none": 872,
-        "reference": 24
+        "reference": 896
       },
       "DMUL": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DSETP": {
         "reference": 3456
@@ -5646,8 +5635,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 76
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -6278,11 +6267,10 @@
     },
     "evidence": {
       "none": 20,
-      "reference": 491
+      "reference": 492
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "elect_Pp_": "Pp form",
@@ -6341,7 +6329,7 @@
         "reference": 3
       },
       "BRA": {
-        "reference": 2
+        "reference": 3
       },
       "BREAK": {
         "reference": 2
@@ -6672,8 +6660,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -7294,8 +7282,8 @@
         "native": 3
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -7691,8 +7679,8 @@
     },
     "status": {
       "native": 316,
-      "opaque": 393,
-      "partially native": 129,
+      "opaque": 392,
+      "partially native": 130,
       "partially primitive": 5,
       "primitive": 61
     }
@@ -7711,7 +7699,7 @@
         "reference": 6
       },
       "BRA": {
-        "reference": 4
+        "reference": 12
       },
       "BREAK": {
         "reference": 4
@@ -7732,16 +7720,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DFMA": {
-        "none": 872,
-        "reference": 24
+        "reference": 896
       },
       "DMUL": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DSETP": {
         "reference": 3456
@@ -8071,8 +8056,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 76
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -8701,11 +8686,10 @@
     },
     "evidence": {
       "none": 20,
-      "reference": 491
+      "reference": 492
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "elect_Pp_": "Pp form",
@@ -8764,7 +8748,7 @@
         "reference": 3
       },
       "BRA": {
-        "reference": 2
+        "reference": 3
       },
       "BREAK": {
         "reference": 2
@@ -9095,8 +9079,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -9717,8 +9701,8 @@
         "native": 3
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -10114,8 +10098,8 @@
     },
     "status": {
       "native": 316,
-      "opaque": 393,
-      "partially native": 129,
+      "opaque": 392,
+      "partially native": 130,
       "partially primitive": 5,
       "primitive": 61
     }
@@ -10134,7 +10118,7 @@
         "reference": 6
       },
       "BRA": {
-        "reference": 4
+        "reference": 12
       },
       "BREAK": {
         "reference": 4
@@ -10155,16 +10139,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DFMA": {
-        "none": 872,
-        "reference": 24
+        "reference": 896
       },
       "DMUL": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DSETP": {
         "reference": 3456
@@ -10520,8 +10501,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 76
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -11212,11 +11193,10 @@
     },
     "evidence": {
       "none": 25,
-      "reference": 516
+      "reference": 517
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "elect_Pp_": "Pp form",
@@ -11291,7 +11271,7 @@
         "reference": 3
       },
       "BRA": {
-        "reference": 2
+        "reference": 3
       },
       "BREAK": {
         "reference": 2
@@ -11644,8 +11624,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -12319,8 +12299,8 @@
         "native": 3
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -12718,8 +12698,8 @@
     },
     "status": {
       "native": 319,
-      "opaque": 433,
-      "partially native": 151,
+      "opaque": 432,
+      "partially native": 152,
       "partially primitive": 5,
       "primitive": 66
     }
@@ -12738,7 +12718,7 @@
         "reference": 6
       },
       "BRA": {
-        "reference": 4
+        "reference": 12
       },
       "BREAK": {
         "reference": 4
@@ -12759,16 +12739,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DFMA": {
-        "none": 872,
-        "reference": 24
+        "reference": 896
       },
       "DMUL": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DSETP": {
         "reference": 3456
@@ -13124,8 +13101,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 76
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -13813,11 +13790,10 @@
     },
     "evidence": {
       "none": 25,
-      "reference": 516
+      "reference": 517
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "elect_Pp_": "Pp form",
@@ -13892,7 +13868,7 @@
         "reference": 3
       },
       "BRA": {
-        "reference": 2
+        "reference": 3
       },
       "BREAK": {
         "reference": 2
@@ -14245,8 +14221,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -14920,8 +14896,8 @@
         "native": 3
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -15319,8 +15295,8 @@
     },
     "status": {
       "native": 319,
-      "opaque": 433,
-      "partially native": 151,
+      "opaque": 432,
+      "partially native": 152,
       "partially primitive": 5,
       "primitive": 66
     }
@@ -15339,7 +15315,7 @@
         "reference": 6
       },
       "BRA": {
-        "reference": 4
+        "reference": 12
       },
       "BREAK": {
         "reference": 4
@@ -15360,16 +15336,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DFMA": {
-        "none": 872,
-        "reference": 24
+        "reference": 896
       },
       "DMUL": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DSETP": {
         "reference": 3456
@@ -15725,8 +15698,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 76
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -16364,11 +16337,10 @@
     },
     "evidence": {
       "none": 29,
-      "reference": 534
+      "reference": 535
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "elect_Pp_": "Pp form",
@@ -16467,7 +16439,7 @@
         "reference": 3
       },
       "BRA": {
-        "reference": 2
+        "reference": 3
       },
       "BREAK": {
         "reference": 2
@@ -16820,8 +16792,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -17437,8 +17409,8 @@
         "native": 3
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -17838,8 +17810,8 @@
     },
     "status": {
       "native": 314,
-      "opaque": 381,
-      "partially native": 178,
+      "opaque": 380,
+      "partially native": 179,
       "partially primitive": 5,
       "primitive": 66
     }
@@ -17858,7 +17830,7 @@
         "reference": 6
       },
       "BRA": {
-        "reference": 4
+        "reference": 12
       },
       "BREAK": {
         "reference": 4
@@ -17879,16 +17851,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DFMA": {
-        "none": 872,
-        "reference": 24
+        "reference": 896
       },
       "DMUL": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DSETP": {
         "reference": 3456
@@ -18244,8 +18213,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 76
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -18880,11 +18849,10 @@
     },
     "evidence": {
       "none": 29,
-      "reference": 534
+      "reference": 535
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "elect_Pp_": "Pp form",
@@ -18983,7 +18951,7 @@
         "reference": 3
       },
       "BRA": {
-        "reference": 2
+        "reference": 3
       },
       "BREAK": {
         "reference": 2
@@ -19336,8 +19304,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -19953,8 +19921,8 @@
         "native": 3
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -20354,8 +20322,8 @@
     },
     "status": {
       "native": 314,
-      "opaque": 381,
-      "partially native": 178,
+      "opaque": 380,
+      "partially native": 179,
       "partially primitive": 5,
       "primitive": 66
     }
@@ -20374,7 +20342,7 @@
         "reference": 6
       },
       "BRA": {
-        "reference": 4
+        "reference": 12
       },
       "BREAK": {
         "reference": 4
@@ -20395,16 +20363,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DFMA": {
-        "none": 872,
-        "reference": 24
+        "reference": 896
       },
       "DMUL": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DSETP": {
         "reference": 3456
@@ -20777,8 +20742,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 76
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -21471,11 +21436,10 @@
     },
     "evidence": {
       "none": 26,
-      "reference": 544
+      "reference": 545
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "elect_Pp_": "Pp form",
@@ -21574,7 +21538,7 @@
         "reference": 3
       },
       "BRA": {
-        "reference": 2
+        "reference": 3
       },
       "BREAK": {
         "reference": 2
@@ -21944,8 +21908,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -22625,8 +22589,8 @@
         "native": 3
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -23027,8 +22991,8 @@
     },
     "status": {
       "native": 361,
-      "opaque": 445,
-      "partially native": 143,
+      "opaque": 444,
+      "partially native": 144,
       "partially primitive": 5,
       "primitive": 61
     }
@@ -23047,7 +23011,7 @@
         "reference": 6
       },
       "BRA": {
-        "reference": 4
+        "reference": 12
       },
       "BREAK": {
         "reference": 4
@@ -23068,16 +23032,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DFMA": {
-        "none": 872,
-        "reference": 24
+        "reference": 896
       },
       "DMUL": {
-        "none": 128,
-        "reference": 16
+        "reference": 144
       },
       "DSETP": {
         "reference": 3456
@@ -23450,8 +23411,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 76
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -24140,11 +24101,10 @@
     },
     "evidence": {
       "none": 26,
-      "reference": 544
+      "reference": 545
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "elect_Pp_": "Pp form",
@@ -24243,7 +24203,7 @@
         "reference": 3
       },
       "BRA": {
-        "reference": 2
+        "reference": 3
       },
       "BREAK": {
         "reference": 2
@@ -24613,8 +24573,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -25294,8 +25254,8 @@
         "native": 3
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -25696,8 +25656,8 @@
     },
     "status": {
       "native": 366,
-      "opaque": 445,
-      "partially native": 138,
+      "opaque": 444,
+      "partially native": 139,
       "partially primitive": 5,
       "primitive": 61
     }
@@ -25737,16 +25697,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 248,
-        "reference": 24
+        "reference": 272
       },
       "DFMA": {
-        "none": 1880,
-        "reference": 40
+        "reference": 1920
       },
       "DMUL": {
-        "none": 248,
-        "reference": 24
+        "reference": 272
       },
       "DSETP": {
         "reference": 6528
@@ -27808,16 +27765,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 248,
-        "reference": 24
+        "reference": 272
       },
       "DFMA": {
-        "none": 1880,
-        "reference": 40
+        "reference": 1920
       },
       "DMUL": {
-        "none": 248,
-        "reference": 24
+        "reference": 272
       },
       "DSETP": {
         "reference": 6528
@@ -29856,7 +29810,7 @@
         "reference": 10
       },
       "BRA": {
-        "reference": 4
+        "reference": 12
       },
       "BREAK": {
         "reference": 2
@@ -29877,16 +29831,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 248,
-        "reference": 24
+        "reference": 272
       },
       "DFMA": {
-        "none": 1880,
-        "reference": 40
+        "reference": 1920
       },
       "DMUL": {
-        "none": 248,
-        "reference": 24
+        "reference": 272
       },
       "DSETP": {
         "reference": 6528
@@ -30200,8 +30151,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 56
+        "native": 12,
+        "opaque": 48
       },
       "BREAK": {
         "primitive": 2
@@ -30692,11 +30643,10 @@
     "evidence": {
       "none": 33,
       "ptxas": 1,
-      "reference": 587
+      "reference": 588
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "f2fp_rs__RCR": "outside implemented operation families",
@@ -30780,7 +30730,7 @@
         "reference": 5
       },
       "BRA": {
-        "reference": 1
+        "reference": 2
       },
       "BREAK": {
         "reference": 1
@@ -31101,8 +31051,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 1
+        "opaque": 1,
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -31583,8 +31533,8 @@
         "native": 5
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 1
+        "opaque": 1,
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -31975,8 +31925,8 @@
     },
     "status": {
       "native": 426,
-      "opaque": 346,
-      "partially native": 115,
+      "opaque": 345,
+      "partially native": 116,
       "primitive": 80
     }
   },
@@ -31994,7 +31944,7 @@
         "reference": 10
       },
       "BRA": {
-        "reference": 4
+        "reference": 12
       },
       "BREAK": {
         "reference": 2
@@ -32015,16 +31965,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 248,
-        "reference": 24
+        "reference": 272
       },
       "DFMA": {
-        "none": 1880,
-        "reference": 40
+        "reference": 1920
       },
       "DMUL": {
-        "none": 248,
-        "reference": 24
+        "reference": 272
       },
       "DSETP": {
         "reference": 6528
@@ -32338,8 +32285,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 56
+        "native": 12,
+        "opaque": 48
       },
       "BREAK": {
         "primitive": 2
@@ -32828,11 +32775,10 @@
     "evidence": {
       "none": 33,
       "ptxas": 1,
-      "reference": 587
+      "reference": 588
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "f2fp_rs__RCR": "outside implemented operation families",
@@ -32916,7 +32862,7 @@
         "reference": 5
       },
       "BRA": {
-        "reference": 1
+        "reference": 2
       },
       "BREAK": {
         "reference": 1
@@ -33237,8 +33183,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 1
+        "opaque": 1,
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -33719,8 +33665,8 @@
         "native": 5
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 1
+        "opaque": 1,
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -34111,8 +34057,8 @@
     },
     "status": {
       "native": 426,
-      "opaque": 346,
-      "partially native": 115,
+      "opaque": 345,
+      "partially native": 116,
       "primitive": 80
     }
   },
@@ -34130,7 +34076,7 @@
         "reference": 10
       },
       "BRA": {
-        "reference": 4
+        "reference": 12
       },
       "BREAK": {
         "reference": 2
@@ -34151,16 +34097,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 248,
-        "reference": 24
+        "reference": 272
       },
       "DFMA": {
-        "none": 1880,
-        "reference": 40
+        "reference": 1920
       },
       "DMUL": {
-        "none": 248,
-        "reference": 24
+        "reference": 272
       },
       "DSETP": {
         "reference": 6528
@@ -34482,8 +34425,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 56
+        "native": 12,
+        "opaque": 48
       },
       "BREAK": {
         "primitive": 2
@@ -35009,11 +34952,10 @@
     },
     "evidence": {
       "none": 27,
-      "reference": 619
+      "reference": 620
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "f2fp_rs__RCR": "outside implemented operation families",
@@ -35097,7 +35039,7 @@
         "reference": 5
       },
       "BRA": {
-        "reference": 1
+        "reference": 2
       },
       "BREAK": {
         "reference": 1
@@ -35425,8 +35367,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 1
+        "opaque": 1,
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -35943,8 +35885,8 @@
         "native": 5
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 1
+        "opaque": 1,
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -36338,8 +36280,8 @@
     },
     "status": {
       "native": 442,
-      "opaque": 358,
-      "partially native": 128,
+      "opaque": 357,
+      "partially native": 129,
       "primitive": 76
     }
   },
@@ -36357,7 +36299,7 @@
         "reference": 10
       },
       "BRA": {
-        "reference": 4
+        "reference": 12
       },
       "BREAK": {
         "reference": 2
@@ -36378,16 +36320,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 248,
-        "reference": 24
+        "reference": 272
       },
       "DFMA": {
-        "none": 1880,
-        "reference": 40
+        "reference": 1920
       },
       "DMUL": {
-        "none": 248,
-        "reference": 24
+        "reference": 272
       },
       "DSETP": {
         "reference": 6528
@@ -36709,8 +36648,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 56
+        "native": 12,
+        "opaque": 48
       },
       "BREAK": {
         "primitive": 2
@@ -37233,11 +37172,10 @@
     },
     "evidence": {
       "none": 27,
-      "reference": 619
+      "reference": 620
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "f2fp_rs__RCR": "outside implemented operation families",
@@ -37321,7 +37259,7 @@
         "reference": 5
       },
       "BRA": {
-        "reference": 1
+        "reference": 2
       },
       "BREAK": {
         "reference": 1
@@ -37649,8 +37587,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 1
+        "opaque": 1,
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -38166,8 +38104,8 @@
         "native": 5
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 1
+        "opaque": 1,
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -38560,8 +38498,8 @@
     },
     "status": {
       "native": 447,
-      "opaque": 358,
-      "partially native": 123,
+      "opaque": 357,
+      "partially native": 124,
       "primitive": 76
     }
   },
@@ -38579,7 +38517,7 @@
         "gpu": 10
       },
       "BRA": {
-        "gpu": 1,
+        "gpu": 9,
         "reference": 3
       },
       "BREAK": {
@@ -38602,16 +38540,13 @@
         "reference": 1
       },
       "DADD": {
-        "gpu": 24,
-        "none": 248
+        "gpu": 272
       },
       "DFMA": {
-        "gpu": 40,
-        "none": 1880
+        "gpu": 1920
       },
       "DMUL": {
-        "gpu": 24,
-        "none": 248
+        "gpu": 272
       },
       "DSETP": {
         "gpu": 6528
@@ -38947,8 +38882,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 56
+        "native": 12,
+        "opaque": 48
       },
       "BREAK": {
         "primitive": 2
@@ -39477,13 +39412,12 @@
       }
     },
     "evidence": {
-      "gpu": 563,
+      "gpu": 564,
       "none": 38,
       "reference": 73
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "f2fp_rs__RCR": "outside implemented operation families",
@@ -39575,7 +39509,7 @@
         "gpu": 5
       },
       "BRA": {
-        "gpu": 1
+        "gpu": 2
       },
       "BREAK": {
         "reference": 1
@@ -39914,8 +39848,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 1
+        "opaque": 1,
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -40437,8 +40371,8 @@
         "native": 5
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 1
+        "opaque": 1,
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -40834,8 +40768,8 @@
     },
     "status": {
       "native": 470,
-      "opaque": 380,
-      "partially native": 128,
+      "opaque": 379,
+      "partially native": 129,
       "primitive": 76
     }
   },
@@ -40853,7 +40787,7 @@
         "gpu": 10
       },
       "BRA": {
-        "gpu": 1,
+        "gpu": 9,
         "reference": 3
       },
       "BREAK": {
@@ -40876,16 +40810,13 @@
         "reference": 1
       },
       "DADD": {
-        "gpu": 24,
-        "none": 248
+        "gpu": 272
       },
       "DFMA": {
-        "gpu": 40,
-        "none": 1880
+        "gpu": 1920
       },
       "DMUL": {
-        "gpu": 24,
-        "none": 248
+        "gpu": 272
       },
       "DSETP": {
         "gpu": 6528
@@ -41223,8 +41154,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 56
+        "native": 12,
+        "opaque": 48
       },
       "BREAK": {
         "primitive": 2
@@ -41750,13 +41681,12 @@
       }
     },
     "evidence": {
-      "gpu": 563,
+      "gpu": 564,
       "none": 38,
       "reference": 73
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "f2fp_rs__RCR": "outside implemented operation families",
@@ -41848,7 +41778,7 @@
         "gpu": 5
       },
       "BRA": {
-        "gpu": 1
+        "gpu": 2
       },
       "BREAK": {
         "reference": 1
@@ -42187,8 +42117,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 1
+        "opaque": 1,
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -42709,8 +42639,8 @@
         "native": 5
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 1
+        "opaque": 1,
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -43105,8 +43035,8 @@
     },
     "status": {
       "native": 475,
-      "opaque": 380,
-      "partially native": 123,
+      "opaque": 379,
+      "partially native": 124,
       "primitive": 76
     }
   },
@@ -43124,7 +43054,7 @@
         "reference": 10
       },
       "BRA": {
-        "reference": 4
+        "reference": 12
       },
       "BREAK": {
         "reference": 2
@@ -43145,16 +43075,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 248,
-        "reference": 24
+        "reference": 272
       },
       "DFMA": {
-        "none": 1880,
-        "reference": 40
+        "reference": 1920
       },
       "DMUL": {
-        "none": 248,
-        "reference": 24
+        "reference": 272
       },
       "DSETP": {
         "reference": 6528
@@ -43498,8 +43425,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 74
+        "native": 12,
+        "opaque": 66
       },
       "BREAK": {
         "primitive": 2
@@ -44119,11 +44046,10 @@
     },
     "evidence": {
       "none": 51,
-      "reference": 658
+      "reference": 659
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "elect_Pp_": "Pp form",
@@ -44214,7 +44140,7 @@
         "reference": 5
       },
       "BRA": {
-        "reference": 2
+        "reference": 3
       },
       "BREAK": {
         "reference": 1
@@ -44564,8 +44490,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 1
@@ -45174,8 +45100,8 @@
         "native": 5
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 1
@@ -45571,8 +45497,8 @@
     },
     "status": {
       "native": 499,
-      "opaque": 464,
-      "partially native": 135,
+      "opaque": 463,
+      "partially native": 136,
       "partially primitive": 5,
       "primitive": 70
     }
@@ -45591,7 +45517,7 @@
         "reference": 10
       },
       "BRA": {
-        "reference": 4
+        "reference": 12
       },
       "BREAK": {
         "reference": 2
@@ -45612,16 +45538,13 @@
         "reference": 2
       },
       "DADD": {
-        "none": 248,
-        "reference": 24
+        "reference": 272
       },
       "DFMA": {
-        "none": 1880,
-        "reference": 40
+        "reference": 1920
       },
       "DMUL": {
-        "none": 248,
-        "reference": 24
+        "reference": 272
       },
       "DSETP": {
         "reference": 6528
@@ -45965,8 +45888,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 74
+        "native": 12,
+        "opaque": 66
       },
       "BREAK": {
         "primitive": 2
@@ -46584,11 +46507,10 @@
     },
     "evidence": {
       "none": 51,
-      "reference": 658
+      "reference": 659
     },
     "opaque_operations": {
-      "bra_uniform_": "uniform target or predicate",
-      "bra_uniform_pred_": "uniform target or predicate",
+      "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "elect_Pp_": "Pp form",
@@ -46679,7 +46601,7 @@
         "reference": 5
       },
       "BRA": {
-        "reference": 2
+        "reference": 3
       },
       "BREAK": {
         "reference": 1
@@ -47029,8 +46951,8 @@
         "opaque": 2
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 1
@@ -47639,8 +47561,8 @@
         "native": 5
       },
       "BRA": {
-        "opaque": 2,
-        "partially native": 2
+        "opaque": 1,
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 1
@@ -48036,8 +47958,8 @@
     },
     "status": {
       "native": 499,
-      "opaque": 464,
-      "partially native": 135,
+      "opaque": 463,
+      "partially native": 136,
       "partially primitive": 5,
       "primitive": 70
     }

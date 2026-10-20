@@ -51,6 +51,7 @@ Work from the reference outward, and run the cheapest test that can fail first (
 When tests disagree, fix the side that is wrong at its root cause. A reference that disagrees with the GPU is wrong. Semantics that disagree with a hardware-confirmed reference are wrong. Never loosen `same`/`emulator_same`/`excused` or a reference to make a failure pass without hardware evidence.
 
 ## Rules
+- Run builds, test suites, plan regeneration, coverage refreshes and GPU runs under `nice` (`nice uv run pytest ...`, `nice uv run sass-build-languages ...`) so they don't starve the user's desktop.
 - Don't name a repo dir `ghidra/` (or a module directory on `sys.path` `ghidra`/`pyghidra`): Python treats it as a namespace package shadowing pyghidra's Java `ghidra` package (RecursionError).
 - SLEIGH compiler memory: compiling the SM100+ languages took 10-12 GiB of Java heap each, and `sass-build-languages` once ran all 18 compilers at once (no `MAXMEM` in `support/sleigh`, so each JVM may take a quarter of RAM); eight together exhausted 93 GiB and systemd-oomd killed whole terminals (2026-10-13). `sass-build-languages` caps each compiler's heap (`COMPILER_HEAP`, `-Xmx4g`) and runs `MemAvailable // 4 GiB` of them: capped, SM100 compiles in 7 s and 1.1-1.9 GiB, the same `.sla` even at `-Xmx2g` (2026-10-16). The tests are small by comparison (one emulation JVM ~0.7 GB on SM90).
 - Complete SLEIGH generation/compilation before parallel language loading. Ghidra auto-compiles stale specs, and concurrent compilers writing one `.sla` can corrupt it.

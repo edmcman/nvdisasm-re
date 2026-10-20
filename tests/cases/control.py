@@ -1,6 +1,7 @@
 """Control flow, special registers, warp and synchronization context, opaque fallbacks and
 whole-kernel execution limits."""
 
+import itertools
 from tests.harness.manual import retained
 
 
@@ -43,6 +44,30 @@ def emulator_cases(c):
 
     c.add('s2r_', dict(Rd=8, SRa='SR_LANEID'), dict(SR_LANEID=3), dict(R8=3),
           hardware={'adapter': 'lane'})
+    divergence_branches(c)
+
+
+def divergence_branches(c):
+    """BRA.DIV/.CONV [~]URb against executing lanes, with the others exited or waiting at a
+    convergence barrier: equal, nested, disjoint, overlapping, empty and observer-free masks."""
+    from tests.refs.control import counter, divergence_branch
+    full = 0xffffffff
+    scenarios = [(full, full), (full, 0xffff), (0xffff, full), (0xffff, 0xffff), (0xffff, 0xff), (0xffff, 0xff0000),
+                 (0xffff, 0xffff00), (0xffff, 0), (0xffff, 0xff00), (1, 1), (1, 3)]
+    for (active, mask), wait, cond, invert in itertools.product(scenarios, (0, 1), ("DIV", "CONV"), (0, 1)):
+        if active == full and wait: continue
+        waiting = ~active & full if wait else 0
+        taken = divergence_branch(cond, ~mask & full if invert else mask, waiting)
+        c.add("bra_uniform_", {"cond": cond, "URb": 6, "URb@invert": invert, "sImm": 32}, dict(UR6=mask),
+              dict(__counter=counter(0x1000, 32, relative=True, taken=taken)),
+              context={"warp": dict(lane=0, active=active, waiting=waiting)}, hardware={'adapter': 'warp'})
+    for cond, urb, invert, p0, pnot, wait in itertools.product(("DIV", "CONV"), ("URZ", 6), (0, 1), (0, 1), (0, 1), (0, 1)):
+        waiting = 0xffff0000 if wait else 0
+        mask = 0 if urb == "URZ" else 0xff00   # executing lanes: ~URb, not URb, names waiting ones
+        taken = divergence_branch(cond, ~mask & full if invert else mask, waiting, p0 ^ pnot)
+        c.add("bra_uniform_", {"cond": cond, "URb": urb, "URb@invert": invert, "Pp": 0, "Pp@not": pnot, "sImm": 32}, dict(UR6=0xff00, P0=p0),
+              dict(__counter=counter(0x1000, 32, relative=True, taken=taken)),
+              context={"warp": dict(lane=0, active=0xffff, waiting=waiting)}, hardware={'adapter': 'warp'})
 
 
 def branch(a, b, c):

@@ -40,7 +40,9 @@ encoded words, seeded registers, constants and independent reference outputs are
 with the Python and Ghidra tests. Native cubin wrappers initialize state, execute the
 original instruction encoding (with dependency-safe scheduling), and capture registers,
 predicates and memory. Scalar cases are batched; uniform state is isolated between
-scenarios, and warp contexts become actual lane inputs and active masks. Memory adapters
+scenarios, and warp contexts become actual lane inputs and active masks. A warp-context branch
+(BRA.DIV/.CONV) records its landing PC like the branch adapter; its inactive lanes either all exit
+or, with the context's `waiting` mask, all wait at a `BSSY`/`BSYNC` barrier. Memory adapters
 bind logical addresses to real allocations and runtime shared/local windows. No CUDA
 compiler is needed for these generated probes.
 
@@ -334,7 +336,7 @@ DADD/DMUL/DFMA, FSEL/FMNMX/FMNMX3, FSET/FSETP/UFSETP/DSETP, FCHK/FRND,
 PLOP3/UPLOP3 and P2R/R2P/UP2UR. Floating profiles include signed zeros,
 subnormal, finite, infinity and NaN inputs. Arithmetic skips undefined NaN payload
 comparisons and the documented Ghidra RN underflow band, matching the existing
-reference policy. Readable formulas have separate expectations. Source modifiers are supported for FSEL/UFSEL, FRND/UFRND and FCHK.
+reference policy. Readable formulas have separate expectations. Source modifiers are supported for FSEL/UFSEL, FRND/UFRND, FCHK, DSETP and DADD/DMUL/DFMA.
 Other floating source-sign modifiers, FMZ and XORSIGN remain explicit gaps
 with retained manual numerical corpora. Existing manual numerical
 sweeps remain because they cover denser seeded inputs, exponent boundaries,

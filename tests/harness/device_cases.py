@@ -187,7 +187,7 @@ def capture(code, case, temp, output, raw=False):
     code.copy(temp + 7, f'UR{ur}')
     code.parameter(temp, 64); code.parameter(temp + 1, 68)
     code.emit('uldc_const__RCR', URd=4, Sa_bank=0, Sa_addr=0x118, sz='64')
-    if not raw and (case.hardware or {}).get('adapter') == 'branch': names.append('__counter')
+    if not raw and '__counter' in case.expected: names.append('__counter')
     for n in names:
         if n == '__counter': code.copy(temp + 2, f'R{temp + 3}')
         elif n in ('PT', 'UPT'): code.mov(f'R{temp + 2}', 1)
@@ -220,6 +220,11 @@ class Probe:
     raw: bool = False
 
 
+def branches(s):
+    """The landing PC is the result: the branch adapter, or a warp-context branch."""
+    return s.kind == 'branch' or s.kind == 'warp' and decoded(s.case.request['word']).klass.mnemonic == 'BRA'
+
+
 def scalar_probe(scenarios, name, raw=False):
     from tests.harness import device_setup
     code, observations, output = Code(), [], 0
@@ -231,8 +236,9 @@ def scalar_probe(scenarios, name, raw=False):
             code.emit('isetp__RsIR_RIR_noEX', Pu=6, Pv='PT', Ra=temp + 4, Sb=case.request['registers']['SR_CTAID.X'], Pp='PT', icmp='EQ', fmt='U32', bop='AND')
             code.emit('exit_', Pg=6, **{'Pg@not': 1})
         initialize(code, case, temp)
+        join = None
         if s.kind == 'cx': device_setup.cx(code, case, temp, arena)
-        if s.kind == 'warp': device_setup.warp(code, case, temp, arena)
+        if s.kind == 'warp': join = device_setup.warp(code, case, temp, arena)
         if s.kind == 'qspc':
             device_setup.qspc(code, case, temp, arena)
             shared, frame = max(shared, 256), max(frame, 256)
@@ -241,7 +247,7 @@ def scalar_probe(scenarios, name, raw=False):
             shared, frame = max(shared, smem), max(frame, local)
         code.targets.append((len(code.words) * 16, case.request['word']))
         code.raw(int.from_bytes(bytes.fromhex(case.request['word']), 'little'))
-        if s.kind == 'branch':
+        if branches(s):
             displacement = decoded(case.request['word']).env['sImm']
             if displacement != 32: raise ValueError('branch adapter currently requires the 32-byte branch scenario')
             code.mov(f'R{temp + 3}', case.request.get('address', 0x1000) + 16)
@@ -252,6 +258,7 @@ def scalar_probe(scenarios, name, raw=False):
         if s.kind == 'memory' and case.request.get('observe_memory'):
             end, memory_names = device_setup.capture_memory(code, case, temp, end, base, start)
             names += memory_names
+        if join: join()
         observations.append((output, names)); output = end
     code.emit('exit_')
     return Probe(name, scenarios, code, constants(scenarios[0].case), observations, output, shared=shared, arena=bytes(arena), frame_size=frame, threads=32 if scenarios[0].kind in ('warp', 'lane') else 1,

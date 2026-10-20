@@ -743,6 +743,9 @@ class Lower:
             table = self.b.g.specialsem(self.b.g.source(self.b.k, real)[1], nbytes(w))
             self.b.refs.append(("sub", table))
             return Operand(table, "name", frozenset([("sub", table)]))
+        if name.startswith("__runtime:"):   # emulator-held state: a runtime pcodeop
+            fn = name.split(":", 1)[1]; self.b.g.pcodeops.add(fn)
+            return self.local(w, Operand(f"{fn}()", "expr"))
         if name.startswith("__target:"):   # a direct branch target: the subtable exporting it
             table = self.b.g.branch_target(self.b.k, self.b.k.operand_types[name.split(":", 1)[1]])
             self.b.refs.append(("sub", table))
