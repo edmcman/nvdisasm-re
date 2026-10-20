@@ -360,8 +360,8 @@ fixtures retain the identical full 1,792-pair corpus. Ordinary manual FCHK cases
 are therefore removed. At that point, source modifiers on other floating operations,
 FMZ and XORSIGN remained explicit gaps with retained numerical regressions. The
 2026-10-20 follow-up removes the source-sign planning block for FADD/UFADD,
-FMUL/UFMUL, FFMA/UFFMA, FSET, FSETP/UFSETP and FMNMX. New plans require
-a fresh passing SM89 fp32 GPU run before claiming hardware evidence.
+FMUL/UFMUL, FFMA/UFFMA, FSET, FSETP/UFSETP and FMNMX. A passing SM89
+fp32 GPU run on 2026-10-20 supplies their hardware evidence.
 
 Generated system profiles use an integer `__max_ops` for the existing strict
 nonempty, branch-free, CALLOTHER-free limit. A structured `__max_ops` value,
