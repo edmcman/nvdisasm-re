@@ -39,7 +39,7 @@ def generate(c,k,form,profiles):
 def blocked_reason(op,form):
     """Cheap profile eligibility check shared with planning; no case/MD construction needed."""
     if op not in FLOAT_OPS: return None
-    if op.removeprefix('U') not in ('FCHK','FRND','FSEL','DSETP') and any('@' in n and not n.endswith('@not') and v != 'unset' for n,v in form.items()):
+    if op.removeprefix('U') not in ('FCHK','FRND','FSEL','DSETP','DADD','DMUL','DFMA') and any('@' in n and not n.endswith('@not') and v != 'unset' for n,v in form.items()):
         return 'source-sign modifier corpus remains manual'
     if form.get('xorsign','noxorsign') != 'noxorsign': return 'XORSIGN remains a focused manual regression'
     if form.get('fmz','nofmz') not in ('nofmz','nofmz_hfma2','FTZ'): return 'FMZ zero/Inf corpus remains manual'

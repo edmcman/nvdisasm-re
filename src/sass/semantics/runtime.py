@@ -31,6 +31,11 @@ class Runtime:
         sm=self.sm
         if name.startswith('sass_opaque_'):
             raise UnsupportedSemantics(f'{name}{tuple(args)}')
+        if name=='sass_warp_waiting':
+            # The lanes of this warp still alive but not executing this instruction (BRA.DIV/.CONV).
+            waiting=self.context.get('warp',{}).get('waiting')
+            if waiting is None:raise UnsupportedSemantics('warp waiting-lane mask required')
+            return int(waiting)&0xffffffff
         if name=='sass_operand_value':
             ordinal,index,*children=args;k=ir.load('SM'+str(sm)).classes[ordinal]
             atom=list(k.operand_types.values())[index]

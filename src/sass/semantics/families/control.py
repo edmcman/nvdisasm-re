@@ -1,7 +1,7 @@
 """Control flow: BRA, EXIT, CALL, RET, NOP. Branch-stack depth changes (CALL's default INC, RET's
-DEC), divergence-conditional branches (BRA.DIV/.CONV), uniform-register targets and predicates
-are unmodelled."""
-from sass.semantics.bitvec import const, sext, zext
+DEC), BRA.DIV/.CONV without a lane mask, uniform-register targets and uniform predicates are
+unmodelled."""
+from sass.semantics.bitvec import const, lnot, sext, zext
 from sass.semantics.family import call, family, goto, outputs, ret, unmodelled
 
 
@@ -23,10 +23,19 @@ def address(i, names, offset):
 
 @family("BRA")
 def bra(i):
-    """goto sImm (relative to the next instruction) if Pp; .U is a uniformity hint."""
-    if i.has_operand("URb") or i.has_operand("UPq"): unmodelled("uniform target or predicate")
-    required(i, "cond", i.default("cond"), "U")
-    return outputs(flow=goto(i.branch_target("sImm"), condition(i)))
+    """goto sImm (relative to the next instruction) if Pp; .U is a uniformity hint. BRA.DIV/.CONV
+    [~]URb (SM89 GPU) also need some (DIV) or none (CONV) of URb's lanes to be alive without
+    executing the branch: lanes waiting at a convergence barrier count, exited lanes don't."""
+    if i.has_operand("UPq"): unmodelled("uniform predicate")
+    if not i.has_operand("URb"):
+        required(i, "cond", i.default("cond"), "U")
+        return outputs(flow=goto(i.branch_target("sImm"), condition(i)))
+    diverged = (i.value("URb") & i.environment("warp_waiting")) != 0
+    match i.select_fork("cond"):
+        case "DIV": taken = diverged
+        case "CONV": taken = lnot(diverged)
+        case other: unmodelled(f"cond {other}")
+    return outputs(flow=goto(i.branch_target("sImm"), condition(i) & taken))
 
 
 @family("EXIT")

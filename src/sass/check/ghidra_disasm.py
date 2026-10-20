@@ -39,16 +39,8 @@ def compare(arch, words, fp="exact"):
     def status(exp, g):
         if exp is None: return "ok" if "error" in g else "mismatch"
         return "error" if "error" in g else "ok" if loose(g["text"]) == loose(exp) else "mismatch"
-    def judge(todo, fresh=False):
-        return {w: (status(exp, g), cls, exp or "(md-illegal: rejected)", g.get("text") or g.get("error"))
-                for (w, cls, exp), g in zip(todo, ghidra_bridge.disassemble(arch, fp, [(w, addrs[w]) for w, _, _ in todo], fresh=fresh))}
-    out = judge(todo)
-    # Ghidra caches instruction prototypes by a 32-bit hash of the constructor tree and trusts it
-    # entirely (SleighLanguage.parse), so in a long batch a colliding tree reuses another
-    # instruction's prototype. A word that decodes correctly in a fresh process hit a collision.
-    retry = judge([t for t in todo if out[t[0]][0] != "ok"], fresh=True)
-    out.update({w: ("collision", *rest) for w, (s, *rest) in retry.items() if s == "ok"})
-    return out
+    return {w: (status(exp, g), cls, exp or "(md-illegal: rejected)", g.get("text") or g.get("error"))
+            for (w, cls, exp), g in zip(todo, ghidra_bridge.disassemble(arch, fp, [(w, addrs[w]) for w, _, _ in todo]))}
 
 
 def main():

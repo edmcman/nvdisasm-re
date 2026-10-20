@@ -7,7 +7,7 @@ from collections import Counter, defaultdict
 from sass.decode import pydecode
 from sass import corpus, oracle, synth
 
-PASSING = ("ok", "both_err", "collision")  # both_err: both reject the word; collision: see compare_ghidra_disassembly
+PASSING = ("ok", "both_err")  # both_err: both reject the word
 
 
 def normalize(text):

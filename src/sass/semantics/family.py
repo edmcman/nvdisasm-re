@@ -516,6 +516,11 @@ class Instruction:
         name = self.resolve(names); self.asked.add(name)
         return bitvec.param(f"__sr:{name}", w)
 
+    def environment(self, name, w=32):
+        """State only the execution environment holds, in no register or encoding (the warp's
+        waiting lanes): the runtime's `sass_<name>` op, which fails without that state."""
+        return bitvec.param(f"__runtime:sass_{name}", w)
+
     def special_register(self, name):
         """The 32-bit special register `name` (SR_SWINLO), read whatever the encoding."""
         return bitvec.reg("SR", self.arch.enums["SpecialRegister"][name], 1)

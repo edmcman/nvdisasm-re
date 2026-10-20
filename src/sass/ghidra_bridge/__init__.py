@@ -64,12 +64,11 @@ def cache(program, arch, fp, opts):
     return db
 
 
-def run(program, arch, fp, lines, *opts, fresh=False):
-    """One JSON result per input line. fresh: ask Ghidra in a new process, bypassing the cache (a
-    long decode batch can hit Ghidra's prototype-hash collisions; see check.ghidra_disasm)."""
+def run(program, arch, fp, lines, *opts):
+    """One JSON result per input line."""
     db = cache(program, arch, fp, opts)
-    known = {} if fresh else {r: v for i in range(0, len(lines), 900)
-                              for r, v in db.execute(f"select request, result from results where request in ({','.join('?' * len(lines[i:i + 900]))})", lines[i:i + 900])}
+    known = {r: v for i in range(0, len(lines), 900)
+             for r, v in db.execute(f"select request, result from results where request in ({','.join('?' * len(lines[i:i + 900]))})", lines[i:i + 900])}
     missing = list(dict.fromkeys(line for line in lines if line not in known))
     if missing:
         # cwd="/" keeps repository modules from shadowing the venv's imports.
@@ -78,8 +77,7 @@ def run(program, arch, fp, lines, *opts, fresh=False):
         results = [line for line in p.stdout.splitlines() if line.startswith("{")]
         if p.returncode or len(results) != len(missing):
             raise RuntimeError(f"{program} {language(arch, fp)}: {len(results)}/{len(missing)} results\n{p.stderr[-3000:]}")
-        if not fresh:
-            with db: db.executemany("insert or replace into results values (?, ?)", zip(missing, results))
+        with db: db.executemany("insert or replace into results values (?, ?)", zip(missing, results))
         known.update(zip(missing, results))
     db.close()
     return [json.loads(known[line]) for line in lines]
@@ -127,9 +125,9 @@ def kernel_request(image, arguments, memory, threads, block, output, cooperative
                 output=output, context=context or {})
 
 
-def disassemble(arch, fp, words, *opts, fresh=False):
+def disassemble(arch, fp, words, *opts):
     """words: [(word bytes, address)]."""
-    return run("ghidra_decode.py", arch, fp, [f"{a:x} {w.hex()}" for w, a in words], *opts, fresh=fresh) if words else []
+    return run("ghidra_decode.py", arch, fp, [f"{a:x} {w.hex()}" for w, a in words], *opts) if words else []
 
 
 def concurrently(fn, jobs):
