@@ -107,6 +107,7 @@ SUPPLEMENTS = (
 
 def names(op, cls, form):
     from tests.harness import autocase_remaining
+    if op == 'MUFU' and not autocase_remaining.blocked_reason(op, cls, form): return ['mufu_sincos']
     if op in autocase_remaining.OPS: return ['remaining_forms']
     from tests.harness import autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp
     if op in ('FHADD2','FHMUL2','FHFMA2'): return ['mixed_pair_forms']
@@ -410,3 +411,11 @@ PROFILES['address_query_forms'] = {
 
 
 PROFILES['remaining_forms'] = {'words': (0,0x89abcdef,0xffffffff)}
+PROFILES['mufu_sincos'] = {'words': (
+    0, 0x80000000, 1, 0x807fffff, 0x00800000,
+    0x32ffffff, 0x33000000, 0x33000001, 0xb3000000,
+    0x38ffe000, 0x39000000, 0x39002000, 0x3daaaaab,
+    0x3dcccccd, 0x3e000000, 0x3e7fffff, 0x3e800000, 0x3e800001,
+    0x3effffff, 0x3f000000, 0x3f000001, 0x3f400000, 0xbf800000,
+    0x4a7fffff, 0x4a800000, 0x4a800001, 0x4b000000, 0x7f7fffff,
+    0x7f800000, 0xff800000, 0x7fc00000, 0xff800001)}

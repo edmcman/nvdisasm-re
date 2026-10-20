@@ -7,7 +7,7 @@ import functools, json, math, operator, re
 from fractions import Fraction
 from pathlib import Path
 from sass.decode import ir
-from sass.semantics.fp import softfloat
+from sass.semantics.fp import softfloat, mufu
 
 
 class UnsupportedSemantics(NotImplementedError): pass
@@ -264,5 +264,9 @@ class Runtime:
             if op!='BMOV' or not isinstance(handler,dict) or state not in handler:
                 raise UnsupportedSemantics(op+' reduction/result requires an environment handler')
             return int(handler[state])
-        if op=='MUFU':raise UnsupportedSemantics('MUFU approximation requires a hardware-specific implementation')
+        if op=='MUFU':
+            mode=label('mufuop') if 'mufuop' in k.operand_types else label('op')
+            if k.name.startswith('mufu__') and mode in ('SIN','COS'):
+                return mufu.sincos(floating(32,'Rb','Sb','URb'),mode)
+            raise UnsupportedSemantics('MUFU approximation is unresolved for '+k.name+' '+str(mode))
         raise UnsupportedSemantics('primitive '+op)
