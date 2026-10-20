@@ -104,7 +104,9 @@ def product_inputs(i, *names):
     if readable(i) or not i.has_operand('fmz'): return float_inputs(i, *names)
     if not i.select_in('fmz', ('FTZ', 'FMZ')): return False, [i.fvalue(n) for n in names]
     values = [flushed(i.fvalue(n)) for n in names]
-    zero = i.select_lookup_const('fmz', {'FTZ': 0, 'FMZ': 1}, 1) & zero_factor(*values[:2])
+    # Flushing keeps the exponent, so the unflushed factors are tested: each factor's value then
+    # doesn't recompute the other's flush (their modifier tables are shared already).
+    zero = i.select_lookup_const('fmz', {'FTZ': 0, 'FMZ': 1}, 1) & zero_factor(*(i.fvalue(n) for n in names[:2]))
     values[:2] = [zeroed(zero, x) for x in values[:2]]
     return True, values
 
