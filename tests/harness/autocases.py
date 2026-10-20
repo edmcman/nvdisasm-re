@@ -387,13 +387,21 @@ def integer_cases(c, k, form, profiles):
     return c
 
 
-def append(c, family):
+def saved_plan(arch):
+    path = PLANS / (arch + '.json')
+    if not path.exists(): raise ValueError(f'{path}: missing generated coverage plan; run python -m tests.autocases {arch} --write')
+    data = json.loads(path.read_text())
+    if data['version'] != 2: raise ValueError(f'{path}: unsupported shared-case plan version; regenerate it')
+    if data['arch'] != arch: raise ValueError(f'{path}: architecture does not match its filename')
+    return data
+
+
+def stream(arch, fp, family, start=0, step=1):
+    """The family's generated cases, form by form; with start/step, every step-th planned form from start."""
     if family not in FAMILIES.values(): return
-    path = PLANS / (c.arch + '.json')
-    if not path.exists(): raise ValueError(f'{path}: missing generated coverage plan; run python -m tests.autocases {c.arch} --write')
-    plan = json.loads(path.read_text())
-    if plan['version'] != 2: raise ValueError(f'{path}: unsupported shared-case plan version; regenerate it')
-    if plan['arch'] != c.arch: raise ValueError(f'{path}: architecture does not match its filename')
-    for entry in plan['forms']:
-        if entry['family'] == family:
-            c.extend(generate(c.arch, entry['cls'], entry['settings'], c.fp, entry['profiles'], entry['native']))
+    entries = [e for e in saved_plan(arch)['forms'] if e['family'] == family][start::step]   # not the whole plan (150 MiB for SM89)
+    for entry in entries:
+        yield from generate(arch, entry['cls'], entry['settings'], fp, entry['profiles'], entry['native'])
+
+
+def append(c, family): c.extend(stream(c.arch, c.fp, family))

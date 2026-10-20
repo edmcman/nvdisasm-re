@@ -1,6 +1,6 @@
 """Per-family emulator cases and GPU fixtures."""
 import importlib
-from concurrent.futures import ProcessPoolExecutor
+from collections import Counter
 from functools import cache
 from tests.harness.case import Cases
 
@@ -24,19 +24,27 @@ def emulator_cases(arch, fp, families=FAMILIES, exhaustive=True, generated=True)
     return out
 
 
-def build(job):
-    arch, fp, family, exhaustive = job
-    return list(emulator_cases(arch, fp, (family,), exhaustive)[family])
+def stream(arch, fp, family, exhaustive, shard):
+    """One shard of a language's family, case by case: None, the manual cases; (i, n), every n-th
+    generated form from the i-th."""
+    if shard is None: yield from emulator_cases(arch, fp, (family,), exhaustive, generated=False)[family]
+    else:
+        from tests.harness.autocases import stream as generated
+        yield from generated(arch, fp, family, *shard)
 
 
 @cache
-def built_cases(variants, families, exhaustive):
-    """{(arch, fp): {family: [case]}}, built once per session across all cores (one task per
-    language and family: the F2FP sweeps dominate)."""
-    jobs = [(a, f, family, exhaustive) for a, f in variants for family in families]
-    with ProcessPoolExecutor() as pool:
-        built = dict(zip(jobs, pool.map(build, jobs)))
-    return {(a, f): {family: built[a, f, family, exhaustive] for family in families} for a, f in variants}
+def planned(arch):
+    """{family: planned generated forms} of the language's saved plan."""
+    from tests.harness.autocases import saved_plan
+    return Counter(e['family'] for e in saved_plan(arch)['forms'])
+
+
+def shards(arch, family, forms=1000):
+    """The streamed work units of a language's family: None (the manual cases), then slices of about
+    `forms` planned forms each."""
+    n = -(-planned(arch)[family] // forms)
+    return [None, *((i, n) for i in range(n))]
 
 
 def gpu_fixtures(families=FAMILIES):

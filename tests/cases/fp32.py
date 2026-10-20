@@ -6,7 +6,7 @@ import itertools, random
 from sass.semantics.fp import softfloat
 from tests.harness.case import put, source
 from tests.refs.bits import f32, ftz32, nan32
-from tests.refs.float import FCOMPARISONS, fchk_divide, fcompare, fset, fmnmx, fmnmx3_pick, fmnmx_xorsign, ordered, readable, rounded, underflow_band
+from tests.refs.float import FCOMPARISONS, fchk_divide, fcompare, fset, fmnmx, fmnmx3_pick, fmnmx_xorsign, fmz, ordered, readable, rounded, underflow_band
 
 ROUNDINGS = ("RN", "RZ", "RM", "RP")
 
@@ -73,7 +73,7 @@ def selection(c):
                 c.add(k.name, fields, {"R2": a, "R4": b}, {"R8": fmnmx_xorsign(a, b, is_min, nan == "NAN", ftz == "FTZ"), "__native": True})
 
 
-@retained('Seeded rounding/cancellation and exponent boundaries, directed residuals and p-code costs exceed the form profile.')
+@retained('Seeded rounding/cancellation and exponent boundaries, directed residuals, dense FMZ zero/Inf/NaN factor pairs and p-code costs exceed the form profile.')
 def arithmetic(c):
     for cls, fields, regs, expected in [
             ("fadd__RRR_RR", dict(Rd=8, Ra=2, Rc=4), dict(R2=0x3f800000, R4=0x40000000), dict(R8=0x40400000, __max_ops=2)),
@@ -104,6 +104,15 @@ def arithmetic(c):
         _, cls, fields = next(o for o in ops(False) if o[0] == op)
         for rnd in ROUNDINGS:
             c.add(cls, dict(fields, rnd=rnd), dict(zip(("R2", "R4", "R6"), inputs)), dict(R8=softfloat.arithmetic(op, inputs, 32, rnd), __native=True))
+    # .FMZ: a zero or subnormal factor gives a +0 product even times Inf or NaN, then FFMA adds Rc.
+    factors = [0, 0x80000000, 1, 0x807fffff, 0x3f800000, 0x7f800000, 0xff800000, 0x7fc00000, 0xffc00001]
+    for x, y in itertools.product(factors, repeat=2):
+        for rnd in ("RN", "RM"):
+            for op, cls, fields in ops(True, mul_flush="FMZ")[1:]:
+                for z in ((0x80000000, 0x7fc00000, 1, 0xbf800000) if op == "fma" else (0,)):
+                    want = fmz(op, [x, y, z][:3 if op == "fma" else 2], rnd)
+                    if not nan32(want):
+                        c.add(cls, dict(fields, fmz="FMZ", rnd=rnd), dict(R2=x, R4=y, R6=z), dict(R8=want, __native=True))
 
 
 @retained('Exceptional comparison pairs and constant PT/aliased-predicate regressions exceed the form profile.')

@@ -95,6 +95,15 @@ build 1.75 minutes and 27 GiB (about 17 compilers at once); Ghidra tests on all 
 cached per program by the sources it imports (`ghidra_bridge.sources`), so an edit elsewhere in
 `src/sass` keeps them.
 
+Since 2026-10-20 the fp32 family alone has about 680,000 cases per language. `test_lifted_semantics`
+used to build every selected language's cases in the pytest process and fork its pool from it:
+the fp32 family on every architecture and lowering made a 12.5 GB parent, and its 32 copy-on-write
+workers exhausted 93 GiB. It now streams instead: shards of about 1,000 planned forms (plus each
+family's manual cases) are generated, judged and discarded inside `forkserver` workers, one pool per
+architecture, and only per-class summaries come back (`tests.cases.stream`/`shards`). That run takes
+19 minutes and 14 GiB, mostly the workers' bounded lift caches. A script that starts these pools
+needs an `if __name__ == "__main__":` guard, since `forkserver` workers re-import `__main__`.
+
 **Don't use pytest-xdist.** The expensive tests compute all their results once per session in a
 process pool sized to the CPUs, and each test item looks its result up. xdist workers would each
 repeat that precomputation with their own pool (32 x 32 processes, load average ~500). The Ghidra
@@ -342,9 +351,11 @@ reference policy. Readable formulas have separate expectations. Source modifiers
 Source modifiers are also supported for FADD/UFADD, FMUL/UFMUL, FFMA/UFFMA,
 FSET, FSETP/UFSETP and FMNMX, including combinations of absolute and negate
 on every source. Their profiles add negative infinity/NaN, signed subnormals
-and values outside the saturation interval. FMNMX3 source-sign modifiers,
-FMZ and XORSIGN remain explicit gaps
-with retained manual numerical corpora. Existing manual numerical
+and values outside the saturation interval. FMUL/FFMA `.FMZ` uses the
+`refs.float.fmz` reference and FMNMX.XORSIGN the encoded-sign `fmnmx_xorsign`,
+both from SM89 probes; a dense FMZ zero/Inf/NaN factor corpus stays manual.
+FMNMX3 source-sign modifiers remain an explicit gap
+with a retained manual numerical corpus. Existing manual numerical
 sweeps remain because they cover denser seeded inputs, exponent boundaries,
 exceptional results and costs absent from the new form profile. Basic arithmetic
 examples, ordinary FSET predicate/source-form sweeps and uniform arithmetic
@@ -361,7 +372,8 @@ are therefore removed. At that point, source modifiers on other floating operati
 FMZ and XORSIGN remained explicit gaps with retained numerical regressions. The
 2026-10-20 follow-up removes the source-sign planning block for FADD/UFADD,
 FMUL/UFMUL, FFMA/UFFMA, FSET, FSETP/UFSETP and FMNMX. A passing SM89
-fp32 GPU run on 2026-10-20 supplies their hardware evidence.
+fp32 GPU run on 2026-10-20 supplies their hardware evidence. A second
+2026-10-20 step removes the FMZ and XORSIGN blocks (`research/fmz_xorsign/`).
 
 Generated system profiles use an integer `__max_ops` for the existing strict
 nonempty, branch-free, CALLOTHER-free limit. A structured `__max_ops` value,

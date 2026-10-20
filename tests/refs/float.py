@@ -20,6 +20,16 @@ def rounded(op, inputs, width, mode="RN", ftz=False, sat=False):
     return nans[0] | 1 << 51 if width == 64 and nans else GPU_NAN[width]
 
 
+def fmz(op, inputs, mode="RN", sat=False, scale=0):
+    """FMUL/FFMA.FMZ (SM89): .FTZ, except that a factor with a zero exponent (zero or subnormal)
+    makes the product +0, even times Inf or NaN; FFMA then adds Rc to that +0 (so -0 under RM)."""
+    a, b = inputs[:2]
+    if a & 0x7f800000 and b & 0x7f800000: r = softfloat.arithmetic(op, inputs, 32, mode, True, sat, scale)
+    elif op == "mul": return 0
+    else: r = softfloat.arithmetic("add", [0, inputs[2]], 32, mode, True, sat)
+    return GPU_NAN[32] if softfloat.unpack(r, 32)[0] == "nan" else r
+
+
 def half2(op, inputs, **kw):
     """Packed F16 arithmetic on [low, high] lane pairs."""
     return sum(rounded(op, [x[lane] for x in inputs], 16, **kw) << (16 * lane) for lane in (0, 1))
@@ -111,10 +121,12 @@ def fmnmx(x, y, is_min, nan_mode=False, ftz=False):
     return x if (f32(x) < f32(y)) == is_min else y
 
 
-def fmnmx_xorsign(x, y, is_min, nan_mode=False, ftz=False, absolute=False):
-    """FMNMX.XORSIGN: compare signed operands, then replace the result sign with XOR (SM89)."""
+def fmnmx_xorsign(x, y, is_min, nan_mode=False, ftz=False, absolute=False, encoded=None):
+    """FMNMX.XORSIGN: compare signed operands, then replace the result sign with the XOR of the
+    encoded signs, before |x| and -x (`encoded`, default x and y; SM89)."""
+    ex, ey = encoded or (x, y)
+    sign = (ex ^ ey) & 0x80000000
     if ftz: x, y = ftz32(x), ftz32(y)
-    sign = (x ^ y) & 0x80000000
     if absolute: x, y = x & 0x7fffffff, y & 0x7fffffff
     if nan_mode and (nan32(x) or nan32(y)): return 0x7fffffff
     if nan32(x): return 0x7fffffff if nan32(y) else (y & 0x7fffffff) | sign

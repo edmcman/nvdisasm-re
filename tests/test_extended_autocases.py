@@ -58,6 +58,29 @@ def test_unmigrated_source_modifier_is_explicit_gap():
     assert autocase_extended.blocked_reason('FMNMX3',{'Ra@negate':'set'}) == 'source-sign modifier corpus remains manual'
 
 
+@pytest.mark.parametrize('fp',['exact','readable'])
+@pytest.mark.parametrize('cls,fields',[
+    ('fmul__RRR_RR',{'fmz':'FMZ','Ra@negate':1,'scale':'M2'}),
+    ('ffma__RRR_RRR',{'fmz':'FMZ','rnd':'RM','Rc@absolute':1}),
+    ('fmnmx__RRR_RRR',{'xorsign':'XORSIGN','Ra@absolute':1,'Rb@negate':1,'nan':'NAN'})])
+def test_fmz_and_xorsign_forms_generate(cls,fields,fp):
+    form=settings('SM89',pydecode.decode('SM89',bytes.fromhex(encoding.encode('SM89',cls,**fields))))
+    cases=autocases.generate('SM89',cls,form,fp)
+    assert cases
+    for case in cases:
+        _,found=lifted.run('SM89',fp,case)
+        assert not found,(case,found)
+
+
+def test_fmz_zero_factor_and_xorsign_encoded_signs():
+    from tests.refs import float
+    assert float.fmz('mul',[0x80000000,0x7f800000])==0
+    assert float.fmz('mul',[1,0x7fc00000])==0
+    assert float.fmz('fma',[0,0x7f800000,0x80000000],'RN')==0
+    assert float.fmz('fma',[0,0x7f800000,0x80000000],'RM')==0x80000000
+    assert float.fmnmx_xorsign(0x3f800000,0x40000000,True,encoded=(0x3f800000,0xc0000000))==0xbf800000
+
+
 def test_readable_minmax_ties_and_unordered():
     from tests.refs import float
     assert float.fmnmx_readable(0x80000000,0,True)==0

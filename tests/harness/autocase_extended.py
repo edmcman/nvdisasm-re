@@ -41,8 +41,6 @@ def blocked_reason(op,form):
     if op not in FLOAT_OPS: return None
     if op.removeprefix('U') not in ('FCHK','FRND','FSEL','DSETP','DADD','DMUL','DFMA','FADD','FMUL','FFMA','FSET','FSETP','FMNMX') and any('@' in n and not n.endswith('@not') and v != 'unset' for n,v in form.items()):
         return 'source-sign modifier corpus remains manual'
-    if form.get('xorsign','noxorsign') != 'noxorsign': return 'XORSIGN remains a focused manual regression'
-    if form.get('fmz','nofmz') not in ('nofmz','nofmz_hfma2','FTZ'): return 'FMZ zero/Inf corpus remains manual'
     return None
 
 
@@ -76,23 +74,25 @@ def floating(c,k,form):
         vectors += [(a,b,0) for a,b in (*autocase_profiles.fchk_pairs()[::spec['stride']],*spec['extra_pairs'])]
     for j,raw in enumerate(vectors):
         s=autocases.Inputs(c,k,form)
-        xs=[]
+        xs=[];encoded=[]
         for n,v,r in zip(names,raw,(4,6,8)):
             value=operand(s,n,v,r,width)
+            encoded.append(value)
             xs.append((float.conversion_source if op=='FRND' else float.source_modifiers)(value,width,form.get(n+'@absolute')=='set',form.get(n+'@negate')=='set'))
         p=source(k,'Pp','UPp')
         pred=j&1
         if p:
             s.predicate((p,),pred,0)
             pred ^= form.get(p+'@not')=='set'
-        exact=c.fp=='exact'; ftz=exact and (form.get('ftz')=='FTZ' or form.get('fmz')=='FTZ')
+        exact=c.fp=='exact'; ftz=exact and (form.get('ftz')=='FTZ' or form.get('fmz') in ('FTZ','FMZ'))
         if arithmetic:
             operation={'ADD':'add','MUL':'mul','FMA':'fma'}[op[1:]]
             scale={'D8':-3,'D4':-2,'D2':-1,'M2':1,'M4':2,'M8':3,'noscale':0}.get(form.get('scale','noscale'))
             if scale is None: raise autocases.Unsupported('unknown multiply scale')
             sat=form.get('sat')=='SAT'
             if exact:
-                result=softfloat.arithmetic(operation,xs,width,form['rnd'],ftz,sat,scale)
+                result=(float.fmz(operation,xs,form['rnd'],sat,scale) if form.get('fmz')=='FMZ' else
+                        softfloat.arithmetic(operation,xs,width,form['rnd'],ftz,sat,scale))
                 if softfloat.unpack(result,width)[0]=='nan' or form['rnd']=='RN' and float.underflow_band(operation,xs,width,scale): continue
             else: result=float.readable(operation,xs,width,sat,scale)
             if result is None: continue
@@ -112,7 +112,10 @@ def floating(c,k,form):
             result=0x3f800000 if yes else 0
         elif op=='FSEL': result=(float.flush(xs[0],32) if ftz else xs[0]) if pred else (float.flush(xs[1],32) if ftz else xs[1])
         elif op=='FMNMX':
-            result=float.fmnmx(*xs,bool(pred),form.get('nan')=='NAN',ftz) if exact else float.fmnmx_readable(*xs,bool(pred))
+            nan=form.get('nan')=='NAN'
+            if not exact: result=float.fmnmx_readable(*xs,bool(pred))
+            elif form.get('xorsign')=='XORSIGN': result=float.fmnmx_xorsign(*xs,bool(pred),nan,ftz,encoded=encoded)
+            else: result=float.fmnmx(*xs,bool(pred),nan,ftz)
         elif op=='FMNMX3':
             if ftz: xs=[float.flush(x,32) for x in xs]
             if exact and form.get('nan')=='NAN' and any(float.nan32(x) for x in xs): result=0x7fffffff

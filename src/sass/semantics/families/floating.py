@@ -30,7 +30,7 @@ def flushed(x):
 
 def flushes(i):
     """The class flushes denormals: .FTZ, in the exact lowering. .FMZ (FTZ plus 0 * x = 0) is
-    unmodelled there; the readable lowering ignores both."""
+    unmodelled there, except in FMUL/FFMA (product_inputs); the readable lowering ignores both."""
     for name in ('fmz', 'ftz'):
         if i.has_operand(name):
             label = i.select_fork(name)
@@ -85,11 +85,35 @@ def fadd_(i):
     return result(i, ftz, fadd(a, c, rounding(i)))
 
 
+@helper
+def zero_factor(a, b):
+    """.FMZ: a factor with a zero exponent (zero or denormal) makes the product +0, even against
+    Inf or NaN (SM89 GPU)."""
+    exponent = SIGN_EXPONENT[32][1]
+    return ((a & exponent) == 0) | ((b & exponent) == 0)
+
+
+@helper
+def zeroed(zero, x): return const(0, 32) if zero else x
+
+
+def product_inputs(i, *names):
+    """(flushing, values): the operands with their modifiers, flushed under .FTZ or .FMZ. .FMZ also
+    makes both factors +0 when one has a zero exponent, so the product is +0 and FFMA adds Rc to
+    it; a decode-time choice, so .FTZ and .FMZ share one body (a third made SM90 exceed 16 MiB)."""
+    if readable(i) or not i.has_operand('fmz'): return float_inputs(i, *names)
+    if not i.select_in('fmz', ('FTZ', 'FMZ')): return False, [i.fvalue(n) for n in names]
+    values = [flushed(i.fvalue(n)) for n in names]
+    zero = i.select_lookup_const('fmz', {'FTZ': 0, 'FMZ': 1}, 1) & zero_factor(*values[:2])
+    values[:2] = [zeroed(zero, x) for x in values[:2]]
+    return True, values
+
+
 @family('FMUL', fallback='prim')
 def fmul_(i):
     """Rd = Ra * Rb * 2^scale (.D2-.D8, .M2-.M8), rounded once."""
     operand_width(i, 32, 'Ra|Sa', 'Rb|Sb')
-    ftz, (a, b) = float_inputs(i, 'Ra|Sa', 'Rb|Sb')
+    ftz, (a, b) = product_inputs(i, 'Ra|Sa', 'Rb|Sb')
     scale = SCALES.get(str(i.select_fork('scale'))) if i.has_operand('scale') else 0
     if scale is None: unmodelled('scale')
     rnd = rounding(i)
@@ -103,7 +127,7 @@ def fmul_(i):
 def ffma_(i):
     """Rd = Ra * Rb + Rc, rounded once."""
     operand_width(i, 32, 'Ra|Sa', 'Rb|Sb', 'Rc|Sc')
-    ftz, (a, b, c) = float_inputs(i, 'Ra|Sa', 'Rb|Sb', 'Rc|Sc')
+    ftz, (a, b, c) = product_inputs(i, 'Ra|Sa', 'Rb|Sb', 'Rc|Sc')
     return result(i, ftz, fused(i, a, b, c))
 
 
