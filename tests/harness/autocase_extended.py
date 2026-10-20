@@ -39,7 +39,7 @@ def generate(c,k,form,profiles):
 def blocked_reason(op,form):
     """Cheap profile eligibility check shared with planning; no case/MD construction needed."""
     if op not in FLOAT_OPS: return None
-    if op.removeprefix('U') not in ('FCHK','FRND','FSEL','DSETP','DADD','DMUL','DFMA') and any('@' in n and not n.endswith('@not') and v != 'unset' for n,v in form.items()):
+    if op.removeprefix('U') not in ('FCHK','FRND','FSEL','DSETP','DADD','DMUL','DFMA','FADD','FMUL','FFMA','FSET','FSETP','FMNMX') and any('@' in n and not n.endswith('@not') and v != 'unset' for n,v in form.items()):
         return 'source-sign modifier corpus remains manual'
     if form.get('xorsign','noxorsign') != 'noxorsign': return 'XORSIGN remains a focused manual regression'
     if form.get('fmz','nofmz') not in ('nofmz','nofmz_hfma2','FTZ'): return 'FMZ zero/Inf corpus remains manual'
@@ -68,6 +68,8 @@ def floating(c,k,form):
     if any(n in k.operand_types for n in ('Pu','Pv')) and op in ('FMNMX','FMNMX3'):
         raise autocases.Unsupported('unresolved min/max predicate outputs')
     values=autocase_profiles.PROFILES['floating_forms'][width]
+    if op in ('FADD','FMUL','FFMA','FSET','FSETP','FMNMX'):
+        values += autocase_profiles.PROFILES['floating_source_forms']
     vectors=[(a,values[(j+3)%len(values)],values[(j+5)%len(values)]) for j,a in enumerate(values)]
     if op=='FCHK':
         spec=autocase_profiles.PROFILES['fchk_boundaries']

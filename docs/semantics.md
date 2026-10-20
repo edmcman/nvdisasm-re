@@ -1,5 +1,16 @@
 # Instruction semantics
 
+The 2026-10-20 coverage follow-up enables generated absolute/negated-source
+forms for FADD/UFADD, FMUL/UFMUL, FFMA/UFFMA, FSET, FSETP/UFSETP and FMNMX.
+The adapter applies the independent reference's absolute value before negation,
+then evaluates the existing arithmetic/comparison/selection rule. Profiles add
+negative infinity and NaN, signed subnormals and saturation boundaries. This
+adds reference-backed cases for the existing native semantics. FMZ and XORSIGN
+retain their explicit adapter gaps; min/max predicate-output forms remain unresolved.
+New hardware verification is pending: the coverage environment has no NVIDIA
+device nodes, and the expanded fp32 case signature invalidates its previous
+shared-case GPU pass until the complete family passes again on SM89.
+
 ## Semantics families (`src/sass/semantics/families/`, 2026-10-12)
 - Families are Python functions over the md-decoded instruction (`@family('IMAD', 'UIMAD')`, `src/sass/semantics/family.py`), returning `outputs(Rd=..., Pu=...)` of `sass.semantics.bitvec` bitvector expressions (widths in bits, `extract`/`concat`). One definition serves `sass.semantics.lifter.lift` (Ghidra-free semantics, evaluated by `evaluate`) and the SLEIGH backend `src/sass/sleigh/lower.py`; `operations.emit` uses a family when one covers the class. Integer families are migrated (`src/sass/semantics/families/integer.py`), the FP32/FP64/packed-half floating families (`src/sass/semantics/families/floating.py`), F2I/F2IP (`src/sass/semantics/families/f2i.py`) and every F2FP form except stochastic rounding (`f2fp_rs*`, opaque) (`src/sass/semantics/families/f2fp.py`).
 - Static answers (selectors `i.select_fork`, one family body per label, modifier bits `i.operand_*`, `i.is_zero`, `i.has_operand`, `i.select_lookup_const` label->number tables, `i.static` for immediates of at most 8 bits) are Python values that SLEIGH enumerates; operand values are expressions. `a if c else b`, `and`/`or`/`not` are rewritten so they work on both.

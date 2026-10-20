@@ -318,6 +318,8 @@ failing family run drops that family's shared-case evidence; unchanged other fam
 remain recorded. `tests/evidence.py` credits the target instruction directly as
 `cases/FAMILY`, independent of wrapper instructions and whole-kernel data-path slicing.
 Evidence refresh needs neither a GPU nor Ghidra and does not execute recorded passes.
+Reference evidence is streamed one family and lowering at a time so expanded
+modifier plans do not retain every family's cases for both lowerings together.
 
 ### Raw single-instruction probes
 
@@ -337,10 +339,17 @@ PLOP3/UPLOP3 and P2R/R2P/UP2UR. Floating profiles include signed zeros,
 subnormal, finite, infinity and NaN inputs. Arithmetic skips undefined NaN payload
 comparisons and the documented Ghidra RN underflow band, matching the existing
 reference policy. Readable formulas have separate expectations. Source modifiers are supported for FSEL/UFSEL, FRND/UFRND, FCHK, DSETP and DADD/DMUL/DFMA.
-Other floating source-sign modifiers, FMZ and XORSIGN remain explicit gaps
+Source modifiers are also supported for FADD/UFADD, FMUL/UFMUL, FFMA/UFFMA,
+FSET, FSETP/UFSETP and FMNMX, including combinations of absolute and negate
+on every source. Their profiles add negative infinity/NaN, signed subnormals
+and values outside the saturation interval. FMNMX3 source-sign modifiers,
+FMZ and XORSIGN remain explicit gaps
 with retained manual numerical corpora. Existing manual numerical
 sweeps remain because they cover denser seeded inputs, exponent boundaries,
-exceptional results and costs absent from the new form profile. Predicate profiles
+exceptional results and costs absent from the new form profile. Basic arithmetic
+examples, ordinary FSET predicate/source-form sweeps and uniform arithmetic
+immediate examples are removed where generated profiles cover them. Constant
+PT/UPT, same-source/output aliases and p-code-cost checks remain explicit. Predicate profiles
 exercise all eight LUT inputs and masked transfers. Repeated extended-adapter gap
 reasons are counted by class to keep reports compact.
 
@@ -348,8 +357,11 @@ The 2026-10-18 follow-up adds UFADD/UFMUL/UFFMA/UFSEL/UFRND and supports
 absolute/negated sources on FSEL/UFSEL, FRND/UFRND and FCHK. The named
 `fchk_boundaries` profile preserves the old manual exponent/seed corpus, while
 fixtures retain the identical full 1,792-pair corpus. Ordinary manual FCHK cases
-are therefore removed. Source modifiers on other floating operations, FMZ and
-XORSIGN still have explicit gaps and retained numerical regressions.
+are therefore removed. At that point, source modifiers on other floating operations,
+FMZ and XORSIGN remained explicit gaps with retained numerical regressions. The
+2026-10-20 follow-up removes the source-sign planning block for FADD/UFADD,
+FMUL/UFMUL, FFMA/UFFMA, FSET, FSETP/UFSETP and FMNMX. New plans require
+a fresh passing SM89 fp32 GPU run before claiming hardware evidence.
 
 Generated system profiles use an integer `__max_ops` for the existing strict
 nonempty, branch-free, CALLOTHER-free limit. A structured `__max_ops` value,

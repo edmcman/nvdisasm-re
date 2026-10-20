@@ -18,7 +18,7 @@ from sass.paths import LANGUAGES, PTXAS, ROOT
 from sass.sleigh.build import ARCHES
 from sass.sleigh.gen import MODES, Gen
 from sass.sleigh.modifiers import form, settings
-from tests.cases import emulator_cases, gpu_fixtures
+from tests.cases import FAMILIES, emulator_cases, gpu_fixtures
 from tests.harness.dataflow import expected
 from tests.harness.gpu import Template, hits, mnemonic
 from tests.harness.hardware import passed
@@ -36,9 +36,17 @@ def decoded(arch, code):
 def reference(arch):
     """(class, settings, None) per emulator case, over both fp lowerings. The large sweeps are
     sampled as in the tests: the full sweeps run no modifier form the sample misses."""
-    cases = [case for fp in MODES for cases in emulator_cases(arch, fp, exhaustive=False).values() for case in cases]
-    words = {w: settings(arch, pydecode.decode(arch, bytes.fromhex(w))) for w in {c.request.get("word") for c in cases} - {None}}
-    return [(c.cls, words.get(c.request.get("word"), {}), None) for c in cases]
+    # Large modifier products must not retain every family's cases in both lowerings.
+    words = {}
+    for fp in MODES:
+        for family in FAMILIES:
+            cases = emulator_cases(arch, fp, (family,), exhaustive=False)[family]
+            for case in cases:
+                word = case.request.get("word")
+                if word is not None and word not in words:
+                    words[word] = settings(arch, pydecode.decode(arch, bytes.fromhex(word)))
+                yield case.cls, words.get(word, {}), None
+            del cases
 
 
 LOADS, STORES = ("LDG", "LDS", "LDL", "LDC", "ULDC", "LD"), ("STG", "STS", "STL", "ST")
