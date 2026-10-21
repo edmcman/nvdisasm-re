@@ -71,7 +71,7 @@ def test_generated_probe_rejects_wrong_reference(request):
     from tests.harness.case import Cases
     c = Cases('SM89')
     c.add('mov__RI', dict(Rd=8, Sb=19, PixMaskU04=15), {}, dict(R8=20))
-    s = device_cases.Scenario('runner-self-test', c[0], 'scalar')
+    s = device_cases.Scenario('runner-self-test', c.encode_words()[0], 'scalar')
     result = device_cases.isolated(device_cases.kernels([s]))
     assert result['results'][s.id] == ['R8: GPU 0x13, reference 0x14']
 

@@ -23,7 +23,7 @@ def corpus(n=80):
 def identities(cases): return {case.id for case in cases}
 
 
-def forms(cases, arch='SM89'): return {sampling.form(arch, case.request['word']) for case in cases}
+def forms(cases, arch='SM89'): return {sampling.case_form(arch, case) for case in cases}
 
 
 @pytest.mark.parametrize('bad', [-1, 101, True, False, 0.5, '1.0', 'nan', None])
@@ -60,6 +60,25 @@ def test_backend_floor_and_unconditional_cases():
     pinned = c[-1]
     selected = sampling.select([*c, kernel, error], 'SM89', 0, retained={pinned.id})
     assert all(case in selected for case in (kernel, error, pinned))
+
+
+def test_manual_cases_encode_only_selected_words(monkeypatch):
+    from tests import cases
+    from tests.harness import case as harness_case
+    class Family:
+        @staticmethod
+        def emulator_cases(c):
+            for i in range(128):
+                c.add('mov__RR', dict(Rd=8, Ra=2, PixMaskU04=15), {'R2': i}, {'R8': i})
+    monkeypatch.setattr(cases, 'module', lambda _: Family)
+    calls, original = [], harness_case.encode
+    monkeypatch.setattr(harness_case, 'encode', lambda *a, **kw: calls.append(a) or original(*a, **kw))
+    monkeypatch.setattr(sampling, 'DECLARED', {})
+    minimal = emulator_cases('SM89', 'exact', ('synthetic',), 0, generated=False)['synthetic']
+    # One encoding declares the shared form, one encodes the case kept for it.
+    assert len(minimal) == 1 and len(calls) == 2 and minimal[0].request['word']
+    full = emulator_cases('SM89', 'exact', ('synthetic',), 100, generated=False)['synthetic']
+    assert minimal[0].id in identities(full) and all(c.request['word'] for c in full)
 
 
 def test_retained_regressions_and_sweeps(monkeypatch):

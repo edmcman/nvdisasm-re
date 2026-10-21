@@ -7,9 +7,9 @@ import argparse
 import hashlib
 from functools import lru_cache
 from sass.decode import pydecode
-from sass.sleigh.modifiers import settings
+from sass.sleigh.modifiers import modifiers, name, settings
 
-VERSION = 2
+VERSION = 3
 DEFAULT = 0
 COMPLETE = 100
 
@@ -52,22 +52,41 @@ def form(arch, word):
     return d.klass.name, tuple(sorted(settings(arch, d).items()))
 
 
+DECLARED = {}
+
+def declared(arch, cls, fields):
+    """The form of an unencoded case: a word's form depends only on its class and modifier fields,
+    so each combination is encoded once (Cases.encode_words checks every case it encodes)."""
+    from sass.assemble import encoding
+    from tests.harness.case import encode
+    names = {name(key) for key, _ in modifiers(encoding.klass(arch, cls))}
+    key = arch, cls, tuple(sorted((n, v) for n, v in fields.items() if n in names))
+    if key not in DECLARED: DECLARED[key] = form(arch, encode(arch, cls, **fields))
+    return DECLARED[key]
+
+
 def rank(case, identity=None):
     # Generated descriptions use fields/state without encoding; manual cases use
     # scenario identity. Neither includes expected values or p-code inspection.
     return int.from_bytes(hashlib.sha256(f'sample-v{VERSION}:{case.id if identity is None else identity}'.encode()).digest())
 
 
+def case_form(arch, case):
+    """(class, modifier settings) of a case, encoded or not."""
+    word = case.request.get('word')
+    return getattr(case, 'modifier_form', None) or (form(arch, word) if word else declared(arch, case.cls, case.fields))
+
+
 def buckets(arch, case):
     """One ordinary floor plus any applicable backend floors for this decoded form."""
-    key = getattr(case, 'modifier_form', None) or form(arch, case.request['word'])
+    key, word = case_form(arch, case), case.request.get('word')
     yield key, 'reference'
     from tests.harness import lifted
     if lifted.applies(case): yield key, 'lifted'
     if arch == 'SM89':
         from tests.harness import device_cases
         from sass.assemble import encoding
-        klass = encoding.klass(arch, case.cls) if hasattr(case, 'modifier_form') else None
+        klass = None if word else encoding.klass(arch, case.cls)
         if device_cases.classify(case, klass=klass)[0] != 'emulator': yield key, 'gpu'
 
 

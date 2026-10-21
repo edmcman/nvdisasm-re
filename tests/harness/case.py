@@ -84,16 +84,20 @@ def cx_header(arch, ur, base, units=1):
 
 
 class Case(NamedTuple):
+    """`fields`: the operand values `Cases.add` encodes the word from, once `Cases.encode_words` runs."""
     cls: str
     request: dict
     expected: dict
     hardware: dict | None = None
+    fields: dict | None = None
 
     @property
     def id(self):
-        """Stable identity of a scenario, independent of reference and p-code checks."""
-        request = {k: v for k, v in self.request.items() if k != "inspect_pcode"}
-        return self.cls + "-" + hashlib.sha256(json.dumps(request, sort_keys=True).encode()).hexdigest()[:16]
+        """Stable identity of a scenario, independent of reference and p-code checks, and of
+        encoding when its fields determine the word."""
+        request = {k: v for k, v in self.request.items() if k != "inspect_pcode" and not (k == "word" and self.fields is not None)}
+        key = request if self.fields is None else [request, self.fields]
+        return self.cls + "-" + hashlib.sha256(json.dumps(key, sort_keys=True).encode()).hexdigest()[:16]
 
 
 # Mnemonics whose readable lowering differs from the exact one: their exact-mode cases do
@@ -114,11 +118,21 @@ class Cases(list):
         self.classes = {k.name: k for k in self.md.classes if not k.alternate}
 
     def add(self, cls, fields, registers, expected, portable=False, observe=None, hardware=None, **extras):
-        """portable: valid for both lowerings even if the mnemonic is in READABLE_FLOATS."""
+        """portable: valid for both lowerings even if the mnemonic is in READABLE_FLOATS. The word
+        stays unencoded until `encode_words`, so sampling encodes only the cases it keeps."""
         if cls not in self.classes: return
         if self.fp == "readable" and not portable and self.classes[cls].mnemonic in READABLE_FLOATS: return
-        request = self.request(encode(self.arch, cls, **fields), registers, expected, observe, extras)
-        self.append(Case(cls, request, expected, hardware))
+        self.append(Case(cls, self.request(None, registers, expected, observe, extras), expected, hardware, dict(fields)))
+
+    def encode_words(self):
+        """Encode every case's word from its fields, checking it has the form sampling assumed."""
+        from tests.harness import sampling
+        for case in self:
+            if case.request.get("word") is None and case.fields is not None:
+                case.request["word"] = encode(self.arch, case.cls, **case.fields)
+                if sampling.form(self.arch, case.request["word"]) != sampling.declared(self.arch, case.cls, case.fields):
+                    raise ValueError(f"{case.id}: {case.cls} {case.fields} encode another form than their modifiers declare")
+        return self
 
     @staticmethod
     def request(word, registers, expected, observe=None, extras=None):
@@ -140,7 +154,7 @@ class Cases(list):
             raise ValueError('a probe needs registers or memory to observe')
         if cls not in self.classes: raise ValueError(f'{self.arch}: unknown probe class {cls}')
         self.add(cls, fields, registers, {}, observe=list(observe), hardware=dict(hardware or {}, probe=True), **extras)
-        return self[-1]
+        return self.encode_words()[-1]
 
     def sweep(self, n):
         """Enumerate a complete input domain; the caller chooses the sampling policy."""

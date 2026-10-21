@@ -512,7 +512,7 @@ def dataflow_words(arch):
         into(k, "Rc/URc/Sc", 0xdeadbeef, fields, regs, 6)
         words.append(word(k, fields))
     words += [word(k, fp6_probe(k, "SATFINITE", "RELU", "H1")[0]) for k in fp6_classes(c)]
-    mx8 = Cases(arch); mx8_down(mx8)
+    mx8 = Cases(arch); mx8_down(mx8); mx8.encode_words()
     seen = {}
     for case in mx8:
         if "__native" in case.expected: seen.setdefault(case.cls, bytes.fromhex(case.request["word"]))
