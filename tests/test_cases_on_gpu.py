@@ -2,7 +2,7 @@
 from collections import Counter
 from functools import cache
 import pytest
-from tests.harness import device_cases, device_evidence
+from tests.harness import device_cases, device_evidence, sharded
 from tests.harness.select import families, selected, skipped
 
 
@@ -48,8 +48,9 @@ def device_results(request):
     counts = Counter('failed' if results.get(s.id, ['missing result']) else 'passed' for s in ss if s.kind != 'emulator')
     counts['emulator-only'] = sum(s.kind == 'emulator' for s in ss)
     if not exhaustive:
-        complete = device_cases.selection(fams, True)
-        counts['sampled-out'] = sum(s.kind != 'emulator' for s in complete) - sum(s.kind != 'emulator' for s in ss)
+        # Only the manual cases depend on the sweep policy.
+        runnable = [sum(s['cases'] - s['kinds']['emulator'] for s in device_evidence.summaries(fams, e, sharded.manual).values()) for e in (True, False)]
+        counts['sampled-out'] = runnable[0] - runnable[1]
     request.config._device_case_summary = counts, Counter(s.reason for s in ss if s.kind == 'emulator')
     return results
 

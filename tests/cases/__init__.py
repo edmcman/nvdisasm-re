@@ -1,6 +1,6 @@
 """Per-family emulator cases and GPU fixtures."""
 import importlib
-from collections import Counter
+from collections import Counter, defaultdict
 from functools import cache
 from tests.harness.case import Cases
 
@@ -35,15 +35,17 @@ def stream(arch, fp, family, exhaustive, shard):
 
 @cache
 def planned(arch):
-    """{family: planned generated forms} of the language's saved plan."""
+    """{family: {class: planned generated forms}} of the language's saved plan."""
     from tests.harness.autocases import saved_plan
-    return Counter(e['family'] for e in saved_plan(arch)['forms'])
+    out = defaultdict(Counter)
+    for e in saved_plan(arch)['forms']: out[e['family']][e['cls']] += 1
+    return out
 
 
 def shards(arch, family, forms=1000):
     """The streamed work units of a language's family: None (the manual cases), then slices of about
     `forms` planned forms each."""
-    n = -(-planned(arch)[family] // forms)
+    n = -(-planned(arch)[family].total() // forms)
     return [None, *((i, n) for i in range(n))]
 
 

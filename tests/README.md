@@ -327,8 +327,9 @@ failing family run drops that family's shared-case evidence; unchanged other fam
 remain recorded. `tests/evidence.py` credits the target instruction directly as
 `cases/FAMILY`, independent of wrapper instructions and whole-kernel data-path slicing.
 Evidence refresh needs neither a GPU nor Ghidra and does not execute recorded passes.
-Reference evidence is streamed one family and lowering at a time so expanded
-modifier plans do not retain every family's cases for both lowerings together.
+The signature is order-free (the sum of per-scenario sha256 digests), so the families' cases
+are classified and checked shard by shard (`harness/device_evidence.py` `summaries`, over
+`harness/sharded.py`); reference evidence streams the same shards on every core.
 
 ### Raw single-instruction probes
 

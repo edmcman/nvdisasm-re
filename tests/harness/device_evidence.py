@@ -3,10 +3,12 @@ import ast
 import hashlib
 import importlib.util
 import json
+from collections import Counter
 from functools import cache
 from pathlib import Path
 from sass.paths import ROOT
-from tests.harness import device_cases
+from tests.cases import stream
+from tests.harness import device_cases, sharded
 
 PASSES = ROOT / 'tests/baseline/gpu_case_passes.json'
 
@@ -57,22 +59,58 @@ def hardware_expected(case):
     return {k: v for k, v in expected.items() if not k.startswith('__') or k in ('__memory', '__counter', '__fp8_nan')}
 
 
-def signature(scenarios):
-    data = [(s.id, {k: v for k, v in s.case.request.items() if k != 'inspect_pcode'}, hardware_expected(s.case), s.case.hardware)
-            for s in scenarios if s.kind != 'emulator']
-    return hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()[:24]
+def digest(s):
+    request = {k: v for k, v in s.case.request.items() if k != 'inspect_pcode'}
+    data = json.dumps((s.id, request, hardware_expected(s.case), s.case.hardware), sort_keys=True)
+    return int.from_bytes(hashlib.sha256(data.encode()).digest())
 
 
-def words(scenarios):
-    return sorted({s.case.request['word'] for s in scenarios if s.kind != 'emulator'})
+def summary(scenarios, ids=True):
+    """What a family's evidence depends on, mergeable across shards: case and kind counts, emulator
+    reasons, the words and digest sum (an order-free signature) of those that run on the GPU, and
+    optionally the scenario ids."""
+    out = dict(cases=0, kinds=Counter(), reasons=Counter(), digest=0, words=set(), ids=set())
+    for s in scenarios:
+        out['cases'] += 1; out['kinds'][s.kind] += 1
+        if ids: out['ids'].add(s.id)
+        if s.kind == 'emulator': out['reasons'][s.reason] += 1
+        else: out['digest'] += digest(s); out['words'].add(s.case.request['word'])
+    return out
+
+
+def merge(a, b):
+    return dict(cases=a['cases'] + b['cases'], kinds=a['kinds'] + b['kinds'], reasons=a['reasons'] + b['reasons'],
+                digest=a['digest'] + b['digest'], words=a['words'] | b['words'], ids=a['ids'] | b['ids'])
+
+
+def classified(job):
+    """{family: summary} of one streamed SM89 shard; classify raises on a case no backend accepts.
+    Ids only for the manual cases: the generated ones don't depend on the sweep policy."""
+    family, shard = job[2], job[4]
+    return {family: summary((device_cases.Scenario(family, c, *device_cases.classify(c)) for c in stream(*job)), shard is None)}
+
+
+@cache
+def summaries(families, exhaustive, shards=sharded.shards):
+    """{family: summary} over the shards of SM89's exact cases."""
+    out = {}
+    for part in sharded.run(classified, ((device_cases.ARCH, 'exact'),), families, exhaustive, shards=shards):
+        for family, s in part.items(): out[family] = merge(out[family], s) if family in out else s
+    return out
+
+
+def signature(found): return f"{found['digest'] % 2 ** 256:064x}"[:24]
+
+
+def words(found): return sorted(found['words'])
 
 
 def passes(): return json.loads(PASSES.read_text()) if PASSES.exists() else dict(version=1, families={})
 
 
-def valid(record, scenarios):
-    return (record.get('generator') == generator() and record.get('signature') == signature(scenarios)
-            and record.get('words') == words(scenarios) and bool(record.get('device')) and bool(record.get('kernels')))
+def valid(record, found):
+    return (record.get('generator') == generator() and record.get('signature') == signature(found)
+            and record.get('words') == words(found) and bool(record.get('device')) and bool(record.get('kernels')))
 
 
 def record(scenarios, results, exhaustive, device, kernels):
@@ -81,17 +119,19 @@ def record(scenarios, results, exhaustive, device, kernels):
         selected = [s for s in scenarios if s.family == family and s.kind != 'emulator']
         families.pop(family, None)
         if not selected or not device or any(s.id not in results or results[s.id] for s in selected): continue
-        families[family] = dict(generator=generator(), signature=signature(selected), exhaustive=exhaustive,
-                                cases=len(selected), words=words(selected), device=device, kernels=sorted(set(kernels)))
+        ran = summary(selected, False)
+        families[family] = dict(generator=generator(), signature=signature(ran), exhaustive=exhaustive,
+                                cases=len(selected), words=words(ran), device=device, kernels=sorted(set(kernels)))
     # Atomic replacement prevents interruption from leaving a truncated evidence file.
     path = PASSES.with_suffix('.tmp')
     path.write_text(json.dumps(found, indent=1, sort_keys=True) + '\n'); path.replace(PASSES)
 
 
 def verified_words():
+    records = {f: r for f, r in passes().get('families', {}).items() if r.get('generator') == generator()}
     out = []
-    for family, record in passes().get('families', {}).items():
-        if record.get('generator') != generator(): continue
-        scenarios = device_cases.selection((family,), record.get('exhaustive', False))
-        if valid(record, scenarios): out += [(family, w) for w in record['words']]
+    for exhaustive in (False, True):
+        families = tuple(f for f, r in records.items() if r.get('exhaustive', False) == exhaustive)
+        found = summaries(families, exhaustive) if families else {}
+        out += [(f, w) for f in families if valid(records[f], found[f]) for w in records[f]['words']]
     return out
