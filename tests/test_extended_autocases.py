@@ -54,11 +54,31 @@ def test_double_immediate_uses_high_word():
 
 
 def test_unmigrated_source_modifier_is_explicit_gap():
-    cls='fadd__RRR_RR'
-    form=settings('SM89',pydecode.decode('SM89',bytes.fromhex(encoding.encode('SM89',cls))))
-    form['Ra@negate']='set'
-    with pytest.raises(autocases.Unsupported,match='remains manual'):
-        autocases.generate('SM89',cls,form)
+    from tests.harness import autocase_extended
+    assert autocase_extended.blocked_reason('FMNMX3',{'Ra@negate':'set'}) == 'source-sign modifier corpus remains manual'
+
+
+@pytest.mark.parametrize('fp',['exact','readable'])
+@pytest.mark.parametrize('cls,fields',[
+    ('fmul__RRR_RR',{'fmz':'FMZ','Ra@negate':1,'scale':'M2'}),
+    ('ffma__RRR_RRR',{'fmz':'FMZ','rnd':'RM','Rc@absolute':1}),
+    ('fmnmx__RRR_RRR',{'xorsign':'XORSIGN','Ra@absolute':1,'Rb@negate':1,'nan':'NAN'})])
+def test_fmz_and_xorsign_forms_generate(cls,fields,fp):
+    form=settings('SM89',pydecode.decode('SM89',bytes.fromhex(encoding.encode('SM89',cls,**fields))))
+    cases=autocases.generate('SM89',cls,form,fp)
+    assert cases
+    for case in cases:
+        _,found=lifted.run('SM89',fp,case)
+        assert not found,(case,found)
+
+
+def test_fmz_zero_factor_and_xorsign_encoded_signs():
+    from tests.refs import float
+    assert float.fmz('mul',[0x80000000,0x7f800000])==0
+    assert float.fmz('mul',[1,0x7fc00000])==0
+    assert float.fmz('fma',[0,0x7f800000,0x80000000],'RN')==0
+    assert float.fmz('fma',[0,0x7f800000,0x80000000],'RM')==0x80000000
+    assert float.fmnmx_xorsign(0x3f800000,0x40000000,True,encoded=(0x3f800000,0xc0000000))==0xbf800000
 
 
 def test_readable_minmax_ties_and_unordered():
@@ -85,7 +105,9 @@ def test_extended_adapter_imports_before_dispatcher():
     assert result.returncode==0,result.stderr
 
 
-@pytest.mark.parametrize('cls',['fsel__RRR_RRR','fchk__RRR_RR','frnd__f32_R','frnd__f64_R',
+@pytest.mark.parametrize('cls',['fadd__RRR_RR','fmul__RRR_RR','ffma__RRR_RRR',
+    'fset__RRR_RRR','fsetp__RRR_RRR','fmnmx__RRR_RRR',
+    'fsel__RRR_RRR','fchk__RRR_RR','frnd__f32_R','frnd__f64_R',
     'dsetp__RRR_RR','dsetp__RRU_RU','dsetp__RRsI_RI','dsetp__RRC_RC','dsetp__RRCx_RCx'])
 @pytest.mark.parametrize('fp',['exact','readable'])
 def test_source_sign_modifiers(cls,fp):
@@ -107,6 +129,22 @@ def test_floating_absolute_precedes_negation():
     assert float.source_modifiers(0xbf800000,32,True,True)==0xbf800000
     assert float.source_modifiers(0xfff8123456789abc,64,True,False)==0x7ff8123456789abc
     assert float.source_modifiers(0x80000000,32,True,False)==0
+
+
+@pytest.mark.parametrize('cls',['ufadd__URURUR_UUU','ufmul__UUU','uffma__UUU_UUU','ufsetp__URURUR_UUU'])
+@pytest.mark.parametrize('fp',['exact','readable'])
+def test_uniform_source_sign_modifiers(cls,fp):
+    arch='SM120'
+    form=settings(arch,pydecode.decode(arch,bytes.fromhex(encoding.encode(arch,cls))))
+    flags=[n for n in form if n.endswith(('@absolute','@negate'))]
+    assert flags
+    for values in itertools.product(('unset','set'),repeat=len(flags)):
+        modified=form | dict(zip(flags,values))
+        cases=autocases.generate(arch,cls,modified,fp)
+        assert cases
+        for case in cases:
+            _,found=lifted.run(arch,fp,case)
+            assert not found,(modified,case,found)
 
 
 @pytest.mark.parametrize('cls',['dsetp__RRR_RR','dsetp__RRU_RU','dsetp__RRsI_RI','dsetp__RRC_RC','dsetp__RRCx_RCx'])

@@ -392,6 +392,15 @@ class Instruction:
     def choice_bits(self, name, lo, bits, table):
         raise NotImplementedError
 
+    def select_in(self, names, labels):
+        """Whether the selector's label is one of `labels`: one fork for the set, not one per label
+        (a select_lookup among them then shares a body)."""
+        name = self.resolve(names); a = self.atom(name)
+        enum = self.arch.enums[a.type]
+        self.asked.add(name)
+        if name not in self._encoded: return self.select_fork(name) in labels
+        return bool(self.answer(("in", name, frozenset(enum[l] for l in labels if l in enum)), (True, False)))
+
     def select_lookup_const(self, names, table, w=32):
         """A w-bit number chosen by a selector's label (format constants, rounding-mode flags):
         select_lookup with constants, so one parametric computation serves every label."""

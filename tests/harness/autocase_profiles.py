@@ -15,6 +15,8 @@ VECTORS = ((0, 0, 0, 0, 0), (0, 0, 1, 0, 1), (0, 0, MASK32, 1, 0), (0, 0, 0x8000
 PROFILES = {
     'fchk_boundaries': dict(seed='fchk', mantissas=(0,0x7fffff,1,0x400000), divisor_boundaries=(1,251), differences=(-127,124), stride=16, extra_pairs=((0,0x3f800000),(0x3f800000,0),(0x7fc00000,0x3f800000),(0x3f800000,0x40000000))),
     'floating_forms': {32:(0,0x80000000,0x3f800000,0xc0200000,1,0x7f800000,0x7fc12345,0x3f000001), 64:(0,1<<63,0x3ff0000000000000,0xc004000000000000,1,0x7ff0000000000000,0x7ff8123456789abc,0x3fe0000000000001)},
+    # Distinguish source signs, FTZ and saturation at both interval boundaries.
+    'floating_source_forms': (0xff800000,0xffc12345,0x80000001,0x007fffff,0x3f800001,0xbf800001),
     'predicate_forms': dict(tables=(0,255,0x96,0xe8,0xca,0x80,0x01,0x7e),masks=(0,1,0x25,0x7f,0x80,0xff,0xffffffff)),
     'arithmetic_edges': dict(vectors=VECTORS + ((0xffffffff,1,0,1,1), (0,0,0,1,1), (0xffffffff,0xffffffff,0xffffffff,0,1), (1,0xffffffff,1,1,0))),
     'imad_carry_words': dict(carry_pairs=True),

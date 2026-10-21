@@ -95,6 +95,15 @@ build 1.75 minutes and 27 GiB (about 17 compilers at once); Ghidra tests on all 
 cached per program by the sources it imports (`ghidra_bridge.sources`), so an edit elsewhere in
 `src/sass` keeps them.
 
+Since 2026-10-20 the fp32 family alone has about 680,000 cases per language. `test_lifted_semantics`
+used to build every selected language's cases in the pytest process and fork its pool from it:
+the fp32 family on every architecture and lowering made a 12.5 GB parent, and its 32 copy-on-write
+workers exhausted 93 GiB. It now streams instead: shards of about 1,000 planned forms (plus each
+family's manual cases) are generated, judged and discarded inside `forkserver` workers, one pool per
+architecture, and only per-class summaries come back (`tests.cases.stream`/`shards`). That run takes
+19 minutes and 14 GiB, mostly the workers' bounded lift caches. A script that starts these pools
+needs an `if __name__ == "__main__":` guard, since `forkserver` workers re-import `__main__`.
+
 **Don't use pytest-xdist.** The expensive tests compute all their results once per session in a
 process pool sized to the CPUs, and each test item looks its result up. xdist workers would each
 repeat that precomputation with their own pool (32 x 32 processes, load average ~500). The Ghidra
@@ -318,6 +327,8 @@ failing family run drops that family's shared-case evidence; unchanged other fam
 remain recorded. `tests/evidence.py` credits the target instruction directly as
 `cases/FAMILY`, independent of wrapper instructions and whole-kernel data-path slicing.
 Evidence refresh needs neither a GPU nor Ghidra and does not execute recorded passes.
+Reference evidence is streamed one family and lowering at a time so expanded
+modifier plans do not retain every family's cases for both lowerings together.
 
 ### Raw single-instruction probes
 
@@ -337,10 +348,19 @@ PLOP3/UPLOP3 and P2R/R2P/UP2UR. Floating profiles include signed zeros,
 subnormal, finite, infinity and NaN inputs. Arithmetic skips undefined NaN payload
 comparisons and the documented Ghidra RN underflow band, matching the existing
 reference policy. Readable formulas have separate expectations. Source modifiers are supported for FSEL/UFSEL, FRND/UFRND, FCHK, DSETP and DADD/DMUL/DFMA.
-Other floating source-sign modifiers, FMZ and XORSIGN remain explicit gaps
-with retained manual numerical corpora. Existing manual numerical
+Source modifiers are also supported for FADD/UFADD, FMUL/UFMUL, FFMA/UFFMA,
+FSET, FSETP/UFSETP and FMNMX, including combinations of absolute and negate
+on every source. Their profiles add negative infinity/NaN, signed subnormals
+and values outside the saturation interval. FMUL/FFMA `.FMZ` uses the
+`refs.float.fmz` reference and FMNMX.XORSIGN the encoded-sign `fmnmx_xorsign`,
+both from SM89 probes; a dense FMZ zero/Inf/NaN factor corpus stays manual.
+FMNMX3 source-sign modifiers remain an explicit gap
+with a retained manual numerical corpus. Existing manual numerical
 sweeps remain because they cover denser seeded inputs, exponent boundaries,
-exceptional results and costs absent from the new form profile. Predicate profiles
+exceptional results and costs absent from the new form profile. Basic arithmetic
+examples, ordinary FSET predicate/source-form sweeps and uniform arithmetic
+immediate examples are removed where generated profiles cover them. Constant
+PT/UPT, same-source/output aliases and p-code-cost checks remain explicit. Predicate profiles
 exercise all eight LUT inputs and masked transfers. Repeated extended-adapter gap
 reasons are counted by class to keep reports compact.
 
@@ -348,8 +368,12 @@ The 2026-10-18 follow-up adds UFADD/UFMUL/UFFMA/UFSEL/UFRND and supports
 absolute/negated sources on FSEL/UFSEL, FRND/UFRND and FCHK. The named
 `fchk_boundaries` profile preserves the old manual exponent/seed corpus, while
 fixtures retain the identical full 1,792-pair corpus. Ordinary manual FCHK cases
-are therefore removed. Source modifiers on other floating operations, FMZ and
-XORSIGN still have explicit gaps and retained numerical regressions.
+are therefore removed. At that point, source modifiers on other floating operations,
+FMZ and XORSIGN remained explicit gaps with retained numerical regressions. The
+2026-10-20 follow-up removes the source-sign planning block for FADD/UFADD,
+FMUL/UFMUL, FFMA/UFFMA, FSET, FSETP/UFSETP and FMNMX. A passing SM89
+fp32 GPU run on 2026-10-20 supplies their hardware evidence. A second
+2026-10-20 step removes the FMZ and XORSIGN blocks (`research/fmz_xorsign/`).
 
 Generated system profiles use an integer `__max_ops` for the existing strict
 nonempty, branch-free, CALLOTHER-free limit. A structured `__max_ops` value,

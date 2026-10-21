@@ -1,40 +1,51 @@
 """The Ghidra-free semantics (sass.semantics.bitvec families, lift + execute) compute the independent
 references' values on the emulator cases (the same as test_pcode_semantics). One item per (architecture, fp, family, md class)
 whose opcode has a semantics family; no Ghidra needed."""
-from concurrent.futures import ProcessPoolExecutor
+from collections import Counter
 from functools import cache
 from sass.decode import ir
 from sass.semantics.family import family_for
-from tests.cases import built_cases
+from tests.cases import stream
 from tests.harness.select import arches, families, modes
-from tests.harness import lifted
+from tests.harness import lifted, sharded
 
 
 @cache
-def selected_cases(variants, fams, exhaustive):
-    """{(arch, fp, family, cls): [case]}: the emulator cases the lifted semantics can judge."""
-    out = {}
-    for (arch, fp), built in built_cases(variants, fams, exhaustive).items():
-        first = {}
-        for k in ir.load(arch).classes: first.setdefault(k.name, k)
-        modelled = {name for name, k in first.items() if family_for(k)}
-        for family, cases in built.items():
-            for case in cases:
-                if case.cls in modelled and lifted.applies(case): out.setdefault((arch, fp, family, case.cls), []).append(case)
-    return out
+def modelled(arch):
+    first = {}
+    for k in ir.load(arch).classes: first.setdefault(k.name, k)
+    return {name for name, k in first.items() if family_for(k)}
+
+
+def judged(job):
+    """(item, case) for each case of the job's shard that the lifted semantics can judge."""
+    arch, fp, family, *_ = job
+    for case in stream(*job):
+        if case.cls in modelled(arch) and lifted.applies(case): yield (arch, fp, family, case.cls), case
+
+
+def tally(job):
+    return Counter(item for item, _ in judged(job))
 
 
 def evaluate(job):
-    """(item, [(case index, problems)]) for one item's cases, in a worker process."""
-    (arch, fp, *_), cases = job
-    return job[0], [(j, found) for j, case in enumerate(cases) if (found := lifted.run(arch, fp, case)[1])]
+    """{item: [cases, failures, reports]} over one shard, in a worker process."""
+    out = {}
+    for item, case in judged(job):
+        found = lifted.run(item[0], item[1], case)[1]
+        sharded.merge(out, item, 1, int(bool(found)), [f"  {found}: request {case.request}\n    expected {case.expected}"] if found else [])
+    return out
+
+
+@cache
+def items(variants, fams, exhaustive):
+    return sorted(set().union(*sharded.run(tally, variants, fams, exhaustive)))
 
 
 @cache
 def results(variants, fams, exhaustive):
-    """Every item's failures, computed once across all cores (lift + execute is pure Python)."""
-    with ProcessPoolExecutor() as pool:
-        return dict(pool.map(evaluate, selected_cases(variants, fams, exhaustive).items(), chunksize=2))
+    """{item: [cases, failures, reports]} (lift + execute is pure Python)."""
+    return sharded.collect(sharded.run(evaluate, variants, fams, exhaustive))
 
 
 def selection(config):
@@ -43,13 +54,10 @@ def selection(config):
 
 def pytest_generate_tests(metafunc):
     if "lifted_class" not in metafunc.fixturenames: return
-    params = sorted(selected_cases(*selection(metafunc.config)))
+    params = items(*selection(metafunc.config))
     metafunc.parametrize("lifted_class", params, ids=["-".join(p) for p in params])
 
 
 def test_lifted_semantics(lifted_class, request):
-    arch, fp, family, cls = lifted_class
-    cases = selected_cases(*selection(request.config))[lifted_class]
-    failed = [(cases[j], found) for j, found in results(*selection(request.config))[lifted_class]]
-    assert not failed, f"{len(failed)}/{len(cases)} cases failed\n" + "\n".join(
-        f"  {found}: request {case.request}\n    expected {case.expected}" for case, found in failed[:5])
+    total, failed, reports = results(*selection(request.config))[lifted_class]
+    assert not failed, f"{failed}/{total} cases failed\n" + "\n".join(reports)
