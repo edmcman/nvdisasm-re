@@ -55,14 +55,14 @@ def test_elf_arch_aliases(sm,arch):
 
 @pytest.mark.parametrize('arch,dims,stack',[('SM89',0x0,0x28),('SM90',0x0,0x28),('SM100',0x360,0x37c)])
 def test_launch_layout(arch,dims,stack):
-    from sass import ghidra_bridge
+    from sass import launch
     image=dict(name='k',arch=arch,code=b'',constants={0:bytes(0x400)},parameter_base=0x380,parameter_size=8,parameters=[dict(offset=0,size=8)])
-    bank=bytes.fromhex(ghidra_bridge.kernel_request(image,[0x1234],[],64,64,{})['memory'][0]['hex'])
+    bank=bytes.fromhex(launch.kernel_request(image,[0x1234],[],64,64,{})['memory'][0]['hex'])
     assert struct.unpack_from('<III',bank,dims)==(64,1,1) and struct.unpack_from('<I',bank,stack)==(0x1000,)
     assert struct.unpack_from('<Q',bank,0x380)==(0x1234,)
 
 
 def test_launch_layout_unknown():
-    from sass import ghidra_bridge
+    from sass import launch
     with pytest.raises(ValueError,match='SM107'):
-        ghidra_bridge.kernel_request(dict(name='k',arch='SM107',code=b'',constants={},parameter_base=0,parameter_size=0,parameters=[]),[],[],1,1,{})
+        launch.kernel_request(dict(name='k',arch='SM107',code=b'',constants={},parameter_base=0,parameter_size=0,parameters=[]),[],[],1,1,{})
