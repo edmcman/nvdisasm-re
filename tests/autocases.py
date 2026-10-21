@@ -34,7 +34,7 @@ def identity(cls, form): return cls, tuple(sorted(form.items()))
 
 def plan(arch, rows):
     # Ignore prior generated plans: rerunning must reproduce them, not delete them.
-    manual = emulator_cases(arch, 'exact', exhaustive=False, generated=False) if any(
+    manual = emulator_cases(arch, 'exact', sample=0, generated=False) if any(
         row['opcode'] not in autocases.OWNED for row in rows) else {}
     covered = set()
     for cases in manual.values():

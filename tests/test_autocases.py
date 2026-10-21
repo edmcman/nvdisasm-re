@@ -60,7 +60,7 @@ def test_saved_plan_joins_existing_family(tmp_path, monkeypatch):
     c = Cases('SM89')
     tests.harness.autocases.append(c, 'memory')
     assert not c
-    tests.harness.autocases.append(c, 'int_alu')
+    tests.harness.autocases.append(c, 'int_alu', sample=100)
     assert len(c) == len(tests.harness.autocases.generate('SM89', 'popc__RRR_RRR', {'Rb@invert':'set'}))
 
 
@@ -111,17 +111,18 @@ def test_simd_plan_uses_its_own_family(monkeypatch):
 def unexplained(job):
     """Manual cases of generated opcodes that record no reason to stay manual."""
     from tests.cases import emulator_cases
-    arch, fp, family, exhaustive, _ = job
-    cases = emulator_cases(arch, fp, (family,), exhaustive, generated=False)[family]
+    arch, fp, family, sample, _ = job
+    cases = emulator_cases(arch, fp, (family,), sample, generated=False)[family]
     # Whole-kernel termination tests have no class.
     return [(arch, case.cls) for case in cases if case.cls in cases.classes
-            and cases.classes[case.cls].mnemonic in tests.harness.autocases.OPS and case.id not in cases.manual_reasons]
+            and cases.classes[case.cls].mnemonic in tests.harness.autocases.OPS
+            and case.id not in cases.manual_reasons and case.id not in getattr(cases, 'sampled_reasons', {})]
 
 
 def test_retained_adapter_cases_have_reasons():
     families = ('int_alu', 'int_simd', 'carry', 'bmsk', 'fp32', 'fp64', 'fp16', 'fp32x2', 'f2fp', 'predicates', 'conversions', 'memory', 'control', 'threads')
     variants = tuple((arch, 'exact') for arch in ('SM89', 'SM107', 'SM120'))
-    assert not [found for part in sharded.run(unexplained, variants, families, False, shards=sharded.manual) for found in part]
+    assert not [found for part in sharded.run(unexplained, variants, families, 0, shards=sharded.manual) for found in part]
 
 
 def test_unknown_or_empty_profile_is_rejected():

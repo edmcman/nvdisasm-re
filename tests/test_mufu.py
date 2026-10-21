@@ -74,7 +74,7 @@ def test_reduced_evaluator_matches_captured_gpu(request):
     selected = set(random.Random(0x4d554655).sample(range(1 << 23), 8192))
     selected.update((segment << 17) + local for segment in range(64)
                     for local in (0, 1, 1023, 1024, 1280, 65535, 65536, 131071))
-    exhaustive = request.config.getoption('--exhaustive')
+    exhaustive = request.config.getoption('--exhaustive') or request.config.getoption('--sample') == 100
     hardware = 0
     for offset, (delta,) in enumerate(struct.iter_unpack('<i', raw)):
         hardware += delta
