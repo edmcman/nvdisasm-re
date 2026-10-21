@@ -96,7 +96,9 @@ tests 25 s and 10 GiB on SM89, 3 minutes and 13 GiB on every architecture and lo
 build 1.75 minutes and 27 GiB (about 17 compilers at once); Ghidra tests on all languages 8 minutes and
 25 GiB cold, 2.5 minutes when cached (mostly building the cases); GPU tests 15 s. Ghidra results are
 cached per program by the sources it imports (`ghidra_bridge.sources`), so an edit elsewhere in
-`src/sass` keeps them.
+`src/sass` keeps them. Generator modules (families, operations, operands, lowering, build) reach
+Ghidra only through the compiled language, so editing them recomputes only languages whose `.sla`
+changes; `test_ghidra_bridge` checks the emulator never loads them.
 
 Since 2026-10-20 the fp32 family alone has about 680,000 cases per language. `test_lifted_semantics`
 used to build every selected language's cases in the pytest process and fork its pool from it:

@@ -15,22 +15,31 @@ def module_file(module):
     return next((f for f in (p.with_suffix(".py"), p / "__init__.py") if f.exists()), None)
 
 
+# Generator-only modules: what they produce reaches Ghidra only through the hashed .sla and manifest,
+# and the Ghidra-side programs never load them (test_ghidra_programs_skip_generators).
+GENERATORS = ("sass.semantics.families", "sass.semantics.operations", "sass.semantics.operands", "sass.sleigh.lower", "sass.sleigh.build")
+
+
+def generator(module): return any(module == g or module.startswith(g + ".") for g in GENERATORS)
+
+
 @memoize
 def sources(program):
     """The sass sources `program` (a module of this package) can run: its transitive sass imports,
-    function-level ones included, with their packages, and this package's Java."""
+    function-level ones included, with their packages, and this package's Java. The programs run
+    as scripts beside each other, so a bare import may name a sibling module."""
     seen, todo = set(), [f"{__name__}.{Path(program).stem}"]
     while todo:
-        if (module := todo.pop()) in seen or not (f := module_file(module)): continue
+        if (module := todo.pop()) in seen or generator(module) or not (f := module_file(module)): continue
         seen.add(module)
         parts = module.split(".")
         package = parts if f.name == "__init__.py" else parts[:-1]
         todo += [".".join(parts[:i]) for i in range(1, len(parts))]
         for n in ast.walk(ast.parse(f.read_text())):
-            if isinstance(n, ast.Import): todo += [a.name for a in n.names]
+            if isinstance(n, ast.Import): todo += [x for a in n.names for x in (a.name, f"{__name__}.{a.name}")]
             elif isinstance(n, ast.ImportFrom):
                 base = ".".join(package[:len(package) - n.level + 1] + [n.module or ""]).strip(".") if n.level else n.module
-                todo += [base, *(f"{base}.{a.name}" for a in n.names)]
+                todo += [base, f"{__name__}.{base}", *(f"{base}.{a.name}" for a in n.names)]
     return sorted({module_file(m) for m in seen} | set(Path(__file__).parent.glob("*.java")))
 
 
