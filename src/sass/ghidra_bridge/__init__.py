@@ -1,10 +1,11 @@
 """Batch requests through the Ghidra-side programs, which run under the pyghidra venv. Results are
 cached per language and program (see `stamp`), so reruns only send requests Ghidra hasn't answered."""
-import ast, hashlib, json, os, sqlite3, struct, subprocess
+import ast, hashlib, json, os, struct, subprocess
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from functools import cache as memoize
 from pathlib import Path
 from sass.paths import CACHE, GHIDRA_PY, LANGUAGES, LDEFS, ROOT, language
+from sass.sqlcache import open_cache
 
 SOURCES = ROOT / "src"
 
@@ -52,16 +53,16 @@ def cache(program, arch, fp, opts):
     name, key = stamp(program, arch, fp)
     prefix = f"{Path(program).stem}{''.join(opts)}-{name}-"
     path = CACHE / "ghidra" / f"{prefix}{key}.sqlite"
-    if not path.exists():
-        path.parent.mkdir(parents=True, exist_ok=True)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    def remove_stale():
         # Only other stamps: a concurrent process may already have created (and opened) this one,
         # and unlinking its database or WAL under it gives "no such table" or "disk I/O error".
+        if path.exists(): return
         for stale in path.parent.glob(f"{prefix}*.sqlite*"):
             if not stale.name.startswith(path.name): stale.unlink(missing_ok=True)
-    db = sqlite3.connect(path, timeout=600)
-    db.execute("pragma journal_mode=wal")
-    db.execute("create table if not exists results (request text primary key, result text)")
-    return db
+    # Every worker opens a language's new database together.
+    return open_cache(path, "results (request text primary key, result text)", path.parent / ".lock", 600, remove_stale)
 
 
 def run(program, arch, fp, lines, *opts):
