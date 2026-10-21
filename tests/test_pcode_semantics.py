@@ -7,7 +7,7 @@ from tests.harness.select import arches, families, modes, require_languages, sel
 from sass import ghidra_bridge
 from tests.harness.checks import problems
 from tests.harness import sharded
-from tests.cases import stream
+from tests.cases import planned, stream
 
 WORKERS = 24   # one emulation JVM each (~0.7 GB on SM90)
 
@@ -35,7 +35,9 @@ def evaluate(job):
 
 @cache
 def items(variants, fams, exhaustive):
-    return sorted(set().union(*sharded.run(tally, variants, fams, exhaustive)))
+    """The manual cases' classes and the saved plans' generated ones, without generating the latter."""
+    generated = {(a, f, family, cls) for a, f in variants for family in fams for cls in planned(a)[family]}
+    return sorted(generated.union(*sharded.run(tally, variants, fams, exhaustive, shards=sharded.manual)))
 
 
 def pytest_generate_tests(metafunc):

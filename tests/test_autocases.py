@@ -5,7 +5,7 @@ from sass.decode import pydecode
 from sass.sleigh.modifiers import settings
 import tests.autocases
 import tests.harness.autocases
-from tests.harness import lifted
+from tests.harness import lifted, sharded
 from tests.harness.case import Cases
 
 
@@ -108,15 +108,20 @@ def test_simd_plan_uses_its_own_family(monkeypatch):
     assert plan['forms'][0]['family'] == 'int_simd'
 
 
-def test_retained_adapter_cases_have_reasons():
+def unexplained(job):
+    """Manual cases of generated opcodes that record no reason to stay manual."""
     from tests.cases import emulator_cases
-    for arch in ('SM89', 'SM107', 'SM120'):
-        for cases in emulator_cases(arch, 'exact', ('int_alu', 'int_simd', 'carry', 'bmsk', 'fp32', 'fp64', 'fp16', 'fp32x2', 'f2fp', 'predicates', 'conversions', 'memory', 'control', 'threads'), False, generated=False).values():
-            for case in cases:
-                if case.cls not in cases.classes: continue  # whole-kernel termination tests
-                k = cases.classes[case.cls]
-                if k.mnemonic in tests.harness.autocases.OPS:
-                    assert case.id in cases.manual_reasons, case.cls
+    arch, fp, family, exhaustive, _ = job
+    cases = emulator_cases(arch, fp, (family,), exhaustive, generated=False)[family]
+    # Whole-kernel termination tests have no class.
+    return [(arch, case.cls) for case in cases if case.cls in cases.classes
+            and cases.classes[case.cls].mnemonic in tests.harness.autocases.OPS and case.id not in cases.manual_reasons]
+
+
+def test_retained_adapter_cases_have_reasons():
+    families = ('int_alu', 'int_simd', 'carry', 'bmsk', 'fp32', 'fp64', 'fp16', 'fp32x2', 'f2fp', 'predicates', 'conversions', 'memory', 'control', 'threads')
+    variants = tuple((arch, 'exact') for arch in ('SM89', 'SM107', 'SM120'))
+    assert not [found for part in sharded.run(unexplained, variants, families, False, shards=sharded.manual) for found in part]
 
 
 def test_unknown_or_empty_profile_is_rejected():

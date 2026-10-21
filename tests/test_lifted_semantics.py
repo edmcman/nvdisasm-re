@@ -1,7 +1,6 @@
 """The Ghidra-free semantics (sass.semantics.bitvec families, lift + execute) compute the independent
 references' values on the emulator cases (the same as test_pcode_semantics). One item per (architecture, fp, family, md class)
 whose opcode has a semantics family; no Ghidra needed."""
-from collections import Counter
 from functools import cache
 from sass.decode import ir
 from sass.semantics.family import family_for
@@ -24,10 +23,6 @@ def judged(job):
         if case.cls in modelled(arch) and lifted.applies(case): yield (arch, fp, family, case.cls), case
 
 
-def tally(job):
-    return Counter(item for item, _ in judged(job))
-
-
 def evaluate(job):
     """{item: [cases, failures, reports]} over one shard, in a worker process."""
     out = {}
@@ -38,13 +33,10 @@ def evaluate(job):
 
 
 @cache
-def items(variants, fams, exhaustive):
-    return sorted(set().union(*sharded.run(tally, variants, fams, exhaustive)))
-
-
-@cache
 def results(variants, fams, exhaustive):
-    """{item: [cases, failures, reports]} (lift + execute is pure Python)."""
+    """{item: [cases, failures, reports]} (lift + execute is pure Python), evaluated when the items
+    are collected: which cases apply is known only once they are generated, and generating them
+    twice cost as much again."""
     return sharded.collect(sharded.run(evaluate, variants, fams, exhaustive))
 
 
@@ -54,7 +46,7 @@ def selection(config):
 
 def pytest_generate_tests(metafunc):
     if "lifted_class" not in metafunc.fixturenames: return
-    params = items(*selection(metafunc.config))
+    params = sorted(results(*selection(metafunc.config)))
     metafunc.parametrize("lifted_class", params, ids=["-".join(p) for p in params])
 
 

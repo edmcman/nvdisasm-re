@@ -6,9 +6,13 @@ from concurrent.futures import ProcessPoolExecutor
 from tests.cases import shards
 
 
-def run(fn, variants, families, exhaustive, workers=None):
+def manual(arch, family): return [None]
+
+
+def run(fn, variants, families, exhaustive, workers=None, shards=shards):
     """fn(job) for each job (arch, fp, family, exhaustive, shard), in forkserver workers that build
-    their own cases. A pool per architecture: its workers' md and lift caches go with it."""
+    their own cases; `shards=manual` for the manual cases alone. A pool per architecture: its
+    workers' md and lift caches go with it."""
     for arch in dict.fromkeys(a for a, _ in variants):
         jobs = [(a, f, family, exhaustive, shard) for a, f in variants if a == arch for family in families for shard in shards(a, family)]
         with ProcessPoolExecutor(workers, mp_context=multiprocessing.get_context("forkserver")) as pool:

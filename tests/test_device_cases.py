@@ -4,7 +4,7 @@ import subprocess
 from types import SimpleNamespace
 import pytest
 from sass.decode import cubin, pydecode
-from tests.harness import device_cases, device_evidence
+from tests.harness import device_cases, device_evidence, sharded
 from tests.harness.case import Cases, cbank, ram
 
 
@@ -51,17 +51,20 @@ def test_unknown_state_is_an_error_and_backend_checks_are_explicit():
 
 
 def test_case_identity_and_evidence_changes():
-    first, changed = scenario(), scenario(expected=20)
+    first, changed, other = scenario(), scenario(expected=20), scenario(value=20)
     assert first.id == changed.id
-    assert device_evidence.signature([first]) != device_evidence.signature([changed])
-    assert first.id != scenario(value=20).id
-    record = dict(generator=device_evidence.generator(), signature=device_evidence.signature([first]),
-                  words=device_evidence.words([first]), device='SM89 test', kernels=['binary digest'])
-    assert device_evidence.valid(record, [first])
-    assert not device_evidence.valid(record, [changed])
-    assert not device_evidence.valid(dict(record, generator='old'), [first])
-    assert not device_evidence.valid(dict(record, words=[]), [first])
-    assert not device_evidence.valid(dict(record, kernels=[]), [first])
+    found = device_evidence.summary([first])
+    assert device_evidence.signature(found) != device_evidence.signature(device_evidence.summary([changed]))
+    assert first.id != other.id
+    both = [device_evidence.summary(s) for s in ([first], [other])]
+    assert device_evidence.merge(*both) == device_evidence.summary([other, first]) == device_evidence.merge(*both[::-1])
+    record = dict(generator=device_evidence.generator(), signature=device_evidence.signature(found),
+                  words=device_evidence.words(found), device='SM89 test', kernels=['binary digest'])
+    assert device_evidence.valid(record, found)
+    assert not device_evidence.valid(record, device_evidence.summary([changed]))
+    assert not device_evidence.valid(dict(record, generator='old'), found)
+    assert not device_evidence.valid(dict(record, words=[]), found)
+    assert not device_evidence.valid(dict(record, kernels=[]), found)
 
 
 def test_generator_digest_covers_only_probe_sources():
@@ -88,13 +91,14 @@ def test_cx_backing_and_bounds_survive_relocation():
 
 
 def test_sweep_policy_and_all_cases_classified():
+    """Classifies every sampled case (shard by shard); only the manual cases depend on the sweep policy."""
     from tests.cases import FAMILIES
-    sampled = device_cases.selection(FAMILIES, False)
-    full = device_cases.selection(FAMILIES, True)
-    assert {s.id for s in sampled} <= {s.id for s in full}
-    assert len(full) > len(sampled)
-    assert {s.kind for s in sampled} >= {'scalar', 'cx', 'memory', 'warp', 'branch', 'qspc', 'emulator'}
-    assert all(s.reason for s in sampled if s.kind == 'emulator')
+    sampled = device_evidence.summaries(FAMILIES, False)
+    manual = [device_evidence.summaries(FAMILIES, e, sharded.manual) for e in (False, True)]
+    assert all(manual[0][f]['ids'] == sampled[f]['ids'] <= manual[1][f]['ids'] for f in FAMILIES)
+    assert sum(m['cases'] for m in manual[1].values()) > sum(m['cases'] for m in manual[0].values())
+    assert set().union(*(s['kinds'] for s in sampled.values())) >= {'scalar', 'cx', 'memory', 'warp', 'branch', 'qspc', 'emulator'}
+    assert not any(s['reasons'][''] for s in sampled.values())
 
 
 def test_variable_latency_alu_uses_scoreboard():

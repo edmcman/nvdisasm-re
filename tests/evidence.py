@@ -2,8 +2,8 @@
 annotated `tests/ptx` probes compiled by ptxas (`ptxas`) and emulator cases checked against
 `tests/refs` (`reference`), each with the forms it ran: the modifier combinations decoded from the
 instruction words (FADD's `ftz=FTZ rnd=RZ sat=nosat ...`; src/sass/sleigh/modifiers.py), since
-one class spans them all. Writes
-sass_smXX_evidence.json beside the coverage manifests, which
+one class spans them all. The emulator cases stream shard by shard on every core
+(tests/harness/sharded.py). Writes sass_smXX_evidence.json beside the coverage manifests, which
 `sass-coverage` folds into processor/SASS/semantics/evidence.json and the report.
 
 usage: python -m tests.evidence [SMxx ...] [--output DIR]
@@ -18,7 +18,8 @@ from sass.paths import LANGUAGES, PTXAS, ROOT
 from sass.sleigh.build import ARCHES
 from sass.sleigh.gen import MODES, Gen
 from sass.sleigh.modifiers import form, settings
-from tests.cases import FAMILIES, emulator_cases, gpu_fixtures
+from tests.cases import FAMILIES, gpu_fixtures, stream
+from tests.harness import sharded
 from tests.harness.dataflow import expected
 from tests.harness.gpu import Template, hits, mnemonic
 from tests.harness.hardware import passed
@@ -33,20 +34,27 @@ def decoded(arch, code):
         except Exception: pass
 
 
-def reference(arch):
-    """(class, settings, None) per emulator case, over both fp lowerings. The large sweeps are
-    sampled as in the tests: the full sweeps run no modifier form the sample misses."""
-    # Large modifier products must not retain every family's cases in both lowerings.
-    words = {}
-    for fp in MODES:
-        for family in FAMILIES:
-            cases = emulator_cases(arch, fp, (family,), exhaustive=False)[family]
-            for case in cases:
-                word = case.request.get("word")
-                if word is not None and word not in words:
-                    words[word] = settings(arch, pydecode.decode(arch, bytes.fromhex(word)))
-                yield case.cls, words.get(word, {}), None
-            del cases
+def reference(job):
+    """(arch, {class: [cases, {form: settings}]}) for one streamed shard of a language's emulator
+    cases. The large sweeps are sampled as in the tests: the full sweeps run no modifier form the
+    sample misses."""
+    arch, out, words = job[0], {}, {}
+    for case in stream(*job):
+        word = case.request.get("word")
+        if word is not None and word not in words:
+            words[word] = settings(arch, pydecode.decode(arch, bytes.fromhex(word)))
+        found = out.setdefault(case.cls, [0, {}]); found[0] += 1
+        if words.get(word): found[1][form(words[word])] = words[word]
+    return arch, out
+
+
+def references(architectures):
+    """{arch: {class: [cases, {form: settings}]}} over both fp lowerings, shard by shard."""
+    out = defaultdict(dict)
+    for arch, part in sharded.run(reference, tuple((a, fp) for a in architectures for fp in MODES), FAMILIES, False):
+        for cls, (n, forms) in part.items():
+            found = out[arch].setdefault(cls, [0, {}]); found[0] += n; found[1] |= forms
+    return out
 
 
 LOADS, STORES = ("LDG", "LDS", "LDL", "LDC", "ULDC", "LD"), ("STG", "STS", "STL", "ST")
@@ -123,17 +131,19 @@ def ptxas(arch):
     return out
 
 
-def evidence(arch):
+def evidence(sources, references):
     """{class: {"gpu": [fixtures], "ptxas": [probes], "reference": case count, "modifiers": [names],
-    "forms": {kind: [[label per modifier]]}}}, keys present only when non-empty: the forms are the
-    modifier combinations each kind of evidence ran."""
-    sources = {"gpu": gpu() if arch == "SM89" else [], "ptxas": ptxas(arch), "reference": reference(arch)}
+    "forms": {kind: [[label per modifier]]}}}, keys present only when non-empty, from the gpu and
+    ptxas rows and the merged reference shards: the forms are the modifier combinations each kind
+    of evidence ran."""
     out, forms = defaultdict(dict), defaultdict(lambda: defaultdict(dict))
     for kind, rows in sources.items():
         for cls, found, label in rows:
-            if label is None: out[cls][kind] = out[cls].get(kind, 0) + 1
-            else: out[cls].setdefault(kind, set()).add(label)
+            out[cls].setdefault(kind, set()).add(label)
             if found: forms[cls][kind][form(found)] = found
+    for cls, (n, found) in references.items():
+        out[cls]["reference"] = n
+        if found: forms[cls]["reference"] = found
     for cls, by_kind in forms.items():
         names = sorted({m for found in by_kind.values() for s in found.values() for m in s})
         out[cls] |= dict(modifiers=names, forms={k: [[s.get(m) for m in names] for _, s in sorted(f.items())] for k, f in by_kind.items()})
@@ -146,9 +156,12 @@ def main():
     p.add_argument("--output", type=Path, default=LANGUAGES)
     a = p.parse_args()
     a.output.mkdir(parents=True, exist_ok=True)
+    found = references(a.architectures)
     with ProcessPoolExecutor(min(len(a.architectures), os.cpu_count() or 1)) as pool:
-        for arch, found in zip(a.architectures, pool.map(evidence, a.architectures)):
-            (a.output / f"sass_{arch.lower()}_evidence.json").write_text(json.dumps(found, indent=1, sort_keys=True) + "\n")
+        probes = list(pool.map(ptxas, a.architectures))
+    for arch, rows in zip(a.architectures, probes):
+        sources = {"gpu": gpu() if arch == "SM89" else [], "ptxas": rows}
+        (a.output / f"sass_{arch.lower()}_evidence.json").write_text(json.dumps(evidence(sources, found[arch]), indent=1, sort_keys=True) + "\n")
 
 
 if __name__ == "__main__":
