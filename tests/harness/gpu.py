@@ -31,7 +31,7 @@ class Fixture:
     `emulator_same(emulated, want)` (default `same`). The emulator may run a different
     `emulator_image` (default image); `excused(i, emulated, want)` admits known emulator defects;
     `visited` offsets and `targets` mnemonics must execute; `exit` requires termination through EXIT. `block` threads form a block;
-    `cooperative` emulates each block as one (warps in lockstep, shared memory, BAR.SYNC) instead
+    `cooperative` emulates each block as one (warps in lockstep, shared memory, BAR.SYNC, WARPSYNC) instead
     of every thread alone."""
     name: str
     image: bytes
@@ -72,7 +72,7 @@ def request(f):
     memory = [dict(space="ram", address=INPUT, hex=f.data.hex()), dict(space="ram", address=OUTPUT, hex="cc" * f.threads * f.output_size)]
     return launch.kernel_request(image, (INPUT, OUTPUT, *(v for _, v in f.arguments)), memory, f.threads, f.block,
                                         dict(address=OUTPUT, size=f.output_size, stride=f.output_size), f.cooperative,
-                                        dict(synchronization=dict(bssy=True, bsync=True, **({"bar": True} if f.cooperative else {}))))
+                                        dict(synchronization=dict(bssy=True, bsync=True, **({"bar": True, "warpsync": True} if f.cooperative else {}))))
 
 
 class Driver:

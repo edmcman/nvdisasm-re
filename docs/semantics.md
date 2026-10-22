@@ -152,7 +152,12 @@ Reading notes:
   (`sass.sleigh.lower.Fold`: a constructor action exports the constant; comparisons and `ite` are
   carries of 64-bit masked sums), so the HFMA2.MMA constant move is one COPY. A `c[][]` operand's
   address is a decode-time constant (`Gen.immediate_text`, shared with `Fold`), so its load is one
-  LOAD.
+  LOAD. Float immediates with a `convertFloatType` rule fold too when every encoding of the format
+  selector picks the same layout (`Gen.float_formats`; F64 supplies the high word, F16/E8M7/E6M9 are
+  the packed bits). SM90 declares half immediates as `F64Imm` converted to F16 or E8M7 by `ofmt`
+  (SM89 declares `F16Imm`); until 2026-10-22 they were not folded, so the SM90 HFMA2.MMA constant
+  move took 22 run-time operations and the immediate forms of HMNMX2/HMUL2/HSET2/HSETP2 and F2F
+  upconversions recomputed their immediate's NaN tests at run time.
 - Known zero registers: a register the constructor can only encode as RZ/URZ/PT is that constant in
   the family IR, so it folds like lift's: pseudo-op variants pass the operand values their pattern
   fixes (`Builder.known`, from `Gen.pseudo_variants`), and IMAD.MOV `Rd, RZ, RZ, Rc` is `Rd = Rc`.
@@ -776,7 +781,13 @@ Family `families/memory.py` (Phase 6b).
 - Synchronization: BAR/BSSY/BSYNC (and BMOV/BREAK/WARPSYNC, primitives in `families/runtime.py`; B0-B15
   are not in the register model yet) need an explicit synchronization event context and acknowledgement;
   recording an acknowledged event is not a warp-scheduling implementation. Barrier reductions/results
-  need a handler.
+  need a handler. The cooperative Ghidra kernel scheduler (`ghidra_emulate.run_kernel`) does schedule
+  BAR.SYNC and WARPSYNC (2026-10-22): a WARPSYNC lane waits until every live lane its mask names waits
+  at a WARPSYNC with the same mask, following CUDA's `__syncwarp` contract (exited lanes are not waited
+  for; disagreeing masks or a mask omitting the lane raise). Its modelled forms are the immediate,
+  register and uniform-register masks without `.EXCLUSIVE`, and SM90's `.ALL`; `.EXCLUSIVE`,
+  `.COLLECTIVE`/`.REL` and constant-bank masks raise. ptxas emits `WARPSYNC Ra` (Ra = `VOTE.ANY`'s
+  active mask) before warp collectives in divergent SM90 code.
 - QSPC needs `context["address_spaces"]`, a mapping from `global`, `local` and `shared` to half-open
   address intervals; SM90+ also accepts `shared_cluster`. `S` queries CTA shared memory; SM90+'s `D`
   queries cluster-visible shared memory, corresponding to PTX `isspacep.shared::cluster`. `Pu` reports
