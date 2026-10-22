@@ -1,8 +1,9 @@
 # GPU oracle and hardware-established behavior
 
-What an SM89 GPU established about SASS behavior, by opcode group, and the GPU oracle that
-established it. Everything here is SM89 (NVIDIA GeForce RTX 4070 Laptop GPU) unless stated; it
-does not establish other architectures. How to run, write and record GPU tests (shared cases,
+What GPUs established about SASS behavior, by opcode group, and the GPU oracle that established
+it. Everything here is SM89 (NVIDIA GeForce RTX 4070 Laptop GPU) unless stated; SM90 (H100 NVL)
+results are under [SM90 runner validation](#sm90-runner-validation-2026-10-22). Neither establishes
+other architectures. How to run, write and record GPU tests (shared cases,
 fixtures, probes, evidence) is in [`tests/README.md`](../tests/README.md); the harness history is
 in [`docs/testing.md`](testing.md).
 
@@ -21,7 +22,7 @@ in [`docs/testing.md`](testing.md).
 - Device and toolkit: an NVIDIA GeForce RTX 4070 Laptop GPU, driver 580.178.04. Fixture kernels
   are built with CUDA 13.0.88 (`/usr/local/cuda` or the dev group's identical wheels). GPU access
   works outside the sandbox.
-- Fixtures: `pytest -m gpu --require-gpu` (`test_refs_on_gpu`) compiles the SM89 fixture kernels,
+- Fixtures: `pytest -m gpu --require-gpu` (`test_refs_on_gpu`) compiles the fixture kernels for the device's architecture (SM89 here; SM90 below),
   runs them on the GPU through the CUDA Driver API (ctypes), and compares each fixture's vectors
   (typically 128 random/edge vectors) with its reference. `pytest -m ghidra`
   (`test_fixtures_emulated`) runs the same kernels whole in Ghidra's `PcodeEmulator`, checks that

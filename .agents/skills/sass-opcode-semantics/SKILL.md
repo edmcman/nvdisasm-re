@@ -1,6 +1,6 @@
 ---
 name: sass-opcode-semantics
-description: Investigate a SASS opcode in nvdisasm-re (including CuLifter opcodes) by building its form matrix, tracing PTX through ptxas, observing functional behavior on an SM89 GPU, and implementing or validating Ghidra P-code. Use when an opcode's semantics, modifier bits, variants or PTX-to-SASS mapping are unknown or disputed. For raising an already-understood opcode's coverage and evidence across modifier combinations, use sass-opcode-coverage.
+description: Investigate a SASS opcode in nvdisasm-re (including CuLifter opcodes) by building its form matrix, tracing PTX through ptxas, observing functional behavior on an SM89 or SM90 GPU, and implementing or validating Ghidra P-code. Use when an opcode's semantics, modifier bits, variants or PTX-to-SASS mapping are unknown or disputed. For raising an already-understood opcode's coverage and evidence across modifier combinations, use sass-opcode-coverage.
 ---
 
 # SASS opcode semantics
@@ -91,7 +91,7 @@ and cover count/width limits, signedness, zero registers, predicates, source/
 destination aliases, discarded results, and each supported operand form. Record
 unresolved forms individually.
 
-For SM89 single-instruction discovery, prefer `Cases.probe` and
+For SM89/SM90 single-instruction discovery, prefer `Cases.probe` and
 `tests.harness.device_cases.observe`, or `uv run python -m tests.probe INPUT.json
 --out OUTPUT.json`. They use the regression runner's generated wrappers and return
 raw registers/memory without a reference or evidence credit. Read

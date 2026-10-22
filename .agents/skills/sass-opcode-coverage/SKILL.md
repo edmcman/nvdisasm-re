@@ -6,8 +6,8 @@ description: Drive one SASS opcode (e.g. FADD) in nvdisasm-re toward native sema
 # SASS opcode coverage
 
 Goal: every legal modifier combination of one opcode is **native** (not primitive,
-opaque or partial) on every architecture, and **verified**: GPU evidence on SM89,
-reference evidence elsewhere. Anything short of that ends with a specific, recorded
+opaque or partial) on every architecture, and **verified**: GPU evidence on SM89 (and SM90
+where an SM90 run passed), reference evidence elsewhere. Anything short of that ends with a specific, recorded
 reason per remaining gap.
 
 Work in the user's `nvdisasm-re` checkout. `AGENTS.md` "Writing new semantics" is the
@@ -30,11 +30,11 @@ Read this before choosing work, because the counting rules decide what earns cre
   passing case ran that full form (`tests/evidence.py`, `sass.sleigh.coverage.combinations`).
   Running each modifier value once credits only those tuples, not their cross product.
 - Evidence kinds: `reference` (emulator cases checked against `tests/refs/`), `ptxas`
-  (annotated `tests/ptx/` probes) and `gpu` (SM89 only).
+  (annotated `tests/ptx/` probes) and `gpu` (SM89 and SM90, per architecture).
 - Reference evidence comes from the default 0% sample (`sass-refresh-coverage` keeps the
   committed artifacts at 0%), which keeps at least one scenario per available form; a
   higher `--sample` adds inputs, not forms. See `tests/README.md` "Sampling".
-- SM89 GPU evidence comes from `tests/baseline/gpu_case_passes.json` (shared cases,
+- GPU evidence (recorded per architecture) comes from `tests/baseline/gpu_case_passes.json` (shared cases,
   recorded per family) and from passing whole-kernel fixtures' data paths
   (`tests/baseline/gpu_passes.json`). A partial or failing family run drops that
   family's shared-case evidence, so the whole family must pass.

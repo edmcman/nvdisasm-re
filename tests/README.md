@@ -25,14 +25,14 @@ uv run pytest -m gpu --require-gpu                     # GPU tests (outside the 
 
 | Option | Meaning |
 |---|---|
-| `--arch SM89\|SM75,SM90\|all` | architectures (default SM89) |
+| `--arch SM89\|SM75,SM90\|all` | architectures (default SM89; GPU tests default to device 0's architecture, SM89 or SM90) |
 | `--fp exact\|readable\|all` | floating-point lowering(s) (default exact) |
 | `--family F` (repeatable) | limit semantics tests and GPU fixtures to case families (`tests/cases/F.py`) |
 | `--sample PERCENT` | shared-case input sampling, integer 0–100; default 0 preserves modifier-form coverage and retained regressions ([Sampling](#sampling)) |
 | `--exhaustive` | alias for `--sample 100`; cannot be combined with `--sample` |
 | `--update-baseline` | accept current results into the [ratchet](#ratchets) baselines |
 | `--full` | `test_pydecode_disassembly` and `test_ghidra_disassembly` on the whole real corpus instead of a sample |
-| `--require-gpu` | fail instead of skipping without an SM89 device |
+| `--require-gpu` | fail instead of skipping without an SM89 or SM90 device |
 
 ### What to run when
 
@@ -201,7 +201,7 @@ sampled ([Sampling](#sampling)).
 ### GPU fixtures: `gpu_fixtures()`
 
 `harness/gpu.Fixture`s for `test_refs_on_gpu` and `test_fixtures_emulated`. A fixture is a CUDA
-kernel (`kernels/*.cu`, compiled for sm_89, optionally with patched SASS words:
+kernel (`kernels/*.cu`, compiled for the selected architecture, sm_89 or sm_90, optionally with patched SASS words:
 `harness/scalar.py`, `harness/templates.py`) and its reference outputs `expected`. Each thread reads
 three inputs and writes one output. The GPU output is compared with `expected` using `same`; the
 kernel, run whole in the emulator from entry to EXIT, is compared with `expected` using

@@ -62,7 +62,7 @@ Caller-controlled input sampling (2026-10-21; mechanism in
   `tests/refs/integer.py` helpers) dropped every family's GPU evidence, FP included. It now hashes
   only the import closure of `device_cases`/`device_setup`/`device_runner` within `sass` and
   `tests` (no `sass.semantics` but `softfloat`, no `tests.cases` or `tests.harness.autocases`),
-  plus `out/SM89`; the signature already fixes the inputs and expectations. Records are
+  plus the target architecture's `out/SMxx` (`out/SM89` before the SM90 port); the signature already fixes the inputs and expectations. Records are
   all-or-nothing per family, so adding cases to a family still drops its evidence until a fresh
   GPU run.
 - GPU memory harness (2026-10-18): `device_setup.memory_binding` sign-extends `Ra_offset` by the
@@ -150,9 +150,10 @@ How the planner, plans, profiles and adapters work is in
   ignores those sign bits in its independent exponent test. The original 1,792-pair boundary/seed
   corpus is shared by fixtures and a named profile; the ordinary manual FCHK loop is removed.
   UFADD/UFMUL/UFFMA/UFSEL/UFRND adapters use the appropriate exact/readable formulas, and UFRND is
-  routed through conversions. Other FP source-sign, FMZ and XORSIGN gaps remain explicit. The same
-  no-flush enum spelling also occurs on older mixed-source FMUL/FFMA forms; it is accepted as a
-  no-flush alias and validated with the ordinary independent arithmetic references.
+  routed through conversions. Other FP source-sign, FMZ and XORSIGN gaps remain explicit. HFMA2's
+  no-flush spelling `nofmz_hfma2` also occurs in the `fmz` selector of older mixed-source FMUL/FFMA
+  forms; the adapter accepts it as an alias of `nofmz` and validates it with the ordinary
+  independent arithmetic references.
 - Scalar conversion form profiles (2026-10-18): F2I/UF2I, I2F/I2FP/UI2F/UI2FP and F2F use
   independent conversion references for IEEE F16/F32/F64, integer widths, selectors and source
   signs. Selected byte/half inputs carry nonzero filler in the other slices; destinations
@@ -244,7 +245,7 @@ stale) and shown in the coverage report:
 - `reference`: emulator cases (`tests/cases`) name the class, checked against `tests/refs`.
 - `ptxas`: an annotated `tests/ptx` probe (`// sass: MNEMONIC`) makes ptxas 13.0.88 emit the
   class; this is lowering evidence, not values.
-- `gpu` (SM89 only): the class is on a GPU fixture kernel's data path, a static slice over md
+- `gpu` (SM89 and SM90, the architectures with GPU runs): the class is on a GPU fixture kernel's data path, a static slice over md
   register reads/writes (`tests/harness/dataflow.py:expected`) in code order: the backward slice of
   the output stores' data, not following load/store address operands (`Ra*`,
   `memoryDescriptor`), plus the instructions in both the forward slice of the input loads (LDG)
