@@ -45,13 +45,10 @@ def sources(program):
 
 def stamp(program, arch, fp):
     """Hash of everything a Ghidra-side answer depends on: the compiled language and its specs,
-    runtime manifest (or legacy coverage manifest), the sass sources the program runs and the
-    Ghidra install."""
+    the sass sources the program runs (the runtime primitives among them) and the Ghidra install."""
     from sass.sleigh.gen import variant
     name = variant(arch, fp)
-    manifest = LANGUAGES / f"sass_{name}_runtime.json"
-    if not manifest.exists(): manifest = LANGUAGES / f"sass_{name}_coverage.json"
-    files = [LANGUAGES / f"sass_{name}.sla", manifest, LDEFS, LANGUAGES / "sass.pspec", LANGUAGES / "sass.cspec", *sources(program)]
+    files = [LANGUAGES / f"sass_{name}.sla", LDEFS, LANGUAGES / "sass.pspec", LANGUAGES / "sass.cspec", *sources(program)]
     h = hashlib.sha256(GHIDRA_PY.encode() + os.environ.get("GHIDRA_INSTALL_DIR", "").encode())
     for f in files: h.update(str(f).encode()); h.update(f.read_bytes() if f.exists() else b"")
     return name, h.hexdigest()[:16]

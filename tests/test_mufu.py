@@ -6,16 +6,9 @@ import struct
 
 import pytest
 
-from sass.decode import ir
 from sass.semantics import runtime
 from sass.semantics.fp import mufu
-from tests.harness.select import arches
 import tests.refs.mufu
-
-
-def pytest_generate_tests(metafunc):
-    if 'primitive_arch' in metafunc.fixturenames:
-        metafunc.parametrize('primitive_arch', arches(metafunc.config))
 
 
 @pytest.mark.parametrize('op', ['SIN', 'COS'])
@@ -25,45 +18,16 @@ def test_reference_matches_recorded_gpu(op):
 
 
 @pytest.mark.parametrize('op', ['SIN', 'COS'])
-def test_runtime_matches_recorded_gpu(primitive_arch, op):
-    arch = ir.load(primitive_arch)
-    k = next(k for k in arch.classes if k.name == 'mufu__RRR_RR')
-    cpu = runtime.Runtime('.', int(primitive_arch[2:]))
-    field = 'mufuop' if 'mufuop' in k.operand_types else 'op'
-    selector = arch.enums[k.operand_types[field].type][op]
+def test_runtime_matches_recorded_gpu(op):
+    cpu = runtime.Runtime(89)
     inputs, outputs = tests.refs.mufu.samples()
-    assert [cpu.execute(arch, k, dict(Rb=bits, **{field: selector}), 'Rd', 4)
-            for bits in inputs] == outputs[op]
+    assert [cpu.call(f'sass_prim_mufu_{op.lower()}', [bits], 4) for bits in inputs] == outputs[op]
 
 
-def test_runtime_sources_and_modifiers(primitive_arch):
-    arch = ir.load(primitive_arch)
-    cpu = runtime.Runtime('.', int(primitive_arch[2:]))
-    for k in arch.classes:
-        if not k.name.startswith('mufu__') or k.alternate:
-            continue
-        source = next(n for n in ('Rb', 'Sb', 'URb') if n in k.operand_types)
-        for op in ('SIN', 'COS'):
-            field = 'mufuop' if 'mufuop' in k.operand_types else 'op'
-            selector = arch.enums[k.operand_types[field].type][op]
-            for bits in (0x80000000, 0x80000001, 0xbdcccccd, 0x3daaaaab, 0xff800000, 0xff800001):
-                for absolute in (False, True):
-                    for negate in (False, True):
-                        # A CX descriptor must not be mistaken for the loaded Sb value.
-                        values = dict(URb=0x12345678, **{field: selector})
-                        values.update({source: bits, source+'@absolute': absolute, source+'@negate': negate})
-                        assert cpu.execute(arch, k, values, 'Rd', 4) == tests.refs.mufu.sincos(bits, op, absolute, negate)
-
-
-def test_unresolved_mufu_still_fails(primitive_arch):
-    arch = ir.load(primitive_arch)
-    cpu = runtime.Runtime('.', int(primitive_arch[2:]))
-    for name, op in (('mufu__RRR_RR', 'RCP'), ('mufu_fp16__RR', 'SIN'), ('mufu_fp16__RR', 'COS')):
-        k = next(k for k in arch.classes if k.name == name)
-        field = 'mufuop' if 'mufuop' in k.operand_types else 'op'
-        values = dict(Rb=0x3e800000, **{field: arch.enums[k.operand_types[field].type][op]})
-        with pytest.raises(runtime.UnsupportedSemantics, match='MUFU approximation'):
-            cpu.execute(arch, k, values, 'Rd', 4)
+@pytest.mark.parametrize('name, args', [('mufu_rcp', [0x3e800000]), ('mufu_sin', [0x3c00, 0]), ('mufu_cos', [0x3c00, 1])])
+def test_unresolved_mufu_still_fails(name, args):
+    with pytest.raises(runtime.UnsupportedSemantics, match='MUFU approximation'):
+        runtime.Runtime(89).call('sass_prim_' + name, args, 4)
 
 
 def test_reduced_evaluator_matches_captured_gpu(request):

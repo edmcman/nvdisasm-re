@@ -123,9 +123,12 @@ Typed operand values come from `operands.py`.
 
 - Ask every selector the semantics depend on (`i.select_fork`, `i.select_lookup`);
   an unasked selector models only its md default and the rest stays opaque.
-- Call `unmodelled(reason)` for unresolved combinations and `primitive()` for
-  runtime-executed ones. Give a specific reason: it becomes the coverage reason and
-  is a limitation of the family, not evidence that hardware or ptxas lacks the form.
+- Call `unmodelled(reason)` for unresolved combinations. Give a specific reason: it
+  becomes the coverage reason and is a limitation of the family, not evidence that
+  hardware or ptxas lacks the form. What only the environment knows (other lanes,
+  barriers, address spaces) or an unmodelled hardware approximation is a named
+  primitive from `src/sass/semantics/primitive.py` (`primitive.mufu("SIN", x)`) with
+  explicit value arguments; keep everything computable from values native.
 - Outputs are written simultaneously after all inputs are read. Model predicate
   outputs and carry chains individually (conditional, complementary, or preserving
   old state). The backends handle hardwired zeros, guards, register spans and md

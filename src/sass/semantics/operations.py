@@ -1,20 +1,18 @@
 """Instruction semantics: the semantics families (src/sass/semantics/families) behind decode-time selector guards,
-with the opaque call, or the runtime primitive a family falls back to, for the encodings it doesn't
-model. This module does not equate PTX syntax with undocumented SASS variants."""
+with the opaque call for the encodings they don't model. This module does not equate PTX syntax with
+undocumented SASS variants."""
 from sass.semantics.family import FAMILIES, family_for
 import sass.semantics.families  # registers the semantics families
 
 OPERATION_FAMILIES = set(FAMILIES)
-# Opcodes whose unmodelled encodings run the runtime primitive (src/sass/semantics/runtime.py) rather than the opaque call.
-PRIMITIVES = {op for op, fams in FAMILIES.items() if any(fn.fallback == "prim" for _, fn in fams)}
 
 
-def dispatch(b, fallback="opaque", refs=()):
+def dispatch(b, refs=()):
     """b.body (a family's native code, with its pattern references `refs`) behind b's selector
-    patterns, and the opaque or primitive call for the other encodings."""
+    patterns, and the opaque call for the other encodings."""
     from sass.sleigh.gen import pattern
     native = " ".join(b.body)
-    fallback_lines = b.call(fallback); fallback_refs = list(dict.fromkeys(b.call_refs))
+    fallback_lines = b.call(); fallback_refs = list(dict.fromkeys(b.call_refs))
     # The calculation is its own table, shared by every guard pattern.
     calculation = b.g.subtable("native", [('""', pattern([], refs), "", native)])
     constructors = [('""', root, "", f"build {calculation};") for clauses in (b.selector_patterns or [[]])

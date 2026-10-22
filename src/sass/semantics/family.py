@@ -53,13 +53,6 @@ class Outputs:
         return [(n, self.writes[n]) for n in names]
 
 
-class Primitive(Exception):
-    """This encoding is executed by its runtime primitive (sass_prim_*, src/sass/semantics/runtime.py)."""
-
-
-def primitive(reason="runtime primitive"): raise Primitive(reason)
-
-
 def outputs(order=(), flow=None, stores=(), effects=(), **writes):
     return Outputs(writes, tuple(order), flow, tuple(stores), tuple(effects))
 
@@ -76,13 +69,22 @@ class Store:
 
 @dataclass(frozen=True)
 class Effect:
-    """A call to the pcodeop `name` with Expr arguments and no result (memory ordering events)."""
+    """A call to the pcodeop `name` with Expr arguments and no result (memory ordering events,
+    synchronization primitives)."""
     name: str
     args: tuple
 
 
 def store(space, address, value, cond=None): return Store(space, address, value, cond)
 def effect(name, *args): return Effect(name, tuple(args))
+
+
+def primitive_names(result):
+    """The runtime primitives an Outputs needs: its primitive values' and primitive effects' names."""
+    roots = [*result.writes.values(), *(e for s in result.stores for e in (s.address, s.value, s.cond)),
+             *(a for e in result.effects for a in e.args), *((result.flow.target, result.flow.cond) if result.flow else ())]
+    return {e.name.removeprefix(bitvec.PRIMITIVE_OP) for e in result.effects if e.name.startswith(bitvec.PRIMITIVE_OP)} | \
+        {n.args[0] for r in roots if isinstance(r, Expr) for n in bitvec.leaves(r, "primitive")}
 
 
 @dataclass(frozen=True)
@@ -162,17 +164,17 @@ def rewrite(fn):
     return out
 
 
-def family(*opcodes, classes=None, fallback="opaque"):
+def family(*opcodes, classes=None):
     """Register fn for every md class of `opcodes`, or only those `classes(klass)` accepts (while an
     opcode is partly migrated, the other classes keep their old emitter). Unmodelled encodings use
-    the opaque call, or with fallback='prim' the runtime primitive (src/sass/semantics/runtime.py)."""
+    the opaque call."""
     def register(fn):
         staged = rewrite(fn)
         def checked(i):
             result = staged(i)
             i.require_unasked_defaults()
             return result
-        checked.__name__, checked.__wrapped__, checked.fallback = fn.__name__, fn, fallback
+        checked.__name__, checked.__wrapped__ = fn.__name__, fn
         for op in opcodes: FAMILIES.setdefault(op, []).append((classes, checked))
         return checked
     return register
@@ -524,11 +526,6 @@ class Instruction:
         """The special register (view of w bits) a SpecialRegister operand names; SRZ reads 0."""
         name = self.resolve(names); self.asked.add(name)
         return bitvec.param(f"__sr:{name}", w)
-
-    def environment(self, name, w=32):
-        """State only the execution environment holds, in no register or encoding (the warp's
-        waiting lanes): the runtime's `sass_<name>` op, which fails without that state."""
-        return bitvec.param(f"__runtime:sass_{name}", w)
 
     def special_register(self, name):
         """The 32-bit special register `name` (SR_SWINLO), read whatever the encoding."""

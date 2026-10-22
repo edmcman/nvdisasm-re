@@ -241,17 +241,14 @@ class Gen:
         self.sizes = {c["cls"]: c["preds"] for c in md}
         self.collect_coverage = coverage
         self.coverage = {}
-        self.runtime = {}
         self.temporaries = {}
         self._span_fields = {}
         self.roles = {r["cls"]: r for p in (parse.OUT / archname / "semantics").glob("*.json") for r in json.loads(p.read_text())}
 
     def write_manifests(self, directory):
-        """Always write primitive calling conventions; detailed coverage is opt-in."""
-        directory = Path(directory)
-        prefix = directory / f"sass_{variant(self.arch.name, self.fp)}"
-        Path(str(prefix) + "_runtime.json").write_text(json.dumps(list(self.runtime.values()), indent=2) + "\n")
+        """The detailed coverage manifest, when collected."""
         if self.collect_coverage:
+            prefix = Path(directory) / f"sass_{variant(self.arch.name, self.fp)}"
             Path(str(prefix) + "_coverage.json").write_text(json.dumps(list(self.coverage.values()), indent=2) + "\n")
 
     def field(self, tok, lo, hi, kind=""):

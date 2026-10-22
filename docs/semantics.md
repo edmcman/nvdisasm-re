@@ -23,17 +23,17 @@ semantics already matched. Min/max predicate-output forms remain unresolved.
 - Control flow (`src/sass/semantics/families/control.py`, Phase 6a): `outputs(flow=goto|call|ret(target, cond))`; `i.branch_target(name)` is a direct target (SLEIGH: the branch-target subtable, `goto`/`call` without brackets; lift: the absolute address, RSImm relative to the next instruction), other targets are values (`call [x]`, `return [x]`). The lifter normalizes a constant-true flow condition to `None`; false and dynamic conditions remain explicit. Flow travels through row merging as pseudo-outputs (`__flow_target`/`__flow_cond`). `evaluate.execute` sets `State.pc`, so the lifted tests check `__counter`. Modelled: BRA (.DIV/.CONV with a `[~]URb` lane mask too, not without one, nor a uniform predicate; their divergence test reads the warp's waiting lanes, alive but not executing the branch, from the runtime op `sass_warp_waiting`, supplied by the warp context or the cooperative emulator as live lanes not at the branch's PC, and failing without one: `Instruction.environment`), EXIT (.NO_ATEXIT too), CALL.NOINC (absolute/relative immediate, c[][] and absolute register targets; the earlier emitter treated relative offsets as absolute), RET.ABS/REL.NODEC, NOP.
 - Memory and special registers (`src/sass/semantics/families/memory.py`, Phase 6b): `outputs(stores=[store(space, addr, value, cond=None)], effects=[effect(name, args...)])` (a store with `cond` is skipped when it is 0); stores and effects merge as pseudo-outputs (a store's width follows sz, so `Merger.bodies` splits rows whose output widths differ). `i.encoding(name)` passes a selector's raw value (the memory-ordering controls `sass_memory_order` validates); `i.special(name, w)` reads the special register a SpecialRegister field selects (SRZ 0). `i.special_register(name)` reads a named one (`SR_SWINLO`) whatever the encoding. LDG/STG/LDS/STS/LDL/STL/LDC, ULDC c[][] and S2R/CS2R/S2UR are families (uniform address parts `Ra_URb`/`Ra_URc` add to the address); generic LD/ST (2026-10-15) route a 64-bit address inside the shared window (`SR_SWINHI:SR_SWINLO`, `SR_SWINSZ` bytes) to `shared` at its offset from the base, else inside the local window (`SR_LWIN*`) to `localmem`, else to `ram` (SM89 GPU, `docs/hardware-facts.md`): a load is a choice between the three, a store three stores under exclusive conditions; the environment supplies the window registers (the whole-kernel emulator seeds `ghidra_bridge.WINDOWS` and the matching bank-0 constants), and 32-bit (no `.E`) generic addresses stay opaque. Every class with a descriptor operand (`*_memdesc_*`) passes one `sass_memory_descriptor` effect: the selected URx (`Ra_URb`/`Ra_URc`) for both values of SM89's `e_desc` and every SM90+ form. SM89 GPU shared-case probes (2026-10-16) show that `noexp_desc` hides the descriptor in the printed text but still reads it: bit 59 alone traps with either setting. The access itself ignores the descriptor (SM89 GPU, `docs/hardware-facts.md`); the runtime rejects range-form descriptors (bit 59), whose traps are unpredictable. A load's `Pnz` input zero-fills (`Rd = Pnz ? mem : 0`, SM89 GPU). The md also writes `Pnz`, and the load writes it back unchanged, as on the GPU (like R2P's masked-off predicates). Dual registers, predicate results (`Pu`, see `docs/open.md`), non-IA modes and SM75 `.ZD` (no default, meaning unknown; the earlier emitter ignored it) stay opaque.
 - md CONDITIONS that read a span field (sz, e: register range/alignment rules such as "sz=64 -> Rd even") are checked per span variant (`Gen.conditions(k, domain)`, `span_variants(domains=True)`), with the span fields narrowed to the variant's values, not in the root pattern: at the root they multiplied the global decision tree (SM89 10 -> 76 MB with the memory families).
-- Runtime-executed encodings (Phase 6c): a family raises `primitive()` (`sass_prim_*` behind the same selector guards; lift status `primitive`, value checks left to the emulator tests). `i.static_low(name, bits)` asks only the low bits of a wide immediate (UP2UR's 7-bit predicate mask; SLEIGH constrains a sub-field); fixed registers (`sem.reg('UP', k, 1, element=1)`) lower to their names.
-- Conversions (`src/sass/semantics/families/convert.py`, 2026-10-13): FRND (F32/F64), I2F/I2FP (8/16/32/64-bit sources with bsel/hsel, F16/BF16/F32/F64 destinations), F2F (F16/F32/F64) and F2I (F16/BF16/F32/F64 to S/U 32/64) are exact in every rounding mode on `fpformat` (`int_parts`, 64-bit `round_parts`; `arith` picks W=64 for F64). Rounding modes, destination formats, signedness and NTZ are decode-time lookups (`fpformat.chosen_rounding`, shared with F2FP; `fpformat.round_up` is the one round-up rule): forking per label made SM86 exceed 16 MiB. F2F/F2I/I2F/FRND with a half/byte source read only that slice (`test_pcode_dataflow`'s `part_selector`). PLOP3/UPLOP3 (`integer.py`): Pu's truth table is enumerated, Pv looks its bit up (`vimm8 >> (4p+2q+r)`; enumerating both was 65536 rows); register-source classes stay opaque. FCHK (`floating.py`), R2UR (Pu=PT only), RET.REL (next + Ra + offset) are native; BMOV/BREAK/WARPSYNC are runtime primitives (`families/runtime.py`) (B0-B15 are not in the register model yet).
+- Runtime primitives (2026-10-22, replacing Phase 6c's `primitive()`, which passed every decoded field to `sass_prim_OPCODE` and let the runtime re-decode them): `src/sass/semantics/primitive.py` builds `bitvec.primitive(name, w, *args)` nodes, values a family uses like any expression (`outputs(Rd=primitive.mufu("SIN", x))`), and synchronization effects. The name is only the operation (the mnemonic, plus MUFU's function); selectors a primitive still needs are constant arguments (their encodings); everything computable from values is native (SHFL's lane arithmetic, VOTE's modes, MATCH.ALL, ELECT's leader, QSPC's address). SLEIGH calls a node as `local t = sass_prim_<name>(args)`; `evaluate` and Ghidra's emulator run it through `Runtime.call`. A collective's lane argument is the raw operand (the environment supplies the other lanes' raw values), so transforms come after (VOTE's `!Pp` is `active & ~ballot`; signed REDUX MIN/MAX are their own operations). A row using primitives has status `primitive`, a class when all its modelled rows do; the Ghidra-free tests evaluate them with the case's context. `i.static_low(name, bits)` asks only the low bits of a wide immediate (UP2UR's 7-bit predicate mask; SLEIGH constrains a sub-field); fixed registers (`sem.reg('UP', k, 1, element=1)`) lower to their names.
+- Conversions (`src/sass/semantics/families/convert.py`, 2026-10-13): FRND (F32/F64), I2F/I2FP (8/16/32/64-bit sources with bsel/hsel, F16/BF16/F32/F64 destinations), F2F (F16/F32/F64) and F2I (F16/BF16/F32/F64 to S/U 32/64) are exact in every rounding mode on `fpformat` (`int_parts`, 64-bit `round_parts`; `arith` picks W=64 for F64). Rounding modes, destination formats, signedness and NTZ are decode-time lookups (`fpformat.chosen_rounding`, shared with F2FP; `fpformat.round_up` is the one round-up rule): forking per label made SM86 exceed 16 MiB. F2F/F2I/I2F/FRND with a half/byte source read only that slice (`test_pcode_dataflow`'s `part_selector`). PLOP3/UPLOP3 (`integer.py`): Pu's truth table is enumerated, Pv looks its bit up (`vimm8 >> (4p+2q+r)`; enumerating both was 65536 rows); register-source classes stay opaque. FCHK (`floating.py`), R2UR (Pu=PT only), RET.REL (next + Ra + offset) are native; BMOV/BREAK/WARPSYNC are synchronization primitives (`families/runtime.py`) (B0-B15 are not in the register model yet: barrier registers are encoded arguments).
 - `i.select_lookup(name, {label: expr})` returns the value a selector chooses as one decode-time choice instead of branching the family per label (FSETP's comparison, shared by Pu and Pv); `i.select_lookup_const` is its constant case. In SLEIGH, operand modifier bits (|x|, -x, ~x, !P) are likewise decode-time choices of the operand value, except on loaded operands (c[], cx[]), whose load each table would repeat. Both keep the enumeration small (FFMA has 6 modifier bits).
 - Floating point in the IR: `fadd`/`fmul`/`ffma` (rounding mode, FMUL's 2^k scale), `flt`/`fle`/`feq`/`fnan`, `fconv`, exactly rounded (`sass.semantics.fp.softfloat`) in `lift`/`evaluate`. The SLEIGH lowering keeps the earlier strategies (RN at native width, FFMA/scaling via the doubled format, directed modes via TwoSum residual and a 1-ulp step); the readable language uses the plain formula, and families write readable FFMA/scaled FMUL as their unfused operations. FTZ (branch-free), SAT and min/max NaN/zero rules are family IR (`src/sass/semantics/families/floating.py`).
 - SLEIGH backend: the rows of static answers are merged by anti-unification (one key at a time, default rows, rows the default reproduces absorbed, choices reused across outputs); outputs merge jointly, so a decode-time choice can select whole bodies (one constructor computes a shared constant load once). Cost = .sla size + 8 x executed operations. A subtable exporting a register exports the register itself: later outputs are captured before the first write.
 
 ## Operand values and instruction semantics (2026-10-07)
 - `src/sass/semantics/operands.py` preserves exact register effects for all classes, and materializes typed immediate/table/modifier/constant-bank values for supported operations. CX/descriptors/attribute/stateful operands require an explicit `sass_operand_value` provider.
-- Every opcode with semantics is a family (`src/sass/semantics/families/`, Phase 6c, 2026-10-13); `src/sass/semantics/operations.py` only routes a class to its family and `dispatch`es the native body behind decode-time selector patterns, with the opaque call or the family's runtime primitive (`fallback='prim'`, or `primitive()` rows such as QSPC and the warp/synchronization/MUFU family in `src/sass/semantics/families/runtime.py`) for the rest. Unknown conventions remain opaque: ISETP.EX, SM120 extra IMNMX predicates, extended memory and the descriptors of opcodes without a family, branch-stack CALL/RET depth changes.
-- FADD/FMUL/FFMA/FSETP are native p-code with .FTZ/.FMZ/.SAT/FMUL scale (`sass_prim_*` remains for unknown selectors). .FMZ zeroes both factors when one has a zero exponent (`product_inputs`, 2026-10-20). FTZ and FMZ share one body through `select_in` (a fork on label membership, then a decode-time FTZ/FMZ choice); a plain `select_fork` made SM90 exact 16,848,482 bytes, over the limit. That is a size-for-speed override, not a merge fix: the merger sees the sharing, but a choice subtable can't reuse values, so the shared body recomputes the zero test per factor (on the unflushed factors, so not their flushes), and `cost` (`.sla` nodes + 8 x executed operations, per class) rightly prefers separate FMA tables. FTZ/FMZ forms pay those operations (FTZ `ffma__RRR_RRR` 48 -> 65); plain forms keep their body. RN FFMA is `float2float(fp64 a*b + c)`: double rounding, rare 1-ulp differences. Ghidra 12.1.4's emulator rounds results in (2^-150, 2^-149) to zero instead of 2^-149 (`FloatFormat.getEncoding` `n < 0` branch); tests exclude that band.
-- `src/sass/semantics/runtime.py` (test-only; Ghidra never loads it) supplies strict CPU primitives; `src/sass/semantics/fp/softfloat.py` uses exact rational IEEE rounding. MUFU.SIN/COS use the recovered SM89 integer model in `fp/mufu.py`; other MUFU operations and FP16 forms require a hardware-specific handler. Warp operations use explicit 32-lane context (cooperative kernels gather it per instruction); synchronization events require acknowledgement and do not implement a scheduler. Barrier reductions require a handler.
+- Every opcode with semantics is a family (`src/sass/semantics/families/`, Phase 6c, 2026-10-13); `src/sass/semantics/operations.py` only routes a class to its family and `dispatch`es the native body behind decode-time selector patterns, with the opaque call for the rest (the primitive fallback, `fallback='prim'`, is gone with the implicit ABI: the F2I/I2F forms that used it, 8/16-bit destinations and CX 64-bit sources, had no case or evidence and are opaque). Unknown conventions remain opaque: ISETP.EX, SM120 extra IMNMX predicates, extended memory and the descriptors of opcodes without a family, branch-stack CALL/RET depth changes.
+- FADD/FMUL/FFMA/FSETP are native p-code with .FTZ/.FMZ/.SAT/FMUL scale (unknown selectors are opaque). .FMZ zeroes both factors when one has a zero exponent (`product_inputs`, 2026-10-20). FTZ and FMZ share one body through `select_in` (a fork on label membership, then a decode-time FTZ/FMZ choice); a plain `select_fork` made SM90 exact 16,848,482 bytes, over the limit. That is a size-for-speed override, not a merge fix: the merger sees the sharing, but a choice subtable can't reuse values, so the shared body recomputes the zero test per factor (on the unflushed factors, so not their flushes), and `cost` (`.sla` nodes + 8 x executed operations, per class) rightly prefers separate FMA tables. FTZ/FMZ forms pay those operations (FTZ `ffma__RRR_RRR` 48 -> 65); plain forms keep their body. RN FFMA is `float2float(fp64 a*b + c)`: double rounding, rare 1-ulp differences. Ghidra 12.1.4's emulator rounds results in (2^-150, 2^-149) to zero instead of 2^-149 (`FloatFormat.getEncoding` `n < 0` branch); tests exclude that band.
+- `src/sass/semantics/runtime.py` (test-only; Ghidra's language never loads it) implements the primitives by name; `src/sass/semantics/fp/softfloat.py` uses exact rational IEEE rounding. MUFU.SIN/COS use the recovered SM89 integer model in `fp/mufu.py`; the other MUFU functions and the 16-bit forms are explicit primitives (`Rd = sass_prim_mufu_sqrt(Rb)`) whose CPU implementation raises until a hardware model exists. Warp operations use explicit 32-lane context (cooperative kernels gather it per instruction); synchronization events require acknowledgement and do not implement a scheduler. Barrier reductions require a handler.
 - Special registers are a register file at offset 0x3000 named from the md `SpecialRegister` enum (`SR_CTAID.X`; `_64` views for CS2R.64); S2R/CS2R are plain copies and SRZ reads 0. Emulation seeds them by name like any register; unseeded ones read 0.
 - Spaces: `ram`, `cbank` (bank << 32 | uint32(offset)), `shared`, `localmem`. The identifier `local` is reserved in SLEIGH. The Phase 5 test harness reads parameter offsets from cubin PARAM_CBANK/KPARAM_INFO records; these SM89 pointer kernels use bank 0 base 0x160. The general loader/compiler prototype remains Phase 6 work.
 - Detailed per-class coverage manifests are generated beside each `.sla` with `--coverage`; committed `processor/SASS/semantics/coverage.json` summarizes all architectures. Native status records a candidate override with selector guards, not all-encoding coverage.
@@ -296,7 +296,7 @@ sums, zero for the exact products. It narrows with round-to-nearest, then moves
 the encoding by one ulp when the residual's sign calls for it. Under RM, an
 exact cancellation gives -0 unless both addends are +0. The corrected result is
 exact, and it also undoes Ghidra's underflow error described below.
-`sass_prim_*` remains the fallback for .FMZ and unknown selectors.
+Unknown selectors are opaque.
 
 Ghidra 12.1.4's emulator flushes results strictly between half and one minimum
 subnormal to zero (`FloatFormat.getEncoding`, the `n < 0` branch). The p-code
@@ -391,23 +391,25 @@ The `fset_simple`, `*_noBop` and SM100+ `*_fixed` classes are ALTERNATE.
 SM120's uniform floats (2026-10-14) register the scalar families on their
 uniform spellings: UFADD/UFMUL/UFFMA/UFSETP/UFSEL/UFRND/UF2I/UI2F/UI2FP share
 FADD/FMUL/FFMA/FSETP/FSEL/FRND/F2I/I2F's code (operand names resolve to URa,
-UPp, ...). The runtime primitives are scalar only, so the uniform twins' unmodelled
-encodings (F16/BF16 UFRND, UF2I's 8/16-bit destinations) are opaque. SM100+'s
+UPp, ...). The uniform twins' unmodelled encodings (F16/BF16 UFRND, UF2I's 8/16-bit
+destinations) are opaque, like the scalar ones'. SM100+'s
 LDCU joins LDC: `URd = c[bank][URa + offset]` for `ldcu_const_RCR_`; CX,
 `ur_offs`, 256-bit and `.TEXUNPACK` forms stay opaque.
 
-VOTEU, MATCH, REDUX and ELECT are runtime primitives over the warp context, like
-VOTE and SHFL: VOTEU is VOTE into URd/UPu; MATCH.ANY gives the active lanes
-holding the lane's value (U32, or U64's register pair) and MATCH.ALL the active
-mask and Pu = 1 when they all agree (else 0, 0); REDUX reduces Ra over the active
-lanes into URd (SUM/AND/OR/XOR, MIN/MAX signed with `.S32`); ELECT's leader is
-the lowest active lane of URa's mask (`~URa` with its invert bit), Pu = this lane
-leads and URd = the leader's lane id, following PTX `elect.sync`. ELECT's `Pp`
-form and `.IGNOREKILL` are opaque. The block emulator gathers each lane's operand
-over its md span.
+The warp collectives are native over warp primitives (`lane`, `active`,
+`waiting`, `read_lane`, `ballot`, `match`, `redux_<op>`): SHFL computes its source
+lane and bound natively and reads it with `read_lane`; VOTE's modes compare the
+`ballot` with `active`; VOTEU is VOTE into URd/UPu; MATCH.ANY is `match`, the
+active lanes holding the lane's value (U32, or U64's register pair), and
+MATCH.ALL the active mask and Pu = 1 when they all agree (else 0, 0); REDUX
+reduces Ra over the active lanes into URd (SUM/AND/OR/XOR, MIN/MAX signed with
+`.S32`); ELECT's leader is the lowest active lane of URa's mask (`~URa` with its
+invert bit, FLO's `leading_zeros`), Pu = this lane leads and URd = the leader's
+lane id, following PTX `elect.sync`. ELECT's `Pp` form and `.IGNOREKILL` are
+opaque. The block emulator gathers each lane's operand over its md span.
 
-Runtime primitives cover the float fallbacks, F2I/I2F, PRMT, SHFL/VOTE,
-QSPC, and synchronization events. QSPC requires `context["address_spaces"]`,
+QSPC computes the generic address natively and asks the environment for its
+space (`address_space`). It requires `context["address_spaces"]`,
 a mapping from `global`, `local`, and `shared` to half-open address intervals;
 SM90+ also accepts `shared_cluster`. `S` queries CTA shared memory, while
 SM90+'s `D` queries cluster-visible shared memory, corresponding to PTX
@@ -416,12 +418,7 @@ queried space. `Rd` reports a one-hot input-space tag: global `1`, shared `2`,
 local `4`, based on SM89 GPU probes. `Rd` with D is kept opaque until checked
 on SM90 hardware. The emulator cannot infer generic-pointer provenance from
 an integer address; missing mappings, unmapped addresses, or overlapping
-ranges raise `UnsupportedSemantics`. Floating arithmetic uses exact rational values
-with one IEEE rounding step; FTZ, saturation, and directed rounding are explicit.
-Conversion results for NaN, infinity, or out-of-range inputs and FMZ/NTZ modes
-whose conventions are unconfirmed raise `UnsupportedSemantics`. NaN results
-are canonical quiet NaNs; GPU payload selection is not verified. PRMT implements
-IDX and the six specialized modes.
+ranges raise `UnsupportedSemantics`.
 
 F2IP has a native path for packed F32-to-S8/U8 conversion when the instruction
 uses round-to-nearest-even, NTZ, no RELU, and materialized 32-bit inputs,
@@ -592,26 +589,26 @@ F2I has a native p-code path for the hardware-verified F32-to-S32
 `.TRUNC.NTZ` form. It truncates finite values toward zero, maps NaNs to zero,
 and clamps infinities and overflow to the signed 32-bit limits. The path is
 generated for all architectures; GPU behavior has been measured on SM89.
-Exact mode falls back to the runtime primitive for other rounding modes.
 Readable mode ignores the encoded rounding selector and uses truncation, like
 its other floating-point operations ignore rounding details. Other formats,
-destinations, and NTZ selectors fall back to the runtime primitive. Absolute
+destinations (8/16-bit) and NTZ selectors are opaque. Absolute
 clears the source sign bit before negate toggles it; patched
 SM89 GPU fixtures verify absolute, negate, and combined forms against an
 independent integer reference (128 whole-kernel comparisons per form).
 
-S2R/CS2R copy named special registers; the launch environment seeds their values. SHFL/VOTE require explicit 32-lane
-values, predicates, active mask, and lane index. Inactive shuffle sources
-are rejected because their values are undefined. BAR/BSSY/BSYNC require an
-explicit synchronization event context; recording an acknowledged event is
-not a warp-scheduling implementation. Barrier reductions/results require a
-handler. MUFU remains a named primitive. Its CPU runtime implements full-width
+S2R/CS2R copy named special registers; the launch environment seeds their values. The warp
+primitives require explicit 32-lane values, predicates, active mask, and lane index; a
+valid shuffle source that isn't executing gives 0 (SM89). The synchronization primitives
+(BAR/BSSY/BSYNC/BREAK/WARPSYNC/BMOV) require an explicit synchronization event context;
+recording an acknowledged event is not a warp-scheduling implementation, and BMOV's read
+takes the handler's value for its `cbu_state` encoding. MUFU is the primitive
+`mufu_<fn>`. Its CPU runtime implements full-width
 SIN/COS with fixed-point turn reduction, 64 integer coefficient triples, retained
 square terms, and final float32 rounding toward zero (`fp/mufu.py`, 2026-10-19).
 Register, uniform, immediate and constant sources use the same evaluator after
-source modifiers. The model is generated wherever those forms exist; hardware
-evidence is SM89 only. Other MUFU operations and FP16 forms still require a
-handler. CPU arithmetic references
+source modifiers, which the family applies. The model is generated wherever those forms exist; hardware
+evidence is SM89 only. Other MUFU functions and the 16-bit forms still need a
+hardware model. CPU arithmetic references
 use the [NVIDIA PTX arithmetic definitions](https://docs.nvidia.com/cuda/parallel-thread-execution/)
 as reference conventions; GPU checks are needed to establish SASS equivalence.
 
@@ -620,17 +617,18 @@ as reference conventions; GPU checks are needed to establish SASS equivalence.
 Opaque: `sass_opaque_OPCODE(inputs...)`, where inputs are the register operands
 and decoded immediates in operand order. Modifiers, scheduling hints and reserved
 bits are not arguments; they remain in the instruction bytes at the call's address.
-Primitive: `sass_prim_OPCODE(class_ordinal:u32, inputs...)`, where inputs include
-the decoded modifiers.
-The runtime architecture comes from the loaded language. Input order and output
-widths come from the detailed class manifest. Multiple
-outputs return one byte bundle in manifest order, first output in the low bytes.
+Multiple outputs return one byte bundle, first output in the low bytes.
 All inputs are evaluated before assigning any output. Sinks discard writes to
 zero/true registers and register-bank overflow views.
+Primitive: `sass_prim_<name>(args...)` (`src/sass/semantics/primitive.py`), a value
+of the node's width, or a synchronization effect (no result) whose first argument
+enables it. Arguments are the values the family passed, nothing else: the runtime
+needs no class, manifest or label tables.
 
-`Runtime(language_dir, sm, handlers={name: callback})` permits environment implementations;
+`Runtime(sm, context, handlers={name: callback})` permits environment implementations;
 callbacks receive `(arguments, output_bytes, context)`. Without a handler,
-unknown operations raise with the decoded class and values. The JSON-line
+unknown operations raise. `evaluate.execute(semantics, state, runtime=...)` and Ghidra's
+emulator both call `Runtime.call`. The JSON-line
 Ghidra harness accepts named special-register values in `registers`,
 `context.operands` keyed by `class.operand`, `context.warp`, and
 `context.synchronization`. Memory initialization is explicit. Kernel parameter

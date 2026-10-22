@@ -78,7 +78,8 @@ manifest `reason`.
   then implement it natively.
 - Unknown: probe the GPU first (sass-opcode-semantics, `references/gpu-probes.md`), then
   promote the observation to a reference.
-- Genuinely runtime-only: keep it `primitive()` with a specific reason.
+- Genuinely runtime-only: a named primitive (`src/sass/semantics/primitive.py`) with explicit
+  arguments, everything around it native.
 
 **Evidence gap** (native, no verifying form). Find why the planner drops it:
 

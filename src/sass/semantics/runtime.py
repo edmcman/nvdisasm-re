@@ -1,43 +1,36 @@
-"""CPU implementations of named instruction primitives.
+"""CPU implementations of named instruction primitives (src/sass/semantics/primitive.py) and the
+other pcodeops the languages call.
 
 Unknown operations fail explicitly. This is single-thread/explicit-warp context,
 not an implementation of CUDA's warp scheduler or memory concurrency model.
 """
-import functools, json, math, operator, re
-from fractions import Fraction
-from pathlib import Path
+import functools, operator
 from sass.decode import ir
-from sass.semantics.fp import softfloat, mufu
+from sass.semantics.bitvec import PRIMITIVE_OP
+from sass.semantics.fp import mufu
 
 
 class UnsupportedSemantics(NotImplementedError): pass
 
 
-class Runtime:
-    def __init__(self, language_dir, sm, context=None, handlers=None, variant=None):
-        self.sm=sm;self.handlers=handlers or {};self.variant=variant or f'sm{sm}'
-        self.language_dir=Path(language_dir);self.context=context or {};self.events=[];self.manifests={}
+REDUCTIONS = {'and':operator.and_,'or':operator.or_,'xor':operator.xor,'add':operator.add,'umin':min,'umax':max,'smin':min,'smax':max}
+SPACES = {'global':1,'shared':2,'local':4,'shared_cluster':8}
+SYNCHRONIZATION = ('bar','bssy','bsync','break','warpsync','bmov')
 
-    def manifest(self,sm):
-        if sm not in self.manifests:
-            path=self.language_dir/f'sass_{self.variant}_runtime.json'
-            if not path.exists():path=self.language_dir/f'sass_{self.variant}_coverage.json'
-            rows=json.loads(path.read_text())
-            self.manifests[sm]={r['cls']:r for r in rows}
-        return self.manifests[sm]
+
+class Runtime:
+    def __init__(self, sm, context=None, handlers=None):
+        self.sm=sm;self.handlers=handlers or {};self.context=context or {};self.events=[]
 
     def call(self,name,args,size):
+        """The pcodeop `name` on integer args, a size-byte result (0: an effect)."""
         if name in self.handlers:return self.handlers[name](args,size,self.context)
-        sm=self.sm
+        if name.startswith(PRIMITIVE_OP):return self.primitive(name[len(PRIMITIVE_OP):],args,size)
         if name.startswith('sass_opaque_'):
             raise UnsupportedSemantics(f'{name}{tuple(args)}')
-        if name=='sass_warp_waiting':
-            # The lanes of this warp still alive but not executing this instruction (BRA.DIV/.CONV).
-            waiting=self.context.get('warp',{}).get('waiting')
-            if waiting is None:raise UnsupportedSemantics('warp waiting-lane mask required')
-            return int(waiting)&0xffffffff
+        arch=ir.load('SM'+str(self.sm))
         if name=='sass_operand_value':
-            ordinal,index,*children=args;k=ir.load('SM'+str(sm)).classes[ordinal]
+            ordinal,index,*children=args;k=arch.classes[ordinal]
             atom=list(k.operand_types.values())[index]
             # Stateful operands are provided by the execution environment rather
             # than given a made-up bank/descriptor layout.
@@ -46,9 +39,9 @@ class Runtime:
             if key not in supplied:raise UnsupportedSemantics('operand '+key)
             return int(supplied[key])
         if name=='sass_memory_order':
-            ordinal,*controls=args;k=ir.load('SM'+str(sm)).classes[ordinal]
+            ordinal,*controls=args;k=arch.classes[ordinal]
             for key,value in zip((n for n in ('sem','sco','cop','cop2','private') if n in k.operand_types),controls):
-                atom=k.operand_types[key];label=ir.load('SM'+str(sm)).rev_enums[atom.type].get(value,'INVALID')
+                atom=k.operand_types[key];label=arch.rev_enums[atom.type].get(value,'INVALID')
                 if label.startswith('INVALID'):raise UnsupportedSemantics('memory control '+label)
             self.events.append(dict(op=k.mnemonic,controls=controls));return 0
         if name=='sass_memory_descriptor':
@@ -56,217 +49,80 @@ class Runtime:
             descriptor,=args
             if descriptor>>59&1:raise UnsupportedSemantics(f'range-form memory descriptor {descriptor:#x}')
             return 0
-        if not name.startswith('sass_prim_'):raise UnsupportedSemantics(name)
-        ordinal,*values=args;arch=ir.load('SM'+str(sm));k=arch.classes[ordinal]
-        variants=self.manifest(sm)[k.name]['variants']
-        if len(variants)!=1:
-            # Selectors that change only register spans (QSPC's E, MATCH's U32/U64)
-            # keep one input/output signature: p-code has already assembled the
-            # selected span into the integer argument.
-            signatures={(tuple(x['inputs']),tuple(x['outputs'].items())) for x in variants}
-            if len(signatures)==1:
-                inputs,outputs=variants[0]['inputs'],variants[0]['outputs']
-            else:raise UnsupportedSemantics('primitive with modifier-dependent register spans '+k.name)
-        else:inputs,outputs=variants[0]['inputs'],variants[0]['outputs']
-        if len(values)!=len(inputs):raise UnsupportedSemantics('primitive input ABI mismatch '+k.name)
-        v=dict(zip(inputs,values))
-        # Multi-destination operations return a low-to-high byte bundle. All
-        # inputs are evaluated before that bundle is assigned to registers.
-        suffix=name[len('sass_prim_'+k.mnemonic):].lstrip('_')
-        if suffix:return self.execute(arch,k,v,suffix,size)
-        offset=0;result=0
-        for dest,width in outputs.items():
-            result|=(self.execute(arch,k,v,dest,width)&((1<<(width*8))-1))<<offset
-            offset+=width*8
-        if not outputs:self.execute(arch,k,v,'',0)
-        return result
+        raise UnsupportedSemantics(name)
 
-    def execute(self,arch,k,v,dest,size):
-        op=k.mnemonic
-        def label(n,default=None):
-            atom=k.operand_types.get(n)
-            if atom is None:return default
-            out=arch.rev_enums.get(atom.type,{}).get(v[n]) if n in v else default
-            if out is None or out.startswith('INVALID'):raise UnsupportedSemantics(f'{op} {n}={out}')
-            return out
-        def get(*names):
-            for n in names:
-                if n in v:return n,v[n]
-            raise UnsupportedSemantics(op+' missing operand '+str(names))
-        def integer(*names):
-            n,x=get(*names)
-            if v.get(n+'@invert'):x=~x
-            if v.get(n+'@negate'):x=-x
-            if v.get(n+'@not'):x=int(not x)
-            return x&0xffffffff
-        def floating(width,*names):
-            n,x=get(*names);mask=(1<<width)-1
-            if v.get(n+'@absolute'):x&=(1<<(width-1))-1
-            if v.get(n+'@negate'):x^=1<<(width-1)
-            return x&mask
-        if op in ('FADD','FMUL','FFMA'):
-            rnd=label('rnd','RN');fmz=label('fmz','nofmz');ftz=label('ftz','noftz')
-            if fmz=='nofmz_hfma2':fmz='nofmz'
-            if fmz not in ('nofmz','FTZ'):raise UnsupportedSemantics(op+' '+fmz)
-            flush=fmz=='FTZ' or ftz=='FTZ';sat=label('sat','nosat')=='SAT'
-            a=floating(32,'Ra','Sa');b=floating(32,*(('Rc','Sc','URc') if op=='FADD' else ('Rb','Sb','URb')))
-            inputs=[a,b]
-            if op=='FFMA':inputs.append(floating(32,'Rc','Sc','URc'))
-            scale=label('scale','noscale');exponent={'noscale':0,'D2':-1,'D4':-2,'D8':-3,'M2':1,'M4':2,'M8':3}.get(scale)
-            if exponent is None:raise UnsupportedSemantics(op+' scale '+scale)
-            return softfloat.arithmetic({'FADD':'add','FMUL':'mul','FFMA':'fma'}[op],inputs,32,rnd,flush,sat,exponent)
-        if op=='FSETP':
-            flush=label('ftz','noftz')=='FTZ';a=softfloat.unpack(floating(32,'Ra','Sa'),32,flush);b=softfloat.unpack(floating(32,'Rb','Sb','URb'),32,flush)
-            cmp=label('fcomp');unordered=a[0]=='nan' or b[0]=='nan'
-            def numeric(x):return (-math.inf if x[1] else math.inf) if x[0]=='inf' else x[2]
-            comparisons={'LT':lambda x,y:x<y,'EQ':lambda x,y:x==y,'LE':lambda x,y:x<=y,'GT':lambda x,y:x>y,'NE':lambda x,y:x!=y,'GE':lambda x,y:x>=y}
-            if cmp=='NUM':result=not unordered
-            elif cmp=='NAN':result=unordered
-            elif cmp in ('F','T'):result=cmp=='T'
-            else:
-                base=cmp.removesuffix('U')
-                if base not in comparisons:raise UnsupportedSemantics('FCMP '+cmp)
-                result=(unordered and cmp.endswith('U')) or (not unordered and comparisons[base](numeric(a),numeric(b)))
-            if dest=='Pv':result=not result
-            pred=bool(integer('Pp'));bop=label('bop','AND')
-            return int({'AND':lambda:result and pred,'OR':lambda:result or pred,'XOR':lambda:result!=pred}[bop]())
-        if op=='QSPC':
-            query=label('space')
-            space={'G':'global','L':'local','S':'shared',
-                   'D':'shared_cluster'}.get(query)
-            if space is None:raise UnsupportedSemantics(f'QSPC query space {query}')
-            ranges=self.context.get('address_spaces')
-            if not isinstance(ranges,dict):
-                raise UnsupportedSemantics(f'QSPC address_spaces.{space} context required')
-            offset=v.get('Ra_offset',0)&0xffffffff
-            if offset&0x80000000:offset-=1<<32
-            address=(v.get('Ra',0)+v.get('Ra_URb',0)+offset)&((1<<64)-1)
-            def in_space(name):
-                if name not in ranges:
-                    raise UnsupportedSemantics(f'QSPC address_spaces.{name} context required')
-                intervals=ranges[name]
-                if not isinstance(intervals,(list,tuple)):
-                    raise UnsupportedSemantics(f'malformed QSPC address ranges for {name}')
-                matched=False
-                for interval in intervals:
-                    if not isinstance(interval,(list,tuple)) or len(interval)!=2:
-                        raise UnsupportedSemantics(f'malformed QSPC address range for {name}')
-                    start,end=map(int,interval)
-                    if not 0<=start<=end<=1<<64:
-                        raise UnsupportedSemantics(f'invalid QSPC address range for {name}')
-                    matched |= start<=address<end
-                return matched
-            if dest=='Pu':return int(in_space(space))
-            if dest=='Rd':
-                tags={'global':1,'shared':2,'local':4,'shared_cluster':8}
-                matches=[tag for name,tag in tags.items()
-                         if name in ranges and in_space(name)]
-                if len(matches)!=1:
-                    raise UnsupportedSemantics('QSPC input address has no unique mapped space')
-                return matches[0]
-            raise UnsupportedSemantics(f'QSPC output {dest}')
-        if op in ('F2I','I2F','I2FP'):
-            src=label('srcfmt');dst=label('dstfmt');n,bits=get('Sb','Rb','Ra','Sa')
-            if not src or not dst:raise UnsupportedSemantics(op+' format')
-            match=lambda s:re.fullmatch(r'([FUS])(8|16|32|64)',s)
-            sf,df=match(src),match(dst)
-            if not sf or not df:raise UnsupportedSemantics(op+' format '+src+'/'+dst)
-            sw,dw=int(sf[2]),int(df[2]);shift=0
-            if sw==16:shift=16 if label('hsel','H0')=='H1' else 0
-            if sw==8:shift=int(label('b3b0','B0')[1:])*8
-            bits=bits>>shift&((1<<sw)-1)
-            rnd=label('rnd','RN');rnd={'ROUND':'RN','FLOOR':'RM','CEIL':'RP','TRUNC':'RZ'}.get(rnd,rnd)
-            if op=='F2I':
-                ntz=label('ntz','nontz')
-                if v.get(n+'@absolute'):bits&=(1<<(sw-1))-1
-                if v.get(n+'@negate'):bits^=1<<(sw-1)
-                ftz=label('ftz','noftz')=='FTZ'
-                if ntz=='NTZ':
-                    # Measured SM89 F2I.TRUNC.NTZ: NaNs become zero, infinities
-                    # and finite overflow clamp to the signed destination range.
-                    if (arch.name,sw,dw,df[1],rnd)!=('SM89',32,32,'S','RZ'):
-                        raise UnsupportedSemantics('unverified NTZ conversion')
-                    kind,sign,value=softfloat.unpack(bits,sw,ftz)
-                    lo,hi=-(1<<31),(1<<31)-1
-                    result=0 if kind=='nan' else (lo if sign else hi) if kind=='inf' else max(lo,min(hi,softfloat.round_integer(value,rnd)))
-                elif ntz in ('nontz','NOTZ','noNTZ'):
-                    result=softfloat.float_to_int(bits,sw,dw,df[1]=='S',rnd,ftz)
-                else:raise UnsupportedSemantics('NTZ conversion '+ntz)
-                if df[1]=='S' and dw<size*8 and result>>(dw-1):result-=1<<dw
-            else:
-                if sf[1]=='S' and bits>>(sw-1):bits-=1<<sw
-                if v.get(n+'@negate'):bits=-bits
-                if v.get(n+'@absolute'):bits=abs(bits)
-                result=softfloat.pack(Fraction(bits),dw,rnd)
-            return result&((1<<(size*8))-1)
-        if op=='PRMT':
-            mode=label('pmode','IDX')
-            a=integer('Ra');selector=integer('Rb','Sb');b=integer('Rc','Sc');data=a|(b<<32);out=0
-            for i in range(4):
-                pick=selector>>(i*4)&15 if mode=='IDX' else {'F4E':lambda:(selector&3)+i, 'B4E':lambda:((selector&3)-i)&7, 'RC8':lambda:selector&3, 'RC16':lambda:((selector&1)*2)+(i&1), 'ECL':lambda:max(i,selector&3), 'ECR':lambda:min(i,selector&3)}[mode]()
-                byte=data>>((pick&7)*8)&255
-                if mode=='IDX' and pick&8:byte=255 if byte&128 else 0
-                out|=byte<<(i*8)
-            return out
-        if op in ('SHFL','VOTE','VOTEU','MATCH','REDUX','ELECT'):
-            warp=self.context.get('warp')
-            if not warp:raise UnsupportedSemantics('explicit 32-lane warp context required')
-            lane=int(warp.get('lane',0));active=int(warp.get('active',0xffffffff))
-            if not 0<=lane<32 or not active>>lane&1:raise UnsupportedSemantics('warp lane is inactive or invalid')
-            lanes=[i for i in range(32) if active>>i&1]
-            if op=='ELECT':
-                # PTX elect.sync: the lowest active lane of the member mask leads; d is its lane id.
-                mask=integer('URa') if 'URa' in v else 0xffffffff
-                members=[i for i in lanes if mask>>i&1]
-                if not members:raise UnsupportedSemantics('ELECT without an active member lane')
-                return int(lane==members[0]) if dest=='Pu' else members[0]
-            if op in ('MATCH','REDUX'):
-                values=warp.get('values',[])
-                if len(values)!=32:raise UnsupportedSemantics('warp values required')
-            if op=='MATCH':
-                # PTX match.any/all.sync over the active lanes (Ra's span already gives U32/U64).
-                equal=sum(1<<i for i in lanes if values[i]==values[lane])
-                if label('op')=='ANY':return equal
-                return int(equal==active) if dest=='Pu' else (active if equal==active else 0)
-            if op=='REDUX':
-                # PTX redux.sync over the active lanes; MIN/MAX compare signed with .S32.
-                xs=[values[i]&0xffffffff for i in lanes];mode=label('op')
-                if label('sz','U32')=='S32' and mode in ('MIN','MAX'):xs=[x-(1<<32) if x>>31 else x for x in xs]
-                combine={'SUM':operator.add,'AND':operator.and_,'OR':operator.or_,'XOR':operator.xor,'MIN':min,'MAX':max}[mode]
-                return functools.reduce(combine,xs)&0xffffffff
-            if op in ('VOTE','VOTEU'):
-                preds=warp.get('predicates')
-                if preds is None or len(preds)!=32:raise UnsupportedSemantics('warp predicates required')
-                if v.get('Pp@not'):preds=[not x for x in preds]
-                mask=sum((1<<i) for i in range(32) if active>>i&1 and preds[i])
-                mode=label('voteop');result={'ALL':mask==active,'ANY':bool(mask),'EQ':mask==0 or mask==active}[mode]
-                return mask if dest in ('Rd','URd') else int(result)
-            if len(warp.get('values',[]))!=32:raise UnsupportedSemantics('warp values required')
-            # PTX shfl.sync's rule; SM89 matches it exactly (524288 lane results, random b and c).
-            # UP's bound is a lower one (its clamp is the segment start); the others only check j <= bound.
-            b=integer('Rb','Sb')&31;c=integer('Rc','Sc');segment=c>>8&31
-            bound=(lane&segment)|(c&31&~segment);mode=label('shflmd')
-            target={'IDX':(lane&segment)|(b&~segment),'UP':lane-b,'DOWN':lane+b,'BFLY':lane^b}[mode]
-            valid=target>=bound if mode=='UP' else target<=bound
-            if dest=='Pu':return int(valid)
-            # A valid source lane that is not executing the shuffle yields 0 (SM89, idle or exited lanes alike).
-            return int(warp['values'][target]) if valid and active>>target&1 else 0 if valid else int(warp['values'][lane])
-        if op in ('BAR','BSSY','BSYNC','BMOV','BREAK','WARPSYNC'):
-            # Synchronization is supplied by the environment. A missing handler
-            # fails rather than silently treating reconvergence/barriers as no-ops.
-            if 'Pp' in v and not integer('Pp'):return 0
-            key=op.lower();handler=self.context.get('synchronization',{}).get(key)
-            if not handler:raise UnsupportedSemantics(op+' synchronization context required')
-            self.events.append(dict(op=op,values=v))
-            if not dest:return 0
-            # BMOV reads convergence-barrier state, which only the environment holds.
-            state=label('cbu_state')
-            if op!='BMOV' or not isinstance(handler,dict) or state not in handler:
-                raise UnsupportedSemantics(op+' reduction/result requires an environment handler')
-            return int(handler[state])
-        if op=='MUFU':
-            mode=label('mufuop') if 'mufuop' in k.operand_types else label('op')
-            if k.name.startswith('mufu__') and mode in ('SIN','COS'):
-                return mufu.sincos(floating(32,'Rb','Sb','URb'),mode)
-            raise UnsupportedSemantics('MUFU approximation is unresolved for '+k.name+' '+str(mode))
-        raise UnsupportedSemantics('primitive '+op)
+    def primitive(self,name,args,size):
+        family,_,variant=name.partition('_')
+        match name,args:
+            case 'mufu_sin'|'mufu_cos',[x]:return mufu.sincos(x,variant.upper())
+            case _ if family=='mufu':
+                raise UnsupportedSemantics(f'MUFU approximation is unresolved for {variant.upper()}'+(' (16-bit)' if len(args)==2 else ''))
+            case 'lane',[]:return self.warp()[1]
+            case 'active',[]:return self.warp()[2]
+            case 'waiting',[]:
+                # The lanes of this warp still alive but not executing this instruction (BRA.DIV/.CONV).
+                waiting=self.context.get('warp',{}).get('waiting')
+                if waiting is None:raise UnsupportedSemantics('warp waiting-lane mask required')
+                return int(waiting)&0xffffffff
+            case 'read_lane',[x,src]:return self.lanes('values',x)[0][src]
+            case 'ballot',[p]:
+                preds,lanes=self.lanes('predicates',p)
+                return sum(1<<i for i in lanes if preds[i])
+            case 'match',[x]:
+                values,lanes=self.lanes('values',x)
+                return sum(1<<i for i in lanes if values[i]==x)
+            case _,[x] if family=='redux' and variant in REDUCTIONS:
+                values,lanes=self.lanes('values',x)
+                xs=[values[i]&0xffffffff for i in lanes]
+                if variant[0]=='s':xs=[v-(1<<32) if v>>31 else v for v in xs]
+                return functools.reduce(REDUCTIONS[variant],xs)&0xffffffff
+            case 'address_space',[address]:return self.address_space(address)
+            case _,[*inputs] if name in SYNCHRONIZATION:return self.synchronize(name,inputs,read=size>0)
+        raise UnsupportedSemantics('primitive '+name)
+
+    def warp(self):
+        """(warp context, this lane, executing lanes mask)."""
+        warp=self.context.get('warp')
+        if not warp:raise UnsupportedSemantics('explicit 32-lane warp context required')
+        lane=int(warp.get('lane',0));active=int(warp.get('active',0xffffffff))
+        if not 0<=lane<32 or not active>>lane&1:raise UnsupportedSemantics('warp lane is inactive or invalid')
+        return warp,lane,active
+
+    def lanes(self,key,x):
+        """(every lane's contribution from the warp context's `key`, this lane's being x; the executing lanes)."""
+        warp,lane,active=self.warp()
+        values=warp.get(key)
+        if values is None or len(values)!=32:raise UnsupportedSemantics(f'warp {key} required')
+        values=[int(v) for v in values];values[lane]=x
+        return values,[i for i in range(32) if active>>i&1]
+
+    def address_space(self,address):
+        """The one-hot tag of the one mapped space containing a generic address."""
+        ranges=self.context.get('address_spaces')
+        if not isinstance(ranges,dict):raise UnsupportedSemantics('QSPC address_spaces context required')
+        found=0
+        for name,intervals in ranges.items():
+            if name not in SPACES or not isinstance(intervals,(list,tuple)):
+                raise UnsupportedSemantics(f'malformed QSPC address ranges for {name}')
+            for interval in intervals:
+                if not isinstance(interval,(list,tuple)) or len(interval)!=2:
+                    raise UnsupportedSemantics(f'malformed QSPC address range for {name}')
+                start,end=map(int,interval)
+                if not 0<=start<=end<=1<<64:raise UnsupportedSemantics(f'invalid QSPC address range for {name}')
+                if start<=address<end:found|=SPACES[name]
+        if found.bit_count()!=1:raise UnsupportedSemantics('QSPC input address has no unique mapped space')
+        return found
+
+    def synchronize(self,op,inputs,read):
+        """Synchronization is supplied by the environment: a missing handler fails rather than
+        silently treating reconvergence/barriers as no-ops. An event's first input enables it; a
+        read (BMOV to a register) returns the handler's value for its state encoding, its first input."""
+        if not read and not inputs[0]:return 0
+        handler=self.context.get('synchronization',{}).get(op)
+        if not handler:raise UnsupportedSemantics(op.upper()+' synchronization context required')
+        self.events.append(dict(op=op.upper(),inputs=inputs))
+        if not read:return 0
+        # BMOV reads convergence-barrier state, which only the environment holds.
+        values={str(k):v for k,v in handler.items()} if isinstance(handler,dict) else {}
+        if str(inputs[0]) not in values:raise UnsupportedSemantics(op.upper()+' reduction/result requires an environment handler')
+        return int(values[str(inputs[0])])

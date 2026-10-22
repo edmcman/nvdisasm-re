@@ -282,6 +282,17 @@ def popc(i):
     return outputs(Rd=x & 0x3f)
 
 
+def leading_zeros(x):
+    """The leading zero bits of a nonzero 32-bit x (31 for 0). A binary search, branch-free: each
+    step shifts by its width when the top part is clear (a 1-bit test scaled to the shift, not a
+    choice between two values)."""
+    n = const(0, 32)
+    for k, m in ((4, 0xffff0000), (3, 0xff000000), (2, 0xf0000000), (1, 0xc0000000), (0, 0x80000000)):
+        s = zext((x & m) == 0, 32) << k
+        n, x = n | s, x << s
+    return n
+
+
 @family('FLO', 'UFLO')
 def flo(i):
     """Rd = the index of the most significant set bit (.SH: its distance from bit 31), or -1 for 0.
@@ -292,12 +303,7 @@ def flo(i):
     if fmt not in ('S32', 'U32', '32'): unmodelled(f'{fmt} format')
     x0 = word_source(i)
     if fmt == 'S32': x0 = ~x0 if slt(x0, 0) else x0
-    # Binary search for the leading one, branch-free: each step shifts by its width when the top
-    # part is clear (a 1-bit test scaled to the shift, not a choice between two values).
-    x, n = x0, const(0, 32)
-    for k, m in ((4, 0xffff0000), (3, 0xff000000), (2, 0xf0000000), (1, 0xc0000000), (0, 0x80000000)):
-        s = zext((x & m) == 0, 32) << k
-        n, x = n | s, x << s
+    n = leading_zeros(x0)
     match i.select_fork('sh'):
         case 'nosh': r = 31 - n
         case 'SH': r = n

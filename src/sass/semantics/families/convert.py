@@ -116,7 +116,7 @@ def float_to_int(x, fmt, n, signed, r, nan):
     return nan if is_nan else (negative if sign else positive)
 
 
-@family("F2I", fallback="prim")
+@family("F2I")
 def f2i(i):
     """Rd = Rb (F16 or BF16 from H0/H1, F32, F64) rounded to an integer (ROUND/FLOOR/CEIL/TRUNC) and
     saturated to S32/U32/S64/U64, .FTZ flushing a denormal input. NaN gives 0 with .NTZ, else the
@@ -159,7 +159,7 @@ def integer_source(i, n):
 DESTS = ("F16", "BF16", "F32", "F64")
 
 
-@family("I2F", "I2FP", fallback="prim")
+@family("I2F", "I2FP")
 def i2f(i):
     """Rd = Rb (8/16-bit byte/half, 32- or 64-bit, signed or not) as F16/BF16/F32/F64, rounded once
     in rnd's mode; I2FP is the same conversion (S32/U32 to F32, RN/RZ). SM89: exact in every mode,
