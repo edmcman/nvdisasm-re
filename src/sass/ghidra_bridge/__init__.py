@@ -7,6 +7,14 @@ from functools import cache as memoize
 from pathlib import Path
 from sass.paths import CACHE, GHIDRA_PY, LANGUAGES, LDEFS, ROOT, language, variant
 from sass.sqlcache import open_cache
+from sass.workers import fitting
+
+JVM_GIB = 2   # per Ghidra-side process (0.7-2 GB): a 4-CPU, 16 GB CI runner held 24 and was killed (2026-10-22)
+
+
+def jvm_workers(*limits):
+    """Ghidra-side processes to run at once: one per CPU, at most 24, as many as fit in memory."""
+    return fitting(JVM_GIB, os.cpu_count() or 1, 24, *limits)
 
 SOURCES = Path(__file__).resolve().parents[2]  # the directory holding sass
 
@@ -148,7 +156,7 @@ def disassemble(arch, fp, words, *opts):
 def concurrently(fn, jobs):
     """{key: args} -> {key: fn(*args)}, one Ghidra process per job. Processes, not threads: jobs
     decode and compare in Python around their Ghidra call, which threads would serialize."""
-    with ProcessPoolExecutor(max(1, min(os.cpu_count() or 1, 18, len(jobs)))) as pool:
+    with ProcessPoolExecutor(jvm_workers(18, len(jobs))) as pool:
         futures = {key: pool.submit(fn, *args) for key, args in jobs.items()}
     return {key: f.result() for key, f in futures.items()}
 
@@ -159,9 +167,8 @@ def outputs(result):
 
 def emulate_sharded(batches, workers=None):
     """{key: (arch, fp, requests)} -> {key: results}, with every batch split into contiguous
-    chunks of about equal size so `workers` processes stay busy (default: CPUs, at most 24,
-    for about 2 GB per JVM)."""
-    workers = workers or max(1, min(os.cpu_count() or 1, 24))
+    chunks of about equal size so `workers` processes stay busy (default: `jvm_workers`)."""
+    workers = workers or jvm_workers()
     total = sum(len(r) for _, _, r in batches.values())
     size = max(1, -(-total // workers))
     jobs = {(key, i): (arch, fp, requests[i:i + size]) for key, (arch, fp, requests) in batches.items()

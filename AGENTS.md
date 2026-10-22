@@ -14,7 +14,7 @@ Target: `nvdisasm` from CUDA 13.4 (V13.4.92, built 2026-09-01), stripped x86-64 
 - `src/sass/assemble/`: assembler (`sass-assemble`; cubin writer `elf`) and the one encoder (`encoding`: strict, or `permissive=True` for the test harness); `docs/assembling.md`, `examples/assembler/`.
 - `src/sass/oracle.py`: the nvdisasm oracle (sqlite in `sass.paths.CACHE`: `$SASS_CACHE`, else `.cache/` in a checkout, else `~/.cache/sass`); `corpus.py`, `synth.py`: word corpora.
 - `src/sass/check/`: comparison/report CLIs (`pydecode_disasm`, `ghidra_disasm`, `census`).
-- `src/sass/paths.py`: package data (`MD`), cache, repository paths and external tool locations; `launch.py`: kernel launch layout shared by the emulator and GPU harness; `sqlcache.py`: sqlite caches filled by parallel workers.
+- `src/sass/paths.py`: package data (`MD`), cache, repository paths and external tool locations; `launch.py`: kernel launch layout shared by the emulator and GPU harness; `workers.py`: pool sizes that fit in available memory; `sqlcache.py`: sqlite caches filled by parallel workers.
 - `tests/`: tests only (`harness/`, `cases/`, `refs/`, kernels, baselines); see `tests/README.md`.
 - `processor/SASS/`: the Ghidra module (hand-written `.sinc`/`.pspec`/`.cspec`, generated languages, coverage/evidence JSON and report).
 - `research/`: one-off investigations (ptxas, CuLifter, SLEIGH conditions).

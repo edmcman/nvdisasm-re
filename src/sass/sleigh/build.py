@@ -5,16 +5,11 @@ from itertools import product
 from pathlib import Path
 from sass.sleigh import gen
 from sass.paths import ROOT, variant
+from sass.workers import fitting
 
 ARCHES=['SM75','SM80','SM86','SM89','SM90','SM100','SM101','SM103','SM107','SM120']
 LIMIT=16*1024*1024
 COMPILER_HEAP=int(os.environ.get('SASS_COMPILER_HEAP',4))  # GiB per SLEIGH compiler: SM100 compiled in 1.1-1.9 GiB, unchanged even at -Xmx2g (2026-10-16); without a cap each JVM grew to 11.7 GiB and 18 at once exhausted 93 GiB (2026-10-13)
-
-
-def compile_workers(jobs,tasks):
-    """Parallel SLEIGH compilers that fit in the memory available now, each allowed COMPILER_HEAP."""
-    available=next(int(l.split()[1]) for l in open('/proc/meminfo') if l.startswith('MemAvailable:'))>>20
-    return max(1,min(jobs,tasks,available//COMPILER_HEAP))
 
 
 def generate_one(arch,fp,output,coverage=False):
@@ -52,7 +47,7 @@ def compile_all(sleigh,output,tasks,jobs):
     # Ghidra's launcher saves the JDK path on first use with a racy exists-then-mkdirs, which failed CI's
     # concurrent first launches with "Failed to create directory" (2026-10-22); one bare launch saves it first.
     subprocess.run([str(sleigh)],capture_output=True,env=heap)
-    with ThreadPoolExecutor(max_workers=compile_workers(jobs,len(tasks))) as pool:
+    with ThreadPoolExecutor(max_workers=fitting(COMPILER_HEAP,jobs,len(tasks))) as pool:
         futures={pool.submit(compile_one,arch,fp):(arch,fp) for arch,fp in tasks}
         for future in as_completed(futures):
             arch,fp=futures[future];result=future.result();completed[(arch,fp)]=result

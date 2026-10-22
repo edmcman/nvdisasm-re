@@ -11,8 +11,6 @@ from tests.harness.checks import problems
 from tests.harness import sampling, sharded
 from tests.cases import emulator_cases, planned, stream
 
-WORKERS = 24   # one emulation JVM each (~0.7 GB on SM90)
-
 
 def selection(config):
     return tuple((a, f) for a in arches(config) for f in modes(config)), tuple(families(config)), sampling.configured(config)
@@ -77,7 +75,7 @@ def semantic_results(request):
     """{item: [cases, failures, reports]}, every language emulated shard by shard."""
     variants, fams, sample = selection(request.config)
     require_languages(variants)
-    found = sharded.collect(sharded.run(evaluate, variants, fams, sample, WORKERS))
+    found = sharded.collect(sharded.run(evaluate, variants, fams, sample, ghidra_bridge.jvm_workers()))
     request.config._ghidra_cases = sum(counts[0] for counts in found.values())
     return found
 
