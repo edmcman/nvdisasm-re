@@ -1,6 +1,7 @@
 """Control flow: BRA, EXIT, CALL, RET, NOP. Branch-stack depth changes (CALL's default INC, RET's
 DEC), BRA.DIV/.CONV without a lane mask, uniform-register targets and uniform predicates are
 unmodelled."""
+from sass.semantics import primitive
 from sass.semantics.bitvec import const, lnot, sext, zext
 from sass.semantics.family import call, family, goto, outputs, ret, unmodelled
 
@@ -30,7 +31,7 @@ def bra(i):
     if not i.has_operand("URb"):
         required(i, "cond", i.default("cond"), "U")
         return outputs(flow=goto(i.branch_target("sImm"), condition(i)))
-    diverged = (i.value("URb") & i.environment("warp_waiting")) != 0
+    diverged = (i.value("URb") & primitive.waiting()) != 0
     match i.select_fork("cond"):
         case "DIV": taken = diverged
         case "CONV": taken = lnot(diverged)

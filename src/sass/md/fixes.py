@@ -1,5 +1,5 @@
 """Known errors in NVIDIA's machine descriptions, corrected when classes are loaded
-(`parse.load_classes`); `out/` keeps the md as shipped. Each entry names the architectures and
+(`parse.load_classes`); `md/data/` keeps the md as shipped. Each entry names the architectures and
 classes, the PREDICATES field and its corrected value, and the evidence."""
 
 PREDICATES = [

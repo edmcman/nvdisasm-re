@@ -7,7 +7,7 @@ from sass import ghidra_bridge
 from sass.paths import GHIDRA_PY, LDEFS, language
 from tests.cases import emulator_cases
 from tests.harness import hardware
-from tests.harness.select import require_languages
+from tests.harness.select import arches, require_languages
 
 PROBE = """
 import atexit, runpy, sys
@@ -19,9 +19,10 @@ runpy.run_path(sys.argv[0], run_name="__main__")
 
 
 @pytest.mark.ghidra
-def test_ghidra_programs_skip_generators():
+def test_ghidra_programs_skip_generators(request):
     """Single instructions, runtime CALLOTHERs (MUFU), launch kernels and cooperative warp
     collectives (operand spans from family.roles)."""
+    if "SM89" not in arches(request.config): pytest.skip("SM89 launch kernels: --arch does not select SM89")
     require_languages([("SM89", "exact")])
     cases = emulator_cases("SM89", "exact", ("control", "mufu"), 0, generated=False)
     requests = [c.request for family in cases.values() for c in family] + [hardware.request(f) for _, f in hardware.fixtures(("threads",))]
@@ -39,9 +40,9 @@ def test_stamp_ignores_other_languages_and_checkout_location(tmp_path, monkeypat
     """Building another language (a new sass.ldefs entry) or moving the checkout keeps a language's
     cached results; changing its own ldefs entry or language does not."""
     from sass.sleigh.gen import LANG, LDEFS as TEMPLATE
-    def checkout(root, variants, description="NVIDIA SASS"):
-        languages = root / "processor/SASS/data/languages"; languages.mkdir(parents=True, exist_ok=True)
-        for f in ("sass_sm89.sla", "sass_sm89_runtime.json", "sass.pspec", "sass.cspec"): (languages / f).write_text(f)
+    def checkout(root, variants, description="NVIDIA SASS", output=None):
+        languages = output or root / "processor/SASS/data/languages"; languages.mkdir(parents=True, exist_ok=True)
+        for f in ("sass_sm89.sla", "sass.pspec", "sass.cspec"): (languages / f).write_text(f)
         entries = "".join(LANG.format(v=v, V=v.upper(), D="") for v in variants).replace("NVIDIA SASS", description)
         (languages / "sass.ldefs").write_text(TEMPLATE.format(entries))
         monkeypatch.setattr(ghidra_bridge, "ROOT", root); monkeypatch.setattr(ghidra_bridge, "LANGUAGES", languages)
@@ -51,4 +52,5 @@ def test_stamp_ignores_other_languages_and_checkout_location(tmp_path, monkeypat
     alone = checkout(tmp_path / "a", ["sm89"])
     assert checkout(tmp_path / "a", ["sm89", "sm90", "sm90_readable"]) == alone
     assert checkout(tmp_path / "b", ["sm89"]) == alone
+    assert checkout(tmp_path / "a", ["sm89"], output=tmp_path / "external-languages") == alone
     assert checkout(tmp_path / "a", ["sm89"], "changed") != alone

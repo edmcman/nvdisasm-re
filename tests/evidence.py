@@ -93,16 +93,17 @@ def on_data_path(g, code):
 
 
 @cache
-def gpu(arch="SM89"):
+def gpu(arch="SM89", sample=sampling.DEFAULT):
     """(class, settings, fixture name) for the target instructions on the data path of a GPU fixture
-    that passed on the GPU exactly as it is now (tests/baseline/gpu_passes.json, written by `pytest -m gpu`)."""
+    that passed on the GPU exactly as it is now (tests/baseline/gpu_passes.json, written by `pytest -m gpu`), and
+    the shared cases at `sample` whose every GPU scenario passed (tests/baseline/gpu_case_passes.json)."""
     g, out = Gen(arch), []
     for f in (f for _, f in gpu_fixtures(arch=arch) if passed(f)):
         code = Template(f.image, f.kernel).code
         sliced = on_data_path(g, code)
         out += [(d.klass.name, settings(arch, d), f.name) for o, d in decoded(arch, code) if o in sliced]
     from tests.harness import device_evidence
-    for family, word in device_evidence.verified_words(arch):
+    for family, word in device_evidence.verified_words(arch, sample):
         d = pydecode.decode(arch, bytes.fromhex(word))
         out.append((d.klass.name, settings(arch, d), 'cases/' + family))
     return out
@@ -164,7 +165,7 @@ def main():
     with ProcessPoolExecutor(min(len(a.architectures), os.cpu_count() or 1)) as pool:
         probes = list(pool.map(ptxas, a.architectures))
     for arch, rows in zip(a.architectures, probes):
-        sources = {"gpu": gpu(arch) if arch in ("SM89", "SM90") else [], "ptxas": rows}
+        sources = {"gpu": gpu(arch, sample) if arch in ("SM89", "SM90") else [], "ptxas": rows}
         update(a.output / f"sass_{arch.lower()}_evidence.json", json.dumps(evidence(sources, found[arch]), indent=1, sort_keys=True) + "\n")
 
 

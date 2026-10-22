@@ -1,10 +1,9 @@
 """Operand values for p-code, independent of assembly display.
 
-The opaque ABI is (register and immediate inputs...).
-Primitive calls add the class ordinal and decoded scalar inputs. Modifiers and
+The opaque ABI is (register and immediate inputs...). Modifiers and
 scheduling operands without value semantics stay in the instruction bytes.
 The coverage manifest records names and widths in that order. Unknown stateful
-operands are explicit runtime primitives, never fabricated constants.
+operands are explicit runtime calls (sass_operand_value), never fabricated constants.
 """
 from dataclasses import dataclass
 import re
@@ -324,11 +323,10 @@ class Builder:
         """The pattern reference (('sub', table) or (token, field)) a symbol needs, if any."""
         return next((r for r in self.refs if r[1] == symbol), None)
 
-    def call(self, prefix='opaque'):
-        stem='sass_'+prefix+'_'+re.sub(r'\W','_',self.k.mnemonic)
-        args=[] if prefix=='opaque' else [f'{self.k.order}:4']
-        used=[v.symbol for n,v in self.values.items() if prefix!='opaque' or self.opaque_input(n,v)]
-        args += used
+    def call(self):
+        """The opaque call: every register and immediate input, every output assigned its result."""
+        stem='sass_opaque_'+re.sub(r'\W','_',self.k.mnemonic)
+        args=used=[v.symbol for n,v in self.values.items() if self.opaque_input(n,v)]
         self.g.pcodeops.add(stem)
         call=f'{stem}({", ".join(args)})'
         kind,target=self.flow()
@@ -362,8 +360,6 @@ class Builder:
 
     def finish(self, status, reason=''):
         variant=dict(spans=self.spans,inputs=list(self.values),outputs={n:v.size for n,v in self.outputs.items()})
-        runtime=self.g.runtime.setdefault(self.k.name,dict(cls=self.k.name,variants=[]))
-        if variant not in runtime['variants']:runtime['variants'].append(variant)
         if self.g.collect_coverage:
             row=self.g.coverage.setdefault(self.k.name,dict(cls=self.k.name,opcode=self.k.mnemonic,
                   status=status,reason=reason,operands=self.inventory,

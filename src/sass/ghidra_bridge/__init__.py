@@ -8,7 +8,7 @@ from pathlib import Path
 from sass.paths import CACHE, GHIDRA_PY, LANGUAGES, LDEFS, ROOT, language, variant
 from sass.sqlcache import open_cache
 
-SOURCES = ROOT / "src"
+SOURCES = Path(__file__).resolve().parents[2]  # the directory holding sass
 
 
 def module_file(module):
@@ -16,7 +16,7 @@ def module_file(module):
     return next((f for f in (p.with_suffix(".py"), p / "__init__.py") if f.exists()), None)
 
 
-# Generator-only modules: what they produce reaches Ghidra only through the hashed .sla and manifest,
+# Generator-only modules: what they produce reaches Ghidra only through the hashed .sla,
 # and the Ghidra-side programs never load them (test_ghidra_programs_skip_generators).
 GENERATORS = ("sass.semantics.families", "sass.semantics.operations", "sass.semantics.operands", "sass.sleigh.lower", "sass.sleigh.build")
 
@@ -56,14 +56,14 @@ def language_entry(name):
 
 def stamp(program, arch, fp):
     """Hash of everything a Ghidra-side answer depends on: the compiled language, its ldefs entry and
-    specs, runtime manifest (or legacy coverage manifest), the sass sources the program runs and the
-    Ghidra install. Paths are repository-relative, so checkouts with the same files agree."""
+    specs, the sass sources the program runs and the Ghidra install. Paths are relative to the
+    checkout or language directory, so identical files in scratch builds agree too."""
     name = variant(arch, fp)
-    manifest = LANGUAGES / f"sass_{name}_runtime.json"
-    if not manifest.exists(): manifest = LANGUAGES / f"sass_{name}_coverage.json"
-    files = [LANGUAGES / f"sass_{name}.sla", manifest, LANGUAGES / "sass.pspec", LANGUAGES / "sass.cspec", *sources(program)]
+    files = [LANGUAGES / f"sass_{name}.sla", LANGUAGES / "sass.pspec", LANGUAGES / "sass.cspec", *sources(program)]
     h = hashlib.sha256(GHIDRA_PY.encode() + os.environ.get("GHIDRA_INSTALL_DIR", "").encode() + language_entry(name))
-    for f in files: h.update(str(f.relative_to(ROOT)).encode()); h.update(f.read_bytes() if f.exists() else b"")
+    for f in files:
+        key = Path("languages") / f.relative_to(LANGUAGES) if f.is_relative_to(LANGUAGES) else f.relative_to(ROOT)
+        h.update(str(key).encode()); h.update(f.read_bytes() if f.exists() else b"")
     return name, h.hexdigest()[:16]
 
 

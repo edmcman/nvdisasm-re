@@ -41,38 +41,48 @@ class Unknown(Exception):
     """The expression needs a value the state can't provide (an unbound parameter)."""
 
 
-def evaluate(e, state, params=None, memo=None):
+def evaluate(e, state, params=None, memo=None, runtime=None):
+    """e's value; a primitive is computed by `runtime` (`sass.semantics.runtime.Runtime`)."""
     memo = {} if memo is None else memo
-    if not isinstance(e, Expr): return e
-    if e in memo: return memo[e]
-    match e.op:
-        case "const": v = e.args[0]
-        case "param":
-            if not params or e.args[0] not in params: raise Unknown(f"unbound {e!r}")
-            v = params[e.args[0]] & mask(e.w)
-        case "reg": v = state.read(*e.args)
-        case "load": v = state.load(e.args[0], evaluate(e.args[1], state, params, memo), e.w)
-        case "ite":
-            c, a, b = e.args
-            v = evaluate(a if evaluate(c, state, params, memo) else b, state, params, memo)
-        case _: v = bitvec.OPS[e.op]([evaluate(a, state, params, memo) for a in e.args],
-                                  [a.w if isinstance(a, Expr) else None for a in e.args], e.w)
-    memo[e] = v
-    return v
+    def ev(e):
+        if not isinstance(e, Expr): return e
+        if e in memo: return memo[e]
+        match e.op:
+            case "const": v = e.args[0]
+            case "param":
+                if not params or e.args[0] not in params: raise Unknown(f"unbound {e!r}")
+                v = params[e.args[0]] & mask(e.w)
+            case "reg": v = state.read(*e.args)
+            case "load": v = state.load(e.args[0], ev(e.args[1]), e.w)
+            case "ite":
+                c, a, b = e.args
+                v = ev(a if ev(c) else b)
+            case "primitive":
+                if runtime is None: raise Unknown(f"primitive {e.args[0]} without a runtime")
+                v = runtime.call(bitvec.PRIMITIVE_OP + e.args[0], [ev(a) for a in e.args[1:]], (e.w + 7) // 8) & mask(e.w)
+            case _: v = bitvec.OPS[e.op]([ev(a) for a in e.args], [a.w if isinstance(a, Expr) else None for a in e.args], e.w)
+        memo[e] = v
+        return v
+    return ev(e)
 
 
-def execute(semantics, state, params=None):
-    """The state after one lifted instruction (`sass.semantics.lifter.Semantics`): writes are evaluated
-    against the state before any of them, then applied in order, if the guard holds."""
+def execute(semantics, state, params=None, runtime=None):
+    """The state after one lifted instruction (`sass.semantics.lifter.Semantics`): its effects
+    (runtime calls) first, then writes evaluated against the state before any of them and applied
+    in order, if the guard holds."""
     memo = {}
+    value = lambda e: evaluate(e, state, params, memo, runtime)
     out = state.copy(); out.pc = semantics.addr + 16
-    if semantics.guard is not None and not evaluate(semantics.guard, state, params, memo): return out
-    values = [(loc, evaluate(v, state, params, memo)) for loc, v in semantics.writes]
-    stores = [(s.space, evaluate(s.address, state, params, memo), s.value.w, evaluate(s.value, state, params, memo))
-              for s in getattr(semantics, "stores", ()) if s.cond is None or evaluate(s.cond, state, params, memo)]
+    if semantics.guard is not None and not value(semantics.guard): return out
+    for effect in semantics.effects:
+        if runtime is None: raise Unknown(f"effect {effect.name} without a runtime")
+        runtime.call(effect.name, [value(a) for a in effect.args], 0)
+    values = [(loc, value(v)) for loc, v in semantics.writes]
+    stores = [(s.space, value(s.address), s.value.w, value(s.value))
+              for s in semantics.stores if s.cond is None or value(s.cond)]
     flow = semantics.flow
-    if flow and (flow.cond is None or evaluate(flow.cond, state, params, memo)):
-        out.pc = evaluate(flow.target, state, params, memo)
+    if flow and (flow.cond is None or value(flow.cond)):
+        out.pc = value(flow.target)
     for loc, v in values: out.write(*loc.args, v)
     for space, address, w, v in stores: out.store(space, address, w, v)
     return out

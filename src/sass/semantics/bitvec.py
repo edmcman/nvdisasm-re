@@ -78,6 +78,16 @@ class Expr:
 
 def const(v, w): return Expr("const", (v & mask(w),), w)
 def param(name, w): return Expr("param", (name, ), w)
+
+
+PRIMITIVE_OP = "sass_prim_"   # a primitive's pcodeop: PRIMITIVE_OP + name
+
+
+def primitive(name, w, *args):
+    """The w-bit result of the runtime primitive `name` on args: state only the execution
+    environment holds (other lanes, barriers, address spaces) or an unmodelled hardware
+    approximation. Never folded; the runtime (src/sass/semantics/runtime.py) computes it."""
+    return op("primitive", name, *args, w=w)
 def reg(file, index, count, element=32): return Expr("reg", (file, index, count), count * element)
 def load(space, address, w):
     """`w` bits (a multiple of 8) of memory space `space` at byte `address`, little-endian."""
@@ -493,6 +503,7 @@ def show(outputs):
             case "zext" | "sext": return f"{e.op}{e.w}({text(a[0], True)})"
             case "extract": return f"{text(a[0])}[{a[1]}:{a[2]}]" if a[1] != a[2] else f"{text(a[0])}[{a[1]}]"
             case "concat": return f"concat({', '.join(text(x, True) for x in a)})"
+            case "primitive": return f"{a[0]}({', '.join(text(x, True) for x in a[1:])})"
             case "ult" | "ule" | "slt" | "sle" if is_const(a[0]) and not is_const(a[1]):
                 # Comparisons are canonically < / <=; print `x > k` the way it is usually written.
                 s = f"{text(a[1])} {FLIPPED[e.op]} {number(a[0], e.op[0] == 's')}"

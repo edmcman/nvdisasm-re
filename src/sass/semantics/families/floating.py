@@ -77,7 +77,7 @@ def operand_width(i, w, *names):
     if any(i.width(n) != w for n in ('Rd', *names)): unmodelled('width')
 
 
-@family('FADD', fallback='prim')
+@family('FADD')
 def fadd_(i):
     """Rd = Ra + Rc."""
     operand_width(i, 32, 'Ra|Sa', 'Rc|Sc')
@@ -111,7 +111,7 @@ def product_inputs(i, *names):
     return True, values
 
 
-@family('FMUL', fallback='prim')
+@family('FMUL')
 def fmul_(i):
     """Rd = Ra * Rb * 2^scale (.D2-.D8, .M2-.M8), rounded once."""
     operand_width(i, 32, 'Ra|Sa', 'Rb|Sb')
@@ -125,7 +125,7 @@ def fmul_(i):
     return result(i, ftz, fmul(a, b, rnd, scale))
 
 
-@family('FFMA', fallback='prim')
+@family('FFMA')
 def ffma_(i):
     """Rd = Ra * Rb + Rc, rounded once."""
     operand_width(i, 32, 'Ra|Sa', 'Rb|Sb', 'Rc|Sc')
@@ -203,7 +203,7 @@ def set_predicates(i, cond, minmax=None):
     return outputs(Pu=combined(i, cond), Pv=pv if minmax is None else ite(minmax[0], minmax[1], pv))
 
 
-@family('FSETP', fallback='prim')
+@family('FSETP')
 def fsetp_(i):
     """Pu/Pv from comparing Ra with Rb (FTZ flushes the inputs)."""
     if i.width('Ra|Sa') != 32 or i.width('Rb|Sb') != 32: unmodelled('width')

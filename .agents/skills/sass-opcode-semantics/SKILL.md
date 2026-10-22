@@ -25,7 +25,7 @@ and reference independence.
 
 ## Establish the target and scope
 
-- Select an opcode from `out/SMxx/md/OPCODE.txt` and the parsed md. Record the
+- Select an opcode from `src/sass/md/data/SMxx/md/OPCODE.txt` and the parsed md. Record the
   architecture, every matching non-alias class, operand order and roles, widths and
   register spans, encoded fields, enum values, defaults, selector tables, predicate
   outputs, carry inputs/outputs, and which forms appear in real cubins.
@@ -129,9 +129,12 @@ md-decoded instruction, `src/sass/semantics/family.py`), lowered to SLEIGH by
 
 - Ask every selector the semantics depend on (`i.select_fork`, `i.select_lookup`);
   an unasked selector models only its md default and the rest stays opaque.
-- Call `unmodelled(reason)` for unresolved combinations and `primitive()` for
-  runtime-executed ones. Give a specific reason: it becomes the coverage reason and
-  is a limitation of the family, not evidence that hardware or ptxas lacks the form.
+- Call `unmodelled(reason)` for unresolved combinations. Give a specific reason: it
+  becomes the coverage reason and is a limitation of the family, not evidence that
+  hardware or ptxas lacks the form. What only the environment knows (other lanes,
+  barriers, address spaces) or an unmodelled hardware approximation is a named
+  primitive from `src/sass/semantics/primitive.py` (`primitive.mufu("SIN", x)`) with
+  explicit value arguments; keep everything computable from values native.
 - Outputs are written simultaneously after all inputs are read. Model predicate
   outputs and carry chains individually (conditional, complementary, or preserving
   old state). The backends handle hardwired zeros, guards, register spans and md

@@ -47,15 +47,15 @@ def device_results(request):
         expected = device_evidence.hardware_expected(s.case)
         if s.id in known and known[s.id] != expected: raise ValueError(f'{s.id}: conflicting hardware expectations')
         known[s.id] = expected
-    results, binaries, device = {}, [], None
+    results, device = {}, None
     batches = device_cases.batches(device_cases.kernels(ss))
     reporter = request.config.pluginmanager.getplugin('terminalreporter')
     for i, batch in enumerate(batches):
         response = device_cases.isolated(batch)
-        results.update(response['results']); binaries += response.get('kernels', [])
+        results.update(response['results'])
         device = response['device'] or device
         if reporter: reporter.write_line(f'GPU batch {i + 1}/{len(batches)}: {len(results)} scenarios executed')
-    device_evidence.record(ss, results, sample, device, binaries, arch=arch)
+    device_evidence.record(ss, results, device, arch=arch)
     counts = Counter('failed' if results.get(s.id, ['missing result']) else 'passed' for s in ss if s.kind != 'emulator')
     counts['emulator-only'] = sum(s.kind == 'emulator' for s in ss)
     request.config._device_case_summary = counts, Counter(s.reason for s in ss if s.kind == 'emulator')

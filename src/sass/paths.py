@@ -1,13 +1,17 @@
-"""Repository paths and external tools."""
+"""Package data, cache, repository paths and external tools."""
 import os, sysconfig
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "out"
+PACKAGE = Path(__file__).resolve().parent
+ROOT = PACKAGE.parents[1]  # the repository, in a checkout
+CHECKOUT = PACKAGE == ROOT / "src/sass"
+MD = PACKAGE / "md/data"  # the machine descriptions as shipped, laid out per architecture
 LANGUAGES = Path(os.environ.get("SASS_SLEIGH_OUT", ROOT / "processor/SASS/data/languages")).resolve()
 LDEFS = LANGUAGES / "sass.ldefs"
 GHIDRA_PY = os.environ.get("GHIDRA_PY", os.path.expanduser("~/.config/ghidra/ghidra_12.1.4_PUBLIC/venv/bin/python3"))
-CACHE = ROOT / ".cache"
+CACHE = Path(os.environ.get("SASS_CACHE") or (ROOT / ".cache" if CHECKOUT else
+             Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache") / "sass"))
+RAW = CACHE / "md-raw"  # sass-extract-md's output, which sass-layout-md lays out into MD
 WHEELS = Path(sysconfig.get_paths()["purelib"]) / "nvidia/cu13/bin"  # the dev group's CUDA wheels
 
 

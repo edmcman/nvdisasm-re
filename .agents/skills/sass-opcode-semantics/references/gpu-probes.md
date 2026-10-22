@@ -78,7 +78,7 @@ Write an independent reference from the evidence, then replace the draft
 appropriate family's `emulator_cases`. Draft probes are rejected in regression
 suites, and raw observations never create GPU verification evidence. Run the
 shared GPU tests (`nice uv run pytest -m gpu --require-gpu --family F`) to validate
-the reference and record passing evidence; the whole family must pass. Then run the
+the reference and record passing evidence; each word counts once all its scenarios pass. Then run the
 Python/Ghidra checks and refresh coverage as `AGENTS.md` requires.
 
 Keep whole-kernel `gpu_fixtures()` and `tests.observe` for PTX/compiler comparisons,

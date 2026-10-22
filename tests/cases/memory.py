@@ -126,7 +126,7 @@ def qspc(c):
         fields = dict(Pg="PT", Pu=1, e=e, Ra=2, Ra_offset=0)
         for space, base, offset, expected in (("G", 0x100020, -32, 1), ("S", 0x220, 0, 1), ("L", 0x420, 0, 1), ("G", 0x420, 0, 0)):
             c.add(k.name, dict(fields, Rd="RZ", space=space, Ra_offset=offset), {"R2": base}, {"P1": expected}, context=context)
-        c.add(k.name, dict(fields, Rd="RZ", space="G"), {"R2": 0x100000}, dict(error="address_spaces.global context required"))
+        c.add(k.name, dict(fields, Rd="RZ", space="G"), {"R2": 0x100000}, dict(error="address_spaces context required"))
         if "D" in c.enum(k, "space"):
             c.add(k.name, dict(fields, Rd="RZ", space="D"), {"R2": 0x620}, {"P1": 1}, context=context)
             c.add(k.name, dict(fields, Rd="RZ", space="D"), {"R2": 0x420}, {"P1": 0}, context=context)

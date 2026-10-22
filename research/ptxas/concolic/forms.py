@@ -26,7 +26,7 @@ def digest(value):
 
 @cache
 def roles(arch):
-    return {r['cls']: r for p in (parse.OUT / arch / 'semantics').glob('*.json')
+    return {r['cls']: r for p in (parse.MD / arch / 'semantics').glob('*.json')
             for r in json.loads(p.read_text())}
 
 class Registers:

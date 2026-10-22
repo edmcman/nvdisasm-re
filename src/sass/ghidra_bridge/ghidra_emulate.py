@@ -26,7 +26,7 @@ def session(ldefs,langid):
     from ghidra.pcode.emu import PcodeEmulator
     from ghidra.pcode.exec import PcodeUseropLibrary,PcodeExecutorStatePiece
     from ghidra.program.model.pcode import Varnode
-    lang=load_language(ldefs,langid);space=lang.getDefaultSpace();variant=langid.rsplit(':',1)[1];arch=variant.split('_')[0].upper();runtime=Runtime(Path(ldefs).parent,int(arch[2:]),variant=variant)
+    lang=load_language(ldefs,langid);space=lang.getDefaultSpace();variant=langid.rsplit(':',1)[1];arch=variant.split('_')[0].upper();runtime=Runtime(int(arch[2:]))
     reason=PcodeExecutorStatePiece.Reason.INSPECT
     from sass.sleigh.registers import REG_FILES
     architectural=[(name,lang.getRegister(name)) for file,(_,_,count,zero,_) in REG_FILES.items() for i in range(count) if i!=zero for name in [file+str(i)]]

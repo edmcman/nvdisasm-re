@@ -319,24 +319,29 @@ def image(probes):
     return elf.link(module)
 
 
-def half_nan_equal(case, got, want, arch="SM89"):
-    """The existing GPU policy: F16 arithmetic/packing permit NaN payload/sign variation.
+def nan_lanes(case, arch="SM89"):
+    """The existing GPU policy: the F16 lanes (bit offsets) of an output where F16 arithmetic/packing
+    permit NaN payload/sign variation.
 
     A MERGE_C's preserved half is still compared exactly. Other formats and
     non-floating outputs remain bit-exact.
     """
-    from tests.refs.bits import nan16
     d = decoded(case.request['word'], arch)
-    lanes = ()
     if d.klass.mnemonic in ('HADD2', 'HMUL2', 'HFMA2'):
-        if any(a.name == 'ofmt' and ir.load(arch).rev_enums[a.type].get(d.env[a.name]) != 'F16_V2' for a in d.klass.operand_types.values()): return False
-        lanes = (0, 16)
-    elif d.klass.mnemonic == 'F2FP' and 'dstfmt' in d.env:
+        if any(a.name == 'ofmt' and ir.load(arch).rev_enums[a.type].get(d.env[a.name]) != 'F16_V2' for a in d.klass.operand_types.values()): return ()
+        return 0, 16
+    if d.klass.mnemonic == 'F2FP' and 'dstfmt' in d.env:
         a = d.klass.operand_types['dstfmt']
-        if ir.load(arch).rev_enums[a.type].get(d.env['dstfmt']) != 'F16': return False
+        if ir.load(arch).rev_enums[a.type].get(d.env['dstfmt']) != 'F16': return ()
         merge = d.klass.operand_types.get('merge')
         mode = ir.load(arch).rev_enums[merge.type].get(d.env['merge']) if merge else ''
-        lanes = (0,) if mode == 'MERGE_C' else (0, 16)
+        return (0,) if mode == 'MERGE_C' else (0, 16)
+    return ()
+
+
+def half_nan_equal(case, got, want, arch="SM89"):
+    from tests.refs.bits import nan16
+    lanes = nan_lanes(case, arch)
     if not lanes: return False
     for shift in (0, 16):
         g, w = (got >> shift) & 0xffff, (want >> shift) & 0xffff

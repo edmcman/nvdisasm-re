@@ -1,7 +1,6 @@
-"""Coverage collection must not change generated code or primitive calling conventions."""
+"""Coverage collection must not change generated code."""
 import json
 import pytest
-from sass.semantics import runtime
 from sass.sleigh import gen, modifiers
 
 
@@ -20,19 +19,8 @@ def test_coverage_is_optional(tmp_path, monkeypatch):
     monkeypatch.setattr(modifiers, "combinations", forbidden)
     plain = instruction(False)
     assert plain.slaspec() == expected
-    assert plain.runtime == detailed.runtime
     assert plain.coverage == {}
     plain.write_manifests(tmp_path)
-    assert not list(tmp_path.glob("*_coverage.json"))
-    assert json.loads((tmp_path / "sass_sm89_runtime.json").read_text())
+    assert not list(tmp_path.glob("*.json"))
     detailed.write_manifests(tmp_path)
     assert json.loads((tmp_path / "sass_sm89_coverage.json").read_text())
-
-
-@pytest.mark.parametrize("legacy", [False, True])
-def test_runtime_manifest(tmp_path, legacy):
-    name = "coverage" if legacy else "runtime"
-    rows = [{"cls": "example", "variants": [{"inputs": ["Ra"], "outputs": {"Rd": 4}}]}]
-    (tmp_path / f"sass_sm89_{name}.json").write_text(json.dumps(rows))
-    r = runtime.Runtime(tmp_path, 89)
-    assert r.manifest(89) == {"example": rows[0]}

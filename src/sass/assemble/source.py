@@ -8,7 +8,7 @@ from sass.assemble import encoding, instruction
 from sass.assemble.instruction import AssemblyError
 from sass.decode import ir
 from sass.md import expression
-from sass.paths import OUT
+from sass.paths import MD
 
 
 @dataclass(frozen=True)
@@ -85,7 +85,7 @@ def statements(source, filename='<string>'):
 
 def target(text):
     arch = text.strip().upper().replace('SM_', 'SM')
-    if not re.fullmatch(r'SM\d+', arch) or not (OUT / arch / 'md').is_dir():
+    if not re.fullmatch(r'SM\d+', arch) or not (MD / arch / 'md').is_dir():
         raise ValueError(f'unknown machine-description target {text!r}')
     return arch
 
@@ -258,7 +258,7 @@ def raw(arch, source, base=0, filename='<string>'):
 
 @cache
 def roles(arch):
-    return {c['cls']: c for p in sorted((OUT / arch / 'semantics').glob('*.json'))
+    return {c['cls']: c for p in sorted((MD / arch / 'semantics').glob('*.json'))
             for c in json.loads(p.read_text())}
 
 

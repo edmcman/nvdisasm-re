@@ -17,7 +17,7 @@ from collections import defaultdict
 from dataclasses import dataclass, replace
 from sass.semantics import bitvec
 from sass.semantics.bitvec import Expr
-from sass.semantics.family import Primitive, Instruction, Illegal, Unmodelled, PR_BITS, REG_TYPES, family_for
+from sass.semantics.family import Instruction, Illegal, Unmodelled, PR_BITS, REG_TYPES, family_for, primitive_names
 import sass.semantics.families  # registers the families
 
 ELEMENT = {"R": 32, "UR": 32, "P": 1, "UP": 1}   # bits per register element
@@ -186,7 +186,7 @@ def enumerate_rows(b, fam):
             rows.append((assignment, replace(out, writes={n: constant_slices(b, t) for n, t in out.writes.items()})))
         except Branch as br:
             todo += [{**assignment, br.key: v} for v in reversed(br.domain)]
-        except (Unmodelled, Primitive) as e: rows.append((assignment, e))
+        except Unmodelled as e: rows.append((assignment, e))
         except Illegal as e: rows.append((assignment, e))
     return rows
 
@@ -649,6 +649,10 @@ class Lower:
             case "fnan": v = self.value(a[0]); return expr(f"nan({v})", v)
             case "sel": return self.sel(e)
             case "load": v = self.value(a[1]); return self.local(e.w, expr(f"*[{a[0]}]:{n} {v}", v))
+            case "primitive":   # computed once into a local: the runtime may record an event
+                fn = bitvec.PRIMITIVE_OP + a[0]; self.b.g.pcodeops.add(fn)
+                vs = [self.value(x) for x in a[1:]]
+                return self.local(e.w, expr(f"{fn}({', '.join(v.text for v in vs)})", *vs))
             case "sar": return self.clean(e.w, self.binary("s>>", self.signed(a[0]), self.amount(a[1])))
             case "slt" | "sle": return self.binary(SLEIGH_OP[e.op], self.signed(a[0]), self.signed(a[1]))
             case "shl": return self.clean(e.w, self.binary("<<", self.value(a[0]), self.amount(a[1])))
@@ -751,9 +755,6 @@ class Lower:
             table = self.b.g.specialsem(self.b.g.source(self.b.k, real)[1], nbytes(w))
             self.b.refs.append(("sub", table))
             return Operand(table, "name", frozenset([("sub", table)]))
-        if name.startswith("__runtime:"):   # emulator-held state: a runtime pcodeop
-            fn = name.split(":", 1)[1]; self.b.g.pcodeops.add(fn)
-            return self.local(w, Operand(f"{fn}()", "expr"))
         if name.startswith("__target:"):   # a direct branch target: the subtable exporting it
             table = self.b.g.branch_target(self.b.k, self.b.k.operand_types[name.split(":", 1)[1]])
             self.b.refs.append(("sub", table))
@@ -1032,28 +1033,14 @@ def lower_flow(low, kind, target, cond, always):
 
 # ---- the class -------------------------------------------------------------------------------
 
-def statuses(rows, unmodelled):
-    """[(assignment, status)]: what each row lowers to, with `unmodelled` for the fallback's and
-    None for an illegal encoding's."""
+def statuses(rows):
+    """[(assignment, status)]: what each row lowers to, None for an illegal encoding."""
     def status(r):
         match r:
-            case Primitive(): return "primitive"
             case Illegal(): return None
-            case Exception(): return unmodelled
-            case _: return "native"
+            case Exception(): return "opaque"
+            case _: return "primitive" if primitive_names(r) else "native"
     return [(a, status(r)) for a, r in rows]
-
-
-def emit_primitive(b, rows):
-    """The runtime primitive for the encodings the family sends there (behind selector guards),
-    the opaque call for the rest."""
-    from sass.semantics.operations import dispatch
-    if any(not isinstance(r, Exception) for _, r in rows): raise TypeError(f"{b.k.name}: primitive rows mixed with native ones")
-    b.rows = statuses(rows, "opaque")
-    lines = b.call("prim"); refs = list(dict.fromkeys(b.call_refs)); b.body += lines
-    guard(b, rows, [isinstance(r, Primitive) for _, r in rows])
-    dispatch(b, "opaque", refs=sorted(refs, key=repr))
-    return "primitive", "; ".join(sorted({str(r) for _, r in rows if isinstance(r, Primitive)}))
 
 
 def guard(b, rows, modelled):
@@ -1074,14 +1061,11 @@ def emit(b):
     from sass.semantics.operations import dispatch
     fam = family_for(b.k)
     rows = enumerate_rows(b, fam)
-    if any(isinstance(r, Primitive) for _, r in rows): return emit_primitive(b, rows)
-    b.rows = statuses(rows, "primitive" if fam.fallback == "prim" else "opaque")
+    b.rows = statuses(rows)
     native = [(a, r) for a, r in rows if not isinstance(r, Exception)]
     why = "; ".join(sorted({str(r) for _, r in rows if isinstance(r, Exception)}))
-    if not native:
-        if fam.fallback != "prim": return "opaque", why or "no modelled encodings"
-        b.body += b.call("prim")
-        return "primitive", why
+    if not native: return "opaque", why or "no modelled encodings"
+    used = [primitive_names(r) for _, r in native]
     i = Symbolic(b, {})
     kinds = {r.flow.kind if r.flow else None for _, r in native}
     if len(kinds) > 1: raise TypeError(f"{b.k.name}: rows differ in control transfer {sorted(map(str, kinds))}")
@@ -1124,6 +1108,7 @@ def emit(b):
     # Unmodelled combinations keep the complete opaque fallback, behind the native encodings'
     # patterns over only the keys that decide native vs unmodelled.
     guard(b, rows, [not isinstance(r, Exception) for _, r in rows])
-    dispatch(b, fam.fallback, refs=sorted(refs, key=repr))
-    return "native", ("decode-time selector guards retain complete opaque fallbacks" if len(native) < len(rows)
-                      else "semantics family")
+    dispatch(b, refs=sorted(refs, key=repr))
+    reason = "decode-time selector guards retain complete opaque fallbacks" if len(native) < len(rows) else "semantics family"
+    if all(used): return "primitive", f"runtime primitives {', '.join(sorted(set().union(*used)))}; {reason}"
+    return "native", reason

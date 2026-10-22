@@ -1,8 +1,8 @@
-# Machine descriptions (`out/`)
+# Machine descriptions (`src/sass/md/data/`)
 
 `nvdisasm` doesn't hard-code instruction knowledge. It embeds an encrypted, compressed
 **machine description** per GPU architecture and parses it at startup. The extracted
-descriptions for CUDA 13.4 are committed in `out/`, along with a per-instruction table of
+descriptions for CUDA 13.4 are committed in `src/sass/md/data/` (and shipped in the wheel), along with a per-instruction table of
 operand semantics derived from them.
 
 ## What's embedded
@@ -27,25 +27,26 @@ computes `Rd = Ra*Sb + Rc`.
 ## Layout
 
 ```
-out/SM80/latencies.txt            connectors, operation sets, latency tables
-out/SM80/patterns.txt
-out/SM80/md/_00_ARCHITECTURE.txt  md preamble, one file per top-level section
-...                               (REGISTERS, TABLES, OPERATION PREDICATES, ...)
-out/SM80/md/FFMA.txt              every CLASS definition for FFMA
-out/SM80/semantics/FFMA.json      operand semantics for those classes
+SM80/latencies.txt             connectors, operation sets, latency tables
+SM80/patterns.txt
+SM80/md/_00_ARCHITECTURE.txt   md preamble, one file per top-level section
+...                            (REGISTERS, TABLES, OPERATION PREDICATES, ...)
+SM80/md/FFMA.txt               every CLASS definition for FFMA
+SM80/semantics/FFMA.json       operand semantics for those classes
 ```
 
 Each md is split losslessly: the files together contain every line of the original.
-`sass.md.parse` reads these split files (not `out/raw/`), so decoding, generation and tests
-need only the committed `out/`.
+`sass.md.parse` reads these split files (not the raw extracts), so decoding, generation and tests
+need only the committed `src/sass/md/data/`.
 
 ## Re-extracting
 
 ```sh
-uv run sass-extract-md [nvdisasm]    # -> out/raw/{md,latencies,patterns}_SMxx.txt (gitignored)
-uv run sass-layout-md                # -> out/SMxx/...
+uv run sass-extract-md [nvdisasm]    # -> $CACHE/md-raw/{md,latencies,patterns}_SMxx.txt
+uv run sass-layout-md                # -> src/sass/md/data/SMxx/...
 ```
 
+`$CACHE` is `sass.paths.CACHE`: `$SASS_CACHE`, else `.cache/` in a checkout, else `~/.cache/sass`.
 The semantics JSON is written by `sass-layout-md` (`src/sass/md/layout.py`).
 `sass-extract-md` needs `objdump` and the `lz4` module; without an argument it uses the nvdisasm located by `src/sass/paths.py`.
 The offsets are specific to the CUDA 13.4 build (V13.4.92); other builds will need new
