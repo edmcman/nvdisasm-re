@@ -6,7 +6,7 @@ from sass.decode import ir
 from sass.semantics.family import family_for
 from tests.cases import stream
 from tests.harness.select import arches, families, modes
-from tests.harness import lifted, sharded
+from tests.harness import lifted, sampling, sharded
 
 
 @cache
@@ -33,20 +33,22 @@ def evaluate(job):
 
 
 @cache
-def results(variants, fams, exhaustive):
+def results(variants, fams, sample):
     """{item: [cases, failures, reports]} (lift + execute is pure Python), evaluated when the items
     are collected: which cases apply is known only once they are generated, and generating them
     twice cost as much again."""
-    return sharded.collect(sharded.run(evaluate, variants, fams, exhaustive))
+    return sharded.collect(sharded.run(evaluate, variants, fams, sample))
 
 
 def selection(config):
-    return tuple((a, f) for a in arches(config) for f in modes(config)), tuple(families(config)), config.getoption("--exhaustive")
+    return tuple((a, f) for a in arches(config) for f in modes(config)), tuple(families(config)), sampling.configured(config)
 
 
 def pytest_generate_tests(metafunc):
     if "lifted_class" not in metafunc.fixturenames: return
-    params = sorted(results(*selection(metafunc.config)))
+    found = results(*selection(metafunc.config))
+    metafunc.config._lifted_cases = sum(counts[0] for counts in found.values())
+    params = sorted(found)
     metafunc.parametrize("lifted_class", params, ids=["-".join(p) for p in params])
 
 

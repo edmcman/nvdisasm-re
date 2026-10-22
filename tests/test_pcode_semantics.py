@@ -6,14 +6,14 @@ import pytest
 from tests.harness.select import arches, families, modes, require_languages, selected, skipped
 from sass import ghidra_bridge
 from tests.harness.checks import problems
-from tests.harness import sharded
+from tests.harness import sampling, sharded
 from tests.cases import planned, stream
 
 WORKERS = 24   # one emulation JVM each (~0.7 GB on SM90)
 
 
 def selection(config):
-    return tuple((a, f) for a in arches(config) for f in modes(config)), tuple(families(config)), config.getoption("--exhaustive")
+    return tuple((a, f) for a in arches(config) for f in modes(config)), tuple(families(config)), sampling.configured(config)
 
 
 def tally(job):
@@ -34,10 +34,10 @@ def evaluate(job):
 
 
 @cache
-def items(variants, fams, exhaustive):
+def items(variants, fams, sample):
     """The manual cases' classes and the saved plans' generated ones, without generating the latter."""
     generated = {(a, f, family, cls) for a, f in variants for family in fams for cls in planned(a)[family]}
-    return sorted(generated.union(*sharded.run(tally, variants, fams, exhaustive, shards=sharded.manual)))
+    return sorted(generated.union(*sharded.run(tally, variants, fams, sample, shards=sharded.manual)))
 
 
 def pytest_generate_tests(metafunc):
@@ -50,9 +50,11 @@ def pytest_generate_tests(metafunc):
 @pytest.fixture(scope="session")
 def semantic_results(request):
     """{item: [cases, failures, reports]}, every language emulated shard by shard."""
-    variants, fams, exhaustive = selection(request.config)
+    variants, fams, sample = selection(request.config)
     require_languages(variants)
-    return sharded.collect(sharded.run(evaluate, variants, fams, exhaustive, WORKERS))
+    found = sharded.collect(sharded.run(evaluate, variants, fams, sample, WORKERS))
+    request.config._ghidra_cases = sum(counts[0] for counts in found.values())
+    return found
 
 
 @pytest.mark.ghidra

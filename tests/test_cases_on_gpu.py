@@ -2,15 +2,15 @@
 from collections import Counter
 from functools import cache
 import pytest
-from tests.harness import device_cases, device_evidence, sharded
+from tests.harness import device_cases, device_evidence, sampling
 from tests.harness.select import families, selected, skipped
 
 
 @cache
-def scenarios(fams, exhaustive): return device_cases.selection(fams, exhaustive)
+def scenarios(fams, sample): return device_cases.selection(fams, sample)
 
 
-def selection(config): return tuple(families(config)), config.getoption('--exhaustive')
+def selection(config): return tuple(families(config)), sampling.configured(config)
 
 
 def pytest_generate_tests(metafunc):
@@ -27,8 +27,8 @@ def device_results(request):
     except (OSError, RuntimeError) as error:
         if request.config.getoption('--require-gpu'): raise
         pytest.skip(f'no SM89 GPU: {error}')
-    fams, exhaustive = selection(request.config)
-    ss = scenarios(fams, exhaustive)
+    fams, sample = selection(request.config)
+    ss = scenarios(fams, sample)
     # Reject duplicate scenario identities with incompatible hardware expectations.
     known = {}
     for s in ss:
@@ -44,13 +44,9 @@ def device_results(request):
         results.update(response['results']); binaries += response.get('kernels', [])
         device = response['device'] or device
         if reporter: reporter.write_line(f'GPU batch {i + 1}/{len(batches)}: {len(results)} scenarios executed')
-    device_evidence.record(ss, results, exhaustive, device, binaries)
+    device_evidence.record(ss, results, sample, device, binaries)
     counts = Counter('failed' if results.get(s.id, ['missing result']) else 'passed' for s in ss if s.kind != 'emulator')
     counts['emulator-only'] = sum(s.kind == 'emulator' for s in ss)
-    if not exhaustive:
-        # Only the manual cases depend on the sweep policy.
-        runnable = [sum(s['cases'] - s['kinds']['emulator'] for s in device_evidence.summaries(fams, e, sharded.manual).values()) for e in (True, False)]
-        counts['sampled-out'] = runnable[0] - runnable[1]
     request.config._device_case_summary = counts, Counter(s.reason for s in ss if s.kind == 'emulator')
     return results
 
@@ -75,7 +71,7 @@ def test_generated_probe_rejects_wrong_reference(request):
     from tests.harness.case import Cases
     c = Cases('SM89')
     c.add('mov__RI', dict(Rd=8, Sb=19, PixMaskU04=15), {}, dict(R8=20))
-    s = device_cases.Scenario('runner-self-test', c[0], 'scalar')
+    s = device_cases.Scenario('runner-self-test', c.encode_words()[0], 'scalar')
     result = device_cases.isolated(device_cases.kernels([s]))
     assert result['results'][s.id] == ['R8: GPU 0x13, reference 0x14']
 

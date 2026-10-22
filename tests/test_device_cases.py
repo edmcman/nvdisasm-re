@@ -4,20 +4,21 @@ import subprocess
 from types import SimpleNamespace
 import pytest
 from sass.decode import cubin, pydecode
-from tests.harness import device_cases, device_evidence, sharded
+from tests.harness import device_cases, device_evidence, sampling, sharded
 from tests.harness.case import Cases, cbank, ram
 
 
 def scenario(value=19, expected=None, **kwargs):
     c = Cases('SM89')
     c.add('mov__RI', dict(Rd=8, Sb=value, PixMaskU04=15), {}, dict(R8=value if expected is None else expected), **kwargs)
-    return device_cases.Scenario('unit', c[0], *device_cases.classify(c[0]))
+    case = c.encode_words()[0]
+    return device_cases.Scenario('unit', case, *device_cases.classify(case))
 
 
 def test_target_encoding_and_scratch_preserve_aliases():
     c = Cases('SM89')
     c.add('imad_wide__RRR_RRR', dict(Rd=2, Ra=2, Rb=4, Rc=6, fmt='U32'), dict(R2=3, R4=4, R6=5), dict(R2=17, R3=0))
-    s = device_cases.Scenario('unit', c[0], 'scalar')
+    s = device_cases.Scenario('unit', c.encode_words()[0], 'scalar')
     p = device_cases.scalar_probe([s], 'probe')
     image = device_cases.image([p]); kernel = cubin.kernel_image(image, 'probe')
     offset, target = p.code.targets[0]
@@ -31,7 +32,7 @@ def test_constant_and_uniform_predicate_outputs():
     c = Cases('SM89')
     c.add('mov__RC', dict(Rd=8, Sb_bank=2, Sb_addr=16, PixMaskU04=15), {}, dict(R8=19), memory=[cbank(2, 16, 19)])
     c.add('up2ur__Imm', dict(URd=4, UPR='UPR', URa=4, Sb=0x7f, insert='B0'), dict(UR4=1, UP0=1), dict(UR4=1, UP0=1))
-    for case in c:
+    for case in c.encode_words():
         p = device_cases.scalar_probe([device_cases.Scenario('unit', case, 'scalar')], 'probe')
         kernel = cubin.kernel_image(device_cases.image([p]), 'probe')
         if case is c[0]: assert kernel['constants'][2][16:20] == b'\x13\0\0\0'
@@ -58,7 +59,7 @@ def test_case_identity_and_evidence_changes():
     assert first.id != other.id
     both = [device_evidence.summary(s) for s in ([first], [other])]
     assert device_evidence.merge(*both) == device_evidence.summary([other, first]) == device_evidence.merge(*both[::-1])
-    record = dict(generator=device_evidence.generator(), signature=device_evidence.signature(found),
+    record = dict(sample=0, sampling_version=sampling.VERSION, generator=device_evidence.generator(), signature=device_evidence.signature(found),
                   words=device_evidence.words(found), device='SM89 test', kernels=['binary digest'])
     assert device_evidence.valid(record, found)
     assert not device_evidence.valid(record, device_evidence.summary([changed]))
@@ -82,7 +83,7 @@ def test_cx_backing_and_bounds_survive_relocation():
     c = Cases('SM89')
     c.add('bmsk__RCxR_RCxR', dict(Rd=8, Ra=2, URb=4, Sb_offset=16, cw='C'),
           dict(R2=1, **cx_header('SM89', 4, 0x1000, units=1)), dict(R8=0), memory=[ram(0x1010, 5)])
-    case = c[0]; assert device_cases.classify(case) == ('cx', '')
+    case = c.encode_words()[0]; assert device_cases.classify(case) == ('cx', '')
     p = device_cases.kernels([device_cases.Scenario('unit', case, 'cx')])[0]
     assert int.from_bytes(p.arena[16:20], 'little') == 5
     offset, _ = p.code.targets[0]
@@ -91,10 +92,10 @@ def test_cx_backing_and_bounds_survive_relocation():
 
 
 def test_sweep_policy_and_all_cases_classified():
-    """Classifies every sampled case (shard by shard); only the manual cases depend on the sweep policy."""
+    """Classifies minimal shared cases shard by shard, retaining manual regressions."""
     from tests.cases import FAMILIES
-    sampled = device_evidence.summaries(FAMILIES, False)
-    manual = [device_evidence.summaries(FAMILIES, e, sharded.manual) for e in (False, True)]
+    sampled = device_evidence.summaries(FAMILIES, 0)
+    manual = [device_evidence.summaries(FAMILIES, e, sharded.manual) for e in (0, 100)]
     assert all(manual[0][f]['ids'] == sampled[f]['ids'] <= manual[1][f]['ids'] for f in FAMILIES)
     assert sum(m['cases'] for m in manual[1].values()) > sum(m['cases'] for m in manual[0].values())
     assert set().union(*(s['kinds'] for s in sampled.values())) >= {'scalar', 'cx', 'memory', 'warp', 'branch', 'qspc', 'emulator'}
@@ -134,7 +135,7 @@ def test_nan_policy_preserves_merged_half():
     c = Cases('SM89')
     c.add('f2fp_merge_c__RRR', dict(Rd=8, Rb=2, Rc=4, dstfmt='F16', srcfmt='F32', merge='MERGE_C'),
           dict(R2=0x7fc00000, R4=0xbeef), dict(R8=0xbeef7e00))
-    assert device_cases.compare(c[0], ['R8'], [0xbeef7fff]) == []
+    assert device_cases.compare(c.encode_words()[0], ['R8'], [0xbeef7fff]) == []
     assert device_cases.compare(c[0], ['R8'], [0xdead7fff])
 
 
@@ -156,3 +157,29 @@ def test_raw_memory_capture_reassembles_multiple_regions():
     case = s.case._replace(request=dict(s.case.request, observe_memory=[dict(space='ram', address=0x100, size=8), dict(space='shared', address=0x20, size=1)]))
     result = device_cases.observation(case, ['R8', '__memory:0:0:4', '__memory:0:4:4', '__memory:1:0:1'], [19, 0x12345678, 0x90abcdef, 0x55])
     assert result == dict(registers={'R8':19}, memory=[dict(space='ram', address=0x100, size=8, hex='78563412efcdab90'), dict(space='shared', address=0x20, size=1, hex='55')])
+
+
+def test_percentage_evidence_records_actual_run_and_rejects_legacy(tmp_path, monkeypatch):
+    import json
+    monkeypatch.setattr(device_evidence, 'PASSES', tmp_path / 'passes.json')
+    s = scenario()
+    device_evidence.record([s], {s.id: []}, 25, 'SM89 test', ['binary digest'])
+    data = json.loads(device_evidence.PASSES.read_text())
+    record = data['families'][s.family]
+    assert data['version'] == 2
+    assert record['sample'] == 25 and record['sampling_version'] == sampling.VERSION
+    assert 'exhaustive' not in record
+    found = device_evidence.summary([s], False)
+    assert device_evidence.valid(record, found)
+    legacy = {k: v for k, v in record.items() if k not in ('sample', 'sampling_version')}
+    assert not device_evidence.valid(legacy, found)
+    calls = []
+    def summaries(families, percent):
+        calls.append((families, percent))
+        return {s.family: found}
+    monkeypatch.setattr(device_evidence, 'summaries', summaries)
+    assert device_evidence.verified_words() == [(s.family, w) for w in record['words']]
+    assert calls == [((s.family,), 25)]
+    # A partial/failed run cannot leave the previous passing record in place.
+    device_evidence.record([s], {}, 0, 'SM89 test', ['binary digest'])
+    assert s.family not in json.loads(device_evidence.PASSES.read_text())['families']

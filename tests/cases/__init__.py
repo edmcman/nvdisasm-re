@@ -3,6 +3,7 @@ import importlib
 from collections import Counter, defaultdict
 from functools import cache
 from tests.harness.case import Cases
+from tests.harness import sampling
 
 FAMILIES = ("int_alu", "int_simd", "carry", "bmsk", "fp32", "fp32x2", "fp64", "fp16", "f2fp", "conversions", "predicates", "memory", "control", "threads", "mufu")
 
@@ -11,26 +12,31 @@ def module(family):
     return importlib.import_module(f"tests.cases.{family}")
 
 
-def emulator_cases(arch, fp, families=FAMILIES, exhaustive=True, generated=True):
+def emulator_cases(arch, fp, families=FAMILIES, sample=sampling.DEFAULT, generated=True):
     """{family: Cases} for one architecture and fp lowering."""
+    sample = sampling.percentage(sample)
     out = {}
     for family in families:
-        out[family] = Cases(arch, fp, exhaustive); module(family).emulator_cases(out[family])
+        out[family] = Cases(arch, fp); module(family).emulator_cases(out[family])
+        if any((case.hardware or {}).get('probe') for case in out[family]):
+            raise ValueError(f'{family}: draft probes need reference expectations before entering regression suites')
+        out[family][:] = sampling.select(out[family], arch, sample, getattr(out[family], "manual_reasons", ()))
+        out[family].encode_words()
         if generated:
             from tests.harness.autocases import append
-            append(out[family], family)
+            append(out[family], family, sample)
         if any((case.hardware or {}).get('probe') for case in out[family]):
             raise ValueError(f'{family}: draft probes need reference expectations before entering regression suites')
     return out
 
 
-def stream(arch, fp, family, exhaustive, shard):
+def stream(arch, fp, family, sample, shard):
     """One shard of a language's family, case by case: None, the manual cases; (i, n), every n-th
     generated form from the i-th."""
-    if shard is None: yield from emulator_cases(arch, fp, (family,), exhaustive, generated=False)[family]
+    if shard is None: yield from emulator_cases(arch, fp, (family,), sample, generated=False)[family]
     else:
         from tests.harness.autocases import stream as generated
-        yield from generated(arch, fp, family, *shard)
+        yield from generated(arch, fp, family, *shard, sample=sample)
 
 
 @cache

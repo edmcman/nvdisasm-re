@@ -4,6 +4,7 @@ The target encoding is copied verbatim below bit 105. Wrapper instructions are e
 from md classes; no semantics or reference implementation is used to construct a probe.
 """
 import ctypes
+import os
 import re
 import sys
 from collections import defaultdict
@@ -13,7 +14,7 @@ from functools import cache
 from sass.assemble import elf, source
 from sass.decode import ir, pydecode
 from sass.md import expression
-from tests.cases import emulator_cases
+from tests.cases import stream
 from tests.harness.case import Case, word
 from tests.harness.gpu import Driver, ENCODING
 from tests.refs.fpformat import same_fp8
@@ -61,7 +62,7 @@ def constants(case):
     return tuple(sorted((m['address'], m['hex']) for m in case.request.get('memory', []) if m['space'] == 'cbank'))
 
 
-def classify(case):
+def classify(case, klass=None):
     """Return a backend kind and reason; unfamiliar state fails rather than disappearing."""
     hw = case.hardware or {}
     if hw.get('skip'): return 'emulator', hw['skip']
@@ -88,21 +89,25 @@ def classify(case):
         return 'emulator', 'synthetic values in driver-owned launch constants'
     spaces = {m['space'] for m in case.request.get('memory', []) + case.request.get('observe_memory', [])}
     if spaces - {'cbank'}:
-        if any(a.type == 'CX' for a in decoded(case.request['word']).klass.operand_types.values()): return 'cx', ''
+        if any(a.type == 'CX' for a in (klass or decoded(case.request['word']).klass).operand_types.values()): return 'cx', ''
         raise ValueError(f'{case.id}: memory requires a hardware adapter')
     return 'scalar', ''
 
 
+def selected_shard(job):
+    """Collect only selected scenarios in a worker; never materialize a full language there."""
+    family = job[2]
+    return [Scenario(family, case, *classify(case)) for case in stream(*job)]
+
+
 @cache
-def selection(families, exhaustive=False):
-    out = []
-    for family, cases in emulator_cases(ARCH, 'exact', families, exhaustive=exhaustive).items():
-        for case in cases:
-            kind, reason = classify(case)
-            # Duplicate requests can assert different backend properties; one probe suffices
-            # only when their hardware expectations are identical (checked during grouping).
-            out.append(Scenario(family, case, kind, reason))
-    return out
+def selection(families, sample=0):
+    from tests.harness import sharded
+    # GPU collection used to generate an entire language serially. Reuse the
+    # consumers' form shards, bounding the replicated md/plan caches to eight.
+    return [scenario for part in sharded.run(selected_shard, ((ARCH, 'exact'),), families,
+                                             sample, workers=min(8, os.cpu_count() or 1))
+            for scenario in part]
 
 
 @dataclass

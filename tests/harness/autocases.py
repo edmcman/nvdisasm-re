@@ -1,12 +1,14 @@
 """Reference adapters for generated shared-case form plans. No implementation-derived outputs."""
-import json
+import hashlib, json
+from typing import NamedTuple
 from functools import cache
 from sass.md import parse
 from sass.paths import ROOT
 from sass.assemble import encoding
 from sass.decode import pydecode
 from sass.sleigh.modifiers import settings
-from tests.harness.case import Cases, put, source, cx_source
+from tests.harness.case import Case, Cases, READABLE_FLOATS, put, source, cx_source
+from tests.harness import sampling
 from tests.refs import integer
 from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp, autocase_integer_extra, autocase_system, autocase_mixed_fp, autocase_remaining
 
@@ -33,9 +35,61 @@ OWNED = OPS - {'FLO'}  # FLO's partially modelled predicate outputs retain expli
 class Unsupported(ValueError): pass
 
 
-def generate(arch, cls, form, fp='exact', profiles=None, native=True):
-    """Build a full form atomically; reject unfamiliar operands/modifiers rather than guess."""
-    c = Cases(arch, fp, exhaustive=False)
+class Pending(NamedTuple):
+    """A filtered, reference-backed input description; no instruction has been encoded."""
+    cls: str
+    fields: dict
+    request: dict
+    expected: dict
+    hardware: dict | None
+    modifiers: dict
+
+    @property
+    def id(self):
+        request = {k:v for k,v in self.request.items() if k != 'inspect_pcode'}
+        return self.cls + '-' + hashlib.sha256(json.dumps((self.fields, request), sort_keys=True).encode()).hexdigest()[:16]
+
+    @property
+    def modifier_form(self): return self.cls, tuple(sorted(self.modifiers.items()))
+
+
+def generate(arch, cls, form, fp='exact', profiles=None, native=True, sample=sampling.COMPLETE):
+    """Choose reference-backed input descriptions before encoding the selected cases."""
+    sample = sampling.percentage(sample)
+    c = candidates(arch, cls, form, fp, profiles, native)
+    chosen = sampling.select(c, arch, sample)
+    out, identities = [], {}
+    for candidate in chosen:
+        if isinstance(candidate, Pending):
+            word = checked_word(arch, candidate.cls, candidate.fields, candidate.modifiers)
+            case = Case(candidate.cls, dict(candidate.request, word=word), candidate.expected, candidate.hardware)
+            if sample < sampling.COMPLETE:
+                if set(sampling.buckets(arch, candidate)) != set(sampling.buckets(arch, case)):
+                    raise Unsupported('encoded case changed its sampling form/backend eligibility')
+        else: case = candidate
+        identities[case.id] = candidate.id
+        out.append(case)
+    c[:] = out
+    c.deferred = False
+    c.sampling_ids = identities
+    return finish(c, False)
+
+
+def checked_word(arch, cls, fields, form, imad_alias=False):
+    word = encoding.encode(arch, cls, **fields)
+    decoded = pydecode.decode(arch, bytes.fromhex(word))
+    found = settings(arch, decoded)
+    alias = imad_alias and cls == 'imad__RsIR_RIR' and decoded.klass.name == 'imad_pseudo__RsIR_RIR'
+    if alias: found = {n:v for n,v in found.items() if n != 'pseudo_opcode'}
+    if (decoded.klass.name != cls and not alias) or found != form:
+        raise Unsupported('encoded instruction does not preserve the requested class/form')
+    return word
+
+
+def candidates(arch, cls, form, fp='exact', profiles=None, native=True):
+    """Describe reference-backed inputs for a full form, deferring encoding."""
+    c = Cases(arch, fp)
+    c.deferred = True
     if cls not in c.classes: raise Unsupported('alternate or absent instruction class')
     k = c.classes[cls]
     if k.mnemonic not in OPS:
@@ -126,8 +180,9 @@ def finish(c, native):
             # Explicit op/effect bounds cover native memory ordering and an empty NOP.
             guard = {} if isinstance(case.expected.get('__max_ops'),dict) else {'__native':True}
             case = case._replace(expected={**case.expected, **guard}, request={**case.request, 'inspect_pcode':True})
-        if case.id in unique and unique[case.id] != case: raise ValueError(f'{case.id}: conflicting generated expectations')
-        unique[case.id] = case
+        identity = case.id
+        if identity in unique and unique[identity] != case: raise ValueError(f'{identity}: conflicting generated expectations')
+        unique[identity] = case
     c[:] = unique.values()
     return c
 
@@ -172,14 +227,18 @@ class Inputs:
         return prefix + str(reg)
 
     def add(self, expected, form, imad_alias=False, portable=False, **extras):
-        word = encoding.encode(self.c.arch, self.k.name, **self.fields)
-        decoded = pydecode.decode(self.c.arch, bytes.fromhex(word))
-        found = settings(self.c.arch, decoded)
-        alias = imad_alias and self.k.name == 'imad__RsIR_RIR' and decoded.klass.name == 'imad_pseudo__RsIR_RIR'
-        if alias: found = {n:v for n,v in found.items() if n != 'pseudo_opcode'}
-        if (decoded.klass.name != self.k.name and not alias) or found != form:
-            raise Unsupported('encoded instruction does not preserve the requested class/form')
-        self.c.add(self.k.name, self.fields, self.registers, expected, memory=self.memory, portable=portable, **extras)
+        if self.c.fp == 'readable' and not portable and self.k.mnemonic in READABLE_FLOATS: return
+        hardware = extras.pop('hardware', None)
+        observe = extras.pop('observe', None)
+        request = self.c.request(None, self.registers, expected, observe, dict(memory=self.memory, **extras))
+        # These paths need the actual decoded class/environment to classify them.
+        # They are small; keep their existing eager validation and alias behavior.
+        eager = (imad_alias and self.k.name == 'imad__RsIR_RIR') or (hardware or {}).get('adapter') == 'memory'
+        if getattr(self.c, 'deferred', False) and not eager:
+            self.c.append(Pending(self.k.name, dict(self.fields), request, expected, hardware, dict(form)))
+        else:
+            word = checked_word(self.c.arch, self.k.name, self.fields, form, imad_alias)
+            self.c.append(Case(self.k.name, dict(request, word=word), expected, hardware))
 
 
 def scalar_cases(c, k, form, profiles):
@@ -396,12 +455,12 @@ def saved_plan(arch):
     return data
 
 
-def stream(arch, fp, family, start=0, step=1):
+def stream(arch, fp, family, start=0, step=1, sample=sampling.DEFAULT):
     """The family's generated cases, form by form; with start/step, every step-th planned form from start."""
     if family not in FAMILIES.values(): return
     entries = [e for e in saved_plan(arch)['forms'] if e['family'] == family][start::step]   # not the whole plan (150 MiB for SM89)
     for entry in entries:
-        yield from generate(arch, entry['cls'], entry['settings'], fp, entry['profiles'], entry['native'])
+        yield from generate(arch, entry['cls'], entry['settings'], fp, entry['profiles'], entry['native'], sample=sample)
 
 
-def append(c, family): c.extend(stream(c.arch, c.fp, family))
+def append(c, family, sample=sampling.DEFAULT): c.extend(stream(c.arch, c.fp, family, sample=sample))

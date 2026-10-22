@@ -2,7 +2,7 @@
 
 Run under pyghidra's Python. stdin JSON lines: word, address, registers,
 memory [{space,address,hex}], observe registers/memory, optional runtime context; or a whole-kernel
-request (`sass.ghidra_bridge.kernel_request`), whose kernel.trace adds each step's register writes for
+request (`sass.launch.kernel_request`), whose kernel.trace adds each step's register writes for
 the first kernel.trace_threads threads. In-process callers start the JVM and use `session`.
 """
 import json,sys

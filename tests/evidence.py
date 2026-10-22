@@ -6,7 +6,7 @@ one class spans them all. The emulator cases stream shard by shard on every core
 (tests/harness/sharded.py). Writes sass_smXX_evidence.json beside the coverage manifests, which
 `sass-coverage` folds into processor/SASS/semantics/evidence.json and the report.
 
-usage: python -m tests.evidence [SMxx ...] [--output DIR]
+usage: python -m tests.evidence [SMxx ...] [--output DIR] [--sample PERCENT | --exhaustive]
 """
 import argparse, json, os, re, subprocess, tempfile
 from collections import defaultdict
@@ -19,7 +19,7 @@ from sass.sleigh.build import ARCHES
 from sass.sleigh.gen import MODES, Gen
 from sass.sleigh.modifiers import form, settings
 from tests.cases import FAMILIES, gpu_fixtures, stream
-from tests.harness import sharded
+from tests.harness import sampling, sharded
 from tests.harness.dataflow import expected
 from tests.harness.gpu import Template, hits, mnemonic
 from tests.harness.hardware import passed
@@ -36,8 +36,7 @@ def decoded(arch, code):
 
 def reference(job):
     """(arch, {class: [cases, {form: settings}]}) for one streamed shard of a language's emulator
-    cases. The large sweeps are sampled as in the tests: the full sweeps run no modifier form the
-    sample misses."""
+    cases. Minimal selection retains every available modifier form and retained regression."""
     arch, out, words = job[0], {}, {}
     for case in stream(*job):
         word = case.request.get("word")
@@ -48,10 +47,10 @@ def reference(job):
     return arch, out
 
 
-def references(architectures):
+def references(architectures, sample=sampling.DEFAULT):
     """{arch: {class: [cases, {form: settings}]}} over both fp lowerings, shard by shard."""
     out = defaultdict(dict)
-    for arch, part in sharded.run(reference, tuple((a, fp) for a in architectures for fp in MODES), FAMILIES, False):
+    for arch, part in sharded.run(reference, tuple((a, fp) for a in architectures for fp in MODES), FAMILIES, sample):
         for cls, (n, forms) in part.items():
             found = out[arch].setdefault(cls, [0, {}]); found[0] += n; found[1] |= forms
     return out
@@ -154,9 +153,14 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("architectures", nargs="*", default=ARCHES, metavar="SMxx")
     p.add_argument("--output", type=Path, default=LANGUAGES)
+    sampling.add_arguments(p)
     a = p.parse_args()
+    sample = sampling.resolve(a.sample, a.exhaustive)
     a.output.mkdir(parents=True, exist_ok=True)
-    found = references(a.architectures)
+    found = references(a.architectures, sample)
+    for arch, classes in found.items():
+        print(f"{arch}: sample {sample}%, {sum(n for n, _ in classes.values()):,} reference cases, "
+              f"{sum(len(forms) for _, forms in classes.values()):,} recorded modifier forms", flush=True)
     with ProcessPoolExecutor(min(len(a.architectures), os.cpu_count() or 1)) as pool:
         probes = list(pool.map(ptxas, a.architectures))
     for arch, rows in zip(a.architectures, probes):

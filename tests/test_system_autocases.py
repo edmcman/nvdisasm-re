@@ -114,7 +114,7 @@ def test_integer_pcode_limits_keep_their_existing_guards():
 def test_zero_special_pair_keeps_its_physical_overwrite_anchor():
     from tests.cases import control
     from tests.harness import device_cases
-    cases=Cases('SM89');control.emulator_cases(cases)
+    cases=Cases('SM89');control.emulator_cases(cases);cases.encode_words()
     case=next(c for c in cases if c.cls=='cs2r_')
     assert case.request['registers']=={'R8':1,'R9':2}
     assert case.expected=={'R8':0,'R9':0}

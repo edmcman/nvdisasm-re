@@ -46,9 +46,11 @@ or, with the context's `waiting` mask, all wait at a `BSSY`/`BSYNC` barrier. Mem
 bind logical addresses to real allocations and runtime shared/local windows. No CUDA
 compiler is needed for these generated probes.
 
-Sweeps use the same deterministic sample as Ghidra by default; `--exhaustive` runs every
-case. Each invocation executes the selected tests, even when passing evidence exists.
-The terminal summary reports passed, failed, sampled-out and emulator-only scenarios,
+Shared cases use the same caller-selected sampling as Python and Ghidra: `--sample 0`
+(the default) preserves modifier-form coverage and retained regressions; `--sample 100`
+or `--exhaustive` runs every declared case. Intermediate percentages add deterministic
+input samples without removing previously selected cases. Each invocation executes the selected tests, even when passing evidence exists.
+The terminal summary reports the sampling percentage, passed, failed and emulator-only scenarios,
 including exclusion reasons. Emulator errors, runtime events, impossible synthetic
 state and reserved launch constants remain emulator-only. Unknown case state fails
 classification; an adapter failure is a test failure. Worker processes time out after
@@ -79,7 +81,8 @@ uv run pytest -m gpu --require-gpu                     # GPU tests (outside the 
 | `--arch SM89\|SM75,SM90\|all` | architectures (default SM89) |
 | `--fp exact\|readable\|all` | floating-point lowering(s) (default exact) |
 | `--family F` (repeatable) | limit semantics tests and GPU fixtures to case families (`tests/cases/F.py`) |
-| `--exhaustive` | run complete GPU, Ghidra and lifted sweeps (otherwise deterministically sampled) |
+| `--sample PERCENT` | shared-case input sampling, integer 0–100; default 0 preserves modifier-form coverage and retained regressions |
+| `--exhaustive` | alias for `--sample 100`; cannot be combined with `--sample` |
 | `--update-baseline` | accept current results into the ratchet baselines |
 | `--full` | `test_pydecode_disassembly` and `test_ghidra_disassembly` on the whole real corpus instead of a sample |
 | `--require-gpu` | fail instead of skipping without an SM89 device |
@@ -93,7 +96,9 @@ tests 25 s and 10 GiB on SM89, 3 minutes and 13 GiB on every architecture and lo
 build 1.75 minutes and 27 GiB (about 17 compilers at once); Ghidra tests on all languages 8 minutes and
 25 GiB cold, 2.5 minutes when cached (mostly building the cases); GPU tests 15 s. Ghidra results are
 cached per program by the sources it imports (`ghidra_bridge.sources`), so an edit elsewhere in
-`src/sass` keeps them.
+`src/sass` keeps them. Generator modules (families, operations, operands, lowering, build) reach
+Ghidra only through the compiled language, so editing them recomputes only languages whose `.sla`
+changes; `test_ghidra_bridge` checks the emulator never loads them.
 
 Since 2026-10-20 the fp32 family alone has about 680,000 cases per language. `test_lifted_semantics`
 used to build every selected language's cases in the pytest process and fork its pool from it:
@@ -177,12 +182,12 @@ op-count increases (`pcode_<variant>.json`) should come only from classes the ch
 Each `cases/<family>.py` (listed in `cases/__init__.py` `FAMILIES`) provides:
 
 - `emulator_cases(c)`: shared single-instruction cases for `test_lifted_semantics`,
-  `test_pcode_semantics` and `test_cases_on_gpu` (hardware expectations use exact mode). `c.add(cls, fields, registers, expected, ...)` encodes one instruction
-  of md class `cls` with operand `fields`, seeds `registers`, and checks `expected`; classes the
+  `test_pcode_semantics` and `test_cases_on_gpu` (hardware expectations use exact mode). `c.add(cls, fields, registers, expected, ...)` describes one instruction
+  of md class `cls` with operand `fields` (encoded by `c.encode_words()`, which `emulator_cases` runs on the selected cases), seeds `registers`, and checks `expected`; classes the
   architecture lacks are skipped. Helpers in `harness/case.py`: `put` (place an operand value in
   a register, immediate or constant bank), `cx_source`, `c.kernel(...)` (a one-instruction kernel
-  expected to fail), `c.sweep(n)` (indices of a large sweep over codes or values, sampled unless
-  `--exhaustive`). Expectation keys are documented in `harness/checks.py`: plain keys are observed
+  expected to fail), `c.sweep(n)` (all indices of a domain, like `range(n)`; sampling happens after
+  generation and validity filtering). Expectation keys are documented in `harness/checks.py`: plain keys are observed
   registers; `__native`, `__max_ops`, `__counter`, `__memory`, `__events`, `__fp8_nan`,
   `__opaque` and `error` are checks.
   Ordinary scalar cases automatically run on the GPU. `hardware={"adapter": ...}` binds
@@ -315,10 +320,54 @@ MUFU error profiles are diagnostic contracts only: the planner leaves numerical
 coverage blocked until an independent hardware-specific approximation oracle exists.
 Synchronization profiles do not claim to validate a multithread scheduler.
 
+### Caller-controlled shared-case sampling
+
+`--sample PERCENT` applies to every shared-case family in lifted Python tests, Ghidra,
+the GPU runner and `python -m tests.semantics`. Values are integers from 0 through 100;
+`--exhaustive` aliases 100. This option does not sample whole-kernel fixtures or the
+separate disassembly corpus (`--full`).
+
+Generators describe the complete declared corpus, whether their loops use `range` or
+`c.sweep`. Generated adapters first describe inputs with independent expectations and hardware
+annotations, then select descriptions before instruction encoding and decoding. Selected
+encodings must preserve the declared form and backend eligibility. Small memory-adapter
+and IMAD-alias paths retain eager decoding where classification requires it. Manual
+cases are encoded only when selected too: sampling takes their form from their modifier
+fields (`sampling.declared`, one encoding per combination), and `encode_words` checks each
+encoded case against it. Cases are grouped by class and modifier settings, separately for each
+architecture/lowering and for manual versus generated sources. Each generated planned
+form is selected independently, so worker counts and shard boundaries do not change it.
+
+At 0%, each available form keeps its lowest stable hash-ranked scenario. Additional
+representatives preserve lifted-emulator and SM89 GPU eligibility when necessary.
+`@retained` regressions, kernel scenarios and explicit error/opaque assertions always
+run, even when a retained function contains an entire sweep, so retained corpora must stay
+small. `@anchored` suites (`harness/manual.py`) retain only their anchors, the edge indices
+of each sweep (`part.sweep(k, n)`) on the all-register class; the rest of their corpus is
+sampled like other cases and runs complete at 100%. Thus minimal is a coverage
+floor, not exactly one case per form. Existing unsupported legal forms remain gaps.
+
+Intermediate percentages admit additional input identities below a fixed SHA-256 threshold.
+Generated identities use operand fields and seeded state, so ranking needs no encoding;
+manual identities use their fields and state. Expectations and p-code inspection flags
+do not affect ranking.
+They approximate a percentage of additional cases, not an exact case budget. Samples
+are deterministic and nested; 100% preserves the complete candidate list. Selection
+never manufactures evidence for a skipped scenario. Reference evidence refresh uses
+0%, so case counts describe this minimum while preserving available form coverage.
+For an ad hoc evidence report at another depth, use
+`python -m tests.evidence SM89 --sample 25 --output /tmp/sass-evidence-25`;
+`sass-refresh-coverage` keeps the committed artifacts at 0%.
+Unselected generated descriptions are never encoded or decoded. Reference evaluation
+and lightweight input enumeration still precede selection; retained regressions always
+run fully. Generation remains bounded by a manual family or a generated form,
+without assembling a whole language in a worker. GPU collection also uses the
+shared shards, with at most eight workers; the parent collects selected scenarios only.
+
 ### Shared-case hardware evidence
 
 `baseline/gpu_case_passes.json` records a passing family's selected inputs/expectations,
-exact instruction words, sampler mode, probe-source digest, device and executed cubin
+exact instruction words, sampling percentage and algorithm version, probe-source digest, device and executed cubin
 hashes. Changing any of these invalidates its evidence. The digest covers only the sources
 that build, run and compare a probe (the import closure of `harness/device_cases.py`,
 `device_setup.py` and `device_runner.py`, plus `out/SM89`), not semantics, references

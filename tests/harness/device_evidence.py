@@ -8,7 +8,7 @@ from functools import cache
 from pathlib import Path
 from sass.paths import ROOT
 from tests.cases import stream
-from tests.harness import device_cases, sharded
+from tests.harness import device_cases, sampling, sharded
 
 PASSES = ROOT / 'tests/baseline/gpu_case_passes.json'
 
@@ -91,10 +91,10 @@ def classified(job):
 
 
 @cache
-def summaries(families, exhaustive, shards=sharded.shards):
+def summaries(families, sample, shards=sharded.shards):
     """{family: summary} over the shards of SM89's exact cases."""
     out = {}
-    for part in sharded.run(classified, ((device_cases.ARCH, 'exact'),), families, exhaustive, shards=shards):
+    for part in sharded.run(classified, ((device_cases.ARCH, 'exact'),), families, sample, shards=shards):
         for family, s in part.items(): out[family] = merge(out[family], s) if family in out else s
     return out
 
@@ -109,18 +109,20 @@ def passes(): return json.loads(PASSES.read_text()) if PASSES.exists() else dict
 
 
 def valid(record, found):
-    return (record.get('generator') == generator() and record.get('signature') == signature(found)
+    return (record.get('sampling_version') == sampling.VERSION and record.get('generator') == generator() and record.get('signature') == signature(found)
             and record.get('words') == words(found) and bool(record.get('device')) and bool(record.get('kernels')))
 
 
-def record(scenarios, results, exhaustive, device, kernels):
-    found = passes(); families = found.setdefault('families', {})
+def record(scenarios, results, sample, device, kernels):
+    sample = sampling.percentage(sample)
+    found = passes(); found['version'] = 2
+    families = found.setdefault('families', {})
     for family in dict.fromkeys(s.family for s in scenarios):
         selected = [s for s in scenarios if s.family == family and s.kind != 'emulator']
         families.pop(family, None)
         if not selected or not device or any(s.id not in results or results[s.id] for s in selected): continue
         ran = summary(selected, False)
-        families[family] = dict(generator=generator(), signature=signature(ran), exhaustive=exhaustive,
+        families[family] = dict(generator=generator(), signature=signature(ran), sample=sample, sampling_version=sampling.VERSION,
                                 cases=len(selected), words=words(ran), device=device, kernels=sorted(set(kernels)))
     # Atomic replacement prevents interruption from leaving a truncated evidence file.
     path = PASSES.with_suffix('.tmp')
@@ -128,10 +130,10 @@ def record(scenarios, results, exhaustive, device, kernels):
 
 
 def verified_words():
-    records = {f: r for f, r in passes().get('families', {}).items() if r.get('generator') == generator()}
+    records = {f: r for f, r in passes().get('families', {}).items() if r.get('sampling_version') == sampling.VERSION and r.get('generator') == generator()}
     out = []
-    for exhaustive in (False, True):
-        families = tuple(f for f, r in records.items() if r.get('exhaustive', False) == exhaustive)
-        found = summaries(families, exhaustive) if families else {}
+    for sample in sorted({r['sample'] for r in records.values()}):
+        families = tuple(f for f, r in records.items() if r['sample'] == sample)
+        found = summaries(families, sample) if families else {}
         out += [(f, w) for f in families if valid(records[f], found[f]) for w in records[f]['words']]
     return out

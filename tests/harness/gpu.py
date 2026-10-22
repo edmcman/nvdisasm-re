@@ -3,7 +3,7 @@ the CUDA Driver API, and build the equivalent whole-kernel emulator request."""
 import ctypes as C, hashlib, struct, subprocess
 from dataclasses import dataclass, field
 from typing import Callable
-from sass import ghidra_bridge
+from sass import launch
 from sass.decode import cubin, pydecode
 from tests.harness.case import word
 from sass.paths import CACHE, NVCC, ROOT
@@ -71,7 +71,7 @@ def request(f):
         raise ValueError(f"{f.name}: unexpected kernel parameter layout")
     if not f.threads or len(f.data) % (3 * f.input_size) or f.threads % f.block or f.block % 32: raise ValueError("input must contain whole blocks of whole warps")
     memory = [dict(space="ram", address=INPUT, hex=f.data.hex()), dict(space="ram", address=OUTPUT, hex="cc" * f.threads * f.output_size)]
-    return ghidra_bridge.kernel_request(image, (INPUT, OUTPUT, *(v for _, v in f.arguments)), memory, f.threads, f.block,
+    return launch.kernel_request(image, (INPUT, OUTPUT, *(v for _, v in f.arguments)), memory, f.threads, f.block,
                                         dict(address=OUTPUT, size=f.output_size, stride=f.output_size), f.cooperative,
                                         dict(synchronization=dict(bssy=True, bsync=True, **({"bar": True} if f.cooperative else {}))))
 
