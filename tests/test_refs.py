@@ -152,3 +152,12 @@ def test_arithmetic_carry_boundaries():
     assert lea(0,0,0,0,modifications=(True,False)) == (0,1)
     assert lea(1,0,1,31,high=True) == (0x80000000,0)
     assert imad(0,0,0xffffffff,'HI',False,carry_in=1,addend_width=32) == (0,1)
+
+
+def test_viaddmnmx_negates_each_packed_lane():
+    from tests.refs.integer import viaddmnmx
+    # SM90 register, constant and CX observations: 0 - 1 has no borrow into lane 1.
+    for signed in (False, True):
+        assert viaddmnmx(0, 1, 0x7fffffff, 16, signed, True, negate_b=True) == 0x0000ffff
+    assert viaddmnmx(0, 1, 0x7fffffff, 32, False, True, negate_b=True) == 0x7fffffff
+    assert viaddmnmx(0, 1, 0x7fffffff, 32, True, True, negate_b=True) == 0xffffffff

@@ -1,110 +1,136 @@
-"""Patchable SM89 kernels: compiled wrappers whose reserved instruction slots receive patched words.
-
-- CX wrapper (bmsk_cx_semantics.cu): loads one input word per thread, applies the instruction at
-  0x110 with a CX source whose descriptor comes from the kernel's second parameter, stores R7.
-- Carry slots (carry_semantics.cu): eight BAR slots at 0x100-0x170 and a placeholder IMAD at 0x180
-  (Ra=R2, Rb=R5, Rc=R6, Rd=R11; R11 is stored).
-"""
+"""Compiled wrappers with validated, named instruction patch sites on SM89 and SM90."""
 from functools import cache
+from sass import launch
+from sass.assemble import elf
 from sass.decode import cubin
-from tests.harness.gpu import ENCODING, Template, compile, sm89
+from tests.harness.gpu import Template, compile, encode
 
-SLOTS = tuple(range(0x100, 0x180, 16))
-SCOREBOARDS = 0x3f << 116  # wait on every scoreboard (drains earlier loads)
+SCOREBOARDS = 0x3f << 116
+
+
+def offsets(t, mnemonic):
+    return [o for o in range(0, len(t.code), 16) if t.decoded(o).klass.mnemonic == mnemonic]
+
+
+def require(t, offset, mnemonic, **fields):
+    d = t.decoded(offset)
+    if d.klass.mnemonic != mnemonic or any(d.env.get(n) != v for n, v in fields.items()):
+        raise RuntimeError(f'{t.arch} {t.kernel} at {offset:#x}: expected {mnemonic} {fields}, got {d.text}')
 
 
 @cache
-def cx_wrapper():
-    """The checked CX wrapper template and the scheduling controls used for patched words."""
-    t = Template(compile("bmsk_cx_semantics"), "sem_cx")
-    meta = cubin.kernel_image(t.image, "sem_cx")
-    if meta["parameter_base"] != 0x160 or [p["size"] for p in meta["parameters"]] != [8, 8]: raise RuntimeError("unexpected CX wrapper parameter ABI")
-    d = t.decoded
-    expect = [all(d(o).klass.mnemonic == "BAR" for o in range(0xd0, 0x110, 16)), d(0x110).klass.name == "bmsk__RRR_RRR",
-              all(d(0x110).env[n] == v for n, v in dict(Rd=0, Ra=2, Rb=5).items()),
-              d(0x130).klass.mnemonic == "LOP3" and all(d(0x130).env[n] == v for n, v in dict(Rd=7, Ra=0, Rc=7).items()),
-              d(0x140).klass.mnemonic == "STG" and d(0x140).env["Rb"] == 7, d(0x80).klass.mnemonic == "LDG" and d(0x80).env["Rd"] == 2,
-              d(0x30).klass.mnemonic == "ULDC" and d(0x30).env["URd"] == 4 and d(0x30).env["Sa_bank"] == 0 and d(0x30).env["Sa_addr"] == 0x118,
-              d(0x120).klass.mnemonic == "IMAD" and d(0x120).env["Rd"] == 4, d(0x150).klass.mnemonic == "EXIT"]
-    if not all(expect): raise RuntimeError("compiler changed the pinned CX wrapper")
-    # Clear the five-bit schedule mode, select WAIT15_END_GROUP and wait on all scoreboards.
-    control = (t.control(0x110) & ~(31 << 105)) | (15 << 105) | SCOREBOARDS
+def cx_wrapper(arch="SM89"):
+    t = Template(compile('bmsk_cx_semantics', arch=arch), 'sem_cx')
+    meta = cubin.kernel_image(t.image, t.kernel)
+    if meta['parameter_base'] != elf.PROFILES[arch].parameter_base or [p['size'] for p in meta['parameters']] != [8, 8]:
+        raise RuntimeError('unexpected CX wrapper parameter ABI')
+    bars = offsets(t, 'BAR')
+    targets, stores = offsets(t, 'BMSK'), offsets(t, 'STG')
+    if len(bars) != 4 or len(targets) != 1 or len(stores) != 1 or bars != list(range(bars[0], bars[0] + 64, 16)):
+        raise RuntimeError(f'{arch}: compiler changed CX wrapper patch sites')
+    target, store = targets[0], stores[0]
+    require(t, target, 'BMSK', Rd=0, Ra=2, Rb=9 if arch == 'SM90' else 5)
+    after = target + (16 if arch == 'SM90' else 32)
+    if arch == 'SM89': require(t, target + 16, 'IMAD', Rd=4)
+    require(t, after, 'LOP3', Rd=7, Ra=0, Rc=11 if arch == 'SM90' else 7)
+    require(t, store, 'STG', Rb=7)
+    if bars[-1] + 16 != target or store != after + 16:
+        raise RuntimeError(f'{arch}: compiler changed CX wrapper ordering')
+    loads = offsets(t, 'LDG')
+    if len(loads) != 1: raise RuntimeError('compiler changed CX input loads')
+    require(t, loads[0], 'LDG', Rd=2)
+    descriptors = [o for o in offsets(t, 'ULDC') if t.decoded(o).env.get('Sa_addr') == launch.GLOBAL_DESCRIPTOR[arch]]
+    if len(descriptors) != 1: raise RuntimeError('compiler changed CX descriptor setup')
+    require(t, descriptors[0], 'ULDC', URd=4, Sa_bank=0)
+    t.sites = dict(setup=bars, target=target, after=after)
+    control = (t.control(target) & ~(31 << 105)) | (15 << 105) | SCOREBOARDS
     return t, control
 
 
-def cx_image(cls, fields, units=128, offset=4, after=("nop_", {})):
-    """CX wrapper with the descriptor built from c[0][0x160] (size `units` x 16 bytes) in UR0/UR1,
-    `cls` at 0x110 reading source B at descriptor byte `offset`, and `after` at 0x130 (before the
-    store of R7)."""
-    t, control = cx_wrapper()
-    words = {0xd0: ("uldc_const__RCR", dict(URd=0, Sa_bank=0, Sa_addr=0x160, sz="64")),
-             0xe0: ("ushf__URuIUR_URIR", dict(URd=0, URa=0, Sb=4, URc=1, dir="R", fmt="U64", hilo="LO")),
-             0xf0: ("ushf__URuIUR_URIR", dict(URd=1, URa="URZ", Sb=4, URc=1, dir="R", fmt="U32", hilo="HI")),
-             0x100: ("ulop3_lut__URuIUR_URIR", dict(URd=1, URa=1, Sb=units << 13, URc="URZ", imm8=0xfc, UPp="UPT")),
-             0x110: (cls, dict(fields, URb=0, Sb_offset=offset) if "Sb_offset" not in fields else fields),
-             0x130: after}
-    image = t.patch({o: (sm89(c, **f), control) for o, (c, f) in words.items()})
-    if Template(image, "sem_cx").decoded(0x110).klass.name != cls: raise RuntimeError(f"{cls}: patched word decoded differently")
+def cx_image(cls, fields, units=128, offset=4, after=("nop_", {}), arch="SM89"):
+    t, control = cx_wrapper(arch)
+    bits, shift = launch.cx_layout(arch)
+    setup = [
+        ('uldc_const__RCR', dict(URd=0, Sa_bank=0, Sa_addr=elf.PROFILES[arch].parameter_base, sz='64')),
+        ('ushf__URuIUR_URIR', dict(URd=0, URa=0, Sb=shift, URc=1, dir='R', fmt='U64', hilo='LO')),
+        ('ushf__URuIUR_URIR', dict(URd=1, URa='URZ', Sb=shift, URc=1, dir='R', fmt='U32', hilo='HI')),
+        ('ulop3_lut__URuIUR_URIR', dict(URd=1, URa=1, Sb=units << (bits - 32), URc='URZ', imm8=0xfc, UPp='UPT')),
+    ]
+    words = dict(zip(t.sites['setup'], setup))
+    words[t.sites['target']] = cls, dict(fields, URb=0, Sb_offset=offset) if 'Sb_offset' not in fields else fields
+    words[t.sites['after']] = after
+    image = t.patch({o: (encode(c, arch=arch, **f), control) for o, (c, f) in words.items()})
+    if Template(image, t.kernel).decoded(t.sites['target']).klass.name != cls:
+        raise RuntimeError(f'{cls}: patched word decoded differently')
     return image
 
 
 @cache
-def carry_slots():
-    t = Template(compile("carry_semantics"), "sem_probe")
-    if [o for o in range(0, len(t.code), 16) if t.decoded(o).klass.mnemonic == "BAR"] != list(SLOTS): raise RuntimeError("compiler changed reserved probe slots")
-    d = t.decoded(0x180)
-    if d.klass.mnemonic != "IMAD" or any(d.env[n] != v for n, v in dict(Ra=2, Rb=5, Rc=6, Rd=11).items()):
-        raise RuntimeError("compiler changed probe register assignment")
+def carry_slots(arch="SM89"):
+    t = Template(compile('carry_semantics', arch=arch), 'sem_probe')
+    slots = offsets(t, 'BAR')
+    if arch == 'SM90' and len(slots) == 8:
+        # ptxas places output-address arithmetic between the last two barriers.
+        # Hoist it before the patch region, while R11 still holds the thread index.
+        middle = [o for o in range(slots[0], slots[-1], 16) if o not in slots]
+        if len(middle) != 1: raise RuntimeError('compiler changed carry address calculation')
+        require(t, middle[0], 'IMAD', Rd=8, Ra=11, Sb=4, Rc=8)
+        if t.decoded(middle[0]).klass.name != 'imad_wide__RsIR_RIR': raise RuntimeError('expected wide output address')
+        region = [middle[0], *slots]
+        words = {o: (int.from_bytes(t.code[src:src + 16], 'little'), t.control(src))
+                 for o, src in zip(range(slots[0], slots[-1] + 16, 16), region)}
+        t = Template(t.patch(words), t.kernel)
+        slots = offsets(t, 'BAR')
+    if len(slots) != 8 or slots != list(range(slots[0], slots[0] + 128, 16)):
+        raise RuntimeError(f'{arch}: compiler changed reserved probe slots')
+    final = slots[-1] + 16
+    require(t, final, 'IMAD', Ra=2, Rb=5, Rc=6, Rd=11)
+    t.sites = dict(slots=slots, final=final)
     return t
 
 
-def slot_image(sequence, final=None):
-    """Carry kernel with `sequence` (encodings) in the BAR slots, the first waiting on every
-    scoreboard, and `final` (default NOP) replacing the placeholder at 0x180."""
-    t = carry_slots(); control = t.control(0x180)
-    words = {o: (w, control | SCOREBOARDS if i == 0 else control) for i, (o, w) in enumerate(zip(SLOTS, sequence))}
-    words[0x180] = (sm89("nop_") if final is None else final, control)
+def slot_image(sequence, final=None, arch="SM89"):
+    t = carry_slots(arch); control = t.control(t.sites['final'])
+    if len(sequence) > len(t.sites['slots']): raise ValueError('probe sequence exceeds reserved slots')
+    words = {o: (w, control | SCOREBOARDS if i == 0 else control) for i, (o, w) in enumerate(zip(t.sites['slots'], sequence))}
+    words[t.sites['final']] = (encode('nop_', arch=arch) if final is None else final, control)
     return t.patch(words)
 
 
 def schedule(base, stall=4, wrb=7, wait=0):
-    """`base` controls with the stall count, write-barrier index (7: none) and barrier wait mask replaced."""
     return (base & ~(0x1fffff << 105)) | stall << 105 | wrb << 110 | 7 << 113 | wait << 116
 
 
-def variable_latency_fixture(name, op, triples, expected, **kw):
-    """One variable-latency instruction (MUFU) in the first carry-kernel slot: it writes scoreboard 0 and the
-    placeholder after it waits on that barrier, so the kernel's store sees the result."""
+def variable_latency_fixture(name, op, triples, expected, arch="SM89", **kw):
     from tests.harness.gpu import Fixture
-    t = carry_slots(); base = t.control(0x180); nop = sm89("nop_")
-    words = {o: (op if i == 0 else nop, schedule(base, stall=2 if i == 0 else 1, wrb=0 if i == 0 else 7, wait=0x3f if i == 0 else 0)) for i, o in enumerate(SLOTS)}
-    words[0x180] = (nop, schedule(base, stall=4, wait=1))
-    return Fixture(name=name, image=t.patch(words), kernel="sem_probe", data=rows(triples), expected=expected, visited=(SLOTS[0],), exit=True, **kw)
+    t = carry_slots(arch); base = t.control(t.sites['final']); nop = encode('nop_', arch=arch)
+    words = {o: (op if i == 0 else nop, schedule(base, stall=2 if i == 0 else 1, wrb=0 if i == 0 else 7, wait=0x3f if i == 0 else 0)) for i, o in enumerate(t.sites['slots'])}
+    words[t.sites['final']] = (nop, schedule(base, stall=4, wait=1))
+    return Fixture(name=name, image=t.patch(words), kernel=t.kernel, data=rows(triples), expected=expected, visited=(t.sites['slots'][0],), exit=True, **kw)
 
 
-def without_barriers(image):
-    """The BAR slots replaced by NOPs (emulated threads are independent)."""
-    t = carry_slots()
-    return t.patch({o: (sm89("nop_"), t.control(o)) for o in SLOTS}, image)
+def without_barriers(image, arch="SM89"):
+    t = carry_slots(arch)
+    return t.patch({o: (encode('nop_', arch=arch), t.control(o)) for o in t.sites['slots']}, image)
 
 
 def rows(triples):
-    """Kernel input: one (a, b, c) 32-bit triple per thread."""
     import struct
-    return b"".join(struct.pack("<III", *t) for t in triples)
+    return b''.join(struct.pack('<III', *t) for t in triples)
 
 
-def cx_fixture(name, cls, fields, triples, expected, units=128, offset=4, after=("nop_", {}), **kw):
-    """A CX wrapper launch: thread i loads triples[i][0] into R2; the descriptor (c[0][0x160])
-    points at the input array, so source B is the word at byte `offset` of the first record."""
+def cx_fixture(name, cls, fields, triples, expected, units=128, offset=4, after=("nop_", {}), arch="SM89", **kw):
     from tests.harness.gpu import Fixture
-    return Fixture(name=name, image=cx_image(cls, fields, units, offset, after), kernel="sem_cx", data=rows(triples), expected=expected,
-                   visited=(0x110,), modes=("exact", "readable"), **kw)
+    t, _ = cx_wrapper(arch)
+    return Fixture(name=name, image=cx_image(cls, fields, units, offset, after, arch), kernel=t.kernel, data=rows(triples), expected=expected,
+                   visited=(t.sites['target'],), modes=('exact', 'readable'), **kw)
 
 
-def slot_fixture(name, sequence, triples, expected, target, final=None, nobarrier_emulation=False, **kw):
-    """A carry-kernel launch with `sequence` in the BAR slots; `target` must execute through EXIT."""
+def slot_fixture(name, sequence, triples, expected, target, final=None, nobarrier_emulation=False, arch="SM89", **kw):
+    """target is a reserved slot index, or 8 for the final placeholder."""
     from tests.harness.gpu import Fixture
-    image = slot_image(sequence, final)
-    return Fixture(name=name, image=image, kernel="sem_probe", data=rows(triples), expected=expected, visited=(target,), exit=True,
-                   emulator_image=without_barriers(image) if nobarrier_emulation else None, **kw)
+    t = carry_slots(arch)
+    offset = t.sites['final'] if target == 8 else t.sites['slots'][target]
+    image = slot_image(sequence, final, arch)
+    return Fixture(name=name, image=image, kernel=t.kernel, data=rows(triples), expected=expected, visited=(offset,), exit=True,
+                   emulator_image=without_barriers(image, arch) if nobarrier_emulation else None, **kw)

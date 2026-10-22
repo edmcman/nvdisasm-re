@@ -83,11 +83,11 @@ def buckets(arch, case):
     yield key, 'reference'
     from tests.harness import lifted
     if lifted.applies(case): yield key, 'lifted'
-    if arch == 'SM89':
+    if arch in ('SM89', 'SM90'):
         from tests.harness import device_cases
         from sass.assemble import encoding
         klass = None if word else encoding.klass(arch, case.cls)
-        if device_cases.classify(case, klass=klass)[0] != 'emulator': yield key, 'gpu'
+        if device_cases.classify(case, klass=klass, arch=arch)[0] != 'emulator': yield key, 'gpu'
 
 
 def select(cases, arch, sample=DEFAULT, retained=()):

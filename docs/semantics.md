@@ -43,7 +43,7 @@ Reading notes:
 - Modules: integer (`integer.py`), FP32/FP64/packed-half/packed-pair floating (`floating.py`),
   conversions FRND/I2F/F2F/F2I (`convert.py`), F2IP (`f2i.py`), F2FP except stochastic rounding
   (`f2fp_rs*`, opaque) (`f2fp.py`), control flow (`control.py`), memory and special registers
-  (`memory.py`), runtime-executed operations, UP2UR and HFMA2.MMA (`runtime.py`).
+  (`memory.py`), runtime-executed operations (`runtime.py`); UP2UR is in `integer.py`, HFMA2.MMA in `floating.py`.
 - Static answers are Python values that SLEIGH enumerates; operand values are expressions. The
   static API:
   - `i.select_fork(name)`: a selector's label, one family body per label.
@@ -497,11 +497,17 @@ Reading notes:
   provides them. BF16_V2 and SM107's mixed formats: see [SM107](#12-sm107-2026-10-14).
 - The Ghidra minimum-subnormal limitation also applies to FP16.
 
-### HFMA2.MMA constant move
-- `HFMA2.MMA Rd, -RZ, RZ, imm_hi, imm_lo` under nofmz/nosat is native (`families/runtime.py`). Hardware
+### HFMA2.MMA
+- `HFMA2.MMA Rd, -RZ, RZ, imm_hi, imm_lo` under nofmz/nosat is native (`families/floating.py`). Hardware
   shows it preserves finite bits, signed zero, infinities and denormals, while canonicalizing each NaN
   half to `0x7fff`. The transform is evaluated from the encoded immediates at decode time, so the move
-  is one COPY. Other MMA forms stay opaque.
+  is one COPY.
+- 2026-10-22: the SM90+ `hfma2_mma__RRR` and `hfma2_mma__RIR` F16 forms share the binary16
+  HFMA2 arithmetic implementation: two independent fused multiply-adds in the exact lowering,
+  unfused in the readable lowering. `.SAT` clamps each lane; `.FTZ` flushes inputs and results to
+  signed zero in the exact lowering. BF16, FMZ, predicate-output/RELU and other arithmetic source
+  forms remain opaque. The existing packed input corpus supplies regression cases; its values,
+  seeded sequence and operand pairings are unchanged.
 
 ### HMNMX2
 - Native for materialized F16_V2, BF16_V2, E8M7_V2 and E6M9_V2 operands: register, uniform, immediate

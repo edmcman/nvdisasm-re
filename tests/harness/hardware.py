@@ -1,5 +1,5 @@
 """GPU fixtures: their emulated outputs against the references (no GPU), and the references against
-the SM89 GPU."""
+the selected GPU."""
 import json
 from functools import cache
 from sass import ghidra_bridge
@@ -12,18 +12,19 @@ PASSES = ROOT / "tests/baseline/gpu_passes.json"  # {fixture: {fingerprint, devi
 
 
 def passes():
-    return json.loads(PASSES.read_text()) if PASSES.exists() else {}
+    found = json.loads(PASSES.read_text()) if PASSES.exists() else {}
+    return found if 'architectures' in found else dict(version=2, architectures={'SM89': found})
 
 
 def passed(f):
     """Whether fixture f, exactly as it is now, has passed on the GPU."""
-    return passes().get(f.name, {}).get("fingerprint") == f.fingerprint
+    return passes()["architectures"].get(Template(f.image, f.kernel).arch, {}).get(f.name, {}).get("fingerprint") == f.fingerprint
 
 
 @cache
-def fixtures(families):
+def fixtures(families, arch="SM89"):
     from tests.cases import gpu_fixtures
-    return gpu_fixtures(families)
+    return gpu_fixtures(families, arch=arch)
 
 
 def mismatches(got, want, same, excused=lambda i, g, w: False):
@@ -65,19 +66,23 @@ def hardware_problems(f, gpu):
 def emulate(fixtures, modes=MODES):
     """{(fixture name, mode): [problems]} for every fixture and each of its fp modes among `modes`."""
     selected = {mode: [f for f in fixtures if mode in f.modes] for mode in modes}
-    results = ghidra_bridge.emulate_sharded({mode: ("SM89", mode, [request(f) for f in fs]) for mode, fs in selected.items()})
-    return {(f.name, mode): emulated_problems(f, result) for mode, fs in selected.items() for f, result in zip(fs, results[mode])}
+    groups = {(arch, mode): [f for f in fs if Template(f.image, f.kernel).arch == arch]
+              for mode, fs in selected.items() for arch in {Template(f.image, f.kernel).arch for f in fs}}
+    results = ghidra_bridge.emulate_sharded({key: (*key, [request(f) for f in fs]) for key, fs in groups.items()})
+    return {(arch, f.name, mode): emulated_problems(f, result) for (arch, mode), fs in groups.items() for f, result in zip(fs, results[arch, mode])}
 
 
 def run(fixtures):
-    """{fixture name: [problems]} from running every fixture on the SM89 GPU, recording each
+    """{fixture name: [problems]} from running every fixture on their target GPU, recording each
     passing fixture's fingerprint in PASSES (and dropping failing ones) for tests/evidence.py."""
-    driver = Driver()
+    if not fixtures: return {}
+    driver = Driver(Template(fixtures[0].image, fixtures[0].kernel).arch)
     try: found = {f.name: hardware_problems(f, driver.run(f)) for f in fixtures}
     finally: driver.close()
     record = passes()
+    records = record['architectures'].setdefault(driver.arch, {})
     for f in fixtures:
-        if found[f.name]: record.pop(f.name, None)
-        else: record[f.name] = dict(fingerprint=f.fingerprint, device=driver.device)
+        if found[f.name]: records.pop(f.name, None)
+        else: records[f.name] = dict(fingerprint=f.fingerprint, device=driver.device)
     PASSES.write_text(json.dumps(record, indent=1, sort_keys=True) + "\n")
     return found

@@ -426,3 +426,49 @@ Source hashes include the target md, and shared-case signatures include architec
 old hashes may become stale after the port. The 1,462 captured inputs per MUFU operation also match on Hopper (2026-10-22);
 the fixtures run on both architectures, with independent pass records. Hardware passes are never inferred
 from successful case generation or Ghidra emulation.
+
+
+### GPU checkpoint and deferred verification (2026-10-22)
+
+The user requested stopping local validation and moving the CPU suite and Ghidra
+verification to another machine. This is a hardware checkpoint, not a completed
+verification of the port. The committed GPU pass records are partitioned by
+architecture; SM89 records were not transferred to SM90.
+
+Completed on the H100 NVL (SM90, device 0): the full legacy path plus native cubin
+smoke test passed (1,025 tests). The full shared GPU run passed (603 tests, 76
+skipped) before the final HFMA2.MMA extension. After that extension, the FP16
+hardware run passed (244 tests, 52,387 shared scenarios); the restored original
+integer SIMD corpus passed (37 tests, 458 scenarios). All 1,462 original captured
+inputs for each of the ten MUFU operations matched the SM89 observations.
+
+The focused all-architecture FP16 CPU and family-lowering run passed 621 tests and
+found one readable-reference failure. After correcting its fused versus unfused
+expectation, the SM90 readable rerun passed all 43 tests (49,051 selected cases).
+SM89 and SM90 languages built for both lowerings. The subsequent complete CPU
+suite, local Ghidra run, and evidence extraction were stopped at the user's
+request; they are not recorded as passes. Derived committed coverage artifacts
+are left at their previous committed versions and need refreshing.
+
+Known remaining Ghidra work: nine SM90 divergent thread fixtures require WARPSYNC
+synchronization support in the cooperative emulator. The earlier seven opaque
+FP16 arithmetic failures and the constant-move NaN mismatch have implementation
+fixes in this checkpoint, but their complete Ghidra verification remains pending.
+No comparison tolerance was weakened. BF16/FMZ/RELU and other unimplemented MMA
+arithmetic forms retain opaque fallback.
+
+On the other machine, configure `GHIDRA_INSTALL_DIR`, `GHIDRA_PY`, and a compatible
+JDK as described in tests/README.md, then run from this checkout:
+
+```sh
+nice uv run pytest --arch SM89,SM90 --fp all
+nice uv run sass-build-languages --jobs 4
+nice uv run pytest -m ghidra --arch SM89,SM90 --fp all --family fp16 --family threads
+nice uv run pytest -m ghidra --arch SM89,SM90 --fp all
+nice uv run sass-refresh-coverage
+```
+
+Finish language compilation before starting Ghidra tests. No GPU is needed for
+these commands. Resolve the known WARPSYNC failures before claiming a full Ghidra
+pass, review any P-code baseline changes, and commit regenerated coverage artifacts
+after validation. SM89 hardware re-verification still requires an SM89 device.

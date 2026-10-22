@@ -161,9 +161,9 @@ class Runtime:
                 tags={'global':1,'shared':2,'local':4,'shared_cluster':8}
                 matches=[tag for name,tag in tags.items()
                          if name in ranges and in_space(name)]
-                if len(matches)!=1:
+                if len(matches)!=1 and set(matches)!={2,8}:
                     raise UnsupportedSemantics('QSPC input address has no unique mapped space')
-                return matches[0]
+                return sum(matches)
             raise UnsupportedSemantics(f'QSPC output {dest}')
         if op in ('F2I','I2F','I2FP'):
             src=label('srcfmt');dst=label('dstfmt');n,bits=get('Sb','Rb','Ra','Sa')

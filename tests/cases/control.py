@@ -75,6 +75,6 @@ def branch(a, b, c):
     return a
 
 
-def gpu_fixtures():
+def gpu_fixtures(arch="SM89"):
     from tests.harness import scalar
-    return [scalar.launch("branch", branch)]
+    return [scalar.launch("branch", branch, arch=arch)]

@@ -24,12 +24,12 @@ def emulator_cases(c):
               dict(error='MUFU approximation'), hardware={'skip':'unresolved MUFU operation or precision'})
 
 
-def gpu_fixtures():
-    from tests.harness.gpu import sm89
+def gpu_fixtures(arch="SM89"):
+    from tests.harness.gpu import encode
     from tests.harness.templates import variable_latency_fixture
     inputs, outputs = mufu.samples()
     pad = -len(inputs) % 32  # whole warps: padding threads repeat the first input
-    return [variable_latency_fixture(f"mufu_{op.lower()}", sm89("mufu__RRR_RR", Rd=11, Rb=2, mufuop=op),
+    return [variable_latency_fixture(f"mufu_{op.lower()}", encode("mufu__RRR_RR", Rd=11, Rb=2, mufuop=op, arch=arch),
                                      [(x, 0, 0) for x in inputs + inputs[:1] * pad], outputs[op] + outputs[op][:1] * pad,
-                                     modes=('exact', 'readable') if op in ('SIN', 'COS') else ())
+                                     modes=('exact', 'readable') if op in ('SIN', 'COS') else (), arch=arch)
             for op in OPS]

@@ -492,3 +492,26 @@ require conservative producer/consumer scheduling: the old scheduling controls f
 compiler-selected offsets were insufficient after hoisting the predicate producer.
 Draining scoreboards with WAIT15_END_GROUP makes both ballot and inverted-ballot
 fixtures agree with their unchanged references.
+
+### Failures exposed by the first SM90 shared-case run (2026-10-22)
+
+Semantics: VIADDMNMX is absent from the SM89 md and present on SM90. Its packed
+S16x2/U16x2 B negation is lane-wise, before lane addition and min/max, not a 32-bit
+negation followed by splitting. Raw H100 probes with A=0, B=1, C=0x7fffffff and
+Pp=PT return 0x0000ffff for both packed formats, through register, bank-2 constant
+and CX sources. The corresponding U32 and S32 forms return 0x7fffffff and
+0xffffffff. The independent reference and native family now negate each lane.
+The generated input corpus is unchanged.
+
+Semantics/testing context: QSPC on H100 returns tag 0xa for a physical generic
+shared address (shared bit 0x2 plus cluster-shared bit 0x8), for G/S/L queries;
+its query predicate still identifies the requested space. SM89's corresponding
+physical probes returned 0x2. The Hopper anchors now supply overlapping shared and
+cluster-shared ranges; the reference and runtime permit this overlap and combine
+the bits, while retaining rejection of other ambiguous provenance maps.
+
+Testing/environment: nvcc 13.0.88 lowers the SM90 scalar IMNMX fixture to VIMNMX.U32
+and several HADD2/HMUL2/HFMA2 fixtures to HFMA2.MMA. The constant-move patch uses `hfma2_mma__RRI` on SM90, corresponding to
+`hfma2_mma__RRI_norelu` on SM89. Using ordinary `hfma2__RRI` during the initial port
+incorrectly changed NaN canonicalization; the patch now preserves MMA. Target-execution checks
+name the actual instruction; independent expected values are unchanged.

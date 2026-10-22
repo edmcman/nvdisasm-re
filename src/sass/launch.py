@@ -12,6 +12,14 @@ LAUNCH_LAYOUT = {**dict.fromkeys(("SM75", "SM80", "SM86", "SM89"), (0x0, 0x28, 0
 WINDOWS = dict(SWIN=(0x7f00_00000000, 1 << 24), LWIN=(0x7e00_00000000, 1 << 24))
 
 
+GLOBAL_DESCRIPTOR = {'SM89': 0x118, 'SM90': 0x208}
+
+
+def cx_layout(arch):
+    """(size-field bit, address-unit shift) for a bindless constant header."""
+    return (51, 6) if arch == 'SM90' else (45, 4)
+
+
 def window_registers():
     """The SR_*WIN* registers describing WINDOWS, for every thread."""
     return {f"SR_{w}{part}": v for w, (base, size) in WINDOWS.items()
