@@ -6,7 +6,7 @@ import json
 from collections import Counter
 from functools import cache
 from pathlib import Path
-from sass.paths import ROOT
+from sass.paths import MD, ROOT
 from tests.cases import stream
 from tests.harness import device_cases, sampling, sharded
 
@@ -47,7 +47,7 @@ def sources():
 
 @cache
 def generator():
-    paths = [*sources(), *sorted(p for p in (ROOT / 'out/SM89').rglob('*') if p.is_file())]
+    paths = [*sources(), *sorted(p for p in (MD / 'SM89').rglob('*') if p.is_file())]
     digest = hashlib.sha256()
     for path in paths:
         digest.update(str(path.relative_to(ROOT)).encode()); digest.update(path.read_bytes())

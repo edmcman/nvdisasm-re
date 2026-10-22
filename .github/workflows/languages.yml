@@ -1,7 +1,7 @@
 name: languages
 on:
   push:
-    paths: ["src/sass/**", "out/**", "processor/SASS/data/languages/**", ".github/workflows/languages.yml"]
+    paths: ["src/sass/**", "processor/SASS/data/languages/**", ".github/workflows/languages.yml"]
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

@@ -62,7 +62,7 @@ Caller-controlled input sampling (2026-10-21; mechanism in
   `tests/refs/integer.py` helpers) dropped every family's GPU evidence, FP included. It now hashes
   only the import closure of `device_cases`/`device_setup`/`device_runner` within `sass` and
   `tests` (no `sass.semantics` but `softfloat`, no `tests.cases` or `tests.harness.autocases`),
-  plus the target architecture's `out/SMxx` (`out/SM89` before the SM90 port); the signature already fixes the inputs and expectations. Records are
+  plus the target architecture's `src/sass/md/data/SMxx` (`SM89` before the SM90 port); the signature already fixes the inputs and expectations. Records are
   all-or-nothing per family, so adding cases to a family still drops its evidence until a fresh
   GPU run.
 - GPU memory harness (2026-10-18): `device_setup.memory_binding` sign-extends `Ra_offset` by the

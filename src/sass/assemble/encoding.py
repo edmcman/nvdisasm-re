@@ -21,7 +21,7 @@ def klass(arch, name):
 
 @cache
 def classes(arch):
-    return {c['cls']: c for c in parse.load_classes(parse.OUT / arch)}
+    return {c['cls']: c for c in parse.load_classes(parse.MD / arch)}
 
 
 @cache

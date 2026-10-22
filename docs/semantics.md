@@ -179,7 +179,7 @@ Reading notes:
 - Constant-bank widths come from md ISRC_<slot>_SIZE. For a `cx[][]` operand, whose md size is its
   64-bit header's, the width is the same operand's width in the class group's `c[][]` form (IMAD.HI/.WIDE's
   64-bit addend, SM89 GPU 2026-10-17). Known md errors are corrected at load (`src/sass/md/fixes.py`,
-  applied by `parse.load_classes`; `out/` keeps the md as shipped):
+  applied by `parse.load_classes`; `src/sass/md/data/` keeps the md as shipped):
   - SM75/SM80 F2F.F32/F16.F64's `c[][]` source is 64 bits, not the md's 32 (ptxas converts an `.f64`
     parameter in place, `tests/ptx/f2f/`, 2026-10-17).
   - SM75/SM80 IMAD.HI/.WIDE `c[][]` addends are 64 bits, not the md's 32 (their `cx[][]` forms and
