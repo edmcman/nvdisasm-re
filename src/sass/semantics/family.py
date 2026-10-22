@@ -202,7 +202,7 @@ REG_TYPES = {"Register": "R", "NonZeroRegister": "R", "ZeroRegister": "R",
 
 @cache
 def roles(arch_name):
-    return {r["cls"]: r for p in (parse.OUT / arch_name / "semantics").glob("*.json") for r in json.loads(p.read_text())}
+    return {r["cls"]: r for p in (parse.MD / arch_name / "semantics").glob("*.json") for r in json.loads(p.read_text())}
 
 
 def compound(k):
@@ -215,7 +215,7 @@ def compound(k):
 @cache
 def predicates(arch_name):
     """md PREDICATES per class (IDEST_SIZE, ISRC_A_SIZE, ...; bits)."""
-    return {c["cls"]: c["preds"] for c in parse.load_classes(parse.OUT / arch_name)}
+    return {c["cls"]: c["preds"] for c in parse.load_classes(parse.MD / arch_name)}
 
 
 def constant_width(arch_name, cls, name):

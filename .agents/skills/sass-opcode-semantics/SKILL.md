@@ -25,7 +25,7 @@ and reference independence.
 
 ## Establish the target and scope
 
-- Select an opcode from `out/SMxx/md/OPCODE.txt` and the parsed md. Record the
+- Select an opcode from `src/sass/md/data/SMxx/md/OPCODE.txt` and the parsed md. Record the
   architecture, every matching non-alias class, operand order and roles, widths and
   register spans, encoded fields, enum values, defaults, selector tables, predicate
   outputs, carry inputs/outputs, and which forms appear in real cubins.

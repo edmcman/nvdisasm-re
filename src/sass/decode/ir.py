@@ -203,7 +203,7 @@ class Arch:
 @cache
 def load(arch):
     """The architecture's decode IR, pickled in .cache/ir per md files and parser sources."""
-    sources = sorted((parse.OUT / arch).rglob("*")) + [Path(__file__), *sorted(Path(parse.__file__).parent.glob("*.py"))]
+    sources = sorted((parse.MD / arch).rglob("*")) + [Path(__file__), *sorted(Path(parse.__file__).parent.glob("*.py"))]
     key = hashlib.sha256(repr([(str(p), p.stat().st_size, p.stat().st_mtime_ns) for p in sources if p.is_file()]).encode()).hexdigest()[:16]
     path = CACHE / "ir" / f"{arch}-{key}.pickle"
     if path.exists(): return pickle.loads(path.read_bytes())

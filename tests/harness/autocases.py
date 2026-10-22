@@ -277,7 +277,7 @@ def scalar_cases(c, k, form, profiles):
 @cache
 def operand_sizes(arch):
     """Operand geometry comes from the machine description, including its documented fixes."""
-    return {r['cls']:r['preds'] for r in parse.load_classes(parse.OUT / arch)}
+    return {r['cls']:r['preds'] for r in parse.load_classes(parse.MD / arch)}
 
 
 def carry_cases(c, k, form, profiles):

@@ -66,7 +66,7 @@ Rough wall times and peak memory (summed PSS) on a 32-core, 93 GiB machine with 
 | Python tests, SM89 | 25 s | 10 GiB |
 | Python tests, every architecture and lowering | 3 minutes | 13 GiB (25 GiB with `--exhaustive`) |
 | language build (about 17 compilers at once) | 1.75 minutes | 27 GiB |
-| Ghidra tests, all languages | 8 minutes cold, 2.5 minutes cached (mostly building the cases) | 25 GiB |
+| Ghidra tests, all languages | 8 minutes cold, 2.5 minutes cached (mostly building the cases); 2 hours cold for `--arch all --fp all` (2.2 million selected cases, load 55-85 from two other suites, 2026-10-22) | 25 GiB |
 | GPU tests | 15 s | |
 
 Ghidra results are cached per program by the sources it imports (`ghidra_bridge.sources`), so an
@@ -454,7 +454,7 @@ evidence report at another depth, use
 instruction words, sampling percentage and algorithm version, probe-source digest, device and
 executed cubin hashes. Changing any of these invalidates its evidence. The digest covers only the
 sources that build, run and compare a probe (the import closure of `harness/device_cases.py`,
-`device_setup.py` and `device_runner.py`, plus the target architecture’s `out/SMxx`), not semantics (but softfloat), case
+`device_setup.py` and `device_runner.py`, plus the target architecture’s `src/sass/md/data/SMxx`), not semantics (but softfloat), case
 lists or references (but the `refs/bits.py`/`fpformat.py` helpers the harness imports), whose
 effect on a family is already in its signature.
 

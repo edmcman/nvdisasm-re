@@ -1,7 +1,7 @@
 """Parsers for nvdisasm machine descriptions: classes, enums (REGISTERS) and TABLES."""
 import re
 from pathlib import Path
-from sass.paths import OUT
+from sass.paths import MD
 SECTIONS = ("FORMAT_ALIAS", "FORMAT", "CONDITIONS", "PROPERTIES", "PREDICATES", "OPCODES", "ENCODING")
 SECTION = re.compile(rf"^({'|'.join(SECTIONS)})\b", re.M)
 CLASS = re.compile(r'^(ALTERNATE\s+)?CLASS\s+"([^"]+)"(.*?)(?=^(?:ALTERNATE\s+)?CLASS\s+"|\Z)', re.S | re.M)
@@ -99,7 +99,7 @@ def parse_constants(text):
     return {n: int(v, 0) for n, v in re.findall(r"^\s*(\w+)\s*=\s*(-?(?:0x[0-9a-fA-F]+|\d+))\s*$", text, re.M)}
 
 def load_arch(arch):
-    d = OUT / arch
+    d = MD / arch
     pre = preamble(d)
     return dict(arch=arch, classes=load_classes(d),
                 constants=parse_constants(between(pre, "PARAMETERS", "STRING_MAP")),
