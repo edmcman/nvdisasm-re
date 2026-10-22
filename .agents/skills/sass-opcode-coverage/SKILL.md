@@ -35,9 +35,10 @@ Read this before choosing work, because the counting rules decide what earns cre
   committed artifacts at 0%), which keeps at least one scenario per available form; a
   higher `--sample` adds inputs, not forms. See `tests/README.md` "Sampling".
 - GPU evidence (recorded per architecture) comes from `tests/baseline/gpu_case_passes.json` (shared cases,
-  recorded per family) and from passing whole-kernel fixtures' data paths
-  (`tests/baseline/gpu_passes.json`). A partial or failing family run drops that
-  family's shared-case evidence, so the whole family must pass.
+  one fingerprint per passing scenario) and from passing whole-kernel fixtures' data paths
+  (`tests/baseline/gpu_passes.json`). A run keeps unrun scenarios' passes and drops failing
+  ones; a word counts once every current GPU scenario for it has passed, so new cases need
+  only a run of their family (`--family F`).
 - The shared-case plans (`tests/cases/generated/SMxx.json`) hold one row per legal form
   that an adapter can generate. A blocked form simply has no row; the planner's report,
   committed beside each plan as `tests/cases/generated/SMxx.gaps.json`, gives the reason.
@@ -126,7 +127,7 @@ adds these steps:
   independent of `src/sass`.
 - Before step 3's Python tests, when adapters or profiles changed:
   `nice uv run python -m tests.autocases SM89 --write --report tests/cases/generated/SM89.gaps.json`.
-- At step 5 (GPU), the whole family must pass to record evidence. A reference that
+- At step 5 (GPU), a word gets evidence once every GPU scenario for it passes. A reference that
   disagrees with the GPU is wrong; never loosen `same`/`excused` to make it pass.
 - Then regenerate every plan and report the change affects (minutes each, one core per
   architecture; run them in the background, under `nice`):

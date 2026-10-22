@@ -51,11 +51,10 @@ Caller-controlled input sampling (2026-10-21; mechanism in
   `emulator_cases` using native cubins, preserving operand bits, register aliases and reference
   outputs. `tests/harness/device_cases.py` batches scalar probes and isolates faults in bounded
   subprocesses; `device_setup.py` binds memory, lanes and runtime windows. Unknown state is an
-  error, and model-only cases report explicit reasons. `device_evidence.py` fingerprints complete
-  passing families and executed cubins in `tests/baseline/gpu_case_passes.json`;
+  error, and model-only cases report explicit reasons. `device_evidence.py` records passes in
+  `tests/baseline/gpu_case_passes.json` (per scenario since 2026-10-22, below);
   `tests/evidence.py` credits the tested word directly as `cases/FAMILY`. Records never replace
-  execution and become stale when inputs, expectations, sampler or generator/reference sources
-  change. Existing whole-kernel fixtures and their evidence remain integration coverage. Sampling
+  execution. Existing whole-kernel fixtures and their evidence remain integration coverage. Sampling
   originally followed `Cases.sweep`; the percentage policy ([Sampling](#sampling)) supersedes it.
 - Probe-source digest (2026-10-17): the generator digest first hashed all of `src/sass`,
   `tests/refs` and the harness, so any semantics or reference edit (PR #30's new
@@ -64,7 +63,29 @@ Caller-controlled input sampling (2026-10-21; mechanism in
   `tests` (no `sass.semantics` but `softfloat`, no `tests.cases` or `tests.harness.autocases`),
   plus the target architecture's `src/sass/md/data/SMxx` (`SM89` before the SM90 port); the signature already fixes the inputs and expectations. Records are
   all-or-nothing per family, so adding cases to a family still drops its evidence until a fresh
-  GPU run.
+  GPU run. Both superseded on 2026-10-22 (next item).
+- Per-scenario GPU passes (2026-10-22): the closure digest still dropped every record on edits
+  that build no probe. f641f09 changed only `sleigh/gen.py`'s immediate printing and a
+  fixture-only `gpu.py` request after the H100 run, so all 14 SM90 family records were stale on
+  `origin/main` (0 `cases/` classes in the committed evidence), and an agent's `gen.py`/`lifted.py`
+  cleanup did the same to both architectures. Adding HADD2 source-modifier cases would likewise
+  have dropped all 31,837 fp16 words on SM89. A pass is now `device_evidence.fingerprint(scenario)`:
+  the scenario's probe built alone (target word, inputs, setup, scheduling, capture layout, launch
+  shape), its hardware expectation, its F16 NaN lanes (`device_cases.nan_lanes`) and a hash of the
+  comparison code, with no source digest. `record` adds the fingerprints that passed under the
+  device string and drops those that failed; scenarios without a result keep theirs. A word is
+  `gpu` evidence when every GPU scenario for it in the evidence run's selection has passed, so
+  new cases leave only their own words unverified. Store version 4 (`{architectures: {arch:
+  {device: [fingerprint]}}}`) was seeded from the v3 records valid under the old rules: all 14
+  SM89 families, and all 14 SM90 families, whose signatures and words match `origin/main`'s cases
+  and whose recorded digest is that of f641f09's parent (recomputed from its blobs). Fingerprints
+  are fewer than scenarios where several build identical probes (f2fp 4,991 for 5,471). SM89
+  evidence came out identical (566 `cases/` classes); SM90 recovered 124,530 words, from 141 GPU
+  classes (fixtures only) to 599, 595 of them `cases/`. A local int_simd GPU run afterwards
+  reproduced its migrated fingerprints byte for byte, and comments added to `gen.py`/`lifted.py`
+  left both architectures' verified words unchanged. The
+  single-case probe differs from its batched instance only in output and arena offsets; a
+  batching fault fails rather than passes.
 - GPU memory harness (2026-10-18): `device_setup.memory_binding` sign-extends `Ra_offset` by the
   operand's own width (generic `LD` has a 32-bit offset, not 24) and adds the uniform register to
   the address for every `*_uniform` LD/ST/LDG/STG/LDL/STL/LDS/STS class, not only
@@ -365,8 +386,8 @@ hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` 
   modules and no generator, and `test_ghidra_bridge` guards that. The key previously also missed
   `ghidra_decode.py`, which the emulator imports as a sibling script module. The launch layout
   (`sass.launch`: `LAUNCH_LAYOUT`, `WINDOWS`, `kernel_request`) lives outside `ghidra_bridge`
-  because the GPU pass records' generator digest covers it: in the bridge package, every
-  cache-code edit invalidated all GPU evidence.
+  because the GPU pass records' generator digest covered it: in the bridge package, every
+  cache-code edit invalidated all GPU evidence (no source digest since 2026-10-22).
 - Stale `.sla` after a coverage refresh (2026-10-21): `sass-refresh-coverage` (and
   `sass.sleigh.build --generate-only`) rewrite every `.slaspec` even when the text is unchanged,
   and `require_languages` compares modification times, so afterwards every Ghidra test fails setup
