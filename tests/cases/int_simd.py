@@ -121,12 +121,12 @@ def emulator_cases(c):
     cx_regressions(c); vabsdiff(c); minmax(c)
 
 
-def gpu_fixtures():
+def gpu_fixtures(arch="SM89"):
     from tests.harness import scalar
     from tests.harness.templates import cx_fixture
-    out = [scalar.launch(f"vabsdiff4_{f}_{r}", lambda x, y, z, f=f, r=r: vabsdiff4(x, y, z, f == "s8", "ACC" if r == "acc" else "SIMD_MRG"))
+    out = [scalar.launch(f"vabsdiff4_{f}_{r}", lambda x, y, z, f=f, r=r: vabsdiff4(x, y, z, f == "s8", "ACC" if r == "acc" else "SIMD_MRG"), arch=arch)
            for f in ("s8", "u8") for r in ("merge", "acc")]
-    out += [scalar.launch(f"idp2a_{m}_{a}{b}", lambda x, y, z, m=m, a=a, b=b: dot2(x, y, z, a == "s", b == "s", m == "hi"))
+    out += [scalar.launch(f"idp2a_{m}_{a}{b}", lambda x, y, z, m=m, a=a, b=b: dot2(x, y, z, a == "s", b == "s", m == "hi"), arch=arch)
             for m in ("lo", "hi") for a in "su" for b in "su"]
     # CX source B: every thread reads the same descriptor word; Rc aliases Ra.
     rng = random.Random(0x1D0)
@@ -134,11 +134,11 @@ def gpu_fixtures():
     vs += [(rng.getrandbits(32), rng.getrandbits(32), rng.getrandbits(32)) for _ in range(124)]
     cx = 0x80ff017f
     out += [cx_fixture(f"idp_cx_{a}_{b}", "idp_4a__CXb", dict(Rd=7, Ra=2, Rc=2, Pg=7, mode="4A", SrcAFmt=a, SrcBFmt=b),
-                       [(v[0], cx, 0) for v in vs], [dot4(v[0], cx, v[0], a == "S8", b == "S8") for v in vs])
+                       [(v[0], cx, 0) for v in vs], [dot4(v[0], cx, v[0], a == "S8", b == "S8") for v in vs], arch=arch)
             for a in ("S8", "U8") for b in ("S8", "U8")]
     edges = (0, 0xffffffff, 0x807f01ff, 0xff010080, 0x7f80ff01, 0x01020304, 0x8000007f, 0x7f000080)
     values = [edges[i % len(edges)] ^ ((i * 0x01010101) & MASK32) for i in range(128)]
     out += [cx_fixture(f"vabsdiff4_cx_{f}_{red}_{cx:x}", "vabsdiff4__RCxR_RCxR", dict(Rd=7, Pu="PT", Ra=2, Rc=2, fmt=f, red=red, Pg=7),
-                       [(a, cx, 0) for a in values], [vabsdiff4(a, cx, a, f == "S8", red) for a in values])
+                       [(a, cx, 0) for a in values], [vabsdiff4(a, cx, a, f == "S8", red) for a in values], arch=arch)
             for f in ("S8", "U8") for red in ("ACC", "SIMD_MRG") for cx in (0x807f01ff, 0xff010080, 0x7f80ff01, 0x01020304)]
     return out

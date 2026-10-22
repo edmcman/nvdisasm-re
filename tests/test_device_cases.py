@@ -165,8 +165,8 @@ def test_percentage_evidence_records_actual_run_and_rejects_legacy(tmp_path, mon
     s = scenario()
     device_evidence.record([s], {s.id: []}, 25, 'SM89 test', ['binary digest'])
     data = json.loads(device_evidence.PASSES.read_text())
-    record = data['families'][s.family]
-    assert data['version'] == 2
+    record = data['architectures']['SM89'][s.family]
+    assert data['version'] == 3
     assert record['sample'] == 25 and record['sampling_version'] == sampling.VERSION
     assert 'exhaustive' not in record
     found = device_evidence.summary([s], False)
@@ -174,7 +174,7 @@ def test_percentage_evidence_records_actual_run_and_rejects_legacy(tmp_path, mon
     legacy = {k: v for k, v in record.items() if k not in ('sample', 'sampling_version')}
     assert not device_evidence.valid(legacy, found)
     calls = []
-    def summaries(families, percent):
+    def summaries(families, percent, arch="SM89"):
         calls.append((families, percent))
         return {s.family: found}
     monkeypatch.setattr(device_evidence, 'summaries', summaries)
@@ -182,4 +182,4 @@ def test_percentage_evidence_records_actual_run_and_rejects_legacy(tmp_path, mon
     assert calls == [((s.family,), 25)]
     # A partial/failed run cannot leave the previous passing record in place.
     device_evidence.record([s], {}, 0, 'SM89 test', ['binary digest'])
-    assert s.family not in json.loads(device_evidence.PASSES.read_text())['families']
+    assert s.family not in json.loads(device_evidence.PASSES.read_text())['architectures']['SM89']

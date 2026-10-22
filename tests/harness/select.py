@@ -20,6 +20,7 @@ def skipped(metafunc, name, marker, reason=None):
 
 def option_list(config, name, universe):
     value = config.getoption(name)
+    if name == "--arch" and value is None: value = "SM89"
     return list(universe) if value == "all" else value.split(",")
 
 

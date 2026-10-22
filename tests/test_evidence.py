@@ -41,3 +41,15 @@ def test_reference_caller_controls_sampling(monkeypatch):
     assert evidence.references(('SM89',))['SM89']['mov__RI'][0] == 1
     assert evidence.references(('SM89',), sample=25)['SM89']['mov__RI'][0] == 1
     assert calls == [0, 25]
+
+
+def test_fixture_dataflow_uses_target_architecture():
+    from sass.sleigh.gen import Gen
+    from tests.harness import gpu
+    from tests.cases import gpu_fixtures
+    for arch in ('SM89', 'SM90'):
+        fixture = gpu_fixtures(('int_alu',), arch=arch)[0][1]
+        template = gpu.Template(fixture.image, fixture.kernel)
+        sliced = evidence.on_data_path(Gen(arch), template.code)
+        assert sliced
+        assert any(template.decoded(offset).klass.mnemonic == 'IADD3' for offset in sliced)

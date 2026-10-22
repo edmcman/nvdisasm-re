@@ -1,4 +1,4 @@
-"""Per-class verification evidence, derived from the tests: SM89 GPU fixtures' data paths (`gpu`),
+"""Per-class verification evidence, derived from the tests: GPU fixtures' data paths (`gpu`),
 annotated `tests/ptx` probes compiled by ptxas (`ptxas`) and emulator cases checked against
 `tests/refs` (`reference`), each with the forms it ran: the modifier combinations decoded from the
 instruction words (FADD's `ftz=FTZ rnd=RZ sat=nosat ...`; src/sass/sleigh/modifiers.py), since
@@ -81,7 +81,7 @@ def on_data_path(g, code):
     test vectors (the forward slice of the input loads, LDG) and reach the output at all (an index
     into a table, a branch on a sliced predicate). A store of a sliced value carries it through
     memory to later loads."""
-    insts = [(o, d, *expected(g, d, optimized=True)) for o, d in decoded("SM89", code)]
+    insts = [(o, d, *expected(g, d, optimized=True)) for o, d in decoded(g.arch.name, code)]
     tainted, memory, forward = set(), False, set()
     for o, d, reads, writes in insts:
         if d.klass.mnemonic == "LDG" or reads & tainted or memory and d.klass.mnemonic in LOADS:
@@ -93,18 +93,18 @@ def on_data_path(g, code):
 
 
 @cache
-def gpu():
-    """(class, settings, fixture name) for the SM89 instructions on the data path of a GPU fixture
+def gpu(arch="SM89"):
+    """(class, settings, fixture name) for the target instructions on the data path of a GPU fixture
     that passed on the GPU exactly as it is now (tests/baseline/gpu_passes.json, written by `pytest -m gpu`)."""
-    g, out = Gen("SM89"), []
-    for f in (f for _, f in gpu_fixtures() if passed(f)):
+    g, out = Gen(arch), []
+    for f in (f for _, f in gpu_fixtures(arch=arch) if passed(f)):
         code = Template(f.image, f.kernel).code
         sliced = on_data_path(g, code)
-        out += [(d.klass.name, settings("SM89", d), f.name) for o, d in decoded("SM89", code) if o in sliced]
+        out += [(d.klass.name, settings(arch, d), f.name) for o, d in decoded(arch, code) if o in sliced]
     from tests.harness import device_evidence
-    for family, word in device_evidence.verified_words():
-        d = pydecode.decode('SM89', bytes.fromhex(word))
-        out.append((d.klass.name, settings('SM89', d), 'cases/' + family))
+    for family, word in device_evidence.verified_words(arch):
+        d = pydecode.decode(arch, bytes.fromhex(word))
+        out.append((d.klass.name, settings(arch, d), 'cases/' + family))
     return out
 
 
@@ -164,7 +164,7 @@ def main():
     with ProcessPoolExecutor(min(len(a.architectures), os.cpu_count() or 1)) as pool:
         probes = list(pool.map(ptxas, a.architectures))
     for arch, rows in zip(a.architectures, probes):
-        sources = {"gpu": gpu() if arch == "SM89" else [], "ptxas": rows}
+        sources = {"gpu": gpu(arch) if arch in ("SM89", "SM90") else [], "ptxas": rows}
         update(a.output / f"sass_{arch.lower()}_evidence.json", json.dumps(evidence(sources, found[arch]), indent=1, sort_keys=True) + "\n")
 
 

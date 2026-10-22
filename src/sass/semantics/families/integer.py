@@ -455,11 +455,13 @@ def vimnmx3(i):
 
 @family('VIADDMNMX', 'UVIADDMNMX')
 def viaddmnmx(i):
-    """Per lane: Pp ? min(Ra + Rb, Rc) : max(Ra + Rb, Rc), the sum modular in the lane, optionally RELU."""
+    """Per lane: Pp ? min(Ra + Rb, Rc) : max(Ra + Rb, Rc), the sum and B negation modular in each lane, optionally RELU."""
     fmt, relu = vector_formats(i, ('S32', 'U32', 'S16x2', 'U16x2'))
     width, signed = packed(fmt)
     p = i.pred('Pp')
-    xs, ys, zs = (lanes(i.value(n), width) for n in ('Ra', 'Rb|Sb', 'Rc|Sc'))
+    xs, zs = (lanes(i.value(n), width) for n in ('Ra', 'Rc|Sc'))
+    ys = lanes(i.value('Rb|Sb', modifiers=False), width)
+    if i.operand_negated('Rb|Sb'): ys = [-y for y in ys]
     values = [pick(p, widen(x + y, signed), widen(z, signed), signed) for x, y, z in zip(xs, ys, zs)]
     return outputs(Rd=vector_result(i, fmt, relu, values))
 
@@ -555,3 +557,17 @@ def r2p(i):
     at = byte_offset(i.select_fork('a_bsel'))
     mask, old = trunc(i.value('Rb|Sb'), 7), i.value('PR')
     return outputs(PR=(extract(i.value('Ra'), at + 6, at) & mask) | (old & ~mask))
+
+
+@family("UP2UR")
+def up2ur(i):
+    """URd = URa with bit k replaced by UPk for each bit k of the immediate mask's low byte; there is
+    no UP7, so mask bit 7 clears bit 7 (as P2R, SM89 GPU)."""
+    if i.cls != "up2ur__Imm": unmodelled("register mask")
+    if i.select_fork("insert") != "B0": unmodelled("insert byte")
+    i.select_fork("UPR")   # the one-label source operand naming the uniform predicate file
+    mask = i.static_low("Sb", 7)
+    v = i.value("URa", modifiers=False) & ~zext(trunc(i.value("Sb"), 8), 32)
+    for k in range(7):
+        if mask >> k & 1: v = v | (zext(reg("UP", k, 1, element=1), 32) << k)
+    return outputs(URd=v)

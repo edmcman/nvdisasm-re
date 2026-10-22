@@ -36,6 +36,8 @@ out/SM80/semantics/FFMA.json      operand semantics for those classes
 ```
 
 Each md is split losslessly: the files together contain every line of the original.
+`sass.md.parse` reads these split files (not `out/raw/`), so decoding, generation and tests
+need only the committed `out/`.
 
 ## Re-extracting
 
@@ -44,7 +46,8 @@ uv run sass-extract-md [nvdisasm]    # -> out/raw/{md,latencies,patterns}_SMxx.t
 uv run sass-layout-md                # -> out/SMxx/...
 ```
 
-`sass-extract-md` needs `objdump`; without an argument it uses the nvdisasm located by `src/sass/paths.py`.
+The semantics JSON is written by `sass-layout-md` (`src/sass/md/layout.py`).
+`sass-extract-md` needs `objdump` and the `lz4` module; without an argument it uses the nvdisasm located by `src/sass/paths.py`.
 The offsets are specific to the CUDA 13.4 build (V13.4.92); other builds will need new
 addresses (see [`nvdisasm-binary.md`](nvdisasm-binary.md)).
 
@@ -54,8 +57,9 @@ A list with one record per instruction class:
 
 ```json
 {
-  "cls": "ffma__RCR_RCR", "opcodes": ["FFMA"], "pipes": ["fmalighter_pipe"],
+  "cls": "ffma__RCR_RCR", "alternate": false, "opcodes": ["FFMA"], "pipes": ["fmalighter_pipe"],
   "inst_type": "INST_TYPE_COUPLED_MATH",
+  "sizes": {"IDEST_SIZE": 32, "ISRC_A_SIZE": 32, ...},
   "operands": [
     {"name": "Pg", "type": "Predicate", "resource": "PRED", "role": ["read"],  "span": 1},
     {"name": "Rd", "type": "Register",  "resource": "GPR",  "role": ["write"], "span": 1},
@@ -68,11 +72,15 @@ A list with one record per instruction class:
 }
 ```
 
+- `alternate` marks ALTERNATE (assembler-only) classes; `sizes` is the class's `PREDICATES`
+  (operand sizes in bits); `pipes` are the suffixes of the class's pipe-qualified `OPCODES` aliases (`FFMAfmalighter_pipe`).
 - `role` comes from where the connector appears in the latency tables. TRUE columns and
   ANTI rows are reads; TRUE rows, OUTPUT, and ANTI columns are writes.
-- `span` is the number of consecutive registers, `ceil(SIZE/32)`. About 10% of sizes depend
-  on modifiers (LDG `.64`/`.128`, HMMA formats). For those, `span` is the size expression
-  as a string, which must be evaluated against the instruction's decoded modifiers.
+- `span` is the number of consecutive registers, `ceil(SIZE/32)`. Some sizes depend on
+  modifiers (LDG `.64`/`.128`, HMMA formats; 4-7% of spans on SM75-SM120, counted 2026-10-22). For those, `span` is the size expression
+  as a string (`ceil((EXPR)/32)`), which must be evaluated against the instruction's decoded
+  modifiers (`src/sass/md/expression.py`). `role` and `span` are `null` for operands that no
+  latency table names.
 - `implicit` lists connectors that apply to the opcode but never appear in any `FORMAT`,
   such as scoreboards.
 - Roles apply to the whole opcode set, so conditional operands aren't distinguished.

@@ -89,8 +89,10 @@ def session(ldefs,langid):
         localmem); its warps take turns, each turn stepping the live lanes at the warp's lowest PC
         together (they form the active mask; a warp collective first gathers each lane's operand,
         WARP_INPUTS), and BAR.SYNC holds a thread until every live thread of the block arrives
-        (barrier ids and thread counts are not modelled). Blocks run one after another."""
-        from sass.decode import pydecode
+        (barrier ids and thread counts are not modelled). WARPSYNC holds a lane until every live lane
+        its mask names waits at a WARPSYNC with the same mask (CUDA's __syncwarp contract; exited
+        lanes are not waited for). Blocks run one after another."""
+        from sass.decode import ir,pydecode
         kernel=request['kernel'];code=bytes.fromhex(kernel['code']);base=int(kernel.get('address',0x100000))
         count=int(kernel['threads']);block=int(kernel.get('block_size',32));outputs=[];steps=0;visited=set()
         max_steps=int(kernel.get('max_steps',10000));name=kernel.get('name');cooperative=bool(kernel.get('cooperative'))
@@ -110,7 +112,7 @@ def session(ldefs,langid):
             # inputs; hardwired RZ/PT come from the generated language.
             for reg,value in {**kernel.get('registers',{}),'SR_TID.X':lane%block,'SR_TID.Y':0,'SR_TID.Z':0,'SR_CTAID.X':lane//block,'SR_CTAID.Y':0,'SR_CTAID.Z':0}.items():
                 state.setVar(lang.getRegister(reg),jpype.JArray(jpype.JByte)(value.to_bytes(4,'little')))
-            return dict(lane=lane,thread=thread,state=state,last=base,steps=0,waiting=False,released=False)
+            return dict(lane=lane,thread=thread,state=state,last=base,steps=0,waiting=False,released=False,sync=None)
         counter=lambda t:int(t['thread'].getCounter().getOffset())
         def value(state,r):return int.from_bytes(bytes(state.getVar(r,reason)),'little')
         named={int(r.getOffset()):(n,r) for n,r in architectural};written={}
@@ -135,8 +137,27 @@ def session(ldefs,langid):
             if traced_step:
                 trace.append(dict(thread=t['lane'],pc=pc-base,text=decode(pc).text,
                                   writes={n:value(t['state'],r) for n,r in destinations(pc)} if taken else {}))
+        def sync_mask(t,d):
+            """The member mask of t's WARPSYNC; EXCLUSIVE, COLLECTIVE and constant-bank forms are not modelled."""
+            k=d.klass;labels={ir.load(arch).rev_enums[k.operand_types[n].type][d.env[n]] for n in ('ex','div','all') if n in d.env}
+            if k.name not in ('warpsync__RIR','warpsync__RRR','warpsync__RUR') or labels-{'noexclusive','nodiv__exclusive','ALL'}:
+                raise RuntimeError(f'kernel {name}: {d.text} is not modelled')
+            if 'ALL' in labels:return 0xffffffff
+            source=next(n for n in ('Ra','Rb','URb','Sb') if n in k.operand_types)
+            mask=(d.env[source] if source=='Sb' else operand(t['state'],d,source))&0xffffffff
+            if not mask>>t['lane']%32&1:raise RuntimeError(f'kernel {name} thread {t["lane"]}: {d.text} mask {mask:#x} omits the lane')
+            return mask
+        def release_warpsyncs(warp):
+            for t in warp:
+                if t['sync'] is None:continue
+                members=[u for u in warp if t['sync']>>u['lane']%32&1 and counter(u)!=0]
+                if any(u['sync'] is None for u in members):continue
+                if any(u['sync']!=t['sync'] for u in members):
+                    raise RuntimeError(f'kernel {name}: WARPSYNC masks {t["sync"]:#x} and {next(u["sync"] for u in members if u["sync"]!=t["sync"]):#x} disagree')
+                for u in members:u['waiting'],u['released'],u['sync']=False,True,None
         def turn(warp):
             """One lockstep instruction of a warp; False if none of its lanes could move."""
+            release_warpsyncs(warp)
             live=[t for t in warp if counter(t)!=0 and not t['waiting']]
             if not live:return False
             pc=min(map(counter,live));active=[t for t in live if counter(t)==pc]
@@ -148,6 +169,10 @@ def session(ldefs,langid):
             if cooperative and d.klass.name.startswith('bar__SYNC') and not all(t['released'] for t in taking):
                 for t in taking:t['waiting']=True
                 active=[t for t in active if t not in taking]
+            elif cooperative and d.klass.mnemonic=='WARPSYNC':
+                held=[t for t in taking if not t['released'] and operand(t['state'],d,'Pp')^d.env.get(('Pp','not'),0)]
+                for t in held:t['waiting'],t['sync']=True,sync_mask(t,d)
+                active=[t for t in active if t not in held]
             elif inputs:=WARP_INPUTS.get(d.klass.mnemonic) if cooperative else None:
                 key,source=inputs;values=[0]*32
                 for t in taking:values[t['lane']%32]=operand(t['state'],d,source) if source else 0
@@ -164,7 +189,7 @@ def session(ldefs,langid):
             lanes=[start(emulator,t,i==0 or not cooperative) for i,t in enumerate(group)]
             warps=[lanes[i:i+32] for i in range(0,len(lanes),32)]
             while live:=[t for t in lanes if counter(t)!=0]:
-                if all(t['waiting'] for t in live):
+                if all(t['waiting'] and t['sync'] is None for t in live):
                     for t in live:t['waiting'],t['released']=False,True
                 if not any([turn(w) for w in warps]):
                     raise RuntimeError(f'kernel {name}: no thread can proceed')

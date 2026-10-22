@@ -57,6 +57,6 @@ def shards(arch, family, forms=1000):
     return [None, *((i, n) for i in range(n))]
 
 
-def gpu_fixtures(families=FAMILIES):
-    """[(family, Fixture)] for the SM89 GPU fixtures."""
-    return [(family, f) for family in families for f in getattr(module(family), "gpu_fixtures", lambda: [])()]
+def gpu_fixtures(families=FAMILIES, arch="SM89"):
+    """[(family, Fixture)] for the target GPU fixtures."""
+    return [(family, f) for family in families for f in getattr(module(family), "gpu_fixtures", lambda **kw: [])(arch=arch)]

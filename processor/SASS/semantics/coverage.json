@@ -30563,23 +30563,23 @@
       "frnd__f16_URb": "F16",
       "frnd__f64_C": "32-bit source for F64",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "operand form",
-      "hfma2_mma__RCR_relu": "operand form",
-      "hfma2_mma__RCxR_norelu": "operand form",
-      "hfma2_mma__RCxR_relu": "operand form",
-      "hfma2_mma__RIR_norelu": "operand form",
-      "hfma2_mma__RIR_relu": "operand form",
-      "hfma2_mma__RRC_norelu": "operand form",
-      "hfma2_mma__RRC_relu": "operand form",
-      "hfma2_mma__RRCx_norelu": "operand form",
-      "hfma2_mma__RRCx_relu": "operand form",
-      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
-      "hfma2_mma__RRR_norelu": "operand form",
-      "hfma2_mma__RRR_relu": "operand form",
-      "hfma2_mma__RRU_norelu": "operand form",
-      "hfma2_mma__RRU_relu": "operand form",
-      "hfma2_mma__RUR_norelu": "operand form",
-      "hfma2_mma__RUR_relu": "operand form",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "FMZ; FTZ; INVALID3; RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
       "hfma2_relu__RCR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RCxR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RIR": "FMZ; FTZ; INVALID3; RELU; ofmt",
@@ -31929,6 +31929,7 @@
         "reference": 433
       },
       "HFMA2.MMA": {
+        "none": 2,
         "reference": 1
       },
       "HMNMX2": {
@@ -32309,8 +32310,8 @@
         "opaque": 111456
       },
       "HFMA2.MMA": {
-        "opaque": 5759,
-        "partially native": 1
+        "opaque": 5757,
+        "partially native": 3
       },
       "HMMA": {
         "opaque": 192
@@ -32689,23 +32690,23 @@
       "frnd__f16_URb": "F16",
       "frnd__f64_C": "32-bit source for F64",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "operand form",
-      "hfma2_mma__RCR_relu": "operand form",
-      "hfma2_mma__RCxR_norelu": "operand form",
-      "hfma2_mma__RCxR_relu": "operand form",
-      "hfma2_mma__RIR_norelu": "operand form",
-      "hfma2_mma__RIR_relu": "operand form",
-      "hfma2_mma__RRC_norelu": "operand form",
-      "hfma2_mma__RRC_relu": "operand form",
-      "hfma2_mma__RRCx_norelu": "operand form",
-      "hfma2_mma__RRCx_relu": "operand form",
-      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
-      "hfma2_mma__RRR_norelu": "operand form",
-      "hfma2_mma__RRR_relu": "operand form",
-      "hfma2_mma__RRU_norelu": "operand form",
-      "hfma2_mma__RRU_relu": "operand form",
-      "hfma2_mma__RUR_norelu": "operand form",
-      "hfma2_mma__RUR_relu": "operand form",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
       "hfma2_relu__RCR": "RELU; ofmt",
       "hfma2_relu__RCxR": "RELU; ofmt",
       "hfma2_relu__RIR": "RELU; ofmt",
@@ -34857,23 +34858,23 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "operand form",
-      "hfma2_mma__RCR_relu": "operand form",
-      "hfma2_mma__RCxR_norelu": "operand form",
-      "hfma2_mma__RCxR_relu": "operand form",
-      "hfma2_mma__RIR_norelu": "operand form",
-      "hfma2_mma__RIR_relu": "operand form",
-      "hfma2_mma__RRC_norelu": "operand form",
-      "hfma2_mma__RRC_relu": "operand form",
-      "hfma2_mma__RRCx_norelu": "operand form",
-      "hfma2_mma__RRCx_relu": "operand form",
-      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
-      "hfma2_mma__RRR_norelu": "operand form",
-      "hfma2_mma__RRR_relu": "operand form",
-      "hfma2_mma__RRU_norelu": "operand form",
-      "hfma2_mma__RRU_relu": "operand form",
-      "hfma2_mma__RUR_norelu": "operand form",
-      "hfma2_mma__RUR_relu": "operand form",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "FMZ; FTZ; INVALID3; RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
       "hfma2_relu__RCR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RCxR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RIR": "FMZ; FTZ; INVALID3; RELU; ofmt",
@@ -36272,6 +36273,7 @@
         "reference": 433
       },
       "HFMA2.MMA": {
+        "none": 2,
         "reference": 1
       },
       "HMNMX2": {
@@ -36661,8 +36663,8 @@
         "opaque": 222048
       },
       "HFMA2.MMA": {
-        "opaque": 5759,
-        "partially native": 1
+        "opaque": 5757,
+        "partially native": 3
       },
       "HMMA": {
         "opaque": 480
@@ -37071,23 +37073,23 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "operand form",
-      "hfma2_mma__RCR_relu": "operand form",
-      "hfma2_mma__RCxR_norelu": "operand form",
-      "hfma2_mma__RCxR_relu": "operand form",
-      "hfma2_mma__RIR_norelu": "operand form",
-      "hfma2_mma__RIR_relu": "operand form",
-      "hfma2_mma__RRC_norelu": "operand form",
-      "hfma2_mma__RRC_relu": "operand form",
-      "hfma2_mma__RRCx_norelu": "operand form",
-      "hfma2_mma__RRCx_relu": "operand form",
-      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
-      "hfma2_mma__RRR_norelu": "operand form",
-      "hfma2_mma__RRR_relu": "operand form",
-      "hfma2_mma__RRU_norelu": "operand form",
-      "hfma2_mma__RRU_relu": "operand form",
-      "hfma2_mma__RUR_norelu": "operand form",
-      "hfma2_mma__RUR_relu": "operand form",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
       "hfma2_relu__RCR": "RELU; ofmt",
       "hfma2_relu__RCxR": "RELU; ofmt",
       "hfma2_relu__RIR": "RELU; ofmt",
@@ -39304,23 +39306,23 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "operand form",
-      "hfma2_mma__RCR_relu": "operand form",
-      "hfma2_mma__RCxR_norelu": "operand form",
-      "hfma2_mma__RCxR_relu": "operand form",
-      "hfma2_mma__RIR_norelu": "operand form",
-      "hfma2_mma__RIR_relu": "operand form",
-      "hfma2_mma__RRC_norelu": "operand form",
-      "hfma2_mma__RRC_relu": "operand form",
-      "hfma2_mma__RRCx_norelu": "operand form",
-      "hfma2_mma__RRCx_relu": "operand form",
-      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
-      "hfma2_mma__RRR_norelu": "operand form",
-      "hfma2_mma__RRR_relu": "operand form",
-      "hfma2_mma__RRU_norelu": "operand form",
-      "hfma2_mma__RRU_relu": "operand form",
-      "hfma2_mma__RUR_norelu": "operand form",
-      "hfma2_mma__RUR_relu": "operand form",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "FMZ; FTZ; INVALID3; RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
       "hfma2_relu__RCR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RCxR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RIR": "FMZ; FTZ; INVALID3; RELU; ofmt",
@@ -40750,7 +40752,8 @@
         "reference": 1
       },
       "HFMA2.MMA": {
-        "gpu": 1
+        "gpu": 1,
+        "none": 2
       },
       "HMNMX2": {
         "gpu": 648,
@@ -41152,8 +41155,8 @@
         "opaque": 222048
       },
       "HFMA2.MMA": {
-        "opaque": 5759,
-        "partially native": 1
+        "opaque": 5757,
+        "partially native": 3
       },
       "HMMA": {
         "opaque": 480
@@ -41567,23 +41570,23 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "operand form",
-      "hfma2_mma__RCR_relu": "operand form",
-      "hfma2_mma__RCxR_norelu": "operand form",
-      "hfma2_mma__RCxR_relu": "operand form",
-      "hfma2_mma__RIR_norelu": "operand form",
-      "hfma2_mma__RIR_relu": "operand form",
-      "hfma2_mma__RRC_norelu": "operand form",
-      "hfma2_mma__RRC_relu": "operand form",
-      "hfma2_mma__RRCx_norelu": "operand form",
-      "hfma2_mma__RRCx_relu": "operand form",
-      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
-      "hfma2_mma__RRR_norelu": "operand form",
-      "hfma2_mma__RRR_relu": "operand form",
-      "hfma2_mma__RRU_norelu": "operand form",
-      "hfma2_mma__RRU_relu": "operand form",
-      "hfma2_mma__RUR_norelu": "operand form",
-      "hfma2_mma__RUR_relu": "operand form",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
       "hfma2_relu__RCR": "RELU; ofmt",
       "hfma2_relu__RCxR": "RELU; ofmt",
       "hfma2_relu__RIR": "RELU; ofmt",
@@ -42915,16 +42918,19 @@
         "reference": 15
       },
       "BMSK": {
-        "reference": 10
+        "gpu": 4,
+        "reference": 6
       },
       "BRA": {
-        "reference": 12
+        "gpu": 1,
+        "reference": 11
       },
       "BREAK": {
         "reference": 2
       },
       "BREV": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "BSSY": {
         "reference": 2
@@ -42936,19 +42942,24 @@
         "reference": 10
       },
       "CS2R": {
-        "reference": 2
+        "gpu": 1,
+        "reference": 1
       },
       "DADD": {
-        "reference": 272
+        "gpu": 4,
+        "reference": 268
       },
       "DFMA": {
-        "reference": 1920
+        "gpu": 4,
+        "reference": 1916
       },
       "DMUL": {
-        "reference": 272
+        "gpu": 4,
+        "reference": 268
       },
       "DSETP": {
-        "reference": 6528
+        "gpu": 1,
+        "reference": 6527
       },
       "ELECT": {
         "reference": 2
@@ -42957,170 +42968,216 @@
         "reference": 4
       },
       "F2F": {
-        "reference": 536
+        "gpu": 7,
+        "reference": 529
       },
       "F2FP": {
-        "none": 284,
-        "reference": 616
+        "gpu": 97,
+        "none": 282,
+        "reference": 521
       },
       "F2I": {
+        "gpu": 32,
         "none": 8768,
-        "reference": 4032
+        "reference": 4000
       },
       "F2IP": {
-        "reference": 18
+        "gpu": 3,
+        "reference": 15
       },
       "FADD": {
-        "reference": 1088
+        "gpu": 5,
+        "reference": 1083
       },
       "FCHK": {
-        "reference": 68
+        "gpu": 4,
+        "reference": 64
       },
       "FFMA": {
-        "reference": 11520
+        "gpu": 5,
+        "reference": 11515
       },
       "FLO": {
+        "gpu": 4,
         "none": 20,
-        "reference": 16
+        "reference": 12
       },
       "FMNMX": {
-        "reference": 1088
+        "gpu": 9,
+        "reference": 1079
       },
       "FMUL": {
-        "reference": 11424
+        "gpu": 4,
+        "reference": 11420
       },
       "FRND": {
-        "reference": 240
+        "gpu": 9,
+        "reference": 231
       },
       "FSEL": {
-        "reference": 272
+        "gpu": 1,
+        "reference": 271
       },
       "FSET": {
-        "reference": 13056
+        "gpu": 20,
+        "reference": 13036
       },
       "FSETP": {
-        "reference": 13056
+        "gpu": 1,
+        "reference": 13055
       },
       "HADD2": {
-        "none": 1519,
-        "reference": 245
+        "gpu": 49,
+        "none": 1518,
+        "reference": 197
       },
       "HFMA2": {
-        "none": 24336,
+        "gpu": 1,
+        "none": 24335,
         "reference": 432
       },
       "HFMA2.MMA": {
-        "none": 1
+        "gpu": 8,
+        "none": 307,
+        "reference": 6
       },
       "HMNMX2": {
-        "none": 17214,
-        "reference": 642
+        "gpu": 51,
+        "none": 17198,
+        "reference": 607
       },
       "HMUL2": {
-        "none": 3819,
-        "reference": 297
+        "gpu": 2,
+        "none": 3818,
+        "reference": 296
       },
       "HSET2": {
-        "none": 316212,
-        "reference": 22476
+        "gpu": 23,
+        "none": 316211,
+        "reference": 22454
       },
       "HSETP2": {
-        "none": 316212,
-        "reference": 22476
+        "gpu": 25,
+        "none": 316211,
+        "reference": 22452
       },
       "I2F": {
+        "gpu": 23,
         "none": 296,
-        "reference": 792
+        "reference": 769
       },
       "I2FP": {
-        "reference": 20
+        "gpu": 1,
+        "reference": 19
       },
       "I2IP": {
-        "reference": 150
+        "gpu": 31,
+        "reference": 119
       },
       "IABS": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "IADD3": {
-        "reference": 140
+        "gpu": 16,
+        "reference": 124
       },
       "IDP": {
-        "reference": 96
+        "gpu": 12,
+        "reference": 84
       },
       "IMAD": {
-        "none": 18,
-        "reference": 302
+        "gpu": 25,
+        "none": 15,
+        "reference": 280
       },
       "IMNMX": {
         "reference": 20
       },
       "ISETP": {
-        "reference": 1440
+        "gpu": 7,
+        "reference": 1433
       },
       "LD": {
+        "gpu": 3,
         "none": 6838,
-        "reference": 2402
+        "reference": 2399
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "gpu": 2,
+        "none": 1,
+        "reference": 9
       },
       "LDG": {
-        "none": 14770,
-        "reference": 14
+        "gpu": 4,
+        "none": 14767,
+        "reference": 13
       },
       "LDL": {
+        "gpu": 1,
         "none": 46,
-        "reference": 122
+        "reference": 121
       },
       "LDS": {
+        "gpu": 2,
         "none": 16,
-        "reference": 47
+        "reference": 45
       },
       "LEA": {
-        "reference": 132
+        "gpu": 18,
+        "reference": 114
       },
       "LOP3": {
-        "reference": 20
+        "gpu": 4,
+        "reference": 16
       },
       "MATCH": {
-        "reference": 4
+        "gpu": 3,
+        "reference": 1
       },
       "MOV": {
-        "none": 2,
-        "reference": 3
+        "gpu": 3,
+        "none": 1,
+        "reference": 1
       },
       "MUFU": {
-        "none": 662,
-        "reference": 36
+        "gpu": 10,
+        "none": 655,
+        "reference": 33
       },
       "NOP": {
         "reference": 1
       },
       "P2R": {
-        "reference": 20
+        "gpu": 14,
+        "reference": 6
       },
       "PLOP3": {
-        "reference": 16
+        "gpu": 4,
+        "reference": 12
       },
       "POPC": {
-        "reference": 9
+        "gpu": 1,
+        "reference": 8
       },
       "PRMT": {
-        "reference": 63
+        "gpu": 1,
+        "reference": 62
       },
       "QSPC": {
         "none": 6,
         "reference": 22
       },
       "R2P": {
-        "reference": 20
+        "gpu": 14,
+        "reference": 6
       },
       "R2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "REDUX": {
-        "reference": 12
+        "gpu": 8,
+        "reference": 4
       },
       "RET": {
         "reference": 8
@@ -43132,32 +43189,39 @@
         "reference": 1
       },
       "SEL": {
-        "reference": 10
+        "gpu": 2,
+        "reference": 8
       },
       "SGXT": {
         "reference": 20
       },
       "SHF": {
-        "reference": 288
+        "gpu": 3,
+        "reference": 285
       },
       "SHFL": {
-        "reference": 16
+        "gpu": 5,
+        "reference": 11
       },
       "ST": {
+        "gpu": 2,
         "none": 3210,
-        "reference": 1200
+        "reference": 1198
       },
       "STG": {
-        "none": 5136,
-        "reference": 1920
+        "gpu": 2,
+        "none": 5135,
+        "reference": 1919
       },
       "STL": {
-        "none": 48,
+        "gpu": 1,
+        "none": 47,
         "reference": 120
       },
       "STS": {
+        "gpu": 1,
         "none": 18,
-        "reference": 45
+        "reference": 44
       },
       "UBREV": {
         "reference": 2
@@ -43175,22 +43239,25 @@
         "reference": 54
       },
       "UISETP": {
-        "reference": 576
+        "gpu": 2,
+        "reference": 574
       },
       "ULDC": {
-        "reference": 6
+        "gpu": 2,
+        "reference": 4
       },
       "ULEA": {
         "reference": 51
       },
       "ULOP3": {
-        "reference": 8
+        "gpu": 1,
+        "reference": 7
       },
       "UMOV": {
-        "reference": 2
+        "gpu": 2
       },
       "UP2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "UPLOP3": {
         "reference": 8
@@ -43208,11 +43275,13 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "gpu": 2,
+        "reference": 94
       },
       "VABSDIFF4": {
-        "none": 7,
-        "reference": 29
+        "gpu": 8,
+        "none": 4,
+        "reference": 24
       },
       "VIADD": {
         "reference": 9
@@ -43221,16 +43290,19 @@
         "reference": 204
       },
       "VIMNMX": {
-        "reference": 60
+        "gpu": 1,
+        "reference": 59
       },
       "VIMNMX3": {
         "reference": 60
       },
       "VOTE": {
-        "reference": 6
+        "gpu": 5,
+        "reference": 1
       },
       "VOTEU": {
-        "reference": 6
+        "gpu": 2,
+        "reference": 4
       },
       "WARPSYNC": {
         "reference": 10
@@ -43432,7 +43504,8 @@
         "opaque": 436224
       },
       "HFMA2.MMA": {
-        "opaque": 7199,
+        "native": 320,
+        "opaque": 6879,
         "partially native": 1
       },
       "HGMMA": {
@@ -43901,8 +43974,9 @@
       }
     },
     "evidence": {
-      "none": 46,
-      "reference": 664
+      "gpu": 141,
+      "none": 42,
+      "reference": 529
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -43925,23 +43999,21 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR": "operand form",
-      "hfma2_mma__RCxR": "operand form",
-      "hfma2_mma__RIR": "operand form",
-      "hfma2_mma__RRC": "operand form",
-      "hfma2_mma__RRCx": "operand form",
-      "hfma2_mma__RRR": "operand form",
-      "hfma2_mma__RRU": "operand form",
-      "hfma2_mma__RUR": "operand form",
-      "hfma2_mma_relu__RCR": "operand form",
-      "hfma2_mma_relu__RCxR": "operand form",
-      "hfma2_mma_relu__RIR": "operand form",
-      "hfma2_mma_relu__RRC": "operand form",
-      "hfma2_mma_relu__RRCx": "operand form",
-      "hfma2_mma_relu__RRI": "fmz other than nofmz_hfma2; not the -RZ, RZ constant move; ofmt other than F16_V2; satrelu not modelled",
-      "hfma2_mma_relu__RRR": "operand form",
-      "hfma2_mma_relu__RRU": "operand form",
-      "hfma2_mma_relu__RUR": "operand form",
+      "hfma2_mma__RCR": "MMA format; MMA operand form",
+      "hfma2_mma__RCxR": "MMA format; MMA operand form",
+      "hfma2_mma__RRC": "MMA format; MMA operand form",
+      "hfma2_mma__RRCx": "MMA format; MMA operand form",
+      "hfma2_mma__RRU": "MMA format; MMA operand form",
+      "hfma2_mma__RUR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RCR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RCxR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RIR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRC": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRCx": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRI": "FMZ; FTZ; INVALID3; MMA format; RELU",
+      "hfma2_mma_relu__RRR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRU": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RUR": "MMA format; MMA operand form",
       "hfma2_relu__RCR": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RCxR": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
@@ -43993,16 +44065,19 @@
         "reference": 14
       },
       "BMSK": {
-        "reference": 5
+        "gpu": 2,
+        "reference": 3
       },
       "BRA": {
-        "reference": 3
+        "gpu": 1,
+        "reference": 2
       },
       "BREAK": {
         "reference": 1
       },
       "BREV": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "BSSY": {
         "reference": 1
@@ -44014,19 +44089,23 @@
         "reference": 5
       },
       "CS2R": {
-        "reference": 1
+        "gpu": 1
       },
       "DADD": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "DFMA": {
-        "reference": 9
+        "gpu": 1,
+        "reference": 8
       },
       "DMUL": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "DSETP": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "ELECT": {
         "reference": 1
@@ -44035,159 +44114,198 @@
         "reference": 1
       },
       "F2F": {
-        "reference": 25
+        "gpu": 3,
+        "reference": 22
       },
       "F2FP": {
+        "gpu": 7,
         "none": 14,
-        "reference": 28
+        "reference": 21
       },
       "F2I": {
+        "gpu": 6,
         "none": 12,
-        "reference": 28
+        "reference": 22
       },
       "F2IP": {
-        "reference": 9
+        "gpu": 2,
+        "reference": 7
       },
       "FADD": {
-        "reference": 5
-      },
-      "FCHK": {
-        "reference": 5
-      },
-      "FFMA": {
-        "reference": 9
-      },
-      "FLO": {
-        "none": 1,
+        "gpu": 1,
         "reference": 4
       },
-      "FMNMX": {
-        "reference": 5
+      "FCHK": {
+        "gpu": 1,
+        "reference": 4
       },
-      "FMUL": {
-        "reference": 5
-      },
-      "FRND": {
-        "reference": 9
-      },
-      "FSEL": {
-        "reference": 5
-      },
-      "FSET": {
-        "reference": 5
-      },
-      "FSETP": {
-        "reference": 5
-      },
-      "HADD2": {
-        "reference": 10
-      },
-      "HFMA2": {
-        "reference": 9
-      },
-      "HFMA2.MMA": {
-        "none": 1
-      },
-      "HMNMX2": {
-        "reference": 10
-      },
-      "HMUL2": {
-        "reference": 5
-      },
-      "HSET2": {
-        "reference": 5
-      },
-      "HSETP2": {
-        "reference": 5
-      },
-      "I2F": {
-        "none": 2,
-        "reference": 38
-      },
-      "I2FP": {
-        "reference": 6
-      },
-      "I2IP": {
-        "reference": 15
-      },
-      "IABS": {
-        "reference": 5
-      },
-      "IADD3": {
-        "reference": 10
-      },
-      "IDP": {
+      "FFMA": {
+        "gpu": 1,
         "reference": 8
       },
+      "FLO": {
+        "gpu": 1,
+        "none": 1,
+        "reference": 3
+      },
+      "FMNMX": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "FMUL": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "FRND": {
+        "gpu": 2,
+        "reference": 7
+      },
+      "FSEL": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "FSET": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "FSETP": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "HADD2": {
+        "gpu": 2,
+        "reference": 8
+      },
+      "HFMA2": {
+        "gpu": 1,
+        "reference": 8
+      },
+      "HFMA2.MMA": {
+        "gpu": 3
+      },
+      "HMNMX2": {
+        "gpu": 3,
+        "reference": 7
+      },
+      "HMUL2": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "HSET2": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "HSETP2": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "I2F": {
+        "gpu": 6,
+        "none": 2,
+        "reference": 32
+      },
+      "I2FP": {
+        "gpu": 1,
+        "reference": 5
+      },
+      "I2IP": {
+        "gpu": 4,
+        "reference": 11
+      },
+      "IABS": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "IADD3": {
+        "gpu": 3,
+        "reference": 7
+      },
+      "IDP": {
+        "gpu": 2,
+        "reference": 6
+      },
       "IMAD": {
-        "none": 5,
-        "reference": 50
+        "gpu": 13,
+        "none": 3,
+        "reference": 39
       },
       "IMNMX": {
         "reference": 5
       },
       "ISETP": {
-        "reference": 10
+        "gpu": 3,
+        "reference": 7
       },
       "LD": {
-        "reference": 5
-      },
-      "LDC": {
-        "reference": 2
-      },
-      "LDG": {
-        "none": 2,
-        "reference": 3
-      },
-      "LDL": {
+        "gpu": 1,
         "reference": 4
       },
-      "LDS": {
-        "reference": 3
+      "LDC": {
+        "gpu": 2
       },
-      "LEA": {
-        "reference": 32
-      },
-      "LOP3": {
-        "reference": 5
-      },
-      "MATCH": {
+      "LDG": {
+        "gpu": 1,
+        "none": 2,
         "reference": 2
       },
-      "MOV": {
-        "none": 2,
+      "LDL": {
+        "gpu": 1,
         "reference": 3
       },
+      "LDS": {
+        "gpu": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "gpu": 6,
+        "reference": 26
+      },
+      "LOP3": {
+        "gpu": 3,
+        "reference": 2
+      },
+      "MATCH": {
+        "gpu": 2
+      },
+      "MOV": {
+        "gpu": 3,
+        "none": 1,
+        "reference": 1
+      },
       "MUFU": {
+        "gpu": 1,
         "none": 4,
-        "reference": 6
+        "reference": 5
       },
       "NOP": {
         "reference": 1
       },
       "P2R": {
-        "reference": 5
+        "gpu": 5
       },
       "PLOP3": {
-        "reference": 2
+        "gpu": 1,
+        "reference": 1
       },
       "POPC": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "PRMT": {
-        "reference": 9
+        "gpu": 1,
+        "reference": 8
       },
       "QSPC": {
         "reference": 4
       },
       "R2P": {
-        "reference": 5
+        "gpu": 5
       },
       "R2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "REDUX": {
-        "reference": 1
+        "gpu": 1
       },
       "RET": {
         "reference": 4
@@ -44199,28 +44317,35 @@
         "reference": 1
       },
       "SEL": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "SGXT": {
         "reference": 5
       },
       "SHF": {
-        "reference": 9
+        "gpu": 2,
+        "reference": 7
       },
       "SHFL": {
-        "reference": 4
+        "gpu": 2,
+        "reference": 2
       },
       "ST": {
-        "reference": 5
-      },
-      "STG": {
-        "reference": 5
-      },
-      "STL": {
+        "gpu": 1,
         "reference": 4
       },
-      "STS": {
+      "STG": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "STL": {
+        "gpu": 1,
         "reference": 3
+      },
+      "STS": {
+        "gpu": 1,
+        "reference": 2
       },
       "UBREV": {
         "reference": 2
@@ -44238,22 +44363,24 @@
         "reference": 10
       },
       "UISETP": {
-        "reference": 4
+        "gpu": 1,
+        "reference": 3
       },
       "ULDC": {
-        "reference": 1
+        "gpu": 1
       },
       "ULEA": {
         "reference": 14
       },
       "ULOP3": {
-        "reference": 2
+        "gpu": 1,
+        "reference": 1
       },
       "UMOV": {
-        "reference": 2
+        "gpu": 2
       },
       "UP2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "UPLOP3": {
         "reference": 1
@@ -44271,11 +44398,13 @@
         "reference": 2
       },
       "USHF": {
-        "reference": 3
+        "gpu": 1,
+        "reference": 2
       },
       "VABSDIFF4": {
+        "gpu": 2,
         "none": 1,
-        "reference": 8
+        "reference": 6
       },
       "VIADD": {
         "reference": 5
@@ -44284,16 +44413,17 @@
         "reference": 9
       },
       "VIMNMX": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "VIMNMX3": {
         "reference": 5
       },
       "VOTE": {
-        "reference": 1
+        "gpu": 1
       },
       "VOTEU": {
-        "reference": 1
+        "gpu": 1
       },
       "WARPSYNC": {
         "reference": 4
@@ -44492,8 +44622,8 @@
         "partially native": 9
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "opaque": 15,
+        "partially native": 3
       },
       "HGMMA": {
         "opaque": 6
@@ -45072,8 +45202,8 @@
         "partially native": 9
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "opaque": 15,
+        "partially native": 3
       },
       "HMNMX2": {
         "native": 1,
@@ -45353,8 +45483,8 @@
     },
     "status": {
       "native": 499,
-      "opaque": 463,
-      "partially native": 136,
+      "opaque": 461,
+      "partially native": 138,
       "partially primitive": 5,
       "primitive": 70
     }
@@ -45370,16 +45500,19 @@
         "reference": 15
       },
       "BMSK": {
-        "reference": 10
+        "gpu": 4,
+        "reference": 6
       },
       "BRA": {
-        "reference": 12
+        "gpu": 1,
+        "reference": 11
       },
       "BREAK": {
         "reference": 2
       },
       "BREV": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "BSSY": {
         "reference": 2
@@ -45391,19 +45524,24 @@
         "reference": 10
       },
       "CS2R": {
-        "reference": 2
+        "gpu": 1,
+        "reference": 1
       },
       "DADD": {
-        "reference": 272
+        "gpu": 4,
+        "reference": 268
       },
       "DFMA": {
-        "reference": 1920
+        "gpu": 4,
+        "reference": 1916
       },
       "DMUL": {
-        "reference": 272
+        "gpu": 4,
+        "reference": 268
       },
       "DSETP": {
-        "reference": 6528
+        "gpu": 1,
+        "reference": 6527
       },
       "ELECT": {
         "reference": 2
@@ -45412,170 +45550,216 @@
         "reference": 4
       },
       "F2F": {
-        "reference": 536
+        "gpu": 7,
+        "reference": 529
       },
       "F2FP": {
-        "none": 284,
-        "reference": 616
+        "gpu": 97,
+        "none": 282,
+        "reference": 521
       },
       "F2I": {
+        "gpu": 32,
         "none": 8768,
-        "reference": 4032
+        "reference": 4000
       },
       "F2IP": {
-        "reference": 18
+        "gpu": 3,
+        "reference": 15
       },
       "FADD": {
-        "reference": 1088
+        "gpu": 5,
+        "reference": 1083
       },
       "FCHK": {
-        "reference": 68
+        "gpu": 4,
+        "reference": 64
       },
       "FFMA": {
-        "reference": 11520
+        "gpu": 5,
+        "reference": 11515
       },
       "FLO": {
+        "gpu": 4,
         "none": 20,
-        "reference": 16
+        "reference": 12
       },
       "FMNMX": {
-        "reference": 1088
+        "gpu": 9,
+        "reference": 1079
       },
       "FMUL": {
-        "reference": 11424
+        "gpu": 4,
+        "reference": 11420
       },
       "FRND": {
-        "reference": 240
+        "gpu": 9,
+        "reference": 231
       },
       "FSEL": {
-        "reference": 272
+        "gpu": 1,
+        "reference": 271
       },
       "FSET": {
-        "reference": 13056
+        "gpu": 20,
+        "reference": 13036
       },
       "FSETP": {
-        "reference": 13056
+        "gpu": 1,
+        "reference": 13055
       },
       "HADD2": {
-        "none": 2694,
-        "reference": 246
+        "gpu": 49,
+        "none": 2693,
+        "reference": 198
       },
       "HFMA2": {
-        "none": 98639,
+        "gpu": 1,
+        "none": 98638,
         "reference": 433
       },
       "HFMA2.MMA": {
-        "none": 1
+        "gpu": 8,
+        "none": 309,
+        "reference": 6
       },
       "HMNMX2": {
-        "none": 17214,
-        "reference": 642
+        "gpu": 51,
+        "none": 17198,
+        "reference": 607
       },
       "HMUL2": {
-        "none": 3819,
-        "reference": 297
+        "gpu": 2,
+        "none": 3818,
+        "reference": 296
       },
       "HSET2": {
-        "none": 316212,
-        "reference": 22476
+        "gpu": 23,
+        "none": 316211,
+        "reference": 22454
       },
       "HSETP2": {
-        "none": 316212,
-        "reference": 22476
+        "gpu": 25,
+        "none": 316211,
+        "reference": 22452
       },
       "I2F": {
+        "gpu": 23,
         "none": 296,
-        "reference": 792
+        "reference": 769
       },
       "I2FP": {
-        "reference": 20
+        "gpu": 1,
+        "reference": 19
       },
       "I2IP": {
-        "reference": 150
+        "gpu": 31,
+        "reference": 119
       },
       "IABS": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "IADD3": {
-        "reference": 140
+        "gpu": 16,
+        "reference": 124
       },
       "IDP": {
-        "reference": 96
+        "gpu": 12,
+        "reference": 84
       },
       "IMAD": {
-        "none": 18,
-        "reference": 302
+        "gpu": 25,
+        "none": 15,
+        "reference": 280
       },
       "IMNMX": {
         "reference": 20
       },
       "ISETP": {
-        "reference": 1440
+        "gpu": 7,
+        "reference": 1433
       },
       "LD": {
+        "gpu": 3,
         "none": 6838,
-        "reference": 2402
+        "reference": 2399
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "gpu": 2,
+        "none": 1,
+        "reference": 9
       },
       "LDG": {
-        "none": 14770,
-        "reference": 14
+        "gpu": 4,
+        "none": 14767,
+        "reference": 13
       },
       "LDL": {
+        "gpu": 1,
         "none": 46,
-        "reference": 122
+        "reference": 121
       },
       "LDS": {
+        "gpu": 2,
         "none": 16,
-        "reference": 47
+        "reference": 45
       },
       "LEA": {
-        "reference": 132
+        "gpu": 18,
+        "reference": 114
       },
       "LOP3": {
-        "reference": 20
+        "gpu": 4,
+        "reference": 16
       },
       "MATCH": {
-        "reference": 4
+        "gpu": 3,
+        "reference": 1
       },
       "MOV": {
-        "none": 2,
-        "reference": 3
+        "gpu": 3,
+        "none": 1,
+        "reference": 1
       },
       "MUFU": {
-        "none": 662,
-        "reference": 36
+        "gpu": 10,
+        "none": 655,
+        "reference": 33
       },
       "NOP": {
         "reference": 1
       },
       "P2R": {
-        "reference": 20
+        "gpu": 14,
+        "reference": 6
       },
       "PLOP3": {
-        "reference": 16
+        "gpu": 4,
+        "reference": 12
       },
       "POPC": {
-        "reference": 9
+        "gpu": 1,
+        "reference": 8
       },
       "PRMT": {
-        "reference": 63
+        "gpu": 1,
+        "reference": 62
       },
       "QSPC": {
         "none": 6,
         "reference": 22
       },
       "R2P": {
-        "reference": 20
+        "gpu": 14,
+        "reference": 6
       },
       "R2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "REDUX": {
-        "reference": 12
+        "gpu": 8,
+        "reference": 4
       },
       "RET": {
         "reference": 8
@@ -45587,32 +45771,39 @@
         "reference": 1
       },
       "SEL": {
-        "reference": 10
+        "gpu": 2,
+        "reference": 8
       },
       "SGXT": {
         "reference": 20
       },
       "SHF": {
-        "reference": 288
+        "gpu": 3,
+        "reference": 285
       },
       "SHFL": {
-        "reference": 16
+        "gpu": 5,
+        "reference": 11
       },
       "ST": {
+        "gpu": 2,
         "none": 3210,
-        "reference": 1200
+        "reference": 1198
       },
       "STG": {
-        "none": 5136,
-        "reference": 1920
+        "gpu": 2,
+        "none": 5135,
+        "reference": 1919
       },
       "STL": {
-        "none": 48,
+        "gpu": 1,
+        "none": 47,
         "reference": 120
       },
       "STS": {
+        "gpu": 1,
         "none": 18,
-        "reference": 45
+        "reference": 44
       },
       "UBREV": {
         "reference": 2
@@ -45630,22 +45821,25 @@
         "reference": 54
       },
       "UISETP": {
-        "reference": 576
+        "gpu": 2,
+        "reference": 574
       },
       "ULDC": {
-        "reference": 6
+        "gpu": 2,
+        "reference": 4
       },
       "ULEA": {
         "reference": 51
       },
       "ULOP3": {
-        "reference": 8
+        "gpu": 1,
+        "reference": 7
       },
       "UMOV": {
-        "reference": 2
+        "gpu": 2
       },
       "UP2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "UPLOP3": {
         "reference": 8
@@ -45663,11 +45857,13 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "gpu": 2,
+        "reference": 94
       },
       "VABSDIFF4": {
-        "none": 7,
-        "reference": 29
+        "gpu": 8,
+        "none": 4,
+        "reference": 24
       },
       "VIADD": {
         "reference": 9
@@ -45676,16 +45872,19 @@
         "reference": 204
       },
       "VIMNMX": {
-        "reference": 60
+        "gpu": 1,
+        "reference": 59
       },
       "VIMNMX3": {
         "reference": 60
       },
       "VOTE": {
-        "reference": 6
+        "gpu": 5,
+        "reference": 1
       },
       "VOTEU": {
-        "reference": 6
+        "gpu": 2,
+        "reference": 4
       },
       "WARPSYNC": {
         "reference": 10
@@ -45887,8 +46086,9 @@
         "opaque": 361920
       },
       "HFMA2.MMA": {
-        "opaque": 7199,
-        "partially native": 1
+        "native": 320,
+        "opaque": 6877,
+        "partially native": 3
       },
       "HGMMA": {
         "opaque": 26880
@@ -46356,8 +46556,9 @@
       }
     },
     "evidence": {
-      "none": 46,
-      "reference": 664
+      "gpu": 141,
+      "none": 42,
+      "reference": 529
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -46380,23 +46581,21 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR": "operand form",
-      "hfma2_mma__RCxR": "operand form",
-      "hfma2_mma__RIR": "operand form",
-      "hfma2_mma__RRC": "operand form",
-      "hfma2_mma__RRCx": "operand form",
-      "hfma2_mma__RRR": "operand form",
-      "hfma2_mma__RRU": "operand form",
-      "hfma2_mma__RUR": "operand form",
-      "hfma2_mma_relu__RCR": "operand form",
-      "hfma2_mma_relu__RCxR": "operand form",
-      "hfma2_mma_relu__RIR": "operand form",
-      "hfma2_mma_relu__RRC": "operand form",
-      "hfma2_mma_relu__RRCx": "operand form",
-      "hfma2_mma_relu__RRI": "fmz other than nofmz_hfma2; not the -RZ, RZ constant move; ofmt other than F16_V2; satrelu not modelled",
-      "hfma2_mma_relu__RRR": "operand form",
-      "hfma2_mma_relu__RRU": "operand form",
-      "hfma2_mma_relu__RUR": "operand form",
+      "hfma2_mma__RCR": "MMA format; MMA operand form",
+      "hfma2_mma__RCxR": "MMA format; MMA operand form",
+      "hfma2_mma__RRC": "MMA format; MMA operand form",
+      "hfma2_mma__RRCx": "MMA format; MMA operand form",
+      "hfma2_mma__RRU": "MMA format; MMA operand form",
+      "hfma2_mma__RUR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RCR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RCxR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RIR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRC": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRCx": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRI": "MMA format; RELU",
+      "hfma2_mma_relu__RRR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRU": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RUR": "MMA format; MMA operand form",
       "hfma2_relu__RCR": "RELU; ofmt",
       "hfma2_relu__RCxR": "RELU; ofmt",
       "hfma2_relu__RIR": "RELU; ofmt",
@@ -46448,16 +46647,19 @@
         "reference": 14
       },
       "BMSK": {
-        "reference": 5
+        "gpu": 2,
+        "reference": 3
       },
       "BRA": {
-        "reference": 3
+        "gpu": 1,
+        "reference": 2
       },
       "BREAK": {
         "reference": 1
       },
       "BREV": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "BSSY": {
         "reference": 1
@@ -46469,19 +46671,23 @@
         "reference": 5
       },
       "CS2R": {
-        "reference": 1
+        "gpu": 1
       },
       "DADD": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "DFMA": {
-        "reference": 9
+        "gpu": 1,
+        "reference": 8
       },
       "DMUL": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "DSETP": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "ELECT": {
         "reference": 1
@@ -46490,159 +46696,198 @@
         "reference": 1
       },
       "F2F": {
-        "reference": 25
+        "gpu": 3,
+        "reference": 22
       },
       "F2FP": {
+        "gpu": 7,
         "none": 14,
-        "reference": 28
+        "reference": 21
       },
       "F2I": {
+        "gpu": 6,
         "none": 12,
-        "reference": 28
+        "reference": 22
       },
       "F2IP": {
-        "reference": 9
+        "gpu": 2,
+        "reference": 7
       },
       "FADD": {
-        "reference": 5
-      },
-      "FCHK": {
-        "reference": 5
-      },
-      "FFMA": {
-        "reference": 9
-      },
-      "FLO": {
-        "none": 1,
+        "gpu": 1,
         "reference": 4
       },
-      "FMNMX": {
-        "reference": 5
+      "FCHK": {
+        "gpu": 1,
+        "reference": 4
       },
-      "FMUL": {
-        "reference": 5
-      },
-      "FRND": {
-        "reference": 9
-      },
-      "FSEL": {
-        "reference": 5
-      },
-      "FSET": {
-        "reference": 5
-      },
-      "FSETP": {
-        "reference": 5
-      },
-      "HADD2": {
-        "reference": 10
-      },
-      "HFMA2": {
-        "reference": 9
-      },
-      "HFMA2.MMA": {
-        "none": 1
-      },
-      "HMNMX2": {
-        "reference": 10
-      },
-      "HMUL2": {
-        "reference": 5
-      },
-      "HSET2": {
-        "reference": 5
-      },
-      "HSETP2": {
-        "reference": 5
-      },
-      "I2F": {
-        "none": 2,
-        "reference": 38
-      },
-      "I2FP": {
-        "reference": 6
-      },
-      "I2IP": {
-        "reference": 15
-      },
-      "IABS": {
-        "reference": 5
-      },
-      "IADD3": {
-        "reference": 10
-      },
-      "IDP": {
+      "FFMA": {
+        "gpu": 1,
         "reference": 8
       },
+      "FLO": {
+        "gpu": 1,
+        "none": 1,
+        "reference": 3
+      },
+      "FMNMX": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "FMUL": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "FRND": {
+        "gpu": 2,
+        "reference": 7
+      },
+      "FSEL": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "FSET": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "FSETP": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "HADD2": {
+        "gpu": 2,
+        "reference": 8
+      },
+      "HFMA2": {
+        "gpu": 1,
+        "reference": 8
+      },
+      "HFMA2.MMA": {
+        "gpu": 3
+      },
+      "HMNMX2": {
+        "gpu": 3,
+        "reference": 7
+      },
+      "HMUL2": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "HSET2": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "HSETP2": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "I2F": {
+        "gpu": 6,
+        "none": 2,
+        "reference": 32
+      },
+      "I2FP": {
+        "gpu": 1,
+        "reference": 5
+      },
+      "I2IP": {
+        "gpu": 4,
+        "reference": 11
+      },
+      "IABS": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "IADD3": {
+        "gpu": 3,
+        "reference": 7
+      },
+      "IDP": {
+        "gpu": 2,
+        "reference": 6
+      },
       "IMAD": {
-        "none": 5,
-        "reference": 50
+        "gpu": 13,
+        "none": 3,
+        "reference": 39
       },
       "IMNMX": {
         "reference": 5
       },
       "ISETP": {
-        "reference": 10
+        "gpu": 3,
+        "reference": 7
       },
       "LD": {
-        "reference": 5
-      },
-      "LDC": {
-        "reference": 2
-      },
-      "LDG": {
-        "none": 2,
-        "reference": 3
-      },
-      "LDL": {
+        "gpu": 1,
         "reference": 4
       },
-      "LDS": {
-        "reference": 3
+      "LDC": {
+        "gpu": 2
       },
-      "LEA": {
-        "reference": 32
-      },
-      "LOP3": {
-        "reference": 5
-      },
-      "MATCH": {
+      "LDG": {
+        "gpu": 1,
+        "none": 2,
         "reference": 2
       },
-      "MOV": {
-        "none": 2,
+      "LDL": {
+        "gpu": 1,
         "reference": 3
       },
+      "LDS": {
+        "gpu": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "gpu": 6,
+        "reference": 26
+      },
+      "LOP3": {
+        "gpu": 3,
+        "reference": 2
+      },
+      "MATCH": {
+        "gpu": 2
+      },
+      "MOV": {
+        "gpu": 3,
+        "none": 1,
+        "reference": 1
+      },
       "MUFU": {
+        "gpu": 1,
         "none": 4,
-        "reference": 6
+        "reference": 5
       },
       "NOP": {
         "reference": 1
       },
       "P2R": {
-        "reference": 5
+        "gpu": 5
       },
       "PLOP3": {
-        "reference": 2
+        "gpu": 1,
+        "reference": 1
       },
       "POPC": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "PRMT": {
-        "reference": 9
+        "gpu": 1,
+        "reference": 8
       },
       "QSPC": {
         "reference": 4
       },
       "R2P": {
-        "reference": 5
+        "gpu": 5
       },
       "R2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "REDUX": {
-        "reference": 1
+        "gpu": 1
       },
       "RET": {
         "reference": 4
@@ -46654,28 +46899,35 @@
         "reference": 1
       },
       "SEL": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "SGXT": {
         "reference": 5
       },
       "SHF": {
-        "reference": 9
+        "gpu": 2,
+        "reference": 7
       },
       "SHFL": {
-        "reference": 4
+        "gpu": 2,
+        "reference": 2
       },
       "ST": {
-        "reference": 5
-      },
-      "STG": {
-        "reference": 5
-      },
-      "STL": {
+        "gpu": 1,
         "reference": 4
       },
-      "STS": {
+      "STG": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "STL": {
+        "gpu": 1,
         "reference": 3
+      },
+      "STS": {
+        "gpu": 1,
+        "reference": 2
       },
       "UBREV": {
         "reference": 2
@@ -46693,22 +46945,24 @@
         "reference": 10
       },
       "UISETP": {
-        "reference": 4
+        "gpu": 1,
+        "reference": 3
       },
       "ULDC": {
-        "reference": 1
+        "gpu": 1
       },
       "ULEA": {
         "reference": 14
       },
       "ULOP3": {
-        "reference": 2
+        "gpu": 1,
+        "reference": 1
       },
       "UMOV": {
-        "reference": 2
+        "gpu": 2
       },
       "UP2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "UPLOP3": {
         "reference": 1
@@ -46726,11 +46980,13 @@
         "reference": 2
       },
       "USHF": {
-        "reference": 3
+        "gpu": 1,
+        "reference": 2
       },
       "VABSDIFF4": {
+        "gpu": 2,
         "none": 1,
-        "reference": 8
+        "reference": 6
       },
       "VIADD": {
         "reference": 5
@@ -46739,16 +46995,17 @@
         "reference": 9
       },
       "VIMNMX": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "VIMNMX3": {
         "reference": 5
       },
       "VOTE": {
-        "reference": 1
+        "gpu": 1
       },
       "VOTEU": {
-        "reference": 1
+        "gpu": 1
       },
       "WARPSYNC": {
         "reference": 4
@@ -46947,8 +47204,8 @@
         "partially native": 9
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "opaque": 15,
+        "partially native": 3
       },
       "HGMMA": {
         "opaque": 6
@@ -47527,8 +47784,8 @@
         "partially native": 9
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "opaque": 15,
+        "partially native": 3
       },
       "HMNMX2": {
         "native": 1,
@@ -47808,8 +48065,8 @@
     },
     "status": {
       "native": 499,
-      "opaque": 463,
-      "partially native": 136,
+      "opaque": 461,
+      "partially native": 138,
       "partially primitive": 5,
       "primitive": 70
     }

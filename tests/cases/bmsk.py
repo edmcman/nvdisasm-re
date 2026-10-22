@@ -53,12 +53,12 @@ def emulator_cases(c):
     direct(c); cx(c)
 
 
-def gpu_fixtures():
+def gpu_fixtures(arch="SM89"):
     """Compiled clamp/wrap kernels (differing only at bit 75) and the patched CX wrapper."""
     from sass.decode import ir
     from tests.harness.gpu import Fixture, Template, compile
     from tests.harness.templates import cx_fixture, rows
-    image = compile("bmsk_semantics")
+    image = compile("bmsk_semantics", arch=arch)
     rng = random.Random(18); edges = [0, 1, 15, 30, 31, 32, 33, 63, 64, 255, 256, 0x7fffffff, 0x80000000, 0xffffffff]
     vs = list(itertools.product(range(34), repeat=2)) + list(itertools.product(edges, repeat=2)) + [(rng.getrandbits(32), rng.getrandbits(32)) for _ in range(128)]
     vs += [(0, 0)] * (-len(vs) % 32)
@@ -66,7 +66,7 @@ def gpu_fixtures():
     for mode in ("C", "W"):
         t = Template(image, "sem_bmsk_" + mode.lower())
         targets = [o for o in range(0, len(t.code), 16) if t.decoded(o).klass.mnemonic == "BMSK"]
-        if len(targets) != 1 or t.decoded(targets[0]).env["cw"] != ir.load("SM89").enums["CWMode"][mode]:
+        if len(targets) != 1 or t.decoded(targets[0]).env["cw"] != ir.load(arch).enums["CWMode"][mode]:
             raise RuntimeError(f"{mode}: compiler did not emit exactly one BMSK in the requested mode")
         words[mode] = int.from_bytes(t.code[targets[0]:targets[0] + 16], "little")
         out.append(Fixture(name=f"bmsk_{mode.lower()}", image=image, kernel="sem_bmsk_" + mode.lower(), data=rows([(a, n, 0) for a, n in vs]),
@@ -75,11 +75,14 @@ def gpu_fixtures():
     positions = list(range(34)) + [0x7fffffff, 0x80000000, 0xffffffff] + list(range(91))
     forms = [(mode, 128, 4, width) for mode, width in itertools.product(("C", "W"), CX_WIDTHS)]
     # Never perform an in-bounds access past the real input allocation.
-    forms += [("C", units, offset, 5) for units, offset in itertools.product([0, 1, 2, 3, 128, 0x40000, 0x7ffff], [4, 16, 28, 40, 64, 65532])
+    from sass import launch
+    bits, _ = launch.cx_layout(arch)
+    large = [1 << (63 - bits), (1 << (64 - bits)) - 1]
+    forms += [("C", units, offset, 5) for units, offset in itertools.product([0, 1, 2, 3, 128, *large], [4, 16, 28, 40, 64, 65532])
               if not (offset >= len(positions) * 12 and offset < units * 16)]
     for mode, units, offset, width in forms:
         triples = [(a, width, 0) for a in positions]
         loaded = rows(triples)[offset:offset + 4] if offset + 4 <= units * 16 else b"\0\0\0\0"
         out.append(cx_fixture(f"bmsk_cx_{mode}_{units}_{offset}_{width}", CX_CLASS, dict(Rd=7, Ra=2, cw=mode), triples,
-                              [bmsk(a, int.from_bytes(loaded.ljust(4, b"\0"), "little"), mode) for a in positions], units=units, offset=offset))
+                              [bmsk(a, int.from_bytes(loaded.ljust(4, b"\0"), "little"), mode) for a in positions], units=units, offset=offset, arch=arch))
     return out

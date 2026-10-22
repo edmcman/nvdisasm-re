@@ -79,7 +79,8 @@ def cx_source(arch, k, name, value, ur=4, offset=0, base=0x2000, size=4):
 
 
 def cx_header(arch, ur, base, units=1):
-    bits, shift = (51, 6) if arch == "SM90" else (45, 4)
+    from sass import launch
+    bits, shift = launch.cx_layout(arch)
     header = base // (1 << shift) + (units << bits)
     return {f"UR{ur}": header & 0xffffffff, f"UR{ur + 1}": header >> 32}
 

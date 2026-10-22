@@ -139,11 +139,16 @@ def qspc(c):
     # Hardware-representable generic pointers use a 64-bit base. The adapter binds
     # these model addresses to real global/shared/local allocations/window bases.
     if k := c.classes.get('qspc__RaNonRZ'):
-        for origin, base, classification in (('global', 0x100020, 1), ('shared', 0x220, 2), ('local', 0x420, 4)):
+        physical = {'address_spaces': dict(context['address_spaces'])}
+        if c.arch == 'SM90':
+            physical['address_spaces']['shared_cluster'] = [[0x200, 0x300], [0x600, 0x700]]
+        for origin, base in (('global', 0x100020), ('shared', 0x220), ('local', 0x420)):
             for query in ('G', 'S', 'L'):
+                query_space = {'G':'global', 'S':'shared', 'L':'local'}[query]
+                predicate, tag = memory.query(base, physical['address_spaces'], query_space)
                 c.add(k.name, dict(Pg='PT', Pu=1, Rd=8, e='E', Ra=2, Ra_offset=0, space=query),
-                      dict(R2=base, R3=0), dict(P1=int(query == origin[0].upper()), R8=classification),
-                      context=context, hardware={'adapter': 'qspc', 'space': origin})
+                      dict(R2=base, R3=0), dict(P1=predicate, R8=tag),
+                      context=physical, hardware={'adapter': 'qspc', 'space': origin})
 
 
 @retained("LDG predicate-output forms and aligned memory/constant register pairs are partially native; window edges/decoys, descriptors, zero-fill guards, masked/cluster queries, physical query anchors and error cases exceed generated ordinary profiles.")
@@ -166,18 +171,18 @@ def emulator_cases(c):
             c.append(case._replace(request=dict(case.request, word=encoded), hardware={'adapter': 'memory'}))
 
 
-def pnz_fixture():
+def pnz_fixture(arch="SM89"):
     """sem_pnz with its guarded LD always issued: the branch around it never taken (@!PT) and its
     predicate, inverted, as LD's Pnz."""
     from dataclasses import replace
     from tests.harness.case import encode
     from tests.harness import scalar
     from tests.harness.gpu import Template
-    f = scalar.launch("pnz", memory.pnz_kernel)
+    f = scalar.launch("pnz", memory.pnz_kernel, arch=arch)
     t = Template(f.image, "sem_pnz")
     code = {o: t.decoded(o) for o in range(0, len(t.code), 16)}
     skip, = [d for d in code.values() if d.klass.mnemonic == "BRA" and d.env["Pg"] != 7]
-    word = lambda d, **fields: (int.from_bytes(bytes.fromhex(encode("SM89", d.klass.name, **{**scalar.operands(d), **fields})), "little"), t.control(o))
+    word = lambda d, **fields: (int.from_bytes(bytes.fromhex(encode(arch, d.klass.name, **{**scalar.operands(d), **fields})), "little"), t.control(o))
     words = {}
     for o, d in code.items():
         match d.klass.mnemonic:
@@ -186,16 +191,16 @@ def pnz_fixture():
     return replace(f, image=t.patch(words))
 
 
-def desc_param_fixtures():
+def desc_param_fixtures(arch="SM89"):
     """sem_desc_param once per bit-59-clear descriptor in DESCRIPTORS (range forms may trap)."""
     from dataclasses import replace
     from tests.harness import scalar
-    f = scalar.launch("desc_param", memory.desc_param_kernel)
+    f = scalar.launch("desc_param", memory.desc_param_kernel, arch=arch)
     return [replace(f, name=f"desc_param_{d:x}", arguments=((8, d),)) for d in DESCRIPTORS if memory.descriptor_neutral(d)]
 
 
-def gpu_fixtures():
+def gpu_fixtures(arch="SM89"):
     from tests.harness import scalar
-    return [scalar.launch("shared", lambda a, *_: a), scalar.launch("local", lambda a, b, c: (a + (c & 255) * b) & 0xffffffff),
-            scalar.launch("ldc", lambda a, *_: (a & 31) ** 2), scalar.launch("generic", memory.generic_kernel),
-            scalar.launch("desc", memory.desc_kernel), pnz_fixture(), *desc_param_fixtures()]
+    return [scalar.launch("shared", lambda a, *_: a, arch=arch), scalar.launch("local", lambda a, b, c: (a + (c & 255) * b) & 0xffffffff, arch=arch),
+            scalar.launch("ldc", lambda a, *_: (a & 31) ** 2, arch=arch), scalar.launch("generic", memory.generic_kernel, arch=arch),
+            scalar.launch("desc", memory.desc_kernel, arch=arch), pnz_fixture(arch=arch), *desc_param_fixtures(arch=arch)]

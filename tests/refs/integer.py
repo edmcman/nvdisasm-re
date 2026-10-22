@@ -147,9 +147,9 @@ def vset_mask(a, b, width, signed, op):
     return pack([-int(compare(x, y, op)) for x, y in zip(lanes(a, width, signed), lanes(b, width, signed))], width)
 
 
-def viaddmnmx(a, b, c, width, signed, is_min, relu=False):
+def viaddmnmx(a, b, c, width, signed, is_min, relu=False, negate_b=False):
     """VIADDMNMX: lane sums modulo the lane width, then min/max with c."""
-    sums = pack([x + y for x, y in zip(lanes(a, width), lanes(b, width))], width)
+    sums = pack([x - y if negate_b else x + y for x, y in zip(lanes(a, width), lanes(b, width))], width)
     return vminmax((sums, c), width, signed, is_min, relu)
 
 

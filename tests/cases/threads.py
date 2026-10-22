@@ -93,19 +93,19 @@ def redux_inputs(rng):
     return [(a, 0, 0) for w in range(WARPS) for a in (fixed[w] if w < len(fixed) else [rng.getrandbits(32) for _ in range(32)])]
 
 
-def hoisted_voteu(image, name, negate):
+def hoisted_voteu(image, name, negate, arch="SM89"):
     """sem_<name>'s VOTEU.ANY UR, UPT, PT reading P0 (or !P0) instead: the LOP3 setting P0 moves up
     to the VOTEU's slot and the instructions between move down one, each keeping its controls."""
-    from tests.harness.gpu import ENCODING, Template, sm89
+    from tests.harness.gpu import ENCODING, Template, encode
     from tests.harness.scalar import operands
     t = Template(image, "sem_" + name)
     offsets = range(0, len(t.code), 16)
     v = next(o for o in offsets if t.decoded(o).klass.mnemonic == "VOTEU")
     lop = next(o for o in offsets if o > v and t.decoded(o).klass.mnemonic == "LOP3" and t.decoded(o).env.get("Pu") == 0)
     word = lambda o: int.from_bytes(t.code[o:o + 16], "little") & ENCODING
-    vote = sm89("voteu_", **dict(operands(t.decoded(v)), Pp=0, **{"Pp@not": negate}))
+    vote = encode("voteu_", arch=arch, **dict(operands(t.decoded(v)), Pp=0, **{"Pp@not": negate}))
     order = [lop] + list(range(v, lop, 16))
-    return t.patch({slot: (vote if src == v else word(src), t.control(src)) for slot, src in zip(range(v, lop + 16, 16), order)}, image)
+    return t.patch({slot: (vote if src == v else word(src), (t.control(src) & ~(31 << 105)) | (15 << 105) | (63 << 116)) for slot, src in zip(range(v, lop + 16, 16), order)}, image)
 
 
 DIVERGENT_PATTERNS = (0x55555555, 0x0000ffff, 0xaaaaaaaa, 0x00000020, 0xffff0000, 0x0f0f0f0f, 0x80000001, 0xfffffffe)
@@ -128,10 +128,10 @@ def divergent_expected(vs, warp_result):
     return out
 
 
-def gpu_fixtures():
+def gpu_fixtures(arch="SM89"):
     from tests.harness.gpu import Fixture, compile
     from tests.refs import warp
-    image = compile("threads_semantics", "-diag-suppress=177")
+    image = compile("threads_semantics", "-diag-suppress=177", arch=arch)
 
     def fixture(name, vs, expected, targets, **kw):
         return Fixture(name=name, image=image, kernel="sem_" + name, data=b"".join(struct.pack("<III", *v) for v in vs),
@@ -167,7 +167,7 @@ def gpu_fixtures():
         expected = divergent_expected(vs, lambda m, L, result=result: (lambda r: {l: r[l] if isinstance(r, list) else r for l in m})(result(m, L)))
         out.append(fixture(f"div_{name}", vs, expected, (target,), output_size=8))
     voteu = image
-    for name, negate in (("voteu", 0), ("voteu_not", 1)): voteu = hoisted_voteu(voteu, name, negate)
+    for name, negate in (("voteu", 0), ("voteu_not", 1)): voteu = hoisted_voteu(voteu, name, negate, arch=arch)
     vs = [(0, 0, a) for a, _, _ in vote_inputs(random.Random("voteu"))]
     for name, negate in (("voteu", 0), ("voteu_not", 1)):
         votes = [warp.vote([(c & 1) ^ negate for _, _, c in vs[32 * w:32 * w + 32]]) for w in range(WARPS)]

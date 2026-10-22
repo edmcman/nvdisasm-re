@@ -46,8 +46,8 @@ def sources():
 
 
 @cache
-def generator():
-    paths = [*sources(), *sorted(p for p in (ROOT / 'out/SM89').rglob('*') if p.is_file())]
+def generator(arch="SM89"):
+    paths = [*sources(), *sorted(p for p in (ROOT / 'out' / arch).rglob('*') if p.is_file())]
     digest = hashlib.sha256()
     for path in paths:
         digest.update(str(path.relative_to(ROOT)).encode()); digest.update(path.read_bytes())
@@ -61,7 +61,7 @@ def hardware_expected(case):
 
 def digest(s):
     request = {k: v for k, v in s.case.request.items() if k != 'inspect_pcode'}
-    data = json.dumps((s.id, request, hardware_expected(s.case), s.case.hardware), sort_keys=True)
+    data = json.dumps((s.arch, s.id, request, hardware_expected(s.case), s.case.hardware), sort_keys=True)
     return int.from_bytes(hashlib.sha256(data.encode()).digest())
 
 
@@ -84,17 +84,17 @@ def merge(a, b):
 
 
 def classified(job):
-    """{family: summary} of one streamed SM89 shard; classify raises on a case no backend accepts.
+    """{family: summary} of one streamed architecture shard; classify raises on a case no backend accepts.
     Ids only for the manual cases: the generated ones don't depend on the sweep policy."""
-    family, shard = job[2], job[4]
-    return {family: summary((device_cases.Scenario(family, c, *device_cases.classify(c)) for c in stream(*job)), shard is None)}
+    arch, family, shard = job[0], job[2], job[4]
+    return {family: summary((device_cases.Scenario(family, c, *device_cases.classify(c, arch=arch), arch=arch) for c in stream(*job)), shard is None)}
 
 
 @cache
-def summaries(families, sample, shards=sharded.shards):
-    """{family: summary} over the shards of SM89's exact cases."""
+def summaries(families, sample, shards=sharded.shards, arch="SM89"):
+    """{family: summary} over the shards of the architecture's exact cases."""
     out = {}
-    for part in sharded.run(classified, ((device_cases.ARCH, 'exact'),), families, sample, shards=shards):
+    for part in sharded.run(classified, ((arch, 'exact'),), families, sample, shards=shards):
         for family, s in part.items(): out[family] = merge(out[family], s) if family in out else s
     return out
 
@@ -105,35 +105,38 @@ def signature(found): return f"{found['digest'] % 2 ** 256:064x}"[:24]
 def words(found): return sorted(found['words'])
 
 
-def passes(): return json.loads(PASSES.read_text()) if PASSES.exists() else dict(version=1, families={})
+def passes():
+    found = json.loads(PASSES.read_text()) if PASSES.exists() else dict(families={})
+    return found if 'architectures' in found else dict(version=3, architectures={'SM89': found.get('families', {})})
 
 
-def valid(record, found):
-    return (record.get('sampling_version') == sampling.VERSION and record.get('generator') == generator() and record.get('signature') == signature(found)
+def valid(record, found, arch="SM89"):
+    return (record.get('sampling_version') == sampling.VERSION and record.get('generator') == generator(arch) and record.get('signature') == signature(found)
             and record.get('words') == words(found) and bool(record.get('device')) and bool(record.get('kernels')))
 
 
-def record(scenarios, results, sample, device, kernels):
+def record(scenarios, results, sample, device, kernels, arch="SM89"):
     sample = sampling.percentage(sample)
-    found = passes(); found['version'] = 2
-    families = found.setdefault('families', {})
+    found = passes(); found['version'] = 3
+    if any(s.arch != arch for s in scenarios): raise ValueError('evidence architecture does not match scenarios')
+    families = found['architectures'].setdefault(arch, {})
     for family in dict.fromkeys(s.family for s in scenarios):
         selected = [s for s in scenarios if s.family == family and s.kind != 'emulator']
         families.pop(family, None)
         if not selected or not device or any(s.id not in results or results[s.id] for s in selected): continue
         ran = summary(selected, False)
-        families[family] = dict(generator=generator(), signature=signature(ran), sample=sample, sampling_version=sampling.VERSION,
+        families[family] = dict(generator=generator(arch), signature=signature(ran), sample=sample, sampling_version=sampling.VERSION,
                                 cases=len(selected), words=words(ran), device=device, kernels=sorted(set(kernels)))
     # Atomic replacement prevents interruption from leaving a truncated evidence file.
     path = PASSES.with_suffix('.tmp')
     path.write_text(json.dumps(found, indent=1, sort_keys=True) + '\n'); path.replace(PASSES)
 
 
-def verified_words():
-    records = {f: r for f, r in passes().get('families', {}).items() if r.get('sampling_version') == sampling.VERSION and r.get('generator') == generator()}
+def verified_words(arch="SM89"):
+    records = {f: r for f, r in passes()['architectures'].get(arch, {}).items() if r.get('sampling_version') == sampling.VERSION and r.get('generator') == generator(arch)}
     out = []
     for sample in sorted({r['sample'] for r in records.values()}):
         families = tuple(f for f, r in records.items() if r['sample'] == sample)
-        found = summaries(families, sample) if families else {}
-        out += [(f, w) for f in families if valid(records[f], found[f]) for w in records[f]['words']]
+        found = summaries(families, sample, arch=arch) if families else {}
+        out += [(f, w) for f in families if valid(records[f], found[f], arch) for w in records[f]['words']]
     return out

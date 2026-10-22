@@ -21,8 +21,7 @@ NVCC = tool("nvcc", Path("/usr/local/cuda/bin/nvcc"))
 PTXAS = tool("ptxas", Path("/usr/local/cuda/bin/ptxas"))
 CUOBJDUMP = tool("cuobjdump", Path("/usr/local/cuda/bin/cuobjdump"))
 # The target nvdisasm (CUDA 13.4, V13.4.92); the oracle cache is keyed by its hash.
-NVDISASM = tool("nvdisasm", Path("/tmp/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/nvdisasm"),
-                *Path.home().glob(".cache/uv/archive-v0/*/nvidia/cu13/bin/nvdisasm"))
+NVDISASM = tool("nvdisasm", *Path.home().glob(".cache/uv/archive-v0/*/nvidia/cu13/bin/nvdisasm"))
 
 
 def variant(arch, fp="exact"):

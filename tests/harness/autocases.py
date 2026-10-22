@@ -387,8 +387,8 @@ def packed_cases(c, k, form, profiles):
             effective = pred ^ (form.get('Pp@not') == 'set')
             if op in ('VIADDMNMX', 'VIMNMX3'): s.operand(('Sc', 'Rc', 'URc'), acc, 8)
             if op == 'VIADDMNMX':
-                b = -b & 0xffffffff if form.get(srcb + '@negate') == 'set' else b
-                result = integer.viaddmnmx(a, b, acc, width, signed, effective, form['relu'] == 'RELU')
+                result = integer.viaddmnmx(a, b, acc, width, signed, effective, form['relu'] == 'RELU',
+                                          negate_b=form.get(srcb + '@negate') == 'set')
             else:
                 inputs = (a, b, acc) if op == 'VIMNMX3' else (a, b)
                 result = integer.vminmax(inputs, width, signed, effective, form['relu'] == 'RELU')

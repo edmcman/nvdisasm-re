@@ -121,3 +121,15 @@ def test_zero_special_pair_keeps_its_physical_overwrite_anchor():
     assert device_cases.classify(case)==('scalar','')
     assert case.id in cases.manual_reasons
     assert lifted.run('SM89','exact',case)==('native',[])
+
+
+def test_shared_cluster_query_provenance_overlaps():
+    ranges = {'global':[[0x100,0x200]], 'shared':[[0x200,0x300]],
+              'local':[[0x300,0x400]], 'shared_cluster':[[0x200,0x300]]}
+    assert memory.query(0x220, ranges, 'shared') == (1, 10)
+    assert memory.query(0x220, ranges, 'shared_cluster') == (1, 10)
+    assert memory.query(0x220, ranges, 'global') == (0, 10)
+    c = Cases('SM90')
+    c.add('qspc__RaNonRZ', dict(Pg='PT', Pu=1, Rd=8, e='E', Ra=2, Ra_offset=0, space='S'),
+          dict(R2=0x220, R3=0), dict(P1=1, R8=10), context={'address_spaces':ranges})
+    assert lifted.run('SM90', 'exact', c.complete()[0]) == ('primitive', [])
