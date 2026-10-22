@@ -4,7 +4,7 @@ from concurrent.futures import ProcessPoolExecutor,ThreadPoolExecutor,as_complet
 from itertools import product
 from pathlib import Path
 from sass.sleigh import gen
-from sass.paths import ROOT
+from sass.paths import ROOT, variant
 
 ARCHES=['SM75','SM80','SM86','SM89','SM90','SM100','SM101','SM103','SM107','SM120']
 LIMIT=16*1024*1024
@@ -23,7 +23,7 @@ def generate_one(arch,fp,output,coverage=False):
     gen.OUT=output
     generator=gen.Gen(arch,fp,coverage=coverage)
     text=generator.slaspec()
-    (output/f'sass_{gen.variant(arch,fp)}.slaspec').write_text(text)
+    gen.update(output/f'sass_{variant(arch,fp)}.slaspec',text)
     generator.write_manifests(output)
     return dict(arch=arch,fp=fp,lines=text.count('\n'),subtables=len(generator.tables),
                 skipped=generator.skipped)
@@ -32,7 +32,7 @@ def generate_one(arch,fp,output,coverage=False):
 def compile_all(sleigh,output,tasks,jobs):
     """Compile the generated specs, as many at once as memory allows."""
     def compile_one(arch,fp):
-        name=gen.variant(arch,fp);spec=output/f'sass_{name}.slaspec'
+        name=variant(arch,fp);spec=output/f'sass_{name}.slaspec'
         fd,tmp=tempfile.mkstemp(prefix=spec.stem+'-',suffix='.sla',dir=output);os.close(fd)
         try:
             process=subprocess.run([str(sleigh),'-t','-e',str(spec),tmp],capture_output=True,text=True,env=heap)
@@ -53,7 +53,7 @@ def compile_all(sleigh,output,tasks,jobs):
         futures={pool.submit(compile_one,arch,fp):(arch,fp) for arch,fp in tasks}
         for future in as_completed(futures):
             arch,fp=futures[future];result=future.result();completed[(arch,fp)]=result
-            name=gen.variant(arch,fp)
+            name=variant(arch,fp)
             print(f'{name}: compiled, {result["decompressed_bytes"]} decompressed bytes',flush=True)
     return [completed[task] for task in tasks]
 
@@ -84,7 +84,7 @@ def main():
         futures={pool.submit(generate_one,arch,fp,a.output,a.coverage):(arch,fp) for arch,fp in tasks}
         for future in as_completed(futures):
             arch,fp=futures[future];result=future.result();generated[(arch,fp)]=result
-            name=gen.variant(arch,fp)
+            name=variant(arch,fp)
             print(f'{name}: generated {result["lines"]} lines, {result["subtables"]} subtables',flush=True)
             for klass,why in result['skipped'][:10]:print('   skipped',klass,why)
     gen.write_ldefs()

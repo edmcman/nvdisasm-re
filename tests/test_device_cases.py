@@ -11,14 +11,14 @@ from tests.harness.case import Cases, cbank, ram
 def scenario(value=19, expected=None, **kwargs):
     c = Cases('SM89')
     c.add('mov__RI', dict(Rd=8, Sb=value, PixMaskU04=15), {}, dict(R8=value if expected is None else expected), **kwargs)
-    case = c.encode_words()[0]
+    case = c.complete()[0]
     return device_cases.Scenario('unit', case, *device_cases.classify(case))
 
 
 def test_target_encoding_and_scratch_preserve_aliases():
     c = Cases('SM89')
     c.add('imad_wide__RRR_RRR', dict(Rd=2, Ra=2, Rb=4, Rc=6, fmt='U32'), dict(R2=3, R4=4, R6=5), dict(R2=17, R3=0))
-    s = device_cases.Scenario('unit', c.encode_words()[0], 'scalar')
+    s = device_cases.Scenario('unit', c.complete()[0], 'scalar')
     p = device_cases.scalar_probe([s], 'probe')
     image = device_cases.image([p]); kernel = cubin.kernel_image(image, 'probe')
     offset, target = p.code.targets[0]
@@ -32,7 +32,7 @@ def test_constant_and_uniform_predicate_outputs():
     c = Cases('SM89')
     c.add('mov__RC', dict(Rd=8, Sb_bank=2, Sb_addr=16, PixMaskU04=15), {}, dict(R8=19), memory=[cbank(2, 16, 19)])
     c.add('up2ur__Imm', dict(URd=4, UPR='UPR', URa=4, Sb=0x7f, insert='B0'), dict(UR4=1, UP0=1), dict(UR4=1, UP0=1))
-    for case in c.encode_words():
+    for case in c.complete():
         p = device_cases.scalar_probe([device_cases.Scenario('unit', case, 'scalar')], 'probe')
         kernel = cubin.kernel_image(device_cases.image([p]), 'probe')
         if case is c[0]: assert kernel['constants'][2][16:20] == b'\x13\0\0\0'
@@ -83,7 +83,7 @@ def test_cx_backing_and_bounds_survive_relocation():
     c = Cases('SM89')
     c.add('bmsk__RCxR_RCxR', dict(Rd=8, Ra=2, URb=4, Sb_offset=16, cw='C'),
           dict(R2=1, **cx_header('SM89', 4, 0x1000, units=1)), dict(R8=0), memory=[ram(0x1010, 5)])
-    case = c.encode_words()[0]; assert device_cases.classify(case) == ('cx', '')
+    case = c.complete()[0]; assert device_cases.classify(case) == ('cx', '')
     p = device_cases.kernels([device_cases.Scenario('unit', case, 'cx')])[0]
     assert int.from_bytes(p.arena[16:20], 'little') == 5
     offset, _ = p.code.targets[0]
@@ -135,7 +135,7 @@ def test_nan_policy_preserves_merged_half():
     c = Cases('SM89')
     c.add('f2fp_merge_c__RRR', dict(Rd=8, Rb=2, Rc=4, dstfmt='F16', srcfmt='F32', merge='MERGE_C'),
           dict(R2=0x7fc00000, R4=0xbeef), dict(R8=0xbeef7e00))
-    assert device_cases.compare(c.encode_words()[0], ['R8'], [0xbeef7fff]) == []
+    assert device_cases.compare(c.complete()[0], ['R8'], [0xbeef7fff]) == []
     assert device_cases.compare(c[0], ['R8'], [0xdead7fff])
 
 

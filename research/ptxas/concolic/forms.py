@@ -5,7 +5,7 @@ from functools import cache
 from pathlib import Path
 from sass.decode import cubin, ir, pydecode
 from sass.md import expression
-from sass.sleigh.gen import ENUM_FILE
+from sass.sleigh.registers import ENUM_FILE
 from sass.md import parse
 
 ARCHITECTURES = ('SM75','SM80','SM86','SM89','SM90','SM100','SM101','SM103','SM120')

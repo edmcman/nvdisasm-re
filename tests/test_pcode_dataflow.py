@@ -10,7 +10,7 @@ from tests.harness.select import arches, modes, require_languages, selected, ski
 from tests.harness import dataflow
 from sass import ghidra_bridge
 from tests.harness.baseline import BASELINE
-from sass.sleigh.gen import variant
+from sass.paths import variant
 
 REAL_SAMPLE = 2000
 

@@ -1,13 +1,15 @@
 """Generated p-code, run in Ghidra's emulator, computes the independent references'
 values (tests/cases/*, tests/refs/*). One item per (architecture, fp lowering, family, md class)."""
+import hashlib, json
 from collections import Counter
 from functools import cache
 import pytest
 from tests.harness.select import arches, families, modes, require_languages, selected, skipped
 from sass import ghidra_bridge
+from sass.paths import CACHE, ROOT
 from tests.harness.checks import problems
 from tests.harness import sampling, sharded
-from tests.cases import planned, stream
+from tests.cases import emulator_cases, planned, stream
 
 WORKERS = 24   # one emulation JVM each (~0.7 GB on SM90)
 
@@ -17,8 +19,9 @@ def selection(config):
 
 
 def tally(job):
-    arch, fp, family, *_ = job
-    return Counter((arch, fp, family, case.cls) for case in stream(*job))
+    """The classes of a manual shard's selected cases (sharded.manual), left incomplete: only their classes are read."""
+    arch, fp, family, sample, _ = job
+    return Counter((arch, fp, family, case.cls) for case in emulator_cases(arch, fp, (family,), sample, generated=False, complete=False)[family])
 
 
 def evaluate(job):
@@ -33,11 +36,33 @@ def evaluate(job):
     return out
 
 
+def source_digest(arches):
+    """What the manual cases are built from: the sass and test sources and the languages' md."""
+    h = hashlib.sha256()
+    for root in (ROOT / "src/sass", ROOT / "tests", *(ROOT / "out" / a for a in arches)):
+        for p in sorted(root.rglob("*")):
+            if p.is_file() and "__pycache__" not in p.parts: h.update(str(p.relative_to(ROOT)).encode()); h.update(p.read_bytes())
+    return h.hexdigest()[:16]
+
+
+def manual_items(variants, fams, sample):
+    """The manual cases' items, kept on disk per source digest: building every manual case only to
+    name the items took minutes per run, and evaluation builds them again."""
+    selection = hashlib.sha256(repr((variants, fams, sample)).encode()).hexdigest()[:16]
+    path = CACHE / "items" / f"{selection}-{source_digest(dict.fromkeys(a for a, _ in variants))}.json"
+    if path.exists(): return {tuple(item) for item in json.loads(path.read_text())}
+    found = set().union(*sharded.run(tally, variants, fams, sample, shards=sharded.manual))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    for stale in path.parent.glob(f"{selection}-*.json"): stale.unlink(missing_ok=True)
+    temporary = path.with_suffix(".tmp"); temporary.write_text(json.dumps(sorted(found))); temporary.replace(path)
+    return found
+
+
 @cache
 def items(variants, fams, sample):
     """The manual cases' classes and the saved plans' generated ones, without generating the latter."""
     generated = {(a, f, family, cls) for a, f in variants for family in fams for cls in planned(a)[family]}
-    return sorted(generated.union(*sharded.run(tally, variants, fams, sample, shards=sharded.manual)))
+    return sorted(generated | manual_items(variants, fams, sample))
 
 
 def pytest_generate_tests(metafunc):

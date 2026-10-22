@@ -1,10 +1,11 @@
 """Batch requests through the Ghidra-side programs, which run under the pyghidra venv. Results are
 cached per language and program (see `stamp`), so reruns only send requests Ghidra hasn't answered."""
-import ast, hashlib, json, os, subprocess
+import ast, hashlib, json, os, subprocess, tempfile, threading
+import xml.etree.ElementTree as ET
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from functools import cache as memoize
 from pathlib import Path
-from sass.paths import CACHE, GHIDRA_PY, LANGUAGES, LDEFS, ROOT, language
+from sass.paths import CACHE, GHIDRA_PY, LANGUAGES, LDEFS, ROOT, language, variant
 from sass.sqlcache import open_cache
 
 SOURCES = ROOT / "src"
@@ -27,14 +28,15 @@ def generator(module): return any(module == g or module.startswith(g + ".") for 
 def sources(program):
     """The sass sources `program` (a module of this package) can run: its transitive sass imports,
     function-level ones included, with their packages, and this package's Java. The programs run
-    as scripts beside each other, so a bare import may name a sibling module."""
+    as scripts beside each other, so a bare import may name a sibling module, and this package
+    itself (its __init__, host-side batching) is never imported."""
     seen, todo = set(), [f"{__name__}.{Path(program).stem}"]
     while todo:
         if (module := todo.pop()) in seen or generator(module) or not (f := module_file(module)): continue
         seen.add(module)
         parts = module.split(".")
         package = parts if f.name == "__init__.py" else parts[:-1]
-        todo += [".".join(parts[:i]) for i in range(1, len(parts))]
+        if not module.startswith(__name__ + "."): todo += [".".join(parts[:i]) for i in range(1, len(parts))]
         for n in ast.walk(ast.parse(f.read_text())):
             if isinstance(n, ast.Import): todo += [x for a in n.names for x in (a.name, f"{__name__}.{a.name}")]
             elif isinstance(n, ast.ImportFrom):
@@ -43,17 +45,25 @@ def sources(program):
     return sorted({module_file(m) for m in seen} | set(Path(__file__).parent.glob("*.java")))
 
 
+def language_entry(name):
+    """The language's own <language> element; the rest of sass.ldefs lists whichever others are built."""
+    if not LDEFS.exists(): return b""
+    entry = next((e for e in ET.parse(LDEFS).getroot() if e.get("variant") == name), None)
+    if entry is None: return b""
+    entry.tail = None   # the whitespace before the next entry, if any
+    return ET.tostring(entry)
+
+
 def stamp(program, arch, fp):
-    """Hash of everything a Ghidra-side answer depends on: the compiled language and its specs,
-    runtime manifest (or legacy coverage manifest), the sass sources the program runs and the
-    Ghidra install."""
-    from sass.sleigh.gen import variant
+    """Hash of everything a Ghidra-side answer depends on: the compiled language, its ldefs entry and
+    specs, runtime manifest (or legacy coverage manifest), the sass sources the program runs and the
+    Ghidra install. Paths are repository-relative, so checkouts with the same files agree."""
     name = variant(arch, fp)
     manifest = LANGUAGES / f"sass_{name}_runtime.json"
     if not manifest.exists(): manifest = LANGUAGES / f"sass_{name}_coverage.json"
-    files = [LANGUAGES / f"sass_{name}.sla", manifest, LDEFS, LANGUAGES / "sass.pspec", LANGUAGES / "sass.cspec", *sources(program)]
-    h = hashlib.sha256(GHIDRA_PY.encode() + os.environ.get("GHIDRA_INSTALL_DIR", "").encode())
-    for f in files: h.update(str(f).encode()); h.update(f.read_bytes() if f.exists() else b"")
+    files = [LANGUAGES / f"sass_{name}.sla", manifest, LANGUAGES / "sass.pspec", LANGUAGES / "sass.cspec", *sources(program)]
+    h = hashlib.sha256(GHIDRA_PY.encode() + os.environ.get("GHIDRA_INSTALL_DIR", "").encode() + language_entry(name))
+    for f in files: h.update(str(f.relative_to(ROOT)).encode()); h.update(f.read_bytes() if f.exists() else b"")
     return name, h.hexdigest()[:16]
 
 
@@ -81,16 +91,49 @@ def run(program, arch, fp, lines, *opts):
              for r, v in db.execute(f"select request, result from results where request in ({','.join('?' * len(lines[i:i + 900]))})", lines[i:i + 900])}
     missing = list(dict.fromkeys(line for line in lines if line not in known))
     if missing:
-        # cwd="/" keeps repository modules from shadowing the venv's imports.
-        p = subprocess.run([GHIDRA_PY, str(Path(__file__).parent / program), str(LDEFS), language(arch, fp), *opts],
-                           input="".join(line + "\n" for line in missing), capture_output=True, text=True, cwd="/")
-        results = [line for line in p.stdout.splitlines() if line.startswith("{")]
-        if p.returncode or len(results) != len(missing):
-            raise RuntimeError(f"{program} {language(arch, fp)}: {len(results)}/{len(missing)} results\n{p.stderr[-3000:]}")
+        results = ask([GHIDRA_PY, str(Path(__file__).parent / program), str(LDEFS), language(arch, fp), *opts], missing)
         with db: db.executemany("insert or replace into results values (?, ?)", zip(missing, results))
         known.update(zip(missing, results))
     db.close()
     return [json.loads(known[line]) for line in lines]
+
+
+SESSION = {}   # this process's one Ghidra-side program: its argv, process and stderr file
+
+
+def session(argv):
+    """A long-lived Ghidra-side program: starting one (the JVM and the language) costs about 20 s of
+    CPU and a worker answers many shards of one language. One per process: each JVM takes 0.7-2 GB."""
+    if SESSION.get("argv") != argv or SESSION["process"].poll() is not None:
+        close()
+        log = tempfile.TemporaryFile()
+        # cwd="/" keeps repository modules from shadowing the venv's imports.
+        SESSION.update(argv=argv, log=log, process=subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                                                    stderr=log, text=True, cwd="/"))
+    return SESSION["process"]
+
+
+def close():
+    if process := SESSION.pop("process", None):
+        process.stdin.close(); process.wait()
+    SESSION.clear()
+
+
+def ask(argv, lines):
+    """One result per line from the session for argv; other output (pyghidra's start-up) is skipped."""
+    process = session(argv)
+    # A writer thread: the program answers while we are still sending, and both pipes are bounded.
+    writer = threading.Thread(target=lambda: (process.stdin.write("".join(line + "\n" for line in lines)), process.stdin.flush()), daemon=True)
+    writer.start()
+    results = []
+    while len(results) < len(lines) and (line := process.stdout.readline()):
+        if line.startswith("{"): results.append(line.rstrip("\n"))
+    writer.join()
+    if len(results) != len(lines):
+        process.kill(); process.wait(); log = SESSION["log"]; SESSION.clear()
+        log.seek(0); error = log.read().decode(errors="replace")[-3000:]
+        raise RuntimeError(f"{Path(argv[1]).name} {argv[3]}: {len(results)}/{len(lines)} results\n{error}")
+    return results
 
 
 def emulate(arch, fp, requests):

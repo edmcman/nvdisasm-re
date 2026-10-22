@@ -183,7 +183,7 @@ Each `cases/<family>.py` (listed in `cases/__init__.py` `FAMILIES`) provides:
 
 - `emulator_cases(c)`: shared single-instruction cases for `test_lifted_semantics`,
   `test_pcode_semantics` and `test_cases_on_gpu` (hardware expectations use exact mode). `c.add(cls, fields, registers, expected, ...)` describes one instruction
-  of md class `cls` with operand `fields` (encoded by `c.encode_words()`, which `emulator_cases` runs on the selected cases), seeds `registers`, and checks `expected`; classes the
+  of md class `cls` with operand `fields` (encoded by `c.complete()`, which `emulator_cases` runs on the selected cases; an expected value may be `Later(fn, *args)`, computed there too, so a sweep computes references only for the cases it keeps), seeds `registers`, and checks `expected`; classes the
   architecture lacks are skipped. Helpers in `harness/case.py`: `put` (place an operand value in
   a register, immediate or constant bank), `cx_source`, `c.kernel(...)` (a one-instruction kernel
   expected to fail), `c.sweep(n)` (all indices of a domain, like `range(n)`; sampling happens after
@@ -333,7 +333,7 @@ annotations, then select descriptions before instruction encoding and decoding. 
 encodings must preserve the declared form and backend eligibility. Small memory-adapter
 and IMAD-alias paths retain eager decoding where classification requires it. Manual
 cases are encoded only when selected too: sampling takes their form from their modifier
-fields (`sampling.declared`, one encoding per combination), and `encode_words` checks each
+fields (`sampling.declared`, one encoding per combination), and `complete` checks each
 encoded case against it. Cases are grouped by class and modifier settings, separately for each
 architecture/lowering and for manual versus generated sources. Each generated planned
 form is selected independently, so worker counts and shard boundaries do not change it.

@@ -35,7 +35,7 @@ class Value:
 
 class Builder:
     def __init__(self, gen, klass, guard, spans, known={}):
-        from sass.sleigh.gen import ENUM_FILE, REG_FILES
+        from sass.sleigh.registers import ENUM_FILE, REG_FILES
         self.g, self.k, self.spans, self.known = gen, klass, spans, known
         self.body = [f'build {guard};'] if guard else []
         self.refs, self.values, self.outputs, self.inventory = [], {}, {}, []

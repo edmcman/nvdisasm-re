@@ -25,6 +25,10 @@ NVDISASM = tool("nvdisasm", Path("/tmp/.venv/lib/python3.13/site-packages/nvidia
                 *Path.home().glob(".cache/uv/archive-v0/*/nvidia/cu13/bin/nvdisasm"))
 
 
+def variant(arch, fp="exact"):
+    """Language variant: exact float semantics keep the plain smXX name."""
+    return arch.lower() + ("" if fp == "exact" else "_" + fp)
+
+
 def language(arch, fp="exact"):
-    from sass.sleigh.gen import variant
     return f"SASS:LE:64:{variant(arch, fp)}"

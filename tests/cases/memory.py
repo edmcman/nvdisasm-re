@@ -152,7 +152,7 @@ def emulator_cases(c):
 
     from sass.decode import pydecode
     from tests.harness.case import encode
-    for index, case in enumerate(list(c.encode_words())):
+    for index, case in enumerate(list(c.complete())):
         hw = case.hardware or {'adapter': 'memory'}
         if case.cls.startswith('qspc') and not case.hardware:
             hw = {'skip': 'synthetic 32-bit address-provenance map; paired E cases use physical addresses'}

@@ -33,3 +33,22 @@ def test_ghidra_programs_skip_generators():
     modules = [m for m in loaded if m.startswith("sass.")] + [f"{ghidra_bridge.__name__}.{m}" for m in loaded if ghidra_bridge.module_file(f"{ghidra_bridge.__name__}.{m}")]
     assert not [m for m in modules if ghidra_bridge.generator(m)]
     assert {ghidra_bridge.module_file(m) for m in modules} - {None} <= set(ghidra_bridge.sources(program.name))
+
+
+def test_stamp_ignores_other_languages_and_checkout_location(tmp_path, monkeypatch):
+    """Building another language (a new sass.ldefs entry) or moving the checkout keeps a language's
+    cached results; changing its own ldefs entry or language does not."""
+    from sass.sleigh.gen import LANG, LDEFS as TEMPLATE
+    def checkout(root, variants, description="NVIDIA SASS"):
+        languages = root / "processor/SASS/data/languages"; languages.mkdir(parents=True, exist_ok=True)
+        for f in ("sass_sm89.sla", "sass_sm89_runtime.json", "sass.pspec", "sass.cspec"): (languages / f).write_text(f)
+        entries = "".join(LANG.format(v=v, V=v.upper(), D="") for v in variants).replace("NVIDIA SASS", description)
+        (languages / "sass.ldefs").write_text(TEMPLATE.format(entries))
+        monkeypatch.setattr(ghidra_bridge, "ROOT", root); monkeypatch.setattr(ghidra_bridge, "LANGUAGES", languages)
+        monkeypatch.setattr(ghidra_bridge, "LDEFS", languages / "sass.ldefs")
+        return ghidra_bridge.stamp("ghidra_emulate.py", "SM89", "exact")
+    monkeypatch.setattr(ghidra_bridge, "sources", lambda program: [])
+    alone = checkout(tmp_path / "a", ["sm89"])
+    assert checkout(tmp_path / "a", ["sm89", "sm90", "sm90_readable"]) == alone
+    assert checkout(tmp_path / "b", ["sm89"]) == alone
+    assert checkout(tmp_path / "a", ["sm89"], "changed") != alone
