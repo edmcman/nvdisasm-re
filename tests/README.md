@@ -40,8 +40,8 @@ uv run pytest -m gpu --require-gpu                     # GPU tests (outside the 
   (`--family conversions --arch SM89`).
 - **Ghidra tests:** when the SLEIGH generator, a lowering or a case changes.
 - **GPU tests:** when shared cases, GPU fixtures, references or the GPU harness change.
-- **Before committing:** the Python and Ghidra tests on every architecture and lowering, plus the
-  GPU tests if shared cases, fixtures, references or the GPU harness changed.
+- **Before committing:** the GPU tests if shared cases, fixtures, references or the GPU harness
+  changed. CI runs the Python and Ghidra tests on every architecture and lowering.
 
 GPU tests detect device ordinal 0 before collecting cases; this host's H100 NVL selects
 SM90. An explicit `--arch SM90` (or a list/`all` containing SM90) must include that
@@ -51,8 +51,9 @@ Whole-kernel Ghidra tests support `--arch SM89,SM90 --fp all` without a GPU.
 The MUFU sample fixtures compare the same 1,462 recorded inputs per operation on
 both devices; their GPU pass records remain architecture-specific.
 
-CI (`.github/workflows/ci.yml`) runs the Python tests on every architecture and lowering for every
-push and pull request, and fails when a generated plan (`tests.autocases --check`) or the committed
+CI (`.github/workflows/ci.yml`) runs the Python and Ghidra tests on every architecture and lowering
+for every push and pull request (the Ghidra tests on a stock Ghidra 12.1.4, building each
+architecture's languages first), and fails when a generated plan (`tests.autocases --check`) or the committed
 coverage and evidence are stale.
 
 ### Cost
