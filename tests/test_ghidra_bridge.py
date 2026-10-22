@@ -7,7 +7,7 @@ from sass import ghidra_bridge
 from sass.paths import GHIDRA_PY, LDEFS, language
 from tests.cases import emulator_cases
 from tests.harness import hardware
-from tests.harness.select import require_languages
+from tests.harness.select import arches, require_languages
 
 PROBE = """
 import atexit, runpy, sys
@@ -19,9 +19,10 @@ runpy.run_path(sys.argv[0], run_name="__main__")
 
 
 @pytest.mark.ghidra
-def test_ghidra_programs_skip_generators():
+def test_ghidra_programs_skip_generators(request):
     """Single instructions, runtime CALLOTHERs (MUFU), launch kernels and cooperative warp
     collectives (operand spans from family.roles)."""
+    if "SM89" not in arches(request.config): pytest.skip("SM89 launch kernels: --arch does not select SM89")
     require_languages([("SM89", "exact")])
     cases = emulator_cases("SM89", "exact", ("control", "mufu"), 0, generated=False)
     requests = [c.request for family in cases.values() for c in family] + [hardware.request(f) for _, f in hardware.fixtures(("threads",))]

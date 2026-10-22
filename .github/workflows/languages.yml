@@ -1,7 +1,7 @@
 name: languages
 on:
   push:
-    paths: ["src/sass/**", "out/**", "processor/SASS/data/languages/**", ".github/workflows/languages.yml"]
+    paths: ["src/sass/**", "processor/SASS/data/languages/**", ".github/workflows/languages.yml"]
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -59,7 +59,6 @@ jobs:
           path: |
             languages/sass_sm*.sla
             languages/sass_sm*.slaspec
-            languages/sass_sm*_runtime.json
             languages/build-results-*.json
   release:
     needs: compile

@@ -168,7 +168,7 @@ architectures differ from our Ghidra p-code and GPU-oracle claims.
 ## Practical candidates to investigate next
 
 For gaps with more execution-model work, assess `LDSM`/`STSM`, `LDGSTS`, and the SM90+ TMA/WGMMA family. Before porting a
-handler, map its spelling to the exact `out/SMxx/md` classes, inspect operand
+handler, map its spelling to the exact `src/sass/md/data/SMxx/md` classes, inspect operand
 spans and selectors, and keep unsupported encodings opaque. Candidate
 calculations should be tested against an independent integer/floating
 reference and the hardware oracle on each architecture claimed.

@@ -128,8 +128,8 @@ def expected(g, d, optimized=False, ignore=()):
                 used=[j for j in range(4) if prmt(0 if right else 255<<(8*j),d.env['Sb'],
                                                  255<<(8*j) if right else 0,mode)]
                 needed=set(range(base+size*index,base+size*index+max(used,default=-1)+1))
-            if optimized and role=='read' and span==1 and d.klass.mnemonic in ('F2FP','UF2FP','F2IP','F2F','F2I','I2F','FRND'):
-                # F2FP/F2IP and the 16/8-bit conversion sources read an operand's half or byte named
+            if optimized and role=='read' and span==1 and d.klass.mnemonic in ('F2FP','UF2FP','F2IP','F2F','F2I','I2F','FRND','MUFU'):
+                # F2FP/F2IP, MUFU's 16-bit forms and the 16/8-bit conversion sources read an operand's half or byte named
                 # by the selector after it in FORMAT (extract, extract_B, selB, hsel, bsel): the bytes
                 # up to it (SLEIGH truncates to the low bytes, then shifts). The scaled MERGE_C
                 # forms, without a selector, read all of C: the scales above the kept low half.
@@ -220,7 +220,7 @@ def problems(arch, fp, words):
         elif (flow := result["flow"]) != (want_flow := expected_flow(gen, d)):
             out.append(f"{d.klass.name} {w.hex()} {d.text}: flow {flow}, md {want_flow}")
         elif (got := actual(result["ops"])) != (want := expected(gen, d, optimized=not any(
-                (op.get("userop") or "").startswith(("sass_opaque_", "sass_prim_")) for op in result["ops"]))):
+                (op.get("userop") or "").startswith("sass_opaque_") for op in result["ops"]))):
             out.append(f"{d.klass.name} {w.hex()} {d.text}: reads missing={sorted(want[0] - got[0])} extra={sorted(got[0] - want[0])}; "
                        f"writes missing={sorted(want[1] - got[1])} extra={sorted(got[1] - want[1])}")
     return len(todo), out

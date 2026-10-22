@@ -1,7 +1,7 @@
 """Extract the embedded, encrypted machine-description blobs from nvdisasm."""
 import re, struct, subprocess, sys, pathlib
 import lz4.block
-from sass.paths import NVDISASM, OUT
+from sass.paths import NVDISASM, RAW
 
 KINDS = ["md", "latencies", "patterns"]
 KEYS = {"SM75": 0xb4a, "SM80": 0x8416, "SM86": 0x8416, "SM89": 0x1684, "SM90": 0x3927}
@@ -55,7 +55,7 @@ def lz4_chunks(buf):
 
 def is_text(b): return b.isascii() and b.decode().strip().isprintable()
 
-def main(nvdisasm=NVDISASM, outdir=OUT / "raw"):
+def main(nvdisasm=NVDISASM, outdir=RAW):
     binary = pathlib.Path(nvdisasm).read_bytes()
     out = pathlib.Path(outdir); out.mkdir(parents=True, exist_ok=True)
     inv_sbox = binary[INV_SBOX_OFF:INV_SBOX_OFF + 256]

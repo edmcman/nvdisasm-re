@@ -67,7 +67,8 @@ def environment(c,k,form):
         else:
             handler=True
             if 'Rd' in k.operand_types:
-                handler={form.get('cbu_state','B0'):value}
+                # BMOV's read: the environment's value for the state's encoding.
+                handler={str(c.md.enums[k.operand_types['cbu_state'].type][form.get('cbu_state','B0')]):value}
                 expected[s.output(('Rd',),8)]=value if active else 0
                 s.registers['R8']=0
             context={'synchronization':{k.mnemonic.lower():handler}}

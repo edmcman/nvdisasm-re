@@ -40,8 +40,8 @@ uv run pytest -m gpu --require-gpu                     # GPU tests (outside the 
   (`--family conversions --arch SM89`).
 - **Ghidra tests:** when the SLEIGH generator, a lowering or a case changes.
 - **GPU tests:** when shared cases, GPU fixtures, references or the GPU harness change.
-- **Before committing:** the Python and Ghidra tests on every architecture and lowering, plus the
-  GPU tests if shared cases, fixtures, references or the GPU harness changed.
+- **Before committing:** the GPU tests if shared cases, fixtures, references or the GPU harness
+  changed. CI runs the Python and Ghidra tests on every architecture and lowering.
 
 GPU tests detect device ordinal 0 before collecting cases; this host's H100 NVL selects
 SM90. An explicit `--arch SM90` (or a list/`all` containing SM90) must include that
@@ -51,8 +51,9 @@ Whole-kernel Ghidra tests support `--arch SM89,SM90 --fp all` without a GPU.
 The MUFU sample fixtures compare the same 1,462 recorded inputs per operation on
 both devices; their GPU pass records remain architecture-specific.
 
-CI (`.github/workflows/ci.yml`) runs the Python tests on every architecture and lowering for every
-push and pull request, and fails when a generated plan (`tests.autocases --check`) or the committed
+CI (`.github/workflows/ci.yml`) runs the Python and Ghidra tests on every architecture and lowering
+for every push and pull request (the Ghidra tests on a stock Ghidra 12.1.4, building each
+architecture's languages first), and fails when a generated plan (`tests.autocases --check`) or the committed
 coverage and evidence are stale.
 
 ### Cost
@@ -65,7 +66,7 @@ Rough wall times and peak memory (summed PSS) on a 32-core, 93 GiB machine with 
 | Python tests, SM89 | 25 s | 10 GiB |
 | Python tests, every architecture and lowering | 3 minutes | 13 GiB (25 GiB with `--exhaustive`) |
 | language build (about 17 compilers at once) | 1.75 minutes | 27 GiB |
-| Ghidra tests, all languages | 8 minutes cold, 2.5 minutes cached (mostly building the cases) | 25 GiB |
+| Ghidra tests, all languages | 8 minutes cold, 2.5 minutes cached (mostly building the cases); 2 hours cold for `--arch all --fp all` (2.2 million selected cases, load 55-85 from two other suites, 2026-10-22) | 25 GiB |
 | GPU tests | 15 s | |
 
 Ghidra results are cached per program by the sources it imports (`ghidra_bridge.sources`), so an
@@ -131,7 +132,7 @@ Need an SM89 or SM90 device (outside the sandbox), but not Ghidra.
 
 | File | Question | Under test | Oracle |
 |---|---|---|---|
-| `test_cases_on_gpu.py` | do shared instruction cases agree with hardware? | `refs/`, through generated native probes | SM89/SM90 GPU; passing complete families are fingerprinted in `baseline/gpu_case_passes.json` |
+| `test_cases_on_gpu.py` | do shared instruction cases agree with hardware? | `refs/`, through generated native probes | SM89/SM90 GPU; each passing scenario is fingerprinted in `baseline/gpu_case_passes.json` |
 | `test_refs_on_gpu.py` | are the references right on hardware? | `refs/`, through the GPU fixtures | SM89/SM90 GPU (CLI `uv run python -m tests.observe FAMILY`); records passing fixtures' fingerprints in `baseline/gpu_passes.json`, which with `gpu_case_passes.json` is the source of `gpu` evidence (`tests/evidence.py`, per class and per form: the modifier combinations that ran) |
 | `test_assemble.py::test_native_cubin_on_gpu` | do native cubins load and execute? | self-contained kernels assembled without compiled templates | SM89/SM90 Driver API: parameters, branches, constants, shared memory, multiple entries |
 
@@ -449,19 +450,18 @@ evidence report at another depth, use
 
 ### Shared-case hardware evidence
 
-`baseline/gpu_case_passes.json` partitions records by architecture and records a passing family's selected inputs/expectations, exact
-instruction words, sampling percentage and algorithm version, probe-source digest, device and
-executed cubin hashes. Changing any of these invalidates its evidence. The digest covers only the
-sources that build, run and compare a probe (the import closure of `harness/device_cases.py`,
-`device_setup.py` and `device_runner.py`, plus the target architecture’s `out/SMxx`), not semantics (but softfloat), case
-lists or references (but the `refs/bits.py`/`fpformat.py` helpers the harness imports), whose
-effect on a family is already in its signature.
+`baseline/gpu_case_passes.json` records, per architecture and device, the fingerprint of every
+scenario that passed (`harness/device_evidence.py` `fingerprint`): its probe built alone (target
+word, inputs, setup, scheduling, capture layout, launch shape), its hardware expectation, F16 NaN
+lanes and a hash of the comparison code. No source digest: an edit invalidates a pass only by
+changing what that scenario runs or how it is judged. A run adds its passes and drops its failures;
+scenarios it didn't run keep theirs.
 
-A partial or failing family run drops that family's shared-case evidence on the tested architecture; unchanged other families
-remain recorded. `tests/evidence.py` credits the target instruction directly as `cases/FAMILY`,
-independent of wrapper instructions and whole-kernel data-path slicing. Evidence refresh needs
-neither a GPU nor Ghidra and does not execute recorded passes. The signature is order-free (the sum
-of per-scenario sha256 digests), so the families' cases are classified and checked shard by shard
+`tests/evidence.py` credits a target word directly as `cases/FAMILY` when every GPU scenario for it
+in the evidence run's selection (its `--sample`) has passed, independent of wrapper instructions
+and whole-kernel data-path slicing, so new or changed cases leave only their own words unverified
+until a GPU run. Evidence refresh needs neither a GPU nor Ghidra and does not execute recorded
+passes. The families' cases are classified and fingerprinted shard by shard
 (`harness/device_evidence.py` `summaries`, over `harness/sharded.py`); reference evidence streams
 the same shards on every core.
 
