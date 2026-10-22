@@ -2,20 +2,22 @@
 from collections import Counter
 from functools import cache
 import pytest
-from tests.harness import device_cases, device_evidence, sampling
+from tests.harness import device_cases, device_evidence, sampling, gpu
 from tests.harness.select import families, selected, skipped
 
 
 @cache
-def scenarios(fams, sample): return device_cases.selection(fams, sample)
+def scenarios(fams, sample, arch): return device_cases.selection(fams, sample, arch)
 
 
-def selection(config): return tuple(families(config)), sampling.configured(config)
+def selection(config): return tuple(families(config)), sampling.configured(config), gpu.target(config)
 
 
 def pytest_generate_tests(metafunc):
     if 'device_class' not in metafunc.fixturenames: return
     if not selected(metafunc.config, 'gpu'): return skipped(metafunc, 'device_class', 'gpu')
+    if gpu.target(metafunc.config) is None:
+        return metafunc.parametrize('device_class', [pytest.param(None, marks=pytest.mark.skip(reason=metafunc.config._gpu_unavailable))])
     cases = scenarios(*selection(metafunc.config))
     params = sorted({(s.family, s.case.cls) for s in cases})
     metafunc.parametrize('device_class', params, ids=['-'.join(p) for p in params])
@@ -23,12 +25,13 @@ def pytest_generate_tests(metafunc):
 
 @pytest.fixture(scope='session')
 def device_results(request):
-    try: device_cases.Driver().close()
+    if gpu.target(request.config) is None: pytest.skip(request.config._gpu_unavailable)
+    try: device_cases.Driver(gpu.target(request.config)).close()
     except (OSError, RuntimeError) as error:
         if request.config.getoption('--require-gpu'): raise
-        pytest.skip(f'no SM89 GPU: {error}')
-    fams, sample = selection(request.config)
-    ss = scenarios(fams, sample)
+        pytest.skip(f'no supported GPU: {error}')
+    fams, sample, arch = selection(request.config)
+    ss = scenarios(fams, sample, arch)
     # Reject duplicate scenario identities with incompatible hardware expectations.
     known = {}
     for s in ss:
@@ -44,7 +47,7 @@ def device_results(request):
         results.update(response['results']); binaries += response.get('kernels', [])
         device = response['device'] or device
         if reporter: reporter.write_line(f'GPU batch {i + 1}/{len(batches)}: {len(results)} scenarios executed')
-    device_evidence.record(ss, results, sample, device, binaries)
+    device_evidence.record(ss, results, sample, device, binaries, arch=arch)
     counts = Counter('failed' if results.get(s.id, ['missing result']) else 'passed' for s in ss if s.kind != 'emulator')
     counts['emulator-only'] = sum(s.kind == 'emulator' for s in ss)
     request.config._device_case_summary = counts, Counter(s.reason for s in ss if s.kind == 'emulator')
@@ -64,28 +67,30 @@ def test_cases_on_gpu(device_class, device_results, request):
 @pytest.mark.gpu
 def test_generated_probe_rejects_wrong_reference(request):
     """An intentional wrong reference must be reported, never accepted as a hardware pass."""
-    try: device_cases.Driver().close()
+    if gpu.target(request.config) is None: pytest.skip(request.config._gpu_unavailable)
+    try: device_cases.Driver(gpu.target(request.config)).close()
     except (OSError, RuntimeError) as error:
         if request.config.getoption('--require-gpu'): raise
         pytest.skip(str(error))
     from tests.harness.case import Cases
-    c = Cases('SM89')
+    c = Cases(gpu.target(request.config))
     c.add('mov__RI', dict(Rd=8, Sb=19, PixMaskU04=15), {}, dict(R8=20))
-    s = device_cases.Scenario('runner-self-test', c.encode_words()[0], 'scalar')
+    s = device_cases.Scenario('runner-self-test', c.encode_words()[0], 'scalar', arch=c.arch)
     result = device_cases.isolated(device_cases.kernels([s]))
     assert result['results'][s.id] == ['R8: GPU 0x13, reference 0x14']
 
 
 @pytest.mark.gpu
 def test_raw_generated_probes(request, tmp_path):
-    try: device_cases.Driver().close()
+    if gpu.target(request.config) is None: pytest.skip(request.config._gpu_unavailable)
+    try: device_cases.Driver(gpu.target(request.config)).close()
     except (OSError, RuntimeError) as error:
         if request.config.getoption('--require-gpu'): raise
         pytest.skip(str(error))
     from tests.harness.case import Cases
     from tests.harness import device_evidence
     before = device_evidence.PASSES.read_bytes() if device_evidence.PASSES.exists() else None
-    c = Cases('SM89')
+    c = Cases(gpu.target(request.config))
     probe = c.probe('mov__RI', dict(Rd=8, Sb=19, PixMaskU04=15), {}, observe=['R8', 'R12'])
     # Even an intentionally wrong existing reference must not affect raw results.
     c[0] = probe._replace(expected={'R8':20})

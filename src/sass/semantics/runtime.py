@@ -97,7 +97,7 @@ class Runtime:
         return values,[i for i in range(32) if active>>i&1]
 
     def address_space(self,address):
-        """The one-hot tag of the one mapped space containing a generic address."""
+        """The tag of the mapped space containing a generic address (shared and shared::cluster may overlap)."""
         ranges=self.context.get('address_spaces')
         if not isinstance(ranges,dict):raise UnsupportedSemantics('QSPC address_spaces context required')
         found=0
@@ -110,7 +110,9 @@ class Runtime:
                 start,end=map(int,interval)
                 if not 0<=start<=end<=1<<64:raise UnsupportedSemantics(f'invalid QSPC address range for {name}')
                 if start<=address<end:found|=SPACES[name]
-        if found.bit_count()!=1:raise UnsupportedSemantics('QSPC input address has no unique mapped space')
+        # CTA shared memory lies inside the cluster's shared window: both bits.
+        if found.bit_count()!=1 and found!=SPACES['shared']|SPACES['shared_cluster']:
+            raise UnsupportedSemantics('QSPC input address has no unique mapped space')
         return found
 
     def synchronize(self,op,inputs,read):

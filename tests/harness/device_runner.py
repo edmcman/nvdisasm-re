@@ -10,7 +10,7 @@ def main():
     probes = pickle.loads(sys.stdin.buffer.read())
     driver = None
     try:
-        driver = device_cases.Driver()
+        driver = device_cases.Driver(probes[0].code.arch)
         binary = device_cases.image(probes)
         result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,
                       kernels=[hashlib.sha256(binary).hexdigest()[:24]])

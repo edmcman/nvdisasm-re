@@ -1,4 +1,4 @@
-"""Discovery: run GPU fixtures on the SM89 device without asserting, to derive a reference.
+"""Discovery: run GPU fixtures on the selected device without asserting, to derive a reference.
 
 Draft a fixture with expected=None in a family's gpu_fixtures(), run this, write the reference
 from the observed outputs, then the fixture becomes a regression test in test_refs_on_gpu and test_fixtures_emulated.
@@ -15,9 +15,10 @@ def main():
     p.add_argument("family", choices=FAMILIES); p.add_argument("--fixture", default="")
     p.add_argument("--diff", action="store_true", help="show threads where the GPU differs from the current reference")
     p.add_argument("--out", help="write {fixture: [outputs]} as JSON")
+    p.add_argument("--arch", choices=("SM89", "SM90"))
     a = p.parse_args()
-    fixtures = [f for _, f in gpu_fixtures((a.family,)) if a.fixture in f.name]
-    driver, observed = Driver(), {}
+    driver, observed = Driver(a.arch), {}
+    fixtures = [f for _, f in gpu_fixtures((a.family,), arch=driver.arch) if a.fixture in f.name]
     try:
         for f in fixtures:
             gpu = observed[f.name] = driver.run(f)

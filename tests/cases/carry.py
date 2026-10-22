@@ -38,30 +38,30 @@ def with_uniform_twin(c, cls, fields, regs, expected):
 
 
 
-def gpu_fixtures():
+def gpu_fixtures(arch="SM89"):
     """Patched carry kernel: four slots set P2/P3 from input C, then the target instruction, then
     readback of its result, carry predicates, or high/low words into R11."""
     import itertools
-    from tests.harness.gpu import sm89
+    from tests.harness.gpu import encode
     from tests.harness.templates import slot_fixture
     rng = random.Random(44); edges = [0, 1, 2, 3, MASK32, 0xfffffffe, 0x7fffffff, 0x80000000, 0x80000001, 0xffff0000]
     vectors = [(a, b, edges[(i * 7 + 4) % len(edges)]) for i, (a, b) in enumerate(product(edges, repeat=2))]
     vectors += [(MASK32, MASK32, MASK32), (MASK32, MASK32, 3), (0x80000000, 0x80000000, 0)] + [tuple(rng.getrandbits(32) for _ in range(3)) for _ in range(25)]
-    prep = [sm89("lop3_lut__RuIR_RIR", Rd=0, Ra=6, Sb=1, Rc=255, imm8=0xc0, Pp=7),
-            sm89("isetp__RsIR_RIR_noEX", Pu=2, Pv=7, Ra=0, Sb=0, icmp="NE", bop="AND", Pp=7, fmt="U32"),
-            sm89("lop3_lut__RuIR_RIR", Rd=0, Ra=6, Sb=2, Rc=255, imm8=0xc0, Pp=7),
-            sm89("isetp__RsIR_RIR_noEX", Pu=3, Pv=7, Ra=0, Sb=0, icmp="NE", bop="AND", Pp=7, fmt="U32")]
-    nop = sm89("nop_")
-    sel = lambda rd, sb, pp: sm89("sel__RuIR_RIR", Rd=rd, Ra=255, Sb=sb, Pp=pp, **{"Pp@not": 1})
+    prep = [encode("lop3_lut__RuIR_RIR", Rd=0, Ra=6, Sb=1, Rc=255, imm8=0xc0, Pp=7, arch=arch),
+            encode("isetp__RsIR_RIR_noEX", Pu=2, Pv=7, Ra=0, Sb=0, icmp="NE", bop="AND", Pp=7, fmt="U32", arch=arch),
+            encode("lop3_lut__RuIR_RIR", Rd=0, Ra=6, Sb=2, Rc=255, imm8=0xc0, Pp=7, arch=arch),
+            encode("isetp__RsIR_RIR_noEX", Pu=3, Pv=7, Ra=0, Sb=0, icmp="NE", bop="AND", Pp=7, fmt="U32", arch=arch)]
+    nop = encode("nop_", arch=arch)
+    sel = lambda rd, sb, pp: encode("sel__RuIR_RIR", Rd=rd, Ra=255, Sb=sb, Pp=pp, arch=arch, **{"Pp@not": 1})
 
     def fixture(cls, fields, observe):
-        suffix = {"carry": [sel(0, 1, 0), sel(11, 2, 1), sm89("iadd3_noimm__RRR_RRR", Rd=11, Ra=0, Rb=11, Rc=255)],
-                  "low": [nop, nop, sm89("mov__RR", Rd=11, Rb=10, PixMaskU04=15)], "high": [nop, nop, sm89("mov__RR", Rd=11, Rb=11, PixMaskU04=15)],
+        suffix = {"carry": [sel(0, 1, 0), sel(11, 2, 1), encode("iadd3_noimm__RRR_RRR", Rd=11, Ra=0, Rb=11, Rc=255, arch=arch)],
+                  "low": [nop, nop, encode("mov__RR", Rd=11, Rb=10, PixMaskU04=15, arch=arch)], "high": [nop, nop, encode("mov__RR", Rd=11, Rb=11, PixMaskU04=15, arch=arch)],
                   "pu": [nop, nop, sel(11, 1, 0)]}.get(observe, [nop] * 3)
-        seq = prep + [sm89(cls, **fields)] + suffix
+        seq = prep + [encode(cls, arch=arch, **fields)] + suffix
         if cls.startswith("imad_") and ("_hi_" in cls or "_wide_" in cls):
-            seq[2:4] = [sm89("mov__RR", Rd=7, Rb=5, PixMaskU04=15), nop]  # pair addend C is R6/R7; the high word is B
-        return slot_fixture(f"carry_{cls}_{observe}_{sorted(fields.items())}", seq, vectors, [reference(cls, fields, observe, v) for v in vectors], 0x140)
+            seq[2:4] = [encode("mov__RR", Rd=7, Rb=5, PixMaskU04=15, arch=arch), nop]  # pair addend C is R6/R7; the high word is B
+        return slot_fixture(f"carry_{cls}_{observe}_{sorted(fields.items())}", seq, vectors, [reference(cls, fields, observe, v) for v in vectors], 4, arch=arch)
     out = []
     for ext in (False, True):
         cls = "iadd3_x_noimm__RRR_RRR" if ext else "iadd3_noimm__RRR_RRR"

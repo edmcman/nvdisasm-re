@@ -53,8 +53,9 @@ def constant(data, signed=False):
 
 
 def query(address, ranges, space):
-    """Whether a half-open mapped interval contains the address, and its one-hot provenance tag."""
+    """Whether a half-open mapped interval contains the address, and its provenance bits (shared and cluster-shared may overlap)."""
     tags = {'global':1,'shared':2,'local':4,'shared_cluster':8}
     found = [name for name, intervals in ranges.items() if any(lo <= address < hi for lo,hi in intervals)]
-    if len(found) != 1: raise ValueError('query fixture must have one mapped provenance')
-    return int(space in found), tags[found[0]]
+    if len(found) != 1 and set(found) != {'shared', 'shared_cluster'}:
+        raise ValueError('query fixture has ambiguous provenance')
+    return int(space in found), sum(tags[name] for name in found)

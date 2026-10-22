@@ -60,7 +60,7 @@
         "reference": 1256
       },
       "F2I": {
-        "none": 1088,
+        "none": 4416,
         "reference": 2240
       },
       "F2IP": {
@@ -144,6 +144,7 @@
         "reference": 432
       },
       "I2FP": {
+        "none": 32,
         "reference": 12
       },
       "I2IP": {
@@ -399,9 +400,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 68,
-        "primitive": 8
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -491,7 +491,7 @@
       },
       "F2I": {
         "native": 3328,
-        "opaque": 3328
+        "primitive": 3328
       },
       "F2IP": {
         "native": 10,
@@ -597,7 +597,7 @@
       },
       "I2FP": {
         "native": 12,
-        "opaque": 32
+        "primitive": 32
       },
       "I2I": {
         "opaque": 12
@@ -1095,7 +1095,7 @@
       }
     },
     "evidence": {
-      "none": 17,
+      "none": 19,
       "ptxas": 15,
       "reference": 505
     },
@@ -1128,8 +1128,6 @@
       "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "i2fp__Rbx2": "S4x2; U4x2",
-      "i2fp__URbx2": "S4x2; U4x2",
       "iadd_x_xor_imm__RIR_RIR": "X not modelled; carry out",
       "iadd_x_xor_noimm__RRR_RRR": "X not modelled; carry out",
       "iadd_x_xor_noimm__RUR_RUR": "X not modelled; carry out",
@@ -1295,6 +1293,7 @@
         "reference": 24
       },
       "I2FP": {
+        "none": 2,
         "reference": 4
       },
       "I2IP": {
@@ -1541,8 +1540,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -1630,8 +1628,7 @@
         "partially native": 33
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -1730,7 +1727,7 @@
       },
       "I2FP": {
         "native": 4,
-        "opaque": 2
+        "primitive": 2
       },
       "I2I": {
         "opaque": 3
@@ -2224,8 +2221,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -2274,8 +2270,7 @@
         "partially native": 33
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -2362,7 +2357,7 @@
       },
       "I2FP": {
         "native": 4,
-        "opaque": 2
+        "primitive": 2
       },
       "I2IP": {
         "native": 9
@@ -2623,11 +2618,11 @@
       }
     },
     "status": {
-      "native": 307,
-      "opaque": 441,
-      "partially native": 163,
-      "partially primitive": 6,
-      "primitive": 61
+      "native": 319,
+      "opaque": 439,
+      "partially native": 152,
+      "partially primitive": 5,
+      "primitive": 63
     }
   },
   "SM100_READABLE": {
@@ -2691,7 +2686,7 @@
         "reference": 1256
       },
       "F2I": {
-        "none": 1088,
+        "none": 4416,
         "reference": 2240
       },
       "F2IP": {
@@ -2775,6 +2770,7 @@
         "reference": 432
       },
       "I2FP": {
+        "none": 32,
         "reference": 12
       },
       "I2IP": {
@@ -3030,9 +3026,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 68,
-        "primitive": 8
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -3122,7 +3117,7 @@
       },
       "F2I": {
         "native": 3328,
-        "opaque": 3328
+        "primitive": 3328
       },
       "F2IP": {
         "native": 10,
@@ -3227,7 +3222,7 @@
       },
       "I2FP": {
         "native": 12,
-        "opaque": 32
+        "primitive": 32
       },
       "I2I": {
         "opaque": 12
@@ -3725,7 +3720,7 @@
       }
     },
     "evidence": {
-      "none": 17,
+      "none": 19,
       "ptxas": 15,
       "reference": 505
     },
@@ -3758,8 +3753,6 @@
       "hfma2_relu__RRR": "RELU; ofmt",
       "hfma2_relu__RRU": "RELU; ofmt",
       "hfma2_relu__RUR": "RELU; ofmt",
-      "i2fp__Rbx2": "S4x2; U4x2",
-      "i2fp__URbx2": "S4x2; U4x2",
       "iadd_x_xor_imm__RIR_RIR": "X not modelled; carry out",
       "iadd_x_xor_noimm__RRR_RRR": "X not modelled; carry out",
       "iadd_x_xor_noimm__RUR_RUR": "X not modelled; carry out",
@@ -3925,6 +3918,7 @@
         "reference": 24
       },
       "I2FP": {
+        "none": 2,
         "reference": 4
       },
       "I2IP": {
@@ -4171,8 +4165,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -4260,8 +4253,7 @@
         "partially native": 33
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -4360,7 +4352,7 @@
       },
       "I2FP": {
         "native": 4,
-        "opaque": 2
+        "primitive": 2
       },
       "I2I": {
         "opaque": 3
@@ -4854,8 +4846,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -4904,8 +4895,7 @@
         "partially native": 33
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -4992,7 +4982,7 @@
       },
       "I2FP": {
         "native": 4,
-        "opaque": 2
+        "primitive": 2
       },
       "I2IP": {
         "native": 9
@@ -5253,11 +5243,11 @@
       }
     },
     "status": {
-      "native": 307,
-      "opaque": 441,
-      "partially native": 163,
-      "partially primitive": 6,
-      "primitive": 61
+      "native": 319,
+      "opaque": 439,
+      "partially native": 152,
+      "partially primitive": 5,
+      "primitive": 63
     }
   },
   "SM101": {
@@ -5320,7 +5310,7 @@
         "reference": 1258
       },
       "F2I": {
-        "none": 1088,
+        "none": 4416,
         "reference": 2240
       },
       "F2IP": {
@@ -5625,9 +5615,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 68,
-        "primitive": 8
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -5714,7 +5703,7 @@
       },
       "F2I": {
         "native": 3328,
-        "opaque": 3328
+        "primitive": 3328
       },
       "F2IP": {
         "native": 10,
@@ -6650,8 +6639,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -6735,8 +6723,7 @@
         "partially native": 33
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -7274,8 +7261,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -7323,8 +7309,7 @@
         "partially native": 33
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -7671,10 +7656,10 @@
       }
     },
     "status": {
-      "native": 304,
+      "native": 316,
       "opaque": 392,
-      "partially native": 141,
-      "partially primitive": 6,
+      "partially native": 130,
+      "partially primitive": 5,
       "primitive": 61
     }
   },
@@ -7738,7 +7723,7 @@
         "reference": 1258
       },
       "F2I": {
-        "none": 1088,
+        "none": 4416,
         "reference": 2240
       },
       "F2IP": {
@@ -8043,9 +8028,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 68,
-        "primitive": 8
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -8132,7 +8116,7 @@
       },
       "F2I": {
         "native": 3328,
-        "opaque": 3328
+        "primitive": 3328
       },
       "F2IP": {
         "native": 10,
@@ -9068,8 +9052,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -9153,8 +9136,7 @@
         "partially native": 33
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -9692,8 +9674,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -9741,8 +9722,7 @@
         "partially native": 33
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -10089,10 +10069,10 @@
       }
     },
     "status": {
-      "native": 304,
+      "native": 316,
       "opaque": 392,
-      "partially native": 141,
-      "partially primitive": 6,
+      "partially native": 130,
+      "partially primitive": 5,
       "primitive": 61
     }
   },
@@ -10156,7 +10136,7 @@
         "reference": 1258
       },
       "F2I": {
-        "none": 1088,
+        "none": 4416,
         "reference": 2240
       },
       "F2IP": {
@@ -10238,6 +10218,7 @@
         "reference": 432
       },
       "I2FP": {
+        "none": 32,
         "reference": 12
       },
       "I2IP": {
@@ -10486,9 +10467,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 68,
-        "primitive": 8
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -10578,7 +10558,7 @@
       },
       "F2I": {
         "native": 3328,
-        "opaque": 3328
+        "primitive": 3328
       },
       "F2IP": {
         "native": 10,
@@ -10684,7 +10664,7 @@
       },
       "I2FP": {
         "native": 12,
-        "opaque": 32
+        "primitive": 32
       },
       "I2I": {
         "opaque": 12
@@ -11176,7 +11156,7 @@
       }
     },
     "evidence": {
-      "none": 20,
+      "none": 22,
       "reference": 520
     },
     "opaque_operations": {
@@ -11208,8 +11188,6 @@
       "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "i2fp__Rbx2": "S4x2; U4x2",
-      "i2fp__URbx2": "S4x2; U4x2",
       "iadd_x_xor_imm__RIR_RIR": "X not modelled; carry out",
       "iadd_x_xor_noimm__RRR_RRR": "X not modelled; carry out",
       "iadd_x_xor_noimm__RUR_RUR": "X not modelled; carry out",
@@ -11372,6 +11350,7 @@
         "reference": 24
       },
       "I2FP": {
+        "none": 2,
         "reference": 4
       },
       "I2IP": {
@@ -11610,8 +11589,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -11699,8 +11677,7 @@
         "partially native": 33
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -11799,7 +11776,7 @@
       },
       "I2FP": {
         "native": 4,
-        "opaque": 2
+        "primitive": 2
       },
       "I2I": {
         "opaque": 3
@@ -12287,8 +12264,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -12337,8 +12313,7 @@
         "partially native": 33
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -12425,7 +12400,7 @@
       },
       "I2FP": {
         "native": 4,
-        "opaque": 2
+        "primitive": 2
       },
       "I2IP": {
         "native": 9
@@ -12686,11 +12661,11 @@
       }
     },
     "status": {
-      "native": 307,
-      "opaque": 434,
-      "partially native": 163,
-      "partially primitive": 6,
-      "primitive": 64
+      "native": 319,
+      "opaque": 432,
+      "partially native": 152,
+      "partially primitive": 5,
+      "primitive": 66
     }
   },
   "SM103_READABLE": {
@@ -12753,7 +12728,7 @@
         "reference": 1258
       },
       "F2I": {
-        "none": 1088,
+        "none": 4416,
         "reference": 2240
       },
       "F2IP": {
@@ -12835,6 +12810,7 @@
         "reference": 432
       },
       "I2FP": {
+        "none": 32,
         "reference": 12
       },
       "I2IP": {
@@ -13083,9 +13059,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 68,
-        "primitive": 8
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -13175,7 +13150,7 @@
       },
       "F2I": {
         "native": 3328,
-        "opaque": 3328
+        "primitive": 3328
       },
       "F2IP": {
         "native": 10,
@@ -13280,7 +13255,7 @@
       },
       "I2FP": {
         "native": 12,
-        "opaque": 32
+        "primitive": 32
       },
       "I2I": {
         "opaque": 12
@@ -13772,7 +13747,7 @@
       }
     },
     "evidence": {
-      "none": 20,
+      "none": 22,
       "reference": 520
     },
     "opaque_operations": {
@@ -13804,8 +13779,6 @@
       "hfma2_relu__RRR": "RELU; ofmt",
       "hfma2_relu__RRU": "RELU; ofmt",
       "hfma2_relu__RUR": "RELU; ofmt",
-      "i2fp__Rbx2": "S4x2; U4x2",
-      "i2fp__URbx2": "S4x2; U4x2",
       "iadd_x_xor_imm__RIR_RIR": "X not modelled; carry out",
       "iadd_x_xor_noimm__RRR_RRR": "X not modelled; carry out",
       "iadd_x_xor_noimm__RUR_RUR": "X not modelled; carry out",
@@ -13968,6 +13941,7 @@
         "reference": 24
       },
       "I2FP": {
+        "none": 2,
         "reference": 4
       },
       "I2IP": {
@@ -14206,8 +14180,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -14295,8 +14268,7 @@
         "partially native": 33
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -14395,7 +14367,7 @@
       },
       "I2FP": {
         "native": 4,
-        "opaque": 2
+        "primitive": 2
       },
       "I2I": {
         "opaque": 3
@@ -14883,8 +14855,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -14933,8 +14904,7 @@
         "partially native": 33
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -15021,7 +14991,7 @@
       },
       "I2FP": {
         "native": 4,
-        "opaque": 2
+        "primitive": 2
       },
       "I2IP": {
         "native": 9
@@ -15282,11 +15252,11 @@
       }
     },
     "status": {
-      "native": 307,
-      "opaque": 434,
-      "partially native": 163,
-      "partially primitive": 6,
-      "primitive": 64
+      "native": 319,
+      "opaque": 432,
+      "partially native": 152,
+      "partially primitive": 5,
+      "primitive": 66
     }
   },
   "SM107": {
@@ -15349,7 +15319,7 @@
         "reference": 2096
       },
       "F2I": {
-        "none": 1088,
+        "none": 4416,
         "reference": 2240
       },
       "F2IP": {
@@ -15443,6 +15413,7 @@
         "reference": 432
       },
       "I2FP": {
+        "none": 32,
         "reference": 12
       },
       "I2IP": {
@@ -15679,9 +15650,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 68,
-        "primitive": 8
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -15768,7 +15738,7 @@
       },
       "F2I": {
         "native": 3328,
-        "opaque": 3328
+        "primitive": 3328
       },
       "F2IP": {
         "native": 10,
@@ -15882,7 +15852,7 @@
       },
       "I2FP": {
         "native": 12,
-        "opaque": 32
+        "primitive": 32
       },
       "I2I": {
         "opaque": 12
@@ -16316,7 +16286,7 @@
       }
     },
     "evidence": {
-      "none": 24,
+      "none": 26,
       "reference": 538
     },
     "opaque_operations": {
@@ -16348,8 +16318,6 @@
       "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "i2fp__Rbx2": "S4x2; U4x2",
-      "i2fp__URbx2": "S4x2; U4x2",
       "iadd_64_imm__RsIR_RIR": "width",
       "iadd_64_noimm__RRR_RRR": "width",
       "iadd_64_noimm__RUR_RUR": "width",
@@ -16547,6 +16515,7 @@
         "reference": 24
       },
       "I2FP": {
+        "none": 2,
         "reference": 4
       },
       "I2IP": {
@@ -16774,8 +16743,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -16860,8 +16828,7 @@
         "partially native": 51
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -16963,7 +16930,7 @@
       },
       "I2FP": {
         "native": 4,
-        "opaque": 2
+        "primitive": 2
       },
       "I2I": {
         "opaque": 3
@@ -17393,8 +17360,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -17443,8 +17409,7 @@
         "partially native": 51
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -17531,7 +17496,7 @@
       },
       "I2FP": {
         "native": 4,
-        "opaque": 2
+        "primitive": 2
       },
       "I2IP": {
         "native": 9
@@ -17794,11 +17759,11 @@
       }
     },
     "status": {
-      "native": 302,
-      "opaque": 382,
-      "partially native": 190,
-      "partially primitive": 6,
-      "primitive": 64
+      "native": 314,
+      "opaque": 380,
+      "partially native": 179,
+      "partially primitive": 5,
+      "primitive": 66
     }
   },
   "SM107_READABLE": {
@@ -17861,7 +17826,7 @@
         "reference": 2096
       },
       "F2I": {
-        "none": 1088,
+        "none": 4416,
         "reference": 2240
       },
       "F2IP": {
@@ -17955,6 +17920,7 @@
         "reference": 432
       },
       "I2FP": {
+        "none": 32,
         "reference": 12
       },
       "I2IP": {
@@ -18191,9 +18157,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 68,
-        "primitive": 8
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -18280,7 +18245,7 @@
       },
       "F2I": {
         "native": 3328,
-        "opaque": 3328
+        "primitive": 3328
       },
       "F2IP": {
         "native": 10,
@@ -18393,7 +18358,7 @@
       },
       "I2FP": {
         "native": 12,
-        "opaque": 32
+        "primitive": 32
       },
       "I2I": {
         "opaque": 12
@@ -18827,7 +18792,7 @@
       }
     },
     "evidence": {
-      "none": 24,
+      "none": 26,
       "reference": 538
     },
     "opaque_operations": {
@@ -18859,8 +18824,6 @@
       "hfma2_relu__RRR": "RELU; ofmt",
       "hfma2_relu__RRU": "RELU; ofmt",
       "hfma2_relu__RUR": "RELU; ofmt",
-      "i2fp__Rbx2": "S4x2; U4x2",
-      "i2fp__URbx2": "S4x2; U4x2",
       "iadd_64_imm__RsIR_RIR": "width",
       "iadd_64_noimm__RRR_RRR": "width",
       "iadd_64_noimm__RUR_RUR": "width",
@@ -19058,6 +19021,7 @@
         "reference": 24
       },
       "I2FP": {
+        "none": 2,
         "reference": 4
       },
       "I2IP": {
@@ -19285,8 +19249,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -19371,8 +19334,7 @@
         "partially native": 51
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -19474,7 +19436,7 @@
       },
       "I2FP": {
         "native": 4,
-        "opaque": 2
+        "primitive": 2
       },
       "I2I": {
         "opaque": 3
@@ -19904,8 +19866,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -19954,8 +19915,7 @@
         "partially native": 51
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -20042,7 +20002,7 @@
       },
       "I2FP": {
         "native": 4,
-        "opaque": 2
+        "primitive": 2
       },
       "I2IP": {
         "native": 9
@@ -20305,11 +20265,11 @@
       }
     },
     "status": {
-      "native": 302,
-      "opaque": 382,
-      "partially native": 190,
-      "partially primitive": 6,
-      "primitive": 64
+      "native": 314,
+      "opaque": 380,
+      "partially native": 179,
+      "partially primitive": 5,
+      "primitive": 66
     }
   },
   "SM120": {
@@ -20372,7 +20332,7 @@
         "reference": 1258
       },
       "F2I": {
-        "none": 1088,
+        "none": 4416,
         "reference": 2240
       },
       "F2IP": {
@@ -20716,9 +20676,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 68,
-        "primitive": 8
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -20808,7 +20767,7 @@
       },
       "F2I": {
         "native": 3328,
-        "opaque": 3328
+        "primitive": 3328
       },
       "F2IP": {
         "native": 10,
@@ -21880,8 +21839,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -21968,8 +21926,7 @@
         "partially native": 33
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -22563,8 +22520,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -22612,8 +22568,7 @@
         "partially native": 33
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -22965,10 +22920,10 @@
       }
     },
     "status": {
-      "native": 354,
+      "native": 366,
       "opaque": 444,
-      "partially native": 150,
-      "partially primitive": 6,
+      "partially native": 139,
+      "partially primitive": 5,
       "primitive": 61
     }
   },
@@ -23032,7 +22987,7 @@
         "reference": 1258
       },
       "F2I": {
-        "none": 1088,
+        "none": 4416,
         "reference": 2240
       },
       "F2IP": {
@@ -23376,9 +23331,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 68,
-        "primitive": 8
+        "native": 12,
+        "opaque": 68
       },
       "BREAK": {
         "primitive": 4
@@ -23468,7 +23422,7 @@
       },
       "F2I": {
         "native": 3328,
-        "opaque": 3328
+        "primitive": 3328
       },
       "F2IP": {
         "native": 10,
@@ -24540,8 +24494,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -24628,8 +24581,7 @@
         "partially native": 33
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -25223,8 +25175,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 2
@@ -25272,8 +25223,7 @@
         "partially native": 33
       },
       "F2I": {
-        "native": 12,
-        "partially native": 12
+        "native": 24
       },
       "F2IP": {
         "partially native": 5
@@ -25625,10 +25575,10 @@
       }
     },
     "status": {
-      "native": 354,
+      "native": 366,
       "opaque": 444,
-      "partially native": 150,
-      "partially primitive": 6,
+      "partially native": 139,
+      "partially primitive": 5,
       "primitive": 61
     }
   },
@@ -25690,6 +25640,7 @@
         "reference": 259
       },
       "F2I": {
+        "none": 4800,
         "reference": 3776
       },
       "FADD": {
@@ -25744,6 +25695,7 @@
         "reference": 14988
       },
       "I2F": {
+        "none": 48,
         "reference": 768
       },
       "I2IP": {
@@ -26038,7 +25990,7 @@
       },
       "F2I": {
         "native": 3776,
-        "opaque": 4800
+        "primitive": 4800
       },
       "FADD": {
         "native": 1088
@@ -26105,7 +26057,7 @@
       },
       "I2F": {
         "native": 768,
-        "opaque": 48
+        "primitive": 48
       },
       "I2I": {
         "opaque": 20
@@ -26445,7 +26397,7 @@
       }
     },
     "evidence": {
-      "none": 20,
+      "none": 28,
       "ptxas": 1,
       "reference": 574
     },
@@ -26461,10 +26413,6 @@
       "f2fp_rs__RRR": "outside implemented operation families",
       "f2fp_rs__RRU": "outside implemented operation families",
       "f2fp_rs__RUR": "outside implemented operation families",
-      "f2i_Rd64__CXb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i_Rd64__Cb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i__CXb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i__Cb_64b": "32-bit source for F64; dstfmt outside the table",
       "frnd__f16_C": "F16",
       "frnd__f16_CXb": "F16",
       "frnd__f16_I": "F16",
@@ -26472,10 +26420,6 @@
       "frnd__f16_URb": "F16",
       "frnd__f64_C": "32-bit source for F64",
       "frnd__f64_CXb": "32-bit source for F64",
-      "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
-      "i2f_Rd64__Cb_64b": "32-bit source; dstfmt outside the table",
-      "i2f__CX_64b": "32-bit source; dstfmt outside the table",
-      "i2f__Cb_64b": "32-bit source; dstfmt outside the table",
       "ld_zd__sImmOffset": "32-bit generic address; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
       "ld_zd__uImmOffset": "32-bit generic address; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
       "ld_zd_uniform__Ra32": "32-bit generic address; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
@@ -26568,6 +26512,7 @@
         "reference": 12
       },
       "F2I": {
+        "none": 4,
         "reference": 26
       },
       "FADD": {
@@ -26617,6 +26562,7 @@
         "reference": 5
       },
       "I2F": {
+        "none": 4,
         "reference": 36
       },
       "I2IP": {
@@ -26899,9 +26845,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 13,
-        "opaque": 4,
-        "partially native": 13
+        "native": 26,
+        "primitive": 4
       },
       "FADD": {
         "native": 5
@@ -26963,7 +26908,7 @@
       },
       "I2F": {
         "native": 36,
-        "opaque": 4
+        "primitive": 4
       },
       "I2I": {
         "opaque": 5
@@ -27348,9 +27293,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 13,
-        "opaque": 4,
-        "partially native": 13
+        "native": 26,
+        "primitive": 4
       },
       "F2IP": {
         "absent": 0
@@ -27430,7 +27374,7 @@
       },
       "I2F": {
         "native": 36,
-        "opaque": 4
+        "primitive": 4
       },
       "I2FP": {
         "absent": 0
@@ -27692,10 +27636,10 @@
       }
     },
     "status": {
-      "native": 388,
-      "opaque": 308,
-      "partially native": 136,
-      "primitive": 71
+      "native": 401,
+      "opaque": 300,
+      "partially native": 123,
+      "primitive": 79
     }
   },
   "SM75_READABLE": {
@@ -27756,6 +27700,7 @@
         "reference": 259
       },
       "F2I": {
+        "none": 4800,
         "reference": 3776
       },
       "FADD": {
@@ -27810,6 +27755,7 @@
         "reference": 14988
       },
       "I2F": {
+        "none": 48,
         "reference": 768
       },
       "I2IP": {
@@ -28104,7 +28050,7 @@
       },
       "F2I": {
         "native": 3776,
-        "opaque": 4800
+        "primitive": 4800
       },
       "FADD": {
         "native": 1088
@@ -28171,7 +28117,7 @@
       },
       "I2F": {
         "native": 768,
-        "opaque": 48
+        "primitive": 48
       },
       "I2I": {
         "opaque": 20
@@ -28511,7 +28457,7 @@
       }
     },
     "evidence": {
-      "none": 20,
+      "none": 28,
       "ptxas": 1,
       "reference": 574
     },
@@ -28527,10 +28473,6 @@
       "f2fp_rs__RRR": "outside implemented operation families",
       "f2fp_rs__RRU": "outside implemented operation families",
       "f2fp_rs__RUR": "outside implemented operation families",
-      "f2i_Rd64__CXb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i_Rd64__Cb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i__CXb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i__Cb_64b": "32-bit source for F64; dstfmt outside the table",
       "frnd__f16_C": "F16",
       "frnd__f16_CXb": "F16",
       "frnd__f16_I": "F16",
@@ -28538,10 +28480,6 @@
       "frnd__f16_URb": "F16",
       "frnd__f64_C": "32-bit source for F64",
       "frnd__f64_CXb": "32-bit source for F64",
-      "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
-      "i2f_Rd64__Cb_64b": "32-bit source; dstfmt outside the table",
-      "i2f__CX_64b": "32-bit source; dstfmt outside the table",
-      "i2f__Cb_64b": "32-bit source; dstfmt outside the table",
       "ld_zd__sImmOffset": "32-bit generic address; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
       "ld_zd__uImmOffset": "32-bit generic address; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
       "ld_zd_uniform__Ra32": "32-bit generic address; Pu result; size; sp2 INVALID3; sp2 LTC128B; sp2 LTC64B; sz U.128; zd not modelled",
@@ -28634,6 +28572,7 @@
         "reference": 12
       },
       "F2I": {
+        "none": 4,
         "reference": 26
       },
       "FADD": {
@@ -28683,6 +28622,7 @@
         "reference": 5
       },
       "I2F": {
+        "none": 4,
         "reference": 36
       },
       "I2IP": {
@@ -28965,9 +28905,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 13,
-        "opaque": 4,
-        "partially native": 13
+        "native": 26,
+        "primitive": 4
       },
       "FADD": {
         "native": 5
@@ -29029,7 +28968,7 @@
       },
       "I2F": {
         "native": 36,
-        "opaque": 4
+        "primitive": 4
       },
       "I2I": {
         "opaque": 5
@@ -29414,9 +29353,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 13,
-        "opaque": 4,
-        "partially native": 13
+        "native": 26,
+        "primitive": 4
       },
       "F2IP": {
         "absent": 0
@@ -29496,7 +29434,7 @@
       },
       "I2F": {
         "native": 36,
-        "opaque": 4
+        "primitive": 4
       },
       "I2FP": {
         "absent": 0
@@ -29758,10 +29696,10 @@
       }
     },
     "status": {
-      "native": 388,
-      "opaque": 308,
-      "partially native": 136,
-      "primitive": 71
+      "native": 401,
+      "opaque": 300,
+      "partially native": 123,
+      "primitive": 79
     }
   },
   "SM80": {
@@ -29822,6 +29760,7 @@
         "reference": 259
       },
       "F2I": {
+        "none": 4800,
         "reference": 3776
       },
       "FADD": {
@@ -29883,6 +29822,7 @@
         "reference": 14988
       },
       "I2F": {
+        "none": 48,
         "reference": 768
       },
       "I2IP": {
@@ -30111,9 +30051,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 48,
-        "primitive": 8
+        "native": 12,
+        "opaque": 48
       },
       "BREAK": {
         "primitive": 2
@@ -30190,7 +30129,7 @@
       },
       "F2I": {
         "native": 3776,
-        "opaque": 4800
+        "primitive": 4800
       },
       "FADD": {
         "native": 1088
@@ -30264,7 +30203,7 @@
       },
       "I2F": {
         "native": 768,
-        "opaque": 48
+        "primitive": 48
       },
       "I2I": {
         "opaque": 20
@@ -30600,7 +30539,7 @@
       }
     },
     "evidence": {
-      "none": 20,
+      "none": 28,
       "ptxas": 1,
       "reference": 593
     },
@@ -30617,10 +30556,6 @@
       "f2fp_rs__RRR": "outside implemented operation families",
       "f2fp_rs__RRU": "outside implemented operation families",
       "f2fp_rs__RUR": "outside implemented operation families",
-      "f2i_Rd64__CXb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i_Rd64__Cb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i__CXb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i__Cb_64b": "32-bit source for F64; dstfmt outside the table",
       "frnd__f16_C": "F16",
       "frnd__f16_CXb": "F16",
       "frnd__f16_I": "F16",
@@ -30628,23 +30563,23 @@
       "frnd__f16_URb": "F16",
       "frnd__f64_C": "32-bit source for F64",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "operand form",
-      "hfma2_mma__RCR_relu": "operand form",
-      "hfma2_mma__RCxR_norelu": "operand form",
-      "hfma2_mma__RCxR_relu": "operand form",
-      "hfma2_mma__RIR_norelu": "operand form",
-      "hfma2_mma__RIR_relu": "operand form",
-      "hfma2_mma__RRC_norelu": "operand form",
-      "hfma2_mma__RRC_relu": "operand form",
-      "hfma2_mma__RRCx_norelu": "operand form",
-      "hfma2_mma__RRCx_relu": "operand form",
-      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
-      "hfma2_mma__RRR_norelu": "operand form",
-      "hfma2_mma__RRR_relu": "operand form",
-      "hfma2_mma__RRU_norelu": "operand form",
-      "hfma2_mma__RRU_relu": "operand form",
-      "hfma2_mma__RUR_norelu": "operand form",
-      "hfma2_mma__RUR_relu": "operand form",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "FMZ; FTZ; INVALID3; RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
       "hfma2_relu__RCR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RCxR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RIR": "FMZ; FTZ; INVALID3; RELU; ofmt",
@@ -30654,10 +30589,6 @@
       "hfma2_relu__RRR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RRU": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RUR": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
-      "i2f_Rd64__Cb_64b": "32-bit source; dstfmt outside the table",
-      "i2f__CX_64b": "32-bit source; dstfmt outside the table",
-      "i2f__Cb_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
@@ -30741,6 +30672,7 @@
         "reference": 12
       },
       "F2I": {
+        "none": 4,
         "reference": 26
       },
       "FADD": {
@@ -30796,6 +30728,7 @@
         "reference": 5
       },
       "I2F": {
+        "none": 4,
         "reference": 36
       },
       "I2IP": {
@@ -31017,8 +30950,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 1,
-        "partially primitive": 1
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -31092,9 +31024,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 13,
-        "opaque": 4,
-        "partially native": 13
+        "native": 26,
+        "primitive": 4
       },
       "FADD": {
         "native": 5
@@ -31167,7 +31098,7 @@
       },
       "I2F": {
         "native": 36,
-        "opaque": 4
+        "primitive": 4
       },
       "I2I": {
         "opaque": 5
@@ -31501,8 +31432,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 1,
-        "partially primitive": 1
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -31549,9 +31479,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 13,
-        "opaque": 4,
-        "partially native": 13
+        "native": 26,
+        "primitive": 4
       },
       "F2IP": {
         "absent": 0
@@ -31633,7 +31562,7 @@
       },
       "I2F": {
         "native": 36,
-        "opaque": 4
+        "primitive": 4
       },
       "I2FP": {
         "absent": 0
@@ -31893,11 +31822,10 @@
       }
     },
     "status": {
-      "native": 413,
-      "opaque": 353,
-      "partially native": 128,
-      "partially primitive": 1,
-      "primitive": 72
+      "native": 426,
+      "opaque": 345,
+      "partially native": 116,
+      "primitive": 80
     }
   },
   "SM80_READABLE": {
@@ -31958,6 +31886,7 @@
         "reference": 259
       },
       "F2I": {
+        "none": 4800,
         "reference": 3776
       },
       "FADD": {
@@ -32000,6 +31929,7 @@
         "reference": 433
       },
       "HFMA2.MMA": {
+        "none": 2,
         "reference": 1
       },
       "HMNMX2": {
@@ -32019,6 +31949,7 @@
         "reference": 14988
       },
       "I2F": {
+        "none": 48,
         "reference": 768
       },
       "I2IP": {
@@ -32247,9 +32178,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 48,
-        "primitive": 8
+        "native": 12,
+        "opaque": 48
       },
       "BREAK": {
         "primitive": 2
@@ -32326,7 +32256,7 @@
       },
       "F2I": {
         "native": 3776,
-        "opaque": 4800
+        "primitive": 4800
       },
       "FADD": {
         "native": 1088
@@ -32380,8 +32310,8 @@
         "opaque": 111456
       },
       "HFMA2.MMA": {
-        "opaque": 5759,
-        "partially native": 1
+        "opaque": 5757,
+        "partially native": 3
       },
       "HMMA": {
         "opaque": 192
@@ -32400,7 +32330,7 @@
       },
       "I2F": {
         "native": 768,
-        "opaque": 48
+        "primitive": 48
       },
       "I2I": {
         "opaque": 20
@@ -32736,7 +32666,7 @@
       }
     },
     "evidence": {
-      "none": 20,
+      "none": 28,
       "ptxas": 1,
       "reference": 593
     },
@@ -32753,10 +32683,6 @@
       "f2fp_rs__RRR": "outside implemented operation families",
       "f2fp_rs__RRU": "outside implemented operation families",
       "f2fp_rs__RUR": "outside implemented operation families",
-      "f2i_Rd64__CXb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i_Rd64__Cb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i__CXb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i__Cb_64b": "32-bit source for F64; dstfmt outside the table",
       "frnd__f16_C": "F16",
       "frnd__f16_CXb": "F16",
       "frnd__f16_I": "F16",
@@ -32764,23 +32690,23 @@
       "frnd__f16_URb": "F16",
       "frnd__f64_C": "32-bit source for F64",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "operand form",
-      "hfma2_mma__RCR_relu": "operand form",
-      "hfma2_mma__RCxR_norelu": "operand form",
-      "hfma2_mma__RCxR_relu": "operand form",
-      "hfma2_mma__RIR_norelu": "operand form",
-      "hfma2_mma__RIR_relu": "operand form",
-      "hfma2_mma__RRC_norelu": "operand form",
-      "hfma2_mma__RRC_relu": "operand form",
-      "hfma2_mma__RRCx_norelu": "operand form",
-      "hfma2_mma__RRCx_relu": "operand form",
-      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
-      "hfma2_mma__RRR_norelu": "operand form",
-      "hfma2_mma__RRR_relu": "operand form",
-      "hfma2_mma__RRU_norelu": "operand form",
-      "hfma2_mma__RRU_relu": "operand form",
-      "hfma2_mma__RUR_norelu": "operand form",
-      "hfma2_mma__RUR_relu": "operand form",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
       "hfma2_relu__RCR": "RELU; ofmt",
       "hfma2_relu__RCxR": "RELU; ofmt",
       "hfma2_relu__RIR": "RELU; ofmt",
@@ -32790,10 +32716,6 @@
       "hfma2_relu__RRR": "RELU; ofmt",
       "hfma2_relu__RRU": "RELU; ofmt",
       "hfma2_relu__RUR": "RELU; ofmt",
-      "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
-      "i2f_Rd64__Cb_64b": "32-bit source; dstfmt outside the table",
-      "i2f__CX_64b": "32-bit source; dstfmt outside the table",
-      "i2f__Cb_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
@@ -32877,6 +32799,7 @@
         "reference": 12
       },
       "F2I": {
+        "none": 4,
         "reference": 26
       },
       "FADD": {
@@ -32932,6 +32855,7 @@
         "reference": 5
       },
       "I2F": {
+        "none": 4,
         "reference": 36
       },
       "I2IP": {
@@ -33153,8 +33077,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 1,
-        "partially primitive": 1
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -33228,9 +33151,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 13,
-        "opaque": 4,
-        "partially native": 13
+        "native": 26,
+        "primitive": 4
       },
       "FADD": {
         "native": 5
@@ -33303,7 +33225,7 @@
       },
       "I2F": {
         "native": 36,
-        "opaque": 4
+        "primitive": 4
       },
       "I2I": {
         "opaque": 5
@@ -33637,8 +33559,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 1,
-        "partially primitive": 1
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -33685,9 +33606,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 13,
-        "opaque": 4,
-        "partially native": 13
+        "native": 26,
+        "primitive": 4
       },
       "F2IP": {
         "absent": 0
@@ -33769,7 +33689,7 @@
       },
       "I2F": {
         "native": 36,
-        "opaque": 4
+        "primitive": 4
       },
       "I2FP": {
         "absent": 0
@@ -34029,11 +33949,10 @@
       }
     },
     "status": {
-      "native": 413,
-      "opaque": 353,
-      "partially native": 128,
-      "partially primitive": 1,
-      "primitive": 72
+      "native": 426,
+      "opaque": 345,
+      "partially native": 116,
+      "primitive": 80
     }
   },
   "SM86": {
@@ -34093,6 +34012,7 @@
         "reference": 403
       },
       "F2I": {
+        "none": 4544,
         "reference": 4032
       },
       "F2IP": {
@@ -34157,6 +34077,7 @@
         "reference": 14988
       },
       "I2F": {
+        "none": 24,
         "reference": 792
       },
       "I2FP": {
@@ -34391,9 +34312,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 48,
-        "primitive": 8
+        "native": 12,
+        "opaque": 48
       },
       "BREAK": {
         "primitive": 2
@@ -34470,7 +34390,7 @@
       },
       "F2I": {
         "native": 4032,
-        "opaque": 4544
+        "primitive": 4544
       },
       "F2IP": {
         "native": 18,
@@ -34549,7 +34469,7 @@
       },
       "I2F": {
         "native": 792,
-        "opaque": 24
+        "primitive": 24
       },
       "I2FP": {
         "native": 20
@@ -34916,7 +34836,7 @@
       }
     },
     "evidence": {
-      "none": 18,
+      "none": 22,
       "reference": 625
     },
     "opaque_operations": {
@@ -34932,31 +34852,29 @@
       "f2fp_rs__RRR": "outside implemented operation families",
       "f2fp_rs__RRU": "outside implemented operation families",
       "f2fp_rs__RUR": "outside implemented operation families",
-      "f2i_Rd64__CXb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i__CXb_64b": "32-bit source for F64; dstfmt outside the table",
       "frnd__f16_C": "F16",
       "frnd__f16_CXb": "F16",
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "operand form",
-      "hfma2_mma__RCR_relu": "operand form",
-      "hfma2_mma__RCxR_norelu": "operand form",
-      "hfma2_mma__RCxR_relu": "operand form",
-      "hfma2_mma__RIR_norelu": "operand form",
-      "hfma2_mma__RIR_relu": "operand form",
-      "hfma2_mma__RRC_norelu": "operand form",
-      "hfma2_mma__RRC_relu": "operand form",
-      "hfma2_mma__RRCx_norelu": "operand form",
-      "hfma2_mma__RRCx_relu": "operand form",
-      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
-      "hfma2_mma__RRR_norelu": "operand form",
-      "hfma2_mma__RRR_relu": "operand form",
-      "hfma2_mma__RRU_norelu": "operand form",
-      "hfma2_mma__RRU_relu": "operand form",
-      "hfma2_mma__RUR_norelu": "operand form",
-      "hfma2_mma__RUR_relu": "operand form",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "FMZ; FTZ; INVALID3; RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
       "hfma2_relu__RCR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RCxR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RIR": "FMZ; FTZ; INVALID3; RELU; ofmt",
@@ -34966,8 +34884,6 @@
       "hfma2_relu__RRR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RRU": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RUR": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
-      "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
@@ -35050,6 +34966,7 @@
         "reference": 14
       },
       "F2I": {
+        "none": 2,
         "reference": 28
       },
       "F2IP": {
@@ -35108,6 +35025,7 @@
         "reference": 5
       },
       "I2F": {
+        "none": 2,
         "reference": 38
       },
       "I2FP": {
@@ -35335,8 +35253,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 1,
-        "partially primitive": 1
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -35410,9 +35327,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 14,
-        "opaque": 2,
-        "partially native": 14
+        "native": 28,
+        "primitive": 2
       },
       "F2IP": {
         "partially native": 9
@@ -35490,7 +35406,7 @@
       },
       "I2F": {
         "native": 38,
-        "opaque": 2
+        "primitive": 2
       },
       "I2FP": {
         "native": 6
@@ -35855,8 +35771,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 1,
-        "partially primitive": 1
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -35903,9 +35818,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 14,
-        "opaque": 2,
-        "partially native": 14
+        "native": 28,
+        "primitive": 2
       },
       "F2IP": {
         "partially native": 9
@@ -35989,7 +35903,7 @@
       },
       "I2F": {
         "native": 38,
-        "opaque": 2
+        "primitive": 2
       },
       "I2FP": {
         "native": 6
@@ -36250,11 +36164,10 @@
       }
     },
     "status": {
-      "native": 428,
-      "opaque": 361,
-      "partially native": 142,
-      "partially primitive": 1,
-      "primitive": 72
+      "native": 442,
+      "opaque": 357,
+      "partially native": 129,
+      "primitive": 76
     }
   },
   "SM86_READABLE": {
@@ -36314,6 +36227,7 @@
         "reference": 403
       },
       "F2I": {
+        "none": 4544,
         "reference": 4032
       },
       "F2IP": {
@@ -36359,6 +36273,7 @@
         "reference": 433
       },
       "HFMA2.MMA": {
+        "none": 2,
         "reference": 1
       },
       "HMNMX2": {
@@ -36378,6 +36293,7 @@
         "reference": 14988
       },
       "I2F": {
+        "none": 24,
         "reference": 792
       },
       "I2FP": {
@@ -36612,9 +36528,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 48,
-        "primitive": 8
+        "native": 12,
+        "opaque": 48
       },
       "BREAK": {
         "primitive": 2
@@ -36691,7 +36606,7 @@
       },
       "F2I": {
         "native": 4032,
-        "opaque": 4544
+        "primitive": 4544
       },
       "F2IP": {
         "native": 18,
@@ -36748,8 +36663,8 @@
         "opaque": 222048
       },
       "HFMA2.MMA": {
-        "opaque": 5759,
-        "partially native": 1
+        "opaque": 5757,
+        "partially native": 3
       },
       "HMMA": {
         "opaque": 480
@@ -36769,7 +36684,7 @@
       },
       "I2F": {
         "native": 792,
-        "opaque": 24
+        "primitive": 24
       },
       "I2FP": {
         "native": 20
@@ -37136,7 +37051,7 @@
       }
     },
     "evidence": {
-      "none": 18,
+      "none": 22,
       "reference": 625
     },
     "opaque_operations": {
@@ -37152,31 +37067,29 @@
       "f2fp_rs__RRR": "outside implemented operation families",
       "f2fp_rs__RRU": "outside implemented operation families",
       "f2fp_rs__RUR": "outside implemented operation families",
-      "f2i_Rd64__CXb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i__CXb_64b": "32-bit source for F64; dstfmt outside the table",
       "frnd__f16_C": "F16",
       "frnd__f16_CXb": "F16",
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "operand form",
-      "hfma2_mma__RCR_relu": "operand form",
-      "hfma2_mma__RCxR_norelu": "operand form",
-      "hfma2_mma__RCxR_relu": "operand form",
-      "hfma2_mma__RIR_norelu": "operand form",
-      "hfma2_mma__RIR_relu": "operand form",
-      "hfma2_mma__RRC_norelu": "operand form",
-      "hfma2_mma__RRC_relu": "operand form",
-      "hfma2_mma__RRCx_norelu": "operand form",
-      "hfma2_mma__RRCx_relu": "operand form",
-      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
-      "hfma2_mma__RRR_norelu": "operand form",
-      "hfma2_mma__RRR_relu": "operand form",
-      "hfma2_mma__RRU_norelu": "operand form",
-      "hfma2_mma__RRU_relu": "operand form",
-      "hfma2_mma__RUR_norelu": "operand form",
-      "hfma2_mma__RUR_relu": "operand form",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
       "hfma2_relu__RCR": "RELU; ofmt",
       "hfma2_relu__RCxR": "RELU; ofmt",
       "hfma2_relu__RIR": "RELU; ofmt",
@@ -37186,8 +37099,6 @@
       "hfma2_relu__RRR": "RELU; ofmt",
       "hfma2_relu__RRU": "RELU; ofmt",
       "hfma2_relu__RUR": "RELU; ofmt",
-      "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
-      "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
@@ -37270,6 +37181,7 @@
         "reference": 14
       },
       "F2I": {
+        "none": 2,
         "reference": 28
       },
       "F2IP": {
@@ -37328,6 +37240,7 @@
         "reference": 5
       },
       "I2F": {
+        "none": 2,
         "reference": 38
       },
       "I2FP": {
@@ -37555,8 +37468,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 1,
-        "partially primitive": 1
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -37630,9 +37542,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 14,
-        "opaque": 2,
-        "partially native": 14
+        "native": 28,
+        "primitive": 2
       },
       "F2IP": {
         "partially native": 9
@@ -37709,7 +37620,7 @@
       },
       "I2F": {
         "native": 38,
-        "opaque": 2
+        "primitive": 2
       },
       "I2FP": {
         "native": 6
@@ -38074,8 +37985,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 1,
-        "partially primitive": 1
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -38122,9 +38032,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 14,
-        "opaque": 2,
-        "partially native": 14
+        "native": 28,
+        "primitive": 2
       },
       "F2IP": {
         "partially native": 9
@@ -38207,7 +38116,7 @@
       },
       "I2F": {
         "native": 38,
-        "opaque": 2
+        "primitive": 2
       },
       "I2FP": {
         "native": 6
@@ -38468,11 +38377,10 @@
       }
     },
     "status": {
-      "native": 433,
-      "opaque": 361,
-      "partially native": 137,
-      "partially primitive": 1,
-      "primitive": 72
+      "native": 447,
+      "opaque": 357,
+      "partially native": 124,
+      "primitive": 76
     }
   },
   "SM89": {
@@ -38534,7 +38442,8 @@
         "none": 282
       },
       "F2I": {
-        "gpu": 4032
+        "gpu": 4032,
+        "none": 4544
       },
       "F2IP": {
         "gpu": 18
@@ -38599,7 +38508,8 @@
         "none": 210803
       },
       "I2F": {
-        "gpu": 792
+        "gpu": 792,
+        "none": 24
       },
       "I2FP": {
         "gpu": 20
@@ -38845,9 +38755,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 48,
-        "primitive": 8
+        "native": 12,
+        "opaque": 48
       },
       "BREAK": {
         "primitive": 2
@@ -38924,7 +38833,7 @@
       },
       "F2I": {
         "native": 4032,
-        "opaque": 4544
+        "primitive": 4544
       },
       "F2IP": {
         "native": 18,
@@ -39003,7 +38912,7 @@
       },
       "I2F": {
         "native": 792,
-        "opaque": 24
+        "primitive": 24
       },
       "I2FP": {
         "native": 20
@@ -39375,7 +39284,7 @@
     },
     "evidence": {
       "gpu": 568,
-      "none": 29,
+      "none": 33,
       "reference": 74
     },
     "opaque_operations": {
@@ -39391,31 +39300,29 @@
       "f2fp_rs__RRR": "outside implemented operation families",
       "f2fp_rs__RRU": "outside implemented operation families",
       "f2fp_rs__RUR": "outside implemented operation families",
-      "f2i_Rd64__CXb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i__CXb_64b": "32-bit source for F64; dstfmt outside the table",
       "frnd__f16_C": "F16",
       "frnd__f16_CXb": "F16",
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "operand form",
-      "hfma2_mma__RCR_relu": "operand form",
-      "hfma2_mma__RCxR_norelu": "operand form",
-      "hfma2_mma__RCxR_relu": "operand form",
-      "hfma2_mma__RIR_norelu": "operand form",
-      "hfma2_mma__RIR_relu": "operand form",
-      "hfma2_mma__RRC_norelu": "operand form",
-      "hfma2_mma__RRC_relu": "operand form",
-      "hfma2_mma__RRCx_norelu": "operand form",
-      "hfma2_mma__RRCx_relu": "operand form",
-      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
-      "hfma2_mma__RRR_norelu": "operand form",
-      "hfma2_mma__RRR_relu": "operand form",
-      "hfma2_mma__RRU_norelu": "operand form",
-      "hfma2_mma__RRU_relu": "operand form",
-      "hfma2_mma__RUR_norelu": "operand form",
-      "hfma2_mma__RUR_relu": "operand form",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "FMZ; FTZ; INVALID3; RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
       "hfma2_relu__RCR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RCxR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RIR": "FMZ; FTZ; INVALID3; RELU; ofmt",
@@ -39425,8 +39332,6 @@
       "hfma2_relu__RRR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RRU": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "hfma2_relu__RUR": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
-      "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldg_256_memdesc__Ra64": "dual registers",
@@ -39518,7 +39423,8 @@
         "none": 14
       },
       "F2I": {
-        "gpu": 28
+        "gpu": 28,
+        "none": 2
       },
       "F2IP": {
         "gpu": 9
@@ -39576,7 +39482,8 @@
         "gpu": 5
       },
       "I2F": {
-        "gpu": 38
+        "gpu": 38,
+        "none": 2
       },
       "I2FP": {
         "gpu": 6
@@ -39814,8 +39721,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 1,
-        "partially primitive": 1
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -39889,9 +39795,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 14,
-        "opaque": 2,
-        "partially native": 14
+        "native": 28,
+        "primitive": 2
       },
       "F2IP": {
         "partially native": 9
@@ -39969,7 +39874,7 @@
       },
       "I2F": {
         "native": 38,
-        "opaque": 2
+        "primitive": 2
       },
       "I2FP": {
         "native": 6
@@ -40339,8 +40244,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 1,
-        "partially primitive": 1
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -40387,9 +40291,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 14,
-        "opaque": 2,
-        "partially native": 14
+        "native": 28,
+        "primitive": 2
       },
       "F2IP": {
         "partially native": 9
@@ -40473,7 +40376,7 @@
       },
       "I2F": {
         "native": 38,
-        "opaque": 2
+        "primitive": 2
       },
       "I2FP": {
         "native": 6
@@ -40736,11 +40639,10 @@
       }
     },
     "status": {
-      "native": 456,
-      "opaque": 383,
-      "partially native": 142,
-      "partially primitive": 1,
-      "primitive": 72
+      "native": 470,
+      "opaque": 379,
+      "partially native": 129,
+      "primitive": 76
     }
   },
   "SM89_READABLE": {
@@ -40802,7 +40704,8 @@
         "none": 282
       },
       "F2I": {
-        "gpu": 4032
+        "gpu": 4032,
+        "none": 4544
       },
       "F2IP": {
         "gpu": 18
@@ -40849,7 +40752,8 @@
         "reference": 1
       },
       "HFMA2.MMA": {
-        "gpu": 1
+        "gpu": 1,
+        "none": 2
       },
       "HMNMX2": {
         "gpu": 648,
@@ -40869,7 +40773,8 @@
         "none": 210803
       },
       "I2F": {
-        "gpu": 792
+        "gpu": 792,
+        "none": 24
       },
       "I2FP": {
         "gpu": 20
@@ -41115,9 +41020,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 48,
-        "primitive": 8
+        "native": 12,
+        "opaque": 48
       },
       "BREAK": {
         "primitive": 2
@@ -41194,7 +41098,7 @@
       },
       "F2I": {
         "native": 4032,
-        "opaque": 4544
+        "primitive": 4544
       },
       "F2IP": {
         "native": 18,
@@ -41251,8 +41155,8 @@
         "opaque": 222048
       },
       "HFMA2.MMA": {
-        "opaque": 5759,
-        "partially native": 1
+        "opaque": 5757,
+        "partially native": 3
       },
       "HMMA": {
         "opaque": 480
@@ -41272,7 +41176,7 @@
       },
       "I2F": {
         "native": 792,
-        "opaque": 24
+        "primitive": 24
       },
       "I2FP": {
         "native": 20
@@ -41644,7 +41548,7 @@
     },
     "evidence": {
       "gpu": 568,
-      "none": 29,
+      "none": 33,
       "reference": 74
     },
     "opaque_operations": {
@@ -41660,31 +41564,29 @@
       "f2fp_rs__RRR": "outside implemented operation families",
       "f2fp_rs__RRU": "outside implemented operation families",
       "f2fp_rs__RUR": "outside implemented operation families",
-      "f2i_Rd64__CXb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i__CXb_64b": "32-bit source for F64; dstfmt outside the table",
       "frnd__f16_C": "F16",
       "frnd__f16_CXb": "F16",
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "operand form",
-      "hfma2_mma__RCR_relu": "operand form",
-      "hfma2_mma__RCxR_norelu": "operand form",
-      "hfma2_mma__RCxR_relu": "operand form",
-      "hfma2_mma__RIR_norelu": "operand form",
-      "hfma2_mma__RIR_relu": "operand form",
-      "hfma2_mma__RRC_norelu": "operand form",
-      "hfma2_mma__RRC_relu": "operand form",
-      "hfma2_mma__RRCx_norelu": "operand form",
-      "hfma2_mma__RRCx_relu": "operand form",
-      "hfma2_mma__RRI_relu": "fmz other than nofmz; not the -RZ, RZ constant move; satrelu not modelled",
-      "hfma2_mma__RRR_norelu": "operand form",
-      "hfma2_mma__RRR_relu": "operand form",
-      "hfma2_mma__RRU_norelu": "operand form",
-      "hfma2_mma__RRU_relu": "operand form",
-      "hfma2_mma__RUR_norelu": "operand form",
-      "hfma2_mma__RUR_relu": "operand form",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
       "hfma2_relu__RCR": "RELU; ofmt",
       "hfma2_relu__RCxR": "RELU; ofmt",
       "hfma2_relu__RIR": "RELU; ofmt",
@@ -41694,8 +41596,6 @@
       "hfma2_relu__RRR": "RELU; ofmt",
       "hfma2_relu__RRU": "RELU; ofmt",
       "hfma2_relu__RUR": "RELU; ofmt",
-      "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
-      "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldg_256_memdesc__Ra64": "dual registers",
@@ -41787,7 +41687,8 @@
         "none": 14
       },
       "F2I": {
-        "gpu": 28
+        "gpu": 28,
+        "none": 2
       },
       "F2IP": {
         "gpu": 9
@@ -41845,7 +41746,8 @@
         "gpu": 5
       },
       "I2F": {
-        "gpu": 38
+        "gpu": 38,
+        "none": 2
       },
       "I2FP": {
         "gpu": 6
@@ -42083,8 +41985,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 1,
-        "partially primitive": 1
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -42158,9 +42059,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 14,
-        "opaque": 2,
-        "partially native": 14
+        "native": 28,
+        "primitive": 2
       },
       "F2IP": {
         "partially native": 9
@@ -42237,7 +42137,7 @@
       },
       "I2F": {
         "native": 38,
-        "opaque": 2
+        "primitive": 2
       },
       "I2FP": {
         "native": 6
@@ -42607,8 +42507,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 1,
-        "partially primitive": 1
+        "partially native": 2
       },
       "BREAK": {
         "primitive": 1
@@ -42655,9 +42554,8 @@
         "opaque": 9
       },
       "F2I": {
-        "native": 14,
-        "opaque": 2,
-        "partially native": 14
+        "native": 28,
+        "primitive": 2
       },
       "F2IP": {
         "partially native": 9
@@ -42740,7 +42638,7 @@
       },
       "I2F": {
         "native": 38,
-        "opaque": 2
+        "primitive": 2
       },
       "I2FP": {
         "native": 6
@@ -43003,11 +42901,10 @@
       }
     },
     "status": {
-      "native": 461,
-      "opaque": 383,
-      "partially native": 137,
-      "partially primitive": 1,
-      "primitive": 72
+      "native": 475,
+      "opaque": 379,
+      "partially native": 124,
+      "primitive": 76
     }
   },
   "SM90": {
@@ -43021,16 +42918,19 @@
         "reference": 15
       },
       "BMSK": {
-        "reference": 10
+        "gpu": 4,
+        "reference": 6
       },
       "BRA": {
-        "reference": 12
+        "gpu": 1,
+        "reference": 11
       },
       "BREAK": {
         "reference": 2
       },
       "BREV": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "BSSY": {
         "reference": 2
@@ -43042,19 +42942,24 @@
         "reference": 10
       },
       "CS2R": {
-        "reference": 2
+        "gpu": 1,
+        "reference": 1
       },
       "DADD": {
-        "reference": 272
+        "gpu": 4,
+        "reference": 268
       },
       "DFMA": {
-        "reference": 1920
+        "gpu": 4,
+        "reference": 1916
       },
       "DMUL": {
-        "reference": 272
+        "gpu": 4,
+        "reference": 268
       },
       "DSETP": {
-        "reference": 6528
+        "gpu": 1,
+        "reference": 6527
       },
       "ELECT": {
         "reference": 2
@@ -43063,170 +42968,216 @@
         "reference": 4
       },
       "F2F": {
-        "reference": 536
+        "gpu": 7,
+        "reference": 529
       },
       "F2FP": {
-        "none": 284,
-        "reference": 616
+        "gpu": 97,
+        "none": 282,
+        "reference": 521
       },
       "F2I": {
-        "none": 2112,
-        "reference": 4032
+        "gpu": 32,
+        "none": 8768,
+        "reference": 4000
       },
       "F2IP": {
-        "reference": 18
+        "gpu": 3,
+        "reference": 15
       },
       "FADD": {
-        "reference": 1088
+        "gpu": 5,
+        "reference": 1083
       },
       "FCHK": {
-        "reference": 68
+        "gpu": 4,
+        "reference": 64
       },
       "FFMA": {
-        "reference": 11520
+        "gpu": 5,
+        "reference": 11515
       },
       "FLO": {
+        "gpu": 4,
         "none": 20,
-        "reference": 16
+        "reference": 12
       },
       "FMNMX": {
-        "reference": 1088
+        "gpu": 9,
+        "reference": 1079
       },
       "FMUL": {
-        "reference": 11424
+        "gpu": 4,
+        "reference": 11420
       },
       "FRND": {
-        "reference": 240
+        "gpu": 9,
+        "reference": 231
       },
       "FSEL": {
-        "reference": 272
+        "gpu": 1,
+        "reference": 271
       },
       "FSET": {
-        "reference": 13056
+        "gpu": 20,
+        "reference": 13036
       },
       "FSETP": {
-        "reference": 13056
+        "gpu": 1,
+        "reference": 13055
       },
       "HADD2": {
-        "none": 1519,
-        "reference": 245
+        "gpu": 49,
+        "none": 1518,
+        "reference": 197
       },
       "HFMA2": {
-        "none": 24336,
+        "gpu": 1,
+        "none": 24335,
         "reference": 432
       },
       "HFMA2.MMA": {
-        "none": 1
+        "gpu": 8,
+        "none": 307,
+        "reference": 6
       },
       "HMNMX2": {
-        "none": 17214,
-        "reference": 642
+        "gpu": 51,
+        "none": 17198,
+        "reference": 607
       },
       "HMUL2": {
-        "none": 3819,
-        "reference": 297
+        "gpu": 2,
+        "none": 3818,
+        "reference": 296
       },
       "HSET2": {
-        "none": 316212,
-        "reference": 22476
+        "gpu": 23,
+        "none": 316211,
+        "reference": 22454
       },
       "HSETP2": {
-        "none": 316212,
-        "reference": 22476
+        "gpu": 25,
+        "none": 316211,
+        "reference": 22452
       },
       "I2F": {
-        "none": 264,
-        "reference": 792
+        "gpu": 23,
+        "none": 296,
+        "reference": 769
       },
       "I2FP": {
-        "reference": 20
+        "gpu": 1,
+        "reference": 19
       },
       "I2IP": {
-        "reference": 150
+        "gpu": 31,
+        "reference": 119
       },
       "IABS": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "IADD3": {
-        "reference": 140
+        "gpu": 16,
+        "reference": 124
       },
       "IDP": {
-        "reference": 96
+        "gpu": 12,
+        "reference": 84
       },
       "IMAD": {
-        "none": 18,
-        "reference": 302
+        "gpu": 25,
+        "none": 15,
+        "reference": 280
       },
       "IMNMX": {
         "reference": 20
       },
       "ISETP": {
-        "reference": 1440
+        "gpu": 7,
+        "reference": 1433
       },
       "LD": {
+        "gpu": 3,
         "none": 6838,
-        "reference": 2402
+        "reference": 2399
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "gpu": 2,
+        "none": 1,
+        "reference": 9
       },
       "LDG": {
-        "none": 14770,
-        "reference": 14
+        "gpu": 4,
+        "none": 14767,
+        "reference": 13
       },
       "LDL": {
+        "gpu": 1,
         "none": 46,
-        "reference": 122
+        "reference": 121
       },
       "LDS": {
+        "gpu": 2,
         "none": 16,
-        "reference": 47
+        "reference": 45
       },
       "LEA": {
-        "reference": 132
+        "gpu": 18,
+        "reference": 114
       },
       "LOP3": {
-        "reference": 20
+        "gpu": 4,
+        "reference": 16
       },
       "MATCH": {
-        "reference": 4
+        "gpu": 3,
+        "reference": 1
       },
       "MOV": {
-        "none": 2,
-        "reference": 3
+        "gpu": 3,
+        "none": 1,
+        "reference": 1
       },
       "MUFU": {
-        "none": 662,
-        "reference": 36
+        "gpu": 10,
+        "none": 655,
+        "reference": 33
       },
       "NOP": {
         "reference": 1
       },
       "P2R": {
-        "reference": 20
+        "gpu": 14,
+        "reference": 6
       },
       "PLOP3": {
-        "reference": 16
+        "gpu": 4,
+        "reference": 12
       },
       "POPC": {
-        "reference": 9
+        "gpu": 1,
+        "reference": 8
       },
       "PRMT": {
-        "reference": 63
+        "gpu": 1,
+        "reference": 62
       },
       "QSPC": {
         "none": 6,
         "reference": 22
       },
       "R2P": {
-        "reference": 20
+        "gpu": 14,
+        "reference": 6
       },
       "R2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "REDUX": {
-        "reference": 12
+        "gpu": 8,
+        "reference": 4
       },
       "RET": {
         "reference": 8
@@ -43238,32 +43189,39 @@
         "reference": 1
       },
       "SEL": {
-        "reference": 10
+        "gpu": 2,
+        "reference": 8
       },
       "SGXT": {
         "reference": 20
       },
       "SHF": {
-        "reference": 288
+        "gpu": 3,
+        "reference": 285
       },
       "SHFL": {
-        "reference": 16
+        "gpu": 5,
+        "reference": 11
       },
       "ST": {
+        "gpu": 2,
         "none": 3210,
-        "reference": 1200
+        "reference": 1198
       },
       "STG": {
-        "none": 5136,
-        "reference": 1920
+        "gpu": 2,
+        "none": 5135,
+        "reference": 1919
       },
       "STL": {
-        "none": 48,
+        "gpu": 1,
+        "none": 47,
         "reference": 120
       },
       "STS": {
+        "gpu": 1,
         "none": 18,
-        "reference": 45
+        "reference": 44
       },
       "UBREV": {
         "reference": 2
@@ -43281,22 +43239,25 @@
         "reference": 54
       },
       "UISETP": {
-        "reference": 576
+        "gpu": 2,
+        "reference": 574
       },
       "ULDC": {
-        "reference": 6
+        "gpu": 2,
+        "reference": 4
       },
       "ULEA": {
         "reference": 51
       },
       "ULOP3": {
-        "reference": 8
+        "gpu": 1,
+        "reference": 7
       },
       "UMOV": {
-        "reference": 2
+        "gpu": 2
       },
       "UP2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "UPLOP3": {
         "reference": 8
@@ -43314,11 +43275,13 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "gpu": 2,
+        "reference": 94
       },
       "VABSDIFF4": {
-        "none": 7,
-        "reference": 29
+        "gpu": 8,
+        "none": 4,
+        "reference": 24
       },
       "VIADD": {
         "reference": 9
@@ -43327,16 +43290,19 @@
         "reference": 204
       },
       "VIMNMX": {
-        "reference": 60
+        "gpu": 1,
+        "reference": 59
       },
       "VIMNMX3": {
         "reference": 60
       },
       "VOTE": {
-        "reference": 6
+        "gpu": 5,
+        "reference": 1
       },
       "VOTEU": {
-        "reference": 6
+        "gpu": 2,
+        "reference": 4
       },
       "WARPSYNC": {
         "reference": 10
@@ -43389,9 +43355,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 66,
-        "primitive": 8
+        "native": 12,
+        "opaque": 66
       },
       "BREAK": {
         "primitive": 2
@@ -43477,7 +43442,7 @@
       },
       "F2I": {
         "native": 6144,
-        "opaque": 6656
+        "primitive": 6656
       },
       "F2IP": {
         "native": 18,
@@ -43539,7 +43504,8 @@
         "opaque": 436224
       },
       "HFMA2.MMA": {
-        "opaque": 7199,
+        "native": 320,
+        "opaque": 6879,
         "partially native": 1
       },
       "HGMMA": {
@@ -43563,7 +43529,7 @@
       },
       "I2F": {
         "native": 1056,
-        "opaque": 32
+        "primitive": 32
       },
       "I2FP": {
         "native": 20
@@ -44008,16 +43974,15 @@
       }
     },
     "evidence": {
+      "gpu": 141,
       "none": 42,
-      "reference": 664
+      "reference": 529
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "elect_Pp_": "Pp form",
-      "f2i_Rd64__CXb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i__CXb_64b": "32-bit source for F64; dstfmt outside the table",
       "fmnmx_pred__RCR_RCR": "is_A not modelled",
       "fmnmx_pred__RCxR_RCxR": "is_A not modelled",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
@@ -44034,23 +43999,21 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR": "operand form",
-      "hfma2_mma__RCxR": "operand form",
-      "hfma2_mma__RIR": "operand form",
-      "hfma2_mma__RRC": "operand form",
-      "hfma2_mma__RRCx": "operand form",
-      "hfma2_mma__RRR": "operand form",
-      "hfma2_mma__RRU": "operand form",
-      "hfma2_mma__RUR": "operand form",
-      "hfma2_mma_relu__RCR": "operand form",
-      "hfma2_mma_relu__RCxR": "operand form",
-      "hfma2_mma_relu__RIR": "operand form",
-      "hfma2_mma_relu__RRC": "operand form",
-      "hfma2_mma_relu__RRCx": "operand form",
-      "hfma2_mma_relu__RRI": "fmz other than nofmz_hfma2; not the -RZ, RZ constant move; ofmt other than F16_V2; satrelu not modelled",
-      "hfma2_mma_relu__RRR": "operand form",
-      "hfma2_mma_relu__RRU": "operand form",
-      "hfma2_mma_relu__RUR": "operand form",
+      "hfma2_mma__RCR": "MMA format; MMA operand form",
+      "hfma2_mma__RCxR": "MMA format; MMA operand form",
+      "hfma2_mma__RRC": "MMA format; MMA operand form",
+      "hfma2_mma__RRCx": "MMA format; MMA operand form",
+      "hfma2_mma__RRU": "MMA format; MMA operand form",
+      "hfma2_mma__RUR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RCR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RCxR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RIR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRC": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRCx": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRI": "FMZ; FTZ; INVALID3; MMA format; RELU",
+      "hfma2_mma_relu__RRR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRU": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RUR": "MMA format; MMA operand form",
       "hfma2_relu__RCR": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RCxR": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
@@ -44060,8 +44023,6 @@
       "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
       "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
-      "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
@@ -44104,16 +44065,19 @@
         "reference": 14
       },
       "BMSK": {
-        "reference": 5
+        "gpu": 2,
+        "reference": 3
       },
       "BRA": {
-        "reference": 3
+        "gpu": 1,
+        "reference": 2
       },
       "BREAK": {
         "reference": 1
       },
       "BREV": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "BSSY": {
         "reference": 1
@@ -44125,19 +44089,23 @@
         "reference": 5
       },
       "CS2R": {
-        "reference": 1
+        "gpu": 1
       },
       "DADD": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "DFMA": {
-        "reference": 9
+        "gpu": 1,
+        "reference": 8
       },
       "DMUL": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "DSETP": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "ELECT": {
         "reference": 1
@@ -44146,158 +44114,198 @@
         "reference": 1
       },
       "F2F": {
-        "reference": 25
+        "gpu": 3,
+        "reference": 22
       },
       "F2FP": {
+        "gpu": 7,
         "none": 14,
-        "reference": 28
+        "reference": 21
       },
       "F2I": {
-        "none": 10,
-        "reference": 28
+        "gpu": 6,
+        "none": 12,
+        "reference": 22
       },
       "F2IP": {
-        "reference": 9
+        "gpu": 2,
+        "reference": 7
       },
       "FADD": {
-        "reference": 5
-      },
-      "FCHK": {
-        "reference": 5
-      },
-      "FFMA": {
-        "reference": 9
-      },
-      "FLO": {
-        "none": 1,
+        "gpu": 1,
         "reference": 4
       },
-      "FMNMX": {
-        "reference": 5
+      "FCHK": {
+        "gpu": 1,
+        "reference": 4
       },
-      "FMUL": {
-        "reference": 5
-      },
-      "FRND": {
-        "reference": 9
-      },
-      "FSEL": {
-        "reference": 5
-      },
-      "FSET": {
-        "reference": 5
-      },
-      "FSETP": {
-        "reference": 5
-      },
-      "HADD2": {
-        "reference": 10
-      },
-      "HFMA2": {
-        "reference": 9
-      },
-      "HFMA2.MMA": {
-        "none": 1
-      },
-      "HMNMX2": {
-        "reference": 10
-      },
-      "HMUL2": {
-        "reference": 5
-      },
-      "HSET2": {
-        "reference": 5
-      },
-      "HSETP2": {
-        "reference": 5
-      },
-      "I2F": {
-        "reference": 38
-      },
-      "I2FP": {
-        "reference": 6
-      },
-      "I2IP": {
-        "reference": 15
-      },
-      "IABS": {
-        "reference": 5
-      },
-      "IADD3": {
-        "reference": 10
-      },
-      "IDP": {
+      "FFMA": {
+        "gpu": 1,
         "reference": 8
       },
+      "FLO": {
+        "gpu": 1,
+        "none": 1,
+        "reference": 3
+      },
+      "FMNMX": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "FMUL": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "FRND": {
+        "gpu": 2,
+        "reference": 7
+      },
+      "FSEL": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "FSET": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "FSETP": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "HADD2": {
+        "gpu": 2,
+        "reference": 8
+      },
+      "HFMA2": {
+        "gpu": 1,
+        "reference": 8
+      },
+      "HFMA2.MMA": {
+        "gpu": 3
+      },
+      "HMNMX2": {
+        "gpu": 3,
+        "reference": 7
+      },
+      "HMUL2": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "HSET2": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "HSETP2": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "I2F": {
+        "gpu": 6,
+        "none": 2,
+        "reference": 32
+      },
+      "I2FP": {
+        "gpu": 1,
+        "reference": 5
+      },
+      "I2IP": {
+        "gpu": 4,
+        "reference": 11
+      },
+      "IABS": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "IADD3": {
+        "gpu": 3,
+        "reference": 7
+      },
+      "IDP": {
+        "gpu": 2,
+        "reference": 6
+      },
       "IMAD": {
-        "none": 5,
-        "reference": 50
+        "gpu": 13,
+        "none": 3,
+        "reference": 39
       },
       "IMNMX": {
         "reference": 5
       },
       "ISETP": {
-        "reference": 10
+        "gpu": 3,
+        "reference": 7
       },
       "LD": {
-        "reference": 5
-      },
-      "LDC": {
-        "reference": 2
-      },
-      "LDG": {
-        "none": 2,
-        "reference": 3
-      },
-      "LDL": {
+        "gpu": 1,
         "reference": 4
       },
-      "LDS": {
-        "reference": 3
+      "LDC": {
+        "gpu": 2
       },
-      "LEA": {
-        "reference": 32
-      },
-      "LOP3": {
-        "reference": 5
-      },
-      "MATCH": {
+      "LDG": {
+        "gpu": 1,
+        "none": 2,
         "reference": 2
       },
-      "MOV": {
-        "none": 2,
+      "LDL": {
+        "gpu": 1,
         "reference": 3
       },
+      "LDS": {
+        "gpu": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "gpu": 6,
+        "reference": 26
+      },
+      "LOP3": {
+        "gpu": 3,
+        "reference": 2
+      },
+      "MATCH": {
+        "gpu": 2
+      },
+      "MOV": {
+        "gpu": 3,
+        "none": 1,
+        "reference": 1
+      },
       "MUFU": {
+        "gpu": 1,
         "none": 4,
-        "reference": 6
+        "reference": 5
       },
       "NOP": {
         "reference": 1
       },
       "P2R": {
-        "reference": 5
+        "gpu": 5
       },
       "PLOP3": {
-        "reference": 2
+        "gpu": 1,
+        "reference": 1
       },
       "POPC": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "PRMT": {
-        "reference": 9
+        "gpu": 1,
+        "reference": 8
       },
       "QSPC": {
         "reference": 4
       },
       "R2P": {
-        "reference": 5
+        "gpu": 5
       },
       "R2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "REDUX": {
-        "reference": 1
+        "gpu": 1
       },
       "RET": {
         "reference": 4
@@ -44309,28 +44317,35 @@
         "reference": 1
       },
       "SEL": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "SGXT": {
         "reference": 5
       },
       "SHF": {
-        "reference": 9
+        "gpu": 2,
+        "reference": 7
       },
       "SHFL": {
-        "reference": 4
+        "gpu": 2,
+        "reference": 2
       },
       "ST": {
-        "reference": 5
-      },
-      "STG": {
-        "reference": 5
-      },
-      "STL": {
+        "gpu": 1,
         "reference": 4
       },
-      "STS": {
+      "STG": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "STL": {
+        "gpu": 1,
         "reference": 3
+      },
+      "STS": {
+        "gpu": 1,
+        "reference": 2
       },
       "UBREV": {
         "reference": 2
@@ -44348,22 +44363,24 @@
         "reference": 10
       },
       "UISETP": {
-        "reference": 4
+        "gpu": 1,
+        "reference": 3
       },
       "ULDC": {
-        "reference": 1
+        "gpu": 1
       },
       "ULEA": {
         "reference": 14
       },
       "ULOP3": {
-        "reference": 2
+        "gpu": 1,
+        "reference": 1
       },
       "UMOV": {
-        "reference": 2
+        "gpu": 2
       },
       "UP2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "UPLOP3": {
         "reference": 1
@@ -44381,11 +44398,13 @@
         "reference": 2
       },
       "USHF": {
-        "reference": 3
+        "gpu": 1,
+        "reference": 2
       },
       "VABSDIFF4": {
+        "gpu": 2,
         "none": 1,
-        "reference": 8
+        "reference": 6
       },
       "VIADD": {
         "reference": 5
@@ -44394,16 +44413,17 @@
         "reference": 9
       },
       "VIMNMX": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "VIMNMX3": {
         "reference": 5
       },
       "VOTE": {
-        "reference": 1
+        "gpu": 1
       },
       "VOTEU": {
-        "reference": 1
+        "gpu": 1
       },
       "WARPSYNC": {
         "reference": 4
@@ -44457,8 +44477,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 1
@@ -44541,9 +44560,8 @@
         "native": 42
       },
       "F2I": {
-        "native": 19,
-        "opaque": 2,
-        "partially native": 19
+        "native": 38,
+        "primitive": 2
       },
       "F2IP": {
         "partially native": 9
@@ -44604,8 +44622,8 @@
         "partially native": 9
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "opaque": 15,
+        "partially native": 3
       },
       "HGMMA": {
         "opaque": 6
@@ -44628,7 +44646,7 @@
       },
       "I2F": {
         "native": 38,
-        "opaque": 2
+        "primitive": 2
       },
       "I2FP": {
         "native": 6
@@ -45069,8 +45087,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 1
@@ -45117,9 +45134,8 @@
         "native": 42
       },
       "F2I": {
-        "native": 19,
-        "opaque": 2,
-        "partially native": 19
+        "native": 38,
+        "primitive": 2
       },
       "F2IP": {
         "partially native": 9
@@ -45186,8 +45202,8 @@
         "partially native": 9
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "opaque": 15,
+        "partially native": 3
       },
       "HMNMX2": {
         "native": 1,
@@ -45204,7 +45220,7 @@
       },
       "I2F": {
         "native": 38,
-        "opaque": 2
+        "primitive": 2
       },
       "I2FP": {
         "native": 6
@@ -45466,11 +45482,11 @@
       }
     },
     "status": {
-      "native": 480,
-      "opaque": 467,
-      "partially native": 154,
-      "partially primitive": 6,
-      "primitive": 66
+      "native": 499,
+      "opaque": 461,
+      "partially native": 138,
+      "partially primitive": 5,
+      "primitive": 70
     }
   },
   "SM90_READABLE": {
@@ -45484,16 +45500,19 @@
         "reference": 15
       },
       "BMSK": {
-        "reference": 10
+        "gpu": 4,
+        "reference": 6
       },
       "BRA": {
-        "reference": 12
+        "gpu": 1,
+        "reference": 11
       },
       "BREAK": {
         "reference": 2
       },
       "BREV": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "BSSY": {
         "reference": 2
@@ -45505,19 +45524,24 @@
         "reference": 10
       },
       "CS2R": {
-        "reference": 2
+        "gpu": 1,
+        "reference": 1
       },
       "DADD": {
-        "reference": 272
+        "gpu": 4,
+        "reference": 268
       },
       "DFMA": {
-        "reference": 1920
+        "gpu": 4,
+        "reference": 1916
       },
       "DMUL": {
-        "reference": 272
+        "gpu": 4,
+        "reference": 268
       },
       "DSETP": {
-        "reference": 6528
+        "gpu": 1,
+        "reference": 6527
       },
       "ELECT": {
         "reference": 2
@@ -45526,170 +45550,216 @@
         "reference": 4
       },
       "F2F": {
-        "reference": 536
+        "gpu": 7,
+        "reference": 529
       },
       "F2FP": {
-        "none": 284,
-        "reference": 616
+        "gpu": 97,
+        "none": 282,
+        "reference": 521
       },
       "F2I": {
-        "none": 2112,
-        "reference": 4032
+        "gpu": 32,
+        "none": 8768,
+        "reference": 4000
       },
       "F2IP": {
-        "reference": 18
+        "gpu": 3,
+        "reference": 15
       },
       "FADD": {
-        "reference": 1088
+        "gpu": 5,
+        "reference": 1083
       },
       "FCHK": {
-        "reference": 68
+        "gpu": 4,
+        "reference": 64
       },
       "FFMA": {
-        "reference": 11520
+        "gpu": 5,
+        "reference": 11515
       },
       "FLO": {
+        "gpu": 4,
         "none": 20,
-        "reference": 16
+        "reference": 12
       },
       "FMNMX": {
-        "reference": 1088
+        "gpu": 9,
+        "reference": 1079
       },
       "FMUL": {
-        "reference": 11424
+        "gpu": 4,
+        "reference": 11420
       },
       "FRND": {
-        "reference": 240
+        "gpu": 9,
+        "reference": 231
       },
       "FSEL": {
-        "reference": 272
+        "gpu": 1,
+        "reference": 271
       },
       "FSET": {
-        "reference": 13056
+        "gpu": 20,
+        "reference": 13036
       },
       "FSETP": {
-        "reference": 13056
+        "gpu": 1,
+        "reference": 13055
       },
       "HADD2": {
-        "none": 2694,
-        "reference": 246
+        "gpu": 49,
+        "none": 2693,
+        "reference": 198
       },
       "HFMA2": {
-        "none": 98639,
+        "gpu": 1,
+        "none": 98638,
         "reference": 433
       },
       "HFMA2.MMA": {
-        "none": 1
+        "gpu": 8,
+        "none": 309,
+        "reference": 6
       },
       "HMNMX2": {
-        "none": 17214,
-        "reference": 642
+        "gpu": 51,
+        "none": 17198,
+        "reference": 607
       },
       "HMUL2": {
-        "none": 3819,
-        "reference": 297
+        "gpu": 2,
+        "none": 3818,
+        "reference": 296
       },
       "HSET2": {
-        "none": 316212,
-        "reference": 22476
+        "gpu": 23,
+        "none": 316211,
+        "reference": 22454
       },
       "HSETP2": {
-        "none": 316212,
-        "reference": 22476
+        "gpu": 25,
+        "none": 316211,
+        "reference": 22452
       },
       "I2F": {
-        "none": 264,
-        "reference": 792
+        "gpu": 23,
+        "none": 296,
+        "reference": 769
       },
       "I2FP": {
-        "reference": 20
+        "gpu": 1,
+        "reference": 19
       },
       "I2IP": {
-        "reference": 150
+        "gpu": 31,
+        "reference": 119
       },
       "IABS": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "IADD3": {
-        "reference": 140
+        "gpu": 16,
+        "reference": 124
       },
       "IDP": {
-        "reference": 96
+        "gpu": 12,
+        "reference": 84
       },
       "IMAD": {
-        "none": 18,
-        "reference": 302
+        "gpu": 25,
+        "none": 15,
+        "reference": 280
       },
       "IMNMX": {
         "reference": 20
       },
       "ISETP": {
-        "reference": 1440
+        "gpu": 7,
+        "reference": 1433
       },
       "LD": {
+        "gpu": 3,
         "none": 6838,
-        "reference": 2402
+        "reference": 2399
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "gpu": 2,
+        "none": 1,
+        "reference": 9
       },
       "LDG": {
-        "none": 14770,
-        "reference": 14
+        "gpu": 4,
+        "none": 14767,
+        "reference": 13
       },
       "LDL": {
+        "gpu": 1,
         "none": 46,
-        "reference": 122
+        "reference": 121
       },
       "LDS": {
+        "gpu": 2,
         "none": 16,
-        "reference": 47
+        "reference": 45
       },
       "LEA": {
-        "reference": 132
+        "gpu": 18,
+        "reference": 114
       },
       "LOP3": {
-        "reference": 20
+        "gpu": 4,
+        "reference": 16
       },
       "MATCH": {
-        "reference": 4
+        "gpu": 3,
+        "reference": 1
       },
       "MOV": {
-        "none": 2,
-        "reference": 3
+        "gpu": 3,
+        "none": 1,
+        "reference": 1
       },
       "MUFU": {
-        "none": 662,
-        "reference": 36
+        "gpu": 10,
+        "none": 655,
+        "reference": 33
       },
       "NOP": {
         "reference": 1
       },
       "P2R": {
-        "reference": 20
+        "gpu": 14,
+        "reference": 6
       },
       "PLOP3": {
-        "reference": 16
+        "gpu": 4,
+        "reference": 12
       },
       "POPC": {
-        "reference": 9
+        "gpu": 1,
+        "reference": 8
       },
       "PRMT": {
-        "reference": 63
+        "gpu": 1,
+        "reference": 62
       },
       "QSPC": {
         "none": 6,
         "reference": 22
       },
       "R2P": {
-        "reference": 20
+        "gpu": 14,
+        "reference": 6
       },
       "R2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "REDUX": {
-        "reference": 12
+        "gpu": 8,
+        "reference": 4
       },
       "RET": {
         "reference": 8
@@ -45701,32 +45771,39 @@
         "reference": 1
       },
       "SEL": {
-        "reference": 10
+        "gpu": 2,
+        "reference": 8
       },
       "SGXT": {
         "reference": 20
       },
       "SHF": {
-        "reference": 288
+        "gpu": 3,
+        "reference": 285
       },
       "SHFL": {
-        "reference": 16
+        "gpu": 5,
+        "reference": 11
       },
       "ST": {
+        "gpu": 2,
         "none": 3210,
-        "reference": 1200
+        "reference": 1198
       },
       "STG": {
-        "none": 5136,
-        "reference": 1920
+        "gpu": 2,
+        "none": 5135,
+        "reference": 1919
       },
       "STL": {
-        "none": 48,
+        "gpu": 1,
+        "none": 47,
         "reference": 120
       },
       "STS": {
+        "gpu": 1,
         "none": 18,
-        "reference": 45
+        "reference": 44
       },
       "UBREV": {
         "reference": 2
@@ -45744,22 +45821,25 @@
         "reference": 54
       },
       "UISETP": {
-        "reference": 576
+        "gpu": 2,
+        "reference": 574
       },
       "ULDC": {
-        "reference": 6
+        "gpu": 2,
+        "reference": 4
       },
       "ULEA": {
         "reference": 51
       },
       "ULOP3": {
-        "reference": 8
+        "gpu": 1,
+        "reference": 7
       },
       "UMOV": {
-        "reference": 2
+        "gpu": 2
       },
       "UP2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "UPLOP3": {
         "reference": 8
@@ -45777,11 +45857,13 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "gpu": 2,
+        "reference": 94
       },
       "VABSDIFF4": {
-        "none": 7,
-        "reference": 29
+        "gpu": 8,
+        "none": 4,
+        "reference": 24
       },
       "VIADD": {
         "reference": 9
@@ -45790,16 +45872,19 @@
         "reference": 204
       },
       "VIMNMX": {
-        "reference": 60
+        "gpu": 1,
+        "reference": 59
       },
       "VIMNMX3": {
         "reference": 60
       },
       "VOTE": {
-        "reference": 6
+        "gpu": 5,
+        "reference": 1
       },
       "VOTEU": {
-        "reference": 6
+        "gpu": 2,
+        "reference": 4
       },
       "WARPSYNC": {
         "reference": 10
@@ -45852,9 +45937,8 @@
         "opaque": 5
       },
       "BRA": {
-        "native": 4,
-        "opaque": 66,
-        "primitive": 8
+        "native": 12,
+        "opaque": 66
       },
       "BREAK": {
         "primitive": 2
@@ -45940,7 +46024,7 @@
       },
       "F2I": {
         "native": 6144,
-        "opaque": 6656
+        "primitive": 6656
       },
       "F2IP": {
         "native": 18,
@@ -46002,8 +46086,9 @@
         "opaque": 361920
       },
       "HFMA2.MMA": {
-        "opaque": 7199,
-        "partially native": 1
+        "native": 320,
+        "opaque": 6877,
+        "partially native": 3
       },
       "HGMMA": {
         "opaque": 26880
@@ -46026,7 +46111,7 @@
       },
       "I2F": {
         "native": 1056,
-        "opaque": 32
+        "primitive": 32
       },
       "I2FP": {
         "native": 20
@@ -46471,16 +46556,15 @@
       }
     },
     "evidence": {
+      "gpu": 141,
       "none": 42,
-      "reference": 664
+      "reference": 529
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "elect_Pp_": "Pp form",
-      "f2i_Rd64__CXb_64b": "32-bit source for F64; dstfmt outside the table",
-      "f2i__CXb_64b": "32-bit source for F64; dstfmt outside the table",
       "fmnmx_pred__RCR_RCR": "is_A not modelled",
       "fmnmx_pred__RCxR_RCxR": "is_A not modelled",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
@@ -46497,23 +46581,21 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR": "operand form",
-      "hfma2_mma__RCxR": "operand form",
-      "hfma2_mma__RIR": "operand form",
-      "hfma2_mma__RRC": "operand form",
-      "hfma2_mma__RRCx": "operand form",
-      "hfma2_mma__RRR": "operand form",
-      "hfma2_mma__RRU": "operand form",
-      "hfma2_mma__RUR": "operand form",
-      "hfma2_mma_relu__RCR": "operand form",
-      "hfma2_mma_relu__RCxR": "operand form",
-      "hfma2_mma_relu__RIR": "operand form",
-      "hfma2_mma_relu__RRC": "operand form",
-      "hfma2_mma_relu__RRCx": "operand form",
-      "hfma2_mma_relu__RRI": "fmz other than nofmz_hfma2; not the -RZ, RZ constant move; ofmt other than F16_V2; satrelu not modelled",
-      "hfma2_mma_relu__RRR": "operand form",
-      "hfma2_mma_relu__RRU": "operand form",
-      "hfma2_mma_relu__RUR": "operand form",
+      "hfma2_mma__RCR": "MMA format; MMA operand form",
+      "hfma2_mma__RCxR": "MMA format; MMA operand form",
+      "hfma2_mma__RRC": "MMA format; MMA operand form",
+      "hfma2_mma__RRCx": "MMA format; MMA operand form",
+      "hfma2_mma__RRU": "MMA format; MMA operand form",
+      "hfma2_mma__RUR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RCR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RCxR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RIR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRC": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRCx": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRI": "MMA format; RELU",
+      "hfma2_mma_relu__RRR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRU": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RUR": "MMA format; MMA operand form",
       "hfma2_relu__RCR": "RELU; ofmt",
       "hfma2_relu__RCxR": "RELU; ofmt",
       "hfma2_relu__RIR": "RELU; ofmt",
@@ -46523,8 +46605,6 @@
       "hfma2_relu__RRR": "RELU; ofmt",
       "hfma2_relu__RRU": "RELU; ofmt",
       "hfma2_relu__RUR": "RELU; ofmt",
-      "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
-      "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
@@ -46567,16 +46647,19 @@
         "reference": 14
       },
       "BMSK": {
-        "reference": 5
+        "gpu": 2,
+        "reference": 3
       },
       "BRA": {
-        "reference": 3
+        "gpu": 1,
+        "reference": 2
       },
       "BREAK": {
         "reference": 1
       },
       "BREV": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "BSSY": {
         "reference": 1
@@ -46588,19 +46671,23 @@
         "reference": 5
       },
       "CS2R": {
-        "reference": 1
+        "gpu": 1
       },
       "DADD": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "DFMA": {
-        "reference": 9
+        "gpu": 1,
+        "reference": 8
       },
       "DMUL": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "DSETP": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "ELECT": {
         "reference": 1
@@ -46609,158 +46696,198 @@
         "reference": 1
       },
       "F2F": {
-        "reference": 25
+        "gpu": 3,
+        "reference": 22
       },
       "F2FP": {
+        "gpu": 7,
         "none": 14,
-        "reference": 28
+        "reference": 21
       },
       "F2I": {
-        "none": 10,
-        "reference": 28
+        "gpu": 6,
+        "none": 12,
+        "reference": 22
       },
       "F2IP": {
-        "reference": 9
+        "gpu": 2,
+        "reference": 7
       },
       "FADD": {
-        "reference": 5
-      },
-      "FCHK": {
-        "reference": 5
-      },
-      "FFMA": {
-        "reference": 9
-      },
-      "FLO": {
-        "none": 1,
+        "gpu": 1,
         "reference": 4
       },
-      "FMNMX": {
-        "reference": 5
+      "FCHK": {
+        "gpu": 1,
+        "reference": 4
       },
-      "FMUL": {
-        "reference": 5
-      },
-      "FRND": {
-        "reference": 9
-      },
-      "FSEL": {
-        "reference": 5
-      },
-      "FSET": {
-        "reference": 5
-      },
-      "FSETP": {
-        "reference": 5
-      },
-      "HADD2": {
-        "reference": 10
-      },
-      "HFMA2": {
-        "reference": 9
-      },
-      "HFMA2.MMA": {
-        "none": 1
-      },
-      "HMNMX2": {
-        "reference": 10
-      },
-      "HMUL2": {
-        "reference": 5
-      },
-      "HSET2": {
-        "reference": 5
-      },
-      "HSETP2": {
-        "reference": 5
-      },
-      "I2F": {
-        "reference": 38
-      },
-      "I2FP": {
-        "reference": 6
-      },
-      "I2IP": {
-        "reference": 15
-      },
-      "IABS": {
-        "reference": 5
-      },
-      "IADD3": {
-        "reference": 10
-      },
-      "IDP": {
+      "FFMA": {
+        "gpu": 1,
         "reference": 8
       },
+      "FLO": {
+        "gpu": 1,
+        "none": 1,
+        "reference": 3
+      },
+      "FMNMX": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "FMUL": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "FRND": {
+        "gpu": 2,
+        "reference": 7
+      },
+      "FSEL": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "FSET": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "FSETP": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "HADD2": {
+        "gpu": 2,
+        "reference": 8
+      },
+      "HFMA2": {
+        "gpu": 1,
+        "reference": 8
+      },
+      "HFMA2.MMA": {
+        "gpu": 3
+      },
+      "HMNMX2": {
+        "gpu": 3,
+        "reference": 7
+      },
+      "HMUL2": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "HSET2": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "HSETP2": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "I2F": {
+        "gpu": 6,
+        "none": 2,
+        "reference": 32
+      },
+      "I2FP": {
+        "gpu": 1,
+        "reference": 5
+      },
+      "I2IP": {
+        "gpu": 4,
+        "reference": 11
+      },
+      "IABS": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "IADD3": {
+        "gpu": 3,
+        "reference": 7
+      },
+      "IDP": {
+        "gpu": 2,
+        "reference": 6
+      },
       "IMAD": {
-        "none": 5,
-        "reference": 50
+        "gpu": 13,
+        "none": 3,
+        "reference": 39
       },
       "IMNMX": {
         "reference": 5
       },
       "ISETP": {
-        "reference": 10
+        "gpu": 3,
+        "reference": 7
       },
       "LD": {
-        "reference": 5
-      },
-      "LDC": {
-        "reference": 2
-      },
-      "LDG": {
-        "none": 2,
-        "reference": 3
-      },
-      "LDL": {
+        "gpu": 1,
         "reference": 4
       },
-      "LDS": {
-        "reference": 3
+      "LDC": {
+        "gpu": 2
       },
-      "LEA": {
-        "reference": 32
-      },
-      "LOP3": {
-        "reference": 5
-      },
-      "MATCH": {
+      "LDG": {
+        "gpu": 1,
+        "none": 2,
         "reference": 2
       },
-      "MOV": {
-        "none": 2,
+      "LDL": {
+        "gpu": 1,
         "reference": 3
       },
+      "LDS": {
+        "gpu": 2,
+        "reference": 1
+      },
+      "LEA": {
+        "gpu": 6,
+        "reference": 26
+      },
+      "LOP3": {
+        "gpu": 3,
+        "reference": 2
+      },
+      "MATCH": {
+        "gpu": 2
+      },
+      "MOV": {
+        "gpu": 3,
+        "none": 1,
+        "reference": 1
+      },
       "MUFU": {
+        "gpu": 1,
         "none": 4,
-        "reference": 6
+        "reference": 5
       },
       "NOP": {
         "reference": 1
       },
       "P2R": {
-        "reference": 5
+        "gpu": 5
       },
       "PLOP3": {
-        "reference": 2
+        "gpu": 1,
+        "reference": 1
       },
       "POPC": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "PRMT": {
-        "reference": 9
+        "gpu": 1,
+        "reference": 8
       },
       "QSPC": {
         "reference": 4
       },
       "R2P": {
-        "reference": 5
+        "gpu": 5
       },
       "R2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "REDUX": {
-        "reference": 1
+        "gpu": 1
       },
       "RET": {
         "reference": 4
@@ -46772,28 +46899,35 @@
         "reference": 1
       },
       "SEL": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "SGXT": {
         "reference": 5
       },
       "SHF": {
-        "reference": 9
+        "gpu": 2,
+        "reference": 7
       },
       "SHFL": {
-        "reference": 4
+        "gpu": 2,
+        "reference": 2
       },
       "ST": {
-        "reference": 5
-      },
-      "STG": {
-        "reference": 5
-      },
-      "STL": {
+        "gpu": 1,
         "reference": 4
       },
-      "STS": {
+      "STG": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "STL": {
+        "gpu": 1,
         "reference": 3
+      },
+      "STS": {
+        "gpu": 1,
+        "reference": 2
       },
       "UBREV": {
         "reference": 2
@@ -46811,22 +46945,24 @@
         "reference": 10
       },
       "UISETP": {
-        "reference": 4
+        "gpu": 1,
+        "reference": 3
       },
       "ULDC": {
-        "reference": 1
+        "gpu": 1
       },
       "ULEA": {
         "reference": 14
       },
       "ULOP3": {
-        "reference": 2
+        "gpu": 1,
+        "reference": 1
       },
       "UMOV": {
-        "reference": 2
+        "gpu": 2
       },
       "UP2UR": {
-        "reference": 1
+        "gpu": 1
       },
       "UPLOP3": {
         "reference": 1
@@ -46844,11 +46980,13 @@
         "reference": 2
       },
       "USHF": {
-        "reference": 3
+        "gpu": 1,
+        "reference": 2
       },
       "VABSDIFF4": {
+        "gpu": 2,
         "none": 1,
-        "reference": 8
+        "reference": 6
       },
       "VIADD": {
         "reference": 5
@@ -46857,16 +46995,17 @@
         "reference": 9
       },
       "VIMNMX": {
-        "reference": 5
+        "gpu": 1,
+        "reference": 4
       },
       "VIMNMX3": {
         "reference": 5
       },
       "VOTE": {
-        "reference": 1
+        "gpu": 1
       },
       "VOTEU": {
-        "reference": 1
+        "gpu": 1
       },
       "WARPSYNC": {
         "reference": 4
@@ -46920,8 +47059,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 1
@@ -47004,9 +47142,8 @@
         "native": 42
       },
       "F2I": {
-        "native": 19,
-        "opaque": 2,
-        "partially native": 19
+        "native": 38,
+        "primitive": 2
       },
       "F2IP": {
         "partially native": 9
@@ -47067,8 +47204,8 @@
         "partially native": 9
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "opaque": 15,
+        "partially native": 3
       },
       "HGMMA": {
         "opaque": 6
@@ -47091,7 +47228,7 @@
       },
       "I2F": {
         "native": 38,
-        "opaque": 2
+        "primitive": 2
       },
       "I2FP": {
         "native": 6
@@ -47532,8 +47669,7 @@
       },
       "BRA": {
         "opaque": 1,
-        "partially native": 2,
-        "partially primitive": 1
+        "partially native": 3
       },
       "BREAK": {
         "primitive": 1
@@ -47580,9 +47716,8 @@
         "native": 42
       },
       "F2I": {
-        "native": 19,
-        "opaque": 2,
-        "partially native": 19
+        "native": 38,
+        "primitive": 2
       },
       "F2IP": {
         "partially native": 9
@@ -47649,8 +47784,8 @@
         "partially native": 9
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "opaque": 15,
+        "partially native": 3
       },
       "HMNMX2": {
         "native": 1,
@@ -47667,7 +47802,7 @@
       },
       "I2F": {
         "native": 38,
-        "opaque": 2
+        "primitive": 2
       },
       "I2FP": {
         "native": 6
@@ -47929,11 +48064,11 @@
       }
     },
     "status": {
-      "native": 480,
-      "opaque": 467,
-      "partially native": 154,
-      "partially primitive": 6,
-      "primitive": 66
+      "native": 499,
+      "opaque": 461,
+      "partially native": 138,
+      "partially primitive": 5,
+      "primitive": 70
     }
   }
 }

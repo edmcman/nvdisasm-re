@@ -1,10 +1,12 @@
-# Generated SM89 GPU probes
+# Generated SM89/SM90 GPU probes
 
 Use these for single-instruction discovery without a known reference. The generated
 runner shares register initialization, scheduling, constant/memory bindings, warp
 setup and fault isolation with the regression tests. It returns raw bits without
-NaN tolerances or expected-value comparisons. It needs an SM89 GPU, not Ghidra or
-nvcc. Run hardware commands outside the sandbox, as required by `AGENTS.md`.
+NaN tolerances or expected-value comparisons. It needs an SM89 or SM90 GPU, not Ghidra or
+nvcc; `Cases(arch)` (or `tests.probe --arch`) must match the device's architecture. Run hardware commands outside the sandbox, as required by `AGENTS.md`.
+`tests/README.md` "Hardware evidence and probes" summarizes the same tools and how
+passing shared-case runs become evidence.
 
 ## Python API
 
@@ -75,9 +77,10 @@ Write an independent reference from the evidence, then replace the draft
 `c.probe(..., observe=[...])` with `c.add(..., expected=reference(...))` in the
 appropriate family's `emulator_cases`. Draft probes are rejected in regression
 suites, and raw observations never create GPU verification evidence. Run the
-shared GPU tests to validate the reference and record passing evidence, then run
+shared GPU tests (`nice uv run pytest -m gpu --require-gpu --family F`) to validate
+the reference and record passing evidence; the whole family must pass. Then run the
 Python/Ghidra checks and refresh coverage as `AGENTS.md` requires.
 
 Keep whole-kernel `gpu_fixtures()` and `tests.observe` for PTX/compiler comparisons,
 integration kernels, synchronization and scenarios that need more than one target
-instruction. Generated probes establish only the tested SM89 forms and inputs.
+instruction. Generated probes establish only the tested forms and inputs, on the architecture that ran them.

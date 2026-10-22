@@ -4251,16 +4251,16 @@
 "hmnmx2__RIR": {
 "BRANCH": 2,
 "CBRANCH": 9,
-"COPY": 20,
+"COPY": 14,
 "FLOAT_LESS": 2,
-"INT_AND": 16,
-"INT_EQUAL": 8,
-"INT_LEFT": 5,
-"INT_NOTEQUAL": 5,
+"INT_AND": 10,
+"INT_EQUAL": 6,
+"INT_LEFT": 3,
+"INT_NOTEQUAL": 3,
 "INT_OR": 5,
 "INT_RIGHT": 6,
 "INT_XOR": 4,
-"INT_ZEXT": 6
+"INT_ZEXT": 4
 },
 "hmnmx2__RRR": {
 "BOOL_NEGATE": 2,
@@ -4297,18 +4297,18 @@
 "BOOL_NEGATE": 2,
 "BRANCH": 2,
 "CBRANCH": 11,
-"COPY": 24,
+"COPY": 20,
 "FLOAT2FLOAT": 4,
 "FLOAT_LESS": 2,
-"INT_AND": 58,
-"INT_EQUAL": 13,
+"INT_AND": 38,
+"INT_EQUAL": 9,
 "INT_LEFT": 1,
-"INT_MULT": 10,
-"INT_NOTEQUAL": 18,
-"INT_OR": 21,
+"INT_MULT": 6,
+"INT_NOTEQUAL": 10,
+"INT_OR": 17,
 "INT_RIGHT": 5,
 "INT_XOR": 2,
-"INT_ZEXT": 12
+"INT_ZEXT": 8
 },
 "hmnmx2_fixed__RRR": {
 "BOOL_NEGATE": 2,
@@ -4334,13 +4334,13 @@
 "hmnmx2_pred__RIR": {
 "BRANCH": 4,
 "CBRANCH": 23,
-"COPY": 46,
+"COPY": 34,
 "FLOAT2FLOAT": 8,
 "FLOAT_LESS": 4,
-"INT_AND": 36,
-"INT_EQUAL": 19,
+"INT_AND": 24,
+"INT_EQUAL": 15,
 "INT_LEFT": 1,
-"INT_NOTEQUAL": 8,
+"INT_NOTEQUAL": 4,
 "INT_OR": 5,
 "INT_RIGHT": 6,
 "INT_ZEXT": 2
@@ -4532,7 +4532,7 @@
 "hset2_fixed__RI": {
 "BOOL_NEGATE": 1,
 "CBRANCH": 3,
-"COPY": 12,
+"COPY": 8,
 "FLOAT2FLOAT": 8,
 "FLOAT_LESSEQUAL": 2,
 "FLOAT_NAN": 4,
@@ -4572,7 +4572,7 @@
 "hset2_noBop__RI": {
 "BOOL_NEGATE": 1,
 "CBRANCH": 3,
-"COPY": 8,
+"COPY": 6,
 "FLOAT2FLOAT": 4,
 "FLOAT_EQUAL": 2,
 "INT_AND": 2,
@@ -4667,16 +4667,16 @@
 "hsetp2_fixed__RI": {
 "BOOL_NEGATE": 1,
 "CBRANCH": 1,
-"COPY": 9,
+"COPY": 5,
 "FLOAT_LESSEQUAL": 2,
 "FLOAT_NAN": 4,
 "INT_AND": 2,
 "INT_EQUAL": 1,
-"INT_LEFT": 8,
+"INT_LEFT": 4,
 "INT_OR": 4,
 "INT_RIGHT": 2,
 "INT_XOR": 4,
-"INT_ZEXT": 8
+"INT_ZEXT": 4
 },
 "hsetp2_fixed__RR": {
 "BOOL_NEGATE": 1,
@@ -4701,7 +4701,7 @@
 },
 "hsetp2_noBop__RI": {
 "CBRANCH": 1,
-"COPY": 5,
+"COPY": 3,
 "FLOAT2FLOAT": 4,
 "FLOAT_EQUAL": 2,
 "INT_AND": 2,
@@ -4728,7 +4728,7 @@
 "hsetp2_noBop_fixed__RI": {
 "BOOL_NEGATE": 2,
 "CBRANCH": 1,
-"COPY": 9,
+"COPY": 5,
 "FLOAT2FLOAT": 8,
 "FLOAT_LESS": 2,
 "FLOAT_NAN": 4,

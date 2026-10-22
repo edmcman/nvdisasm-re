@@ -148,21 +148,21 @@ def emulator_cases(c):
     for part in (flo_subset, arithmetic, permute_register_regressions, fixed, imad_constant, logic_constants, opaque_imnmx): part(c)
 
 
-def gpu_fixtures():
+def gpu_fixtures(arch="SM89"):
     from tests.harness import scalar
-    return [scalar.launch("iadd3", lambda a, b, c: (a + b + c) & MASK32),
-            scalar.launch("imad", lambda a, b, c: (a * b + c) & MASK32),
-            scalar.launch("imad_hi", lambda a, b, c: ((a * b >> 32) + c) & MASK32),
-            scalar.launch("lop3", lambda a, b, c: a ^ b ^ c),
-            scalar.launch("shf", lambda a, b, c: ((c << 32 | a) >> (b & 31)) & MASK32),
-            scalar.launch("iabs", lambda a, *_: abs(sext(a, 32)) & MASK32),
-            scalar.launch("imnmx", lambda a, b, _: min(a, b)),
-            scalar.launch("prmt", lambda a, b, c: prmt(a, c, b, "IDX")),
-            scalar.launch("isetp", lambda a, b, _: int(a < b)),
-            scalar.launch("sel", lambda a, b, c: a if c else b),
+    return [scalar.launch("iadd3", lambda a, b, c: (a + b + c) & MASK32, arch=arch),
+            scalar.launch("imad", lambda a, b, c: (a * b + c) & MASK32, arch=arch),
+            scalar.launch("imad_hi", lambda a, b, c: ((a * b >> 32) + c) & MASK32, arch=arch),
+            scalar.launch("lop3", lambda a, b, c: a ^ b ^ c, arch=arch),
+            scalar.launch("shf", lambda a, b, c: ((c << 32 | a) >> (b & 31)) & MASK32, arch=arch),
+            scalar.launch("iabs", lambda a, *_: abs(sext(a, 32)) & MASK32, arch=arch),
+            scalar.launch("imnmx", lambda a, b, _: min(a, b), arch=arch),
+            scalar.launch("prmt", lambda a, b, c: prmt(a, c, b, "IDX"), arch=arch),
+            scalar.launch("isetp", lambda a, b, _: int(a < b), arch=arch),
+            scalar.launch("sel", lambda a, b, c: a if c else b, arch=arch),
             # The 64-bit constant source joins the full product-plus-addend sum before the high word.
-            scalar.launch("imad_hi_c", lambda x, y, _: ((x * y + 0x00000002ffffffff) >> 32) & MASK32),
-            scalar.launch("isetp_ex", lambda x, y, _: int(x < y)),
-            scalar.launch("brev", lambda x, *_: brev(x)), scalar.launch("popc", lambda x, *_: x.bit_count()),
-            scalar.launch("bfind", lambda x, *_: flo(x, False)), scalar.launch("bfind_shift", lambda x, *_: flo(x, True)),
-            scalar.launch("bfind_s32", lambda x, *_: flo(x, False, True)), scalar.launch("bfind_shift_s32", lambda x, *_: flo(x, True, True))]
+            scalar.launch("imad_hi_c", lambda x, y, _: ((x * y + 0x00000002ffffffff) >> 32) & MASK32, arch=arch),
+            scalar.launch("isetp_ex", lambda x, y, _: int(x < y), arch=arch),
+            scalar.launch("brev", lambda x, *_: brev(x), arch=arch), scalar.launch("popc", lambda x, *_: x.bit_count(), arch=arch),
+            scalar.launch("bfind", lambda x, *_: flo(x, False), arch=arch), scalar.launch("bfind_shift", lambda x, *_: flo(x, True), arch=arch),
+            scalar.launch("bfind_s32", lambda x, *_: flo(x, False, True), arch=arch), scalar.launch("bfind_shift_s32", lambda x, *_: flo(x, True, True), arch=arch)]

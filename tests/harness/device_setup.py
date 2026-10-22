@@ -1,9 +1,11 @@
 """Real hardware bindings for logical memory and warp state in shared cases."""
+from sass import launch
+from sass.assemble import elf
 from tests.harness import device_cases
 
 
-def cx_operand(case):
-    d = device_cases.decoded(case.request['word'])
+def cx_operand(case, arch="SM89"):
+    d = device_cases.decoded(case.request['word'], arch)
     for i, a in enumerate(d.klass.format):
         if a.type != 'CX': continue
         children = []
@@ -15,7 +17,8 @@ def cx_operand(case):
         n = d.env[ur]
         regs = case.request['registers']
         header = regs.get(f'UR{n}', 0) | regs.get(f'UR{n + 1}', 0) << 32
-        return n, d.env[offset], (header & ((1 << 45) - 1)) << 4, header >> 45
+        bits, shift = launch.cx_layout(arch)
+        return n, d.env[offset], (header & ((1 << bits) - 1)) << shift, header >> bits
     raise ValueError(f'{case.id}: no CX operand')
 
 
@@ -27,7 +30,8 @@ def add_pointer(code, dest, temp, offset=0):
 
 
 def cx(code, case, temp, arena):
-    ur, offset, base, units = cx_operand(case)
+    bits, shift = launch.cx_layout(code.arch)
+    ur, offset, base, units = cx_operand(case, code.arch)
     start = (len(arena) + 255) & ~255
     end = max([offset + 16, *(m['address'] - base + len(bytes.fromhex(m['hex'])) for m in case.request.get('memory', []) if m['space'] == 'ram')])
     if end > 1 << 20 or end < 0: raise ValueError(f'{case.id}: CX backing allocation out of bounds')
@@ -41,17 +45,17 @@ def cx(code, case, temp, arena):
         arena[at:at + len(data)] = data
     add_pointer(code, temp, temp + 2, start)
     for i in (0, 1): code.emit('r2ur__noOR', URd=ur + i, Ra=temp + i, Pu='PT')
-    code.emit('ushf__URuIUR_URIR', URd=ur, URa=ur, Sb=4, URc=ur + 1, dir='R', fmt='U64', hilo='LO')
-    code.emit('ushf__URuIUR_URIR', URd=ur + 1, URa='URZ', Sb=4, URc=ur + 1, dir='R', fmt='U32', hilo='HI')
-    code.emit('ulop3_lut__URuIUR_URIR', URd=ur + 1, URa=ur + 1, Sb=units << 13, URc='URZ', imm8=0xfc, UPp='UPT')
+    code.emit('ushf__URuIUR_URIR', URd=ur, URa=ur, Sb=shift, URc=ur + 1, dir='R', fmt='U64', hilo='LO')
+    code.emit('ushf__URuIUR_URIR', URd=ur + 1, URa='URZ', Sb=shift, URc=ur + 1, dir='R', fmt='U32', hilo='HI')
+    code.emit('ulop3_lut__URuIUR_URIR', URd=ur + 1, URa=ur + 1, Sb=units << (bits - 32), URc='URZ', imm8=0xfc, UPp='UPT')
 
 
 ADDRESSED = ('LD', 'ST', 'LDG', 'STG', 'LDL', 'STL', 'LDS', 'STS')
 
 
-def memory_binding(case):
+def memory_binding(case, arch="SM89"):
     """Translate the seeded logical address, retaining its register/offset decomposition."""
-    d = device_cases.decoded(case.request['word']); regs = case.request['registers']
+    d = device_cases.decoded(case.request['word'], arch); regs = case.request['registers']
     if d.klass.mnemonic in ('LDC', 'ULDC', 'MOV'): return None
     ra = d.env.get('Ra', 255)
     address = regs.get(f'R{ra}', 0) | regs.get(f'R{ra + 1}', 0) << 32
@@ -73,11 +77,11 @@ def memory_binding(case):
     return space, logical, ra, uniform
 
 
-def memory_reason(case):
-    d = device_cases.decoded(case.request['word'])
+def memory_reason(case, arch="SM89"):
+    d = device_cases.decoded(case.request['word'], arch)
     if 'Ra' in d.env and d.env['Ra'] == 255 and not d.klass.name.startswith(('ld_uniform', 'st_uniform')):
         return 'absolute synthetic address has no relocatable base register'
-    binding = memory_binding(case)
+    binding = memory_binding(case, arch)
     if binding and binding[0] == 'ram' and d.env.get('e') == 0:
         return 'synthetic 32-bit global pointer cannot hold a CUDA allocation; paired E case runs on hardware'
     regions = case.request.get('memory', []) + case.request.get('observe_memory', [])
@@ -92,7 +96,7 @@ def storage_address(code, space, logical, temp, global_base, arena_start):
     if space == 'ram': add_pointer(code, temp, temp + 2, arena_start + logical - global_base)
     elif space == 'shared': code.mov(f'R{temp}', logical)
     elif space == 'localmem':
-        code.parameter(temp, -0x138)  # c[0][0x28]: driver's local stack base
+        code.parameter(temp, launch.LAUNCH_LAYOUT[code.arch][1] - elf.PROFILES[code.arch].parameter_base)  # c[0][0x28]: driver's local stack base
         code.mov(f'R{temp + 2}', logical)
         code.emit('iadd3_noimm__RRR_RRR', Rd=temp, Ra=temp, Rb=temp + 2, Rc='RZ')
     else: raise ValueError(f'unknown memory space {space}')
@@ -100,8 +104,9 @@ def storage_address(code, space, logical, temp, global_base, arena_start):
 
 def memory(code, case, temp, arena):
     """Initialize allocations and bind the tested address. Return shared/frame byte counts."""
-    d = device_cases.decoded(case.request['word'])
-    binding = memory_binding(case)
+    arch = code.arch
+    d = device_cases.decoded(case.request['word'], arch)
+    binding = memory_binding(case, arch)
     regions = case.request.get('memory', []) + [dict(m, hex='00' * m['size']) for m in case.request.get('observe_memory', [])]
     if binding and binding[0] == 'ram':
         offset = d.env.get('Ra_offset', 0)
@@ -115,7 +120,7 @@ def memory(code, case, temp, arena):
     if end - base > 1 << 20: raise ValueError(f'{case.id}: sparse global storage needs an explicit binding')
     start = (len(arena) + 255) & ~255
     arena.extend(bytes(start + end - base + 16 - len(arena)))
-    code.emit('uldc_const__RCR', URd=4, Sa_bank=0, Sa_addr=0x118, sz='64')
+    code.emit('uldc_const__RCR', URd=4, Sa_bank=0, Sa_addr=launch.GLOBAL_DESCRIPTOR[code.arch], sz='64')
     shared, frame = 0, 0
     for m in regions:
         space, logical = m['space'], m['address']
@@ -141,7 +146,8 @@ def memory(code, case, temp, arena):
             # Generic addresses add the runtime window base to a storage offset.
             # Local storage_address already includes the driver's stack offset.
             prefix = 'S' if space == 'shared' else 'L'
-            code.emit('s2r_', Rd=temp + 2, SRa=f'SR_{prefix}WINLO')
+            if code.arch == 'SM90' and prefix == 'S': code.mov(f'R{temp + 2}', 0)
+            else: code.emit('s2r_', Rd=temp + 2, SRa=f'SR_{prefix}WINLO')
             code.emit('s2r_', Rd=temp + 3, SRa=f'SR_{prefix}WINHI')
             code.emit('imad_wide__RsIR_RIR', Rd=temp, Ra=temp, Sb=1, Rc=temp + 2, fmt='U32')
         if space == 'shared' and d.klass.mnemonic in ('LDS', 'STS'):
@@ -176,7 +182,7 @@ def capture_memory(code, case, temp, output, base, start):
             code.emit({'ram': 'ldg__sImmOffset', 'shared': 'lds__sImmOffset', 'localmem': 'ldl__sImmOffset'}[m['space']],
                       Rd=temp + 3, Ra=temp, Ra_offset=0, sz={1:'U8',2:'U16',4:'32'}[size], **({'e':'E'} if m['space']=='ram' else {}))
             code.parameter(temp, 64); code.parameter(temp + 1, 68)
-            code.emit('uldc_const__RCR', URd=4, Sa_bank=0, Sa_addr=0x118, sz='64')
+            code.emit('uldc_const__RCR', URd=4, Sa_bank=0, Sa_addr=launch.GLOBAL_DESCRIPTOR[code.arch], sz='64')
             code.emit('stg__sImmOffset', Ra=temp, Ra_offset=output, Rb=temp + 3, sz='32', e='E')
             names.append(f'__memory:{index}:{offset}:{size}')
             output += 4; offset += size
@@ -199,20 +205,22 @@ def lane_guard(code, temp, value, predicate=6, mask=False, waiting=False):
     code.emit('nop_'); code.emit('nop_')
     def join():
         to = lambda i: (len(code.words) - i - 1) * 16
-        code.words[start] = device_cases.scheduled(device_cases.op('bssy_', barReg='B0', Sa=to(start)))
-        code.words[start + 1] = device_cases.scheduled(device_cases.op('bra_', Pg=predicate, **{'Pg@not': 1}, sImm=to(start + 1)))
+        code.words[start] = device_cases.scheduled(device_cases.op('bssy_', arch=code.arch, barReg='B0', Sa=to(start)), code.arch)
+        code.words[start + 1] = device_cases.scheduled(device_cases.op('bra_', arch=code.arch, Pg=predicate, **{'Pg@not': 1}, sImm=to(start + 1)), code.arch)
         code.emit('bsync_', barReg='B0'); code.emit('exit_')
     return join
 
 
 def warp(code, case, temp, arena):
-    context = case.request['context']['warp']; d = device_cases.decoded(case.request['word'])
+    arch = code.arch
+    context = case.request['context']['warp']; d = device_cases.decoded(case.request['word'], arch)
     # A branch reads no lane values, only which lanes execute it and which of the others still live:
     # every inactive lane exits, or every one waits at a convergence barrier.
     if d.klass.mnemonic == 'BRA':
         waiting = context.get('waiting', 0)
         if waiting not in (0, ~context['active'] & 0xffffffff): raise ValueError(f'{case.id}: waiting lanes must be none or every inactive lane')
         return lane_guard(code, temp, context['active'], mask=True, waiting=bool(waiting))
+    if d.klass.mnemonic == 'ELECT': return lane_guard(code, temp, context['active'], mask=True)
     values = context.get('predicates') if d.klass.mnemonic in ('VOTE', 'VOTEU') else context.get('values')
     if values is None or len(values) != 32: raise ValueError(f'{case.id}: warp requires 32 lane inputs')
     start = (len(arena) + 255) & ~255
@@ -221,7 +229,7 @@ def warp(code, case, temp, arena):
     add_pointer(code, temp, temp + 2, start)
     code.emit('s2r_', Rd=temp + 4, SRa='SR_LANEID')
     code.emit('imad_wide__RsIR_RIR', Rd=temp, Ra=temp + 4, Sb=8, Rc=temp, fmt='U32')
-    code.emit('uldc_const__RCR', URd=4, Sa_bank=0, Sa_addr=0x118, sz='64')
+    code.emit('uldc_const__RCR', URd=4, Sa_bank=0, Sa_addr=launch.GLOBAL_DESCRIPTOR[code.arch], sz='64')
     if d.klass.mnemonic in ('VOTE', 'VOTEU'):
         code.emit('ldg__sImmOffset', Rd=temp + 2, Ra=temp, Ra_offset=0, sz='32', e='E')
         code.emit('isetp__RsIR_RIR_noEX', Pu=d.env['Pp'], Pv='PT', Ra=temp + 2, Sb=0, Pp='PT', icmp='NE', fmt='U32', bop='AND')
@@ -232,7 +240,8 @@ def warp(code, case, temp, arena):
 
 
 def qspc(code, case, temp, arena):
-    d = device_cases.decoded(case.request['word'])
+    arch = code.arch
+    d = device_cases.decoded(case.request['word'], arch)
     origin = case.hardware['space']; ra = d.env['Ra']
     if origin == 'global':
         start = (len(arena) + 255) & ~255
@@ -240,9 +249,10 @@ def qspc(code, case, temp, arena):
         add_pointer(code, temp, temp + 2, start + 32)
     else:
         prefix = 'S' if origin == 'shared' else 'L'
-        code.emit('s2r_', Rd=temp, SRa=f'SR_{prefix}WINLO')
+        if code.arch == 'SM90' and prefix == 'S': code.mov(f'R{temp}', 0)
+        else: code.emit('s2r_', Rd=temp, SRa=f'SR_{prefix}WINLO')
         code.emit('s2r_', Rd=temp + 1, SRa=f'SR_{prefix}WINHI')
-        if origin == 'local': code.parameter(temp + 2, -0x138)
+        if origin == 'local': code.parameter(temp + 2, launch.LAUNCH_LAYOUT[code.arch][1] - elf.PROFILES[code.arch].parameter_base)
         else: code.mov(f'R{temp + 2}', 0)
         code.mov(f'R{temp + 3}', 32)
         code.emit('iadd3_noimm__RRR_RRR', Rd=temp + 2, Ra=temp + 2, Rb=temp + 3, Rc='RZ')

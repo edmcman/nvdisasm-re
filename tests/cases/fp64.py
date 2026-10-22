@@ -110,9 +110,9 @@ def emulator_cases(c):
     arithmetic(c); compare(c); readable_formulas(c)
 
 
-def gpu_fixtures():
+def gpu_fixtures(arch="SM89"):
     from tests.harness import scalar
-    return [scalar.launch(f, lambda *v, op=f[1:]: rounded(op, v[:3 if op == "fma" else 2], 64), underflow=True) for f in ("dadd", "dmul", "dfma")] + \
-           [scalar.launch(f, lambda *v, op=f[1:4], m=f[-2:].upper(): rounded(op, v[:3 if op == "fma" else 2], 64, m))
+    return [scalar.launch(f, lambda *v, op=f[1:]: rounded(op, v[:3 if op == "fma" else 2], 64), underflow=True, arch=arch) for f in ("dadd", "dmul", "dfma")] + \
+           [scalar.launch(f, lambda *v, op=f[1:4], m=f[-2:].upper(): rounded(op, v[:3 if op == "fma" else 2], 64, m), arch=arch)
             for f in sorted(f for f in scalar.ROUNDED if f[0] == "d")] + \
-           [scalar.launch("dsetp", lambda a, b, _: int(fcompare(ordered(a, 64), ordered(b, 64), "LTU")))]
+           [scalar.launch("dsetp", lambda a, b, _: int(fcompare(ordered(a, 64), ordered(b, 64), "LTU")), arch=arch)]

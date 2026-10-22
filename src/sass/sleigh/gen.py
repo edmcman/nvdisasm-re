@@ -384,8 +384,15 @@ class Gen:
         atom = k.operand_types.get(name)
         rule = next((r for f, r in k.rules if r[0] == "op" and r[1] == name), None)
         src = self.source(k, name)
-        if atom is None or not atom.type.endswith("Imm") or atom.type == "F64Imm" or rule is None or rule[3] is not None \
-                or not src or src[0] != "field": return None
+        if atom is None or not atom.type.endswith("Imm") or rule is None or not src or src[0] != "field": return None
+        if rule[3] is not None:
+            # A convertFloatType immediate folds when every selector encoding picks the same layout
+            # (F64 supplies the high word; the 16-bit kinds are the packed bits).
+            layouts = {kind == "F64" for _, kind in self.float_formats(k, rule[3]) or ()}
+            if len(layouts) != 1: return None
+            wide = layouts.pop()
+        elif atom.type == "F64Imm": return None
+        else: wide = False
         _, f, scale = src
         text, shift, refs = None, 0, []
         for tok, lo, hi, n in reversed(pieces(f)):
@@ -394,7 +401,20 @@ class Gen:
             shift += n
         if atom.type.startswith("S") or atom.type == "RSImm":
             sb = 1 << (f.width - 1); text = f"(({text} ^ {sb:#x}) - {sb:#x})"
-        return (f"({text} * {scale})" if scale != 1 else text), refs
+        if scale != 1: text = f"({text} * {scale})"
+        return (f"({text} << 32)" if wide else text), refs
+
+    def float_formats(self, k, conv):
+        """[(pattern clauses, kind)]: each encoding of a convertFloatType rule's selector fields and
+        the float kind it picks (F16/E8M7/E6M9 are packed 16-bit values, F64 supplies its high word);
+        None when a selector is not a plain field."""
+        parts = [p.strip() for p in conv.split(",")]
+        names = sorted({c.split("==")[0].strip() for p in parts[0:-1:2] for c in p.split("||")})
+        sources = [self.source(k, n) for n in names]
+        if any(s is None or s[0] != "field" for s in sources): return None
+        return [([c for s, v in zip(sources, combo) for c in eq(self, s[1], v)],
+                 pydecode.float_kind(self.arch, {n: v * s[2] for n, s, v in zip(names, sources, combo)}, conv))
+                for combo in itertools.product(*(range(1 << s[1].width) for s in sources))]
 
     def branch_target(self, k, a):
         """Invisible subtable exporting a branch's destination (display keeps its own symbol)."""

@@ -194,25 +194,15 @@ class Builder:
         return Value(sym, size, 'decoded')
 
     def converted_immediate(self, atom, src, size, conv):
-        from sass.sleigh.gen import pattern, pieces, eq
-        from itertools import product
-        parts = [p.strip() for p in conv.split(',')]
-        names = sorted({c.split('==')[0].strip() for p in parts[0:-1:2] for c in p.split('||')})
-        sources = [self.g.source(self.k,n) for n in names]
-        if any(s is None or s[0]!='field' for s in sources): return self.unknown(atom,size)
-        cons = []
-        f = src[1]
+        from sass.sleigh.gen import pattern, pieces
+        formats = self.g.float_formats(self.k, conv)
+        if formats is None: return self.unknown(atom,size)
         rawrefs, expr, shift = [], None, 0
-        for tok,lo,hi,width in reversed(pieces(f)):
+        for tok,lo,hi,width in reversed(pieces(src[1])):
             field=self.g.field(tok,lo,hi,'_sem');rawrefs.append((tok,field))
             expr=field if expr is None else f'({field} << {shift}) | ({expr})';shift+=width
-        for combo in product(*(range(1<<s[1].width) for s in sources)):
-            env={n:v*s[2] for n,s,v in zip(names,sources,combo)}
-            kind=pydecode.float_kind(self.g.arch,env,conv)
-            clauses=[c for s,v in zip(sources,combo) for c in eq(self.g,s[1],v)]
-            # F16/E8M7/E6M9 are packed 16-bit values, F64 supplies its high word.
-            val=f'({expr}) << 32' if kind=='F64' else expr
-            cons.append(('t',pattern(clauses,rawrefs),f' [ t = inst_start * 0 + ({val}); ]',f'export *[const]:{size} t;'))
+        cons=[('t',pattern(clauses,rawrefs),f' [ t = inst_start * 0 + ({f"({expr}) << 32" if kind=="F64" else expr}); ]',f'export *[const]:{size} t;')
+              for clauses,kind in formats]
         sym=self.g.subtable('v',cons);self.refs.append(('sub',sym))
         return Value(sym,size,'float-bits')
 
