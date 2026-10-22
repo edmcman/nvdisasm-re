@@ -308,8 +308,9 @@ def test_module_constant_banks():
 def test_native_cubin_on_gpu(request):
     """Execute native entry points without compiling or patching any cubin template."""
     from tests.harness import gpu
+    if gpu.target(request.config) is None: pytest.skip(request.config._gpu_unavailable)
     try:
-        driver = gpu.Driver()
+        driver = gpu.Driver(gpu.target(request.config))
     except (OSError, RuntimeError) as exc:
         if request.config.getoption('--require-gpu'):
             raise
@@ -334,7 +335,10 @@ S2R R5, SR_CTAID.Z @sched(dst_wr_sb=0);
 IMAD.WIDE.U32 R2, R5, 4, R2;''')
     empty = '.kernel empty\n.registers 4\nEXIT;\n.endkernel\n'
     module_constant = constant.replace('constant_value', 'module_constant_value').replace('.constant 2,', '.constant 3,').replace('c[2][0]', 'c[3][0]')
-    data = assemble_cubin(SIMPLE + loop + constant + module_constant + shared + dynamic + cta + empty)
+    from sass import launch
+    text = (SIMPLE + loop + constant + module_constant + shared + dynamic + cta + empty).replace('0x118', hex(launch.GLOBAL_DESCRIPTOR[driver.arch]))
+    if driver.arch == "SM90": text = text.replace(".64]", "]")
+    data = assemble_cubin(text.replace(".target SM89", ".target " + driver.arch))
     module = ctypes.c_void_p(); pointer = ctypes.c_uint64()
     try:
         driver.call('cuModuleLoadData', ctypes.byref(module), ctypes.c_char_p(data))

@@ -161,9 +161,9 @@ class Runtime:
                 tags={'global':1,'shared':2,'local':4,'shared_cluster':8}
                 matches=[tag for name,tag in tags.items()
                          if name in ranges and in_space(name)]
-                if len(matches)!=1:
+                if len(matches)!=1 and set(matches)!={2,8}:
                     raise UnsupportedSemantics('QSPC input address has no unique mapped space')
-                return matches[0]
+                return sum(matches)
             raise UnsupportedSemantics(f'QSPC output {dest}')
         if op in ('F2I','I2F','I2FP'):
             src=label('srcfmt');dst=label('dstfmt');n,bits=get('Sb','Rb','Ra','Sa')
@@ -199,15 +199,6 @@ class Runtime:
                 if v.get(n+'@absolute'):bits=abs(bits)
                 result=softfloat.pack(Fraction(bits),dw,rnd)
             return result&((1<<(size*8))-1)
-        if op=='PRMT':
-            mode=label('pmode','IDX')
-            a=integer('Ra');selector=integer('Rb','Sb');b=integer('Rc','Sc');data=a|(b<<32);out=0
-            for i in range(4):
-                pick=selector>>(i*4)&15 if mode=='IDX' else {'F4E':lambda:(selector&3)+i, 'B4E':lambda:((selector&3)-i)&7, 'RC8':lambda:selector&3, 'RC16':lambda:((selector&1)*2)+(i&1), 'ECL':lambda:max(i,selector&3), 'ECR':lambda:min(i,selector&3)}[mode]()
-                byte=data>>((pick&7)*8)&255
-                if mode=='IDX' and pick&8:byte=255 if byte&128 else 0
-                out|=byte<<(i*8)
-            return out
         if op in ('SHFL','VOTE','VOTEU','MATCH','REDUX','ELECT'):
             warp=self.context.get('warp')
             if not warp:raise UnsupportedSemantics('explicit 32-lane warp context required')

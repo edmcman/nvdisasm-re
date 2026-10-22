@@ -1,6 +1,6 @@
 """Own ordinary legal-form coverage through reference-backed shared-case plans.
 
-python -m tests.autocases SM89 --manifest-dir DIR [--write] [--report gaps.json]
+python -m tests.autocases SM89 [--manifest-dir DIR] [--write | --check] [--report gaps.json]
 """
 import argparse
 import itertools

@@ -2,7 +2,7 @@
 
 Each test checks one artifact against one oracle, so a failure points at one component. Tests are
 grouped by what they need to run; markers say only that: `ghidra` (compiled SLEIGH languages and
-Ghidra's pyghidra venv) and `gpu` (an SM89 device).
+Ghidra's pyghidra venv) and `gpu` (an SM89 or SM90 device).
 
 - [Running](#running): commands, options, what to run when, cost
 - [Suites](#suites): what each test file checks, and against what
@@ -25,14 +25,14 @@ uv run pytest -m gpu --require-gpu                     # GPU tests (outside the 
 
 | Option | Meaning |
 |---|---|
-| `--arch SM89\|SM75,SM90\|all` | architectures (default SM89) |
+| `--arch SM89\|SM75,SM90\|all` | architectures (default SM89; GPU tests default to device 0's architecture, SM89 or SM90) |
 | `--fp exact\|readable\|all` | floating-point lowering(s) (default exact) |
 | `--family F` (repeatable) | limit semantics tests and GPU fixtures to case families (`tests/cases/F.py`) |
 | `--sample PERCENT` | shared-case input sampling, integer 0–100; default 0 preserves modifier-form coverage and retained regressions ([Sampling](#sampling)) |
 | `--exhaustive` | alias for `--sample 100`; cannot be combined with `--sample` |
 | `--update-baseline` | accept current results into the [ratchet](#ratchets) baselines |
 | `--full` | `test_pydecode_disassembly` and `test_ghidra_disassembly` on the whole real corpus instead of a sample |
-| `--require-gpu` | fail instead of skipping without an SM89 device |
+| `--require-gpu` | fail instead of skipping without an SM89 or SM90 device |
 
 ### What to run when
 
@@ -43,8 +43,17 @@ uv run pytest -m gpu --require-gpu                     # GPU tests (outside the 
 - **Before committing:** the Python and Ghidra tests on every architecture and lowering, plus the
   GPU tests if shared cases, fixtures, references or the GPU harness changed.
 
+GPU tests detect device ordinal 0 before collecting cases; this host's H100 NVL selects
+SM90. An explicit `--arch SM90` (or a list/`all` containing SM90) must include that
+device; only its architecture runs on hardware. CPU-only tests still default to SM89.
+Both shared cases and compiled whole-kernel fixtures use the selected architecture.
+Whole-kernel Ghidra tests support `--arch SM89,SM90 --fp all` without a GPU.
+The MUFU sample fixtures compare the same 1,462 recorded inputs per operation on
+both devices; their GPU pass records remain architecture-specific.
+
 CI (`.github/workflows/ci.yml`) runs the Python tests on every architecture and lowering for every
-push.
+push and pull request, and fails when a generated plan (`tests.autocases --check`) or the committed
+coverage and evidence are stale.
 
 ### Cost
 
@@ -91,8 +100,14 @@ libraries), so `test_pydecode_disassembly` checks synthetic and mutated words on
 | `test_mdexpr.py`, `test_fold.py`, `test_cubin.py` | are the helpers right? | md expressions, decode-time folding, cubin reader | hand values, evaluation |
 | `test_assemble.py` | does source encode correctly and produce native cubins? | FORMAT parser, strict encoder, labels, directives, ELF writer | decoder round trips, nvdisasm, known words and metadata |
 | `test_pydecode_disassembly.py` | does pydecode decode like nvdisasm? | `sass.decode.pydecode` | nvdisasm (ratchet `baseline/SMxx.json`; CLI `sass-compare-pydecode`) |
+| `test_bitvec.py`, `test_control_flow.py` | are the IR and lifted control flow right? | `sass.semantics.bitvec`, lifted branch conditions | explicit bit strings, hand cases |
+| `test_build.py` | does coverage collection leave the generated languages alone? | `sass.sleigh.gen` with and without coverage, runtime manifests | the same build without coverage |
 | `test_family_lowering.py` | does every family lower on every class it covers? | `sass.semantics` families under the SLEIGH enumeration | no crash |
 | `test_lifted_semantics.py` | do the semantics compute the right values? | `sass.semantics.lifter` + `evaluate` | `refs/`, through the emulator cases |
+| `test_mufu.py` | does the MUFU runtime match hardware? | `sass.semantics.fp.mufu`, the runtime's MUFU primitive | `refs/mufu.py`, recorded SM89 outputs |
+| `test_autocases.py`, `test_*_autocases.py`, `test_half_comparison_profiles.py` | are generated cases reproducible and reference-backed? | the [planner and adapters](#generated-shared-cases) | saved plans, independent references |
+| `test_sampling.py`, `test_evidence.py`, `test_device_cases.py` | do sampling, evidence and GPU-probe construction behave? (no GPU needed) | `harness/sampling.py`, `tests/evidence.py`, `harness/device_*.py` | hand cases, mocked runners |
+| `test_coverage_comment.py` | does CI's PR coverage comment compare and post correctly? | `.github/scripts/coverage_comment.py` | mocked GitHub API |
 
 ### Ghidra tests: `uv run pytest -m ghidra`
 
@@ -103,21 +118,22 @@ Need languages built by `uv run sass-build-languages` (outside the sandbox).
 | `test_ghidra_disassembly.py` | does the SLEIGH disassemble like pydecode? | `.sla` display | pydecode (ratchet `baseline/ghidra_SMxx.json`; CLI `sass-compare-ghidra`) |
 | `test_pcode_dataflow.py` | does the p-code read and write the right registers? | `.sla` dataflow | md roles/spans, BRANCH_TYPE (+ op-count ratchet `baseline/pcode_<variant>.json`) |
 | `test_pcode_semantics.py` | does the p-code compute the right values? | `.sla` p-code in Ghidra's emulator | `refs/`, through the emulator cases (CLI `uv run python -m tests.semantics`) |
-| `test_fixtures_emulated.py` | do whole GPU-fixture kernels compute their references in the emulator? | emulated SM89 kernels | `refs/`, through the GPU fixtures |
+| `test_fixtures_emulated.py` | do whole GPU-fixture kernels compute their references in the emulator? | emulated SM89/SM90 kernels | `refs/`, through the GPU fixtures |
 | `test_coverage.py` | is `processor/SASS/semantics/coverage.json` current? | committed coverage | the languages' manifests and `tests/evidence.py`'s evidence |
+| `test_ghidra_bridge.py` | does the Ghidra cache key cover what the emulator loads? | `ghidra_bridge.sources` | the modules loaded in a Ghidra emulation |
 
 A stale `.sla` fails the Ghidra tests up front (`harness/select.require_languages`): Ghidra would
 recompile it on load, and concurrent compilers corrupt it.
 
 ### GPU tests: `uv run pytest -m gpu --require-gpu`
 
-Need an SM89 device (outside the sandbox), but not Ghidra.
+Need an SM89 or SM90 device (outside the sandbox), but not Ghidra.
 
 | File | Question | Under test | Oracle |
 |---|---|---|---|
-| `test_cases_on_gpu.py` | do shared instruction cases agree with hardware? | `refs/`, through generated native probes | SM89 GPU; passing complete families are fingerprinted in `baseline/gpu_case_passes.json` |
-| `test_refs_on_gpu.py` | are the references right on hardware? | `refs/`, through the GPU fixtures | SM89 GPU (CLI `uv run python -m tests.observe FAMILY`); records passing fixtures' fingerprints in `baseline/gpu_passes.json`, the source of `gpu` evidence (`tests/evidence.py`, per class and per form: the modifier combinations that ran) |
-| `test_assemble.py::test_native_cubin_on_gpu` | do native cubins load and execute? | self-contained kernels assembled without compiled templates | SM89 Driver API: parameters, branches, constants, shared memory, multiple entries |
+| `test_cases_on_gpu.py` | do shared instruction cases agree with hardware? | `refs/`, through generated native probes | SM89/SM90 GPU; passing complete families are fingerprinted in `baseline/gpu_case_passes.json` |
+| `test_refs_on_gpu.py` | are the references right on hardware? | `refs/`, through the GPU fixtures | SM89/SM90 GPU (CLI `uv run python -m tests.observe FAMILY`); records passing fixtures' fingerprints in `baseline/gpu_passes.json`, which with `gpu_case_passes.json` is the source of `gpu` evidence (`tests/evidence.py`, per class and per form: the modifier combinations that ran) |
+| `test_assemble.py::test_native_cubin_on_gpu` | do native cubins load and execute? | self-contained kernels assembled without compiled templates | SM89/SM90 Driver API: parameters, branches, constants, shared memory, multiple entries |
 
 `test_cases_on_gpu.py` runs the hardware-valid cases from `emulator_cases(c)` directly: encoded
 words, seeded registers, constants and independent reference outputs are shared with the Python
@@ -146,7 +162,7 @@ run both on hardware and in Ghidra (`test_fixtures_emulated.py`).
 ## Writing tests
 
 Each `cases/<family>.py` (listed in `cases/__init__.py` `FAMILIES`) provides `emulator_cases(c)`
-and `gpu_fixtures()`.
+and, optionally, `gpu_fixtures()`.
 
 ### Shared cases: `emulator_cases(c)`
 
@@ -154,12 +170,13 @@ Single-instruction cases for `test_lifted_semantics`, `test_pcode_semantics` and
 `test_cases_on_gpu` (hardware expectations use exact mode).
 
 `c.add(cls, fields, registers, expected, ...)` describes one instruction of md class `cls` with
-operand `fields` (encoded by `c.encode_words()`, which `emulator_cases` runs on the selected
-cases), seeds `registers`, and checks `expected`; classes the architecture lacks are skipped.
+operand `fields` (encoded by `c.encode_words()`, which the loader `cases.emulator_cases` runs on
+the selected cases), seeds `registers`, and checks `expected`; classes the architecture lacks are skipped.
 Helpers in `harness/case.py`:
 
 - `put`: place an operand value in a register, immediate or constant bank
-- `cx_source`
+- `cx_source`: a bindless `cx[URx][...]` source, with its header in a uniform register pair and
+  the loaded word mapped in memory
 - `c.kernel(...)`: a one-instruction kernel expected to fail
 - `c.sweep(n)`: all indices of a domain, like `range(n)`; sampling happens after generation and
   validity filtering
@@ -178,13 +195,13 @@ Ordinary scalar cases automatically run on the GPU:
 - The runner retains input/output register aliases and compares all expected registers and
   observed memory.
 
-`@retained(reason)` and `@anchored` (`harness/manual.py`) control how manual cases are sampled
-([Sampling](#sampling)).
+`@retained(reason)` and `@anchored(reason)` (`harness/manual.py`) control how manual cases are
+sampled ([Sampling](#sampling)).
 
 ### GPU fixtures: `gpu_fixtures()`
 
 `harness/gpu.Fixture`s for `test_refs_on_gpu` and `test_fixtures_emulated`. A fixture is a CUDA
-kernel (`kernels/*.cu`, compiled for sm_89, optionally with patched SASS words:
+kernel (`kernels/*.cu`, compiled for the selected architecture, sm_89 or sm_90, optionally with patched SASS words:
 `harness/scalar.py`, `harness/templates.py`) and its reference outputs `expected`. Each thread reads
 three inputs and writes one output. The GPU output is compared with `expected` using `same`; the
 kernel, run whole in the emulator from entry to EXIT, is compared with `expected` using
@@ -236,12 +253,13 @@ tolerates floating-point NaN payload/sign, and excuses Ghidra 12.1.4's minimum-s
 ### Running the planner
 
 ```sh
-uv run python -m tests.autocases SM89 --write --report /tmp/shared-case-gaps.json
+uv run python -m tests.autocases SM89 --write --report tests/cases/generated/SM89.gaps.json
 ```
 
 reads the exact-language coverage manifest, expands its legal modifier combinations (including the
 factored free modifiers), and writes `cases/generated/SM89.json`. If manifests are missing, first
-run `uv run sass-build-languages SM89 --fp exact --generate-only --coverage`.
+run `uv run sass-build-languages SM89 --fp exact --generate-only --coverage`. The committed
+`cases/generated/SMxx.gaps.json` are `--report` outputs.
 
 - `--manifest-dir DIR` selects another manifest directory.
 - Omit `--write` for a dry run.
@@ -279,7 +297,7 @@ not all input values or proof of correct behavior.
 
 ### Integer adapters (`harness/autocases.py`)
 
-Cover BREV, POPC, SGXT, PRMT, UPRMT, ISETP, UISETP, IMNMX, SEL, USEL, IDP, SHF, USHF, IABS, UMOV,
+Cover BREV, POPC, FLO, SGXT, PRMT, UPRMT, ISETP, UISETP, IMNMX, SEL, USEL, IDP, SHF, USHF, IABS, UMOV,
 BMSK, VIMNMX, VISET, VIADDMNMX, VIMNMX3, LOP3, ULOP3, IADD3, UIADD3, LEA, ULEA, IMAD, UIMAD, UBREV,
 UPOPC, USGXT and MOV register-pair forms. The planner routes IDP and packed-integer cases to
 `int_simd`, BMSK to `bmsk`, arithmetic/carry adapters to `carry`, and the other operations to
@@ -345,10 +363,13 @@ FSET/FSETP/UFSETP/DSETP, FCHK, FRND/UFRND, PLOP3/UPLOP3 and P2R/R2P/UP2UR.
 
 ### Memory, warp and system adapters (`harness/autocase_remaining.py`)
 
-These use memory and warp references for values, and supplied synchronization handlers for event
-contracts. Synchronization profiles do not claim to validate a multithread scheduler. MUFU error
-profiles are diagnostic contracts only: the planner leaves numerical coverage blocked until an
-independent hardware-specific approximation oracle exists.
+Cover LD/LDL/LDS/ST/STG/STL/STS, ELECT/MATCH/REDUX/SHFL/VOTE/VOTEU, BAR/BMOV/BREAK/BSSY/BSYNC/
+WARPSYNC and MUFU. These use memory and warp references for values, and supplied synchronization
+handlers for event contracts. Synchronization profiles do not claim to validate a multithread
+scheduler. Full-width MUFU SIN/COS (`mufu__*` classes) use the SM89 fixed-point reference
+(`refs/mufu.py`, profile `mufu_sincos`); the other MUFU operations get error contracts only, which
+are diagnostic, and the planner leaves their numerical coverage blocked until an independent
+hardware-specific approximation oracle exists.
 
 `__max_ops` limits in generated system profiles:
 
@@ -363,6 +384,19 @@ independent hardware-specific approximation oracle exists.
 The `__native` assertion stays strict. QSPC values run in Ghidra's explicit provenance context and
 remain marked as primitive checks rather than native Python value validation.
 
+### Other adapter modules
+
+| Module | Operations | Family |
+|---|---|---|
+| `harness/autocase_integer_extra.py` | VIADD, UVIMNMX, UI2IP, MOV64IUR | `int_alu`, `int_simd`, `conversions` |
+| `harness/autocase_conversions.py` | F2I/UF2I, I2F/I2FP/UI2F/UI2FP, F2F | `conversions` |
+| `harness/autocase_packed_fp.py` | F2IP/I2IP; HADD2/HMUL2/HFMA2/HMNMX2/HSET2/HSETP2 (HSET2/HSETP2 inputs from `autocase_half_profiles.py`'s audited table, `harness/data/half_comparison_inputs.json`) | `conversions`, `fp16` |
+| `harness/autocase_wide_fp.py` | FADD2/FMUL2/FFMA2; F2FP/UF2FP | `fp32x2`, `f2fp` |
+| `harness/autocase_mixed_fp.py` | FHADD2/FHMUL2/FHFMA2 | `fp32x2` |
+| `harness/autocase_system.py` | LDC/LDCU/ULDC, QSPC; S2R/CS2R/S2UR; BRA/CALL/RET/EXIT/NOP | `memory`, `control` |
+
+Their scope and remaining gaps are summarized per batch in [`docs/testing.md`](../docs/testing.md#generated-shared-cases).
+
 ## Sampling
 
 `--sample PERCENT` applies to every shared-case family in the lifted Python tests, Ghidra, the GPU
@@ -370,11 +404,11 @@ runner and `python -m tests.semantics`. Values are integers from 0 through 100; 
 aliases 100. It does not sample whole-kernel fixtures or the separate disassembly corpus (`--full`).
 
 **0% (the default)** keeps, for each available form, its lowest stable hash-ranked scenario.
-Additional representatives preserve lifted-emulator and SM89 GPU eligibility when necessary.
+Additional representatives preserve lifted-emulator and SM89/SM90 GPU eligibility when necessary.
 `@retained` regressions, kernel scenarios and explicit error/opaque assertions always run, even when
 a retained function contains an entire sweep, so retained corpora must stay small. `@anchored`
-suites (`harness/manual.py`) retain only their anchors, the edge indices of each sweep
-(`part.sweep(k, n)`) on the all-register class; the rest of their corpus is sampled like other cases
+suites (`harness/manual.py`) retain only their anchors, the indices of each sweep (`part.sweep(k, n)`)
+near 0, n/2 and n on the all-register class (`__RRR`, `__URURUR`); the rest of their corpus is sampled like other cases
 and runs complete at 100%. Thus minimal is a coverage floor, not exactly one case per form. Existing
 unsupported legal forms remain gaps.
 
@@ -415,14 +449,15 @@ evidence report at another depth, use
 
 ### Shared-case hardware evidence
 
-`baseline/gpu_case_passes.json` records a passing family's selected inputs/expectations, exact
+`baseline/gpu_case_passes.json` partitions records by architecture and records a passing family's selected inputs/expectations, exact
 instruction words, sampling percentage and algorithm version, probe-source digest, device and
 executed cubin hashes. Changing any of these invalidates its evidence. The digest covers only the
 sources that build, run and compare a probe (the import closure of `harness/device_cases.py`,
-`device_setup.py` and `device_runner.py`, plus `out/SM89`), not semantics, references or case
-lists, whose effect on a family is already in its signature.
+`device_setup.py` and `device_runner.py`, plus the target architecture’s `out/SMxx`), not semantics (but softfloat), case
+lists or references (but the `refs/bits.py`/`fpformat.py` helpers the harness imports), whose
+effect on a family is already in its signature.
 
-A partial or failing family run drops that family's shared-case evidence; unchanged other families
+A partial or failing family run drops that family's shared-case evidence on the tested architecture; unchanged other families
 remain recorded. `tests/evidence.py` credits the target instruction directly as `cases/FAMILY`,
 independent of wrapper instructions and whole-kernel data-path slicing. Evidence refresh needs
 neither a GPU nor Ghidra and does not execute recorded passes. The signature is order-free (the sum
@@ -435,7 +470,7 @@ the same shards on every core.
 Use `Cases.probe(cls, fields, registers, observe=[...], ...)` and
 `tests.harness.device_cases.observe(cases)` to discover outputs without a reference. It uses the
 same generated wrappers and setup adapters, returning raw registers and observed memory without
-comparisons or evidence updates. `python -m tests.probe INPUT.json --out OUTPUT.json` accepts a JSON
+comparisons or evidence updates. `python -m tests.probe INPUT.json --out OUTPUT.json [--arch SM90]` accepts a JSON
 list of the same arguments. Draft probes cannot enter a regression suite until converted to `c.add`
 with an independent reference. The investigation skill's
 [probe guide](../.agents/skills/sass-opcode-semantics/references/gpu-probes.md) contains runnable
@@ -487,16 +522,17 @@ Everything below lives in `.cache/` and is safe to delete.
 | nvdisasm oracle results (`oracle.sqlite`) | nvdisasm hash, word, address |
 | parsed md IR (`ir/`) | md files and parser sources |
 | real-corpus words (`corpus/`) | the cubin set (paths, sizes, mtimes) |
-| Ghidra decode/emulation results (`ghidra/`) | the language's `.sla`, specs and coverage manifest, the `src/sass` sources the Ghidra program imports, Ghidra; then the request |
+| Ghidra decode/emulation results (`ghidra/`) | the language's `.sla`, specs and runtime manifest, the `src/sass` sources the Ghidra program imports, the Ghidra install and venv paths; then the request |
 | compiled kernels (`kernels/`), block emulator (`java/`), extracted library cubins (`cubins/`) | sources and flags |
 
 ## Prerequisites
 
 | What | Default | Override |
 |---|---|---|
-| target nvdisasm (CUDA 13.4, V13.4.92) | the dev group's `nvidia-cuda-nvdisasm` in `.venv`, `/tmp/.venv` or the uv cache | `NVDISASM` |
+| target nvdisasm (CUDA 13.4, V13.4.92) | the dev group's `nvidia-cuda-nvdisasm` in `.venv` or the uv cache | `NVDISASM` |
 | Ghidra 12.1.4 and its pyghidra venv | `~/Ghidra/ghidra_12.1.4_PUBLIC`, `~/.config/ghidra/ghidra_12.1.4_PUBLIC/venv` | `GHIDRA_INSTALL_DIR`, `GHIDRA_PY` |
-| CUDA toolkit (GPU-fixture kernels, Ghidra and GPU tests) | `/usr/local/cuda/bin/{nvcc,cuobjdump}` | `NVCC`, `CUOBJDUMP` |
+| `nvcc`, `ptxas` (CUDA 13.0.88: GPU-fixture kernels for the Ghidra and GPU tests; `ptxas` evidence) | the dev group's wheels in `.venv`, else `/usr/local/cuda/bin` | `NVCC`, `PTXAS` |
+| `cuobjdump` and the CUDA libraries (real corpus) | `/usr/local/cuda/bin/cuobjdump`, `/usr/local/cuda/lib64` | `CUOBJDUMP` |
 | generated languages | `processor/SASS/data/languages` | `SASS_SLEIGH_OUT` |
 | `javac` (cooperative GPU fixtures) | on `PATH` | |
 

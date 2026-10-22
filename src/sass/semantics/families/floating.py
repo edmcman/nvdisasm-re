@@ -367,12 +367,25 @@ def no_flush(i):
             if not readable(i) and not str(label).startswith(('noftz', 'nofmz')): unmodelled(f'{label}')
 
 
-@family('HADD2', 'HFMA2')
+@family('HADD2', 'HFMA2', 'HFMA2.MMA')
 def half_arithmetic(i):
     """Rd = per lane a + c (HADD2) or a * b + c (HFMA2) on binary16, rounded once (the readable
     lowering: unfused), with .SAT. HADD2.F32 adds the low lanes, rounds to binary16 and widens the
     result to binary32 (FTZ flushes inputs and the binary16 result)."""
-    fma = i.opcode == 'HFMA2'
+    mma = i.opcode == 'HFMA2.MMA'
+    if mma:
+        if i.has_operand('ofmt') and i.select_fork('ofmt') != 'F16_V2': unmodelled('MMA format')
+        # Preserve the hardware-established constant move, including its NaN payload.
+        if all(i.has_operand(n) for n in ('Ra', 'Rb', 'Sc', 'Sc1')):
+            no_flush(i)
+            if half_saturating(i): unmodelled('saturated MMA constant move')
+            if not (i.is_zero('Ra') and i.operand_negated('Ra') and i.is_zero('Rb') and not i.operand_negated('Rb')):
+                unmodelled('not the -RZ, RZ constant move')
+            canonical = lambda h: ite((extract(h, 14, 10) == 0x1f) & (extract(h, 9, 0) != 0), const(0x7fff, 16), h)
+            return outputs(Rd=concat(canonical(i.imm('Sc', 16)), canonical(i.imm('Sc1', 16))))
+        if i.cls not in ('hfma2_mma__RRR', 'hfma2_mma__RIR') or not i.has_operand('ofmt'):
+            unmodelled('MMA operand form')
+    fma = i.opcode in ('HFMA2', 'HFMA2.MMA')
     names = ['Ra|Sa', 'Rb|Sb', 'Rc|Sc'] if fma else ['Ra|Sa', 'Rc|Sc']
     if i.width('Rd') != 32: unmodelled('width')
     if not fma and i.cls.startswith('hadd2_F32'):
@@ -385,13 +398,19 @@ def half_arithmetic(i):
         if half_saturating(i): r = saturated(r)
         return outputs(Rd=widen_half(r))
     if i.select_fork('ofmt') != 'F16_V2': unmodelled('ofmt')
-    no_flush(i)
+    ftz = False
+    if mma:
+        mode = i.select_fork('fmz')
+        if mode not in ('nofmz_hfma2', 'nofmz', 'FTZ'): unmodelled(f'MMA {mode}')
+        ftz = mode == 'FTZ' and not readable(i)
+    else: no_flush(i)
     sat = half_saturating(i)
     inputs = [half_lanes(i, n, s) for n, s in zip(names, half_swizzles(i, fma))]
     lanes = []
     for lane in (0, 1):
-        x = [v[lane] for v in inputs]
+        x = [flushed(v[lane]) if ftz else v[lane] for v in inputs]
         r = (fadd(fmul(x[0], x[1]), x[2]) if readable(i) else ffma(*x)) if fma else fadd(*x)
+        if ftz: r = flushed(r)
         lanes.append(saturated(r) if sat else r)
     return outputs(Rd=concat(lanes[1], lanes[0]))
 

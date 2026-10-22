@@ -2,12 +2,12 @@
 
 python -m tests.probe probes.json [--out observations.json]
 Input is a JSON list of Cases.probe arguments (cls, fields, registers, observe,
-optional memory/observe_memory/context/hardware). SM89 only; run outside the sandbox.
+optional memory/observe_memory/context/hardware). SM89 and SM90; run outside the sandbox.
 """
 import argparse
 import json
 from pathlib import Path
-from tests.harness import device_cases
+from tests.harness import device_cases, gpu
 from tests.harness.case import Cases
 
 
@@ -15,8 +15,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('input', type=Path)
     parser.add_argument('--out', type=Path)
+    parser.add_argument('--arch', choices=('SM89', 'SM90'), help='default: detect local GPU')
     args = parser.parse_args()
-    builder = Cases('SM89')
+    driver = gpu.Driver(args.arch)
+    try: arch = driver.arch
+    finally: driver.close()
+    builder = Cases(arch)
     for spec in json.loads(args.input.read_text()): builder.probe(**spec)
     result = device_cases.observe(builder)
     text = json.dumps(result, indent=1) + '\n'

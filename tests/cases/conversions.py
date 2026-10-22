@@ -140,7 +140,7 @@ def emulator_cases(c):
     scalar(c); ieee(c); f2ip(c); i2ip_case(c)
 
 
-def ieee_fixtures():
+def ieee_fixtures(arch="SM89"):
     """The scalar_semantics WIDE_KERNEL conversions (one PTX cvt each, compiled to the target
     instruction): 64-bit inputs and outputs, edge values first, compared on the destination's bits."""
     import random
@@ -179,23 +179,23 @@ def ieee_fixtures():
         rng, mask = random.Random(name), (1 << bits) - 1
         vs = [[values[i] if i < len(values) else rng.getrandbits(64), 0, 0] for i in range(128)]
         out.append(scalar.fixture(name, vs, [reference(v[0]) for v in vs], targets=(target,), wide=True,
-                                  same=lambda g, w, m=mask: g & m == w))
+                                  same=lambda g, w, m=mask: g & m == w, arch=arch))
     return out
 
 
-def gpu_fixtures():
+def gpu_fixtures(arch="SM89"):
     from tests.harness import scalar
     from tests.harness.templates import cx_fixture
     from tests.refs.bits import sext
-    out = [scalar.launch(f, lambda x, *_, a=a, n=n: f2i_trunc((x & 0x7fffffff if a else x) ^ (0x80000000 if n else 0)))
+    out = [scalar.launch(f, lambda x, *_, a=a, n=n: f2i_trunc((x & 0x7fffffff if a else x) ^ (0x80000000 if n else 0)), arch=arch)
            for f, a, n in (("f2i", 0, 0), ("f2i_abs", 1, 0), ("f2i_neg", 0, 1), ("f2i_absneg", 1, 1))]
-    out.append(scalar.launch("f2ip", lambda x, y, z: ((z & 0xffff) << 16) | (f2ip_byte(x, True) << 8) | f2ip_byte(y, True)))
+    out.append(scalar.launch("f2ip", lambda x, y, z: ((z & 0xffff) << 16) | (f2ip_byte(x, True) << 8) | f2ip_byte(y, True), arch=arch))
     for f in (f for f in scalar.TARGETS if f.startswith("i2ip_")):
         fmt, *mode = f.split("_")[1:]; width, signed = int(fmt[1:]), fmt[0] == "s"
         sat, relu = {(): (True, False), ("nosat",): (False, False), ("satrelu",): (True, True)}[tuple(mode)]
-        out.append(scalar.launch(f, lambda x, y, z, w=width, s=signed, sa=sat, r=relu: i2ip(sext(x, 32), sext(y, 32), z, w, s, sa, r, "H0")))
-    out.append(scalar.launch("i2f", lambda x, *_: float.i2f(x, 32, True, 32, "RN")))
-    out += ieee_fixtures()
+        out.append(scalar.launch(f, lambda x, y, z, w=width, s=signed, sa=sat, r=relu: i2ip(sext(x, 32), sext(y, 32), z, w, s, sa, r, "H0"), arch=arch))
+    out.append(scalar.launch("i2f", lambda x, *_: float.i2f(x, 32, True, 32, "RN"), arch=arch))
+    out += ieee_fixtures(arch=arch)
     # CX source B for F2IP and I2IP; Rc aliases Ra.
     a_values = (0, 0x80000000, 0x3f000000, 0xbf000000, 0x3fc00000, 0xbfc00000, 0x40200000, 0xc0200000, 0x42ff0000, 0xc3000000, 0x43000000,
                 0xc2ff0000, 0x42ff8000, 0xc2ff8000, 0x437f8000, 0x7f800000, 0xff800000, 0x7fc00000, 0x7f800001, 0x4f000000, 0xcf000000)
@@ -203,7 +203,7 @@ def gpu_fixtures():
     for dstfmt in ("S8", "U8"):
         for cx in (0x3fc00000, 0xc0200000, 0x42ff8000, 0xcf000000, 0x7fc00000, 0x7f800000, 0xbf000000, 0x3f000000):
             out.append(cx_fixture(f"f2ip_cx_{dstfmt}_{cx:x}", "f2ip__RCxR", dict(Rd=7, Ra=2, Rc=2, Pg=7, dstfmt=dstfmt, srcfmt="F32", rnd="ROUND", ntz="NTZ", relu="norelu"),
-                                  [(a, cx, 0) for a in values], [((a & 0xffff) << 16) | (f2ip_byte(a, dstfmt == "S8") << 8) | f2ip_byte(cx, dstfmt == "S8") for a in values]))
+                                  [(a, cx, 0) for a in values], [((a & 0xffff) << 16) | (f2ip_byte(a, dstfmt == "S8") << 8) | f2ip_byte(cx, dstfmt == "S8") for a in values], arch=arch))
     ints = (0x12345678, 0x87654321, 0x0000ffff, 0xffff0000, 0, 1, -1, -3, 3, -9, 7, 8, 15, 16, 127, -128, 255, -256, 32767, -32768, 0x12345678, -0x1234567)
     values = [ints[i % len(ints)] & 0xffffffff for i in range(128)]
     for fmt in ("S8", "U8", "S16", "U16"):
@@ -213,5 +213,5 @@ def gpu_fixtures():
                     want = [i2ip(sext(a, 32), sext(cx, 32), a, int(fmt[1:]), fmt[0] == "S", mode in ("SAT", "SATRELU"), mode == "SATRELU", extract) for a in values]
                     out.append(cx_fixture(f"i2ip_cx_{fmt}_{mode}_{extract}_{cx:x}", "i2ip__RCxR_RCxR",
                                           dict(Rd=7, Ra=2, Rc=2, Pg=7, dstfmt=fmt, srcfmt="S32", satrelu=mode, extract_limited=extract),
-                                          [(a, cx, 0) for a in values], want))
+                                          [(a, cx, 0) for a in values], want, arch=arch))
     return out

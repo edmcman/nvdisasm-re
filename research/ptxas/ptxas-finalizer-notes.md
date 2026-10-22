@@ -656,7 +656,7 @@ assignment `BITS_1_75_75_relu=cw`; `relu` is merely the shared field's name.
 `CWMode` defines `C=0`, `W=1`.
 
 The committed probes and complete captures are
-`tests/ptx/bmsk/bmsk_clamp.ptx` / `bmsk_clamp_finalizer.jsonl` and
+`tests/ptx/bmsk/bmsk_clamp.ptx` / `research/ptxas/bmsk_clamp_finalizer.jsonl` and
 `tests/ptx/bmsk/bmsk_wrap.ptx` / `bmsk_wrap_finalizer.jsonl`. Each capture's 24 words (384
 bytes) was checked against the cubin produced by that same SM100 compiler run
 using `validate_capture.py`. The arithmetic words, in little-endian byte order:

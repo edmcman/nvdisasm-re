@@ -527,9 +527,9 @@ def dataflow_words(arch):
     return words
 
 
-def gpu_fixtures():
+def gpu_fixtures(arch="SM89"):
     from tests.harness import scalar
-    from tests.harness.gpu import Fixture, Template, compile, sm89
+    from tests.harness.gpu import Fixture, Template, compile, encode
     from tests.harness.templates import cx_fixture, rows
     from tests.refs.float import same_halves
     out = []
@@ -538,21 +538,21 @@ def gpu_fixtures():
         cvt = lambda x, fmt=fmt, f=f: fpformat.pack16(x, fmt, "RZ" if f.endswith("_rz") else "RN", "satfinite" in f, "_relu" in f)
         # The immediate and constant-bank forms convert 1.5 into the low half.
         ref = (lambda x, y, z, cvt=cvt: (cvt(x) << 16) | cvt(0x3fc00000)) if f in ("f2fp_f16_pack_imm", "f2fp_f16_pack_c") else (lambda x, y, z, cvt=cvt: (cvt(x) << 16) | cvt(y))
-        out.append(scalar.launch(f, ref, same=same_halves if fmt == "F16" else None))
+        out.append(scalar.launch(f, ref, same=same_halves if fmt == "F16" else None, arch=arch))
     for f in (f for f in scalar.TARGETS if f.startswith(("f2fp_e4m3_pack", "f2fp_e5m2_pack"))):
         fmt, sat = f[5:9].upper(), not f.endswith("_nosat")
-        out.append(scalar.launch(f, lambda x, y, z, fmt=fmt, sat=sat: ((z >> 16) << 16) | (fpformat.fp8(x, fmt, "RN", sat) << 8) | fpformat.fp8(y, fmt, "RN", sat)))
+        out.append(scalar.launch(f, lambda x, y, z, fmt=fmt, sat=sat: ((z >> 16) << 16) | (fpformat.fp8(x, fmt, "RN", sat) << 8) | fpformat.fp8(y, fmt, "RN", sat), arch=arch))
     for f in (f for f in scalar.TARGETS if f.startswith(("f2fp_e4m3_unpack_", "f2fp_e5m2_unpack_"))):
         fmt = f[5:9].upper()
         relu = (lambda h: 0 if h & 0x8000 else h) if f.endswith("_relu") else (lambda h: h)
         half = lambda w, fmt=fmt, relu=relu: relu(fpformat.widen(fmt, w & 0xff)) | (relu(fpformat.widen(fmt, (w >> 8) & 0xff)) << 16)
-        out.append(scalar.launch(f, lambda w, *_, half=half: half(w) | (half(w >> 16) << 32)))
+        out.append(scalar.launch(f, lambda w, *_, half=half: half(w) | (half(w >> 16) << 32), arch=arch))
     # F2FP PACK_AB with CX source B (every lane reads the first record's B).
     rng = random.Random(0xf2f0)
     vals = [0, 0x80000000, 0x3f800000, 0xbf800000, 0x3fc00000, 0xc0200000, 0x387fc000, 0x38800000, 0x477fe000, 0x477ff000, 0x33000000, 0xb3800000]
     vals += [int.from_bytes(struct.pack("<f", rng.uniform(-500.0, 500.0)), "little") for _ in range(116)]
     out.append(cx_fixture("f2fp_cx", "f2fp__RCxR", dict(Rd=7, Ra=2, dstfmt="F16", srcfmt="F32", merge="PACK_AB", rndMode="RN", relu="norelu", satfinite="nosatfinite"),
-                          list(zip(vals, vals[1:] + vals[:1], [0] * 128)), [(fpformat.f32_to_f16(a) << 16) | fpformat.f32_to_f16(vals[1]) for a in vals]))
+                          list(zip(vals, vals[1:] + vals[:1], [0] * 128)), [(fpformat.f32_to_f16(a) << 16) | fpformat.f32_to_f16(vals[1]) for a in vals], arch=arch))
     # MERGE_C with a CX conversion source; GPU F16 NaNs may differ in payload/sign from the reference.
     sources = (0x3f800000, 0xbf800000, 0x7f7fffff, 0xff7fffff, 0x7f800000, 0xff800000, 0x7fc12345, 0xff812345)
     bases = (0xdeadbeef, 0xaabbccdd, 0x00017fff, 0x7bff8000, 0x7fc17e01, 0x3f803f80, 0xffff0001, 0x80017fff)
@@ -565,9 +565,9 @@ def gpu_fixtures():
                               relu="RELU" if relu else "norelu", satfinite="SATFINITE" if sat else "nosatfinite", extract=extract, Pg=7),
                               [(bases[j % len(bases)], src if j == 0 else 0x3f800000, 0) for j in range(128)],
                               [(((bases[j % len(bases)] >> (16 if extract == "H1" else 0)) & 0xffff) << 16) | low for j in range(128)],
-                              **({"same": same} if same else {})))
+                              arch=arch, **({"same": same} if same else {})))
     # F2FP.E6M9 patched into the compiled F16 pack kernels (register, immediate and constant B).
-    image = compile("scalar_semantics", "-diag-suppress=177")
+    image = compile("scalar_semantics", "-diag-suppress=177", arch=arch)
     rng = random.Random(0xe6a9)
     edge = [0, 0x80000000, 1, 0x80000001, 0x007fffff, 0x00800000, 0x3f800000, 0xbf800000, 0x3f000000, 0x40000000,
             0x7f7fffff, 0xff7fffff, 0x7f800000, 0xff800000, 0x7fc00000, 0xffc00000, 0x7f800001, 0x7fffffff]
@@ -576,7 +576,7 @@ def gpu_fixtures():
     vals = edge + [rng.getrandbits(32) for _ in range(512)]
     while len(vals) % 32: vals.append(rng.getrandbits(32))
     triples = [(a, vals[(i * 73 + 19) % len(vals)], 0xdeadbeef) for i, a in enumerate(vals)]
-    for wrapper, form in (("f2fp_f16_pack_rn", "f2fp__RRR"), ("f2fp_f16_pack_imm", "f2fp__RIR"), ("f2fp_f16_pack_c", "f2fp__RCR")):
+    for wrapper, form in (("f2fp_f16_pack_rn", "f2fp__RRR"), ("f2fp_f16_pack_imm", "f2fp__RIR"), ("f2fp_f16_pack_c", "f2fp__RUR" if arch == "SM90" else "f2fp__RCR")):
         t = Template(image, "sem_" + wrapper)
         offset, = [o for o in range(0, len(t.code), 16) if t.decoded(o).klass.mnemonic == "F2FP"]
         d = t.decoded(offset)
@@ -585,7 +585,7 @@ def gpu_fixtures():
             fields = {n: v for n, v in d.env.items() if isinstance(n, str) and n in d.klass.operand_types}
             fields.update(dstfmt="E6M9", rndMode=rnd, satfinite="SATFINITE" if sat else "nosatfinite", relu="RELU" if relu else "norelu")
             cvt = lambda x, rnd=rnd, sat=sat, relu=relu: fpformat.pack16(x, "E6M9", rnd, sat, relu)
-            out.append(Fixture(name=f"e6m9_{wrapper}_{rnd}_{int(sat)}_{int(relu)}", image=t.patch({offset: (sm89(form, **fields), t.control(offset))}),
+            out.append(Fixture(name=f"e6m9_{wrapper}_{rnd}_{int(sat)}_{int(relu)}", image=t.patch({offset: (encode(form, arch=arch, **fields), t.control(offset))}),
                                kernel="sem_" + wrapper, data=rows(triples), arguments=((4, 0x3fc00000),) if wrapper == "f2fp_f16_pack_c" else (),
                                expected=[(cvt(a) << 16) | cvt(b if wrapper == "f2fp_f16_pack_rn" else 0x3fc00000) for a, b, _ in triples],
                                exit=True))

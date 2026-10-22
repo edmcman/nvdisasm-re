@@ -1,6 +1,6 @@
 ---
 name: sass-opcode-semantics
-description: Investigate a SASS opcode in nvdisasm-re (including CuLifter opcodes) by tracing PTX through ptxas, checking functional behavior against a GPU, and implementing or validating Ghidra P-code. Use for opcode semantics, modifier bits, opcode variants and PTX-to-SASS evidence.
+description: Investigate a SASS opcode in nvdisasm-re (including CuLifter opcodes) by building its form matrix, tracing PTX through ptxas, observing functional behavior on an SM89 or SM90 GPU, and implementing or validating Ghidra P-code. Use when an opcode's semantics, modifier bits, variants or PTX-to-SASS mapping are unknown or disputed. For raising an already-understood opcode's coverage and evidence across modifier combinations, use sass-opcode-coverage.
 ---
 
 # SASS opcode semantics
@@ -13,7 +13,8 @@ semantics implementation.
 Work from the user's `nvdisasm-re` checkout and read its `AGENTS.md`: its
 "Writing new semantics" section is the authoritative implementation, test, build
 and verification order, and this skill does not repeat it. For a completed example,
-read [references/bmsk.md](references/bmsk.md).
+read [references/bmsk.md](references/bmsk.md). Builds, test suites and GPU runs follow
+AGENTS.md "Rules" (`nice`; language builds and GPU outside the sandbox).
 
 Label every finding as either **semantics** (the decoded operation, implementation
 or expected value is wrong or unresolved) or **testing/environment** (a probe was
@@ -34,9 +35,9 @@ and reference independence.
 - Pin the compiler path, version and SHA256 before using recorded addresses. The
   BMSK example uses CUDA 13.0.88 ptxas; the extracted nvdisasm tables come from
   another build. Keep those identities separate.
-- Query the active Ghidra program/server (the user's URL, not a remembered port).
-  Function lookups require exact entries. Confirm the image base: do not apply
-  nvdisasm's address adjustment to ptxas.
+- Query the active Ghidra program/server (the user's URL, not a remembered port;
+  GhidraMCP setup is in `docs/nvdisasm-binary.md`). Function lookups require exact
+  entries. Confirm the image base: do not apply nvdisasm's address adjustment to ptxas.
 - Check primary NVIDIA documentation (PTX ISA, CUDA-GDB, the Debugger API) before
   assuming a detail is undocumented, and state which detail is still uninvestigated.
 
@@ -53,6 +54,10 @@ little-endian and bit numbers from `int.from_bytes(word, 'little')`.
 
 Label compiler-generated, manually patched and synthetic samples separately: a
 disassembler-accepted synthetic word does not prove ptxas emits it.
+
+Keep the PTX under `tests/ptx/<opcode>/` with the `// sass: MNEMONIC[.MODS]` first-line
+annotation (`tests/ptx/README.md`): `python -m tests.evidence` then compiles it with the
+dev group's ptxas and records each emitted class as `ptxas` evidence.
 
 ## Trace the live compiler path
 
@@ -86,26 +91,26 @@ and cover count/width limits, signedness, zero registers, predicates, source/
 destination aliases, discarded results, and each supported operand form. Record
 unresolved forms individually.
 
-For GPU fixtures (AGENTS.md step 5), verify the target instruction and selector are
-present or document exactly which word or fields were patched, preserving the
-kernel wrapper and its scheduling/control fields. Check the emulator visited the
-target. Investigate scheduling hazards before calling a patched-word mismatch a
-semantics failure. Report the architecture, device, compiler, form matrix, vector
-count, seeds and any normalizations or exclusions.
-
-For SM89 single-instruction discovery, prefer `Cases.probe` and
+For SM89/SM90 single-instruction discovery, prefer `Cases.probe` and
 `tests.harness.device_cases.observe`, or `uv run python -m tests.probe INPUT.json
 --out OUTPUT.json`. They use the regression runner's generated wrappers and return
 raw registers/memory without a reference or evidence credit. Read
 [generated GPU probes](references/gpu-probes.md) for the API, JSON input, memory/warp
-setup, and how to promote observations into independent reference-backed cases.
+setup, and how to promote observations into independent reference-backed cases;
+`tests/README.md` "Hardware evidence and probes" describes how passing runs become
+evidence.
 
-Keep `gpu_fixtures()` and `tests.observe` for whole-kernel, cooperative or
-compiler-generated probes. Verify the target instruction and selector, keep the
-result observable, and compare GPU, reference and P-code using the same inputs.
-When patching an existing kernel, preserve its wrapper and record which words or
-fields changed. A synthetic instruction's successful execution is functional
-evidence, not evidence that ptxas emits it.
+Measure single-instruction behavior with shared cases (AGENTS.md step 5). Keep
+`gpu_fixtures()` and `tests.observe` (`uv run python -m tests.observe FAMILY [--diff]`)
+for whole-kernel, cooperative or compiler-generated probes. In a fixture, verify the
+target instruction and selector are present, keep the result observable, check the
+emulator visited the target, and compare GPU, reference and P-code on the same inputs.
+When patching an existing kernel, preserve its wrapper and scheduling/control fields
+and record exactly which words or fields changed; investigate scheduling hazards
+before calling a patched-word mismatch a semantics failure. A synthetic instruction's
+successful execution is functional evidence, not evidence that ptxas emits it.
+Report the architecture, device, compiler, form matrix, vector count, seeds and any
+normalizations or exclusions.
 
 Report hardware support only for the tested device architecture and forms; an
 all-architecture emulator pass does not establish all-architecture hardware
@@ -117,9 +122,10 @@ claim a hardware pass from emulator coverage, or report a cancelled run as a pas
 ## Implement P-code when requested
 
 Semantics are families in `src/sass/semantics/families/` (Python over the
-md-decoded instruction, `family.py`), lowered by `src/sass/sleigh/lower.py` and
-lifted Ghidra-free by `lifter.py`; `operations.py` only routes classes to families.
-Typed operand values come from `operands.py`.
+md-decoded instruction, `src/sass/semantics/family.py`), lowered to SLEIGH by
+`src/sass/sleigh/lower.py` and lifted Ghidra-free by `src/sass/semantics/lifter.py`;
+`operations.py` only routes classes to families. Typed operand values come from
+`operands.py`. `docs/semantics.md` is the family and generator reference.
 
 - Ask every selector the semantics depend on (`i.select_fork`, `i.select_lookup`);
   an unasked selector models only its md default and the rest stays opaque.
@@ -132,13 +138,17 @@ Typed operand values come from `operands.py`.
   conditions.
 
 Promote probes to value cases in the family's `emulator_cases()` in `tests/cases/<family>.py`
-and independent references to `tests/refs/` (which must not import the generated
-semantics). Prefer `tests/harness/case.py` helpers (`Cases.add`, `put`, `cx_source`)
-over a second decoding or execution framework.
+and independent references to `tests/refs/` (AGENTS.md steps 1-2). Prefer
+`tests/harness/case.py` helpers (`Cases.add`, `c.sweep`, `put`, `cx_source`) over a
+second decoding or execution framework; `tests/README.md` "Writing tests" covers
+shared cases, fixtures, references and tolerances. If the opcode has an autocase
+adapter (`tests/README.md` "Generated shared cases"), extend its profiles rather than
+adding parallel manual loops.
 
 ## Build, verify and record
 
-Build, test and refresh coverage as AGENTS.md describes, focused checks first.
+Build, test and refresh coverage (`nice uv run sass-refresh-coverage`, in the
+background) as AGENTS.md describes, focused checks first.
 Inspect what a command's arguments mean before launching an expansive suite, and
 stop one that is unexpectedly broad or slow. Add tests rather than recording
 verification results by hand.

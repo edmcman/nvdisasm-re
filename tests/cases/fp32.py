@@ -209,29 +209,29 @@ def emulator_cases(c):
     selection(c); arithmetic(c); compare(c); fset_cases(c); uniform(c); readable_formulas(c)
 
 
-def gpu_fixtures():
+def gpu_fixtures(arch="SM89"):
     from tests.harness import scalar
-    out = [scalar.launch(f, lambda *v, op=f[1:]: rounded(op, v[:3 if op == "fma" else 2], 32), underflow=True) for f in ("fadd", "fmul", "ffma")]
-    out += [scalar.launch(f, lambda *v, op=f[1:4], m=f[-2:].upper(): rounded(op, v[:3 if op == "fma" else 2], 32, m))
+    out = [scalar.launch(f, lambda *v, op=f[1:]: rounded(op, v[:3 if op == "fma" else 2], 32), underflow=True, arch=arch) for f in ("fadd", "fmul", "ffma")]
+    out += [scalar.launch(f, lambda *v, op=f[1:4], m=f[-2:].upper(): rounded(op, v[:3 if op == "fma" else 2], 32, m), arch=arch)
             for f in sorted(f for f in scalar.ROUNDED if f[0] == "f")]
-    out += [scalar.launch("fsetp", lambda a, b, _: int(fcompare(ordered(a, 32), ordered(b, 32), "LT"))),
-            scalar.launch("fsel", lambda a, b, c: a ^ 0x80000000 if c else b),
-            scalar.launch("fadd_ftz", lambda a, b, _: rounded("add", [a, b], 32, ftz=True)),
-            scalar.launch("ffma_sat", lambda *v: rounded("fma", v, 32, sat=True))]
-    out += [scalar.launch(f, lambda x, y, _, f=f: fmnmx(x, y, f.startswith("fmin"), f.endswith("_nan"), "ftz" in f))
+    out += [scalar.launch("fsetp", lambda a, b, _: int(fcompare(ordered(a, 32), ordered(b, 32), "LT")), arch=arch),
+            scalar.launch("fsel", lambda a, b, c: a ^ 0x80000000 if c else b, arch=arch),
+            scalar.launch("fadd_ftz", lambda a, b, _: rounded("add", [a, b], 32, ftz=True), arch=arch),
+            scalar.launch("ffma_sat", lambda *v: rounded("fma", v, 32, sat=True), arch=arch)]
+    out += [scalar.launch(f, lambda x, y, _, f=f: fmnmx(x, y, f.startswith("fmin"), f.endswith("_nan"), "ftz" in f), arch=arch)
             for f in ("fmin", "fmax", "fmin_nan", "fmax_nan", "fmin_ftz_nan", "fmax_ftz_nan", "fmin_ftz", "fmax_ftz")]
-    out.append(scalar.launch("fmin_xorsign", lambda x, y, _: fmnmx_xorsign(x, y, True, absolute=True)))
-    out += [scalar.launch(f, lambda a, b, c, s=s: fset(a, b, s["fcomp"], s.get("bop", "AND"), (c != 0) != bool(s.get("Pp@not")), s.get("ftz") == "FTZ"))
+    out.append(scalar.launch("fmin_xorsign", lambda x, y, _: fmnmx_xorsign(x, y, True, absolute=True), arch=arch))
+    out += [scalar.launch(f, lambda a, b, c, s=s: fset(a, b, s["fcomp"], s.get("bop", "AND"), (c != 0) != bool(s.get("Pp@not")), s.get("ftz") == "FTZ"), arch=arch)
             for f, (m, s) in scalar.SETS.items() if m == "FSET"]
     # FCHK P0, R2, R5 in a probe slot, P0 read back through P2R into the stored R11.
-    from tests.harness.gpu import sm89
+    from tests.harness.gpu import encode
     from tests.harness.templates import slot_fixture
-    nop, p2r = sm89("nop_"), sm89("p2r__RsIR_RIR", Rd=11, Pr="PR", Ra="RZ", Sb=1, insert="B0")
+    nop, p2r = encode("nop_", arch=arch), encode("p2r__RsIR_RIR", Rd=11, Pr="PR", Ra="RZ", Sb=1, insert="B0", arch=arch)
     pairs = fchk_pairs()
     for n in range(len(pairs) // 128):
         rows = pairs[128 * n:128 * (n + 1)]
         mods = {"Ra@negate": n & 1, "Rb@absolute": n >> 1 & 1}
-        fchk = sm89("fchk__RRR_RR", Pu=0, Ra=2, Rb=5, **mods)
+        fchk = encode("fchk__RRR_RR", Pu=0, Ra=2, Rb=5, arch=arch, **mods)
         out.append(slot_fixture(f"fchk_{n}", [fchk] + [nop] * 7, [(a, b, 0) for a, b in rows],
-                                [fchk_divide(a, b) for a, b in rows], 0x100, final=p2r))
+                                [fchk_divide(a, b) for a, b in rows], 0, final=p2r, arch=arch))
     return out
