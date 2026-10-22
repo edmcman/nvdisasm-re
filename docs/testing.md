@@ -365,6 +365,15 @@ hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` 
   (default `HEAD`) with the working tree's `coverage.json`, without the badge or CI link
   (2026-10-19; the `sass-opcode-coverage` skill uses it for before/after).
 
+## Ghidra tests in CI (2026-10-22)
+
+- The `ghidra-tests` job (`.github/workflows/ci.yml`) runs `pytest -m ghidra --arch SMxx --fp all`
+  once per architecture, each building only its two languages (`sass-build-languages SMxx`): capped
+  at `-Xmx4g`, they fit a standard runner. Ghidra 12.1.4's zip and `.cache/ghidra` results are
+  cached between runs. `test_coverage` is deselected; the coverage check runs elsewhere.
+- Fresh runners exposed a launcher race: concurrent first `support/sleigh` launches failed to save
+  the JDK path (`docs/sleigh.md`), so `sass-build-languages` launches it once before compiling.
+
 ## Ghidra bridge and whole-kernel requests
 
 - `sass.ghidra_bridge` is the only path to `ghidra_emulate.py`/`ghidra_decode.py`; Ghidra tests run
