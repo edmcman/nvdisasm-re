@@ -16,6 +16,7 @@ running anything:
 out/SM80/md/FFMA.txt              every md CLASS definition for FFMA
 out/SM80/semantics/FFMA.json      operand semantics for those classes
 out/SM80/latencies.txt            connectors, operation sets, latency tables
+out/SM80/patterns.txt             a tiny pattern file (JUMP_UNCOND: BRA)
 ```
 
 [`docs/machine-descriptions.md`](docs/machine-descriptions.md) describes the embedded blobs,
@@ -50,8 +51,8 @@ uv run sass-decode --arch SM89 0278050004000000000f000000e20f00 47790000f0270000
 ```
 
 ```
-        /*0000*/  MOV R5, 0x4 ;                        /* 0278050004000000000f000000e20f00 */
-        /*0010*/  BRA 0x2810 ;                         /* 47790000f02700000000800300ea0f00 */
+        /*0000*/  MOV R5, 0x4 ;                                                /* 0278050004000000000f000000e20f00 */
+        /*0010*/  BRA 0x2810 ;                                                 /* 47790000f02700000000800300ea0f00 */
 ```
 
 It runs on the committed `out/` files with no dependencies. `--float-hex` prints float
@@ -83,11 +84,12 @@ The generator uses the committed `out/` descriptions.
    ```
 
    To build only selected architectures, pass them as arguments, for example
-   `uv run sass-build-languages SM89 SM90`. Detailed semantic coverage is opt-in
+   `uv run sass-build-languages SM89 SM90`; `--fp exact` or `--fp readable` builds
+   one floating-point variant (default: both). Detailed semantic coverage is opt-in
    with `--coverage`; normal builds write only the small runtime calling-convention
-   manifest. The default uses Ghidra's
-   `support/sleigh` launcher (`support/sleigh.bat` on Windows). For another compiler
-   location, pass `--sleigh /path/to/sleigh` (or `sleigh.exe`).
+   manifest. The SLEIGH compiler defaults to Ghidra's `support/sleigh` launcher
+   (`support/sleigh.bat` on Windows); pass `--sleigh /path/to/sleigh` (or `sleigh.exe`)
+   to use another.
 
 2. Close Ghidra and copy the complete processor module into its installation:
 
@@ -111,6 +113,15 @@ The generator uses the committed `out/` descriptions.
 Semantics, their coverage and their limits are documented in
 [`docs/semantics.md`](docs/semantics.md); generator details and Ghidra quirks in
 [`docs/sleigh.md`](docs/sleigh.md).
+
+## Development
+
+[`AGENTS.md`](AGENTS.md) maps the source tree and the workflow for adding semantics;
+[`tests/README.md`](tests/README.md) describes the tests (`uv run pytest`, plus Ghidra and GPU
+markers). Reverse-engineering findings live in [`docs/`](docs/): the `nvdisasm` binary
+([`nvdisasm-binary.md`](docs/nvdisasm-binary.md)), hardware-established behavior
+([`hardware-facts.md`](docs/hardware-facts.md)), the test harness ([`testing.md`](docs/testing.md))
+and open questions ([`open.md`](docs/open.md)).
 
 ## Disclaimer
 
