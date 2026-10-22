@@ -60,7 +60,11 @@ Caller-controlled input sampling (2026-10-21; mechanism in
   operation costs (9-28% less CPU per language in a fresh process: SM75 90 to 65 s, SM89 187
   to 145 s, SM100 120 to 109 s). Every hand-written case list (300 architecture/lowering/
   family lists), all 20 generated languages and the coverage outputs are byte-identical before
-  and after.
+  and after. The changes touch nine files in the GPU-evidence digest (`device_evidence.sources`: the
+  encoder, md parser, generator, `tests/harness/case.py`, `sampling.py`, ...), so the shared-case
+  GPU pass records expire: until `pytest -m gpu` re-records them on an SM89 and an SM90 device, 430
+  classes lose their GPU evidence and 279 keep it from whole-kernel fixtures. The refresh takes
+  about 10.5 minutes instead of 19.
 
 ## Shared cases on the GPU
 
