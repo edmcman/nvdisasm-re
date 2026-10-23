@@ -365,12 +365,20 @@ def cost(e):
         seen.add(n)
         if n.op == "sel": return sum(CONSTRUCTOR + static(t) for _, t in n.args[1])
         return 1 + sum(static(a) for a in n.args)
-    def path(n, done):
+    return static(e) + RUNTIME * operations(e)
+
+
+@cache
+def operations(e):
+    """Operations on e's longest execution path: each one outside choices once, plus a choice's
+    longest arm (memoized: arms share subtrees and nest choices)."""
+    done = set()
+    def path(n):
         if not isinstance(n, Expr) or n in done or n.op in ("const", "param", "reg"): return 0
         done.add(n)
-        if n.op == "sel": return 1 + max(path(t, set()) for _, t in n.args[1])
-        return (n.op != "tuple") + sum(path(a, done) for a in n.args)
-    return static(e) + RUNTIME * path(e, set())
+        if n.op == "sel": return 1 + max(operations(t) for _, t in n.args[1])
+        return (n.op != "tuple") + sum(path(a) for a in n.args)
+    return path(e)
 
 
 def size(e):

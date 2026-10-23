@@ -11,7 +11,8 @@ from functools import cache
 
 from sass.decode import ir, pydecode
 from sass.md import legal, parse
-from sass.sleigh.gen import default_value, ENUM_FILE, REG_FILES
+from sass.sleigh.gen import default_value
+from sass.sleigh.registers import ENUM_FILE, REG_FILES
 
 
 @cache
@@ -20,13 +21,8 @@ def klass(arch, name):
 
 
 @cache
-def classes(arch):
-    return {c['cls']: c for c in parse.load_classes(parse.MD / arch)}
-
-
-@cache
 def scheduling(arch, name):
-    text = classes(arch)[name]['sections']['FORMAT']
+    text = parse.arch_classes(arch)[name]['sections']['FORMAT']
     atoms = []
     for group in re.findall(r'\$\((.*?)\)\$', text, re.S):
         for a in ir.parse_format(group):
@@ -41,7 +37,7 @@ def scheduling(arch, name):
 
 @cache
 def ignored_bits(arch, name):
-    text = classes(arch)[name]['sections']['ENCODING']
+    text = parse.arch_classes(arch)[name]['sections']['ENCODING']
     return tuple((ir.parse_field(lhs), int(value, 0)) for lhs, value in re.findall(
         r'^(BITS_\w+)\s*=\s*\*\s*(0[xX][\da-fA-F]+|0[bB][01]+|\d+)\s*;', text, re.M))
 
@@ -245,6 +241,13 @@ def harness_defaults(md, k):
 
 def encode(arch, cls, *, permissive=False, **values):
     """Hex word for `cls` with operand values (enum labels or numbers); `name@attr` sets modifiers."""
+    return encoded(arch, cls, permissive, tuple(sorted(values.items())))
+
+
+@cache
+def encoded(arch, cls, permissive, values):
+    """`encode`'s word: sweeps encode the same fields again and again, varying only the registers they seed."""
+    values = dict(values)
     md, k = ir.load(arch), klass(arch, cls)
     requested = {tuple(n.split("@")) if "@" in n else n:
                  md.enums[k.operand_types[n].type][v] if isinstance(v, str) else v for n, v in values.items()}

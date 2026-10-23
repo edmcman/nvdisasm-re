@@ -110,7 +110,7 @@ def test_generated_filtering_and_shard_independence(monkeypatch):
     from sass.assemble import encoding
     for entry in entries:
         entry['settings'] = dict(sampling.form('SM89', encoding.encode('SM89', entry['cls'], **entry['settings']))[1])
-    monkeypatch.setattr(autocases, 'saved_plan', lambda arch: {'forms': entries})
+    monkeypatch.setattr(autocases, 'family_forms', lambda plans, arch, family: [e for e in entries if e['family'] == family])
     for fp in ('exact', 'readable'):
         for p in (0, 25, 100):
             whole = list(autocases.stream('SM89', fp, 'fp32', sample=p))

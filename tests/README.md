@@ -102,7 +102,7 @@ libraries), so `test_pydecode_disassembly` checks synthetic and mutated words on
 | `test_assemble.py` | does source encode correctly and produce native cubins? | FORMAT parser, strict encoder, labels, directives, ELF writer | decoder round trips, nvdisasm, known words and metadata |
 | `test_pydecode_disassembly.py` | does pydecode decode like nvdisasm? | `sass.decode.pydecode` | nvdisasm (ratchet `baseline/SMxx.json`; CLI `sass-compare-pydecode`) |
 | `test_bitvec.py`, `test_control_flow.py` | are the IR and lifted control flow right? | `sass.semantics.bitvec`, lifted branch conditions | explicit bit strings, hand cases |
-| `test_build.py` | does coverage collection leave the generated languages alone? | `sass.sleigh.gen` with and without coverage, runtime manifests | the same build without coverage |
+| `test_build.py` | does coverage collection leave the generated languages alone? | `sass.sleigh.gen` with and without coverage | the same build without coverage |
 | `test_family_lowering.py` | does every family lower on every class it covers? | `sass.semantics` families under the SLEIGH enumeration | no crash |
 | `test_lifted_semantics.py` | do the semantics compute the right values? | `sass.semantics.lifter` + `evaluate` | `refs/`, through the emulator cases |
 | `test_mufu.py` | does the MUFU runtime match hardware? | `sass.semantics.fp.mufu`, the runtime's MUFU primitive | `refs/mufu.py`, recorded SM89 outputs |
@@ -172,8 +172,9 @@ Single-instruction cases for `test_lifted_semantics`, `test_pcode_semantics` and
 `test_cases_on_gpu` (hardware expectations use exact mode).
 
 `c.add(cls, fields, registers, expected, ...)` describes one instruction of md class `cls` with
-operand `fields` (encoded by `c.encode_words()`, which the loader `cases.emulator_cases` runs on
-the selected cases), seeds `registers`, and checks `expected`; classes the architecture lacks are skipped.
+operand `fields` (encoded by `c.complete()`, which the loader `cases.emulator_cases` runs on
+the selected cases; an expected value may be `Later(fn, *args)`, computed there too, so a sweep
+computes references only for the cases it keeps), seeds `registers`, and checks `expected`; classes the architecture lacks are skipped.
 Helpers in `harness/case.py`:
 
 - `put`: place an operand value in a register, immediate or constant bank
@@ -447,7 +448,7 @@ How selection works:
   eligibility. Small memory-adapter and IMAD-alias paths retain eager decoding where classification
   requires it.
 - Manual cases are encoded only when selected too: sampling takes their form from their modifier
-  fields (`sampling.declared`, one encoding per combination), and `encode_words` checks each
+  fields (`sampling.declared`, one encoding per combination), and `complete` checks each
   encoded case against it.
 - Cases are grouped by class and modifier settings, separately for each architecture/lowering and
   for manual versus generated sources. Each generated planned form is selected independently, so
@@ -537,7 +538,7 @@ Everything below lives in `.cache/` and is safe to delete.
 | nvdisasm oracle results (`oracle.sqlite`) | nvdisasm hash, word, address |
 | parsed md IR (`ir/`) | md files and parser sources |
 | real-corpus words (`corpus/`) | the cubin set (paths, sizes, mtimes) |
-| Ghidra decode/emulation results (`ghidra/`) | the language's `.sla`, specs and runtime manifest, the `src/sass` sources the Ghidra program imports, the Ghidra install and venv paths; then the request |
+| Ghidra decode/emulation results (`ghidra/`) | the language's `.sla`, its own `.ldefs` entry and specs, the `src/sass` sources the Ghidra program imports, the Ghidra install and venv paths; then the request |
 | compiled kernels (`kernels/`), block emulator (`java/`), extracted library cubins (`cubins/`) | sources and flags |
 
 ## Prerequisites
@@ -551,9 +552,9 @@ Everything below lives in `.cache/` and is safe to delete.
 | generated languages | `processor/SASS/data/languages` | `SASS_SLEIGH_OUT` |
 | `javac` (cooperative GPU fixtures) | on `PATH` | |
 
-Detailed coverage enumeration is opt-in (`sass-build-languages --coverage`). Normal builds write
-only the lightweight runtime manifest needed by primitive emulation. `sass-refresh-coverage` and CI
-enable coverage explicitly.
+Detailed coverage enumeration is opt-in (`sass-build-languages --coverage`). Normal builds need
+no runtime manifest: primitive calls are explicit in the generated p-code. `sass-refresh-coverage`
+and CI enable coverage explicitly.
 
 For a scratch build, run `uv run sass-build-languages SM89 --output /tmp/sass-languages` (it copies
 the shared definitions), then set `SASS_SLEIGH_OUT=/tmp/sass-languages` for the Ghidra tests.

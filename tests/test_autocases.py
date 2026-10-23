@@ -112,7 +112,7 @@ def unexplained(job):
     """Manual cases of generated opcodes that record no reason to stay manual."""
     from tests.cases import emulator_cases
     arch, fp, family, sample, _ = job
-    cases = emulator_cases(arch, fp, (family,), sample, generated=False)[family]
+    cases = emulator_cases(arch, fp, (family,), sample, generated=False, complete=False)[family]
     # Whole-kernel termination tests have no class.
     return [(arch, case.cls) for case in cases if case.cls in cases.classes
             and cases.classes[case.cls].mnemonic in tests.harness.autocases.OPS

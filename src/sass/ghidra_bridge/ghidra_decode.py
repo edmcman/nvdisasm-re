@@ -83,7 +83,7 @@ def main(ldefs, lang_id, *opts):
     space = lang.getDefaultSpace()
     for line in sys.stdin:
         a, w = line.split()
-        print(json.dumps(describe(lang, space.getAddress(int(a, 16)), bytes.fromhex(w), "--pcode" in opts, "--dataflow" in opts)), flush=False)
+        print(json.dumps(describe(lang, space.getAddress(int(a, 16)), bytes.fromhex(w), "--pcode" in opts, "--dataflow" in opts)), flush=True)   # a long-lived session reads each answer as it comes
 
 if __name__ == "__main__":
     main(*sys.argv[1:])

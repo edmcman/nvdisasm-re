@@ -114,7 +114,7 @@ def test_integer_pcode_limits_keep_their_existing_guards():
 def test_zero_special_pair_keeps_its_physical_overwrite_anchor():
     from tests.cases import control
     from tests.harness import device_cases
-    cases=Cases('SM89');control.emulator_cases(cases);cases.encode_words()
+    cases=Cases('SM89');control.emulator_cases(cases);cases.complete()
     case=next(c for c in cases if c.cls=='cs2r_')
     assert case.request['registers']=={'R8':1,'R9':2}
     assert case.expected=={'R8':0,'R9':0}
@@ -132,4 +132,4 @@ def test_shared_cluster_query_provenance_overlaps():
     c = Cases('SM90')
     c.add('qspc__RaNonRZ', dict(Pg='PT', Pu=1, Rd=8, e='E', Ra=2, Ra_offset=0, space='S'),
           dict(R2=0x220, R3=0), dict(P1=1, R8=10), context={'address_spaces':ranges})
-    assert lifted.run('SM90', 'exact', c.encode_words()[0]) == ('primitive', [])
+    assert lifted.run('SM90', 'exact', c.complete()[0]) == ('primitive', [])
