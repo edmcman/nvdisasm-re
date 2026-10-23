@@ -1,6 +1,6 @@
 """The Ghidra result caches' key (`ghidra_bridge.sources`) covers every module the Ghidra-side
 emulator loads, and excludes generators only because the emulator never loads them."""
-import json, subprocess
+import json, subprocess, sys, threading
 from pathlib import Path
 import pytest
 from sass import ghidra_bridge
@@ -34,3 +34,41 @@ def test_ghidra_programs_skip_generators(request):
     modules = [m for m in loaded if m.startswith("sass.")] + [f"{ghidra_bridge.__name__}.{m}" for m in loaded if ghidra_bridge.module_file(f"{ghidra_bridge.__name__}.{m}")]
     assert not [m for m in modules if ghidra_bridge.generator(m)]
     assert {ghidra_bridge.module_file(m) for m in modules} - {None} <= set(ghidra_bridge.sources(program.name))
+
+
+def test_stamp_ignores_other_languages_and_checkout_location(tmp_path, monkeypatch):
+    """Building another language (a new sass.ldefs entry) or moving the checkout keeps a language's
+    cached results; changing its own ldefs entry or language does not."""
+    from sass.sleigh.gen import LANG, LDEFS as TEMPLATE
+    def checkout(root, variants, description="NVIDIA SASS", output=None):
+        languages = output or root / "processor/SASS/data/languages"; languages.mkdir(parents=True, exist_ok=True)
+        for f in ("sass_sm89.sla", "sass.pspec", "sass.cspec"): (languages / f).write_text(f)
+        entries = "".join(LANG.format(v=v, V=v.upper(), D="") for v in variants).replace("NVIDIA SASS", description)
+        (languages / "sass.ldefs").write_text(TEMPLATE.format(entries))
+        monkeypatch.setattr(ghidra_bridge, "ROOT", root); monkeypatch.setattr(ghidra_bridge, "LANGUAGES", languages)
+        monkeypatch.setattr(ghidra_bridge, "LDEFS", languages / "sass.ldefs")
+        return ghidra_bridge.stamp("ghidra_emulate.py", "SM89", "exact")
+    monkeypatch.setattr(ghidra_bridge, "sources", lambda program: [])
+    alone = checkout(tmp_path / "a", ["sm89"])
+    assert checkout(tmp_path / "a", ["sm89", "sm90", "sm90_readable"]) == alone
+    assert checkout(tmp_path / "b", ["sm89"]) == alone
+    assert checkout(tmp_path / "a", ["sm89"], output=tmp_path / "external-languages") == alone
+    assert checkout(tmp_path / "a", ["sm89"], "changed") != alone
+
+
+def test_threads_keep_their_own_sessions(tmp_path):
+    """emulate_sharded's threads ask different languages at once: each gets its own program's
+    answers to its own lines, and a thread's close leaves the others' programs running."""
+    echo = tmp_path / "echo.py"
+    echo.write_text("import json, sys\nprint('start-up noise', flush=True)\n"
+                    "for line in sys.stdin: print(json.dumps(dict(language=sys.argv[2], line=line.strip())), flush=True)\n")
+    def job(i):
+        argv, lines = [sys.executable, str(echo), "ldefs", f"language{i % 2}"], [f"{i}-{n}" for n in range(200)]
+        try: return [json.loads(r) for r in ghidra_bridge.ask(argv, lines)] == [dict(language=argv[3], line=line) for line in lines]
+        finally: ghidra_bridge.close()
+    answers = {}
+    # Daemon threads and a bounded join: shared sessions made threads wait forever on each other's answers.
+    threads = [threading.Thread(target=lambda i=i: answers.update({i: job(i)}), daemon=True) for i in range(16)]
+    for t in threads: t.start()
+    for t in threads: t.join(30)
+    assert answers == dict.fromkeys(range(16), True)

@@ -46,7 +46,7 @@ def configured(config):
     return resolve(config.getoption('--sample'), config.getoption('--exhaustive'))
 
 
-@lru_cache(maxsize=4096)
+@lru_cache(maxsize=None)   # a language's distinct words, which a 4096 bound thrashed on (SM107 F2FP keeps 10,542)
 def form(arch, word):
     d = pydecode.decode(arch, bytes.fromhex(word))
     return d.klass.name, tuple(sorted(settings(arch, d).items()))
@@ -54,13 +54,18 @@ def form(arch, word):
 
 DECLARED = {}
 
+
+@lru_cache(maxsize=None)
+def modifier_names(arch, cls):
+    from sass.assemble import encoding
+    return frozenset(name(key) for key, _ in modifiers(encoding.klass(arch, cls)))
+
+
 def declared(arch, cls, fields):
     """The form of an unencoded case: a word's form depends only on its class and modifier fields,
-    so each combination is encoded once (Cases.encode_words checks every case it encodes)."""
-    from sass.assemble import encoding
+    so each combination is encoded once (Cases.complete checks every case it encodes)."""
     from tests.harness.case import encode
-    names = {name(key) for key, _ in modifiers(encoding.klass(arch, cls))}
-    key = arch, cls, tuple(sorted((n, v) for n, v in fields.items() if n in names))
+    key = arch, cls, tuple(sorted((n, v) for n, v in fields.items() if n in modifier_names(arch, cls)))
     if key not in DECLARED: DECLARED[key] = form(arch, encode(arch, cls, **fields))
     return DECLARED[key]
 

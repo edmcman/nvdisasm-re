@@ -1,5 +1,6 @@
 """Parsers for nvdisasm machine descriptions: classes, enums (REGISTERS) and TABLES."""
 import re
+from functools import cache
 from pathlib import Path
 from sass.paths import MD
 SECTIONS = ("FORMAT_ALIAS", "FORMAT", "CONDITIONS", "PROPERTIES", "PREDICATES", "OPCODES", "ENCODING")
@@ -35,6 +36,12 @@ def preamble(archdir):
 def between(text, start, end):
     """Section body from header line `start` up to header line `end` (preamble splitting is not reliable)."""
     return re.search(rf"^{start}\s*$(.*?)^{end}\s*$", text, re.S | re.M)[1]
+
+@cache
+def arch_classes(arch):
+    """{class name: parsed class} of MD/<arch>: one parse per process for every reader."""
+    return {c["cls"]: c for c in load_classes(MD / arch)}
+
 
 def load_classes(archdir):
     """The arch's md classes, with the known md errors corrected (src/sass/md/fixes.py)."""

@@ -44,27 +44,35 @@ def violation(arch, k, env, hints=True):
 
 
 def sources(k):
-    """env key -> (field, decoder) for every operand value an encoding field sets."""
+    """env key -> (field, decoder) for every operand value an encoding field sets; a decoder
+    (`decode`) is hashable, so conditions on the same fields share their enumeration."""
     out = {}
     for f, r in k.rules:
         match r:
-            case ("op", name, scale, conv): out.setdefault(name, (f, lambda v, s=scale, c=conv: v if c else v * s))
-            case ("attr", name, attr): out.setdefault((name, attr), (f, lambda v: v))
+            case ("op", name, scale, conv): out.setdefault(name, (f, ("scale", 1 if conv else scale)))
+            case ("attr", name, attr): out.setdefault((name, attr), (f, ("scale", 1)))
             case ("table", "IDENTICAL", args):
-                for a in args: out.setdefault(pydecode.key(a), (f, lambda v: v))
+                for a in args: out.setdefault(pydecode.key(a), (f, ("scale", 1)))
     return out
 
 
 def table_sources(arch, k):
-    """env key -> (field, raw value -> decoded value) for table-encoded operands (first row wins)."""
+    """env key -> (field, decoder) for table-encoded operands (first row wins)."""
     out = {}
     for f, r in k.rules:
         if r[0] != "table" or r[1] == "IDENTICAL" or r[1] not in arch.tables: continue
-        rows = pydecode.table_inverse(arch, r[1])
         for i, a in enumerate(r[2]):
-            if a[0] != "const":
-                out.setdefault(pydecode.key(a), (f, lambda v, rows=rows, i=i: rows[v][0][i] if v in rows else None))
+            if a[0] != "const": out.setdefault(pydecode.key(a), (f, ("table", r[1], i)))
     return out
+
+
+def decode(arch, decoder, v):
+    """A field's raw value -> the operand value `decoder` (from `sources`) gives it."""
+    match decoder:
+        case ("scale", s): return v * s
+        case ("table", name, i):
+            rows = pydecode.table_inverse(arch, name)
+            return rows[v][0][i] if v in rows else None
 
 
 def names_of(node):
@@ -93,28 +101,31 @@ def legal_classes(arch_name, cls, expr):
     Raises ValueError when a field is too wide to enumerate."""
     arch = ir.load(arch_name)
     k = next(c for c in arch.classes if c.name == cls)
-    py, names, tables = expression.condition_source(arch_name, expr)
     src = {**table_sources(arch, k), **sources(k)}
+    names = expression.condition_source(arch_name, expr)[1]
+    try: return enumerate_legal(arch_name, expr, tuple((n, src.get(expression.env_key(n))) for n in names))
+    except ValueError as e: raise ValueError(f"{cls}: {e}") from None
+
+
+@cache
+def enumerate_legal(arch_name, expr, operands):
+    """`legal_classes` given, per operand name the condition reads, its (field, decoder) or None:
+    all a class contributes, so classes with the same fields share the enumeration."""
+    arch = ir.load(arch_name)
+    py, _, tables = expression.condition_source(arch_name, expr)
     field_of, fields = {}, {}
-    for n in names:
-        key = expression.env_key(n)
-        if key in src:
-            f = src[key][0]
-            field_of[n.replace(".", "__")] = f.ranges; fields[f.ranges] = f
+    for n, s in operands:
+        if s: field_of[n.replace(".", "__")] = s[0].ranges; fields[s[0].ranges] = s[0]
     glb = expression.condition_globals(arch_name, tables)
     def env_for(raws):
-        values = {}
-        for n in names:
-            key = expression.env_key(n)
-            values[n.replace(".", "__")] = (src[key][1](raws[src[key][0].ranges]) if key in src else None) or 0
-        return values
+        return {n.replace(".", "__"): (decode(arch, s[1], raws[s[0].ranges]) if s else None) or 0 for n, s in operands}
     code = compile(py, expr, "eval")
     if not fields: return None if eval(code, glb, env_for({})) else []
     # Partition each field's raw values by the values of the subexpressions that read only it.
     parts = {}
     for ranges, exprs in atoms(ast.parse(py, mode="eval"), field_of).items():
         f = fields[ranges]
-        if f.width > MAX_FIELD_BITS: raise ValueError(f"{cls}: {f.width}-bit field in {expr!r}")
+        if f.width > MAX_FIELD_BITS: raise ValueError(f"{f.width}-bit field in {expr!r}")
         codes = [compile(e, e, "eval") for e in exprs]
         groups = {}
         for v in range(1 << f.width):
@@ -122,7 +133,7 @@ def legal_classes(arch_name, cls, expr):
         parts[ranges] = [tuple(g) for g in groups.values()]
     order = list(parts)
     combos = list(itertools.product(*(range(len(parts[r])) for r in order)))
-    if len(combos) > MAX_COMBINATIONS: raise ValueError(f"{cls}: {len(combos)} combinations in {expr!r}")
+    if len(combos) > MAX_COMBINATIONS: raise ValueError(f"{len(combos)} combinations in {expr!r}")
     legal = frozenset(c for c in combos if eval(code, glb, env_for({r: parts[r][i][0] for r, i in zip(order, c)})))
     if len(legal) == len(combos): return None
     if not legal: return []

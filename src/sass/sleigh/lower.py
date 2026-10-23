@@ -394,20 +394,28 @@ def cost(e, loads=frozenset()):
     operation on the longest execution path. A choice is its own subtable: its arms can't reuse
     values computed in the body or another table, so what several tables reference runs again,
     a loaded operand's load (`loads`: (operand, ops)) too."""
-    load_ops = dict(loads)
     seen = set()
     def static(n):
         if not isinstance(n, Expr) or n in seen: return 0
         seen.add(n)
         if n.op == "sel": return sum(CONSTRUCTOR + static(t) for _, t in n.args[1])
         return 1 + sum(static(a) for a in n.args)
-    def path(n, done):
+    return static(e) + RUNTIME * operations(e, loads)
+
+
+@cache
+def operations(e, loads=frozenset()):
+    """Operations on e's longest execution path: each one outside choices once, plus a choice's
+    longest arm (memoized: arms share subtrees and nest choices), and a loaded operand's load each
+    time a table reads it."""
+    load_ops, done = dict(loads), set()
+    def path(n):
         if not isinstance(n, Expr) or n in done or n.op in ("const", "reg"): return 0
         done.add(n)
         if n.op == "param": return load_ops.get(n.args[0], 0)
-        if n.op == "sel": return 1 + max(path(t, set()) for _, t in n.args[1])
-        return (n.op != "tuple") + sum(path(a, done) for a in n.args)
-    return static(e) + RUNTIME * path(e, set())
+        if n.op == "sel": return 1 + max(operations(t, loads) for _, t in n.args[1])
+        return (n.op != "tuple") + sum(path(a) for a in n.args)
+    return path(e)
 
 
 def size(e):

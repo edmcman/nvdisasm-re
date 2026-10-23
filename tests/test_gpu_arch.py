@@ -43,7 +43,7 @@ def test_worker_rejects_architecture_before_cuda_load():
     with pytest.raises(ValueError, match='does not match'): driver.require_arch('SM89')
     c = Cases('SM89')
     c.add('mov__RI', dict(Rd=8, Sb=19, PixMaskU04=15), {}, dict(R8=19))
-    probe = device_cases.kernels([device_cases.Scenario('unit', c.encode_words()[0], 'scalar')])[0]
+    probe = device_cases.kernels([device_cases.Scenario('unit', c.complete()[0], 'scalar')])[0]
     # A dummy driver has no CUDA library: the architecture guard must fail first.
     with pytest.raises(ValueError, match='does not match'): device_cases.execute(driver, [probe])
 
@@ -53,7 +53,7 @@ def test_probe_abi_and_cx_relocation(arch):
     c = Cases(arch)
     c.add('bmsk__RCxR_RCxR', dict(Rd=8, Ra=2, URb=4, Sb_offset=16, cw='C'),
           dict(R2=1, **cx_header(arch, 4, 0x1000)), dict(R8=0), memory=[ram(0x1010, 5)])
-    case = c.encode_words()[0]
+    case = c.complete()[0]
     s = device_cases.Scenario('unit', case, *device_cases.classify(case, arch=arch), arch=arch)
     probe = device_cases.kernels([s])[0]
     image = cubin.kernel_image(device_cases.image([probe]), probe.name)
@@ -64,7 +64,7 @@ def test_probe_abi_and_cx_relocation(arch):
     assert any(d.klass.mnemonic == 'ULDC' and d.env['Sa_addr'] == launch.GLOBAL_DESCRIPTOR[arch] for d in instructions)
     c = Cases(arch)
     c.add('mov__RC', dict(Rd=8, Sb_bank=0, Sb_addr=0x200, PixMaskU04=15), {}, dict(R8=0), memory=[cbank(0, 0x200, 0)])
-    assert device_cases.classify(c.encode_words()[0], arch=arch)[0] == ('emulator' if arch == 'SM90' else 'scalar')
+    assert device_cases.classify(c.complete()[0], arch=arch)[0] == ('emulator' if arch == 'SM90' else 'scalar')
 
 
 @pytest.mark.parametrize('arch', ['SM89', 'SM90'])
@@ -88,7 +88,7 @@ def test_evidence_migration_and_architecture_isolation(tmp_path, monkeypatch):
     monkeypatch.setattr(device_evidence, 'PASSES', path)
     c = Cases('SM90')
     c.add('mov__RI', dict(Rd=8, Sb=19, PixMaskU04=15), {}, dict(R8=19))
-    s = device_cases.Scenario('unit', c.encode_words()[0], 'scalar', arch='SM90')
+    s = device_cases.Scenario('unit', c.complete()[0], 'scalar', arch='SM90')
     with pytest.raises(ValueError, match='architecture'): device_evidence.record([s], {s.id: []}, 'H100')
     device_evidence.record([s], {s.id: []}, 'H100', arch='SM90')
     assert device_evidence.passes()['architectures']['SM90'] == {'H100': [device_evidence.fingerprint(s)]}

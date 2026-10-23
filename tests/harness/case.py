@@ -3,7 +3,8 @@
 import hashlib, json
 from typing import NamedTuple
 from sass.decode import ir
-from functools import partial
+from functools import cache, partial
+from types import MappingProxyType
 from sass.assemble import encoding
 from sass.sleigh.modifiers import modifiers
 
@@ -84,8 +85,16 @@ def cx_header(arch, ur, base, units=1):
     return {f"UR{ur}": header & 0xffffffff, f"UR{ur + 1}": header >> 32}
 
 
+class Later:
+    """An expected value computed by `Cases.complete`, so only for the cases sampling keeps: a
+    sweep's references cost far more than its sampled remainder. `fn(*args)`, arguments bound now
+    (a loop's closure would see its last iteration)."""
+    def __init__(self, fn, *args): self.fn, self.args = fn, args
+    def __call__(self): return self.fn(*self.args)
+
+
 class Case(NamedTuple):
-    """`fields`: the operand values `Cases.add` encodes the word from, once `Cases.encode_words` runs."""
+    """`fields`: the operand values `Cases.add` encodes the word from, once `Cases.complete` runs."""
     cls: str
     request: dict
     expected: dict
@@ -107,6 +116,12 @@ READABLE_FLOATS = {"FADD", "FMUL", "FFMA", "FADD2", "FMUL2", "FFMA2", "FHADD2", 
                    "UFADD", "UFMUL", "UFFMA", "UFSEL", "UFSETP"}
 
 
+@cache
+def primary_classes(arch):
+    """{name: class} of the architecture's non-alternate classes, shared read-only by every Cases."""
+    return MappingProxyType({k.name: k for k in ir.load(arch).classes if not k.alternate})
+
+
 class Cases(list):
     """Complete candidates for one architecture/lowering, skipping classes it lacks.
 
@@ -116,19 +131,21 @@ class Cases(list):
     def __init__(self, arch, fp="exact"):
         super().__init__()
         self.arch, self.fp, self.md = arch, fp, ir.load(arch)
-        self.classes = {k.name: k for k in self.md.classes if not k.alternate}
+        self.classes = primary_classes(arch)
 
     def add(self, cls, fields, registers, expected, portable=False, observe=None, hardware=None, **extras):
         """portable: valid for both lowerings even if the mnemonic is in READABLE_FLOATS. The word
-        stays unencoded until `encode_words`, so sampling encodes only the cases it keeps."""
+        stays unencoded until `complete`, so sampling encodes only the cases it keeps."""
         if cls not in self.classes: return
         if self.fp == "readable" and not portable and self.classes[cls].mnemonic in READABLE_FLOATS: return
         self.append(Case(cls, self.request(None, registers, expected, observe, extras), expected, hardware, dict(fields)))
 
-    def encode_words(self):
-        """Encode every case's word from its fields, checking it has the form sampling assumed."""
+    def complete(self):
+        """Compute every case's deferred expected values and encode its word from its fields,
+        checking it has the form sampling assumed."""
         from tests.harness import sampling
         for case in self:
+            case.expected.update((name, value()) for name, value in case.expected.items() if isinstance(value, Later))
             if case.request.get("word") is None and case.fields is not None:
                 case.request["word"] = encode(self.arch, case.cls, **case.fields)
                 if sampling.form(self.arch, case.request["word"]) != sampling.declared(self.arch, case.cls, case.fields):
@@ -155,7 +172,7 @@ class Cases(list):
             raise ValueError('a probe needs registers or memory to observe')
         if cls not in self.classes: raise ValueError(f'{self.arch}: unknown probe class {cls}')
         self.add(cls, fields, registers, {}, observe=list(observe), hardware=dict(hardware or {}, probe=True), **extras)
-        return self.encode_words()[-1]
+        return self.complete()[-1]
 
     def sweep(self, n):
         """Enumerate a complete input domain; the caller chooses the sampling policy."""

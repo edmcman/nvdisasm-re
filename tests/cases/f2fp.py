@@ -2,9 +2,9 @@
 (SATFINITE, RELU, RN/RZ/RP, uniform destinations); 8-bit, 4-bit and UE8M0 upconversion,
 plain and scaled; S2_6 scaled fixed point; CX sources; opaque fallbacks."""
 from tests.harness.manual import anchored, retained
-import itertools, random, struct
+import functools, itertools, random, struct
 from tests.harness.case import encode
-from tests.harness.case import Case, Cases, cx_source, put, source
+from tests.harness.case import Case, Cases, Later, cx_source, put, source
 from tests.refs import fpformat
 
 NEW = ("SM100", "SM101", "SM103", "SM107", "SM120")  # where the focused SM100+ conversion suites run
@@ -25,6 +25,46 @@ def dest(k): return "URd" if k.name.startswith("uf2fp_") else "Rd"
 
 
 def observed(k): return ("UR" if dest(k) == "URd" else "R") + "8"
+
+
+# References of the sampled (anchored) sweeps, deferred with Later until sampling keeps a case.
+
+def widened(fmt, codes, relu):
+    """The codes widened to F16 halves, low first; RELU zeroes negative halves."""
+    halves = (fpformat.widen(fmt, code) for code in codes)
+    return sum((0 if relu and h & 0x8000 else h) << 16 * j for j, h in enumerate(halves))
+
+
+def scaled_halves(fmt, lanes, *flags):
+    """(code, scale) lanes upconverted to BF16 halves, low first."""
+    return sum(fpformat.scaled_bf16(code, fmt, scale, *flags) << 16 * j for j, (code, scale) in enumerate(lanes))
+
+
+def fp4_nibbles(words, fmt, relu, src):
+    """Each word's two halves packed to E2M1/E0M3 nibbles, low first."""
+    lanes = [fpformat.fp4(w >> (16 * j) & 0xffff, fmt, relu, src) for w in words for j in range(2)]
+    return sum(lane << (4 * j) for j, lane in enumerate(lanes))
+
+
+def fp8_down_word(fmt, rnd, satfinite, relu, srcfmt, a, b, high):
+    """`high` above the FP8 pair: A in the high byte (PACK_AB), or B's high half (UNPACK_B)."""
+    x, y = (fpformat.fp8(v, fmt, rnd, satfinite, relu, srcfmt) for v in (a, b))
+    return high << 16 | ((y << 8) | x if srcfmt != "F32" else (x << 8) | y)
+
+
+def fp6_down_word(fmt, rnd, relu, srcfmt, x, y, high):
+    ox, oy = (fpformat.fp6(v, fmt, rnd, relu, srcfmt) for v in (x, y))
+    return high << 16 | ((oy << 8) | ox if srcfmt != "F32" else (ox << 8) | oy)
+
+
+def fp4_down_word(fmt, relu, a, b, carry):
+    ref = lambda v: fpformat.fp4(v, fmt, relu, relu_nan=True)
+    return (carry & 0xffffff00) | (ref(a) << 4) | ref(b)
+
+
+def scaled_pair(keep, one, a, scale_a, b, scale_b):
+    """`keep` above one(a) in the high byte and one(b) in the low."""
+    return (keep << 16) | (one(a, scale_a) << 8) | one(b, scale_b)
 
 
 @retained('Format-specific threshold/exhaustive, scaled-format and literal encoding-guard corpora exceed the ordinary pack profile.')
@@ -157,9 +197,7 @@ def upconvert(c, part):
                         pair = i | ((top - i) << 8)
                         regs, fields = {}, {"Rd": 8, "dstfmt": "F16", "srcfmt": fmt, "merge": "UNPACK_B", "rndMode": "RN", "relu": relu, "extract_B": extract}
                         put(k, src, pair if extract == "H0" else pair << 16, fields, regs, None, reg)
-                        lo, hi = fpformat.widen(fmt, i), fpformat.widen(fmt, top - i)
-                        if relu == "RELU": lo, hi = (0 if lo & 0x8000 else lo), (0 if hi & 0x8000 else hi)
-                        c.add(k.name, fields, regs, {"R8": lo | (hi << 16), "__native": True})
+                        c.add(k.name, fields, regs, {"R8": Later(widened, fmt, (i, top - i), relu == "RELU"), "__native": True})
     # SM100+ E2M1/E0M3 byte upconvert: low nibble -> low F16, high nibble -> high F16.
     for k in c.of("F2FP", "f2fp_4b_upconvert__", cx=None):
         src = source(k, "Rb", "URb", "Sb")
@@ -170,9 +208,7 @@ def upconvert(c, part):
                     for byte in part.sweep(k, 256):
                         fields, regs = {"Rd": 8, "dstfmt": "F16", "srcfmt": fmt, "merge": "UNPACK_B", "rndMode": "RN", "relu": relu, "selB": selector}, {}
                         put(k, src, byte << (int(selector[1:]) * 8), fields, regs, None, 2, ureg=4, imm=("F32Imm",))
-                        lo, hi = fpformat.widen(fmt, byte & 0xf), fpformat.widen(fmt, byte >> 4)
-                        if relu == "RELU": lo, hi = (0 if lo & 0x8000 else lo), (0 if hi & 0x8000 else hi)
-                        c.add(k.name, fields, regs, {"R8": lo | (hi << 16), "__native": True})
+                        c.add(k.name, fields, regs, {"R8": Later(widened, fmt, (byte & 0xf, byte >> 4), relu == "RELU"), "__native": True})
     # SM100+ scaled FP4 upconvert: per-lane UE8M0 multiplication after unpacking (PTX); low/high
     # nibbles pair with low/high scale bytes.
     for k in c.of("F2FP", "f2fp_4b_upconvert_scale__", cx=None):
@@ -187,9 +223,8 @@ def upconvert(c, part):
                         regs = {}
                         put(k, bsrc, byte << (int(selector[1:]) * 8), fields, regs, None, 2, ureg=4, imm=(k.operand_types[bsrc].type,))
                         put(k, csrc, scales, fields, regs, None, 6, ureg=8, imm=(k.operand_types[csrc].type,))
-                        lo = fpformat.scaled_bf16(byte & 15, fmt, scales & 0xff, relu == "RELU")
-                        hi = fpformat.scaled_bf16(byte >> 4, fmt, scales >> 8, relu == "RELU")
-                        c.add(k.name, fields, regs, {"R8": lo | (hi << 16), "__native": True})
+                        lanes = ((byte & 15, scales & 0xff), (byte >> 4, scales >> 8))
+                        c.add(k.name, fields, regs, {"R8": Later(scaled_halves, fmt, lanes, relu == "RELU"), "__native": True})
     # SM100+ UE8M0 to BF16x2 (CUDA host reference: 0xff NaN, 0 the 2^-127 subnormal, else << 7).
     for k in c.of("F2FP", "f2fp_E8_upconvert__", cx=None):
         src = source(k, "Rb", "URb", "Sb")
@@ -230,8 +265,7 @@ def fp4_pack(c, part):
                         regs = {}
                         put(k, bsrc, bword, fields, regs, None, 2, ureg=4, imm=(k.operand_types[bsrc].type,))
                         put(k, csrc, cword, fields, regs, None, 6, ureg=8, imm=(k.operand_types[csrc].type,))
-                        lanes = [fpformat.fp4(w >> (16 * j) & 0xffff, fmt, relu == "RELU", src) for w in (bword, cword) for j in range(2)]
-                        c.add(k.name, fields, regs, {"R8": sum(lane << (4 * j) for j, lane in enumerate(lanes)), "__native": True})
+                        c.add(k.name, fields, regs, {"R8": Later(fp4_nibbles, (bword, cword), fmt, relu == "RELU", src), "__native": True})
 
 
 # --- Focused SM100+ downconversion suites ------------------------------------------------
@@ -254,9 +288,9 @@ def fp8_down(c, part):
         if half: into(k, "Rb/URb/Sb", a | (b << 16), fields, regs, 2)
         else: into(k, "Ra/URa", a, fields, regs, 2); into(k, "Rb/URb/Sb", b, fields, regs, 4)
         into(k, "Rc/URc/Sc", carry, fields, regs, 6)
-        cvt = [fpformat.fp8(v, fmt, rnd, satfinite == "SATFINITE", relu == "RELU", srcfmt) for v in (a, b)]
-        packed = (cvt[1] << 8) | cvt[0] if half else (cvt[0] << 8) | cvt[1]
-        c.add(k.name, fields, regs, {observed(k): ((carry >> 16 if extract == "H1" else carry & 0xffff) << 16) | packed, "__native": True, "__fp8_nan": fmt})
+        high = carry >> 16 if extract == "H1" else carry & 0xffff
+        c.add(k.name, fields, regs, {observed(k): Later(fp8_down_word, fmt, rnd, satfinite == "SATFINITE", relu == "RELU", srcfmt, a, b, high),
+                                     "__native": True, "__fp8_nan": fmt})
     for k in f32_classes:
         for fmt, relu, extract, rnd in itertools.product(("E4M3", "E5M2"), ("norelu", "RELU"), ("H0", "H1"), ["RN"] + c.labels(k, "rndMode", ("RP",))):
             for i in part.sweep(k, len(sample)):
@@ -317,9 +351,7 @@ def fp6_down(c, part):
                         if half: into(k, "Rb/URb/Sb", x | (y << 16), fields, regs, 2)
                         else: into(k, "Ra/URa", x, fields, regs, 2); into(k, "Rb/URb/Sb", y, fields, regs, 4)
                         into(k, "Rc/URc/Sc", carry, fields, regs, 6)
-                        ox, oy = (fpformat.fp6(v, fmt, rnd, relu == "RELU", srcfmt) for v in (x, y))
-                        packed = (oy << 8) | ox if half else (ox << 8) | oy
-                        c.add(k.name, fields, regs, {observed(k): ((carry >> 16) & 0xffff) << 16 | packed, "__native": True})
+                        c.add(k.name, fields, regs, {observed(k): Later(fp6_down_word, fmt, rnd, relu == "RELU", srcfmt, x, y, (carry >> 16) & 0xffff), "__native": True})
 
 
 def fp6_probe(k, satfinite, relu, extract):
@@ -368,8 +400,7 @@ def fp4_down(c, part):
                     fields = dict(Rd=8, dstfmt=fmt, srcfmt="F32", merge="PACK_AB_MERGE_C", rndMode="RN", satfinite="SATFINITE", relu=relu)
                     regs = {}
                     for group, reg, value in (("Ra/URa", 2, a), ("Rb/URb/Sb", 4, b), ("Rc/URc/Sc", 6, carry)): into(k, group, value, fields, regs, reg)
-                    ref = lambda v: fpformat.fp4(v, fmt, relu == "RELU", relu_nan=True)
-                    c.add(k.name, fields, regs, {"R8": (carry & 0xffffff00) | (ref(a) << 4) | ref(b), "__native": True})
+                    c.add(k.name, fields, regs, {"R8": Later(fp4_down_word, fmt, relu == "RELU", a, b, carry), "__native": True})
 
 
 @anchored('Format-specific threshold/exhaustive, scaled-format and literal encoding-guard corpora exceed the ordinary pack profile.')
@@ -398,7 +429,8 @@ def mx8_down(c, part):
                     keep = (i * 0x9e37 + scale_a) & 0xffff
                     into(k, "Rc/URc/Sc", (scale_a << 24) | (scale_b << 16) | keep, fields, regs, 6)
                     if i == 0: first.setdefault(k.name, (fields, regs))
-                    c.add(k.name, fields, regs, {"R8": (keep << 16) | (fpformat.s2_6(a, scale_a, relu == "RELU") << 8) | fpformat.s2_6(b, scale_b, relu == "RELU"), "__native": True})
+                    s2_6 = functools.partial(fpformat.s2_6, relu=relu == "RELU")
+                    c.add(k.name, fields, regs, {"R8": Later(scaled_pair, keep, s2_6, a, scale_a, b, scale_b), "__native": True})
     if c.fp == "exact":
         for cls, (fields, regs) in first.items():
             raw = int.from_bytes(bytes.fromhex(encode(c.arch, cls, **fields)), "little") ^ (1 << 77)
@@ -444,7 +476,7 @@ def scaled_8b_down(c, part):
                     else: into(k, "Ra/URa", a, fields, regs, 2); into(k, "Rb/URb/Sb", b, fields, regs, 4)
                     into(k, "Rc/URc/Sc", (scale << 24) | (rng.getrandbits(8) << 16) | keep if scaled else keep, fields, regs, 6)
                     one = code(fmt, rnd, sat == "SATFINITE", relu == "RELU", pz == "PZO", srcfmt)
-                    if i in chosen: c.add(k.name, fields, regs, {"R8": (keep << 16) | (one(a, scale) << 8) | one(b, scale), "__native": True})
+                    if i in chosen: c.add(k.name, fields, regs, {"R8": Later(scaled_pair, keep, one, a, scale, b, scale), "__native": True})
 
 
 @anchored('Format-specific threshold/exhaustive, scaled-format and literal encoding-guard corpora exceed the ordinary pack profile.')
@@ -467,8 +499,8 @@ def scaled_up(c, part):
                     fields = dict(Rd=8, dstfmt="BF16", srcfmt=fmt, merge="UNPACK_B", rndMode="RN", relu=relu, satfinite=satfinite, extract_B=extract, iswzC="H0")
                     regs = {}
                     into(k, bsrc, bword, fields, regs, 2); into(k, csrc, cword, fields, regs, 4)
-                    want = [fpformat.scaled_bf16(code, fmt, scale, relu == "RELU", satfinite == "SATFINITE") for code, scale in ((code0, scale0), (code1, scale1))]
-                    c.add(k.name, fields, regs, {"R8": want[0] | (want[1] << 16), "__native": True})
+                    lanes = ((code0, scale0), (code1, scale1))
+                    c.add(k.name, fields, regs, {"R8": Later(scaled_halves, fmt, lanes, relu == "RELU", satfinite == "SATFINITE"), "__native": True})
 
 
 @anchored('Format-specific threshold/exhaustive, scaled-format and literal encoding-guard corpora exceed the ordinary pack profile.')
@@ -481,10 +513,8 @@ def e3m4_up(c, part):
                 packed = code | ((code ^ 0xff) << 8)
                 fields, regs = dict(Rd=8, dstfmt="F16", srcfmt="E3M4", merge="UNPACK_B", rndMode="RN", relu=relu, extract_B=extract), {}
                 into(k, src, packed if extract == "H0" else packed << 16, fields, regs, 2)
-                lo, hi = fpformat.widen("E3M4", code), fpformat.widen("E3M4", code ^ 0xff)
-                if relu != "norelu": lo, hi = (0 if lo & 0x8000 else lo), (0 if hi & 0x8000 else hi)
                 # The selected half is the byte pair whose low byte is `code`.
-                c.add(k.name, fields, regs, {"R8": lo | (hi << 16), "__native": True})
+                c.add(k.name, fields, regs, {"R8": Later(widened, "E3M4", (code, code ^ 0xff), relu != "norelu"), "__native": True})
 
 
 def emulator_cases(c):
@@ -512,7 +542,7 @@ def dataflow_words(arch):
         into(k, "Rc/URc/Sc", 0xdeadbeef, fields, regs, 6)
         words.append(word(k, fields))
     words += [word(k, fp6_probe(k, "SATFINITE", "RELU", "H1")[0]) for k in fp6_classes(c)]
-    mx8 = Cases(arch); mx8_down(mx8); mx8.encode_words()
+    mx8 = Cases(arch); mx8_down(mx8); mx8.complete()
     seen = {}
     for case in mx8:
         if "__native" in case.expected: seen.setdefault(case.cls, bytes.fromhex(case.request["word"]))
