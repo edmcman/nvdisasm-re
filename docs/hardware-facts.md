@@ -130,14 +130,22 @@ in [`docs/testing.md`](testing.md).
 ## Floating point
 
 - Exact rounding (2026-10-14, references written for the formerly reference-less fixtures):
-  FADD/FMUL/FFMA (every rounding mode, FTZ, SAT) and DADD/DMUL/DFMA are exactly rounded. NaN
-  results: FP32 gives 0x7fffffff; FP64 propagates its NaN operand, quieted (which of two different
-  NaNs is untested), and an invalid operation without NaN operands gives 0xfff8000000000000.
+  FADD/FMUL/FFMA (every rounding mode, FTZ, SAT) and DADD/DMUL/DFMA are exactly rounded.
   Floating comparisons are exact except NaN payload/sign.
+- Arithmetic NaN results (2026-10-22, 814 probe observations on SM89: NaN operands of both signs,
+  quiet and signaling, in every position and pair, under `-`/`|.|`, .SAT and .FTZ, and invalid
+  operations Inf-Inf, 0*Inf):
+  - FADD/FMUL/FFMA: always +0x7fffffff, whatever the operands, payloads or modifiers.
+  - HADD2/HMUL2/HFMA2 (F16_V2, and HFMA2 BF16_V2): each NaN lane is +0x7fff.
+  - DADD/DMUL/DFMA: the first NaN register of Rb, Rc, Ra (DADD: Rc before Ra; DMUL: Rb before Ra),
+    quieted, with its own sign and payload: `-`/`|.|` on it are ignored (as FRND.F64 and F2F).
+    Signaling and quiet NaNs have no priority over each other. Without a NaN operand an invalid
+    operation gives 0xfff8000000000000.
+  - .SAT turns any NaN result into +0.
 - Source `|x|` and `-x`: pure sign-bit operations, absolute value before negation.
   - DADD/DMUL/DFMA (2026-10-19, every operand form and modifier tuple, 64,022 shared-case
     scenarios): applied before exact rounding, so `-|+0|` is -0 and `|-Inf|` is +Inf. NaN results
-    stay unchecked, as above.
+    ignore them, as above.
   - FADD/FMUL/FFMA, FSET/FSETP and FMNMX (2026-10-20, every generated non-FMZ operand form and
     modifier tuple, 580,088 fp32 shared-case scenarios including negative Inf/NaN, signed
     subnormals and saturation boundaries): applied before rounding, FTZ, saturation and comparison.

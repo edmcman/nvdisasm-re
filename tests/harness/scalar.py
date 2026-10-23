@@ -8,7 +8,6 @@ from sass.assemble.encoding import klass
 from tests.harness.case import encode
 from tests.harness.gpu import ENCODING, Fixture, Template, compile
 from sass.semantics.fp import softfloat
-from tests.refs.bits import nan16
 from tests.refs.float import underflow_band
 
 EDGES = [0, 0xffffffff, 0x80000000, 0x7fffffff, 0x7f800000, 0xff800000, 0x7fc00000, 1, 0x007fffff, 0x00800000, 0x3f800000,
@@ -141,11 +140,6 @@ def _patch(out, image, family, mnemonic, cls, fields, arch="SM89"):
     return bytearray(t.patch(words, bytes(out)))
 
 
-def same_halves(got, want):
-    """Packed F16 lanes equal, or both NaN."""
-    return all(((got >> s) & 0xffff) == ((want >> s) & 0xffff) or nan16(got >> s & 0xffff) and nan16(want >> s & 0xffff) for s in (0, 16))
-
-
 def fixture(family, vs, expected=None, targets=(), wide=False, wide_output=None, arguments=(), arch="SM89", **kw):
     """A sem_<family> launch over vectors `vs`; wide: 64-bit inputs and outputs."""
     import struct
@@ -193,7 +187,6 @@ TARGETS.update({f: (m,) for f, (m, _) in SETS.items()})
 ROUNDED = {f"{op}_{m}" for op in ("fadd", "fmul", "ffma", "dadd", "dmul", "dfma") for m in ("rz", "rm", "rp")}  # directed-rounding kernels
 HALF_OUTPUTS = {"hadd2", "hfma2", "hmul2", "hmul2_sat", "hmul2_ftz", "hmul2_fmz", "hadd2_sat", "hfma2_sat", "hadd2_lanes", "hfma2_lanes", "hmul2_lanes"}
 WIDE = {"dadd", "dmul", "dfma", "dsetp", "isetp_ex"} | {f for f in ROUNDED if f.startswith("d")}
-FLOAT_OUTPUTS = {"dadd", "dmul", "dfma", "fadd", "fmul", "ffma", "i2f", "fadd_ftz", "ffma_sat"} | ROUNDED
 
 
 def scalar_vectors(family):
@@ -290,11 +283,6 @@ def half_underflow(emulated, want):
     return all(e == w or e & 0x7fff == 0 and w == e | 1 for e, w in (((emulated >> s) & 0xffff, (want >> s) & 0xffff) for s in (0, 16)))
 
 
-def nan(x, width):
-    exponent, mantissa = (0x7ff0000000000000, 0xfffffffffffff) if width == 64 else (0x7f800000, 0x7fffff)
-    return x & exponent == exponent and x & mantissa != 0
-
-
 def underflow_bug(family, inputs, emulated, want):
     """The emulator's RN minimum-subnormal underflow (refs.float.underflow_band): it returns a
     signed zero where the reference (and the GPU) has the signed minimum subnormal."""
@@ -311,11 +299,7 @@ def launch(family, reference=None, same=None, underflow=False, arch="SM89"):
     """Fixture for scalar family `family`; reference(x, y, z) gives the expected output;
     underflow excuses the emulator's known minimum-subnormal defect."""
     vs = scalar_vectors(family)
-    width = 64 if family in WIDE else 32
-    if family.startswith("f2fp_f16_pack_"): emulator_same = same_halves
-    elif family in HALF_OUTPUTS: emulator_same = lambda e, w: same_halves(e, w) or half_underflow(e, w)
-    elif family in FLOAT_OUTPUTS: emulator_same = lambda e, w: e == w or nan(e, width) and nan(w, width)
-    else: emulator_same = lambda e, w: e == w
+    emulator_same = (lambda e, w: e == w or half_underflow(e, w)) if family in HALF_OUTPUTS else (lambda e, w: e == w)
     targets = TARGETS[family]
     if arch == 'SM90':
         replacements = {'IMNMX': 'VIMNMX.U32', 'HADD2': 'HFMA2.MMA', 'HMUL2': 'HFMA2.MMA',

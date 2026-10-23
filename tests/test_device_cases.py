@@ -131,11 +131,12 @@ def test_worker_timeout_is_a_failure(monkeypatch):
     assert device_cases.isolated(device_cases.kernels([s]), timeout=1)['results'][s.id] == ['GPU worker exceeded 1s']
 
 
-def test_nan_policy_preserves_merged_half():
+def test_nan_results_compare_bitwise():
     c = Cases('SM89')
     c.add('f2fp_merge_c__RRR', dict(Rd=8, Rb=2, Rc=4, dstfmt='F16', srcfmt='F32', merge='MERGE_C'),
-          dict(R2=0x7fc00000, R4=0xbeef), dict(R8=0xbeef7e00))
+          dict(R2=0x7fc00000, R4=0xbeef), dict(R8=0xbeef7fff))
     assert device_cases.compare(c.encode_words()[0], ['R8'], [0xbeef7fff]) == []
+    assert device_cases.compare(c[0], ['R8'], [0xbeef7e00])
     assert device_cases.compare(c[0], ['R8'], [0xdead7fff])
 
 

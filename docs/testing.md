@@ -459,3 +459,14 @@ HFMA2.MMA constant move 22 run-time operations instead of one COPY):
 
 No comparison tolerance was weakened. BF16/FMZ/RELU and other unimplemented MMA arithmetic forms
 keep the opaque fallback.
+
+## NaN comparison policy (2026-10-22, issue #49)
+
+NaN results are compared bit for bit everywhere: emulator and Ghidra cases, GPU shared cases and
+scalar fixtures. Before, the GPU accepted any F16 NaN for HADD2/HMUL2/HFMA2 and F2FP F16
+(`half_nan_equal`, `same_halves`), scalar fixtures' emulator check accepted any F32/F64 NaN, and the
+FP32/FP64/FP16 sweeps and autocases skipped NaN results, because the semantics returned softfloat's
+generic NaNs rather than the GPU's. The SM89 probes behind `hardware-facts.md` "Arithmetic NaN
+results" fixed every NaN bit; the semantics now produce them (`semantics.md` section 3) and the
+generators compute expectations with `refs.float.rounded`, so NaN results create evidence. The one
+remaining NaN-class check, `__fp8_nan`, covers SM100+ FP8 downconversion, which has no hardware here.

@@ -1,5 +1,4 @@
 """Packed conversion and half-lane adapters, backed by independent test references."""
-from sass.semantics.fp import softfloat
 from tests.harness import autocase_profiles, autocase_extended, autocase_half_profiles
 from tests.harness.case import source
 from tests.refs import float, integer
@@ -123,8 +122,8 @@ def half(c,k,form):
                 xs=[pair[lane] for pair in pairs]
                 if exact:
                     if op=='HMUL2' and mode=='FMZ' and any(x&0x7c00==0 for x in xs):result=0
-                    else:result=softfloat.arithmetic(operation,xs,16,ftz=ftz or mode in ('FTZ','FMZ'),sat=sat)
-                    if softfloat.unpack(result,16)[0]=='nan' or float.underflow_band(operation,xs,16):break
+                    else:result=float.rounded(operation,xs,16,ftz=ftz or mode in ('FTZ','FMZ'),sat=sat)
+                    if float.underflow_band(operation,xs,16):break
                 else:result=float.readable(operation,xs,16,sat)
                 if result is None:break
                 results.append(result)

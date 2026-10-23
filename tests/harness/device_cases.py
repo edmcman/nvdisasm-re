@@ -319,31 +319,6 @@ def image(probes):
     return elf.link(module)
 
 
-def half_nan_equal(case, got, want, arch="SM89"):
-    """The existing GPU policy: F16 arithmetic/packing permit NaN payload/sign variation.
-
-    A MERGE_C's preserved half is still compared exactly. Other formats and
-    non-floating outputs remain bit-exact.
-    """
-    from tests.refs.bits import nan16
-    d = decoded(case.request['word'], arch)
-    lanes = ()
-    if d.klass.mnemonic in ('HADD2', 'HMUL2', 'HFMA2'):
-        if any(a.name == 'ofmt' and ir.load(arch).rev_enums[a.type].get(d.env[a.name]) != 'F16_V2' for a in d.klass.operand_types.values()): return False
-        lanes = (0, 16)
-    elif d.klass.mnemonic == 'F2FP' and 'dstfmt' in d.env:
-        a = d.klass.operand_types['dstfmt']
-        if ir.load(arch).rev_enums[a.type].get(d.env['dstfmt']) != 'F16': return False
-        merge = d.klass.operand_types.get('merge')
-        mode = ir.load(arch).rev_enums[merge.type].get(d.env['merge']) if merge else ''
-        lanes = (0,) if mode == 'MERGE_C' else (0, 16)
-    if not lanes: return False
-    for shift in (0, 16):
-        g, w = (got >> shift) & 0xffff, (want >> shift) & 0xffff
-        if g != w and not (shift in lanes and nan16(g) and nan16(w)): return False
-    return True
-
-
 def compare(case, names, values, arch="SM89"):
     expected = (case.hardware or {}).get('expected', case.expected)
     out = []
@@ -355,7 +330,6 @@ def compare(case, names, values, arch="SM89"):
             value &= (1 << (8 * int(size))) - 1
         else: want = expected[n]
         same = same_fp8(value, want, expected['__fp8_nan']) if '__fp8_nan' in expected and not n.startswith('__memory:') else value == want
-        if not same and n.startswith(('R', 'UR')) and not n.startswith('__memory:'): same = half_nan_equal(case, value, want, arch)
         if not same: out.append(f'{n}: GPU {value:#x}, reference {want:#x}')
     return out
 
