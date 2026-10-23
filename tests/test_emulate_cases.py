@@ -1,8 +1,9 @@
 """The generated C++ (sass.emulate.cxx) computes the independent references' values on the emulator
 cases, as test_lifted_semantics does for the Python evaluator: each shard's instructions compile
 into one fragment library. Cases asserting runtime events (`__events`) stay with the evaluator, which
-records them. One item per (architecture, fp, family, md class)."""
+records them. Opt-in (`-m native`). One item per (architecture, fp, family, md class)."""
 from functools import cache
+import pytest
 from sass.decode import pydecode
 from sass.emulate import machine
 from tests.harness import lifted, sampling, sharded
@@ -44,11 +45,12 @@ def selection(config):
 
 def pytest_generate_tests(metafunc):
     if "native_class" not in metafunc.fixturenames: return
-    if not selected(metafunc.config): return skipped(metafunc, "native_class", "unmarked", "unmarked tests not selected by -m")
+    if not selected(metafunc.config, "native"): return skipped(metafunc, "native_class", "native")
     params = sorted(results(*selection(metafunc.config)))
     metafunc.parametrize("native_class", params, ids=["-".join(p) for p in params])
 
 
+@pytest.mark.native
 def test_emulate_cases(native_class, request):
     total, failed, reports = results(*selection(request.config))[native_class]
     assert not failed, f"{failed}/{total} cases failed\n" + "\n".join(reports)

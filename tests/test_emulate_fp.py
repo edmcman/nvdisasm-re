@@ -1,6 +1,7 @@
 """The C++ floating point (sass/emulate/include/sass/softfloat.hpp) computes the IR's definition
 (`bitvec.OPS`, Python softfloat) bit for bit: the special-value cross product, random encodings,
-near-cancelling pairs, exact ties, and every FP16 source of a conversion."""
+near-cancelling pairs and exact ties; --exhaustive takes five times the random inputs and every FP16
+source of a conversion."""
 import itertools, random
 from fractions import Fraction
 import pytest
@@ -8,9 +9,17 @@ from sass.emulate import native
 from sass.semantics import bitvec
 from sass.semantics.fp import softfloat
 
+pytestmark = pytest.mark.native  # opt-in: -m native
+
 WIDTHS = (16, 32, 64)
 MODES = native.ROUNDING
-RANDOM = 1500
+RANDOM = 300
+
+
+@pytest.fixture
+def scale(request):
+    """How many times RANDOM inputs to draw."""
+    return 5 if request.config.getoption('--exhaustive') else 1
 
 
 def special(w):
@@ -35,20 +44,20 @@ def tie(rng, w):
     return a, softfloat.pack(ulp * rng.choice((1, -1)), w)
 
 
-def binary(w, seed):
+def binary(w, seed, n):
     rng = random.Random(seed)
-    return [*itertools.product(special(w), repeat=2), *((rng.getrandbits(w), rng.getrandbits(w)) for _ in range(RANDOM)),
-            *(near(rng, w) for _ in range(RANDOM)), *(tie(rng, w) for _ in range(RANDOM))]
+    return [*itertools.product(special(w), repeat=2), *((rng.getrandbits(w), rng.getrandbits(w)) for _ in range(n)),
+            *(near(rng, w) for _ in range(n)), *(tie(rng, w) for _ in range(n))]
 
 
-def ternary(w, seed):
+def ternary(w, seed, n):
     rng = random.Random(seed); s = special(w)[::2] + special(w)[1::3]
     def cancelling():
         a, b = rng.getrandbits(w), rng.getrandbits(w)
         p = softfloat.arithmetic("mul", [a, b], w, rng.choice(MODES))
         return a, b, p ^ 1 << (w - 1) ^ rng.getrandbits(3)
-    return [*itertools.product(s, repeat=3), *((rng.getrandbits(w), rng.getrandbits(w), rng.getrandbits(w)) for _ in range(RANDOM)),
-            *(cancelling() for _ in range(RANDOM))]
+    return [*itertools.product(s, repeat=3), *((rng.getrandbits(w), rng.getrandbits(w), rng.getrandbits(w)) for _ in range(n)),
+            *(cancelling() for _ in range(n))]
 
 
 def check(name, inputs, ours, theirs):
@@ -58,39 +67,39 @@ def check(name, inputs, ours, theirs):
 
 @pytest.mark.parametrize("w", WIDTHS)
 @pytest.mark.parametrize("mode", MODES)
-def test_add(w, mode):
-    check(f"fadd{w}.{mode}", binary(w, w), lambda a, b: native.fp("add", w, a, b, mode=mode),
+def test_add(w, mode, scale):
+    check(f"fadd{w}.{mode}", binary(w, w, RANDOM * scale), lambda a, b: native.fp("add", w, a, b, mode=mode),
           lambda a, b: bitvec.OPS["fadd"]([a, b, mode], [w, w, None], w))
 
 
 @pytest.mark.parametrize("w", WIDTHS)
 @pytest.mark.parametrize("mode", MODES)
-@pytest.mark.parametrize("scale", (0, -2, 1, 3))
-def test_mul(w, mode, scale):
-    check(f"fmul{w}.{mode}.{scale}", binary(w, w + 1), lambda a, b: native.fp("mul", w, a, b, mode=mode, scale=scale),
-          lambda a, b: bitvec.OPS["fmul"]([a, b, mode, scale], [w, w, None, None], w))
+@pytest.mark.parametrize("power", (0, -2, 1, 3))
+def test_mul(w, mode, power, scale):
+    check(f"fmul{w}.{mode}.{power}", binary(w, w + 1, RANDOM * scale), lambda a, b: native.fp("mul", w, a, b, mode=mode, scale=power),
+          lambda a, b: bitvec.OPS["fmul"]([a, b, mode, power], [w, w, None, None], w))
 
 
 @pytest.mark.parametrize("w", WIDTHS)
 @pytest.mark.parametrize("mode", MODES)
-def test_fma(w, mode):
-    check(f"ffma{w}.{mode}", ternary(w, w + 2), lambda a, b, c: native.fp("fma", w, a, b, c, mode=mode),
+def test_fma(w, mode, scale):
+    check(f"ffma{w}.{mode}", ternary(w, w + 2, RANDOM * scale), lambda a, b, c: native.fp("fma", w, a, b, c, mode=mode),
           lambda a, b, c: bitvec.OPS["ffma"]([a, b, c, mode], [w, w, w, None], w))
 
 
 @pytest.mark.parametrize("src, dst", [(s, d) for s in WIDTHS for d in WIDTHS if s != d])
 @pytest.mark.parametrize("mode", MODES)
-def test_convert(src, dst, mode):
+def test_convert(src, dst, mode, scale):
     rng = random.Random(src * dst)
-    inputs = [(x,) for x in (range(1 << 16) if src == 16 else [*special(src), *(rng.getrandbits(src) for _ in range(4 * RANDOM))])]
+    inputs = [(x,) for x in (range(1 << 16) if src == 16 and scale > 1 else [*special(src), *(rng.getrandbits(src) for _ in range(4 * RANDOM * scale))])]
     check(f"fconv{src}->{dst}.{mode}", inputs, lambda x: native.fp("convert", src, x, mode=mode, dst=dst),
           lambda x: bitvec.OPS["fconv"]([x, mode], [src, None], dst))
 
 
 @pytest.mark.parametrize("w", WIDTHS)
 @pytest.mark.parametrize("op", ("lt", "le", "eq"))
-def test_compare(w, op):
-    check(f"f{op}{w}", binary(w, w + 3)[:4 * RANDOM], lambda a, b: native.fp(op, w, a, b),
+def test_compare(w, op, scale):
+    check(f"f{op}{w}", binary(w, w + 3, RANDOM * scale), lambda a, b: native.fp(op, w, a, b),
           lambda a, b: bitvec.OPS["f" + op]([a, b], [w, w], 1))
 
 

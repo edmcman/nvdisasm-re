@@ -439,16 +439,17 @@ hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` 
   holds, collectives' warp context, step limit, every error message, the response). Ghidra lanes
   and the lifted semantics' lanes (`sass.emulate.reference`: `lifter.lift` per PC +
   `evaluate.apply`, the in-place `execute`) both run under it, so whole kernels need no Ghidra.
-  `c.kernel` cases now also run in `test_lifted_semantics`, and `test_kernels_reference` runs every
-  SM89/SM90 fixture on the lifted engine (2032 items in 1.5 minutes). `test_kernel_parity`
-  (`-m ghidra`) requires identical responses from both engines on every fixture, including the
-  first 64 threads' traced writes; opaque errors are compared by pcodeop, since Ghidra names its
-  arguments and Python the lifter's reason. All 2032 match (7 minutes). Before #61 (the hardware
-  NaN rule, #49), 16 differed by NaN results of FP arithmetic: the IR returned IEEE +qNaN, the
-  exact lowering the host's -qNaN, and the GPU neither. The test tolerates only Ghidra 12.1.4's
-  minimum-subnormal underflow (section 3 of `docs/semantics.md`), and only where Python's output
-  is the hardware reference bit for bit and the fixture already accepts Ghidra's (`excused`,
-  `emulator_same`).
+  `c.kernel` cases now also run in `test_lifted_semantics`. A one-time parity check (2026-10-23)
+  compared both engines' whole responses on every SM89/SM90 fixture, including the first 64
+  threads' traced writes (opaque errors by pcodeop, since Ghidra names its arguments and Python the
+  lifter's reason): all 2032 matched (7 minutes), as did the native engine's (`docs/emulation.md`).
+  Before #61 (the hardware NaN rule, #49), 16 differed by NaN results of FP arithmetic: the IR
+  returned IEEE +qNaN, the exact lowering the host's -qNaN, and the GPU neither. The only other
+  difference was Ghidra 12.1.4's minimum-subnormal underflow (section 3 of `docs/semantics.md`),
+  where Python's output is the hardware reference and the fixtures already excuse Ghidra's. The
+  check is not a test: both engines are judged against the same references on every instruction
+  (the shared cases) and kernel (the fixtures), now bitwise, and its extra reach (step counts and
+  interleaving) cost tens of minutes per CI job on SM89/SM90.
 - Inherent engine differences: p-code inspection (`__native`, `__max_ops`, `pcode_ops`) is
   Ghidra-only; an instruction's `text` comes from SLEIGH on Ghidra and from pydecode in Python
   (kernel traces use pydecode on both); Ghidra observes any SLEIGH register, the lifted harness

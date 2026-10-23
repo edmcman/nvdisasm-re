@@ -5,13 +5,15 @@ import pytest
 from sass.decode import pydecode
 from sass.emulate import equivalence, kernel
 from tests.harness import gpu, hardware
-from tests.cases import FAMILIES
+from tests.harness.select import arches
+
+pytestmark = pytest.mark.native  # opt-in: -m native
 
 ARCH = "SM89"
-FIXTURES = ("iadd3", "shfl_idx")   # a non-cooperative and a cooperative kernel
+FIXTURES = {"iadd3": "int_alu", "shfl_idx": "threads"}   # a non-cooperative and a cooperative kernel, by family
 
 
-def fixture(name): return next(f for _, f in hardware.fixtures(tuple(FAMILIES), ARCH) if f.name == name)
+def fixture(name): return next(f for _, f in hardware.fixtures((FIXTURES[name],), ARCH) if f.name == name)
 
 
 def nopped(image, mnemonic):
@@ -24,7 +26,8 @@ def nopped(image, mnemonic):
 
 
 @pytest.mark.parametrize("name", FIXTURES)
-def test_equivalence(name):
+def test_equivalence(name, request):
+    if ARCH not in arches(request.config): pytest.skip(f"an {ARCH} kernel")
     f = fixture(name)
     image, arguments, memory, threads, block, output, cooperative, context = gpu.launch_parts(f)
     runs = [equivalence.Launch(arguments, tuple(memory), output, threads, block, cooperative, context)]

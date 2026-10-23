@@ -21,7 +21,8 @@ def pytest_configure(config):
     except ValueError as error: raise pytest.UsageError(str(error)) from error
     config.addinivalue_line("markers", "ghidra: needs compiled SLEIGH languages and Ghidra's pyghidra venv")
     config.addinivalue_line("markers", "gpu: needs an SM89 or SM90 CUDA device")
-    if not config.option.markexpr: config.option.markexpr = "not ghidra and not gpu"
+    config.addinivalue_line("markers", "native: the native emulator (sass.emulate): its C++ runtime, generated code, kernels and equivalence testing")
+    if not config.option.markexpr: config.option.markexpr = "not ghidra and not gpu and not native"
 
 
 def pytest_terminal_summary(terminalreporter, config):

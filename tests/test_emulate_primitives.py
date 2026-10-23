@@ -5,6 +5,8 @@ import pytest
 from sass.emulate import native
 from tests.refs import primitive
 
+pytestmark = pytest.mark.native  # opt-in: -m native
+
 MASKS = (0xffffffff, 1, 1 << 31, 0x80000001, 0x55555555, 0x0000ffff)
 TRIALS = 40
 REDUCTIONS = ("and", "or", "xor", "add", "umin", "umax", "smin", "smax")

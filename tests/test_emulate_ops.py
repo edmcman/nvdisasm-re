@@ -7,6 +7,8 @@ from sass.emulate import machine
 from sass.semantics import bitvec, evaluate, lifter
 from sass.semantics.bitvec import Expr
 
+pytestmark = pytest.mark.native  # opt-in: -m native
+
 TREES, DEPTH, INPUTS = 600, 4, 16
 FLOATS = (16, 32, 64)
 

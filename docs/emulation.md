@@ -21,7 +21,8 @@ the launch's window registers), non-cooperative threads each alone with their ow
 cooperative blocks whose warps take turns stepping the live lanes at the warp's lowest PC, BAR.SYNC
 and WARPSYNC holds, the warp context collectives read (each lane's operand gathered before the
 step), the step limit and every error message. Engines supply lanes (`schedule.Lane`: `pc`, `read`,
-`seed`, `step`, `writes`). `docs/testing.md` records the parity results and the inherent differences.
+`seed`, `step`, `writes`). `docs/testing.md` records a one-time parity check (every fixture's whole
+response identical across the engines) and the inherent differences.
 
 ## The native machine
 
@@ -88,9 +89,9 @@ its instruction under test replaced by a NOP.
 cancellations and ties), `test_emulate_primitives` (against `refs/primitive.py`), `test_emulate_ops`
 (random unsimplified IR trees over every operator, widths 1-128, against `evaluate`),
 `test_emulate_cases` (the shared case stream as compiled fragments, against the references; every
-SM89 class passes, 2 minutes), `test_kernels_native` (every SM89/SM90 fixture and the `c.kernel`
-cases) and `test_kernel_parity::test_native_parity` (the native and Python engines' whole responses,
-traces of the first 64 threads included, identical on every fixture). Mutating the RN tie rule or an unsigned comparison fails these tests.
+SM89 class passes, 2 minutes) and `test_kernels_native` (every SM89/SM90 fixture and the `c.kernel`
+cases). These are opt-in (`-m native`), like the Ghidra and GPU tests: the default run keeps
+`test_mufu` and `test_lifted_semantics`, which reach the C++ primitives through the Python runtime. Mutating the RN tie rule or an unsigned comparison fails these tests.
 
 ## Performance (2026-10-23, 32 cores, the `ffma` fixture kernel, 19 steps per thread)
 
