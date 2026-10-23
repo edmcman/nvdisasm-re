@@ -22,6 +22,31 @@ def evidence(directory):
         out[arch.upper()]=json.loads(source.read_text())
     return out
 
+DIGITS='0123456789abcdefghijklmnopqrstuvwxyz'
+
+def compact(e):
+    """A class's evidence as committed in evidence.json: each modifier's labels once, and each form a string
+    of label indices (one digit per modifier) under the evidence kinds that ran it ("gpu+reference"),
+    rather than every kind's rows of labels, which reached 86 MB (2026-10-23)."""
+    if 'forms' not in e:return e
+    rows=defaultdict(set)
+    for kind,fs in e['forms'].items():
+        for f in fs:rows[tuple(f)].add(kind)
+    labels=[sorted({f[i] for f in rows},key=json.dumps) for i in range(len(e['modifiers']))]
+    if any(len(ls)>len(DIGITS) for ls in labels):raise ValueError('a modifier has more labels than form digits')
+    index=[{l:DIGITS[j] for j,l in enumerate(ls)} for ls in labels];forms=defaultdict(list)
+    for f,ks in rows.items():forms['+'.join(sorted(ks))].append(''.join(index[i][l] for i,l in enumerate(f)))
+    return {**e,'labels':labels,'forms':{k:sorted(v) for k,v in forms.items()}}
+
+def expand(e):
+    """The {kind: [[label per modifier]]} forms of a compact() entry, as tests/evidence.py writes them."""
+    if 'labels' not in e:return e
+    out=defaultdict(list)
+    for ks,fs in e['forms'].items():
+        for f in fs:
+            for k in ks.split('+'):out[k].append([e['labels'][i][DIGITS.index(c)] for i,c in enumerate(f)])
+    return {**{k:v for k,v in e.items() if k!='labels'},'forms':{k:sorted(v,key=json.dumps) for k,v in sorted(out.items())}}
+
 def shown(row):
     """The class's status for the report: partially native (or primitive) when it has semantics but
     some of its modifier combinations are opaque or partial, i.e. some encodings fall back to the opaque call."""
@@ -171,9 +196,11 @@ def write(directory,output):
     """The summary of the manifests and evidence in `directory`, and beside it the per-class evidence, badge and report."""
     found,summary,detail=analyze(directory,details=True)
     output=Path(output);update(output,json.dumps(summary,indent=2,sort_keys=True)+'\n')
-    update(output.with_name('evidence.json'),'{\n'+',\n'.join(f'{json.dumps(a)}:{{\n'+',\n'.join(f'{json.dumps(c)}:{json.dumps(e,sort_keys=True)}' for c,e in sorted(found[a].items()))+'}' for a in sorted(found))+'}\n')
+    update(output.with_name('evidence.json'),'{\n'+',\n'.join(f'{json.dumps(a)}:{{\n'+',\n'.join(f'{json.dumps(c)}:{json.dumps(compact(e),sort_keys=True)}' for c,e in sorted(found[a].items()))+'}' for a in sorted(found))+'}\n')
     update(output.with_name('badge.json'),json.dumps(badge(summary),ensure_ascii=False)+'\n')
     update(output.with_name('coverage.html'),report(summary,detail))
+    verdicts={p.name.removeprefix('sass_').removesuffix('_gpu_verdicts.json').upper():json.loads(p.read_text()) for p in sorted(Path(directory).glob('sass_sm*_gpu_verdicts.json'))}
+    update(output.with_name('gpu_verdicts.json'),json.dumps(verdicts,indent=1,sort_keys=True)+'\n')
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('directory');p.add_argument('--output');a=p.parse_args()

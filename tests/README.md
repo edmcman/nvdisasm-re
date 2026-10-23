@@ -132,8 +132,8 @@ Need an SM89 or SM90 device (outside the sandbox), but not Ghidra.
 
 | File | Question | Under test | Oracle |
 |---|---|---|---|
-| `test_cases_on_gpu.py` | do shared instruction cases agree with hardware? | `refs/`, through generated native probes | SM89/SM90 GPU; each passing scenario is fingerprinted in `baseline/gpu_case_passes.json` |
-| `test_refs_on_gpu.py` | are the references right on hardware? | `refs/`, through the GPU fixtures | SM89/SM90 GPU (CLI `uv run python -m tests.observe FAMILY`); records passing fixtures' fingerprints in `baseline/gpu_passes.json`, which with `gpu_case_passes.json` is the source of `gpu` evidence (`tests/evidence.py`, per class and per form: the modifier combinations that ran) |
+| `test_cases_on_gpu.py` | do shared instruction cases agree with hardware? | `refs/`, through generated native probes | SM89/SM90 GPU; what each scenario returned is recorded in `baseline/gpu_observations/SMxx.jsonl` |
+| `test_refs_on_gpu.py` | are the references right on hardware? | `refs/`, through the GPU fixtures | SM89/SM90 GPU (CLI `uv run python -m tests.observe FAMILY`); records passing fixtures' fingerprints in `baseline/gpu_passes.json`, which with the shared-case observations is the source of `gpu` evidence (`tests/evidence.py`, per class and per form: the modifier combinations that ran) |
 | `test_assemble.py::test_native_cubin_on_gpu` | do native cubins load and execute? | self-contained kernels assembled without compiled templates | SM89/SM90 Driver API: parameters, branches, constants, shared memory, multiple entries |
 
 `test_cases_on_gpu.py` runs the hardware-valid cases from `emulator_cases(c)` directly: encoded
@@ -451,18 +451,32 @@ evidence report at another depth, use
 
 ### Shared-case hardware evidence
 
-`baseline/gpu_case_passes.json` records, per architecture and device, the fingerprint of every
-scenario that passed (`harness/device_evidence.py` `fingerprint`): its probe built alone (target
-word, inputs, setup, scheduling, capture layout, launch shape), its hardware expectation, F16 NaN
-lanes and a hash of the comparison code. No source digest: an edit invalidates a pass only by
-changing what that scenario runs or how it is judged. A run adds its passes and drops its failures;
-scenarios it didn't run keep theirs.
+`baseline/gpu_observations/SMxx.jsonl` records what the GPU returned, not whether it passed: per
+probe key and device, the captured 32-bit values in the probe's capture order. The key
+(`harness/device_evidence.py` `probed`) hashes the scenario's probe built alone (target word,
+inputs, setup, scheduling, capture layout, launch shape), never its expectation or the comparison,
+so changing a reference, an expectation or `device_cases.compare` re-judges the recorded
+observations without a GPU. The first line holds the format version and the device table; every
+other line is `[key, device index, "observed" | "inferred", [hex value or null]]`, sorted.
+`inferred` observations were reconstructed from the pass fingerprints they replaced (2026-10-23,
+`docs/testing.md`); `null` is an unknown capture. A GPU run replaces its device's observation of
+each probe it ran; errors and unrun scenarios keep what was recorded. Nothing prunes observations
+automatically, since they cannot be re-recorded without the GPU:
+`python -m tests.harness.device_evidence unmatched` reports those no current scenario runs (at
+`--sample 100`), and `prune` removes them.
 
+A scenario's verdict (`device_evidence.judge`) is `fail` when a recorded capture disagrees with
+its current expectation on any device, `pass` when one observation agrees in every compared
+capture, `unknown` when every observation lacks one, and `unobserved` without observations.
 `tests/evidence.py` credits a target word directly as `cases/FAMILY` when every GPU scenario for it
-in the evidence run's selection (its `--sample`) has passed, independent of wrapper instructions
+in the evidence run's selection (its `--sample`) passes, independent of wrapper instructions
 and whole-kernel data-path slicing, so new or changed cases leave only their own words unverified
-until a GPU run. Evidence refresh needs neither a GPU nor Ghidra and does not execute recorded
-passes. The families' cases are classified and fingerprinted shard by shard
+until a GPU run. It prints each `fail` as a hardware disagreement and writes the verdict counts per
+family, which `sass-coverage` commits as `processor/SASS/semantics/gpu_verdicts.json`: a change to
+a comparison, expectation or reference shows there as flipped verdicts. `test_gpu_observations.py`
+(default suite, about 20 s per architecture) fails on any disagreement for the selected `--arch`
+and `--family`. Evidence refresh needs neither a GPU nor Ghidra and does not execute recorded
+observations. The families' cases are classified, keyed and judged shard by shard
 (`harness/device_evidence.py` `summaries`, over `harness/sharded.py`); reference evidence streams
 the same shards on every core.
 

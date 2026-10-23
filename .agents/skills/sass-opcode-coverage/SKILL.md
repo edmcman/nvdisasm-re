@@ -34,11 +34,12 @@ Read this before choosing work, because the counting rules decide what earns cre
 - Reference evidence comes from the default 0% sample (`sass-refresh-coverage` keeps the
   committed artifacts at 0%), which keeps at least one scenario per available form; a
   higher `--sample` adds inputs, not forms. See `tests/README.md` "Sampling".
-- GPU evidence (recorded per architecture) comes from `tests/baseline/gpu_case_passes.json` (shared cases,
-  one fingerprint per passing scenario) and from passing whole-kernel fixtures' data paths
-  (`tests/baseline/gpu_passes.json`). A run keeps unrun scenarios' passes and drops failing
-  ones; a word counts once every current GPU scenario for it has passed, so new cases need
-  only a run of their family (`--family F`).
+- GPU evidence (recorded per architecture) comes from `tests/baseline/gpu_observations/` (shared
+  cases: what each probe returned, re-judged against the current expectations) and from passing
+  whole-kernel fixtures' data paths (`tests/baseline/gpu_passes.json`). A run replaces the
+  observations of the scenarios it ran and keeps the rest; a word counts once every current GPU
+  scenario for it passes, so new cases need only a run of their family (`--family F`), and a
+  changed reference needs none unless its scenarios now disagree (`test_gpu_observations.py`).
 - The shared-case plans (`tests/cases/generated/SMxx.json`) hold one row per legal form
   that an adapter can generate. A blocked form simply has no row; the planner's report,
   committed beside each plan as `tests/cases/generated/SMxx.gaps.json`, gives the reason.

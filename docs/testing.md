@@ -74,7 +74,8 @@ Caller-controlled input sampling (2026-10-21; mechanism in
   outputs. `tests/harness/device_cases.py` batches scalar probes and isolates faults in bounded
   subprocesses; `device_setup.py` binds memory, lanes and runtime windows. Unknown state is an
   error, and model-only cases report explicit reasons. `device_evidence.py` records passes in
-  `tests/baseline/gpu_case_passes.json` (per scenario since 2026-10-22, below);
+  `tests/baseline/gpu_case_passes.json` (per scenario since 2026-10-22, below; observations
+  instead since 2026-10-23);
   `tests/evidence.py` credits the tested word directly as `cases/FAMILY`. Records never replace
   execution. Existing whole-kernel fixtures and their evidence remain integration coverage. Sampling
   originally followed `Cases.sweep`; the percentage policy ([Sampling](#sampling)) supersedes it.
@@ -278,6 +279,38 @@ How the planner, plans, profiles and adapters work is in
   through the existing `source_modifiers` reference (absolute before negation). SM89 hardware
   validates all 64,022 fp64 shared-case scenarios. The seeded manual FP64 corpus stays for its
   denser rounding and cancellation inputs.
+
+## GPU observations instead of pass fingerprints (2026-10-23, #63)
+
+Pass fingerprints hashed the expectation and the comparison code, so any change to how results
+are judged expired every recorded pass: #61's bitwise NaN comparison would have taken SM90 GPU
+evidence from 599 classes to 141 had the H100 not been available to re-record it. GPU access may
+end, so what the GPU returned is now the durable record (`tests/README.md` "Shared-case hardware
+evidence"): observations keyed by the probe alone, judged afresh when evidence is built.
+
+The existing passes were converted without a GPU (`research/migrate_gpu_passes.py`, run at #61's
+01129e0). A scenario whose current fingerprint had passed was judged by exactly that comparison
+against exactly that expectation, so each exactly compared capture held its expected value. Only
+captures the comparison tolerated (an FP8 NaN byte, none in the current cases) or skipped (memory
+regions after the first) would be unknown. All 128,279 SM89 and 142,822 SM90 current GPU
+scenarios matched; the remaining 127,678 and 142,193 fingerprints were main-era ones no current
+scenario builds. The same inference at main 60cfa3a, where F16 NaN lanes were still tolerated
+(238 SM89 and 241 SM90 scenarios unknown there), added 8,207 and 8,398 observations of probes that
+no longer run and conflicted with none. Judged by the new path, the observations verify exactly the
+words the fingerprints did (110,870 SM89, 124,530 SM90), every GPU scenario passing. Run on main's
+comparison alone, the unknown F16 NaN lanes would have dropped 36 SM89 and 38 SM90 F2FP forms: the
+inference must run on the comparison that recorded the passes.
+
+## Committed evidence encoding (2026-10-23)
+
+`processor/SASS/semantics/evidence.json` had grown to 86 MB (49 MB on 2026-10-19), 84.7 MB of it
+form rows: 946,597 reference and 229,659 GPU rows, each spelling every modifier label, the GPU rows
+almost all repeating reference rows (1,090 of 1,121 classes). `sass.sleigh.coverage.compact` now
+stores each class's labels once per modifier (`labels`) and each form once, as a string of label
+indices (one base-36 digit per modifier, at most 17 labels with `null` seen), under the evidence
+kinds that ran it (`"gpu+reference"`); `coverage.expand` restores the `tests/evidence.py` rows.
+13.7 MB, lossless over every class (`sass_smXX_evidence.json`, which `sass-coverage` reads, keeps the
+expanded rows).
 
 ## Verification evidence and the coverage report
 

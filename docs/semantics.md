@@ -129,7 +129,8 @@ Reading notes:
   [`coverage.json`](../processor/SASS/semantics/coverage.json) is the committed compact ledger for all
   architectures. Verification evidence is per class, derived from the tests into
   [`evidence.json`](../processor/SASS/semantics/evidence.json): SM89 GPU fixture targets, `tests/ptx`
-  probes and reference emulator cases (`tests/evidence.py`).
+  probes and reference emulator cases (`tests/evidence.py`), its forms encoded compactly
+  (`sass.sleigh.coverage.compact`; `expand` decodes them).
 - `uv run sass-census SMxx...` ranks classes in the real corpus by static occurrence and
   native/primitive/opaque status (each word's status is its family's decision for that encoding, via
   `lifter`; ~2 min per arch on 32 cores).

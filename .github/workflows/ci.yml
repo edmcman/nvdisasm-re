@@ -60,6 +60,7 @@ jobs:
           path: |
             processor/SASS/data/languages/sass_sm*_coverage.json
             processor/SASS/data/languages/sass_sm*_evidence.json
+            processor/SASS/data/languages/sass_sm*_gpu_verdicts.json
   up-to-date:
     needs: generate
     runs-on: ubuntu-latest

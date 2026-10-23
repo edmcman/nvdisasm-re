@@ -96,7 +96,8 @@ def on_data_path(g, code):
 def gpu(arch="SM89", sample=sampling.DEFAULT):
     """(class, settings, fixture name) for the target instructions on the data path of a GPU fixture
     that passed on the GPU exactly as it is now (tests/baseline/gpu_passes.json, written by `pytest -m gpu`), and
-    the shared cases at `sample` whose every GPU scenario passed (tests/baseline/gpu_case_passes.json)."""
+    the shared cases at `sample` whose every GPU scenario passes on its recorded observations
+    (tests/baseline/gpu_observations)."""
     g, out = Gen(arch), []
     for f in (f for _, f in gpu_fixtures(arch=arch) if passed(f)):
         code = Template(f.image, f.kernel).code
@@ -107,6 +108,15 @@ def gpu(arch="SM89", sample=sampling.DEFAULT):
         d = pydecode.decode(arch, bytes.fromhex(word))
         out.append((d.klass.name, settings(arch, d), 'cases/' + family))
     return out
+
+
+def verdicts(arch, sample=sampling.DEFAULT):
+    """{family: {verdict: GPU scenarios}} of the recorded observations; prints those that disagree with
+    the current expectations, as a GPU run would report them."""
+    from tests.harness import device_evidence
+    for s in device_evidence.summaries(FAMILIES, sample, arch=arch).values():
+        for id, _, problems in s['failures']: print(f"{arch}: hardware disagreement {id}: {'; '.join(problems)}", flush=True)
+    return device_evidence.verdicts(arch, sample)
 
 
 def ptxas(arch):
@@ -167,6 +177,7 @@ def main():
     for arch, rows in zip(a.architectures, probes):
         sources = {"gpu": gpu(arch, sample) if arch in ("SM89", "SM90") else [], "ptxas": rows}
         update(a.output / f"sass_{arch.lower()}_evidence.json", json.dumps(evidence(sources, found[arch]), indent=1, sort_keys=True) + "\n")
+        if arch in ("SM89", "SM90"): update(a.output / f"sass_{arch.lower()}_gpu_verdicts.json", json.dumps(verdicts(arch, sample), indent=1, sort_keys=True) + "\n")
 
 
 if __name__ == "__main__":
