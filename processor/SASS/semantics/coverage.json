@@ -43024,17 +43024,19 @@
         "reference": 15
       },
       "BMSK": {
-        "gpu": 10
+        "gpu": 4,
+        "reference": 6
       },
       "BRA": {
-        "gpu": 9,
-        "reference": 3
+        "gpu": 1,
+        "reference": 11
       },
       "BREAK": {
         "reference": 2
       },
       "BREV": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "BSSY": {
         "reference": 2
@@ -43050,266 +43052,312 @@
         "reference": 1
       },
       "DADD": {
-        "gpu": 272
+        "gpu": 4,
+        "reference": 268
       },
       "DFMA": {
-        "gpu": 1920
+        "gpu": 4,
+        "reference": 1916
       },
       "DMUL": {
-        "gpu": 272
+        "gpu": 4,
+        "reference": 268
       },
       "DSETP": {
-        "gpu": 6528
+        "gpu": 1,
+        "reference": 6527
       },
       "ELECT": {
-        "gpu": 2
+        "reference": 2
       },
       "EXIT": {
         "reference": 4
       },
       "F2F": {
-        "gpu": 536
+        "gpu": 7,
+        "reference": 529
       },
       "F2FP": {
-        "gpu": 618,
-        "none": 282
+        "gpu": 97,
+        "none": 282,
+        "reference": 521
       },
       "F2I": {
-        "gpu": 4032,
-        "none": 2112
+        "gpu": 32,
+        "none": 2112,
+        "reference": 4000
       },
       "F2IP": {
-        "gpu": 18
+        "gpu": 3,
+        "reference": 15
       },
       "FADD": {
-        "gpu": 1088
+        "gpu": 5,
+        "reference": 1083
       },
       "FCHK": {
-        "gpu": 68
+        "gpu": 4,
+        "reference": 64
       },
       "FFMA": {
-        "gpu": 11520
+        "gpu": 5,
+        "reference": 11515
       },
       "FLO": {
-        "gpu": 16,
-        "none": 20
+        "gpu": 4,
+        "none": 20,
+        "reference": 12
       },
       "FMNMX": {
-        "gpu": 1088
+        "gpu": 9,
+        "reference": 1079
       },
       "FMUL": {
-        "gpu": 11424
+        "gpu": 4,
+        "reference": 11420
       },
       "FRND": {
-        "gpu": 240
+        "gpu": 9,
+        "reference": 231
       },
       "FSEL": {
-        "gpu": 272
+        "gpu": 1,
+        "reference": 271
       },
       "FSET": {
-        "gpu": 13056
+        "gpu": 20,
+        "reference": 13036
       },
       "FSETP": {
-        "gpu": 13056
+        "gpu": 1,
+        "reference": 13055
       },
       "HADD2": {
-        "gpu": 246,
-        "none": 1518
+        "gpu": 49,
+        "none": 1518,
+        "reference": 197
       },
       "HFMA2": {
-        "gpu": 433,
-        "none": 24335
+        "gpu": 1,
+        "none": 24335,
+        "reference": 432
       },
       "HFMA2.MMA": {
-        "gpu": 14,
-        "none": 307
-      },
-      "HMNMX2": {
-        "gpu": 658,
-        "none": 17198
-      },
-      "HMUL2": {
-        "gpu": 277,
-        "none": 3818,
-        "reference": 21
-      },
-      "HSET2": {
-        "gpu": 22477,
-        "none": 316211
-      },
-      "HSETP2": {
-        "gpu": 22477,
-        "none": 316211
-      },
-      "I2F": {
-        "gpu": 792,
-        "none": 264
-      },
-      "I2FP": {
-        "gpu": 20
-      },
-      "I2IP": {
-        "gpu": 150
-      },
-      "IABS": {
-        "gpu": 5
-      },
-      "IADD3": {
-        "gpu": 140
-      },
-      "IDP": {
-        "gpu": 96
-      },
-      "IMAD": {
-        "gpu": 304,
-        "none": 13,
-        "reference": 8
-      },
-      "IMNMX": {
-        "gpu": 20
-      },
-      "ISETP": {
-        "gpu": 1440
-      },
-      "LD": {
-        "gpu": 1922,
-        "none": 6838,
-        "reference": 480
-      },
-      "LDC": {
-        "gpu": 6,
-        "none": 1,
-        "reference": 5
-      },
-      "LDG": {
-        "gpu": 11,
-        "none": 14767,
+        "gpu": 7,
+        "none": 308,
         "reference": 6
       },
+      "HMNMX2": {
+        "gpu": 51,
+        "none": 17198,
+        "reference": 607
+      },
+      "HMUL2": {
+        "gpu": 1,
+        "none": 3818,
+        "reference": 297
+      },
+      "HSET2": {
+        "gpu": 23,
+        "none": 316211,
+        "reference": 22454
+      },
+      "HSETP2": {
+        "gpu": 25,
+        "none": 316211,
+        "reference": 22452
+      },
+      "I2F": {
+        "gpu": 23,
+        "none": 264,
+        "reference": 769
+      },
+      "I2FP": {
+        "gpu": 1,
+        "reference": 19
+      },
+      "I2IP": {
+        "gpu": 31,
+        "reference": 119
+      },
+      "IABS": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "IADD3": {
+        "gpu": 16,
+        "reference": 124
+      },
+      "IDP": {
+        "gpu": 12,
+        "reference": 84
+      },
+      "IMAD": {
+        "gpu": 25,
+        "none": 15,
+        "reference": 280
+      },
+      "IMNMX": {
+        "reference": 20
+      },
+      "ISETP": {
+        "gpu": 7,
+        "reference": 1433
+      },
+      "LD": {
+        "gpu": 3,
+        "none": 6838,
+        "reference": 2399
+      },
+      "LDC": {
+        "gpu": 2,
+        "none": 1,
+        "reference": 9
+      },
+      "LDG": {
+        "gpu": 4,
+        "none": 14767,
+        "reference": 13
+      },
       "LDL": {
-        "gpu": 92,
+        "gpu": 1,
         "none": 46,
-        "reference": 30
+        "reference": 121
       },
       "LDS": {
-        "gpu": 37,
+        "gpu": 2,
         "none": 16,
-        "reference": 10
+        "reference": 45
       },
       "LEA": {
-        "gpu": 132
+        "gpu": 18,
+        "reference": 114
       },
       "LOP3": {
-        "gpu": 20
+        "gpu": 4,
+        "reference": 16
       },
       "MATCH": {
-        "gpu": 4
+        "gpu": 3,
+        "reference": 1
       },
       "MOV": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 3,
+        "none": 1,
+        "reference": 1
       },
       "MUFU": {
-        "gpu": 42,
+        "gpu": 10,
         "none": 655,
-        "reference": 1
+        "reference": 33
       },
       "NOP": {
         "reference": 1
       },
       "P2R": {
-        "gpu": 20
+        "gpu": 14,
+        "reference": 6
       },
       "PLOP3": {
-        "gpu": 16
+        "gpu": 4,
+        "reference": 12
       },
       "POPC": {
-        "gpu": 9
+        "gpu": 1,
+        "reference": 8
       },
       "PRMT": {
-        "gpu": 63
+        "gpu": 1,
+        "reference": 62
       },
       "QSPC": {
-        "gpu": 3,
         "none": 6,
-        "reference": 19
+        "reference": 22
       },
       "R2P": {
-        "gpu": 20
+        "gpu": 14,
+        "reference": 6
       },
       "R2UR": {
         "gpu": 1
       },
       "REDUX": {
-        "gpu": 12
+        "gpu": 8,
+        "reference": 4
       },
       "RET": {
         "reference": 8
       },
       "S2R": {
-        "gpu": 1
+        "reference": 1
       },
       "S2UR": {
-        "gpu": 1
+        "reference": 1
       },
       "SEL": {
-        "gpu": 10
+        "gpu": 2,
+        "reference": 8
       },
       "SGXT": {
-        "gpu": 20
+        "reference": 20
       },
       "SHF": {
-        "gpu": 288
+        "gpu": 3,
+        "reference": 285
       },
       "SHFL": {
-        "gpu": 16
+        "gpu": 5,
+        "reference": 11
       },
       "ST": {
-        "gpu": 960,
+        "gpu": 2,
         "none": 3210,
-        "reference": 240
+        "reference": 1198
       },
       "STG": {
-        "gpu": 961,
+        "gpu": 2,
         "none": 5135,
-        "reference": 960
+        "reference": 1919
       },
       "STL": {
-        "gpu": 91,
+        "gpu": 1,
         "none": 47,
-        "reference": 30
+        "reference": 120
       },
       "STS": {
-        "gpu": 35,
+        "gpu": 1,
         "none": 18,
-        "reference": 10
+        "reference": 44
       },
       "UBREV": {
-        "gpu": 2
+        "reference": 2
       },
       "UF2FP": {
-        "gpu": 12
+        "reference": 12
       },
       "UFLO": {
         "none": 12
       },
       "UIADD3": {
-        "gpu": 50
+        "reference": 50
       },
       "UIMAD": {
-        "gpu": 54
+        "reference": 54
       },
       "UISETP": {
-        "gpu": 576
+        "gpu": 2,
+        "reference": 574
       },
       "ULDC": {
-        "gpu": 6
+        "gpu": 2,
+        "reference": 4
       },
       "ULEA": {
-        "gpu": 51
+        "reference": 51
       },
       "ULOP3": {
-        "gpu": 8
+        "gpu": 1,
+        "reference": 7
       },
       "UMOV": {
         "gpu": 2
@@ -43318,44 +43366,49 @@
         "gpu": 1
       },
       "UPLOP3": {
-        "gpu": 8
+        "reference": 8
       },
       "UPOPC": {
-        "gpu": 3
+        "reference": 3
       },
       "UPRMT": {
-        "gpu": 2
+        "reference": 2
       },
       "USEL": {
-        "gpu": 4
+        "reference": 4
       },
       "USGXT": {
-        "gpu": 8
+        "reference": 8
       },
       "USHF": {
-        "gpu": 96
+        "gpu": 2,
+        "reference": 94
       },
       "VABSDIFF4": {
-        "gpu": 32,
-        "none": 4
+        "gpu": 8,
+        "none": 4,
+        "reference": 24
       },
       "VIADD": {
-        "gpu": 9
+        "reference": 9
       },
       "VIADDMNMX": {
-        "gpu": 204
+        "reference": 204
       },
       "VIMNMX": {
-        "gpu": 60
+        "gpu": 1,
+        "reference": 59
       },
       "VIMNMX3": {
-        "gpu": 60
+        "reference": 60
       },
       "VOTE": {
-        "gpu": 6
+        "gpu": 5,
+        "reference": 1
       },
       "VOTEU": {
-        "gpu": 6
+        "gpu": 2,
+        "reference": 4
       },
       "WARPSYNC": {
         "reference": 10
@@ -44028,9 +44081,9 @@
       }
     },
     "evidence": {
-      "gpu": 599,
+      "gpu": 141,
       "none": 38,
-      "reference": 71
+      "reference": 529
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -44123,17 +44176,19 @@
         "reference": 14
       },
       "BMSK": {
-        "gpu": 5
+        "gpu": 2,
+        "reference": 3
       },
       "BRA": {
-        "gpu": 2,
-        "reference": 1
+        "gpu": 1,
+        "reference": 2
       },
       "BREAK": {
         "reference": 1
       },
       "BREV": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "BSSY": {
         "reference": 1
@@ -44148,154 +44203,189 @@
         "gpu": 1
       },
       "DADD": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "DFMA": {
-        "gpu": 9
+        "gpu": 1,
+        "reference": 8
       },
       "DMUL": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "DSETP": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "ELECT": {
-        "gpu": 1
+        "reference": 1
       },
       "EXIT": {
         "reference": 1
       },
       "F2F": {
-        "gpu": 25
+        "gpu": 3,
+        "reference": 22
       },
       "F2FP": {
-        "gpu": 28,
-        "none": 14
+        "gpu": 7,
+        "none": 14,
+        "reference": 21
       },
       "F2I": {
-        "gpu": 28,
-        "none": 10
+        "gpu": 6,
+        "none": 10,
+        "reference": 22
       },
       "F2IP": {
-        "gpu": 9
+        "gpu": 2,
+        "reference": 7
       },
       "FADD": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "FCHK": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "FFMA": {
-        "gpu": 9
+        "gpu": 1,
+        "reference": 8
       },
       "FLO": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 1,
+        "none": 1,
+        "reference": 3
       },
       "FMNMX": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "FMUL": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "FRND": {
-        "gpu": 9
+        "gpu": 2,
+        "reference": 7
       },
       "FSEL": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "FSET": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "FSETP": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "HADD2": {
-        "gpu": 10
+        "gpu": 2,
+        "reference": 8
       },
       "HFMA2": {
-        "gpu": 9
+        "gpu": 1,
+        "reference": 8
       },
       "HFMA2.MMA": {
         "gpu": 3
       },
       "HMNMX2": {
-        "gpu": 10
+        "gpu": 3,
+        "reference": 7
       },
       "HMUL2": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "HSET2": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "HSETP2": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "I2F": {
-        "gpu": 38
+        "gpu": 6,
+        "reference": 32
       },
       "I2FP": {
-        "gpu": 6
+        "gpu": 1,
+        "reference": 5
       },
       "I2IP": {
-        "gpu": 15
+        "gpu": 4,
+        "reference": 11
       },
       "IABS": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "IADD3": {
-        "gpu": 10
+        "gpu": 3,
+        "reference": 7
       },
       "IDP": {
-        "gpu": 8
+        "gpu": 2,
+        "reference": 6
       },
       "IMAD": {
-        "gpu": 52,
-        "none": 3
+        "gpu": 13,
+        "none": 3,
+        "reference": 39
       },
       "IMNMX": {
-        "gpu": 5
+        "reference": 5
       },
       "ISETP": {
-        "gpu": 10
+        "gpu": 3,
+        "reference": 7
       },
       "LD": {
-        "gpu": 4,
-        "reference": 1
+        "gpu": 1,
+        "reference": 4
       },
       "LDC": {
         "gpu": 2
       },
       "LDG": {
-        "gpu": 2,
+        "gpu": 1,
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "LDL": {
-        "gpu": 3,
-        "reference": 1
+        "gpu": 1,
+        "reference": 3
       },
       "LDS": {
         "gpu": 2,
         "reference": 1
       },
       "LEA": {
-        "gpu": 32
+        "gpu": 6,
+        "reference": 26
       },
       "LOP3": {
-        "gpu": 5
+        "gpu": 3,
+        "reference": 2
       },
       "MATCH": {
         "gpu": 2
       },
       "MOV": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 3,
+        "none": 1,
+        "reference": 1
       },
       "MUFU": {
-        "gpu": 5,
+        "gpu": 1,
         "none": 4,
-        "reference": 1
+        "reference": 5
       },
       "NOP": {
         "reference": 1
@@ -44304,17 +44394,19 @@
         "gpu": 5
       },
       "PLOP3": {
-        "gpu": 2
+        "gpu": 1,
+        "reference": 1
       },
       "POPC": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "PRMT": {
-        "gpu": 9
+        "gpu": 1,
+        "reference": 8
       },
       "QSPC": {
-        "gpu": 1,
-        "reference": 3
+        "reference": 4
       },
       "R2P": {
         "gpu": 5
@@ -44329,65 +44421,70 @@
         "reference": 4
       },
       "S2R": {
-        "gpu": 1
+        "reference": 1
       },
       "S2UR": {
-        "gpu": 1
+        "reference": 1
       },
       "SEL": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "SGXT": {
-        "gpu": 5
+        "reference": 5
       },
       "SHF": {
-        "gpu": 9
+        "gpu": 2,
+        "reference": 7
       },
       "SHFL": {
-        "gpu": 4
+        "gpu": 2,
+        "reference": 2
       },
       "ST": {
-        "gpu": 4,
-        "reference": 1
+        "gpu": 1,
+        "reference": 4
       },
       "STG": {
-        "gpu": 4,
-        "reference": 1
+        "gpu": 1,
+        "reference": 4
       },
       "STL": {
-        "gpu": 3,
-        "reference": 1
+        "gpu": 1,
+        "reference": 3
       },
       "STS": {
-        "gpu": 2,
-        "reference": 1
+        "gpu": 1,
+        "reference": 2
       },
       "UBREV": {
-        "gpu": 2
+        "reference": 2
       },
       "UF2FP": {
-        "gpu": 4
+        "reference": 4
       },
       "UFLO": {
         "none": 2
       },
       "UIADD3": {
-        "gpu": 4
+        "reference": 4
       },
       "UIMAD": {
-        "gpu": 10
+        "reference": 10
       },
       "UISETP": {
-        "gpu": 4
+        "gpu": 1,
+        "reference": 3
       },
       "ULDC": {
         "gpu": 1
       },
       "ULEA": {
-        "gpu": 14
+        "reference": 14
       },
       "ULOP3": {
-        "gpu": 2
+        "gpu": 1,
+        "reference": 1
       },
       "UMOV": {
         "gpu": 2
@@ -44396,38 +44493,41 @@
         "gpu": 1
       },
       "UPLOP3": {
-        "gpu": 1
+        "reference": 1
       },
       "UPOPC": {
-        "gpu": 2
+        "reference": 2
       },
       "UPRMT": {
-        "gpu": 2
+        "reference": 2
       },
       "USEL": {
-        "gpu": 2
+        "reference": 2
       },
       "USGXT": {
-        "gpu": 2
+        "reference": 2
       },
       "USHF": {
-        "gpu": 3
+        "gpu": 1,
+        "reference": 2
       },
       "VABSDIFF4": {
-        "gpu": 8,
-        "none": 1
+        "gpu": 2,
+        "none": 1,
+        "reference": 6
       },
       "VIADD": {
-        "gpu": 5
+        "reference": 5
       },
       "VIADDMNMX": {
-        "gpu": 9
+        "reference": 9
       },
       "VIMNMX": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "VIMNMX3": {
-        "gpu": 5
+        "reference": 5
       },
       "VOTE": {
         "gpu": 1
@@ -45514,17 +45614,19 @@
         "reference": 15
       },
       "BMSK": {
-        "gpu": 10
+        "gpu": 4,
+        "reference": 6
       },
       "BRA": {
-        "gpu": 9,
-        "reference": 3
+        "gpu": 1,
+        "reference": 11
       },
       "BREAK": {
         "reference": 2
       },
       "BREV": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "BSSY": {
         "reference": 2
@@ -45540,268 +45642,312 @@
         "reference": 1
       },
       "DADD": {
-        "gpu": 272
+        "gpu": 4,
+        "reference": 268
       },
       "DFMA": {
-        "gpu": 1920
+        "gpu": 4,
+        "reference": 1916
       },
       "DMUL": {
-        "gpu": 272
+        "gpu": 4,
+        "reference": 268
       },
       "DSETP": {
-        "gpu": 6528
+        "gpu": 1,
+        "reference": 6527
       },
       "ELECT": {
-        "gpu": 2
+        "reference": 2
       },
       "EXIT": {
         "reference": 4
       },
       "F2F": {
-        "gpu": 536
+        "gpu": 7,
+        "reference": 529
       },
       "F2FP": {
-        "gpu": 618,
-        "none": 282
+        "gpu": 97,
+        "none": 282,
+        "reference": 521
       },
       "F2I": {
-        "gpu": 4032,
-        "none": 2112
+        "gpu": 32,
+        "none": 2112,
+        "reference": 4000
       },
       "F2IP": {
-        "gpu": 18
+        "gpu": 3,
+        "reference": 15
       },
       "FADD": {
-        "gpu": 1088
+        "gpu": 5,
+        "reference": 1083
       },
       "FCHK": {
-        "gpu": 68
+        "gpu": 4,
+        "reference": 64
       },
       "FFMA": {
-        "gpu": 11520
+        "gpu": 5,
+        "reference": 11515
       },
       "FLO": {
-        "gpu": 16,
-        "none": 20
+        "gpu": 4,
+        "none": 20,
+        "reference": 12
       },
       "FMNMX": {
-        "gpu": 1088
+        "gpu": 9,
+        "reference": 1079
       },
       "FMUL": {
-        "gpu": 11424
+        "gpu": 4,
+        "reference": 11420
       },
       "FRND": {
-        "gpu": 240
+        "gpu": 9,
+        "reference": 231
       },
       "FSEL": {
-        "gpu": 272
+        "gpu": 1,
+        "reference": 271
       },
       "FSET": {
-        "gpu": 13056
+        "gpu": 20,
+        "reference": 13036
       },
       "FSETP": {
-        "gpu": 13056
+        "gpu": 1,
+        "reference": 13055
       },
       "HADD2": {
-        "gpu": 246,
+        "gpu": 49,
         "none": 2693,
-        "reference": 1
+        "reference": 198
       },
       "HFMA2": {
-        "gpu": 433,
+        "gpu": 1,
         "none": 98638,
-        "reference": 1
+        "reference": 433
       },
       "HFMA2.MMA": {
-        "gpu": 14,
-        "none": 309
-      },
-      "HMNMX2": {
-        "gpu": 658,
-        "none": 17198
-      },
-      "HMUL2": {
-        "gpu": 277,
-        "none": 3818,
-        "reference": 21
-      },
-      "HSET2": {
-        "gpu": 22477,
-        "none": 316211
-      },
-      "HSETP2": {
-        "gpu": 22477,
-        "none": 316211
-      },
-      "I2F": {
-        "gpu": 792,
-        "none": 264
-      },
-      "I2FP": {
-        "gpu": 20
-      },
-      "I2IP": {
-        "gpu": 150
-      },
-      "IABS": {
-        "gpu": 5
-      },
-      "IADD3": {
-        "gpu": 140
-      },
-      "IDP": {
-        "gpu": 96
-      },
-      "IMAD": {
-        "gpu": 304,
-        "none": 13,
-        "reference": 8
-      },
-      "IMNMX": {
-        "gpu": 20
-      },
-      "ISETP": {
-        "gpu": 1440
-      },
-      "LD": {
-        "gpu": 1922,
-        "none": 6838,
-        "reference": 480
-      },
-      "LDC": {
-        "gpu": 6,
-        "none": 1,
-        "reference": 5
-      },
-      "LDG": {
-        "gpu": 11,
-        "none": 14767,
+        "gpu": 7,
+        "none": 310,
         "reference": 6
       },
+      "HMNMX2": {
+        "gpu": 51,
+        "none": 17198,
+        "reference": 607
+      },
+      "HMUL2": {
+        "gpu": 1,
+        "none": 3818,
+        "reference": 297
+      },
+      "HSET2": {
+        "gpu": 23,
+        "none": 316211,
+        "reference": 22454
+      },
+      "HSETP2": {
+        "gpu": 25,
+        "none": 316211,
+        "reference": 22452
+      },
+      "I2F": {
+        "gpu": 23,
+        "none": 264,
+        "reference": 769
+      },
+      "I2FP": {
+        "gpu": 1,
+        "reference": 19
+      },
+      "I2IP": {
+        "gpu": 31,
+        "reference": 119
+      },
+      "IABS": {
+        "gpu": 1,
+        "reference": 4
+      },
+      "IADD3": {
+        "gpu": 16,
+        "reference": 124
+      },
+      "IDP": {
+        "gpu": 12,
+        "reference": 84
+      },
+      "IMAD": {
+        "gpu": 25,
+        "none": 15,
+        "reference": 280
+      },
+      "IMNMX": {
+        "reference": 20
+      },
+      "ISETP": {
+        "gpu": 7,
+        "reference": 1433
+      },
+      "LD": {
+        "gpu": 3,
+        "none": 6838,
+        "reference": 2399
+      },
+      "LDC": {
+        "gpu": 2,
+        "none": 1,
+        "reference": 9
+      },
+      "LDG": {
+        "gpu": 4,
+        "none": 14767,
+        "reference": 13
+      },
       "LDL": {
-        "gpu": 92,
+        "gpu": 1,
         "none": 46,
-        "reference": 30
+        "reference": 121
       },
       "LDS": {
-        "gpu": 37,
+        "gpu": 2,
         "none": 16,
-        "reference": 10
+        "reference": 45
       },
       "LEA": {
-        "gpu": 132
+        "gpu": 18,
+        "reference": 114
       },
       "LOP3": {
-        "gpu": 20
+        "gpu": 4,
+        "reference": 16
       },
       "MATCH": {
-        "gpu": 4
+        "gpu": 3,
+        "reference": 1
       },
       "MOV": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 3,
+        "none": 1,
+        "reference": 1
       },
       "MUFU": {
-        "gpu": 42,
+        "gpu": 10,
         "none": 655,
-        "reference": 1
+        "reference": 33
       },
       "NOP": {
         "reference": 1
       },
       "P2R": {
-        "gpu": 20
+        "gpu": 14,
+        "reference": 6
       },
       "PLOP3": {
-        "gpu": 16
+        "gpu": 4,
+        "reference": 12
       },
       "POPC": {
-        "gpu": 9
+        "gpu": 1,
+        "reference": 8
       },
       "PRMT": {
-        "gpu": 63
+        "gpu": 1,
+        "reference": 62
       },
       "QSPC": {
-        "gpu": 3,
         "none": 6,
-        "reference": 19
+        "reference": 22
       },
       "R2P": {
-        "gpu": 20
+        "gpu": 14,
+        "reference": 6
       },
       "R2UR": {
         "gpu": 1
       },
       "REDUX": {
-        "gpu": 12
+        "gpu": 8,
+        "reference": 4
       },
       "RET": {
         "reference": 8
       },
       "S2R": {
-        "gpu": 1
+        "reference": 1
       },
       "S2UR": {
-        "gpu": 1
+        "reference": 1
       },
       "SEL": {
-        "gpu": 10
+        "gpu": 2,
+        "reference": 8
       },
       "SGXT": {
-        "gpu": 20
+        "reference": 20
       },
       "SHF": {
-        "gpu": 288
+        "gpu": 3,
+        "reference": 285
       },
       "SHFL": {
-        "gpu": 16
+        "gpu": 5,
+        "reference": 11
       },
       "ST": {
-        "gpu": 960,
+        "gpu": 2,
         "none": 3210,
-        "reference": 240
+        "reference": 1198
       },
       "STG": {
-        "gpu": 961,
+        "gpu": 2,
         "none": 5135,
-        "reference": 960
+        "reference": 1919
       },
       "STL": {
-        "gpu": 91,
+        "gpu": 1,
         "none": 47,
-        "reference": 30
+        "reference": 120
       },
       "STS": {
-        "gpu": 35,
+        "gpu": 1,
         "none": 18,
-        "reference": 10
+        "reference": 44
       },
       "UBREV": {
-        "gpu": 2
+        "reference": 2
       },
       "UF2FP": {
-        "gpu": 12
+        "reference": 12
       },
       "UFLO": {
         "none": 12
       },
       "UIADD3": {
-        "gpu": 50
+        "reference": 50
       },
       "UIMAD": {
-        "gpu": 54
+        "reference": 54
       },
       "UISETP": {
-        "gpu": 576
+        "gpu": 2,
+        "reference": 574
       },
       "ULDC": {
-        "gpu": 6
+        "gpu": 2,
+        "reference": 4
       },
       "ULEA": {
-        "gpu": 51
+        "reference": 51
       },
       "ULOP3": {
-        "gpu": 8
+        "gpu": 1,
+        "reference": 7
       },
       "UMOV": {
         "gpu": 2
@@ -45810,44 +45956,49 @@
         "gpu": 1
       },
       "UPLOP3": {
-        "gpu": 8
+        "reference": 8
       },
       "UPOPC": {
-        "gpu": 3
+        "reference": 3
       },
       "UPRMT": {
-        "gpu": 2
+        "reference": 2
       },
       "USEL": {
-        "gpu": 4
+        "reference": 4
       },
       "USGXT": {
-        "gpu": 8
+        "reference": 8
       },
       "USHF": {
-        "gpu": 96
+        "gpu": 2,
+        "reference": 94
       },
       "VABSDIFF4": {
-        "gpu": 32,
-        "none": 4
+        "gpu": 8,
+        "none": 4,
+        "reference": 24
       },
       "VIADD": {
-        "gpu": 9
+        "reference": 9
       },
       "VIADDMNMX": {
-        "gpu": 204
+        "reference": 204
       },
       "VIMNMX": {
-        "gpu": 60
+        "gpu": 1,
+        "reference": 59
       },
       "VIMNMX3": {
-        "gpu": 60
+        "reference": 60
       },
       "VOTE": {
-        "gpu": 6
+        "gpu": 5,
+        "reference": 1
       },
       "VOTEU": {
-        "gpu": 6
+        "gpu": 2,
+        "reference": 4
       },
       "WARPSYNC": {
         "reference": 10
@@ -46520,9 +46671,9 @@
       }
     },
     "evidence": {
-      "gpu": 599,
+      "gpu": 141,
       "none": 38,
-      "reference": 71
+      "reference": 529
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -46615,17 +46766,19 @@
         "reference": 14
       },
       "BMSK": {
-        "gpu": 5
+        "gpu": 2,
+        "reference": 3
       },
       "BRA": {
-        "gpu": 2,
-        "reference": 1
+        "gpu": 1,
+        "reference": 2
       },
       "BREAK": {
         "reference": 1
       },
       "BREV": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "BSSY": {
         "reference": 1
@@ -46640,154 +46793,189 @@
         "gpu": 1
       },
       "DADD": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "DFMA": {
-        "gpu": 9
+        "gpu": 1,
+        "reference": 8
       },
       "DMUL": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "DSETP": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "ELECT": {
-        "gpu": 1
+        "reference": 1
       },
       "EXIT": {
         "reference": 1
       },
       "F2F": {
-        "gpu": 25
+        "gpu": 3,
+        "reference": 22
       },
       "F2FP": {
-        "gpu": 28,
-        "none": 14
+        "gpu": 7,
+        "none": 14,
+        "reference": 21
       },
       "F2I": {
-        "gpu": 28,
-        "none": 10
+        "gpu": 6,
+        "none": 10,
+        "reference": 22
       },
       "F2IP": {
-        "gpu": 9
+        "gpu": 2,
+        "reference": 7
       },
       "FADD": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "FCHK": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "FFMA": {
-        "gpu": 9
+        "gpu": 1,
+        "reference": 8
       },
       "FLO": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 1,
+        "none": 1,
+        "reference": 3
       },
       "FMNMX": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "FMUL": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "FRND": {
-        "gpu": 9
+        "gpu": 2,
+        "reference": 7
       },
       "FSEL": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "FSET": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "FSETP": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "HADD2": {
-        "gpu": 10
+        "gpu": 2,
+        "reference": 8
       },
       "HFMA2": {
-        "gpu": 9
+        "gpu": 1,
+        "reference": 8
       },
       "HFMA2.MMA": {
         "gpu": 3
       },
       "HMNMX2": {
-        "gpu": 10
+        "gpu": 3,
+        "reference": 7
       },
       "HMUL2": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "HSET2": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "HSETP2": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "I2F": {
-        "gpu": 38
+        "gpu": 6,
+        "reference": 32
       },
       "I2FP": {
-        "gpu": 6
+        "gpu": 1,
+        "reference": 5
       },
       "I2IP": {
-        "gpu": 15
+        "gpu": 4,
+        "reference": 11
       },
       "IABS": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "IADD3": {
-        "gpu": 10
+        "gpu": 3,
+        "reference": 7
       },
       "IDP": {
-        "gpu": 8
+        "gpu": 2,
+        "reference": 6
       },
       "IMAD": {
-        "gpu": 52,
-        "none": 3
+        "gpu": 13,
+        "none": 3,
+        "reference": 39
       },
       "IMNMX": {
-        "gpu": 5
+        "reference": 5
       },
       "ISETP": {
-        "gpu": 10
+        "gpu": 3,
+        "reference": 7
       },
       "LD": {
-        "gpu": 4,
-        "reference": 1
+        "gpu": 1,
+        "reference": 4
       },
       "LDC": {
         "gpu": 2
       },
       "LDG": {
-        "gpu": 2,
+        "gpu": 1,
         "none": 2,
-        "reference": 1
+        "reference": 2
       },
       "LDL": {
-        "gpu": 3,
-        "reference": 1
+        "gpu": 1,
+        "reference": 3
       },
       "LDS": {
         "gpu": 2,
         "reference": 1
       },
       "LEA": {
-        "gpu": 32
+        "gpu": 6,
+        "reference": 26
       },
       "LOP3": {
-        "gpu": 5
+        "gpu": 3,
+        "reference": 2
       },
       "MATCH": {
         "gpu": 2
       },
       "MOV": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 3,
+        "none": 1,
+        "reference": 1
       },
       "MUFU": {
-        "gpu": 5,
+        "gpu": 1,
         "none": 4,
-        "reference": 1
+        "reference": 5
       },
       "NOP": {
         "reference": 1
@@ -46796,17 +46984,19 @@
         "gpu": 5
       },
       "PLOP3": {
-        "gpu": 2
+        "gpu": 1,
+        "reference": 1
       },
       "POPC": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "PRMT": {
-        "gpu": 9
+        "gpu": 1,
+        "reference": 8
       },
       "QSPC": {
-        "gpu": 1,
-        "reference": 3
+        "reference": 4
       },
       "R2P": {
         "gpu": 5
@@ -46821,65 +47011,70 @@
         "reference": 4
       },
       "S2R": {
-        "gpu": 1
+        "reference": 1
       },
       "S2UR": {
-        "gpu": 1
+        "reference": 1
       },
       "SEL": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "SGXT": {
-        "gpu": 5
+        "reference": 5
       },
       "SHF": {
-        "gpu": 9
+        "gpu": 2,
+        "reference": 7
       },
       "SHFL": {
-        "gpu": 4
+        "gpu": 2,
+        "reference": 2
       },
       "ST": {
-        "gpu": 4,
-        "reference": 1
+        "gpu": 1,
+        "reference": 4
       },
       "STG": {
-        "gpu": 4,
-        "reference": 1
+        "gpu": 1,
+        "reference": 4
       },
       "STL": {
-        "gpu": 3,
-        "reference": 1
+        "gpu": 1,
+        "reference": 3
       },
       "STS": {
-        "gpu": 2,
-        "reference": 1
+        "gpu": 1,
+        "reference": 2
       },
       "UBREV": {
-        "gpu": 2
+        "reference": 2
       },
       "UF2FP": {
-        "gpu": 4
+        "reference": 4
       },
       "UFLO": {
         "none": 2
       },
       "UIADD3": {
-        "gpu": 4
+        "reference": 4
       },
       "UIMAD": {
-        "gpu": 10
+        "reference": 10
       },
       "UISETP": {
-        "gpu": 4
+        "gpu": 1,
+        "reference": 3
       },
       "ULDC": {
         "gpu": 1
       },
       "ULEA": {
-        "gpu": 14
+        "reference": 14
       },
       "ULOP3": {
-        "gpu": 2
+        "gpu": 1,
+        "reference": 1
       },
       "UMOV": {
         "gpu": 2
@@ -46888,38 +47083,41 @@
         "gpu": 1
       },
       "UPLOP3": {
-        "gpu": 1
+        "reference": 1
       },
       "UPOPC": {
-        "gpu": 2
+        "reference": 2
       },
       "UPRMT": {
-        "gpu": 2
+        "reference": 2
       },
       "USEL": {
-        "gpu": 2
+        "reference": 2
       },
       "USGXT": {
-        "gpu": 2
+        "reference": 2
       },
       "USHF": {
-        "gpu": 3
+        "gpu": 1,
+        "reference": 2
       },
       "VABSDIFF4": {
-        "gpu": 8,
-        "none": 1
+        "gpu": 2,
+        "none": 1,
+        "reference": 6
       },
       "VIADD": {
-        "gpu": 5
+        "reference": 5
       },
       "VIADDMNMX": {
-        "gpu": 9
+        "reference": 9
       },
       "VIMNMX": {
-        "gpu": 5
+        "gpu": 1,
+        "reference": 4
       },
       "VIMNMX3": {
-        "gpu": 5
+        "reference": 5
       },
       "VOTE": {
         "gpu": 1
