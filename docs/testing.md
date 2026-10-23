@@ -434,6 +434,27 @@ hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` 
   `desc[URx][Ra.64]` accesses: a scratch `out[i] = in[i] * 3 + blockDim.x` kernel gave the
   expected outputs on SM89, SM90, SM100 and SM120. The default descriptors stay 0 in bank 0. SM87's
   prologue needs BMOV barrier state from the environment.
+- One scheduler, two engines (2026-10-23): `ghidra_emulate.run_kernel`'s scheduling moved
+  unchanged into `sass.emulate.schedule` (seeding, lowest-PC warp turns, BAR.SYNC and WARPSYNC
+  holds, collectives' warp context, step limit, every error message, the response). Ghidra lanes
+  and the lifted semantics' lanes (`sass.emulate.reference`: `lifter.lift` per PC +
+  `evaluate.apply`, the in-place `execute`) both run under it, so whole kernels need no Ghidra.
+  `c.kernel` cases now also run in `test_lifted_semantics`, and `test_kernels_reference` runs every
+  SM89/SM90 fixture on the lifted engine (2032 items in 1.5 minutes). `test_kernel_parity`
+  (`-m ghidra`) requires identical responses from both engines on every fixture, including the
+  first 64 threads' traced writes; opaque errors are compared by pcodeop, since Ghidra names its
+  arguments and Python the lifter's reason. All 2032 match (7 minutes). Before #61 (the hardware
+  NaN rule, #49), 16 differed by NaN results of FP arithmetic: the IR returned IEEE +qNaN, the
+  exact lowering the host's -qNaN, and the GPU neither. The test tolerates only Ghidra 12.1.4's
+  minimum-subnormal underflow (section 3 of `docs/semantics.md`), and only where Python's output
+  is the hardware reference bit for bit and the fixture already accepts Ghidra's (`excused`,
+  `emulator_same`).
+- Inherent engine differences: p-code inspection (`__native`, `__max_ops`, `pcode_ops`) is
+  Ghidra-only; an instruction's `text` comes from SLEIGH on Ghidra and from pydecode in Python
+  (kernel traces use pydecode on both); Ghidra observes any SLEIGH register, the lifted harness
+  R/UR/P/UP and seeded SR; trace writes are p-code register outputs on Ghidra and lifted write
+  locations in Python (identical on every fixture so far); a non-cooperative thread still has no
+  warp context on either, so its collectives fail rather than act as a lone lane.
 
 ## Case construction
 

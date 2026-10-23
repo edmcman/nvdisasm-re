@@ -3,6 +3,7 @@ the selected GPU."""
 import json
 from functools import cache
 from sass import ghidra_bridge
+from sass.emulate import kernel, reference
 from sass.paths import ROOT
 from sass.sleigh.gen import MODES
 from tests.harness.gpu import Driver, Template, hits, mnemonic, request
@@ -63,12 +64,15 @@ def hardware_problems(f, gpu):
     return [mismatch(f, "gpu", gpu, bad)] if (bad := mismatches(gpu, f.expected, f.same)) else []
 
 
-def emulate(fixtures, modes=MODES):
-    """{(fixture name, mode): [problems]} for every fixture and each of its fp modes among `modes`."""
+def emulate(fixtures, modes=MODES, engine="ghidra"):
+    """{(arch, fixture name, mode): [problems]} for every fixture and each of its fp modes among
+    `modes`, on the Ghidra emulator, the lifted semantics (`engine="reference"`) or the native
+    emulator (`engine="native"`)."""
     selected = {mode: [f for f in fixtures if mode in f.modes] for mode in modes}
     groups = {(arch, mode): [f for f in fs if Template(f.image, f.kernel).arch == arch]
               for mode, fs in selected.items() for arch in {Template(f.image, f.kernel).arch for f in fs}}
-    results = ghidra_bridge.emulate_sharded({key: (*key, [request(f) for f in fs]) for key, fs in groups.items()})
+    sharded = dict(ghidra=ghidra_bridge.emulate_sharded, reference=reference.emulate_sharded, native=kernel.emulate_sharded)[engine]
+    results = sharded({key: (*key, [request(f) for f in fs]) for key, fs in groups.items()})
     return {(arch, f.name, mode): emulated_problems(f, result) for (arch, mode), fs in groups.items() for f, result in zip(fs, results[arch, mode])}
 
 

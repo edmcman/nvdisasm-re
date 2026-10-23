@@ -66,14 +66,16 @@ def evaluate(e, state, params=None, memo=None, runtime=None):
     return ev(e)
 
 
-def execute(semantics, state, params=None, runtime=None):
-    """The state after one lifted instruction (`sass.semantics.lifter.Semantics`): its effects
-    (runtime calls) first, then writes evaluated against the state before any of them and applied
-    in order, if the guard holds."""
+def apply(semantics, state, params=None, runtime=None):
+    """Execute one lifted instruction (`sass.semantics.lifter.Semantics`) on `state` in place, if
+    its guard holds: its effects (runtime calls) first, then writes evaluated against the state
+    before any of them and applied in order. Returns the state."""
     memo = {}
     value = lambda e: evaluate(e, state, params, memo, runtime)
-    out = state.copy(); out.pc = semantics.addr + 16
-    if semantics.guard is not None and not value(semantics.guard): return out
+    pc = semantics.addr + 16
+    if semantics.guard is not None and not value(semantics.guard):
+        state.pc = pc
+        return state
     for effect in semantics.effects:
         if runtime is None: raise Unknown(f"effect {effect.name} without a runtime")
         runtime.call(effect.name, [value(a) for a in effect.args], 0)
@@ -82,7 +84,13 @@ def execute(semantics, state, params=None, runtime=None):
               for s in semantics.stores if s.cond is None or value(s.cond)]
     flow = semantics.flow
     if flow and (flow.cond is None or value(flow.cond)):
-        out.pc = value(flow.target)
-    for loc, v in values: out.write(*loc.args, v)
-    for space, address, w, v in stores: out.store(space, address, w, v)
-    return out
+        pc = value(flow.target)
+    state.pc = pc
+    for loc, v in values: state.write(*loc.args, v)
+    for space, address, w, v in stores: state.store(space, address, w, v)
+    return state
+
+
+def execute(semantics, state, params=None, runtime=None):
+    """The state after one lifted instruction; `state` is unchanged (see `apply`)."""
+    return apply(semantics, state.copy(), params, runtime)

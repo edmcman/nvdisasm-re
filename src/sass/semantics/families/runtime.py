@@ -18,7 +18,7 @@ def half(i, name, h):
 @family("MUFU")
 def mufu(i):
     """Rd = MUFU.fn of the source after |.| and -: a hardware approximation, the runtime primitive
-    mufu_<fn> (SIN/COS: the recovered SM89 model, src/sass/semantics/fp/mufu.py; the 64H forms on a
+    mufu_<fn> (SIN/COS: the recovered SM89 model, src/sass/emulate/include/sass/mufu.hpp; the 64H forms on a
     double's high word). The 16-bit forms read the H0/H1 half and zero Rd's high half (SM89 GPU);
     the SIMD form (SM103+) does both halves, Sb the high one."""
     fn = str(i.select_fork("mufuop|op"))

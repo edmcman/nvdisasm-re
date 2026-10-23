@@ -63,16 +63,21 @@ class Fixture:
         return hashlib.sha256(self.data + repr(launch).encode()).hexdigest()[:16]
 
 
-def request(f):
-    """The emulator's whole-kernel request for fixture f (launch dimensions, stack, parameters)."""
+def launch_parts(f):
+    """Fixture f's kernel image and `launch.kernel_request`'s other arguments (launch dimensions, stack, parameters)."""
     image = cubin.kernel_image(f.emulator_image or f.image, f.kernel)
     if [p["size"] for p in image["parameters"]] != [8, 8] + [size for size, _ in f.arguments]:
         raise ValueError(f"{f.name}: unexpected kernel parameter layout")
     if not f.threads or len(f.data) % (3 * f.input_size) or f.threads % f.block or f.block % 32: raise ValueError("input must contain whole blocks of whole warps")
     memory = [dict(space="ram", address=INPUT, hex=f.data.hex()), dict(space="ram", address=OUTPUT, hex="cc" * f.threads * f.output_size)]
-    return launch.kernel_request(image, (INPUT, OUTPUT, *(v for _, v in f.arguments)), memory, f.threads, f.block,
-                                        dict(address=OUTPUT, size=f.output_size, stride=f.output_size), f.cooperative,
-                                        dict(synchronization=dict(bssy=True, bsync=True, **({"bar": True, "warpsync": True} if f.cooperative else {}))))
+    return (image, (INPUT, OUTPUT, *(v for _, v in f.arguments)), memory, f.threads, f.block,
+            dict(address=OUTPUT, size=f.output_size, stride=f.output_size), f.cooperative,
+            dict(synchronization=dict(bssy=True, bsync=True, **({"bar": True, "warpsync": True} if f.cooperative else {}))))
+
+
+def request(f):
+    """The emulator's whole-kernel request for fixture f."""
+    return launch.kernel_request(*launch_parts(f))
 
 
 class Driver:
