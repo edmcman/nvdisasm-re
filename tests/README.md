@@ -21,6 +21,7 @@ uv run pytest --arch all --fp all                      # the same on every archi
 uv run sass-build-languages                            # before the Ghidra tests (outside the sandbox)
 uv run pytest -m ghidra --arch all --fp all            # Ghidra tests
 uv run pytest -m gpu --require-gpu                     # GPU tests (outside the sandbox)
+uv run pytest -m native --arch SM89,SM90               # the native emulator: C++ runtime, generated code, kernels
 ```
 
 | Option | Meaning |
@@ -64,6 +65,8 @@ Rough wall times and peak memory (summed PSS) on a 32-core, 93 GiB machine with 
 | Run | Time | Memory |
 |---|---|---|
 | Python tests, SM89 | 25 s | 10 GiB |
+| `test_emulate_cases.py`, SM89 (2026-10-23) | 2 minutes cold (a C++ library per shard), seconds cached | |
+| `test_kernels_native.py`, SM89 and SM90 (2026-10-23) | 4 minutes cold (about 1,000 kernels compile), under a minute cached | |
 | Python tests, every architecture and lowering | 3 minutes | 13 GiB (25 GiB with `--exhaustive`) |
 | language build (about 17 compilers at once) | 1.75 minutes | 27 GiB |
 | Ghidra tests, all languages | 8 minutes cold, 2.5 minutes cached (mostly building the cases); 2 hours cold for `--arch all --fp all` (2.2 million selected cases, load 55-85 from two other suites, 2026-10-22) | 25 GiB |
@@ -105,7 +108,12 @@ libraries), so `test_pydecode_disassembly` checks synthetic and mutated words on
 | `test_build.py` | does coverage collection leave the generated languages alone? | `sass.sleigh.gen` with and without coverage | the same build without coverage |
 | `test_family_lowering.py` | does every family lower on every class it covers? | `sass.semantics` families under the SLEIGH enumeration | no crash |
 | `test_lifted_semantics.py` | do the semantics compute the right values? | `sass.semantics.lifter` + `evaluate` | `refs/`, through the emulator cases |
-| `test_mufu.py` | does the MUFU runtime match hardware? | `sass.semantics.fp.mufu`, the runtime's MUFU primitive | `refs/mufu.py`, recorded SM89 outputs |
+| `test_mufu.py` | does the MUFU runtime match hardware? | the C++ MUFU model (`include/sass/mufu.hpp`), the runtime's MUFU primitive | `refs/mufu.py`, recorded SM89 outputs |
+| `test_emulate_fp.py`, `test_emulate_primitives.py` (`-m native`) | does the C++ runtime compute the IR's floating point and the primitives? | `include/sass/softfloat.hpp`, `primitives.hpp` | `bitvec.OPS` (Python softfloat), `refs/primitive.py` |
+| `test_emulate_ops.py` (`-m native`) | does the generated C++ compute the IR? | `sass.emulate.cxx` on random unsimplified trees over every operator | `evaluate` |
+| `test_emulate_cases.py` (`-m native`) | does the generated C++ compute the right values? | `sass.emulate.cxx` fragments, a library per shard | `refs/`, through the emulator cases (not `__events`) |
+| `test_kernels_native.py` (`-m native`) | do whole kernels compute their references natively? | `sass.emulate.kernel` (model 1 non-cooperative, model 2 cooperative fixtures; `c.kernel` cases) | `refs/`, through the GPU fixtures; the scheduler's errors |
+| `test_equivalence.py` (`-m native`) | does equivalence testing find exactly the differing threads? | `sass.emulate.equivalence` | a kernel against itself and a NOP-patched copy |
 | `test_autocases.py`, `test_*_autocases.py`, `test_half_comparison_profiles.py` | are generated cases reproducible and reference-backed? | the [planner and adapters](#generated-shared-cases) | saved plans, independent references |
 | `test_sampling.py`, `test_evidence.py`, `test_device_cases.py` | do sampling, evidence and GPU-probe construction behave? (no GPU needed) | `harness/sampling.py`, `tests/evidence.py`, `harness/device_*.py` | hand cases, mocked runners |
 | `test_export_cases.py` | is the [shared-case export](#exporting-shared-cases) complete and decodable? | `tests/export_cases.py` | `cases.emulator_cases`, pydecode |
@@ -565,6 +573,7 @@ Everything below lives in `.cache/` and is safe to delete.
 | `cuobjdump` and the CUDA libraries (real corpus) | `/usr/local/cuda/bin/cuobjdump`, `/usr/local/cuda/lib64` | `CUOBJDUMP` |
 | generated languages | `processor/SASS/data/languages` | `SASS_SLEIGH_OUT` |
 | `javac` (cooperative GPU fixtures) | on `PATH` | |
+| a C++20 compiler (the runtime primitives every emulator calls, `sass.emulate`; compiled once into `.cache/emulate`) | `clang++`, else `g++`, on `PATH` | `CXX`, `SASS_CXXFLAGS` |
 
 Detailed coverage enumeration is opt-in (`sass-build-languages --coverage`). Normal builds need
 no runtime manifest: primitive calls are explicit in the generated p-code. `sass-refresh-coverage`

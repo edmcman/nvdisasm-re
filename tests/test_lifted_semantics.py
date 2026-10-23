@@ -2,31 +2,14 @@
 references' values on the emulator cases (the same as test_pcode_semantics). One item per (architecture, fp, family, md class)
 whose opcode has a semantics family; no Ghidra needed."""
 from functools import cache
-from sass.decode import ir
-from sass.semantics.family import family_for
-from tests.cases import stream
 from tests.harness.select import arches, families, modes, selected, skipped
 from tests.harness import lifted, sampling, sharded
-
-
-@cache
-def modelled(arch):
-    first = {}
-    for k in ir.load(arch).classes: first.setdefault(k.name, k)
-    return {name for name, k in first.items() if family_for(k)}
-
-
-def judged(job):
-    """(item, case) for each case of the job's shard that the lifted semantics can judge."""
-    arch, fp, family, *_ = job
-    for case in stream(*job):
-        if case.cls in modelled(arch) and lifted.applies(case): yield (arch, fp, family, case.cls), case
 
 
 def evaluate(job):
     """{item: [cases, failures, reports]} over one shard, in a worker process."""
     out = {}
-    for item, case in judged(job):
+    for item, case in lifted.judged(job):
         found = lifted.run(item[0], item[1], case)[1]
         sharded.merge(out, item, 1, int(bool(found)), [f"  {found}: request {case.request}\n    expected {case.expected}"] if found else [])
     return out

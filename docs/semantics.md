@@ -785,7 +785,12 @@ Family `families/memory.py` (Phase 6b).
   runtime=...)` and Ghidra's emulator both run it through `Runtime.call`, so the Ghidra-free tests
   evaluate primitive cases with the case's context. Arguments are the values the family passed and
   nothing else: the runtime needs no class, manifest or label tables.
-- `src/sass/semantics/runtime.py` (test-only; Ghidra's language never loads it) implements them by name.
+- `src/sass/semantics/runtime.py` (Ghidra's language never loads it) implements them by name: it
+  parses the context (the warp dict, lane validity, QSPC's address ranges) and the C++ runtime
+  (`src/sass/emulate/include/sass/primitives.hpp`, through `sass.emulate.native`, 2026-10-23) computes
+  the values, warp-wide with a `need` mask of the lanes whose result is used, so the native emulator
+  inlines the same code. Its messages are the runtime's; `read_lane` from a lane past 31, which the
+  Python version indexed into an IndexError, now fails as unsupported.
 - Warp operations use an explicit 32-lane context (values, predicates, active mask and lane index;
   cooperative kernels gather it per instruction, each lane's operand over its md span). A collective's
   lane argument is the raw operand, since the context holds the other lanes' raw values, so transforms
@@ -824,7 +829,7 @@ Family `families/memory.py` (Phase 6b).
   addresses or overlapping ranges raise `UnsupportedSemantics`.
 - MUFU is the primitive `mufu_<fn>` (`Rd = sass_prim_mufu_sqrt(Rb)`; the family applies the source
   modifiers, the 16-bit forms' half select and Rd's zero high half). The CPU runtime implements
-  full-width SIN/COS with the recovered SM89 integer model (`fp/mufu.py`, 2026-10-19): fixed-point turn
+  full-width SIN/COS with the recovered SM89 integer model (`fp/mufu.py` 2026-10-19, `emulate/include/sass/mufu.hpp` since 2026-10-23): fixed-point turn
   reduction, 64 integer coefficient triples, retained square terms and final float32 rounding toward
   zero. The model is generated wherever those forms exist; hardware evidence is SM89 only. The other
   functions and the 16-bit forms raise until a hardware model exists.

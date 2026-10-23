@@ -378,7 +378,7 @@ reduced domain. Outer argument reduction has not been exhaustively checked on ev
 input, and the physical circuit is not uniquely identified. Other architectures have not been
 hardware verified.
 
-The full-width SIN/COS CPU runtime now uses this model (`src/sass/semantics/fp/mufu.py`). The
+The full-width SIN/COS CPU runtime now uses this model (`src/sass/emulate/include/sass/mufu.hpp`, a C++ port of the former `fp/mufu.py`). The
 independent regression reference (`tests/refs/mufu.py`) enumerates square terms and rounds exact
 rationals; production uses the fast high/low decomposition and integer float encoding. Runtime
 tests compare every captured reduced grid point with `--exhaustive`, and the shared cases target

@@ -1,5 +1,5 @@
 """Package data, cache, repository paths and external tools."""
-import os, sysconfig
+import os, shutil, sysconfig
 from pathlib import Path
 
 PACKAGE = Path(__file__).resolve().parent
@@ -28,6 +28,8 @@ PTXAS = tool("ptxas", Path("/usr/local/cuda/bin/ptxas"))
 CUOBJDUMP = tool("cuobjdump", Path("/usr/local/cuda/bin/cuobjdump"))
 # The target nvdisasm (CUDA 13.4, V13.4.92); the oracle cache is keyed by its hash.
 NVDISASM = tool("nvdisasm", *Path.home().glob(".cache/uv/archive-v0/*/nvidia/cu13/bin/nvdisasm"))
+# The C++ compiler for sass.emulate's runtime and generated kernels ($CXX overrides).
+CXX = tool("cxx", *(Path(p) for p in map(shutil.which, ("clang++", "g++")) if p))
 
 
 def variant(arch, fp="exact"):
