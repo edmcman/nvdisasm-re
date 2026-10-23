@@ -2,6 +2,7 @@
 architecture, gpu on any architecture with GPU evidence for the class."""
 from sass import provenance
 from sass.assemble import encoding
+from sass.sleigh.modifiers import compact
 
 BMSK, MOV = 'bmsk__RCR_RCR', 'mov__RR'
 RECORDED = {
@@ -10,6 +11,7 @@ RECORDED = {
              MOV: {'modifiers': [], 'forms': {'gpu': [[]]}}},
     'SM90': {BMSK: {'modifiers': ['cw'], 'forms': {'gpu': [['C'], ['W']], 'ptxas': [['W']]}}},
 }
+RECORDED = {a: {c: compact(e) for c, e in classes.items()} for a, classes in RECORDED.items()}   # as evidence.json commits them
 
 
 def word(arch, cls, **values):

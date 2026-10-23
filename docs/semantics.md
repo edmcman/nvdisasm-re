@@ -130,7 +130,8 @@ Reading notes:
   architectures. Verification evidence is per class, derived from the tests into
   [`evidence.json`](../processor/SASS/semantics/evidence.json): SM89/SM90 GPU fixture targets and
   shared cases, `tests/ptx` probes and reference emulator cases (`tests/evidence.py`), each with the
-  forms it ran. A class without modifiers (MOV R,R, IABS, S2R) records its one, empty form
+  forms it ran, encoded compactly (`sass.sleigh.modifiers.compact`; `expand` decodes a class's
+  entry). A class without modifiers (MOV R,R, IABS, S2R) records its one, empty form
   (`"modifiers": []`, `[[]]`) since 2026-10-23; before, it recorded only class-level evidence, which
   read as "no form ran". `sass.provenance.evidence(arch, word)` looks a word's class and form up:
   `{kind: architectures}`, reference and ptxas from the word's own architecture, gpu from every

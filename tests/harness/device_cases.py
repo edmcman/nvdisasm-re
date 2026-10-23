@@ -319,19 +319,22 @@ def image(probes):
     return elf.link(module)
 
 
-def compare(case, names, values, arch="SM89"):
+def judged(case, names, values, arch="SM89"):
+    """(name, GPU value, reference value, agreed) of each compared capture; agreed is None for an unknown (None) value."""
     expected = (case.hardware or {}).get('expected', case.expected)
-    out = []
     for n, value in zip(names, values):
         if n.startswith('__memory:'):
             _, index, offset, size = n.split(':')
             if int(index): continue  # __memory asserts the first observed region
             want = int.from_bytes(bytes.fromhex(expected['__memory'])[int(offset):int(offset) + int(size)], 'little')
-            value &= (1 << (8 * int(size))) - 1
+            if value is not None: value &= (1 << (8 * int(size))) - 1
         else: want = expected[n]
-        same = same_fp8(value, want, expected['__fp8_nan']) if '__fp8_nan' in expected and not n.startswith('__memory:') else value == want
-        if not same: out.append(f'{n}: GPU {value:#x}, reference {want:#x}')
-    return out
+        if value is None: yield n, value, want, None; continue
+        yield n, value, want, same_fp8(value, want, expected['__fp8_nan']) if '__fp8_nan' in expected and not n.startswith('__memory:') else value == want
+
+
+def compare(case, names, values, arch="SM89"):
+    return [f'{n}: GPU {value:#x}, reference {want:#x}' for n, value, want, same in judged(case, names, values, arch) if not same]
 
 
 def execute(driver, probes, binary=None):
@@ -364,7 +367,7 @@ def execute(driver, probes, binary=None):
             driver.call('cuMemcpyDtoH_v2', buffer, output, ctypes.c_size_t(p.output_size))
             for s, (offset, names) in zip(p.scenarios, p.observations):
                 values = [int.from_bytes(buffer.raw[i:i + 4], 'little') for i in range(offset, offset + len(names) * 4, 4)]
-                results[s.id] = observation(s.case, names, values) if p.raw else compare(s.case, names, values, arch)
+                results[s.id] = dict(names=names, values=values)
             driver.call('cuMemFree_v2', arena)
     finally:
         failed = sys.exception() is not None
@@ -443,5 +446,5 @@ def observe(cases, timeout=30, arch=None):
         results.update(response['results'])
     return dict(arch=arch, device=device, observations=[dict(id=s.case.id, word=s.case.request['word'],
                 instruction=decoded(s.case.request['word'], s.arch).text,
-                **(results[s.id] if isinstance(results[s.id], dict) else dict(error='\n'.join(results[s.id]))))
+                **(observation(s.case, **results[s.id]) if isinstance(results[s.id], dict) else dict(error='\n'.join(results[s.id]))))
                 for s in scenarios])

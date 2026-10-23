@@ -41,12 +41,12 @@ def device_results(request):
     fams, sample, arch = selection(request.config)
     ss = scenarios(fams, sample, arch)
     # Reject duplicate scenario identities with incompatible hardware expectations.
-    known = {}
+    known, by_id = {}, {}
     for s in ss:
         if s.kind == 'emulator': continue
         expected = device_evidence.hardware_expected(s.case)
         if s.id in known and known[s.id] != expected: raise ValueError(f'{s.id}: conflicting hardware expectations')
-        known[s.id] = expected
+        known[s.id] = expected; by_id[s.id] = s
     results, device = {}, None
     batches = device_cases.batches(device_cases.kernels(ss))
     reporter = request.config.pluginmanager.getplugin('terminalreporter')
@@ -56,6 +56,7 @@ def device_results(request):
         device = response['device'] or device
         if reporter: reporter.write_line(f'GPU batch {i + 1}/{len(batches)}: {len(results)} scenarios executed')
     device_evidence.record(ss, results, device, arch=arch)
+    results = {i: device_cases.compare(by_id[i].case, r['names'], r['values'], arch) if isinstance(r, dict) else r for i, r in results.items()}
     counts = Counter('failed' if results.get(s.id, ['missing result']) else 'passed' for s in ss if s.kind != 'emulator')
     counts['emulator-only'] = sum(s.kind == 'emulator' for s in ss)
     request.config._device_case_summary = counts, Counter(s.reason for s in ss if s.kind == 'emulator')
@@ -84,8 +85,8 @@ def test_generated_probe_rejects_wrong_reference(request):
     c = Cases(gpu.target(request.config))
     c.add('mov__RI', dict(Rd=8, Sb=19, PixMaskU04=15), {}, dict(R8=20))
     s = device_cases.Scenario('runner-self-test', c.complete()[0], 'scalar', arch=c.arch)
-    result = device_cases.isolated(device_cases.kernels([s]))
-    assert result['results'][s.id] == ['R8: GPU 0x13, reference 0x14']
+    found = device_cases.isolated(device_cases.kernels([s]))['results'][s.id]
+    assert device_cases.compare(s.case, found['names'], found['values']) == ['R8: GPU 0x13, reference 0x14']
 
 
 @pytest.mark.gpu
@@ -97,7 +98,8 @@ def test_raw_generated_probes(request, tmp_path):
         pytest.skip(str(error))
     from tests.harness.case import Cases
     from tests.harness import device_evidence
-    before = device_evidence.PASSES.read_bytes() if device_evidence.PASSES.exists() else None
+    recorded = device_evidence.path(gpu.target(request.config))
+    before = recorded.read_bytes() if recorded.exists() else None
     c = Cases(gpu.target(request.config))
     probe = c.probe('mov__RI', dict(Rd=8, Sb=19, PixMaskU04=15), {}, observe=['R8', 'R12'])
     # Even an intentionally wrong existing reference must not affect raw results.
@@ -108,7 +110,7 @@ def test_raw_generated_probes(request, tmp_path):
     result = device_cases.observe(c)
     assert result['observations'][0]['registers'] == {'R8':19, 'R12':0}
     assert result['observations'][1]['memory'][0]['hex'] == '01000000020000000300000004000000'
-    assert (device_evidence.PASSES.read_bytes() if device_evidence.PASSES.exists() else None) == before
+    assert (recorded.read_bytes() if recorded.exists() else None) == before
 
     import json, subprocess, sys
     input = tmp_path / 'probes.json'; output = tmp_path / 'observations.json'

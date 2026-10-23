@@ -53,18 +53,19 @@ def test_unknown_state_is_an_error_and_backend_checks_are_explicit():
     assert device_cases.classify(s.case._replace(hardware={'skip': 'deliberately synthetic'})) == ('emulator', 'deliberately synthetic')
 
 
-def test_fingerprint_is_what_runs_and_how_it_is_judged(monkeypatch):
-    """A pass is tied to the probe and its judgement, not to companions, families or harness sources."""
+def test_probe_key_is_what_runs_not_how_it_is_judged(monkeypatch):
+    """An observation is tied to the probe alone: not to its expectation, companions, families or harness sources."""
     first, changed, other = scenario(), scenario(expected=20), scenario(value=20)
     assert first.id == changed.id != other.id
-    fingerprint = device_evidence.fingerprint
-    assert fingerprint(first) == fingerprint(scenario()) == fingerprint(device_cases.Scenario('elsewhere', first.case, 'scalar'))
-    assert len({fingerprint(first), fingerprint(changed), fingerprint(other), fingerprint(dataclasses.replace(first, arch='SM90'))}) == 4
+    key = lambda s: device_evidence.probed(s)[0]
+    assert key(first) == key(scenario()) == key(changed) == key(device_cases.Scenario('elsewhere', first.case, 'scalar'))
+    assert len({key(first), key(other), key(dataclasses.replace(first, arch='SM90'))}) == 3
+    assert device_evidence.probed(first)[1] == ['R8']
     both = [device_evidence.summary(s) for s in ([first], [other])]
     assert device_evidence.merge(*both) == device_evidence.summary([other, first]) == device_evidence.merge(*both[::-1])
-    before, capture = fingerprint(first), device_cases.capture
+    before, capture = key(first), device_cases.capture
     monkeypatch.setattr(device_cases, 'capture', lambda code, *a, **k: (code.emit('nop_'), capture(code, *a, **k))[1])
-    assert fingerprint(first) != before
+    assert key(first) != before
 
 
 def test_cx_backing_and_bounds_survive_relocation():
@@ -83,7 +84,7 @@ def test_cx_backing_and_bounds_survive_relocation():
 def test_sweep_policy_and_all_cases_classified():
     """Classifies minimal shared cases shard by shard, retaining manual regressions."""
     from tests.cases import FAMILIES
-    sampled = device_evidence.summaries(FAMILIES, 0)
+    sampled = device_evidence.summaries(FAMILIES, 0, arch='SM89')
     manual = [device_evidence.summaries(FAMILIES, e, sharded.manual) for e in (0, 100)]
     assert all(manual[0][f]['ids'] == sampled[f]['ids'] <= manual[1][f]['ids'] for f in FAMILIES)
     assert sum(m['cases'] for m in manual[1].values()) > sum(m['cases'] for m in manual[0].values())
@@ -149,23 +150,35 @@ def test_raw_memory_capture_reassembles_multiple_regions():
     assert result == dict(registers={'R8':19}, memory=[dict(space='ram', address=0x100, size=8, hex='78563412efcdab90'), dict(space='shared', address=0x20, size=1, hex='55')])
 
 
-def test_passes_are_per_scenario(tmp_path, monkeypatch):
-    monkeypatch.setattr(device_evidence, 'PASSES', tmp_path / 'passes.json')
+def test_observations_are_judged_by_current_expectations(tmp_path, monkeypatch):
+    monkeypatch.setattr(device_evidence, 'OBSERVATIONS', tmp_path)
     a, b, new = scenario(), scenario(value=20), scenario(value=21)
-    fa, fb = map(device_evidence.fingerprint, (a, b))
-    device_evidence.record([a, b], {a.id: [], b.id: []}, 'SM89 test')
-    assert device_evidence.passed('SM89') == {fa, fb}
+    ka, kb = (device_evidence.probed(s)[0] for s in (a, b))
+    ran = lambda *pairs: {s.id: dict(names=['R8'], values=[v]) for s, v in pairs}
+    device_evidence.record([a, b], ran((a, 19), (b, 20)), 'SM89 test')
+    assert device_evidence.stored('SM89') == {ka: [('SM89 test', 'observed', (19,))], kb: [('SM89 test', 'observed', (20,))]}
     word = lambda s: s.case.request['word']
     found = lambda *ss: lambda families, sample, arch: {'unit': device_evidence.summary(ss)}
-    # An unrun case leaves the other words verified; a word with an unrun scenario is not.
+    # An unobserved scenario leaves the other words verified; a word with one is not.
     monkeypatch.setattr(device_evidence, 'summaries', found(a, b, new))
     assert device_evidence.verified_words() == sorted([('unit', word(a)), ('unit', word(b))])
-    monkeypatch.setattr(device_evidence, 'summaries', found(a, b, scenario(value=20, expected=0)))
+    assert device_evidence.verdicts() == {'unit': {'pass': 2, 'unobserved': 1}}
+    # A changed expectation re-judges the same observation without a GPU.
+    wrong = scenario(value=20, expected=0)
+    monkeypatch.setattr(device_evidence, 'summaries', found(a, b, wrong))
     assert device_evidence.verified_words() == [('unit', word(a))]
-    # A missing result keeps a pass, a failure drops it, and a run without a device adds nothing.
-    device_evidence.record([a, b], {b.id: ['R8: GPU 0x14, reference 0x15']}, 'SM89 test')
-    assert device_evidence.passed('SM89') == {fa}
-    device_evidence.record([b], {b.id: []}, None)
-    assert device_evidence.passed('SM89') == {fa}
-    device_evidence.PASSES.write_text(json.dumps(dict(version=3, architectures={})))
-    with pytest.raises(ValueError, match='version 3'): device_evidence.passes()
+    assert device_evidence.verdicts() == {'unit': {'fail': 1, 'pass': 2}}
+    assert device_evidence.summary([wrong])['failures'] == [(wrong.id, wrong.case.request, ['SM89 test: R8: GPU 0x14, reference 0x0'])]
+    # Errors, missing results and runs without a device keep what was recorded; a new run replaces its device's observation.
+    before = device_evidence.stored('SM89')
+    device_evidence.record([a, b], {b.id: ['device fault']}, 'SM89 test')
+    device_evidence.record([a], ran((a, 7)), None)
+    assert device_evidence.stored('SM89') == before
+    device_evidence.record([a], ran((a, 7)), 'other')
+    assert device_evidence.judge(a, ['R8'], device_evidence.stored('SM89')[ka])[0] == 'fail'
+    # An unknown capture is neither evidence nor a disagreement; a known agreeing observation still is.
+    assert device_evidence.judge(a, ['R8'], [('x', 'inferred', (None,))]) == ('unknown', [])
+    assert device_evidence.judge(a, ['R8'], [('x', 'inferred', (None,)), ('y', 'observed', (19,))]) == ('pass', [])
+    device_evidence.path('SM89').write_text(json.dumps(dict(version=0, devices=[])) + '\n')
+    device_evidence.load.cache_clear()
+    with pytest.raises(ValueError, match='version 0'): device_evidence.stored('SM89')
