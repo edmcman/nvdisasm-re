@@ -22,9 +22,9 @@ WARP_INPUTS={'SHFL':('values','Ra'),'VOTE':('predicates','Pp'),'VOTEU':('predica
 def session(ldefs,langid):
     """A request handler (request dict -> result dict) for one language; the JVM must be running."""
     import jpype
-    from java.util import HashMap,ArrayList
+    from java.util import HashMap
     from ghidra.pcode.emu import PcodeEmulator
-    from ghidra.pcode.exec import PcodeUseropLibrary,PcodeExecutorStatePiece
+    from ghidra.pcode.exec import PcodeProgram,PcodeUseropLibrary,PcodeExecutorStatePiece
     from ghidra.program.model.pcode import Varnode
     lang=load_language(ldefs,langid);space=lang.getDefaultSpace();variant=langid.rsplit(':',1)[1];arch=variant.split('_')[0].upper();runtime=Runtime(int(arch[2:]))
     reason=PcodeExecutorStatePiece.Reason.INSPECT
@@ -37,6 +37,9 @@ def session(ldefs,langid):
         def getName(self):return self.name
         def getInputCount(self):return -1
         def isFunctional(self):return False
+        def canInterrupt(self):return False
+        def isOutSigned(self):return False
+        def isInSigned(self,i):return False
         def hasSideEffects(self):return True
         def modifiesContext(self):return False
         def canInlinePcode(self):return False
@@ -216,11 +219,11 @@ def session(ldefs,langid):
             state.setVar(reg,jpype.JArray(jpype.JByte)(value.to_bytes(size,'little')))
         write_memory(state,request.get('memory',[]))
         ins=parse(lang,addr,bytes.fromhex(request['word']))
-        ops=ins.getPcode();program=ArrayList()
-        for op in ops:program.add(op)
+        program=PcodeProgram.fromInstruction(ins,False);ops=program.getCode()
         # Execute with the actual Ghidra byte arithmetic and state machinery.
         thread.overrideCounter(space.getAddress(address+16))
-        thread.getExecutor().execute(program,HashMap(),lib)
+        # Composed, as in kernels: Java then runs the default methods (12.2's getSymbols), which JPype 1.5.2 proxies cannot.
+        thread.getExecutor().execute(program,thread.getUseropLibrary().compose(lib))
         registers={}
         for name in request.get('observe',[]):
             registers[name]=int.from_bytes(bytes(state.getVar(lang.getRegister(name),reason)),'little')
