@@ -4,7 +4,7 @@ from collections import Counter,defaultdict
 from pathlib import Path
 from sass.paths import LANGUAGES,ROOT
 from sass.sleigh.gen import update
-from sass.sleigh.modifiers import form
+from sass.sleigh.modifiers import compact,form
 from sass.semantics.operations import OPERATION_FAMILIES
 
 EVIDENCE=('gpu','ptxas','reference')   # strongest first: a class or value counts once, under the first that ran it
@@ -21,31 +21,6 @@ def evidence(directory):
         if not source.exists():raise SystemExit(f'{source} is missing: run {REFRESH}')
         out[arch.upper()]=json.loads(source.read_text())
     return out
-
-DIGITS='0123456789abcdefghijklmnopqrstuvwxyz'
-
-def compact(e):
-    """A class's evidence as committed in evidence.json: each modifier's labels once, and each form a string
-    of label indices (one digit per modifier) under the evidence kinds that ran it ("gpu+reference"),
-    rather than every kind's rows of labels, which reached 86 MB (2026-10-23)."""
-    if 'forms' not in e:return e
-    rows=defaultdict(set)
-    for kind,fs in e['forms'].items():
-        for f in fs:rows[tuple(f)].add(kind)
-    labels=[sorted({f[i] for f in rows},key=json.dumps) for i in range(len(e['modifiers']))]
-    if any(len(ls)>len(DIGITS) for ls in labels):raise ValueError('a modifier has more labels than form digits')
-    index=[{l:DIGITS[j] for j,l in enumerate(ls)} for ls in labels];forms=defaultdict(list)
-    for f,ks in rows.items():forms['+'.join(sorted(ks))].append(''.join(index[i][l] for i,l in enumerate(f)))
-    return {**e,'labels':labels,'forms':{k:sorted(v) for k,v in forms.items()}}
-
-def expand(e):
-    """The {kind: [[label per modifier]]} forms of a compact() entry, as tests/evidence.py writes them."""
-    if 'labels' not in e:return e
-    out=defaultdict(list)
-    for ks,fs in e['forms'].items():
-        for f in fs:
-            for k in ks.split('+'):out[k].append([e['labels'][i][DIGITS.index(c)] for i,c in enumerate(f)])
-    return {**{k:v for k,v in e.items() if k!='labels'},'forms':{k:sorted(v,key=json.dumps) for k,v in sorted(out.items())}}
 
 def shown(row):
     """The class's status for the report: partially native (or primitive) when it has semantics but

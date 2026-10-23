@@ -43,7 +43,7 @@ def reference(job):
         if word is not None and word not in words:
             words[word] = dict(sampling.form(arch, word)[1])   # decoded when sampling chose the case
         found = out.setdefault(case.cls, [0, {}]); found[0] += 1
-        if words.get(word): found[1][form(words[word])] = words[word]
+        if word in words: found[1][form(words[word])] = words[word]
     return arch, out
 
 
@@ -145,12 +145,12 @@ def evidence(sources, references):
     """{class: {"gpu": [fixtures], "ptxas": [probes], "reference": case count, "modifiers": [names],
     "forms": {kind: [[label per modifier]]}}}, keys present only when non-empty, from the gpu and
     ptxas rows and the merged reference shards: the forms are the modifier combinations each kind
-    of evidence ran."""
+    of evidence ran, the empty one for a class without modifiers."""
     out, forms = defaultdict(dict), defaultdict(lambda: defaultdict(dict))
     for kind, rows in sources.items():
         for cls, found, label in rows:
             out[cls].setdefault(kind, set()).add(label)
-            if found: forms[cls][kind][form(found)] = found
+            forms[cls][kind][form(found)] = found
     for cls, (n, found) in references.items():
         out[cls]["reference"] = n
         if found: forms[cls]["reference"] = found

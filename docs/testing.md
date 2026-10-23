@@ -305,10 +305,11 @@ inference must run on the comparison that recorded the passes.
 
 `processor/SASS/semantics/evidence.json` had grown to 86 MB (49 MB on 2026-10-19), 84.7 MB of it
 form rows: 946,597 reference and 229,659 GPU rows, each spelling every modifier label, the GPU rows
-almost all repeating reference rows (1,090 of 1,121 classes). `sass.sleigh.coverage.compact` now
+almost all repeating reference rows (1,090 of 1,121 classes). `sass.sleigh.modifiers.compact` now
 stores each class's labels once per modifier (`labels`) and each form once, as a string of label
 indices (one base-36 digit per modifier, at most 17 labels with `null` seen), under the evidence
-kinds that ran it (`"gpu+reference"`); `coverage.expand` restores the `tests/evidence.py` rows.
+kinds that ran it (`"gpu+reference"`); `modifiers.expand` restores the `tests/evidence.py` rows (`sass.provenance` expands the class it
+looks up).
 13.7 MB, lossless over every class (`sass_smXX_evidence.json`, which `sass-coverage` reads, keeps the
 expanded rows).
 

@@ -12,10 +12,11 @@ Target: `nvdisasm` from CUDA 13.4 (V13.4.92, built 2026-09-01), stripped x86-64 
 - `src/sass/sleigh/`: SLEIGH generator (`gen`), semantics lowering (`lower`), language build (`build`), per-class modifier forms (`modifiers`, shared with `tests/evidence.py` and the report), coverage summary (`coverage`) and the coverage page it renders from `report/` (HTML, CSS and JS, inlined with the embedded data).
 - `src/sass/ghidra_bridge/`: programs run under Ghidra's pyghidra venv (`ghidra_decode`, `ghidra_emulate`, `BlockEmulator.java`, `ExactPrototypes.java`) whose package module is the only path to them.
 - `src/sass/assemble/`: assembler (`sass-assemble`; cubin writer `elf`) and the one encoder (`encoding`: strict, or `permissive=True` for the test harness); `docs/assembling.md`, `examples/assembler/`.
+- `src/sass/provenance.py`: which committed evidence (`evidence.json`; not in the wheel, `$SASS_EVIDENCE` outside a checkout) ran a word's class and form.
 - `src/sass/oracle.py`: the nvdisasm oracle (sqlite in `sass.paths.CACHE`: `$SASS_CACHE`, else `.cache/` in a checkout, else `~/.cache/sass`); `corpus.py`, `synth.py`: word corpora.
 - `src/sass/check/`: comparison/report CLIs (`pydecode_disasm`, `ghidra_disasm`, `census`).
 - `src/sass/paths.py`: package data (`MD`), cache, repository paths and external tool locations; `launch.py`: kernel launch layout shared by the emulator and GPU harness; `workers.py`: pool sizes that fit in available memory; `sqlcache.py`: sqlite caches filled by parallel workers.
-- `tests/`: tests only (`harness/`, `cases/`, `refs/`, kernels, baselines); see `tests/README.md`.
+- `tests/`: tests only (`harness/`, `cases/`, `refs/`, kernels, baselines); see `tests/README.md`. `python -m tests.export_cases` exports a language's shared cases as JSON lines (#50).
 - `processor/SASS/`: the Ghidra module (hand-written `.sinc`/`.pspec`/`.cspec`, generated languages, coverage/evidence JSON and report).
 - `research/`: one-off investigations (ptxas, CuLifter, SLEIGH conditions).
 - `examples/`: library API examples (`lift_cubin`, `assemble_and_lift`, `evaluate`; run by `tests/test_examples.py`) and `assembler/` sources.

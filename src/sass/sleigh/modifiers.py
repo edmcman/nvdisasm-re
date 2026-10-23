@@ -2,7 +2,8 @@
 scheduling hints (FADD's `ftz`, `rnd`, `sat`), and `operand@flag` per operand flag (`Ra@negate`),
 set or unset. A form is one combination of their values. Shared by the generator (each value's
 semantics status), tests/evidence.py (the forms the tests ran) and the coverage report."""
-import itertools, math
+import itertools, json, math
+from collections import defaultdict
 from functools import cache
 from sass.decode import ir
 from sass.md import expression, legal
@@ -185,3 +186,31 @@ def merge(a, b):
     order = lambda labs: [labels[m].index(l) for m, l in zip(decides, labs)]
     return minimal(dict(labels=labels, decides=decides, free=math.prod(len(labels[m]) for m in labels if m not in decides),
                         table=[[*labs, combined({s for s in (ea.get(labs), eb.get(labs)) if s})] for labs in sorted(ea.keys() | eb.keys(), key=order)]))
+
+
+DIGITS = "0123456789abcdefghijklmnopqrstuvwxyz"
+
+
+def compact(e):
+    """A class's evidence as committed in evidence.json: each modifier's labels once, and each form a
+    string of label indices (one digit per modifier) under the evidence kinds that ran it
+    ("gpu+reference"), rather than every kind's rows of labels, which reached 86 MB (2026-10-23)."""
+    if "forms" not in e: return e
+    rows = defaultdict(set)
+    for kind, fs in e["forms"].items():
+        for f in fs: rows[tuple(f)].add(kind)
+    labels = [sorted({f[i] for f in rows}, key=json.dumps) for i in range(len(e["modifiers"]))]
+    if any(len(ls) > len(DIGITS) for ls in labels): raise ValueError("a modifier has more labels than form digits")
+    index, forms = [{l: DIGITS[j] for j, l in enumerate(ls)} for ls in labels], defaultdict(list)
+    for f, kinds in rows.items(): forms["+".join(sorted(kinds))].append("".join(index[i][l] for i, l in enumerate(f)))
+    return {**e, "labels": labels, "forms": {k: sorted(v) for k, v in forms.items()}}
+
+
+def expand(e):
+    """The {kind: [[label per modifier]]} forms of a compact() entry, as tests/evidence.py writes them."""
+    if "labels" not in e: return e
+    out = defaultdict(list)
+    for kinds, fs in e["forms"].items():
+        for f in fs:
+            for k in kinds.split("+"): out[k].append([e["labels"][i][DIGITS.index(c)] for i, c in enumerate(f)])
+    return {**{k: v for k, v in e.items() if k != "labels"}, "forms": {k: sorted(v, key=json.dumps) for k, v in sorted(out.items())}}
