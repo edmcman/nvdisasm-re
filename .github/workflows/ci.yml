@@ -7,7 +7,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  # A branch push with an open PR is already tested by the PR's own run.
+  # A branch push with an open PR is already tested by the PR's own run, but GitHub starts no
+  # pull_request run while the PR conflicts with its base, so only a mergeable PR covers the push.
+  # Mergeability is computed lazily (UNKNOWN just after a push): wait a minute for it, else run.
   pr-covers-push:
     runs-on: ubuntu-latest
     permissions:
@@ -19,7 +21,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           OPEN: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
-        run: echo "skip=$($OPEN && gh pr list -R "$GITHUB_REPOSITORY" --head "$GITHUB_REF_NAME" --state open --json number -q 'length > 0' || echo false)" >> "$GITHUB_OUTPUT"
+        run: |
+          state=NONE
+          for _ in $($OPEN && seq 12); do
+            state=$(gh pr list -R "$GITHUB_REPOSITORY" --head "$GITHUB_REF_NAME" --state open --json mergeable -q '.[0].mergeable // "NONE"' || echo ERROR)
+            [ "$state" = UNKNOWN ] || break
+            sleep 5
+          done
+          echo "open PR: $state"
+          echo "skip=$([ "$state" = MERGEABLE ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
   coverage-comment:
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
