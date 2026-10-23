@@ -214,7 +214,7 @@ Reading notes:
 - `src/sass/sleigh/lower.py` (`Lower.float_op`) holds both lowerings.
 - Readable: native-width `f+`/`f*` (FFMA is `a f* b f+ c`, one operation per operator plus a copy). It
   treats every rounding mode as round-to-nearest and drops FTZ/FMZ flushing, fused single rounding and
-  the FMNMX NaN/±0 rules (including .NAN); families write readable FFMA/scaled FMUL as their unfused
+  the FMNMX NaN/±0 rules (including .NAN) and the arithmetic NaN result (Ghidra's NaN bits); families write readable FFMA/scaled FMUL as their unfused
   operations. SAT, absolute and negate remain. So encodings unmodelled in the exact lowering (HADD2/HFMA2
   .FTZ/.FMZ and the like) are native here. Its reference is the unfused RN softfloat formula, compared
   bit for bit.
@@ -226,6 +226,12 @@ Reading notes:
   narrowing, then ±1 on the encoding by the residual's sign. RM zero-sign fix: an exact cancellation is
   -0 unless both addends are +0. The corrected result is exact, and it also undoes the Ghidra underflow
   error below. SM89 GPU fixtures cover .RZ/.RM/.RP for FADD/FMUL/FFMA/DADD/DMUL/DFMA.
+- NaN results (2026-10-22, issue #49): the IR ops `fadd`/`fmul`/`ffma` are the GPU's arithmetic, so a
+  NaN result is `bitvec.sass_nan` (hardware-facts "Arithmetic NaN results"): +0x7fffffff (F32), +0x7fff
+  (F16), and for F64 the first NaN of operand 1 onward then operand 0 (Rb, Rc, Ra), quieted, else
+  0xfff8000000000000. F64 propagates the register as read, so the FP64 families pass the unmodified
+  sources as the ops' optional `nans`. The Python evaluator applies it after softfloat (which stays
+  IEEE with generic NaNs); the exact lowering ends `float_op` with a branch-free select (`sass_nan`).
 - Ghidra 12.1.4 limits:
   - Its emulator flushes results strictly between half and one minimum subnormal (2^-150, 2^-149 for
     fp32) to zero instead of rounding to the minimum subnormal (`FloatFormat.getEncoding`, the `n < 0`

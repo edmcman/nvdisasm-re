@@ -561,14 +561,13 @@ def gpu_fixtures(arch="SM89"):
     from tests.harness import scalar
     from tests.harness.gpu import Fixture, Template, compile, encode
     from tests.harness.templates import cx_fixture, rows
-    from tests.refs.float import same_halves
     out = []
     for f in (f for f in scalar.TARGETS if f.startswith(("f2fp_f16_pack_", "f2fp_bf16_pack_"))):
         fmt = "BF16" if f.startswith("f2fp_bf16") else "F16"
         cvt = lambda x, fmt=fmt, f=f: fpformat.pack16(x, fmt, "RZ" if f.endswith("_rz") else "RN", "satfinite" in f, "_relu" in f)
         # The immediate and constant-bank forms convert 1.5 into the low half.
         ref = (lambda x, y, z, cvt=cvt: (cvt(x) << 16) | cvt(0x3fc00000)) if f in ("f2fp_f16_pack_imm", "f2fp_f16_pack_c") else (lambda x, y, z, cvt=cvt: (cvt(x) << 16) | cvt(y))
-        out.append(scalar.launch(f, ref, same=same_halves if fmt == "F16" else None, arch=arch))
+        out.append(scalar.launch(f, ref, arch=arch))
     for f in (f for f in scalar.TARGETS if f.startswith(("f2fp_e4m3_pack", "f2fp_e5m2_pack"))):
         fmt, sat = f[5:9].upper(), not f.endswith("_nosat")
         out.append(scalar.launch(f, lambda x, y, z, fmt=fmt, sat=sat: ((z >> 16) << 16) | (fpformat.fp8(x, fmt, "RN", sat) << 8) | fpformat.fp8(y, fmt, "RN", sat), arch=arch))
@@ -583,19 +582,18 @@ def gpu_fixtures(arch="SM89"):
     vals += [int.from_bytes(struct.pack("<f", rng.uniform(-500.0, 500.0)), "little") for _ in range(116)]
     out.append(cx_fixture("f2fp_cx", "f2fp__RCxR", dict(Rd=7, Ra=2, dstfmt="F16", srcfmt="F32", merge="PACK_AB", rndMode="RN", relu="norelu", satfinite="nosatfinite"),
                           list(zip(vals, vals[1:] + vals[:1], [0] * 128)), [(fpformat.f32_to_f16(a) << 16) | fpformat.f32_to_f16(vals[1]) for a in vals], arch=arch))
-    # MERGE_C with a CX conversion source; GPU F16 NaNs may differ in payload/sign from the reference.
+    # MERGE_C with a CX conversion source.
     sources = (0x3f800000, 0xbf800000, 0x7f7fffff, 0xff7fffff, 0x7f800000, 0xff800000, 0x7fc12345, 0xff812345)
     bases = (0xdeadbeef, 0xaabbccdd, 0x00017fff, 0x7bff8000, 0x7fc17e01, 0x3f803f80, 0xffff0001, 0x80017fff)
     specs = itertools.product(("F16", "BF16", "E6M9"), ("RN", "RZ"), (False, True), (False, True), ("H0", "H1"))
     for i, (fmt, rnd, relu, sat, extract) in enumerate(specs):
         src = sources[i % len(sources)]
         low = fpformat.pack16(src, fmt, rnd, sat, relu)
-        same = (lambda g, w: g == w or g >> 16 == w >> 16 and fpformat.is_nan16(g & 0xffff, "F16") and fpformat.is_nan16(w & 0xffff, "F16")) if fmt == "F16" else None
         out.append(cx_fixture(f"merge_c_cx_{i}", "f2fp_merge_c__RCxR", dict(Rd=7, Rc=2, dstfmt=fmt, srcfmt="F32", merge="MERGE_C", rndMode=rnd,
                               relu="RELU" if relu else "norelu", satfinite="SATFINITE" if sat else "nosatfinite", extract=extract, Pg=7),
                               [(bases[j % len(bases)], src if j == 0 else 0x3f800000, 0) for j in range(128)],
                               [(((bases[j % len(bases)] >> (16 if extract == "H1" else 0)) & 0xffff) << 16) | low for j in range(128)],
-                              arch=arch, **({"same": same} if same else {})))
+                              arch=arch))
     # F2FP.E6M9 patched into the compiled F16 pack kernels (register, immediate and constant B).
     image = compile("scalar_semantics", "-diag-suppress=177", arch=arch)
     rng = random.Random(0xe6a9)

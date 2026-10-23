@@ -8,7 +8,7 @@ from functools import cache
 from sass.paths import ROOT
 from tests.cases import FAMILIES, stream
 from tests.harness import device_cases, sharded
-from tests.refs import bits, fpformat
+from tests.refs import fpformat
 
 PASSES = ROOT / 'tests/baseline/gpu_case_passes.json'
 VERSION = 4
@@ -21,16 +21,16 @@ def hardware_expected(case):
 
 # The code that judges a run; the probe and the hardware expectation fix everything else.
 COMPARISON = hashlib.sha256(''.join(inspect.getsource(f) for f in (
-    device_cases.compare, device_cases.half_nan_equal, device_cases.nan_lanes, hardware_expected, fpformat.same_fp8, bits.nan16)).encode()).hexdigest()
+    device_cases.compare, hardware_expected, fpformat.same_fp8)).encode()).hexdigest()
 
 
 def fingerprint(s):
     """What scenario s runs on the GPU and how its result is judged: its probe built alone (target word,
-    inputs, setup, scheduling, capture layout, launch shape), its hardware expectation, NaN policy and
-    the comparison code. Edits elsewhere, or other cases, leave it unchanged."""
+    inputs, setup, scheduling, capture layout, launch shape), its hardware expectation and the
+    comparison code. Edits elsewhere, or other cases, leave it unchanged."""
     p = device_cases.scalar_probe([s], 'probe')
     data = (COMPARISON, s.arch, s.kind, [f'{w:032x}' for w in p.code.words], p.constants, p.observations, p.arena.hex(),
-            p.shared, p.frame_size, p.threads, p.grid, hardware_expected(s.case), device_cases.nan_lanes(s.case, s.arch))
+            p.shared, p.frame_size, p.threads, p.grid, hardware_expected(s.case))
     return hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()[:24]
 
 

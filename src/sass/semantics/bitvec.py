@@ -137,10 +137,11 @@ OPS = {
     "extract": lambda v, ws, w: v[0] >> v[2] & mask(w),
     "concat": lambda v, ws, w: reduce(lambda acc, part: (acc << part[1]) | part[0], zip(v, ws), 0),
     # Floating point on IEEE encodings (16, 32, 64 bits): exactly rounded per mode, NaN results
-    # canonical; comparisons are false when either side is NaN.
+    # canonical (nanresult gives them the GPU's); comparisons are false when either side is NaN.
     "fadd": lambda v, ws, w: softfloat.arithmetic("add", v[:2], w, v[2]),
     "fmul": lambda v, ws, w: softfloat.arithmetic("mul", v[:2], w, v[2], scale=v[3]),
     "ffma": lambda v, ws, w: softfloat.arithmetic("fma", v[:3], w, v[3]),
+    "nanresult": lambda v, ws, w: v[1] if softfloat.unpack(v[0], w)[0] == "nan" else v[0],
     "flt": lambda v, ws, w: int(fcompare(v[0], v[1], ws[0], lambda x, y: x < y)),
     "fle": lambda v, ws, w: int(fcompare(v[0], v[1], ws[0], lambda x, y: x <= y)),
     "feq": lambda v, ws, w: int(fcompare(v[0], v[1], ws[0], lambda x, y: x == y)),
@@ -365,21 +366,56 @@ def lnot(c): return c == 0 if isinstance(c, Expr) else not c
 ROUNDING = ("RN", "RZ", "RP", "RM")
 
 
-def fadd(a, b, rnd="RN"):
+CANONICAL_NAN = {16: 0x7fff, 32: 0x7fffffff}
+QUIET64, INVALID64 = 1 << 51, 0xfff8000000000000
+
+
+def nan_sources(sources):
+    """The order in which F64 arithmetic propagates NaN sources: Rb, Rc, then Ra (SM89 GPU),
+    that is operand 1 onward, then operand 0."""
+    return [*sources[1:], *sources[:1]]
+
+
+def choose(c, x, y):
+    """x if c else y, without a branch."""
+    return y ^ ((x ^ y) * zext(c, y.w))
+
+
+def sass_nan(operands, nans=()):
+    """The NaN result of arithmetic on `operands` (SM89 GPU): +0x7fff for F16, +0x7fffffff for F32;
+    for F64 the first NaN of `nans` (the source registers before -/|.|, default the operands) in
+    nan_sources order, quieted, else 0xfff8000000000000."""
+    w = operands[0].w
+    if nans and (len(nans) != len(operands) or any(n.w != w for n in nans)): raise TypeError("NaN sources must match the operands")
+    if w != 64: return const(CANONICAL_NAN[w], w)
+    v = const(INVALID64, 64)   # quiet already: the chosen NaN is quieted once
+    for s in reversed(nan_sources(nans or operands)): v = choose(fnan(s), s, v)
+    return v | QUIET64
+
+
+def nanresult(r, nan):
+    """r, or `nan` where r is a NaN: the GPU's NaN result of an IEEE operation. Outside the
+    operation, so a decode-time choice of its rounding or scale leaves this shared."""
+    return op("nanresult", r, nan)
+
+
+# The SASS arithmetic: exactly rounded, with the GPU's NaN results (`nans`: see sass_nan).
+
+def fadd(a, b, rnd="RN", nans=()):
     a, b = pair(a, b)
-    return op("fadd", a, b, rnd, w=a.w)
+    return nanresult(op("fadd", a, b, rnd, w=a.w), sass_nan((a, b), nans))
 
 
-def fmul(a, b, rnd="RN", scale=0):
+def fmul(a, b, rnd="RN", scale=0, nans=()):
     """a * b * 2^scale, rounded once."""
     a, b = pair(a, b)
-    return op("fmul", a, b, rnd, scale, w=a.w)
+    return nanresult(op("fmul", a, b, rnd, scale, w=a.w), sass_nan((a, b), nans))
 
 
-def ffma(a, b, c, rnd="RN"):
+def ffma(a, b, c, rnd="RN", nans=()):
     """a * b + c, rounded once."""
     a, b = pair(a, b); a, c = pair(a, c)
-    return op("ffma", a, b, c, rnd, w=a.w)
+    return nanresult(op("ffma", a, b, c, rnd, w=a.w), sass_nan((a, b, c), nans))
 
 
 def fconv(x, w, rnd="RN"):
