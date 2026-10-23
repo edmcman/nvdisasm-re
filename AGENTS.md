@@ -20,7 +20,7 @@ Target: `nvdisasm` from CUDA 13.4 (V13.4.92, built 2026-09-01), stripped x86-64 
 - `tests/`: tests only (`harness/`, `cases/`, `refs/`, kernels, baselines); see `tests/README.md`. `python -m tests.export_cases` exports a language's shared cases as JSON lines (#50).
 - `processor/SASS/`: the Ghidra module (hand-written `.sinc`/`.pspec`/`.cspec`, generated languages, coverage/evidence JSON and report).
 - `research/`: one-off investigations (ptxas, CuLifter, SLEIGH conditions).
-- `examples/`: library API examples (`lift_cubin`, `assemble_and_lift`, `evaluate`; `emulator/`, the native emulator's `run_kernel`, `trace_kernel` and `equivalence` with their `times3.sass`, opt-in with `-m native`; run by `tests/test_examples.py`) and `assembler/` sources.
+- `examples/`: library API examples (`lift_cubin`, `assemble_and_lift`, `evaluate`; `emulator/`, the native emulator's `run_kernel`, `trace_kernel`, `equivalence` and `show_cpp` with their `times3.sass`, opt-in with `-m native`; run by `tests/test_examples.py`) and `assembler/` sources.
 
 Modules are imported by their own names, never aliased (`from sass.md import parse`).
 
