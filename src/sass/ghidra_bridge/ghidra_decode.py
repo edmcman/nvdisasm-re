@@ -9,7 +9,7 @@ from pathlib import Path
 sys.path[:0] = [str(Path(__file__).parent), str(Path(__file__).parents[2])]
 import pyghidra
 
-GHIDRA = os.environ.get("GHIDRA_INSTALL_DIR", os.path.expanduser("~/Ghidra/ghidra_12.1.4_PUBLIC"))
+GHIDRA = os.environ.get("GHIDRA_INSTALL_DIR", os.path.expanduser("~/Ghidra/ghidra_12.2_PUBLIC"))
 
 def java_class(name):
     """sass.`name` from this directory's .java sources, compiled against this Ghidra into the cache."""
@@ -38,7 +38,10 @@ def load_language(ldefs, lang_id):
     from ghidra.program.model.lang import LanguageID, CompilerSpecID
     ctor = SleighLanguageProvider.class_.getDeclaredConstructor(ResourceFile.class_)
     ctor.setAccessible(True)  # package-private; avoids installing the processor into Ghidra
-    lang = ctor.newInstance(ResourceFile(File(ldefs))).getLanguage(LanguageID(lang_id))
+    provider = ctor.newInstance(ResourceFile(File(ldefs)))
+    if (lang := provider.getLanguage(LanguageID(lang_id))) is None:
+        raise LookupError(f"{lang_id} is not in {ldefs} ({'it failed to load: see the Ghidra log' if provider.hadLoadFailure() else 'not listed'}); "
+                          f"loaded: {[str(d.getLanguageID()) for d in provider.getLanguageDescriptions()]}")
     prototypes = SleighLanguage.class_.getDeclaredField("instructProtoMap")
     prototypes.setAccessible(True)
     prototypes.set(lang, java_class("ExactPrototypes")())

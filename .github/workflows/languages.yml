@@ -7,8 +7,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 env:
-  GHIDRA_VERSION: 12.1.4
-  GHIDRA_ZIP: ghidra_12.1.4_PUBLIC_20260921.zip
+  GHIDRA_VERSION: "12.2"
+  GHIDRA_ZIP: ghidra_12.2_PUBLIC_20261016.zip
 jobs:
   architectures:
     runs-on: ubuntu-latest
@@ -31,7 +31,7 @@ jobs:
         arch: ${{ fromJSON(needs.architectures.outputs.list) }}
         fp: [exact, readable]
     env:
-      GHIDRA_INSTALL_DIR: ${{ github.workspace }}/ghidra/ghidra_12.1.4_PUBLIC
+      GHIDRA_INSTALL_DIR: ${{ github.workspace }}/ghidra/ghidra_12.2_PUBLIC
       SASS_COMPILER_HEAP: 13  # one compiler on a 16 GB runner; SM100+ peaked at 11.7 GiB
     steps:
       - uses: actions/checkout@v7
@@ -41,7 +41,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: "25"
       - id: ghidra
         uses: actions/cache@v5
         with:

@@ -65,7 +65,7 @@ def main():
                    help='parallel SLEIGH compiler processes (default: available CPU count)')
     p.add_argument('--coverage',action='store_true',help='collect detailed semantic coverage (slower)')
     p.add_argument('--generate-only',action='store_true',help='write specs and manifests without compiling (no Ghidra needed)')
-    install=Path(os.environ.get('GHIDRA_INSTALL_DIR',str(Path.home()/'Ghidra/ghidra_12.1.4_PUBLIC')))
+    install=Path(os.environ.get('GHIDRA_INSTALL_DIR',str(Path.home()/'Ghidra/ghidra_12.2_PUBLIC')))
     launcher='sleigh.bat' if os.name=='nt' else 'sleigh'
     p.add_argument('--sleigh',type=Path,default=install/'support'/launcher)
     a=p.parse_args();architectures=list(dict.fromkeys(a.architectures or ARCHES))

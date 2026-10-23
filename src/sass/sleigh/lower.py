@@ -767,7 +767,7 @@ class Lower:
         r = self.local(8 * n, expr(f"float2float({s})", s))
         d = self.local(8 * w, expr(f"({s} f- float2float({r}))" + (f" f+ {residual}" if residual else ""), s, r, *([residual] if residual else [])))
         negative = self.local(8, expr(f"{r} s< 0", r))
-        # Infinite inputs leave a NaN residual: the result is exact. Ghidra 12.1.4 orders NaN in
+        # Infinite inputs leave a NaN residual: the result is exact. Ghidra (12.1.4, 12.2) orders NaN in
         # binary128 comparisons, so test it explicitly.
         ordered = self.local(8, expr(f"!nan({d})", d))
         # RP needs only the error's upward test, RM only the downward one.

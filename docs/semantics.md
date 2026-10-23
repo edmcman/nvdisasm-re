@@ -233,7 +233,7 @@ Reading notes:
   0xfff8000000000000. F64 propagates the register as read, so the FP64 families pass the unmodified
   sources as the ops' optional `nans`. The Python evaluator applies it after softfloat (which stays
   IEEE with generic NaNs); the exact lowering ends `float_op` with a branch-free select (`sass_nan`).
-- Ghidra 12.1.4 limits:
+- Ghidra 12.1.4 and 12.2 limits (12.2's `FloatFormat` changes only `opNotEqual`'s `|` to `||`):
   - Its emulator flushes results strictly between half and one minimum subnormal (2^-150, 2^-149 for
     fp32) to zero instead of rounding to the minimum subnormal (`FloatFormat.getEncoding`, the `n < 0`
     branch). The p-code itself is IEEE, so the RN tests exclude that band, for FP32, FP64 and FP16.
