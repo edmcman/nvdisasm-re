@@ -135,6 +135,9 @@ jobs:
           restore-keys: ghidra-results-${{ matrix.arch }}-
       # The up-to-date job checks the committed coverage; plain builds don't write the manifests it summarizes.
       - run: uv run pytest -m ghidra --arch ${{ matrix.arch }} --fp all --deselect tests/test_coverage.py::test_coverage
+      # Headless Ghidra reports why a language failed to load only in its log.
+      - if: failure()
+        run: grep -h -A30 -E '^[0-9-]+ [0-9:]+ ERROR' ~/.config/ghidra/$GHIDRA/application.log | head -300
   package:
     runs-on: ubuntu-latest
     steps:
