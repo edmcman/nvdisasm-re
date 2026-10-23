@@ -21,8 +21,8 @@ Contents:
 [14. Build and verification](#14-build-and-verification)
 
 Reading notes:
-- Hardware evidence is SM89 only (RTX 4070 Laptop GPU); `docs/hardware-facts.md` records what it
-  established. Everything on other architectures is emulator-verified against independent references
+- Hardware evidence is SM89 (RTX 4070 Laptop GPU) and, since 2026-10-22, SM90 (H100 NVL);
+  `docs/hardware-facts.md` records what it established. Everything on other architectures is emulator-verified against independent references
   (`tests/refs/`), PTX/CUDA documentation or ptxas lowering, never GPU-measured.
 - "All nine architectures" below predates SM107 (added 2026-10-14; ten architectures, 20 languages
   since). `processor/SASS/semantics/coverage.json` is authoritative for what is native where.
@@ -128,8 +128,13 @@ Reading notes:
   They are generated, not committed; the runtime needs none (primitives carry their arguments).
   [`coverage.json`](../processor/SASS/semantics/coverage.json) is the committed compact ledger for all
   architectures. Verification evidence is per class, derived from the tests into
-  [`evidence.json`](../processor/SASS/semantics/evidence.json): SM89 GPU fixture targets, `tests/ptx`
-  probes and reference emulator cases (`tests/evidence.py`).
+  [`evidence.json`](../processor/SASS/semantics/evidence.json): SM89/SM90 GPU fixture targets and
+  shared cases, `tests/ptx` probes and reference emulator cases (`tests/evidence.py`), each with the
+  forms it ran. A class without modifiers (MOV R,R, IABS, S2R) records its one, empty form
+  (`"modifiers": []`, `[[]]`) since 2026-10-23; before, it recorded only class-level evidence, which
+  read as "no form ran". `sass.provenance.evidence(arch, word)` looks a word's class and form up:
+  `{kind: architectures}`, reference and ptxas from the word's own architecture, gpu from every
+  architecture whose GPU ran the same class and form (an SM80 word can be backed by SM89 hardware).
 - `uv run sass-census SMxx...` ranks classes in the real corpus by static occurrence and
   native/primitive/opaque status (each word's status is its family's decision for that encoding, via
   `lifter`; ~2 min per arch on 32 cores).

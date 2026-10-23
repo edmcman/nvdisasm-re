@@ -118,6 +118,10 @@ d.klass.name  # 'imad_pseudo__RRR_RRR' (the md CLASS that matched)
 d.env         # decoded field values, e.g. d.env["Rd"] == 16
 ```
 
+`sass.provenance.evidence("SM89", word)` says which evidence ran a word's class and modifier form,
+e.g. `{"gpu": {"SM89", "SM90"}, "reference": {"SM89"}}`, from the committed
+`processor/SASS/semantics/evidence.json`; the wheel leaves it out (85 MB), so outside a checkout
+point `$SASS_EVIDENCE` at a copy.
 Words that don't decode raise `pydecode.NoMatch`. The rules it implements (how classes are
 matched, which md conventions `nvdisasm` honours, and its printing quirks) are listed in
 [`docs/decoding.md`](docs/decoding.md).
