@@ -49,6 +49,9 @@ def compile_all(sleigh,output,tasks,jobs):
             if Path(tmp).exists():Path(tmp).unlink()
     completed={}
     heap={**os.environ,'JAVA_TOOL_OPTIONS':f"{os.environ.get('JAVA_TOOL_OPTIONS','')} -Xmx{COMPILER_HEAP}g".strip()}
+    # Ghidra's launcher saves the JDK path on first use with a racy exists-then-mkdirs, which failed CI's
+    # concurrent first launches with "Failed to create directory" (2026-10-22); one bare launch saves it first.
+    subprocess.run([str(sleigh)],capture_output=True,env=heap)
     with ThreadPoolExecutor(max_workers=compile_workers(jobs,len(tasks))) as pool:
         futures={pool.submit(compile_one,arch,fp):(arch,fp) for arch,fp in tasks}
         for future in as_completed(futures):

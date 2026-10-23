@@ -86,21 +86,15 @@ def test_every_legacy_fixture_constructs_for_target(arch):
 def test_evidence_migration_and_architecture_isolation(tmp_path, monkeypatch):
     path = tmp_path / 'passes.json'
     monkeypatch.setattr(device_evidence, 'PASSES', path)
-    path.write_text(json.dumps(dict(version=2, families={'old': {'device': 'SM89'}})))
-    assert device_evidence.passes()['architectures'] == {'SM89': {'old': {'device': 'SM89'}}}
     c = Cases('SM90')
     c.add('mov__RI', dict(Rd=8, Sb=19, PixMaskU04=15), {}, dict(R8=19))
     s = device_cases.Scenario('unit', c.encode_words()[0], 'scalar', arch='SM90')
-    device_evidence.record([s], {s.id: []}, 0, 'H100', ['binary'], arch='SM90')
-    records = device_evidence.passes()['architectures']
-    assert records['SM89']['old'] == {'device': 'SM89'}
-    record = records['SM90']['unit']
-    found = device_evidence.summary([s], False)
-    assert device_evidence.valid(record, found, 'SM90')
-    assert not device_evidence.valid(record, found, 'SM89')
-    device_evidence.record([s], {}, 0, 'H100', ['binary'], arch='SM90')
+    with pytest.raises(ValueError, match='architecture'): device_evidence.record([s], {s.id: []}, 'H100')
+    device_evidence.record([s], {s.id: []}, 'H100', arch='SM90')
+    assert device_evidence.passes()['architectures']['SM90'] == {'H100': [device_evidence.fingerprint(s)]}
+    assert not device_evidence.passed('SM89')
+    device_evidence.record([s], {s.id: ['R8: GPU 0x13, reference 0x14']}, 'H100', arch='SM90')
     assert device_evidence.passes()['architectures']['SM90'] == {}
-    assert device_evidence.passes()['architectures']['SM89'] == records['SM89']
     monkeypatch.setattr(hardware, 'PASSES', path)
     path.write_text(json.dumps({'old': {'fingerprint': 'SM89'}}))
     assert hardware.passes()['architectures'] == {'SM89': {'old': {'fingerprint': 'SM89'}}}

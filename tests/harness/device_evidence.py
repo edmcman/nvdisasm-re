@@ -1,57 +1,17 @@
-"""Hardware evidence for complete shared-case families; recorded passes never skip execution."""
-import ast
+"""Hardware evidence for shared cases: a fingerprint per scenario of what ran on the GPU and how it was
+judged, recorded when it passes; recorded passes never skip execution."""
 import hashlib
-import importlib.util
+import inspect
 import json
 from collections import Counter
 from functools import cache
-from pathlib import Path
 from sass.paths import ROOT
-from tests.cases import stream
-from tests.harness import device_cases, sampling, sharded
+from tests.cases import FAMILIES, stream
+from tests.harness import device_cases, sharded
+from tests.refs import fpformat
 
 PASSES = ROOT / 'tests/baseline/gpu_case_passes.json'
-
-
-# Modules a recorded pass does not depend on: the semantics under test never run on the GPU, and
-# the cases (their requests, expected values and target words) are already in the signature.
-# softfloat is the one semantics module references may use (fpformat compares FP8 NaNs with it).
-INDEPENDENT = ('sass.semantics', 'tests.cases', 'tests.harness.autocases')
-SHARED = ('sass.semantics.fp.softfloat',)
-HARNESS = ('tests.harness.device_cases', 'tests.harness.device_setup', 'tests.harness.device_runner')
-
-
-def imports(path):
-    """Absolute module names imported anywhere in a source file, with `from X import y` also naming X.y."""
-    out = []
-    for node in ast.walk(ast.parse(path.read_text())):
-        if isinstance(node, ast.Import): out += [a.name for a in node.names]
-        elif isinstance(node, ast.ImportFrom) and node.module and not node.level:
-            out += [node.module, *(f'{node.module}.{a.name}' for a in node.names)]
-    return out
-
-
-def sources():
-    """Source files that build, run and compare a GPU case: the harness modules' import closure within
-    sass and tests, minus INDEPENDENT."""
-    seen, todo = {}, list(HARNESS)
-    while todo:
-        name = todo.pop()
-        if name in seen or not name.startswith(('sass.', 'tests.')) or name.startswith(INDEPENDENT) and name not in SHARED: continue
-        try: spec = importlib.util.find_spec(name)
-        except ModuleNotFoundError: spec = None
-        seen[name] = spec and spec.origin and Path(spec.origin)
-        if seen[name]: todo += imports(seen[name])
-    return sorted({p for p in seen.values() if p})
-
-
-@cache
-def generator(arch="SM89"):
-    paths = [*sources(), *sorted(p for p in (ROOT / 'out' / arch).rglob('*') if p.is_file())]
-    digest = hashlib.sha256()
-    for path in paths:
-        digest.update(str(path.relative_to(ROOT)).encode()); digest.update(path.read_bytes())
-    return digest.hexdigest()[:24]
+VERSION = 4
 
 
 def hardware_expected(case):
@@ -59,28 +19,36 @@ def hardware_expected(case):
     return {k: v for k, v in expected.items() if not k.startswith('__') or k in ('__memory', '__counter', '__fp8_nan')}
 
 
-def digest(s):
-    request = {k: v for k, v in s.case.request.items() if k != 'inspect_pcode'}
-    data = json.dumps((s.arch, s.id, request, hardware_expected(s.case), s.case.hardware), sort_keys=True)
-    return int.from_bytes(hashlib.sha256(data.encode()).digest())
+# The code that judges a run; the probe and the hardware expectation fix everything else.
+COMPARISON = hashlib.sha256(''.join(inspect.getsource(f) for f in (
+    device_cases.compare, hardware_expected, fpformat.same_fp8)).encode()).hexdigest()
+
+
+def fingerprint(s):
+    """What scenario s runs on the GPU and how its result is judged: its probe built alone (target word,
+    inputs, setup, scheduling, capture layout, launch shape), its hardware expectation and the
+    comparison code. Edits elsewhere, or other cases, leave it unchanged."""
+    p = device_cases.scalar_probe([s], 'probe')
+    data = (COMPARISON, s.arch, s.kind, [f'{w:032x}' for w in p.code.words], p.constants, p.observations, p.arena.hex(),
+            p.shared, p.frame_size, p.threads, p.grid, hardware_expected(s.case))
+    return hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()[:24]
 
 
 def summary(scenarios, ids=True):
-    """What a family's evidence depends on, mergeable across shards: case and kind counts, emulator
-    reasons, the words and digest sum (an order-free signature) of those that run on the GPU, and
-    optionally the scenario ids."""
-    out = dict(cases=0, kinds=Counter(), reasons=Counter(), digest=0, words=set(), ids=set())
+    """A family's selection, mergeable across shards: case and kind counts, emulator reasons, the
+    fingerprints of each word's GPU scenarios and optionally the scenario ids."""
+    out = dict(cases=0, kinds=Counter(), reasons=Counter(), fingerprints={}, ids=set())
     for s in scenarios:
         out['cases'] += 1; out['kinds'][s.kind] += 1
         if ids: out['ids'].add(s.id)
         if s.kind == 'emulator': out['reasons'][s.reason] += 1
-        else: out['digest'] += digest(s); out['words'].add(s.case.request['word'])
+        else: out['fingerprints'].setdefault(s.case.request['word'], set()).add(fingerprint(s))
     return out
 
 
 def merge(a, b):
-    return dict(cases=a['cases'] + b['cases'], kinds=a['kinds'] + b['kinds'], reasons=a['reasons'] + b['reasons'],
-                digest=a['digest'] + b['digest'], words=a['words'] | b['words'], ids=a['ids'] | b['ids'])
+    words = {w: a['fingerprints'].get(w, set()) | b['fingerprints'].get(w, set()) for w in a['fingerprints'].keys() | b['fingerprints'].keys()}
+    return dict(cases=a['cases'] + b['cases'], kinds=a['kinds'] + b['kinds'], reasons=a['reasons'] + b['reasons'], fingerprints=words, ids=a['ids'] | b['ids'])
 
 
 def classified(job):
@@ -99,44 +67,36 @@ def summaries(families, sample, shards=sharded.shards, arch="SM89"):
     return out
 
 
-def signature(found): return f"{found['digest'] % 2 ** 256:064x}"[:24]
-
-
-def words(found): return sorted(found['words'])
-
-
 def passes():
-    found = json.loads(PASSES.read_text()) if PASSES.exists() else dict(families={})
-    return found if 'architectures' in found else dict(version=3, architectures={'SM89': found.get('families', {})})
+    """{"version": 4, "architectures": {arch: {device: [fingerprint]}}}"""
+    found = json.loads(PASSES.read_text()) if PASSES.exists() else dict(version=VERSION, architectures={})
+    if found.get('version') != VERSION: raise ValueError(f'{PASSES}: version {found.get("version")}, expected {VERSION}')
+    return found
 
 
-def valid(record, found, arch="SM89"):
-    return (record.get('sampling_version') == sampling.VERSION and record.get('generator') == generator(arch) and record.get('signature') == signature(found)
-            and record.get('words') == words(found) and bool(record.get('device')) and bool(record.get('kernels')))
+def passed(arch): return set().union(*passes()['architectures'].get(arch, {}).values())
 
 
-def record(scenarios, results, sample, device, kernels, arch="SM89"):
-    sample = sampling.percentage(sample)
-    found = passes(); found['version'] = 3
-    if any(s.arch != arch for s in scenarios): raise ValueError('evidence architecture does not match scenarios')
-    families = found['architectures'].setdefault(arch, {})
-    for family in dict.fromkeys(s.family for s in scenarios):
-        selected = [s for s in scenarios if s.family == family and s.kind != 'emulator']
-        families.pop(family, None)
-        if not selected or not device or any(s.id not in results or results[s.id] for s in selected): continue
-        ran = summary(selected, False)
-        families[family] = dict(generator=generator(arch), signature=signature(ran), sample=sample, sampling_version=sampling.VERSION,
-                                cases=len(selected), words=words(ran), device=device, kernels=sorted(set(kernels)))
+def write(found):
     # Atomic replacement prevents interruption from leaving a truncated evidence file.
     path = PASSES.with_suffix('.tmp')
     path.write_text(json.dumps(found, indent=1, sort_keys=True) + '\n'); path.replace(PASSES)
 
 
-def verified_words(arch="SM89"):
-    records = {f: r for f, r in passes()['architectures'].get(arch, {}).items() if r.get('sampling_version') == sampling.VERSION and r.get('generator') == generator(arch)}
-    out = []
-    for sample in sorted({r['sample'] for r in records.values()}):
-        families = tuple(f for f, r in records.items() if r['sample'] == sample)
-        found = summaries(families, sample, arch=arch) if families else {}
-        out += [(f, w) for f in families if valid(records[f], found[f], arch) for w in records[f]['words']]
-    return out
+def record(scenarios, results, device, arch="SM89"):
+    """Add the fingerprints of the GPU scenarios that passed on `device` and drop those that failed;
+    scenarios without a result keep whatever was recorded."""
+    if any(s.arch != arch for s in scenarios): raise ValueError('evidence architecture does not match scenarios')
+    ran = {fingerprint(s): results[s.id] for s in scenarios if s.kind != 'emulator' and s.id in results}
+    failed = {f for f, problems in ran.items() if problems}
+    found = passes(); devices = found['architectures'].setdefault(arch, {})
+    if device: devices[device] = [*devices.get(device, ()), *(f for f, problems in ran.items() if not problems)]
+    found['architectures'][arch] = {d: sorted(set(fs) - failed) for d, fs in devices.items() if set(fs) - failed}
+    write(found)
+
+
+def verified_words(arch="SM89", sample=0, families=FAMILIES):
+    """(family, word) for the words whose every GPU scenario in the current selection has passed."""
+    known = passed(arch)
+    if not known: return []
+    return [(f, w) for f, s in summaries(tuple(families), sample, arch=arch).items() for w, fs in sorted(s['fingerprints'].items()) if fs <= known]

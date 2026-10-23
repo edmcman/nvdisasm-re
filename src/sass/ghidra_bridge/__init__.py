@@ -4,10 +4,10 @@ import ast, hashlib, json, os, subprocess
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from functools import cache as memoize
 from pathlib import Path
-from sass.paths import CACHE, GHIDRA_PY, LANGUAGES, LDEFS, ROOT, language
+from sass.paths import CACHE, GHIDRA_PY, LANGUAGES, LDEFS, language
 from sass.sqlcache import open_cache
 
-SOURCES = ROOT / "src"
+SOURCES = Path(__file__).resolve().parents[2]  # the directory holding sass
 
 
 def module_file(module):

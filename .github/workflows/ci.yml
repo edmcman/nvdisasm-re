@@ -135,3 +135,18 @@ jobs:
           restore-keys: ghidra-results-${{ matrix.arch }}-
       # The up-to-date job checks the committed coverage; plain builds don't write the manifests it summarizes.
       - run: uv run pytest -m ghidra --arch ${{ matrix.arch }} --fp all --deselect tests/test_coverage.py::test_coverage
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.13"
+      - run: uv build --wheel -o dist
+      - name: the examples run against the installed wheel, outside the repository
+        working-directory: ${{ runner.temp }}
+        run: |
+          uv venv -p 3.13 v && uv pip install --python v "$GITHUB_WORKSPACE"/dist/*.whl
+          test "$(v/bin/python -I -c 'import sass.paths; print(sass.paths.CHECKOUT)')" = False
+          v/bin/sass-assemble "$GITHUB_WORKSPACE/examples/assembler/write_value.sass" -o w.cubin
+          for e in "lift_cubin.py w.cubin" assemble_and_lift.py evaluate.py; do v/bin/python -I "$GITHUB_WORKSPACE"/examples/$e; done
