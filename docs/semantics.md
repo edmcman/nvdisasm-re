@@ -133,6 +133,9 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   constants as the same `sel` of `f`'s values (SLEIGH: the same keys, rows and collapse
   `select_lookup` builds). SLEIGH is then unchanged.
 - Defined (2026-10-23):
+  - Float operand modifiers: `abs.f<w>`, `neg.f<w>` (`family.float_abs`/`float_neg`, used by
+    `fvalue` and the conversions' sources; SLEIGH's `Symbolic.modified` lowers one before
+    recognizing its mask).
   - Float: `ftz`/`ftz.bf16` (`floating.flushed`, shared by FADD/FFMA/FMNMX, the packed lanes and
     FRND/F2I's input `.FTZ`), `fmz` (HMUL2), `sat`, `fchk.divide`, DSETP's `setp.min/max.f64`.
   - FP64 arithmetic: `add/mul/fma.<mode>.f64` (DADD/DMUL/DFMA). Their NaN result comes from the

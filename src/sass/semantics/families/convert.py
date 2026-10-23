@@ -4,7 +4,7 @@ out-of-range results follow SM89 hardware (tests/cases/conversions.py GPU fixtur
 from sass.semantics.fp import fpformat
 from sass.semantics.fp.fpformat import FORMATS
 from sass.semantics.bitvec import *
-from sass.semantics.family import definition, family, helper, outputs, same, unmodelled
+from sass.semantics.family import definition, family, float_abs, float_neg, helper, outputs, same, unmodelled
 from sass.semantics.families.floating import IEEE, flushed, readable
 
 FLOATS = {16: "F16", 32: "F32", 64: "F64"}
@@ -38,9 +38,8 @@ def source(i, names, w, modified=True):
             case other: unmodelled(f"hsel {other}")
     if v.w != w: unmodelled(f"{v.w}-bit source for F{w}")
     if not modified: return v
-    sign = 1 << w - 1
-    v = i.modified(name, "absolute", v, lambda x: x & (sign - 1))
-    return i.modified(name, "negate", v, lambda x: x ^ sign)
+    v = i.modified(name, "absolute", v, float_abs)
+    return i.modified(name, "negate", v, float_neg)
 
 
 def quiet(x, src, dst):

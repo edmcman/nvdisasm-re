@@ -109,6 +109,8 @@ def same(operator, function, *xs, values=VALUES32):
     ("SM90", "FMNMX.XORSIGN R0, R2, -R3, P2", {"fmnmx.xorsign"}),
     ("SM90", "F2I.FTZ.BF16 R0, R2", {"cvt.rni.s32.bf16", "ftz.bf16"}),
     ("SM90", "VIMNMX.S16x2.RELU R0, R2, R3, !PT", {"relu.s32", "max.s32"}),
+    ("SM89", "FFMA R0, -R2, |R3|, -|R4|", {"neg.f32", "abs.f32"}),
+    ("SM89", "DFMA R0, -R2, R4, R6", {"neg.f64", "fma.rn.f64"}),
 ])
 def test_more_names(arch, text, names):
     assert names <= operators(arch, text).keys()
@@ -247,8 +249,10 @@ def test_show():
     described = bitvec.show(writes, describe=True).splitlines()
     assert described[1].startswith("# ftz: Flush to zero")
     expanded = bitvec.show(writes, expand=True).splitlines()
-    assert "ftz(" not in expanded[0]
+    assert "ftz(" not in expanded[0]   # once-used expansions inline, pointed at where they are
     assert {"╰ ftz(R2)", "╰ ftz(R3)", "╰ ftz(t0)"} <= {l.strip(" │") for l in expanded}
+    fmnmx = bitvec.show([(str(l), v) for l, v in lifter.lift("SM89", assemble_instruction("SM89", "FMNMX.FTZ R0, R2, R3, PT")).writes], expand=True).splitlines()
+    assert fmnmx[0].startswith("t0 = R2 & ") and fmnmx[2].strip() == "╰ ftz(R2)"   # a shared tN's line points at its operator
 
 
 @definition("test.duplicate")

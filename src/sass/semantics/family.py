@@ -251,6 +251,18 @@ def definition(name):
 BUILTIN = {"const", "param", "reg", "load", "ite", "sel", "primitive", "tuple"}
 
 
+@definition(lambda a: (f"abs.f{a['x'].w}", ["x"]))
+def float_abs(x):
+    """PTX abs on a float: its sign bit cleared."""
+    return x & ((1 << x.w - 1) - 1)
+
+
+@definition(lambda a: (f"neg.f{a['x'].w}", ["x"]))
+def float_neg(x):
+    """PTX neg on a float: its sign bit flipped."""
+    return x ^ (1 << x.w - 1)
+
+
 def expander(staged, forms):
     """The expansion of a label's operands: the fixed arguments of its form (by operand count) and
     the kept ones rebuilt."""
@@ -581,9 +593,8 @@ class Instruction:
         name = self.resolve(names); self.asked.add(name)
         v = self.operand(name, width or self.width(name))
         if not modifiers: return v
-        sign = 1 << v.w - 1
-        v = self.modified(name, "absolute", v, lambda x: x & (sign - 1))
-        return self.modified(name, "negate", v, lambda x: x ^ sign)
+        v = self.modified(name, "absolute", v, float_abs)
+        return self.modified(name, "negate", v, float_neg)
 
     def pred(self, names, modifiers=True):
         name = self.resolve(names); self.asked.add(name)

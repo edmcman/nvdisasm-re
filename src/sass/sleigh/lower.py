@@ -65,7 +65,7 @@ class Symbolic(Instruction):
         choose = lambda x, fx: [((bit,), t) for bit, t in ((0, x), (1, fx)) if clauses(self.b, key, bit) is not None]
         if holds_load(self.b, v):
             placeholder = bitvec.param("__modified", v.w)
-            t = f(placeholder)
+            t = bitvec.lowered(f(placeholder))   # a defined modifier (abs.f32) as its mask
             if t.op not in MASKS or t.args[0] is not placeholder or not bitvec.is_const(t.args[1]): return super().modified(name, attr, v, f)
             self.asked.add(key)
             cases = choose(bitvec.const(MASKS[t.op], v.w), t.args[1])

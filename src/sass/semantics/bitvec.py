@@ -603,7 +603,7 @@ def show(outputs, expand=False, describe=False):
     constants with their width only when it isn't 32 bits. A defined operator prints as a call
     (with the value of a constant expression after it), with `describe` followed by the English
     descriptions of those used; `expand` prints the lowered expressions instead, each expansion
-    pointing at the operator it came from."""
+    pointing at the operator it came from (on its tN line when it has one)."""
     origins, used, memo = {}, set(), {}
     if expand:
         outputs = [(d, lowered(e, memo, lambda out, e: origins.__setitem__(out, e))) for d, e in outputs]
@@ -632,6 +632,7 @@ def show(outputs, expand=False, describe=False):
             # An expansion points at its operator; a leaf may be anything's result, so it doesn't.
             if expanding and e in origins and e.op not in ("const", "param", "reg") and (define or e not in names):
                 o = origins[e]
+                used.add(o.op)
                 t = Text(t.s, t.spans + ((0, len(t.s), cat(f"{o.op}(", joined([plain(x, True) for x in o.args]), ")").s),))
             return t
         def shape(e, bare, define):

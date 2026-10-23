@@ -7,7 +7,7 @@ The readable lowering is the plain formula: round to nearest, no flushing, min/m
 (.SAT and the sign modifiers stay)."""
 from sass.semantics.bitvec import *
 from sass.semantics.fp import fpformat
-from sass.semantics.family import definition, family, helper, outputs, unmodelled
+from sass.semantics.family import definition, family, float_abs, float_neg, helper, outputs, unmodelled
 from sass.semantics.families.integer import boolean
 
 SCALES = {'noscale': 0, 'D2': -1, 'D4': -2, 'D8': -3, 'M2': 1, 'M4': 2, 'M8': 3}
@@ -357,7 +357,7 @@ def fmnmx_xorsign(p, rx, ry, x=None, y=None, nan=False):
     XOR of the registers' encoded signs unless it is a NaN.
 
     x, y: the operands, when not the registers' magnitudes."""
-    x, y = (rx & 0x7fffffff, ry & 0x7fffffff) if x is None else (x, y)
+    x, y = (float_abs(rx), float_abs(ry)) if x is None else (x, y)
     r = fmnmx(p, x, y, nan)
     # The result is a NaN when an input is (.NAN) or both are (a number wins otherwise): asked of
     # the inputs, not of r, so testing it doesn't repeat the comparison.
@@ -384,7 +384,7 @@ def fmnmx_(i):
     if readable(i): return outputs(Rd=readable_minmax(p, a, b))
     if not xorsign: return outputs(Rd=fmnmx(p, a, b, nan))
     ra, rb = i.value('Ra|Sa', modifiers=False), i.value('Rb|Sb', modifiers=False)
-    absolute = a is ra & 0x7fffffff and b is rb & 0x7fffffff
+    absolute = a is float_abs(ra) and b is float_abs(rb)
     return outputs(Rd=fmnmx_xorsign(p, ra, rb, *((None, None) if absolute else (a, b)), nan))
 
 
@@ -640,8 +640,8 @@ def pair_lanes(i, names, swizzle, neg=None, half=None):
     else:
         if swizzle and i.has_operand(swizzle) and i.select_fork(swizzle) != 'F32': unmodelled(swizzle)
         lanes = [v, v]
-    lanes = [i.modified(name, 'absolute', x, lambda x: x & (SIGN32 - 1)) for x in lanes]
-    lanes = [i.modified(name, 'negate', x, lambda x: x ^ SIGN32) for x in lanes]
+    lanes = [i.modified(name, 'absolute', x, float_abs) for x in lanes]
+    lanes = [i.modified(name, 'negate', x, float_neg) for x in lanes]
     if neg and i.has_operand(neg):
         # .NP on a broadcast: no ptxas form (it copies the register instead), so unmodelled.
         lanes[1] = lanes[1] ^ i.select_lookup_const(neg, {'PP': 0, 'NP': SIGN32} if half or v.w == 64 else {'PP': 0})
