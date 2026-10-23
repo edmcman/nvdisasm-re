@@ -244,6 +244,10 @@ def session(ldefs,langid):
             import traceback
             traceback.print_exc(file=sys.stderr)
             return {'error':runtime.last_error or str(error)}
+        finally:
+            # Ghidra 12.2's weak SYMBOL_CACHE values hold their keys, so every library an executor ran
+            # (each thread's, with its emulator) would stay reachable: 4-7 GB a session in CI's fixtures.
+            PcodeUseropLibrary.SYMBOL_CACHE.clear()
     return handle
 
 
