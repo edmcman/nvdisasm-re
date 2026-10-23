@@ -56,13 +56,22 @@ class Symbolic(Instruction):
         return bitvec.param(name, width)
 
     def modified(self, name, attr, v, f):
-        # A decode-time choice of this value, not a branch of every row on the bit; except for a
-        # loaded operand, whose load each choice table would repeat (rows keep it in one body).
+        # A decode-time choice of this value, not a branch of every row on the bit. A value holding
+        # a loaded operand would repeat its load in each choice table: a mask modifier (v & K, v ^ K,
+        # v | K: |x|, -x) then chooses its constant instead, applied to the one load; any other forks
+        # the rows (each keeps the load in one body).
         key = (name, attr)
         if key not in self._encoded: return v
-        if getattr(self.b.values.get(name), "kind", None) in LOADS: return super().modified(name, attr, v, f)
+        choose = lambda x, fx: [((bit,), t) for bit, t in ((0, x), (1, fx)) if clauses(self.b, key, bit) is not None]
+        if holds_load(self.b, v):
+            placeholder = bitvec.param("__modified", v.w)
+            t = f(placeholder)
+            if t.op not in MASKS or t.args[0] is not placeholder or not bitvec.is_const(t.args[1]): return super().modified(name, attr, v, f)
+            self.asked.add(key)
+            cases = choose(bitvec.const(MASKS[t.op], v.w), t.args[1])
+            return bitvec.op(t.op, v, cases[0][1] if len(cases) == 1 else sel((key,), cases, v.w))
         self.asked.add(key)
-        cases = [((bit,), t) for bit, t in ((0, v), (1, f(v))) if clauses(self.b, key, bit) is not None]
+        cases = choose(v, f(v))
         return cases[0][1] if len(cases) == 1 or cases[0][1] is cases[-1][1] else sel((key,), cases, v.w)
 
     def span(self, name):
@@ -176,6 +185,27 @@ def constant_slices(b, e):
     return e
 
 
+def without_nan_results(e, memo):
+    """e with each nanresult(r, nan) as r, choice arms included: the readable lowering keeps
+    Ghidra's NaN bits, and so never computes the GPU's NaN."""
+    if not isinstance(e, Expr) or e.op in ("param", "reg", "const"): return e
+    if e not in memo:
+        match e.op:
+            case "nanresult": memo[e] = without_nan_results(e.args[0], memo)
+            case "sel": memo[e] = sel(e.args[0], [(v, without_nan_results(t, memo)) for v, t in e.args[1]], e.w)
+            case _:
+                args = tuple(without_nan_results(a, memo) for a in e.args)
+                memo[e] = e if all(x is y for x, y in zip(args, e.args)) else Expr(e.op, args, e.w)
+    return memo[e]
+
+
+def readable_outputs(out):
+    memo = {}
+    strip = lambda e: without_nan_results(e, memo)
+    return replace(out, writes={n: strip(t) for n, t in out.writes.items()},
+                   stores=tuple(replace(s, address=strip(s.address), value=strip(s.value)) for s in out.stores))
+
+
 def enumerate_rows(b, fam):
     """[(assignment, Outputs | Unmodelled)] over the static questions the family asks."""
     rows, todo = [], [{}]
@@ -183,6 +213,7 @@ def enumerate_rows(b, fam):
         assignment = todo.pop()
         try:
             out = fam(Symbolic(b, assignment))
+            if b.g.fp == "readable": out = readable_outputs(out)
             rows.append((assignment, replace(out, writes={n: constant_slices(b, t) for n, t in out.writes.items()})))
         except Branch as br:
             todo += [{**assignment, br.key: v} for v in reversed(br.domain)]
@@ -210,7 +241,8 @@ class Merger:
     choices it built so that a choice agreeing with an earlier one is that one (LOP3's Pu reuses
     Rd's table)."""
 
-    def __init__(self):
+    def __init__(self, loads=frozenset()):
+        self.loads = loads                 # (operand, p-code ops of its load), for cost
         self.choices = defaultdict(list)   # keys -> [(cases, default, choice)]
         self.merged = {}                   # (trees, rows) -> merge: subtrees recur (operands, wide values)
         self.deciding = {}                 # (partition of the rows, rows) -> determining keys
@@ -276,11 +308,11 @@ class Merger:
                 parts[(v,)] = rows
             return parts
         best, best_cost, best_key = per_output(trees, assignments), None, None
-        best_cost = cost(best)
+        best_cost = self.cost(best)
         for key in sorted({k for a in assignments for k in a}, key=repr):
             if (parts := split(key)) is None: continue
             candidate = self.choice((key,), {v: per_output([trees[j] for j in r], [assignments[j] for j in r]) for v, r in parts.items()}, 0)
-            if (c := cost(candidate)) < best_cost: best_cost, best_key = c, key
+            if (c := self.cost(candidate)) < best_cost: best_cost, best_key = c, key
         if best_key is None: return best
         return self.choice((best_key,), {v: self.bodies([trees[j] for j in r], [assignments[j] for j in r])
                                          for v, r in split(best_key).items()}, 0)
@@ -323,7 +355,9 @@ class Merger:
         # are cheaper as one table of whole trees than as nested tables over the same key.
         whole = self.keys([id(t) for t in trees], assignments)
         flat = self.choice(whole, {tuple(a.get(k) for k in whole): t for t, a in zip(trees, assignments)}, first.w)
-        return min((factored, flat), key=cost)
+        return min((factored, flat), key=self.cost)
+
+    def cost(self, e): return cost(e, self.loads)
 
 
 def specialize(e, assignment, memo=None):
@@ -355,28 +389,31 @@ RUNTIME = 8   # an operation executed per instruction outweighs a node of .sla
 
 
 @cache
-def cost(e):
+def cost(e, loads=frozenset()):
     """Generated size (nodes outside choices once, every choice arm with its row) plus RUNTIME per
     operation on the longest execution path. A choice is its own subtable: its arms can't reuse
-    values computed in the body or another table, so what several tables reference runs again."""
+    values computed in the body or another table, so what several tables reference runs again,
+    a loaded operand's load (`loads`: (operand, ops)) too."""
     seen = set()
     def static(n):
         if not isinstance(n, Expr) or n in seen: return 0
         seen.add(n)
         if n.op == "sel": return sum(CONSTRUCTOR + static(t) for _, t in n.args[1])
         return 1 + sum(static(a) for a in n.args)
-    return static(e) + RUNTIME * operations(e)
+    return static(e) + RUNTIME * operations(e, loads)
 
 
 @cache
-def operations(e):
+def operations(e, loads=frozenset()):
     """Operations on e's longest execution path: each one outside choices once, plus a choice's
-    longest arm (memoized: arms share subtrees and nest choices)."""
-    done = set()
+    longest arm (memoized: arms share subtrees and nest choices), and a loaded operand's load each
+    time a table reads it."""
+    load_ops, done = dict(loads), set()
     def path(n):
-        if not isinstance(n, Expr) or n in done or n.op in ("const", "param", "reg"): return 0
+        if not isinstance(n, Expr) or n in done or n.op in ("const", "reg"): return 0
         done.add(n)
-        if n.op == "sel": return 1 + max(operations(t) for _, t in n.args[1])
+        if n.op == "param": return load_ops.get(n.args[0], 0)
+        if n.op == "sel": return 1 + max(operations(t, loads) for _, t in n.args[1])
         return (n.op != "tuple") + sum(path(a) for a in n.args)
     return path(e)
 
@@ -644,6 +681,7 @@ class Lower:
                 return self.local(e.w, expr(" | ".join(map(str, reversed(parts))), *parts))
             case "ite": return self.ite(*a)
             case "fadd" | "fmul" | "ffma": return self.float_op(e)
+            case "nanresult": return self.nan_result(e)
             case "fconv": v = self.value(a[0]); return self.local(e.w, expr(f"float2float({v})", v))   # sized by its local
             case "flt" | "fle" | "feq": return self.binary(FLOAT_CMP[e.op], self.value(a[0]), self.value(a[1]))
             case "fnan": v = self.value(a[0]); return expr(f"nan({v})", v)
@@ -678,6 +716,12 @@ class Lower:
         elif rnd == "RN": v = self.nearest(e.op, xs, n, scale)
         else: return self.directed(e.op, xs, n, rnd, scale)
         return v   # materialized by value() when used more than once
+
+    def nan_result(self, e):
+        """r, or the GPU's NaN (bitvec.sass_nan) where r is a NaN, without a branch (the readable
+        lowering has none: readable_outputs)."""
+        r, nan = self.named(self.value(e.args[0]), e.w), self.value(e.args[1])
+        return self.local(e.w, expr(f"{r} ^ (({nan} ^ {r}) * zext(nan({r})))", r, nan))
 
     def float_formula(self, op, xs, n, scale):
         match op:
@@ -915,6 +959,21 @@ def value_table(b, e):
 
 
 LOADS = ("constant-load", "cx-load")   # operands whose subtable does a memory access when built
+LOAD_OPS = {"constant-load": 1, "cx-load": 11}   # p-code operations of those subtables (cx: bounds check, address, load)
+MASKS = {"and": -1, "xor": 0, "or": 0}   # mask operations and the constant that leaves a value unchanged
+
+
+def holds_load(b, e):
+    """Whether e reads a loaded operand: a value table holding it would load again."""
+    seen, stack = set(), [e]
+    while stack:
+        n = stack.pop()
+        if not isinstance(n, Expr) or n in seen: continue
+        seen.add(n)
+        if n.op == "param" and getattr(b.values.get(n.args[0]), "kind", None) in LOADS: return True
+        stack.extend(n.args)
+    return False
+
 
 
 def shared_subtrees(trees, b=None, leaves=frozenset()):
@@ -935,8 +994,7 @@ def shared_subtrees(trees, b=None, leaves=frozenset()):
         for n in nodes(t, frozenset()): counts[n] += 1
         direct |= nodes(t).keys()
     # Even small shared parts: measured on SM89, hoisting everything shared gives the smallest .sla.
-    loads = lambda n: b is not None and any(m.op == "param" and getattr(b.values.get(m.args[0]), "kind", None) in LOADS for m in nodes(n, frozenset()))
-    shared = [n for n, c in counts.items() if c > 1 and n in direct and n.op not in ("const", "param", "reg") and not loads(n)]
+    shared = [n for n, c in counts.items() if c > 1 and n in direct and n.op not in ("const", "param", "reg") and not (b is not None and holds_load(b, n))]
     def below(n, seen):
         for a in n.args:
             if isinstance(a, Expr) and a not in seen: seen.add(a); below(a, seen)
@@ -1092,7 +1150,7 @@ def emit(b):
     optional = [n for n in names if n not in FIXED and not pseudo(n) and REG_TYPES.get(b.k.operand_types[n].type) in ("P", "UP")
                 and clauses(b, ("zero", n), True) not in (None, [])]
     assignments = [a for a, _ in resolved]
-    merger = Merger()
+    merger = Merger(frozenset((n, LOAD_OPS[v.kind]) for n, v in b.values.items() if getattr(v, "kind", None) in LOAD_OPS))
     def body(live):
         if not live: return Code()
         merged = merger.bodies([Expr("tuple", tuple(dict(w)[n] for n in live), 0) for _, w in resolved], assignments)

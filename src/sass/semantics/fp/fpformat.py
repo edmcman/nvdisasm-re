@@ -239,7 +239,10 @@ def narrow(x, src, dst, rnd="RN", satfinite=False, nan=None, overflow=None):
     magnitude) results, see dest()."""
     s, f = FORMATS[src], FORMATS[dst]
     if f.emin < s.emin or f.mbits >= s.mbits: raise ValueError(f"{src} -> {dst} is not a narrowing")
-    sign, mag, _ = narrow_parts(x, src, dest(dst, nan, overflow), rounding(rnd), satfinite)
+    d = dest(dst, nan, overflow)
+    # An unsigned destination NaN replaces every source NaN: which NaN the arithmetic gave is moot.
+    if x.op == "nanresult" and not isinstance(d.nan_signed, Expr) and not d.nan_signed: x = x.args[0]
+    sign, mag, _ = narrow_parts(x, src, d, rounding(rnd), satfinite)
     return concat(sign, extract(mag, f.ebits + f.mbits - 1, 0))
 
 

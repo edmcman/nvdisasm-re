@@ -76,24 +76,24 @@ def selection(c):
 @retained('Seeded rounding/cancellation and exponent boundaries, directed residuals, dense FMZ zero/Inf/NaN factor pairs and p-code costs exceed the form profile.')
 def arithmetic(c):
     for cls, fields, regs, expected in [
-            ("fadd__RRR_RR", dict(Rd=8, Ra=2, Rc=4), dict(R2=0x3f800000, R4=0x40000000), dict(R8=0x40400000, __max_ops=2)),
+            ("fadd__RRR_RR", dict(Rd=8, Ra=2, Rc=4), dict(R2=0x3f800000, R4=0x40000000), dict(R8=0x40400000, __max_ops=7)),
             ("fadd__RRR_RR", dict(Rd=8, Ra=2, Rc=4, rnd="RZ"), dict(R2=0x3f800000, R4=0x33800001), dict(R8=0x3f800000))]:
         c.add(cls, fields, regs, expected)
     rng = random.Random("fp32")
-    edges = [0, 0x80000000, 1, 0x80000001, 0x007fffff, 0x00800000, 0x3f800000, 0xbf800000, 0x7f7fffff, 0xff7fffff, 0x7f800000, 0xff800000, 0x3effffff, 0x4b800001]
+    edges = [0, 0x80000000, 1, 0x80000001, 0x007fffff, 0x00800000, 0x3f800000, 0xbf800000, 0x7f7fffff, 0xff7fffff, 0x7f800000, 0xff800000, 0x3effffff, 0x4b800001, 0x7fc12345, 0xff812345]
     vs = vectors(edges + [rng.getrandbits(32) & 0xbfffffff for _ in range(10)] + [rng.getrandbits(32) for _ in range(10)])
     for x, y, z in vs:
         for rnd, flush, sat in itertools.product(ROUNDINGS, (False, True), (False, True)):
             for op, cls, fields in ops(flush):
                 inputs = [x, y, z][:3 if op == "fma" else 2]
-                want = softfloat.arithmetic(op, inputs, 32, rnd, flush, sat)
-                if nan32(want) or (rnd == "RN" and underflow_band(op, inputs, 32)): continue
+                want = rounded(op, inputs, 32, rnd, flush, sat)
+                if rnd == "RN" and underflow_band(op, inputs, 32): continue
                 c.add(cls, dict(fields, rnd=rnd, sat="SAT" if sat else "nosat"), dict(R2=x, R4=y, R6=z), dict(R8=want, __native=True))
     for scale, k in [("D2", -1), ("D8", -3), ("M2", 1), ("M8", 3)]:
         for x, y, _ in vs:
             for rnd in ROUNDINGS:
-                want = softfloat.arithmetic("mul", [x, y], 32, rnd, False, False, k)
-                if not (nan32(want) or rnd == "RN" and underflow_band("mul", [x, y], 32, k)):
+                want = rounded("mul", [x, y], 32, rnd, scale=k)
+                if not (rnd == "RN" and underflow_band("mul", [x, y], 32, k)):
                     c.add("fmul__RRR_RR", dict(Rd=8, Ra=2, Rb=4, scale=scale, rnd=rnd), dict(R2=x, R4=y), dict(R8=want, __native=True))
     # Directed cases whose residual lies below fp64 precision, and exact cancellations
     # whose zero sign depends on the rounding mode.
@@ -111,8 +111,7 @@ def arithmetic(c):
             for op, cls, fields in ops(True, mul_flush="FMZ")[1:]:
                 for z in ((0x80000000, 0x7fc00000, 1, 0xbf800000) if op == "fma" else (0,)):
                     want = fmz(op, [x, y, z][:3 if op == "fma" else 2], rnd)
-                    if not nan32(want):
-                        c.add(cls, dict(fields, fmz="FMZ", rnd=rnd), dict(R2=x, R4=y, R6=z), dict(R8=want, __native=True))
+                    c.add(cls, dict(fields, fmz="FMZ", rnd=rnd), dict(R2=x, R4=y, R6=z), dict(R8=want, __native=True))
 
 
 @retained('Exceptional comparison pairs and constant PT/aliased-predicate regressions exceed the form profile.')
@@ -152,8 +151,8 @@ def uniform(c):
                                 ("mul", "ufmul__UUU", dict(URd=8, URa=2, URb=4, fmz="FTZ" if flush else "nofmz_hfma2")),
                                 ("fma", "uffma__UUU_UUU", dict(URd=8, URa=2, URb=4, URc=6, fmz="FTZ" if flush else "nofmz_hfma2"))]:
             inputs = [x, y, z][:3 if op == "fma" else 2]
-            want = softfloat.arithmetic(op, inputs, 32, rnd, flush)
-            if nan32(want) or (rnd == "RN" and underflow_band(op, inputs, 32)): continue
+            want = rounded(op, inputs, 32, rnd, flush)
+            if rnd == "RN" and underflow_band(op, inputs, 32): continue
             c.add(cls, dict(fields, rnd=rnd), regs(x, y, z), dict(UR8=want, __native=True))
     for (a, b), cmp, bop, p in itertools.product(SET_PAIRS, FCOMPARISONS + ("T", "F"), ("AND", "OR", "XOR"), (0, 1)):
         result = fcompare(ordered(a, 32), ordered(b, 32), cmp)

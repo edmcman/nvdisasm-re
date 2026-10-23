@@ -18,7 +18,7 @@ def test_lift_cubin(tmp_path):
 
 def test_assemble_and_lift():
     assert run("assemble_and_lift.py").splitlines() == [
-        "23720001020000000300000000c00f00 FFMA R0, R1, R2, R3 ffma__RRR_RRR", "native ", "  R0 <- ffma(R1, R2, R3, 'RN')"]
+        "23720001020000000300000000c00f00 FFMA R0, R1, R2, R3 ffma__RRR_RRR", "native ", "  R0 <- nanresult(ffma(R1, R2, R3, 'RN'), 0x7fffffff)"]
 
 
 def test_evaluate(): assert run("evaluate.py") == "FFMA R0, R1, R2, R3 -> 3.25 next pc 0x110\n"

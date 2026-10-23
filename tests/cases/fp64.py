@@ -19,20 +19,21 @@ def pairs(x, y, z): return {**pair("R2", x), **pair("R4", y), **pair("R6", z)}
 def arithmetic(c):
     rng = random.Random("fp64")
     edges = [0, 1 << 63, 1, (1 << 63) | 1, 0x000fffffffffffff, 0x0010000000000000, ONE, 0xbff0000000000000,
-             0x7fefffffffffffff, 0x7ff0000000000000, 0xfff0000000000000, 0x3ff0000000000001]
+             0x7fefffffffffffff, 0x7ff0000000000000, 0xfff0000000000000, 0x3ff0000000000001,
+             0x7ff0000000001234, 0xfff8000000005678]
     values = edges + [rng.getrandbits(64) for _ in range(30)]
     vectors = [(v, values[(i * 7 + 3) % len(values)], values[(i * 5 + 1) % len(values)]) for i, v in enumerate(values)]
     # This cancellation needs an exact wide product, rather than fp64 multiply/add.
     vectors += [(0x3ff0000000000001, 0x3feffffffffffffe, 0xbff0000000000000), (0x7fefffffffffffff, TWO, 0xffefffffffffffff)]
     for i, (x, y, z) in enumerate(vectors):
         for op, cls, fields in OPS:
-            inputs = [x, y, z][:3 if op == "fma" else 2]
+            registers = [x, y, z][:3 if op == "fma" else 2]
+            inputs = list(registers)
             if i % 3 == 0:
                 fields = dict(fields, **{"Ra@absolute": 1, "Ra@negate": 1})
                 inputs[0] |= 1 << 63
             for rnd in ROUNDINGS:
-                want = softfloat.arithmetic(op, inputs, 64, rnd)
-                if softfloat.unpack(want, 64)[0] == "nan": continue
+                want = rounded(op, inputs, 64, rnd, registers=registers)
                 if rnd == "RN" and all(softfloat.unpack(v, 64)[0] == "finite" for v in inputs) and underflow_band(op, inputs, 64): continue
                 c.add(cls, dict(fields, rnd=rnd), pairs(x, y, z), dict(pair("R2", want), __native=True))
     # Directed rounding: the residual carries the sign below the wide sum's precision, and an

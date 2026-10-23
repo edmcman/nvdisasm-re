@@ -53,10 +53,10 @@ def rounding(i):
     return 'RN' if readable(i) else str(mode)
 
 
-def fused(i, a, b, c):
+def fused(i, a, b, c, nans=()):
     """a * b + c: rounded once, or the unfused formula in the readable lowering."""
     rnd = rounding(i)   # asked either way: the readable lowering ignores it
-    return fadd(fmul(a, b), c) if readable(i) else ffma(a, b, c, rnd)
+    return fadd(fmul(a, b), c) if readable(i) else ffma(a, b, c, rnd, nans)
 
 
 @helper
@@ -133,28 +133,31 @@ def ffma_(i):
     return result(i, ftz, fused(i, a, b, c))
 
 
+def double_inputs(i, *names):
+    """(values with -/|.|, registers without): a NaN result propagates the unmodified register (SM89 GPU)."""
+    operand_width(i, 64, *names)
+    return [i.fvalue(n) for n in names], [i.fvalue(n, modifiers=False) for n in names]
+
+
 @family('DADD')
 def dadd_(i):
     """Rd = Ra + Rc (FP64)."""
-    operand_width(i, 64, 'Ra|Sa', 'Rc|Sc')
-    a, c = i.fvalue('Ra|Sa'), i.fvalue('Rc|Sc')
-    return result(i, False, fadd(a, c, rounding(i)))
+    (a, c), nans = double_inputs(i, 'Ra|Sa', 'Rc|Sc')
+    return result(i, False, fadd(a, c, rounding(i), nans))
 
 
 @family('DMUL')
 def dmul_(i):
     """Rd = Ra * Rb (FP64)."""
-    operand_width(i, 64, 'Ra|Sa', 'Rb|Sb')
-    a, b = i.fvalue('Ra|Sa'), i.fvalue('Rb|Sb')
-    return result(i, False, fmul(a, b, rounding(i)))
+    (a, b), nans = double_inputs(i, 'Ra|Sa', 'Rb|Sb')
+    return result(i, False, fmul(a, b, rounding(i), nans=nans))
 
 
 @family('DFMA')
 def dfma_(i):
     """Rd = Ra * Rb + Rc (FP64), rounded once (via binary128: rare midpoint double rounding)."""
-    operand_width(i, 64, 'Ra|Sa', 'Rb|Sb', 'Rc|Sc')
-    a, b, c = i.fvalue('Ra|Sa'), i.fvalue('Rb|Sb'), i.fvalue('Rc|Sc')
-    return result(i, False, fused(i, a, b, c))
+    (a, b, c), nans = double_inputs(i, 'Ra|Sa', 'Rb|Sb', 'Rc|Sc')
+    return result(i, False, fused(i, a, b, c, nans))
 
 
 @helper
@@ -501,7 +504,9 @@ def hsetp2(i):
 SIGN32 = SIGN_EXPONENT[32][0]
 PAIR_SWAPPED = {'F32x2': False, 'F32x2.HI_LO': False, 'F32x2.LO_HI': True, 'F32': False}
 HALF_FORMATS = {'F16x2': 'F16', 'BF16x2': 'BF16'}
-NARROW_NAN = {'F16': (True, 0x7e00), 'BF16': (False, 0x7fff)}   # as F2FP's F16/BF16 packs
+# +0x7fff, as F2FP's F16/BF16 packs (SM89 GPU). F16 nominally keeps the NaN's sign: the narrowed
+# arithmetic NaN is always + (nanresult), and an unsigned F16 NaN made SM107 exact 866 KB larger.
+NARROW_NAN = {'F16': (True, 0x7fff), 'BF16': (False, 0x7fff)}
 
 
 def widened(i, fmt, x):

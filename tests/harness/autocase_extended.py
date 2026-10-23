@@ -1,6 +1,5 @@
 """Floating-point and predicate adapters; expectations use independent test references."""
 import itertools
-from sass.semantics.fp import softfloat
 from tests.harness import autocase_profiles
 from tests.harness.case import source, put
 from tests.refs import integer
@@ -92,8 +91,8 @@ def floating(c,k,form):
             sat=form.get('sat')=='SAT'
             if exact:
                 result=(float.fmz(operation,xs,form['rnd'],sat,scale) if form.get('fmz')=='FMZ' else
-                        softfloat.arithmetic(operation,xs,width,form['rnd'],ftz,sat,scale))
-                if softfloat.unpack(result,width)[0]=='nan' or form['rnd']=='RN' and float.underflow_band(operation,xs,width,scale): continue
+                        float.rounded(operation,xs,width,form['rnd'],ftz,sat,encoded,scale))
+                if form['rnd']=='RN' and float.underflow_band(operation,xs,width,scale): continue
             else: result=float.readable(operation,xs,width,sat,scale)
             if result is None: continue
         elif op=='FRND':
