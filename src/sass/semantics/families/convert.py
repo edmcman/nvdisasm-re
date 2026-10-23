@@ -4,7 +4,7 @@ out-of-range results follow SM89 hardware (tests/cases/conversions.py GPU fixtur
 from sass.semantics.fp import fpformat
 from sass.semantics.fp.fpformat import FORMATS
 from sass.semantics.bitvec import *
-from sass.semantics.family import family, helper, outputs, unmodelled
+from sass.semantics.family import definition, family, helper, outputs, unmodelled
 from sass.semantics.families.floating import readable
 
 FLOATS = {16: "F16", 32: "F32", 64: "F64"}
@@ -176,6 +176,37 @@ def i2f(i):
     return outputs(Rd=resize((zext(sign, 64) << top) | mag, i.width("Rd")))
 
 
+@helper
+def with_nan(r, x, raw, src, dst):
+    """r, or for a NaN x F2F's NaN: canonical between F16 and F32, else raw's sign and payload, quieted."""
+    s, d = FORMATS[src], FORMATS[dst]
+    nan = const((1 << (d.width - 1)) - 1, d.width) if {s.width, d.width} == {16, 32} else quiet(raw, src, dst)
+    return nan if is_nan(x, src) else r
+
+
+def cvt_name(a):
+    """cvt.<mode>.<dst>.<src> of the source (and the register whose NaN it keeps, when another);
+    without a constant mode, the mode's flags are arguments. A widening is exact: no mode."""
+    src, dst, rounding = a["src"], a["dst"], fpformat.Rounding(a["rn"], a["rz"], a["rp"], a["rm"])
+    m = None if FORMATS[dst].width > FORMATS[src].width else fpformat.mode(rounding)
+    flags = [] if FORMATS[dst].width > FORMATS[src].width or m else ["rn", "rz", "rp", "rm"]
+    return ".".join(["cvt", *([m.lower()] if m else []), dst.lower(), src.lower()]), [*flags, "x", *(["raw"] if a["raw"] is not None else [])]
+
+
+@definition(cvt_name)
+def converted(src, dst, rn, rz, rp, rm, x, raw=None):
+    """PTX cvt between F16, F32 and F64 with the GPU's NaN, rounded once (narrowing) or exact
+    (widening); a NaN gives the canonical NaN between F16 and F32, else the source register's sign
+    and payload, quieted.
+
+    raw: that register, when it isn't x (a modified source)."""
+    s, d = FORMATS[src], FORMATS[dst]
+    raw = x if raw is None else raw
+    if d.width > s.width: return with_nan(fpformat.widen(x, src, dst), x, raw, src, dst)
+    sign, mag, _ = fpformat.round_parts(fpformat.parts(x, src), fpformat.dest(dst), fpformat.Rounding(rn, rz, rp, rm))
+    return with_nan(concat(sign, extract(mag, d.width - 2, 0)), x, raw, src, dst)
+
+
 @family("F2F")
 def f2f(i):
     """Rd = Rb converted between F16, F32 and F64, rounded once in rnd's mode (narrowing); a NaN
@@ -188,13 +219,11 @@ def f2f(i):
     s, d = FORMATS[src], FORMATS[dst]
     x = source(i, "Rb|Sb", s.width)
     r = rounding(i)
-    if readable(i): r = fconv(x, d.width)
-    elif d.width > s.width: r = fpformat.widen(x, src, dst)
-    else:
-        sign, mag, _ = fpformat.round_parts(fpformat.parts(x, src), fpformat.dest(dst), r)
-        r = concat(sign, extract(mag, d.width - 2, 0))
-    nan = const((1 << (d.width - 1)) - 1, d.width) if {s.width, d.width} == {16, 32} else quiet(source(i, "Rb|Sb", s.width, modified=False), src, dst)
-    r = nan if is_nan(x, src) else r
+    raw = source(i, "Rb|Sb", s.width, modified=False)
+    if readable(i): r = with_nan(fconv(x, d.width), x, raw, src, dst)
+    else:   # a widening is exact, its mode moot; the canonical NaN reads no register
+        exact, canonical = d.width > s.width, {s.width, d.width} == {16, 32}
+        r = converted(src, dst, *(fpformat.rounding("RN") if exact else r), x, None if canonical or raw is x else raw)
     return outputs(Rd=resize(r, i.width("Rd")))
 
 

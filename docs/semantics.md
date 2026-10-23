@@ -78,6 +78,46 @@ Reading notes:
   parts. Extraction simplifies slices contained in any one operand; slices crossing operand
   boundaries remain extracts.
 
+### Defined operators (2026-10-23)
+Defined operators let an operation's name survive in lifted IR for consumers (sass2cu's C++ and ONNX
+recognition) without changing what anything computes. Rationale: sass2cu's handoff of 2026-10-23
+(`nvdisasm-re-integration-plan-2026-10-22.md`, section 4, item 1).
+- **An operator per definition.** `@definition("ftz")` on a family function makes a call build
+  `op("ftz", x)`, an ordinary interned node. Its expansion is the function (staged like a
+  `@helper`) applied to the arguments, registered in `bitvec.DEFINED` with the docstring's first
+  paragraph as its English description. `@helper` functions remain macros.
+- **Names.** A label is a template over plain parameters (`"cvt.{dst}.{src}"`), or a namer that puts
+  constant decode-time choices in the name and drops those arguments. In the lifter that gives
+  `f2fp.pack.rz.bf16x2.f32(R2, R3)`; otherwise it falls back to the general `f2fp.pack(<fields>, a, b)`.
+  A name must determine what it drops: every call of a label with one operand count must agree on
+  the dropped arguments, or `definition` raises. That is how the expansion rebuilds them. Names
+  follow PTX where it has the operation, are not exact otherwise, and compose
+  (`min.f32(ftz(R2), ftz(R3))`). A name belongs to one definition.
+- **Opaque and never folded.** Defined operators are not in `OPS`, so neither they nor their parents
+  constant-fold: `fadd(ftz(0x1), c)` stays as written, and no simplifier rule looks into one.
+  `is_const` doesn't see through them, so a family's constant shortcut doesn't fire on one: the
+  structure differs, the values never do.
+- **Lowering.** `bitvec.lowered` replaces each defined operator with its expansion (lowered too,
+  `sel` arms included). It rebuilds only the changed paths, through `op`, so they simplify and fold
+  as if the family had built the expansion in place. Every consumer that needs plain bitvector
+  operations lowers:
+  - SLEIGH, before any pass (`lower.lowered_outputs`), so it has no labels and the slaspecs are
+    byte-identical with or without them (SM75/89/90/100/120, exact and readable, 2026-10-23). The
+    readable lowering's NaN stripping therefore never meets one.
+  - `evaluate`, at its root.
+  - `cxx.Lower`, per operator: the place for a per-operation C++ fast path.
+  - `primitive_names` and `cxx.Lower.lazy`, since an expansion may hold a runtime primitive.
+- **Printing** (`bitvec.show`): operators print as calls, a constant expression's value after it
+  (`... = 0x3f800000`), and with `describe=True` the descriptions. `expand=True` prints the lowered
+  expressions with each expansion pointing at its operator. A leaf result (a constant, a register)
+  gets no pointer: any operator could have produced it.
+- **Structural tests.** A family test of a subexpression's `.op` stops matching when that
+  subexpression is an operator. At the pilot the only one is `fpformat.narrow`'s `nanresult` test,
+  and no operator reaches it. Check `.op ==` uses before defining an operator whose output they see.
+- Pilot: `ftz` (`floating.flushed`), `min.f32`/`max.f32`/`fmnmx` (FMNMX without `.NAN`), F2F's
+  `cvt[.<mode>].<dst>.<src>`, F2FP's `f2fp.cvt` lanes and `f2fp.pack` (PACK_AB). Tests:
+  `tests/test_definitions.py`.
+
 ### Operand values (2026-10-07)
 - `src/sass/semantics/operands.py` (`Builder`) preserves exact register effects for all classes and
   builds operand values independently of assembly display.

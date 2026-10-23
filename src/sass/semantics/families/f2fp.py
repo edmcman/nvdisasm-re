@@ -2,7 +2,7 @@
 from sass.semantics.fp import fpformat
 from sass.semantics.fp.fpformat import FORMATS, ROUNDING
 from sass.semantics.bitvec import concat, const, extract, ite, lnot, zext
-from sass.semantics.family import family, outputs, unmodelled
+from sass.semantics.family import definition, family, outputs, unmodelled
 
 FP8, FP6 = ("E4M3", "E5M2"), ("E2M3", "E3M2")
 NARROW8 = FP8 + FP6 + ("UE5M3",)
@@ -123,6 +123,34 @@ def pack16_destination(i):
         ovf_signed=1, ovf_mag=param(lambda n: FORMATS[n].inf_code))
 
 
+def pack16_name(kind, lanes):
+    """A namer: f2fp.<kind>.<mode>[.satfinite][.relu].<format>.f32 when the destination, rounding
+    and flags are constants (the destination one of pack16_destination's), else f2fp.<kind> of
+    every field."""
+    def name(a):
+        sat, relu = fpformat.constant(a["sat"]), fpformat.constant(a["relu"])
+        fmt, m = fpformat.format_of(a["d"]), fpformat.mode(a["r"])
+        if None in (fmt, m, sat, relu) or [fpformat.constant(x) for x in a["d"][3:]] != [0, 0x7fff, 1, FORMATS[fmt].inf_code]:
+            return f"f2fp.{kind}", ["d", "r", "sat", "relu", *lanes]
+        flags = [".satfinite"] * bool(sat) + [".relu"] * bool(relu)
+        return f"f2fp.{kind}.{m.lower()}{''.join(flags)}.{fmt.lower()}{'x2' if len(lanes) > 1 else ''}.f32", lanes
+    return name
+
+
+@definition(pack16_name("cvt", ["x"]))
+def pack16_lane(d, r, sat, relu, x):
+    """F2FP's F32 to F16/BF16/E6M9 lane (PTX cvt): rounded with the GPU's NaN (+0x7fff);
+    SATFINITE makes infinities the largest finite value, RELU makes negative results +0 (NaN stays)."""
+    sign, mag, nan = fpformat.narrow_parts(x, "F32", d, r, sat)
+    return relu_zero(relu, sign & lnot(nan), concat(sign, extract(mag, 14, 0)))
+
+
+@definition(pack16_name("pack", ["a", "b"]))
+def pack16(d, r, sat, relu, a, b):
+    """Two F32 values as F2FP lanes (f2fp.cvt), the first in the high half (PTX cvt to f16x2/bf16x2)."""
+    return concat(pack16_lane(d, r, sat, relu, a), pack16_lane(d, r, sat, relu, b))
+
+
 @family("F2FP", "UF2FP", classes=form("f2fp", "f2fp_merge_c"))
 def f2fp_pack16(i):
     """F32 values rounded (RN, RZ) to F16/BF16/E6M9 halves: Rd = Ra' << 16 | Rb', or MERGE_C:
@@ -134,14 +162,9 @@ def f2fp_pack16(i):
     d = pack16_destination(i)
     r = fpformat.chosen_rounding(i, "rndMode", {"RN": "RN", "RZ": "RZ"})
     sat, relu = bit(i, "satfinite", "SATFINITE", "nosatfinite"), bit(i, "relu", "RELU", "norelu")
-
-    def convert(x):
-        sign, mag, nan = fpformat.narrow_parts(x, "F32", d, r, sat)
-        return relu_zero(relu, sign & lnot(nan), concat(sign, extract(mag, 14, 0)))
-
-    low = convert(i.value("Rb|Sb", modifiers=False))
-    high = half(i, "Rc|Sc", "extract") if merge_c else convert(i.value("Ra", modifiers=False))
-    return outputs(Rd=concat(high, low))
+    b = i.value("Rb|Sb", modifiers=False)
+    if merge_c: return outputs(Rd=concat(half(i, "Rc|Sc", "extract"), pack16_lane(d, r, sat, relu, b)))
+    return outputs(Rd=pack16(d, r, sat, relu, i.value("Ra", modifiers=False), b))
 
 
 def fp4_destination(i):

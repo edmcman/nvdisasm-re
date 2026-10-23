@@ -34,7 +34,7 @@ def string(text): return json.dumps(text)
 
 class Lower:
     def __init__(self, arch):
-        self.arch, self.lines, self.scopes, self.count, self.primitive_below = arch, [], [{}], 0, {}
+        self.arch, self.lines, self.scopes, self.count, self.primitive_below, self.lowering = arch, [], [{}], 0, {}, {}
 
     def emit(self, line): self.lines.append(line)
 
@@ -47,7 +47,8 @@ class Lower:
         """Whether e reaches a primitive (memoized per node)."""
         if not isinstance(e, Expr): return False
         if id(e) not in self.primitive_below:
-            self.primitive_below[id(e)] = e.op == "primitive" or any(self.lazy(a) for a in e.args)
+            args = [bitvec.lowered(e, self.lowering)] if e.op in bitvec.DEFINED else e.args
+            self.primitive_below[id(e)] = e.op == "primitive" or any(self.lazy(a) for a in args)
         return self.primitive_below[id(e)]
 
     def value(self, e):
@@ -69,6 +70,7 @@ class Lower:
         match e.op:
             case "const": return literal(a[0], w)
             case "reg": return self.temp(w, self.read(*a))
+            case op if op in bitvec.DEFINED: return self.value(bitvec.lowered(e, self.lowering))
             case "load": return self.temp(w, f"c.space({SPACES[a[0]]}).load<{w}>({SPACES[a[0]]}, {self.value(a[1])})")
             case "ite" if self.lazy(a[1]) or self.lazy(a[2]):
                 c = self.value(a[0]); name = f"v{self.count}"; self.count += 1

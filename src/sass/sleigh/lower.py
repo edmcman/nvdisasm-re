@@ -199,6 +199,16 @@ def without_nan_results(e, memo):
     return memo[e]
 
 
+def lowered_outputs(out):
+    """out with its defined operators as their expansions (bitvec.lowered): SLEIGH has none."""
+    memo = {}
+    x = lambda e: bitvec.lowered(e, memo)
+    return replace(out, writes={n: x(t) for n, t in out.writes.items()},
+                   stores=tuple(replace(s, address=x(s.address), value=x(s.value), cond=x(s.cond)) for s in out.stores),
+                   effects=tuple(replace(e, args=tuple(map(x, e.args))) for e in out.effects),
+                   flow=out.flow and replace(out.flow, target=x(out.flow.target), cond=x(out.flow.cond)))
+
+
 def readable_outputs(out):
     memo = {}
     strip = lambda e: without_nan_results(e, memo)
@@ -212,7 +222,7 @@ def enumerate_rows(b, fam):
     while todo:
         assignment = todo.pop()
         try:
-            out = fam(Symbolic(b, assignment))
+            out = lowered_outputs(fam(Symbolic(b, assignment)))
             if b.g.fp == "readable": out = readable_outputs(out)
             rows.append((assignment, replace(out, writes={n: constant_slices(b, t) for n, t in out.writes.items()})))
         except Branch as br:

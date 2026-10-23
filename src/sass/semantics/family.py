@@ -13,7 +13,7 @@ are `sass.semantics.bitvec` expressions. Backends supply the answers: `sass.sema
 works for both binding times: `a if c else b`, `and`, `or` and `not` evaluate natively on static
 values and build IR on dynamic ones.
 """
-import ast, inspect, json, textwrap
+import ast, inspect, json, string, textwrap
 from dataclasses import dataclass, field
 from functools import cache
 from sass.md import parse
@@ -81,8 +81,9 @@ def effect(name, *args): return Effect(name, tuple(args))
 
 def primitive_names(result):
     """The runtime primitives an Outputs needs: its primitive values' and primitive effects' names."""
-    roots = [*result.writes.values(), *(e for s in result.stores for e in (s.address, s.value, s.cond)),
-             *(a for e in result.effects for a in e.args), *((result.flow.target, result.flow.cond) if result.flow else ())]
+    memo = {}
+    roots = [bitvec.lowered(r, memo) for r in (*result.writes.values(), *(e for s in result.stores for e in (s.address, s.value, s.cond)),
+             *(a for e in result.effects for a in e.args), *((result.flow.target, result.flow.cond) if result.flow else ()))]
     return {e.name.removeprefix(bitvec.PRIMITIVE_OP) for e in result.effects if e.name.startswith(bitvec.PRIMITIVE_OP)} | \
         {n.args[0] for r in roots if isinstance(r, Expr) for n in bitvec.leaves(r, "primitive")}
 
@@ -189,6 +190,72 @@ def family_for(klass):
 def helper(fn):
     """Rewrite a module-level helper used by families, so its conditionals stage too."""
     return rewrite(fn)
+
+
+DEFINITIONS = {}   # defined operator -> (function, {operand count: (the arguments its name fixes, the kept ones' shapes)})
+
+
+def same(a, b):
+    """Equal plain values or constants (an int and a constant of its value too), identical expressions."""
+    if isinstance(a, tuple) or isinstance(b, tuple):
+        return type(a) is type(b) and len(a) == len(b) and all(map(same, a, b))
+    if isinstance(a, Expr) and isinstance(b, Expr): return a is b
+    if isinstance(b, Expr): a, b = b, a
+    return bitvec.is_const(a) and isinstance(b, int) and a.args[0] == b & bitvec.mask(a.w) if isinstance(a, Expr) else a == b
+
+
+def definition(name):
+    """A defined operator: a call builds `op(label, *arguments)`, which a consumer sees as one
+    operation and backends compute by its expansion (bitvec.lowered: the function, staged like a
+    helper, applied to the arguments). `name` is a template over parameters that are plain values,
+    which are then not arguments, or namer(arguments) -> (label, kept parameter names) for an
+    operation named by its constant decode-time arguments: the others must be the same in every call
+    of one label and operand count (checked), since the label stands for them. Tuple arguments
+    (Dest, Rounding) are their fields. The docstring's first paragraph describes it."""
+    def register(fn):
+        staged, signature = rewrite(fn), inspect.signature(fn)
+        description = " ".join(inspect.getdoc(fn).split("\n\n")[0].split())
+        fields = {f for _, f, _, _ in string.Formatter().parse(name) if f} if isinstance(name, str) else set()
+        widths = {}
+        def defined(*args, **kwargs):
+            bound = signature.bind(*args, **kwargs); bound.apply_defaults()
+            arguments = bound.arguments
+            if isinstance(name, str): label, kept = name.format(**{f: arguments[f] for f in fields}), [k for k in arguments if k not in fields]
+            else: label, kept = name(arguments)
+            fixed = {k: v for k, v in arguments.items() if k not in kept}
+            shapes = [(k, type(arguments[k]) if isinstance(arguments[k], tuple) else None) for k in kept]
+            operands = [x for k in kept for x in (arguments[k] if isinstance(arguments[k], tuple) else (arguments[k],))]
+            if label not in DEFINITIONS:
+                if label in bitvec.OPS or label in BUILTIN: raise TypeError(f"{label} is an IR operator")
+                DEFINITIONS[label] = fn, {}
+                bitvec.DEFINED[label] = bitvec.Definition(expander(staged, DEFINITIONS[label][1]), description)
+            owner, forms = DEFINITIONS[label]
+            if owner is not fn: raise TypeError(f"{label} names {owner.__name__} and {fn.__name__}")
+            known, known_shapes = forms.setdefault(len(operands), (fixed, shapes))
+            if known_shapes != shapes or known.keys() != fixed.keys() or not all(same(known[k], fixed[k]) for k in fixed):
+                raise TypeError(f"{label} doesn't determine {fn.__name__}'s arguments: {known} and {fixed}")
+            key = (label, *(x.w if isinstance(x, Expr) else None for x in operands))
+            if key not in widths: widths[key] = staged(**arguments).w
+            return bitvec.op(label, *operands, w=widths[key])
+        defined.__name__, defined.__wrapped__, defined.body = fn.__name__, fn, staged
+        return defined
+    return register
+
+
+BUILTIN = {"const", "param", "reg", "load", "ite", "sel", "primitive", "tuple"}
+
+
+def expander(staged, forms):
+    """The expansion of a label's operands: the fixed arguments of its form (by operand count) and
+    the kept ones rebuilt."""
+    def expand(*operands):
+        fixed, shapes = forms[len(operands)]
+        rest, kept = list(operands), {}
+        for k, t in shapes:
+            if t is None: kept[k] = rest.pop(0)
+            else: n = len(t._fields); kept[k], rest = t(*rest[:n]), rest[n:]
+        return staged(**fixed, **kept)
+    return expand
 
 
 # ---- md facts about a class -------------------------------------------------------------------

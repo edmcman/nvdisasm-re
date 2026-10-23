@@ -7,7 +7,7 @@ The readable lowering is the plain formula: round to nearest, no flushing, min/m
 (.SAT and the sign modifiers stay)."""
 from sass.semantics.bitvec import *
 from sass.semantics.fp import fpformat
-from sass.semantics.family import family, helper, outputs, unmodelled
+from sass.semantics.family import definition, family, helper, outputs, unmodelled
 from sass.semantics.families.integer import boolean
 
 SCALES = {'noscale': 0, 'D2': -1, 'D4': -2, 'D8': -3, 'M2': 1, 'M4': 2, 'M8': 3}
@@ -22,8 +22,11 @@ CANONICAL_NAN = 0x7fffffff   # min/max of two NaNs (SM89 GPU)
 def readable(i): return i.fp == 'readable'
 
 
+@definition("ftz")
 def flushed(x):
-    """A denormal to zero of the same sign, without a branch: x & (sign | (exponent != 0 ? ~sign : 0))."""
+    """Flush to zero: a denormal becomes zero of the same sign, other values are unchanged.
+
+    Without a branch: x & (sign | (exponent != 0 ? ~sign : 0))."""
     sign, exponent = SIGN_EXPONENT[x.w]
     return x & (zext((x & exponent) != 0, x.w) * (sign - 1) | sign)
 
@@ -271,6 +274,32 @@ def numeric_minmax(p, x, y):
     return ((const(CANONICAL_NAN, 32) if fnan(y) else y) if fnan(x) else (x if fnan(y) else chosen))
 
 
+@definition("fmnmx")
+def fmnmx(p, x, y):
+    """min.f32 when the predicate holds, else max.f32."""
+    return numeric_minmax(p, x, y)
+
+
+@definition("min.f32")
+def min_f32(x, y):
+    """PTX min.f32 with the GPU's NaN: a number wins over NaN, two NaNs give 0x7fffffff, and -0 is below +0."""
+    return numeric_minmax(const(1, 1), x, y)
+
+
+@definition("max.f32")
+def max_f32(x, y):
+    """PTX max.f32 with the GPU's NaN: a number wins over NaN, two NaNs give 0x7fffffff, and +0 is above -0."""
+    return numeric_minmax(const(0, 1), x, y)
+
+
+def minmax(p, x, y):
+    """min.f32/max.f32 for a constant predicate (PT, !PT), else fmnmx."""
+    match value(p) if is_const(p) else None:
+        case 1: return min_f32(x, y)
+        case 0: return max_f32(x, y)
+    return fmnmx(p, x, y)
+
+
 @family('FMNMX')
 def fmnmx_(i):
     """Rd = Pp ? min(Ra, Rb) : max(Ra, Rb). .NAN: a NaN input gives the canonical NaN. .XORSIGN:
@@ -282,7 +311,7 @@ def fmnmx_(i):
     nan = i.has_operand('nan') and i.select_fork('nan') == 'NAN'
     if readable(i): return outputs(Rd=pick(p, a, b))
     # .NAN: any NaN gives the canonical NaN, so only numbers reach the comparison.
-    r = (const(CANONICAL_NAN, 32) if fnan(a) | fnan(b) else ordered_minmax(p, a, b)) if nan else numeric_minmax(p, a, b)
+    r = (const(CANONICAL_NAN, 32) if fnan(a) | fnan(b) else ordered_minmax(p, a, b)) if nan else minmax(p, a, b)
     if xorsign:
         sign = (i.value('Ra|Sa', modifiers=False) ^ i.value('Rb|Sb', modifiers=False)) & 0x80000000
         # The result is a NaN when an input is (.NAN) or both are (a number wins otherwise): asked of

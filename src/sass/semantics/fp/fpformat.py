@@ -8,7 +8,7 @@ SASS conversions differ there (SATFINITE, E4M3 without infinity, canonical NaNs)
 Independent of tests/refs/fpformat.py, which is the oracle.
 """
 from typing import NamedTuple
-from sass.semantics.bitvec import Expr, concat, const, extract, ite, lnot, sle, slt, smax, umin, zext
+from sass.semantics.bitvec import Expr, concat, const, extract, is_const, ite, lnot, signed, sle, slt, smax, umin, zext
 
 W = 32  # width of the exponent and significand arithmetic; 64 for formats wider than 32 bits
 
@@ -98,6 +98,24 @@ def chosen_rounding(i, name, modes):
     """The Rounding an instruction's selector `name` chooses at decode time; modes maps its labels
     to RN/RZ/RP/RM (other labels are unmodelled)."""
     return Rounding(*(i.select_lookup_const(name, {l: int(m == mode) for l, m in modes.items()}, 1) for mode in ROUNDING))
+
+
+def constant(x):
+    """x as a signed Python int when it is a constant (a decode-time choice the lifter resolved), else None."""
+    if not isinstance(x, Expr): return int(x)
+    return signed(x.args[0], x.w) if is_const(x) else None
+
+
+def mode(r):
+    """The rounding mode a Rounding of constants chooses, else None."""
+    flags = [constant(f) for f in r]
+    return None if None in flags or sum(map(bool, flags)) != 1 else ROUNDING[[bool(f) for f in flags].index(True)]
+
+
+def format_of(d):
+    """The format whose mbits, emin and max_code a Dest of constants has, else None."""
+    key = tuple(constant(x) for x in (d.mbits, d.emin, d.max_code))
+    return next((n for n, f in FORMATS.items() if (f.mbits, f.emin, f.max_code) == key), None)
 
 
 def round_up(r, kept, rest, half, negative):

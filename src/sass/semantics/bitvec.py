@@ -12,6 +12,7 @@ Python operators build IR: + - * & | ^ ~ (unary -) << >> (logical) and the unsig
 value has no truth value: a Python `if` on one raises (use a ternary, which `@family` rewrites).
 """
 from functools import reduce
+from typing import NamedTuple
 from weakref import WeakValueDictionary
 from sass.semantics.fp import softfloat
 
@@ -94,6 +95,14 @@ def load(space, address, w):
     return Expr("load", (space, address), w)
 def is_const(e, v=None): return isinstance(e, Expr) and e.op == "const" and (v is None or e.args[0] == v & mask(e.w))
 def value(e): return e.args[0]
+
+
+class Definition(NamedTuple):
+    expand: object        # (*args) -> the operation in the other operators
+    description: str      # what it computes, in English
+
+
+DEFINED = {}   # defined operator -> Definition (sass.semantics.family.definition)
 
 
 def lift(x, w):
@@ -478,6 +487,30 @@ def substitute(e, mapping, memo=None):
     return out
 
 
+def lowered(e, memo=None, origin=None):
+    """e with each defined operator replaced by its expansion, lowered too (decode-time choices'
+    arms included); the rest rebuilt, and so simplified and folded as if the expansions had been
+    built in place, only where that changes something. origin(expansion, node) hears each one."""
+    memo = {} if memo is None else memo
+    if not isinstance(e, Expr) or e.op in ("const", "param", "reg"): return e
+    if e not in memo:
+        args = [lowered(a, memo, origin) for a in (e.args if e.op != "sel" else ())]
+        match e.op:
+            case "sel":
+                arms = tuple((v, lowered(t, memo, origin)) for v, t in e.args[1])
+                out = e if all(x is y for (_, x), (_, y) in zip(arms, e.args[1])) else Expr("sel", (e.args[0], arms), e.w)
+            case name if name in DEFINED:
+                out = lowered(DEFINED[name].expand(*args), memo, origin)
+                if origin: origin(out, e)
+            case _ if all(x is y for x, y in zip(args, e.args)): out = e
+            case "ite": out = ite(*args)
+            case "extract": out = extract(*args)
+            case "load": out = Expr("load", tuple(args), e.w)
+            case _: out = op(e.op, *args, w=e.w)
+        memo[e] = out
+    return memo[e]
+
+
 def leaves(e, kind="param"):
     """The distinct leaves of kind `kind` in e, in first-visit order."""
     seen, out, stack = set(), [], [e]
@@ -499,10 +532,62 @@ INFIX = {"add": "+", "sub": "-", "mul": "*", "and": "&", "or": "|", "xor": "^", 
 FLIPPED = {"ult": ">", "ule": ">=", "slt": "s>", "sle": "s>="}
 
 
-def show(outputs):
+class Text(NamedTuple):
+    """Printed text and the labelled subtrees in it: (start, end, label), innermost first."""
+    s: str
+    spans: tuple = ()
+
+
+def cat(*parts):
+    s, spans = "", []
+    for p in parts:
+        p = p if isinstance(p, Text) else Text(p)
+        spans += [(a + len(s), b + len(s), label) for a, b, label in p.spans]
+        s += p.s
+    return Text(s, tuple(spans))
+
+
+def joined(parts, sep=", "): return cat(*[x for k, p in enumerate(parts) for x in ((sep, p) if k else (p,))])
+
+
+def pointed(t):
+    """t's line with each label pointing at its subtree: an underline row per nesting level, then
+    the labels, rightmost first. Of labels on one span the outermost points (its call names the
+    inner ones; they are its internals)."""
+    spans = {(a, b): label for a, b, label in t.spans}   # innermost first: the outermost wins
+    level = {}
+    for a, b in sorted(spans, key=lambda k: k[1] - k[0]):
+        level[a, b] = max((level[k] + 1 for k in level if a <= k[0] and k[1] <= b), default=0)
+    lines, ticks = [t.s], []
+    for n in range(max(level.values(), default=-1) + 1):
+        row = [" "] * len(t.s)
+        for c, _ in ticks: row[c] = "│"
+        for (a, b), label in sorted(spans.items()):
+            if level[a, b] != n: continue
+            for c in range(a, b): row[c] = "┼" if row[c] == "│" else "─"
+            row[a], row[b - 1] = ("╰", "╯") if b - a > 1 else ("^", "^")
+            tick = next((c for c in range(a + (b - a) // 2, b) if c not in {d for d, _ in ticks}), a)
+            if b - a > 2: row[tick] = "┬"
+            ticks.append((tick, label))
+        lines.append("".join(row).rstrip())
+    ticks.sort(reverse=True)
+    for k, (c, label) in enumerate(ticks):
+        row = [" "] * c
+        for d, _ in ticks[k + 1:]: row[d] = "│"
+        lines.append("".join(row) + "╰ " + label)
+    return "\n".join(lines)
+
+
+def show(outputs, expand=False, describe=False):
     """Readable text for [(destination, expression)] (a None destination prints the expression
     alone): infix operators, shared subexpressions bound once as tN (in evaluation order),
-    constants with their width only when it isn't 32 bits."""
+    constants with their width only when it isn't 32 bits. A defined operator prints as a call
+    (with the value of a constant expression after it), with `describe` followed by the English
+    descriptions of those used; `expand` prints the lowered expressions instead, each expansion
+    pointing at the operator it came from."""
+    origins, used, memo = {}, set(), {}
+    if expand:
+        outputs = [(d, lowered(e, memo, lambda out, e: origins.__setitem__(out, e))) for d, e in outputs]
     uses, order = {}, []
     def count(e):
         if not isinstance(e, Expr): return
@@ -512,44 +597,62 @@ def show(outputs):
         order.append(e)
     for _, e in outputs: count(e)
     names, lines = {}, []
-    def number(e, signed=False):
-        v = value(e)
-        if signed and e.w > 1 and v >> (e.w - 1): return f"-{(1 << e.w) - v:#x}" + ("" if e.w == 32 else f":{e.w}")
-        return text(e)
-    def minmax(e):
-        c, x, y = e.args
-        if c.op in ("ult", "slt") and {c.args[0], c.args[1]} == {x, y}:
-            kind = ("s" if c.op == "slt" else "u") + ("min" if c.args[0] is x else "max")
-            return f"{kind}({text(x, True)}, {number(y, c.op == 'slt') if is_const(y) else text(y, True)})"
-        return None
-    def text(e, bare=False, define=False):
-        if not isinstance(e, Expr): return repr(e)
-        if e in names and not define: return names[e]
-        a = e.args
-        match e.op:
-            case "const": return f"{a[0]:#x}" + ("" if e.w == 32 else f":{e.w}")
-            case "param": return a[0]
-            case "reg": return f"{a[0]}{a[1]}" if a[2] == 1 else f"{a[0]}{a[1]}:{a[0]}{a[1] + a[2] - 1}"
-            case "load": return f"{a[0]}[{text(a[1], True)}]:{e.w}"
-            case "ite" if (m := minmax(e)): return m
-            case "ite": s = f"{text(a[0])} ? {text(a[1])} : {text(a[2])}"
-            case "add" if is_const(a[1]) and value(a[1]) >> (e.w - 1) and e.w > 1:
-                s = f"{text(a[0])} - {number(const(-value(a[1]), e.w))}"
-            case "not" | "neg": return ("!" if e.op == "not" and e.w == 1 else "~" if e.op == "not" else "-") + text(a[0])
-            case "zext" | "sext": return f"{e.op}{e.w}({text(a[0], True)})"
-            case "extract": return f"{text(a[0])}[{a[1]}:{a[2]}]" if a[1] != a[2] else f"{text(a[0])}[{a[1]}]"
-            case "concat": return f"concat({', '.join(text(x, True) for x in a)})"
-            case "primitive": return f"{a[0]}({', '.join(text(x, True) for x in a[1:])})"
-            case "ult" | "ule" | "slt" | "sle" if is_const(a[0]) and not is_const(a[1]):
-                # Comparisons are canonically < / <=; print `x > k` the way it is usually written.
-                s = f"{text(a[1])} {FLIPPED[e.op]} {number(a[0], e.op[0] == 's')}"
-            case "slt" | "sle" if is_const(a[1]): s = f"{text(a[0])} {INFIX[e.op]} {number(a[1], True)}"
-            case op if op in INFIX: s = f"{text(a[0])} {INFIX[op]} {text(a[1])}"
-            case op: return f"{op}({', '.join(text(x, True) for x in a)})"
-        return s if bare else f"({s})"
+    def printer(expanding, aliases={}):
+        def number(e, signed=False):
+            v = value(e)
+            if signed and e.w > 1 and v >> (e.w - 1): return f"-{(1 << e.w) - v:#x}" + ("" if e.w == 32 else f":{e.w}")
+            return text(e)
+        def minmax(e):
+            c, x, y = e.args
+            if c.op in ("ult", "slt") and {c.args[0], c.args[1]} == {x, y}:
+                kind = ("s" if c.op == "slt" else "u") + ("min" if c.args[0] is x else "max")
+                return cat(f"{kind}(", text(x, True), ", ", number(y, c.op == "slt") if is_const(y) else text(y, True), ")")
+            return None
+        def text(e, bare=False, define=False):
+            t = shape(e, bare, define)
+            # An expansion points at its operator; a leaf may be anything's result, so it doesn't.
+            if expanding and e in origins and e.op not in ("const", "param", "reg") and (define or e not in names):
+                o = origins[e]
+                t = Text(t.s, t.spans + ((0, len(t.s), cat(f"{o.op}(", joined([plain(x, True) for x in o.args]), ")").s),))
+            return t
+        def shape(e, bare, define):
+            if not isinstance(e, Expr): return Text(repr(e))
+            if e in names and not define: return Text(names[e])
+            if aliases.get(e) in names: return Text(names[aliases[e]])   # an operator's argument, by its expansion's name
+            a = e.args
+            match e.op:
+                case "const": return Text(f"{a[0]:#x}" + ("" if e.w == 32 else f":{e.w}"))
+                case "param": return Text(a[0])
+                case "reg": return Text(f"{a[0]}{a[1]}" if a[2] == 1 else f"{a[0]}{a[1]}:{a[0]}{a[1] + a[2] - 1}")
+                case "load": return cat(f"{a[0]}[", text(a[1], True), f"]:{e.w}")
+                case "ite" if (m := minmax(e)): return m
+                case "ite": s = cat(text(a[0]), " ? ", text(a[1]), " : ", text(a[2]))
+                case "add" if is_const(a[1]) and value(a[1]) >> (e.w - 1) and e.w > 1:
+                    s = cat(text(a[0]), " - ", number(const(-value(a[1]), e.w)))
+                case "not" | "neg": return cat("!" if e.op == "not" and e.w == 1 else "~" if e.op == "not" else "-", text(a[0]))
+                case "zext" | "sext": return cat(f"{e.op}{e.w}(", text(a[0], True), ")")
+                case "extract": return cat(text(a[0]), f"[{a[1]}:{a[2]}]" if a[1] != a[2] else f"[{a[1]}]")
+                case "concat": return cat("concat(", joined([text(x, True) for x in a]), ")")
+                case "primitive": return cat(f"{a[0]}(", joined([text(x, True) for x in a[1:]]), ")")
+                case "ult" | "ule" | "slt" | "sle" if is_const(a[0]) and not is_const(a[1]):
+                    # Comparisons are canonically < / <=; print `x > k` the way it is usually written.
+                    s = cat(text(a[1]), f" {FLIPPED[e.op]} ", number(a[0], e.op[0] == "s"))
+                case "slt" | "sle" if is_const(a[1]): s = cat(text(a[0]), f" {INFIX[e.op]} ", number(a[1], True))
+                case op if op in INFIX: s = cat(text(a[0]), f" {INFIX[op]} ", text(a[1]))
+                case op:
+                    if op in DEFINED: used.add(op)
+                    return cat(f"{op}(", joined([text(x, True) for x in a]), ")")
+            return s if bare else cat("(", s, ")")
+        return text
+    text, plain = printer(expand), printer(False, memo)
+    def line(head, e, define=False):
+        t = cat(head, text(e, True, define))
+        if not expand and not is_const(e) and is_const(k := lowered(e)): t = cat(t, " = ", text(k))
+        return pointed(t)
     for e in order:
         if uses[e] > 1 and e.op not in ("const", "param", "reg"):
-            lines.append(f"t{len(names)} = {text(e, True, True)}")
+            lines.append(line(f"t{len(names)} = ", e, True))
             names[e] = f"t{len(names)}"
-    lines += [text(e, True) if d is None else f"{d} := {text(e, True)}" for d, e in outputs]
+    lines += [line("" if d is None else f"{d} := ", e) for d, e in outputs]
+    if describe: lines += [f"# {n}: {DEFINED[n].description}" for n in sorted(used)]
     return "\n".join(lines)
