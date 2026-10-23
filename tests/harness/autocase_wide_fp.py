@@ -1,5 +1,4 @@
 """Binary32-pair arithmetic and ordinary F2FP pack form adapters."""
-from sass.semantics.fp import softfloat
 from tests.harness import autocase_profiles, autocase_extended
 from tests.harness.case import source, pair
 from tests.refs import float, fpformat
@@ -77,8 +76,8 @@ def pairs(c,k,form):
         for lane in (0,1):
             xs=[v[lane] for v in inputs]
             if exact:
-                result=softfloat.arithmetic(op,xs,32,rnd,ftz)
-                if softfloat.unpack(result,32)[0]=='nan' or rnd=='RN' and float.underflow_band(op,xs,32):break
+                result=float.rounded(op,xs,32,rnd,ftz)
+                if rnd=='RN' and float.underflow_band(op,xs,32):break
             else:result=float.readable(op,xs,32)
             if result is None:break
             results.append(result)

@@ -8,6 +8,8 @@ CHECKOUT = PACKAGE == ROOT / "src/sass"
 MD = PACKAGE / "md/data"  # the machine descriptions as shipped, laid out per architecture
 LANGUAGES = Path(os.environ.get("SASS_SLEIGH_OUT", ROOT / "processor/SASS/data/languages")).resolve()
 LDEFS = LANGUAGES / "sass.ldefs"
+# Not in the wheel (85 MB): sass.provenance reads a checkout's, or $SASS_EVIDENCE outside one.
+EVIDENCE = Path(os.environ.get("SASS_EVIDENCE", ROOT / "processor/SASS/semantics/evidence.json"))
 GHIDRA_PY = os.environ.get("GHIDRA_PY", os.path.expanduser("~/.config/ghidra/ghidra_12.2_PUBLIC/venv/bin/python3"))
 CACHE = Path(os.environ.get("SASS_CACHE") or (ROOT / ".cache" if CHECKOUT else
              Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache") / "sass"))

@@ -93,8 +93,8 @@ Caller-controlled input sampling (2026-10-21; mechanism in
   cleanup did the same to both architectures. Adding HADD2 source-modifier cases would likewise
   have dropped all 31,837 fp16 words on SM89. A pass is now `device_evidence.fingerprint(scenario)`:
   the scenario's probe built alone (target word, inputs, setup, scheduling, capture layout, launch
-  shape), its hardware expectation, its F16 NaN lanes (`device_cases.nan_lanes`) and a hash of the
-  comparison code, with no source digest. `record` adds the fingerprints that passed under the
+  shape), its hardware expectation and a hash of the comparison code (the F16 NaN lanes until NaNs
+  compared bitwise, #49), with no source digest. `record` adds the fingerprints that passed under the
   device string and drops those that failed; scenarios without a result keep theirs. A word is
   `gpu` evidence when every GPU scenario for it in the evidence run's selection has passed, so
   new cases leave only their own words unverified. Store version 4 (`{architectures: {arch:
@@ -511,3 +511,14 @@ HFMA2.MMA constant move 22 run-time operations instead of one COPY):
 
 No comparison tolerance was weakened. BF16/FMZ/RELU and other unimplemented MMA arithmetic forms
 keep the opaque fallback.
+
+## NaN comparison policy (2026-10-22, issue #49)
+
+NaN results are compared bit for bit everywhere: emulator and Ghidra cases, GPU shared cases and
+scalar fixtures. Before, the GPU accepted any F16 NaN for HADD2/HMUL2/HFMA2 and F2FP F16
+(`half_nan_equal`, `same_halves`), scalar fixtures' emulator check accepted any F32/F64 NaN, and the
+FP32/FP64/FP16 sweeps and autocases skipped NaN results, because the semantics returned softfloat's
+generic NaNs rather than the GPU's. The SM89 probes behind `hardware-facts.md` "Arithmetic NaN
+results" fixed every NaN bit; the semantics now produce them (`semantics.md` section 3) and the
+generators compute expectations with `refs.float.rounded`, so NaN results create evidence. The one
+remaining NaN-class check, `__fp8_nan`, covers SM100+ FP8 downconversion, which has no hardware here.
