@@ -1,6 +1,6 @@
 """Batch requests through the Ghidra-side programs, which run under the pyghidra venv. Results are
 cached per language and program (see `stamp`), so reruns only send requests Ghidra hasn't answered."""
-import ast, hashlib, json, os, subprocess, tempfile, threading
+import ast, collections, hashlib, json, os, subprocess, tempfile, threading
 import xml.etree.ElementTree as ET
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 from functools import cache as memoize
@@ -136,19 +136,20 @@ def close(kill=False):
 
 
 def ask(argv, lines):
-    """One result per line from the session for argv; other output (pyghidra's start-up) is skipped."""
+    """One result per line from the session for argv; other output (pyghidra's start-up, Ghidra's
+    log) is skipped, and reported with stderr if the session fails."""
     process = session(argv)
     # A writer thread: the program answers while we are still sending, and both pipes are bounded.
     writer = threading.Thread(target=lambda: (process.stdin.write("".join(line + "\n" for line in lines)), process.stdin.flush()), daemon=True)
     writer.start()
-    results = []
+    results, other = [], collections.deque(maxlen=50)
     while len(results) < len(lines) and (line := process.stdout.readline()):
-        if line.startswith("{"): results.append(line.rstrip("\n"))
+        (results if line.startswith("{") else other).append(line.rstrip("\n"))
     writer.join()
     if len(results) != len(lines):
         log = SESSION.log; close(kill=True)
         log.seek(0); error = log.read().decode(errors="replace")[-3000:]
-        raise RuntimeError(f"{Path(argv[1]).name} {argv[3]}: {len(results)}/{len(lines)} results\n{error}")
+        raise RuntimeError(f"{Path(argv[1]).name} {argv[3]}: {len(results)}/{len(lines)} results\n" + "\n".join(other) + f"\n{error}")
     return results
 
 

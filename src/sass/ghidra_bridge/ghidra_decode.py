@@ -38,7 +38,10 @@ def load_language(ldefs, lang_id):
     from ghidra.program.model.lang import LanguageID, CompilerSpecID
     ctor = SleighLanguageProvider.class_.getDeclaredConstructor(ResourceFile.class_)
     ctor.setAccessible(True)  # package-private; avoids installing the processor into Ghidra
-    lang = ctor.newInstance(ResourceFile(File(ldefs))).getLanguage(LanguageID(lang_id))
+    provider = ctor.newInstance(ResourceFile(File(ldefs)))
+    if (lang := provider.getLanguage(LanguageID(lang_id))) is None:
+        raise LookupError(f"{lang_id} is not in {ldefs} ({'it failed to load: see the Ghidra log' if provider.hadLoadFailure() else 'not listed'}); "
+                          f"loaded: {[str(d.getLanguageID()) for d in provider.getLanguageDescriptions()]}")
     prototypes = SleighLanguage.class_.getDeclaredField("instructProtoMap")
     prototypes.setAccessible(True)
     prototypes.set(lang, java_class("ExactPrototypes")())
