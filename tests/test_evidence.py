@@ -32,6 +32,16 @@ def test_reference_counts_cases_and_exact_forms(monkeypatch):
     assert out[cls]['forms'] == {'ptxas': [[base[m] for m in names]], 'reference': [[s[m] for m in names] for _, s in sorted({form(base): base, form(neg): neg}.items())]}
 
 
+def test_class_without_modifiers_records_its_empty_form(monkeypatch):
+    cls = 'mov__RR'
+    moved = Case(cls, {'word': encoding.encode('SM89', cls)}, {})
+    monkeypatch.setattr(evidence, 'stream', lambda *job: iter([moved]))
+    _, found = evidence.reference(('SM89', 'exact', 'int_alu', 0, (0, 1)))
+    assert found == {cls: [1, {'': {}}]}
+    out = evidence.evidence({'gpu': [(cls, {}, 'cases/int_alu')]}, found)
+    assert out[cls] == {'gpu': ['cases/int_alu'], 'reference': 1, 'modifiers': [], 'forms': {'gpu': [[]], 'reference': [[]]}}
+
+
 def test_reference_caller_controls_sampling(monkeypatch):
     calls = []
     def run(fn, variants, families, sample):
