@@ -106,25 +106,33 @@ def run(program, arch, fp, lines, *opts):
     return [json.loads(known[line]) for line in lines]
 
 
-SESSION = {}   # this process's one Ghidra-side program: its argv, process and stderr file
+class Session(threading.local):
+    """This thread's one Ghidra-side program: its argv, process and stderr file. Per thread, not per
+    process: emulate_sharded's threads sharing one interleaved its lines and closed it under each other."""
+    argv = process = log = None
+
+
+SESSION = Session()
 
 
 def session(argv):
     """A long-lived Ghidra-side program: starting one (the JVM and the language) costs about 20 s of
-    CPU and a worker answers many shards of one language. One per process: each JVM takes 0.7-2 GB."""
-    if SESSION.get("argv") != argv or SESSION["process"].poll() is not None:
+    CPU and a worker answers many shards of one language. One per thread: each JVM takes 0.7-2 GB."""
+    if SESSION.argv != argv or SESSION.process.poll() is not None:
         close()
-        log = tempfile.TemporaryFile()
+        SESSION.argv, SESSION.log = argv, tempfile.TemporaryFile()
         # cwd="/" keeps repository modules from shadowing the venv's imports.
-        SESSION.update(argv=argv, log=log, process=subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                                                    stderr=log, text=True, cwd="/"))
-    return SESSION["process"]
+        SESSION.process = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=SESSION.log, text=True, cwd="/")
+    return SESSION.process
 
 
-def close():
-    if process := SESSION.pop("process", None):
-        process.stdin.close(); process.wait()
-    SESSION.clear()
+def close(kill=False):
+    """End this thread's program: end of input lets it finish, `kill` when it has failed."""
+    if process := SESSION.process:
+        if kill: process.kill()
+        else: process.stdin.close()
+        process.wait()
+    SESSION.argv = SESSION.process = SESSION.log = None
 
 
 def ask(argv, lines):
@@ -138,7 +146,7 @@ def ask(argv, lines):
         if line.startswith("{"): results.append(line.rstrip("\n"))
     writer.join()
     if len(results) != len(lines):
-        process.kill(); process.wait(); log = SESSION["log"]; SESSION.clear()
+        log = SESSION.log; close(kill=True)
         log.seek(0); error = log.read().decode(errors="replace")[-3000:]
         raise RuntimeError(f"{Path(argv[1]).name} {argv[3]}: {len(results)}/{len(lines)} results\n{error}")
     return results
@@ -165,6 +173,12 @@ def outputs(result):
     return [int.from_bytes(bytes.fromhex(x), "little") for x in result["outputs"]]
 
 
+def emulate_once(arch, fp, requests):
+    """`emulate` on a pool thread: its program ends with the job, not with the thread."""
+    try: return emulate(arch, fp, requests)
+    finally: close()
+
+
 def emulate_sharded(batches, workers=None):
     """{key: (arch, fp, requests)} -> {key: results}, with every batch split into contiguous
     chunks of about equal size so `workers` processes stay busy (default: `jvm_workers`)."""
@@ -174,5 +188,5 @@ def emulate_sharded(batches, workers=None):
     jobs = {(key, i): (arch, fp, requests[i:i + size]) for key, (arch, fp, requests) in batches.items()
             for i in range(0, max(len(requests), 1), size)}
     with ThreadPoolExecutor(min(workers, len(jobs)) or 1) as pool:
-        futures = {job: pool.submit(emulate, *args) for job, args in jobs.items()}
+        futures = {job: pool.submit(emulate_once, *args) for job, args in jobs.items()}
     return {key: [r for (k, i), f in sorted(futures.items(), key=lambda kv: kv[0][1]) if k == key for r in f.result()] for key in batches}
