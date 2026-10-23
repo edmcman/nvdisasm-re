@@ -1,4 +1,5 @@
 import subprocess, sys
+import pytest
 from sass.assemble import assemble_cubin
 from sass.paths import ROOT
 
@@ -22,3 +23,21 @@ def test_assemble_and_lift():
 
 
 def test_evaluate(): assert run("evaluate.py") == "FFMA R0, R1, R2, R3 -> 3.25 next pc 0x110\n"
+
+
+@pytest.mark.native
+def test_run_kernel():
+    assert run("emulator/run_kernel.py") == "4096 threads, 49152 steps; out[1] = 0x673115e0 = 3 * 0x2265b1f5 + 1: True\nthe Python engine agrees: True\n"
+
+
+@pytest.mark.native
+def test_equivalence():
+    assert run("emulator/equivalence.py") == "times3 == added: True\ntimes3 vs buggy: 8192 differing threads; launch 0 thread 0: 68178488 vs 67178488\n"
+
+
+@pytest.mark.native
+def test_trace_kernel():
+    out = run("emulator/trace_kernel.py").splitlines()
+    assert out[9] == "thread 0 0x0090 IADD3 R5, R5, 0x1, RZ                    R5=0x10" and out[10] == "thread 0 0x00a0 STG.E [R8.64], R5"
+    assert out[-4:] == ["thread 0: in 0x00000005 -> out 0x00000010", "thread 1: in 0x7fffffff -> out 0x7ffffffe",
+                        "thread 2: in 0x000003e8 -> out 0x00000bb9", "thread 3: in 0xffffffff -> out 0xfffffffe"]
