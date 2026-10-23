@@ -221,7 +221,7 @@ Reading notes:
   narrowing, then ±1 on the encoding by the residual's sign. RM zero-sign fix: an exact cancellation is
   -0 unless both addends are +0. The corrected result is exact, and it also undoes the Ghidra underflow
   error below. SM89 GPU fixtures cover .RZ/.RM/.RP for FADD/FMUL/FFMA/DADD/DMUL/DFMA.
-- Ghidra 12.1.4 limits:
+- Ghidra 12.1.4 and 12.2 limits (12.2's `FloatFormat` changes only `opNotEqual`'s `|` to `||`):
   - Its emulator flushes results strictly between half and one minimum subnormal (2^-150, 2^-149 for
     fp32) to zero instead of rounding to the minimum subnormal (`FloatFormat.getEncoding`, the `n < 0`
     branch). The p-code itself is IEEE, so the RN tests exclude that band, for FP32, FP64 and FP16.

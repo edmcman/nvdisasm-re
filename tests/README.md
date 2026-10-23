@@ -52,7 +52,7 @@ The MUFU sample fixtures compare the same 1,462 recorded inputs per operation on
 both devices; their GPU pass records remain architecture-specific.
 
 CI (`.github/workflows/ci.yml`) runs the Python and Ghidra tests on every architecture and lowering
-for every push and pull request (the Ghidra tests on a stock Ghidra 12.1.4, building each
+for every push and pull request (the Ghidra tests on a stock Ghidra 12.2, building each
 architecture's languages first), and fails when a generated plan (`tests.autocases --check`) or the committed
 coverage and evidence are stale.
 
@@ -262,7 +262,7 @@ another. To derive a reference from hardware, see
 
 GPU vs reference is exact, except F16 NaN payload/sign in F16 packs and packed F16 arithmetic, and
 the bits outside the converted width of the wide conversion fixtures. Emulator vs reference
-tolerates floating-point NaN payload/sign, and excuses Ghidra 12.1.4's minimum-subnormal underflow
+tolerates floating-point NaN payload/sign, and excuses Ghidra's minimum-subnormal underflow
 (fp16/32/64) only on its exact signature. FP8 emulator cases compare NaN class only (`__fp8_nan`).
 
 ## Generated shared cases
@@ -546,7 +546,7 @@ Everything below lives in `.cache/` and is safe to delete.
 | What | Default | Override |
 |---|---|---|
 | target nvdisasm (CUDA 13.4, V13.4.92) | the dev group's `nvidia-cuda-nvdisasm` in `.venv` or the uv cache | `NVDISASM` |
-| Ghidra 12.1.4 and its pyghidra venv | `~/Ghidra/ghidra_12.1.4_PUBLIC`, `~/.config/ghidra/ghidra_12.1.4_PUBLIC/venv` | `GHIDRA_INSTALL_DIR`, `GHIDRA_PY` |
+| Ghidra 12.2 and its pyghidra venv | `~/Ghidra/ghidra_12.2_PUBLIC`, `~/.config/ghidra/ghidra_12.2_PUBLIC/venv` | `GHIDRA_INSTALL_DIR`, `GHIDRA_PY` |
 | `nvcc`, `ptxas` (CUDA 13.0.88: GPU-fixture kernels for the Ghidra and GPU tests; `ptxas` evidence) | the dev group's wheels in `.venv`, else `/usr/local/cuda/bin` | `NVCC`, `PTXAS` |
 | `cuobjdump` and the CUDA libraries (real corpus) | `/usr/local/cuda/bin/cuobjdump`, `/usr/local/cuda/lib64` | `CUOBJDUMP` |
 | generated languages | `processor/SASS/data/languages` | `SASS_SLEIGH_OUT` |

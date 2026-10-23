@@ -9,7 +9,7 @@ from pathlib import Path
 sys.path[:0] = [str(Path(__file__).parent), str(Path(__file__).parents[2])]
 import pyghidra
 
-GHIDRA = os.environ.get("GHIDRA_INSTALL_DIR", os.path.expanduser("~/Ghidra/ghidra_12.1.4_PUBLIC"))
+GHIDRA = os.environ.get("GHIDRA_INSTALL_DIR", os.path.expanduser("~/Ghidra/ghidra_12.2_PUBLIC"))
 
 def java_class(name):
     """sass.`name` from this directory's .java sources, compiled against this Ghidra into the cache."""

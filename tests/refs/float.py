@@ -274,7 +274,7 @@ def widen_half(bits):
 
 
 def underflow_band(op, inputs, width, scale=0):
-    """True where Ghidra 12.1.4's FloatFormat.getEncoding rounds an RN result strictly between
+    """True where Ghidra's (12.1.4, 12.2) FloatFormat.getEncoding rounds an RN result strictly between
     half and one minimum subnormal to zero (IEEE gives the minimum subnormal)."""
     parts = [softfloat.unpack(x, width) for x in inputs]
     if any(kind not in ("finite", "zero") for kind, _, _ in parts): return False

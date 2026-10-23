@@ -103,8 +103,8 @@ jobs:
       matrix:
         arch: ${{ fromJSON(needs.architectures.outputs.list) }}
     env:
-      GHIDRA: ghidra_12.1.4_PUBLIC
-      GHIDRA_ZIP: ghidra_12.1.4_PUBLIC_20260921.zip
+      GHIDRA: ghidra_12.2_PUBLIC
+      GHIDRA_ZIP: ghidra_12.2_PUBLIC_20261016.zip
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v10.3.0
@@ -113,7 +113,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: "25"
       - uses: actions/cache@v5
         with:
           path: ~/ghidra-zip
@@ -121,10 +121,10 @@ jobs:
       - name: Install Ghidra and its pyghidra venv
         run: |
           [ -f ~/ghidra-zip/$GHIDRA_ZIP ] || curl -fsSL --create-dirs -o ~/ghidra-zip/$GHIDRA_ZIP \
-            https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/$GHIDRA_ZIP
+            https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.2_build/$GHIDRA_ZIP
           unzip -q ~/ghidra-zip/$GHIDRA_ZIP -d "$RUNNER_TEMP"
           uv venv --python 3.10 "$RUNNER_TEMP/pyghidra"
-          uv pip install --python "$RUNNER_TEMP/pyghidra/bin/python3" pyghidra==3.1.0 JPype1==1.5.2
+          uv pip install --python "$RUNNER_TEMP/pyghidra/bin/python3" pyghidra==3.2.0 JPype1==1.5.2
           echo "GHIDRA_INSTALL_DIR=$RUNNER_TEMP/$GHIDRA" >> "$GITHUB_ENV"
           echo "GHIDRA_PY=$RUNNER_TEMP/pyghidra/bin/python3" >> "$GITHUB_ENV"
       - run: uv run sass-build-languages ${{ matrix.arch }}

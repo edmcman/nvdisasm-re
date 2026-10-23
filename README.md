@@ -124,14 +124,14 @@ matched, which md conventions `nvdisasm` honours, and its printing quirks) are l
 
 ## Ghidra processor (`processor/SASS/`)
 
-Build and install with Python 3 and a working Ghidra installation (tested with Ghidra 12.1.4).
+Build and install with Python 3 and a working Ghidra installation (tested with Ghidra 12.2, which needs Java 25).
 The generator uses the committed `src/sass/md/data/` descriptions.
 
 1. From the repository root, set your Ghidra installation path and build the languages
    for every architecture:
 
    ```sh
-   export GHIDRA_INSTALL_DIR=/path/to/ghidra_12.1.4_PUBLIC
+   export GHIDRA_INSTALL_DIR=/path/to/ghidra_12.2_PUBLIC
    uv run sass-build-languages
    ```
 
