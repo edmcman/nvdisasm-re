@@ -1,8 +1,8 @@
 """F2FP conversions: packs, downconverts and upconverts, plain and UE8M0-scaled, on sass.semantics.fp.fpformat."""
 from sass.semantics.fp import fpformat
 from sass.semantics.fp.fpformat import FORMATS, ROUNDING
-from sass.semantics.bitvec import concat, const, extract, ite, lnot, zext
-from sass.semantics.family import definition, family, outputs, unmodelled
+from sass.semantics.bitvec import chosen, concat, const, extract, is_const, ite, lnot, value, zext
+from sass.semantics.family import definition, family, outputs, same, unmodelled
 
 FP8, FP6 = ("E4M3", "E5M2"), ("E2M3", "E3M2")
 NARROW8 = FP8 + FP6 + ("UE5M3",)
@@ -11,29 +11,77 @@ NARROW8 = FP8 + FP6 + ("UE5M3",)
 def downconvert(k): return "_to_8b_downconvert__" in k.name
 
 
+def byte_dest(n):
+    """The Dest of a dstfmt byte format, as numbers. A NaN keeps its sign; FP6 has no NaN
+    (SATFINITE: +max); UE5M3's is 0xff. Without SATFINITE, E4M3 overflows to +NaN, E5M2 to signed
+    infinity, UE5M3 to NaN (FP6 requires SATFINITE)."""
+    return fpformat.Dest(mbits=FORMATS[n].mbits, emin=FORMATS[n].emin, max_code=FORMATS[n].max_code,
+                         nan_signed=int(n in FP8), nan_mag={"UE5M3": 0xff}.get(n, 0x7f if n in FP8 else 0x1f),
+                         ovf_signed=int(n not in ("E4M3", "UE5M3")),
+                         ovf_mag={"E4M3": 0x7f, "E5M2": 0x7c, "UE5M3": 0xff}.get(n, FORMATS[n].max_code))
+
+
 def destination(i):
     """The destination format's constants, chosen by dstfmt: one conversion for every format."""
-    param = lambda f, w=32: i.select_lookup_const("dstfmt", {n: f(n) for n in NARROW8 if n in i.labels("dstfmt")}, w)
-    return fpformat.Dest(
-        mbits=param(lambda n: FORMATS[n].mbits), emin=param(lambda n: FORMATS[n].emin),
-        max_code=param(lambda n: FORMATS[n].max_code),
-        # A NaN keeps its sign; FP6 has no NaN (SATFINITE: +max); UE5M3's is 0xff.
-        nan_signed=param(lambda n: n in FP8, 1), nan_mag=param(lambda n: {"UE5M3": 0xff}.get(n, 0x7f if n in FP8 else 0x1f)),
-        # Without SATFINITE, E4M3 overflows to +NaN, E5M2 to signed infinity, UE5M3 to NaN (FP6 requires SATFINITE).
-        ovf_signed=param(lambda n: n not in ("E4M3", "UE5M3"), 1),
-        ovf_mag=param(lambda n: {"E4M3": 0x7f, "E5M2": 0x7c, "UE5M3": 0xff}.get(n, FORMATS[n].max_code)))
+    labels = [n for n in NARROW8 if n in i.labels("dstfmt")]
+    return fpformat.Dest(*(i.select_lookup_const("dstfmt", {n: byte_dest(n)[k] for n in labels}, 1 if k in (3, 5) else 32) for k in range(7)))
 
 
-def narrow_byte(i, p, r, general=False):
-    """The Parts p rounded to the dstfmt byte: FP8/FP6 with the sign at bit 7, or unsigned UE5M3
-    (the sign dropped first, as CUDA's cuda_fp8.hpp does). SATFINITE and RN/RZ/RP per the class;
-    RELU zeroes negative results except NaNs; .PZO makes a -0 result +0 (PTX cvt)."""
+def byte_settings(i):
+    """(Dest, SATFINITE, RELU, PZO, unsigned) of the dstfmt byte, decode-time choices."""
     d = destination(i)
     sat, relu, pzo = (bit(i, n, on, off) for n, on, off in (("satfinite", "SATFINITE", "nosatfinite"), ("relu", "RELU", "norelu"), ("pzo", "PZO", "nopzo")))
     unsigned = i.select_lookup_const("dstfmt", {n: int(n == "UE5M3") for n in NARROW8 if n in i.labels("dstfmt")}, 1)
+    return d, sat, relu, pzo, unsigned
+
+
+def byte_code(p, d, r, sat, relu, pzo, unsigned, general):
+    """The Parts p rounded to the dstfmt byte: FP8/FP6 with the sign at bit 7, or unsigned UE5M3
+    (the sign dropped first, as CUDA's cuda_fp8.hpp does). SATFINITE and RN/RZ/RP per the class;
+    RELU zeroes negative results except NaNs; .PZO makes a -0 result +0 (PTX cvt)."""
     sign, mag, nan = fpformat.round_parts(p._replace(sign=p.sign & lnot(unsigned)), d, r, sat, general)
     sign = sign & lnot(pzo & (extract(mag, 6, 0) == 0))
     return ite(unsigned == 1, extract(mag, 7, 0), ite(relu & sign & lnot(nan), const(0, 8), concat(sign, extract(mag, 6, 0))))
+
+
+def flags(**bits):
+    """The .<name> suffixes of constant flags that are set; None if one isn't constant."""
+    values = {n: fpformat.constant(b) for n, b in bits.items()}
+    return None if None in values.values() else "".join(f".{n}" for n, v in values.items() if v)
+
+
+def byte_name(scaled):
+    """A namer: f2fp.cvt.<mode>[.satfinite][.relu][.pzo].<format>.<src>[.scaled] for constant
+    choices (a dstfmt byte format's Dest), else f2fp.cvt.byte.<src>[.scaled] of them too."""
+    def name(a):
+        fmt, m, mods = fpformat.format_of(a["d"]), fpformat.mode(a["r"]), flags(satfinite=a["sat"], relu=a["relu"], pzo=a["pzo"])
+        sources = ["x", *(["scale"] if scaled else [])]
+        suffix = f".{a['src'].lower()}{'.scaled' if scaled else ''}"
+        if fmt in NARROW8 and m and mods is not None and all(map(same, a["d"], byte_dest(fmt))) and same(a["unsigned"], int(fmt == "UE5M3")):
+            return f"f2fp.cvt.{m.lower()}{mods}.{fmt.lower()}{suffix}", sources
+        return f"f2fp.cvt.byte{suffix}", ["d", "r", "sat", "relu", "pzo", "unsigned", *sources]
+    return name
+
+
+@definition(byte_name(False))
+def f2fp_byte(d, r, sat, relu, pzo, unsigned, x, src):
+    """PTX cvt from F32/F16/BF16 to an FP8 (E4M3, E5M2), FP6 (E2M3, E3M2) or UE5M3 byte with F2FP's
+    rules: rounded once, the format's NaN and overflow results, SATFINITE to the largest finite
+    value, RELU zeroing negative results except NaNs, .PZO making -0 +0."""
+    return byte_code(fpformat.parts(x, src), d, r, sat, relu, pzo, unsigned, False)
+
+
+def scaled_parts(x, scale, src):
+    """The Parts of x divided by its UE8M0 scale (0xff: NaN)."""
+    p = fpformat.parts(x, src, normalized=True).scaled(const(127, 32) - zext(scale, 32))
+    return p._replace(nan=p.nan | (scale == 0xff))
+
+
+@definition(byte_name(True))
+def f2fp_byte_scaled(d, r, sat, relu, pzo, unsigned, x, scale, src):
+    """PTX cvt .scaled::ue8m0 to an FP8/FP6/UE5M3 byte: x divided by its UE8M0 scale (0xff: NaN),
+    then as f2fp.cvt to a byte."""
+    return byte_code(scaled_parts(x, scale, src), d, r, sat, relu, pzo, unsigned, True)
 
 
 @family("F2FP", "UF2FP", classes=downconvert)
@@ -41,7 +89,10 @@ def f2fp_8b_downconvert(i):
     """Two values, Ra and Rb as F32 or Rb's halves as F16/BF16, rounded to FP8 (E4M3/E5M2), FP6
     (E2M3/E3M2) or UE5M3 bytes (narrow_byte) and packed above them with one half of Rc."""
     r = fpformat.chosen_rounding(i, "rndMode", {m: m for m in ROUNDING})
-    convert = lambda x, src: narrow_byte(i, fpformat.parts(x, src), r)
+
+    def convert(x, src):
+        d, sat, relu, pzo, unsigned = byte_settings(i)
+        return f2fp_byte(d, r, sat, relu, pzo, unsigned, x, str(src))
     if i.select_fork("merge") not in ("PACK_AB_MERGE_C", "UNPACK_B_MERGE_C"): unmodelled(f"{i.select_fork('merge')} merge")
     src = i.select_fork("srcfmt")
     if "_f16_to_8b_" in i.cls:
@@ -92,6 +143,24 @@ def half(i, names, selector):
     return i.select_lookup(i.resolve(selector), {"H0": extract(v, 15, 0), "H1": extract(v, 31, 16)})
 
 
+def tf32_name(a):
+    rn, mods = fpformat.constant(a["rn"]), flags(relu=a["relu"])
+    if rn is None or mods is None: return "f2fp.cvt.tf32.f32", ["rn", "relu", "x"]
+    return f"f2fp.cvt.{'rn' if rn else 'rz'}{mods}.tf32.f32", ["x"]
+
+
+@definition(tf32_name)
+def to_tf32(rn, relu, x):
+    """PTX cvt to TF32 with F2FP's rules: x keeping 10 fraction bits, rounded to nearest even or
+    toward zero on the 13 discarded bits, Inf/NaN truncated, any NaN giving 0x7fffe000 (also with
+    RELU); RELU makes negative values +0 (SM89 GPU)."""
+    special = extract(x, 30, 23) == 0xff
+    r = ite(rn & lnot(special), (x + 0xfff + zext(extract(x, 13, 13), 32)) & 0xffffe000, x & 0xffffe000)
+    nan = extract(x, 30, 23) == 0xff
+    nan = nan & (extract(x, 22, 0) != 0)
+    return ite(nan, const(0x7fffe000, 32), relu_zero(relu, extract(r, 31, 31) == 1, r))
+
+
 @family("F2FP", "UF2FP", classes=form("f2fp_tf32"))
 def f2fp_tf32(i):
     """Rd = Rb (F32) keeping 10 fraction bits: RN-even or RZ on the 13 discarded bits, Inf/NaN
@@ -99,12 +168,7 @@ def f2fp_tf32(i):
     required(i, "dstfmt", "TF32"); required(i, "srcfmt", "F32"); required(i, "merge", "PACK_B")
     x = i.value("Rb|Sb", modifiers=False)
     rn = i.select_lookup_const("rndMode", {"RN": 1, "RZ": 0}, 1)
-    special = extract(x, 30, 23) == 0xff
-    r = ite(rn & lnot(special), (x + 0xfff + zext(extract(x, 13, 13), 32)) & 0xffffe000, x & 0xffffe000)
-    nan = extract(x, 30, 23) == 0xff
-    nan = nan & (extract(x, 22, 0) != 0)
-    relu = bit(i, "relu", "RELU", "norelu")
-    return outputs(Rd=ite(nan, const(0x7fffe000, 32), relu_zero(relu, extract(r, 31, 31) == 1, r)))
+    return outputs(Rd=to_tf32(rn, bit(i, "relu", "RELU", "norelu"), x))
 
 
 def pack16_destination(i):
@@ -174,6 +238,25 @@ def fp4_destination(i):
                          max_code=7, nan_signed=0, nan_mag=7, ovf_signed=1, ovf_mag=7)
 
 
+FP4_DEST = {n: fpformat.Dest(FORMATS[n].mbits, FORMATS[n].emin, 7, 0, 7, 1, 7) for n in FP4}
+
+
+def nibble_name(a):
+    fmt, mods = fpformat.format_of(a["d"]), flags(relu=a["relu"])
+    if fmt in FP4 and mods is not None and all(map(same, a["d"], FP4_DEST[fmt])):
+        return f"f2fp.cvt.rn.satfinite{mods}.{fmt.lower()}.{a['src'].lower()}", ["x"]
+    return f"f2fp.cvt.nibble.{a['src'].lower()}", ["d", "relu", "x"]
+
+
+@definition(nibble_name)
+def f2fp_nibble(d, relu, x, src):
+    """PTX cvt.rn.satfinite to an E2M1/E0M3 nibble with F2FP's rules: NaN gives +max (7); RELU
+    zeroes negative results, from F32 also negative NaNs, from F16/BF16 a NaN stays +max."""
+    sign, mag, nan = fpformat.narrow_parts(x, src, d, fpformat.rounding("RN"), 1)
+    negative = extract(x, x.w - 1, x.w - 1) == 1 if src == "F32" else sign & lnot(nan)
+    return relu_zero(relu, negative, concat(sign, extract(mag, 2, 0)))
+
+
 @family("F2FP", "UF2FP", classes=form("f2fp_f32_to_4b_downconvert", "f2fp_f16_to_4b_downconvert"))
 def f2fp_4b_downconvert(i):
     """Values rounded (RN, SATFINITE) to E2M1/E0M3 nibbles. F32: Rd = Rc[31:8] << 8 | Ra' << 4 | Rb';
@@ -182,13 +265,9 @@ def f2fp_4b_downconvert(i):
     required(i, "rndMode", "RN"); required(i, "satfinite", "SATFINITE")
     f32 = "_f32_to_" in i.cls
     required(i, "merge", "PACK_AB_MERGE_C" if f32 else "UNPACK_B_MERGE_C")
-    d, rn = fp4_destination(i), fpformat.rounding("RN")
+    d = fp4_destination(i)
     relu = bit(i, "relu", "RELU", "norelu")
-
-    def convert(x, src):
-        sign, mag, nan = fpformat.narrow_parts(x, src, d, rn, 1)
-        negative = extract(x, x.w - 1, x.w - 1) == 1 if f32 else sign & lnot(nan)
-        return relu_zero(relu, negative, concat(sign, extract(mag, 2, 0)))
+    convert = lambda x, src: f2fp_nibble(d, relu, x, str(src))
 
     if f32:
         required(i, "srcfmt", "F32")
@@ -212,9 +291,7 @@ def scaled_pair(i, convert, one_scale):
     src = str(required(i, "srcfmt", *(("F32",) if f32 else ("F16", "BF16"))))
     c = i.value("Rc|Sc", modifiers=False)
 
-    def scaled(x, scale):
-        p = fpformat.parts(x, src, normalized=True).scaled(const(127, 32) - zext(scale, 32))
-        return convert(p._replace(nan=p.nan | (scale == 0xff)))
+    scaled = lambda x, scale: convert(x, scale, src)
 
     if f32: a, b = i.value("Ra", modifiers=False), i.value("Rb|Sb", modifiers=False)
     else:
@@ -223,19 +300,30 @@ def scaled_pair(i, convert, one_scale):
     return outputs(Rd=concat(extract(c, 15, 0), scaled(a, extract(c, 31, 24)), scaled(b, scale_b)))
 
 
+def s2_6_name(a):
+    mods = flags(relu=a["relu"])
+    if mods is None: return f"f2fp.cvt.s2_6.{a['src'].lower()}.scaled", ["relu", "x", "scale"]
+    return f"f2fp.cvt.rn.satfinite{mods}.s2_6.{a['src'].lower()}.scaled", ["x", "scale"]
+
+
+@definition(s2_6_name)
+def to_s2_6(relu, x, scale, src):
+    """PTX cvt .scaled::ue8m0 to S2_6 fixed point: x divided by its UE8M0 scale (0xff: NaN),
+    rounded to nearest even and saturated, two's complement; NaN gives +127/64, RELU zeroes
+    negative results."""
+    d = fpformat.Dest(S2_6.mbits, S2_6.emin, 127, 0, 127, 1, 127)
+    sign, mag, nan = fpformat.round_parts(scaled_parts(x, scale, src), d, fpformat.rounding("RN"), 1, general=True)
+    return relu_zero(relu, sign & lnot(nan), extract(ite(sign == 1, -mag, mag), 7, 0))
+
+
 @family("F2FP", "UF2FP", classes=form("f2fp_f32_to_mx8_downconvert_scale", "f2fp_f16_to_mx8_downconvert_scale"))
 def f2fp_s2_6_downconvert(i):
     """Two scaled values (scaled_pair, a scale each) rounded (RN, SATFINITE) to S2_6 fixed point,
     two's complement. NaN gives +127/64; RELU zeroes negative results; .PZO changes nothing (no -0)."""
     required(i, "dstfmt", "S2_6"); required(i, "rndMode", "RN"); required(i, "satnarrow", "SATFINITE")
-    d = fpformat.Dest(S2_6.mbits, S2_6.emin, 127, 0, 127, 1, 127)
     relu = bit(i, "relu", "RELU", "norelu")
     bit(i, "pzo", "PZO", "nopzo")
-
-    def convert(p):
-        sign, mag, nan = fpformat.round_parts(p, d, fpformat.rounding("RN"), 1, general=True)
-        return relu_zero(relu, sign & lnot(nan), extract(ite(sign == 1, -mag, mag), 7, 0))
-    return scaled_pair(i, convert, one_scale=False)
+    return scaled_pair(i, lambda x, scale, src: to_s2_6(relu, x, scale, src), one_scale=False)
 
 
 @family("F2FP", "UF2FP", classes=form("f2fp_f32_to_8b_downconvert_scale", "f2fp_f16_to_8b_downconvert_scale"))
@@ -244,7 +332,19 @@ def f2fp_8b_downconvert_scaled(i):
     rounded (RN, RZ) to FP8/FP6/UE5M3 bytes as the unscaled downconvert does (narrow_byte)."""
     required(i, "scalec", "SCALE_BY_C")
     r = fpformat.chosen_rounding(i, "rndMode", {"RN": "RN", "RZ": "RZ"})
-    return scaled_pair(i, lambda p: narrow_byte(i, p, r, general=True), one_scale=True)
+
+    def convert(x, scale, src):
+        d, sat, relu, pzo, unsigned = byte_settings(i)
+        return f2fp_byte_scaled(d, r, sat, relu, pzo, unsigned, x, scale, src)
+    return scaled_pair(i, convert, one_scale=True)
+
+
+@definition("cvt.rn.bf16x2.ue8m0x2")
+def from_ue8m0(h):
+    """PTX cvt.rn.bf16x2.ue8m0x2: two UE8M0 bytes to BF16, byte << 7, 0xff giving NaN (0x7fff) and 0
+    the subnormal 2^-127 (0x0040)."""
+    lane = lambda e: ite(e == 0xff, const(0x7fff, 16), ite(e == 0, const(0x40, 16), zext(e, 16) << 7))
+    return concat(lane(extract(h, 15, 8)), lane(extract(h, 7, 0)))
 
 
 @family("F2FP", "UF2FP", classes=form("f2fp_E8_upconvert"))
@@ -252,18 +352,53 @@ def f2fp_e8_upconvert(i):
     """Rb's H0/H1 half as two UE8M0 bytes to BF16: byte << 7, 0xff gives NaN (0x7fff), 0 the
     subnormal 2^-127 (0x0040)."""
     required(i, "dstfmt", "BF16"); required(i, "srcfmt", "E8"); required(i, "merge", "UNPACK_B"); required(i, "rndMode", "RN")
-    h = half(i, "Rb|Sb", "extract_B|extract")
-    lane = lambda e: ite(e == 0xff, const(0x7fff, 16), ite(e == 0, const(0x40, 16), zext(e, 16) << 7))
-    return outputs(Rd=concat(lane(extract(h, 15, 8)), lane(extract(h, 7, 0))))
+    return outputs(Rd=from_ue8m0(half(i, "Rb|Sb", "extract_B|extract")))
 
 
-def source_parts(i, fmts, byte):
-    """The Parts of a source byte in the format srcfmt chooses: each component a decode-time choice."""
-    def of(f):
-        if f == "S2_6": return fpformat.fixed_parts(byte, 6)
-        return fpformat.parts(extract(byte, FORMATS[f].width - 1, 0), f, normalized=True)
-    each = {f: of(f) for f in fmts if f in i.labels("srcfmt")}
-    return fpformat.Parts(*(i.select_lookup("srcfmt", {f: p[k] for f, p in each.items()}) for k in range(6)))
+UPCONVERTS = {"8b": UP8, "4b": FP4, "8b.scaled": UP8 + ("S2_6",)}   # the formats srcfmt codes index
+
+
+def source_parts(fmt, byte):
+    """The Parts of a source byte in format fmt."""
+    if fmt == "S2_6": return fpformat.fixed_parts(byte, 6)
+    return fpformat.parts(extract(byte, FORMATS[fmt].width - 1, 0), fmt, normalized=True)
+
+
+def upconvert_name(scaled):
+    """A namer: f2fp.cvt[.rn][.satfinite][.relu].<f16|bf16>.<format>[.scaled] for constant choices,
+    else f2fp.cvt.<f16|bf16>.<kind> of them too."""
+    def name(a):
+        mods = flags(satfinite=a["sat"], relu=a["relu"]) if scaled else flags(relu=a["relu"])
+        if is_const(a["code"]) and mods is not None:
+            fmt = UPCONVERTS[a["kind"]][value(a["code"])].lower()
+            return (f"f2fp.cvt.rn{mods}.bf16.{fmt}.scaled", ["byte", "scale"]) if scaled else (f"f2fp.cvt{mods}.f16.{fmt}", ["byte"])
+        return (f"f2fp.cvt.bf16.{a['kind']}", ["code", "relu", "sat", "byte", "scale"]) if scaled else (f"f2fp.cvt.f16.{a['kind']}", ["code", "relu", "byte"])
+    return name
+
+
+@definition(upconvert_name(False))
+def upconverted(code, relu, byte, kind):
+    """PTX cvt from an FP8/FP6/FP4 code to F16, exactly; NaN gives 0x7fff, RELU zeroes negative
+    results except NaNs.
+
+    code: the source format's index in UPCONVERTS[kind] (a decode-time choice in SLEIGH)."""
+    fmts = UPCONVERTS[kind]
+    x = chosen(code, lambda k: fpformat.widen(extract(byte, FORMATS[fmts[k]].width - 1, 0), fmts[k], "F16", nan=(False, 0x7fff)))
+    return relu_zero(relu, extract(x, 15, 15) == 1, x)   # NaN is +0x7fff
+
+
+@definition(upconvert_name(True))
+def upconverted_scaled(code, relu, sat, byte, scale, kind):
+    """PTX cvt .scaled::ue8m0 from an FP8/FP6/FP4/S2_6 code to BF16: times its UE8M0 scale (0xff:
+    NaN), rounded to nearest even, SATFINITE optional; NaN gives 0x7fff, RELU zeroes negative results
+    except NaNs.
+
+    code: the source format's index in UPCONVERTS[kind] (a decode-time choice in SLEIGH)."""
+    fmts, f = UPCONVERTS[kind], FORMATS["BF16"]
+    p = fpformat.Parts(*(chosen(code, lambda k: source_parts(fmts[k], byte)[field]) for field in range(6)))
+    p = p.scaled(zext(scale, 32) - 127)._replace(nan=p.nan | (scale == 0xff))
+    sign, mag, _ = fpformat.round_parts(p, fpformat.dest("BF16", nan=(False, 0x7fff)), fpformat.rounding("RN"), sat, general=True)
+    return relu_zero(relu, sign & lnot(p.nan), concat(sign, extract(mag, f.width - 2, 0)))
 
 
 def scale_pair(i):
@@ -275,24 +410,16 @@ def scale_pair(i):
     return extract(i.value("Rc|Sc", modifiers=False), 15, 0)
 
 
-def upconvert(i, fmts, codes, dst, scales=None):
-    """Each source code exactly in dst (F16), or times its UE8M0 scale (0xff: NaN) rounded RN to
-    BF16, SATFINITE optional; NaN gives 0x7fff. RELU zeroes negative results except NaNs."""
+def upconvert(i, kind, codes, scales=None):
+    """Each source code exactly in F16, or times its UE8M0 scale rounded to BF16 (upconverted,
+    upconverted_scaled); the source format a decode-time choice of srcfmt."""
     relu = bit(i, "relu", "RELU", "norelu")
     sat = bit(i, "satfinite", "SATFINITE", "nosatfinite") if scales is not None else 0
-    d, f = fpformat.dest(dst, nan=(False, 0x7fff)), FORMATS[dst]
     lanes = []
-    for k, code in enumerate(codes):
-        if scales is None:   # each format's own exact widening, chosen at decode time
-            x = i.select_lookup("srcfmt", {s: fpformat.widen(extract(code, FORMATS[s].width - 1, 0), s, dst, nan=(False, 0x7fff))
-                                           for s in fmts if s in i.labels("srcfmt")})
-            lanes.append(relu_zero(relu, extract(x, f.width - 1, f.width - 1) == 1, x))   # NaN is +0x7fff
-            continue
-        p = source_parts(i, fmts, code)
-        scale = extract(scales, 8 * k + 7, 8 * k)
-        p = p.scaled(zext(scale, 32) - 127)._replace(nan=p.nan | (scale == 0xff))
-        sign, mag, _ = fpformat.round_parts(p, d, fpformat.rounding("RN"), sat, general=True)
-        lanes.append(relu_zero(relu, sign & lnot(p.nan), concat(sign, extract(mag, f.width - 2, 0))))
+    for k, byte in enumerate(codes):
+        code = i.select_lookup_const("srcfmt", {s: n for n, s in enumerate(UPCONVERTS[kind]) if s in i.labels("srcfmt")}, 8)
+        if scales is None: lanes.append(upconverted(code, relu, byte, kind))
+        else: lanes.append(upconverted_scaled(code, relu, sat, byte, extract(scales, 8 * k + 7, 8 * k), kind))
     return outputs(Rd=concat(lanes[1], lanes[0]))
 
 
@@ -304,8 +431,8 @@ def f2fp_8b_upconvert(i):
     required(i, "dstfmt", "BF16" if scaled else "F16"); required(i, "merge", "UNPACK_B"); required(i, "rndMode", "RN")
     h = half(i, "Rb|Sb", "extract_B|extract")
     codes = [extract(h, 7, 0), extract(h, 15, 8)]
-    if not scaled: return upconvert(i, UP8, codes, "F16")
-    return upconvert(i, UP8 + ("S2_6",), codes, "BF16", scale_pair(i))
+    if not scaled: return upconvert(i, "8b", codes)
+    return upconvert(i, "8b.scaled", codes, scale_pair(i))
 
 
 @family("F2FP", "UF2FP", classes=form("f2fp_4b_upconvert", "f2fp_4b_upconvert_scale"))
@@ -318,5 +445,5 @@ def f2fp_4b_upconvert(i):
     b = i.value("Rb|Sb", modifiers=False)
     byte = i.select_lookup("selB", {f"B{n}": extract(b, 8 * n + 7, 8 * n) for n in range(4)})
     codes = [zext(extract(byte, 3, 0), 8), zext(extract(byte, 7, 4), 8)]
-    if not scaled: return upconvert(i, FP4, codes, "F16")
-    return upconvert(i, FP4, codes, "BF16", scale_pair(i))
+    if not scaled: return upconvert(i, "4b", codes)
+    return upconvert(i, "4b", codes, scale_pair(i))

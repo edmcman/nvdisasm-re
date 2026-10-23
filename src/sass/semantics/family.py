@@ -127,8 +127,14 @@ def _not(a): return bitvec.lnot(a)
 
 
 class Rewrite(ast.NodeTransformer):
-    @staticmethod
-    def thunk(node): return ast.Lambda(ast.arguments([], [], None, [], [], None, []), node)
+    def __init__(self, name): self.name = name
+
+    def thunk(self, node):
+        # A := in a deferred operand would bind inside the lambda: unset (or a global) outside it.
+        if walrus := next((n for n in ast.walk(node) if isinstance(n, ast.NamedExpr)), None):
+            raise SyntaxError(f"{self.name}: := in a conditional's branch or a later and/or operand binds "
+                              f"inside the staged lambda (line {walrus.lineno}); assign before the expression")
+        return ast.Lambda(ast.arguments([], [], None, [], [], None, []), node)
 
     def call(self, name, *args): return ast.Call(ast.Name(name, ast.Load()), list(args), [])
 
@@ -155,8 +161,8 @@ def rewrite(fn):
     tree = ast.parse(textwrap.dedent("".join(lines)))
     (fdef,) = tree.body
     fdef.decorator_list = []
-    tree = ast.fix_missing_locations(Rewrite().visit(tree))
     ast.increment_lineno(tree, first - 1)
+    tree = ast.fix_missing_locations(Rewrite(fn.__name__).visit(tree))
     env = fn.__globals__
     env.update(_sem_cond=_cond, _sem_and=_and, _sem_or=_or, _sem_not=_not)
     exec(compile(tree, inspect.getsourcefile(fn), "exec"), env)
@@ -223,7 +229,7 @@ def definition(name):
             if isinstance(name, str): label, kept = name.format(**{f: arguments[f] for f in fields}), [k for k in arguments if k not in fields]
             else: label, kept = name(arguments)
             fixed = {k: v for k, v in arguments.items() if k not in kept}
-            shapes = [(k, type(arguments[k]) if isinstance(arguments[k], tuple) else None) for k in kept]
+            shapes = [(k, type(arguments[k]), len(arguments[k])) if isinstance(arguments[k], tuple) else (k, None, 1) for k in kept]
             operands = [x for k in kept for x in (arguments[k] if isinstance(arguments[k], tuple) else (arguments[k],))]
             if label not in DEFINITIONS:
                 if label in bitvec.OPS or label in BUILTIN: raise TypeError(f"{label} is an IR operator")
@@ -251,9 +257,9 @@ def expander(staged, forms):
     def expand(*operands):
         fixed, shapes = forms[len(operands)]
         rest, kept = list(operands), {}
-        for k, t in shapes:
+        for k, t, n in shapes:
             if t is None: kept[k] = rest.pop(0)
-            else: n = len(t._fields); kept[k], rest = t(*rest[:n]), rest[n:]
+            else: kept[k], rest = (t._make if hasattr(t, "_make") else t)(rest[:n]), rest[n:]
         return staged(**fixed, **kept)
     return expand
 

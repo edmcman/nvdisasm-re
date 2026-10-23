@@ -101,9 +101,11 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   `sel` arms included). It rebuilds only the changed paths, through `op`, so they simplify and fold
   as if the family had built the expansion in place. Every consumer that needs plain bitvector
   operations lowers:
-  - SLEIGH, before any pass (`lower.lowered_outputs`), so it has no labels and the slaspecs are
-    byte-identical with or without them (SM75/89/90/100/120, exact and readable, 2026-10-23). The
-    readable lowering's NaN stripping therefore never meets one.
+  - SLEIGH, before any pass (`lower.lowered_outputs`), so it has no labels and defining an operator
+    leaves the slaspecs byte-identical (checked on SM75/89/90/100/120, exact and readable,
+    2026-10-23). The one SLEIGH change of that work is deliberate: FRND/F2I's input `.FTZ` became the
+    shared `ftz`, a mask instead of a select (same values, one branch fewer per flush). The
+    readable lowering's NaN stripping never meets an operator.
   - `evaluate`, at its root.
   - `cxx.Lower`, per operator: the place for a per-operation C++ fast path.
   - `primitive_names` and `cxx.Lower.lazy`, since an expansion may hold a runtime primitive.
@@ -112,11 +114,49 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   expressions with each expansion pointing at its operator. A leaf result (a constant, a register)
   gets no pointer: any operator could have produced it.
 - **Structural tests.** A family test of a subexpression's `.op` stops matching when that
-  subexpression is an operator. At the pilot the only one is `fpformat.narrow`'s `nanresult` test,
-  and no operator reaches it. Check `.op ==` uses before defining an operator whose output they see.
-- Pilot: `ftz` (`floating.flushed`), `min.f32`/`max.f32`/`fmnmx` (FMNMX without `.NAN`), F2F's
-  `cvt[.<mode>].<dst>.<src>`, F2FP's `f2fp.cvt` lanes and `f2fp.pack` (PACK_AB). Tests:
-  `tests/test_definitions.py`.
+  subexpression is an operator. The only one is `fpformat.narrow`'s `nanresult` test, which sees
+  its raw input, not an operator. Check `.op ==` uses before defining an operator whose output they
+  see.
+- **Which functions are definitions.** When the semantics needs a helper for an operation, that
+  helper is a `@definition`; an operation written inline from IR operators (IADD3's carry-out,
+  LEA's shift-add, IMAD's a * b + c) needs none. Exceptions stay `@helper`s or plain functions: a
+  definition's internal pieces (`ordered_minmax`, `round_integral`, NaN tests, comparisons), kept
+  out of the contract so families can be restructured, and anything that can't be an operator (it
+  asks the instruction, taking `i`, so it must run while the family does since SLEIGH enumerates
+  rows from its questions; or it returns a tuple or None). `bitvec`'s own min/max/abs are IR
+  building blocks, not family helpers.
+- **Decode-time choices as arguments.** A definition whose body differs by a selector that a family
+  reads through small `select_lookup` tables (HMNMX2's lane format, the F2FP upconverts' source
+  format, PRMT's immediate selector) takes a code instead: `i.select_lookup_const` of each label's
+  index (or `select_bits` of each value). Its expansion reads the code with `bitvec.chosen`, which
+  gives `f(code)` for a constant (the lifter, which names the format) and rebuilds a `sel` of
+  constants as the same `sel` of `f`'s values (SLEIGH: the same keys, rows and collapse
+  `select_lookup` builds). SLEIGH is then unchanged.
+- Defined (2026-10-23):
+  - Float: `ftz`/`ftz.bf16` (`floating.flushed`, shared by FADD/FFMA/FMNMX, the packed lanes and
+    FRND/F2I's input `.FTZ`), `fmz` (HMUL2), `sat`, `fchk.divide`, DSETP's `setp.min/max.f64`.
+  - FP64 arithmetic: `add/mul/fma.<mode>.f64` (DADD/DMUL/DFMA). Their NaN result comes from the
+    registers before -/|.| (`sass_nan`), so with a modified operand those registers follow the
+    operands as NaN sources: `fma.rn.f64(-R2, R4, R6, R2, R4, R6)`. FP32's NaN is a constant, so
+    FADD/FMUL/FFMA stay the IR's `fadd`/`fmul`/`ffma` under `nanresult`.
+  - Min/max: FMNMX `min/max[.NaN][.xorsign.abs].f32` or `fmnmx…` with a register predicate; FMNMX3
+    `min3/max3…`; HMNMX2 lanes `min/max[.ftz][.NaN][.xorsign].<f16|bf16|e6m9>` or `hmnmx…`, and
+    `….is_a`; the readable lowering's `min.readable.f32`, `min3.readable.f32`. Integer
+    `min/max.<s|u>32` (IMNMX with PT/!PT, VIMNMX lanes) or `imnmx`/`vimnmx…`, and `relu.s32`.
+  - Conversions: F2F `cvt[.<mode>].<dst>.<src>`; FRND `cvt.r<m>i.<fmt>.<fmt>`; F2I
+    `cvt.r<m>i[.ntz].<s|u><n>.<fmt>`; I2F `cvt.<mode>.<dst>.<s|u><n>`; F2IP `cvt.rni.sat.<s|u>8.f32`;
+    I2IP `cvt.pack[.sat][.relu][.h1].<s|u><n>.s32`; `narrow.<mode>.<dst>.<src>` (`fpformat.narrow`:
+    FADD2-style narrowing, HMUL2's BF16 forms); F2FP `f2fp.pack…`, `f2fp.cvt…` lanes for every
+    16-bit, 8/6/4-bit, S2_6, TF32 and up-conversion (`.scaled` with a UE8M0 scale), and
+    `cvt.rn.bf16x2.ue8m0x2`.
+  - Integer and bits: `abs.s32`, `mul.wide.<s|u>32` (IMAD.HI/WIDE), `bmsk`, `szext`, `shf`,
+    `prmt.b32[.<mode>]` (immediate selectors as decode-time codes), `brev.b32`, `popc.b32`,
+    `bfind[.shiftamt]`, `dp4a`/`dp2a`, `vabsdiff4`.
+
+  Tests: `tests/test_definitions.py`.
+- Not defined: the readable lowering's other plain formulas, comparisons and predicate logic
+  (already readable), moves, memory and control flow. MUFU and the warp primitives are primitive
+  nodes, named already.
 
 ### Operand values (2026-10-07)
 - `src/sass/semantics/operands.py` (`Builder`) preserves exact register effects for all classes and

@@ -335,8 +335,7 @@ def narrow(roots):
         if not isinstance(e, Expr) or e.op in ("const", "param", "reg"): return e
         if e in memo: return memo[e]
         args = [walk(x) for x in e.args]
-        out = narrowed(args[0], e.w, frozenset(memo.get(x, x) for x in shared)) if low(e) and uses.get(e.args[0], 0) == 1 else ite(*args) if e.op == "ite" else \
-            extract(*args) if e.op == "extract" else Expr(e.op, tuple(args), e.w) if e.op in ("sel", "load") else op(e.op, *args, w=e.w)
+        out = narrowed(args[0], e.w, frozenset(memo.get(x, x) for x in shared)) if low(e) and uses.get(e.args[0], 0) == 1 else rebuilt(e, args)
         memo[e] = out
         return out
     return [walk(r) for r in roots]
@@ -370,6 +369,16 @@ def ite(c, a, b):
 
 
 def lnot(c): return c == 0 if isinstance(c, Expr) else not c
+
+
+def chosen(code, f):
+    """f(value) of a constant code, or of a decode-time choice of constants (a sel, from
+    select_lookup_const) the same choice of f(value) per arm: one table read by a definition's
+    expansion as the family would have built it with select_lookup."""
+    if is_const(code): return f(value(code))
+    if code.op != "sel" or not all(is_const(t) for _, t in code.args[1]): raise TypeError(f"{code!r} is not a choice of constants")
+    arms = tuple((v, f(value(t))) for v, t in code.args[1])
+    return arms[0][1] if all(t is arms[0][1] for _, t in arms) else Expr("sel", (code.args[0], arms), arms[0][1].w)
 
 
 ROUNDING = ("RN", "RZ", "RP", "RM")
@@ -471,6 +480,20 @@ def any_of(*cs): return reduce(lambda x, y: x | y, cs)
 def all_of(*cs): return reduce(lambda x, y: x & y, cs)
 
 
+def rebuilt(e, args):
+    """e's operator applied to new args through its builder, whose peepholes (zext(zext(x)) is one
+    zext, ite and extract's look-through) op() alone doesn't apply: a rebuilt tree is the tree a
+    direct build gives."""
+    match e.op:
+        case "ite": return ite(*args)
+        case "extract": return extract(*args)
+        case "zext": return zext(args[0], e.w)
+        case "sext": return sext(args[0], e.w)
+        case "concat": return concat(*args)
+        case "load" | "sel": return Expr(e.op, tuple(args), e.w)
+    return op(e.op, *args, w=e.w)
+
+
 def substitute(e, mapping, memo=None):
     """`e` with leaves replaced: mapping(node) -> Expr or None (keep), applied to params, regs and
     decode-time choices (whose arms are not expression arguments)."""
@@ -482,7 +505,7 @@ def substitute(e, mapping, memo=None):
         out = e if m is None else m
     else:
         args = [substitute(a, mapping, memo) for a in e.args]
-        out = ite(*args) if e.op == "ite" else extract(*args) if e.op == "extract" else op(e.op, *args, w=e.w)
+        out = rebuilt(e, args)
     memo[e] = out
     return out
 
@@ -502,11 +525,7 @@ def lowered(e, memo=None, origin=None):
             case name if name in DEFINED:
                 out = lowered(DEFINED[name].expand(*args), memo, origin)
                 if origin: origin(out, e)
-            case _ if all(x is y for x, y in zip(args, e.args)): out = e
-            case "ite": out = ite(*args)
-            case "extract": out = extract(*args)
-            case "load": out = Expr("load", tuple(args), e.w)
-            case _: out = op(e.op, *args, w=e.w)
+            case _: out = e if all(x is y for x, y in zip(args, e.args)) else rebuilt(e, args)
         memo[e] = out
     return memo[e]
 

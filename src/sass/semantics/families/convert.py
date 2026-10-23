@@ -4,8 +4,8 @@ out-of-range results follow SM89 hardware (tests/cases/conversions.py GPU fixtur
 from sass.semantics.fp import fpformat
 from sass.semantics.fp.fpformat import FORMATS
 from sass.semantics.bitvec import *
-from sass.semantics.family import definition, family, helper, outputs, unmodelled
-from sass.semantics.families.floating import readable
+from sass.semantics.family import definition, family, helper, outputs, same, unmodelled
+from sass.semantics.families.floating import IEEE, flushed, readable
 
 FLOATS = {16: "F16", 32: "F32", 64: "F64"}
 MODES = {"ROUND": "RN", "FLOOR": "RM", "CEIL": "RP", "TRUNC": "RZ", "RN": "RN", "RM": "RM", "RP": "RP", "RZ": "RZ"}
@@ -21,13 +21,10 @@ def lookup(i, name, table, w):
     return i.select_lookup_const(name, {l: v for l, v in table.items() if l in i.labels(name)}, w)
 
 
-@helper
 def flush(i, x, fmt):
-    """The fmt value x with a denormal flushed to a zero of its sign under .FTZ (an input flush:
-    SM89 FRND/F2I)."""
+    """The fmt value x flushed (ftz) under .FTZ: an input flush (SM89 FRND/F2I)."""
     if not (i.has_operand("ftz") and i.select_fork("ftz") == "FTZ"): return x
-    f = FORMATS[fmt]
-    return const(0, x.w) | (x & (1 << f.width - 1)) if extract(x, f.width - 2, f.mbits) == 0 else x
+    return flushed(x, None if IEEE.get(x.w) == fmt else fmt)
 
 
 def source(i, names, w, modified=True):
@@ -78,6 +75,24 @@ def round_integral(x, fmt, r):
     return small if slt(e, const(0, 32)) else (middle if slt(e, const(f.mbits, 32)) else x)
 
 
+def integral_name(a):
+    """cvt.r<mode>i.<fmt>.<fmt> of the source (and the register whose NaN it keeps, when another);
+    without a constant mode, the mode's flags are arguments."""
+    m, fmt, sources = fpformat.mode(a["r"]), a["fmt"].lower(), ["x", *(["raw"] if a["raw"] is not None else [])]
+    return (f"cvt.{m.lower()}i.{fmt}.{fmt}", sources) if m else (f"cvt.ri.{fmt}.{fmt}", ["r", *sources])
+
+
+@definition(integral_name)
+def integral(fmt, r, x, raw=None):
+    """PTX cvt.rni/rzi/rmi/rpi to an integral value in the same format, the sign of a zero kept and
+    infinity unchanged; a NaN gives 0x7fffffff (F32), else the source register's sign and payload,
+    quieted (the GPU's).
+
+    raw: that register, when it isn't x."""
+    nan = const(0x7fffffff, 32) if fmt == "F32" else quiet(x if raw is None else raw, "F64", "F64")
+    return nan if is_nan(x, fmt) else round_integral(x, fmt, r)
+
+
 @family("FRND", "UFRND")
 def frnd(i):
     """Rd = Rb rounded to an integral value (ROUND/FLOOR/CEIL/TRUNC), .FTZ flushing a denormal input.
@@ -86,17 +101,28 @@ def frnd(i):
     if fmt not in ("F32", "F64"): unmodelled(fmt)
     w = int(fmt[1:])
     x = flush(i, source(i, "Rb|Sb", w), fmt)
-    nan = const(0x7fffffff, 32) if w == 32 else quiet(source(i, "Rb|Sb", w, modified=False), "F64", "F64")
-    return outputs(Rd=nan if is_nan(x, fmt) else round_integral(x, fmt, rounding(i)))
+    raw = source(i, "Rb|Sb", w, modified=False)
+    return outputs(Rd=integral(fmt, rounding(i), x, None if w == 32 or raw is x else raw))
 
 
 INTEGERS = {"S32": (32, True), "U32": (32, False), "S64": (64, True), "U64": (64, False)}
 
 
-@helper
+def int_name(a):
+    """cvt.r<mode>i[.ntz].<s|u><n>.<fmt> (.ntz: NaN gives 0) for constant choices, else cvt.i<n>.<fmt>
+    of them too."""
+    n, fmt, m, signed, nan = a["n"], a["fmt"].lower(), fpformat.mode(a["r"]), a["signed"], a["nan"]
+    if m and is_const(signed) and is_const(nan) and value(nan) in (0, 1 << n - 1):
+        return f"cvt.{m.lower()}i{'.ntz' if value(nan) == 0 else ''}.{'s' if value(signed) else 'u'}{n}.{fmt}", ["x"]
+    return f"cvt.i{n}.{fmt}", ["signed", "r", "nan", "x"]
+
+
+@definition(int_name)
 def float_to_int(x, fmt, n, signed, r, nan):
-    """x rounded to an integer with Rounding r and saturated to n bits, signed (a 1-bit expression)
-    or not; NaN gives the n-bit `nan`."""
+    """PTX cvt.rni/rzi/rmi/rpi from a float to an n-bit signed or unsigned integer, saturated; NaN
+    gives the destination's top bit, or 0 with .NTZ (the GPU's).
+
+    signed: a 1-bit expression; nan: the n-bit NaN result."""
     f = FORMATS[fmt]
     sign, exponent = extract(x, f.width - 1, f.width - 1) == 1, extract(x, f.width - 2, f.mbits)
     is_nan, is_inf = fpformat.classify(x, fmt)
@@ -159,6 +185,26 @@ def integer_source(i, n):
 DESTS = ("F16", "BF16", "F32", "F64")
 
 
+def i2f_name(a):
+    """cvt.<mode>.<dst>.<src> for a constant destination and mode, else cvt.b<result width>.<src> of their fields."""
+    fmt, m = fpformat.format_of(a["d"]), fpformat.mode(a["r"])
+    if fmt and m and all(same(x, int(y)) for x, y in zip(a["d"], fpformat.dest(fmt))):
+        return f"cvt.{m.lower()}.{fmt.lower()}.{a['src'].lower()}", ["x"]
+    return f"cvt.b{a['w']}.{a['src'].lower()}", ["d", "r", "top", "x"]
+
+
+@definition(i2f_name)
+def int_to_float(src, d, r, top, w, x):
+    """PTX cvt from an integer to F16/BF16/F32/F64, rounded once (exact in every mode, SM89); F16
+    overflows to infinity (the largest finite value rounding toward zero), a 16-bit result is
+    zero-extended.
+
+    d, top: the destination's Dest and sign bit; w: the result's width."""
+    n, signed = SOURCES[src]
+    sign, mag, _ = fpformat.round_parts(fpformat.int_parts(x, signed), d, r, general=True)
+    return resize((zext(sign, 64) << top) | mag, w)
+
+
 @family("I2F", "I2FP")
 def i2f(i):
     """Rd = Rb (8/16-bit byte/half, 32- or 64-bit, signed or not) as F16/BF16/F32/F64, rounded once
@@ -171,9 +217,10 @@ def i2f(i):
     dsts = [l for l in i.labels("dstfmt") if l in DESTS and FORMATS[l].width <= i.width("Rd")]
     field = lambda name, w=64: lookup(i, "dstfmt", {l: int(getattr(fpformat.dest(l), name)) for l in dsts}, w)
     d = fpformat.Dest(field("mbits"), field("emin"), field("max_code"), field("nan_signed", 1), field("nan_mag"), field("ovf_signed", 1), field("ovf_mag"))
-    sign, mag, _ = fpformat.round_parts(fpformat.int_parts(integer_source(i, n), signed), d, rounding(i), general=True)
+    x = integer_source(i, n)
+    r = rounding(i)
     top = lookup(i, "dstfmt", {l: FORMATS[l].width - 1 for l in dsts}, 64)
-    return outputs(Rd=resize((zext(sign, 64) << top) | mag, i.width("Rd")))
+    return outputs(Rd=int_to_float(src, d, r, top, i.width("Rd"), x))
 
 
 @helper

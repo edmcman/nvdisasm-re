@@ -9,6 +9,7 @@ Independent of tests/refs/fpformat.py, which is the oracle.
 """
 from typing import NamedTuple
 from sass.semantics.bitvec import Expr, concat, const, extract, is_const, ite, lnot, signed, sle, slt, smax, umin, zext
+from sass.semantics.family import definition
 
 W = 32  # width of the exponent and significand arithmetic; 64 for formats wider than 32 bits
 
@@ -252,9 +253,18 @@ def widen(x, src, dst, nan=None):
     return concat(ite(is_nan, const(int(d.nan_signed), 1) & sign, sign), extract(mag, f.ebits + f.mbits - 1, 0))
 
 
+def narrow_name(a):
+    """narrow.<mode>[.satfinite].<dst>.<src>: the NaN and overflow results are its definition's."""
+    return f"narrow.{a['rnd'].lower()}{'.satfinite' if a['satfinite'] else ''}.{a['dst'].lower()}.{a['src'].lower()}", ["x"]
+
+
+@definition(narrow_name)
 def narrow(x, src, dst, rnd="RN", satfinite=False, nan=None, overflow=None):
-    """The `dst` encoding of the `src` value x with rounding `rnd`. nan, overflow: (signed,
-    magnitude) results, see dest()."""
+    """A float narrowed to a smaller format, rounded once; a NaN or overflow gives the format's
+    (signed, magnitude) results, default positive canonical NaN and signed infinity (FADD2/FHADD2
+    narrowing, HMUL2's BF16 forms).
+
+    nan, overflow: (signed, magnitude) results, see dest()."""
     s, f = FORMATS[src], FORMATS[dst]
     if f.emin < s.emin or f.mbits >= s.mbits: raise ValueError(f"{src} -> {dst} is not a narrowing")
     d = dest(dst, nan, overflow)
