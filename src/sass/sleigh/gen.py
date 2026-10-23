@@ -1085,7 +1085,7 @@ def update(path, text):
 
 
 def write_ldefs():
-    variants = sorted({p.name.split(".")[0].removeprefix("sass_") for p in OUT.glob("sass_sm*.sla*")})  # specs, or compiled languages alone
+    variants = sorted({p.stem.removeprefix("sass_") for p in OUT.glob("sass_sm*") if p.suffix in (".sla", ".slaspec")})  # specs, or compiled languages alone
     update(OUT / "sass.ldefs", LDEFS.format("".join(
         LANG.format(v=v, V=v.split("_")[0].upper(), D="".join(f" {m} floating point" for m in v.split("_")[1:]))
         for v in variants)))
