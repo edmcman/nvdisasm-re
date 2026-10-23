@@ -4,7 +4,7 @@ from collections import Counter,defaultdict
 from pathlib import Path
 from sass.paths import LANGUAGES,ROOT
 from sass.sleigh.gen import update
-from sass.sleigh.modifiers import form
+from sass.sleigh.modifiers import compact,form
 from sass.semantics.operations import OPERATION_FAMILIES
 
 EVIDENCE=('gpu','ptxas','reference')   # strongest first: a class or value counts once, under the first that ran it
@@ -171,9 +171,11 @@ def write(directory,output):
     """The summary of the manifests and evidence in `directory`, and beside it the per-class evidence, badge and report."""
     found,summary,detail=analyze(directory,details=True)
     output=Path(output);update(output,json.dumps(summary,indent=2,sort_keys=True)+'\n')
-    update(output.with_name('evidence.json'),'{\n'+',\n'.join(f'{json.dumps(a)}:{{\n'+',\n'.join(f'{json.dumps(c)}:{json.dumps(e,sort_keys=True)}' for c,e in sorted(found[a].items()))+'}' for a in sorted(found))+'}\n')
+    update(output.with_name('evidence.json'),'{\n'+',\n'.join(f'{json.dumps(a)}:{{\n'+',\n'.join(f'{json.dumps(c)}:{json.dumps(compact(e),sort_keys=True)}' for c,e in sorted(found[a].items()))+'}' for a in sorted(found))+'}\n')
     update(output.with_name('badge.json'),json.dumps(badge(summary),ensure_ascii=False)+'\n')
     update(output.with_name('coverage.html'),report(summary,detail))
+    verdicts={p.name.removeprefix('sass_').removesuffix('_gpu_verdicts.json').upper():json.loads(p.read_text()) for p in sorted(Path(directory).glob('sass_sm*_gpu_verdicts.json'))}
+    update(output.with_name('gpu_verdicts.json'),json.dumps(verdicts,indent=1,sort_keys=True)+'\n')
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('directory');p.add_argument('--output');a=p.parse_args()

@@ -1,5 +1,5 @@
 """Package data, cache, repository paths and external tools."""
-import os, sysconfig
+import os, shutil, sysconfig
 from pathlib import Path
 
 PACKAGE = Path(__file__).resolve().parent
@@ -8,7 +8,7 @@ CHECKOUT = PACKAGE == ROOT / "src/sass"
 MD = PACKAGE / "md/data"  # the machine descriptions as shipped, laid out per architecture
 LANGUAGES = Path(os.environ.get("SASS_SLEIGH_OUT", ROOT / "processor/SASS/data/languages")).resolve()
 LDEFS = LANGUAGES / "sass.ldefs"
-# Not in the wheel (85 MB): sass.provenance reads a checkout's, or $SASS_EVIDENCE outside one.
+# Not in the wheel (14 MB): sass.provenance reads a checkout's, or $SASS_EVIDENCE outside one.
 EVIDENCE = Path(os.environ.get("SASS_EVIDENCE", ROOT / "processor/SASS/semantics/evidence.json"))
 GHIDRA_PY = os.environ.get("GHIDRA_PY", os.path.expanduser("~/.config/ghidra/ghidra_12.2_PUBLIC/venv/bin/python3"))
 CACHE = Path(os.environ.get("SASS_CACHE") or (ROOT / ".cache" if CHECKOUT else
@@ -28,6 +28,8 @@ PTXAS = tool("ptxas", Path("/usr/local/cuda/bin/ptxas"))
 CUOBJDUMP = tool("cuobjdump", Path("/usr/local/cuda/bin/cuobjdump"))
 # The target nvdisasm (CUDA 13.4, V13.4.92); the oracle cache is keyed by its hash.
 NVDISASM = tool("nvdisasm", *Path.home().glob(".cache/uv/archive-v0/*/nvidia/cu13/bin/nvdisasm"))
+# The C++ compiler for sass.emulate's runtime and generated kernels ($CXX overrides).
+CXX = tool("cxx", *(Path(p) for p in map(shutil.which, ("clang++", "g++")) if p))
 
 
 def variant(arch, fp="exact"):

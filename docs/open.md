@@ -1,6 +1,24 @@
 # Open questions and roadmap
 
 - Cooperative scheduling covers one interleaving: round-robin lockstep keeps warps in step, so `shared_exchange` likely passes even with BAR.SYNC as a no-op. Run cooperative kernels under adversarial schedules (warp-greedy until blocked, reverse, seeded random) and require identical results: that tests barrier enforcement and that fixture kernels are race-free. Timing proper matters only for racy code, fence-based ordering (memory model, not cycles) and scoreboards: the emulator completes instructions instantly, trusting control bits, and GPU fixtures keep the original controls on patched words, so a patched slot with longer or variable latency could read stale values on the GPU.
+- Native emulator (2026-10-23, `docs/emulation.md`). Next:
+  - Speed: structure-of-arrays registers with SIMD across inputs, flat per-thread memory instead of
+    hashed pages, a converged-warp fast path (run until a sync instead of a turn per instruction;
+    outputs, steps and visited must stay those of the parity schedule), direct jumps between
+    instructions of a basic block, hardware fast paths for RN arithmetic (then NaN fixups), fewer
+    Python-side copies. A benchmark harness (`tests/emulate_benchmark.py`) should measure each.
+  - Model 3, scoped weak memory: per-location store histories and per-thread, per-scope views
+    (acquire/release joins, a seeded choice per load), only the load/store/fence hooks changing.
+    Prerequisites: ATOM/ATOMG/ATOMS/RED families with an atomic read-modify-write, MEMBAR/FENCE
+    effects, and `sass_memory_order`'s sem/sco decoded into (semantics, scope) per access; validate
+    with MP/SB/LB/IRIW litmus kernels against the PTX model's allowed outcomes. Equivalence under it
+    compares sets of outcomes (refinement), not one output per input.
+  - Atomics and fences raise in every engine until those families exist.
+  - Launch-wide global memory (`scope="launch"`) for the native and Python engines; Ghidra's
+    BlockEmulator keeps it per block, so parity runs stay per block.
+  - Adversarial schedules (seeded warp order, reverse, warp-greedy) in the shared scheduler, then
+    the C++ port.
+  - A standalone libFuzzer harness linking both kernels of an equivalence pair.
 - Generic LD/ST (2026-10-15) model only the CTA's own shared window. On SM90+ the shared window may also hold distributed (cluster) shared memory, and ptxas builds the base from `SR_SWINHI` alone, so `SR_SWINSZ` and the rank layout there need hardware. Faults (window addresses beyond the allocation, unmapped global addresses) and 32-bit generic addresses are not modelled.
 - LDG/LD `Pu` (2026-10-15) stays opaque. On SM89 hardware it read 0 in every run that completed, and it doesn't turn a fault into a flag. ptxas writes PT there on every path it was seen to take, so nothing it compiles uses `Pu`. Its only operand-driven encoders are in Mercury class 0xe6, whose creator is unknown (`research/ptxas/ptxas-finalizer-notes.md`, "LDG's Pu operand"). `Pnz` is modelled as zero-fill (`docs/hardware-facts.md`).
 - Memory descriptors (2026-10-15): which range-form descriptors (bit 59) trap is unknown, so the runtime rejects them all. Value neutrality and the format were established only on SM89. The SM90+ default descriptors (`c[0x0][0x208]`, `0x358`) are unknown, and the emulator leaves them 0. ATOM/RED/LDGSTS descriptor forms have no family.

@@ -77,6 +77,13 @@ from SASS text to a word, nvdisasm's text and the lifted IR, and
 [`examples/evaluate.py`](examples/evaluate.py) runs a lifted instruction on concrete registers
 (`sass.semantics.evaluate`). The Ghidra processor and the test suite need a checkout.
 
+Whole kernels run on the native emulator, which compiles each kernel's lifted semantics to C++
+(`sass.emulate`, a C++20 compiler on `PATH`; [`docs/emulation.md`](docs/emulation.md)):
+[`examples/emulator/`](examples/emulator) has three examples: `run_kernel.py` launches one over
+4096 threads, `trace_kernel.py` prints each step's register writes and the outputs, and
+`equivalence.py` compares kernels thread by thread on the same launches (all three run the kernels of
+its `times3.sass`, assembled without CUDA tools).
+
 ## Assembler (`src/sass/assemble/`)
 
 Assemble nvdisasm-style SASS into raw code or native CUDA cubins, with labels,

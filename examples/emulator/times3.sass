@@ -1,0 +1,58 @@
+// SM89 kernels computing out[i] = 3 * in[i] + 1 for thread i = blockIdx.x * blockDim.x + threadIdx.x,
+// three ways: with IMAD, with additions, and wrongly (no + 1 once in[i] >= 1000).
+.target SM89
+
+.kernel times3
+.param input, 8, 8
+.param output, 8, 8
+.registers 16, 8
+S2R R0, SR_TID.X;
+S2R R1, SR_CTAID.X;
+IMAD R0, R1, c[0][0x0], R0;              // c[0][0x0]: blockDim.x
+MOV R7, 0x4;
+IMAD.WIDE.U32 R2, R0, R7, c[0][$input];
+IMAD.WIDE.U32 R8, R0, R7, c[0][$output];
+ULDC.64 UR4, c[0][0x118];                // the global memory descriptor
+LDG.E R5, [R2.64];
+IMAD R5, R5, 0x3, RZ;
+IADD3 R5, R5, 0x1, RZ;
+STG.E [R8.64], R5;
+EXIT;
+.endkernel
+
+.kernel added
+.param input, 8, 8
+.param output, 8, 8
+.registers 16, 8
+S2R R0, SR_TID.X;
+S2R R1, SR_CTAID.X;
+IMAD R0, R1, c[0][0x0], R0;
+MOV R7, 0x4;
+IMAD.WIDE.U32 R2, R0, R7, c[0][$input];
+IMAD.WIDE.U32 R8, R0, R7, c[0][$output];
+ULDC.64 UR4, c[0][0x118];
+LDG.E R5, [R2.64];
+IADD3 R6, R5, R5, R5;
+IADD3 R6, R6, 0x1, RZ;
+STG.E [R8.64], R6;
+EXIT;
+.endkernel
+
+.kernel buggy
+.param input, 8, 8
+.param output, 8, 8
+.registers 16, 8
+S2R R0, SR_TID.X;
+S2R R1, SR_CTAID.X;
+IMAD R0, R1, c[0][0x0], R0;
+MOV R7, 0x4;
+IMAD.WIDE.U32 R2, R0, R7, c[0][$input];
+IMAD.WIDE.U32 R8, R0, R7, c[0][$output];
+ULDC.64 UR4, c[0][0x118];
+LDG.E R5, [R2.64];
+ISETP.LT.U32.AND P0, PT, R5, 0x3e8, PT;  // in[i] < 1000
+IMAD R5, R5, 0x3, RZ;
+@P0 IADD3 R5, R5, 0x1, RZ;
+STG.E [R8.64], R5;
+EXIT;
+.endkernel

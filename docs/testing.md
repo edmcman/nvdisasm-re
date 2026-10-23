@@ -74,7 +74,8 @@ Caller-controlled input sampling (2026-10-21; mechanism in
   outputs. `tests/harness/device_cases.py` batches scalar probes and isolates faults in bounded
   subprocesses; `device_setup.py` binds memory, lanes and runtime windows. Unknown state is an
   error, and model-only cases report explicit reasons. `device_evidence.py` records passes in
-  `tests/baseline/gpu_case_passes.json` (per scenario since 2026-10-22, below);
+  `tests/baseline/gpu_case_passes.json` (per scenario since 2026-10-22, below; observations
+  instead since 2026-10-23);
   `tests/evidence.py` credits the tested word directly as `cases/FAMILY`. Records never replace
   execution. Existing whole-kernel fixtures and their evidence remain integration coverage. Sampling
   originally followed `Cases.sweep`; the percentage policy ([Sampling](#sampling)) supersedes it.
@@ -279,6 +280,39 @@ How the planner, plans, profiles and adapters work is in
   validates all 64,022 fp64 shared-case scenarios. The seeded manual FP64 corpus stays for its
   denser rounding and cancellation inputs.
 
+## GPU observations instead of pass fingerprints (2026-10-23, #63)
+
+Pass fingerprints hashed the expectation and the comparison code, so any change to how results
+are judged expired every recorded pass: #61's bitwise NaN comparison would have taken SM90 GPU
+evidence from 599 classes to 141 had the H100 not been available to re-record it. GPU access may
+end, so what the GPU returned is now the durable record (`tests/README.md` "Shared-case hardware
+evidence"): observations keyed by the probe alone, judged afresh when evidence is built.
+
+The existing passes were converted without a GPU (`research/migrate_gpu_passes.py`, run at #61's
+01129e0). A scenario whose current fingerprint had passed was judged by exactly that comparison
+against exactly that expectation, so each exactly compared capture held its expected value. Only
+captures the comparison tolerated (an FP8 NaN byte, none in the current cases) or skipped (memory
+regions after the first) would be unknown. All 128,279 SM89 and 142,822 SM90 current GPU
+scenarios matched; the remaining 127,678 and 142,193 fingerprints were main-era ones no current
+scenario builds. The same inference at main 60cfa3a, where F16 NaN lanes were still tolerated
+(238 SM89 and 241 SM90 scenarios unknown there), added 8,207 and 8,398 observations of probes that
+no longer run and conflicted with none. Judged by the new path, the observations verify exactly the
+words the fingerprints did (110,870 SM89, 124,530 SM90), every GPU scenario passing. Run on main's
+comparison alone, the unknown F16 NaN lanes would have dropped 36 SM89 and 38 SM90 F2FP forms: the
+inference must run on the comparison that recorded the passes.
+
+## Committed evidence encoding (2026-10-23)
+
+`processor/SASS/semantics/evidence.json` had grown to 86 MB (49 MB on 2026-10-19), 84.7 MB of it
+form rows: 946,597 reference and 229,659 GPU rows, each spelling every modifier label, the GPU rows
+almost all repeating reference rows (1,090 of 1,121 classes). `sass.sleigh.modifiers.compact` now
+stores each class's labels once per modifier (`labels`) and each form once, as a string of label
+indices (one base-36 digit per modifier, at most 17 labels with `null` seen), under the evidence
+kinds that ran it (`"gpu+reference"`); `modifiers.expand` restores the `tests/evidence.py` rows (`sass.provenance` expands the class it
+looks up).
+13.7 MB, lossless over every class (`sass_smXX_evidence.json`, which `sass-coverage` reads, keeps the
+expanded rows).
+
 ## Verification evidence and the coverage report
 
 Verification evidence per class (2026-10-15) is derived from the tests by `tests/evidence.py` into
@@ -434,6 +468,28 @@ hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` 
   `desc[URx][Ra.64]` accesses: a scratch `out[i] = in[i] * 3 + blockDim.x` kernel gave the
   expected outputs on SM89, SM90, SM100 and SM120. The default descriptors stay 0 in bank 0. SM87's
   prologue needs BMOV barrier state from the environment.
+- One scheduler, two engines (2026-10-23): `ghidra_emulate.run_kernel`'s scheduling moved
+  unchanged into `sass.emulate.schedule` (seeding, lowest-PC warp turns, BAR.SYNC and WARPSYNC
+  holds, collectives' warp context, step limit, every error message, the response). Ghidra lanes
+  and the lifted semantics' lanes (`sass.emulate.reference`: `lifter.lift` per PC +
+  `evaluate.apply`, the in-place `execute`) both run under it, so whole kernels need no Ghidra.
+  `c.kernel` cases now also run in `test_lifted_semantics`. A one-time parity check (2026-10-23)
+  compared both engines' whole responses on every SM89/SM90 fixture, including the first 64
+  threads' traced writes (opaque errors by pcodeop, since Ghidra names its arguments and Python the
+  lifter's reason): all 2032 matched (7 minutes), as did the native engine's (`docs/emulation.md`).
+  Before #61 (the hardware NaN rule, #49), 16 differed by NaN results of FP arithmetic: the IR
+  returned IEEE +qNaN, the exact lowering the host's -qNaN, and the GPU neither. The only other
+  difference was Ghidra 12.1.4's minimum-subnormal underflow (section 3 of `docs/semantics.md`),
+  where Python's output is the hardware reference and the fixtures already excuse Ghidra's. The
+  check is not a test: both engines are judged against the same references on every instruction
+  (the shared cases) and kernel (the fixtures), now bitwise, and its extra reach (step counts and
+  interleaving) cost tens of minutes per CI job on SM89/SM90.
+- Inherent engine differences: p-code inspection (`__native`, `__max_ops`, `pcode_ops`) is
+  Ghidra-only; an instruction's `text` comes from SLEIGH on Ghidra and from pydecode in Python
+  (kernel traces use pydecode on both); Ghidra observes any SLEIGH register, the lifted harness
+  R/UR/P/UP and seeded SR; trace writes are p-code register outputs on Ghidra and lifted write
+  locations in Python (identical on every fixture so far); a non-cooperative thread still has no
+  warp context on either, so its collectives fail rather than act as a lone lane.
 
 ## Case construction
 

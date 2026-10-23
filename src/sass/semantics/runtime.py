@@ -1,21 +1,30 @@
-"""CPU implementations of named instruction primitives (src/sass/semantics/primitive.py) and the
-other pcodeops the languages call.
+"""The CPU runtime of the pcodeops the languages call: instruction primitives
+(src/sass/semantics/primitive.py), whose values the C++ primitives compute from this module's
+parsed context (sass.emulate.native), and the environment's operands and memory controls.
 
 Unknown operations fail explicitly. This is single-thread/explicit-warp context,
 not an implementation of CUDA's warp scheduler or memory concurrency model.
 """
-import functools, operator
 from sass.decode import ir
 from sass.semantics.bitvec import PRIMITIVE_OP
-from sass.semantics.fp import mufu
+from sass.emulate import native
 
 
 class UnsupportedSemantics(NotImplementedError): pass
 
 
-REDUCTIONS = {'and':operator.and_,'or':operator.or_,'xor':operator.xor,'add':operator.add,'umin':min,'umax':max,'smin':min,'smax':max}
-SPACES = {'global':1,'shared':2,'local':4,'shared_cluster':8}
+SPACES = tuple(native.SPACES)
 SYNCHRONIZATION = ('bar','bssy','bsync','break','warpsync','bmov')
+
+
+def memory_controls(arch,ordinal,controls):
+    """The class of a memory access with these encoded controls (sem, sco, cop, cop2, private);
+    raises on an INVALID label."""
+    k=arch.classes[ordinal]
+    for key,value in zip((n for n in ('sem','sco','cop','cop2','private') if n in k.operand_types),controls):
+        atom=k.operand_types[key];label=arch.rev_enums[atom.type].get(value,'INVALID')
+        if label.startswith('INVALID'):raise UnsupportedSemantics('memory control '+label)
+    return k
 
 
 class Runtime:
@@ -39,45 +48,34 @@ class Runtime:
             if key not in supplied:raise UnsupportedSemantics('operand '+key)
             return int(supplied[key])
         if name=='sass_memory_order':
-            ordinal,*controls=args;k=arch.classes[ordinal]
-            for key,value in zip((n for n in ('sem','sco','cop','cop2','private') if n in k.operand_types),controls):
-                atom=k.operand_types[key];label=arch.rev_enums[atom.type].get(value,'INVALID')
-                if label.startswith('INVALID'):raise UnsupportedSemantics('memory control '+label)
-            self.events.append(dict(op=k.mnemonic,controls=controls));return 0
+            ordinal,*controls=args
+            self.events.append(dict(op=memory_controls(arch,ordinal,controls).mnemonic,controls=controls));return 0
         if name=='sass_memory_descriptor':
-            # Bit 59 marks a range-form L2 policy; some of those trap on SM89 and which ones is unknown.
-            descriptor,=args
-            if descriptor>>59&1:raise UnsupportedSemantics(f'range-form memory descriptor {descriptor:#x}')
+            try:native.memory_descriptor(*args)
+            except native.Failure as error:raise UnsupportedSemantics(str(error)) from error
             return 0
         raise UnsupportedSemantics(name)
 
     def primitive(self,name,args,size):
-        family,_,variant=name.partition('_')
-        match name,args:
-            case 'mufu_sin'|'mufu_cos',[x]:return mufu.sincos(x,variant.upper())
-            case _ if family=='mufu':
-                raise UnsupportedSemantics(f'MUFU approximation is unresolved for {variant.upper()}'+(' (16-bit)' if len(args)==2 else ''))
-            case 'lane',[]:return self.warp()[1]
-            case 'active',[]:return self.warp()[2]
-            case 'waiting',[]:
-                # The lanes of this warp still alive but not executing this instruction (BRA.DIV/.CONV).
-                waiting=self.context.get('warp',{}).get('waiting')
-                if waiting is None:raise UnsupportedSemantics('warp waiting-lane mask required')
-                return int(waiting)&0xffffffff
-            case 'read_lane',[x,src]:return self.lanes('values',x)[0][src]
-            case 'ballot',[p]:
-                preds,lanes=self.lanes('predicates',p)
-                return sum(1<<i for i in lanes if preds[i])
-            case 'match',[x]:
-                values,lanes=self.lanes('values',x)
-                return sum(1<<i for i in lanes if values[i]==x)
-            case _,[x] if family=='redux' and variant in REDUCTIONS:
-                values,lanes=self.lanes('values',x)
-                xs=[values[i]&0xffffffff for i in lanes]
-                if variant[0]=='s':xs=[v-(1<<32) if v>>31 else v for v in xs]
-                return functools.reduce(REDUCTIONS[variant],xs)&0xffffffff
-            case 'address_space',[address]:return self.address_space(address)
-            case _,[*inputs] if name in SYNCHRONIZATION:return self.synchronize(name,inputs,read=size>0)
+        """Context parsing; the values come from the C++ primitives (sass/emulate/include/sass/primitives.hpp)."""
+        family=name.partition('_')[0]
+        try:
+            match name,args:
+                case 'lane',[]:return self.warp()[1]
+                case 'active',[]:return self.warp()[2]
+                case 'waiting',[]:
+                    # The lanes of this warp still alive but not executing this instruction (BRA.DIV/.CONV).
+                    waiting=self.context.get('warp',{}).get('waiting')
+                    if waiting is None:raise UnsupportedSemantics('warp waiting-lane mask required')
+                    return int(waiting)&0xffffffff
+                case 'read_lane',[x,src]:return native.primitive(name,[self.lanes('values',x),src],*self.warp()[1:])
+                case 'ballot',[p]:return native.primitive(name,[self.lanes('predicates',p)],*self.warp()[1:])
+                case 'match'|'redux_and'|'redux_or'|'redux_xor'|'redux_add'|'redux_umin'|'redux_umax'|'redux_smin'|'redux_smax',[x]:
+                    return native.primitive(name,[self.lanes('values',x)],*self.warp()[1:])
+                case 'address_space',[address]:return native.primitive(name,[address],ranges=self.address_ranges())
+                case _ if family=='mufu':return native.primitive(name,args)
+                case _,[*inputs] if name in SYNCHRONIZATION:return self.synchronize(name,inputs,read=size>0)
+        except native.Failure as error:raise UnsupportedSemantics(str(error)) from error
         raise UnsupportedSemantics('primitive '+name)
 
     def warp(self):
@@ -89,18 +87,18 @@ class Runtime:
         return warp,lane,active
 
     def lanes(self,key,x):
-        """(every lane's contribution from the warp context's `key`, this lane's being x; the executing lanes)."""
-        warp,lane,active=self.warp()
+        """Every lane's contribution from the warp context's `key`, this lane's being x."""
+        warp,lane,_=self.warp()
         values=warp.get(key)
         if values is None or len(values)!=32:raise UnsupportedSemantics(f'warp {key} required')
         values=[int(v) for v in values];values[lane]=x
-        return values,[i for i in range(32) if active>>i&1]
+        return values
 
-    def address_space(self,address):
-        """The tag of the mapped space containing a generic address (shared and shared::cluster may overlap)."""
+    def address_ranges(self):
+        """The context's generic address ranges, [(space, start, end)], validated."""
         ranges=self.context.get('address_spaces')
         if not isinstance(ranges,dict):raise UnsupportedSemantics('QSPC address_spaces context required')
-        found=0
+        found=[]
         for name,intervals in ranges.items():
             if name not in SPACES or not isinstance(intervals,(list,tuple)):
                 raise UnsupportedSemantics(f'malformed QSPC address ranges for {name}')
@@ -109,10 +107,7 @@ class Runtime:
                     raise UnsupportedSemantics(f'malformed QSPC address range for {name}')
                 start,end=map(int,interval)
                 if not 0<=start<=end<=1<<64:raise UnsupportedSemantics(f'invalid QSPC address range for {name}')
-                if start<=address<end:found|=SPACES[name]
-        # CTA shared memory lies inside the cluster's shared window: both bits.
-        if found.bit_count()!=1 and found!=SPACES['shared']|SPACES['shared_cluster']:
-            raise UnsupportedSemantics('QSPC input address has no unique mapped space')
+                found.append((name,start,end))
         return found
 
     def synchronize(self,op,inputs,read):

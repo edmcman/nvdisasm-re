@@ -5,7 +5,7 @@ import json
 from functools import cache
 from sass.decode import pydecode
 from sass.paths import EVIDENCE
-from sass.sleigh.modifiers import settings
+from sass.sleigh.modifiers import expand, settings
 
 
 @cache
@@ -21,8 +21,8 @@ def gpu_architectures():
 
 
 def ran(entry, kind, s):
-    """Whether `kind` ran the form with settings `s`, as evidence.json stores it: labels in the order of the entry's modifiers."""
-    names = entry.get("modifiers", [])
+    """Whether `kind` ran the form with settings `s`: evidence.json's compact entry expanded to labels in the order of its modifiers."""
+    entry = expand(entry); names = entry.get("modifiers", [])
     return set(s) <= set(names) and [s.get(m) for m in names] in entry.get("forms", {}).get(kind, [])
 
 

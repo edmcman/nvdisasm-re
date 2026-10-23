@@ -6,8 +6,8 @@ import struct
 
 import pytest
 
+from sass.emulate import native
 from sass.semantics import runtime
-from sass.semantics.fp import mufu
 import tests.refs.mufu
 
 
@@ -43,10 +43,10 @@ def test_reduced_evaluator_matches_captured_gpu(request):
     for offset, (delta,) in enumerate(struct.iter_unpack('<i', raw)):
         hardware += delta
         if offset == 1 << 23:
-            assert mufu.sincos(0x3e800000, 'SIN') == hardware
+            assert native.sincos(0x3e800000, 'SIN') == hardware
         elif exhaustive or offset in selected:
-            assert mufu.reduced_sine(offset) == hardware, hex(offset)
+            assert native.reduced_sine(offset) == hardware, hex(offset)
 
 
 def test_coefficient_copy_matches_hardware_recovery():
-    assert list(map(list, mufu.COEFFICIENTS)) == tests.refs.mufu.coefficients()
+    assert native.mufu_coefficients() == tests.refs.mufu.coefficients()

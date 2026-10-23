@@ -50,7 +50,9 @@ def sources(program):
             elif isinstance(n, ast.ImportFrom):
                 base = ".".join(package[:len(package) - n.level + 1] + [n.module or ""]).strip(".") if n.level else n.module
                 todo += [base, f"{__name__}.{base}", *(f"{base}.{a.name}" for a in n.names)]
-    return sorted({module_file(m) for m in seen} | set(Path(__file__).parent.glob("*.java")))
+    from sass.emulate import build
+    compiled = set(build.SOURCES) if "sass.emulate.build" in seen else set()   # the C++ the runtime's primitives run
+    return sorted({module_file(m) for m in seen} | set(Path(__file__).parent.glob("*.java")) | compiled)
 
 
 def language_entry(name):
