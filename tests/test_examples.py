@@ -41,3 +41,11 @@ def test_trace_kernel():
     assert out[9] == "thread 0 0x0090 IADD3 R5, R5, 0x1, RZ                    R5=0x10" and out[10] == "thread 0 0x00a0 STG.E [R8.64], R5"
     assert out[-4:] == ["thread 0: in 0x00000005 -> out 0x00000010", "thread 1: in 0x7fffffff -> out 0x7ffffffe",
                         "thread 2: in 0x000003e8 -> out 0x00000bb9", "thread 3: in 0xffffffff -> out 0xfffffffe"]
+
+
+@pytest.mark.native
+def test_show_cpp(tmp_path):
+    out = run("emulator/show_cpp.py", "buggy")
+    assert "static void i10(sass::Ctx &c) {  // @P0 IADD3 R5, R5, 0x1, RZ" in out and "if (!v0) { t.pc = UINT64_C(0x1000b0); return; }" in out
+    assert run("emulator/show_cpp.py", "times3", str(tmp_path / "t.cpp")).startswith("times3: 16 instructions")
+    assert 'extern "C" uint32_t sass_run(' in (tmp_path / "t.cpp").read_text()

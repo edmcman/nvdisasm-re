@@ -81,7 +81,8 @@ Whole kernels run on the native emulator, which compiles each kernel's lifted se
 (`sass.emulate`, a C++20 compiler on `PATH`; [`docs/emulation.md`](docs/emulation.md)):
 [`examples/emulator/`](examples/emulator) has three examples: `run_kernel.py` launches one over
 4096 threads, `trace_kernel.py` prints each step's register writes and the outputs, and
-`equivalence.py` compares kernels thread by thread on the same launches (all three run the kernels of
+`equivalence.py` compares kernels thread by thread on the same launches, and `show_cpp.py`
+prints the C++ the emulator compiles for a kernel (all three run the kernels of
 its `times3.sass`, assembled without CUDA tools).
 
 ## Assembler (`src/sass/assemble/`)
