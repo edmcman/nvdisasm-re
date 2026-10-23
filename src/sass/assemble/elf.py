@@ -6,7 +6,8 @@ instruction architecture. SM107 remains raw-only until its executable ABI is est
 import struct
 from dataclasses import dataclass
 
-from sass.assemble import encoding, instruction, source
+from sass.assemble import instruction, source
+from sass.md import parse
 from sass.assemble.instruction import AssemblyError
 
 
@@ -106,7 +107,7 @@ def build(module, filename='<string>'):
         if not kernel.code:
             raise AssemblyError(f'{kernel.name}: kernel has no instructions', filename)
         for k, _, _, statement in kernel.instructions:
-            props = encoding.classes(module.arch)[k.name]['props']
+            props = parse.arch_classes(module.arch)[k.name]['props']
             if props.get('BRANCH_TYPE') in ('BRT_CALL', 'BRT_RETURN') or k.mnemonic in ('CALL', 'JCAL', 'RET'):
                 raise source.error(ValueError('device calls and returns require an unsupported device-function ABI; use raw output'), statement, filename)
         source.validate_resources(module.arch, kernel, filename)

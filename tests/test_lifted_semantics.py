@@ -5,7 +5,7 @@ from functools import cache
 from sass.decode import ir
 from sass.semantics.family import family_for
 from tests.cases import stream
-from tests.harness.select import arches, families, modes
+from tests.harness.select import arches, families, modes, selected, skipped
 from tests.harness import lifted, sampling, sharded
 
 
@@ -46,6 +46,7 @@ def selection(config):
 
 def pytest_generate_tests(metafunc):
     if "lifted_class" not in metafunc.fixturenames: return
+    if not selected(metafunc.config): return skipped(metafunc, "lifted_class", "unmarked", "unmarked tests not selected by -m")
     found = results(*selection(metafunc.config))
     metafunc.config._lifted_cases = sum(counts[0] for counts in found.values())
     params = sorted(found)

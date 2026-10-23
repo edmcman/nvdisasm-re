@@ -3,7 +3,8 @@ exact spans and BRANCH_TYPE."""
 from sass.md import expression
 from sass.decode import pydecode
 from sass.semantics.family import family_for
-from sass.sleigh.gen import ENUM_FILE, REG_FILES, RESOURCE_FILE, Gen
+from sass.sleigh.gen import RESOURCE_FILE, Gen
+from sass.sleigh.registers import ENUM_FILE, REG_FILES
 from sass import ghidra_bridge
 from tests.refs.integer import prmt
 

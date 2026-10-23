@@ -12,8 +12,10 @@ def module(family):
     return importlib.import_module(f"tests.cases.{family}")
 
 
-def emulator_cases(arch, fp, families=FAMILIES, sample=sampling.DEFAULT, generated=True):
-    """{family: Cases} for one architecture and fp lowering."""
+def emulator_cases(arch, fp, families=FAMILIES, sample=sampling.DEFAULT, generated=True, complete=True):
+    """{family: Cases} for one architecture and fp lowering; complete=False leaves the selected
+    manual cases unencoded and their deferred expected values uncomputed (for callers that read
+    only classes and ids)."""
     sample = sampling.percentage(sample)
     out = {}
     for family in families:
@@ -21,7 +23,7 @@ def emulator_cases(arch, fp, families=FAMILIES, sample=sampling.DEFAULT, generat
         if any((case.hardware or {}).get('probe') for case in out[family]):
             raise ValueError(f'{family}: draft probes need reference expectations before entering regression suites')
         out[family][:] = sampling.select(out[family], arch, sample, getattr(out[family], "manual_reasons", ()))
-        out[family].encode_words()
+        if complete: out[family].complete()
         if generated:
             from tests.harness.autocases import append
             append(out[family], family, sample)

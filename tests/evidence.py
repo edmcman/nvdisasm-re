@@ -16,7 +16,7 @@ from pathlib import Path
 from sass.decode import cubin, ir, pydecode
 from sass.paths import LANGUAGES, PTXAS, ROOT
 from sass.sleigh.build import ARCHES
-from sass.sleigh.gen import MODES, Gen
+from sass.sleigh.gen import MODES, Gen, update
 from sass.sleigh.modifiers import form, settings
 from tests.cases import FAMILIES, gpu_fixtures, stream
 from tests.harness import sampling, sharded
@@ -41,7 +41,7 @@ def reference(job):
     for case in stream(*job):
         word = case.request.get("word")
         if word is not None and word not in words:
-            words[word] = settings(arch, pydecode.decode(arch, bytes.fromhex(word)))
+            words[word] = dict(sampling.form(arch, word)[1])   # decoded when sampling chose the case
         found = out.setdefault(case.cls, [0, {}]); found[0] += 1
         if words.get(word): found[1][form(words[word])] = words[word]
     return arch, out
@@ -166,7 +166,7 @@ def main():
         probes = list(pool.map(ptxas, a.architectures))
     for arch, rows in zip(a.architectures, probes):
         sources = {"gpu": gpu(arch, sample) if arch in ("SM89", "SM90") else [], "ptxas": rows}
-        (a.output / f"sass_{arch.lower()}_evidence.json").write_text(json.dumps(evidence(sources, found[arch]), indent=1, sort_keys=True) + "\n")
+        update(a.output / f"sass_{arch.lower()}_evidence.json", json.dumps(evidence(sources, found[arch]), indent=1, sort_keys=True) + "\n")
 
 
 if __name__ == "__main__":

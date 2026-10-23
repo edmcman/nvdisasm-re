@@ -41,9 +41,31 @@ Caller-controlled input sampling (2026-10-21; mechanism in
 - Manual `c.add` cases were still encoded eagerly, which made F2FP's hand-written shard on SM100
   take 35 s (66 of 100 profiled seconds encoding 148,876 cases to keep 6,996) and set each SM100+
   language's evidence wall time. They now keep their fields and are encoded after selection
-  (`Cases.encode_words`), identified by fields rather than words, with forms memoized per class and
-  modifier fields (sampling version 3). The shard takes 9 s and SM100's exact evidence 13 s instead
+  (`Cases.encode_words`, now `Cases.complete`), identified by fields rather than words, with forms
+  memoized per class and modifier fields (sampling version 3). The shard takes 9 s and SM100's exact evidence 13 s instead
   of 39; at 100% the 1,778,617 hand-written cases are identical to eager encoding.
+- Wasted test work (2026-10-22, audited by file with measured costs). Hand-written sweeps computed
+  every candidate's reference before sampling discarded about 95% of them (SM100 F2FP: 148,886
+  built, 6,996 kept); an expected value may now be `Later(fn, *args)`, computed by `Cases.complete`
+  for kept cases only. `encoding.encode` is memoized (85-95% of kept cases repeat a word), per-class
+  modifier names and the non-alternate class map are cached, a worker parses its plan once per family
+  rather than per shard, and label checks consult the current enum before loading every
+  architecture's IR. `-m ghidra`/`-m gpu` no longer lift every CPU case at collection; the manual
+  cases' class list for naming Ghidra items is cached on disk per source digest; each worker keeps one
+  Ghidra-side process instead of starting one (about 20 s of CPU) per shard. Ghidra cache stamps hash
+  only the language's own `sass.ldefs` entry (any newly built language changed every stamp) and
+  normalized source and language-output paths, and no longer include the generator or the bridge
+  package. Scratch language directories outside the checkout also keep stable stamps. Coverage
+  writing is single-pass (296 to 151 CPU-s), generated files are rewritten only when they change (a
+  refresh made every `.sla` look stale), and generation caches legality enumeration, cube covers and
+  operation costs (9-28% less CPU per language in a fresh process: SM75 90 to 65 s, SM89 187
+  to 145 s, SM100 120 to 109 s). Every hand-written case list (300 architecture/lowering/
+  family lists), all 20 generated languages and the coverage outputs are byte-identical before
+  and after on the original base. The refresh takes about 10.5 minutes instead of 19 on that
+  32-core machine. After merging main's explicit runtime primitives and per-scenario GPU
+  fingerprints (2026-10-22), no runtime manifest is generated or hashed by Ghidra's cache. GPU
+  evidence follows the current probe fingerprints rather than expiring on a source-file digest;
+  coverage and evidence are regenerated from the combined tree.
 
 ## Shared cases on the GPU
 

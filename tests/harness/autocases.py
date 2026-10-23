@@ -1,7 +1,7 @@
 """Reference adapters for generated shared-case form plans. No implementation-derived outputs."""
 import hashlib, json
 from typing import NamedTuple
-from functools import cache
+from functools import cache, lru_cache
 from sass.md import parse
 from sass.paths import ROOT
 from sass.assemble import encoding
@@ -446,8 +446,8 @@ def integer_cases(c, k, form, profiles):
     return c
 
 
-def saved_plan(arch):
-    path = PLANS / (arch + '.json')
+def saved_plan(arch, plans=None):
+    path = (PLANS if plans is None else plans) / (arch + '.json')
     if not path.exists(): raise ValueError(f'{path}: missing generated coverage plan; run python -m tests.autocases {arch} --write')
     data = json.loads(path.read_text())
     if data['version'] != 2: raise ValueError(f'{path}: unsupported shared-case plan version; regenerate it')
@@ -455,11 +455,17 @@ def saved_plan(arch):
     return data
 
 
+@lru_cache(maxsize=1)
+def family_forms(plans, arch, family):
+    """The plan's entries for one family, not the whole plan (150 MiB for SM89). A worker takes a
+    family's shards in turn, so it parses the plan once per family rather than once per shard."""
+    return [e for e in saved_plan(arch, plans)['forms'] if e['family'] == family]
+
+
 def stream(arch, fp, family, start=0, step=1, sample=sampling.DEFAULT):
     """The family's generated cases, form by form; with start/step, every step-th planned form from start."""
     if family not in FAMILIES.values(): return
-    entries = [e for e in saved_plan(arch)['forms'] if e['family'] == family][start::step]   # not the whole plan (150 MiB for SM89)
-    for entry in entries:
+    for entry in family_forms(PLANS, arch, family)[start::step]:
         yield from generate(arch, entry['cls'], entry['settings'], fp, entry['profiles'], entry['native'], sample=sample)
 
 

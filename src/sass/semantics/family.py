@@ -215,7 +215,7 @@ def compound(k):
 @cache
 def predicates(arch_name):
     """md PREDICATES per class (IDEST_SIZE, ISRC_A_SIZE, ...; bits)."""
-    return {c["cls"]: c["preds"] for c in parse.load_classes(parse.MD / arch_name)}
+    return {name: c["preds"] for name, c in parse.arch_classes(arch_name).items()}
 
 
 def constant_width(arch_name, cls, name):
@@ -264,12 +264,13 @@ def encoded(k):
 
 
 class Label(str):
-    """An enum label; comparisons check the other side is a label this operand has somewhere."""
-    def __new__(cls, label, names, operand):
-        s = super().__new__(cls, label); s.names, s.operand = names, operand; return s
+    """An enum label; comparisons check the other side is a label this operand has somewhere: in its
+    own enum (`labels`), else on any architecture (which loads every one, so only then)."""
+    def __new__(cls, label, names, operand, labels):
+        s = super().__new__(cls, label); s.names, s.operand, s.labels = names, operand, labels; return s
 
     def check(self, other):
-        if other not in operand_labels(self.operand):
+        if other not in self.labels and other not in operand_labels(self.operand):
             raise ValueError(f"{other!r} is not a label of any {self.operand} operand on any architecture")
 
     def __eq__(self, other):
@@ -363,7 +364,7 @@ class Instruction:
         elif len(set(enum.values())) == 1: v = next(iter(enum.values()))
         else: raise KeyError(f"{self.cls}.{name} is neither encoded nor defaulted")
         names_of = [l for l, x in self.arch.enum_defs[a.type] if x == v]
-        return Label(self.arch.rev_enums[a.type][v], frozenset(names_of), name)
+        return Label(self.arch.rev_enums[a.type][v], frozenset(names_of), name, enum.keys())
 
     def default(self, names): return self.atom(self.resolve(names)).default
 

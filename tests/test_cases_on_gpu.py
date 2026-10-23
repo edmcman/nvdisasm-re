@@ -1,5 +1,5 @@
 """Hardware-valid shared semantics cases against their independent reference outputs."""
-from collections import Counter
+from collections import Counter, defaultdict
 from functools import cache
 import pytest
 from tests.harness import device_cases, device_evidence, sampling, gpu
@@ -8,6 +8,14 @@ from tests.harness.select import families, selected, skipped
 
 @cache
 def scenarios(fams, sample, arch): return device_cases.selection(fams, sample, arch)
+
+
+@cache
+def by_class(fams, sample, arch):
+    """{(family, class): its scenarios}, grouped once rather than filtered per test item."""
+    out = defaultdict(list)
+    for s in scenarios(fams, sample, arch): out[s.family, s.case.cls].append(s)
+    return out
 
 
 def selection(config): return tuple(families(config)), sampling.configured(config), gpu.target(config)
@@ -56,7 +64,7 @@ def device_results(request):
 
 @pytest.mark.gpu
 def test_cases_on_gpu(device_class, device_results, request):
-    ss = [s for s in scenarios(*selection(request.config)) if (s.family, s.case.cls) == device_class]
+    ss = by_class(*selection(request.config))[device_class]
     runnable = [s for s in ss if s.kind != 'emulator']
     if not runnable: pytest.skip('; '.join(sorted({s.reason for s in ss})))
     failed = [(s, device_results.get(s.id, ['GPU worker returned no result'])) for s in runnable
@@ -75,7 +83,7 @@ def test_generated_probe_rejects_wrong_reference(request):
     from tests.harness.case import Cases
     c = Cases(gpu.target(request.config))
     c.add('mov__RI', dict(Rd=8, Sb=19, PixMaskU04=15), {}, dict(R8=20))
-    s = device_cases.Scenario('runner-self-test', c.encode_words()[0], 'scalar', arch=c.arch)
+    s = device_cases.Scenario('runner-self-test', c.complete()[0], 'scalar', arch=c.arch)
     result = device_cases.isolated(device_cases.kernels([s]))
     assert result['results'][s.id] == ['R8: GPU 0x13, reference 0x14']
 

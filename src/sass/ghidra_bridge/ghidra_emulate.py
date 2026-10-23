@@ -28,7 +28,7 @@ def session(ldefs,langid):
     from ghidra.program.model.pcode import Varnode
     lang=load_language(ldefs,langid);space=lang.getDefaultSpace();variant=langid.rsplit(':',1)[1];arch=variant.split('_')[0].upper();runtime=Runtime(int(arch[2:]))
     reason=PcodeExecutorStatePiece.Reason.INSPECT
-    from sass.sleigh.gen import REG_FILES
+    from sass.sleigh.registers import REG_FILES
     architectural=[(name,lang.getRegister(name)) for file,(_,_,count,zero,_) in REG_FILES.items() for i in range(count) if i!=zero for name in [file+str(i)]]
     definition=jpype.JClass('ghidra.pcode.exec.PcodeUseropLibrary$PcodeUseropDefinition')
     refs=[]
@@ -77,7 +77,7 @@ def session(ldefs,langid):
         from sass.decode import ir
         from sass.md import expression
         from sass.semantics.family import roles
-        from sass.sleigh.gen import ENUM_FILE, REG_FILES
+        from sass.sleigh.registers import ENUM_FILE, REG_FILES
         file=ENUM_FILE[d.klass.operand_types[name].type];zero=REG_FILES[file][3]
         if d.env[name]==zero:return int(file in ('P','UP'))
         span=next((o['span'] for o in roles(arch)[d.klass.name]['operands'] if o['name']==name),1) if d.klass.name in roles(arch) else 1
