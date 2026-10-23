@@ -19,6 +19,9 @@ FP = {"fadd": "add", "fmul": "mul", "ffma": "fma"}
 SYNC = {f"{PRIMITIVE_OP}{op}": f"sass::{op.capitalize()}" for op in primitive.SYNCHRONIZATION}
 
 
+WIDEST = 128   # values live in uint64_t or unsigned __int128 (include/sass/bits.hpp)
+
+
 def ty(w): return "sass::u64" if w <= 64 else "sass::u128"
 
 
@@ -66,6 +69,7 @@ class Lower:
 
     def compute(self, e):
         a, w = e.args, e.w
+        if w > WIDEST: raise NotImplementedError(f"{w}-bit {e.op} (values hold at most {WIDEST} bits)")
         match e.op:
             case "const": return literal(a[0], w)
             case "reg": return self.temp(w, self.read(*a))
