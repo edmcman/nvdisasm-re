@@ -108,6 +108,7 @@ libraries), so `test_pydecode_disassembly` checks synthetic and mutated words on
 | `test_mufu.py` | does the MUFU runtime match hardware? | `sass.semantics.fp.mufu`, the runtime's MUFU primitive | `refs/mufu.py`, recorded SM89 outputs |
 | `test_autocases.py`, `test_*_autocases.py`, `test_half_comparison_profiles.py` | are generated cases reproducible and reference-backed? | the [planner and adapters](#generated-shared-cases) | saved plans, independent references |
 | `test_sampling.py`, `test_evidence.py`, `test_device_cases.py` | do sampling, evidence and GPU-probe construction behave? (no GPU needed) | `harness/sampling.py`, `tests/evidence.py`, `harness/device_*.py` | hand cases, mocked runners |
+| `test_export_cases.py` | is the [shared-case export](#exporting-shared-cases) complete and decodable? | `tests/export_cases.py` | `cases.emulator_cases`, pydecode |
 | `test_coverage_comment.py` | does CI's PR coverage comment compare and post correctly? | `.github/scripts/coverage_comment.py` | mocked GitHub API |
 
 ### Ghidra tests: `uv run pytest -m ghidra`
@@ -198,6 +199,20 @@ Ordinary scalar cases automatically run on the GPU:
 
 `@retained(reason)` and `@anchored(reason)` (`harness/manual.py`) control how manual cases are
 sampled ([Sampling](#sampling)).
+
+### Exporting shared cases
+
+`python -m tests.export_cases SM80 [--generated] [--family F ...] [--fp readable] [--sample PERCENT | --exhaustive] -o cases.jsonl.gz`
+writes one language's shared cases as JSON lines, for consumers outside this repository (#50). Each line
+has `id` (`Case.id`), `arch`, `fp`, `family`, `class`, the case's request keys (`word` in hex,
+`registers` and `memory` (`cbank`/`ram`) to seed, `observe`, and `observe_memory`, `context` or
+`kernel`/`output` when present), `expected` (observed registers plus the `__` checks of
+`harness/checks.py`) and `hardware` (the GPU directive, or null). Decode a word with
+`pydecode.decode(arch, bytes.fromhex(word))`; its class is the line's, except generated
+`imad__RsIR_RIR` words that print as their `IMAD.MOV`/`IMAD.IADD` alias (`imad_pseudo__RsIR_RIR`).
+`--generated` adds the saved plan's generated cases, built in sharded workers like the streamed
+suites. SM80 at the default sample: 15,325 manual cases (10 s), or 123,644 with `--generated` (26 s,
+2.5 MB gzipped; 2026-10-23).
 
 ### GPU fixtures: `gpu_fixtures()`
 
