@@ -109,6 +109,10 @@ in [`docs/testing.md`](testing.md).
   for `bfind.s32`) searches the complement of a negative source: the highest bit differing from the
   sign, so -1 gives -1 like 0. FLO.U32 searches the value. The earlier emitter and reference
   treated S32 like U32.
+- I2I.SAT (2026-10-24, 84 `tests.probe` scenarios, then the shared `i2i_case` cases): `I2I.<U8|S8|U16|S16>.S32.SAT`
+  clamps the S32 source to the destination range and writes the clamped value as 32 bits: S8/S16
+  results are sign-extended (`I2I.S8.S32.SAT` of 0x80000000 is 0xffffff80), U8/U16 zero-extended. Rd's
+  previous value doesn't matter.
 - I2IP sub-byte forms (2026-10-12): S2/U2 `.28` and S4/U4 `.24` fill the high bits from C
   unshifted; only H1 selects C's high half. The earlier reference and p-code shifted for every
   non-H0 form.

@@ -160,6 +160,13 @@ def saturate(value, width, signed, sat, relu):
     return value & ((1 << width) - 1)
 
 
+def i2i(value, width, signed):
+    """I2I.SAT: the S32 value clamped to the width-bit integer's range, as a 32-bit register (SM89
+    GPU: S8/S16 results are sign-extended)."""
+    lo, hi = (-(1 << (width - 1)), (1 << (width - 1)) - 1) if signed else (0, (1 << width) - 1)
+    return max(lo, min(hi, sext(value & MASK32, 32))) & MASK32
+
+
 def i2ip(a, b, c, width, signed, sat, relu, extract):
     """I2IP: pack converted a (high) and b (low); sub-16-bit forms fill from c's selected half."""
     packed = (saturate(a, width, signed, sat, relu) << width) | saturate(b, width, signed, sat, relu)
