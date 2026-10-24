@@ -1,10 +1,10 @@
 {
   "counts": {
     "legal": 2730070,
-    "unresolved_semantics": 2146245,
-    "manual": 0,
-    "blocked": 475514,
-    "generated": 108311
+    "unresolved_semantics": 2129653,
+    "manual": 20,
+    "blocked": 484106,
+    "generated": 116291
   },
   "gaps": [
     {
@@ -760,87 +760,87 @@
     {
       "cls": "f2i_Rd64__CXb_64b",
       "count": 128,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i_Rd64__Cb_64b",
       "count": 128,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__CXb_16b",
       "count": 512,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__CXb_32b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__CXb_64b",
       "count": 384,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Cb_16b",
       "count": 512,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Cb_32b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Cb_64b",
       "count": 384,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__IU_32b",
       "count": 64,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Ib_16b",
       "count": 64,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Ib_64b",
       "count": 64,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Rb_16b",
       "count": 512,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Rb_32b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Rb_64b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__URb_16b",
       "count": 512,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__URb_32b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__URb_64b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "flo__RCR_RCR",
@@ -5178,46 +5178,21 @@
     {
       "cls": "i2f_Rd64__CX_64b",
       "count": 8,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "i2f_Rd64__Cb_64b",
       "count": 8,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "i2f__CX_64b",
       "count": 16,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "i2f__Cb_64b",
       "count": 16,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
-    },
-    {
-      "cls": "i2i__RCR_RCR",
-      "count": 4,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "i2i__RCxR_RCxR",
-      "count": 4,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "i2i__RRR_RRR",
-      "count": 4,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "i2i__RUR_RUR",
-      "count": 4,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "i2i__RsIR_RIR",
-      "count": 4,
       "reason": "unresolved semantics"
     },
     {
@@ -5464,302 +5439,212 @@
     },
     {
       "cls": "ld__sImmOffset",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 0"
-    },
-    {
-      "cls": "ld__sImmOffset",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld__sImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "ld__sImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld__sImmOffset",
-      "count": 120,
-      "reason": "sem: encoding changes 2 to 0"
-    },
-    {
-      "cls": "ld__sImmOffset",
-      "count": 180,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "ld__sImmOffset",
-      "count": 60,
+      "count": 1140,
       "reason": "private: encoding changes 1 to 0"
     },
     {
       "cls": "ld__sImmOffset",
-      "count": 60,
+      "count": 780,
+      "reason": "sco: encoding changes 3 to 4"
+    },
+    {
+      "cls": "ld__sImmOffset",
+      "count": 180,
+      "reason": "sem: encoding changes 1 to 2"
+    },
+    {
+      "cls": "ld__sImmOffset",
+      "count": 180,
+      "reason": "sco: encoding changes 1 to 2"
+    },
+    {
+      "cls": "ld__sImmOffset",
+      "count": 240,
       "reason": "sco: encoding changes 1 to 4"
     },
     {
       "cls": "ld__sImmOffset",
-      "count": 60,
+      "count": 240,
       "reason": "sco: encoding changes 2 to 4"
     },
     {
       "cls": "ld__sImmOffset",
-      "count": 10944,
+      "count": 7884,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ld__uImmOffset",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 0"
-    },
-    {
-      "cls": "ld__uImmOffset",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld__uImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "ld__uImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld__uImmOffset",
-      "count": 120,
-      "reason": "sem: encoding changes 2 to 0"
-    },
-    {
-      "cls": "ld__uImmOffset",
-      "count": 180,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "ld__uImmOffset",
-      "count": 60,
+      "count": 1140,
       "reason": "private: encoding changes 1 to 0"
     },
     {
       "cls": "ld__uImmOffset",
-      "count": 60,
+      "count": 780,
+      "reason": "sco: encoding changes 3 to 4"
+    },
+    {
+      "cls": "ld__uImmOffset",
+      "count": 180,
+      "reason": "sem: encoding changes 1 to 2"
+    },
+    {
+      "cls": "ld__uImmOffset",
+      "count": 180,
+      "reason": "sco: encoding changes 1 to 2"
+    },
+    {
+      "cls": "ld__uImmOffset",
+      "count": 240,
       "reason": "sco: encoding changes 1 to 4"
     },
     {
       "cls": "ld__uImmOffset",
-      "count": 60,
+      "count": 240,
       "reason": "sco: encoding changes 2 to 4"
     },
     {
       "cls": "ld__uImmOffset",
-      "count": 10944,
+      "count": 7884,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ld_memdesc__Ra64",
-      "count": 240,
-      "reason": "sem: encoding changes 1 to 0"
+      "count": 2280,
+      "reason": "private: encoding changes 1 to 0"
     },
     {
       "cls": "ld_memdesc__Ra64",
-      "count": 240,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld_memdesc__Ra64",
-      "count": 120,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "ld_memdesc__Ra64",
-      "count": 120,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld_memdesc__Ra64",
-      "count": 240,
-      "reason": "sem: encoding changes 2 to 0"
+      "count": 1560,
+      "reason": "sco: encoding changes 3 to 4"
     },
     {
       "cls": "ld_memdesc__Ra64",
       "count": 360,
-      "reason": "sco: encoding changes 3 to 4"
+      "reason": "sem: encoding changes 1 to 2"
     },
     {
       "cls": "ld_memdesc__Ra64",
-      "count": 120,
-      "reason": "private: encoding changes 1 to 0"
+      "count": 360,
+      "reason": "sco: encoding changes 1 to 2"
     },
     {
       "cls": "ld_memdesc__Ra64",
-      "count": 120,
+      "count": 480,
       "reason": "sco: encoding changes 1 to 4"
     },
     {
       "cls": "ld_memdesc__Ra64",
-      "count": 120,
+      "count": 480,
       "reason": "sco: encoding changes 2 to 4"
     },
     {
       "cls": "ld_memdesc__Ra64",
-      "count": 9624,
+      "count": 3504,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ld_uniform__Ra32",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 0"
-    },
-    {
-      "cls": "ld_uniform__Ra32",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld_uniform__Ra32",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "ld_uniform__Ra32",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld_uniform__Ra32",
-      "count": 120,
-      "reason": "sem: encoding changes 2 to 0"
-    },
-    {
-      "cls": "ld_uniform__Ra32",
-      "count": 180,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "ld_uniform__Ra32",
-      "count": 60,
+      "count": 1140,
       "reason": "private: encoding changes 1 to 0"
     },
     {
       "cls": "ld_uniform__Ra32",
-      "count": 60,
+      "count": 780,
+      "reason": "sco: encoding changes 3 to 4"
+    },
+    {
+      "cls": "ld_uniform__Ra32",
+      "count": 180,
+      "reason": "sem: encoding changes 1 to 2"
+    },
+    {
+      "cls": "ld_uniform__Ra32",
+      "count": 180,
+      "reason": "sco: encoding changes 1 to 2"
+    },
+    {
+      "cls": "ld_uniform__Ra32",
+      "count": 240,
       "reason": "sco: encoding changes 1 to 4"
     },
     {
       "cls": "ld_uniform__Ra32",
-      "count": 60,
+      "count": 240,
       "reason": "sco: encoding changes 2 to 4"
     },
     {
       "cls": "ld_uniform__Ra32",
-      "count": 10944,
+      "count": 7884,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ld_uniform__Ra64",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 0"
-    },
-    {
-      "cls": "ld_uniform__Ra64",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld_uniform__Ra64",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "ld_uniform__Ra64",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld_uniform__Ra64",
-      "count": 120,
-      "reason": "sem: encoding changes 2 to 0"
-    },
-    {
-      "cls": "ld_uniform__Ra64",
-      "count": 180,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "ld_uniform__Ra64",
-      "count": 60,
+      "count": 1140,
       "reason": "private: encoding changes 1 to 0"
     },
     {
       "cls": "ld_uniform__Ra64",
-      "count": 60,
+      "count": 780,
+      "reason": "sco: encoding changes 3 to 4"
+    },
+    {
+      "cls": "ld_uniform__Ra64",
+      "count": 180,
+      "reason": "sem: encoding changes 1 to 2"
+    },
+    {
+      "cls": "ld_uniform__Ra64",
+      "count": 180,
+      "reason": "sco: encoding changes 1 to 2"
+    },
+    {
+      "cls": "ld_uniform__Ra64",
+      "count": 240,
       "reason": "sco: encoding changes 1 to 4"
     },
     {
       "cls": "ld_uniform__Ra64",
-      "count": 60,
+      "count": 240,
       "reason": "sco: encoding changes 2 to 4"
     },
     {
       "cls": "ld_uniform__Ra64",
-      "count": 4812,
+      "count": 1752,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ld_uniform__RaRZ",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 0"
-    },
-    {
-      "cls": "ld_uniform__RaRZ",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld_uniform__RaRZ",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "ld_uniform__RaRZ",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld_uniform__RaRZ",
-      "count": 120,
-      "reason": "sem: encoding changes 2 to 0"
-    },
-    {
-      "cls": "ld_uniform__RaRZ",
-      "count": 180,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "ld_uniform__RaRZ",
-      "count": 60,
+      "count": 1140,
       "reason": "private: encoding changes 1 to 0"
     },
     {
       "cls": "ld_uniform__RaRZ",
-      "count": 60,
+      "count": 780,
+      "reason": "sco: encoding changes 3 to 4"
+    },
+    {
+      "cls": "ld_uniform__RaRZ",
+      "count": 180,
+      "reason": "sem: encoding changes 1 to 2"
+    },
+    {
+      "cls": "ld_uniform__RaRZ",
+      "count": 180,
+      "reason": "sco: encoding changes 1 to 2"
+    },
+    {
+      "cls": "ld_uniform__RaRZ",
+      "count": 240,
       "reason": "sco: encoding changes 1 to 4"
     },
     {
       "cls": "ld_uniform__RaRZ",
-      "count": 60,
+      "count": 240,
       "reason": "sco: encoding changes 2 to 4"
     },
     {
       "cls": "ld_uniform__RaRZ",
-      "count": 10944,
+      "count": 7884,
       "reason": "unresolved semantics"
     },
     {
@@ -6403,27 +6288,22 @@
     },
     {
       "cls": "st__sImmOffset",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "st__sImmOffset",
-      "count": 30,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "st__sImmOffset",
-      "count": 60,
+      "count": 90,
       "reason": "sco: encoding changes 1 to 2"
     },
     {
       "cls": "st__sImmOffset",
-      "count": 90,
+      "count": 60,
+      "reason": "sem: encoding changes 1 to 2"
+    },
+    {
+      "cls": "st__sImmOffset",
+      "count": 120,
       "reason": "sco: encoding changes 3 to 4"
     },
     {
       "cls": "st__sImmOffset",
-      "count": 30,
+      "count": 60,
       "reason": "private: encoding changes 1 to 0"
     },
     {
@@ -6443,27 +6323,22 @@
     },
     {
       "cls": "st__uImmOffset",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "st__uImmOffset",
-      "count": 30,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "st__uImmOffset",
-      "count": 60,
+      "count": 90,
       "reason": "sco: encoding changes 1 to 2"
     },
     {
       "cls": "st__uImmOffset",
-      "count": 90,
+      "count": 60,
+      "reason": "sem: encoding changes 1 to 2"
+    },
+    {
+      "cls": "st__uImmOffset",
+      "count": 120,
       "reason": "sco: encoding changes 3 to 4"
     },
     {
       "cls": "st__uImmOffset",
-      "count": 30,
+      "count": 60,
       "reason": "private: encoding changes 1 to 0"
     },
     {
@@ -6480,30 +6355,25 @@
       "cls": "st__uImmOffset",
       "count": 1134,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "st_memdesc__Ra64",
-      "count": 240,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "st_memdesc__Ra64",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "st_memdesc__Ra64",
-      "count": 120,
-      "reason": "sco: encoding changes 1 to 2"
     },
     {
       "cls": "st_memdesc__Ra64",
       "count": 180,
+      "reason": "sco: encoding changes 1 to 2"
+    },
+    {
+      "cls": "st_memdesc__Ra64",
+      "count": 120,
+      "reason": "sem: encoding changes 1 to 2"
+    },
+    {
+      "cls": "st_memdesc__Ra64",
+      "count": 240,
       "reason": "sco: encoding changes 3 to 4"
     },
     {
       "cls": "st_memdesc__Ra64",
-      "count": 60,
+      "count": 120,
       "reason": "private: encoding changes 1 to 0"
     },
     {
@@ -6523,27 +6393,22 @@
     },
     {
       "cls": "st_uniform__Ra32",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "st_uniform__Ra32",
-      "count": 30,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "st_uniform__Ra32",
-      "count": 60,
+      "count": 90,
       "reason": "sco: encoding changes 1 to 2"
     },
     {
       "cls": "st_uniform__Ra32",
-      "count": 90,
+      "count": 60,
+      "reason": "sem: encoding changes 1 to 2"
+    },
+    {
+      "cls": "st_uniform__Ra32",
+      "count": 120,
       "reason": "sco: encoding changes 3 to 4"
     },
     {
       "cls": "st_uniform__Ra32",
-      "count": 30,
+      "count": 60,
       "reason": "private: encoding changes 1 to 0"
     },
     {
@@ -6563,27 +6428,22 @@
     },
     {
       "cls": "st_uniform__Ra64",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "st_uniform__Ra64",
-      "count": 30,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "st_uniform__Ra64",
-      "count": 60,
+      "count": 90,
       "reason": "sco: encoding changes 1 to 2"
     },
     {
       "cls": "st_uniform__Ra64",
-      "count": 90,
+      "count": 60,
+      "reason": "sem: encoding changes 1 to 2"
+    },
+    {
+      "cls": "st_uniform__Ra64",
+      "count": 120,
       "reason": "sco: encoding changes 3 to 4"
     },
     {
       "cls": "st_uniform__Ra64",
-      "count": 30,
+      "count": 60,
       "reason": "private: encoding changes 1 to 0"
     },
     {
@@ -6603,27 +6463,22 @@
     },
     {
       "cls": "st_uniform__RaRZ",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "st_uniform__RaRZ",
-      "count": 30,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "st_uniform__RaRZ",
-      "count": 60,
+      "count": 90,
       "reason": "sco: encoding changes 1 to 2"
     },
     {
       "cls": "st_uniform__RaRZ",
-      "count": 90,
+      "count": 60,
+      "reason": "sem: encoding changes 1 to 2"
+    },
+    {
+      "cls": "st_uniform__RaRZ",
+      "count": 120,
       "reason": "sco: encoding changes 3 to 4"
     },
     {
       "cls": "st_uniform__RaRZ",
-      "count": 30,
+      "count": 60,
       "reason": "private: encoding changes 1 to 0"
     },
     {
@@ -6643,27 +6498,22 @@
     },
     {
       "cls": "stg__sImmOffset",
-      "count": 240,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "stg__sImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "stg__sImmOffset",
-      "count": 120,
+      "count": 180,
       "reason": "sco: encoding changes 1 to 2"
     },
     {
       "cls": "stg__sImmOffset",
-      "count": 180,
+      "count": 120,
+      "reason": "sem: encoding changes 1 to 2"
+    },
+    {
+      "cls": "stg__sImmOffset",
+      "count": 240,
       "reason": "sco: encoding changes 3 to 4"
     },
     {
       "cls": "stg__sImmOffset",
-      "count": 60,
+      "count": 120,
       "reason": "private: encoding changes 1 to 0"
     },
     {
@@ -6683,27 +6533,22 @@
     },
     {
       "cls": "stg__uImmOffset",
-      "count": 240,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "stg__uImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "stg__uImmOffset",
-      "count": 120,
+      "count": 180,
       "reason": "sco: encoding changes 1 to 2"
     },
     {
       "cls": "stg__uImmOffset",
-      "count": 180,
+      "count": 120,
+      "reason": "sem: encoding changes 1 to 2"
+    },
+    {
+      "cls": "stg__uImmOffset",
+      "count": 240,
       "reason": "sco: encoding changes 3 to 4"
     },
     {
       "cls": "stg__uImmOffset",
-      "count": 60,
+      "count": 120,
       "reason": "private: encoding changes 1 to 0"
     },
     {
@@ -6723,27 +6568,22 @@
     },
     {
       "cls": "stg_memdesc__Ra64",
-      "count": 240,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "stg_memdesc__Ra64",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "stg_memdesc__Ra64",
-      "count": 120,
+      "count": 180,
       "reason": "sco: encoding changes 1 to 2"
     },
     {
       "cls": "stg_memdesc__Ra64",
-      "count": 180,
+      "count": 120,
+      "reason": "sem: encoding changes 1 to 2"
+    },
+    {
+      "cls": "stg_memdesc__Ra64",
+      "count": 240,
       "reason": "sco: encoding changes 3 to 4"
     },
     {
       "cls": "stg_memdesc__Ra64",
-      "count": 60,
+      "count": 120,
       "reason": "private: encoding changes 1 to 0"
     },
     {
@@ -6763,27 +6603,22 @@
     },
     {
       "cls": "stg_uniform__Ra32",
-      "count": 240,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "stg_uniform__Ra32",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "stg_uniform__Ra32",
-      "count": 120,
+      "count": 180,
       "reason": "sco: encoding changes 1 to 2"
     },
     {
       "cls": "stg_uniform__Ra32",
-      "count": 180,
+      "count": 120,
+      "reason": "sem: encoding changes 1 to 2"
+    },
+    {
+      "cls": "stg_uniform__Ra32",
+      "count": 240,
       "reason": "sco: encoding changes 3 to 4"
     },
     {
       "cls": "stg_uniform__Ra32",
-      "count": 60,
+      "count": 120,
       "reason": "private: encoding changes 1 to 0"
     },
     {
@@ -6800,30 +6635,25 @@
       "cls": "stg_uniform__Ra32",
       "count": 504,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stg_uniform__Ra64",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "stg_uniform__Ra64",
-      "count": 30,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "stg_uniform__Ra64",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 2"
     },
     {
       "cls": "stg_uniform__Ra64",
       "count": 90,
+      "reason": "sco: encoding changes 1 to 2"
+    },
+    {
+      "cls": "stg_uniform__Ra64",
+      "count": 60,
+      "reason": "sem: encoding changes 1 to 2"
+    },
+    {
+      "cls": "stg_uniform__Ra64",
+      "count": 120,
       "reason": "sco: encoding changes 3 to 4"
     },
     {
       "cls": "stg_uniform__Ra64",
-      "count": 30,
+      "count": 60,
       "reason": "private: encoding changes 1 to 0"
     },
     {
@@ -6843,27 +6673,22 @@
     },
     {
       "cls": "stg_uniform__RaRZ",
-      "count": 240,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "stg_uniform__RaRZ",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "stg_uniform__RaRZ",
-      "count": 120,
+      "count": 180,
       "reason": "sco: encoding changes 1 to 2"
     },
     {
       "cls": "stg_uniform__RaRZ",
-      "count": 180,
+      "count": 120,
+      "reason": "sem: encoding changes 1 to 2"
+    },
+    {
+      "cls": "stg_uniform__RaRZ",
+      "count": 240,
       "reason": "sco: encoding changes 3 to 4"
     },
     {
       "cls": "stg_uniform__RaRZ",
-      "count": 60,
+      "count": 120,
       "reason": "private: encoding changes 1 to 0"
     },
     {

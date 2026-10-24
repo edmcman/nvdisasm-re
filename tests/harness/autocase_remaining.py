@@ -134,8 +134,10 @@ def collective(c,k,form):
 def access(c,k,form):
     from tests.harness.autocases import Inputs,Unsupported
     widths={'U8':1,'S8':1,'U16':2,'S16':2,'32':4,'64':8,'128':16}
+    # SM75 LDS's .U sizes are the plain accesses.
+    widths|={'U':4,**{'U.'+n:v for n,v in widths.items()}}
     if form.get('sz') not in widths: raise Unsupported('unknown memory access width')
-    if form.get('ad','IA')!='IA' or form.get('sp2','nosp2')!='nosp2': raise Unsupported('unresolved memory addressing selector')
+    if form.get('ad','IA')!='IA': raise Unsupported('unresolved memory addressing selector')
     size=widths[form['sz']];load=k.mnemonic.startswith('LD')
     for index,value in enumerate(autocase_profiles.PROFILES['remaining_forms']['words']):
         s=Inputs(c,k,form);base=0x100;offset=(-16,0,16)[index]
@@ -160,7 +162,7 @@ def access(c,k,form):
         expected={};extras={}
         if load:
             s.memory.append(dict(space=space,address=address,hex=data.hex()))
-            result=memory.constant(data,form['sz'].startswith('S'))
+            result=memory.constant(data,form['sz'].removeprefix('U.').startswith('S'))
             dest=2 if index==1 else 8
             expected[s.output(('Rd',),dest)]=result&0xffffffff
             for j in range(1,max(1,size//4)):expected['R'+str(dest+j)]=result>>(32*j)&0xffffffff

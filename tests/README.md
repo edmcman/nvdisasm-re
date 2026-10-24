@@ -286,6 +286,10 @@ factored free modifiers), and writes `cases/generated/SM89.json`. If manifests a
 run `uv run sass-build-languages SM89 --fp exact --generate-only --coverage`. The committed
 `cases/generated/SMxx.gaps.json` are `--report` outputs.
 
+On SM89 (2026-10-24) the manifest takes 35 s and the planner 3 min 5 s on one core: 80% of that is checking
+1.15M candidate words by encoding and decoding each (`harness/autocases.checked_word`). All ten
+architectures take about 35 minutes.
+
 - `--manifest-dir DIR` selects another manifest directory.
 - Omit `--write` for a dry run.
 - `--check` fails if regeneration would change the saved plan.

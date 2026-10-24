@@ -1,10 +1,10 @@
 {
   "counts": {
     "legal": 3093438,
-    "unresolved_semantics": 2517503,
-    "manual": 0,
-    "blocked": 456018,
-    "generated": 119917
+    "unresolved_semantics": 2503086,
+    "manual": 20,
+    "blocked": 451170,
+    "generated": 139162
   },
   "gaps": [
     {
@@ -650,87 +650,87 @@
     {
       "cls": "f2i_Rd64__CXb_64b",
       "count": 128,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i_Rd64__Cb_64b",
       "count": 128,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__CXb_16b",
       "count": 512,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__CXb_32b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__CXb_64b",
       "count": 384,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Cb_16b",
       "count": 512,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Cb_32b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Cb_64b",
       "count": 384,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__IU_32b",
       "count": 64,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Ib_16b",
       "count": 64,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Ib_64b",
       "count": 64,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Rb_16b",
       "count": 512,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Rb_32b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Rb_64b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__URb_16b",
       "count": 512,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__URb_32b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__URb_64b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "flo__RCR_RCR",
@@ -4973,46 +4973,21 @@
     {
       "cls": "i2f_Rd64__CX_64b",
       "count": 8,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "i2f_Rd64__Cb_64b",
       "count": 8,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "i2f__CX_64b",
       "count": 16,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "i2f__Cb_64b",
       "count": 16,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
-    },
-    {
-      "cls": "i2i__RCR_RCR",
-      "count": 4,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "i2i__RCxR_RCxR",
-      "count": 4,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "i2i__RRR_RRR",
-      "count": 4,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "i2i__RUR_RUR",
-      "count": 4,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "i2i__RsIR_RIR",
-      "count": 4,
       "reason": "unresolved semantics"
     },
     {
@@ -5239,27 +5214,27 @@
     },
     {
       "cls": "ld__sImmOffset",
-      "count": 16512,
+      "count": 12672,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ld__uImmOffset",
-      "count": 16512,
+      "count": 12672,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ld_uniform__Ra32",
-      "count": 16512,
+      "count": 12672,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ld_uniform__Ra64",
-      "count": 7296,
+      "count": 3456,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ld_uniform__RaRZ",
-      "count": 16512,
+      "count": 12672,
       "reason": "unresolved semantics"
     },
     {
@@ -5374,17 +5349,17 @@
     },
     {
       "cls": "lds__sImmOffset",
-      "count": 36,
+      "count": 16,
       "reason": "unresolved semantics"
     },
     {
       "cls": "lds__uImmOffset",
-      "count": 9,
+      "count": 4,
       "reason": "unresolved semantics"
     },
     {
       "cls": "lds_uniform_",
-      "count": 36,
+      "count": 16,
       "reason": "unresolved semantics"
     },
     {
