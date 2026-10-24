@@ -4,7 +4,8 @@ from tests.harness.case import source
 from tests.refs import float, integer
 
 PACK_OPS={'F2IP','I2IP'}
-HALF_OPS={'HADD2','HMUL2','HFMA2','HMNMX2','HSET2','HSETP2'}
+HALF_OPS={'HADD2','HMUL2','HFMA2','HFMA2.MMA','HMNMX2','HSET2','HSETP2'}
+FMA_OPS={'HFMA2','HFMA2.MMA'}
 OPS=PACK_OPS | HALF_OPS
 FAMILIES={op:'conversions' if op in PACK_OPS else 'fp16' for op in OPS}
 SWIZZLES={'H1_H0','H0_H0','H1_H1'}
@@ -18,8 +19,7 @@ def blocked_reason(op,form):
         return 'mixed-precision and sign-swizzle lane corpus remains manual'
     if form.get('xorsign','noxorsign')!='noxorsign' or 'isA' in form:
         return 'min/max XORSIGN and source-predicate outputs remain manual'
-    if form.get('satrelu')=='RELU':return 'predicate-controlled half RELU remains manual'
-    if op in ('HADD2','HMUL2','HFMA2') and form.get('ofmt','F16_V2')!='F16_V2':
+    if op in ('HADD2','HMUL2',*FMA_OPS) and form.get('ofmt','F16_V2')!='F16_V2':
         return 'mixed-format packed arithmetic remains manual'
     if form.get('Dfmt.Afmt.Bfmt','F16x2.F16x2.F16x2')!='F16x2.F16x2.F16x2':
         return 'mixed-format packed multiply remains manual'
@@ -94,10 +94,10 @@ def half(c,k,form):
         raise autocases.Unsupported('unsupported packed lane format')
     names=[source(k,'Ra'),source(k,'Sb','Rb','URb'),source(k,'Sc','Rc','URc')]
     if op in ('HADD2','HSET2','HSETP2'):names=[names[0],names[2]]
-    elif op!='HFMA2':names=names[:2]
+    elif op not in FMA_OPS:names=names[:2]
     if not all(names):raise autocases.Unsupported('unsupported half source layout')
     swizzles=['iswzA']
-    if op=='HFMA2':swizzles += [next((n for n in ('iswzB','iswzC_as_B') if n in form),None),next((n for n in ('iswzC','iswzB_as_C') if n in form),None)]
+    if op in FMA_OPS:swizzles += [next((n for n in ('iswzB','iswzC_as_B') if n in form),None),next((n for n in ('iswzC','iswzB_as_C') if n in form),None)]
     else:swizzles += [next((n for n in ('iswzB_as_C','iswzB') if n in form),None)]
     values=autocase_profiles.PROFILES['half_forms'][fmt]
     samples=autocase_half_profiles.select(op,form,c.fp) if op in ('HSET2','HSETP2') else ((j,j&1) for j in range(len(values)))
@@ -111,8 +111,10 @@ def half(c,k,form):
         if pred:
             s.predicate((pred,),p,0);p ^= form.get(pred+'@not')=='set'
         ftz=form.get('ftz')=='FTZ'; exact=c.fp=='exact'
-        if op in ('HADD2','HMUL2','HFMA2'):
-            operation={'HADD2':'add','HMUL2':'mul','HFMA2':'fma'}[op]
+        if op in ('HADD2','HMUL2',*FMA_OPS):
+            operation='fma' if op in FMA_OPS else {'HADD2':'add','HMUL2':'mul'}[op]
+            # .RELU applies while Pp holds: a result with its sign set becomes +0 (SM89 GPU).
+            relu=form.get('satrelu')=='RELU' and bool(p)
             sat=form.get('sat',form.get('satrelu','nosat'))=='SAT'
             mode=form.get('fmz','nofmz')
             if mode not in ('nofmz','nofmz_hfma2','FMZ','FTZ'):
@@ -126,7 +128,7 @@ def half(c,k,form):
                     if float.underflow_band(operation,xs,16):break
                 else:result=float.readable(operation,xs,16,sat)
                 if result is None:break
-                results.append(result)
+                results.append(0 if relu and result>>15 else result)
             if len(results)!=2:continue
             result=results[0] | results[1]<<16
         elif op=='HMNMX2':

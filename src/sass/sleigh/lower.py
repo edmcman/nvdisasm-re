@@ -692,7 +692,10 @@ class Lower:
             case "ite": return self.ite(*a)
             case "fadd" | "fmul" | "ffma": return self.float_op(e)
             case "nanresult": return self.nan_result(e)
-            case "fconv": v = self.value(a[0]); return self.local(e.w, expr(f"float2float({v})", v))   # sized by its local
+            case "fconv":
+                # float2float rounds to nearest: a directed narrowing needs fpformat.narrow's exact rounding.
+                if a[1] != "RN" and e.w < a[0].w: raise ValueError(f"fconv {a[1]} narrowing: use fpformat.narrow")
+                v = self.value(a[0]); return self.local(e.w, expr(f"float2float({v})", v))   # sized by its local
             case "flt" | "fle" | "feq": return self.binary(FLOAT_CMP[e.op], self.value(a[0]), self.value(a[1]))
             case "fnan": v = self.value(a[0]); return expr(f"nan({v})", v)
             case "sel": return self.sel(e)
