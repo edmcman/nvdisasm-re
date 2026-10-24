@@ -584,7 +584,21 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   captured before writing an overlapping destination. A low-half broadcast (H0_H0) reads only two bytes
   in native p-code, with or without |x|/-x (applied to the half).
 - Exact HADD2/HFMA2 F16_V2 leave .FTZ/.FMZ opaque; readable ignores them (also on SM100+ `hfma2_mma`
-  classes). BF16/E6M9 arithmetic formats, F32/H0_NH1 inputs and RELU stay opaque.
+  classes). BF16/E6M9 arithmetic formats and H0_NH1 inputs stay opaque.
+- HFMA2/HFMA2.MMA `.RELU` (2026-10-24, SM89 GPU): `Rd = Pp ? relu(r) : r` per lane, where `relu.f16`
+  makes a result whose sign is set (negative, -0, negative subnormals) +0; NaN results are already the
+  canonical +0x7fff. Pp is the RELU enable: with Pp false (or `!Pp` true) the result is the plain
+  HFMA2's. ptxas emits `.RELU` from `fma.rn.relu.f16x2` with Pp = PT (SM80/89/90).
+- SM75 `.F32` source (2026-10-24, ptxas sm_75, no SM75 GPU): `R.F32` reads the register as binary32
+  (after `|x|`/`-x` on its sign), rounds it toward zero to binary16 and broadcasts it to both lanes.
+  ptxas compiles `cvt.rz[.sat].f16.f32` to `HADD2[.SAT] Rd, Ra.F32, -RZ.H0_H0`, and fuses
+  `cvt.rz.f16.f32` + `add.f16x2` into `HADD2 Rd, Ra.F32, Rb`, so the sum is of the narrowed value;
+  HADD2's B follows (the sum commutes; ptxas emits only A). HFMA2/HMUL2/HSET2/HSETP2 `.F32` sources stay
+  opaque: ptxas doesn't fuse the conversion into fma/mul, so they may act in binary32, and there is no
+  SM75 GPU to tell. SM80+ forbid `.F32` swizzles (`Instruction.legal_labels` keeps their arms out).
+- SM75/SM80 `.F32` result of the ordinary HADD2 classes: native only with a `-RZ` operand (SM80's md
+  requires `-RZ` as Ra; ptxas sm_75 writes `HADD2.F32 Rd, Ra.H0_H0, -RZ.H0_H0` for `cvt.f32.f16`). The
+  sum of two nonzero operands stays opaque: whether it rounds to binary16 before widening is unknown.
 - Swizzles and HMNMX2's per-format NaN test/order are `select_lookup` values (forking on them made SM90
   18.75 MB).
 - HADD2.F32 is native on SM86/89/90/100/101/103/120: it adds the selected low half lanes from `-RZ` and
@@ -603,16 +617,22 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
 - The Ghidra minimum-subnormal limitation also applies to FP16.
 
 ### HFMA2.MMA
-- `HFMA2.MMA Rd, -RZ, RZ, imm_hi, imm_lo` under nofmz/nosat is native (`families/floating.py`). Hardware
-  shows it preserves finite bits, signed zero, infinities and denormals, while canonicalizing each NaN
-  half to `0x7fff`. The transform is evaluated from the encoded immediates at decode time, so the move
-  is one COPY.
+- `HFMA2.MMA Rd, -RZ, RZ, imm_hi, imm_lo` (the constant move): hardware shows it preserves finite
+  bits, signed zero, infinities and denormals, while canonicalizing each NaN half to `0x7fff`. It folds
+  from the encoded immediates at decode time, so the move is one COPY.
 - 2026-10-22: the SM90+ `hfma2_mma__RRR` and `hfma2_mma__RIR` F16 forms share the binary16
   HFMA2 arithmetic implementation: two independent fused multiply-adds in the exact lowering,
   unfused in the readable lowering. `.SAT` clamps each lane; `.FTZ` flushes inputs and results to
-  signed zero in the exact lowering. BF16, FMZ, predicate-output/RELU and other arithmetic source
-  forms remain opaque. The existing packed input corpus supplies regression cases; its values,
-  seeded sequence and operand pairings are unchanged.
+  signed zero in the exact lowering.
+- 2026-10-24: every HFMA2.MMA class (SM80-SM90 `*_norelu`/`*_relu`, SM90 `hfma2_mma[_relu]__*`: register,
+  uniform, immediate, constant and CX sources) is HFMA2 (SM89 GPU, the shared half-lane form cases),
+  RELU included. The constant move `-RZ, RZ, imm` is that HFMA2 (`-0 * 0 + c` is c, a NaN half
+  canonical), computed while decoding as a whole word: SLEIGH doesn't fold float arithmetic on
+  immediates, and a concat of halves would join the per-lane choices at run time (2 ops, not 1).
+  Plain HFMA2 RRI shares it: in the real corpus (2026-10-24) every `hfma2__RRI` on SM100 (4,380) and
+  SM120 (6,464) and every SM90 `hfma2_mma__RRI` (3,264) is this move, which cost 35 ops through the
+  fused path; the second arm costs the general RRI form one COPY.
+  BF16 and FMZ remain opaque.
 
 ### HMNMX2
 - Native for materialized F16_V2, BF16_V2, E8M7_V2 and E6M9_V2 operands: register, uniform, immediate

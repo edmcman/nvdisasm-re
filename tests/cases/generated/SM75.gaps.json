@@ -1,9 +1,9 @@
 {
   "counts": {
     "legal": 3093438,
-    "unresolved_semantics": 2517503,
+    "unresolved_semantics": 2521482,
     "manual": 0,
-    "blocked": 456018,
+    "blocked": 452039,
     "generated": 119917
   },
   "gaps": [
@@ -650,87 +650,87 @@
     {
       "cls": "f2i_Rd64__CXb_64b",
       "count": 128,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i_Rd64__Cb_64b",
       "count": 128,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__CXb_16b",
       "count": 512,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__CXb_32b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__CXb_64b",
       "count": 384,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Cb_16b",
       "count": 512,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Cb_32b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Cb_64b",
       "count": 384,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__IU_32b",
       "count": 64,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Ib_16b",
       "count": 64,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Ib_64b",
       "count": 64,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Rb_16b",
       "count": 512,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Rb_32b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Rb_64b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__URb_16b",
       "count": 512,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__URb_32b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__URb_64b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "flo__RCR_RCR",
@@ -4667,52 +4667,77 @@
     },
     {
       "cls": "hadd2__RC",
-      "count": 270,
+      "count": 14,
+      "reason": "mixed-precision and sign-swizzle lane corpus remains manual"
+    },
+    {
+      "cls": "hadd2__RC",
+      "count": 480,
       "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hadd2__RC",
-      "count": 1760,
+      "count": 1536,
       "reason": "unresolved semantics"
     },
     {
       "cls": "hadd2__RCx",
-      "count": 270,
+      "count": 14,
+      "reason": "mixed-precision and sign-swizzle lane corpus remains manual"
+    },
+    {
+      "cls": "hadd2__RCx",
+      "count": 480,
       "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hadd2__RCx",
-      "count": 1760,
+      "count": 1536,
       "reason": "unresolved semantics"
     },
     {
       "cls": "hadd2__RI",
-      "count": 18,
+      "count": 2,
+      "reason": "mixed-precision and sign-swizzle lane corpus remains manual"
+    },
+    {
+      "cls": "hadd2__RI",
+      "count": 24,
       "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hadd2__RI",
-      "count": 104,
+      "count": 96,
       "reason": "unresolved semantics"
     },
     {
       "cls": "hadd2__RR",
-      "count": 270,
+      "count": 14,
+      "reason": "mixed-precision and sign-swizzle lane corpus remains manual"
+    },
+    {
+      "cls": "hadd2__RR",
+      "count": 480,
       "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hadd2__RR",
-      "count": 1760,
+      "count": 1536,
       "reason": "unresolved semantics"
     },
     {
       "cls": "hadd2__RU",
-      "count": 270,
+      "count": 14,
+      "reason": "mixed-precision and sign-swizzle lane corpus remains manual"
+    },
+    {
+      "cls": "hadd2__RU",
+      "count": 480,
       "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hadd2__RU",
-      "count": 1760,
+      "count": 1536,
       "reason": "unresolved semantics"
     },
     {
@@ -4767,12 +4792,12 @@
     },
     {
       "cls": "hfma2__RRI",
-      "count": 270,
+      "count": 235,
       "reason": "packed source-sign numerical corpus remains manual"
     },
     {
       "cls": "hfma2__RRI",
-      "count": 2784,
+      "count": 2819,
       "reason": "unresolved semantics"
     },
     {
@@ -4973,22 +4998,22 @@
     {
       "cls": "i2f_Rd64__CX_64b",
       "count": 8,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "i2f_Rd64__Cb_64b",
       "count": 8,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "i2f__CX_64b",
       "count": 16,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "i2f__Cb_64b",
       "count": 16,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "i2i__RCR_RCR",

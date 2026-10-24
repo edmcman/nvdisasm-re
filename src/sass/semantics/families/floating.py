@@ -443,19 +443,33 @@ def half_lanes(i, names, swizzle):
     name = i.resolve(names)
     if i.has_operand(name + '1'):
         return [trunc(i.value(n, modifiers=False), 16) for n in (name + '1', name)]
-    v = i.value(name, modifiers=False)
-    if v.w == 16: return [v, v]   # HADD2.F32's single binary16 immediate
-    v = i.modified(name, 'absolute', v, lambda x: x & HALF_ABS)
+    raw = i.value(name, modifiers=False)
+    if raw.w == 16: return [raw, raw]   # HADD2.F32's single binary16 immediate
+    v = i.modified(name, 'absolute', raw, lambda x: x & HALF_ABS)
     v = i.modified(name, 'negate', v, lambda x: x ^ HALF_SIGNS)
-    return swizzled(i, swizzle, extract(v, 15, 0), extract(v, 31, 16))
+    return swizzled(i, swizzle, extract(v, 15, 0), extract(v, 31, 16), single(i, name, swizzle, raw))
 
 
-def swizzled(i, swizzle, low, high):
-    """(low, high) lanes picked by the swizzle selector (H1_H0, H0_H0, H1_H1): values chosen at
-    decode time, not a branch of the family per swizzle."""
+def single(i, name, swizzle, raw):
+    """SM75 HADD2's .F32 source (`HADD2 R0, R2.F32, -RZ.H0_H0` is ptxas's cvt.rz.f16.f32): the binary32
+    register, after |x| and -x on its sign, rounded toward zero to binary16 in both lanes. ptxas also
+    fuses cvt.rz.f16.f32 with add.f16x2 into HADD2 with a register, so the sum is of the narrowed value;
+    B follows (the sum commutes). Its NaN doesn't matter: the sum's NaN is canonical. None elsewhere:
+    ptxas doesn't fuse the conversion into HFMA2/HMUL2, whose .F32 sources (and HSET2/HSETP2's) may act
+    in binary32, and SM80+ forbid F32 (no SM75 GPU to tell)."""
+    if i.opcode != 'HADD2' or not i.has_operand(swizzle) or 'F32' not in i.legal_labels(swizzle): return None
+    x = i.modified(name, 'absolute', raw, lambda v: v & 0x7fffffff)
+    x = i.modified(name, 'negate', x, lambda v: v ^ 0x80000000)
+    return fpformat.narrow(x, 'F32', 'F16', 'RZ')
+
+
+def swizzled(i, swizzle, low, high, f32=None):
+    """(low, high) lanes picked by the swizzle selector (H1_H0, H0_H0, H1_H1, and F32: the narrowed
+    binary32 in both): values chosen at decode time, not a branch of the family per swizzle."""
     if not i.has_operand(swizzle): return [low, high]
-    return [i.select_lookup(swizzle, {'H1_H0': low, 'H0_H0': low, 'H1_H1': high}),
-            i.select_lookup(swizzle, {'H1_H0': high, 'H0_H0': low, 'H1_H1': high})]
+    narrowed = {} if f32 is None else {'F32': f32}
+    return [i.select_lookup(swizzle, {'H1_H0': low, 'H0_H0': low, 'H1_H1': high, **narrowed}),
+            i.select_lookup(swizzle, {'H1_H0': high, 'H0_H0': low, 'H1_H1': high, **narrowed})]
 
 
 def half_swizzles(i, fma):
@@ -465,11 +479,20 @@ def half_swizzles(i, fma):
 
 
 def half_saturating(i):
+    """(.SAT, the RELU enable: None without .RELU). HFMA2/HFMA2.MMA .RELU applies only while its Pp
+    holds (SM89 GPU)."""
     name = 'satrelu' if i.has_operand('satrelu') else 'sat'
-    if not i.has_operand(name): return False
-    label = i.select_fork(name)
-    if label not in ('nosat', 'SAT'): unmodelled(f'{label}')
-    return label == 'SAT'
+    if not i.has_operand(name): return False, None
+    label, relu = i.select_fork(name), 'RELU' in i.labels(name)
+    if label not in ('nosat', 'SAT', *(('RELU',) if relu else ())): unmodelled(f'{label}')
+    return label == 'SAT', i.pred('Pp') if relu and label == 'RELU' else None
+
+
+@definition(lambda a: (f"relu.f{a['r'].w}", ["r"]))
+def float_rectified(r):
+    """PTX .relu on a float lane: a result whose sign is set (negative, -0) becomes +0; an arithmetic
+    NaN result is already the canonical positive one (SM89 GPU, HFMA2.RELU)."""
+    return const(0, r.w) if slt(r, const(0, r.w)) else r
 
 
 def no_flush(i):
@@ -480,51 +503,62 @@ def no_flush(i):
             if not readable(i) and not str(label).startswith(('noftz', 'nofmz')): unmodelled(f'{label}')
 
 
+def negative_zero_product(i):
+    """A is -RZ and B is RZ (ptxas's spelling; RZ, -RZ takes the general path): the product is -0 in
+    every lane."""
+    return all(i.has_operand(n) and i.is_zero(n) for n in ('Ra', 'Rb')) and i.operand_negated('Ra') and not i.operand_negated('Rb')
+
+
+def canonical_half(h):
+    """h, or the canonical +0x7fff when it is a NaN (bit tests, so an immediate folds)."""
+    return ite((extract(h, 14, 10) == 0x1f) & (extract(h, 9, 0) != 0), const(0x7fff, 16), h)
+
+
 @family('HADD2', 'HFMA2', 'HFMA2.MMA')
 def half_arithmetic(i):
     """Rd = per lane a + c (HADD2) or a * b + c (HFMA2) on binary16, rounded once (the readable
     lowering: unfused), with .SAT. HADD2.F32 adds the low lanes, rounds to binary16 and widens the
-    result to binary32 (FTZ flushes inputs and the binary16 result)."""
-    mma = i.opcode == 'HFMA2.MMA'
-    if mma:
-        if i.has_operand('ofmt') and i.select_fork('ofmt') != 'F16_V2': unmodelled('MMA format')
-        # Preserve the hardware-established constant move, including its NaN payload.
-        if all(i.has_operand(n) for n in ('Ra', 'Rb', 'Sc', 'Sc1')):
-            no_flush(i)
-            if half_saturating(i): unmodelled('saturated MMA constant move')
-            if not (i.is_zero('Ra') and i.operand_negated('Ra') and i.is_zero('Rb') and not i.operand_negated('Rb')):
-                unmodelled('not the -RZ, RZ constant move')
-            canonical = lambda h: ite((extract(h, 14, 10) == 0x1f) & (extract(h, 9, 0) != 0), const(0x7fff, 16), h)
-            return outputs(Rd=concat(canonical(i.imm('Sc', 16)), canonical(i.imm('Sc1', 16))))
-        if i.cls not in ('hfma2_mma__RRR', 'hfma2_mma__RIR') or not i.has_operand('ofmt'):
-            unmodelled('MMA operand form')
+    result to binary32 (FTZ flushes inputs and the binary16 result). SM89's HADD2.F32 classes add
+    -RZ; SM75's .F32 result of the ordinary classes is modelled only with a -RZ operand too
+    (ptxas's cvt.f32.f16)."""
+    mma = i.opcode == 'HFMA2.MMA'   # HFMA2 on the MMA pipe (same values, SM89 GPU)
     fma = i.opcode in ('HFMA2', 'HFMA2.MMA')
     names = ['Ra|Sa', 'Rb|Sb', 'Rc|Sc'] if fma else ['Ra|Sa', 'Rc|Sc']
     if i.width('Rd') != 32: unmodelled('width')
-    if not fma and i.cls.startswith('hadd2_F32'):
-        if i.select_fork('ofmt') != 'F32': unmodelled('ofmt')
+    ofmt = i.select_fork('ofmt') if i.has_operand('ofmt') else 'F16_V2'
+    if not fma and ofmt == 'F32':
+        if not i.cls.startswith('hadd2_F32') and not any(i.is_zero(n) and i.operand_negated(n) and not i.operand_absolute(n)
+                                                          for n in ('Ra', 'Rc') if i.has_operand(n)):
+            unmodelled('F32 result of a sum with a nonzero operand')
         ftz = i.select_fork('ftz') == 'FTZ' and not readable(i) if i.has_operand('ftz') else False
         a, c = (half_lanes(i, n, s)[0] for n, s in zip(names, ('iswzA', 'iswzB' if i.has_operand('iswzB') else 'iswzB_as_C')))
         if ftz: a, c = flushed(a), flushed(c)
         r = fadd(a, c)
         if ftz: r = flushed(r)
-        if half_saturating(i): r = saturated(r)
+        if half_saturating(i)[0]: r = saturated(r)
         return outputs(Rd=widen_half(r))
-    if i.select_fork('ofmt') != 'F16_V2': unmodelled('ofmt')
+    if ofmt != 'F16_V2': unmodelled('ofmt')
     ftz = False
     if mma:
         mode = i.select_fork('fmz')
         if mode not in ('nofmz_hfma2', 'nofmz', 'FTZ'): unmodelled(f'MMA {mode}')
         ftz = mode == 'FTZ' and not readable(i)
     else: no_flush(i)
-    sat = half_saturating(i)
+    sat, relu = half_saturating(i)
+    if fma and i.has_operand('Sc1') and not (sat or ftz) and relu is None and negative_zero_product(i):
+        # -0 * 0 + imm is imm with its NaN halves canonical, computed while decoding (SLEIGH doesn't fold
+        # float arithmetic on immediates): ptxas's constant move HFMA2.MMA Rd, -RZ, RZ, imm is one COPY.
+        # A word, not a concat: the lanes' choices can't absorb it, so the folded constant is the whole Rd.
+        hi, lo = (zext(canonical_half(i.imm(n, 16)), 32) for n in ('Sc', 'Sc1'))
+        return outputs(Rd=(hi << 16) | lo)
     inputs = [half_lanes(i, n, s) for n, s in zip(names, half_swizzles(i, fma))]
     lanes = []
     for lane in (0, 1):
         x = [flushed(v[lane]) if ftz else v[lane] for v in inputs]
         r = (fadd(fmul(x[0], x[1]), x[2]) if readable(i) else ffma(*x)) if fma else fadd(*x)
         if ftz: r = flushed(r)
-        lanes.append(saturated(r) if sat else r)
+        r = saturated(r) if sat else r
+        lanes.append(r if relu is None else float_rectified(r) if relu else r)
     return outputs(Rd=concat(lanes[1], lanes[0]))
 
 
@@ -554,7 +588,8 @@ def hmul2(i):
     mode = str(i.select_fork('fmz')) if i.has_operand('fmz') else 'nofmz'
     if mode not in ('nofmz', 'nofmz_hfma2', 'FMZ', 'FTZ'): unmodelled(mode)
     if readable(i): mode = 'nofmz'
-    sat = half_saturating(i)
+    sat, relu = half_saturating(i)
+    if relu is not None: unmodelled('RELU')
     a, b = (half_lanes(i, n, s) for n, s in zip(('Ra|Sa', 'Rb|Sb'), ('iswzA', 'iswzB')))
     if fmt != 'F16_V2':
         if sat or mode not in ('nofmz', 'nofmz_hfma2'): unmodelled(f'{mode} SAT={sat} of {fmt}')
