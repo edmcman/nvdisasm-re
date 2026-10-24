@@ -25862,7 +25862,7 @@
         "reference": 1920
       },
       "LD": {
-        "none": 17278,
+        "none": 11518,
         "reference": 28802
       },
       "LDC": {
@@ -25870,7 +25870,7 @@
         "reference": 10
       },
       "LDG": {
-        "none": 82932,
+        "none": 72564,
         "reference": 12
       },
       "LDL": {
@@ -25944,11 +25944,11 @@
         "reference": 16
       },
       "ST": {
-        "none": 2160,
+        "none": 1440,
         "reference": 3600
       },
       "STG": {
-        "none": 3888,
+        "none": 2592,
         "reference": 6480
       },
       "STL": {
@@ -26250,8 +26250,8 @@
       },
       "LD": {
         "native": 28800,
-        "opaque": 119808,
-        "partially native": 17280
+        "opaque": 125568,
+        "partially native": 11520
       },
       "LDC": {
         "native": 10,
@@ -26259,8 +26259,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 82944,
-        "partially native": 82944
+        "opaque": 93312,
+        "partially native": 72576
       },
       "LDL": {
         "native": 90,
@@ -26378,12 +26378,13 @@
       },
       "ST": {
         "native": 3600,
-        "opaque": 4608,
-        "partially native": 2160
+        "opaque": 5328,
+        "partially native": 1440
       },
       "STG": {
         "native": 6480,
-        "partially native": 3888
+        "opaque": 1296,
+        "partially native": 2592
       },
       "STL": {
         "native": 90,
@@ -26568,18 +26569,18 @@
       "i2f_Rd64__Cb_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__Cb_64b": "32-bit source; dstfmt outside the table",
-      "ld_zd__sImmOffset": "32-bit generic address; Pu result; size; zd not modelled",
-      "ld_zd__uImmOffset": "32-bit generic address; Pu result; size; zd not modelled",
-      "ld_zd_uniform__Ra32": "32-bit generic address; Pu result; size; zd not modelled",
-      "ld_zd_uniform__Ra64": "Pu result; size; zd not modelled",
-      "ld_zd_uniform__RaRZ": "32-bit generic address; Pu result; size; zd not modelled",
+      "ld_zd__sImmOffset": "32-bit generic address; Pu result; size; sz U.128; zd not modelled",
+      "ld_zd__uImmOffset": "32-bit generic address; Pu result; size; sz U.128; zd not modelled",
+      "ld_zd_uniform__Ra32": "32-bit generic address; Pu result; size; sz U.128; zd not modelled",
+      "ld_zd_uniform__Ra64": "Pu result; size; sz U.128; zd not modelled",
+      "ld_zd_uniform__RaRZ": "32-bit generic address; Pu result; size; sz U.128; zd not modelled",
       "ldc_ur__URRzI": "bank",
       "ldc_ur__URnonRzI": "bank",
-      "ldg_zd__sImmOffset": "Pu result; size; zd not modelled",
-      "ldg_zd__uImmOffset": "Pu result; size; zd not modelled",
-      "ldg_zd_uniform__Ra32": "Pu result; size; zd not modelled",
-      "ldg_zd_uniform__Ra64": "Pu result; size; zd not modelled",
-      "ldg_zd_uniform__RaRZ": "Pu result; size; zd not modelled",
+      "ldg_zd__sImmOffset": "Pu result; size; sz U.128; zd not modelled",
+      "ldg_zd__uImmOffset": "Pu result; size; sz U.128; zd not modelled",
+      "ldg_zd_uniform__Ra32": "Pu result; size; sz U.128; zd not modelled",
+      "ldg_zd_uniform__Ra64": "Pu result; size; sz U.128; zd not modelled",
+      "ldg_zd_uniform__RaRZ": "Pu result; size; sz U.128; zd not modelled",
       "lds_zd__sImmOffset": "Pu result; size; zd not modelled",
       "lds_zd__uImmOffset": "Pu result; size; zd not modelled",
       "lds_zd_uniform_": "Pu result; size; zd not modelled",
@@ -27936,7 +27937,7 @@
         "reference": 1920
       },
       "LD": {
-        "none": 17278,
+        "none": 11518,
         "reference": 28802
       },
       "LDC": {
@@ -27944,7 +27945,7 @@
         "reference": 10
       },
       "LDG": {
-        "none": 82932,
+        "none": 72564,
         "reference": 12
       },
       "LDL": {
@@ -28018,11 +28019,11 @@
         "reference": 16
       },
       "ST": {
-        "none": 2160,
+        "none": 1440,
         "reference": 3600
       },
       "STG": {
-        "none": 3888,
+        "none": 2592,
         "reference": 6480
       },
       "STL": {
@@ -28324,8 +28325,8 @@
       },
       "LD": {
         "native": 28800,
-        "opaque": 119808,
-        "partially native": 17280
+        "opaque": 125568,
+        "partially native": 11520
       },
       "LDC": {
         "native": 10,
@@ -28333,8 +28334,8 @@
         "partially native": 2
       },
       "LDG": {
-        "opaque": 82944,
-        "partially native": 82944
+        "opaque": 93312,
+        "partially native": 72576
       },
       "LDL": {
         "native": 90,
@@ -28452,12 +28453,13 @@
       },
       "ST": {
         "native": 3600,
-        "opaque": 4608,
-        "partially native": 2160
+        "opaque": 5328,
+        "partially native": 1440
       },
       "STG": {
         "native": 6480,
-        "partially native": 3888
+        "opaque": 1296,
+        "partially native": 2592
       },
       "STL": {
         "native": 90,
@@ -28642,18 +28644,18 @@
       "i2f_Rd64__Cb_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__Cb_64b": "32-bit source; dstfmt outside the table",
-      "ld_zd__sImmOffset": "32-bit generic address; Pu result; size; zd not modelled",
-      "ld_zd__uImmOffset": "32-bit generic address; Pu result; size; zd not modelled",
-      "ld_zd_uniform__Ra32": "32-bit generic address; Pu result; size; zd not modelled",
-      "ld_zd_uniform__Ra64": "Pu result; size; zd not modelled",
-      "ld_zd_uniform__RaRZ": "32-bit generic address; Pu result; size; zd not modelled",
+      "ld_zd__sImmOffset": "32-bit generic address; Pu result; size; sz U.128; zd not modelled",
+      "ld_zd__uImmOffset": "32-bit generic address; Pu result; size; sz U.128; zd not modelled",
+      "ld_zd_uniform__Ra32": "32-bit generic address; Pu result; size; sz U.128; zd not modelled",
+      "ld_zd_uniform__Ra64": "Pu result; size; sz U.128; zd not modelled",
+      "ld_zd_uniform__RaRZ": "32-bit generic address; Pu result; size; sz U.128; zd not modelled",
       "ldc_ur__URRzI": "bank",
       "ldc_ur__URnonRzI": "bank",
-      "ldg_zd__sImmOffset": "Pu result; size; zd not modelled",
-      "ldg_zd__uImmOffset": "Pu result; size; zd not modelled",
-      "ldg_zd_uniform__Ra32": "Pu result; size; zd not modelled",
-      "ldg_zd_uniform__Ra64": "Pu result; size; zd not modelled",
-      "ldg_zd_uniform__RaRZ": "Pu result; size; zd not modelled",
+      "ldg_zd__sImmOffset": "Pu result; size; sz U.128; zd not modelled",
+      "ldg_zd__uImmOffset": "Pu result; size; sz U.128; zd not modelled",
+      "ldg_zd_uniform__Ra32": "Pu result; size; sz U.128; zd not modelled",
+      "ldg_zd_uniform__Ra64": "Pu result; size; sz U.128; zd not modelled",
+      "ldg_zd_uniform__RaRZ": "Pu result; size; sz U.128; zd not modelled",
       "lds_zd__sImmOffset": "Pu result; size; zd not modelled",
       "lds_zd__uImmOffset": "Pu result; size; zd not modelled",
       "lds_zd_uniform_": "Pu result; size; zd not modelled",

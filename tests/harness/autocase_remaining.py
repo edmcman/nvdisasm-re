@@ -134,8 +134,8 @@ def collective(c,k,form):
 def access(c,k,form):
     from tests.harness.autocases import Inputs,Unsupported
     widths={'U8':1,'S8':1,'U16':2,'S16':2,'32':4,'64':8,'128':16}
-    # SM75 LDS's .U sizes are the plain accesses.
-    widths|={'U':4,**{'U.'+n:v for n,v in widths.items()}}
+    # SM75 LDS's .U sizes are the plain accesses (only LDS: the family leaves SIZE3's .U.128 opaque).
+    if k.mnemonic=='LDS':widths|={'U':4,**{'U.'+n:v for n,v in widths.items()}}
     if form.get('sz') not in widths: raise Unsupported('unknown memory access width')
     if form.get('ad','IA')!='IA': raise Unsupported('unresolved memory addressing selector')
     size=widths[form['sz']];load=k.mnemonic.startswith('LD')

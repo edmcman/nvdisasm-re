@@ -860,7 +860,9 @@ Family `families/memory.py` (Phase 6b).
   descriptor (SM89 GPU); the runtime rejects range-form descriptors (bit 59), whose traps are
   unpredictable.
 - SM75 LDS's `.U` sizes (`LDS.U`, `.U.64`, `.U.128`, `.U.S8`, ...) are the plain accesses: ptxas 13.4
-  gives every sm_75 shared load `.U`, per-thread addresses included (2026-10-24; no SM75 GPU).
+  gives every sm_75 shared load `.U`, per-thread addresses included (2026-10-24; no SM75 GPU). SM75's other
+  accesses have a `.U.128` size too (`SIZE3` code 7, beside `.128`); ptxas never emits it (not even for a
+  warp-uniform address), so it stays opaque.
 - `sp2` (`.LTC64B`/`.LTC128B`/`.LTC256B` on LD/LDG, an L2 prefetch-size hint) is ignored: it doesn't
   change the value (2026-10-24).
 - A load's `Pnz` input zero-fills (`Rd = Pnz ? mem : 0`, SM89 GPU). The md also writes `Pnz`, and the

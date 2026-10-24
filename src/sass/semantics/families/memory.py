@@ -11,8 +11,9 @@ SPACES = {"LDG": "ram", "STG": "ram", "LDS": "shared", "STS": "shared", "LDL": "
 # A generic address in a window [SR_*WINHI:SR_*WINLO, + SR_*WINSZ) is that offset of its space (SM89 GPU).
 WINDOWS = (("shared", "SR_SWINLO", "SR_SWINHI", "SR_SWINSZ"), ("localmem", "SR_LWINLO", "SR_LWINHI", "SR_LWINSZ"))
 SIZES = {"U8": (8, False), "S8": (8, True), "U16": (16, False), "S16": (16, True), "32": (32, False), "64": (64, False), "128": (128, False)}
-# SM75 LDS's .U sizes read what the plain ones do: ptxas 13.4 gives every sm_75 shared load .U, per-thread addresses included.
-SIZES |= {"U": SIZES["32"], **{"U." + n: v for n, v in SIZES.items()}}
+# SM75 LDS's .U sizes read what the plain ones do: ptxas 13.4 gives every sm_75 shared load .U, per-thread
+# addresses included. SM75's other accesses' .U.128 (SIZE3) has no such evidence (ptxas never emits it).
+UNIFORM_SIZES = {"U": SIZES["32"], **{"U." + n: v for n, v in SIZES.items()}}
 CONTROLS = ("sem", "sco", "cop", "cop2", "private")
 
 
@@ -28,7 +29,8 @@ def ordering(i):
 def size(i):
     """(bits, signed) of the access, from sz."""
     label = i.select_fork("sz")
-    hit = next((v for n, v in SIZES.items() if label == n), None)
+    sizes = SIZES | UNIFORM_SIZES if i.opcode == "LDS" else SIZES
+    hit = next((v for n, v in sizes.items() if label == n), None)
     if hit is None: unmodelled(f"sz {label}")
     return hit
 
