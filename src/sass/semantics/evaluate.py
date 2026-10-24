@@ -42,8 +42,10 @@ class Unknown(Exception):
 
 
 def evaluate(e, state, params=None, memo=None, runtime=None):
-    """e's value; a primitive is computed by `runtime` (`sass.semantics.runtime.Runtime`)."""
+    """e's value (its defined operators by their expansions); a primitive is computed by `runtime`
+    (`sass.semantics.runtime.Runtime`)."""
     memo = {} if memo is None else memo
+    e = bitvec.lowered(e)
     def ev(e):
         if not isinstance(e, Expr): return e
         if e in memo: return memo[e]

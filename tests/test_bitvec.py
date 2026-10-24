@@ -54,3 +54,13 @@ def test_extract_concat():
     assert bitvec.extract(e, 8, 6).op == 'extract'  # crosses the low two operands
     nested = bitvec.concat(parts[0], bitvec.concat(*parts[1:]))
     assert bitvec.extract(nested, 13, 9) is parts[1]
+
+
+def test_rebuilt_trees_are_built_trees():
+    """substitute and lowered rebuild through the builders: zext of a zext is one zext, as built."""
+    from sass.semantics.bitvec import param, zext, sext, substitute, lowered
+    x, y = param("x", 16), param("y", 8)
+    for build in (lambda v: zext(v, 64), lambda v: sext(v, 64)):
+        e = build(x)
+        assert substitute(e, lambda n: zext(y, 16) if n is x else None) is build(zext(y, 16))
+    assert lowered(zext(x, 64)) is zext(x, 64)

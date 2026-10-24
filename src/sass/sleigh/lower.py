@@ -65,7 +65,7 @@ class Symbolic(Instruction):
         choose = lambda x, fx: [((bit,), t) for bit, t in ((0, x), (1, fx)) if clauses(self.b, key, bit) is not None]
         if holds_load(self.b, v):
             placeholder = bitvec.param("__modified", v.w)
-            t = f(placeholder)
+            t = bitvec.lowered(f(placeholder))   # a defined modifier (abs.f32) as its mask
             if t.op not in MASKS or t.args[0] is not placeholder or not bitvec.is_const(t.args[1]): return super().modified(name, attr, v, f)
             self.asked.add(key)
             cases = choose(bitvec.const(MASKS[t.op], v.w), t.args[1])
@@ -199,6 +199,16 @@ def without_nan_results(e, memo):
     return memo[e]
 
 
+def lowered_outputs(out):
+    """out with its defined operators as their expansions (bitvec.lowered): SLEIGH has none."""
+    memo = {}
+    x = lambda e: bitvec.lowered(e, memo)
+    return replace(out, writes={n: x(t) for n, t in out.writes.items()},
+                   stores=tuple(replace(s, address=x(s.address), value=x(s.value), cond=x(s.cond)) for s in out.stores),
+                   effects=tuple(replace(e, args=tuple(map(x, e.args))) for e in out.effects),
+                   flow=out.flow and replace(out.flow, target=x(out.flow.target), cond=x(out.flow.cond)))
+
+
 def readable_outputs(out):
     memo = {}
     strip = lambda e: without_nan_results(e, memo)
@@ -212,7 +222,7 @@ def enumerate_rows(b, fam):
     while todo:
         assignment = todo.pop()
         try:
-            out = fam(Symbolic(b, assignment))
+            out = lowered_outputs(fam(Symbolic(b, assignment)))
             if b.g.fp == "readable": out = readable_outputs(out)
             rows.append((assignment, replace(out, writes={n: constant_slices(b, t) for n, t in out.writes.items()})))
         except Branch as br:

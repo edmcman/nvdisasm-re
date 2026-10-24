@@ -1,11 +1,12 @@
 """Float to packed bytes: F2IP (two F32 to S8/U8 bytes). F2I is in src/sass/semantics/families/convert.py."""
 from sass.semantics.bitvec import *
-from sass.semantics.family import family, helper, outputs, unmodelled
+from sass.semantics.family import definition, family, outputs, unmodelled
 
 
-@helper
+@definition(lambda a: (f"cvt.rni.sat.{'s' if a['signed'] else 'u'}8.f32", ["bits"]))
 def f32_to_8bit(bits, signed):
-    """F32 -> S8/U8, round to nearest even, saturating (negative to 0 for U8); NaN gives 0."""
+    """PTX cvt.rni.sat from F32 to S8/U8: rounded to nearest even and saturated (negative to 0 for
+    U8); NaN gives 0."""
     sign, exponent, fraction = extract(bits, 31, 31) == 1, extract(bits, 30, 23), extract(bits, 22, 0)
     e = zext(exponent, 32) - 127
     significand = zext(fraction, 32) | 0x800000
