@@ -3,6 +3,7 @@
 Uses only the standard library; does not import or regenerate SASS semantics.
 """
 import argparse
+from collections import Counter
 import html
 import json
 import os
@@ -45,6 +46,10 @@ EVIDENCE_HINTS = {
     "reference": "Emulator cases for these forms were removed.",
 }
 LIMIT_NAMES = 12  # opcodes named in a callout
+# Where counts come from or go when a total changes: classes are added or removed; combinations
+# enter or leave the evidence counts by gaining or losing semantics.
+SOURCE = {"opcodes": "absent", "combination_status": "absent",
+          "opcode_evidence": "opaque", "combination_evidence": "opaque"}
 
 
 def counts(values):
@@ -66,16 +71,69 @@ def tone(t):
     return "🟢" if t > 0 else "🔴" if t < 0 else "⚪"
 
 
+def ranked(order, kinds):
+    return sorted(kinds, key=lambda k: (order.index(k) if k in order else len(order), k))
+
+
 def deltas(field, before, after):
     """[(kind, delta, trend)] for the kinds whose count changed, best first."""
     order = ORDERS[field]
-    kinds = sorted(before.keys() | after.keys(), key=lambda k: (order.index(k) if k in order else len(order), k))
+    kinds = ranked(order, before.keys() | after.keys())
     return [(k, after.get(k, 0) - before.get(k, 0), trend(order, before, after, k))
             for k in kinds if after.get(k, 0) != before.get(k, 0)]
 
 
 def change(field, before, after):
     return "<br>".join(f"{tone(t)} {html.escape(k)} **{d:+,}**" for k, d, t in deltas(field, before, after)) or "—"
+
+
+def flows(field, before, after):
+    """([(from, to, n)], ambiguous): the fewest moves turning `before`'s counts into `after`'s, matching
+    the levels that fell to those that rose best first; ambiguous when another matching fits as well."""
+    d = {k: after.get(k, 0) - before.get(k, 0) for k in ranked(ORDERS[field], before.keys() | after.keys())}
+    d[SOURCE[field]] = d.get(SOURCE[field], 0) - sum(d.values())
+    sources, sinks = [[k, -v] for k, v in d.items() if v < 0], [[k, v] for k, v in d.items() if v > 0]
+    out, i, j = [], 0, 0
+    while i < len(sources) and j < len(sinks):
+        n = min(sources[i][1], sinks[j][1])
+        out.append((sources[i][0], sinks[j][0], n))
+        sources[i][1] -= n
+        sinks[j][1] -= n
+        i, j = i + (not sources[i][1]), j + (not sinks[j][1])
+    return out, len(sources) > 1 and len(sinks) > 1
+
+
+def sankey(title, moved, ambiguous, scope=""):
+    links = "\n".join(f"{a} (before),{b} (after),{n}" for (a, b), n in moved.items())
+    # Mermaid's default 600x400 is far taller than a few links need.
+    height = 40 + 40 * max(len({a for a, _ in moved}), len({b for _, b in moved}))
+    note = "Flows inferred from the counts, assuming the fewest moves" + scope + (
+        f"; others fit {names(ambiguous)} equally" if ambiguous else "") + "."
+    # Mermaid blends links with an inline `multiply`, which turns them black on GitHub's dark background.
+    return (f"\n**{title}**\n\n```mermaid\n---\nconfig:\n"
+            '  themeCSS: ".link, .link path { mix-blend-mode: normal !important; stroke-opacity: 0.6; }"\n'
+            "  sankey:\n    showValues: true\n    linkColor: target\n"
+            f"    width: 800\n    height: {height}\n---\nsankey-beta\n{links}\n```\n\n{note}\n")
+
+
+def diagrams(compared, fields):
+    """A Sankey diagram per metric of what moved between levels across the compared architectures' changed opcodes."""
+    out = []
+    for field, title in fields:
+        moved, ambiguous = Counter(), {}
+        for _, old, new, changed in compared:
+            for op in changed:
+                links, unclear = flows(field, old.get(field, {}).get(op, {}), new.get(field, {}).get(op, {}))
+                for a, b, n in links:
+                    moved[a, b] += n
+                if unclear:
+                    ambiguous[op] = None
+        if moved:
+            scope = f", summed over {len(compared)} architectures" if len(compared) > 1 else ""
+            rank = {k: i for i, k in enumerate(ranked(ORDERS[field], {k for link in moved for k in link}))}
+            moved = dict(sorted(moved.items(), key=lambda item: (rank[item[0][0]], rank[item[0][1]])))
+            out.append(sankey(title, moved, list(ambiguous), scope))
+    return out
 
 
 def total(entry, field):
@@ -194,7 +252,7 @@ def render(base, head, base_sha, head_sha, run_url=None, repo=None):
         worse, better = sum(-1 in t for t in trends.values()), sum(-1 not in t and 1 in t for t in trends.values())
         tally = "".join(f" · {tone(s)} {n} {word}" for s, n, word in ((-1, worse, "regressed"), (1, better, "improved")) if n)
         noun = "opcode" if len(changed) == 1 else "opcodes"
-        details = [f"<details>\n<summary>{arch} · {len(changed)} changed {noun}{tally}</summary>\n"]
+        details = [f"<details>\n<summary>{arch} · {len(changed)} changed {noun}{tally}</summary>\n", *diagrams([(arch, old, new, changed)], FIELDS)]
         # Regressions first, then improvements, then neutral changes.
         for op in sorted(changed, key=lambda op: (0 if -1 in trends[op] else 1 if 1 in trends[op] else 2, op)):
             label = " (added)" if op not in old.get("opcodes", {}) else " (removed)" if op not in new.get("opcodes", {}) else ""
@@ -218,7 +276,7 @@ def render(base, head, base_sha, head_sha, run_url=None, repo=None):
         coverage = "<details>\n<summary>Opcode coverage: ⚪ unchanged</summary>\n\n" + coverage + "\n</details>\n"
     verification = verification_table(compared)
     summary = (header + "".join(c + "\n" for c in callouts(compared))
-               + "### Verification changes\n\n" + (verification or "No verification changes.\n") + "\n"
+               + "### Verification changes\n\n" + (verification + "".join(diagrams(compared, FIELDS[2:])) if verification else "No verification changes.\n") + "\n"
                + ("### Opcode coverage\n\n" if moved else "") + coverage + "\n"
                "<details>\n<summary>How to read this report</summary>\n\n"
                "- **Opcode coverage** counts opcodes with at least one class with semantics, including partial or primitive semantics, "
@@ -229,6 +287,8 @@ def render(base, head, base_sha, head_sha, run_url=None, repo=None):
                "- **Change** colors: 🟢 better · 🔴 worse · ⚪ neutral. A level is judged by its count together with the stronger levels, "
                "so evidence moving between levels (reference promoted to GPU, or GPU demoted to reference) is ⚪ for the lower level; "
                "more opaque or unverified (none) counts are worse.\n"
+               "- **Diagrams** show what moved between levels, per architecture and under Verification changes summed over them, inferred from the counts "
+               "assuming the fewest moves; unchanged counts are omitted.\n"
                "- **Detail colors** indicate status: 🟢 native, 🟡 partial or primitive, 🔴 opaque.\n"
                "- Readable variants share the exact variants' coverage and are omitted.\n\n"
                "</details>\n\n### Changed opcodes\n\n")
