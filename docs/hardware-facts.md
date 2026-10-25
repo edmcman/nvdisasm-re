@@ -406,8 +406,32 @@ remains a runtime primitive; other MUFU operations and FP16 remain unresolved.
   and read the local base from `c[0x0][0x20]` (SM90) or `c[0x0][0x2f8]` (SM100+). A generic
   `ST.E`/`ST.E.U8`/`LD.E`/`LD.E.S16` inside a window reaches that space at the address minus the
   base: LDS/LDL at the offset read what it wrote, and other generic addresses are global. Not
-  checked: addresses inside a window but beyond the allocation, 32-bit (no `.E`) generic addresses,
-  SM90+ cluster shared windows.
+  checked: addresses inside a window but beyond the allocation, 32-bit generic stores,
+  SM90+ cluster shared windows. The 32-bit loads were investigated below.
+- 32-bit generic LD (2026-10-25, synthetic SM89 probes, RTX 4070 Laptop GPU):
+  `Ra + UR + offset` wraps modulo 2^32, then names the zero-extended generic address.
+  `research/ld32.py` uses the shared generated wrappers and registered MAP_32BIT host memory
+  whose CUDA device pointer is checked to equal its CPU pointer. All 19 observations in
+  `research/ld32/observations-SM89.json` passed: positive/negative offsets, an immediate-offset
+  overflow and a register-plus-uniform overflow, UR-only and absolute-immediate addresses,
+  all seven ordinary load sizes, an address/destination alias, RZ, and a false Pnz.
+  Nonzero R3/UR5 sentinels are ignored by the 32-bit R2/UR4 address operands and preserved
+  unless they belong to the destination. The overflow probes read mapped global data at the
+  wrapped address, distinguishing 32-bit addition from a 64-bit zero-extended sum.
+  Truncated runtime shared/local generic pointers faulted (CUDA status 700), while paired `.E`
+  controls read their initialized storage; the first probes and raw results are kept in
+  `research/ld32/window-probes-SM89.json` and `window-observations-SM89.json`. These faults
+  alone do not define memory-fault semantics. Together with the successful low-global probes,
+  they exclude routing by low window words or treating the 32-bit address as a window offset.
+  The shared regression reference is `tests/refs/memory.py:generic32`; cases include signed
+  narrow values and window boundaries. A fixed registered mapping at `0x90000000` also
+  distinguishes zero-extension from sign-extension: both a plain load at `0x90000100` and
+  `0x10 + (-0x6fffff10)` read its global data successfully. The latter distinguishes a
+  wrapped signed-offset underflow from a negative 64-bit address. This establishes SM89
+  behavior, not SM90 hardware.
+  CUDA 13.0.88 ptxas rejects `ld.u32 [b32]` in a 64-bit module and rejects 32-bit compilation.
+  Explicit `cvt.u64.u32` followed by generic `ld.u32` emits `LD.E` with a zero high register
+  (`tests/ptx/ld/generic_u32.ptx`); the non-`.E` observations are synthetic, not compiler output.
 - Memory descriptors (2026-10-15, one-off probes in a scratch kernel and the `desc` fixture in
   `tests/cases/memory.py`): `desc[URx]` is PTX's 64-bit L2 cache policy. ptxas passes a
   `createpolicy` result or a policy operand unchanged into URx, and `c[0x0][0x118]`, the driver's

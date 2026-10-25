@@ -1,6 +1,7 @@
 """SM89/SM90 whole-kernel execution: compile CUDA fixtures, patch SASS words, run on the GPU through
 the CUDA Driver API, and build the equivalent whole-kernel emulator request."""
-import ctypes as C, hashlib, struct, subprocess
+import ctypes as C, hashlib, struct, subprocess, sys
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import Callable
 from sass import launch
@@ -104,6 +105,53 @@ class Driver:
 
     def close(self):
         if self.ctx: self.call("cuCtxDestroy_v2", self.ctx); self.ctx = C.c_void_p()
+
+    @contextmanager
+    def arena(self, data, *, low=False, address=None):
+        """Probe backing storage; low addresses use registered MAP_32BIT host memory.
+
+        Ordinary CUDA allocations and cuMemAddressReserve hints need not fit a
+        32-bit address. Require the registered host pointer's device alias to
+        equal its low CPU address, rather than truncating a high device pointer.
+        """
+        pointer = C.c_uint64()
+        host = None
+        registered = False
+        size = max(len(data), 16)
+        try:
+            if low:
+                if sys.platform != 'linux':
+                    raise RuntimeError('32-bit probe arenas require Linux MAP_32BIT')
+                libc = C.CDLL(None, use_errno=True)
+                libc.mmap.argtypes = [C.c_void_p, C.c_size_t, C.c_int, C.c_int, C.c_int, C.c_long]
+                libc.mmap.restype = C.c_void_p
+                size = (size + 4095) & ~4095
+                host = libc.mmap(C.c_void_p(address), size, 3,
+                                 0x22 | (0x100000 if address is not None else 0x40), -1, 0)
+                if host == C.c_void_p(-1).value:
+                    host = None
+                    raise OSError(C.get_errno(), 'MAP_32BIT probe allocation failed')
+                if address is not None and host != address:
+                    raise RuntimeError('fixed low-address probe mapping was not honored')
+                self.call('cuMemHostRegister_v2', C.c_void_p(host), C.c_size_t(size), 2)
+                registered = True
+                self.call('cuMemHostGetDevicePointer_v2', C.byref(pointer), C.c_void_p(host), 0)
+                if pointer.value != host or pointer.value + size > 1 << 32:
+                    raise RuntimeError('CUDA registered host memory has no matching 32-bit device address')
+                C.memmove(host, data, len(data))
+            else:
+                self.call('cuMemAlloc_v2', C.byref(pointer), C.c_size_t(size))
+                if data: self.call('cuMemcpyHtoD_v2', pointer, C.create_string_buffer(data), C.c_size_t(len(data)))
+            yield pointer
+        finally:
+            failed = sys.exception() is not None
+            try:
+                if registered: self.call('cuMemHostUnregister', C.c_void_p(host))
+                elif host is None and pointer.value: self.call('cuMemFree_v2', pointer)
+            except RuntimeError:
+                if not failed: raise
+            finally:
+                if host is not None: libc.munmap(C.c_void_p(host), C.c_size_t(size))
 
     def run(self, f):
         self.require_arch(cubin.kernel_image(f.image, f.kernel)["arch"])

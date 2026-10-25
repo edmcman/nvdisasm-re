@@ -1,6 +1,9 @@
 """Real hardware bindings for logical memory and warp state in shared cases."""
 from sass import launch
 from sass.assemble import elf
+from sass.assemble import source
+from sass.decode import ir
+from sass.md import expression
 from tests.harness import device_cases
 
 
@@ -53,25 +56,48 @@ def cx(code, case, temp, arena):
 ADDRESSED = ('LD', 'ST', 'LDG', 'STG', 'LDL', 'STL', 'LDS', 'STS')
 
 
+def address_span(d, name, arch):
+    """Number of registers the encoded address operand actually reads."""
+    role = next(o for o in source.roles(arch)[d.klass.name]['operands'] if o['name'] == name)
+    span = role.get('span') or 1
+    return int(expression.evaluate(span, ir.load(arch), d.env)) if isinstance(span, str) else span
+
+
+def memory_offset(d):
+    offset = d.env.get('Ra_offset', 0)
+    atom = d.klass.operand_types.get('Ra_offset')
+    if atom is not None and atom.type == 'SImm':
+        bits = int(atom.args.split('/')[0])
+        if offset >> (bits - 1) & 1: offset -= 1 << bits
+    return offset
+
+
 def memory_binding(case, arch="SM89"):
     """Translate the seeded logical address, retaining its register/offset decomposition."""
     d = device_cases.decoded(case.request['word'], arch); regs = case.request['registers']
     if d.klass.mnemonic in ('LDC', 'ULDC', 'MOV'): return None
     ra = d.env.get('Ra', 255)
-    address = regs.get(f'R{ra}', 0) | regs.get(f'R{ra + 1}', 0) << 32
+    address = regs.get(f'R{ra}', 0) if ra != 255 else 0
+    if 'Ra' in d.env and address_span(d, 'Ra', arch) == 2:
+        address |= regs.get(f'R{ra + 1}', 0) << 32 if ra != 255 else 0
     uniform = next((n for n in ('Ra_URb', 'Ra_URc') if n in d.env and d.klass.mnemonic in ADDRESSED and '_uniform' in d.klass.name), None)
     if uniform:
         u = d.env[uniform]
-        address += regs.get(f'UR{u}', 0) | regs.get(f'UR{u + 1}', 0) << 32
+        address += regs.get(f'UR{u}', 0) if u != 63 else 0
+        if address_span(d, uniform, arch) == 2:
+            address += regs.get(f'UR{u + 1}', 0) << 32 if u != 63 else 0
     if d.klass.mnemonic in ('LDG', 'STG'): space, logical = 'ram', address
     elif d.klass.mnemonic in ('LDL', 'STL'): space, logical = 'localmem', address
     elif d.klass.mnemonic in ('LDS', 'STS'): space, logical = 'shared', address
     elif d.klass.mnemonic in ('LD', 'ST'):
+        offset = memory_offset(d)
+        effective = address + offset
+        if d.klass.mnemonic == 'LD' and d.env.get('e') == 0: effective &= 0xffffffff
         for prefix, candidate in [('S', 'shared'), ('L', 'localmem')]:
             base = regs.get(f'SR_{prefix}WINLO', 0) | regs.get(f'SR_{prefix}WINHI', 0) << 32
-            if base <= address < base + regs.get(f'SR_{prefix}WINSZ', 0):
-                space, logical = candidate, address - base; break
-        else: space, logical = 'ram', address
+            if base <= effective < base + regs.get(f'SR_{prefix}WINSZ', 0):
+                space, logical = candidate, effective - base - offset; break
+        else: space, logical = 'ram', effective - offset
     elif d.klass.mnemonic == 'QSPC': return None
     else: raise ValueError(f'{case.id}: unknown memory opcode {d.klass.mnemonic}')
     return space, logical, ra, uniform
@@ -82,7 +108,7 @@ def memory_reason(case, arch="SM89"):
     if 'Ra' in d.env and d.env['Ra'] == 255 and not d.klass.name.startswith(('ld_uniform', 'st_uniform')):
         return 'absolute synthetic address has no relocatable base register'
     binding = memory_binding(case, arch)
-    if binding and binding[0] == 'ram' and d.env.get('e') == 0:
+    if binding and binding[0] == 'ram' and d.env.get('e') == 0 and d.klass.mnemonic != 'LD':
         return 'synthetic 32-bit global pointer cannot hold a CUDA allocation; paired E case runs on hardware'
     regions = case.request.get('memory', []) + case.request.get('observe_memory', [])
     if any(m['space'] in ('shared', 'localmem') and m['address'] >= 4096 for m in regions):
@@ -109,9 +135,7 @@ def memory(code, case, temp, arena):
     binding = memory_binding(case, arch)
     regions = case.request.get('memory', []) + [dict(m, hex='00' * m['size']) for m in case.request.get('observe_memory', [])]
     if binding and binding[0] == 'ram':
-        offset = d.env.get('Ra_offset', 0)
-        bits = int(d.klass.operand_types['Ra_offset'].args.split('/')[0]) if 'Ra_offset' in d.klass.operand_types else 24
-        if offset >> bits - 1 & 1: offset -= 1 << bits
+        offset = memory_offset(d)
         if not any(m['space'] == 'ram' and m['address'] <= binding[1] + offset < m['address'] + len(bytes.fromhex(m['hex'])) for m in regions):
             regions.append(dict(space='ram', address=binding[1] + offset, hex='00' * 16))
     ram = [m for m in regions if m['space'] == 'ram']
@@ -159,11 +183,11 @@ def memory(code, case, temp, arena):
             original = case.request['registers'].get(f'R{ra}', 0) if ra != 255 else 0
             code.mov(f'R{temp + 2}', original)
             code.emit('iadd3_noimm__RRR_RRR', Rd=temp, Ra=temp, Rb=temp + 2, Rc='RZ', **{'Rb@negate': 1})
-            for i in (0, 1): code.emit('r2ur__noOR', URd=u + i, Ra=temp + i, Pu='PT')
-            rebound = (u, u + 1)
+            rebound = tuple(u + i for i in range(address_span(d, uniform, arch)))
+            for i in range(len(rebound)): code.emit('r2ur__noOR', URd=u + i, Ra=temp + i, Pu='PT')
         else:
             code.copy(ra, f'R{temp}')
-            if space == 'ram' or d.klass.mnemonic in ('LD', 'ST'): code.copy(ra + 1, f'R{temp + 1}')
+            if address_span(d, 'Ra', arch) == 2: code.copy(ra + 1, f'R{temp + 1}')
     # Setup used predicates and UR4/5; restore case state, then the bound address is
     # retained. Explicit descriptor inputs are data under test, not wrapper scratch.
     for i in (4, 5):

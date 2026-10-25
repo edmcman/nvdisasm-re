@@ -33,9 +33,10 @@ class Value:
 
 
 class Builder:
-    def __init__(self, gen, klass, guard, spans, known={}):
+    def __init__(self, gen, klass, guard, spans, known={}, *, domain=None):
         from sass.sleigh.registers import ENUM_FILE, REG_FILES
         self.g, self.k, self.spans, self.known = gen, klass, spans, known
+        self.domain = domain or {}
         self.body = [f'build {guard};'] if guard else []
         self.refs, self.values, self.outputs, self.inventory = [], {}, {}, []
         self.selector_guards = {}
@@ -383,9 +384,9 @@ class Builder:
         return body,[r for r in self.refs if r[1] in names]
 
 
-def emit(gen,klass,guard,spans,known={}):
+def emit(gen,klass,guard,spans,known={}, *, domain=None):
     from sass.semantics import operations
-    b=Builder(gen,klass,guard,spans,known)
+    b=Builder(gen,klass,guard,spans,known,domain=domain)
     status,reason=operations.emit(b)
     if status=='opaque':b.body += b.call()
     return b.finish(status,reason)

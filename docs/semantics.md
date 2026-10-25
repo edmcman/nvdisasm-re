@@ -214,6 +214,11 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
     result. Rejected class selectors are reported as opaque.
 - Coverage files: `--coverage` writes a detailed manifest `sass_smXX_coverage.json` beside each `.sla`
   (operand inventory, input order, output widths for every span variant, native selector guards).
+  Since 2026-10-25 (#79), each variant's combination table is restricted to the raw field domain
+  that selects its register spans. Merging preserves differences between those domains even when
+  a modifier is constant within a variant. Impossible narrow-destination/wide-size rows therefore
+  cannot make legal `.64`/`.128` loads appear partially native; actual overlapping native/opaque
+  rows still do.
   They are generated, not committed; the runtime needs none (primitives carry their arguments).
   [`coverage.json`](../processor/SASS/semantics/coverage.json) is the committed compact ledger for all
   architectures. Verification evidence is per class, derived from the tests into
@@ -882,7 +887,11 @@ Family `families/memory.py` (Phase 6b).
   to `localmem`, else to `ram` (SM89 GPU, `docs/hardware-facts.md`). A load is a choice between the
   three, a store three stores under exclusive conditions. The environment supplies the window registers
   (the whole-kernel emulator seeds `sass.launch.WINDOWS` and the matching bank-0 constants).
-  32-bit (no `.E`) generic addresses stay opaque.
+  LD without `.E` (2026-10-25, SM89 GPU) adds the register, optional uniform register and offset
+  modulo 2^32, then zero-extends that address before the same full-width window comparison.
+  This supports every ordinary load size, including `.64`/`.128`, on all md architectures.
+  The high shared/local window bases on SM89 make these 32-bit addresses global. Adjacent
+  registers are not address inputs. ST without `.E` remains opaque pending independent evidence.
 - Descriptors: every class with a descriptor operand (`*_memdesc_*`) passes one `sass_memory_descriptor`
   effect: the selected URx (`Ra_URb`/`Ra_URc`) for both values of SM89's `e_desc` and every SM90+ form.
   SM89 GPU shared-case probes (2026-10-16) show that `noexp_desc` hides the descriptor in the printed

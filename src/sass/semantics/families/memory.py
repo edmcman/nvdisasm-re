@@ -92,7 +92,11 @@ def memory(i):
             unmodelled(f"{n} result")
     effects = [ordering(i), *descriptor(i)]
     addr = address(i)
-    if space == "generic" and i.has_operand("e") and i.select_fork("e") == "noe": unmodelled("32-bit generic address")
+    if space == "generic" and i.has_operand("e") and i.select_fork("e") == "noe":
+        if i.opcode != "LD": unmodelled("32-bit generic address")
+        # SM89 LD.noe adds Ra, the uniform input and the offset modulo 2**32,
+        # then zero-extends the result before generic window routing.
+        addr = zext(trunc(addr, 32), 64)
     if space == "cbank":
         if not i.has_operand("Sa_bank"): unmodelled("bank")
         addr = (zext(i.imm("Sa_bank"), 64) << 32) | zext(trunc(addr, 32), 64)

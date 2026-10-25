@@ -77,8 +77,8 @@
         "reference": 94
       },
       "FADD2": {
-        "none": 9244,
-        "reference": 164
+        "none": 6320,
+        "reference": 240
       },
       "FCHK": {
         "none": 16,
@@ -89,8 +89,8 @@
         "reference": 193
       },
       "FFMA2": {
-        "none": 172524,
-        "reference": 276
+        "none": 119863,
+        "reference": 457
       },
       "FLO": {
         "none": 8,
@@ -110,8 +110,8 @@
         "reference": 322
       },
       "FMUL2": {
-        "none": 4645,
-        "reference": 155
+        "none": 3771,
+        "reference": 229
       },
       "FRND": {
         "none": 48,
@@ -191,28 +191,25 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 57981,
+        "reference": 1155
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
         "none": 1,
         "reference": 6
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 57994,
+        "reference": 1142
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -282,20 +279,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 3538,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 4833,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -526,9 +521,8 @@
         "native": 576
       },
       "FADD2": {
-        "native": 288,
-        "opaque": 192,
-        "partially native": 9120
+        "native": 6560,
+        "opaque": 3040
       },
       "FCHK": {
         "native": 36
@@ -540,9 +534,8 @@
         "native": 5376
       },
       "FFMA2": {
-        "native": 1792,
-        "opaque": 89856,
-        "partially native": 171008
+        "native": 120320,
+        "opaque": 142336
       },
       "FHADD": {
         "opaque": 1024
@@ -564,9 +557,8 @@
         "native": 6048
       },
       "FMUL2": {
-        "native": 288,
-        "opaque": 2400,
-        "partially native": 4512
+        "native": 4000,
+        "opaque": 3200
       },
       "FOOTPRINT": {
         "opaque": 256
@@ -680,24 +672,19 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 59136
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDCU": {
-        "native": 5,
-        "opaque": 29,
-        "partially native": 2
+        "native": 7,
+        "opaque": 29
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 12672,
-        "partially native": 16896
+        "native": 59136,
+        "opaque": 12672
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -709,12 +696,10 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 60
@@ -847,25 +832,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 4410,
+        "opaque": 2646
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 5712,
+        "opaque": 2448
       },
       "STL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "STSM": {
         "opaque": 18
@@ -1810,7 +1791,7 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -1821,8 +1802,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 5
+        "native": 5,
+        "opaque": 4
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -1834,10 +1815,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -1967,7 +1948,8 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STAS": {
         "opaque": 2
@@ -1977,10 +1959,10 @@
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "STSM": {
         "opaque": 2
@@ -2414,7 +2396,7 @@
         "native": 6
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -2425,14 +2407,14 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 5
+        "native": 5,
+        "opaque": 4
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -2505,17 +2487,18 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STG": {
         "opaque": 4,
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -2648,9 +2631,9 @@
       }
     },
     "status": {
-      "native": 310,
+      "native": 336,
       "opaque": 433,
-      "partially native": 168,
+      "partially native": 142,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -2733,8 +2716,8 @@
         "reference": 94
       },
       "FADD2": {
-        "none": 9244,
-        "reference": 164
+        "none": 6320,
+        "reference": 240
       },
       "FCHK": {
         "none": 16,
@@ -2745,8 +2728,8 @@
         "reference": 193
       },
       "FFMA2": {
-        "none": 258924,
-        "reference": 276
+        "none": 180023,
+        "reference": 457
       },
       "FLO": {
         "none": 8,
@@ -2766,8 +2749,8 @@
         "reference": 322
       },
       "FMUL2": {
-        "none": 7045,
-        "reference": 155
+        "none": 5771,
+        "reference": 229
       },
       "FRND": {
         "none": 48,
@@ -2847,28 +2830,25 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 57981,
+        "reference": 1155
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
         "none": 1,
         "reference": 6
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 57994,
+        "reference": 1142
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -2938,20 +2918,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 3538,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 4833,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -3182,9 +3160,8 @@
         "native": 576
       },
       "FADD2": {
-        "native": 288,
-        "opaque": 192,
-        "partially native": 9120
+        "native": 6560,
+        "opaque": 3040
       },
       "FCHK": {
         "native": 36
@@ -3196,9 +3173,8 @@
         "native": 5376
       },
       "FFMA2": {
-        "native": 2688,
-        "opaque": 3456,
-        "partially native": 256512
+        "native": 180480,
+        "opaque": 82176
       },
       "FHADD": {
         "opaque": 1024
@@ -3220,8 +3196,8 @@
         "native": 6048
       },
       "FMUL2": {
-        "native": 432,
-        "partially native": 6768
+        "native": 6000,
+        "opaque": 1200
       },
       "FOOTPRINT": {
         "opaque": 256
@@ -3335,24 +3311,19 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 59136
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDCU": {
-        "native": 5,
-        "opaque": 29,
-        "partially native": 2
+        "native": 7,
+        "opaque": 29
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 12672,
-        "partially native": 16896
+        "native": 59136,
+        "opaque": 12672
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -3364,12 +3335,10 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 60
@@ -3502,25 +3471,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 4410,
+        "opaque": 2646
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 5712,
+        "opaque": 2448
       },
       "STL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "STSM": {
         "opaque": 18
@@ -4465,7 +4430,7 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -4476,8 +4441,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 5
+        "native": 5,
+        "opaque": 4
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -4489,10 +4454,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -4622,7 +4587,8 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STAS": {
         "opaque": 2
@@ -4632,10 +4598,10 @@
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "STSM": {
         "opaque": 2
@@ -5069,7 +5035,7 @@
         "native": 6
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -5080,14 +5046,14 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 5
+        "native": 5,
+        "opaque": 4
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -5160,17 +5126,18 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STG": {
         "opaque": 4,
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -5303,9 +5270,9 @@
       }
     },
     "status": {
-      "native": 310,
+      "native": 336,
       "opaque": 433,
-      "partially native": 168,
+      "partially native": 142,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -5485,28 +5452,25 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 57981,
+        "reference": 1155
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
         "none": 1,
         "reference": 6
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 57994,
+        "reference": 1142
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -5576,20 +5540,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 3538,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 4833,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -5927,24 +5889,19 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 59136
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDCU": {
-        "native": 5,
-        "opaque": 29,
-        "partially native": 2
+        "native": 7,
+        "opaque": 29
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 12672,
-        "partially native": 16896
+        "native": 59136,
+        "opaque": 12672
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -5956,12 +5913,10 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 60
@@ -6081,25 +6036,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 4410,
+        "opaque": 2646
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 5712,
+        "opaque": 2448
       },
       "STL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "STSM": {
         "opaque": 18
@@ -6945,7 +6896,7 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -6956,8 +6907,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 5
+        "native": 5,
+        "opaque": 4
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -6969,10 +6920,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -7090,7 +7041,8 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STAS": {
         "opaque": 2
@@ -7100,10 +7052,10 @@
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "STSM": {
         "opaque": 2
@@ -7511,7 +7463,7 @@
         "native": 6
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -7522,14 +7474,14 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 5
+        "native": 5,
+        "opaque": 4
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -7602,17 +7554,18 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STG": {
         "opaque": 4,
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -7745,9 +7698,9 @@
       }
     },
     "status": {
-      "native": 307,
+      "native": 333,
       "opaque": 384,
-      "partially native": 146,
+      "partially native": 120,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -7927,28 +7880,25 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 57981,
+        "reference": 1155
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
         "none": 1,
         "reference": 6
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 57994,
+        "reference": 1142
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -8018,20 +7968,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 3538,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 4833,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -8369,24 +8317,19 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 59136
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDCU": {
-        "native": 5,
-        "opaque": 29,
-        "partially native": 2
+        "native": 7,
+        "opaque": 29
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 12672,
-        "partially native": 16896
+        "native": 59136,
+        "opaque": 12672
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -8398,12 +8341,10 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 60
@@ -8523,25 +8464,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 4410,
+        "opaque": 2646
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 5712,
+        "opaque": 2448
       },
       "STL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "STSM": {
         "opaque": 18
@@ -9387,7 +9324,7 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -9398,8 +9335,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 5
+        "native": 5,
+        "opaque": 4
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -9411,10 +9348,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -9532,7 +9469,8 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STAS": {
         "opaque": 2
@@ -9542,10 +9480,10 @@
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "STSM": {
         "opaque": 2
@@ -9953,7 +9891,7 @@
         "native": 6
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -9964,14 +9902,14 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 5
+        "native": 5,
+        "opaque": 4
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -10044,17 +9982,18 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STG": {
         "opaque": 4,
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -10187,9 +10126,9 @@
       }
     },
     "status": {
-      "native": 307,
+      "native": 333,
       "opaque": 384,
-      "partially native": 146,
+      "partially native": 120,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -10270,8 +10209,8 @@
         "reference": 95
       },
       "FADD2": {
-        "none": 9244,
-        "reference": 164
+        "none": 6320,
+        "reference": 240
       },
       "FCHK": {
         "none": 16,
@@ -10282,8 +10221,8 @@
         "reference": 193
       },
       "FFMA2": {
-        "none": 172524,
-        "reference": 276
+        "none": 119863,
+        "reference": 457
       },
       "FLO": {
         "none": 8,
@@ -10302,8 +10241,8 @@
         "reference": 322
       },
       "FMUL2": {
-        "none": 4645,
-        "reference": 155
+        "none": 3771,
+        "reference": 229
       },
       "FRND": {
         "none": 48,
@@ -10381,28 +10320,25 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 57981,
+        "reference": 1155
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
         "none": 1,
         "reference": 6
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 57994,
+        "reference": 1142
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -10472,20 +10408,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 3538,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 4833,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -10711,9 +10645,8 @@
         "native": 576
       },
       "FADD2": {
-        "native": 288,
-        "opaque": 192,
-        "partially native": 9120
+        "native": 6560,
+        "opaque": 3040
       },
       "FCHK": {
         "native": 36
@@ -10725,9 +10658,8 @@
         "native": 5376
       },
       "FFMA2": {
-        "native": 1792,
-        "opaque": 89856,
-        "partially native": 171008
+        "native": 120320,
+        "opaque": 142336
       },
       "FHADD": {
         "opaque": 1024
@@ -10749,9 +10681,8 @@
         "native": 6048
       },
       "FMUL2": {
-        "native": 288,
-        "opaque": 2400,
-        "partially native": 4512
+        "native": 4000,
+        "opaque": 3200
       },
       "FOOTPRINT": {
         "opaque": 256
@@ -10865,24 +10796,19 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 59136
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDCU": {
-        "native": 5,
-        "opaque": 29,
-        "partially native": 2
+        "native": 7,
+        "opaque": 29
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 12672,
-        "partially native": 16896
+        "native": 59136,
+        "opaque": 12672
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -10894,12 +10820,10 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 60
@@ -11032,25 +10956,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 4410,
+        "opaque": 2646
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 5712,
+        "opaque": 2448
       },
       "STL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "STSM": {
         "opaque": 18
@@ -11977,7 +11897,7 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -11988,8 +11908,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 5
+        "native": 5,
+        "opaque": 4
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -12001,10 +11921,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -12134,7 +12054,8 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STAS": {
         "opaque": 2
@@ -12144,10 +12065,10 @@
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "STSM": {
         "opaque": 2
@@ -12575,7 +12496,7 @@
         "native": 6
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -12586,14 +12507,14 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 5
+        "native": 5,
+        "opaque": 4
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -12666,17 +12587,18 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STG": {
         "opaque": 4,
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -12809,9 +12731,9 @@
       }
     },
     "status": {
-      "native": 310,
+      "native": 336,
       "opaque": 426,
-      "partially native": 168,
+      "partially native": 142,
       "partially primitive": 6,
       "primitive": 64
     }
@@ -12892,8 +12814,8 @@
         "reference": 95
       },
       "FADD2": {
-        "none": 9244,
-        "reference": 164
+        "none": 6320,
+        "reference": 240
       },
       "FCHK": {
         "none": 16,
@@ -12904,8 +12826,8 @@
         "reference": 193
       },
       "FFMA2": {
-        "none": 258924,
-        "reference": 276
+        "none": 180023,
+        "reference": 457
       },
       "FLO": {
         "none": 8,
@@ -12924,8 +12846,8 @@
         "reference": 322
       },
       "FMUL2": {
-        "none": 7045,
-        "reference": 155
+        "none": 5771,
+        "reference": 229
       },
       "FRND": {
         "none": 48,
@@ -13003,28 +12925,25 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 57981,
+        "reference": 1155
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
         "none": 1,
         "reference": 6
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 57994,
+        "reference": 1142
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -13094,20 +13013,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 3538,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 4833,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -13333,9 +13250,8 @@
         "native": 576
       },
       "FADD2": {
-        "native": 288,
-        "opaque": 192,
-        "partially native": 9120
+        "native": 6560,
+        "opaque": 3040
       },
       "FCHK": {
         "native": 36
@@ -13347,9 +13263,8 @@
         "native": 5376
       },
       "FFMA2": {
-        "native": 2688,
-        "opaque": 3456,
-        "partially native": 256512
+        "native": 180480,
+        "opaque": 82176
       },
       "FHADD": {
         "opaque": 1024
@@ -13371,8 +13286,8 @@
         "native": 6048
       },
       "FMUL2": {
-        "native": 432,
-        "partially native": 6768
+        "native": 6000,
+        "opaque": 1200
       },
       "FOOTPRINT": {
         "opaque": 256
@@ -13486,24 +13401,19 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 59136
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDCU": {
-        "native": 5,
-        "opaque": 29,
-        "partially native": 2
+        "native": 7,
+        "opaque": 29
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 12672,
-        "partially native": 16896
+        "native": 59136,
+        "opaque": 12672
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -13515,12 +13425,10 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 60
@@ -13653,25 +13561,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 4410,
+        "opaque": 2646
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 5712,
+        "opaque": 2448
       },
       "STL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "STSM": {
         "opaque": 18
@@ -14598,7 +14502,7 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -14609,8 +14513,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 5
+        "native": 5,
+        "opaque": 4
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -14622,10 +14526,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -14755,7 +14659,8 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STAS": {
         "opaque": 2
@@ -14765,10 +14670,10 @@
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "STSM": {
         "opaque": 2
@@ -15196,7 +15101,7 @@
         "native": 6
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -15207,14 +15112,14 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 5
+        "native": 5,
+        "opaque": 4
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -15287,17 +15192,18 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STG": {
         "opaque": 4,
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -15430,9 +15336,9 @@
       }
     },
     "status": {
-      "native": 310,
+      "native": 336,
       "opaque": 426,
-      "partially native": 168,
+      "partially native": 142,
       "partially primitive": 6,
       "primitive": 64
     }
@@ -15513,8 +15419,8 @@
         "reference": 95
       },
       "FADD2": {
-        "none": 9244,
-        "reference": 164
+        "none": 6320,
+        "reference": 240
       },
       "FCHK": {
         "none": 16,
@@ -15525,20 +15431,20 @@
         "reference": 193
       },
       "FFMA2": {
-        "none": 172524,
-        "reference": 276
+        "none": 119863,
+        "reference": 457
       },
       "FHADD2": {
-        "none": 11390,
-        "reference": 370
+        "none": 9097,
+        "reference": 415
       },
       "FHFMA2": {
-        "none": 172380,
-        "reference": 420
+        "none": 143902,
+        "reference": 482
       },
       "FHMUL2": {
-        "none": 1100,
-        "reference": 100
+        "none": 874,
+        "reference": 126
       },
       "FLO": {
         "none": 8,
@@ -15557,8 +15463,8 @@
         "reference": 322
       },
       "FMUL2": {
-        "none": 4645,
-        "reference": 155
+        "none": 3771,
+        "reference": 229
       },
       "FRND": {
         "none": 48,
@@ -15637,28 +15543,25 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 57981,
+        "reference": 1155
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
         "none": 1,
         "reference": 6
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 57994,
+        "reference": 1142
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -15731,20 +15634,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 3538,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 4833,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -15950,9 +15851,8 @@
         "native": 576
       },
       "FADD2": {
-        "native": 288,
-        "opaque": 192,
-        "partially native": 9120
+        "native": 6560,
+        "opaque": 3040
       },
       "FCHK": {
         "native": 36
@@ -15964,29 +15864,26 @@
         "native": 5376
       },
       "FFMA2": {
-        "native": 1792,
-        "opaque": 89856,
-        "partially native": 171008
+        "native": 120320,
+        "opaque": 142336
       },
       "FHADD": {
         "opaque": 1024
       },
       "FHADD2": {
-        "native": 1800,
-        "opaque": 240,
-        "partially native": 9960
+        "native": 9512,
+        "opaque": 2488
       },
       "FHFMA": {
         "opaque": 12288
       },
       "FHFMA2": {
-        "native": 10752,
-        "opaque": 2304,
-        "partially native": 162048
+        "native": 144384,
+        "opaque": 30720
       },
       "FHMUL2": {
-        "native": 72,
-        "partially native": 1128
+        "native": 1000,
+        "opaque": 200
       },
       "FLO": {
         "partially native": 20
@@ -16002,9 +15899,8 @@
         "native": 6048
       },
       "FMUL2": {
-        "native": 288,
-        "opaque": 2400,
-        "partially native": 4512
+        "native": 4000,
+        "opaque": 3200
       },
       "FRND": {
         "native": 144,
@@ -16105,24 +16001,19 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 59136
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDCU": {
-        "native": 5,
-        "opaque": 41,
-        "partially native": 2
+        "native": 7,
+        "opaque": 41
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 12672,
-        "partially native": 16896
+        "native": 59136,
+        "opaque": 12672
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -16134,12 +16025,10 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 60
@@ -16254,25 +16143,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 4410,
+        "opaque": 2646
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 5712,
+        "opaque": 2448
       },
       "STL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "STSM": {
         "opaque": 18
@@ -17183,7 +17068,7 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -17194,8 +17079,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 5
+        "native": 5,
+        "opaque": 4
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -17207,10 +17092,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -17322,7 +17207,8 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STAS": {
         "opaque": 2
@@ -17332,10 +17218,10 @@
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "STSM": {
         "opaque": 2
@@ -17732,7 +17618,7 @@
         "opaque": 6
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -17743,14 +17629,14 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 5
+        "native": 5,
+        "opaque": 4
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -17823,17 +17709,18 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STG": {
         "opaque": 4,
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -17966,9 +17853,9 @@
       }
     },
     "status": {
-      "native": 305,
+      "native": 331,
       "opaque": 374,
-      "partially native": 195,
+      "partially native": 169,
       "partially primitive": 6,
       "primitive": 64
     }
@@ -18049,8 +17936,8 @@
         "reference": 95
       },
       "FADD2": {
-        "none": 9244,
-        "reference": 164
+        "none": 6320,
+        "reference": 240
       },
       "FCHK": {
         "none": 16,
@@ -18061,20 +17948,20 @@
         "reference": 193
       },
       "FFMA2": {
-        "none": 258924,
-        "reference": 276
+        "none": 180023,
+        "reference": 457
       },
       "FHADD2": {
-        "none": 11390,
-        "reference": 370
+        "none": 9097,
+        "reference": 415
       },
       "FHFMA2": {
-        "none": 172380,
-        "reference": 420
+        "none": 143902,
+        "reference": 482
       },
       "FHMUL2": {
-        "none": 1100,
-        "reference": 100
+        "none": 874,
+        "reference": 126
       },
       "FLO": {
         "none": 8,
@@ -18093,8 +17980,8 @@
         "reference": 322
       },
       "FMUL2": {
-        "none": 7045,
-        "reference": 155
+        "none": 5771,
+        "reference": 229
       },
       "FRND": {
         "none": 48,
@@ -18173,28 +18060,25 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 57981,
+        "reference": 1155
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
         "none": 1,
         "reference": 6
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 57994,
+        "reference": 1142
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -18267,20 +18151,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 3538,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 4833,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -18486,9 +18368,8 @@
         "native": 576
       },
       "FADD2": {
-        "native": 288,
-        "opaque": 192,
-        "partially native": 9120
+        "native": 6560,
+        "opaque": 3040
       },
       "FCHK": {
         "native": 36
@@ -18500,29 +18381,26 @@
         "native": 5376
       },
       "FFMA2": {
-        "native": 2688,
-        "opaque": 3456,
-        "partially native": 256512
+        "native": 180480,
+        "opaque": 82176
       },
       "FHADD": {
         "opaque": 1024
       },
       "FHADD2": {
-        "native": 1800,
-        "opaque": 240,
-        "partially native": 9960
+        "native": 9512,
+        "opaque": 2488
       },
       "FHFMA": {
         "opaque": 12288
       },
       "FHFMA2": {
-        "native": 10752,
-        "opaque": 2304,
-        "partially native": 162048
+        "native": 144384,
+        "opaque": 30720
       },
       "FHMUL2": {
-        "native": 72,
-        "partially native": 1128
+        "native": 1000,
+        "opaque": 200
       },
       "FLO": {
         "partially native": 20
@@ -18538,8 +18416,8 @@
         "native": 6048
       },
       "FMUL2": {
-        "native": 432,
-        "partially native": 6768
+        "native": 6000,
+        "opaque": 1200
       },
       "FRND": {
         "native": 144,
@@ -18640,24 +18518,19 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 59136
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDCU": {
-        "native": 5,
-        "opaque": 41,
-        "partially native": 2
+        "native": 7,
+        "opaque": 41
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 12672,
-        "partially native": 16896
+        "native": 59136,
+        "opaque": 12672
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -18669,12 +18542,10 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 60
@@ -18789,25 +18660,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 4410,
+        "opaque": 2646
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 5712,
+        "opaque": 2448
       },
       "STL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "STSM": {
         "opaque": 18
@@ -19718,7 +19585,7 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -19729,8 +19596,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 5
+        "native": 5,
+        "opaque": 4
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -19742,10 +19609,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -19857,7 +19724,8 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STAS": {
         "opaque": 2
@@ -19867,10 +19735,10 @@
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "STSM": {
         "opaque": 2
@@ -20267,7 +20135,7 @@
         "opaque": 6
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -20278,14 +20146,14 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 5
+        "native": 5,
+        "opaque": 4
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -20358,17 +20226,18 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STG": {
         "opaque": 4,
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -20501,9 +20370,9 @@
       }
     },
     "status": {
-      "native": 305,
+      "native": 331,
       "opaque": 374,
-      "partially native": 195,
+      "partially native": 169,
       "partially primitive": 6,
       "primitive": 64
     }
@@ -20680,28 +20549,25 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 57981,
+        "reference": 1155
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
         "none": 1,
         "reference": 6
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 57994,
+        "reference": 1142
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -20774,20 +20640,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 3538,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 4833,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -21175,24 +21039,19 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 59136
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDCU": {
-        "native": 5,
-        "opaque": 41,
-        "partially native": 2
+        "native": 7,
+        "opaque": 41
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 13056,
-        "partially native": 16896
+        "native": 59136,
+        "opaque": 13056
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -21204,12 +21063,10 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 60
@@ -21335,25 +21192,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 4410,
+        "opaque": 2646
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 5712,
+        "opaque": 2448
       },
       "STL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "STSM": {
         "opaque": 18
@@ -22332,7 +22185,7 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -22343,8 +22196,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 8,
-        "partially native": 5
+        "native": 5,
+        "opaque": 8
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -22356,10 +22209,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -22483,7 +22336,8 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STAS": {
         "opaque": 2
@@ -22493,10 +22347,10 @@
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "STSM": {
         "opaque": 2
@@ -22954,7 +22808,7 @@
         "opaque": 6
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -22965,14 +22819,14 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 8,
-        "partially native": 5
+        "native": 5,
+        "opaque": 8
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -23045,17 +22899,18 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STG": {
         "opaque": 4,
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -23191,9 +23046,9 @@
       }
     },
     "status": {
-      "native": 357,
+      "native": 383,
       "opaque": 436,
-      "partially native": 155,
+      "partially native": 129,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -23370,28 +23225,25 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 57981,
+        "reference": 1155
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
         "none": 1,
         "reference": 6
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 57994,
+        "reference": 1142
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -23464,20 +23316,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 3538,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 4833,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -23865,24 +23715,19 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 59136
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDCU": {
-        "native": 5,
-        "opaque": 41,
-        "partially native": 2
+        "native": 7,
+        "opaque": 41
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 13056,
-        "partially native": 16896
+        "native": 59136,
+        "opaque": 13056
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -23894,12 +23739,10 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 60
@@ -24025,25 +23868,21 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 4410,
+        "opaque": 2646
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 5712,
+        "opaque": 2448
       },
       "STL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "STSM": {
         "opaque": 18
@@ -25022,7 +24861,7 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -25033,8 +24872,8 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 8,
-        "partially native": 5
+        "native": 5,
+        "opaque": 8
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -25046,10 +24885,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -25173,7 +25012,8 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STAS": {
         "opaque": 2
@@ -25183,10 +25023,10 @@
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "STSM": {
         "opaque": 2
@@ -25644,7 +25484,7 @@
         "opaque": 6
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -25655,14 +25495,14 @@
         "partially native": 1
       },
       "LDG": {
-        "opaque": 8,
-        "partially native": 5
+        "native": 5,
+        "opaque": 8
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 20
@@ -25735,17 +25575,18 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STG": {
         "opaque": 4,
         "partially native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -25881,9 +25722,9 @@
       }
     },
     "status": {
-      "native": 357,
+      "native": 383,
       "opaque": 436,
-      "partially native": 155,
+      "partially native": 129,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -26047,24 +25888,21 @@
         "reference": 240
       },
       "LD": {
-        "none": 39606,
-        "reference": 714
+        "none": 71559,
+        "reference": 1017
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDG": {
-        "none": 71824,
-        "reference": 752
+        "none": 71580,
+        "reference": 996
       },
       "LDL": {
-        "none": 34,
-        "reference": 92
+        "reference": 126
       },
       "LDS": {
-        "none": 32,
-        "reference": 94
+        "reference": 126
       },
       "LEA": {
         "reference": 132
@@ -26130,20 +25968,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 4425,
-        "reference": 615
+        "none": 4191,
+        "reference": 849
       },
       "STG": {
-        "none": 8427,
-        "reference": 645
+        "none": 8188,
+        "reference": 884
       },
       "STL": {
-        "none": 36,
-        "reference": 90
+        "reference": 126
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -26440,28 +26276,23 @@
         "opaque": 2
       },
       "LD": {
-        "native": 28800,
-        "opaque": 125568,
-        "partially native": 11520
+        "native": 72576,
+        "opaque": 93312
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDG": {
-        "native": 51840,
-        "opaque": 93312,
-        "partially native": 20736
+        "native": 72576,
+        "opaque": 93312
       },
       "LDL": {
-        "native": 90,
-        "partially native": 36
+        "native": 126
       },
       "LDS": {
-        "native": 90,
-        "opaque": 126,
-        "partially native": 36
+        "native": 126,
+        "opaque": 126
       },
       "LDSM": {
         "opaque": 72
@@ -26569,22 +26400,18 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3600,
-        "opaque": 5328,
-        "partially native": 1440
+        "native": 5040,
+        "opaque": 5328
       },
       "STG": {
-        "native": 6480,
-        "opaque": 1296,
-        "partially native": 2592
+        "native": 9072,
+        "opaque": 1296
       },
       "STL": {
-        "native": 90,
-        "partially native": 36
+        "native": 126
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "SUATOM": {
         "opaque": 552960
@@ -26641,9 +26468,8 @@
         "native": 576
       },
       "ULDC": {
-        "native": 5,
-        "opaque": 30,
-        "partially native": 1
+        "native": 6,
+        "opaque": 30
       },
       "ULEA": {
         "native": 51
@@ -26761,11 +26587,11 @@
       "i2f_Rd64__Cb_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__Cb_64b": "32-bit source; dstfmt outside the table",
-      "ld_zd__sImmOffset": "32-bit generic address; Pu result; size; sz U.128; zd not modelled",
-      "ld_zd__uImmOffset": "32-bit generic address; Pu result; size; sz U.128; zd not modelled",
-      "ld_zd_uniform__Ra32": "32-bit generic address; Pu result; size; sz U.128; zd not modelled",
+      "ld_zd__sImmOffset": "Pu result; size; sz U.128; zd not modelled",
+      "ld_zd__uImmOffset": "Pu result; size; sz U.128; zd not modelled",
+      "ld_zd_uniform__Ra32": "Pu result; size; sz U.128; zd not modelled",
       "ld_zd_uniform__Ra64": "Pu result; size; sz U.128; zd not modelled",
-      "ld_zd_uniform__RaRZ": "32-bit generic address; Pu result; size; sz U.128; zd not modelled",
+      "ld_zd_uniform__RaRZ": "Pu result; size; sz U.128; zd not modelled",
       "ldc_ur__URRzI": "bank",
       "ldc_ur__URnonRzI": "bank",
       "ldg_zd__sImmOffset": "size; sz U.128; zd not modelled",
@@ -27313,11 +27139,11 @@
         "partially native": 5
       },
       "LDL": {
-        "partially native": 3
+        "native": 3
       },
       "LDS": {
-        "opaque": 3,
-        "partially native": 3
+        "native": 3,
+        "opaque": 3
       },
       "LDSM": {
         "opaque": 4
@@ -27430,10 +27256,10 @@
         "partially native": 5
       },
       "STL": {
-        "partially native": 3
+        "native": 3
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "SUATOM": {
         "opaque": 8
@@ -27490,8 +27316,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -27765,11 +27591,11 @@
         "partially native": 5
       },
       "LDL": {
-        "partially native": 3
+        "native": 3
       },
       "LDS": {
-        "opaque": 3,
-        "partially native": 3
+        "native": 3,
+        "opaque": 3
       },
       "LEA": {
         "native": 32
@@ -27846,10 +27672,10 @@
         "partially native": 5
       },
       "STL": {
-        "partially native": 3
+        "native": 3
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -27906,8 +27732,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -27982,9 +27808,9 @@
       }
     },
     "status": {
-      "native": 393,
+      "native": 406,
       "opaque": 303,
-      "partially native": 136,
+      "partially native": 123,
       "primitive": 71
     }
   },
@@ -28147,24 +27973,21 @@
         "reference": 240
       },
       "LD": {
-        "none": 39606,
-        "reference": 714
+        "none": 71559,
+        "reference": 1017
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDG": {
-        "none": 71824,
-        "reference": 752
+        "none": 71580,
+        "reference": 996
       },
       "LDL": {
-        "none": 34,
-        "reference": 92
+        "reference": 126
       },
       "LDS": {
-        "none": 32,
-        "reference": 94
+        "reference": 126
       },
       "LEA": {
         "reference": 132
@@ -28230,20 +28053,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 4425,
-        "reference": 615
+        "none": 4191,
+        "reference": 849
       },
       "STG": {
-        "none": 8427,
-        "reference": 645
+        "none": 8188,
+        "reference": 884
       },
       "STL": {
-        "none": 36,
-        "reference": 90
+        "reference": 126
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -28540,28 +28361,23 @@
         "opaque": 2
       },
       "LD": {
-        "native": 28800,
-        "opaque": 125568,
-        "partially native": 11520
+        "native": 72576,
+        "opaque": 93312
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDG": {
-        "native": 51840,
-        "opaque": 93312,
-        "partially native": 20736
+        "native": 72576,
+        "opaque": 93312
       },
       "LDL": {
-        "native": 90,
-        "partially native": 36
+        "native": 126
       },
       "LDS": {
-        "native": 90,
-        "opaque": 126,
-        "partially native": 36
+        "native": 126,
+        "opaque": 126
       },
       "LDSM": {
         "opaque": 72
@@ -28669,22 +28485,18 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3600,
-        "opaque": 5328,
-        "partially native": 1440
+        "native": 5040,
+        "opaque": 5328
       },
       "STG": {
-        "native": 6480,
-        "opaque": 1296,
-        "partially native": 2592
+        "native": 9072,
+        "opaque": 1296
       },
       "STL": {
-        "native": 90,
-        "partially native": 36
+        "native": 126
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "SUATOM": {
         "opaque": 552960
@@ -28741,9 +28553,8 @@
         "native": 576
       },
       "ULDC": {
-        "native": 5,
-        "opaque": 30,
-        "partially native": 1
+        "native": 6,
+        "opaque": 30
       },
       "ULEA": {
         "native": 51
@@ -28861,11 +28672,11 @@
       "i2f_Rd64__Cb_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__Cb_64b": "32-bit source; dstfmt outside the table",
-      "ld_zd__sImmOffset": "32-bit generic address; Pu result; size; sz U.128; zd not modelled",
-      "ld_zd__uImmOffset": "32-bit generic address; Pu result; size; sz U.128; zd not modelled",
-      "ld_zd_uniform__Ra32": "32-bit generic address; Pu result; size; sz U.128; zd not modelled",
+      "ld_zd__sImmOffset": "Pu result; size; sz U.128; zd not modelled",
+      "ld_zd__uImmOffset": "Pu result; size; sz U.128; zd not modelled",
+      "ld_zd_uniform__Ra32": "Pu result; size; sz U.128; zd not modelled",
       "ld_zd_uniform__Ra64": "Pu result; size; sz U.128; zd not modelled",
-      "ld_zd_uniform__RaRZ": "32-bit generic address; Pu result; size; sz U.128; zd not modelled",
+      "ld_zd_uniform__RaRZ": "Pu result; size; sz U.128; zd not modelled",
       "ldc_ur__URRzI": "bank",
       "ldc_ur__URnonRzI": "bank",
       "ldg_zd__sImmOffset": "size; sz U.128; zd not modelled",
@@ -29413,11 +29224,11 @@
         "partially native": 5
       },
       "LDL": {
-        "partially native": 3
+        "native": 3
       },
       "LDS": {
-        "opaque": 3,
-        "partially native": 3
+        "native": 3,
+        "opaque": 3
       },
       "LDSM": {
         "opaque": 4
@@ -29530,10 +29341,10 @@
         "partially native": 5
       },
       "STL": {
-        "partially native": 3
+        "native": 3
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "SUATOM": {
         "opaque": 8
@@ -29590,8 +29401,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -29865,11 +29676,11 @@
         "partially native": 5
       },
       "LDL": {
-        "partially native": 3
+        "native": 3
       },
       "LDS": {
-        "opaque": 3,
-        "partially native": 3
+        "native": 3,
+        "opaque": 3
       },
       "LEA": {
         "native": 32
@@ -29946,10 +29757,10 @@
         "partially native": 5
       },
       "STL": {
-        "partially native": 3
+        "native": 3
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -30006,8 +29817,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -30082,9 +29893,9 @@
       }
     },
     "status": {
-      "native": 393,
+      "native": 406,
       "opaque": 303,
-      "partially native": 136,
+      "partially native": 123,
       "primitive": 71
     }
   },
@@ -30255,24 +30066,21 @@
         "reference": 520
       },
       "LD": {
-        "none": 41855,
-        "reference": 1069
+        "none": 65979,
+        "reference": 1473
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDG": {
-        "none": 66392,
-        "reference": 1060
+        "none": 65999,
+        "reference": 1453
       },
       "LDL": {
-        "none": 58,
-        "reference": 152
+        "reference": 210
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 132
@@ -30341,20 +30149,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 5427,
-        "reference": 747
+        "none": 5126,
+        "reference": 1048
       },
       "STG": {
-        "none": 8955,
-        "reference": 747
+        "none": 8646,
+        "reference": 1056
       },
       "STL": {
-        "none": 60,
-        "reference": 150
+        "reference": 210
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -30669,18 +30475,14 @@
         "opaque": 2
       },
       "LD": {
-        "native": 30660,
-        "opaque": 24528,
-        "partially native": 12264
+        "native": 67452
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDG": {
-        "native": 48180,
-        "partially native": 19272
+        "native": 67452
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -30689,12 +30491,10 @@
         "opaque": 16128
       },
       "LDL": {
-        "native": 150,
-        "partially native": 60
+        "native": 210
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 36
@@ -30809,21 +30609,17 @@
         "opaque": 25
       },
       "ST": {
-        "native": 4410,
-        "opaque": 3528,
-        "partially native": 1764
+        "native": 6174,
+        "opaque": 3528
       },
       "STG": {
-        "native": 6930,
-        "partially native": 2772
+        "native": 9702
       },
       "STL": {
-        "native": 150,
-        "partially native": 60
+        "native": 210
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "SUATOM": {
         "opaque": 725760
@@ -30880,9 +30676,8 @@
         "native": 576
       },
       "ULDC": {
-        "native": 5,
-        "opaque": 30,
-        "partially native": 1
+        "native": 6,
+        "opaque": 30
       },
       "ULEA": {
         "native": 51
@@ -31546,14 +31341,14 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 6
+        "native": 6
       },
       "LDC": {
         "opaque": 2,
         "partially native": 2
       },
       "LDG": {
-        "partially native": 6
+        "native": 6
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -31562,10 +31357,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -31679,16 +31474,17 @@
         "opaque": 1
       },
       "ST": {
-        "partially native": 6
-      },
-      "STG": {
-        "partially native": 6
-      },
-      "STL": {
+        "native": 2,
         "partially native": 4
       },
+      "STG": {
+        "native": 6
+      },
+      "STL": {
+        "native": 4
+      },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "SUATOM": {
         "opaque": 8
@@ -31745,8 +31541,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -31992,7 +31788,7 @@
         "native": 10
       },
       "LD": {
-        "partially native": 6
+        "native": 6
       },
       "LDC": {
         "opaque": 2,
@@ -32002,13 +31798,13 @@
         "absent": 0
       },
       "LDG": {
-        "partially native": 6
+        "native": 6
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 32
@@ -32080,16 +31876,17 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 6
-      },
-      "STG": {
-        "partially native": 6
-      },
-      "STL": {
+        "native": 2,
         "partially native": 4
       },
+      "STG": {
+        "native": 6
+      },
+      "STL": {
+        "native": 4
+      },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -32146,8 +31943,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -32222,9 +32019,9 @@
       }
     },
     "status": {
-      "native": 418,
+      "native": 453,
       "opaque": 322,
-      "partially native": 154,
+      "partially native": 119,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -32396,24 +32193,21 @@
         "reference": 520
       },
       "LD": {
-        "none": 41855,
-        "reference": 1069
+        "none": 65979,
+        "reference": 1473
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDG": {
-        "none": 66392,
-        "reference": 1060
+        "none": 65999,
+        "reference": 1453
       },
       "LDL": {
-        "none": 58,
-        "reference": 152
+        "reference": 210
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 132
@@ -32482,20 +32276,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 5427,
-        "reference": 747
+        "none": 5126,
+        "reference": 1048
       },
       "STG": {
-        "none": 8955,
-        "reference": 747
+        "none": 8646,
+        "reference": 1056
       },
       "STL": {
-        "none": 60,
-        "reference": 150
+        "reference": 210
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -32810,18 +32602,14 @@
         "opaque": 2
       },
       "LD": {
-        "native": 30660,
-        "opaque": 24528,
-        "partially native": 12264
+        "native": 67452
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDG": {
-        "native": 48180,
-        "partially native": 19272
+        "native": 67452
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -32830,12 +32618,10 @@
         "opaque": 16128
       },
       "LDL": {
-        "native": 150,
-        "partially native": 60
+        "native": 210
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 36
@@ -32950,21 +32736,17 @@
         "opaque": 25
       },
       "ST": {
-        "native": 4410,
-        "opaque": 3528,
-        "partially native": 1764
+        "native": 6174,
+        "opaque": 3528
       },
       "STG": {
-        "native": 6930,
-        "partially native": 2772
+        "native": 9702
       },
       "STL": {
-        "native": 150,
-        "partially native": 60
+        "native": 210
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "SUATOM": {
         "opaque": 725760
@@ -33021,9 +32803,8 @@
         "native": 576
       },
       "ULDC": {
-        "native": 5,
-        "opaque": 30,
-        "partially native": 1
+        "native": 6,
+        "opaque": 30
       },
       "ULEA": {
         "native": 51
@@ -33687,14 +33468,14 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 6
+        "native": 6
       },
       "LDC": {
         "opaque": 2,
         "partially native": 2
       },
       "LDG": {
-        "partially native": 6
+        "native": 6
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -33703,10 +33484,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -33820,16 +33601,17 @@
         "opaque": 1
       },
       "ST": {
-        "partially native": 6
-      },
-      "STG": {
-        "partially native": 6
-      },
-      "STL": {
+        "native": 2,
         "partially native": 4
       },
+      "STG": {
+        "native": 6
+      },
+      "STL": {
+        "native": 4
+      },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "SUATOM": {
         "opaque": 8
@@ -33886,8 +33668,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -34133,7 +33915,7 @@
         "native": 10
       },
       "LD": {
-        "partially native": 6
+        "native": 6
       },
       "LDC": {
         "opaque": 2,
@@ -34143,13 +33925,13 @@
         "absent": 0
       },
       "LDG": {
-        "partially native": 6
+        "native": 6
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 32
@@ -34221,16 +34003,17 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 6
-      },
-      "STG": {
-        "partially native": 6
-      },
-      "STL": {
+        "native": 2,
         "partially native": 4
       },
+      "STG": {
+        "native": 6
+      },
+      "STL": {
+        "native": 4
+      },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -34287,8 +34070,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -34363,9 +34146,9 @@
       }
     },
     "status": {
-      "native": 418,
+      "native": 453,
       "opaque": 322,
-      "partially native": 154,
+      "partially native": 119,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -34542,24 +34325,21 @@
         "reference": 520
       },
       "LD": {
-        "none": 50709,
-        "reference": 1035
+        "none": 79926,
+        "reference": 1386
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDG": {
-        "none": 80254,
-        "reference": 1058
+        "none": 79946,
+        "reference": 1366
       },
       "LDL": {
-        "none": 58,
-        "reference": 152
+        "reference": 210
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 132
@@ -34628,20 +34408,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 5427,
-        "reference": 747
+        "none": 5126,
+        "reference": 1048
       },
       "STG": {
-        "none": 8955,
-        "reference": 747
+        "none": 8646,
+        "reference": 1056
       },
       "STL": {
-        "none": 60,
-        "reference": 150
+        "reference": 210
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -34966,18 +34744,14 @@
         "opaque": 2
       },
       "LD": {
-        "native": 36960,
-        "opaque": 29568,
-        "partially native": 14784
+        "native": 81312
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDG": {
-        "native": 58080,
-        "partially native": 23232
+        "native": 81312
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -34986,12 +34760,10 @@
         "opaque": 16128
       },
       "LDL": {
-        "native": 150,
-        "partially native": 60
+        "native": 210
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 36
@@ -35106,21 +34878,17 @@
         "opaque": 25
       },
       "ST": {
-        "native": 4410,
-        "opaque": 3528,
-        "partially native": 1764
+        "native": 6174,
+        "opaque": 3528
       },
       "STG": {
-        "native": 6930,
-        "partially native": 2772
+        "native": 9702
       },
       "STL": {
-        "native": 150,
-        "partially native": 60
+        "native": 210
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "SUATOM": {
         "opaque": 725760
@@ -35184,9 +34952,8 @@
         "native": 576
       },
       "ULDC": {
-        "native": 5,
-        "opaque": 30,
-        "partially native": 1
+        "native": 6,
+        "opaque": 30
       },
       "ULEA": {
         "native": 51
@@ -35881,14 +35648,14 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 6
+        "native": 6
       },
       "LDC": {
         "opaque": 2,
         "partially native": 2
       },
       "LDG": {
-        "partially native": 6
+        "native": 6
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -35897,10 +35664,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -36014,16 +35781,17 @@
         "opaque": 1
       },
       "ST": {
-        "partially native": 6
-      },
-      "STG": {
-        "partially native": 6
-      },
-      "STL": {
+        "native": 2,
         "partially native": 4
       },
+      "STG": {
+        "native": 6
+      },
+      "STL": {
+        "native": 4
+      },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "SUATOM": {
         "opaque": 8
@@ -36087,8 +35855,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -36357,7 +36125,7 @@
         "native": 10
       },
       "LD": {
-        "partially native": 6
+        "native": 6
       },
       "LDC": {
         "opaque": 2,
@@ -36367,13 +36135,13 @@
         "absent": 0
       },
       "LDG": {
-        "partially native": 6
+        "native": 6
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 32
@@ -36445,16 +36213,17 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 6
-      },
-      "STG": {
-        "partially native": 6
-      },
-      "STL": {
+        "native": 2,
         "partially native": 4
       },
+      "STG": {
+        "native": 6
+      },
+      "STL": {
+        "native": 4
+      },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -36512,8 +36281,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -36588,9 +36357,9 @@
       }
     },
     "status": {
-      "native": 433,
+      "native": 468,
       "opaque": 330,
-      "partially native": 168,
+      "partially native": 133,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -36767,24 +36536,21 @@
         "reference": 520
       },
       "LD": {
-        "none": 50709,
-        "reference": 1035
+        "none": 79926,
+        "reference": 1386
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDG": {
-        "none": 80254,
-        "reference": 1058
+        "none": 79946,
+        "reference": 1366
       },
       "LDL": {
-        "none": 58,
-        "reference": 152
+        "reference": 210
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 132
@@ -36853,20 +36619,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 5427,
-        "reference": 747
+        "none": 5126,
+        "reference": 1048
       },
       "STG": {
-        "none": 8955,
-        "reference": 747
+        "none": 8646,
+        "reference": 1056
       },
       "STL": {
-        "none": 60,
-        "reference": 150
+        "reference": 210
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -37190,18 +36954,14 @@
         "opaque": 2
       },
       "LD": {
-        "native": 36960,
-        "opaque": 29568,
-        "partially native": 14784
+        "native": 81312
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDG": {
-        "native": 58080,
-        "partially native": 23232
+        "native": 81312
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -37210,12 +36970,10 @@
         "opaque": 16128
       },
       "LDL": {
-        "native": 150,
-        "partially native": 60
+        "native": 210
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 36
@@ -37330,21 +37088,17 @@
         "opaque": 25
       },
       "ST": {
-        "native": 4410,
-        "opaque": 3528,
-        "partially native": 1764
+        "native": 6174,
+        "opaque": 3528
       },
       "STG": {
-        "native": 6930,
-        "partially native": 2772
+        "native": 9702
       },
       "STL": {
-        "native": 150,
-        "partially native": 60
+        "native": 210
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "SUATOM": {
         "opaque": 725760
@@ -37408,9 +37162,8 @@
         "native": 576
       },
       "ULDC": {
-        "native": 5,
-        "opaque": 30,
-        "partially native": 1
+        "native": 6,
+        "opaque": 30
       },
       "ULEA": {
         "native": 51
@@ -38104,14 +37857,14 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 6
+        "native": 6
       },
       "LDC": {
         "opaque": 2,
         "partially native": 2
       },
       "LDG": {
-        "partially native": 6
+        "native": 6
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -38120,10 +37873,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -38237,16 +37990,17 @@
         "opaque": 1
       },
       "ST": {
-        "partially native": 6
-      },
-      "STG": {
-        "partially native": 6
-      },
-      "STL": {
+        "native": 2,
         "partially native": 4
       },
+      "STG": {
+        "native": 6
+      },
+      "STL": {
+        "native": 4
+      },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "SUATOM": {
         "opaque": 8
@@ -38310,8 +38064,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -38579,7 +38333,7 @@
         "native": 10
       },
       "LD": {
-        "partially native": 6
+        "native": 6
       },
       "LDC": {
         "opaque": 2,
@@ -38589,13 +38343,13 @@
         "absent": 0
       },
       "LDG": {
-        "partially native": 6
+        "native": 6
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 32
@@ -38667,16 +38421,17 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 6
-      },
-      "STG": {
-        "partially native": 6
-      },
-      "STL": {
+        "native": 2,
         "partially native": 4
       },
+      "STG": {
+        "native": 6
+      },
+      "STL": {
+        "native": 4
+      },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -38734,8 +38489,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -38810,9 +38565,9 @@
       }
     },
     "status": {
-      "native": 438,
+      "native": 473,
       "opaque": 330,
-      "partially native": 163,
+      "partially native": 128,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -38998,29 +38753,26 @@
         "none": 917
       },
       "LD": {
-        "gpu": 867,
-        "none": 50707,
-        "reference": 170
+        "gpu": 1161,
+        "none": 79924,
+        "reference": 227
       },
       "LDC": {
-        "gpu": 5,
-        "none": 2,
-        "reference": 5
+        "gpu": 6,
+        "reference": 6
       },
       "LDG": {
-        "gpu": 623,
-        "none": 80251,
-        "reference": 438
+        "gpu": 811,
+        "none": 79943,
+        "reference": 558
       },
       "LDL": {
-        "gpu": 122,
-        "none": 58,
-        "reference": 30
+        "gpu": 168,
+        "reference": 42
       },
       "LDS": {
-        "gpu": 37,
-        "none": 16,
-        "reference": 10
+        "gpu": 49,
+        "reference": 14
       },
       "LEA": {
         "gpu": 132
@@ -39091,24 +38843,22 @@
         "gpu": 16
       },
       "ST": {
-        "gpu": 624,
-        "none": 5426,
-        "reference": 124
+        "gpu": 875,
+        "none": 5125,
+        "reference": 174
       },
       "STG": {
-        "gpu": 432,
-        "none": 8954,
-        "reference": 316
+        "gpu": 619,
+        "none": 8645,
+        "reference": 438
       },
       "STL": {
-        "gpu": 121,
-        "none": 59,
-        "reference": 30
+        "gpu": 168,
+        "reference": 42
       },
       "STS": {
-        "gpu": 35,
-        "none": 18,
-        "reference": 10
+        "gpu": 49,
+        "reference": 14
       },
       "UBREV": {
         "gpu": 2
@@ -39433,19 +39183,15 @@
         "opaque": 2
       },
       "LD": {
-        "native": 36960,
-        "opaque": 29568,
-        "partially native": 14784
+        "native": 81312
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDG": {
-        "native": 58080,
-        "opaque": 15840,
-        "partially native": 23232
+        "native": 81312,
+        "opaque": 15840
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -39454,12 +39200,10 @@
         "opaque": 16128
       },
       "LDL": {
-        "native": 150,
-        "partially native": 60
+        "native": 210
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 36
@@ -39577,22 +39321,18 @@
         "opaque": 25
       },
       "ST": {
-        "native": 4410,
-        "opaque": 3528,
-        "partially native": 1764
+        "native": 6174,
+        "opaque": 3528
       },
       "STG": {
-        "native": 6930,
-        "opaque": 1890,
-        "partially native": 2772
+        "native": 9702,
+        "opaque": 1890
       },
       "STL": {
-        "native": 150,
-        "partially native": 60
+        "native": 210
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "SUATOM": {
         "opaque": 725760
@@ -39656,9 +39396,8 @@
         "native": 576
       },
       "ULDC": {
-        "native": 5,
-        "opaque": 30,
-        "partially native": 1
+        "native": 6,
+        "opaque": 30
       },
       "ULEA": {
         "native": 51
@@ -40374,15 +40113,15 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 6
+        "native": 6
       },
       "LDC": {
         "opaque": 2,
         "partially native": 2
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 6
+        "native": 6,
+        "opaque": 4
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -40391,10 +40130,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -40511,17 +40250,18 @@
         "opaque": 1
       },
       "ST": {
-        "partially native": 6
-      },
-      "STG": {
-        "opaque": 4,
-        "partially native": 6
-      },
-      "STL": {
+        "native": 2,
         "partially native": 4
       },
+      "STG": {
+        "native": 6,
+        "opaque": 4
+      },
+      "STL": {
+        "native": 4
+      },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "SUATOM": {
         "opaque": 8
@@ -40585,8 +40325,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -40855,7 +40595,7 @@
         "native": 10
       },
       "LD": {
-        "partially native": 6
+        "native": 6
       },
       "LDC": {
         "opaque": 2,
@@ -40865,14 +40605,14 @@
         "absent": 0
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 6
+        "native": 6,
+        "opaque": 4
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 32
@@ -40944,17 +40684,18 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 6
-      },
-      "STG": {
-        "opaque": 4,
-        "partially native": 6
-      },
-      "STL": {
+        "native": 2,
         "partially native": 4
       },
+      "STG": {
+        "native": 6,
+        "opaque": 4
+      },
+      "STL": {
+        "native": 4
+      },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -41012,8 +40753,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -41088,9 +40829,9 @@
       }
     },
     "status": {
-      "native": 461,
+      "native": 496,
       "opaque": 352,
-      "partially native": 168,
+      "partially native": 133,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -41278,29 +41019,26 @@
         "none": 917
       },
       "LD": {
-        "gpu": 867,
-        "none": 50707,
-        "reference": 170
+        "gpu": 1161,
+        "none": 79924,
+        "reference": 227
       },
       "LDC": {
-        "gpu": 5,
-        "none": 2,
-        "reference": 5
+        "gpu": 6,
+        "reference": 6
       },
       "LDG": {
-        "gpu": 623,
-        "none": 80251,
-        "reference": 438
+        "gpu": 811,
+        "none": 79943,
+        "reference": 558
       },
       "LDL": {
-        "gpu": 122,
-        "none": 58,
-        "reference": 30
+        "gpu": 168,
+        "reference": 42
       },
       "LDS": {
-        "gpu": 37,
-        "none": 16,
-        "reference": 10
+        "gpu": 49,
+        "reference": 14
       },
       "LEA": {
         "gpu": 132
@@ -41371,24 +41109,22 @@
         "gpu": 16
       },
       "ST": {
-        "gpu": 624,
-        "none": 5426,
-        "reference": 124
+        "gpu": 875,
+        "none": 5125,
+        "reference": 174
       },
       "STG": {
-        "gpu": 432,
-        "none": 8954,
-        "reference": 316
+        "gpu": 619,
+        "none": 8645,
+        "reference": 438
       },
       "STL": {
-        "gpu": 121,
-        "none": 59,
-        "reference": 30
+        "gpu": 168,
+        "reference": 42
       },
       "STS": {
-        "gpu": 35,
-        "none": 18,
-        "reference": 10
+        "gpu": 49,
+        "reference": 14
       },
       "UBREV": {
         "gpu": 2
@@ -41712,19 +41448,15 @@
         "opaque": 2
       },
       "LD": {
-        "native": 36960,
-        "opaque": 29568,
-        "partially native": 14784
+        "native": 81312
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDG": {
-        "native": 58080,
-        "opaque": 15840,
-        "partially native": 23232
+        "native": 81312,
+        "opaque": 15840
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -41733,12 +41465,10 @@
         "opaque": 16128
       },
       "LDL": {
-        "native": 150,
-        "partially native": 60
+        "native": 210
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 36
@@ -41856,22 +41586,18 @@
         "opaque": 25
       },
       "ST": {
-        "native": 4410,
-        "opaque": 3528,
-        "partially native": 1764
+        "native": 6174,
+        "opaque": 3528
       },
       "STG": {
-        "native": 6930,
-        "opaque": 1890,
-        "partially native": 2772
+        "native": 9702,
+        "opaque": 1890
       },
       "STL": {
-        "native": 150,
-        "partially native": 60
+        "native": 210
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "SUATOM": {
         "opaque": 725760
@@ -41935,9 +41661,8 @@
         "native": 576
       },
       "ULDC": {
-        "native": 5,
-        "opaque": 30,
-        "partially native": 1
+        "native": 6,
+        "opaque": 30
       },
       "ULEA": {
         "native": 51
@@ -42652,15 +42377,15 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 6
+        "native": 6
       },
       "LDC": {
         "opaque": 2,
         "partially native": 2
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 6
+        "native": 6,
+        "opaque": 4
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -42669,10 +42394,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -42789,17 +42514,18 @@
         "opaque": 1
       },
       "ST": {
-        "partially native": 6
-      },
-      "STG": {
-        "opaque": 4,
-        "partially native": 6
-      },
-      "STL": {
+        "native": 2,
         "partially native": 4
       },
+      "STG": {
+        "native": 6,
+        "opaque": 4
+      },
+      "STL": {
+        "native": 4
+      },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "SUATOM": {
         "opaque": 8
@@ -42863,8 +42589,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -43132,7 +42858,7 @@
         "native": 10
       },
       "LD": {
-        "partially native": 6
+        "native": 6
       },
       "LDC": {
         "opaque": 2,
@@ -43142,14 +42868,14 @@
         "absent": 0
       },
       "LDG": {
-        "opaque": 4,
-        "partially native": 6
+        "native": 6,
+        "opaque": 4
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 32
@@ -43221,17 +42947,18 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 6
-      },
-      "STG": {
-        "opaque": 4,
-        "partially native": 6
-      },
-      "STL": {
+        "native": 2,
         "partially native": 4
       },
+      "STG": {
+        "native": 6,
+        "opaque": 4
+      },
+      "STL": {
+        "native": 4
+      },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -43289,8 +43016,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -43365,9 +43092,9 @@
       }
     },
     "status": {
-      "native": 466,
+      "native": 501,
       "opaque": 352,
-      "partially native": 163,
+      "partially native": 128,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -43558,29 +43285,26 @@
         "none": 916
       },
       "LD": {
-        "gpu": 56,
-        "none": 36094,
-        "reference": 810
+        "gpu": 65,
+        "none": 57979,
+        "reference": 1092
       },
       "LDC": {
         "gpu": 6,
-        "none": 1,
-        "reference": 5
+        "reference": 6
       },
       "LDG": {
         "gpu": 11,
-        "none": 58251,
-        "reference": 874
+        "none": 57991,
+        "reference": 1134
       },
       "LDL": {
-        "gpu": 75,
-        "none": 46,
-        "reference": 47
+        "gpu": 25,
+        "reference": 143
       },
       "LDS": {
         "gpu": 37,
-        "none": 16,
-        "reference": 10
+        "reference": 26
       },
       "LEA": {
         "gpu": 132
@@ -43652,24 +43376,22 @@
         "gpu": 16
       },
       "ST": {
-        "gpu": 335,
-        "none": 3786,
-        "reference": 289
+        "gpu": 343,
+        "none": 3538,
+        "reference": 529
       },
       "STG": {
-        "gpu": 305,
-        "none": 6431,
-        "reference": 320
+        "gpu": 310,
+        "none": 6178,
+        "reference": 568
       },
       "STL": {
-        "gpu": 63,
-        "none": 47,
-        "reference": 58
+        "gpu": 22,
+        "reference": 146
       },
       "STS": {
         "gpu": 35,
-        "none": 18,
-        "reference": 10
+        "reference": 28
       },
       "UBREV": {
         "gpu": 2
@@ -44032,18 +43754,14 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 59136
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDG": {
-        "native": 42240,
-        "partially native": 16896
+        "native": 59136
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -44055,12 +43773,10 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 36
@@ -44185,24 +43901,20 @@
         "opaque": 25
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 4410,
+        "opaque": 2646
       },
       "STAS": {
         "opaque": 12
       },
       "STG": {
-        "native": 5040,
-        "partially native": 2016
+        "native": 7056
       },
       "STL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "STSM": {
         "opaque": 12
@@ -44287,9 +43999,8 @@
         "native": 576
       },
       "ULDC": {
-        "native": 5,
-        "opaque": 30,
-        "partially native": 1
+        "native": 6,
+        "opaque": 30
       },
       "ULEA": {
         "native": 51
@@ -44420,9 +44131,9 @@
       }
     },
     "evidence": {
-      "gpu": 599,
+      "gpu": 595,
       "none": 36,
-      "reference": 102
+      "reference": 106
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -44644,8 +44355,8 @@
         "reference": 3
       },
       "LDL": {
-        "gpu": 3,
-        "reference": 1
+        "gpu": 1,
+        "reference": 3
       },
       "LDS": {
         "gpu": 2,
@@ -44727,8 +44438,8 @@
         "reference": 1
       },
       "STL": {
-        "gpu": 3,
-        "reference": 1
+        "gpu": 1,
+        "reference": 3
       },
       "STS": {
         "gpu": 2,
@@ -45085,14 +44796,14 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
         "partially native": 2
       },
       "LDG": {
-        "partially native": 5
+        "native": 5
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -45104,10 +44815,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -45230,19 +44941,20 @@
         "opaque": 1
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STAS": {
         "opaque": 2
       },
       "STG": {
-        "partially native": 5
+        "native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "STSM": {
         "opaque": 2
@@ -45327,8 +45039,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -45635,7 +45347,7 @@
         "native": 10
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -45645,13 +45357,13 @@
         "absent": 0
       },
       "LDG": {
-        "partially native": 5
+        "native": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 32
@@ -45723,16 +45435,17 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STG": {
-        "partially native": 5
+        "native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -45790,8 +45503,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -45867,9 +45580,9 @@
       }
     },
     "status": {
-      "native": 485,
+      "native": 517,
       "opaque": 436,
-      "partially native": 180,
+      "partially native": 148,
       "partially primitive": 6,
       "primitive": 66
     }
@@ -46061,29 +45774,26 @@
         "none": 916
       },
       "LD": {
-        "gpu": 56,
-        "none": 36094,
-        "reference": 810
+        "gpu": 65,
+        "none": 57979,
+        "reference": 1092
       },
       "LDC": {
         "gpu": 6,
-        "none": 1,
-        "reference": 5
+        "reference": 6
       },
       "LDG": {
         "gpu": 11,
-        "none": 58251,
-        "reference": 874
+        "none": 57991,
+        "reference": 1134
       },
       "LDL": {
-        "gpu": 75,
-        "none": 46,
-        "reference": 47
+        "gpu": 25,
+        "reference": 143
       },
       "LDS": {
         "gpu": 37,
-        "none": 16,
-        "reference": 10
+        "reference": 26
       },
       "LEA": {
         "gpu": 132
@@ -46155,24 +45865,22 @@
         "gpu": 16
       },
       "ST": {
-        "gpu": 335,
-        "none": 3786,
-        "reference": 289
+        "gpu": 343,
+        "none": 3538,
+        "reference": 529
       },
       "STG": {
-        "gpu": 305,
-        "none": 6431,
-        "reference": 320
+        "gpu": 310,
+        "none": 6178,
+        "reference": 568
       },
       "STL": {
-        "gpu": 63,
-        "none": 47,
-        "reference": 58
+        "gpu": 22,
+        "reference": 146
       },
       "STS": {
         "gpu": 35,
-        "none": 18,
-        "reference": 10
+        "reference": 28
       },
       "UBREV": {
         "gpu": 2
@@ -46535,18 +46243,14 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 59136
       },
       "LDC": {
-        "native": 10,
-        "opaque": 48,
-        "partially native": 2
+        "native": 12,
+        "opaque": 48
       },
       "LDG": {
-        "native": 42240,
-        "partially native": 16896
+        "native": 59136
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -46558,12 +46262,10 @@
         "opaque": 11520
       },
       "LDL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "LDS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "LDSM": {
         "opaque": 36
@@ -46688,24 +46390,20 @@
         "opaque": 25
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 4410,
+        "opaque": 2646
       },
       "STAS": {
         "opaque": 12
       },
       "STG": {
-        "native": 5040,
-        "partially native": 2016
+        "native": 7056
       },
       "STL": {
-        "native": 120,
-        "partially native": 48
+        "native": 168
       },
       "STS": {
-        "native": 45,
-        "partially native": 18
+        "native": 63
       },
       "STSM": {
         "opaque": 12
@@ -46790,9 +46488,8 @@
         "native": 576
       },
       "ULDC": {
-        "native": 5,
-        "opaque": 30,
-        "partially native": 1
+        "native": 6,
+        "opaque": 30
       },
       "ULEA": {
         "native": 51
@@ -46923,9 +46620,9 @@
       }
     },
     "evidence": {
-      "gpu": 599,
+      "gpu": 595,
       "none": 36,
-      "reference": 102
+      "reference": 106
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -47147,8 +46844,8 @@
         "reference": 3
       },
       "LDL": {
-        "gpu": 3,
-        "reference": 1
+        "gpu": 1,
+        "reference": 3
       },
       "LDS": {
         "gpu": 2,
@@ -47230,8 +46927,8 @@
         "reference": 1
       },
       "STL": {
-        "gpu": 3,
-        "reference": 1
+        "gpu": 1,
+        "reference": 3
       },
       "STS": {
         "gpu": 2,
@@ -47588,14 +47285,14 @@
         "opaque": 1
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
         "partially native": 2
       },
       "LDG": {
-        "partially native": 5
+        "native": 5
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -47607,10 +47304,10 @@
         "opaque": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LDSM": {
         "opaque": 2
@@ -47733,19 +47430,20 @@
         "opaque": 1
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STAS": {
         "opaque": 2
       },
       "STG": {
-        "partially native": 5
+        "native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "STSM": {
         "opaque": 2
@@ -47830,8 +47528,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -48138,7 +47836,7 @@
         "native": 10
       },
       "LD": {
-        "partially native": 5
+        "native": 5
       },
       "LDC": {
         "opaque": 2,
@@ -48148,13 +47846,13 @@
         "absent": 0
       },
       "LDG": {
-        "partially native": 5
+        "native": 5
       },
       "LDL": {
-        "partially native": 4
+        "native": 4
       },
       "LDS": {
-        "partially native": 3
+        "native": 3
       },
       "LEA": {
         "native": 32
@@ -48226,16 +47924,17 @@
         "primitive": 4
       },
       "ST": {
-        "partially native": 5
+        "native": 2,
+        "partially native": 3
       },
       "STG": {
-        "partially native": 5
+        "native": 5
       },
       "STL": {
-        "partially native": 4
+        "native": 4
       },
       "STS": {
-        "partially native": 3
+        "native": 3
       },
       "UBREV": {
         "native": 2
@@ -48293,8 +47992,8 @@
         "native": 4
       },
       "ULDC": {
-        "opaque": 4,
-        "partially native": 1
+        "native": 1,
+        "opaque": 4
       },
       "ULEA": {
         "native": 14
@@ -48370,9 +48069,9 @@
       }
     },
     "status": {
-      "native": 485,
+      "native": 517,
       "opaque": 436,
-      "partially native": 180,
+      "partially native": 148,
       "partially primitive": 6,
       "primitive": 66
     }

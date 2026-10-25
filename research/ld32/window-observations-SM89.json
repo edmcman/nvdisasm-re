@@ -1,0 +1,38 @@
+{
+ "arch": "SM89",
+ "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+ "observations": [
+  {
+   "id": "ld__sImmOffset-e391682311afb4f8",
+   "word": "80790802000000000008100000c00f00",
+   "instruction": "LD R8, [R2]",
+   "error": "Traceback (most recent call last):\n  File \"/tmp/nvdisasm-issue79/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/nvdisasm-issue79/tests/harness/device_cases.py\", line 365, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/nvdisasm-issue79/tests/harness/gpu.py\", line 103, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 700\n"
+  },
+  {
+   "id": "ld__sImmOffset-f9418e423426160d",
+   "word": "80790802000000000009100000c00f00",
+   "instruction": "LD.E R8, [R2]",
+   "registers": {
+    "R8": 305419896,
+    "R3": 29871
+   },
+   "memory": []
+  },
+  {
+   "id": "ld__sImmOffset-6be8dc402b1f0f90",
+   "word": "80790802000000000008100000c00f00",
+   "instruction": "LD R8, [R2]",
+   "error": "Traceback (most recent call last):\n  File \"/tmp/nvdisasm-issue79/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/nvdisasm-issue79/tests/harness/device_cases.py\", line 365, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/nvdisasm-issue79/tests/harness/gpu.py\", line 103, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 700\n"
+  },
+  {
+   "id": "ld__sImmOffset-8f08c5d97ba9ae47",
+   "word": "80790802000000000009100000c00f00",
+   "instruction": "LD.E R8, [R2]",
+   "registers": {
+    "R8": 305419896,
+    "R3": 29731
+   },
+   "memory": []
+  }
+ ]
+}

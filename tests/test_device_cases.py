@@ -30,6 +30,59 @@ def test_target_encoding_and_scratch_preserve_aliases():
     assert device_cases.resources(target) >= {'R2', 'R3', 'R4', 'R6', 'R7'}
 
 
+@pytest.mark.parametrize("cls", ["ld__sImmOffset", "ld_uniform__Ra32"])
+def test_memory_binding_preserves_single_register_addresses(cls):
+    from tests.harness import device_setup
+    c = Cases("SM89")
+    fields = dict(Rd=8, Ra=2, e="noe", sz="32", Ra_offset=0)
+    registers = dict(R2=0x100, R3=0xdeadbeef)
+    if "uniform" in cls:
+        fields["Ra_URb"] = 4
+        registers.update(UR4=0x40, UR5=0xabcdef01)
+    address = 0x140 if "uniform" in cls else 0x100
+    c.add(cls, fields, registers, dict(R8=19, R3=0xdeadbeef),
+          memory=[ram(address, 19)], hardware=dict(adapter="memory"))
+    case = c.complete()[0]
+    assert device_setup.memory_binding(case)[:2] == ("ram", address)
+    assert device_cases.classify(case) == ("memory", "")
+    probe = device_cases.scalar_probe([device_cases.Scenario("unit", case, "memory")], "probe")
+    target, _ = probe.code.targets[0]
+    before = [pydecode.decode("SM89", w.to_bytes(16, "little")) for w in probe.code.words[:target // 16]]
+    writes = [d for d in before if d.env.get("Rd") == 3]
+    assert len(writes) == 1 and writes[0].klass.name == "mov__RI"
+    if "uniform" in cls:
+        assert not any(d.klass.name == "r2ur__noOR" and d.env["URd"] == 5 for d in before)
+    device_cases.image([probe])
+
+
+@pytest.mark.parametrize("matching", [True, False])
+def test_low_arena_requires_matching_device_address_and_releases_mapping(monkeypatch, matching):
+    from tests.harness import gpu
+    calls = []
+    class Function:
+        def __init__(self, fn): self.fn = fn
+        def __call__(self, *args): return self.fn(*args)
+    libc = SimpleNamespace(mmap=Function(lambda *args: 0x40000000),
+                           munmap=lambda *args: calls.append("munmap"))
+    monkeypatch.setattr(gpu.C, "CDLL", lambda *args, **kwargs: libc)
+    monkeypatch.setattr(gpu.C, "memmove", lambda *args: calls.append("copy"))
+    driver = object.__new__(gpu.Driver)
+    def call(name, *args):
+        calls.append(name)
+        if name == "cuMemHostGetDevicePointer_v2":
+            args[0]._obj.value = 0x40000000 if matching else 0x100000000
+    driver.call = call
+    if matching:
+        with driver.arena(b"abcd", low=True) as pointer:
+            assert pointer.value == 0x40000000
+    else:
+        with pytest.raises(RuntimeError, match="no matching 32-bit device address"):
+            with driver.arena(b"abcd", low=True):
+                pytest.fail("a high device alias was truncated")
+    assert calls[-2:] == ["cuMemHostUnregister", "munmap"]
+    assert ("copy" in calls) == matching
+
+
 def test_constant_and_uniform_predicate_outputs():
     c = Cases('SM89')
     c.add('mov__RC', dict(Rd=8, Sb_bank=2, Sb_addr=16, PixMaskU04=15), {}, dict(R8=19), memory=[cbank(2, 16, 19)])
