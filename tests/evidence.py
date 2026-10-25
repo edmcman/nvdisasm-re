@@ -35,24 +35,30 @@ def decoded(arch, code):
 
 
 def reference(job):
-    """(arch, {class: [cases, {form: settings}]}) for one streamed shard of a language's emulator
+    """(arch, {class: [cases, raw forms, positive forms]}) for one streamed shard of a language's emulator
     cases. Minimal selection retains every available modifier form and retained regression."""
     arch, out, words = job[0], {}, {}
     for case in stream(*job):
         word = case.request.get("word")
         if word is not None and word not in words:
-            words[word] = dict(sampling.form(arch, word)[1])   # decoded when sampling chose the case
-        found = out.setdefault(case.cls, [0, {}]); found[0] += 1
-        if word in words: found[1][form(words[word])] = words[word]
+            cls, selected = sampling.form(arch, word)   # decoded when sampling chose the case
+            words[word] = cls, dict(selected)
+        found = out.setdefault(words[word][0] if word in words else case.cls, [0, {}, {}]); found[0] += 1
+        if word in words:
+            settings = words[word][1]
+            key = form(settings)
+            found[1][key] = settings
+            if 'error' not in case.expected and '__opaque' not in case.expected:
+                found[2][key] = settings
     return arch, out
 
 
 def references(architectures, sample=sampling.DEFAULT):
-    """{arch: {class: [cases, {form: settings}]}} over both fp lowerings, shard by shard."""
+    """{arch: {class: [cases, raw forms, positive forms]}} over both fp lowerings, shard by shard."""
     out = defaultdict(dict)
     for arch, part in sharded.run(reference, tuple((a, fp) for a in architectures for fp in MODES), FAMILIES, sample):
-        for cls, (n, forms) in part.items():
-            found = out[arch].setdefault(cls, [0, {}]); found[0] += n; found[1] |= forms
+        for cls, (n, forms, positive) in part.items():
+            found = out[arch].setdefault(cls, [0, {}, {}]); found[0] += n; found[1] |= forms; found[2] |= positive
     return out
 
 
@@ -151,12 +157,15 @@ def evidence(sources, references):
         for cls, found, label in rows:
             out[cls].setdefault(kind, set()).add(label)
             forms[cls][kind][form(found)] = found
-    for cls, (n, found) in references.items():
+    for cls, (n, found, positive) in references.items():
         out[cls]["reference"] = n
         if found: forms[cls]["reference"] = found
     for cls, by_kind in forms.items():
         names = sorted({m for found in by_kind.values() for s in found.values() for m in s})
         out[cls] |= dict(modifiers=names, forms={k: [[s.get(m) for m in names] for _, s in sorted(f.items())] for k, f in by_kind.items()})
+        if cls in references:
+            out[cls]['verification_forms'] = dict(reference=[
+                [s.get(m) for m in names] for _, s in sorted(references[cls][2].items())])
     return {cls: {k: sorted(v) if isinstance(v, set) else v for k, v in sorted(e.items())} for cls, e in sorted(out.items())}
 
 
@@ -170,8 +179,8 @@ def main():
     a.output.mkdir(parents=True, exist_ok=True)
     found = references(a.architectures, sample)
     for arch, classes in found.items():
-        print(f"{arch}: sample {sample}%, {sum(n for n, _ in classes.values()):,} reference cases, "
-              f"{sum(len(forms) for _, forms in classes.values()):,} recorded modifier forms", flush=True)
+        print(f"{arch}: sample {sample}%, {sum(n for n, _, _ in classes.values()):,} reference cases, "
+              f"{sum(len(forms) for _, forms, _ in classes.values()):,} recorded modifier forms", flush=True)
     with ProcessPoolExecutor(min(len(a.architectures), os.cpu_count() or 1)) as pool:
         probes = list(pool.map(ptxas, a.architectures))
     for arch, rows in zip(a.architectures, probes):

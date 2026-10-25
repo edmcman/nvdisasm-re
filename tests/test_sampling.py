@@ -103,7 +103,7 @@ def test_retained_regressions_and_sweeps(monkeypatch):
 
 
 def test_generated_filtering_and_shard_independence(monkeypatch):
-    entries = [dict(family='fp32', cls=cls, settings=settings, profiles=['floating_forms'], native=True)
+    entries = [dict(family='fp32', cls=cls, settings=settings, profiles=['floating_forms'], native=True, profile_mode='full')
                for cls, settings in [('fmul__RRR_RR', {'rnd':'RN','fmz':'FTZ','sat':'SAT','scale':'noscale'}),
                                      ('ffma__RRR_RRR', {'rnd':'RN','fmz':'FTZ','sat':'nosat'}),
                                      ('fset__RRR_RRR', {'fcomp':'EQ','bop':'AND','ftz':'noftz'})]]

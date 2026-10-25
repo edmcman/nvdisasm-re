@@ -53,10 +53,15 @@ class Pending(NamedTuple):
     def modifier_form(self): return self.cls, tuple(sorted(self.modifiers.items()))
 
 
-def generate(arch, cls, form, fp='exact', profiles=None, native=True, sample=sampling.COMPLETE):
+def generate(arch, cls, form, fp='exact', profiles=None, native=True, sample=sampling.COMPLETE, profile_mode='full'):
     """Choose reference-backed input descriptions before encoding the selected cases."""
     sample = sampling.percentage(sample)
     c = candidates(arch, cls, form, fp, profiles, native)
+    if profile_mode not in ('full', 'minimal'): raise ValueError('unknown generated profile mode')
+    if profile_mode == 'minimal':
+        if c.classes[cls].mnemonic in autocase_remaining.MEMORY | {'LDC', 'LDCU', 'ULDC'}:
+            c[:] = autocase_remaining.issued_accesses(c)
+        c[:] = sampling.select(c, arch, sampling.DEFAULT)
     chosen = sampling.select(c, arch, sample)
     out, identities = [], {}
     for candidate in chosen:
@@ -450,7 +455,7 @@ def saved_plan(arch, plans=None):
     path = (PLANS if plans is None else plans) / (arch + '.json')
     if not path.exists(): raise ValueError(f'{path}: missing generated coverage plan; run python -m tests.autocases {arch} --write')
     data = json.loads(path.read_text())
-    if data['version'] != 2: raise ValueError(f'{path}: unsupported shared-case plan version; regenerate it')
+    if data['version'] != 3: raise ValueError(f'{path}: unsupported shared-case plan version; regenerate it')
     if data['arch'] != arch: raise ValueError(f'{path}: architecture does not match its filename')
     return data
 
@@ -466,7 +471,8 @@ def stream(arch, fp, family, start=0, step=1, sample=sampling.DEFAULT):
     """The family's generated cases, form by form; with start/step, every step-th planned form from start."""
     if family not in FAMILIES.values(): return
     for entry in family_forms(PLANS, arch, family)[start::step]:
-        yield from generate(arch, entry['cls'], entry['settings'], fp, entry['profiles'], entry['native'], sample=sample)
+        yield from generate(arch, entry['cls'], entry['settings'], fp, entry['profiles'], entry['native'],
+                            sample=sample, profile_mode=entry['profile_mode'])
 
 
 def append(c, family, sample=sampling.DEFAULT): c.extend(stream(c.arch, c.fp, family, sample=sample))

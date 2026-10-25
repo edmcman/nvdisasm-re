@@ -3,7 +3,6 @@
 python -m tests.autocases SM89 [--manifest-dir DIR] [--write | --check] [--report gaps.json]
 """
 import argparse
-import itertools
 import json
 from collections import Counter
 from pathlib import Path
@@ -11,90 +10,107 @@ from sass.paths import LANGUAGES
 from sass.decode import pydecode
 from sass.sleigh.build import ARCHES
 from sass.sleigh.modifiers import settings
+from sass.sleigh import verification
 from tests.cases import emulator_cases
 from tests.harness import autocases
 from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp, autocase_system, autocase_mixed_fp, autocase_remaining
 
 
 def forms(row):
-    """Expand the factored legal table, including modifiers that do not affect status."""
-    c = row.get('combinations')
-    if not c:
+    """Expand the full legal table, for diagnostics and exhaustive-policy checks."""
+    if not row.get('combinations'):
         raise ValueError(f"{row['cls']}: missing combination table; regenerate with --coverage")
-    names = list(c['labels'])
-    free = [n for n in names if n not in c['decides']]
-    for *labels, status in c['table']:
-        fixed = dict(zip(c['decides'], labels))
-        for values in itertools.product(*(c['labels'][n] for n in free)):
-            yield {**fixed, **dict(zip(free, values))}, status
+    yield from verification.forms(row)
 
 
 def identity(cls, form): return cls, tuple(sorted(form.items()))
 
 
-def plan(arch, rows):
-    # Ignore prior generated plans: rerunning must reproduce them, not delete them.
+def plan(arch, rows, policy=verification.POLICY):
+    # Retained manual regressions supplement, rather than suppress, owned coverage.
     manual = emulator_cases(arch, 'exact', sample=0, generated=False) if any(
         row['opcode'] not in autocases.OWNED for row in rows) else {}
-    covered = set()
+    covered = {}
     for cases in manual.values():
         for case in cases:
             if not case.request.get('word') or 'error' in case.expected or '__opaque' in case.expected: continue
             d = pydecode.decode(arch, bytes.fromhex(case.request['word']))
-            covered.add(identity(d.klass.name, settings(arch, d)))
+            covered.setdefault(d.klass.name, []).append(settings(arch, d))
     entries, gaps, counts = [], [], Counter()
     for row in rows:
         c = row.get('combinations')
         if c is None: raise ValueError(f"{row['cls']}: missing combination table; regenerate with --coverage")
+        requirements = verification.Requirements(row, policy)
+        counts['legal'] += len(c['table']) * c['free']
+        unresolved = sum(c['free'] for e in c['table'] if e[-1] not in verification.SUPPORTED)
+        counts['unresolved_semantics'] += unresolved
+        counts['requirements'] += requirements.required.bit_count()
+        if unresolved:
+            gaps.append(dict(cls=row['cls'], count=unresolved, reason='unresolved semantics'))
         if row['opcode'] not in autocases.OWNED:
-            total = len(c['table']) * c['free']
-            supported = sum(c['free'] for r in c['table'] if r[-1] in ('native', 'primitive'))
-            lookup = {tuple(r[:-1]): r[-1] for r in c['table']}
-            ran = sum(lookup.get(tuple(dict(f).get(n) for n in c['decides'])) in ('native', 'primitive')
-                      and set(dict(f)) == set(c['labels'])
-                      and all(v in c['labels'][n] for n, v in f)
-                      for cls, f in covered if cls == row['cls'])
-            counts.update(legal=total, unresolved_semantics=total-supported, manual=ran, blocked=supported-ran)
-            if supported > ran:
-                gaps.append(dict(cls=row['cls'], count=supported-ran, reason='needs a reference/operand adapter'))
-            if total > supported:
-                gaps.append(dict(cls=row['cls'], count=total-supported, reason='unresolved semantics'))
+            ran = 0
+            for form in covered.get(row['cls'], ()):
+                if requirements.compatible(form):
+                    ran |= requirements.mask(form)
+            counts['manual'] += ran.bit_count()
+            missing = (requirements.required & ~ran).bit_count()
+            counts['blocked'] += missing
+            counts['covered_requirements'] += ran.bit_count()
+            if missing:
+                deferred = (requirements.required & ~requirements.plannable & ~ran).bit_count()
+                if deferred:
+                    gaps.append(dict(cls=row['cls'], count=deferred, reason='partial-form planning deferred to #80', unit='interactions'))
+                if missing > deferred:
+                    gaps.append(dict(cls=row['cls'], count=missing-deferred, reason='needs a reference/operand adapter', unit='interactions'))
             continue
-        blocked_reasons = Counter()
-        unresolved = 0
-        compact = row['opcode'] in autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS | autocase_system.OPS | autocase_mixed_fp.OPS | autocase_remaining.OPS
-        for form, status in forms(row):
-            counts['legal'] += 1
-            if status not in ('native', 'primitive'):
-                counts['unresolved_semantics'] += 1
-                if compact: unresolved += 1
-                else: gaps.append(dict(cls=row['cls'], settings=form, reason='unresolved semantics'))
-                continue
-            # Retained regressions supplement ordinary coverage; they must not suppress it.
+        cover = verification.Cover(requirements)
+        blocked_reasons, selected = Counter(), []
+        roles = row.get('modifier_roles', {})
+        while candidate := cover.next():
+            form, status, mask = candidate
             profiles = autocase_profiles.names(row['opcode'], row['cls'], form)
             try:
                 reason = autocase_remaining.blocked_reason(row['opcode'],row['cls'],form) or autocase_extended.blocked_reason(row['opcode'],form) or autocase_packed_fp.blocked_reason(row['opcode'],form) or autocase_wide_fp.blocked_reason(row['opcode'],form)
                 if reason: raise autocases.Unsupported(reason)
-                autocases.generate(arch, row['cls'], form, profiles=profiles, native=status == 'native')
+                autocases.generate(arch, row['cls'], form, profiles=profiles, native=status == 'native', sample=0)
+                # Every neutral variant must have a usable minimal floor, even
+                # when this particular form becomes the full-profile anchor.
+                if any(roles.get(n, 'value') != 'value' for n in form):
+                    autocases.generate(arch, row['cls'], form, profiles=profiles, native=status == 'native',
+                                       sample=0, profile_mode='minimal')
             except (autocases.Unsupported, ValueError) as error:
-                counts['blocked'] += 1
-                if row['opcode'] in autocase_extended.OPS | autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS | autocase_system.OPS | autocase_mixed_fp.OPS | autocase_remaining.OPS:
-                    blocked_reasons[str(error)] += 1
-                else: gaps.append(dict(cls=row['cls'], settings=form, reason=str(error)))
+                blocked_reasons[str(error)] += 1
             else:
-                counts['generated'] += 1
-                entries.append(dict(family=autocases.FAMILIES[row['opcode']], cls=row['cls'], settings=form,
-                                    profiles=profiles, native=status == 'native'))
-        gaps.extend(dict(cls=row['cls'], count=count, reason=reason) for reason,count in blocked_reasons.items())
-        if unresolved: gaps.append(dict(cls=row['cls'], count=unresolved, reason='unresolved semantics'))
-    return dict(version=2, arch=arch, forms=entries), dict(counts=counts, gaps=gaps)
+                cover.accept(mask)
+                selected.append(dict(family=autocases.FAMILIES[row['opcode']], cls=row['cls'], settings=form,
+                                     profiles=profiles, native=status == 'native', strength=policy.strength(row)))
+        seen = set()
+        for entry in sorted(selected, key=lambda e: identity(e['cls'], e['settings'])):
+            projection = tuple((n, v) for n, v in sorted(entry['settings'].items()) if roles.get(n, 'value') == 'value')
+            entry['profile_mode'] = 'minimal' if projection in seen else 'full'
+            seen.add(projection)
+            entries.append(entry)
+        counts['generated'] += len(selected)
+        counts['covered_requirements'] += (requirements.required & ~cover.uncovered).bit_count()
+        counts['blocked'] += cover.uncovered.bit_count()
+        if cover.uncovered:
+            deferred = (cover.uncovered & ~requirements.plannable).bit_count()
+            if deferred:
+                gaps.append(dict(cls=row['cls'], count=deferred, reason='partial-form planning deferred to #80', unit='interactions'))
+            missing = (cover.uncovered & requirements.plannable).bit_count()
+            if missing:
+                gaps.append(dict(cls=row['cls'], count=missing, reason='no usable reference/operand adapter', unit='interactions',
+                                 attempts=dict(sorted(blocked_reasons.items()))))
+    return dict(version=3, arch=arch, verification=dict(default_strength=policy.default_strength,
+                opcode_strength=policy.opcode_strength), forms=entries), dict(counts=counts, gaps=gaps)
 
 
 def plan_text(plan):
     """Keep large generated matrices reviewable: one complete form per line, same JSON schema."""
     entries=',\n'.join('    '+json.dumps(e,separators=(',',':')) for e in plan['forms'])
-    return ('{\n  "version": '+json.dumps(plan['version'])+',\n  "arch": '+json.dumps(plan['arch'])+
-            ',\n  "forms": [\n'+entries+'\n  ]\n}\n')
+    header = json.dumps({k:v for k,v in plan.items() if k != 'forms'}, indent=2)
+    return header[:-2]+',\n  "forms": [\n'+entries+'\n  ]\n}\n'
+
 
 
 

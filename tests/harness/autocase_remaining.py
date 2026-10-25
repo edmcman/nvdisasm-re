@@ -6,7 +6,7 @@ Synchronization profiles verify environment events, not a simulated multithread 
 from tests.refs import warp, memory, mufu
 from tests.harness import autocase_profiles
 
-MEMORY = set('LD LDL LDS ST STG STL STS'.split())
+MEMORY = set('LD LDG LDL LDS ST STG STL STS'.split())
 WARP = set('ELECT MATCH REDUX SHFL VOTE VOTEU'.split())
 SYNC = set('BAR BMOV BREAK BSSY BSYNC WARPSYNC'.split())
 OPS = MEMORY | WARP | SYNC | {'MUFU'}
@@ -142,8 +142,11 @@ def access(c,k,form):
     for index,value in enumerate(autocase_profiles.PROFILES['remaining_forms']['words']):
         s=Inputs(c,k,form);base=0x100;offset=(-16,0,16)[index]
         stride={'X1':1,'X4':4,'X8':8,'X16':16}[form.get('stride','X1')]
+        ra = 4 if load and size == 16 else 2
         if k.operand_types['Ra'].type=='ZeroRegister':s.fields['Ra']='RZ';base=0;offset=16*(index+1)
-        else:s.fields['Ra']=2;s.registers.update(R2=base,R3=0)
+        else:
+            s.fields['Ra']=ra
+            s.registers.update({f'R{ra}':base,f'R{ra+1}':0})
         uniform=0
         for n in ('Ra_URb','Ra_URc'):
             if n in k.operand_types:
@@ -153,7 +156,7 @@ def access(c,k,form):
         for n in ('Ra_offset','Sa_offset'):
             if n in k.operand_types:s.fields[n]=offset
         address=base*stride+uniform+offset
-        space={'LD':'ram','ST':'ram','LDL':'localmem','STL':'localmem','LDS':'shared','STS':'shared','STG':'ram'}[k.mnemonic]
+        space={'LD':'ram','LDG':'ram','ST':'ram','LDL':'localmem','STL':'localmem','LDS':'shared','STS':'shared','STG':'ram'}[k.mnemonic]
         # Generic profiles explicitly choose global memory, with both windows disjoint.
         if k.mnemonic in ('LD','ST'):
             s.registers.update(SR_SWINLO=0x10000,SR_SWINHI=0,SR_SWINSZ=0x100,SR_LWINLO=0x20000,SR_LWINHI=0,SR_LWINSZ=0x100)
@@ -163,7 +166,7 @@ def access(c,k,form):
         if load:
             s.memory.append(dict(space=space,address=address,hex=data.hex()))
             result=memory.constant(data,form['sz'].removeprefix('U.').startswith('S'))
-            dest=2 if index==1 else 8
+            dest=ra if index==1 else 8
             expected[s.output(('Rd',),dest)]=result&0xffffffff
             for j in range(1,max(1,size//4)):expected['R'+str(dest+j)]=result>>(32*j)&0xffffffff
             if 'Pnz' in k.operand_types:
@@ -173,14 +176,51 @@ def access(c,k,form):
                     for n in list(expected):
                         if n.startswith('R'):expected[n]=0
         else:
-            s.operand(('Rb',),value,6,size=size)
+            s.operand(('Rb',),value,4 if size==16 else 6,size=size)
             expected['__memory']=data.hex()
             extras['observe_memory']=[dict(space=space,address=address,size=size)]
         # Exact named runtime effects are legitimate native memory operations.
         effects=['sass_memory_order']+(['sass_memory_descriptor'] if 'memoryDescriptor' in k.operand_types else [])
         expected['__events']=1
+        expected['__event_values'] = memory_event(c, k, form)
         # Generic window routing contains branches; value and event checks cover that native form.
         expected['__max_ops']=dict(count=128,userops=effects)
         if k.mnemonic in ('LD','ST'): expected['__max_ops']['branches']=True
         s.add(expected,form,hardware={'adapter':'memory'},**extras)
     return c
+
+
+def memory_event(c, k, form):
+    """The documented ordering-event ABI, from the test inputs, not lifted semantics."""
+    controls = []
+    for name in ('sem', 'sco', 'cop', 'cop2', 'private'):
+        if name not in k.operand_types: continue
+        atom = k.operand_types[name]
+        label = form.get(name, atom.default)
+        controls.append(c.md.enums[atom.type][label])
+    return [dict(op=k.mnemonic, controls=controls)]
+
+
+def issued_accesses(c):
+    """Neutral-variant anchors exercise an issued, nonzero access, from inputs alone.
+
+    A zero-filled load or a zero store into a zeroed arena would not detect a lost
+    access. Selection never depends on reference outputs or emulator inspection.
+    """
+    from sass.decode import pydecode
+    from tests.harness.autocases import Unsupported
+    out = []
+    for case in c:
+        decoded = pydecode.decode(c.arch, bytes.fromhex(case.request['word']))
+        if 'Pnz' in decoded.env:
+            n = decoded.env['Pnz']
+            value = 1 if n == 7 else case.request['registers'].get(f'P{n}', 0)
+            if not (value ^ decoded.env.get(('Pnz', 'not'), 0)): continue
+        if decoded.klass.mnemonic.startswith(('LD', 'ULDC')):
+            nonzero = any(any(bytes.fromhex(m['hex'])) for m in case.request.get('memory', []))
+        else:
+            n = decoded.env.get('Rb', 255)
+            nonzero = n != 255 and bool(case.request['registers'].get(f'R{n}', 0))
+        if nonzero: out.append(case)
+    if not out: raise Unsupported('neutral memory profile needs an issued nonzero access')
+    return out

@@ -68,7 +68,30 @@ def test_mufu_error_checks_never_enter_value_coverage(monkeypatch):
     plan,report=autocases.plan('SM89',[row])
     assert not plan['forms']
     assert report['counts']['blocked']==1
-    assert 'numerical approximation oracle unavailable' in report['gaps'][0]['reason']
+    assert any('numerical approximation oracle unavailable' in reason for reason in report['gaps'][0]['attempts'])
+
+
+def test_ordering_event_payload_is_checked_and_gpu_eligible():
+    from tests.harness import lifted, device_cases
+    case = generated('SM89', 'ld__sImmOffset', {'e': 'E', 'sz': '32', 'sem': 'STRONG', 'sco': 'GPU'}, 'exact')[0]
+    event = case.expected['__event_values']
+    assert event == [dict(op='LD', controls=[2, 4, 1, 0])]
+    assert not lifted.run('SM89', 'exact', case)[1]
+    assert device_cases.classify(case, arch='SM89')[0] == 'memory'
+    for wrong in ([], [dict(op='ST', controls=event[0]['controls'])],
+                  [dict(op='LD', controls=list(reversed(event[0]['controls'])))],
+                  [dict(op='LD', controls=[0] * len(event[0]['controls']))]):
+        assert lifted.run('SM89', 'exact', case._replace(expected={**case.expected, '__event_values': wrong}))[1]
+
+
+@pytest.mark.parametrize('invert', [0, 1])
+def test_neutral_load_anchor_issues_nonzero_access(invert):
+    from tests.harness import lifted
+    word = encoding.encode('SM89', 'ld__sImmOffset', e='E', sz='32', Ra_offset=0, **{'Pnz@not': invert})
+    form = settings('SM89', pydecode.decode('SM89', bytes.fromhex(word)))
+    cases = autocases.generate('SM89', 'ld__sImmOffset', form, profile_mode='minimal', sample=100)
+    assert cases and all(any(v for n, v in c.expected.items() if n.startswith('R')) for c in cases)
+    assert all(not lifted.run('SM89', 'exact', c)[1] for c in cases)
 
 
 @pytest.mark.parametrize('mode',['ANY','ALL','EQ'])

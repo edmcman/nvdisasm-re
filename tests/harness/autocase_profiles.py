@@ -118,6 +118,7 @@ def names(op, cls, form):
     if op == 'QSPC': return ['address_query_forms']
     if op in ('BRA','CALL','RET','EXIT','NOP'): return ['control_flow_forms']
     if op == 'MOV64IUR': return ['move64']
+    if op == 'I2I': return ['integer_narrowing']
     if op == 'UI2IP': return ['packed_conversion_forms']
     if op == 'UVIMNMX': return ['packed_minmax']
     if op == 'VIADD': return ['integer_edges','uniform_arithmetic_random']
@@ -413,6 +414,10 @@ PROFILES['address_query_forms'] = {
 
 
 PROFILES['remaining_forms'] = {'words': (0,0x89abcdef,0xffffffff)}
+PROFILES['integer_narrowing'] = dict(values=(
+    0, 1, -1, 127, 128, -128, -129, 255, 256, 32767, 32768,
+    -32768, -32769, 65535, 65536, 0x7fffffff, -0x80000000,
+    0x12345678, -0x01234568))
 PROFILES['mufu_sincos'] = {'words': (
     0, 0x80000000, 1, 0x807fffff, 0x00800000,
     0x32ffffff, 0x33000000, 0x33000001, 0xb3000000,

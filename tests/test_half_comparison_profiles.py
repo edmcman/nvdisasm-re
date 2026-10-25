@@ -45,6 +45,12 @@ def test_input_table_regenerates_from_audit(tmp_path):
     assert json.loads(generated.read_text())==expected
 
 
+def test_input_table_keeps_unsampled_forms_without_a_saved_plan(monkeypatch, tmp_path):
+    from tests.harness import autocases
+    monkeypatch.setattr(autocases, 'PLANS', tmp_path)
+    assert audit_shared_cases.input_table()['forms'] == autocase_half_profiles.table()
+
+
 def test_unmasked_subnormal_seed_is_kept():
     form={'cmp':'LT','bop':'AND','bval':'BM','Pp@not':'set','ftz':'FTZ',
           'iswzA':'H1_H0','iswzB_as_C':'H1_H0'}

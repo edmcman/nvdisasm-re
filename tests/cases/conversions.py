@@ -5,7 +5,7 @@ from tests.harness import autocase_profiles
 from tests.harness.case import cx_source, pair, put
 from tests.refs import float
 from tests.refs.float import f2i_trunc, f2ip_byte
-from tests.refs.integer import i2i, i2ip
+from tests.refs.integer import i2ip
 
 
 def cx_name(k): return next(n for n, a in k.operand_types.items() if a.type == "CX")
@@ -110,22 +110,6 @@ def i2ip_case(c):
             c.add(k.name, fields, {"R2": a, "R6": d, **cx_regs}, {"R8": i2ip(a, b, d, 8, True, True, False, extract), "__native": True}, memory=memory)
 
 
-def i2i_case(c):
-    # I2I.SAT narrows an S32 to U8/S8/U16/S16 by clamping: every bound, its neighbours and the S32 extremes, on each operand form.
-    samples = [0, 1, -1, 127, 128, -128, -129, 255, 256, 32767, 32768, -32768, -32769, 65535, 65536,
-               0x7fffffff, -0x80000000, 0x12345678, -0x01234568]
-    for k in c.of("I2I", cx=None):
-        b = next(n for n in ("Rb", "Sb", "URb") if n in k.operand_types)
-        for fmt in c.labels(k, "dstfmt", ("U8", "S8", "U16", "S16")):
-            for j, v in enumerate(samples):
-                rd = 2 if j == 3 else 8   # Rd aliasing Rb
-                fields, regs, memory = {"Rd": rd, "dstfmt": fmt, "srcfmt": "S32", "SAT": "SAT"}, {}, []
-                if k.operand_types[b].type == "CX":
-                    cx_fields, regs, memory = cx_source(c.arch, k, b, v & 0xffffffff); fields.update(cx_fields)
-                elif not put(k, b, v & 0xffffffff if k.operand_types[b].type in ("Register", "UniformRegister", "C") else v,
-                             fields, regs, memory, 2, ureg=4, bank=(2, 0x100), imm=("SImm", "UImm")): continue
-                c.add(k.name, fields, regs, {f"R{rd}": i2i(v, int(fmt[1:]), fmt[0] == "S"), "__native": True}, memory=memory)
-
 
 # Keep fixture inputs byte-for-byte identical while the shared named profile owns the corpus.
 F16, F32, F64 = (list(autocase_profiles.PROFILES['conversion_boundaries']['floats'][w]) for w in (16,32,64))
@@ -154,7 +138,7 @@ def ieee(c):
 
 
 def emulator_cases(c):
-    scalar(c); ieee(c); f2ip(c); i2ip_case(c); i2i_case(c)
+    scalar(c); ieee(c); f2ip(c); i2ip_case(c)
 
 
 def ieee_fixtures(arch="SM89"):
