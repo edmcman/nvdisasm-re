@@ -288,6 +288,10 @@ an adapter must successfully construct that extension before it counts as covere
 run `uv run sass-build-languages SM89 --fp exact --generate-only --coverage`. The committed
 `cases/generated/SMxx.gaps.json` are `--report` outputs.
 
+On SM89 (2026-10-24) the manifest takes 35 s and the planner 3 min 5 s on one core: 80% of that is checking
+1.15M candidate words by encoding and decoding each (`harness/autocases.checked_word`). All ten
+architectures take about 35 minutes.
+
 - `--manifest-dir DIR` selects another manifest directory.
 - Omit `--write` for a dry run.
 - `--check` fails if regeneration would change the saved plan.
@@ -307,6 +311,20 @@ Version 3 plans record the verification policy and each form's `profile_mode`.
 positive integer strengths and `"exhaustive"` per-opcode overrides; use the shared policy
 when generating plans. Strength is capped at the number of varying modifiers. A class with
 no varying modifiers still has one anchor requirement.
+
+The variants added by I2I.SAT, SM75 LDS.U and LD/LDG prefetch hints use the normal
+three-way policy. Tests require each new size, source/destination form and prefetch
+label to have generated coverage. LDG profiles observe the predicate result,
+including an old true output and an alias with the zero-fill input. Ordinary
+completed loads clear that output (SM89 probes, 2026-10-25). Dual register forms
+and reserved memory controls remain explicit adapter gaps. The normal planner
+defers partially native forms; aligned SM75 LDS.U 64- and 128-bit cases are
+retained through the same autocase adapter.
+
+Verification update (2026-10-25): the regenerated plans and aligned memory
+profiles were rerun on SM89. The current SM90 selection has 192 fewer LD forms
+with matching recorded GPU evidence than main; its existing raw observations
+are preserved, and restoring that evidence requires an SM90 run.
 
 Scheduling and reuse fields remain excluded by the modifier inventory. Memory hints and
 consistency qualifiers stay in the generated suite. Family-local `modifier_roles` declarations
@@ -412,13 +430,20 @@ FSET/FSETP/UFSETP/DSETP, FCHK, FRND/UFRND, PLOP3/UPLOP3 and P2R/R2P/UP2UR.
 
 ### Memory, warp and system adapters (`harness/autocase_remaining.py`)
 
-Cover LD/LDL/LDS/ST/STG/STL/STS, ELECT/MATCH/REDUX/SHFL/VOTE/VOTEU, BAR/BMOV/BREAK/BSSY/BSYNC/
+Cover LD/LDG/LDL/LDS/ST/STG/STL/STS, ELECT/MATCH/REDUX/SHFL/VOTE/VOTEU, BAR/BMOV/BREAK/BSSY/BSYNC/
 WARPSYNC and MUFU. These use memory and warp references for values, and supplied synchronization
 handlers for event contracts. Synchronization profiles do not claim to validate a multithread
 scheduler. Full-width MUFU SIN/COS (`mufu__*` classes) use the SM89 fixed-point reference
 (`refs/mufu.py`, profile `mufu_sincos`); the other MUFU operations get error contracts only, which
 are diagnostic, and the planner leaves their numerical coverage blocked until an independent
 hardware-specific approximation oracle exists.
+
+I2I uses the `integer_narrowing` profile in `autocase_integer_extra.py`: all
+available register, uniform, immediate, constant and CX sources, all four saturated
+destination formats, boundary neighbours and register aliasing.
+Memory profiles retain the size, address, ordering, cache and prefetch modifiers;
+SM75 LDS's `.U` sizes use the same independent load reference as their plain sizes.
+128-bit operands use aligned register groups, including the aliasing scenario.
 
 `__max_ops` limits in generated system profiles:
 

@@ -109,6 +109,10 @@ in [`docs/testing.md`](testing.md).
   for `bfind.s32`) searches the complement of a negative source: the highest bit differing from the
   sign, so -1 gives -1 like 0. FLO.U32 searches the value. The earlier emitter and reference
   treated S32 like U32.
+- I2I.SAT (2026-10-24, 84 `tests.probe` scenarios, then the shared `i2i_case` cases): `I2I.<U8|S8|U16|S16>.S32.SAT`
+  clamps the S32 source to the destination range and writes the clamped value as 32 bits: S8/S16
+  results are sign-extended (`I2I.S8.S32.SAT` of 0x80000000 is 0xffffff80), U8/U16 zero-extended. Rd's
+  previous value doesn't matter.
 - I2IP sub-byte forms (2026-10-12): S2/U2 `.28` and S4/U4 `.24` fill the high bits from C
   unshifted; only H1 selects C's high half. The earlier reference and p-code shifted for every
   non-H0 form.
@@ -431,6 +435,17 @@ remains a runtime primitive; other MUFU operations and FP16 remain unresolved.
   zero or non-zero data, any prior state. A `Pu` destination read 0 in every completed run: valid
   loads, zero-filled loads, and whatever value the predicate held before. An unmapped address still
   trapped with `Pu` set (CUDA_ERROR_ILLEGAL_ADDRESS). What sets `Pu` is unknown, so it stays opaque.
+  - Ordinary LDG completion (2026-10-25, generated synthetic probes on SM89,
+    RTX 4070 Laptop GPU, CUDA driver API 13.0): the nine reproducible scenarios in
+    `research/ldg-predicate-probes.json` and
+    `research/ldg-predicate-observations-SM89.json` clear Pu for completed loads.
+    Both old predicate values, zero/nonzero data, zero-fill, Pu/Pnz aliasing,
+    signed narrow loads, 64/128-bit loads and the four prefetch labels were exercised.
+    Aliasing reads the original Pnz before clearing the shared predicate.
+    A false instruction guard preserves Pu and the destination data register.
+    The reference now models this ordinary-completion rule; it does not identify
+    an exceptional condition that produces Pu=1. Other architectures use the same
+    inferred rule; these probes establish hardware behavior only on SM89.
 
 ## Warps, threads and control flow
 

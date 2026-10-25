@@ -3,8 +3,8 @@ from tests.harness import autocase_profiles
 from tests.harness.case import source
 from tests.refs import integer
 
-OPS = {'VIADD', 'UVIMNMX', 'UI2IP', 'MOV64IUR'}
-FAMILIES = {op: 'int_simd' if op == 'UVIMNMX' else 'conversions' if op == 'UI2IP' else 'int_alu' for op in OPS}
+OPS = {'VIADD', 'UVIMNMX', 'UI2IP', 'I2I', 'MOV64IUR'}
+FAMILIES = {op: 'int_simd' if op == 'UVIMNMX' else 'conversions' if op in ('UI2IP', 'I2I') else 'int_alu' for op in OPS}
 
 
 def generate(c, k, form, profiles):
@@ -12,6 +12,18 @@ def generate(c, k, form, profiles):
     op = k.mnemonic
     if profiles != autocase_profiles.names(op, k.name, form):
         raise autocases.Unsupported('incompatible additional integer profiles')
+    if op == 'I2I':
+        if set(form) - {'dstfmt', 'srcfmt', 'SAT'}:
+            raise autocases.Unsupported('unhandled integer narrowing modifiers')
+        dst = form.get('dstfmt')
+        if dst not in ('U8', 'S8', 'U16', 'S16') or form.get('srcfmt', 'S32') != 'S32' or form.get('SAT', 'SAT') != 'SAT':
+            raise autocases.Unsupported('unsupported integer narrowing format')
+        for j, value in enumerate(autocase_profiles.values('integer_narrowing')):
+            s = autocases.Inputs(c, k, form)
+            s.operand(('Rb', 'Sb', 'URb'), value & 0xffffffff, 2)
+            result = integer.i2i(value, int(dst[1:]), dst.startswith('S'))
+            s.add({s.output(('Rd',), 2 if j % 3 == 0 else 8): result}, form)
+        return c
     if op == 'MOV64IUR':
         if form: raise autocases.Unsupported('unhandled pair move modifiers')
         for j, value in enumerate(autocase_profiles.values('move64')):
