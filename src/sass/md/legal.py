@@ -1,8 +1,8 @@
 """md CONDITIONS as decode constraints: which encodings of a class are legal.
 
 nvdisasm prints condition-violating words; our decoders reject them by default. pydecode checks
-decoded values directly (`violation`). SLEIGH, for the classes lifted by semantics families, needs
-the legal set as patterns over raw encoding fields (`legal_classes`): every condition subexpression that reads a single field partitions that
+decoded values directly (`violation`). SLEIGH needs the legal set as patterns over raw encoding
+fields (`legal_classes`): every condition subexpression that reads a single field partitions that
 field's raw values into classes, the condition is evaluated on one representative per class
 combination, and the legal combinations become Cartesian boxes of raw value sets.
 """
