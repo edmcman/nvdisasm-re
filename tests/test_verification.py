@@ -1,4 +1,4 @@
-"""Interaction selection and accounting checked against independent exhaustive tuples."""
+"""Modifier selection checked against independent exhaustive tuples."""
 import itertools
 import pytest
 from sass.sleigh import verification, modifiers
@@ -102,20 +102,6 @@ def test_partial_requirements_are_not_credited_without_a_case():
     assert cover.uncovered & ~req.plannable
 
 
-def test_evidence_uses_positive_forms_and_known_settings():
-    req = verification.Requirements(row())
-    entry = dict(modifiers=["A", "B", "C", "D"],
-                 forms=dict(reference=[["0"] * 4], gpu=[["0", "0", "0", None]]),
-                 verification_forms=dict(reference=[]))
-    e = req.evidence(entry)
-    assert e["covered"]["reference"] == 0
-    assert e["covered"]["gpu"] == 1
-    entry["verification_forms"]["reference"] = [["0"] * 4]
-    assert req.evidence(entry)["covered"]["reference"] == 4
-    entry["forms"]["gpu"] = [["INVALID"] * 4]
-    assert req.evidence(entry)["covered"]["gpu"] == 0
-
-
 def test_positive_forms_compact_round_trip():
     entry = dict(modifiers=["A"], forms=dict(reference=[["0"], ["1"]]),
                  verification_forms=dict(reference=[["1"]]))
@@ -133,11 +119,11 @@ def test_invalid_policy(strength):
 def test_interaction_completion_does_not_manufacture_exact_provenance():
     from sass import provenance
     req = verification.Requirements(row())
-    selected, _ = select(req)
+    selected, missing = select(req)
     values = [[s[n] for n in req.domains] for s in selected]
     entry = dict(modifiers=list(req.domains), forms=dict(reference=values),
                  verification_forms=dict(reference=values))
-    assert req.evidence(entry)["covered"]["reference"] == req.required.bit_count()
+    assert not missing
     unrecorded = next(s for s, _ in verification.forms(row()) if s not in selected)
     assert not provenance.ran(modifiers.compact(entry), "reference", unrecorded)
 
@@ -154,13 +140,12 @@ def test_roles_are_family_local_and_do_not_change_support():
         family.family("INVALID_TEST_ROLE", modifier_roles={"mode": "scheduling"})
 
 
-def test_summary_keeps_exhaustive_support_and_independent_sources():
+def test_summary_keeps_exhaustive_support_and_exact_form_evidence():
     from sass.sleigh import coverage
     r = row(2)
     r.update(status="native", modifiers={n: {v: "native" for v in ls} for n, ls in r["combinations"]["labels"].items()})
     entry = dict(modifiers=["A", "B"], forms=dict(reference=[["0", "0"]], gpu=[["0", "0"]]),
                  verification_forms=dict(reference=[["0", "0"]]))
-    interactions = {r["cls"]: verification.Requirements(r).evidence(entry)}
-    summary = coverage.summarized([r], {r["cls"]: entry}, [coverage.combinations(r, entry)], interactions)
+    summary = coverage.summarized([r], {r["cls"]: entry}, [coverage.combinations(r, entry)])
     assert summary["combination_status"] == {"EXAMPLE": {"native": 4}}
-    assert summary["interaction_evidence"]["EXAMPLE"] == dict(strength=3, total=4, covered=dict(reference=1, gpu=1, ptxas=0))
+    assert summary["combination_evidence"] == {"EXAMPLE": {"gpu": 1, "none": 3}}

@@ -6,9 +6,7 @@ Native support remains exhaustively enumerated. This measurement compares `main`
 the baseline and separate Python processes.
 
 The SM89 saved plan shrank from 110,033 forms to 13,315 (87.9% fewer). The new plan has
-10,756 full-profile forms and 2,559 minimal-profile forms. Its 180,109 interaction requirements
-include 120,606 covered requirements and 59,503 explicit gaps. These interaction counts
-are a different metric from exhaustive full-form counts.
+10,756 full-profile forms and 2,559 minimal-profile forms.
 
 ## Measurements
 
@@ -40,8 +38,8 @@ GPU observations. It excludes manifest generation, coverage-page aggregation and
 | Reference cases | 2,235,749 | 585,305 | 73.8% |
 | Recorded reference forms | 946,859 | 127,532 | 86.5% |
 
-Raw form counts sum unique forms per architecture. Positive reference interactions are
-tracked separately from diagnostic error/fallback cases. Raw GPU and PTX evidence remains
+Raw form counts sum unique forms per architecture. Positive reference forms are
+stored separately from diagnostic error/fallback cases. Raw GPU and PTX evidence remains
 available independently of the generated plan.
 
 ## Reproduction and limits

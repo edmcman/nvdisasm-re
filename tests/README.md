@@ -309,7 +309,7 @@ for planning and reporting. Strength is capped at the number of varying modifier
 no varying modifiers still has one anchor requirement.
 
 Scheduling and reuse fields remain excluded by the modifier inventory. Memory hints and
-consistency qualifiers stay in the interaction suite. Family-local `modifier_roles` declarations
+consistency qualifiers stay in the generated suite. Family-local `modifier_roles` declarations
 classify a field as `value`, `hint` or `effect`; undeclared fields are `value`. The first selected
 form for each value projection gets full input profiles; further hint/effect variants get minimal
 profiles, including an issued, nonzero memory access and exact emulator event arguments.
@@ -338,14 +338,11 @@ combinations are counted as unresolved rather than covered. Requirements needing
 extensions remain explicit deferred gaps under issue #80. These counts do not measure all input
 values or prove correct behavior.
 
-The coverage page and PR comment add independent reference, GPU and PTX interaction coverage
-alongside the existing class and complete-form evidence sections, cards, filters and diagrams.
+The coverage page and PR comment retain their existing class and complete-form evidence sections,
+cards, filters and diagrams. Three-way selection does not add a separate coverage metric.
 Only positive reference checks enter `verification_forms`; raw exact-form evidence, including
-error/fallback checks, remains available for provenance. Interaction coverage never invents an
-unexecuted exact form, and unknown evidence settings are never filled with modifier defaults.
-PR comparisons assess common requirements and report new requirements
-separately, so a larger denominator alone is not a regression. Raw evidence count changes remain
-visible but are neutral in interaction comparisons because suite selection can change them.
+error/fallback checks, remains available for provenance. Only recorded exact forms contribute to
+the report's evidence counts; unknown evidence settings are never filled with modifier defaults.
 
 ### Integer adapters (`harness/autocases.py`)
 

@@ -1,4 +1,4 @@
-"""Constrained interaction requirements, shared by the case planner and evidence report.
+"""Constrained modifier combinations used by the case planner.
 
 Masks index Cartesian tuples, but only tuples with a complete modeled legal extension
 become requirements. Scheduling fields have already been removed by modifiers.
@@ -54,7 +54,6 @@ class Requirements:
             indices = [{v: j for j, v in enumerate(self.domains[n])} for n in names]
             self.groups.append((names, offset, strides, indices))
             offset += math.prod(len(self.domains[n]) for n in names)
-        self.lookup = {tuple(e[:-1]): e[-1] for e in self.c["table"]}
         self.required = self.project_table(lambda s: s != "opaque")
         self.plannable = self.project_table(lambda s: s in SUPPORTED)
         # A complete form's interaction mask is the intersection of per-label
@@ -89,16 +88,6 @@ class Requirements:
                     bits |= 1 << bit
         return bits
 
-    def compatible(self, settings):
-        """Known settings extend to a modeled legal form; absent settings are not defaults."""
-        if any(n not in self.c["labels"] or v not in self.c["labels"][n] for n, v in settings.items() if v is not None):
-            return False
-        fixed = {n: v for n, v in settings.items() if v is not None}
-        if set(self.c["decides"]) <= fixed.keys():
-            return self.lookup.get(tuple(fixed[n] for n in self.c["decides"]), "opaque") != "opaque"
-        return any(status != "opaque" and all(n not in fixed or fixed[n] == v
-                   for n, v in zip(self.c["decides"], labs)) for *labs, status in self.c["table"])
-
     def mask(self, settings):
         known = {n: v for n, v in settings.items() if n in self.domains and v is not None}
         bits = self.required
@@ -111,23 +100,6 @@ class Requirements:
         for name, value in known.items():
             bits &= self.allowed[name].get(value, 0)
         return bits
-
-    def evidence(self, entry):
-        masks = {}
-        names = entry.get("modifiers", [])
-        for kind in ("reference", "gpu", "ptxas"):
-            collection = entry.get("verification_forms", {}) if kind == "reference" else entry.get("forms", {})
-            mask = 0
-            for values in collection.get(kind, []):
-                settings = dict(zip(names, values))
-                if self.compatible(settings):
-                    mask |= self.mask(settings)
-            masks[kind] = mask
-        return dict(strength=self.configured_strength, effective_strength=self.strength,
-                    domains=self.domains, required=f"{self.required:x}",
-                    masks={k: f"{v:x}" for k, v in masks.items()},
-                    total=self.required.bit_count(),
-                    covered={k: v.bit_count() for k, v in masks.items()})
 
 
 class Cover:
@@ -164,10 +136,3 @@ class Cover:
 
     def accept(self, mask):
         self.uncovered &= ~mask
-
-
-def summary(entries):
-    entries = list(entries)
-    return dict(strength=entries[0]["strength"] if entries else POLICY.default_strength,
-                total=sum(e["total"] for e in entries),
-                covered={k: sum(e["covered"][k] for e in entries) for k in ("reference", "gpu", "ptxas")})

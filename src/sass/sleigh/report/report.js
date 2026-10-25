@@ -1,6 +1,6 @@
 // Renders the whole report from DATA (base64 gzip JSON written by sass.sleigh.coverage):
 // {archs, categories: [[name, [opcode]]], summary: {arch: {opcodes, combination_status, opcode_evidence,
-// combination_evidence, interaction_evidence}}, classes: [entry], members: {arch: {opcode: [class index]}}}.
+// combination_evidence}}, classes: [entry], members: {arch: {opcode: [class index]}}}.
 const STATUSES = {
   native: 'modeled directly in Ghidra p-code, the operations used by its decompiler and emulator',
   primitive: 'modeled through a named runtime call; our test emulator supplies its behavior, while the decompiler shows the call',
@@ -107,18 +107,7 @@ function main(D) {
     for (const [k, fs] of Object.entries(e.forms)) for (const f of fs) (forms[f] = forms[f] || []).push(k);
     const tested = Object.keys(forms).sort();
     return (Object.entries(mods).map(([m, cs]) => `<div class="mod"><code>${esc(m)}</code>${e.modifier_roles?.[m] ? `<small>${esc(e.modifier_roles[m])}</small>` : ''}${cs.join('')}</div>`).join('') || '<div class="mod">no modifiers</div>')
-      + (tested.length ? `<details><summary>${tested.length} ${pl(tested.length, 'combination', 'combinations')} with evidence</summary><ul>${tested.map(f => `<li><code>${esc(f) || '(defaults)'}</code> ${badge(forms[f])}</li>`).join('')}</ul></details>` : '')
-      + interactions(e.interaction);
-  }
-
-  function interactions(e) {
-    if (!e || !e.total) return '';
-    const n = value => value.toLocaleString('en');
-    const title = e.strength === 'exhaustive' ? 'Exhaustive interactions' : `${e.strength}-wise interactions`;
-    return `<div class="evidence-wrap"><table class="evidence"><caption>${title}</caption>`
-      + `<thead><tr><th>Evidence</th><th>Covered</th><th>Missing</th></tr></thead><tbody>`
-      + EVIDENCE.map(k => `<tr><th>${k === 'reference' ? 'Reference cases available' : k === 'ptxas' ? 'PTX compilation' : 'Recorded GPU passes'}${badge([k])}</th><td>${n(e.covered[k])} / ${n(e.total)}</td><td>${n(e.total - e.covered[k])}</td></tr>`).join('')
-      + '</tbody></table></div>';
+      + (tested.length ? `<details><summary>${tested.length} ${pl(tested.length, 'combination', 'combinations')} with evidence</summary><ul>${tested.map(f => `<li><code>${esc(f) || '(defaults)'}</code> ${badge(forms[f])}</li>`).join('')}</ul></details>` : '');
   }
 
   function verification(classEvidence, combinationEvidence) {
@@ -206,11 +195,6 @@ function main(D) {
       + verification(ce, me)
       + `<p class="evidence-note">Each class or combination is counted once, under its strongest recorded evidence: GPU, then ptxas, then reference. GPU evidence applies only to SM89 and SM90. Reference evidence records available test cases; this report does not run them or show their latest results.</p>`
       + (ex ? `<p>For ${esc(op)} on ${arch}, GPU evidence covers at least one combination in ${n(ce.gpu || 0)} of the ${n(covered(c))} modeled classes, but just ${n(me.gpu || 0)} of the ${n(covered(m))} modeled combinations. ${n(me.none || 0)} modeled combinations have no recorded evidence. This is why class coverage, combination coverage and evidence are shown separately.</p>` : '');
-
-    if (covered(c)) out += `<h3>Interaction evidence</h3>`
-      + interactions(summary[arch].interaction_evidence?.[op])
-      + `<p class="evidence-note">Interaction requirements include every legal tuple up to the configured strength, exhaustively for smaller classes. Hints and consistency controls participate; scheduling and reuse fields are excluded. Each tuple must extend to a complete legal form with modeled semantics. Partial-form adapter gaps remain visible.</p>`
-      + `<p class="evidence-note">These sources are counted independently. Only positive reference forms contribute; raw reference provenance above also includes diagnostic error/fallback checks. GPU passes apply to this architecture and do not verify the CUDA concurrency model or emulator-only effect assertions. PTX compilation provides encoding evidence.</p>`;
 
     return out + (ex ? '' : `<h3>${esc(op)}’s classes</h3><p>${CHIPS}</p><div class="classes">${es.map(e => head(e) + body(e)).join('')}</div>`);
   }
