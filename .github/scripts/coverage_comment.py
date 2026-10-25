@@ -109,7 +109,10 @@ def sankey(title, moved, ambiguous, scope=""):
     height = 40 + 40 * max(len({a for a, _ in moved}), len({b for _, b in moved}))
     note = "Flows inferred from the counts, assuming the fewest moves" + scope + (
         f"; others fit {names(ambiguous)} equally" if ambiguous else "") + "."
-    return (f"\n**{title}**\n\n```mermaid\n---\nconfig:\n  sankey:\n    showValues: true\n    linkColor: source\n"
+    # Mermaid blends links with an inline `multiply`, which turns them black on GitHub's dark background.
+    return (f"\n**{title}**\n\n```mermaid\n---\nconfig:\n"
+            '  themeCSS: ".link, .link path { mix-blend-mode: normal !important; stroke-opacity: 0.6; }"\n'
+            "  sankey:\n    showValues: true\n    linkColor: target\n"
             f"    width: 800\n    height: {height}\n---\nsankey-beta\n{links}\n```\n\n{note}\n")
 
 
