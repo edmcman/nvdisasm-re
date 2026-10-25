@@ -1,8 +1,46 @@
 """New narrowing and load variants use the shared generated-case path."""
 import json
 import pytest
-from sass.decode import ir
+from sass.assemble import encoding
+from sass.decode import ir, pydecode
+from sass.sleigh import modifiers
+from sass.paths import LANGUAGES
+from sass.sleigh.build import ARCHES
 from tests.harness import autocases, lifted
+
+
+@pytest.mark.parametrize("arch", ARCHES)
+def test_normal_plans_represent_each_added_variant(arch):
+    plan = json.loads((autocases.PLANS / f"{arch}.json").read_text())
+    assert plan["verification"] == {"default_strength": 3, "opcode_strength": {}}
+    classes = {k.name: k for k in ir.load(arch).classes}
+    chosen = {}
+    for entry in plan["forms"]:
+        chosen.setdefault(entry["cls"], []).append(entry["settings"])
+    for name, k in classes.items():
+        if k.mnemonic == "I2I":
+            assert {f["dstfmt"] for f in chosen.get(name, [])} == {"S8", "U8", "S16", "U16"}, name
+    if arch == "SM75":
+        assert {"U", "U.U8", "U.S8", "U.U16", "U.S16"} <= {
+            f["sz"] for f in chosen["lds__sImmOffset"]}
+        from tests.cases import memory
+        from tests.harness.case import Cases
+        cases = Cases(arch, "exact")
+        memory.uniform_shared_pairs(cases)
+        assert {modifiers.settings(arch, pydecode.decode(arch, bytes.fromhex(case.request["word"])))["sz"]
+                for case in cases} == {"U.64", "U.128"}
+    # Every supported prefetch label must be represented for every class that
+    # implements it, independently of the planner's covering-array algorithm.
+    manifest = json.loads((LANGUAGES / f"sass_{arch.lower()}_coverage.json").read_text())
+    for row in manifest:
+        c = row["combinations"]
+        if row["opcode"] not in ("LD", "LDG") or "sp2" not in c["labels"]: continue
+        native = [entry for entry in c["table"] if entry[-1] == "native"]
+        if "sp2" in c["decides"]:
+            expected = {entry[c["decides"].index("sp2")] for entry in native}
+        else:
+            expected = set(c["labels"]["sp2"]) if native else set()
+        assert expected <= {f["sp2"] for f in chosen.get(row["cls"], [])}, row["cls"]
 
 
 @pytest.mark.parametrize("arch", ["SM75", "SM80", "SM86", "SM89", "SM90",
@@ -32,6 +70,23 @@ def test_sm75_uniform_shared_sizes(sz, fp):
     assert cases
     for case in cases:
         status, problems = lifted.run("SM75", fp, case)
+        assert status == "native" and not problems, (case, problems)
+
+
+@pytest.mark.parametrize("fp", ["exact", "readable"])
+@pytest.mark.parametrize("hint", ["nosp2", "LTC64B", "LTC128B", "LTC256B"])
+@pytest.mark.parametrize("sz", ["U8", "S8", "U16", "S16", "32", "64", "128"])
+def test_ldg_predicate_completion_alias_and_instruction_guard(sz, hint, fp):
+    word = encoding.encode("SM89", "ldg__sImmOffset", Rd=8, Ra=2, e="E",
+                           sz=sz, sp2=hint, Pu=0, Pnz=1)
+    form = modifiers.settings("SM89", pydecode.decode("SM89", bytes.fromhex(word)))
+    cases = autocases.generate("SM89", "ldg__sImmOffset",
+                              form, fp, sample=100)
+    assert any(c.expected.get("P0") == 0 and c.request["registers"].get("P0") == 1 for c in cases)
+    assert any(c.expected.get("P1") == 0 and c.request["registers"].get("P1") == 1 for c in cases)
+    assert any(c.expected.get("P0") == 1 and c.expected.get("__events") == 0 for c in cases)
+    for case in cases:
+        status, problems = lifted.run("SM89", fp, case)
         assert status == "native" and not problems, (case, problems)
 
 

@@ -1089,3 +1089,13 @@ outputs without asserting.
   high-word 64-bit immediate, F16/F32 F2F NaN canonicalization, and descriptor reads under
   `noexp_desc`. F16/F64 F2F preserves quieted NaN payloads. Hardware verification remains SM89-specific;
   other architectures keep guarded native generation and independent reference checks.
+
+# Ordinary LDG predicate completion (2026-10-25)
+
+Completed ordinary LDG accesses clear Pu, including zero-filled accesses; the
+instruction guard preserves every output when false. Pu is written after the
+preserved Pnz value, so an alias reads the old input and ends cleared. SM89
+generated probes establish this normal-completion rule, which is inferred on other
+architectures. Unknown exceptional conditions that might produce Pu=1 remain
+listed in `docs/open.md`; dual-register accesses and unresolved addressing modes
+remain fallback paths.

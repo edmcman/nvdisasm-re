@@ -151,9 +151,18 @@ def qspc(c):
                       context=physical, hardware={'adapter': 'qspc', 'space': origin})
 
 
-@retained("LDG predicate-output forms and aligned memory/constant register pairs are partially native; window edges/decoys, descriptors, zero-fill guards, masked/cluster queries, physical query anchors and error cases exceed generated ordinary profiles.")
+@retained("Aligned SM75 LDS.U pairs and quads are partially native; normal plans defer partial forms.")
+def uniform_shared_pairs(c):
+    if c.arch != "SM75": return
+    from tests.harness import autocases
+    for sz in ("U.64", "U.128"):
+        c.extend(autocases.generate(c.arch, "lds__sImmOffset", {"sz": sz, "stride": "X1"}, c.fp))
+
+
+@retained("Aligned memory/constant register pairs, window edges/decoys, descriptors, zero-fill guards, masked/cluster queries, physical query anchors and error cases exceed generated ordinary profiles.")
 def emulator_cases(c):
     loads_stores(c); generic(c); descriptors(c); zero_fill(c); qspc(c)
+    uniform_shared_pairs(c)
 
     from sass.decode import pydecode
     from tests.harness.case import encode

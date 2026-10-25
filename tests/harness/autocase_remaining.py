@@ -138,6 +138,10 @@ def access(c,k,form):
     if k.mnemonic=='LDS':widths|={'U':4,**{'U.'+n:v for n,v in widths.items()}}
     if form.get('sz') not in widths: raise Unsupported('unknown memory access width')
     if form.get('ad','IA')!='IA': raise Unsupported('unresolved memory addressing selector')
+    if any(str(v).startswith('INVALID') for v in form.values()):
+        raise Unsupported('reserved memory control')
+    if 'Rd2' in k.operand_types or 'Rb2' in k.operand_types:
+        raise Unsupported('unresolved dual memory registers')
     size=widths[form['sz']];load=k.mnemonic.startswith('LD')
     for index,value in enumerate(autocase_profiles.PROFILES['remaining_forms']['words']):
         s=Inputs(c,k,form);base=0x100;offset=(-16,0,16)[index]
@@ -175,6 +179,16 @@ def access(c,k,form):
                 if not (pred ^ (form.get('Pnz@not')=='set')):
                     for n in list(expected):
                         if n.startswith('R'):expected[n]=0
+            if k.mnemonic=='LDG' and 'Pu' in k.operand_types:
+                # A distinct old true output, plus Pu/Pnz aliasing on an issued load.
+                pu=1 if index==1 and 'Pnz' in k.operand_types else 0
+                s.predicate(('Pu',),1,pu)
+                expected[s.output(('Pu',),pu)]=memory.load_predicate(1)
+                if index==2:
+                    s.fields['Pg']=2;s.registers['P2']=0;expected['P2']=0
+                    for n in list(expected):
+                        if n.startswith('R'):s.registers[n]=expected[n]=0xdeadbeef
+                    expected[f'P{pu}']=memory.load_predicate(1,False)
         else:
             s.operand(('Rb',),value,4 if size==16 else 6,size=size)
             expected['__memory']=data.hex()
@@ -183,9 +197,12 @@ def access(c,k,form):
         effects=['sass_memory_order']+(['sass_memory_descriptor'] if 'memoryDescriptor' in k.operand_types else [])
         expected['__events']=1
         expected['__event_values'] = memory_event(c, k, form)
+        if s.fields.get('Pg')==2:
+            expected['__events']=0;expected['__event_values']=[]
         # Generic window routing contains branches; value and event checks cover that native form.
         expected['__max_ops']=dict(count=128,userops=effects)
-        if k.mnemonic in ('LD','ST'): expected['__max_ops']['branches']=True
+        if k.mnemonic in ('LD','ST') or 'Pnz' in k.operand_types or s.fields.get('Pg')==2:
+            expected['__max_ops']['branches']=True
         s.add(expected,form,hardware={'adapter':'memory'},**extras)
     return c
 

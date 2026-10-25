@@ -1,12 +1,12 @@
 {
   "counts": {
     "legal": 1385354,
-    "unresolved_semantics": 926201,
-    "requirements": 246574,
+    "unresolved_semantics": 883961,
+    "requirements": 179588,
     "manual": 14,
-    "blocked": 152043,
-    "covered_requirements": 94531,
-    "generated": 18000
+    "blocked": 75988,
+    "covered_requirements": 103600,
+    "generated": 10121
   },
   "gaps": [
     {
@@ -2988,13 +2988,13 @@
     },
     {
       "cls": "ld__sImmOffset",
-      "count": 2112,
+      "count": 492,
       "reason": "partial-form planning deferred to #80",
       "unit": "interactions"
     },
     {
       "cls": "ld__sImmOffset",
-      "count": 3360,
+      "count": 562,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
@@ -3013,13 +3013,13 @@
     },
     {
       "cls": "ld__uImmOffset",
-      "count": 2112,
+      "count": 492,
       "reason": "partial-form planning deferred to #80",
       "unit": "interactions"
     },
     {
       "cls": "ld__uImmOffset",
-      "count": 3360,
+      "count": 562,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
@@ -3038,13 +3038,13 @@
     },
     {
       "cls": "ld_memdesc__Ra64",
-      "count": 2112,
+      "count": 444,
       "reason": "partial-form planning deferred to #80",
       "unit": "interactions"
     },
     {
       "cls": "ld_memdesc__Ra64",
-      "count": 3360,
+      "count": 511,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
@@ -3063,13 +3063,13 @@
     },
     {
       "cls": "ld_uniform__Ra32",
-      "count": 2112,
+      "count": 492,
       "reason": "partial-form planning deferred to #80",
       "unit": "interactions"
     },
     {
       "cls": "ld_uniform__Ra32",
-      "count": 3360,
+      "count": 562,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
@@ -3088,13 +3088,13 @@
     },
     {
       "cls": "ld_uniform__Ra64",
-      "count": 2112,
+      "count": 444,
       "reason": "partial-form planning deferred to #80",
       "unit": "interactions"
     },
     {
       "cls": "ld_uniform__Ra64",
-      "count": 3360,
+      "count": 511,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
@@ -3196,58 +3196,128 @@
     },
     {
       "cls": "ldg__sImmOffset",
-      "count": 14784,
+      "count": 4224,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ldg__sImmOffset",
-      "count": 14784,
+      "count": 540,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
+      "cls": "ldg__sImmOffset",
+      "count": 613,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 2880,
+        "sco: encoding changes 1 to 2": 480,
+        "sco: encoding changes 1 to 4": 480,
+        "sco: encoding changes 2 to 4": 480,
+        "sco: encoding changes 3 to 4": 1920,
+        "sem: encoding changes 1 to 2": 480
+      }
+    },
+    {
+      "cls": "ldg__uImmOffset",
+      "count": 4224,
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "ldg__uImmOffset",
+      "count": 540,
       "reason": "partial-form planning deferred to #80",
       "unit": "interactions"
     },
     {
       "cls": "ldg__uImmOffset",
-      "count": 14784,
+      "count": 613,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 2880,
+        "sco: encoding changes 1 to 2": 480,
+        "sco: encoding changes 1 to 4": 480,
+        "sco: encoding changes 2 to 4": 480,
+        "sco: encoding changes 3 to 4": 1920,
+        "sem: encoding changes 1 to 2": 480
+      }
+    },
+    {
+      "cls": "ldg_memdesc__Ra64",
+      "count": 2112,
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ldg__uImmOffset",
-      "count": 14784,
+      "cls": "ldg_memdesc__Ra64",
+      "count": 444,
       "reason": "partial-form planning deferred to #80",
       "unit": "interactions"
     },
     {
       "cls": "ldg_memdesc__Ra64",
-      "count": 7392,
+      "count": 511,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 1440,
+        "sco: encoding changes 1 to 2": 240,
+        "sco: encoding changes 1 to 4": 240,
+        "sco: encoding changes 2 to 4": 240,
+        "sco: encoding changes 3 to 4": 960,
+        "sem: encoding changes 1 to 2": 240
+      }
+    },
+    {
+      "cls": "ldg_uniform__Ra32",
+      "count": 4224,
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ldg_memdesc__Ra64",
-      "count": 7392,
+      "cls": "ldg_uniform__Ra32",
+      "count": 540,
       "reason": "partial-form planning deferred to #80",
       "unit": "interactions"
     },
     {
       "cls": "ldg_uniform__Ra32",
-      "count": 14784,
+      "count": 613,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 2880,
+        "sco: encoding changes 1 to 2": 480,
+        "sco: encoding changes 1 to 4": 480,
+        "sco: encoding changes 2 to 4": 480,
+        "sco: encoding changes 3 to 4": 1920,
+        "sem: encoding changes 1 to 2": 480
+      }
+    },
+    {
+      "cls": "ldg_uniform__Ra64",
+      "count": 2112,
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ldg_uniform__Ra32",
-      "count": 14784,
+      "cls": "ldg_uniform__Ra64",
+      "count": 444,
       "reason": "partial-form planning deferred to #80",
       "unit": "interactions"
     },
     {
       "cls": "ldg_uniform__Ra64",
-      "count": 7392,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldg_uniform__Ra64",
-      "count": 7392,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
+      "count": 511,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 1440,
+        "sco: encoding changes 1 to 2": 240,
+        "sco: encoding changes 1 to 4": 240,
+        "sco: encoding changes 2 to 4": 240,
+        "sco: encoding changes 3 to 4": 960,
+        "sem: encoding changes 1 to 2": 240
+      }
     },
     {
       "cls": "ldgdepbar_",

@@ -435,6 +435,17 @@ remains a runtime primitive; other MUFU operations and FP16 remain unresolved.
   zero or non-zero data, any prior state. A `Pu` destination read 0 in every completed run: valid
   loads, zero-filled loads, and whatever value the predicate held before. An unmapped address still
   trapped with `Pu` set (CUDA_ERROR_ILLEGAL_ADDRESS). What sets `Pu` is unknown, so it stays opaque.
+  - Ordinary LDG completion (2026-10-25, generated synthetic probes on SM89,
+    RTX 4070 Laptop GPU, CUDA driver API 13.0): the nine reproducible scenarios in
+    `research/ldg-predicate-probes.json` and
+    `research/ldg-predicate-observations-SM89.json` clear Pu for completed loads.
+    Both old predicate values, zero/nonzero data, zero-fill, Pu/Pnz aliasing,
+    signed narrow loads, 64/128-bit loads and the four prefetch labels were exercised.
+    Aliasing reads the original Pnz before clearing the shared predicate.
+    A false instruction guard preserves Pu and the destination data register.
+    The reference now models this ordinary-completion rule; it does not identify
+    an exceptional condition that produces Pu=1. Other architectures use the same
+    inferred rule; these probes establish hardware behavior only on SM89.
 
 ## Warps, threads and control flow
 

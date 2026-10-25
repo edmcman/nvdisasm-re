@@ -2,7 +2,8 @@
 and SM100+'s LDCU, S2R/CS2R/S2UR. Every access first records a memory-ordering event with its encoded controls (the
 runtime rejects INVALID ones); an explicit descriptor (desc[URx]) is passed to the runtime, which rejects
 range-form ones, and otherwise doesn't change the access (SM89 GPU). Dual registers,
-predicate results and non-IA address modes are unmodelled; a load's Pnz input zero-fills."""
+predicate results outside ordinary LDG completion and non-IA address modes are unmodelled;
+a load's Pnz input zero-fills."""
 from sass.semantics.bitvec import concat, const, extract, ite, load, sext, trunc, zext
 from sass.semantics.family import effect, family, outputs, store, unmodelled
 
@@ -87,7 +88,8 @@ def memory(i):
     generic address through the shared and local windows."""
     space = SPACES[i.opcode]
     for n in ("Pu", "Pv", "Pq"):   # predicate results are not assumed to mean success
-        if i.has_operand(n) and not i.is_zero(n): unmodelled(f"{n} result")
+        if i.has_operand(n) and not i.is_zero(n) and not (i.opcode == "LDG" and n == "Pu"):
+            unmodelled(f"{n} result")
     effects = [ordering(i), *descriptor(i)]
     addr = address(i)
     if space == "generic" and i.has_operand("e") and i.select_fork("e") == "noe": unmodelled("32-bit generic address")
@@ -104,7 +106,10 @@ def memory(i):
         if i.has_operand("Pnz"): loaded = ite(i.pred("Pnz"), loaded, const(0, w))
         # The md also writes Pnz; SM89 hardware leaves its value unchanged.
         kept = {"Pnz": i.pred("Pnz", modifiers=False)} if i.has_operand("Pnz") else {}
-        return outputs(effects=effects, Rd=extended(loaded, i.width("Rd"), signed), **kept)
+        # SM89 ordinary completion clears Pu, including a zero-filled load.
+        # Write it after Pnz so aliases retain the load's input but end cleared.
+        if i.opcode == "LDG" and i.has_operand("Pu"): kept["Pu"] = const(0, 1)
+        return outputs(order=("Pu",), effects=effects, Rd=extended(loaded, i.width("Rd"), signed), **kept)
     value = i.value("Rb", modifiers=False)
     if w > value.w: unmodelled("size")
     value = trunc(value, w) if value.w > w else value

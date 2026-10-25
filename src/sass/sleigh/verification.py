@@ -23,10 +23,7 @@ class VerificationPolicy:
         return self.opcode_strength.get(row["opcode"], self.default_strength)
 
 
-# These compact conversions and memory controls retain a case for each legal
-# supported form, including the uniform-size and L2-prefetch variants.
-POLICY = VerificationPolicy(opcode_strength={
-    op: "exhaustive" for op in ("I2I", "LDS", "LD", "LDG")})
+POLICY = VerificationPolicy()
 SUPPORTED = frozenset(("native", "primitive"))
 
 

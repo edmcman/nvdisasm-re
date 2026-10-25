@@ -47,6 +47,16 @@ def zero_filled(value, pnz):
     return value if pnz else 0
 
 
+def load_predicate(previous, executes=True):
+    """Completed ordinary LDG clears Pu; a predicated-off instruction preserves it.
+
+    SM89 synthetic probes, 2026-10-25, including Pu/Pnz aliases, zero-fill,
+    signed narrow and wide loads, and every L2-prefetch hint. This describes
+    ordinary completion, not an unknown condition that might set Pu to one.
+    """
+    return 0 if executes else previous
+
+
 def constant(data, signed=False):
     """Little-endian constant load, extended to a 32-bit register (or a full 64-bit pair)."""
     return int.from_bytes(data, 'little', signed=signed) & ((1 << max(32,8*len(data))) - 1)
