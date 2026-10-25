@@ -1,5 +1,5 @@
-"""Integer/float conversions: F2I, I2F/I2FP, FRND, F2F, F2IP (F32 pair to saturated bytes) and
-I2IP (saturated/truncated integer pack)."""
+"""Integer/float conversions: F2I, I2F/I2FP, FRND, F2F, F2IP (F32 pair to saturated bytes),
+I2I (saturated narrowing) and I2IP (saturated/truncated integer pack)."""
 from tests.harness.manual import retained
 from tests.harness import autocase_profiles
 from tests.harness.case import cx_source, pair, put
@@ -108,6 +108,7 @@ def i2ip_case(c):
             cx_fields, cx_regs, memory = cx_source(c.arch, k, name, b); fields.update(cx_fields)
             # Saturate each input to S8; H0/H1 selects C's preserved half.
             c.add(k.name, fields, {"R2": a, "R6": d, **cx_regs}, {"R8": i2ip(a, b, d, 8, True, True, False, extract), "__native": True}, memory=memory)
+
 
 
 # Keep fixture inputs byte-for-byte identical while the shared named profile owns the corpus.

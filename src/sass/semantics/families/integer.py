@@ -610,6 +610,27 @@ def idp(i):
     return outputs(Rd=dot_product(i.value('Ra'), i.value('Rb|Sb'), i.value('Rc'), str(mode), afmt[0] == 'S', bfmt[0] == 'S'))
 
 
+def clamped(x, width, signed):
+    """The 32-bit x clamped to the range of a width-bit integer."""
+    lo, hi = (-(1 << width - 1), (1 << width - 1) - 1) if signed else (0, (1 << width) - 1)
+    return smax(smin(x, const(hi, 32)), const(lo, 32))
+
+
+@definition(lambda a: (f"cvt.sat.{'s' if a['signed'] else 'u'}{a['width']}.s32", ["b"]))
+def saturated_narrow(b, width, signed):
+    """PTX cvt.sat from S32 to a narrow integer: b clamped to its range, held as a 32-bit value
+    (sign-extended for S8/S16, SM89 GPU)."""
+    return clamped(b, width, signed)
+
+
+@family('I2I')
+def i2i(i):
+    """Rd = Rb converted from S32 to U8/S8/U16/S16 with saturation, as a 32-bit value (SM89 GPU)."""
+    if i.select_fork('srcfmt') != 'S32' or i.select_fork('SAT') != 'SAT': unmodelled('format')
+    fmt = i.select_fork('dstfmt')
+    return outputs(Rd=saturated_narrow(i.value('Rb|Sb|URb'), int(fmt[1:]), fmt[0] == 'S'))
+
+
 def pack_name(a):
     mods = ".sat" * a["sat"] + ".relu" * a["relu"] + ".h1" * a["high"]
     return f"cvt.pack{mods}.{'s' if a['signed'] else 'u'}{a['width']}.s32", ["a", "b", *(["c"] if a["c"] is not None else [])]
@@ -620,10 +641,8 @@ def packed_pair(a, b, c, width, signed, sat, relu, high):
     """PTX cvt.pack: two S32 values converted to a narrow integer (saturating with .sat, negative to
     0 with .relu) and packed, b in the low lane and a above it, the rest of the word from c: its
     high half with .h1, its low bits otherwise (sub-byte forms take c unshifted, SM89 GPU)."""
-    lo, hi = (-(1 << width - 1), (1 << width - 1) - 1) if signed else (0, (1 << width) - 1)
-
     def convert(x):
-        if sat: x = smax(smin(x, const(hi, 32)), const(lo, 32))
+        if sat: x = clamped(x, width, signed)
         if relu: x = smax(x, const(0, 32))
         return trunc(x, width)
 

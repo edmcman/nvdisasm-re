@@ -154,7 +154,7 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
     `min/max.<s|u>32` (IMNMX with PT/!PT, VIMNMX lanes) or `imnmx`/`vimnmx…`, and `relu.s32`.
   - Conversions: F2F `cvt[.<mode>].<dst>.<src>`; FRND `cvt.r<m>i.<fmt>.<fmt>`; F2I
     `cvt.r<m>i[.ntz].<s|u><n>.<fmt>`; I2F `cvt.<mode>.<dst>.<s|u><n>`; F2IP `cvt.rni.sat.<s|u>8.f32`;
-    I2IP `cvt.pack[.sat][.relu][.h1].<s|u><n>.s32`; `narrow.<mode>.<dst>.<src>` (`fpformat.narrow`:
+    I2I `cvt.sat.<s|u><n>.s32`; I2IP `cvt.pack[.sat][.relu][.h1].<s|u><n>.s32`; `narrow.<mode>.<dst>.<src>` (`fpformat.narrow`:
     FADD2-style narrowing, HMUL2's BF16 forms); F2FP `f2fp.pack…`, `f2fp.cvt…` lanes for every
     16-bit, 8/6/4-bit, S2_6, TF32 and up-conversion (`.scaled` with a UE8M0 scale), and
     `cvt.rn.bf16x2.ue8m0x2`.
@@ -459,6 +459,11 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
 - A whole-kernel SM89 oracle patched one LOP3 per fixture to the target VABSDIFF4 encoding; 128 GPU,
   emulator and independent-reference comparisons passed for each fmt/reduction pair. This is patched
   SASS evidence, not a claim that ptxas emits those words for a PTX vabsdiff4 instruction.
+
+### I2I (2026-10-24)
+- `I2I.{U8,S8,U16,S16}.S32.SAT` (the md has no other form) clamps the S32 source to the destination
+  range and writes it as a 32-bit value, so S8/S16 results are sign-extended (SM89 GPU, 84 probes over
+  every bound and its neighbours). It shares I2IP's clamp.
 
 ### I2IP
 - S32 inputs packed to signed or unsigned 2-, 4-, 8- and 16-bit lanes. SAT clamps each input to its
@@ -884,6 +889,12 @@ Family `families/memory.py` (Phase 6b).
   text but still reads it: bit 59 alone traps with either setting. The access itself ignores the
   descriptor (SM89 GPU); the runtime rejects range-form descriptors (bit 59), whose traps are
   unpredictable.
+- SM75 LDS's `.U` sizes (`LDS.U`, `.U.64`, `.U.128`, `.U.S8`, ...) are the plain accesses: ptxas 13.4
+  gives every sm_75 shared load `.U`, per-thread addresses included (2026-10-24; no SM75 GPU). SM75's other
+  accesses have a `.U.128` size too (`SIZE3` code 7, beside `.128`); ptxas never emits it (not even for a
+  warp-uniform address), so it stays opaque.
+- `sp2` (`.LTC64B`/`.LTC128B`/`.LTC256B` on LD/LDG, an L2 prefetch-size hint) is ignored: it doesn't
+  change the value (2026-10-24).
 - A load's `Pnz` input zero-fills (`Rd = Pnz ? mem : 0`, SM89 GPU). The md also writes `Pnz`, and the
   load writes it back unchanged, as on the GPU (like R2P's masked-off predicates).
 - Opaque: dual registers, predicate results (`Pu`, see `docs/open.md`), non-IA modes, SM75 `.ZD` (no
@@ -1098,3 +1109,13 @@ outputs without asserting.
   high-word 64-bit immediate, F16/F32 F2F NaN canonicalization, and descriptor reads under
   `noexp_desc`. F16/F64 F2F preserves quieted NaN payloads. Hardware verification remains SM89-specific;
   other architectures keep guarded native generation and independent reference checks.
+
+# Ordinary LDG predicate completion (2026-10-25)
+
+Completed ordinary LDG accesses clear Pu, including zero-filled accesses; the
+instruction guard preserves every output when false. Pu is written after the
+preserved Pnz value, so an alias reads the old input and ends cleared. SM89
+generated probes establish this normal-completion rule, which is inferred on other
+architectures. Unknown exceptional conditions that might produce Pu=1 remain
+listed in `docs/open.md`; dual-register accesses and unresolved addressing modes
+remain fallback paths.
