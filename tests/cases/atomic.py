@@ -241,6 +241,8 @@ def gpu_fixtures(arch="SM89"):
     image = compile("atomic_semantics", "-diag-suppress=177,550", arch=arch)
     out = []
     for name, (op, sz, target) in KERNELS.items():
+        if arch == "SM90" and target.startswith("RED."):
+            target = "REDG." + target.removeprefix("RED.")
         vs, w = gpu_vectors(name, op, sz), width(sz)
         out.append(Fixture(name=f"atom_{name}", image=image, kernel=f"atom_{name}", data=b"".join(struct.pack("<QQQ" if w == 64 else "<III", *v) for v in vs),
                            expected=[gpu_output(name, op, sz, *v) for v in vs], input_size=w // 8, output_size=8, targets=(target,),

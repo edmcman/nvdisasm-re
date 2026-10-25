@@ -28,8 +28,8 @@ class Semantics:
     writes: list = field(default_factory=list)   # [(register location, value)], simultaneous
     flow: object = None                          # sem_family.Flow over concrete values, or None
     stores: list = field(default_factory=list)   # [sem_family.Store], after the writes
-    atomic: object = None                        # sem_family.Atomic: the loads and stores are indivisible
     effects: list = field(default_factory=list)  # [sem_family.Effect], before everything else
+    atomic: object = None                        # sem_family.Atomic: the loads and stores are indivisible
 
 
 class Lifted(Instruction):

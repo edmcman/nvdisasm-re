@@ -33,7 +33,7 @@ def plan(arch, rows, policy=verification.POLICY):
     covered = {}
     for cases in manual.values():
         for case in cases:
-            if not case.request.get('word') or 'error' in case.expected or '__opaque' in case.expected: continue
+            if not case.request.get('word') or 'error' in case.expected or '__opaque' in case.expected or 'illegal' in case.expected: continue
             d = pydecode.decode(arch, bytes.fromhex(case.request['word']))
             covered.setdefault(d.klass.name, []).append(settings(arch, d))
     entries, gaps, counts = [], [], Counter()
