@@ -318,3 +318,31 @@ def test_comment_leads_with_head_pinned_coverage_badge():
     assert ("https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fowner%2Frepo%2Fhead"
             "%2Fprocessor%2FSASS%2Fsemantics%2Fbadge.json") in body
     assert "(https://raw.githack.com/owner/repo/head/processor/SASS/semantics/coverage.html)" in body
+
+
+@pytest.mark.parametrize("field,before,after,expected,ambiguous", [
+    ("combination_status", {"native": 9600, "partially native": 3840, "opaque": 152448},
+     {"native": 28800, "partially native": 11520, "opaque": 125568},
+     [("opaque", "native", 19200), ("opaque", "partially native", 7680)], False),
+    ("opcodes", {"native": 1}, {"native": 1, "opaque": 2}, [("absent", "opaque", 2)], False),
+    ("opcodes", {"native": 2}, {}, [("native", "absent", 2)], False),
+    ("combination_evidence", {"none": 6}, {"reference": 2, "none": 8},
+     [("opaque", "reference", 2), ("opaque", "none", 2)], False),
+    ("combination_evidence", {"gpu": 5, "reference": 5}, {"ptxas": 4, "none": 6},
+     [("gpu", "ptxas", 4), ("gpu", "none", 1), ("reference", "none", 5)], True),
+    ("opcodes", {"native": 1}, {"native": 1}, [], False),
+])
+def test_flows(field, before, after, expected, ambiguous):
+    assert coverage_comment.flows(field, before, after) == (expected, ambiguous)
+
+
+def test_sankey_diagrams():
+    before = summary()
+    after = copy.deepcopy(before)
+    after["SM89"]["combination_status"]["LDG"] = {"native": 3, "opaque": 5}
+    body = render(before, after)["body"]
+    assert body.count("```mermaid") == 1
+    assert "**Modifier combinations**\n\n```mermaid" in body
+    assert "sankey-beta\nopaque (before),native (after),3\n```" in body
+    assert "others fit" not in body
+    assert "```mermaid" not in render(before, copy.deepcopy(before))["body"]
