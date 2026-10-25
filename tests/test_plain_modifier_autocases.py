@@ -4,7 +4,6 @@ import pytest
 from sass.assemble import encoding
 from sass.decode import ir, pydecode
 from sass.sleigh import modifiers
-from sass.paths import LANGUAGES
 from sass.sleigh.build import ARCHES
 from tests.harness import autocases, lifted
 
@@ -13,7 +12,8 @@ from tests.harness import autocases, lifted
 def test_normal_plans_represent_each_added_variant(arch):
     plan = json.loads((autocases.PLANS / f"{arch}.json").read_text())
     assert plan["verification"] == {"default_strength": 3, "opcode_strength": {}}
-    classes = {k.name: k for k in ir.load(arch).classes}
+    md = ir.load(arch)
+    classes = {k.name: k for k in md.classes}
     chosen = {}
     for entry in plan["forms"]:
         chosen.setdefault(entry["cls"], []).append(entry["settings"])
@@ -31,16 +31,20 @@ def test_normal_plans_represent_each_added_variant(arch):
                 for case in cases} == {"U.64", "U.128"}
     # Every supported prefetch label must be represented for every class that
     # implements it, independently of the planner's covering-array algorithm.
-    manifest = json.loads((LANGUAGES / f"sass_{arch.lower()}_coverage.json").read_text())
-    for row in manifest:
-        c = row["combinations"]
-        if row["opcode"] not in ("LD", "LDG") or "sp2" not in c["labels"]: continue
-        native = [entry for entry in c["table"] if entry[-1] == "native"]
-        if "sp2" in c["decides"]:
-            expected = {entry[c["decides"].index("sp2")] for entry in native}
-        else:
-            expected = set(c["labels"]["sp2"]) if native else set()
-        assert expected <= {f["sp2"] for f in chosen.get(row["cls"], [])}, row["cls"]
+    # Python CI runs without generated language manifests. Assert the added
+    # hint variants directly against the committed native case selection.
+    native_prefetch_classes = {
+        entry["cls"] for entry in plan["forms"]
+        if entry["native"] and classes[entry["cls"]].mnemonic in ("LD", "LDG")
+        and "sp2" in entry["settings"]}
+    assert native_prefetch_classes
+    for name in native_prefetch_classes:
+        etype = classes[name].operand_types["sp2"].type
+        # SM75 reserves the fourth SP2 encoding; newer architectures name it
+        # LTC256B. Canonical md labels exclude that reserved value.
+        expected = {modifiers.label(md, etype, value) for value in md.enums[etype].values()} & {
+            "nosp2", "LTC64B", "LTC128B", "LTC256B"}
+        assert expected <= {f["sp2"] for f in chosen[name]}, name
 
 
 @pytest.mark.parametrize("arch", ["SM75", "SM80", "SM86", "SM89", "SM90",
