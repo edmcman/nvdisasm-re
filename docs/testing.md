@@ -391,20 +391,29 @@ hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` 
 
 ## PR coverage comments
 
-2026-10-16, revised 2026-10-17 and 2026-10-19:
+2026-10-16, revised 2026-10-17, 2026-10-19 and 2026-10-25:
 
 - CI compares committed `processor/SASS/semantics/coverage.json` at the PR event's base and head
   SHAs, independently of the generator freshness check. Same-repository PRs get a current bot
   comment with per-architecture opcode totals and changed class/modifier-combination status and
-  verification counts; fork PRs and pushes skip commenting. Readable variants are omitted.
+  recorded-evidence counts; fork PRs and pushes skip commenting. Readable variants are omitted.
 - Since 2026-10-17 the report leads with what changed: a red caution alert when GPU, ptxas or
   reference evidence falls (each opcode named once, at the strongest level that fell, with how to
   restore GPU passes), a warning when semantic coverage falls, and a per-architecture
   verification-change table; the opcode-coverage table is collapsed when no architecture's
   percentage moved. Every change is colored 🟢 better, 🔴 worse or ⚪ neutral, judging a level by
   its count together with the stronger levels, so a GPU pass demoted to reference is 🔴 for GPU
-  and ⚪ for reference; more opaque or unverified counts are worse. Regressed opcodes sort first in
-  each architecture's details.
+  and ⚪ for reference; more opaque counts are worse. Regressed opcodes sort first in each
+  architecture's details.
+- Since 2026-10-25, increasing `none` counts within growth in modeled classes or combinations
+  is neutral for evidence trends, with an amber “Semantics grew with gaps in recorded evidence”
+  warning and labels in opcode details. Added semantics without checks can be an implementation
+  improvement without being labeled a regression in evidence. Drops in existing evidence remain
+  red, including when semantics also grow. Removing unevidenced semantics alone does not count as
+  adding checks. Warnings report net increases per changed opcode; aggregate counts cannot identify
+  which individual forms gained or lost evidence. The comment says “recorded evidence” throughout:
+  GPU evidence records passing checks on the architecture where they ran, PTX evidence records
+  compilation, and reference evidence records available cases, not current passing test results.
 - The PR carries a `coverage` label exactly while coverage differs from the base. When a newer
   report replaces the current comparison, CI posts it first, then edits previous reports into
   closed-by-default “Outdated coverage report” expansions with a superseded notice. Identical
