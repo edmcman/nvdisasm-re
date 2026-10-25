@@ -5,6 +5,26 @@ from sass.semantics.family import FAMILIES, family_for
 import sass.semantics.families  # registers the semantics families
 
 OPERATION_FAMILIES = set(FAMILIES)
+# Opcodes with a family that Ghidra's languages don't lower, so Ghidra decodes them as opaque (the
+# lifter still models them), and the architectures where (None: every one). Ghidra 12.1 silently
+# truncates a decompressed .sla past 16 MiB (`SlaFormat.MAX_FILE_SIZE`, docs/sleigh.md; `build.LIMIT`
+# enforces it): generic ATOM's per-operation bodies take SM89 past it, and SM90/SM107, within 0.5 MB
+# of it before atomics, have no room for the others. Later Ghidra versions drop the limit: with one,
+# empty this.
+GHIDRA_NOT_LOWERED = {"ATOM": None, **{op: {"SM90", "SM107"} for op in ("ATOMG", "ATOMS", "RED", "REDG")}}
+
+
+def ghidra_lowers(arch, opcode):
+    """Whether arch's language lowers opcode's family (it has one, and isn't left out)."""
+    where = GHIDRA_NOT_LOWERED.get(opcode, ())
+    return opcode in FAMILIES and where is not None and arch not in where
+
+
+def ghidra_family(arch, k):
+    """The family arch's language lowers class k with, or None."""
+    return family_for(k) if ghidra_lowers(arch, k.mnemonic) else None
+
+
 
 
 def dispatch(b, refs=()):
@@ -25,5 +45,6 @@ def dispatch(b, refs=()):
 
 def emit(b):
     if not family_for(b.k): return 'opaque', 'outside implemented operation families'
+    if not ghidra_lowers(b.g.arch.name, b.k.mnemonic): return 'opaque', 'not lowered for Ghidra (16 MiB .sla limit)'
     from sass.sleigh import lower
     return lower.emit(b)

@@ -111,7 +111,7 @@ def select(cases, arch, sample=DEFAULT, retained=()):
     identities = getattr(cases, "sampling_ids", {})
     for i, case in enumerate(cases):
         case_id = case.id
-        if case_id in retained or 'word' not in case.request or 'error' in case.expected or '__opaque' in case.expected:
+        if case_id in retained or 'word' not in case.request or 'error' in case.expected or 'illegal' in case.expected or '__opaque' in case.expected:
             chosen.add(i)
             continue
         identity = identities.get(case_id, case_id)

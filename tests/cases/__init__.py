@@ -5,7 +5,7 @@ from functools import cache
 from tests.harness.case import Cases
 from tests.harness import sampling
 
-FAMILIES = ("int_alu", "int_simd", "carry", "bmsk", "fp32", "fp32x2", "fp64", "fp16", "f2fp", "conversions", "predicates", "memory", "control", "threads", "mufu")
+FAMILIES = ("int_alu", "int_simd", "carry", "bmsk", "fp32", "fp32x2", "fp64", "fp16", "f2fp", "conversions", "predicates", "memory", "atomic", "control", "threads", "mufu")
 
 
 def module(family):
@@ -60,3 +60,13 @@ def shards(arch, family, forms=1000):
 def gpu_fixtures(families=FAMILIES, arch="SM89"):
     """[(family, Fixture)] for the target GPU fixtures."""
     return [(family, f) for family in families for f in getattr(module(family), "gpu_fixtures", lambda **kw: [])(arch=arch)]
+
+
+def ghidra_case(arch, case):
+    """A value case's language-specific contract when its family is left opaque."""
+    from sass.decode import ir
+    from sass.semantics.operations import ghidra_lowers, GHIDRA_NOT_LOWERED
+    k = next((k for k in ir.load(arch).classes if k.name == case.cls), None)
+    if k is None or k.mnemonic not in GHIDRA_NOT_LOWERED or ghidra_lowers(arch, k.mnemonic): return case
+    if "illegal" in case.expected: return None
+    return case._replace(expected=dict(error=f"sass_opaque_{k.mnemonic}"))

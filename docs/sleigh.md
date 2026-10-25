@@ -38,3 +38,7 @@
 - Uniform zero depends on the architecture and the field width. SM75-SM90 define URZ=63. SM100+ define URZ=255 and treat UR63 as an ordinary register, but six-bit fields still encode URZ as 63. `Gen.register_zero` derives the zero from the md, and URZ gets its own register slot outside the 64-register bank.
 - Register dataflow p-code: md register reads/writes via opaque pcodeops, instruction guards, and branch/call/return. Modifier spans are evaluated by `src/sass/md/expression.py`, exactly (including 0, 3, and matrix spans above 8), without a widest-span fallback. Immediate operands with misleading latency resources (IPA `attr`) are excluded by operand type. Register-bank overflow uses sinks to preserve display decoding; its dataflow is undefined. Wide zero constants use `zext`; above SLEIGH's 256-byte temporary cap, initialized internal ZERO registers are used.
 - `SASS_SLEIGH_OUT=/tmp/...` (`sass.paths.LANGUAGES`) redirects generation and Ghidra tests; copy the shared `.sinc`, `.pspec`, and `.cspec` there first. `tests/test_pcode_dataflow.py` (`tests/harness/dataflow.py`) compares structured Ghidra p-code against decoded md operand roles/spans. `sass-compare-ghidra` compares standalone 64-bit immediates in MOV.64/UMOV.64/MOV64IUR modulo 2^64 because SLEIGH prints computed values as signed int64.
+
+## Atomic branch integration (2026-10-25)
+
+Atomic operations retain the architecture exclusions in `operations.GHIDRA_NOT_LOWERED` for the supported Ghidra releases with the 16 MiB language limit.

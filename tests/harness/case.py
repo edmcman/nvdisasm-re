@@ -2,7 +2,7 @@
 (words come from sass.assemble.encoding)."""
 import hashlib, json
 from typing import NamedTuple
-from sass.decode import ir
+from sass.decode import ir, pydecode
 from functools import cache, partial
 from types import MappingProxyType
 from sass.assemble import encoding
@@ -133,6 +133,14 @@ class Cases(list):
         self.arch, self.fp, self.md = arch, fp, ir.load(arch)
         self.classes = primary_classes(arch)
 
+    def legal(self, cls, fields):
+        """Whether the requested form has a valid encoding in the current md."""
+        try:
+            encoded = encoding.encode(self.arch, cls, **fields)
+            return pydecode.decode(self.arch, bytes.fromhex(encoded)).klass.name == cls
+        except (ValueError, pydecode.NoMatch):
+            return False
+
     def add(self, cls, fields, registers, expected, portable=False, observe=None, hardware=None, **extras):
         """portable: valid for both lowerings even if the mnemonic is in READABLE_FLOATS. The word
         stays unencoded until `complete`, so sampling encodes only the cases it keeps."""
@@ -148,7 +156,7 @@ class Cases(list):
             case.expected.update((name, value()) for name, value in case.expected.items() if isinstance(value, Later))
             if case.request.get("word") is None and case.fields is not None:
                 case.request["word"] = encode(self.arch, case.cls, **case.fields)
-                if sampling.form(self.arch, case.request["word"]) != sampling.declared(self.arch, case.cls, case.fields):
+                if "illegal" not in case.expected and sampling.form(self.arch, case.request["word"]) != sampling.declared(self.arch, case.cls, case.fields):
                     raise ValueError(f"{case.id}: {case.cls} {case.fields} encode another form than their modifiers declare")
         return self
 
@@ -159,7 +167,7 @@ class Cases(list):
         if not extras.get("memory", True): del extras["memory"]
         request = dict(word=word, registers=registers,
                        observe=[n for n in expected if not n.startswith("__")] if observe is None else observe, **extras)
-        if "__max_ops" in expected or "__native" in expected: request["inspect_pcode"] = True
+        if {"__max_ops", "__native", "__atomic"} & set(expected): request["inspect_pcode"] = True
         return request
 
     def probe(self, cls, fields, registers, observe=(), hardware=None, **extras):

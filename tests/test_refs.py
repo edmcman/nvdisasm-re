@@ -4,6 +4,7 @@ import ast
 from fractions import Fraction
 from pathlib import Path
 import pytest
+from tests.refs import atomic
 from tests.refs import fpformat as fpf
 from tests.refs.integer import bmsk, dot4, i2ip, prmt, isetp, shf
 
@@ -106,6 +107,17 @@ def test_integer_rules():
     assert dot4(0x01020304, 0x05060708, 10, False, False) == 10 + 5 + 12 + 21 + 32
     assert prmt(0x03020100, 0x6420, 0x07060504, "IDX") == 0x06040200
     assert i2ip(300, -140, 0x12345678, 8, True, True, False, "H1") == 0x12347f80
+
+
+def test_atomic_rules():
+    assert atomic.rmw("ADD", "U32", 0xffffffff, 2) == (1, 0xffffffff)
+    assert atomic.integer("MIN", "S32", 0x80000000, 1) == 0x80000000 and atomic.integer("MIN", "U32", 0x80000000, 1) == 1
+    assert atomic.integer("MAX", "S64", 1 << 63, 5) == 5
+    assert [atomic.integer("INC", "U32", old, 5) for old in (4, 5, 7)] == [5, 0, 0]
+    assert [atomic.integer("DEC", "U32", old, 5) for old in (0, 3, 6)] == [5, 2, 5]
+    assert atomic.floating("F32.FTZ.RN", 0x00000001, 0) == 0 and atomic.floating("F32.FTZ.RN", 0x3f800000, 0x3f800000) == 0x40000000
+    assert atomic.floating("F16x2.RN", 0x3c000001, 0x3c000001) == 0x40000002
+    assert atomic.cas(5, 5, 9) == (9, 5) and atomic.cas(5, 4, 9) == (5, 5)
 
 
 @pytest.mark.parametrize('mode,selector,result', [

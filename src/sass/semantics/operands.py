@@ -43,8 +43,8 @@ class Builder:
         self.selector_patterns = []
         self.rows = []   # the generator's [(static assignment, status)], for each modifier value's status
         self.serial = 0
-        from sass.semantics.operations import OPERATION_FAMILIES
-        self.decode_values = klass.mnemonic in OPERATION_FAMILIES
+        from sass.semantics.operations import ghidra_lowers
+        self.decode_values = ghidra_lowers(gen.arch.name, klass.mnemonic)
         self.guard_name = next((a.name for a in klass.format if a.kind == 'guard'), None)
         roles = {o['name']: o for o in gen.roles.get(klass.name, {}).get('operands', [])}
         for atom in klass.operand_types.values():
@@ -222,14 +222,14 @@ class Builder:
             widths={int(m[1]) for label in self.g.arch.enums.get(atom.type,{})
                     if (m:=re.fullmatch(r'[FUS](8|16|32|64)',label))}
             if len(widths)==1:return max(4,next(iter(widths))//8)
-        from sass.semantics.family import constant_width, family_for
+        from sass.semantics.family import constant_width
+        from sass.semantics.operations import ghidra_family, ghidra_lowers
         atom=self.k.operand_types.get(name)
-        if atom and atom.type in ('C','CX') and family_for(self.k):return constant_width(self.g.arch.name,self.k.name,name)//8
+        if atom and atom.type in ('C','CX') and ghidra_family(self.g.arch.name, self.k):return constant_width(self.g.arch.name,self.k.name,name)//8
         if self.k.mnemonic=='MOV':
             rd=next((o for o in self.g.roles.get(self.k.name,{}).get('operands',[]) if o['name']=='Rd'),{})
             if isinstance(rd.get('span'),int):return 4*rd['span']
-        from sass.semantics.operations import OPERATION_FAMILIES
-        if self.k.mnemonic in OPERATION_FAMILIES:return 4
+        if ghidra_lowers(self.g.arch.name, self.k.mnemonic):return 4
         match = re.match(r'S([abcde])$', name, re.I)
         expr = self.g.sizes.get(self.k.name, {}).get('ISRC_'+match[1].upper()+'_SIZE',32) if match else 32
         if isinstance(expr, int): return max(1,(expr+7)//8)

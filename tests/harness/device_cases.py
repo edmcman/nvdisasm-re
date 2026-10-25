@@ -26,7 +26,7 @@ BATCH_KERNELS = 32
 # writers claim scoreboard 0 and stores claim read scoreboard 1.
 CONTROL = (15 << 105) | (63 << 116) | (7 << 110) | (7 << 113)
 NAME = re.compile(r'(UR|UP|R|P)(\d+)$')
-BACKEND_CHECKS = {'__native', '__max_ops', '__counter', '__events', '__event_values', '__opaque', '__fp8_nan', '__memory'}
+BACKEND_CHECKS = {'__native', '__max_ops', '__counter', '__events', '__event_values', '__opaque', '__fp8_nan', '__memory', '__atomic'}
 
 
 @cache

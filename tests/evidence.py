@@ -39,7 +39,7 @@ def reference(job):
     cases. Minimal selection retains every available modifier form and retained regression."""
     arch, out, words = job[0], {}, {}
     for case in stream(*job):
-        word = case.request.get("word")
+        word = None if "illegal" in case.expected else case.request.get("word")
         if word is not None and word not in words:
             cls, selected = sampling.form(arch, word)   # decoded when sampling chose the case
             words[word] = cls, dict(selected)

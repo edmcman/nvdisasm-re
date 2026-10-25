@@ -9,7 +9,7 @@ from sass import ghidra_bridge
 from sass.paths import CACHE, ROOT
 from tests.harness.checks import problems
 from tests.harness import sampling, sharded
-from tests.cases import emulator_cases, planned, stream
+from tests.cases import emulator_cases, planned, stream, ghidra_case
 
 
 def selection(config):
@@ -25,7 +25,7 @@ def tally(job):
 def evaluate(job):
     """{item: [cases, failures, reports]} for one shard, emulated by one Ghidra process."""
     arch, fp, family, *_ = job
-    cases = list(stream(*job))
+    cases = [adapted for c in stream(*job) if (adapted := ghidra_case(arch, c)) is not None]
     out = {}
     for case, result in zip(cases, ghidra_bridge.emulate(arch, fp, [c.request for c in cases])):
         found = problems(case.expected, result)

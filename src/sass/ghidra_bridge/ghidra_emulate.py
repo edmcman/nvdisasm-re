@@ -139,6 +139,7 @@ def session(ldefs,langid):
             out['pcode_ops']=dict(Counter(str(op.getMnemonic()) for op in ops))
             out['pcode_userops']=[str(lang.getUserDefinedOpName(int(op.getInput(0).getOffset())))
                                   for op in ops if str(op.getMnemonic())=='CALLOTHER']
+            out['pcode_sequence']=[str(lang.getUserDefinedOpName(int(op.getInput(0).getOffset()))) if str(op.getMnemonic())=='CALLOTHER' else str(op.getMnemonic()) for op in ops]
         return out
     def handle(request):
         try:return schedule.run_kernel(request,KernelEngine(request),arch) if 'kernel' in request else instruction(request)

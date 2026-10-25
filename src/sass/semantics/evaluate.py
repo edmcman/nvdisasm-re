@@ -78,6 +78,9 @@ def apply(semantics, state, params=None, runtime=None):
     if semantics.guard is not None and not value(semantics.guard):
         state.pc = pc
         return state
+    if semantics.atomic is not None:
+        if runtime is None: raise Unknown("atomic instruction without a runtime")
+        runtime.call("sass_atomic_begin", [value(a) for a in semantics.atomic.args], 0)
     for effect in semantics.effects:
         if runtime is None: raise Unknown(f"effect {effect.name} without a runtime")
         runtime.call(effect.name, [value(a) for a in effect.args], 0)
@@ -90,6 +93,7 @@ def apply(semantics, state, params=None, runtime=None):
     state.pc = pc
     for loc, v in values: state.write(*loc.args, v)
     for space, address, w, v in stores: state.store(space, address, w, v)
+    if semantics.atomic is not None: runtime.call("sass_atomic_end", [], 0)
     return state
 
 

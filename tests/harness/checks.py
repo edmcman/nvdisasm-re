@@ -7,11 +7,14 @@ __event_values (exact runtime event records),
 __fp8_nan (an FP8 format: packed byte lanes match if equal or both NaN),
 __opaque (CALLOTHER p-code or an error starting with
 the given text). `error` expects a failure message.
+`__atomic` requires one atomic p-code region containing the specified LOAD count and every STORE.
 """
 from tests.refs.fpformat import same_fp8
 
 
 def problems(expected, result):
+    if "illegal" in expected:
+        return [] if result.get("error") else ["decoded an md-illegal encoding"]
     if "error" in expected:
         return [] if expected["error"] in result.get("error", "") else [f"expected error {expected['error']!r}"]
     ops = result.get("pcode_ops", {})
@@ -27,7 +30,8 @@ def problems(expected, result):
         ("__events" in expected, len(result.get("events", [])) == expected.get("__events"), "events"),
         ("__event_values" in expected, result.get("events") == expected.get("__event_values"), "event values"),
         ("__native" in expected, bool(ops) and "CALLOTHER" not in ops, "native p-code"),
-        ("__max_ops" in expected, within_pcode_limit(expected.get("__max_ops"),result), "p-code op count")]
+        ("__max_ops" in expected, within_pcode_limit(expected.get("__max_ops"),result), "p-code op count"),
+        ("__atomic" in expected, atomic_region(result.get("pcode_sequence", []), expected.get("__atomic")), "atomic region")]
     return [name for wanted, ok, name in checks if wanted and not ok]
 
 
@@ -43,3 +47,12 @@ def within_pcode_limit(limit,result):
                 and ops.get('CALLOTHER',0)==len(limit['userops'])
                 and sorted(effects)==sorted(limit['userops']))
     return bool(ops) and limit is not None and sum(ops.values())<=limit and not set(ops)&{'CBRANCH','CALLOTHER'}
+
+
+def atomic_region(sequence, loads):
+    """The p-code opens one atomic region first, closes it once, and holds `loads` LOADs and every
+    STORE inside it."""
+    if not sequence or sequence[0] != "sass_atomic_begin" or sequence.count("sass_atomic_end") != 1 or sequence.count("sass_atomic_begin") != 1: return False
+    end = sequence.index("sass_atomic_end")
+    inside = sequence[:end]
+    return inside.count("LOAD") == loads and "LOAD" not in sequence[end:] and "STORE" in inside and "STORE" not in sequence[end:]

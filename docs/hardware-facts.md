@@ -523,3 +523,7 @@ and several HADD2/HMUL2/HFMA2 fixtures to HFMA2.MMA. The constant-move patch use
 `hfma2_mma__RRI_norelu` on SM89. Using ordinary `hfma2__RRI` during the initial port
 incorrectly changed NaN canonicalization; the patch now preserves MMA. Target-execution checks
 name the actual instruction; independent expected values are unchanged.
+
+## Atomic branch integration (2026-10-25)
+
+- Atomics (2026-10-16, 31 fixtures in `tests/cases/atomic.py`, kernels `tests/kernels/atomic_semantics.cu`; one thread per cell, 128 vectors each; references `tests/refs/atomic.py`): ATOMG integer ADD/MIN/MAX (S32/U32), INC/DEC, AND/OR/XOR/EXCH, CAS (32 and 64-bit), ADD/MIN/MAX/AND/EXCH at 64 bits, ATOMS ADD/MIN.S32/INC/EXCH/CAS, generic ATOM.E.ADD (global and shared cells), and RED ADD/MAX.S32 follow PTX `atom`/`red`: INC is `old >= b ? 0 : old + 1`, DEC `old == 0 or old > b ? b : old - 1`, and CAS stores Rc (PTX's new value) when the cell equals Rb (the compare value). F32 ADD (`.FTZ.RN`, ATOMG and RED) flushes denormal inputs and results; NaN results are FADD's 0x7fffffff. F16x2 ADD (`.RN`) doesn't flush; NaN lanes are 0x7fff. F64 ADD (`RED.E.ADD.F64.RN`) stores a NaN operand unchanged, signalling ones too, and Rb's when both are NaN; inf + -inf gives 0xfff8000000000000. Every fixture returned the cell's old value. Contention and ordering between threads are untested (`docs/open.md`).

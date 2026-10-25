@@ -13,6 +13,8 @@ from sass.emulate import native
 class UnsupportedSemantics(NotImplementedError): pass
 
 
+MEMORY_CONTROLS=('sem','sco','cop','cop2','private')
+
 SPACES = tuple(native.SPACES)
 SYNCHRONIZATION = ('bar','bssy','bsync','break','warpsync','bmov')
 
@@ -31,6 +33,9 @@ class Runtime:
     def __init__(self, sm, context=None, handlers=None):
         self.sm=sm;self.handlers=handlers or {};self.context=context or {};self.events=[]
 
+    def open_atomic(self):
+        return next((e for e in self.events if e.get('atomic')=='open'),None)
+
     def call(self,name,args,size):
         """The pcodeop `name` on integer args, a size-byte result (0: an effect)."""
         if name in self.handlers:return self.handlers[name](args,size,self.context)
@@ -47,9 +52,17 @@ class Runtime:
             key=k.name+'.'+atom.name
             if key not in supplied:raise UnsupportedSemantics('operand '+key)
             return int(supplied[key])
-        if name=='sass_memory_order':
-            ordinal,*controls=args
-            self.events.append(dict(op=memory_controls(arch,ordinal,controls).mnemonic,controls=controls));return 0
+        if name in ('sass_memory_order','sass_atomic_begin'):
+            ordinal,*controls=args;k=memory_controls(arch,ordinal,controls)
+            event=dict(op=k.mnemonic,controls=controls)
+            if name=='sass_atomic_begin':
+                if self.open_atomic():raise UnsupportedSemantics('nested atomic region')
+                event['atomic']='open'
+            self.events.append(event);return 0
+        if name=='sass_atomic_end':
+            event=self.open_atomic()
+            if event is None:raise UnsupportedSemantics('atomic region end without a begin')
+            event['atomic']='closed';return 0
         if name=='sass_memory_descriptor':
             try:native.memory_descriptor(*args)
             except native.Failure as error:raise UnsupportedSemantics(str(error)) from error

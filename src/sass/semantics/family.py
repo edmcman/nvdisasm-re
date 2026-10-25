@@ -42,19 +42,22 @@ def illegal(reason, evidence): raise Illegal(reason, evidence)
 
 @dataclass
 class Outputs:
-    writes: dict                 # operand name -> Expr, evaluated simultaneously
+    """Every value, address and condition (loads included) is computed from the state before the
+    instruction; then the register writes land, then the stores in list order, then the flow."""
+    writes: dict                 # operand name -> Expr
     order: tuple = ()            # write order for aliased destinations (last wins)
     flow: "Flow | None" = None   # control transfer after the writes
-    stores: tuple = ()           # Store(space, address, value), after the register writes
-    effects: tuple = ()          # Effect(name, args): side-effecting calls, before everything else
+    stores: tuple = ()           # Store(space, address, value)
+    effects: tuple = ()          # Effect(name, args): side-effecting calls, before any load
+    atomic: "Atomic | None" = None   # the loads and stores are one indivisible access
 
     def ordered(self):
         names = [n for n in self.writes if n not in self.order] + [n for n in self.order if n in self.writes]
         return [(n, self.writes[n]) for n in names]
 
 
-def outputs(order=(), flow=None, stores=(), effects=(), **writes):
-    return Outputs(writes, tuple(order), flow, tuple(stores), tuple(effects))
+def outputs(order=(), flow=None, stores=(), effects=(), atomic=None, **writes):
+    return Outputs(writes, tuple(order), flow, tuple(stores), tuple(effects), atomic)
 
 
 @dataclass(frozen=True)
@@ -75,8 +78,16 @@ class Effect:
     args: tuple
 
 
+@dataclass(frozen=True)
+class Atomic:
+    """The instruction's loads and stores happen indivisibly with respect to other accesses within
+    its scope, under its memory ordering: the sass_atomic_begin(args) / sass_atomic_end() region."""
+    args: tuple
+
+
 def store(space, address, value, cond=None): return Store(space, address, value, cond)
 def effect(name, *args): return Effect(name, tuple(args))
+def atomic(*args): return Atomic(tuple(args))
 
 
 def primitive_names(result):

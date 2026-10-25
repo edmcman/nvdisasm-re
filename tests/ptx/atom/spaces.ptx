@@ -1,0 +1,33 @@
+// sass: RED.E.ADD RED.E.MAX.S32 ATOMS.ADD ATOMS.CAS ATOMS.CAS.64 ATOMS.CAST.SPIN ATOM.E.ADD
+.version 8.8
+.target sm_89
+.address_size 64
+.shared .align 8 .b8 cells[32];
+
+// red.* drops the result (RED); shared atomics are ATOMS, generic ones ATOM. A shared f32 add has no
+// SASS atomic: ptxas loops over LDS, FADD and ATOMS.CAST.SPIN, whose Rd is 1 when the store happened.
+.visible .entry spaces(.param .u64 in, .param .u64 out) {
+    .reg .b32 %r<8>;
+    .reg .b64 %d<6>;
+    .reg .f32 %f<3>;
+
+    ld.param.u64 %d1, [in];
+    ld.param.u64 %d2, [out];
+    ld.global.u32 %r1, [%d1];
+    ld.global.u32 %r2, [%d1+4];
+    ld.global.u64 %d3, [%d1+8];
+    ld.global.u64 %d4, [%d1+16];
+    red.global.add.u32 [%d2], %r1;
+    red.global.max.s32 [%d2+4], %r1;
+    atom.shared.add.u32 %r3, [cells], %r1;
+    atom.shared.cas.b32 %r4, [cells+4], %r1, %r2;
+    atom.shared.cas.b64 %d5, [cells+8], %d3, %d4;
+    mov.b32 %f1, %r1;
+    atom.shared.add.f32 %f2, [cells+16], %f1;
+    atom.add.u32 %r5, [%d1+24], %r1;
+    mov.b32 %r6, %f2;
+    add.u32 %r7, %r3, %r4; add.u32 %r7, %r7, %r5; add.u32 %r7, %r7, %r6;
+    st.global.u32 [%d1+28], %r7;
+    st.global.u64 [%d1+32], %d5;
+    ret;
+}

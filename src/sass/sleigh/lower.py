@@ -240,6 +240,38 @@ def sel(keys, cases, w):
     return Expr("sel", (tuple(keys), tuple(cases)), w)
 
 
+def nodes_of(e):
+    """Every node of e, choice arms included."""
+    seen, stack = set(), [e]
+    while stack:
+        n = stack.pop()
+        if not isinstance(n, Expr) or n in seen: continue
+        seen.add(n)
+        stack.extend([t for _, t in n.args[1]] if n.op == "sel" else n.args)
+    return seen
+
+
+def reads_memory(e): return any(n.op == "load" for n in nodes_of(e))
+
+
+def reread_choice(e):
+    """A decode-time choice in e that reads a load its constructor also reads elsewhere (outside every
+    choice, or in another one), or None. A choice is a subtable of its own, so that load would run
+    twice; each arm is a constructor too, so its own choices are checked the same way."""
+    outside, choices, seen, stack = set(), [], set(), [e]
+    while stack:
+        n = stack.pop()
+        if not isinstance(n, Expr) or n in seen: continue
+        seen.add(n)
+        if n.op == "sel": choices.append((n, {m for m in nodes_of(n) if m.op == "load"}))
+        else:
+            if n.op == "load": outside.add(n)
+            stack.extend(n.args)
+    for n, loads in choices:
+        if loads & outside or any(loads & other for m, other in choices if m is not n): return n
+    return next((found for n, _ in choices for _, arm in n.args[1] if (found := reread_choice(arm)) is not None), None)
+
+
 def shape(t):
     """What must agree for trees to merge node by node: operator, width and plain arguments."""
     if not isinstance(t, Expr) or t.op in ("const", "param", "reg", "sel"): return ("leaf", id(t))
@@ -295,19 +327,25 @@ class Merger:
         by several outputs or lanes in one constructor (PRMT's constant operand loads once, not once
         per byte table). Greedy: the best single-key split one level deep, then the same inside
         each branch (an exhaustive search over key orders is exponential in FFMA's modifier bits)."""
-        widths = [tuple(x.w for x in t.args) for t in trees]
-        if len(set(widths)) > 1:
-            # A choice has one width: rows whose outputs differ in width (a store of sz bits) are
-            # bodies of their own, split on a key that decides the widths.
-            keys = self.keys(widths, assignments)
-            key = min(keys, key=lambda k: (len({a.get(k) for a in assignments}), repr(k)))
+        def bodies_on(key):
             branches = {}
             for v in sorted({a[key] for a in assignments if key in a}, key=repr):
                 rows = [j for j, a in enumerate(assignments) if a.get(key, v) == v]
                 branches[(v,)] = self.bodies([trees[j] for j in rows], [assignments[j] for j in rows])
             return self.choice((key,), branches, 0)
+        def bodies_by(keys):
+            """Bodies of their own for the rows, split on whichever of `keys` costs least (an atomic's
+            operation before its signedness: only MIN/MAX differ by it)."""
+            return min((bodies_on(k) for k in sorted(set(keys), key=repr)), key=cost)
+        # A choice has one width: rows whose outputs differ in width (a store of sz bits) are bodies
+        # of their own.
+        widths = [tuple(x.w for x in t.args) for t in trees]
+        if len(set(widths)) > 1: return bodies_by(self.keys(widths, assignments))
         def per_output(ts, asg):
             return Expr("tuple", tuple(self.merge([t.args[j] for t in ts], asg) for j in range(len(ts[0].args))), 0)
+        # Nor can a choice read a load the body also reads (an atomic's old value, also in Rd): it would
+        # load twice. Rows are split on that choice's keys, so each body loads once.
+        if (twice := reread_choice(per_output(trees, assignments))) is not None: return bodies_by(twice.args[0])
         def split(key):
             values = sorted({a[key] for a in assignments if key in a}, key=repr)
             if not 1 < len(values) <= MAX_BODY_SPLIT: return None
@@ -502,7 +540,7 @@ def expr(text, *parts): return Operand(text, "expr", frozenset().union(*(p.refs 
 class Code:
     """Statements of one constructor, with the references they use."""
 
-    def __init__(self): self.lines, self.refs = [], set()
+    def __init__(self): self.lines, self.refs, self.built = [], set(), set()   # built: subtables `build` runs here
 
     def add(self, line, *parts):
         self.lines.append(line)
@@ -874,7 +912,9 @@ class Lower:
         return r
 
     def sel(self, e):
-        """A decode-time choice: a subtable with one constructor per case, exporting its value."""
+        """A decode-time choice: a subtable with one constructor per case, exporting its value. One
+        that reads memory is built here, in the body's order: a subtable is otherwise built before
+        the body, so its load would precede the body's effects and atomic region."""
         keys, cases = e.args
         constructors = []
         shared = shared_subtrees([t for _, t in cases], self.b)
@@ -886,7 +926,10 @@ class Lower:
             constructors.append(('""', code.pattern(cl), "", text))
         table = self.b.g.subtable("sel", constructors)
         self.b.refs.append(("sub", table))
-        return Operand(table, "name", frozenset([("sub", table)]))
+        out = Operand(table, "name", frozenset([("sub", table)]))
+        if reads_memory(e) and table not in self.code.built:
+            self.code.built.add(table); self.code.add(f"build {table};", out)
+        return out
 
 
 class Fold:
@@ -988,7 +1031,7 @@ def holds_load(b, e):
 
 def shared_subtrees(trees, b=None, leaves=frozenset()):
     """Maximal non-trivial subtrees that occur in more than one of `trees`; with the Builder b, not
-    those holding a loaded operand: a value table holding one would load again beside the arm's
+    those holding a load or loaded operand: a value table holding one would load again beside the arm's
     own reference to it. A subtree that the body itself never reads (it occurs only inside `leaves`,
     nodes computed in their own value tables) is not hoisted: it would be a dead temporary."""
     def nodes(t, leaves=leaves):   # in a fixed order: Expr hashes are identities, so sets would vary per run
@@ -1004,7 +1047,7 @@ def shared_subtrees(trees, b=None, leaves=frozenset()):
         for n in nodes(t, frozenset()): counts[n] += 1
         direct |= nodes(t).keys()
     # Even small shared parts: measured on SM89, hoisting everything shared gives the smallest .sla.
-    shared = [n for n, c in counts.items() if c > 1 and n in direct and n.op not in ("const", "param", "reg") and not (b is not None and holds_load(b, n))]
+    shared = [n for n, c in counts.items() if c > 1 and n in direct and n.op not in ("const", "param", "reg") and not (reads_memory(n) or b is not None and holds_load(b, n))]
     def below(n, seen):
         for a in n.args:
             if isinstance(a, Expr) and a not in seen: seen.add(a); below(a, seen)
@@ -1060,10 +1103,13 @@ def lower_writes(b, writes):
     code = Code()
     low = Lower(b, code, count_uses([e for _, e in writes]))
     extra = dict(w for w in writes if pseudo(w[0]))
-    # Effects (memory-ordering calls) come before any load the values do.
-    for k, (name, nargs) in enumerate(b.effect_shapes):
-        args = [low.value(extra[f"__effect{k}_{j}"]) for j in range(nargs)]
+    def call(name, args):
         b.g.pcodeops.add(name); code.add(f"{name}({', '.join(a.text for a in args)});", *args)
+    # An atomic region opens before anything is read and closes after the last store; effects
+    # (memory-ordering calls) come before any load the values do.
+    if b.atomic_arity is not None: call("sass_atomic_begin", [low.value(extra[f"__atomic_{j}"]) for j in range(b.atomic_arity)])
+    for k, (name, nargs) in enumerate(b.effect_shapes):
+        call(name, [low.value(extra[f"__effect{k}_{j}"]) for j in range(nargs)])
     low.precompute(n for n, c in low.uses.items() if c > 1 and n.op not in ("const", "param", "reg", "sel"))
     flow = {n: extra[n] for n in FLOW if n in extra}
     writes = [w for w in writes if not pseudo(w[0])]
@@ -1084,6 +1130,7 @@ def lower_writes(b, writes):
         if cond is None: code.add(f"*[{space}]:{nbytes(w)} {address.text} = {v.text};", address, v); continue
         skip = low.label("skip")
         code.add(f"if (!({cond.text})) goto <{skip}>; *[{space}]:{nbytes(w)} {address.text} = {v.text}; <{skip}>", address, v, cond)
+    if b.atomic_arity is not None: call("sass_atomic_end", [])
     if flow: lower_flow(low, b.flow_kind, target, cond, bitvec.is_const(flow["__flow_cond"], 1))
     return code
 
@@ -1139,14 +1186,16 @@ def emit(b):
     if len(kinds) > 1: raise TypeError(f"{b.k.name}: rows differ in control transfer {sorted(map(str, kinds))}")
     b.flow_kind = kinds.pop()
     for attr, shape in (("store_spaces", lambda r: tuple(s.space for s in r.stores)),
-                        ("effect_shapes", lambda r: tuple((e.name, len(e.args)) for e in r.effects))):
+                        ("effect_shapes", lambda r: tuple((e.name, len(e.args)) for e in r.effects)),
+                        ("atomic_arity", lambda r: None if r.atomic is None else len(r.atomic.args))):
         shapes = {shape(r) for _, r in native}
         if len(shapes) > 1: raise TypeError(f"{b.k.name}: rows differ in {attr} {sorted(shapes)}")
         setattr(b, attr, shapes.pop())
     flow = lambda r: ([("__flow_target", r.flow.target), ("__flow_cond", r.flow.cond if r.flow.cond is not None else bitvec.const(1, 1))] if r.flow else []) \
         + [w for k, s in enumerate(r.stores) for w in ((f"__store{k}_addr", s.address), (f"__store{k}_value", s.value),
                                                        (f"__store{k}_cond", s.cond if s.cond is not None else bitvec.const(1, 1)))] \
-        + [(f"__effect{k}_{j}", a) for k, e in enumerate(r.effects) for j, a in enumerate(e.args)]
+        + [(f"__effect{k}_{j}", a) for k, e in enumerate(r.effects) for j, a in enumerate(e.args)] \
+        + [(f"__atomic_{j}", a) for j, a in enumerate(r.atomic.args if r.atomic else ())]
     resolved = [(a, [w for n, e in r.ordered() if i.has_operand(n) for w in predicate_writes(i, i.resolve(n), e)] + flow(r))
                 for a, r in native]
     for a, writes in resolved:

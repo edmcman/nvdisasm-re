@@ -1,0 +1,24 @@
+// sass: ATOMG.E.ADD.F32.FTZ.RN ATOMG.E.ADD.F64.RN ATOMG.E.ADD.F16x2.RN
+.version 8.8
+.target sm_89
+.address_size 64
+
+.visible .entry global_float(.param .u64 in, .param .u64 out) {
+    .reg .b32 %h<2>;
+    .reg .f32 %f<3>;
+    .reg .f64 %g<3>;
+    .reg .b64 %d<3>;
+
+    ld.param.u64 %d1, [in];
+    ld.param.u64 %d2, [out];
+    ld.global.f32 %f1, [%d1];
+    ld.global.f64 %g1, [%d1+8];
+    ld.global.b32 %h1, [%d1+16];
+    atom.global.add.f32 %f2, [%d2], %f1;
+    atom.global.add.f64 %g2, [%d2+8], %g1;
+    atom.global.add.noftz.f16x2 %h0, [%d2+16], %h1;
+    st.global.f32 [%d1+24], %f2;
+    st.global.f64 [%d1+32], %g2;
+    st.global.b32 [%d1+40], %h0;
+    ret;
+}

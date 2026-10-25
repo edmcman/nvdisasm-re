@@ -1,0 +1,32 @@
+// sass: ATOMG.E.ADD ATOMG.E.MIN.S32 ATOMG.E.MAX ATOMG.E.INC ATOMG.E.DEC ATOMG.E.AND ATOMG.E.OR ATOMG.E.XOR ATOMG.E.EXCH ATOMG.E.ADD.64 ATOMG.E.MIN.S64 ATOMG.E.EXCH.64
+.version 8.8
+.target sm_89
+.address_size 64
+
+.visible .entry global_int(.param .u64 in, .param .u64 out) {
+    .reg .b32 %r<16>;
+    .reg .b64 %d<8>;
+
+    ld.param.u64 %d1, [in];
+    ld.param.u64 %d2, [out];
+    ld.global.u32 %r1, [%d1];
+    ld.global.u64 %d3, [%d1+8];
+    atom.global.add.u32 %r2, [%d2], %r1;
+    atom.global.min.s32 %r3, [%d2+4], %r1;
+    atom.global.max.u32 %r4, [%d2+8], %r1;
+    atom.global.inc.u32 %r5, [%d2+12], %r1;
+    atom.global.dec.u32 %r6, [%d2+16], %r1;
+    atom.global.and.b32 %r7, [%d2+20], %r1;
+    atom.global.or.b32 %r8, [%d2+24], %r1;
+    atom.global.xor.b32 %r9, [%d2+28], %r1;
+    atom.global.exch.b32 %r10, [%d2+32], %r1;
+    atom.global.add.u64 %d4, [%d2+40], %d3;
+    atom.global.min.s64 %d5, [%d2+48], %d3;
+    atom.global.exch.b64 %d6, [%d2+56], %d3;
+    add.u32 %r11, %r2, %r3; add.u32 %r11, %r11, %r4; add.u32 %r11, %r11, %r5; add.u32 %r11, %r11, %r6;
+    add.u32 %r11, %r11, %r7; add.u32 %r11, %r11, %r8; add.u32 %r11, %r11, %r9; add.u32 %r11, %r11, %r10;
+    add.u64 %d7, %d4, %d5; add.u64 %d7, %d7, %d6;
+    st.global.u32 [%d1+16], %r11;
+    st.global.u64 [%d1+24], %d7;
+    ret;
+}

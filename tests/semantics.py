@@ -12,7 +12,7 @@ from tests.harness import sampling
 
 def failures(arch, fp, families=FAMILIES, results=None, sample=sampling.DEFAULT):
     """(total, {(family, class): [(case, result, problems)]}) for one language."""
-    cases = [(family, case) for family, cs in emulator_cases(arch, fp, families, sample).items() for case in cs]
+    cases = [(family, adapted) for family, cs in emulator_cases(arch, fp, families, sample).items() for case in cs if (adapted := ghidra_case(arch, case)) is not None]
     results = results or ghidra_bridge.emulate_sharded({0: (arch, fp, [case.request for _, case in cases])})[0]
     out = defaultdict(list)
     for (family, case), result in zip(cases, results):

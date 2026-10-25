@@ -7,6 +7,7 @@ import json
 from sass.decode import ir
 from sass.semantics import bitvec, primitive
 from sass.semantics.bitvec import PRIMITIVE_OP, Expr
+from sass.semantics.family import effect
 from sass.semantics.runtime import UnsupportedSemantics, memory_controls
 
 FILES = {"R": ("t.r", 32), "UR": ("t.ur", 32), "SR": ("t.sr", 32), "P": ("t.p", 1), "UP": ("t.up", 1)}
@@ -168,7 +169,10 @@ def instruction(semantics, function, decoded):
     low.emit("auto &t = c.t;")
     if semantics.guard is not None:
         low.emit(f"if (!{low.value(semantics.guard)}) {{ t.pc = UINT64_C({semantics.addr + 16:#x}); return; }}")
-    for effect in semantics.effects: low.effect(effect)
+    # The scheduler executes one instruction at a time, so its read-modify-write
+    # already forms an indivisible step. Validate its ordering controls as well.
+    if semantics.atomic is not None: low.effect(effect("sass_memory_order", *semantics.atomic.args))
+    for event in semantics.effects: low.effect(event)
     values = [(location, low.value(v)) for location, v in semantics.writes]
     stores = [low.store(s) for s in semantics.stores]
     pc = f"UINT64_C({semantics.addr + 16:#x})"

@@ -10,7 +10,7 @@ from tests.harness.checks import problems
 
 NAME = re.compile(r"(UR|UP|R|P)(\d+)$")
 SPECIAL = re.compile(r"SR_[\w.]+$")   # a special register seeded by name (SR_SWINLO)
-PCODE_ONLY = ("__native", "__max_ops")
+PCODE_ONLY = ("__native", "__max_ops", "__atomic")
 
 
 def applies(case):
@@ -69,7 +69,10 @@ def run(arch, fp, case, execute=evaluated):
     if "kernel" in case.request: return "kernel", problems(case.expected, reference.run_kernel(case.request, arch, fp))
     word = bytes.fromhex(case.request["word"])
     try: lifted = lift(arch, word, case.request.get("address", 0x1000), fp)
-    except pydecode.NoMatch as e: return "illegal", [f"does not decode: {e}"]
+    except pydecode.NoMatch as e:
+        if "illegal" not in case.expected: return "illegal", [f"does not decode: {e}"]
+        return "illegal", [] if all(part in str(e) for part in case.expected["illegal"]) else [f"rejected for another reason: {e}"]
+    if "illegal" in case.expected: return lifted.status, [f"decoded an md-illegal encoding: {lifted.text}"]
     expected = {k: v for k, v in case.expected.items() if k not in PCODE_ONLY}
     opaque = "__opaque" in expected or str(expected.get("error", "")).startswith("sass_opaque")
     if lifted.status == "opaque": return "opaque", [] if opaque else [f"unmodelled ({lifted.reason}), expected values"]
@@ -81,5 +84,5 @@ def run(arch, fp, case, execute=evaluated):
     if "error" in expected: return lifted.status, []  # kernel budgets are emulator matters
     memory = [dict(hex=bytes(out.memory.get(m["space"], {}).get(m["address"] + j, 0) for j in range(m["size"])).hex())
               for m in case.request.get("observe_memory", [])]
-    return lifted.status, problems(expected, dict(registers=observe(out, case.request.get("observe", [])), counter=out.pc,
-                                                  memory=memory, events=runtime.events))
+    found = problems(expected, dict(registers=observe(out, case.request.get("observe", [])), counter=out.pc, memory=memory, events=runtime.events))
+    return lifted.status, found + (["not atomic"] if "__atomic" in case.expected and lifted.atomic is None else [])

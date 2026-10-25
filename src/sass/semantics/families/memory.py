@@ -5,13 +5,14 @@ range-form ones, and otherwise doesn't change the access (SM89 GPU). Dual regist
 predicate results and non-IA address modes are unmodelled; a load's Pnz input zero-fills."""
 from sass.semantics.bitvec import concat, const, extract, ite, load, sext, trunc, zext
 from sass.semantics.family import effect, family, outputs, store, unmodelled
+from sass.semantics.runtime import MEMORY_CONTROLS
 
 SPACES = {"LDG": "ram", "STG": "ram", "LDS": "shared", "STS": "shared", "LDL": "localmem", "STL": "localmem", "LDC": "cbank", "LDCU": "cbank",
           "LD": "generic", "ST": "generic"}
 # A generic address in a window [SR_*WINHI:SR_*WINLO, + SR_*WINSZ) is that offset of its space (SM89 GPU).
 WINDOWS = (("shared", "SR_SWINLO", "SR_SWINHI", "SR_SWINSZ"), ("localmem", "SR_LWINLO", "SR_LWINHI", "SR_LWINSZ"))
-SIZES = {"U8": (8, False), "S8": (8, True), "U16": (16, False), "S16": (16, True), "32": (32, False), "64": (64, False), "128": (128, False)}
-CONTROLS = ("sem", "sco", "cop", "cop2", "private")
+SIZES = {"U8": (8, False), "S8": (8, True), "U16": (16, False), "S16": (16, True), "32": (32, False), "S32": (32, True), "64": (64, False),
+         "S64": (64, True), "128": (128, False)}
 
 
 def required(i, name, *labels):
@@ -19,8 +20,12 @@ def required(i, name, *labels):
     if label not in labels: unmodelled(f"{name} {label}")
 
 
-def ordering(i):
-    return effect("sass_memory_order", const(i.k.order, 32), *(i.encoding(n) for n in CONTROLS if i.has_operand(n)))
+def controls(i):
+    """The class ordinal and its encoded memory-ordering controls, as the runtime reads them."""
+    return const(i.k.order, 32), *(i.encoding(n) for n in MEMORY_CONTROLS if i.has_operand(n))
+
+
+def ordering(i): return effect("sass_memory_order", *controls(i))
 
 
 def size(i):
@@ -50,7 +55,7 @@ def address(i):
     sign-extended, UImm zero-extended)."""
     if i.has_operand("Rd2") or i.has_operand("Rb2"): unmodelled("dual registers")
     # .E and the one-label input_reg_sz_* selectors name Ra's width, which its span already gives.
-    for n in ("e", "input_reg_sz_32_dist", "input_reg_sz_64_dist", "input_reg_sz_32_bit75_dist", "input_reg_sz_64_bit75_dist"):
+    for n in ("e", *(f"input_reg_sz_{w}{v}_dist" for w in (32, 64) for v in ("", "_bit75", "_100"))):
         if i.has_operand(n): i.select_fork(n)
     if i.has_operand("ad"): required(i, "ad", "IA")
     if i.has_operand("sp2"): required(i, "sp2", "nosp2")
@@ -73,6 +78,26 @@ def windows(i, space, addr):
     return [(s, a, a < zext(i.special_register(size), 64)) for s, a, size in offsets], ("ram", addr)
 
 
+def routed_load(i, space, addr, w):
+    """The w bits at addr, a generic one from the window it falls in."""
+    tried, (s, a) = windows(i, space, addr)
+    loaded = load(s, a, w)
+    for s, a, inside in reversed(tried): loaded = ite(inside, load(s, a, w), loaded)
+    return loaded
+
+
+def routed_stores(i, space, addr, value, cond=None):
+    """Stores of value at addr (a generic one: one per window, under exclusive conditions), each
+    also only when cond holds (None: always)."""
+    tried, last = windows(i, space, addr)
+    both = lambda c: cond if c is None else c if cond is None else c & cond
+    stores, outside = [], None
+    for ws, wa, inside in tried:
+        stores.append(store(ws, wa, value, both(inside if outside is None else outside & inside)))
+        outside = ~inside if outside is None else outside & ~inside
+    return [*stores, store(*last, value, both(outside))]
+
+
 @family("LDG", "STG", "LDS", "STS", "LDL", "STL", "LDC", "LDCU", "LD", "ST",
         modifier_roles={"cop": "hint", "cop2": "hint", "sp2": "hint",
                         "sem": "effect", "sco": "effect", "private": "effect"})
@@ -92,9 +117,7 @@ def memory(i):
     w, signed = size(i)
     if i.opcode.startswith("LD"):
         if w > i.width("Rd"): unmodelled("size")
-        tried, (s, a) = windows(i, space, addr)
-        loaded = load(s, a, w)
-        for s, a, inside in reversed(tried): loaded = ite(inside, load(s, a, w), loaded)
+        loaded = routed_load(i, space, addr, w)
         # A false Pnz gives 0 without accessing memory (SM89 GPU: an unmapped address doesn't trap).
         if i.has_operand("Pnz"): loaded = ite(i.pred("Pnz"), loaded, const(0, w))
         # The md also writes Pnz; SM89 hardware leaves its value unchanged.
@@ -103,12 +126,7 @@ def memory(i):
     value = i.value("Rb", modifiers=False)
     if w > value.w: unmodelled("size")
     value = trunc(value, w) if value.w > w else value
-    tried, (s, a) = windows(i, space, addr)
-    stores, outside = [], None
-    for ws, wa, inside in tried:
-        stores.append(store(ws, wa, value, inside if outside is None else outside & inside))
-        outside = ~inside if outside is None else outside & ~inside
-    return outputs(effects=effects, stores=[*stores, store(s, a, value, outside)])
+    return outputs(effects=effects, stores=routed_stores(i, space, addr, value))
 
 
 @family("ULDC")
