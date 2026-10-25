@@ -103,26 +103,33 @@ def flows(field, before, after):
     return out, len(sources) > 1 and len(sinks) > 1
 
 
-def sankey(title, moved, ambiguous):
+def sankey(title, moved, ambiguous, scope=""):
     links = "\n".join(f"{a} (before),{b} (after),{n}" for (a, b), n in moved.items())
-    note = "Flows inferred from the counts, assuming the fewest moves" + (
+    # Mermaid's default 600x400 is far taller than a few links need.
+    height = 40 + 40 * max(len({a for a, _ in moved}), len({b for _, b in moved}))
+    note = "Flows inferred from the counts, assuming the fewest moves" + scope + (
         f"; others fit {names(ambiguous)} equally" if ambiguous else "") + "."
     return (f"\n**{title}**\n\n```mermaid\n---\nconfig:\n  sankey:\n    showValues: true\n    linkColor: source\n"
-            f"---\nsankey-beta\n{links}\n```\n\n{note}\n")
+            f"    width: 800\n    height: {height}\n---\nsankey-beta\n{links}\n```\n\n{note}\n")
 
 
-def diagrams(old, new, changed):
-    """A Sankey diagram per metric of what moved between levels across the changed opcodes."""
+def diagrams(compared, fields):
+    """A Sankey diagram per metric of what moved between levels across the compared architectures' changed opcodes."""
     out = []
-    for field, title in FIELDS:
-        moved, ambiguous = Counter(), []
-        for op in changed:
-            links, unclear = flows(field, old.get(field, {}).get(op, {}), new.get(field, {}).get(op, {}))
-            for a, b, n in links:
-                moved[a, b] += n
-            ambiguous += [op] * unclear
+    for field, title in fields:
+        moved, ambiguous = Counter(), {}
+        for _, old, new, changed in compared:
+            for op in changed:
+                links, unclear = flows(field, old.get(field, {}).get(op, {}), new.get(field, {}).get(op, {}))
+                for a, b, n in links:
+                    moved[a, b] += n
+                if unclear:
+                    ambiguous[op] = None
         if moved:
-            out.append(sankey(title, moved, ambiguous))
+            scope = f", summed over {len(compared)} architectures" if len(compared) > 1 else ""
+            rank = {k: i for i, k in enumerate(ranked(ORDERS[field], {k for link in moved for k in link}))}
+            moved = dict(sorted(moved.items(), key=lambda item: (rank[item[0][0]], rank[item[0][1]])))
+            out.append(sankey(title, moved, list(ambiguous), scope))
     return out
 
 
@@ -242,7 +249,7 @@ def render(base, head, base_sha, head_sha, run_url=None, repo=None):
         worse, better = sum(-1 in t for t in trends.values()), sum(-1 not in t and 1 in t for t in trends.values())
         tally = "".join(f" · {tone(s)} {n} {word}" for s, n, word in ((-1, worse, "regressed"), (1, better, "improved")) if n)
         noun = "opcode" if len(changed) == 1 else "opcodes"
-        details = [f"<details>\n<summary>{arch} · {len(changed)} changed {noun}{tally}</summary>\n", *diagrams(old, new, changed)]
+        details = [f"<details>\n<summary>{arch} · {len(changed)} changed {noun}{tally}</summary>\n", *diagrams([(arch, old, new, changed)], FIELDS)]
         # Regressions first, then improvements, then neutral changes.
         for op in sorted(changed, key=lambda op: (0 if -1 in trends[op] else 1 if 1 in trends[op] else 2, op)):
             label = " (added)" if op not in old.get("opcodes", {}) else " (removed)" if op not in new.get("opcodes", {}) else ""
@@ -266,7 +273,7 @@ def render(base, head, base_sha, head_sha, run_url=None, repo=None):
         coverage = "<details>\n<summary>Opcode coverage: ⚪ unchanged</summary>\n\n" + coverage + "\n</details>\n"
     verification = verification_table(compared)
     summary = (header + "".join(c + "\n" for c in callouts(compared))
-               + "### Verification changes\n\n" + (verification or "No verification changes.\n") + "\n"
+               + "### Verification changes\n\n" + (verification + "".join(diagrams(compared, FIELDS[2:])) if verification else "No verification changes.\n") + "\n"
                + ("### Opcode coverage\n\n" if moved else "") + coverage + "\n"
                "<details>\n<summary>How to read this report</summary>\n\n"
                "- **Opcode coverage** counts opcodes with at least one class with semantics, including partial or primitive semantics, "
@@ -277,7 +284,7 @@ def render(base, head, base_sha, head_sha, run_url=None, repo=None):
                "- **Change** colors: 🟢 better · 🔴 worse · ⚪ neutral. A level is judged by its count together with the stronger levels, "
                "so evidence moving between levels (reference promoted to GPU, or GPU demoted to reference) is ⚪ for the lower level; "
                "more opaque or unverified (none) counts are worse.\n"
-               "- **Diagrams** show what moved between levels per architecture, inferred from the counts "
+               "- **Diagrams** show what moved between levels, per architecture and under Verification changes summed over them, inferred from the counts "
                "assuming the fewest moves; unchanged counts are omitted.\n"
                "- **Detail colors** indicate status: 🟢 native, 🟡 partial or primitive, 🔴 opaque.\n"
                "- Readable variants share the exact variants' coverage and are omitted.\n\n"
