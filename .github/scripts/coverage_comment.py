@@ -1,4 +1,4 @@
-"""Compare committed semantic coverage and archive superseded PR comments.
+"""Compare committed evidence coverage and modeled support; archive superseded PR comments.
 
 Uses only the standard library; does not import or regenerate SASS semantics.
 """
@@ -112,20 +112,21 @@ def flows(field, before, after):
     return out, len(sources) > 1 and len(sinks) > 1
 
 
-def sankey(title, moved, ambiguous, scope=""):
+def sankey(title, moved, ambiguous, scope="", heading=None):
     links = "\n".join(f"{a} (before),{b} (after),{n}" for (a, b), n in moved.items())
     # Mermaid's default 600x400 is far taller than a few links need.
     height = 40 + 40 * max(len({a for a, _ in moved}), len({b for _, b in moved}))
     note = "Flows inferred from the counts, assuming the fewest moves" + scope + (
         f"; others fit {names(ambiguous)} equally" if ambiguous else "") + "."
     # Mermaid blends links with an inline `multiply`, which turns them black on GitHub's dark background.
-    return (f"\n**{title}**\n\n```mermaid\n---\nconfig:\n"
+    label = f"{heading} {title}" if heading else f"**{title}**"
+    return (f"\n{label}\n\n```mermaid\n---\nconfig:\n"
             '  themeCSS: ".link, .link path { mix-blend-mode: normal !important; stroke-opacity: 0.6; }"\n'
             "  sankey:\n    showValues: true\n    linkColor: target\n"
             f"    width: 800\n    height: {height}\n---\nsankey-beta\n{links}\n```\n\n{note}\n")
 
 
-def diagrams(compared, fields):
+def diagrams(compared, fields, heading=None):
     """A Sankey diagram per metric of what moved between levels across the compared architectures' changed opcodes."""
     out = []
     for field, title in fields:
@@ -141,7 +142,7 @@ def diagrams(compared, fields):
             scope = f", summed over {len(compared)} architectures" if len(compared) > 1 else ""
             rank = {k: i for i, k in enumerate(ranked(ORDERS[field], {k for link in moved for k in link}))}
             moved = dict(sorted(moved.items(), key=lambda item: (rank[item[0][0]], rank[item[0][1]])))
-            out.append(sankey(title, moved, list(ambiguous), scope))
+            out.append(sankey(title, moved, list(ambiguous), scope, heading))
     return out
 
 
@@ -229,7 +230,9 @@ def callouts(compared):
         if fell:
             lines.append(f"> - **{arch}**: {len(fell)} {'opcode' if len(fell) == 1 else 'opcodes'}: {names(fell)}")
     if lines:
-        out.append("> [!WARNING]\n> **Semantic coverage decreased**\n>\n" + "\n".join(lines) + "\n")
+        out.append("> [!WARNING]\n> **Modeled support counts decreased**\n>\n" + "\n".join(lines)
+                   + "\n>\n> These counts describe modeled instructions, not recorded evidence. "
+                   "A correction to how forms are counted can also reduce them without removing an implementation.\n")
     return out
 
 
@@ -257,12 +260,47 @@ def badge(repo, sha):
     return f"[![opcode semantics](https://img.shields.io/endpoint?url={raw})]({report})"
 
 
+def detail_sections(compared, fields):
+    """Per-opcode details for evidence or modeled support, with separate trends and diagrams."""
+    sections = []
+    evidence = fields == FIELDS[2:]
+    for arch, old, new, ops in compared:
+        changed = [op for op in ops if any(
+            old.get(field, {}).get(op) != new.get(field, {}).get(op)
+            for field, _ in fields)]
+        if not changed:
+            continue
+        trends = {op: {t for field, _ in fields for *_, t in deltas(field, old.get(field, {}).get(op, {}), new.get(field, {}).get(op, {}))}
+                  for op in changed}
+        worse, better = sum(-1 in t for t in trends.values()), sum(-1 not in t and 1 in t for t in trends.values())
+        tally = "".join(f" · {tone(s)} {n} {word}" for s, n, word in ((-1, worse, "regressed"), (1, better, "improved")) if n)
+        gaps = sum(any(evidence_gaps(old, new, op)) for op in changed) if evidence else 0
+        if gaps:
+            tally += f" · 🟡 {gaps} with evidence gaps"
+        noun = "opcode" if len(changed) == 1 else "opcodes"
+        details = [f"<details>\n<summary>{arch} · {len(changed)} changed {noun}{tally}</summary>\n", *diagrams([(arch, old, new, changed)], fields)]
+        # Regressions first, then improvements, then neutral changes.
+        for op in sorted(changed, key=lambda op: (0 if -1 in trends[op] else 1 if 1 in trends[op] else 2, op)):
+            label = " (added)" if op not in old.get("opcodes", {}) else " (removed)" if op not in new.get("opcodes", {}) else ""
+            mark = "🔴 " if -1 in trends[op] else "🟢 " if 1 in trends[op] else ""
+            gap = " · 🟡 evidence gap grew" if evidence and any(evidence_gaps(old, new, op)) else ""
+            details.append(f"\n{mark}**{html.escape(op)}{label}**{gap}\n")
+            details.extend(["| Metric | Before | After | Change |", "| :--- | ---: | ---: | :--- |"])
+            for field, title in fields:
+                b, h = old.get(field, {}).get(op, {}), new.get(field, {}).get(op, {})
+                if b != h:
+                    details.append(f"| {title} | {counts(b)} | {counts(h)} | {change(field, b, h)} |")
+        details.append("\n</details>\n")
+        sections.append("\n".join(details))
+    return sections
+
+
 def render(base, head, base_sha, head_sha, run_url=None, repo=None):
     """Return the full report, bounded comment, and whether reportable data changed; without a
     repository or run (a local comparison) the badge and CI-run link are omitted."""
     archs = sorted((a for a in base.keys() | head.keys() if "_" not in a),
                    key=lambda a: int(a.removeprefix("SM")))
-    rows, sections, compared, moved = [], [], [], False
+    rows, compared, moved = [], [], False
     for arch in archs:
         before, after = base.get(arch), head.get(arch)
         old, new = before or {}, after or {}
@@ -281,42 +319,31 @@ def render(base, head, base_sha, head_sha, run_url=None, repo=None):
             delta = "added" if after is not None else "removed"
             moved = True
         rows.append(f"| {arch} | {totals_text(before)} | {totals_text(after)} | {delta} |")
-        trends = {op: {t for field, _ in FIELDS for *_, t in deltas(field, old.get(field, {}).get(op, {}), new.get(field, {}).get(op, {}))}
-                  for op in changed}
-        worse, better = sum(-1 in t for t in trends.values()), sum(-1 not in t and 1 in t for t in trends.values())
-        tally = "".join(f" · {tone(s)} {n} {word}" for s, n, word in ((-1, worse, "regressed"), (1, better, "improved")) if n)
-        gaps = sum(any(evidence_gaps(old, new, op)) for op in changed)
-        if gaps:
-            tally += f" · 🟡 {gaps} with evidence gaps"
-        noun = "opcode" if len(changed) == 1 else "opcodes"
-        details = [f"<details>\n<summary>{arch} · {len(changed)} changed {noun}{tally}</summary>\n", *diagrams([(arch, old, new, changed)], FIELDS)]
-        # Regressions first, then improvements, then neutral changes.
-        for op in sorted(changed, key=lambda op: (0 if -1 in trends[op] else 1 if 1 in trends[op] else 2, op)):
-            label = " (added)" if op not in old.get("opcodes", {}) else " (removed)" if op not in new.get("opcodes", {}) else ""
-            mark = "🔴 " if -1 in trends[op] else "🟢 " if 1 in trends[op] else ""
-            gap = " · 🟡 evidence gap grew" if any(evidence_gaps(old, new, op)) else ""
-            details.append(f"\n{mark}**{html.escape(op)}{label}**{gap}\n")
-            details.extend(["| Metric | Before | After | Change |", "| :--- | ---: | ---: | :--- |"])
-            for field, title in FIELDS:
-                b, h = old.get(field, {}).get(op, {}), new.get(field, {}).get(op, {})
-                if b != h:
-                    details.append(f"| {title} | {counts(b)} | {counts(h)} | {change(field, b, h)} |")
-        details.append("\n</details>\n")
-        sections.append("\n".join(details))
-    header = (f"{MARKER}\n## 🧪 Semantic coverage\n\n" + (f"{badge(repo, head_sha)}\n\n" if repo else "")
+    sections = detail_sections(compared, FIELDS[2:])
+    if not sections:
+        sections.append("No recorded evidence changes.\n")
+    support = detail_sections(compared, FIELDS[:2])
+    if support:
+        sections += ["\n### Semantic coverage changes\n\n" + support[0], *support[1:]]
+    header = (f"{MARKER}\n## 🧪 Evidence coverage\n\n" + (f"{badge(repo, head_sha)}\n\n" if repo else "")
               + f"Comparing `{base_sha[:7]}` → `{head_sha[:7]}`" + (f" · [View CI run]({run_url})" if run_url else "") + "\n\n"
               + "Implemented semantics and recorded evidence are reported separately. Evidence includes recorded passing GPU checks, "
               "PTX compilation, or available reference cases; it does not summarize current test results.\n\n")
     if not rows:
-        body = header + "No semantic coverage changes compared with the PR base.\n"
+        body = header + "No evidence coverage or modeled support changes compared with the PR base.\n"
         return {"full": body, "body": body, "changed": False}
     coverage = ("| Architecture | Before | After | Change |\n"
                 "| :--- | ---: | ---: | ---: |\n" + "\n".join(rows) + "\n")
     if not moved:
         coverage = "<details>\n<summary>Opcode coverage: ⚪ unchanged</summary>\n\n" + coverage + "\n</details>\n"
     verification = verification_table(compared)
+    evidence_overview = []
+    for field, title in FIELDS[2:]:
+        charts = diagrams(compared, ((field, title),), heading="####")
+        evidence_overview.extend(charts or [f"#### {title}\n\nNo changes compared with the PR base.\n"])
     summary = (header + "".join(c + "\n" for c in callouts(compared))
-               + "### Recorded evidence changes\n\n" + (verification + "".join(diagrams(compared, FIELDS[2:])) if verification else "No recorded evidence changes.\n") + "\n"
+               + "### Changed evidence\n\n" + "\n".join(evidence_overview) + "\n"
+               + (verification or "No recorded evidence changes.\n") + "\n"
                + ("### Opcode coverage\n\n" if moved else "") + coverage + "\n"
                "<details>\n<summary>How to read this report</summary>\n\n"
                "- **Opcode coverage** counts opcodes with at least one class with semantics, including partial or primitive semantics, "
@@ -329,11 +356,11 @@ def render(base, head, base_sha, head_sha, run_url=None, repo=None):
                "so evidence moving between levels (reference promoted to GPU, or GPU demoted to reference) is ⚪ for the lower level; "
                "more opaque counts are worse. Increases in none that fit growth in modeled coverage are ⚪ with a 🟡 evidence-gap warning. "
                "Losing recorded evidence remains 🔴; removing unevidenced semantics alone is ⚪.\n"
-               "- **Diagrams** show what moved between levels, per architecture and under Recorded evidence changes summed over them, inferred from the counts "
+               "- **Diagrams** show what moved between levels, per architecture and under Changed evidence summed over them, inferred from the counts "
                "assuming the fewest moves; unchanged counts are omitted.\n"
                "- **Detail colors** indicate status: 🟢 native, 🟡 partial or primitive, 🔴 opaque.\n"
                "- Readable variants share the exact variants' coverage and are omitted.\n\n"
-               "</details>\n\n### Changed opcodes\n\n")
+               "</details>\n\n#### By architecture\n\n")
     full = summary + "\n".join(sections)
     body = full
     if len(full.encode("utf-8")) > COMMENT_LIMIT:

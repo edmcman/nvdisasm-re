@@ -33,7 +33,19 @@ def test_unchanged_and_readable_duplicates():
     head["SM89_readable"] = {"opcodes": {"OTHER": {"native": 1}}}
     report = render(base, head)
     assert not report["changed"]
-    assert "No semantic coverage changes" in report["body"]
+    assert "No evidence coverage or modeled support changes" in report["body"]
+    assert "## 🧪 Evidence coverage" in report["body"]
+
+
+def test_evidence_and_modeled_support_have_separate_details_and_trends():
+    before, after = gpu_demoted()
+    after["SM89"]["opcodes"]["FADD"] = {"native": 2}
+    body = render(before, after)["body"]
+    evidence, support = body.split("### Changed evidence\n\n", 1)[1].split("### Semantic coverage changes\n\n")
+    assert "🔴 **FADD**" in evidence and "🟢 **FADD**" not in evidence
+    assert "| Class evidence |" in evidence and "| Classes |" not in evidence
+    assert "🟢 **FADD**" in support and "🔴 **FADD**" not in support
+    assert "| Classes |" in support and "| Class evidence |" not in support
 
 
 @pytest.mark.parametrize("reverse", [False, True])
@@ -84,7 +96,7 @@ def gpu_demoted():
 def test_gpu_evidence_drop_is_called_out():
     report = render(*gpu_demoted())
     body = report["body"]
-    assert body.index("[!CAUTION]") < body.index("### Recorded evidence changes")
+    assert body.index("[!CAUTION]") < body.index("### Changed evidence")
     assert "**GPU evidence decreased**" in body
     assert "**SM89**: classes **-1**, combinations **-2** · 1 opcode: FADD" in body
     assert "pytest -m gpu" in body
@@ -309,7 +321,7 @@ def test_local_cli_compares_revision_with_working_tree(monkeypatch, capsys):
     coverage_comment.main()
     out = capsys.readouterr().out
     assert commands == [["git", "show", f"main:{coverage_comment.COVERAGE}"]]
-    assert "Comparing `main` → `working`" in out and "### Changed opcodes" in out
+    assert "Comparing `main` → `working`" in out and "### Changed evidence" in out
     assert "img.shields.io" not in out and "View CI run" not in out
 
 
@@ -356,8 +368,10 @@ def test_summed_verification_diagram():
     for arch in ("SM89", "SM90"):
         after[arch]["combination_evidence"]["FADD"] = {"gpu": 2, "reference": 1, "none": 5}
     body = render(before, after)["body"]
-    verification = body[body.index("### Recorded evidence changes"):body.index("### Changed opcodes")]
-    assert "**Combination evidence**" in verification
+    verification = body[body.index("### Changed evidence"):body.index("#### By architecture")]
+    assert "#### Combination evidence" in verification
+    assert (verification.index("#### Class evidence") < verification.index("#### Combination evidence")
+            < verification.index("| Architecture |"))
     assert "sankey-beta\nreference (before),gpu (after),2\nnone (before),gpu (after),2\n```" in verification
     assert "summed over 2 architectures" in verification
     assert body.count("```mermaid") == 3
@@ -377,8 +391,10 @@ def test_new_semantics_without_evidence_are_an_improvement_with_a_gap():
     body = render(*added_semantics())["body"]
     assert "**Semantics grew with gaps in recorded evidence**" in body
     assert "classes without evidence **+1**, combinations without evidence **+8** · 1 opcode: LDG" in body
-    assert "🟢 **LDG** · 🟡 evidence gap grew" in body
-    assert "· 🟢 1 improved · 🟡 1 with evidence gaps</summary>" in body
+    assert "**LDG** · 🟡 evidence gap grew" in body
+    assert "🟢 **LDG**" in body.split("### Semantic coverage changes", 1)[1]
+    assert "· 🟡 1 with evidence gaps</summary>" in body
+    assert "· 🟢 1 improved</summary>" in body
     assert "⚪ none **+8**" in body
     assert "🔴 none" not in body and "regressed" not in body
     assert "[!CAUTION]" not in body
@@ -394,7 +410,8 @@ def test_more_combinations_without_evidence_preserve_existing_checks():
     after["SM89"]["combination_evidence"]["FADD"] = {"reference": 2, "none": 14}
     body = render(before, after)["body"]
     assert "**SM89**: combinations without evidence **+8** · 1 opcode: FADD" in body
-    assert "🟢 **FADD** · 🟡 evidence gap grew" in body
+    assert "**FADD** · 🟡 evidence gap grew" in body
+    assert "🟢 **FADD**" in body.split("### Semantic coverage changes", 1)[1]
     assert "regressed" not in body and "[!CAUTION]" not in body
     assert "<summary>Opcode coverage: ⚪ unchanged</summary>" in body
     assert "| SM89 | — | — | — | ⚪ combinations **+8** |" in body
@@ -434,7 +451,7 @@ def test_new_semantics_and_lost_checks_report_both():
 def test_removing_unevidenced_semantics_does_not_claim_new_checks():
     after, before = added_semantics()
     body = render(before, after)["body"]
-    assert "**Semantic coverage decreased**" in body
+    assert "**Modeled support counts decreased**" in body
     assert "⚪ none **-8**" in body
     assert "🟢 none" not in body
     assert "**Semantics grew with gaps" not in body
