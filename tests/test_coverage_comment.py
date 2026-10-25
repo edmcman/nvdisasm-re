@@ -84,7 +84,7 @@ def gpu_demoted():
 def test_gpu_evidence_drop_is_called_out():
     report = render(*gpu_demoted())
     body = report["body"]
-    assert body.index("[!CAUTION]") < body.index("### Verification changes")
+    assert body.index("[!CAUTION]") < body.index("### Recorded evidence changes")
     assert "**GPU evidence decreased**" in body
     assert "**SM89**: classes **-1**, combinations **-2** · 1 opcode: FADD" in body
     assert "pytest -m gpu" in body
@@ -356,8 +356,112 @@ def test_summed_verification_diagram():
     for arch in ("SM89", "SM90"):
         after[arch]["combination_evidence"]["FADD"] = {"gpu": 2, "reference": 1, "none": 5}
     body = render(before, after)["body"]
-    verification = body[body.index("### Verification changes"):body.index("### Changed opcodes")]
-    assert "**Combination verification**" in verification
+    verification = body[body.index("### Recorded evidence changes"):body.index("### Changed opcodes")]
+    assert "**Combination evidence**" in verification
     assert "sankey-beta\nreference (before),gpu (after),2\nnone (before),gpu (after),2\n```" in verification
     assert "summed over 2 architectures" in verification
     assert body.count("```mermaid") == 3
+
+
+def added_semantics(evidence=None):
+    before = summary()
+    after = copy.deepcopy(before)
+    after["SM89"]["opcodes"]["LDG"] = {"native": 1}
+    after["SM89"]["combination_status"]["LDG"] = {"native": 8}
+    after["SM89"]["opcode_evidence"]["LDG"] = {"reference": 1} if evidence else {"none": 1}
+    after["SM89"]["combination_evidence"]["LDG"] = evidence or {"none": 8}
+    return before, after
+
+
+def test_new_semantics_without_evidence_are_an_improvement_with_a_gap():
+    body = render(*added_semantics())["body"]
+    assert "**Semantics grew with gaps in recorded evidence**" in body
+    assert "classes without evidence **+1**, combinations without evidence **+8** · 1 opcode: LDG" in body
+    assert "🟢 **LDG** · 🟡 evidence gap grew" in body
+    assert "· 🟢 1 improved · 🟡 1 with evidence gaps</summary>" in body
+    assert "⚪ none **+8**" in body
+    assert "🔴 none" not in body and "regressed" not in body
+    assert "[!CAUTION]" not in body
+    assert "does not summarize current test results" in body
+    assert "| Class evidence |" in body and "| Combination evidence |" in body
+    assert "⚪ No evidence" in body
+
+
+def test_more_combinations_without_evidence_preserve_existing_checks():
+    before = summary()
+    after = copy.deepcopy(before)
+    after["SM89"]["combination_status"]["FADD"] = {"native": 16}
+    after["SM89"]["combination_evidence"]["FADD"] = {"reference": 2, "none": 14}
+    body = render(before, after)["body"]
+    assert "**SM89**: combinations without evidence **+8** · 1 opcode: FADD" in body
+    assert "🟢 **FADD** · 🟡 evidence gap grew" in body
+    assert "regressed" not in body and "[!CAUTION]" not in body
+    assert "<summary>Opcode coverage: ⚪ unchanged</summary>" in body
+    assert "| SM89 | — | — | — | ⚪ combinations **+8** |" in body
+
+
+def test_new_semantics_with_partial_evidence_report_only_the_gap():
+    body = render(*added_semantics({"reference": 3, "none": 5}))["body"]
+    assert "**SM89**: combinations without evidence **+5** · 1 opcode: LDG" in body
+    assert "classes without evidence" not in body
+    assert "⚪ none **+5**" in body
+    assert "regressed" not in body
+
+
+def test_new_semantics_with_complete_evidence_do_not_warn():
+    body = render(*added_semantics({"reference": 8}))["body"]
+    assert "**Semantics grew with gaps" not in body
+    assert "🟡 evidence gap grew" not in body
+    assert "[!WARNING]" not in body and "[!CAUTION]" not in body
+    assert "🟢 **LDG**" in body
+
+
+def test_new_semantics_and_lost_checks_report_both():
+    before = summary()
+    after = copy.deepcopy(before)
+    after["SM89"]["combination_status"]["FADD"] = {"native": 12}
+    after["SM89"]["opcode_evidence"]["FADD"] = {"none": 1}
+    after["SM89"]["combination_evidence"]["FADD"] = {"none": 12}
+    body = render(before, after)["body"]
+    assert "**Reference or stronger evidence decreased**" in body
+    assert "**Semantics grew with gaps in recorded evidence**" in body
+    assert "**SM89**: combinations without evidence **+6** · 1 opcode: FADD" in body
+    assert "🔴 **FADD** · 🟡 evidence gap grew" in body
+    assert "🔴 none **+6**" in body
+    assert "1 regressed" in body
+
+
+def test_removing_unevidenced_semantics_does_not_claim_new_checks():
+    after, before = added_semantics()
+    body = render(before, after)["body"]
+    assert "**Semantic coverage decreased**" in body
+    assert "⚪ none **-8**" in body
+    assert "🟢 none" not in body
+    assert "**Semantics grew with gaps" not in body
+    assert "[!CAUTION]" not in body
+
+
+@pytest.mark.parametrize("before,after,expected", [
+    ({}, {"none": 8}, 0),
+    ({"none": 8}, {}, 0),
+    ({"reference": 2, "none": 6}, {"reference": 2, "none": 10}, 0),
+    ({"reference": 2, "none": 10}, {"reference": 2, "none": 6}, 0),
+    ({"reference": 2, "none": 6}, {"reference": 4, "none": 10}, 0),
+    ({"reference": 2, "none": 6}, {"none": 8}, -1),
+    ({"reference": 2, "none": 6}, {"none": 12}, -1),
+    ({"none": 8}, {"reference": 2, "none": 6}, 1),
+])
+def test_no_evidence_trend_accounts_for_the_modeled_scope(before, after, expected):
+    assert coverage_comment.trend(coverage_comment.EVIDENCE_ORDER, before, after, "none") == expected
+
+
+def test_gap_warning_survives_comment_truncation_and_bounds_opcode_names(monkeypatch):
+    before, after = added_semantics()
+    after["SM89"]["opcodes"].update({f"OP{i:02}": {"native": 1} for i in range(20)})
+    after["SM89"]["opcode_evidence"].update({f"OP{i:02}": {"none": 1} for i in range(20)})
+    monkeypatch.setattr(coverage_comment, "COMMENT_LIMIT", 6_000)
+    report = render(before, after)
+    assert "**Semantics grew with gaps in recorded evidence**" in report["body"]
+    assert "and 9 more" in report["body"]
+    assert "Details truncated" in report["body"]
+    assert len(report["body"].encode()) <= coverage_comment.COMMENT_LIMIT
