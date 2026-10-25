@@ -102,6 +102,7 @@ def detailed(rows,ev,combos,entries):
     for r,(status,_) in zip(rows,combos):
         found=ev.get(r['cls'],{});names=found.get('modifiers',[])
         entry=json.dumps(dict(cls=r['cls'],status=r['status'],kinds=[k for k in EVIDENCE if k in found],
+            modifier_roles=r.get('modifier_roles',{}),
             combinations=dict(status),decides=r.get('combinations',{}).get('decides',[]),
             illegal={m:out for m,labs in r.get('combinations',{}).get('labels',{}).items() if (out:=[l for l in labs if l not in r['modifiers'].get(m,{})])},
             values=[list(v) for v in values(r,found)],

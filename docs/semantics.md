@@ -60,6 +60,12 @@ Reading notes:
   (`/ONLY64:size`, `/XORONLY:xor`) must be asked. `i.ignore(name)` marks an operand irrelevant to an
   encoding (ISETP's Pr without .EX). Operands with bracketed parts (C, CX, A, DESC) are values, not
   selectors, even where the type names an md enum.
+- Verification roles (2026-10-25): `@family(..., modifier_roles={"cop": "hint", "sem": "effect"})`
+  declares roles local to that family. Valid roles are `value`, `hint` and `effect`; an undeclared
+  modifier is value-affecting. These declarations only control input-profile reuse and report
+  labels; they do not change legality, native guards or exhaustive support counts. Memory cache
+  hints and consistency qualifiers remain part of three-way verification. Exact runtime event
+  arguments check their emulator effect contract, independently of the value reference.
 - Runtime primitives (2026-10-22, replacing Phase 6c's `primitive()`, which passed every decoded field
   to `sass_prim_OPCODE` and let the runtime re-decode them): `src/sass/semantics/primitive.py` builds
   `bitvec.primitive(name, w, *args)` nodes, values a family uses like any expression
@@ -219,6 +225,10 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   read as "no form ran". `sass.provenance.evidence(arch, word)` looks a word's class and form up:
   `{kind: architectures}`, reference and ptxas from the word's own architecture, gpu from every
   architecture whose GPU ran the same class and form (an SM80 word can be backed by SM89 hardware).
+  Since 2026-10-25, `verification_forms.reference` separately records positive reference forms;
+  raw `forms.reference` still includes diagnostic error/fallback checks. Interaction masks in
+  `coverage.json` project these positive forms onto constrained three-way requirements and keep
+  reference, GPU and PTX sources independent. Native support remains an exhaustive count.
 - `uv run sass-census SMxx...` ranks classes in the real corpus by static occurrence and
   native/primitive/opaque status (each word's status is its family's decision for that encoding, via
   `lifter`; ~2 min per arch on 32 cores).

@@ -34,16 +34,20 @@
         "reference": 2
       },
       "DADD": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DFMA": {
-        "reference": 896
+        "none": 757,
+        "reference": 139
       },
       "DMUL": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DSETP": {
-        "reference": 3456
+        "none": 3039,
+        "reference": 417
       },
       "ELECT": {
         "reference": 2
@@ -52,33 +56,37 @@
         "reference": 4
       },
       "F2F": {
-        "reference": 280
+        "none": 72,
+        "reference": 208
       },
       "F2FP": {
-        "none": 76,
+        "none": 84,
         "ptxas": 2,
-        "reference": 1256
+        "reference": 1248
       },
       "F2I": {
-        "none": 1088,
-        "reference": 2240
+        "none": 2920,
+        "reference": 408
       },
       "F2IP": {
         "reference": 10
       },
       "FADD": {
+        "none": 481,
         "ptxas": 1,
-        "reference": 575
+        "reference": 94
       },
       "FADD2": {
         "none": 9244,
         "reference": 164
       },
       "FCHK": {
-        "reference": 36
+        "none": 16,
+        "reference": 20
       },
       "FFMA": {
-        "reference": 5376
+        "none": 5183,
+        "reference": 193
       },
       "FFMA2": {
         "none": 172524,
@@ -89,7 +97,8 @@
         "reference": 12
       },
       "FMNMX": {
-        "reference": 576
+        "none": 511,
+        "reference": 65
       },
       "FMNMX3": {
         "none": 1128,
@@ -97,51 +106,56 @@
         "reference": 23
       },
       "FMUL": {
-        "reference": 6048
+        "none": 5726,
+        "reference": 322
       },
       "FMUL2": {
         "none": 4645,
         "reference": 155
       },
       "FRND": {
-        "reference": 144
+        "none": 48,
+        "reference": 96
       },
       "FSEL": {
-        "reference": 144
+        "none": 111,
+        "reference": 33
       },
       "FSET": {
-        "reference": 6912
+        "none": 6483,
+        "reference": 429
       },
       "FSETP": {
-        "reference": 6912
+        "none": 6484,
+        "reference": 428
       },
       "HADD2": {
         "none": 740,
         "reference": 160
       },
       "HFMA2": {
-        "none": 21474,
-        "reference": 414
+        "none": 10788,
+        "reference": 156
       },
       "HMNMX2": {
-        "none": 6648,
-        "reference": 264
+        "none": 6826,
+        "reference": 86
       },
       "HMUL2": {
-        "none": 1932,
-        "reference": 168
+        "none": 1978,
+        "reference": 122
       },
       "HSET2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172111,
+        "reference": 689
       },
       "HSETP2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172105,
+        "reference": 695
       },
       "I2F": {
-        "none": 144,
-        "reference": 432
+        "none": 240,
+        "reference": 336
       },
       "I2FP": {
         "reference": 12
@@ -153,14 +167,16 @@
         "reference": 3
       },
       "IADD3": {
+        "none": 29,
         "ptxas": 2,
-        "reference": 78
+        "reference": 49
       },
       "IDP": {
-        "reference": 48
+        "none": 16,
+        "reference": 32
       },
       "IMAD": {
-        "none": 10,
+        "none": 6,
         "ptxas": 3,
         "reference": 155
       },
@@ -168,11 +184,12 @@
         "reference": 12
       },
       "ISETP": {
-        "reference": 864
+        "none": 552,
+        "reference": 312
       },
       "LD": {
-        "none": 6838,
-        "reference": 2402
+        "none": 8420,
+        "reference": 820
       },
       "LDC": {
         "none": 2,
@@ -255,18 +272,19 @@
         "reference": 12
       },
       "SHF": {
-        "reference": 160
+        "none": 59,
+        "reference": 101
       },
       "SHFL": {
         "reference": 16
       },
       "ST": {
-        "none": 3210,
-        "reference": 1200
+        "none": 3786,
+        "reference": 624
       },
       "STG": {
-        "none": 3792,
-        "reference": 1920
+        "none": 5092,
+        "reference": 620
       },
       "STL": {
         "none": 48,
@@ -286,15 +304,17 @@
         "none": 12
       },
       "UIADD3": {
+        "none": 18,
         "ptxas": 4,
-        "reference": 46
+        "reference": 28
       },
       "UIMAD": {
         "ptxas": 1,
         "reference": 53
       },
       "UISETP": {
-        "reference": 576
+        "none": 368,
+        "reference": 208
       },
       "ULEA": {
         "reference": 51
@@ -324,7 +344,8 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "none": 48,
+        "reference": 48
       },
       "VABSDIFF4": {
         "reference": 20
@@ -333,8 +354,9 @@
         "reference": 5
       },
       "VIADDMNMX": {
+        "none": 31,
         "ptxas": 6,
-        "reference": 102
+        "reference": 71
       },
       "VIMNMX": {
         "none": 14,
@@ -573,9 +595,8 @@
         "opaque": 900
       },
       "HFMA2": {
-        "native": 21853,
-        "opaque": 137568,
-        "partially native": 35
+        "native": 10944,
+        "opaque": 148512
       },
       "HMMA": {
         "opaque": 384
@@ -1096,9 +1117,9 @@
       }
     },
     "evidence": {
-      "none": 17,
+      "none": 16,
       "ptxas": 15,
-      "reference": 510
+      "reference": 506
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -1124,6 +1145,11 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRI": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_x_xor_imm__RIR_RIR": "X not modelled; carry out",
@@ -1273,7 +1299,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 10
+        "reference": 5
       },
       "HMNMX2": {
         "reference": 6
@@ -1307,9 +1333,9 @@
         "reference": 4
       },
       "IMAD": {
-        "none": 3,
+        "none": 2,
         "ptxas": 2,
-        "reference": 24
+        "reference": 25
       },
       "IMNMX": {
         "reference": 3
@@ -1702,7 +1728,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HMMA": {
         "opaque": 4
@@ -2333,7 +2360,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -2618,8 +2646,8 @@
     },
     "status": {
       "native": 307,
-      "opaque": 436,
-      "partially native": 168,
+      "opaque": 441,
+      "partially native": 163,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -2659,16 +2687,20 @@
         "reference": 2
       },
       "DADD": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DFMA": {
-        "reference": 896
+        "none": 757,
+        "reference": 139
       },
       "DMUL": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DSETP": {
-        "reference": 3456
+        "none": 3039,
+        "reference": 417
       },
       "ELECT": {
         "reference": 2
@@ -2677,33 +2709,37 @@
         "reference": 4
       },
       "F2F": {
-        "reference": 280
+        "none": 72,
+        "reference": 208
       },
       "F2FP": {
-        "none": 76,
+        "none": 84,
         "ptxas": 2,
-        "reference": 1256
+        "reference": 1248
       },
       "F2I": {
-        "none": 1088,
-        "reference": 2240
+        "none": 2920,
+        "reference": 408
       },
       "F2IP": {
         "reference": 10
       },
       "FADD": {
+        "none": 481,
         "ptxas": 1,
-        "reference": 575
+        "reference": 94
       },
       "FADD2": {
         "none": 9244,
         "reference": 164
       },
       "FCHK": {
-        "reference": 36
+        "none": 16,
+        "reference": 20
       },
       "FFMA": {
-        "reference": 5376
+        "none": 5183,
+        "reference": 193
       },
       "FFMA2": {
         "none": 258924,
@@ -2714,7 +2750,8 @@
         "reference": 12
       },
       "FMNMX": {
-        "reference": 576
+        "none": 511,
+        "reference": 65
       },
       "FMNMX3": {
         "none": 1128,
@@ -2722,51 +2759,56 @@
         "reference": 23
       },
       "FMUL": {
-        "reference": 6048
+        "none": 5726,
+        "reference": 322
       },
       "FMUL2": {
         "none": 7045,
         "reference": 155
       },
       "FRND": {
-        "reference": 144
+        "none": 48,
+        "reference": 96
       },
       "FSEL": {
-        "reference": 144
+        "none": 111,
+        "reference": 33
       },
       "FSET": {
-        "reference": 6912
+        "none": 6483,
+        "reference": 429
       },
       "FSETP": {
-        "reference": 6912
+        "none": 6484,
+        "reference": 428
       },
       "HADD2": {
         "none": 1339,
         "reference": 161
       },
       "HFMA2": {
-        "none": 87137,
-        "reference": 415
+        "none": 43619,
+        "reference": 157
       },
       "HMNMX2": {
-        "none": 6648,
-        "reference": 264
+        "none": 6826,
+        "reference": 86
       },
       "HMUL2": {
-        "none": 1932,
-        "reference": 168
+        "none": 1978,
+        "reference": 122
       },
       "HSET2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172111,
+        "reference": 689
       },
       "HSETP2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172105,
+        "reference": 695
       },
       "I2F": {
-        "none": 144,
-        "reference": 432
+        "none": 240,
+        "reference": 336
       },
       "I2FP": {
         "reference": 12
@@ -2778,14 +2820,16 @@
         "reference": 3
       },
       "IADD3": {
+        "none": 29,
         "ptxas": 2,
-        "reference": 78
+        "reference": 49
       },
       "IDP": {
-        "reference": 48
+        "none": 16,
+        "reference": 32
       },
       "IMAD": {
-        "none": 10,
+        "none": 6,
         "ptxas": 3,
         "reference": 155
       },
@@ -2793,11 +2837,12 @@
         "reference": 12
       },
       "ISETP": {
-        "reference": 864
+        "none": 552,
+        "reference": 312
       },
       "LD": {
-        "none": 6838,
-        "reference": 2402
+        "none": 8420,
+        "reference": 820
       },
       "LDC": {
         "none": 2,
@@ -2880,18 +2925,19 @@
         "reference": 12
       },
       "SHF": {
-        "reference": 160
+        "none": 59,
+        "reference": 101
       },
       "SHFL": {
         "reference": 16
       },
       "ST": {
-        "none": 3210,
-        "reference": 1200
+        "none": 3786,
+        "reference": 624
       },
       "STG": {
-        "none": 3792,
-        "reference": 1920
+        "none": 5092,
+        "reference": 620
       },
       "STL": {
         "none": 48,
@@ -2911,15 +2957,17 @@
         "none": 12
       },
       "UIADD3": {
+        "none": 18,
         "ptxas": 4,
-        "reference": 46
+        "reference": 28
       },
       "UIMAD": {
         "ptxas": 1,
         "reference": 53
       },
       "UISETP": {
-        "reference": 576
+        "none": 368,
+        "reference": 208
       },
       "ULEA": {
         "reference": 51
@@ -2949,7 +2997,8 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "none": 48,
+        "reference": 48
       },
       "VABSDIFF4": {
         "reference": 20
@@ -2958,8 +3007,9 @@
         "reference": 5
       },
       "VIADDMNMX": {
+        "none": 31,
         "ptxas": 6,
-        "reference": 102
+        "reference": 71
       },
       "VIMNMX": {
         "none": 14,
@@ -3197,9 +3247,8 @@
         "opaque": 300
       },
       "HFMA2": {
-        "native": 87412,
-        "opaque": 71904,
-        "partially native": 140
+        "native": 43776,
+        "opaque": 115680
       },
       "HMMA": {
         "opaque": 384
@@ -3720,9 +3769,9 @@
       }
     },
     "evidence": {
-      "none": 17,
+      "none": 16,
       "ptxas": 15,
-      "reference": 510
+      "reference": 506
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -3748,6 +3797,11 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hfma2_relu__RIR": "RELU; ofmt",
+      "hfma2_relu__RRI": "RELU; ofmt",
+      "hfma2_relu__RRR": "RELU; ofmt",
+      "hfma2_relu__RRU": "RELU; ofmt",
+      "hfma2_relu__RUR": "RELU; ofmt",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_x_xor_imm__RIR_RIR": "X not modelled; carry out",
@@ -3897,7 +3951,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 10
+        "reference": 5
       },
       "HMNMX2": {
         "reference": 6
@@ -3931,9 +3985,9 @@
         "reference": 4
       },
       "IMAD": {
-        "none": 3,
+        "none": 2,
         "ptxas": 2,
-        "reference": 24
+        "reference": 25
       },
       "IMNMX": {
         "reference": 3
@@ -4326,7 +4380,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HMMA": {
         "opaque": 4
@@ -4957,7 +5012,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -5242,8 +5298,8 @@
     },
     "status": {
       "native": 307,
-      "opaque": 436,
-      "partially native": 168,
+      "opaque": 441,
+      "partially native": 163,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -5283,16 +5339,20 @@
         "reference": 2
       },
       "DADD": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DFMA": {
-        "reference": 896
+        "none": 757,
+        "reference": 139
       },
       "DMUL": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DSETP": {
-        "reference": 3456
+        "none": 3039,
+        "reference": 417
       },
       "ELECT": {
         "reference": 2
@@ -5301,81 +5361,91 @@
         "reference": 4
       },
       "F2F": {
-        "reference": 280
+        "none": 72,
+        "reference": 208
       },
       "F2FP": {
-        "none": 76,
-        "reference": 1258
+        "none": 84,
+        "reference": 1250
       },
       "F2I": {
-        "none": 1088,
-        "reference": 2240
+        "none": 2920,
+        "reference": 408
       },
       "F2IP": {
         "reference": 10
       },
       "FADD": {
-        "reference": 576
+        "none": 481,
+        "reference": 95
       },
       "FCHK": {
-        "reference": 36
+        "none": 16,
+        "reference": 20
       },
       "FFMA": {
-        "reference": 5376
+        "none": 5183,
+        "reference": 193
       },
       "FLO": {
         "none": 8,
         "reference": 12
       },
       "FMNMX": {
-        "reference": 576
+        "none": 511,
+        "reference": 65
       },
       "FMNMX3": {
         "none": 1128,
         "reference": 24
       },
       "FMUL": {
-        "reference": 6048
+        "none": 5726,
+        "reference": 322
       },
       "FRND": {
-        "reference": 144
+        "none": 48,
+        "reference": 96
       },
       "FSEL": {
-        "reference": 144
+        "none": 111,
+        "reference": 33
       },
       "FSET": {
-        "reference": 6912
+        "none": 6483,
+        "reference": 429
       },
       "FSETP": {
-        "reference": 6912
+        "none": 6484,
+        "reference": 428
       },
       "HADD2": {
         "none": 740,
         "reference": 160
       },
       "HFMA2": {
-        "none": 21474,
-        "reference": 414
+        "none": 10788,
+        "reference": 156
       },
       "HMNMX2": {
-        "none": 6648,
-        "reference": 264
+        "none": 6826,
+        "reference": 86
       },
       "HMUL2": {
-        "none": 1932,
-        "reference": 168
+        "none": 1978,
+        "reference": 122
       },
       "HSET2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172111,
+        "reference": 689
       },
       "HSETP2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172105,
+        "reference": 695
       },
       "I2F": {
-        "none": 144,
-        "reference": 432
+        "none": 240,
+        "reference": 336
       },
       "I2FP": {
         "reference": 12
@@ -5387,24 +5457,27 @@
         "reference": 3
       },
       "IADD3": {
-        "reference": 80
+        "none": 29,
+        "reference": 51
       },
       "IDP": {
-        "reference": 48
+        "none": 16,
+        "reference": 32
       },
       "IMAD": {
-        "none": 10,
+        "none": 6,
         "reference": 158
       },
       "IMNMX": {
         "reference": 12
       },
       "ISETP": {
-        "reference": 864
+        "none": 552,
+        "reference": 312
       },
       "LD": {
-        "none": 6838,
-        "reference": 2402
+        "none": 8420,
+        "reference": 820
       },
       "LDC": {
         "none": 2,
@@ -5487,18 +5560,19 @@
         "reference": 12
       },
       "SHF": {
-        "reference": 160
+        "none": 79,
+        "reference": 81
       },
       "SHFL": {
         "reference": 16
       },
       "ST": {
-        "none": 3210,
-        "reference": 1200
+        "none": 3786,
+        "reference": 624
       },
       "STG": {
-        "none": 3792,
-        "reference": 1920
+        "none": 5092,
+        "reference": 620
       },
       "STL": {
         "none": 48,
@@ -5518,13 +5592,15 @@
         "none": 12
       },
       "UIADD3": {
-        "reference": 50
+        "none": 18,
+        "reference": 32
       },
       "UIMAD": {
         "reference": 54
       },
       "UISETP": {
-        "reference": 576
+        "none": 368,
+        "reference": 208
       },
       "ULEA": {
         "reference": 51
@@ -5554,7 +5630,8 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "none": 48,
+        "reference": 48
       },
       "VABSDIFF4": {
         "reference": 20
@@ -5766,9 +5843,8 @@
         "opaque": 900
       },
       "HFMA2": {
-        "native": 21853,
-        "opaque": 137568,
-        "partially native": 35
+        "native": 10944,
+        "opaque": 148512
       },
       "HMMA": {
         "opaque": 384
@@ -6244,8 +6320,8 @@
       }
     },
     "evidence": {
-      "none": 17,
-      "reference": 500
+      "none": 16,
+      "reference": 496
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -6261,6 +6337,11 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRI": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldcu_const_RCxR_": "bank",
@@ -6390,7 +6471,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 10
+        "reference": 5
       },
       "HMNMX2": {
         "reference": 6
@@ -6423,8 +6504,8 @@
         "reference": 4
       },
       "IMAD": {
-        "none": 3,
-        "reference": 26
+        "none": 2,
+        "reference": 27
       },
       "IMNMX": {
         "reference": 3
@@ -6783,7 +6864,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HMMA": {
         "opaque": 4
@@ -7370,7 +7452,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -7654,8 +7737,8 @@
     },
     "status": {
       "native": 304,
-      "opaque": 387,
-      "partially native": 146,
+      "opaque": 392,
+      "partially native": 141,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -7695,16 +7778,20 @@
         "reference": 2
       },
       "DADD": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DFMA": {
-        "reference": 896
+        "none": 757,
+        "reference": 139
       },
       "DMUL": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DSETP": {
-        "reference": 3456
+        "none": 3039,
+        "reference": 417
       },
       "ELECT": {
         "reference": 2
@@ -7713,81 +7800,91 @@
         "reference": 4
       },
       "F2F": {
-        "reference": 280
+        "none": 72,
+        "reference": 208
       },
       "F2FP": {
-        "none": 76,
-        "reference": 1258
+        "none": 84,
+        "reference": 1250
       },
       "F2I": {
-        "none": 1088,
-        "reference": 2240
+        "none": 2920,
+        "reference": 408
       },
       "F2IP": {
         "reference": 10
       },
       "FADD": {
-        "reference": 576
+        "none": 481,
+        "reference": 95
       },
       "FCHK": {
-        "reference": 36
+        "none": 16,
+        "reference": 20
       },
       "FFMA": {
-        "reference": 5376
+        "none": 5183,
+        "reference": 193
       },
       "FLO": {
         "none": 8,
         "reference": 12
       },
       "FMNMX": {
-        "reference": 576
+        "none": 511,
+        "reference": 65
       },
       "FMNMX3": {
         "none": 1128,
         "reference": 24
       },
       "FMUL": {
-        "reference": 6048
+        "none": 5726,
+        "reference": 322
       },
       "FRND": {
-        "reference": 144
+        "none": 48,
+        "reference": 96
       },
       "FSEL": {
-        "reference": 144
+        "none": 111,
+        "reference": 33
       },
       "FSET": {
-        "reference": 6912
+        "none": 6483,
+        "reference": 429
       },
       "FSETP": {
-        "reference": 6912
+        "none": 6484,
+        "reference": 428
       },
       "HADD2": {
         "none": 1339,
         "reference": 161
       },
       "HFMA2": {
-        "none": 87137,
-        "reference": 415
+        "none": 43619,
+        "reference": 157
       },
       "HMNMX2": {
-        "none": 6648,
-        "reference": 264
+        "none": 6826,
+        "reference": 86
       },
       "HMUL2": {
-        "none": 1932,
-        "reference": 168
+        "none": 1978,
+        "reference": 122
       },
       "HSET2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172111,
+        "reference": 689
       },
       "HSETP2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172105,
+        "reference": 695
       },
       "I2F": {
-        "none": 144,
-        "reference": 432
+        "none": 240,
+        "reference": 336
       },
       "I2FP": {
         "reference": 12
@@ -7799,24 +7896,27 @@
         "reference": 3
       },
       "IADD3": {
-        "reference": 80
+        "none": 29,
+        "reference": 51
       },
       "IDP": {
-        "reference": 48
+        "none": 16,
+        "reference": 32
       },
       "IMAD": {
-        "none": 10,
+        "none": 6,
         "reference": 158
       },
       "IMNMX": {
         "reference": 12
       },
       "ISETP": {
-        "reference": 864
+        "none": 552,
+        "reference": 312
       },
       "LD": {
-        "none": 6838,
-        "reference": 2402
+        "none": 8420,
+        "reference": 820
       },
       "LDC": {
         "none": 2,
@@ -7899,18 +7999,19 @@
         "reference": 12
       },
       "SHF": {
-        "reference": 160
+        "none": 79,
+        "reference": 81
       },
       "SHFL": {
         "reference": 16
       },
       "ST": {
-        "none": 3210,
-        "reference": 1200
+        "none": 3786,
+        "reference": 624
       },
       "STG": {
-        "none": 3792,
-        "reference": 1920
+        "none": 5092,
+        "reference": 620
       },
       "STL": {
         "none": 48,
@@ -7930,13 +8031,15 @@
         "none": 12
       },
       "UIADD3": {
-        "reference": 50
+        "none": 18,
+        "reference": 32
       },
       "UIMAD": {
         "reference": 54
       },
       "UISETP": {
-        "reference": 576
+        "none": 368,
+        "reference": 208
       },
       "ULEA": {
         "reference": 51
@@ -7966,7 +8069,8 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "none": 48,
+        "reference": 48
       },
       "VABSDIFF4": {
         "reference": 20
@@ -8178,9 +8282,8 @@
         "opaque": 300
       },
       "HFMA2": {
-        "native": 87412,
-        "opaque": 71904,
-        "partially native": 140
+        "native": 43776,
+        "opaque": 115680
       },
       "HMMA": {
         "opaque": 384
@@ -8656,8 +8759,8 @@
       }
     },
     "evidence": {
-      "none": 17,
-      "reference": 500
+      "none": 16,
+      "reference": 496
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -8673,6 +8776,11 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hfma2_relu__RIR": "RELU; ofmt",
+      "hfma2_relu__RRI": "RELU; ofmt",
+      "hfma2_relu__RRR": "RELU; ofmt",
+      "hfma2_relu__RRU": "RELU; ofmt",
+      "hfma2_relu__RUR": "RELU; ofmt",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldcu_const_RCxR_": "bank",
@@ -8802,7 +8910,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 10
+        "reference": 5
       },
       "HMNMX2": {
         "reference": 6
@@ -8835,8 +8943,8 @@
         "reference": 4
       },
       "IMAD": {
-        "none": 3,
-        "reference": 26
+        "none": 2,
+        "reference": 27
       },
       "IMNMX": {
         "reference": 3
@@ -9195,7 +9303,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HMMA": {
         "opaque": 4
@@ -9782,7 +9891,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -10066,8 +10176,8 @@
     },
     "status": {
       "native": 304,
-      "opaque": 387,
-      "partially native": 146,
+      "opaque": 392,
+      "partially native": 141,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -10107,16 +10217,20 @@
         "reference": 2
       },
       "DADD": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DFMA": {
-        "reference": 896
+        "none": 757,
+        "reference": 139
       },
       "DMUL": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DSETP": {
-        "reference": 3456
+        "none": 3039,
+        "reference": 417
       },
       "ELECT": {
         "reference": 2
@@ -10125,31 +10239,35 @@
         "reference": 4
       },
       "F2F": {
-        "reference": 280
+        "none": 72,
+        "reference": 208
       },
       "F2FP": {
-        "none": 76,
-        "reference": 1258
+        "none": 84,
+        "reference": 1250
       },
       "F2I": {
-        "none": 1088,
-        "reference": 2240
+        "none": 2920,
+        "reference": 408
       },
       "F2IP": {
         "reference": 10
       },
       "FADD": {
-        "reference": 576
+        "none": 481,
+        "reference": 95
       },
       "FADD2": {
         "none": 9244,
         "reference": 164
       },
       "FCHK": {
-        "reference": 36
+        "none": 16,
+        "reference": 20
       },
       "FFMA": {
-        "reference": 5376
+        "none": 5183,
+        "reference": 193
       },
       "FFMA2": {
         "none": 172524,
@@ -10160,58 +10278,64 @@
         "reference": 12
       },
       "FMNMX": {
-        "reference": 576
+        "none": 511,
+        "reference": 65
       },
       "FMNMX3": {
         "none": 1128,
         "reference": 24
       },
       "FMUL": {
-        "reference": 6048
+        "none": 5726,
+        "reference": 322
       },
       "FMUL2": {
         "none": 4645,
         "reference": 155
       },
       "FRND": {
-        "reference": 144
+        "none": 48,
+        "reference": 96
       },
       "FSEL": {
-        "reference": 144
+        "none": 111,
+        "reference": 33
       },
       "FSET": {
-        "reference": 6912
+        "none": 6483,
+        "reference": 429
       },
       "FSETP": {
-        "reference": 6912
+        "none": 6484,
+        "reference": 428
       },
       "HADD2": {
         "none": 740,
         "reference": 160
       },
       "HFMA2": {
-        "none": 21474,
-        "reference": 414
+        "none": 10788,
+        "reference": 156
       },
       "HMNMX2": {
-        "none": 6648,
-        "reference": 264
+        "none": 6826,
+        "reference": 86
       },
       "HMUL2": {
-        "none": 1932,
-        "reference": 168
+        "none": 1978,
+        "reference": 122
       },
       "HSET2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172111,
+        "reference": 689
       },
       "HSETP2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172105,
+        "reference": 695
       },
       "I2F": {
-        "none": 144,
-        "reference": 432
+        "none": 240,
+        "reference": 336
       },
       "I2FP": {
         "reference": 12
@@ -10223,24 +10347,27 @@
         "reference": 3
       },
       "IADD3": {
-        "reference": 80
+        "none": 29,
+        "reference": 51
       },
       "IDP": {
-        "reference": 48
+        "none": 16,
+        "reference": 32
       },
       "IMAD": {
-        "none": 10,
+        "none": 6,
         "reference": 158
       },
       "IMNMX": {
         "reference": 12
       },
       "ISETP": {
-        "reference": 864
+        "none": 552,
+        "reference": 312
       },
       "LD": {
-        "none": 6838,
-        "reference": 2402
+        "none": 8420,
+        "reference": 820
       },
       "LDC": {
         "none": 2,
@@ -10323,18 +10450,19 @@
         "reference": 12
       },
       "SHF": {
-        "reference": 160
+        "none": 59,
+        "reference": 101
       },
       "SHFL": {
         "reference": 16
       },
       "ST": {
-        "none": 3210,
-        "reference": 1200
+        "none": 3786,
+        "reference": 624
       },
       "STG": {
-        "none": 3792,
-        "reference": 1920
+        "none": 5092,
+        "reference": 620
       },
       "STL": {
         "none": 48,
@@ -10354,13 +10482,15 @@
         "none": 12
       },
       "UIADD3": {
-        "reference": 50
+        "none": 18,
+        "reference": 32
       },
       "UIMAD": {
         "reference": 54
       },
       "UISETP": {
-        "reference": 576
+        "none": 368,
+        "reference": 208
       },
       "ULEA": {
         "reference": 51
@@ -10390,7 +10520,8 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "none": 48,
+        "reference": 48
       },
       "VABSDIFF4": {
         "reference": 20
@@ -10399,7 +10530,8 @@
         "reference": 5
       },
       "VIADDMNMX": {
-        "reference": 108
+        "none": 31,
+        "reference": 77
       },
       "VIMNMX": {
         "none": 18,
@@ -10636,9 +10768,8 @@
         "opaque": 900
       },
       "HFMA2": {
-        "native": 21853,
-        "opaque": 137568,
-        "partially native": 35
+        "native": 10944,
+        "opaque": 148512
       },
       "HMMA": {
         "opaque": 384
@@ -11153,8 +11284,8 @@
       }
     },
     "evidence": {
-      "none": 20,
-      "reference": 525
+      "none": 19,
+      "reference": 521
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -11180,6 +11311,11 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRI": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_x_xor_imm__RIR_RIR": "X not modelled; carry out",
@@ -11326,7 +11462,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 10
+        "reference": 5
       },
       "HMNMX2": {
         "reference": 6
@@ -11359,8 +11495,8 @@
         "reference": 4
       },
       "IMAD": {
-        "none": 3,
-        "reference": 26
+        "none": 2,
+        "reference": 27
       },
       "IMNMX": {
         "reference": 3
@@ -11747,7 +11883,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HMMA": {
         "opaque": 4
@@ -12372,7 +12509,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -12657,8 +12795,8 @@
     },
     "status": {
       "native": 307,
-      "opaque": 429,
-      "partially native": 168,
+      "opaque": 434,
+      "partially native": 163,
       "partially primitive": 6,
       "primitive": 64
     }
@@ -12698,16 +12836,20 @@
         "reference": 2
       },
       "DADD": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DFMA": {
-        "reference": 896
+        "none": 757,
+        "reference": 139
       },
       "DMUL": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DSETP": {
-        "reference": 3456
+        "none": 3039,
+        "reference": 417
       },
       "ELECT": {
         "reference": 2
@@ -12716,31 +12858,35 @@
         "reference": 4
       },
       "F2F": {
-        "reference": 280
+        "none": 72,
+        "reference": 208
       },
       "F2FP": {
-        "none": 76,
-        "reference": 1258
+        "none": 84,
+        "reference": 1250
       },
       "F2I": {
-        "none": 1088,
-        "reference": 2240
+        "none": 2920,
+        "reference": 408
       },
       "F2IP": {
         "reference": 10
       },
       "FADD": {
-        "reference": 576
+        "none": 481,
+        "reference": 95
       },
       "FADD2": {
         "none": 9244,
         "reference": 164
       },
       "FCHK": {
-        "reference": 36
+        "none": 16,
+        "reference": 20
       },
       "FFMA": {
-        "reference": 5376
+        "none": 5183,
+        "reference": 193
       },
       "FFMA2": {
         "none": 258924,
@@ -12751,58 +12897,64 @@
         "reference": 12
       },
       "FMNMX": {
-        "reference": 576
+        "none": 511,
+        "reference": 65
       },
       "FMNMX3": {
         "none": 1128,
         "reference": 24
       },
       "FMUL": {
-        "reference": 6048
+        "none": 5726,
+        "reference": 322
       },
       "FMUL2": {
         "none": 7045,
         "reference": 155
       },
       "FRND": {
-        "reference": 144
+        "none": 48,
+        "reference": 96
       },
       "FSEL": {
-        "reference": 144
+        "none": 111,
+        "reference": 33
       },
       "FSET": {
-        "reference": 6912
+        "none": 6483,
+        "reference": 429
       },
       "FSETP": {
-        "reference": 6912
+        "none": 6484,
+        "reference": 428
       },
       "HADD2": {
         "none": 1339,
         "reference": 161
       },
       "HFMA2": {
-        "none": 87137,
-        "reference": 415
+        "none": 43619,
+        "reference": 157
       },
       "HMNMX2": {
-        "none": 6648,
-        "reference": 264
+        "none": 6826,
+        "reference": 86
       },
       "HMUL2": {
-        "none": 1932,
-        "reference": 168
+        "none": 1978,
+        "reference": 122
       },
       "HSET2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172111,
+        "reference": 689
       },
       "HSETP2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172105,
+        "reference": 695
       },
       "I2F": {
-        "none": 144,
-        "reference": 432
+        "none": 240,
+        "reference": 336
       },
       "I2FP": {
         "reference": 12
@@ -12814,24 +12966,27 @@
         "reference": 3
       },
       "IADD3": {
-        "reference": 80
+        "none": 29,
+        "reference": 51
       },
       "IDP": {
-        "reference": 48
+        "none": 16,
+        "reference": 32
       },
       "IMAD": {
-        "none": 10,
+        "none": 6,
         "reference": 158
       },
       "IMNMX": {
         "reference": 12
       },
       "ISETP": {
-        "reference": 864
+        "none": 552,
+        "reference": 312
       },
       "LD": {
-        "none": 6838,
-        "reference": 2402
+        "none": 8420,
+        "reference": 820
       },
       "LDC": {
         "none": 2,
@@ -12914,18 +13069,19 @@
         "reference": 12
       },
       "SHF": {
-        "reference": 160
+        "none": 59,
+        "reference": 101
       },
       "SHFL": {
         "reference": 16
       },
       "ST": {
-        "none": 3210,
-        "reference": 1200
+        "none": 3786,
+        "reference": 624
       },
       "STG": {
-        "none": 3792,
-        "reference": 1920
+        "none": 5092,
+        "reference": 620
       },
       "STL": {
         "none": 48,
@@ -12945,13 +13101,15 @@
         "none": 12
       },
       "UIADD3": {
-        "reference": 50
+        "none": 18,
+        "reference": 32
       },
       "UIMAD": {
         "reference": 54
       },
       "UISETP": {
-        "reference": 576
+        "none": 368,
+        "reference": 208
       },
       "ULEA": {
         "reference": 51
@@ -12981,7 +13139,8 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "none": 48,
+        "reference": 48
       },
       "VABSDIFF4": {
         "reference": 20
@@ -12990,7 +13149,8 @@
         "reference": 5
       },
       "VIADDMNMX": {
-        "reference": 108
+        "none": 31,
+        "reference": 77
       },
       "VIMNMX": {
         "none": 18,
@@ -13226,9 +13386,8 @@
         "opaque": 300
       },
       "HFMA2": {
-        "native": 87412,
-        "opaque": 71904,
-        "partially native": 140
+        "native": 43776,
+        "opaque": 115680
       },
       "HMMA": {
         "opaque": 384
@@ -13743,8 +13902,8 @@
       }
     },
     "evidence": {
-      "none": 20,
-      "reference": 525
+      "none": 19,
+      "reference": 521
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -13770,6 +13929,11 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hfma2_relu__RIR": "RELU; ofmt",
+      "hfma2_relu__RRI": "RELU; ofmt",
+      "hfma2_relu__RRR": "RELU; ofmt",
+      "hfma2_relu__RRU": "RELU; ofmt",
+      "hfma2_relu__RUR": "RELU; ofmt",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_x_xor_imm__RIR_RIR": "X not modelled; carry out",
@@ -13916,7 +14080,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 10
+        "reference": 5
       },
       "HMNMX2": {
         "reference": 6
@@ -13949,8 +14113,8 @@
         "reference": 4
       },
       "IMAD": {
-        "none": 3,
-        "reference": 26
+        "none": 2,
+        "reference": 27
       },
       "IMNMX": {
         "reference": 3
@@ -14337,7 +14501,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HMMA": {
         "opaque": 4
@@ -14962,7 +15127,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -15247,8 +15413,8 @@
     },
     "status": {
       "native": 307,
-      "opaque": 429,
-      "partially native": 168,
+      "opaque": 434,
+      "partially native": 163,
       "partially primitive": 6,
       "primitive": 64
     }
@@ -15288,16 +15454,20 @@
         "reference": 2
       },
       "DADD": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DFMA": {
-        "reference": 896
+        "none": 757,
+        "reference": 139
       },
       "DMUL": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DSETP": {
-        "reference": 3456
+        "none": 3039,
+        "reference": 417
       },
       "ELECT": {
         "reference": 2
@@ -15306,105 +15476,115 @@
         "reference": 4
       },
       "F2F": {
-        "reference": 280
+        "none": 72,
+        "reference": 208
       },
       "F2FP": {
-        "none": 1000,
-        "reference": 2096
+        "none": 1008,
+        "reference": 2088
       },
       "F2I": {
-        "none": 1088,
-        "reference": 2240
+        "none": 2920,
+        "reference": 408
       },
       "F2IP": {
         "reference": 10
       },
       "FADD": {
-        "reference": 576
+        "none": 481,
+        "reference": 95
       },
       "FADD2": {
         "none": 9244,
         "reference": 164
       },
       "FCHK": {
-        "reference": 36
+        "none": 16,
+        "reference": 20
       },
       "FFMA": {
-        "reference": 5376
+        "none": 5183,
+        "reference": 193
       },
       "FFMA2": {
         "none": 172524,
         "reference": 276
       },
       "FHADD2": {
-        "none": 9793,
-        "reference": 1967
+        "none": 11390,
+        "reference": 370
       },
       "FHFMA2": {
-        "none": 161848,
-        "reference": 10952
+        "none": 172380,
+        "reference": 420
       },
       "FHMUL2": {
-        "none": 1058,
-        "reference": 142
+        "none": 1100,
+        "reference": 100
       },
       "FLO": {
         "none": 8,
         "reference": 12
       },
       "FMNMX": {
-        "reference": 576
+        "none": 511,
+        "reference": 65
       },
       "FMNMX3": {
         "none": 1128,
         "reference": 24
       },
       "FMUL": {
-        "reference": 6048
+        "none": 5726,
+        "reference": 322
       },
       "FMUL2": {
         "none": 4645,
         "reference": 155
       },
       "FRND": {
-        "reference": 144
+        "none": 48,
+        "reference": 96
       },
       "FSEL": {
-        "reference": 144
+        "none": 111,
+        "reference": 33
       },
       "FSET": {
-        "reference": 6912
+        "none": 6483,
+        "reference": 429
       },
       "FSETP": {
-        "reference": 6912
+        "none": 6484,
+        "reference": 428
       },
       "HADD2": {
         "none": 740,
         "reference": 160
       },
       "HFMA2": {
-        "none": 21474,
-        "reference": 414
+        "none": 10788,
+        "reference": 156
       },
       "HMNMX2": {
-        "none": 6648,
-        "reference": 264
+        "none": 6826,
+        "reference": 86
       },
       "HMUL2": {
         "none": 2600,
         "reference": 100
       },
       "HSET2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172111,
+        "reference": 689
       },
       "HSETP2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172105,
+        "reference": 695
       },
       "I2F": {
-        "none": 144,
-        "reference": 432
+        "none": 240,
+        "reference": 336
       },
       "I2FP": {
         "reference": 12
@@ -15420,21 +15600,24 @@
         "reference": 1
       },
       "IADD3": {
-        "reference": 80
+        "none": 29,
+        "reference": 51
       },
       "IDP": {
-        "reference": 48
+        "none": 16,
+        "reference": 32
       },
       "IMAD": {
-        "none": 10,
+        "none": 6,
         "reference": 158
       },
       "ISETP": {
-        "reference": 864
+        "none": 552,
+        "reference": 312
       },
       "LD": {
-        "none": 6838,
-        "reference": 2402
+        "none": 8420,
+        "reference": 820
       },
       "LDC": {
         "none": 2,
@@ -15520,18 +15703,19 @@
         "reference": 12
       },
       "SHF": {
-        "reference": 160
+        "none": 59,
+        "reference": 101
       },
       "SHFL": {
         "reference": 16
       },
       "ST": {
-        "none": 3210,
-        "reference": 1200
+        "none": 3786,
+        "reference": 624
       },
       "STG": {
-        "none": 3792,
-        "reference": 1920
+        "none": 5092,
+        "reference": 620
       },
       "STL": {
         "none": 48,
@@ -15551,13 +15735,15 @@
         "none": 12
       },
       "UIADD3": {
-        "reference": 50
+        "none": 18,
+        "reference": 32
       },
       "UIMAD": {
         "reference": 54
       },
       "UISETP": {
-        "reference": 576
+        "none": 368,
+        "reference": 208
       },
       "ULEA": {
         "reference": 51
@@ -15587,7 +15773,8 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "none": 48,
+        "reference": 48
       },
       "VIADD": {
         "reference": 16
@@ -15822,9 +16009,8 @@
         "opaque": 900
       },
       "HFMA2": {
-        "native": 21853,
-        "opaque": 137568,
-        "partially native": 35
+        "native": 10944,
+        "opaque": 148512
       },
       "HMMA": {
         "opaque": 384
@@ -16281,8 +16467,8 @@
       }
     },
     "evidence": {
-      "none": 24,
-      "reference": 543
+      "none": 23,
+      "reference": 539
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -16308,6 +16494,11 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRI": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_64_imm__RsIR_RIR": "width",
@@ -16488,7 +16679,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 10
+        "reference": 5
       },
       "HMNMX2": {
         "reference": 6
@@ -16526,8 +16717,8 @@
         "reference": 4
       },
       "IMAD": {
-        "none": 3,
-        "reference": 26
+        "none": 2,
+        "reference": 27
       },
       "ISETP": {
         "reference": 6
@@ -16899,7 +17090,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HMMA": {
         "opaque": 4
@@ -17466,7 +17658,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -17753,8 +17946,8 @@
     },
     "status": {
       "native": 302,
-      "opaque": 377,
-      "partially native": 195,
+      "opaque": 382,
+      "partially native": 190,
       "partially primitive": 6,
       "primitive": 64
     }
@@ -17794,16 +17987,20 @@
         "reference": 2
       },
       "DADD": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DFMA": {
-        "reference": 896
+        "none": 757,
+        "reference": 139
       },
       "DMUL": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DSETP": {
-        "reference": 3456
+        "none": 3039,
+        "reference": 417
       },
       "ELECT": {
         "reference": 2
@@ -17812,105 +18009,115 @@
         "reference": 4
       },
       "F2F": {
-        "reference": 280
+        "none": 72,
+        "reference": 208
       },
       "F2FP": {
-        "none": 1000,
-        "reference": 2096
+        "none": 1008,
+        "reference": 2088
       },
       "F2I": {
-        "none": 1088,
-        "reference": 2240
+        "none": 2920,
+        "reference": 408
       },
       "F2IP": {
         "reference": 10
       },
       "FADD": {
-        "reference": 576
+        "none": 481,
+        "reference": 95
       },
       "FADD2": {
         "none": 9244,
         "reference": 164
       },
       "FCHK": {
-        "reference": 36
+        "none": 16,
+        "reference": 20
       },
       "FFMA": {
-        "reference": 5376
+        "none": 5183,
+        "reference": 193
       },
       "FFMA2": {
         "none": 258924,
         "reference": 276
       },
       "FHADD2": {
-        "none": 9793,
-        "reference": 1967
+        "none": 11390,
+        "reference": 370
       },
       "FHFMA2": {
-        "none": 161848,
-        "reference": 10952
+        "none": 172380,
+        "reference": 420
       },
       "FHMUL2": {
-        "none": 1058,
-        "reference": 142
+        "none": 1100,
+        "reference": 100
       },
       "FLO": {
         "none": 8,
         "reference": 12
       },
       "FMNMX": {
-        "reference": 576
+        "none": 511,
+        "reference": 65
       },
       "FMNMX3": {
         "none": 1128,
         "reference": 24
       },
       "FMUL": {
-        "reference": 6048
+        "none": 5726,
+        "reference": 322
       },
       "FMUL2": {
         "none": 7045,
         "reference": 155
       },
       "FRND": {
-        "reference": 144
+        "none": 48,
+        "reference": 96
       },
       "FSEL": {
-        "reference": 144
+        "none": 111,
+        "reference": 33
       },
       "FSET": {
-        "reference": 6912
+        "none": 6483,
+        "reference": 429
       },
       "FSETP": {
-        "reference": 6912
+        "none": 6484,
+        "reference": 428
       },
       "HADD2": {
         "none": 1339,
         "reference": 161
       },
       "HFMA2": {
-        "none": 87137,
-        "reference": 415
+        "none": 43619,
+        "reference": 157
       },
       "HMNMX2": {
-        "none": 6648,
-        "reference": 264
+        "none": 6826,
+        "reference": 86
       },
       "HMUL2": {
         "none": 2600,
         "reference": 100
       },
       "HSET2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172111,
+        "reference": 689
       },
       "HSETP2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172105,
+        "reference": 695
       },
       "I2F": {
-        "none": 144,
-        "reference": 432
+        "none": 240,
+        "reference": 336
       },
       "I2FP": {
         "reference": 12
@@ -17926,21 +18133,24 @@
         "reference": 1
       },
       "IADD3": {
-        "reference": 80
+        "none": 29,
+        "reference": 51
       },
       "IDP": {
-        "reference": 48
+        "none": 16,
+        "reference": 32
       },
       "IMAD": {
-        "none": 10,
+        "none": 6,
         "reference": 158
       },
       "ISETP": {
-        "reference": 864
+        "none": 552,
+        "reference": 312
       },
       "LD": {
-        "none": 6838,
-        "reference": 2402
+        "none": 8420,
+        "reference": 820
       },
       "LDC": {
         "none": 2,
@@ -18026,18 +18236,19 @@
         "reference": 12
       },
       "SHF": {
-        "reference": 160
+        "none": 59,
+        "reference": 101
       },
       "SHFL": {
         "reference": 16
       },
       "ST": {
-        "none": 3210,
-        "reference": 1200
+        "none": 3786,
+        "reference": 624
       },
       "STG": {
-        "none": 3792,
-        "reference": 1920
+        "none": 5092,
+        "reference": 620
       },
       "STL": {
         "none": 48,
@@ -18057,13 +18268,15 @@
         "none": 12
       },
       "UIADD3": {
-        "reference": 50
+        "none": 18,
+        "reference": 32
       },
       "UIMAD": {
         "reference": 54
       },
       "UISETP": {
-        "reference": 576
+        "none": 368,
+        "reference": 208
       },
       "ULEA": {
         "reference": 51
@@ -18093,7 +18306,8 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "none": 48,
+        "reference": 48
       },
       "VIADD": {
         "reference": 16
@@ -18327,9 +18541,8 @@
         "opaque": 300
       },
       "HFMA2": {
-        "native": 87412,
-        "opaque": 71904,
-        "partially native": 140
+        "native": 43776,
+        "opaque": 115680
       },
       "HMMA": {
         "opaque": 384
@@ -18786,8 +18999,8 @@
       }
     },
     "evidence": {
-      "none": 24,
-      "reference": 543
+      "none": 23,
+      "reference": 539
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -18813,6 +19026,11 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hfma2_relu__RIR": "RELU; ofmt",
+      "hfma2_relu__RRI": "RELU; ofmt",
+      "hfma2_relu__RRR": "RELU; ofmt",
+      "hfma2_relu__RRU": "RELU; ofmt",
+      "hfma2_relu__RUR": "RELU; ofmt",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_64_imm__RsIR_RIR": "width",
@@ -18993,7 +19211,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 10
+        "reference": 5
       },
       "HMNMX2": {
         "reference": 6
@@ -19031,8 +19249,8 @@
         "reference": 4
       },
       "IMAD": {
-        "none": 3,
-        "reference": 26
+        "none": 2,
+        "reference": 27
       },
       "ISETP": {
         "reference": 6
@@ -19404,7 +19622,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HMMA": {
         "opaque": 4
@@ -19971,7 +20190,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -20258,8 +20478,8 @@
     },
     "status": {
       "native": 302,
-      "opaque": 377,
-      "partially native": 195,
+      "opaque": 382,
+      "partially native": 190,
       "partially primitive": 6,
       "primitive": 64
     }
@@ -20299,16 +20519,20 @@
         "reference": 2
       },
       "DADD": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DFMA": {
-        "reference": 896
+        "none": 757,
+        "reference": 139
       },
       "DMUL": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DSETP": {
-        "reference": 3456
+        "none": 3039,
+        "reference": 417
       },
       "ELECT": {
         "reference": 2
@@ -20317,77 +20541,87 @@
         "reference": 4
       },
       "F2F": {
-        "reference": 280
+        "none": 72,
+        "reference": 208
       },
       "F2FP": {
-        "none": 76,
-        "reference": 1258
+        "none": 84,
+        "reference": 1250
       },
       "F2I": {
-        "none": 1088,
-        "reference": 2240
+        "none": 2920,
+        "reference": 408
       },
       "F2IP": {
         "reference": 10
       },
       "FADD": {
-        "reference": 576
+        "none": 481,
+        "reference": 95
       },
       "FCHK": {
-        "reference": 36
+        "none": 16,
+        "reference": 20
       },
       "FFMA": {
-        "reference": 5376
+        "none": 5183,
+        "reference": 193
       },
       "FLO": {
         "none": 8,
         "reference": 12
       },
       "FMNMX": {
-        "reference": 576
+        "none": 511,
+        "reference": 65
       },
       "FMUL": {
-        "reference": 6048
+        "none": 5726,
+        "reference": 322
       },
       "FRND": {
-        "reference": 144
+        "none": 48,
+        "reference": 96
       },
       "FSEL": {
-        "reference": 144
+        "none": 111,
+        "reference": 33
       },
       "FSET": {
-        "reference": 6912
+        "none": 6483,
+        "reference": 429
       },
       "FSETP": {
-        "reference": 6912
+        "none": 6484,
+        "reference": 428
       },
       "HADD2": {
         "none": 740,
         "reference": 160
       },
       "HFMA2": {
-        "none": 21474,
-        "reference": 414
+        "none": 10788,
+        "reference": 156
       },
       "HMNMX2": {
-        "none": 6648,
-        "reference": 264
+        "none": 6826,
+        "reference": 86
       },
       "HMUL2": {
-        "none": 1932,
-        "reference": 168
+        "none": 1978,
+        "reference": 122
       },
       "HSET2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172111,
+        "reference": 689
       },
       "HSETP2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172105,
+        "reference": 695
       },
       "I2F": {
-        "none": 144,
-        "reference": 432
+        "none": 240,
+        "reference": 336
       },
       "I2FP": {
         "reference": 12
@@ -20403,21 +20637,24 @@
         "reference": 1
       },
       "IADD3": {
-        "reference": 80
+        "none": 29,
+        "reference": 51
       },
       "IDP": {
-        "reference": 48
+        "none": 16,
+        "reference": 32
       },
       "IMAD": {
-        "none": 10,
+        "none": 6,
         "reference": 158
       },
       "ISETP": {
-        "reference": 864
+        "none": 552,
+        "reference": 312
       },
       "LD": {
-        "none": 6838,
-        "reference": 2402
+        "none": 8420,
+        "reference": 820
       },
       "LDC": {
         "none": 2,
@@ -20503,18 +20740,19 @@
         "reference": 12
       },
       "SHF": {
-        "reference": 160
+        "none": 79,
+        "reference": 81
       },
       "SHFL": {
         "reference": 16
       },
       "ST": {
-        "none": 3210,
-        "reference": 1200
+        "none": 3786,
+        "reference": 624
       },
       "STG": {
-        "none": 3792,
-        "reference": 1920
+        "none": 5092,
+        "reference": 620
       },
       "STL": {
         "none": 48,
@@ -20528,37 +20766,43 @@
         "reference": 2
       },
       "UF2FP": {
-        "none": 16,
-        "reference": 200
+        "none": 72,
+        "reference": 144
       },
       "UF2I": {
-        "none": 288,
-        "reference": 448
+        "none": 652,
+        "reference": 84
       },
       "UFADD": {
-        "reference": 320
+        "none": 260,
+        "reference": 60
       },
       "UFFMA": {
-        "reference": 2304
+        "none": 2191,
+        "reference": 113
       },
       "UFLO": {
         "none": 12
       },
       "UFMUL": {
-        "reference": 3360
+        "none": 3168,
+        "reference": 192
       },
       "UFRND": {
-        "reference": 40
+        "none": 12,
+        "reference": 28
       },
       "UFSEL": {
-        "reference": 80
+        "none": 58,
+        "reference": 22
       },
       "UFSETP": {
-        "reference": 3840
+        "none": 3542,
+        "reference": 298
       },
       "UI2F": {
-        "none": 64,
-        "reference": 128
+        "none": 112,
+        "reference": 80
       },
       "UI2FP": {
         "reference": 8
@@ -20567,13 +20811,15 @@
         "reference": 60
       },
       "UIADD3": {
-        "reference": 50
+        "none": 18,
+        "reference": 32
       },
       "UIMAD": {
         "reference": 78
       },
       "UISETP": {
-        "reference": 576
+        "none": 368,
+        "reference": 208
       },
       "ULEA": {
         "reference": 51
@@ -20603,7 +20849,8 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "none": 48,
+        "reference": 48
       },
       "UVIMNMX": {
         "reference": 36
@@ -20821,9 +21068,8 @@
         "opaque": 900
       },
       "HFMA2": {
-        "native": 21853,
-        "opaque": 137568,
-        "partially native": 35
+        "native": 10944,
+        "opaque": 148512
       },
       "HMMA": {
         "opaque": 384
@@ -21359,8 +21605,8 @@
       }
     },
     "evidence": {
-      "none": 23,
-      "reference": 553
+      "none": 22,
+      "reference": 549
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -21376,6 +21622,11 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRI": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
       "iadd_64_imm__RsIR_RIR": "width",
       "iadd_64_noimm__RRR_RRR": "width",
       "iadd_64_noimm__RUR_RUR": "width",
@@ -21542,7 +21793,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 10
+        "reference": 5
       },
       "HMNMX2": {
         "reference": 6
@@ -21579,8 +21830,8 @@
         "reference": 4
       },
       "IMAD": {
-        "none": 3,
-        "reference": 26
+        "none": 2,
+        "reference": 27
       },
       "ISETP": {
         "reference": 6
@@ -21977,7 +22228,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HMMA": {
         "opaque": 4
@@ -22623,7 +22875,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -22912,8 +23165,8 @@
     },
     "status": {
       "native": 354,
-      "opaque": 439,
-      "partially native": 155,
+      "opaque": 444,
+      "partially native": 150,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -22953,16 +23206,20 @@
         "reference": 2
       },
       "DADD": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DFMA": {
-        "reference": 896
+        "none": 757,
+        "reference": 139
       },
       "DMUL": {
-        "reference": 144
+        "none": 80,
+        "reference": 64
       },
       "DSETP": {
-        "reference": 3456
+        "none": 3039,
+        "reference": 417
       },
       "ELECT": {
         "reference": 2
@@ -22971,77 +23228,87 @@
         "reference": 4
       },
       "F2F": {
-        "reference": 280
+        "none": 72,
+        "reference": 208
       },
       "F2FP": {
-        "none": 76,
-        "reference": 1258
+        "none": 84,
+        "reference": 1250
       },
       "F2I": {
-        "none": 1088,
-        "reference": 2240
+        "none": 2920,
+        "reference": 408
       },
       "F2IP": {
         "reference": 10
       },
       "FADD": {
-        "reference": 576
+        "none": 481,
+        "reference": 95
       },
       "FCHK": {
-        "reference": 36
+        "none": 16,
+        "reference": 20
       },
       "FFMA": {
-        "reference": 5376
+        "none": 5183,
+        "reference": 193
       },
       "FLO": {
         "none": 8,
         "reference": 12
       },
       "FMNMX": {
-        "reference": 576
+        "none": 511,
+        "reference": 65
       },
       "FMUL": {
-        "reference": 6048
+        "none": 5726,
+        "reference": 322
       },
       "FRND": {
-        "reference": 144
+        "none": 48,
+        "reference": 96
       },
       "FSEL": {
-        "reference": 144
+        "none": 111,
+        "reference": 33
       },
       "FSET": {
-        "reference": 6912
+        "none": 6483,
+        "reference": 429
       },
       "FSETP": {
-        "reference": 6912
+        "none": 6484,
+        "reference": 428
       },
       "HADD2": {
         "none": 1339,
         "reference": 161
       },
       "HFMA2": {
-        "none": 87137,
-        "reference": 415
+        "none": 43619,
+        "reference": 157
       },
       "HMNMX2": {
-        "none": 6648,
-        "reference": 264
+        "none": 6826,
+        "reference": 86
       },
       "HMUL2": {
-        "none": 1932,
-        "reference": 168
+        "none": 1978,
+        "reference": 122
       },
       "HSET2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172111,
+        "reference": 689
       },
       "HSETP2": {
-        "none": 160692,
-        "reference": 12108
+        "none": 172105,
+        "reference": 695
       },
       "I2F": {
-        "none": 144,
-        "reference": 432
+        "none": 240,
+        "reference": 336
       },
       "I2FP": {
         "reference": 12
@@ -23057,21 +23324,24 @@
         "reference": 1
       },
       "IADD3": {
-        "reference": 80
+        "none": 29,
+        "reference": 51
       },
       "IDP": {
-        "reference": 48
+        "none": 16,
+        "reference": 32
       },
       "IMAD": {
-        "none": 10,
+        "none": 6,
         "reference": 158
       },
       "ISETP": {
-        "reference": 864
+        "none": 552,
+        "reference": 312
       },
       "LD": {
-        "none": 6838,
-        "reference": 2402
+        "none": 8420,
+        "reference": 820
       },
       "LDC": {
         "none": 2,
@@ -23157,18 +23427,19 @@
         "reference": 12
       },
       "SHF": {
-        "reference": 160
+        "none": 79,
+        "reference": 81
       },
       "SHFL": {
         "reference": 16
       },
       "ST": {
-        "none": 3210,
-        "reference": 1200
+        "none": 3786,
+        "reference": 624
       },
       "STG": {
-        "none": 3792,
-        "reference": 1920
+        "none": 5092,
+        "reference": 620
       },
       "STL": {
         "none": 48,
@@ -23182,37 +23453,43 @@
         "reference": 2
       },
       "UF2FP": {
-        "none": 16,
-        "reference": 200
+        "none": 72,
+        "reference": 144
       },
       "UF2I": {
-        "none": 288,
-        "reference": 448
+        "none": 652,
+        "reference": 84
       },
       "UFADD": {
-        "reference": 320
+        "none": 260,
+        "reference": 60
       },
       "UFFMA": {
-        "reference": 2304
+        "none": 2191,
+        "reference": 113
       },
       "UFLO": {
         "none": 12
       },
       "UFMUL": {
-        "reference": 3360
+        "none": 3168,
+        "reference": 192
       },
       "UFRND": {
-        "reference": 40
+        "none": 12,
+        "reference": 28
       },
       "UFSEL": {
-        "reference": 80
+        "none": 58,
+        "reference": 22
       },
       "UFSETP": {
-        "reference": 3840
+        "none": 3542,
+        "reference": 298
       },
       "UI2F": {
-        "none": 64,
-        "reference": 128
+        "none": 112,
+        "reference": 80
       },
       "UI2FP": {
         "reference": 8
@@ -23221,13 +23498,15 @@
         "reference": 60
       },
       "UIADD3": {
-        "reference": 50
+        "none": 18,
+        "reference": 32
       },
       "UIMAD": {
         "reference": 78
       },
       "UISETP": {
-        "reference": 576
+        "none": 368,
+        "reference": 208
       },
       "ULEA": {
         "reference": 51
@@ -23257,7 +23536,8 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "none": 48,
+        "reference": 48
       },
       "UVIMNMX": {
         "reference": 36
@@ -23475,9 +23755,8 @@
         "opaque": 300
       },
       "HFMA2": {
-        "native": 87412,
-        "opaque": 71904,
-        "partially native": 140
+        "native": 43776,
+        "opaque": 115680
       },
       "HMMA": {
         "opaque": 384
@@ -24013,8 +24292,8 @@
       }
     },
     "evidence": {
-      "none": 23,
-      "reference": 553
+      "none": 22,
+      "reference": 549
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -24030,6 +24309,11 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hfma2_relu__RIR": "RELU; ofmt",
+      "hfma2_relu__RRI": "RELU; ofmt",
+      "hfma2_relu__RRR": "RELU; ofmt",
+      "hfma2_relu__RRU": "RELU; ofmt",
+      "hfma2_relu__RUR": "RELU; ofmt",
       "iadd_64_imm__RsIR_RIR": "width",
       "iadd_64_noimm__RRR_RRR": "width",
       "iadd_64_noimm__RUR_RUR": "width",
@@ -24196,7 +24480,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 10
+        "reference": 5
       },
       "HMNMX2": {
         "reference": 6
@@ -24233,8 +24517,8 @@
         "reference": 4
       },
       "IMAD": {
-        "none": 3,
-        "reference": 26
+        "none": 2,
+        "reference": 27
       },
       "ISETP": {
         "reference": 6
@@ -24631,7 +24915,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HMMA": {
         "opaque": 4
@@ -25277,7 +25562,8 @@
         "partially native": 3
       },
       "HFMA2": {
-        "partially native": 10
+        "opaque": 5,
+        "partially native": 5
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -25566,8 +25852,8 @@
     },
     "status": {
       "native": 354,
-      "opaque": 439,
-      "partially native": 155,
+      "opaque": 444,
+      "partially native": 150,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -25607,84 +25893,100 @@
         "reference": 2
       },
       "DADD": {
-        "reference": 272
+        "none": 160,
+        "reference": 112
       },
       "DFMA": {
-        "reference": 1920
+        "none": 1666,
+        "reference": 254
       },
       "DMUL": {
-        "reference": 272
+        "none": 160,
+        "reference": 112
       },
       "DSETP": {
-        "reference": 6528
+        "none": 5845,
+        "reference": 683
       },
       "EXIT": {
         "reference": 4
       },
       "F2F": {
+        "none": 142,
         "ptxas": 1,
-        "reference": 535
+        "reference": 393
       },
       "F2FP": {
         "none": 109,
         "reference": 259
       },
       "F2I": {
-        "reference": 3776
+        "none": 3160,
+        "reference": 616
       },
       "FADD": {
-        "reference": 1088
+        "none": 937,
+        "reference": 151
       },
       "FCHK": {
-        "reference": 68
+        "none": 32,
+        "reference": 36
       },
       "FFMA": {
-        "reference": 11520
+        "none": 11187,
+        "reference": 333
       },
       "FLO": {
         "none": 20,
         "reference": 16
       },
       "FMNMX": {
-        "reference": 272
+        "none": 215,
+        "reference": 57
       },
       "FMUL": {
-        "reference": 11424
+        "none": 10906,
+        "reference": 518
       },
       "FRND": {
-        "reference": 208
+        "none": 80,
+        "reference": 128
       },
       "FSEL": {
-        "reference": 272
+        "none": 215,
+        "reference": 57
       },
       "FSET": {
-        "reference": 13056
+        "none": 12341,
+        "reference": 715
       },
       "FSETP": {
-        "reference": 13056
+        "none": 12342,
+        "reference": 714
       },
       "HADD2": {
-        "none": 3378,
-        "reference": 126
+        "none": 1080,
+        "reference": 96
       },
       "HFMA2": {
-        "none": 24336,
-        "reference": 432
+        "none": 24500,
+        "reference": 268
       },
       "HMUL2": {
-        "none": 3258,
-        "reference": 270
+        "none": 3353,
+        "reference": 175
       },
       "HSET2": {
-        "none": 210804,
-        "reference": 14988
+        "none": 224738,
+        "reference": 1054
       },
       "HSETP2": {
-        "none": 210804,
-        "reference": 14988
+        "none": 224737,
+        "reference": 1055
       },
       "I2F": {
-        "reference": 768
+        "none": 192,
+        "reference": 576
       },
       "I2IP": {
         "reference": 60
@@ -25693,24 +25995,27 @@
         "reference": 5
       },
       "IADD3": {
-        "reference": 140
+        "none": 51,
+        "reference": 89
       },
       "IDP": {
-        "reference": 96
+        "none": 31,
+        "reference": 65
       },
       "IMAD": {
-        "none": 18,
+        "none": 14,
         "reference": 302
       },
       "IMNMX": {
         "reference": 20
       },
       "ISETP": {
-        "reference": 1920
+        "none": 1680,
+        "reference": 240
       },
       "LD": {
-        "none": 3838,
-        "reference": 9602
+        "none": 12758,
+        "reference": 682
       },
       "LDC": {
         "none": 2,
@@ -25785,18 +26090,19 @@
         "reference": 20
       },
       "SHF": {
-        "reference": 288
+        "none": 143,
+        "reference": 145
       },
       "SHFL": {
         "reference": 16
       },
       "ST": {
-        "none": 1440,
-        "reference": 3600
+        "none": 4425,
+        "reference": 615
       },
       "STG": {
-        "none": 2592,
-        "reference": 6480
+        "none": 8427,
+        "reference": 645
       },
       "STL": {
         "none": 36,
@@ -25813,13 +26119,15 @@
         "none": 12
       },
       "UIADD3": {
-        "reference": 50
+        "none": 18,
+        "reference": 32
       },
       "UIMAD": {
         "reference": 54
       },
       "UISETP": {
-        "reference": 576
+        "none": 368,
+        "reference": 208
       },
       "ULDC": {
         "reference": 6
@@ -25852,7 +26160,8 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "none": 48,
+        "reference": 48
       },
       "VABSDIFF4": {
         "none": 7,
@@ -26021,14 +26330,12 @@
         "opaque": 1
       },
       "HADD2": {
-        "native": 2080,
-        "opaque": 4816,
-        "partially native": 1424
+        "native": 1176,
+        "opaque": 7144
       },
       "HFMA2": {
-        "native": 24733,
-        "opaque": 325440,
-        "partially native": 35
+        "native": 24768,
+        "opaque": 325440
       },
       "HMMA": {
         "opaque": 384
@@ -26387,9 +26694,9 @@
       }
     },
     "evidence": {
-      "none": 20,
+      "none": 19,
       "ptxas": 1,
-      "reference": 574
+      "reference": 575
     },
     "opaque_operations": {
       "call_rel__RRR": "depth INC; relative register target",
@@ -26574,8 +26881,8 @@
         "reference": 8
       },
       "IMAD": {
-        "none": 5,
-        "reference": 50
+        "none": 4,
+        "reference": 51
       },
       "IMNMX": {
         "reference": 5
@@ -27675,84 +27982,100 @@
         "reference": 2
       },
       "DADD": {
-        "reference": 272
+        "none": 160,
+        "reference": 112
       },
       "DFMA": {
-        "reference": 1920
+        "none": 1666,
+        "reference": 254
       },
       "DMUL": {
-        "reference": 272
+        "none": 160,
+        "reference": 112
       },
       "DSETP": {
-        "reference": 6528
+        "none": 5845,
+        "reference": 683
       },
       "EXIT": {
         "reference": 4
       },
       "F2F": {
+        "none": 142,
         "ptxas": 1,
-        "reference": 535
+        "reference": 393
       },
       "F2FP": {
         "none": 109,
         "reference": 259
       },
       "F2I": {
-        "reference": 3776
+        "none": 3160,
+        "reference": 616
       },
       "FADD": {
-        "reference": 1088
+        "none": 937,
+        "reference": 151
       },
       "FCHK": {
-        "reference": 68
+        "none": 32,
+        "reference": 36
       },
       "FFMA": {
-        "reference": 11520
+        "none": 11187,
+        "reference": 333
       },
       "FLO": {
         "none": 20,
         "reference": 16
       },
       "FMNMX": {
-        "reference": 272
+        "none": 215,
+        "reference": 57
       },
       "FMUL": {
-        "reference": 11424
+        "none": 10906,
+        "reference": 518
       },
       "FRND": {
-        "reference": 208
+        "none": 80,
+        "reference": 128
       },
       "FSEL": {
-        "reference": 272
+        "none": 215,
+        "reference": 57
       },
       "FSET": {
-        "reference": 13056
+        "none": 12341,
+        "reference": 715
       },
       "FSETP": {
-        "reference": 13056
+        "none": 12342,
+        "reference": 714
       },
       "HADD2": {
-        "none": 5457,
-        "reference": 127
+        "none": 2255,
+        "reference": 97
       },
       "HFMA2": {
-        "none": 73871,
-        "reference": 433
+        "none": 74035,
+        "reference": 269
       },
       "HMUL2": {
-        "none": 3258,
-        "reference": 270
+        "none": 3353,
+        "reference": 175
       },
       "HSET2": {
-        "none": 210804,
-        "reference": 14988
+        "none": 224738,
+        "reference": 1054
       },
       "HSETP2": {
-        "none": 210804,
-        "reference": 14988
+        "none": 224737,
+        "reference": 1055
       },
       "I2F": {
-        "reference": 768
+        "none": 192,
+        "reference": 576
       },
       "I2IP": {
         "reference": 60
@@ -27761,24 +28084,27 @@
         "reference": 5
       },
       "IADD3": {
-        "reference": 140
+        "none": 51,
+        "reference": 89
       },
       "IDP": {
-        "reference": 96
+        "none": 31,
+        "reference": 65
       },
       "IMAD": {
-        "none": 18,
+        "none": 14,
         "reference": 302
       },
       "IMNMX": {
         "reference": 20
       },
       "ISETP": {
-        "reference": 1920
+        "none": 1680,
+        "reference": 240
       },
       "LD": {
-        "none": 3838,
-        "reference": 9602
+        "none": 12758,
+        "reference": 682
       },
       "LDC": {
         "none": 2,
@@ -27853,18 +28179,19 @@
         "reference": 20
       },
       "SHF": {
-        "reference": 288
+        "none": 143,
+        "reference": 145
       },
       "SHFL": {
         "reference": 16
       },
       "ST": {
-        "none": 1440,
-        "reference": 3600
+        "none": 4425,
+        "reference": 615
       },
       "STG": {
-        "none": 2592,
-        "reference": 6480
+        "none": 8427,
+        "reference": 645
       },
       "STL": {
         "none": 36,
@@ -27881,13 +28208,15 @@
         "none": 12
       },
       "UIADD3": {
-        "reference": 50
+        "none": 18,
+        "reference": 32
       },
       "UIMAD": {
         "reference": 54
       },
       "UISETP": {
-        "reference": 576
+        "none": 368,
+        "reference": 208
       },
       "ULDC": {
         "reference": 6
@@ -27920,7 +28249,8 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "none": 48,
+        "reference": 48
       },
       "VABSDIFF4": {
         "none": 7,
@@ -28089,14 +28419,12 @@
         "opaque": 1
       },
       "HADD2": {
-        "native": 4160,
-        "opaque": 2736,
-        "partially native": 1424
+        "native": 2352,
+        "opaque": 5968
       },
       "HFMA2": {
-        "native": 74199,
-        "opaque": 275904,
-        "partially native": 105
+        "native": 74304,
+        "opaque": 275904
       },
       "HMMA": {
         "opaque": 384
@@ -28455,9 +28783,9 @@
       }
     },
     "evidence": {
-      "none": 20,
+      "none": 19,
       "ptxas": 1,
-      "reference": 574
+      "reference": 575
     },
     "opaque_operations": {
       "call_rel__RRR": "depth INC; relative register target",
@@ -28642,8 +28970,8 @@
         "reference": 8
       },
       "IMAD": {
-        "none": 5,
-        "reference": 50
+        "none": 4,
+        "reference": 51
       },
       "IMNMX": {
         "reference": 5
@@ -29743,92 +30071,107 @@
         "reference": 2
       },
       "DADD": {
-        "reference": 272
+        "none": 160,
+        "reference": 112
       },
       "DFMA": {
-        "reference": 1920
+        "none": 1666,
+        "reference": 254
       },
       "DMUL": {
-        "reference": 272
+        "none": 160,
+        "reference": 112
       },
       "DSETP": {
-        "reference": 6528
+        "none": 5845,
+        "reference": 683
       },
       "EXIT": {
         "reference": 4
       },
       "F2F": {
+        "none": 142,
         "ptxas": 1,
-        "reference": 535
+        "reference": 393
       },
       "F2FP": {
         "none": 109,
         "reference": 259
       },
       "F2I": {
-        "reference": 3776
+        "none": 3160,
+        "reference": 616
       },
       "FADD": {
-        "reference": 1088
+        "none": 937,
+        "reference": 151
       },
       "FCHK": {
-        "reference": 68
+        "none": 32,
+        "reference": 36
       },
       "FFMA": {
-        "reference": 11520
+        "none": 11187,
+        "reference": 333
       },
       "FLO": {
         "none": 20,
         "reference": 16
       },
       "FMNMX": {
-        "reference": 544
+        "none": 454,
+        "reference": 90
       },
       "FMUL": {
-        "reference": 11424
+        "none": 10906,
+        "reference": 518
       },
       "FRND": {
-        "reference": 208
+        "none": 80,
+        "reference": 128
       },
       "FSEL": {
-        "reference": 272
+        "none": 215,
+        "reference": 57
       },
       "FSET": {
-        "reference": 13056
+        "none": 12341,
+        "reference": 715
       },
       "FSETP": {
-        "reference": 13056
+        "none": 12342,
+        "reference": 714
       },
       "HADD2": {
-        "none": 1734,
-        "reference": 102
+        "none": 1080,
+        "reference": 96
       },
       "HFMA2": {
-        "none": 48690,
-        "reference": 846
+        "none": 24500,
+        "reference": 268
       },
       "HFMA2.MMA": {
-        "none": 3767,
-        "reference": 73
+        "reference": 1
       },
       "HMNMX2": {
-        "none": 6588,
-        "reference": 468
+        "none": 6936,
+        "reference": 120
       },
       "HMUL2": {
-        "none": 3258,
-        "reference": 270
+        "none": 3353,
+        "reference": 175
       },
       "HSET2": {
-        "none": 210804,
-        "reference": 14988
+        "none": 224738,
+        "reference": 1054
       },
       "HSETP2": {
-        "none": 210804,
-        "reference": 14988
+        "none": 224737,
+        "reference": 1055
       },
       "I2F": {
-        "reference": 768
+        "none": 192,
+        "reference": 576
       },
       "I2IP": {
         "reference": 60
@@ -29837,24 +30180,27 @@
         "reference": 5
       },
       "IADD3": {
-        "reference": 140
+        "none": 51,
+        "reference": 89
       },
       "IDP": {
-        "reference": 96
+        "none": 31,
+        "reference": 65
       },
       "IMAD": {
-        "none": 18,
+        "none": 14,
         "reference": 302
       },
       "IMNMX": {
         "reference": 20
       },
       "ISETP": {
-        "reference": 1440
+        "none": 920,
+        "reference": 520
       },
       "LD": {
-        "none": 9574,
-        "reference": 3362
+        "none": 11949,
+        "reference": 987
       },
       "LDC": {
         "none": 2,
@@ -29932,18 +30278,19 @@
         "reference": 20
       },
       "SHF": {
-        "reference": 288
+        "none": 143,
+        "reference": 145
       },
       "SHFL": {
         "reference": 16
       },
       "ST": {
-        "none": 4494,
-        "reference": 1680
+        "none": 5427,
+        "reference": 747
       },
       "STG": {
-        "none": 7062,
-        "reference": 2640
+        "none": 8955,
+        "reference": 747
       },
       "STL": {
         "none": 60,
@@ -29960,13 +30307,15 @@
         "none": 12
       },
       "UIADD3": {
-        "reference": 50
+        "none": 18,
+        "reference": 32
       },
       "UIMAD": {
         "reference": 54
       },
       "UISETP": {
-        "reference": 576
+        "none": 368,
+        "reference": 208
       },
       "ULDC": {
         "reference": 6
@@ -29999,7 +30348,8 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "none": 48,
+        "reference": 48
       },
       "VABSDIFF4": {
         "none": 7,
@@ -30182,18 +30532,15 @@
       },
       "HADD2": {
         "native": 1176,
-        "opaque": 1692,
-        "partially native": 660
+        "opaque": 2352
       },
       "HFMA2": {
-        "native": 49501,
-        "opaque": 136224,
-        "partially native": 35
+        "native": 24768,
+        "opaque": 160992
       },
       "HFMA2.MMA": {
-        "native": 3837,
-        "opaque": 1920,
-        "partially native": 3
+        "opaque": 5759,
+        "partially native": 1
       },
       "HMMA": {
         "opaque": 192
@@ -30548,9 +30895,9 @@
       }
     },
     "evidence": {
-      "none": 20,
+      "none": 19,
       "ptxas": 1,
-      "reference": 619
+      "reference": 594
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -30576,6 +30923,32 @@
       "frnd__f16_URb": "F16",
       "frnd__f64_C": "32-bit source for F64",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "FMZ; FTZ; INVALID3; RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
+      "hfma2_relu__RCR": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RCxR": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RIR": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RRC": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RRCx": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RRI": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RRR": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RRU": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RUR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f_Rd64__Cb_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
@@ -30700,10 +31073,10 @@
         "reference": 5
       },
       "HFMA2": {
-        "reference": 18
+        "reference": 9
       },
       "HFMA2.MMA": {
-        "reference": 18
+        "reference": 1
       },
       "HMNMX2": {
         "reference": 5
@@ -30733,8 +31106,8 @@
         "reference": 8
       },
       "IMAD": {
-        "none": 5,
-        "reference": 50
+        "none": 4,
+        "reference": 51
       },
       "IMNMX": {
         "reference": 5
@@ -31065,10 +31438,12 @@
         "partially native": 5
       },
       "HFMA2": {
-        "partially native": 18
+        "opaque": 9,
+        "partially native": 9
       },
       "HFMA2.MMA": {
-        "partially native": 18
+        "opaque": 17,
+        "partially native": 1
       },
       "HMMA": {
         "opaque": 4
@@ -31532,10 +31907,12 @@
         "partially native": 5
       },
       "HFMA2": {
-        "partially native": 18
+        "opaque": 9,
+        "partially native": 9
       },
       "HFMA2.MMA": {
-        "partially native": 18
+        "opaque": 17,
+        "partially native": 1
       },
       "HMNMX2": {
         "native": 5
@@ -31812,8 +32189,8 @@
     },
     "status": {
       "native": 413,
-      "opaque": 327,
-      "partially native": 154,
+      "opaque": 353,
+      "partially native": 128,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -31853,92 +32230,108 @@
         "reference": 2
       },
       "DADD": {
-        "reference": 272
+        "none": 160,
+        "reference": 112
       },
       "DFMA": {
-        "reference": 1920
+        "none": 1666,
+        "reference": 254
       },
       "DMUL": {
-        "reference": 272
+        "none": 160,
+        "reference": 112
       },
       "DSETP": {
-        "reference": 6528
+        "none": 5845,
+        "reference": 683
       },
       "EXIT": {
         "reference": 4
       },
       "F2F": {
+        "none": 142,
         "ptxas": 1,
-        "reference": 535
+        "reference": 393
       },
       "F2FP": {
         "none": 109,
         "reference": 259
       },
       "F2I": {
-        "reference": 3776
+        "none": 3160,
+        "reference": 616
       },
       "FADD": {
-        "reference": 1088
+        "none": 937,
+        "reference": 151
       },
       "FCHK": {
-        "reference": 68
+        "none": 32,
+        "reference": 36
       },
       "FFMA": {
-        "reference": 11520
+        "none": 11187,
+        "reference": 333
       },
       "FLO": {
         "none": 20,
         "reference": 16
       },
       "FMNMX": {
-        "reference": 544
+        "none": 454,
+        "reference": 90
       },
       "FMUL": {
-        "reference": 11424
+        "none": 10906,
+        "reference": 518
       },
       "FRND": {
-        "reference": 208
+        "none": 80,
+        "reference": 128
       },
       "FSEL": {
-        "reference": 272
+        "none": 215,
+        "reference": 57
       },
       "FSET": {
-        "reference": 13056
+        "none": 12341,
+        "reference": 715
       },
       "FSETP": {
-        "reference": 13056
+        "none": 12342,
+        "reference": 714
       },
       "HADD2": {
-        "none": 2909,
-        "reference": 103
+        "none": 2255,
+        "reference": 97
       },
       "HFMA2": {
-        "none": 147761,
-        "reference": 847
+        "none": 74035,
+        "reference": 269
       },
       "HFMA2.MMA": {
-        "none": 3767,
-        "reference": 73
+        "none": 2,
+        "reference": 1
       },
       "HMNMX2": {
-        "none": 6588,
-        "reference": 468
+        "none": 6936,
+        "reference": 120
       },
       "HMUL2": {
-        "none": 3258,
-        "reference": 270
+        "none": 3353,
+        "reference": 175
       },
       "HSET2": {
-        "none": 210804,
-        "reference": 14988
+        "none": 224738,
+        "reference": 1054
       },
       "HSETP2": {
-        "none": 210804,
-        "reference": 14988
+        "none": 224737,
+        "reference": 1055
       },
       "I2F": {
-        "reference": 768
+        "none": 192,
+        "reference": 576
       },
       "I2IP": {
         "reference": 60
@@ -31947,24 +32340,27 @@
         "reference": 5
       },
       "IADD3": {
-        "reference": 140
+        "none": 51,
+        "reference": 89
       },
       "IDP": {
-        "reference": 96
+        "none": 31,
+        "reference": 65
       },
       "IMAD": {
-        "none": 18,
+        "none": 14,
         "reference": 302
       },
       "IMNMX": {
         "reference": 20
       },
       "ISETP": {
-        "reference": 1440
+        "none": 920,
+        "reference": 520
       },
       "LD": {
-        "none": 9574,
-        "reference": 3362
+        "none": 11949,
+        "reference": 987
       },
       "LDC": {
         "none": 2,
@@ -32042,18 +32438,19 @@
         "reference": 20
       },
       "SHF": {
-        "reference": 288
+        "none": 143,
+        "reference": 145
       },
       "SHFL": {
         "reference": 16
       },
       "ST": {
-        "none": 4494,
-        "reference": 1680
+        "none": 5427,
+        "reference": 747
       },
       "STG": {
-        "none": 7062,
-        "reference": 2640
+        "none": 8955,
+        "reference": 747
       },
       "STL": {
         "none": 60,
@@ -32070,13 +32467,15 @@
         "none": 12
       },
       "UIADD3": {
-        "reference": 50
+        "none": 18,
+        "reference": 32
       },
       "UIMAD": {
         "reference": 54
       },
       "UISETP": {
-        "reference": 576
+        "none": 368,
+        "reference": 208
       },
       "ULDC": {
         "reference": 6
@@ -32109,7 +32508,8 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "none": 48,
+        "reference": 48
       },
       "VABSDIFF4": {
         "none": 7,
@@ -32292,18 +32692,15 @@
       },
       "HADD2": {
         "native": 2352,
-        "opaque": 516,
-        "partially native": 660
+        "opaque": 1176
       },
       "HFMA2": {
-        "native": 148503,
-        "opaque": 37152,
-        "partially native": 105
+        "native": 74304,
+        "opaque": 111456
       },
       "HFMA2.MMA": {
-        "native": 3834,
-        "opaque": 1920,
-        "partially native": 6
+        "opaque": 5757,
+        "partially native": 3
       },
       "HMMA": {
         "opaque": 192
@@ -32658,9 +33055,9 @@
       }
     },
     "evidence": {
-      "none": 20,
+      "none": 19,
       "ptxas": 1,
-      "reference": 619
+      "reference": 594
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -32686,6 +33083,32 @@
       "frnd__f16_URb": "F16",
       "frnd__f64_C": "32-bit source for F64",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
+      "hfma2_relu__RCR": "RELU; ofmt",
+      "hfma2_relu__RCxR": "RELU; ofmt",
+      "hfma2_relu__RIR": "RELU; ofmt",
+      "hfma2_relu__RRC": "RELU; ofmt",
+      "hfma2_relu__RRCx": "RELU; ofmt",
+      "hfma2_relu__RRI": "RELU; ofmt",
+      "hfma2_relu__RRR": "RELU; ofmt",
+      "hfma2_relu__RRU": "RELU; ofmt",
+      "hfma2_relu__RUR": "RELU; ofmt",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f_Rd64__Cb_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
@@ -32810,10 +33233,10 @@
         "reference": 5
       },
       "HFMA2": {
-        "reference": 18
+        "reference": 9
       },
       "HFMA2.MMA": {
-        "reference": 18
+        "reference": 1
       },
       "HMNMX2": {
         "reference": 5
@@ -32843,8 +33266,8 @@
         "reference": 8
       },
       "IMAD": {
-        "none": 5,
-        "reference": 50
+        "none": 4,
+        "reference": 51
       },
       "IMNMX": {
         "reference": 5
@@ -33175,10 +33598,12 @@
         "partially native": 5
       },
       "HFMA2": {
-        "partially native": 18
+        "opaque": 9,
+        "partially native": 9
       },
       "HFMA2.MMA": {
-        "partially native": 18
+        "opaque": 17,
+        "partially native": 1
       },
       "HMMA": {
         "opaque": 4
@@ -33642,10 +34067,12 @@
         "partially native": 5
       },
       "HFMA2": {
-        "partially native": 18
+        "opaque": 9,
+        "partially native": 9
       },
       "HFMA2.MMA": {
-        "partially native": 18
+        "opaque": 17,
+        "partially native": 1
       },
       "HMNMX2": {
         "native": 5
@@ -33922,8 +34349,8 @@
     },
     "status": {
       "native": 413,
-      "opaque": 327,
-      "partially native": 154,
+      "opaque": 353,
+      "partially native": 128,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -33963,94 +34390,109 @@
         "reference": 2
       },
       "DADD": {
-        "reference": 272
+        "none": 160,
+        "reference": 112
       },
       "DFMA": {
-        "reference": 1920
+        "none": 1666,
+        "reference": 254
       },
       "DMUL": {
-        "reference": 272
+        "none": 160,
+        "reference": 112
       },
       "DSETP": {
-        "reference": 6528
+        "none": 5845,
+        "reference": 683
       },
       "EXIT": {
         "reference": 4
       },
       "F2F": {
-        "reference": 536
+        "none": 143,
+        "reference": 393
       },
       "F2FP": {
         "none": 149,
         "reference": 403
       },
       "F2I": {
-        "reference": 4032
+        "none": 3368,
+        "reference": 664
       },
       "F2IP": {
         "reference": 18
       },
       "FADD": {
-        "reference": 1088
+        "none": 937,
+        "reference": 151
       },
       "FCHK": {
-        "reference": 68
+        "none": 32,
+        "reference": 36
       },
       "FFMA": {
-        "reference": 11520
+        "none": 11187,
+        "reference": 333
       },
       "FLO": {
         "none": 20,
         "reference": 16
       },
       "FMNMX": {
-        "reference": 1088
+        "none": 987,
+        "reference": 101
       },
       "FMUL": {
-        "reference": 11424
+        "none": 10906,
+        "reference": 518
       },
       "FRND": {
-        "reference": 240
+        "none": 96,
+        "reference": 144
       },
       "FSEL": {
-        "reference": 272
+        "none": 215,
+        "reference": 57
       },
       "FSET": {
-        "reference": 13056
+        "none": 12341,
+        "reference": 715
       },
       "FSETP": {
-        "reference": 13056
+        "none": 12342,
+        "reference": 714
       },
       "HADD2": {
         "none": 1519,
         "reference": 245
       },
       "HFMA2": {
-        "none": 48690,
-        "reference": 846
+        "none": 24500,
+        "reference": 268
       },
       "HFMA2.MMA": {
-        "none": 3767,
-        "reference": 73
+        "reference": 1
       },
       "HMNMX2": {
-        "none": 11272,
-        "reference": 632
+        "none": 11722,
+        "reference": 182
       },
       "HMUL2": {
-        "none": 3258,
-        "reference": 270
+        "none": 3353,
+        "reference": 175
       },
       "HSET2": {
-        "none": 210804,
-        "reference": 14988
+        "none": 224738,
+        "reference": 1054
       },
       "HSETP2": {
-        "none": 210804,
-        "reference": 14988
+        "none": 224737,
+        "reference": 1055
       },
       "I2F": {
-        "reference": 792
+        "none": 192,
+        "reference": 600
       },
       "I2FP": {
         "reference": 20
@@ -34062,24 +34504,27 @@
         "reference": 5
       },
       "IADD3": {
-        "reference": 140
+        "none": 51,
+        "reference": 89
       },
       "IDP": {
-        "reference": 96
+        "none": 31,
+        "reference": 65
       },
       "IMAD": {
-        "none": 18,
+        "none": 14,
         "reference": 302
       },
       "IMNMX": {
         "reference": 20
       },
       "ISETP": {
-        "reference": 1440
+        "none": 920,
+        "reference": 520
       },
       "LD": {
-        "none": 9574,
-        "reference": 3362
+        "none": 11949,
+        "reference": 987
       },
       "LDC": {
         "none": 2,
@@ -34157,18 +34602,19 @@
         "reference": 20
       },
       "SHF": {
-        "reference": 288
+        "none": 143,
+        "reference": 145
       },
       "SHFL": {
         "reference": 16
       },
       "ST": {
-        "none": 4494,
-        "reference": 1680
+        "none": 5427,
+        "reference": 747
       },
       "STG": {
-        "none": 7062,
-        "reference": 2640
+        "none": 8955,
+        "reference": 747
       },
       "STL": {
         "none": 60,
@@ -34188,13 +34634,15 @@
         "none": 12
       },
       "UIADD3": {
-        "reference": 50
+        "none": 18,
+        "reference": 32
       },
       "UIMAD": {
         "reference": 54
       },
       "UISETP": {
-        "reference": 576
+        "none": 368,
+        "reference": 208
       },
       "ULDC": {
         "reference": 6
@@ -34227,7 +34675,8 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "none": 48,
+        "reference": 48
       },
       "VABSDIFF4": {
         "none": 7,
@@ -34417,14 +34866,12 @@
         "opaque": 1176
       },
       "HFMA2": {
-        "native": 49501,
-        "opaque": 246816,
-        "partially native": 35
+        "native": 24768,
+        "opaque": 271584
       },
       "HFMA2.MMA": {
-        "native": 3837,
-        "opaque": 1920,
-        "partially native": 3
+        "opaque": 5759,
+        "partially native": 1
       },
       "HMMA": {
         "opaque": 480
@@ -34811,8 +35258,8 @@
       }
     },
     "evidence": {
-      "none": 18,
-      "reference": 651
+      "none": 17,
+      "reference": 626
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -34835,6 +35282,32 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "FMZ; FTZ; INVALID3; RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
+      "hfma2_relu__RCR": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RCxR": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RIR": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RRC": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RRCx": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RRI": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RRR": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RRU": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RUR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
@@ -34959,10 +35432,10 @@
         "reference": 10
       },
       "HFMA2": {
-        "reference": 18
+        "reference": 9
       },
       "HFMA2.MMA": {
-        "reference": 18
+        "reference": 1
       },
       "HMNMX2": {
         "reference": 5
@@ -34995,8 +35468,8 @@
         "reference": 8
       },
       "IMAD": {
-        "none": 5,
-        "reference": 50
+        "none": 4,
+        "reference": 51
       },
       "IMNMX": {
         "reference": 5
@@ -35334,10 +35807,12 @@
         "partially native": 5
       },
       "HFMA2": {
-        "partially native": 18
+        "opaque": 9,
+        "partially native": 9
       },
       "HFMA2.MMA": {
-        "partially native": 18
+        "opaque": 17,
+        "partially native": 1
       },
       "HMMA": {
         "opaque": 4
@@ -35834,10 +36309,12 @@
         "partially native": 5
       },
       "HFMA2": {
-        "partially native": 18
+        "opaque": 9,
+        "partially native": 9
       },
       "HFMA2.MMA": {
-        "partially native": 18
+        "opaque": 17,
+        "partially native": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -36116,8 +36593,8 @@
     },
     "status": {
       "native": 428,
-      "opaque": 335,
-      "partially native": 168,
+      "opaque": 361,
+      "partially native": 142,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -36157,94 +36634,110 @@
         "reference": 2
       },
       "DADD": {
-        "reference": 272
+        "none": 160,
+        "reference": 112
       },
       "DFMA": {
-        "reference": 1920
+        "none": 1666,
+        "reference": 254
       },
       "DMUL": {
-        "reference": 272
+        "none": 160,
+        "reference": 112
       },
       "DSETP": {
-        "reference": 6528
+        "none": 5845,
+        "reference": 683
       },
       "EXIT": {
         "reference": 4
       },
       "F2F": {
-        "reference": 536
+        "none": 143,
+        "reference": 393
       },
       "F2FP": {
         "none": 149,
         "reference": 403
       },
       "F2I": {
-        "reference": 4032
+        "none": 3368,
+        "reference": 664
       },
       "F2IP": {
         "reference": 18
       },
       "FADD": {
-        "reference": 1088
+        "none": 937,
+        "reference": 151
       },
       "FCHK": {
-        "reference": 68
+        "none": 32,
+        "reference": 36
       },
       "FFMA": {
-        "reference": 11520
+        "none": 11187,
+        "reference": 333
       },
       "FLO": {
         "none": 20,
         "reference": 16
       },
       "FMNMX": {
-        "reference": 1088
+        "none": 987,
+        "reference": 101
       },
       "FMUL": {
-        "reference": 11424
+        "none": 10906,
+        "reference": 518
       },
       "FRND": {
-        "reference": 240
+        "none": 96,
+        "reference": 144
       },
       "FSEL": {
-        "reference": 272
+        "none": 215,
+        "reference": 57
       },
       "FSET": {
-        "reference": 13056
+        "none": 12341,
+        "reference": 715
       },
       "FSETP": {
-        "reference": 13056
+        "none": 12342,
+        "reference": 714
       },
       "HADD2": {
         "none": 2694,
         "reference": 246
       },
       "HFMA2": {
-        "none": 147761,
-        "reference": 847
+        "none": 74035,
+        "reference": 269
       },
       "HFMA2.MMA": {
-        "none": 3767,
-        "reference": 73
+        "none": 2,
+        "reference": 1
       },
       "HMNMX2": {
-        "none": 11272,
-        "reference": 632
+        "none": 11722,
+        "reference": 182
       },
       "HMUL2": {
-        "none": 3258,
-        "reference": 270
+        "none": 3353,
+        "reference": 175
       },
       "HSET2": {
-        "none": 210804,
-        "reference": 14988
+        "none": 224738,
+        "reference": 1054
       },
       "HSETP2": {
-        "none": 210804,
-        "reference": 14988
+        "none": 224737,
+        "reference": 1055
       },
       "I2F": {
-        "reference": 792
+        "none": 192,
+        "reference": 600
       },
       "I2FP": {
         "reference": 20
@@ -36256,24 +36749,27 @@
         "reference": 5
       },
       "IADD3": {
-        "reference": 140
+        "none": 51,
+        "reference": 89
       },
       "IDP": {
-        "reference": 96
+        "none": 31,
+        "reference": 65
       },
       "IMAD": {
-        "none": 18,
+        "none": 14,
         "reference": 302
       },
       "IMNMX": {
         "reference": 20
       },
       "ISETP": {
-        "reference": 1440
+        "none": 920,
+        "reference": 520
       },
       "LD": {
-        "none": 9574,
-        "reference": 3362
+        "none": 11949,
+        "reference": 987
       },
       "LDC": {
         "none": 2,
@@ -36351,18 +36847,19 @@
         "reference": 20
       },
       "SHF": {
-        "reference": 288
+        "none": 143,
+        "reference": 145
       },
       "SHFL": {
         "reference": 16
       },
       "ST": {
-        "none": 4494,
-        "reference": 1680
+        "none": 5427,
+        "reference": 747
       },
       "STG": {
-        "none": 7062,
-        "reference": 2640
+        "none": 8955,
+        "reference": 747
       },
       "STL": {
         "none": 60,
@@ -36382,13 +36879,15 @@
         "none": 12
       },
       "UIADD3": {
-        "reference": 50
+        "none": 18,
+        "reference": 32
       },
       "UIMAD": {
         "reference": 54
       },
       "UISETP": {
-        "reference": 576
+        "none": 368,
+        "reference": 208
       },
       "ULDC": {
         "reference": 6
@@ -36421,7 +36920,8 @@
         "reference": 8
       },
       "USHF": {
-        "reference": 96
+        "none": 48,
+        "reference": 48
       },
       "VABSDIFF4": {
         "none": 7,
@@ -36610,14 +37110,12 @@
         "native": 2940
       },
       "HFMA2": {
-        "native": 148503,
-        "opaque": 147744,
-        "partially native": 105
+        "native": 74304,
+        "opaque": 222048
       },
       "HFMA2.MMA": {
-        "native": 3834,
-        "opaque": 1920,
-        "partially native": 6
+        "opaque": 5757,
+        "partially native": 3
       },
       "HMMA": {
         "opaque": 480
@@ -37004,8 +37502,8 @@
       }
     },
     "evidence": {
-      "none": 18,
-      "reference": 651
+      "none": 17,
+      "reference": 626
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -37028,6 +37526,32 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
+      "hfma2_relu__RCR": "RELU; ofmt",
+      "hfma2_relu__RCxR": "RELU; ofmt",
+      "hfma2_relu__RIR": "RELU; ofmt",
+      "hfma2_relu__RRC": "RELU; ofmt",
+      "hfma2_relu__RRCx": "RELU; ofmt",
+      "hfma2_relu__RRI": "RELU; ofmt",
+      "hfma2_relu__RRR": "RELU; ofmt",
+      "hfma2_relu__RRU": "RELU; ofmt",
+      "hfma2_relu__RUR": "RELU; ofmt",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
@@ -37152,10 +37676,10 @@
         "reference": 10
       },
       "HFMA2": {
-        "reference": 18
+        "reference": 9
       },
       "HFMA2.MMA": {
-        "reference": 18
+        "reference": 1
       },
       "HMNMX2": {
         "reference": 5
@@ -37188,8 +37712,8 @@
         "reference": 8
       },
       "IMAD": {
-        "none": 5,
-        "reference": 50
+        "none": 4,
+        "reference": 51
       },
       "IMNMX": {
         "reference": 5
@@ -37526,10 +38050,12 @@
         "native": 10
       },
       "HFMA2": {
-        "partially native": 18
+        "opaque": 9,
+        "partially native": 9
       },
       "HFMA2.MMA": {
-        "partially native": 18
+        "opaque": 17,
+        "partially native": 1
       },
       "HMMA": {
         "opaque": 4
@@ -38025,10 +38551,12 @@
         "native": 10
       },
       "HFMA2": {
-        "partially native": 18
+        "opaque": 9,
+        "partially native": 9
       },
       "HFMA2.MMA": {
-        "partially native": 18
+        "opaque": 17,
+        "partially native": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -38307,8 +38835,8 @@
     },
     "status": {
       "native": 433,
-      "opaque": 335,
-      "partially native": 163,
+      "opaque": 361,
+      "partially native": 137,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -38350,95 +38878,116 @@
         "reference": 1
       },
       "DADD": {
-        "gpu": 272
+        "gpu": 112,
+        "none": 160
       },
       "DFMA": {
-        "gpu": 1920
+        "gpu": 253,
+        "none": 1666,
+        "reference": 1
       },
       "DMUL": {
-        "gpu": 272
+        "gpu": 112,
+        "none": 160
       },
       "DSETP": {
-        "gpu": 6528
+        "gpu": 682,
+        "none": 5845,
+        "reference": 1
       },
       "EXIT": {
         "reference": 4
       },
       "F2F": {
-        "gpu": 536
+        "gpu": 396,
+        "none": 140
       },
       "F2FP": {
-        "gpu": 618,
-        "none": 282
+        "gpu": 561,
+        "none": 339
       },
       "F2I": {
-        "gpu": 4032
+        "gpu": 684,
+        "none": 3348
       },
       "F2IP": {
         "gpu": 18
       },
       "FADD": {
-        "gpu": 1088
+        "gpu": 151,
+        "none": 937
       },
       "FCHK": {
-        "gpu": 68
+        "gpu": 38,
+        "none": 30
       },
       "FFMA": {
-        "gpu": 11520
+        "gpu": 333,
+        "none": 11187
       },
       "FLO": {
         "gpu": 16,
         "none": 20
       },
       "FMNMX": {
-        "gpu": 1088
+        "gpu": 104,
+        "none": 984
       },
       "FMUL": {
-        "gpu": 11424
+        "gpu": 512,
+        "none": 10906,
+        "reference": 6
       },
       "FRND": {
-        "gpu": 240
+        "gpu": 144,
+        "none": 96
       },
       "FSEL": {
-        "gpu": 272
+        "gpu": 58,
+        "none": 214
       },
       "FSET": {
-        "gpu": 13056
+        "gpu": 717,
+        "none": 12339
       },
       "FSETP": {
-        "gpu": 13056
+        "gpu": 714,
+        "none": 12342
       },
       "HADD2": {
         "gpu": 246,
         "none": 1518
       },
       "HFMA2": {
-        "gpu": 847,
-        "none": 48689
+        "gpu": 269,
+        "none": 24499
       },
       "HFMA2.MMA": {
-        "gpu": 73,
-        "none": 3767
+        "gpu": 1
       },
       "HMNMX2": {
-        "gpu": 648,
-        "none": 11256
+        "gpu": 209,
+        "none": 11694,
+        "reference": 1
       },
       "HMUL2": {
-        "gpu": 262,
-        "none": 3257,
-        "reference": 9
+        "gpu": 165,
+        "none": 3352,
+        "reference": 11
       },
       "HSET2": {
-        "gpu": 14989,
-        "none": 210803
+        "gpu": 1055,
+        "none": 224736,
+        "reference": 1
       },
       "HSETP2": {
-        "gpu": 14989,
-        "none": 210803
+        "gpu": 1057,
+        "none": 224734,
+        "reference": 1
       },
       "I2F": {
-        "gpu": 792
+        "gpu": 600,
+        "none": 192
       },
       "I2FP": {
         "gpu": 20
@@ -38450,26 +38999,28 @@
         "gpu": 5
       },
       "IADD3": {
-        "gpu": 140
+        "gpu": 94,
+        "none": 46
       },
       "IDP": {
-        "gpu": 96
+        "gpu": 69,
+        "none": 27
       },
       "IMAD": {
         "gpu": 304,
-        "none": 13,
-        "reference": 8
+        "none": 13
       },
       "IMNMX": {
         "gpu": 20
       },
       "ISETP": {
-        "gpu": 1440
+        "gpu": 523,
+        "none": 917
       },
       "LD": {
-        "gpu": 2882,
-        "none": 9574,
-        "reference": 480
+        "gpu": 825,
+        "none": 11947,
+        "reference": 164
       },
       "LDC": {
         "gpu": 5,
@@ -38553,20 +39104,21 @@
         "gpu": 20
       },
       "SHF": {
-        "gpu": 288
+        "gpu": 147,
+        "none": 141
       },
       "SHFL": {
         "gpu": 16
       },
       "ST": {
-        "gpu": 1440,
-        "none": 4494,
-        "reference": 240
+        "gpu": 624,
+        "none": 5426,
+        "reference": 124
       },
       "STG": {
-        "gpu": 1201,
-        "none": 7061,
-        "reference": 1440
+        "gpu": 432,
+        "none": 8954,
+        "reference": 316
       },
       "STL": {
         "gpu": 121,
@@ -38588,13 +39140,15 @@
         "none": 12
       },
       "UIADD3": {
-        "gpu": 50
+        "gpu": 32,
+        "none": 18
       },
       "UIMAD": {
         "gpu": 54
       },
       "UISETP": {
-        "gpu": 576
+        "gpu": 208,
+        "none": 368
       },
       "ULDC": {
         "gpu": 6
@@ -38627,7 +39181,8 @@
         "gpu": 8
       },
       "USHF": {
-        "gpu": 96
+        "gpu": 49,
+        "none": 47
       },
       "VABSDIFF4": {
         "gpu": 32,
@@ -38817,14 +39372,12 @@
         "opaque": 1176
       },
       "HFMA2": {
-        "native": 49501,
-        "opaque": 246816,
-        "partially native": 35
+        "native": 24768,
+        "opaque": 271584
       },
       "HFMA2.MMA": {
-        "native": 3837,
-        "opaque": 1920,
-        "partially native": 3
+        "opaque": 5759,
+        "partially native": 1
       },
       "HMMA": {
         "opaque": 480
@@ -39215,7 +39768,7 @@
       }
     },
     "evidence": {
-      "gpu": 594,
+      "gpu": 568,
       "none": 29,
       "reference": 74
     },
@@ -39240,6 +39793,32 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "FMZ; FTZ; INVALID3; RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
+      "hfma2_relu__RCR": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RCxR": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RIR": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RRC": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RRCx": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RRI": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RRR": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RRU": "FMZ; FTZ; INVALID3; RELU; ofmt",
+      "hfma2_relu__RUR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
@@ -39373,10 +39952,10 @@
         "gpu": 10
       },
       "HFMA2": {
-        "gpu": 18
+        "gpu": 9
       },
       "HFMA2.MMA": {
-        "gpu": 18
+        "gpu": 1
       },
       "HMNMX2": {
         "gpu": 5
@@ -39759,10 +40338,12 @@
         "partially native": 5
       },
       "HFMA2": {
-        "partially native": 18
+        "opaque": 9,
+        "partially native": 9
       },
       "HFMA2.MMA": {
-        "partially native": 18
+        "opaque": 17,
+        "partially native": 1
       },
       "HMMA": {
         "opaque": 4
@@ -40264,10 +40845,12 @@
         "partially native": 5
       },
       "HFMA2": {
-        "partially native": 18
+        "opaque": 9,
+        "partially native": 9
       },
       "HFMA2.MMA": {
-        "partially native": 18
+        "opaque": 17,
+        "partially native": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -40548,8 +41131,8 @@
     },
     "status": {
       "native": 456,
-      "opaque": 357,
-      "partially native": 168,
+      "opaque": 383,
+      "partially native": 142,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -40591,63 +41174,81 @@
         "reference": 1
       },
       "DADD": {
-        "gpu": 272
+        "gpu": 112,
+        "none": 160
       },
       "DFMA": {
-        "gpu": 1920
+        "gpu": 253,
+        "none": 1666,
+        "reference": 1
       },
       "DMUL": {
-        "gpu": 272
+        "gpu": 112,
+        "none": 160
       },
       "DSETP": {
-        "gpu": 6528
+        "gpu": 682,
+        "none": 5845,
+        "reference": 1
       },
       "EXIT": {
         "reference": 4
       },
       "F2F": {
-        "gpu": 536
+        "gpu": 396,
+        "none": 140
       },
       "F2FP": {
-        "gpu": 618,
-        "none": 282
+        "gpu": 561,
+        "none": 339
       },
       "F2I": {
-        "gpu": 4032
+        "gpu": 684,
+        "none": 3348
       },
       "F2IP": {
         "gpu": 18
       },
       "FADD": {
-        "gpu": 1088
+        "gpu": 151,
+        "none": 937
       },
       "FCHK": {
-        "gpu": 68
+        "gpu": 38,
+        "none": 30
       },
       "FFMA": {
-        "gpu": 11520
+        "gpu": 333,
+        "none": 11187
       },
       "FLO": {
         "gpu": 16,
         "none": 20
       },
       "FMNMX": {
-        "gpu": 1088
+        "gpu": 104,
+        "none": 984
       },
       "FMUL": {
-        "gpu": 11424
+        "gpu": 512,
+        "none": 10906,
+        "reference": 6
       },
       "FRND": {
-        "gpu": 240
+        "gpu": 144,
+        "none": 96
       },
       "FSEL": {
-        "gpu": 272
+        "gpu": 58,
+        "none": 214
       },
       "FSET": {
-        "gpu": 13056
+        "gpu": 717,
+        "none": 12339
       },
       "FSETP": {
-        "gpu": 13056
+        "gpu": 714,
+        "none": 12342
       },
       "HADD2": {
         "gpu": 246,
@@ -40655,33 +41256,37 @@
         "reference": 1
       },
       "HFMA2": {
-        "gpu": 847,
-        "none": 147760,
+        "gpu": 269,
+        "none": 74034,
         "reference": 1
       },
       "HFMA2.MMA": {
-        "gpu": 73,
-        "none": 3767
+        "gpu": 1,
+        "none": 2
       },
       "HMNMX2": {
-        "gpu": 648,
-        "none": 11256
+        "gpu": 209,
+        "none": 11694,
+        "reference": 1
       },
       "HMUL2": {
-        "gpu": 262,
-        "none": 3257,
-        "reference": 9
+        "gpu": 165,
+        "none": 3352,
+        "reference": 11
       },
       "HSET2": {
-        "gpu": 14989,
-        "none": 210803
+        "gpu": 1055,
+        "none": 224736,
+        "reference": 1
       },
       "HSETP2": {
-        "gpu": 14989,
-        "none": 210803
+        "gpu": 1057,
+        "none": 224734,
+        "reference": 1
       },
       "I2F": {
-        "gpu": 792
+        "gpu": 600,
+        "none": 192
       },
       "I2FP": {
         "gpu": 20
@@ -40693,26 +41298,28 @@
         "gpu": 5
       },
       "IADD3": {
-        "gpu": 140
+        "gpu": 94,
+        "none": 46
       },
       "IDP": {
-        "gpu": 96
+        "gpu": 69,
+        "none": 27
       },
       "IMAD": {
         "gpu": 304,
-        "none": 13,
-        "reference": 8
+        "none": 13
       },
       "IMNMX": {
         "gpu": 20
       },
       "ISETP": {
-        "gpu": 1440
+        "gpu": 523,
+        "none": 917
       },
       "LD": {
-        "gpu": 2882,
-        "none": 9574,
-        "reference": 480
+        "gpu": 825,
+        "none": 11947,
+        "reference": 164
       },
       "LDC": {
         "gpu": 5,
@@ -40796,20 +41403,21 @@
         "gpu": 20
       },
       "SHF": {
-        "gpu": 288
+        "gpu": 147,
+        "none": 141
       },
       "SHFL": {
         "gpu": 16
       },
       "ST": {
-        "gpu": 1440,
-        "none": 4494,
-        "reference": 240
+        "gpu": 624,
+        "none": 5426,
+        "reference": 124
       },
       "STG": {
-        "gpu": 1201,
-        "none": 7061,
-        "reference": 1440
+        "gpu": 432,
+        "none": 8954,
+        "reference": 316
       },
       "STL": {
         "gpu": 121,
@@ -40831,13 +41439,15 @@
         "none": 12
       },
       "UIADD3": {
-        "gpu": 50
+        "gpu": 32,
+        "none": 18
       },
       "UIMAD": {
         "gpu": 54
       },
       "UISETP": {
-        "gpu": 576
+        "gpu": 208,
+        "none": 368
       },
       "ULDC": {
         "gpu": 6
@@ -40870,7 +41480,8 @@
         "gpu": 8
       },
       "USHF": {
-        "gpu": 96
+        "gpu": 49,
+        "none": 47
       },
       "VABSDIFF4": {
         "gpu": 32,
@@ -41059,14 +41670,12 @@
         "native": 2940
       },
       "HFMA2": {
-        "native": 148503,
-        "opaque": 147744,
-        "partially native": 105
+        "native": 74304,
+        "opaque": 222048
       },
       "HFMA2.MMA": {
-        "native": 3834,
-        "opaque": 1920,
-        "partially native": 6
+        "opaque": 5757,
+        "partially native": 3
       },
       "HMMA": {
         "opaque": 480
@@ -41457,7 +42066,7 @@
       }
     },
     "evidence": {
-      "gpu": 594,
+      "gpu": 568,
       "none": 29,
       "reference": 74
     },
@@ -41482,6 +42091,32 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hfma2_mma__RCR_norelu": "MMA operand form",
+      "hfma2_mma__RCR_relu": "MMA operand form",
+      "hfma2_mma__RCxR_norelu": "MMA operand form",
+      "hfma2_mma__RCxR_relu": "MMA operand form",
+      "hfma2_mma__RIR_norelu": "MMA operand form",
+      "hfma2_mma__RIR_relu": "MMA operand form",
+      "hfma2_mma__RRC_norelu": "MMA operand form",
+      "hfma2_mma__RRC_relu": "MMA operand form",
+      "hfma2_mma__RRCx_norelu": "MMA operand form",
+      "hfma2_mma__RRCx_relu": "MMA operand form",
+      "hfma2_mma__RRI_relu": "RELU",
+      "hfma2_mma__RRR_norelu": "MMA operand form",
+      "hfma2_mma__RRR_relu": "MMA operand form",
+      "hfma2_mma__RRU_norelu": "MMA operand form",
+      "hfma2_mma__RRU_relu": "MMA operand form",
+      "hfma2_mma__RUR_norelu": "MMA operand form",
+      "hfma2_mma__RUR_relu": "MMA operand form",
+      "hfma2_relu__RCR": "RELU; ofmt",
+      "hfma2_relu__RCxR": "RELU; ofmt",
+      "hfma2_relu__RIR": "RELU; ofmt",
+      "hfma2_relu__RRC": "RELU; ofmt",
+      "hfma2_relu__RRCx": "RELU; ofmt",
+      "hfma2_relu__RRI": "RELU; ofmt",
+      "hfma2_relu__RRR": "RELU; ofmt",
+      "hfma2_relu__RRU": "RELU; ofmt",
+      "hfma2_relu__RUR": "RELU; ofmt",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
@@ -41615,10 +42250,10 @@
         "gpu": 10
       },
       "HFMA2": {
-        "gpu": 18
+        "gpu": 9
       },
       "HFMA2.MMA": {
-        "gpu": 18
+        "gpu": 1
       },
       "HMNMX2": {
         "gpu": 5
@@ -42000,10 +42635,12 @@
         "native": 10
       },
       "HFMA2": {
-        "partially native": 18
+        "opaque": 9,
+        "partially native": 9
       },
       "HFMA2.MMA": {
-        "partially native": 18
+        "opaque": 17,
+        "partially native": 1
       },
       "HMMA": {
         "opaque": 4
@@ -42504,10 +43141,12 @@
         "native": 10
       },
       "HFMA2": {
-        "partially native": 18
+        "opaque": 9,
+        "partially native": 9
       },
       "HFMA2.MMA": {
-        "partially native": 18
+        "opaque": 17,
+        "partially native": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -42788,8 +43427,8 @@
     },
     "status": {
       "native": 461,
-      "opaque": 357,
-      "partially native": 163,
+      "opaque": 383,
+      "partially native": 137,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -42831,16 +43470,22 @@
         "reference": 1
       },
       "DADD": {
-        "gpu": 272
+        "gpu": 112,
+        "none": 160
       },
       "DFMA": {
-        "gpu": 1920
+        "gpu": 253,
+        "none": 1666,
+        "reference": 1
       },
       "DMUL": {
-        "gpu": 272
+        "gpu": 112,
+        "none": 160
       },
       "DSETP": {
-        "gpu": 6528
+        "gpu": 682,
+        "none": 5845,
+        "reference": 1
       },
       "ELECT": {
         "gpu": 2
@@ -42849,84 +43494,96 @@
         "reference": 4
       },
       "F2F": {
-        "gpu": 536
+        "gpu": 397,
+        "none": 139
       },
       "F2FP": {
-        "gpu": 618,
-        "none": 282
+        "gpu": 561,
+        "none": 339
       },
       "F2I": {
-        "gpu": 4032,
-        "none": 2112
+        "gpu": 684,
+        "none": 5460
       },
       "F2IP": {
         "gpu": 18
       },
       "FADD": {
-        "gpu": 1088
+        "gpu": 151,
+        "none": 937
       },
       "FCHK": {
-        "gpu": 68
+        "gpu": 38,
+        "none": 30
       },
       "FFMA": {
-        "gpu": 11520
+        "gpu": 333,
+        "none": 11187
       },
       "FLO": {
         "gpu": 16,
         "none": 20
       },
       "FMNMX": {
-        "gpu": 1088
+        "gpu": 104,
+        "none": 984
       },
       "FMUL": {
-        "gpu": 11424
+        "gpu": 512,
+        "none": 10906,
+        "reference": 6
       },
       "FRND": {
-        "gpu": 240
+        "gpu": 144,
+        "none": 96
       },
       "FSEL": {
-        "gpu": 272
+        "gpu": 58,
+        "none": 214
       },
       "FSET": {
-        "gpu": 13056
+        "gpu": 717,
+        "none": 12339
       },
       "FSETP": {
-        "gpu": 13056
+        "gpu": 714,
+        "none": 12342
       },
       "HADD2": {
         "gpu": 246,
         "none": 1518
       },
       "HFMA2": {
-        "gpu": 433,
-        "none": 48689,
-        "reference": 414
+        "gpu": 269,
+        "none": 24499
       },
       "HFMA2.MMA": {
         "gpu": 14,
-        "none": 3760,
-        "reference": 66
+        "none": 307
       },
       "HMNMX2": {
-        "gpu": 658,
-        "none": 17198
+        "gpu": 219,
+        "none": 17636,
+        "reference": 1
       },
       "HMUL2": {
-        "gpu": 277,
-        "none": 3818,
-        "reference": 21
+        "gpu": 180,
+        "none": 3913,
+        "reference": 23
       },
       "HSET2": {
-        "gpu": 22477,
-        "none": 316211
+        "gpu": 1092,
+        "none": 337595,
+        "reference": 1
       },
       "HSETP2": {
-        "gpu": 22477,
-        "none": 316211
+        "gpu": 1097,
+        "none": 337590,
+        "reference": 1
       },
       "I2F": {
-        "gpu": 792,
-        "none": 264
+        "gpu": 600,
+        "none": 456
       },
       "I2FP": {
         "gpu": 20
@@ -42938,26 +43595,28 @@
         "gpu": 5
       },
       "IADD3": {
-        "gpu": 140
+        "gpu": 94,
+        "none": 46
       },
       "IDP": {
-        "gpu": 96
+        "gpu": 69,
+        "none": 27
       },
       "IMAD": {
         "gpu": 304,
-        "none": 13,
-        "reference": 8
+        "none": 13
       },
       "IMNMX": {
         "gpu": 20
       },
       "ISETP": {
-        "gpu": 1440
+        "gpu": 524,
+        "none": 916
       },
       "LD": {
-        "gpu": 1922,
-        "none": 6838,
-        "reference": 480
+        "gpu": 248,
+        "none": 8418,
+        "reference": 574
       },
       "LDC": {
         "gpu": 6,
@@ -42970,9 +43629,9 @@
         "reference": 6
       },
       "LDL": {
-        "gpu": 92,
+        "gpu": 75,
         "none": 46,
-        "reference": 30
+        "reference": 47
       },
       "LDS": {
         "gpu": 37,
@@ -43042,25 +43701,26 @@
         "gpu": 20
       },
       "SHF": {
-        "gpu": 288
+        "gpu": 147,
+        "none": 141
       },
       "SHFL": {
         "gpu": 16
       },
       "ST": {
-        "gpu": 960,
-        "none": 3210,
-        "reference": 240
+        "gpu": 335,
+        "none": 3786,
+        "reference": 289
       },
       "STG": {
-        "gpu": 961,
-        "none": 5135,
-        "reference": 960
+        "gpu": 305,
+        "none": 6431,
+        "reference": 320
       },
       "STL": {
-        "gpu": 91,
+        "gpu": 63,
         "none": 47,
-        "reference": 30
+        "reference": 58
       },
       "STS": {
         "gpu": 35,
@@ -43077,13 +43737,15 @@
         "none": 12
       },
       "UIADD3": {
-        "gpu": 50
+        "gpu": 32,
+        "none": 18
       },
       "UIMAD": {
         "gpu": 54
       },
       "UISETP": {
-        "gpu": 576
+        "gpu": 208,
+        "none": 368
       },
       "ULDC": {
         "gpu": 6
@@ -43116,7 +43778,8 @@
         "gpu": 8
       },
       "USHF": {
-        "gpu": 96
+        "gpu": 49,
+        "none": 47
       },
       "VABSDIFF4": {
         "gpu": 32,
@@ -43126,7 +43789,8 @@
         "gpu": 9
       },
       "VIADDMNMX": {
-        "gpu": 204
+        "gpu": 141,
+        "none": 63
       },
       "VIMNMX": {
         "gpu": 60
@@ -43337,14 +44001,13 @@
         "opaque": 1764
       },
       "HFMA2": {
-        "native": 49501,
-        "opaque": 411456,
-        "partially native": 35
+        "native": 24768,
+        "opaque": 436224
       },
       "HFMA2.MMA": {
-        "native": 3837,
-        "opaque": 3360,
-        "partially native": 3
+        "native": 320,
+        "opaque": 6879,
+        "partially native": 1
       },
       "HGMMA": {
         "opaque": 26880
@@ -43814,7 +44477,7 @@
     "evidence": {
       "gpu": 599,
       "none": 38,
-      "reference": 95
+      "reference": 71
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -43839,6 +44502,30 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hfma2_mma__RCR": "MMA format; MMA operand form",
+      "hfma2_mma__RCxR": "MMA format; MMA operand form",
+      "hfma2_mma__RRC": "MMA format; MMA operand form",
+      "hfma2_mma__RRCx": "MMA format; MMA operand form",
+      "hfma2_mma__RRU": "MMA format; MMA operand form",
+      "hfma2_mma__RUR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RCR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RCxR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RIR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRC": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRCx": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRI": "FMZ; FTZ; INVALID3; MMA format; RELU",
+      "hfma2_mma_relu__RRR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRU": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RUR": "MMA format; MMA operand form",
+      "hfma2_relu__RCR": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RCxR": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRC": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRCx": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRI": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
+      "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
@@ -43974,12 +44661,10 @@
         "gpu": 10
       },
       "HFMA2": {
-        "gpu": 9,
-        "reference": 9
+        "gpu": 9
       },
       "HFMA2.MMA": {
-        "gpu": 3,
-        "reference": 15
+        "gpu": 3
       },
       "HMNMX2": {
         "gpu": 10
@@ -44392,10 +45077,12 @@
         "partially native": 5
       },
       "HFMA2": {
-        "partially native": 18
+        "opaque": 9,
+        "partially native": 9
       },
       "HFMA2.MMA": {
-        "partially native": 18
+        "opaque": 15,
+        "partially native": 3
       },
       "HGMMA": {
         "opaque": 6
@@ -44972,10 +45659,12 @@
         "partially native": 5
       },
       "HFMA2": {
-        "partially native": 18
+        "opaque": 9,
+        "partially native": 9
       },
       "HFMA2.MMA": {
-        "partially native": 18
+        "opaque": 15,
+        "partially native": 3
       },
       "HMNMX2": {
         "native": 1,
@@ -45255,8 +45944,8 @@
     },
     "status": {
       "native": 480,
-      "opaque": 441,
-      "partially native": 180,
+      "opaque": 465,
+      "partially native": 156,
       "partially primitive": 6,
       "primitive": 66
     }
@@ -45298,16 +45987,22 @@
         "reference": 1
       },
       "DADD": {
-        "gpu": 272
+        "gpu": 112,
+        "none": 160
       },
       "DFMA": {
-        "gpu": 1920
+        "gpu": 253,
+        "none": 1666,
+        "reference": 1
       },
       "DMUL": {
-        "gpu": 272
+        "gpu": 112,
+        "none": 160
       },
       "DSETP": {
-        "gpu": 6528
+        "gpu": 682,
+        "none": 5845,
+        "reference": 1
       },
       "ELECT": {
         "gpu": 2
@@ -45316,49 +46011,60 @@
         "reference": 4
       },
       "F2F": {
-        "gpu": 536
+        "gpu": 397,
+        "none": 139
       },
       "F2FP": {
-        "gpu": 618,
-        "none": 282
+        "gpu": 561,
+        "none": 339
       },
       "F2I": {
-        "gpu": 4032,
-        "none": 2112
+        "gpu": 684,
+        "none": 5460
       },
       "F2IP": {
         "gpu": 18
       },
       "FADD": {
-        "gpu": 1088
+        "gpu": 151,
+        "none": 937
       },
       "FCHK": {
-        "gpu": 68
+        "gpu": 38,
+        "none": 30
       },
       "FFMA": {
-        "gpu": 11520
+        "gpu": 333,
+        "none": 11187
       },
       "FLO": {
         "gpu": 16,
         "none": 20
       },
       "FMNMX": {
-        "gpu": 1088
+        "gpu": 104,
+        "none": 984
       },
       "FMUL": {
-        "gpu": 11424
+        "gpu": 512,
+        "none": 10906,
+        "reference": 6
       },
       "FRND": {
-        "gpu": 240
+        "gpu": 144,
+        "none": 96
       },
       "FSEL": {
-        "gpu": 272
+        "gpu": 58,
+        "none": 214
       },
       "FSET": {
-        "gpu": 13056
+        "gpu": 717,
+        "none": 12339
       },
       "FSETP": {
-        "gpu": 13056
+        "gpu": 714,
+        "none": 12342
       },
       "HADD2": {
         "gpu": 246,
@@ -45366,35 +46072,37 @@
         "reference": 1
       },
       "HFMA2": {
-        "gpu": 433,
-        "none": 197296,
-        "reference": 415
+        "gpu": 269,
+        "none": 98802,
+        "reference": 1
       },
       "HFMA2.MMA": {
         "gpu": 14,
-        "none": 3760,
-        "reference": 66
+        "none": 309
       },
       "HMNMX2": {
-        "gpu": 658,
-        "none": 17198
+        "gpu": 219,
+        "none": 17636,
+        "reference": 1
       },
       "HMUL2": {
-        "gpu": 277,
-        "none": 3818,
-        "reference": 21
+        "gpu": 180,
+        "none": 3913,
+        "reference": 23
       },
       "HSET2": {
-        "gpu": 22477,
-        "none": 316211
+        "gpu": 1092,
+        "none": 337595,
+        "reference": 1
       },
       "HSETP2": {
-        "gpu": 22477,
-        "none": 316211
+        "gpu": 1097,
+        "none": 337590,
+        "reference": 1
       },
       "I2F": {
-        "gpu": 792,
-        "none": 264
+        "gpu": 600,
+        "none": 456
       },
       "I2FP": {
         "gpu": 20
@@ -45406,26 +46114,28 @@
         "gpu": 5
       },
       "IADD3": {
-        "gpu": 140
+        "gpu": 94,
+        "none": 46
       },
       "IDP": {
-        "gpu": 96
+        "gpu": 69,
+        "none": 27
       },
       "IMAD": {
         "gpu": 304,
-        "none": 13,
-        "reference": 8
+        "none": 13
       },
       "IMNMX": {
         "gpu": 20
       },
       "ISETP": {
-        "gpu": 1440
+        "gpu": 524,
+        "none": 916
       },
       "LD": {
-        "gpu": 1922,
-        "none": 6838,
-        "reference": 480
+        "gpu": 248,
+        "none": 8418,
+        "reference": 574
       },
       "LDC": {
         "gpu": 6,
@@ -45438,9 +46148,9 @@
         "reference": 6
       },
       "LDL": {
-        "gpu": 92,
+        "gpu": 75,
         "none": 46,
-        "reference": 30
+        "reference": 47
       },
       "LDS": {
         "gpu": 37,
@@ -45510,25 +46220,26 @@
         "gpu": 20
       },
       "SHF": {
-        "gpu": 288
+        "gpu": 147,
+        "none": 141
       },
       "SHFL": {
         "gpu": 16
       },
       "ST": {
-        "gpu": 960,
-        "none": 3210,
-        "reference": 240
+        "gpu": 335,
+        "none": 3786,
+        "reference": 289
       },
       "STG": {
-        "gpu": 961,
-        "none": 5135,
-        "reference": 960
+        "gpu": 305,
+        "none": 6431,
+        "reference": 320
       },
       "STL": {
-        "gpu": 91,
+        "gpu": 63,
         "none": 47,
-        "reference": 30
+        "reference": 58
       },
       "STS": {
         "gpu": 35,
@@ -45545,13 +46256,15 @@
         "none": 12
       },
       "UIADD3": {
-        "gpu": 50
+        "gpu": 32,
+        "none": 18
       },
       "UIMAD": {
         "gpu": 54
       },
       "UISETP": {
-        "gpu": 576
+        "gpu": 208,
+        "none": 368
       },
       "ULDC": {
         "gpu": 6
@@ -45584,7 +46297,8 @@
         "gpu": 8
       },
       "USHF": {
-        "gpu": 96
+        "gpu": 49,
+        "none": 47
       },
       "VABSDIFF4": {
         "gpu": 32,
@@ -45594,7 +46308,8 @@
         "gpu": 9
       },
       "VIADDMNMX": {
-        "gpu": 204
+        "gpu": 141,
+        "none": 63
       },
       "VIMNMX": {
         "gpu": 60
@@ -45805,14 +46520,13 @@
         "opaque": 588
       },
       "HFMA2": {
-        "native": 198004,
-        "opaque": 262848,
-        "partially native": 140
+        "native": 99072,
+        "opaque": 361920
       },
       "HFMA2.MMA": {
-        "native": 3834,
-        "opaque": 3360,
-        "partially native": 6
+        "native": 320,
+        "opaque": 6877,
+        "partially native": 3
       },
       "HGMMA": {
         "opaque": 26880
@@ -46282,7 +46996,7 @@
     "evidence": {
       "gpu": 599,
       "none": 38,
-      "reference": 95
+      "reference": 71
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -46307,6 +47021,30 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hfma2_mma__RCR": "MMA format; MMA operand form",
+      "hfma2_mma__RCxR": "MMA format; MMA operand form",
+      "hfma2_mma__RRC": "MMA format; MMA operand form",
+      "hfma2_mma__RRCx": "MMA format; MMA operand form",
+      "hfma2_mma__RRU": "MMA format; MMA operand form",
+      "hfma2_mma__RUR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RCR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RCxR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RIR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRC": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRCx": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRI": "MMA format; RELU",
+      "hfma2_mma_relu__RRR": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RRU": "MMA format; MMA operand form",
+      "hfma2_mma_relu__RUR": "MMA format; MMA operand form",
+      "hfma2_relu__RCR": "RELU; ofmt",
+      "hfma2_relu__RCxR": "RELU; ofmt",
+      "hfma2_relu__RIR": "RELU; ofmt",
+      "hfma2_relu__RRC": "RELU; ofmt",
+      "hfma2_relu__RRCx": "RELU; ofmt",
+      "hfma2_relu__RRI": "RELU; ofmt",
+      "hfma2_relu__RRR": "RELU; ofmt",
+      "hfma2_relu__RRU": "RELU; ofmt",
+      "hfma2_relu__RUR": "RELU; ofmt",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
@@ -46442,12 +47180,10 @@
         "gpu": 10
       },
       "HFMA2": {
-        "gpu": 9,
-        "reference": 9
+        "gpu": 9
       },
       "HFMA2.MMA": {
-        "gpu": 3,
-        "reference": 15
+        "gpu": 3
       },
       "HMNMX2": {
         "gpu": 10
@@ -46860,10 +47596,12 @@
         "partially native": 5
       },
       "HFMA2": {
-        "partially native": 18
+        "opaque": 9,
+        "partially native": 9
       },
       "HFMA2.MMA": {
-        "partially native": 18
+        "opaque": 15,
+        "partially native": 3
       },
       "HGMMA": {
         "opaque": 6
@@ -47440,10 +48178,12 @@
         "partially native": 5
       },
       "HFMA2": {
-        "partially native": 18
+        "opaque": 9,
+        "partially native": 9
       },
       "HFMA2.MMA": {
-        "partially native": 18
+        "opaque": 15,
+        "partially native": 3
       },
       "HMNMX2": {
         "native": 1,
@@ -47723,8 +48463,8 @@
     },
     "status": {
       "native": 480,
-      "opaque": 441,
-      "partially native": 180,
+      "opaque": 465,
+      "partially native": 156,
       "partially primitive": 6,
       "primitive": 66
     }

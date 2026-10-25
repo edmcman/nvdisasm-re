@@ -12,8 +12,8 @@ from tests.harness.case import Cases
 def test_factored_legal_forms():
     row = dict(cls='example', combinations=dict(labels={'mode':['A','B'], 'flag':['unset','set']},
                decides=['mode'], table=[['B','native']], free=2))
-    assert list(tests.autocases.forms(row)) == [({'mode':'B','flag':'unset'}, 'native'),
-                                         ({'mode':'B','flag':'set'}, 'native')]
+    assert list(tests.autocases.forms(row)) == [({'mode':'B','flag':'set'}, 'native'),
+                                         ({'mode':'B','flag':'unset'}, 'native')]
 
 
 @pytest.mark.parametrize('cls,form', [
@@ -55,8 +55,8 @@ def test_unsupported_form_never_enters_suite():
 
 def test_saved_plan_joins_existing_family(tmp_path, monkeypatch):
     monkeypatch.setattr(tests.harness.autocases, 'PLANS', tmp_path)
-    (tmp_path / 'SM89.json').write_text(json.dumps(dict(version=2, arch="SM89", forms=[
-        dict(family='int_alu', cls='popc__RRR_RRR', settings={'Rb@invert':'set'}, profiles=['bits'], native=True)])))
+    (tmp_path / 'SM89.json').write_text(json.dumps(dict(version=3, arch="SM89", forms=[
+        dict(family='int_alu', cls='popc__RRR_RRR', settings={'Rb@invert':'set'}, profiles=['bits'], native=True, profile_mode='full')])))
     c = Cases('SM89')
     tests.harness.autocases.append(c, 'memory')
     assert not c
@@ -84,8 +84,58 @@ def test_manual_regressions_do_not_suppress_generated_coverage(monkeypatch):
     row = dict(cls='popc__RRR_RRR', opcode='POPC', combinations=dict(
         labels={'Rb@invert':['unset','set']}, decides=[], table=[['native']], free=2))
     generated, report = tests.autocases.plan('SM89', [row])
-    assert [e['settings'] for e in generated['forms']] == [{'Rb@invert':'unset'}, {'Rb@invert':'set'}]
+    assert [e['settings'] for e in generated['forms']] == [{'Rb@invert':'set'}, {'Rb@invert':'unset'}]
     assert report['counts']['generated'] == 2
+
+
+@pytest.mark.parametrize('invert,manual,blocked', [('unset', 1, 0), ('set', 0, 1)])
+def test_manual_cases_credit_only_modeled_forms(monkeypatch, invert, manual, blocked):
+    cases = tests.harness.autocases.generate('SM89', 'popc__RRR_RRR', {'Rb@invert': invert})
+    monkeypatch.setattr(tests.autocases, 'emulator_cases', lambda *a, **kw: {'int_alu': cases})
+    monkeypatch.setattr(tests.harness.autocases, 'OWNED', tests.harness.autocases.OWNED - {'POPC'})
+    row = dict(cls='popc__RRR_RRR', opcode='POPC', combinations=dict(
+        labels={'Rb@invert': ['unset', 'set']}, decides=['Rb@invert'],
+        table=[['unset', 'native'], ['set', 'opaque']], free=1))
+    plan, report = tests.autocases.plan('SM89', [row])
+    assert not plan['forms']
+    assert report['counts']['manual'] == manual
+    assert report['counts']['blocked'] == blocked
+
+
+def test_neutral_variants_only_multiply_minimal_profiles(monkeypatch):
+    from sass.sleigh import verification
+    monkeypatch.setattr(tests.autocases, 'emulator_cases', lambda *a, **kw: {})
+    monkeypatch.setattr(tests.harness.autocases, 'generate', lambda *a, **kw: [True])
+    row = dict(cls='popc__RRR_RRR', opcode='POPC', modifier_roles={'hint':'hint'}, combinations=dict(
+        labels={'Rb@invert':['unset','set'], 'hint':['A','B']}, decides=[], table=[['native']], free=4))
+    plan, _ = tests.autocases.plan('SM89', [row], verification.VerificationPolicy(default_strength=3))
+    assert len(plan['forms']) == 4
+    assert sum(e['profile_mode'] == 'full' for e in plan['forms']) == 2
+    assert sum(e['profile_mode'] == 'minimal' for e in plan['forms']) == 2
+
+
+def test_failed_minimal_profile_does_not_count_as_covered(monkeypatch):
+    monkeypatch.setattr(tests.autocases, 'emulator_cases', lambda *a, **kw: {})
+    def generate(arch, cls, form, **kwargs):
+        if kwargs.get('profile_mode') == 'minimal' and form['hint'] == 'A':
+            raise tests.harness.autocases.Unsupported('minimal floor unavailable')
+        return [True]
+    monkeypatch.setattr(tests.harness.autocases, 'generate', generate)
+    row = dict(cls='example', opcode='POPC', modifier_roles={'hint':'hint'}, combinations=dict(
+        labels={'value':['0','1'], 'hint':['A','B']}, decides=[], table=[['native']], free=4))
+    plan, report = tests.autocases.plan('SM89', [row])
+    assert {e['settings']['hint'] for e in plan['forms']} == {'B'}
+    assert report['counts']['covered_requirements'] == 2
+    assert report['counts']['blocked'] == 2
+    assert report['gaps'][0]['attempts'] == {'minimal floor unavailable':2}
+
+
+def test_minimal_declared_profile_remains_minimal_at_exhaustive_input_depth():
+    from tests.harness import sampling
+    full = tests.harness.autocases.generate('SM89', 'popc__RRR_RRR', {'Rb@invert':'unset'}, sample=100)
+    minimal = tests.harness.autocases.generate('SM89', 'popc__RRR_RRR', {'Rb@invert':'unset'}, sample=100, profile_mode='minimal')
+    assert len(minimal) < len(full)
+    assert {c.id for c in minimal} == {c.id for c in sampling.select(full, 'SM89', 0)}
 
 
 def test_unresolved_forms_are_reported_without_generating(monkeypatch):
@@ -95,7 +145,7 @@ def test_unresolved_forms_are_reported_without_generating(monkeypatch):
     generated, report = tests.autocases.plan('SM89', [row])
     assert not generated['forms']
     assert report['counts']['unresolved_semantics'] == 1
-    assert report['gaps'] == [dict(cls='flo__RRR_RRR', count=1, reason='unresolved semantics')]
+    assert any(g['reason'] == 'partial-form planning deferred to #80' for g in report['gaps'])
 
 
 def test_simd_plan_uses_its_own_family(monkeypatch):
