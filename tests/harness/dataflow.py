@@ -1,10 +1,12 @@
-"""Layer 3: register dataflow and control flow of generated p-code against md operand roles,
+"""Register dataflow and control flow of generated p-code against md operand roles,
 exact spans and BRANCH_TYPE."""
 from sass.md import expression
 from sass.decode import pydecode
 from sass.semantics.family import family_for
-from sass.sleigh.gen import ENUM_FILE, REG_FILES, RESOURCE_FILE, Gen
+from sass.sleigh.gen import RESOURCE_FILE, Gen
+from sass.sleigh.registers import ENUM_FILE, REG_FILES
 from sass import ghidra_bridge
+from tests.refs.integer import prmt
 
 
 PREFIX={'B0':1,'B1':2,'B2':3,'B3':4,'H0':2,'H1':4}   # bytes read up to a selected byte or half
@@ -35,12 +37,10 @@ def discarded(g, d):
             and all(d.env.get(o['name']) == g.register_zero(d.klass, o['name']) for o in outs))
 
 
-def expected(g, d, optimized=False):
+def expected(g, d, optimized=False, ignore=()):
+    """md register cells (reads, writes) of decoded instruction d; `ignore` names operands whose reads to skip."""
     reads, writes = set(), set()
-    unused=set()
-    if optimized and d.klass.mnemonic in ('LDG','STG','LDL','STL') and d.env.get('e_desc')==0:
-        # Implicit pointer forms use their address registers directly.
-        unused.update(('Ra_URb','Ra_URc'))
+    unused=set(ignore)
     if optimized and d.klass.mnemonic in ('LOP3','ULOP3') and 'imm8' in d.env:
         lut=d.env['imm8']
         for bit,names in [(2,('Ra','Sa','URa')),(1,('Rb','Sb','URb')),(0,('Rc','Sc','URc'))]:
@@ -48,16 +48,18 @@ def expected(g, d, optimized=False):
             if all((lut>>v&1)==(lut>>(v^(1<<bit))&1) for v in range(8)):
                 unused.update(names)
         if d.env.get('Pu',d.env.get('UPu'))==7:unused.update(('Pp','UPp'))
-    if optimized and d.klass.mnemonic in ('ISETP','UISETP','FSETP'):
-        name='icmp' if d.klass.mnemonic in ('ISETP','UISETP') else 'fcomp'
+    if optimized and d.klass.mnemonic in ('ISETP','UISETP','FSETP','FSET','HSET2','HSETP2','VISET'):
+        name={'FSETP':'fcomp','FSET':'fcomp','HSET2':'cmp','HSETP2':'cmp'}.get(d.klass.mnemonic,'icmp')
         operand=d.klass.operand_types.get(name)
-        if (operand and not d.env.get('ex') and
+        if (operand and
                 d.env.get(name) in {g.arch.enums[operand.type].get(n) for n in ('F','T')}):
-            unused.update(('Ra','Sa','Rb','Sb','URa','URb'))
+            unused.update(('Ra','Sa','Rb','Sb','Rc','Sc','URa','URb','URc','Pr','UPr'))
         ex=d.klass.operand_types.get('ex')
         if (d.klass.mnemonic=='ISETP' and 'Pr' in d.env and ex and
                 d.env.get('ex')==g.arch.enums[ex.type].get('noex')):
             unused.add('Pr')
+    if optimized and d.klass.name.startswith('imad_pseudo') and 'Rb' in d.klass.operand_types and d.env.get('Rb')==g.register_zero(d.klass,'Rb'):
+        unused.update(('Ra','URa'))   # the pseudo-op fixes Rb = RZ: Ra * 0 folds away (IMAD.MOV)
     if optimized and d.klass.mnemonic=='VABSDIFF4':
         red=d.klass.operand_types.get('red');enums=g.arch.enums.get(red.type,{}) if red else {}
         if d.env.get('red')==enums.get('SIMD_MRG'):
@@ -101,8 +103,9 @@ def expected(g, d, optimized=False):
                     h1h1=g.arch.enums[atom.type].get('H1_H1')
                     if d.env.get(selector)!=h1h1:
                         needed=set(range(base+size*index,base+size*index+2))
-            elif optimized and role=='read' and span==1 and d.klass.mnemonic in ('HADD2','HFMA2','HMUL2','HMNMX2'):
-                # A low-half broadcast in HADD2/HFMA2/HMUL2/HMNMX2 reads only the two-byte
+            elif optimized and role=='read' and span==1 and (d.klass.mnemonic in ('HADD2','HFMA2','HMUL2','HMNMX2','HSET2','HSETP2')
+                                                               or d.klass.mnemonic in ('FHADD2','FHFMA2') and o['name']=='Ra'):
+                # A low-half broadcast in HADD2/HFMA2/HMUL2/HMNMX2/HSET2/HSETP2 (and FHADD2/FHFMA2's F16/BF16 A) reads only the two-byte
                 # register slice; |x| and -x apply to the half. Two-register CX address inputs
                 # retain the entire pointer.
                 selectors={'Ra':('iswzA',),'Rb':('iswzB','iswzC_as_B'),
@@ -116,13 +119,22 @@ def expected(g, d, optimized=False):
                     atom=d.klass.operand_types[selector]
                     if d.env.get(selector)==g.arch.enums[atom.type].get('H0_H0'):
                         needed=set(range(base+size*index,base+size*index+2))
-            if optimized and role=='read' and span==1 and d.klass.mnemonic in ('F2FP','UF2FP','F2IP','F2F','F2I','I2F','FRND'):
-                # F2FP/F2IP and the 16/8-bit conversion sources read an operand's half or byte named
+            if (optimized and role=='read' and span==1 and d.klass.mnemonic in ('PRMT','UPRMT')
+                    and 'Sb' in d.env and o['name'] in ('Ra','Rc','URa','URc')):
+                # Probe the independent byte-permutation reference: the direct selection reads
+                # only the low prefix through the highest byte that can affect the result.
+                mode=(g.arch.rev_enums[d.klass.operand_types['pmode'].type][d.env['pmode']]
+                      if 'pmode' in d.klass.operand_types else 'IDX')
+                right=o['name'] in ('Rc','URc')
+                used=[j for j in range(4) if prmt(0 if right else 255<<(8*j),d.env['Sb'],
+                                                 255<<(8*j) if right else 0,mode)]
+                needed=set(range(base+size*index,base+size*index+max(used,default=-1)+1))
+            if optimized and role=='read' and span==1 and d.klass.mnemonic in ('F2FP','UF2FP','F2IP','F2F','F2I','I2F','FRND','MUFU'):
+                # F2FP/F2IP, MUFU's 16-bit forms and the 16/8-bit conversion sources read an operand's half or byte named
                 # by the selector after it in FORMAT (extract, extract_B, selB, hsel, bsel): the bytes
-                # up to it (SLEIGH truncates to the low bytes, then shifts). F2FP's MERGE_C forms
-                # without a selector keep C's low half.
+                # up to it (SLEIGH truncates to the low bytes, then shifts). The scaled MERGE_C
+                # forms, without a selector, read all of C: the scales above the kept low half.
                 label=part_selector(g,d,o['name'])
-                if label is None and d.klass.mnemonic=='F2FP' and o['name'] in ('Rc','URc') and 'mx8_downconvert' in d.klass.name:label='H0'
                 if label in PREFIX:needed=set(range(base+size*index,base+size*index+PREFIX[label]))
             if optimized and role=='read' and span==1 and d.klass.mnemonic in ('I2IP','UI2IP'):
                 # I2IP packs two width-bit lanes above the rest of C: only the bytes that reach the
@@ -150,7 +162,7 @@ def expected(g, d, optimized=False):
             if (optimized and role=='read' and span==1 and d.klass.mnemonic=='IDP' and o['name'] in ('Rb','URb')
                     and g.arch.rev_enums[d.klass.operand_types['mode'].type].get(d.env.get('mode','')).lstrip('_')=='2A.LO'):
                 needed=set(range(base+size*index,base+size*index+2))   # 2A.LO multiplies B's low two bytes
-            if optimized and role=='read' and o['name']=='Rb' and d.klass.mnemonic in ('STG','STS','STL'):
+            if optimized and role=='read' and o['name']=='Rb' and d.klass.mnemonic in ('STG','STS','STL','ST'):
                 atom=d.klass.operand_types.get('sz');enums=g.arch.enums.get(atom.type,{}) if atom else {}
                 width=next((width for label,width in [('U8',1),('S8',1),('U16',2),('S16',2)]
                             if enums.get(label)==d.env.get('sz')),None)
@@ -209,7 +221,7 @@ def problems(arch, fp, words):
         elif (flow := result["flow"]) != (want_flow := expected_flow(gen, d)):
             out.append(f"{d.klass.name} {w.hex()} {d.text}: flow {flow}, md {want_flow}")
         elif (got := actual(result["ops"])) != (want := expected(gen, d, optimized=not any(
-                (op.get("userop") or "").startswith(("sass_opaque_", "sass_prim_")) for op in result["ops"]))):
+                (op.get("userop") or "").startswith("sass_opaque_") for op in result["ops"]))):
             out.append(f"{d.klass.name} {w.hex()} {d.text}: reads missing={sorted(want[0] - got[0])} extra={sorted(got[0] - want[0])}; "
                        f"writes missing={sorted(want[1] - got[1])} extra={sorted(got[1] - want[1])}")
     return len(todo), out

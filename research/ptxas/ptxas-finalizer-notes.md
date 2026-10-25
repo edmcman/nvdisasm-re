@@ -656,7 +656,7 @@ assignment `BITS_1_75_75_relu=cw`; `relu` is merely the shared field's name.
 `CWMode` defines `C=0`, `W=1`.
 
 The committed probes and complete captures are
-`tests/ptx/bmsk/bmsk_clamp.ptx` / `bmsk_clamp_finalizer.jsonl` and
+`tests/ptx/bmsk/bmsk_clamp.ptx` / `research/ptxas/bmsk_clamp_finalizer.jsonl` and
 `tests/ptx/bmsk/bmsk_wrap.ptx` / `bmsk_wrap_finalizer.jsonl`. Each capture's 24 words (384
 bytes) was checked against the cubin produced by that same SM100 compiler run
 using `validate_capture.py`. The arithmetic words, in little-endian byte order:
@@ -890,3 +890,127 @@ Findings:
 `LDC.64 R2, cx[UR0][0x380]` and `LDC R4, cx[UR0][0x388]`. So ptxas's own packer for `ldc_ur` yields a real CX operand from ptxas
 output, but it needs a debugger patch: no PTX-only input selecting that row has been found. The URa field is not set up (UR0), so the
 value is not meaningful.
+
+## LDG's Pu operand (2026-10-15)
+
+What does ptxas put in LDG's `Pu` (SASS bits 81-83)? Renamed and commented in
+Ghidra.
+
+- SM89 encodes `ldg_memdesc`/`uniform` (opcode 0x1981) through
+  `encode_sm8x_LDG_0x1981_from_field_struct` (`0x1c55410`). Its field struct is
+  filled by `fill_sm8x_LDG_field_struct_Pu_PT` (`0x19fb280`), which sets `Pu`
+  (+0xf4) from `encoder+0xc`. gdb shows that is 7 (PT) for every LDG of a test
+  kernel. `Pnz` (+0xd0, `!` at +0xd4) comes from the instruction's predicate
+  operand.
+- SM90+ (the SM100 directory `0x232e6e0`): Mercury class 0x22 is the general
+  load (LDC, LDCU, LD, LDS, LDL and LDG variants). Every one of its LDG
+  handlers (keys 0c/0d/0e/0f/10/11/12/21/22/23, e.g.
+  `encode_ori_class_22_key_0f_19_LDG_desc_Pu_PT` for nvcc's `desc[...]` loads)
+  packs `Pu` from `this+0x10`, the encoder's default predicate PT, never from
+  an operand. `Pnz` is operand 3's predicate (0x1f, absent, means PT).
+- Class 0xe6 holds only LDG forms: `ldg_256` (0x197e), `ldg__ImmOffset`
+  (0x381) and `ldg_memdesc`/`uniform` (0x1981). Its handlers take operand 0 as
+  `Pu`, or as LDG.256's second register. Its other operands are Rd, Ra, the
+  uniform register, the offset and Pnz.
+  `decode_intermediate_class_e6_key_00..03_19` (`0x17f4ec0`, ...) rebuild it
+  from the intermediate ELF. The only test for it is in
+  `convert_ori_atom_to_mercury` (`0x9e8b20`, the ORI atom case of
+  `dispatch_ori_opcode_conversion`), which looks at the builder's current
+  instruction. The code that creates class 0xe6 was not found.
+- Nothing tested produced a non-PT `Pu`: 7,076 compiles of the 2,774 PTX files
+  under `research/ptxas` and `third_party/culifter` for SM89/90/100, 298 atomic
+  forms, every accepted `ld` spelling, `-g`, `-lineinfo`, `-sp-bounds-check`,
+  `--device-stack-protector` and the hidden `--sanitize memcheck|threadsteer`.
+  A plain `ld.global.v8` goes through class 0x22 (key 2c/19), not 0xe6.
+- No input creates class 0xe6. gdb ran ptxas with a breakpoint at all 25 dispatch sites, firing when the class
+  index is 0xe6 (checked first by firing it on class 0x22). Over 3,205 inputs (the corpus above plus the
+  atomic kernels) for sm_90/100/103/110/120, PTX version 9.0, 16,025 runs, it never fired. Compile success
+  wasn't recorded; the same corpus compiled about 85% of the time for SM89/90/100.
+- Template decoding: a handler's first step ORs in a fixed 128-bit encoding
+  (an immediate, or a RIP-relative constant). Its 13-bit opcode (bits 0-11 and
+  91) names the md class group. That the first RIP-relative read is the
+  template is a heuristic, checked on two decompilations.
+
+## Handler names (2026-10-15)
+
+`research/ptxas/handler_directories.py` finds the 25 handler directories, and
+`research/ptxas/handler_names.py` names their handlers. The 15,538 resulting
+`FUN_*` renames are in the Ghidra project, with the table in
+`research/ptxas/handler_names.txt`; 74 existing names were kept.
+
+- Families: one-shot gdb breakpoints on each directory's dispatcher, compiling
+  for every `-arch`, map them to sm90 (sm_90/90a), sm100 (sm_100/100a/100f),
+  sm103, sm110 and sm120 (sm_120/121, with a/f). Each family has five
+  directories. A directory that no kernel reached was assigned to the family
+  whose dispatcher sits next to its own. SM75-SM89 use the older field-struct
+  encoders and no directory.
+- Roles, from the handlers themselves:
+  - `encode`: the final SASS encoder; every template's opcode is a SASS opcode
+    in that architecture's md. SM100's is `0x232e6e0`
+    (`dispatch_sm100_final_sass_encoder`).
+  - `decode_intermediate` and `encode_intermediate`: a pair with equal row
+    counts, the decoder setting the class word (+0xc) as its first step
+    (`0x239a4a0`/`0x23a6940` on SM100).
+  - `aux` and `aux_decode`: a second pair of unknown role. Every `aux_decode`
+    table also sets class words in some of its handlers.
+- Names: `<role>_<families>_class_<class>_key_<variant>_<mnemonic>`, where
+  `sm90plus` means all five families. The mnemonic is the md mnemonic of the
+  final encoder's template opcode for the same family, class and key, or the
+  class's only mnemonic. 812 handlers have none. A handler whose rows differ
+  is `..._shared_<n>_rows`. The 45 names that would collide get the address
+  appended.
+
+## Register-allocator verifier and the P2R-R2P pattern (2026-10-16)
+
+Looking for ptxas code that writes P2R into a non-RZ base. Addresses are for
+the CUDA 13.0.88 ptxas in Ghidra (image base 0x400000, so the strings at file
+offsets 0x1deffd0 and 0x1df0038 are at 0x21effd0 and 0x21f0038). The functions
+below are renamed in the Ghidra project.
+
+- `ra_verify_instruction` (`0xa75cc0`) checks each vreg source operand
+  (kind 1, not a DEF, id not in 0x29..0x2c) of an instruction after
+  allocation. It compares the operand's producers before allocation
+  (ctx+0x268/0x298) with those after (ctx+0x280) through
+  `ra_verify_match_operand` (`0xa75220`). On failure it calls
+  `ra_verify_report_operand_problem` (`0xa55d80`), which prints the producer
+  lists, "Additions"/"Removals" (BENIGN or POTENTIAL PROBLEM) and one line per
+  problem record, then "Please use -knob DUMPIR=AllocateRegisters". DUMPIR is
+  OCG knob 0x10a.
+- `ra_verify_trace_operand_producers` (`0xa73f30`) walks from an operand's use
+  back through spill/refill, rematerialization and predicate-save code to the
+  original definitions. It records problems with `ra_verify_add_problem`
+  (`0xa55c00`): it allocates a 0x38-byte record with the code at +0x18 and the
+  instruction at +0x20 (+0x28 is the old instruction for code 7) and appends
+  it to ctx+0x228.
+
+  | Code | Problem |
+  |---|---|
+  | 1 | no spill matches a refill |
+  | 2 | a refill reads possibly uninitialized memory |
+  | 3 | no P2R-R2P match |
+  | 4 | no bit-spill-refill match |
+  | 5 | an uninitialized value reaches the operand |
+  | 6 | extra defs |
+  | 7 | rematerialization mismatch |
+  | 8 | an instruction destroys the base of a P2R-R2P pattern |
+  | 9 | an instruction destroys the base of a bit-spill pattern |
+  | 10 | original defs disappeared |
+- `ra_is_p2r_r2p_pattern_op` (`0xa57590`) is true for ORI opcodes 0xad and
+  0x10b (after masking the 0x3000 flag bits); code 8 is raised at 0xa7425b
+  when such an instruction's base check (`FUN_00a56f80`) fails.
+  `ra_is_bit_spill_pattern_op` (`0xa57610`) is the same test for 0x9b and
+  0x10c. Which of each pair is the save and which the restore is unresolved.
+- The "base" of a P2R-R2P pattern is a GPR that a later instruction must not
+  overwrite between save and restore. So the allocator does have a strategy
+  that keeps predicates in a live GPR. It never appeared in output: PTX and
+  CUDA kernels on SM75/89/90/100 with up to 40 live predicates, calls to
+  extern functions, `-maxrregcount` 16-48 and `-O0`..`-O3` gave only
+  `P2R Rd, PR, RZ, mask` (one predicate per register, in effect `selp`);
+  `research/ptxas/p2r_base_probe.py` reproduces this.
+  The bit-spiller (`RegAllocSpillBit*` knobs) packs predicates with
+  `LOP3 R, R, ~bit, RZ, 0xc0` and `@P LOP3 R, R, bit, RZ, 0xfc` instead.
+  The 17,580 P2Rs in the SM89 SASS of cuSPARSE, cuSOLVER and NPP
+  (`libnppif`) all have RZ bases. The knob or condition that selects the
+  P2R-R2P strategy is not found.
+- The merge rule was settled on the GPU instead (`docs/hardware-facts.md`,
+  2026-10-16).

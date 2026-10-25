@@ -1,5 +1,5 @@
 """Instruction-word corpora: real (from cubins), synthetic (per class), mutated (bit flips)."""
-import random, subprocess
+import hashlib, os, random, shutil, subprocess, tempfile
 from pathlib import Path
 from sass.decode.cubin import elf_arch, text_words
 from sass.paths import CACHE as CACHE_ROOT, CUOBJDUMP, ROOT
@@ -13,9 +13,15 @@ LOOSE = [*Path.home().glob("Downloads/*.cubin"), *Path.home().glob(".triton/cach
 def extract(lib):
     out = CACHE / lib.name
     if not out.exists():
-        tmp = out.with_suffix(".tmp"); tmp.mkdir(parents=True, exist_ok=True)
-        subprocess.run([CUOBJDUMP, "-xelf", "all", str(lib.resolve())], cwd=tmp, check=True, capture_output=True)
-        tmp.rename(out)
+        # Parallel workers each extract privately; the first rename wins and the losers discard theirs.
+        CACHE.mkdir(parents=True, exist_ok=True)
+        tmp = Path(tempfile.mkdtemp(dir=CACHE, prefix=f"{lib.name}."))
+        try:
+            subprocess.run([CUOBJDUMP, "-xelf", "all", str(lib.resolve())], cwd=tmp, check=True, capture_output=True)
+            try: tmp.rename(out)
+            except OSError:
+                if not out.is_dir(): raise
+        finally: shutil.rmtree(tmp, ignore_errors=True)
     return sorted(out.glob("*.cubin"))
 
 def cubins():
@@ -23,14 +29,17 @@ def cubins():
     yield from LOOSE
 
 def real(arch):
-    """Unique words of `arch` -> provenance (first cubin and section offset seen)."""
-    words = {}
-    for p in cubins():
-        data = p.read_bytes()
-        if elf_arch(data) == arch:
-            for i, w in enumerate(text_words(data)):
-                words.setdefault(w, f"{p.name}+{16 * i:#x}")
-    return words
+    """Sorted unique words of `arch` in every cubin, cached per set of cubins (paths, sizes, mtimes)."""
+    paths = list(cubins())
+    key = hashlib.sha256(repr([(str(p), p.stat().st_size, p.stat().st_mtime_ns) for p in paths]).encode()).hexdigest()[:16]
+    out = CACHE_ROOT / "corpus" / f"{arch}-{key}.bin"
+    if not out.exists():
+        words = sorted({w for p in paths if elf_arch(data := p.read_bytes()) == arch for w in text_words(data)})
+        out.parent.mkdir(parents=True, exist_ok=True)
+        for stale in out.parent.glob(f"{arch}-*.bin"): stale.unlink()
+        tmp = out.with_suffix(f".{os.getpid()}.tmp"); tmp.write_bytes(b"".join(words)); tmp.replace(out)
+    data = out.read_bytes()
+    return [data[i:i + 16] for i in range(0, len(data), 16)]
 
 def mutated(words, n, seed=0, flips=(1, 2)):
     rng, pool = random.Random(seed), sorted(words)

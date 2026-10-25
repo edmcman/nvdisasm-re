@@ -14,6 +14,69 @@ def combine(value, predicate, bop):
     return int({"AND": value and predicate, "OR": value or predicate, "XOR": value ^ predicate}[bop])
 
 
+def isetp(a, b, comparison, bop, predicate, signed=False, low=None):
+    """Integer compare and complementary predicate results. In .EX, equal high words
+    inherit the low-word comparison (except the constant F/T comparisons)."""
+    x, y = (sext(a, 32), sext(b, 32)) if signed else (a, b)
+    condition = bool(low) if low is not None and a == b and comparison not in ('F', 'T') else compare(x, y, comparison)
+    return combine(condition, predicate, bop), combine(not condition, predicate, bop)
+
+
+def iadd3(a, b, c, modifications=(False, False, False), extended=False, p=0, q=0):
+    """Unbounded unsigned sum: ordinary negation keeps ~x+1; .X uses ~x and two carry inputs."""
+    total = sum((MASK32 - x + (not extended)) if flip else x
+                for x, flip in zip((a, b, c), modifications)) + (p + q if extended else 0)
+    return total & MASK32, int(total > MASK32), int(total > 0x1ffffffff)
+
+
+def lea(a, b, c, shift, high=False, signed_high=False, modifications=(False, False), extended=False, carry_in=0):
+    """Select the shifted low/high word before operand negation/complement and carry addition."""
+    data = (sext(a, 32) if signed_high else (c << 32) | a) if high else a
+    shifted = ((data << shift) >> (32 if high else 0)) & MASK32
+    total = sum((MASK32 - x + (not extended)) if flip else x
+                for x, flip in zip((shifted, b), modifications)) + (carry_in if extended else 0)
+    return total & MASK32, int(total > MASK32)
+
+
+def lop3(a, b, c, table, predicate, pop):
+    """PTX lop3: bit 4*a+2*b+c selects a LUT bit; .and/.or combines
+    the nonzero result with the predicate input (SASS PAND/POR).
+    NVIDIA PTX ISA: Logic and Shift Instructions, lop3."""
+    if not 0 <= table < 256: raise ValueError('invalid 8-bit truth table')
+    result = 0
+    for bit in range(32):
+        index = 4 * ((a >> bit) & 1) + 2 * ((b >> bit) & 1) + ((c >> bit) & 1)
+        result |= ((table >> index) & 1) << bit
+    return result, combine(result != 0, predicate, {'PAND':'AND', 'POR':'OR'}[pop])
+
+
+def shf(a, count, c, fmt, direction, mode, half):
+    """Select a word from a shifted {c,a} bit string (the existing SHF case definition).
+    Enumerate source bit positions; a signed right shift extends bit 63."""
+    width = {'U32':32, 'S32':32, 'U64':64, 'S64':64}[fmt]
+    if direction not in ('L', 'R') or mode not in ('C', 'W') or half not in ('LO', 'HI'):
+        raise ValueError('unknown SHF mode')
+    count = min(count, width) if mode == 'C' else count % width
+    data, base = (c << 32) | a, 32 if half == 'HI' else 0
+    result = 0
+    for bit in range(32):
+        index = base + bit + (count if direction == 'R' else -count)
+        value = (data >> index) & 1 if 0 <= index < 64 else int(index >= 64 and direction == 'R' and fmt.startswith('S') and bool(c >> 31))
+        result |= value << bit
+    return result
+
+
+def iabs(value):
+    """32-bit two's-complement absolute value; INT_MIN wraps to its original bits."""
+    return abs(sext(value, 32)) & MASK32
+
+
+def mov(value, width=32):
+    """Copy a word or register pair without changing its bits."""
+    if width not in (32, 64): raise ValueError('unsupported move width')
+    return value & ((1 << width) - 1)
+
+
 def brev(value): return sum(((value >> bit) & 1) << (31 - bit) for bit in range(32))
 
 
@@ -25,7 +88,12 @@ def flo(value, shift_amount, signed=False):
     return (32 - value.bit_length()) if shift_amount else value.bit_length() - 1
 
 
-def sgxt_byte(value, index): return sext(value >> (8 * (index & 3)), 8) & MASK32
+def sgxt(value, width, wrap, signed):
+    """SGXT: keep the low n bits of value and extend them from bit n-1 (sign or zero), by
+    enumeration; n is width & 31 when wrapping, min(width, 32) when clamping (SM89 GPU)."""
+    n = width & 31 if wrap else min(width, 32)
+    fill = (value >> (n - 1)) & 1 if signed and n else 0
+    return sum(((value >> i & 1) if i < n else fill) << i for i in range(32))
 
 
 def bmsk(position, width, mode):
@@ -74,9 +142,14 @@ def vminmax(values, width, signed, is_min, relu=False):
     return pack([lane(xs) for xs in zip(*(lanes(v, width, signed) for v in values))], width)
 
 
-def viaddmnmx(a, b, c, width, signed, is_min, relu=False):
+def vset_mask(a, b, width, signed, op):
+    """VISET.BM: per lane all ones where `a op b` holds (op: an ICmpAll label), else zero."""
+    return pack([-int(compare(x, y, op)) for x, y in zip(lanes(a, width, signed), lanes(b, width, signed))], width)
+
+
+def viaddmnmx(a, b, c, width, signed, is_min, relu=False, negate_b=False):
     """VIADDMNMX: lane sums modulo the lane width, then min/max with c."""
-    sums = pack([x + y for x, y in zip(lanes(a, width), lanes(b, width))], width)
+    sums = pack([x - y if negate_b else x + y for x, y in zip(lanes(a, width), lanes(b, width))], width)
     return vminmax((sums, c), width, signed, is_min, relu)
 
 
@@ -93,6 +166,28 @@ def i2ip(a, b, c, width, signed, sat, relu, extract):
     if width < 16: packed |= (((c >> 16) if extract == "H1" else c) & ((1 << (32 - 2 * width)) - 1)) << (2 * width)
     return packed & MASK32
 
+
+def imad_wide(a, b, c, signed, negate=0, invert=0, carry_in=0):
+    """IMAD.HI/.WIDE's unbounded sum of the 64-bit product and the 64-bit addend c, whose carry-out is
+    bit 64: a negated c enters as ~c + 1, so -0 carries (SM89 GPU, like IADD3); .X's inverted c as ~c."""
+    x, y = (sext(a, 32), sext(b, 32)) if signed else (a, b)
+    if negate or invert: c = (c ^ MASK64) + negate
+    return ((x * y) & MASK64) + c + carry_in
+
+
+
+def imad(a, b, c, mode, signed, negate=0, invert=0, carry_in=0, addend_width=64):
+    """(Rd, Pu) of IMAD/UIMAD: LO keeps the low word of a*b + c (32-bit c, negated or .X-inverted, no
+    carry-out); HI/WIDE keep the high word or all 64 bits of `imad_wide`, Pu its carry-out.
+    With a narrow HI addend, add C after extracting the product high word and report 32-bit carry."""
+    if mode == "LO": return (a * b + ((c ^ MASK32) + negate if negate or invert else c) + carry_in) & MASK32, None
+    if mode == 'HI' and addend_width == 32:
+        x, y = (sext(a,32), sext(b,32)) if signed else (a,b)
+        addend = (MASK32-c+negate) if negate or invert else c
+        total = ((x*y & MASK64) >> 32) + addend + carry_in
+        return total & MASK32, int(total > MASK32)
+    total = imad_wide(a, b, c, signed, negate, invert, carry_in)
+    return (total >> 32 & MASK32 if mode == "HI" else total & MASK64), int(total > MASK64)
 
 def carry(cls, fields, observe, vector):
     """IADD3/LEA/IMAD (.X) results and carry predicates for the patched carry kernel.
@@ -111,10 +206,32 @@ def carry(cls, fields, observe, vector):
         suffix = "@invert" if extended else "@negate"
         total = flip(shifted, "Ra" + suffix) + flip(b, "Rb" + suffix) + p
         return total & MASK32 if observe == "result" else int(total > MASK32)
-    x, y = (sext(a, 32), sext(b, 32)) if fields["fmt"] == "S32" else (a, b)
-    wide = "_hi_" in cls or "_wide_" in cls
-    addend = (b << 32) | c if wide else c
-    if fields.get("Rc@invert"): addend ^= MASK64 if wide else MASK32
-    total = ((x * y) & MASK64) + addend + p
+    signed = fields["fmt"] == "S32"
+    if "_hi_" in cls or "_wide_" in cls:
+        total = imad_wide(a, b, (b << 32) | c, signed, fields.get("Rc@negate", 0), fields.get("Rc@invert", 0), p)
+    else:
+        x, y = (sext(a, 32), sext(b, 32)) if signed else (a, b)
+        total = ((x * y) & MASK64) + (c ^ MASK32 if fields.get("Rc@invert") else c) + p
     if observe == "pu": return int(total > MASK64)
     return (total >> 32) & MASK32 if observe == "high" or "_hi_" in cls else total & MASK32
+
+
+def p2r(predicates, base, mask, byte):
+    """P2R: bit i of the selected byte of base becomes P_i where mask bit i (0-7) is set; there is
+    no P7, so mask bit 7 clears bit 7 (SM89 GPU). Higher mask bits are ignored."""
+    for i in range(8):
+        bit = 8 * byte + i
+        if mask >> i & 1: base = base & ~(1 << bit) | (predicates >> i & 1 if i < 7 else 0) << bit
+    return base & MASK32
+
+
+def r2p(predicates, source, mask, byte):
+    """R2P: P_i (0-6, packed) becomes bit i of the selected byte of source where mask bit i is set."""
+    return sum((source >> 8 * byte + i & 1 if mask >> i & 1 else predicates >> i & 1) << i for i in range(7))
+
+
+def predicate_lut(u, v, p, q, r):
+    """PLOP3's independent 3-bit predicate index, with two 8-bit truth tables."""
+    if not 0 <= u < 256 or not 0 <= v < 256: raise ValueError('invalid predicate truth table')
+    index = 4 * p + 2 * q + r
+    return (u >> index) & 1, (v >> index) & 1

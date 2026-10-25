@@ -8,7 +8,8 @@ SASS conversions differ there (SATFINITE, E4M3 without infinity, canonical NaNs)
 Independent of tests/refs/fpformat.py, which is the oracle.
 """
 from typing import NamedTuple
-from sass.semantics.bitvec import Expr, concat, const, extract, ite, lnot, sle, slt, smax, umin, zext
+from sass.semantics.bitvec import Expr, concat, const, extract, is_const, ite, lnot, signed, sle, slt, smax, umin, zext
+from sass.semantics.family import definition
 
 W = 32  # width of the exponent and significand arithmetic; 64 for formats wider than 32 bits
 
@@ -38,7 +39,8 @@ FORMATS = {
     "F32": Format(8, 23, 127, "ieee"), "F16": Format(5, 10, 15, "ieee"), "BF16": Format(8, 7, 127, "ieee"),
     "E6M9": Format(6, 9, 31, "ieee"), "E5M2": Format(5, 2, 15, "ieee"), "E4M3": Format(4, 3, 7, "max"),
     "E3M4": Format(3, 4, 3, "max"), "E3M2": Format(3, 2, 3, None), "E2M3": Format(2, 3, 1, None),
-    "E2M1": Format(2, 1, 1, None), "E0M3": Format(0, 3, -2, None), "F64": Format(11, 52, 1023, "ieee")}
+    "E2M1": Format(2, 1, 1, None), "E0M3": Format(0, 3, -2, None), "F64": Format(11, 52, 1023, "ieee"),
+    "UE5M3": Format(5, 3, 15, "max")}   # unsigned: its code is the magnitude alone (NaN 0xff)
 
 ROUNDING = ("RN", "RZ", "RP", "RM")
 
@@ -97,6 +99,24 @@ def chosen_rounding(i, name, modes):
     """The Rounding an instruction's selector `name` chooses at decode time; modes maps its labels
     to RN/RZ/RP/RM (other labels are unmodelled)."""
     return Rounding(*(i.select_lookup_const(name, {l: int(m == mode) for l, m in modes.items()}, 1) for mode in ROUNDING))
+
+
+def constant(x):
+    """x as a signed Python int when it is a constant (a decode-time choice the lifter resolved), else None."""
+    if not isinstance(x, Expr): return int(x)
+    return signed(x.args[0], x.w) if is_const(x) else None
+
+
+def mode(r):
+    """The rounding mode a Rounding of constants chooses, else None."""
+    flags = [constant(f) for f in r]
+    return None if None in flags or sum(map(bool, flags)) != 1 else ROUNDING[[bool(f) for f in flags].index(True)]
+
+
+def format_of(d):
+    """The format whose mbits, emin and max_code a Dest of constants has, else None."""
+    key = tuple(constant(x) for x in (d.mbits, d.emin, d.max_code))
+    return next((n for n, f in FORMATS.items() if (f.mbits, f.emin, f.max_code) == key), None)
 
 
 def round_up(r, kept, rest, half, negative):
@@ -233,12 +253,24 @@ def widen(x, src, dst, nan=None):
     return concat(ite(is_nan, const(int(d.nan_signed), 1) & sign, sign), extract(mag, f.ebits + f.mbits - 1, 0))
 
 
+def narrow_name(a):
+    """narrow.<mode>[.satfinite].<dst>.<src>: the NaN and overflow results are its definition's."""
+    return f"narrow.{a['rnd'].lower()}{'.satfinite' if a['satfinite'] else ''}.{a['dst'].lower()}.{a['src'].lower()}", ["x"]
+
+
+@definition(narrow_name)
 def narrow(x, src, dst, rnd="RN", satfinite=False, nan=None, overflow=None):
-    """The `dst` encoding of the `src` value x with rounding `rnd`. nan, overflow: (signed,
-    magnitude) results, see dest()."""
+    """A float narrowed to a smaller format, rounded once; a NaN or overflow gives the format's
+    (signed, magnitude) results, default positive canonical NaN and signed infinity (FADD2/FHADD2
+    narrowing, HMUL2's BF16 forms).
+
+    nan, overflow: (signed, magnitude) results, see dest()."""
     s, f = FORMATS[src], FORMATS[dst]
     if f.emin < s.emin or f.mbits >= s.mbits: raise ValueError(f"{src} -> {dst} is not a narrowing")
-    sign, mag, _ = narrow_parts(x, src, dest(dst, nan, overflow), rounding(rnd), satfinite)
+    d = dest(dst, nan, overflow)
+    # An unsigned destination NaN replaces every source NaN: which NaN the arithmetic gave is moot.
+    if x.op == "nanresult" and not isinstance(d.nan_signed, Expr) and not d.nan_signed: x = x.args[0]
+    sign, mag, _ = narrow_parts(x, src, d, rounding(rnd), satfinite)
     return concat(sign, extract(mag, f.ebits + f.mbits - 1, 0))
 
 

@@ -1,0 +1,593 @@
+{
+  "metadata": {
+    "arch": "SM89",
+    "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+    "captured_utc": "2026-10-19T12:47:22.733253+00:00",
+    "base_commit": "3afcd2c171dce5eb7f80d1be03e7791162205fcc",
+    "script_sha256": "f5f4dd19ef753d9a06837679b0ec9cd1a8ecd4647403e216398d4212d151d4f8",
+    "kernel_sha256": "414f6c6389f843344fae99be94a5997b3378ab864d3aec8c43ac5f193ff93671",
+    "output_sha256": "1beb8582724d4e7a0454f717d665968ad8e25a54920b0f5caec8b80c5552a051",
+    "compiler": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0",
+    "target_instruction": "MUFU.SIN R11, R2",
+    "target_offset": 256,
+    "input_definition": "binary32(r / 2^25), every integer r from 0 through 2^23 inclusive",
+    "output_format": "gzip of little-endian signed int32 differences of output uint32 words; cumulative sum recovers words",
+    "outputs": 8388609,
+    "calibration_offsets": 16262,
+    "calibration_mismatches": 0,
+    "calibration_device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+    "instruction_origin": "raw MUFU.SIN patched into pinned carry_semantics kernel, variable-latency scoreboard scheduling"
+  },
+  "numpy_version": "2.2.2",
+  "training_offsets": 16262,
+  "validation_offsets": 83760,
+  "seed": "0x53494e",
+  "results": {
+    "ideal_sine": {
+      "training": {
+        "n": 16262,
+        "exact": 4724,
+        "exact_fraction": 0.29049317427130733,
+        "max_ulp": 687,
+        "within_1_ulp_fraction": 0.6956708891895216,
+        "max_absolute_error": 1.7881393432617188e-07,
+        "rms_absolute_error": 5.927732267629747e-08,
+        "worst_offset": 3494740,
+        "got": "3f1bd2cb",
+        "hardware": "3f1bd2c8"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 22681,
+        "exact_fraction": 0.27078557784145174,
+        "max_ulp": 699,
+        "within_1_ulp_fraction": 0.6578080229226361,
+        "max_absolute_error": 1.7881393432617188e-07,
+        "rms_absolute_error": 5.893739272079197e-08,
+        "worst_offset": 2883984,
+        "got": "3f03a073",
+        "hardware": "3f03a070"
+      }
+    },
+    "odd_degree_3": {
+      "training": {
+        "n": 16262,
+        "exact": 1,
+        "exact_fraction": 6.149305128520478e-05,
+        "max_ulp": 189654,
+        "within_1_ulp_fraction": 6.149305128520478e-05,
+        "max_absolute_error": 0.008663356304168701,
+        "rms_absolute_error": 0.002821472959814667,
+        "worst_offset": 8388606,
+        "got": "3f7dc83d",
+        "hardware": "3f800000"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 0,
+        "exact_fraction": 0.0,
+        "max_ulp": 191643,
+        "within_1_ulp_fraction": 2.387774594078319e-05,
+        "max_absolute_error": 0.008663356304168701,
+        "rms_absolute_error": 0.002702512207786108,
+        "worst_offset": 8388608,
+        "got": "3f7dc83d",
+        "hardware": "3f800000"
+      }
+    },
+    "odd_degree_5": {
+      "training": {
+        "n": 16262,
+        "exact": 6,
+        "exact_fraction": 0.00036895830771122864,
+        "max_ulp": 4540,
+        "within_1_ulp_fraction": 0.0006764235641372525,
+        "max_absolute_error": 0.0001475214958190918,
+        "rms_absolute_error": 4.292773384982454e-05,
+        "worst_offset": 8388544,
+        "got": "3f8004d5",
+        "hardware": "3f7fffff"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 22,
+        "exact_fraction": 0.0002626552053486151,
+        "max_ulp": 4618,
+        "within_1_ulp_fraction": 0.0008476599808978033,
+        "max_absolute_error": 0.0001474618911743164,
+        "rms_absolute_error": 4.086252822322618e-05,
+        "worst_offset": 8388608,
+        "got": "3f8004d5",
+        "hardware": "3f800000"
+      }
+    },
+    "odd_degree_7": {
+      "training": {
+        "n": 16262,
+        "exact": 408,
+        "exact_fraction": 0.025089164924363548,
+        "max_ulp": 730,
+        "within_1_ulp_fraction": 0.09008732013282499,
+        "max_absolute_error": 1.3709068298339844e-06,
+        "rms_absolute_error": 3.835115081843567e-07,
+        "worst_offset": 8386559,
+        "got": "3f7fffe8",
+        "hardware": "3f7fffff"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 1999,
+        "exact_fraction": 0.0238658070678128,
+        "max_ulp": 743,
+        "within_1_ulp_fraction": 0.0846704871060172,
+        "max_absolute_error": 1.3709068298339844e-06,
+        "rms_absolute_error": 3.660267508234064e-07,
+        "worst_offset": 8388608,
+        "got": "3f7fffe9",
+        "hardware": "3f800000"
+      }
+    },
+    "odd_degree_9": {
+      "training": {
+        "n": 16262,
+        "exact": 4888,
+        "exact_fraction": 0.30057803468208094,
+        "max_ulp": 688,
+        "within_1_ulp_fraction": 0.7120895338826713,
+        "max_absolute_error": 1.7881393432617188e-07,
+        "rms_absolute_error": 5.6860403857113957e-08,
+        "worst_offset": 3406655,
+        "got": "3f1873c0",
+        "hardware": "3f1873c3"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 23811,
+        "exact_fraction": 0.2842765042979943,
+        "max_ulp": 700,
+        "within_1_ulp_fraction": 0.6694126074498568,
+        "max_absolute_error": 1.7881393432617188e-07,
+        "rms_absolute_error": 5.71134074316495e-08,
+        "worst_offset": 1048574,
+        "got": "3e47c5a8",
+        "hardware": "3e47c5b4"
+      }
+    },
+    "odd_degree_11": {
+      "training": {
+        "n": 16262,
+        "exact": 4889,
+        "exact_fraction": 0.3006395277333661,
+        "max_ulp": 688,
+        "within_1_ulp_fraction": 0.7124584921903825,
+        "max_absolute_error": 1.7881393432617188e-07,
+        "rms_absolute_error": 5.6832648436336764e-08,
+        "worst_offset": 3406655,
+        "got": "3f1873c0",
+        "hardware": "3f1873c3"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 23825,
+        "exact_fraction": 0.28444364851957976,
+        "max_ulp": 699,
+        "within_1_ulp_fraction": 0.6691499522445081,
+        "max_absolute_error": 1.7881393432617188e-07,
+        "rms_absolute_error": 5.7097768918399925e-08,
+        "worst_offset": 3276799,
+        "got": "3f136827",
+        "hardware": "3f13682a"
+      }
+    },
+    "odd_degree_15": {
+      "training": {
+        "n": 16262,
+        "exact": 4966,
+        "exact_fraction": 0.3053744926823269,
+        "max_ulp": 689,
+        "within_1_ulp_fraction": 0.714118804575083,
+        "max_absolute_error": 1.7881393432617188e-07,
+        "rms_absolute_error": 5.6572429184228183e-08,
+        "worst_offset": 3406655,
+        "got": "3f1873c0",
+        "hardware": "3f1873c3"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 24025,
+        "exact_fraction": 0.28683142311365806,
+        "max_ulp": 701,
+        "within_1_ulp_fraction": 0.6731972301814708,
+        "max_absolute_error": 1.7881393432617188e-07,
+        "rms_absolute_error": 5.671419200506768e-08,
+        "worst_offset": 655151,
+        "got": "3dfa9e13",
+        "hardware": "3dfa9e2b"
+      }
+    },
+    "segments_16_degree_2": {
+      "training": {
+        "n": 16262,
+        "exact": 218,
+        "exact_fraction": 0.01340548518017464,
+        "max_ulp": 9787,
+        "within_1_ulp_fraction": 0.04070839995080556,
+        "max_absolute_error": 1.0460615158081055e-05,
+        "rms_absolute_error": 2.186173796177765e-06,
+        "worst_offset": 522368,
+        "got": "3dc8071a",
+        "hardware": "3dc8019e"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 1054,
+        "exact_fraction": 0.01258357211079274,
+        "max_ulp": 9918,
+        "within_1_ulp_fraction": 0.038896848137535814,
+        "max_absolute_error": 1.0862946510314941e-05,
+        "rms_absolute_error": 2.1673970024432317e-06,
+        "worst_offset": 524278,
+        "got": "3dc8c1f0",
+        "hardware": "3dc8bc3e"
+      }
+    },
+    "segments_16_degree_3": {
+      "training": {
+        "n": 16262,
+        "exact": 5594,
+        "exact_fraction": 0.3439921288894355,
+        "max_ulp": 662,
+        "within_1_ulp_fraction": 0.7346574837043414,
+        "max_absolute_error": 2.086162567138672e-07,
+        "rms_absolute_error": 5.3003837332149564e-08,
+        "worst_offset": 1046783,
+        "got": "3e476f69",
+        "hardware": "3e476f77"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 26493,
+        "exact_fraction": 0.3162965616045845,
+        "max_ulp": 673,
+        "within_1_ulp_fraction": 0.6935888252148997,
+        "max_absolute_error": 2.5331974029541016e-07,
+        "rms_absolute_error": 5.330222844990864e-08,
+        "worst_offset": 1048574,
+        "got": "3e47c5a3",
+        "hardware": "3e47c5b4"
+      }
+    },
+    "segments_32_degree_2": {
+      "training": {
+        "n": 16262,
+        "exact": 1480,
+        "exact_fraction": 0.09100971590210306,
+        "max_ulp": 1945,
+        "within_1_ulp_fraction": 0.2596851555774197,
+        "max_absolute_error": 1.259148120880127e-06,
+        "rms_absolute_error": 2.8232134109718385e-07,
+        "worst_offset": 260160,
+        "got": "3d47776e",
+        "hardware": "3d47761c"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 7288,
+        "exact_fraction": 0.08701050620821395,
+        "max_ulp": 1966,
+        "within_1_ulp_fraction": 0.24503342884431709,
+        "max_absolute_error": 1.3485550880432129e-06,
+        "rms_absolute_error": 2.8112813917802854e-07,
+        "worst_offset": 262086,
+        "got": "3d48f142",
+        "hardware": "3d48efd8"
+      }
+    },
+    "segments_32_degree_3": {
+      "training": {
+        "n": 16262,
+        "exact": 6584,
+        "exact_fraction": 0.4048702496617882,
+        "max_ulp": 734,
+        "within_1_ulp_fraction": 0.7550731767310294,
+        "max_absolute_error": 1.7881393432617188e-07,
+        "rms_absolute_error": 4.5937286791364256e-08,
+        "worst_offset": 1833407,
+        "got": "3eac57cf",
+        "hardware": "3eac57d5"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 30484,
+        "exact_fraction": 0.3639446036294174,
+        "max_ulp": 747,
+        "within_1_ulp_fraction": 0.7150549188156639,
+        "max_absolute_error": 2.086162567138672e-07,
+        "rms_absolute_error": 4.7126836482183315e-08,
+        "worst_offset": 2621438,
+        "got": "3ef15adb",
+        "hardware": "3ef15ae2"
+      }
+    },
+    "segments_64_degree_2": {
+      "training": {
+        "n": 16262,
+        "exact": 15018,
+        "exact_fraction": 0.9235026442012053,
+        "max_ulp": 11,
+        "within_1_ulp_fraction": 0.9995080555897183,
+        "max_absolute_error": 5.960464477539063e-08,
+        "rms_absolute_error": 1.3563048424309287e-08,
+        "worst_offset": 2798251,
+        "got": "3f0015c6",
+        "hardware": "3f0015c5"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 68512,
+        "exact_fraction": 0.817956064947469,
+        "max_ulp": 14,
+        "within_1_ulp_fraction": 0.9568648519579752,
+        "max_absolute_error": 5.960464477539063e-08,
+        "rms_absolute_error": 1.8573617794948466e-08,
+        "worst_offset": 2796753,
+        "got": "3f0005db",
+        "hardware": "3f0005da"
+      }
+    },
+    "segments_64_degree_3": {
+      "training": {
+        "n": 16262,
+        "exact": 15086,
+        "exact_fraction": 0.9276841716885992,
+        "max_ulp": 10,
+        "within_1_ulp_fraction": 0.9995080555897183,
+        "max_absolute_error": 5.960464477539063e-08,
+        "rms_absolute_error": 1.339117866431906e-08,
+        "worst_offset": 2798251,
+        "got": "3f0015c6",
+        "hardware": "3f0015c5"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 68747,
+        "exact_fraction": 0.820761700095511,
+        "max_ulp": 14,
+        "within_1_ulp_fraction": 0.9606375358166189,
+        "max_absolute_error": 5.960464477539063e-08,
+        "rms_absolute_error": 1.8512413062488238e-08,
+        "worst_offset": 2796753,
+        "got": "3f0005db",
+        "hardware": "3f0005da"
+      }
+    },
+    "segments_128_degree_2": {
+      "training": {
+        "n": 16262,
+        "exact": 15167,
+        "exact_fraction": 0.9326651088427008,
+        "max_ulp": 11,
+        "within_1_ulp_fraction": 0.9995080555897183,
+        "max_absolute_error": 5.960464477539063e-08,
+        "rms_absolute_error": 1.2768115560412216e-08,
+        "worst_offset": 2798251,
+        "got": "3f0015c6",
+        "hardware": "3f0015c5"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 68550,
+        "exact_fraction": 0.8184097421203438,
+        "max_ulp": 14,
+        "within_1_ulp_fraction": 0.957497612225406,
+        "max_absolute_error": 5.960464477539063e-08,
+        "rms_absolute_error": 1.8555236313433305e-08,
+        "worst_offset": 2796753,
+        "got": "3f0005db",
+        "hardware": "3f0005da"
+      }
+    },
+    "segments_128_degree_3": {
+      "training": {
+        "n": 16262,
+        "exact": 15188,
+        "exact_fraction": 0.93395646291969,
+        "max_ulp": 10,
+        "within_1_ulp_fraction": 0.9995080555897183,
+        "max_absolute_error": 5.960464477539063e-08,
+        "rms_absolute_error": 1.28176320586185e-08,
+        "worst_offset": 2798251,
+        "got": "3f0015c6",
+        "hardware": "3f0015c5"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 68702,
+        "exact_fraction": 0.8202244508118434,
+        "max_ulp": 14,
+        "within_1_ulp_fraction": 0.9607449856733524,
+        "max_absolute_error": 5.960464477539063e-08,
+        "rms_absolute_error": 1.8522497067188237e-08,
+        "worst_offset": 2796753,
+        "got": "3f0005db",
+        "hardware": "3f0005da"
+      }
+    },
+    "segments_256_degree_2": {
+      "training": {
+        "n": 16262,
+        "exact": 15255,
+        "exact_fraction": 0.9380764973557988,
+        "max_ulp": 11,
+        "within_1_ulp_fraction": 0.9995080555897183,
+        "max_absolute_error": 5.960464477539063e-08,
+        "rms_absolute_error": 1.2257044071493211e-08,
+        "worst_offset": 2798251,
+        "got": "3f0015c6",
+        "hardware": "3f0015c5"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 68433,
+        "exact_fraction": 0.8170128939828081,
+        "max_ulp": 14,
+        "within_1_ulp_fraction": 0.9579035339063993,
+        "max_absolute_error": 5.960464477539063e-08,
+        "rms_absolute_error": 1.865695958522002e-08,
+        "worst_offset": 2796753,
+        "got": "3f0005db",
+        "hardware": "3f0005da"
+      }
+    },
+    "segments_256_degree_3": {
+      "training": {
+        "n": 16262,
+        "exact": 15339,
+        "exact_fraction": 0.943241913663756,
+        "max_ulp": 10,
+        "within_1_ulp_fraction": 0.9996310416922888,
+        "max_absolute_error": 5.960464477539063e-08,
+        "rms_absolute_error": 1.1912328426402343e-08,
+        "worst_offset": 2798251,
+        "got": "3f0015c6",
+        "hardware": "3f0015c5"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 68486,
+        "exact_fraction": 0.8176456542502388,
+        "max_ulp": 13,
+        "within_1_ulp_fraction": 0.9639446036294174,
+        "max_absolute_error": 5.960464477539063e-08,
+        "rms_absolute_error": 1.8730951749500903e-08,
+        "worst_offset": 2796753,
+        "got": "3f0005db",
+        "hardware": "3f0005da"
+      }
+    },
+    "segments_512_degree_2": {
+      "training": {
+        "n": 16262,
+        "exact": 15415,
+        "exact_fraction": 0.9479153855614315,
+        "max_ulp": 10,
+        "within_1_ulp_fraction": 0.9997540277948592,
+        "max_absolute_error": 5.960464477539063e-08,
+        "rms_absolute_error": 1.1417797492488054e-08,
+        "worst_offset": 2798251,
+        "got": "3f0015c6",
+        "hardware": "3f0015c5"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 68122,
+        "exact_fraction": 0.8132999044890162,
+        "max_ulp": 13,
+        "within_1_ulp_fraction": 0.965090735434575,
+        "max_absolute_error": 5.960464477539063e-08,
+        "rms_absolute_error": 1.9063243374515427e-08,
+        "worst_offset": 2796753,
+        "got": "3f0005db",
+        "hardware": "3f0005da"
+      }
+    },
+    "segments_512_degree_3": {
+      "training": {
+        "n": 16262,
+        "exact": 15440,
+        "exact_fraction": 0.9494527118435617,
+        "max_ulp": 9,
+        "within_1_ulp_fraction": 0.9966178821793137,
+        "max_absolute_error": 5.960464477539063e-08,
+        "rms_absolute_error": 1.0776582223290534e-08,
+        "worst_offset": 2816687,
+        "got": "3f00d976",
+        "hardware": "3f00d977"
+      },
+      "validation": {
+        "n": 83760,
+        "exact": 67713,
+        "exact_fraction": 0.808416905444126,
+        "max_ulp": 12,
+        "within_1_ulp_fraction": 0.9717287488061127,
+        "max_absolute_error": 1.1920928955078125e-07,
+        "rms_absolute_error": 1.9504684749636427e-08,
+        "worst_offset": 5242878,
+        "got": "3f54db2c",
+        "hardware": "3f54db2e"
+      }
+    }
+  },
+  "selected_model": "segments_64_degree_2",
+  "exhaustive_holdout": {
+    "n": 8288587,
+    "exact": 7110210,
+    "within_1_ulp": 8284317,
+    "max_ulp": 6,
+    "max_absolute_error": 5.960464477539063e-08,
+    "worst_offset": 2796209,
+    "got": "3f000013",
+    "hardware": "3f000012",
+    "exact_fraction": 0.857831377048947,
+    "within_1_ulp_fraction": 0.9994848337840937
+  },
+  "holdout_regions": {
+    "first_segment": {
+      "n": 125543,
+      "exact": 89322,
+      "max_ulp": 6
+    },
+    "remaining_segments": {
+      "n": 8163044,
+      "exact": 7020888,
+      "max_ulp": 2
+    }
+  },
+  "full_reduced_domain": {
+    "ideal_sine": {
+      "n": 8388609,
+      "exact": 2389637,
+      "within_1_ulp": 5807201,
+      "max_ulp": 699,
+      "max_absolute_error": 1.7881393432617188e-07,
+      "worst_offset": 2883588,
+      "got": "3f039c48",
+      "hardware": "3f039c45",
+      "exact_fraction": 0.2848668950954801,
+      "within_1_ulp_fraction": 0.6922722229633066,
+      "rms_absolute_error": 6.008889172906258e-08
+    },
+    "segments_64_degree_2": {
+      "n": 8388609,
+      "exact": 7193740,
+      "within_1_ulp": 8380718,
+      "max_ulp": 14,
+      "max_absolute_error": 5.960464477539063e-08,
+      "worst_offset": 2796209,
+      "got": "3f000013",
+      "hardware": "3f000012",
+      "exact_fraction": 0.8575605323838553,
+      "within_1_ulp_fraction": 0.9990593196082926,
+      "rms_absolute_error": 1.911832550630541e-08
+    }
+  },
+  "exact_segments": [],
+  "best_segment": {
+    "segment": 22,
+    "n": 131072,
+    "exact": 121874,
+    "exact_fraction": 0.9298248291015625,
+    "max_ulp": 1,
+    "within_1_ulp_fraction": 1.0,
+    "max_absolute_error": 5.960464477539063e-08,
+    "rms_absolute_error": 1.5789626010866812e-08,
+    "worst_offset": 2883594,
+    "got": "3f039c56",
+    "hardware": "3f039c55"
+  },
+  "first_segment_gain_relative_to_sine": 4.165032483882669e-05,
+  "hardware_step": 1.8726132111623883e-07,
+  "hardware_step_gain_relative_to_sine": 4.1691981478075846e-05,
+  "small_offsets_max_relative_step_error": 0.0,
+  "interpretation": "Coefficients fitted only to earlier reduction observations. Validation and exhaustive holdout are disjoint from training and each other. Float64 polynomial evaluation, then binary32 rounding; not a reconstruction of internal hardware arithmetic or coefficient storage."
+}

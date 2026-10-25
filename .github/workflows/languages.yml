@@ -1,0 +1,96 @@
+name: languages
+on:
+  push:
+    paths: ["src/sass/**", "processor/SASS/data/languages/**", ".github/workflows/languages.yml"]
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  GHIDRA_VERSION: "12.2"
+  GHIDRA_ZIP: ghidra_12.2_PUBLIC_20261016.zip
+jobs:
+  architectures:
+    runs-on: ubuntu-latest
+    outputs:
+      list: ${{ steps.list.outputs.list }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.13"
+      - id: list
+        run: echo "list=$(uv run python -c 'import json; from sass.sleigh.build import ARCHES; print(json.dumps(ARCHES))')" >> "$GITHUB_OUTPUT"
+  compile:
+    needs: architectures
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: ${{ fromJSON(needs.architectures.outputs.list) }}
+        fp: [exact, readable]
+    env:
+      GHIDRA_INSTALL_DIR: ${{ github.workspace }}/ghidra/ghidra_12.2_PUBLIC
+      SASS_COMPILER_HEAP: 13  # one compiler on a 16 GB runner; SM100+ peaked at 11.7 GiB
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "25"
+      - id: ghidra
+        uses: actions/cache@v5
+        with:
+          path: ghidra
+          key: ghidra-${{ env.GHIDRA_VERSION }}
+      - if: steps.ghidra.outputs.cache-hit != 'true'
+        run: |
+          curl -sSfL -o ghidra.zip "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_${GHIDRA_VERSION}_build/${GHIDRA_ZIP}"
+          unzip -q ghidra.zip -d ghidra && rm ghidra.zip
+      - run: uv run sass-build-languages ${{ matrix.arch }} --fp ${{ matrix.fp }} --jobs 1 --output languages
+      - run: mv languages/build-results.json "languages/build-results-${{ matrix.arch }}-${{ matrix.fp }}.json"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: language-${{ matrix.arch }}-${{ matrix.fp }}
+          path: |
+            languages/sass_sm*.sla
+            languages/sass_sm*.slaspec
+            languages/build-results-*.json
+  release:
+    needs: compile
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.13"
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: language-*
+          merge-multiple: true
+          path: languages
+      - name: package
+        run: |
+          cp processor/SASS/data/languages/{sass_common.sinc,sass.pspec,sass.cspec} languages/
+          uv run python -c 'from pathlib import Path; from sass.sleigh import gen; gen.OUT = Path("languages"); gen.write_ldefs()'
+          jq -s 'add' languages/build-results-*.json > languages/build-results.json && rm languages/build-results-*.json
+          # Ghidra recompiles a writable .sla whose .slaspec is missing or older than it or its includes.
+          touch languages/*.sla
+          tar -czf sass-languages.tar.gz -C languages .
+      - name: publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: languages-${{ github.sha }}
+        run: |
+          # main's builds are full releases, so releases/latest is always main's newest; other branches' are pre-releases.
+          kind=$([ "$GITHUB_REF" = refs/heads/main ] && echo --latest || echo --prerelease)
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" $kind \
+            --title "SLEIGH languages for ${GITHUB_SHA::7}" \
+            --notes "Compiled SASS languages (all architectures, exact and readable) for ${GITHUB_SHA}. Unpack into processor/SASS/data/languages/."
+          gh release upload "$TAG" sass-languages.tar.gz --clobber

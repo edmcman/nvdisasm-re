@@ -1,4 +1,4 @@
-"""Layer 3: generated p-code reads and writes exactly the md operand roles and spans, and its
+"""Generated p-code reads and writes exactly the md operand roles and spans, and its
 flow type matches BRANCH_TYPE; per-class p-code op counts are ratcheted in baseline/pcode_*.json."""
 import json
 from collections import Counter
@@ -10,7 +10,7 @@ from tests.harness.select import arches, modes, require_languages, selected, ski
 from tests.harness import dataflow
 from sass import ghidra_bridge
 from tests.harness.baseline import BASELINE
-from sass.sleigh.gen import variant
+from sass.paths import variant
 
 REAL_SAMPLE = 2000
 

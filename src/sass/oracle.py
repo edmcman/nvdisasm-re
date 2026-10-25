@@ -1,10 +1,11 @@
 """nvdisasm as a decode oracle over raw 128-bit instruction words."""
-import hashlib, os, re, sqlite3, subprocess, tempfile
+import hashlib, os, re, subprocess, tempfile
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 
 from sass.paths import CACHE as CACHE_ROOT, NVDISASM
+from sass.sqlcache import open_cache
 
 CACHE = CACHE_ROOT / "oracle.sqlite"
 BATCH = 65536
@@ -58,8 +59,8 @@ def disasm_batch(arch, words):
 class Oracle:
     def __init__(self, path=CACHE):
         path.parent.mkdir(exist_ok=True)
-        self.db = sqlite3.connect(path)
-        self.db.execute("create table if not exists r (tool text, arch text, word blob, addr int, text text, error text, primary key (tool, arch, word))")
+        self.db = open_cache(path, "r (tool text, arch text, word blob, addr int, text text, error text, primary key (tool, arch, word))",
+                             path.with_suffix(".lock"), 60)
 
     def disasm(self, arch, words):
         """Results for unique words; each is decoded at the address it got in its batch."""

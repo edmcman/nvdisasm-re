@@ -138,6 +138,48 @@ KERNEL(fadd_ftz, asm("add.rn.ftz.f32 %0,%1,%2;":"=r"(r):"r"(a),"r"(b)))
 KERNEL(ffma_sat, asm("fma.rn.sat.f32 %0,%1,%2,%3;":"=r"(r):"r"(a),"r"(b),"r"(c)))
 KERNEL(shared, __shared__ uint32_t cell[32]; unsigned offset=threadIdx.x; unsigned addr=__cvta_generic_to_shared(&cell[offset]); asm volatile("st.volatile.shared.u32 [%1],%2; ld.volatile.shared.u32 %0,[%1];":"=r"(r):"r"(addr),"r"(a):"memory"))
 KERNEL(local, volatile uint32_t cell[256]; for (unsigned j=0;j<256;++j) cell[j]=a+j*b; r=cell[c&255])
+// Generic ST/LD through a pointer into shared, local or global memory (c % 3), then the word read back
+// through its own space.
+extern "C" __global__ void sem_generic(const uint32_t *in, uint32_t *out) {
+ unsigned i=threadIdx.x+blockIdx.x*blockDim.x;
+ uint32_t a=in[3*i],b=in[3*i+1],c=in[3*i+2],w,h,back;
+ __shared__ uint32_t cell[256]; uint32_t own[2]; unsigned space=c%3;
+ uint32_t *p=space==0?&cell[threadIdx.x]:space==1?&own[a&1]:(uint32_t *)&in[3*i+1];
+ asm volatile("st.u32 [%2],%3; st.u8 [%2+1],%4; ld.u32 %0,[%2]; ld.s16 %1,[%2+2];":"=r"(w),"=r"(h):"l"(p),"r"(a),"r"(b):"memory");
+ if (space==0) asm volatile("ld.shared.u32 %0,[%1];":"=r"(back):"r"((unsigned)__cvta_generic_to_shared(p)):"memory");
+ else if (space==1) asm volatile("ld.local.u32 %0,[%1];":"=r"(back):"l"(__cvta_generic_to_local(p)):"memory");
+ else asm volatile("ld.global.u32 %0,[%1];":"=r"(back):"l"(__cvta_generic_to_global(p)):"memory");
+ out[i]=(w^h)+3*back;
+}
+// L2 cache-policy descriptors (desc[URx]) from the inputs, bit 59 clear (uniform registers: R2UR likely
+// leaves one lane's per warp on the GPU): LDG and STG through one, and
+// ST/LD through a pointer into shared, local or global memory (c % 3), read back through its own space.
+extern "C" __global__ void sem_desc(const uint32_t *in, uint32_t *out) {
+ unsigned i=threadIdx.x+blockIdx.x*blockDim.x;
+ uint32_t a,b=in[3*i+1],c=in[3*i+2],w,back; uint64_t pol=(uint64_t)(b&~(1u<<27))<<32|c;
+ __shared__ uint32_t cell[256]; uint32_t own[2]; unsigned space=c%3;
+ asm volatile("ld.global.L2::cache_hint.u32 %0,[%1],%2;":"=r"(a):"l"(in+3*i),"l"(pol):"memory");
+ uint32_t *p=space==0?&cell[threadIdx.x]:space==1?&own[a&1]:(uint32_t *)&in[3*i+1];
+ asm volatile("st.L2::cache_hint.u32 [%1],%2,%3; ld.relaxed.gpu.L2::cache_hint.u32 %0,[%1],%3;":"=r"(w):"l"(p),"r"(a^b),"l"(pol):"memory");
+ if (space==0) asm volatile("ld.shared.u32 %0,[%1];":"=r"(back):"r"((unsigned)__cvta_generic_to_shared(p)):"memory");
+ else if (space==1) asm volatile("ld.local.u32 %0,[%1];":"=r"(back):"l"(__cvta_generic_to_local(p)):"memory");
+ else asm volatile("ld.global.u32 %0,[%1];":"=r"(back):"l"(__cvta_generic_to_global(p)):"memory");
+ asm volatile("st.global.L2::cache_hint.u32 [%0],%1,%2;"::"l"(out+i),"r"((w^c)+3*back),"l"(pol):"memory");
+}
+// LDG and STG through the descriptor `pol`, a kernel parameter: one value for every warp.
+extern "C" __global__ void sem_desc_param(const uint32_t *in, uint32_t *out, uint64_t pol) {
+ unsigned i=threadIdx.x+blockIdx.x*blockDim.x; uint32_t a;
+ asm volatile("ld.global.L2::cache_hint.u32 %0,[%1],%2;":"=r"(a):"l"(in+3*i),"l"(pol):"memory");
+ asm volatile("st.global.L2::cache_hint.u32 [%0],%1,%2;"::"l"(out+i),"r"(a*3+1),"l"(pol):"memory");
+}
+// A guarded generic load through &in[3i] when c is odd, else the unmapped 0x10; scalar.PATCHES moves
+// the guard into LD's Pnz, which must zero-fill the even lanes without touching memory.
+extern "C" __global__ void sem_pnz(const uint32_t *in, uint32_t *out) {
+ unsigned i=threadIdx.x+blockIdx.x*blockDim.x;
+ uint32_t c=in[3*i+2],r=0xdeadbeef; const uint32_t *p=c&1?&in[3*i]:(const uint32_t *)16;
+ asm volatile("{ .reg .pred q; setp.ne.u32 q,%2,0; @q ld.u32 %0,[%1]; }":"+r"(r):"l"(p),"r"(c&1):"memory");
+ out[i]=r;
+}
 extern "C" __global__ void sem_branch(const uint32_t *in,uint32_t *out) {
  unsigned i=threadIdx.x+blockIdx.x*blockDim.x;
  uint32_t a=in[3*i],b=in[3*i+1],c=in[3*i+2],r=a;
@@ -222,3 +264,19 @@ CVT(f2i_s32_f16_rz, "cvt.rzi.s32.f16", uint32_t, "r", uint16_t, "h")
 CVT(f2i_u32_f16_rm, "cvt.rmi.u32.f16", uint32_t, "r", uint16_t, "h")
 CVT(f2i_s64_f16_rn, "cvt.rni.s64.f16", uint64_t, "l", uint16_t, "h")
 CVT(f2i_u64_f16_rp, "cvt.rpi.u64.f16", uint64_t, "l", uint16_t, "h")
+// FSET/HSET2/HSETP2 carriers, Pp from c != 0; scalar.SETS patches the selectors.
+#define FSET_FIXTURE(name) KERNEL(name, asm("{ .reg .pred p; setp.ne.u32 p,%3,0; set.lt.and.f32.f32 %0,%1,%2,p; }":"=r"(r):"f"(__uint_as_float(a)),"f"(__uint_as_float(b)),"r"(c)))
+#define HSET2_FIXTURE(name) KERNEL(name, asm("{ .reg .pred p; setp.ne.u32 p,%3,0; set.lt.and.f16x2.f16x2 %0,%1,%2,p; }":"=r"(r):"r"(a),"r"(b),"r"(c)))
+#define HSETP2_FIXTURE(name) KERNEL(name, asm("{ .reg .pred p,q,s; .reg .b32 x; setp.ne.u32 s,%3,0; setp.lt.and.f16x2 p|q,%1,%2,s; selp.u32 %0,1,0,p; selp.u32 x,2,0,q; or.b32 %0,%0,x; }":"=r"(r):"r"(a),"r"(b),"r"(c)))
+#define SET_FIXTURES(op) op##_FIXTURE(op##_lt) op##_FIXTURE(op##_eq) op##_FIXTURE(op##_le) op##_FIXTURE(op##_gt) op##_FIXTURE(op##_ne) op##_FIXTURE(op##_ge) \
+ op##_FIXTURE(op##_num) op##_FIXTURE(op##_nan) op##_FIXTURE(op##_ltu) op##_FIXTURE(op##_equ) op##_FIXTURE(op##_leu) op##_FIXTURE(op##_gtu) \
+ op##_FIXTURE(op##_neu) op##_FIXTURE(op##_geu) op##_FIXTURE(op##_t) op##_FIXTURE(op##_f) op##_FIXTURE(op##_or) op##_FIXTURE(op##_xor) \
+ op##_FIXTURE(op##_ftz) op##_FIXTURE(op##_notp)
+#define fset_FIXTURE FSET_FIXTURE
+#define hset2_FIXTURE HSET2_FIXTURE
+#define hsetp2_FIXTURE HSETP2_FIXTURE
+SET_FIXTURES(fset)
+SET_FIXTURES(hset2)
+SET_FIXTURES(hsetp2)
+HSET2_FIXTURE(hset2_bm) HSET2_FIXTURE(hset2_bm_geu) HSET2_FIXTURE(hset2_lanes)
+HSETP2_FIXTURE(hsetp2_hand) HSETP2_FIXTURE(hsetp2_hand_or) HSETP2_FIXTURE(hsetp2_hand_xor) HSETP2_FIXTURE(hsetp2_hand_nan) HSETP2_FIXTURE(hsetp2_lanes)

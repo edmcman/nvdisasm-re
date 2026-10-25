@@ -4,8 +4,8 @@ usage: python -m sass.check.census SM89 [SM90 ...] [--out DIR]
 
 Static counts: every word of every cubin, weighted by occurrence. Each word's status is what its
 family decides for that encoding (`sass.semantics.lifter.lift`, the same family the SLEIGH selector
-guards come from): native, primitive (a `primitive()` row, or an unmodelled encoding of a family
-that falls back to its primitive) or opaque. Classes without a family keep their manifest status.
+guards come from): native, primitive (semantics that use runtime primitives) or opaque. Classes
+without a family keep their manifest status.
 """
 import argparse, collections, json
 from multiprocessing import Pool
@@ -15,7 +15,6 @@ from sass.decode import pydecode
 from sass.semantics import lifter
 from sass.decode.cubin import elf_arch, text_words
 from sass.sleigh.gen import OUT
-from sass.semantics.operations import PRIMITIVES
 
 def classify(archname, rows, word):
     try: lifted = lifter.lift(archname, word)
@@ -24,8 +23,7 @@ def classify(archname, rows, word):
     if row is None: return ('ungenerated', '?', lifted.cls, '')
     op = row['opcode']
     if lifted.reason == 'no family': return (row['status'], op, lifted.cls, '' if row['status'] == 'native' else row.get('reason', ''))
-    status = 'primitive' if lifted.status == 'opaque' and op in PRIMITIVES else lifted.status
-    return (status, op, lifted.cls, '' if status == 'native' else lifted.reason)
+    return (lifted.status, op, lifted.cls, '' if lifted.status == 'native' else lifted.reason)
 
 def work(args):
     archname, words = args

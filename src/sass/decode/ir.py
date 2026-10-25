@@ -1,8 +1,10 @@
 """Decode IR built from a machine description: per-class bit fields, encoding rules and FORMAT."""
-import re
+import hashlib, os, pickle, re
 from dataclasses import dataclass, field
 from functools import cache, cached_property
+from pathlib import Path
 from sass.md import parse
+from sass.paths import CACHE
 
 # ---------- ENCODING ----------
 
@@ -11,10 +13,10 @@ class Field:
     name: str
     ranges: tuple  # ((hi, lo), ...), most significant first
 
-    @property
+    @cached_property
     def width(self): return sum(hi - lo + 1 for hi, lo in self.ranges)
 
-    @property
+    @cached_property
     def mask(self): return sum(((1 << (hi - lo + 1)) - 1) << lo for hi, lo in self.ranges)
 
     def get(self, w):
@@ -200,5 +202,14 @@ class Arch:
 
 @cache
 def load(arch):
+    """The architecture's decode IR, pickled in .cache/ir per md files and parser sources."""
+    sources = sorted((parse.MD / arch).rglob("*")) + [Path(__file__), *sorted(Path(parse.__file__).parent.glob("*.py"))]
+    key = hashlib.sha256(repr([(str(p), p.stat().st_size, p.stat().st_mtime_ns) for p in sources if p.is_file()]).encode()).hexdigest()[:16]
+    path = CACHE / "ir" / f"{arch}-{key}.pickle"
+    if path.exists(): return pickle.loads(path.read_bytes())
     md = parse.load_arch(arch)
-    return Arch(arch, [build_class(c, i) for i, c in enumerate(md["classes"])], md["enums"], md["tables"], md["constants"])
+    out = Arch(arch, [build_class(c, i) for i, c in enumerate(md["classes"])], md["enums"], md["tables"], md["constants"])
+    path.parent.mkdir(parents=True, exist_ok=True)
+    for stale in path.parent.glob(f"{arch}-*.pickle"): stale.unlink(missing_ok=True)
+    tmp = path.with_suffix(f".{os.getpid()}.tmp"); tmp.write_bytes(pickle.dumps(out, protocol=5)); tmp.replace(path)
+    return out

@@ -1,4 +1,4 @@
-"""Layer 2: generated SLEIGH disassembles like pydecode (SLEIGH display mode), ratcheted per md
+"""Generated SLEIGH disassembles like pydecode (SLEIGH display mode), ratcheted per md
 class against baseline/ghidra_SMxx.json. Synthetic words (64 per class) by default; --full adds
 the whole real corpus. Architectures run concurrently; display is identical for both lowerings."""
 from collections import defaultdict
@@ -15,7 +15,7 @@ from tests.harness.baseline import BASELINE, ratchet
 def class_results(arch, full):
     words = list(synth.synthetic(arch, 64, 0)) + (sample(arch, "real", 0)[0] if full else [])
     status = defaultdict(lambda: True)
-    for s, cls, _, _ in compare(arch, words).values(): status[cls] &= s in ("ok", "collision")  # collisions are Ghidra's cache, not the language
+    for s, cls, _, _ in compare(arch, words).values(): status[cls] &= s == "ok"
     return dict(sorted(status.items()))
 
 

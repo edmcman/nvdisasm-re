@@ -1,0 +1,19 @@
+{
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "captured_utc": "2026-10-19T12:47:22.733253+00:00",
+  "base_commit": "3afcd2c171dce5eb7f80d1be03e7791162205fcc",
+  "script_sha256": "f5f4dd19ef753d9a06837679b0ec9cd1a8ecd4647403e216398d4212d151d4f8",
+  "kernel_sha256": "414f6c6389f843344fae99be94a5997b3378ab864d3aec8c43ac5f193ff93671",
+  "output_sha256": "1beb8582724d4e7a0454f717d665968ad8e25a54920b0f5caec8b80c5552a051",
+  "compiler": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0",
+  "target_instruction": "MUFU.SIN R11, R2",
+  "target_offset": 256,
+  "input_definition": "binary32(r / 2^25), every integer r from 0 through 2^23 inclusive",
+  "output_format": "gzip of little-endian signed int32 differences of output uint32 words; cumulative sum recovers words",
+  "outputs": 8388609,
+  "calibration_offsets": 16262,
+  "calibration_mismatches": 0,
+  "calibration_device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "instruction_origin": "raw MUFU.SIN patched into pinned carry_semantics kernel, variable-latency scoreboard scheduling"
+}

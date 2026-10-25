@@ -1,50 +1,92 @@
-"""Layer 5: run GPU fixtures on the SM89 device and in the emulator, and report disagreements."""
+"""GPU fixtures: their emulated outputs against the references (no GPU), and the references against
+the selected GPU."""
+import json
+from functools import cache
 from sass import ghidra_bridge
-from tests.harness.gpu import Driver, request
+from sass.emulate import kernel, reference
+from sass.paths import ROOT
 from sass.sleigh.gen import MODES
+from tests.harness.gpu import Driver, Template, hits, mnemonic, request
 
 
-def first_mismatch(got, want, same):
-    return next((i for i, (g, w) in enumerate(zip(got, want)) if not same(g, w)), None)
+PASSES = ROOT / "tests/baseline/gpu_passes.json"  # {fixture: {fingerprint, device}} of the last passing GPU run
+
+
+def passes():
+    found = json.loads(PASSES.read_text()) if PASSES.exists() else {}
+    return found if 'architectures' in found else dict(version=2, architectures={'SM89': found})
+
+
+def passed(f):
+    """Whether fixture f, exactly as it is now, has passed on the GPU."""
+    return passes()["architectures"].get(Template(f.image, f.kernel).arch, {}).get(f.name, {}).get("fingerprint") == f.fingerprint
+
+
+@cache
+def fixtures(families, arch="SM89"):
+    from tests.cases import gpu_fixtures
+    return gpu_fixtures(families, arch=arch)
+
+
+def mismatches(got, want, same, excused=lambda i, g, w: False):
+    return [i for i, (g, w) in enumerate(zip(got, want)) if not same(g, w) and not excused(i, g, w)]
+
+
+def mismatch(f, side, got, bad):
+    i = bad[0]
+    return f"{side}/reference mismatch at thread {i} ({len(bad)} threads): inputs {f.vectors[i] if f.vectors else ''} {side} {got[i]:#x} reference {f.expected[i]:#x}"
 
 
 def executed(f, visited):
     """Mnemonics (with modifiers) of the instructions the emulator visited."""
-    from tests.harness.gpu import Template
     t = Template(f.emulator_image or f.image, f.kernel)
-    return {t.decoded(o).text.split()[0] if not t.decoded(o).text.startswith("@") else t.decoded(o).text.split()[1] for o in visited}
+    return {mnemonic(t.decoded(o)) for o in visited}
 
 
-def check(f, gpu, result):
-    """Problems for one fixture given its GPU outputs and one emulator result."""
-    out = []
-    if f.expected is not None and (i := first_mismatch(gpu, f.expected, f.same)) is not None:
-        out.append(f"GPU/reference mismatch at thread {i}: inputs {f.vectors[i] if f.vectors else ''} gpu {gpu[i]:#x} reference {f.expected[i]:#x}")
-    if "error" in result: return out + [f"emulator error: {result['error']}"]
-    missing = [o for o in f.visited if o not in result["visited"]]
-    if missing: out.append(f"emulator never executed offsets {[hex(o) for o in missing]}")
+def emulated_problems(f, result):
+    """Problems of one emulator result for fixture f, judged against its reference."""
+    if f.expected is None: return ["no reference (draft fixture: derive one with tests.observe)"]
+    if "error" in result: return [f"emulator error: {result['error']}"]
+    out = [f"emulator never executed offsets {[hex(o) for o in missing]}"] if (missing := [o for o in f.visited if o not in result["visited"]]) else []
     if f.exit and result.get("exit") != "EXIT": out.append("emulator did not reach EXIT")
     if f.targets:
         ops = executed(f, result["visited"])
-        out += [f"target {t} never executed" for t in f.targets if not any(op == t or op.startswith(t + ".") for op in ops)]
+        out += [f"target {t} never executed" for t in f.targets if not any(hits(op, t) for op in ops)]
     emulated = ghidra_bridge.outputs(result)
-    other = f.expected if f.emulator_vs == "reference" else gpu
-    same = f.emulator_same or f.same
-    bad = [i for i, (e, o) in enumerate(zip(emulated, other)) if not same(e, o) and not f.excused(i, e, o)]
-    if len(emulated) != len(other): out.append(f"emulator produced {len(emulated)} outputs, expected {len(other)}")
-    if bad: out.append(f"emulator/{f.emulator_vs} mismatch at thread {bad[0]} ({len(bad)} threads): emulated {emulated[bad[0]]:#x} {f.emulator_vs} {other[bad[0]]:#x}")
+    if len(emulated) != len(f.expected): out.append(f"emulator produced {len(emulated)} outputs, expected {len(f.expected)}")
+    if bad := mismatches(emulated, f.expected, f.emulator_same or f.same, f.excused): out.append(mismatch(f, "emulator", emulated, bad))
     return out
 
 
-def run(fixtures, modes=MODES):
-    """{(fixture name, mode): [problems]} for every fixture and each of its fp modes."""
-    driver = Driver()
-    try: gpu = {f.name: driver.run(f) for f in fixtures}
+def hardware_problems(f, gpu):
+    """Problems of fixture f's GPU outputs, judged against its reference."""
+    if f.expected is None: return ["no reference (draft fixture: derive one with tests.observe)"]
+    return [mismatch(f, "gpu", gpu, bad)] if (bad := mismatches(gpu, f.expected, f.same)) else []
+
+
+def emulate(fixtures, modes=MODES, engine="ghidra"):
+    """{(arch, fixture name, mode): [problems]} for every fixture and each of its fp modes among
+    `modes`, on the Ghidra emulator, the lifted semantics (`engine="reference"`) or the native
+    emulator (`engine="native"`)."""
+    selected = {mode: [f for f in fixtures if mode in f.modes] for mode in modes}
+    groups = {(arch, mode): [f for f in fs if Template(f.image, f.kernel).arch == arch]
+              for mode, fs in selected.items() for arch in {Template(f.image, f.kernel).arch for f in fs}}
+    sharded = dict(ghidra=ghidra_bridge.emulate_sharded, reference=reference.emulate_sharded, native=kernel.emulate_sharded)[engine]
+    results = sharded({key: (*key, [request(f) for f in fs]) for key, fs in groups.items()})
+    return {(arch, f.name, mode): emulated_problems(f, result) for (arch, mode), fs in groups.items() for f, result in zip(fs, results[arch, mode])}
+
+
+def run(fixtures):
+    """{fixture name: [problems]} from running every fixture on their target GPU, recording each
+    passing fixture's fingerprint in PASSES (and dropping failing ones) for tests/evidence.py."""
+    if not fixtures: return {}
+    driver = Driver(Template(fixtures[0].image, fixtures[0].kernel).arch)
+    try: found = {f.name: hardware_problems(f, driver.run(f)) for f in fixtures}
     finally: driver.close()
-    jobs = {mode: ("SM89", mode, [request(f) for f in fixtures if mode in f.modes]) for mode in modes}
-    results = ghidra_bridge.concurrently(ghidra_bridge.emulate, jobs)
-    out = {}
-    for mode in modes:
-        for f, result in zip((f for f in fixtures if mode in f.modes), results[mode]):
-            out[f.name, mode] = check(f, gpu[f.name], result)
-    return out
+    record = passes()
+    records = record['architectures'].setdefault(driver.arch, {})
+    for f in fixtures:
+        if found[f.name]: records.pop(f.name, None)
+        else: records[f.name] = dict(fingerprint=f.fingerprint, device=driver.device)
+    PASSES.write_text(json.dumps(record, indent=1, sort_keys=True) + "\n")
+    return found

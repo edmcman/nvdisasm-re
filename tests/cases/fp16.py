@@ -1,10 +1,11 @@
 """Packed FP16: HADD2/HFMA2/HMUL2 lanes, broadcasts and modifiers; HMNMX2 (F16/BF16/E6M9,
-NaN, FTZ, XORSIGN, IS_A source predicates); HADD2.F32 widening; HFMA2.MMA constant moves."""
+NaN, FTZ, XORSIGN, IS_A source predicates); HSET2/HSETP2 comparisons; HADD2.F32 widening; HFMA2.MMA constant moves."""
+from tests.harness.manual import retained
 import itertools, random
 from itertools import product
 from sass.semantics.fp import softfloat
-from tests.harness.case import cbank, cx_header, cx_source, put, ram, source
-from tests.refs.float import half_minmax, readable, underflow_band, widen_half
+from tests.harness.case import cbank, cx_header, cx_source, is_cx, put, ram, source
+from tests.refs.float import FCOMPARISONS, half2, rounded, hset2, hsetp2, half_minmax, half_product, hmul2, readable, underflow_band, widen_half
 
 SWIZZLES = ("H1_H0", "H0_H0", "H1_H1")
 
@@ -18,22 +19,26 @@ def lanes(value, swizzle="H1_H0", absolute=False, negate=False):
 
 
 def reference(op, inputs, sat=False):
-    """Per-lane softfloat result; None where a NaN or the emulator underflow band makes it moot."""
+    """Per-lane rounded result; None where the emulator underflow band makes it moot."""
     result = 0
     for lane in (0, 1):
-        xs = [v[lane] for v in inputs]; want = softfloat.arithmetic(op, xs, 16, sat=sat)
-        if softfloat.unpack(want, 16)[0] == "nan": return None
+        xs = [v[lane] for v in inputs]; want = rounded(op, xs, 16, sat=sat)
         if not sat and underflow_band(op, xs, 16): return None
         result |= want << (16 * lane)
     return result
 
 
 def cx_name(k): return next(n for n, a in k.operand_types.items() if a.type == "CX")
+# HMUL2 (Rd, A, B) lane formats per format label; SM107 names all three (Dfmt.Afmt.Bfmt).
+MUL_FORMATS = {"F16_V2": ("F16", "F16", "F16"), "BF16_V2": ("BF16", "BF16", "BF16"),
+               "BF16x2.BF16x2.F16x2": ("BF16", "BF16", "F16"), "F16x2.F16x2.BF16x2": ("F16", "F16", "BF16")}
+def format_operand(k): return next(n for n in ("ofmt", "Dfmt.Afmt.Bfmt") if n in k.operand_types)
 
 
+@retained('Seeded packed arithmetic, sign combinations, FMZ/FTZ, literal lane encodings and CX memory anchors exceed the ordinary form profile.')
 def arithmetic(c):
     rng = random.Random("fp16")
-    packed = [0, 0x80008000, 0x00010001, 0x80010001, 0x03ff0400, 0x3c004000, 0xbc00c000, 0x7bfffbff, 0x7c003c00, 0x3c007e00, 0x3c014001]
+    packed = [0, 0x80008000, 0x00010001, 0x80010001, 0x03ff0400, 0x3c004000, 0xbc00c000, 0x7bfffbff, 0x7c003c00, 0x3c007e00, 0x3c014001, 0xfc017e55]
     packed += [rng.getrandbits(32) for _ in range(15)]
     sat_field = "satrelu" if "hfma2__RRR" in c.classes and "satrelu" in c.classes["hfma2__RRR"].operand_types else "sat"
     for i, x in enumerate(packed):
@@ -49,6 +54,27 @@ def arithmetic(c):
                              [a, lanes(y, swizzle), lanes(z, swizzle)])]:
                         want = reference(op, inputs, sat)
                         if want is not None: c.add(cls, dict(fields, **mods), dict(R2=x, R4=y, R6=z), dict(R2=want, __native=True))
+    # Hopper compiler arithmetic forms, using the same packed values and pairings above.
+    if 'hfma2_mma__RRR' in c.classes and 'ofmt' in c.classes['hfma2_mma__RRR'].operand_types:
+        for i, x in enumerate(packed):
+            y, z = packed[(i * 7 + 3) % len(packed)], packed[(i * 5 + 1) % len(packed)]
+            for negate, sat, ftz in product((False, True), repeat=3):
+                inputs = [lanes(x, negate=negate), lanes(y), lanes(z)]
+                if ftz and c.fp == 'exact':
+                    inputs = [[h & 0x8000 if h & 0x7c00 == 0 else h for h in v] for v in inputs]
+                if c.fp == 'readable':
+                    result = [readable('fma', [v[lane] for v in inputs], 16, sat=sat) for lane in (0, 1)]
+                    want = None if None in result else result[0] | result[1] << 16
+                else: want = reference('fma', inputs, sat)
+                if want is None: continue
+                if ftz and c.fp == 'exact':
+                    want = sum((h & 0x8000 if h & 0x7c00 == 0 else h) << (16 * lane)
+                               for lane, h in enumerate(lanes(want)))
+                c.add('hfma2_mma__RRR', dict(Rd=2, Ra=2, Rb=4, Rc=6, ofmt='F16_V2',
+                      fmz='FTZ' if ftz else 'nofmz_hfma2', satrelu='SAT' if sat else 'nosat', **{'Ra@negate': int(negate)}),
+                      dict(R2=x, R4=y, R6=z), dict(R2=want, __native=True))
+        c.add('hfma2_mma__RRR', dict(Rd=2, Ra=2, Rb=4, Rc=6, fmz='FMZ'), {}, dict(error='sass_opaque_HFMA2_MMA'))
+        c.add('hfma2_mma__RRR', dict(Rd=2, Ra=2, Rb=4, Rc=6, ofmt='BF16_V2'), {}, dict(error='sass_opaque_HFMA2_MMA'))
     # Distinct broadcasts on each input and asymmetric immediate/constant lanes.
     x, y, z = 0x3c004000, 0x42004400, 0x38003c00
     for a, b, d in product(SWIZZLES, repeat=3):
@@ -61,16 +87,19 @@ def arithmetic(c):
         fma = cls.startswith("hfma")
         want = reference("fma" if fma else "add", [lanes(x), lanes(y)] + ([lanes(z)] if fma else []))
         c.add(cls, fields, dict(R2=x, R4=y, R6=z, UR4=y, UR6=z), dict(R8=want, __native=True), memory=[cbank(0, 0x100, y | (z << 32), 8)])
+    if 'hfma2_mma__RIR' in c.classes and 'ofmt' in c.classes['hfma2_mma__RIR'].operand_types:
+        c.add('hfma2_mma__RIR', dict(Rd=8, Ra=2, Sb=y >> 16, Sb1=y & 0xffff, Rc=6),
+              dict(R2=x, R6=z), dict(R8=reference('fma', [lanes(x), lanes(y), lanes(z)]), __native=True))
     # HMUL2: each operand encoding, lane broadcast, source modifiers and destination overlap.
     values = [0x3c004000, 0x00010001, 0x80010001, 0x7bff3c00, 0x040003ff, 0xbc00c000, 0x35553aaa]
     for k in c.of("HMUL2", cx=None):
         src = source(k, "Rb", "Sb", "URb")
         if not src: continue
         typ = k.operand_types[src].type
-        for i, x in enumerate(values):
+        for (i, x), fmt in itertools.product(enumerate(values), c.labels(k, format_operand(k), tuple(MUL_FORMATS))):
             y = values[(i * 3 + 2) % len(values)]
             for sa, sb in (("H1_H0", "H1_H0"), ("H0_H0", "H1_H1"), ("H1_H1", "H0_H0")):
-                fields = {"Rd": 2, "Ra": 2 if i % 2 == 0 else 4, "iswzA": sa, "ofmt": "F16_V2", "fmz": k.operand_types["fmz"].default,
+                fields = {"Rd": 2, "Ra": 2 if i % 2 == 0 else 4, "iswzA": sa, format_operand(k): fmt, "fmz": k.operand_types["fmz"].default,
                           "sat": "nosat", "Ra@absolute": int(bool(i & 1)), "Ra@negate": int(bool(i & 2))}
                 regs, memory = {"R2": x, "R4": x}, []
                 if typ in ("F16Imm", "UImm"): fields.update(Sb=y >> 16, Sb1=y & 0xffff)
@@ -78,25 +107,18 @@ def arithmetic(c):
                     put(k, src, y, fields, regs, memory, 6, bank=(0, 0x100)); fields["iswzB"] = sb
                 else: continue
                 a, b = lanes(x, sa, bool(i & 1), bool(i & 2)), lanes(y, sb if "iswzB" in k.operand_types else "H1_H0")
-                want = sum(softfloat.arithmetic("mul", [a[lane], b[lane]], 16) << (16 * lane) for lane in (0, 1))
-                c.add(k.name, fields, regs, dict(R2=want, __native=True), memory=memory)
+                if fmt == "F16_V2": got = [softfloat.arithmetic("mul", [a[lane], b[lane]], 16) for lane in (0, 1)]
+                else: got = [half_product(a[lane], b[lane], *MUL_FORMATS[fmt][1:], MUL_FORMATS[fmt][0]) for lane in (0, 1)]
+                if None in got: continue
+                c.add(k.name, fields, regs, dict(R2=got[0] | got[1] << 16, __native=True), memory=memory)
     c.add("hadd2__RR", dict(Rd=8, Ra=2, Rc=4, ftz="FTZ"), {}, dict(error="sass_opaque_HADD2"))
     c.add("hfma2__RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6, fmz="FMZ"), {}, dict(error="sass_opaque_HFMA2"))
 
-    def hmul2(a, b, mode, sat):
-        out = []
-        for shift in (0, 16):
-            x, y = (a >> shift) & 0xffff, (b >> shift) & 0xffff
-            # SM89 HMUL2.FMZ returns canonical +0 if either source is zero/subnormal, even for
-            # zero*Inf or signed-zero products.
-            if c.fp == "exact" and mode == "FMZ" and (x & 0x7c00 == 0 or y & 0x7c00 == 0): out.append(0); continue
-            out.append(softfloat.arithmetic("mul", [x, y], 16, ftz=c.fp == "exact" and mode in ("FMZ", "FTZ"), sat=sat))
-        return out[0] | out[1] << 16
     for mode, sat in product(("FMZ", "FTZ"), (False, True)):
         for a, b in ((0x00010001, 0x60006000), (0x80018001, 0x60006000), (0x14001400, 0x14001400),
                      (0x94009400, 0x14001400), (0x7e017c00, 0x3c003c00), (0xbc00c000, 0x40004000)):
             c.add("hmul2__RR", dict(Rd=8, Ra=2, Rb=4, fmz=mode, sat="SAT" if sat else "nosat"), dict(R2=a, R4=b),
-                  dict(R8=hmul2(a, b, mode, sat), __native=True))
+                  dict(R8=hmul2(a, b, mode if c.fp == "exact" else None, sat), __native=True))
     # CX sources apply to both lowerings.
     for mnemonic, cls, fields, regs, want in [("HADD2", "hadd2__RCx", {"Rd": 8, "Ra": 2}, {"R2": 0x3c003c00}, 0x42004200),
                                               ("HFMA2", "hfma2__RCxR", {"Rd": 8, "Ra": 2, "Rc": 6}, {"R2": 0x3c003c00, "R6": 0x42004200}, 0x45004500),
@@ -107,6 +129,7 @@ def arithmetic(c):
             c.add(k.name, dict(fields, **cx_fields), dict(regs, **cx_regs), {"R8": want, "__native": True}, memory=memory, portable=True)
 
 
+@retained('Dense exceptional min/max, XORSIGN and source-selection predicate corpora exceed the ordinary profile.')
 def minmax(c):
     if "hmnmx2__RRR" in c.classes:
         rrr = c.classes["hmnmx2__RRR"]; has_xor = "xorsign" in rrr.operand_types
@@ -198,6 +221,67 @@ def minmax(c):
         c.add(k.name, dict(fields, nan="NAN", **{"Pp@not": 1}), dict(regs), {"error": "sass_opaque_HMNMX2"}, memory=memory)
 
 
+# Lane pairs: ordered/unordered, signed zeros, denormals (equal to zero under FTZ), infinities.
+SET_LANES = {"F16": [(0x3c00, 0x4000), (0x4000, 0x3c00), (0x3c00, 0x3c00), (0, 0x8000), (0x7e00, 0x3c00), (0x3c00, 0xfe01), (1, 0), (0x8001, 1),
+                     (0x7c00, 0x7bff), (0xfc00, 0xfc00), (0x7e00, 0x7e00)],
+             "BF16": [(0x3f80, 0x4000), (0x4000, 0x3f80), (0x3f80, 0x3f80), (0, 0x8000), (0x7fc0, 0x3f80), (0x3f80, 0xffc1), (1, 0), (0x8001, 1),
+                      (0x7f80, 0x7f7f), (0xff80, 0xff80), (0x7fc0, 0x7fc0)]}
+
+
+def set_pairs(fmt):
+    """Packed (A, B) words, each lane from a different SET_LANES pair."""
+    ps = SET_LANES[fmt]
+    return [(x | ps[(n + 3) % len(ps)][0] << 16, y | ps[(n + 3) % len(ps)][1] << 16) for n, (x, y) in enumerate(ps)]
+
+
+@retained('Dense format-specific exceptional comparison pairs and source-sign corpora exceed the ordinary profile.')
+def comparisons(c):
+    """HSET2 (.BF/.BM) and HSETP2 (with and without .H_AND): every comparison, FTZ, each bop
+    against Pp/!Pp, lane swizzles and modifiers, each source form and SM90+'s BF16 lanes."""
+    def fields(cls, **kw):
+        k = c.classes[cls]
+        out = dict(Ra=2, Pp="PT", bop="AND", iswzA="H1_H0", **({"Rd": 8} if "Rd" in k.operand_types else {"Pu": 0, "Pv": 1}))
+        if "iswzB_as_C" in k.operand_types: out["iswzB_as_C"] = "H1_H0"
+        return {**out, **kw}
+
+    def expect(cls, a, b, bf=True, h_and=False, **kw):
+        if cls.startswith("hset2"): return {"R8": hset2(a, b, bf=bf, **kw), "__native": True}
+        pu, pv = hsetp2(a, b, h_and=h_and, **kw)
+        return {"P0": int(pu), "P1": int(pv), "__native": True}
+
+    selectors = {"hset2__RR": [dict(bval="BF"), dict(bval="BM")], "hsetp2__RR": [dict(h_and="noh_and"), dict(h_and="H_AND")]}
+    flags = lambda sel: dict(bf=sel.get("bval") == "BF", h_and=sel.get("h_and") == "H_AND")
+    for cls, extra in selectors.items():
+        has_ofmt = "ofmt" in c.classes[cls].operand_types
+        for fmt in c.labels(c.classes[cls], "ofmt", ("F16_V2", "BF16_V2")) if has_ofmt else ["F16_V2"]:
+            for (a, b), cmp, ftz, sel in itertools.product(set_pairs(fmt[:-3]), FCOMPARISONS + ("T", "F"), (False, True), extra):
+                if ftz and fmt != "F16_V2": continue   # md-disallowed
+                f = fields(cls, Rc=4, cmp=cmp, ftz="FTZ" if ftz else "noftz", **sel, **({"ofmt": fmt} if has_ofmt else {}))
+                c.add(cls, f, dict(R2=a, R4=b), expect(cls, a, b, cmp=cmp, ftz=ftz and c.fp == "exact", fmt=fmt[:-3], **flags(sel)))
+        for (a, b), bop, p, inverted, sel in itertools.product(set_pairs("F16")[:4], ("AND", "OR", "XOR"), (0, 1), (0, 1), extra):
+            c.add(cls, fields(cls, Rc=4, cmp="LT", bop=bop, Pp=3, **sel, **{"Pp@not": inverted}), dict(R2=a, R4=b, P3=p),
+                  expect(cls, a, b, cmp="LT", bop=bop, p=bool(p) != bool(inverted), **flags(sel)))
+        for swizzle, absolute, negate in itertools.product(SWIZZLES, (0, 1), (0, 1)):
+            a, b = 0xbc004000, 0x3c00c200
+            mods = {"Ra@absolute": absolute, "Ra@negate": negate, "Rc@negate": negate ^ 1}
+            ref_a, ref_b = (x[0] | x[1] << 16 for x in (lanes(a, swizzle, absolute, negate), lanes(b, swizzle, negate=not negate)))
+            c.add(cls, fields(cls, Rc=4, cmp="LT", iswzA=swizzle, iswzB_as_C=swizzle, **extra[0], **mods), dict(R2=a, R4=b),
+                  expect(cls, ref_a, ref_b, cmp="LT"))
+    for mnemonic, sel in (("HSET2", dict(bval="BF")), ("HSETP2", dict(h_and="noh_and"))):
+        for k in c.of(mnemonic, cx=None):
+            b = "Sc" if is_cx(k) else source(k, "Rc", "URc", "Sc")
+            typ = k.operand_types[b].type
+            for a, y in set_pairs("F16")[:6]:
+                f, regs, memory = fields(k.name, cmp="LT", **sel), dict(R2=a), []
+                if "iswzB" in k.operand_types: f["iswzB"] = "H1_H0"
+                if is_cx(k):
+                    cx_fields, cx_regs, memory = cx_source(c.arch, k, b, y); f.update(cx_fields); regs.update(cx_regs)
+                elif typ in ("F16Imm", "F64Imm"): f.update(Sc=y >> 16, Sc1=y & 0xffff)
+                else: put(k, b, y, f, regs, memory, 4, ureg=6, bank=(0, 0x20))
+                c.add(k.name, f, regs, expect(k.name, a, y, cmp="LT"), memory=memory, portable=True)
+
+
+@retained('Mixed F32/half widening and literal half-lane boundaries remain outside the initial packed form adapter.')
 def widening(c):
     # HADD2.F32 adds two half lanes, takes the selected low result and widens it to F32. Its
     # first operand is -RZ; the second source's selector chooses the half for the low result.
@@ -234,14 +318,16 @@ def widening(c):
             for half in (0x0001, 0x3c00, 0x8000, 0xbc00):
                 c.add(k.name, {"Rd": 8, "Ra": "RZ", "Sc": half, "ofmt": "F32", "ftz": "noftz", "sat": "nosat", "iswzA": "H1_H0", "Ra@negate": 1}, {},
                       {"R8": widen_half(softfloat.arithmetic("add", [0x8000, half], 16)), "__native": True})
-    if "hfma2_mma__RRI_norelu" in c.classes:
+    move = next((name for name in ("hfma2_mma__RRI_norelu", "hfma2_mma__RRI") if name in c.classes), None)
+    if move:
         canonical = lambda h: 0x7fff if h & 0x7c00 == 0x7c00 and h & 0x3ff else h
         for bits in (0x3c004000, 0x80000000, 0x7e017d01, 0x000103ff):
-            c.add("hfma2_mma__RRI_norelu", dict(Rd=8, Ra="RZ", Rb="RZ", Sc=bits >> 16, Sc1=bits & 0xffff, **{"Ra@negate": 1}), {},
+            c.add(move, dict(Rd=8, Ra="RZ", Rb="RZ", Sc=bits >> 16, Sc1=bits & 0xffff, **{"Ra@negate": 1}), {},
                   dict(R8=canonical(bits & 0xffff) | (canonical(bits >> 16) << 16), __max_ops=1))
-        c.add("hfma2_mma__RRI_norelu", dict(Rd=8, Ra=2, Rb="RZ", Sc=0x3c00, Sc1=0x4000, **{"Ra@negate": 1}), {}, dict(error="sass_opaque_HFMA2_MMA"))
+        c.add(move, dict(Rd=8, Ra=2, Rb="RZ", Sc=0x3c00, Sc1=0x4000, **{"Ra@negate": 1}), {}, dict(error="sass_opaque_HFMA2_MMA"))
 
 
+@retained('Seeded unfused and FTZ/FMZ readable formula regressions exceed the ordinary form profile.')
 def readable_formulas(c):
     if c.fp != "readable": return
     rng = random.Random("readable_fp16")
@@ -256,7 +342,7 @@ def readable_formulas(c):
 
 
 def emulator_cases(c):
-    arithmetic(c); minmax(c); widening(c); readable_formulas(c)
+    arithmetic(c); minmax(c); comparisons(c); widening(c); readable_formulas(c)
 
 
 def hmnmx2_reference(family):
@@ -268,13 +354,34 @@ def hmnmx2_reference(family):
                                        xorsign, xorsign and (not rir or family == "hmnmx2_xorsign_rir"), xorsign and not rir, fmt)
 
 
-def gpu_fixtures():
+def set_reference(mnemonic, s):
+    """The scalar.SETS fixture's output: HSET2's Rd, or HSETP2's Pu | Pv << 1."""
+    def packed(x, swizzle, **mods): return (l := lanes(x, swizzle, **mods))[0] | l[1] << 16
+
+    def ref(a, b, c):
+        a, b = packed(a, s.get("iswzA", "H1_H0"), negate=s.get("Ra@negate", 0)), packed(b, s.get("iswzB_as_C", "H1_H0"), absolute=s.get("Rc@absolute", 0))
+        kw = dict(cmp=s["cmp"], bop=s.get("bop", "AND"), p=(c != 0) != bool(s.get("Pp@not")), ftz=s.get("ftz") == "FTZ")
+        if mnemonic == "HSET2": return hset2(a, b, bf=s.get("bval", "BF") == "BF", **kw)
+        pu, pv = hsetp2(a, b, h_and=s.get("h_and") == "H_AND", **kw)
+        return int(pu) | int(pv) << 1
+    return ref
+
+
+def gpu_fixtures(arch="SM89"):
     from tests.harness import scalar
     from tests.harness.templates import cx_fixture, slot_fixture, rows
-    from tests.harness.gpu import sm89
-    out = scalar.generic("hadd2", "hfma2", "hmul2", "hmul2_sat", "hmul2_ftz", "hmul2_fmz", "hadd2_sat", "hfma2_sat", "hfma2_move",
-                         "hfma2_move_zero", "hfma2_move_nan", "hfma2_move_denorm", "hfma2_move_inf", "hadd2_lanes", "hfma2_lanes", "hmul2_lanes")
-    out += [scalar.launch(f, hmnmx2_reference(f)) for f in scalar.TARGETS if f.startswith("hmnmx2_")]
+    from tests.harness.gpu import encode
+    out = [scalar.launch(f, lambda *v, op=f[1:4], sat=f.endswith("_sat"): half2(op, [lanes(x) for x in v[:3 if op == "fma" else 2]], sat=sat), arch=arch)
+           for f in ("hadd2", "hfma2", "hmul2", "hmul2_sat", "hadd2_sat", "hfma2_sat")]
+    out += [scalar.launch(f, lambda a, b, _, mode=f[-3:].upper(): hmul2(a, b, mode), arch=arch) for f in ("hmul2_ftz", "hmul2_fmz")]
+    # HFMA2.MMA -RZ, RZ, immediate: each lane is -0 * +0 + the immediate lane.
+    out += [scalar.launch(f, lambda *_, bits=bits: half2("fma", [[0x8000] * 2, [0] * 2, lanes(bits)]), arch=arch)
+            for f, bits in [("hfma2_move", 0x3c004000), *((f, scalar.PATCHES[f][2]["Sc"] << 16 | scalar.PATCHES[f][2]["Sc1"]) for f in scalar.PATCHES if f.startswith("hfma2_move_"))]]
+    out += [scalar.launch("hadd2_lanes", lambda a, b, _: half2("add", [lanes(a, "H0_H0", absolute=True), lanes(b, "H1_H1", negate=True)]), arch=arch),
+            scalar.launch("hfma2_lanes", lambda a, b, c: half2("fma", [lanes(a, "H1_H1", negate=True), lanes(b, "H0_H0", absolute=True), lanes(c)]), arch=arch),
+            scalar.launch("hmul2_lanes", lambda a, b, _: half2("mul", [lanes(a, "H0_H0", absolute=True), lanes(b, "H1_H1", negate=True)]), arch=arch)]
+    out += [scalar.launch(f, hmnmx2_reference(f), arch=arch) for f in scalar.TARGETS if f.startswith("hmnmx2_")]
+    out += [scalar.launch(f, set_reference(m, s), arch=arch) for f, (m, s) in scalar.SETS.items() if m != "FSET"]
     # HMNMX2 with a CX source B: per-format edges in A, finite and NaN B words.
     masks = {"F16_V2": (0x7c00, 0x03ff), "BF16_V2": (0x7f80, 0x007f), "E6M9_V2": (0x7e00, 0x01ff)}
     edges = {"F16_V2": [0, 0x8000, 1, 0x8001, 0x03ff, 0x83ff, 0x0400, 0x8400, 0x3c00, 0xbc00, 0x7c00, 0xfc00, 0x7e01, 0x7c01],
@@ -296,7 +403,7 @@ def gpu_fixtures():
         fields = dict(Rd=7, Ra=2, ofmt=fmt, ftz="FTZ" if ftz else "noftz", nan="NAN" if nan else "nonan", xorsign="XORSIGN" if xorsign else "noxorsign",
                       iswzA="H1_H0", iswzB="H1_H0", Pg=7, Pp=7, **{"Pp@not": 0 if is_min else 1}, **({"Ra@absolute": 1, "Sb@absolute": 1} if xorsign else {}))
         out.append(cx_fixture(f"hmnmx2_cx_{i}", "hmnmx2__RCxR", fields, [(a, b, 0) for a in values],
-                              [half_minmax(a, b, is_min, nan, ftz, xorsign, fmt=fmt[:-3]) for a in values]))
+                              [half_minmax(a, b, is_min, nan, ftz, xorsign, fmt=fmt[:-3]) for a in values], arch=arch))
     # HADD2.F32 R11, -RZ, R6 at the carry kernel's placeholder; the emulator runs it without barriers.
     halves = [0x0000, 0x8000, 0x0001, 0x8001, 0x03ff, 0x0400, 0x1400, 0x3555, 0x3800, 0x3c00, 0x3e00, 0x4000, 0xbc00, 0xc000, 0x7bff]
     packed = [halves[i % len(halves)] | (halves[(i * 7 + 3) % len(halves)] << 16) for i in range(128)]
@@ -304,6 +411,6 @@ def gpu_fixtures():
         fields = dict(Rd=11, Ra="RZ", Rc=6, ofmt="F32", ftz=ftz, sat=sat, iswzA="H1_H0", iswzB_as_C=selector, **{"Ra@negate": 1, "Rc@absolute": absolute, "Rc@negate": negate})
         lane = lambda x: lanes(x, selector, absolute, negate)[0]
         want = [widen_half(softfloat.arithmetic("add", [0x8000, lane(x)], 16, ftz=ftz == "FTZ", sat=sat == "SAT")) for x in packed]
-        out.append(slot_fixture(f"hadd2_f32_{ftz}_{sat}_{selector}_{absolute}_{negate}", [], [(i, ~i & 0xffffffff, x) for i, x in enumerate(packed)], want, 0x180,
-                                final=sm89("hadd2_F32__RR", **fields), nobarrier_emulation=True))
+        out.append(slot_fixture(f"hadd2_f32_{ftz}_{sat}_{selector}_{absolute}_{negate}", [], [(i, ~i & 0xffffffff, x) for i, x in enumerate(packed)], want, 8,
+                                final=encode("hadd2_F32__RR", arch=arch, **fields), nobarrier_emulation=True, arch=arch))
     return out

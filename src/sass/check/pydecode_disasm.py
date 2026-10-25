@@ -1,4 +1,4 @@
-"""Layer 1 report: pydecode vs the nvdisasm oracle.
+"""Report: pydecode vs the nvdisasm oracle.
 
 usage: python -m sass.check.pydecode_disasm SM89 [real|synthetic|mutated] [N] [--show K] [--cls REGEX]
 """
@@ -7,7 +7,7 @@ from collections import Counter, defaultdict
 from sass.decode import pydecode
 from sass import corpus, oracle, synth
 
-PASSING = ("ok", "both_err", "collision")  # both_err: both reject the word; collision: see compare_ghidra_disassembly
+PASSING = ("ok", "both_err")  # both_err: both reject the word
 
 
 def normalize(text):

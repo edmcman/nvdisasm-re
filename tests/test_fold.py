@@ -1,4 +1,4 @@
-"""Layer 0: decode-time folding (sass.sleigh.lower.Fold). SLEIGH constructor actions have only 64-bit
+"""Decode-time folding (sass.sleigh.lower.Fold). SLEIGH constructor actions have only 64-bit
 signed arithmetic and bit operations, so comparisons and ite are encoded arithmetically; the text
 Fold writes, evaluated with those semantics, must equal evaluate of the expression."""
 import ast, random
@@ -67,8 +67,10 @@ def expressions(rng, depth, w):
         case "extract" if w > 1:
             lo = rng.randrange(w); x = expressions(rng, depth - 1, 64)
             return bitvec.zext(bitvec.extract(x, lo + w - 1, lo), w) if lo + w <= 64 else sub()
-        case "concat" if w % 2 == 0:
-            return bitvec.concat(expressions(rng, depth - 1, w // 2), expressions(rng, depth - 1, w // 2))
+        case "concat" if w > 1:
+            cuts = sorted(rng.sample(range(1, w), rng.randrange(1, min(w, 5))))
+            bounds = [0, *cuts, w]
+            return bitvec.concat(*(expressions(rng, depth - 1, hi - lo) for lo, hi in zip(bounds, bounds[1:])))
     return sub()
 
 
@@ -88,3 +90,15 @@ def test_fold_matches_evaluation(w):
             assert Action(values).eval(tree) & ((1 << w) - 1) == want, (e, text, values)
         checked += 1
     assert checked > 50
+
+
+@pytest.mark.parametrize("widths", [(1, 7, 13, 43), (31, 1, 32), (8,) * 8, (3, 5, 1, 7)])
+def test_variadic_concat_fold(widths):
+    parts = [bitvec.param(f"p{j}", w) for j, w in enumerate(widths)]
+    e = bitvec.concat(*parts)
+    tree = ast.parse(Fold(Fields()).text(e), mode="eval")
+    for values in ([0] * len(parts), [bitvec.mask(w) for w in widths],
+                   [1 << (w - 1) for w in widths]):
+        params = dict(zip((p.args[0] for p in parts), values))
+        want = int(''.join(f"{v:0{w}b}" for v, w in zip(values, widths)), 2)
+        assert Action(params).eval(tree) & bitvec.mask(e.w) == want

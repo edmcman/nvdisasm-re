@@ -4,7 +4,7 @@
 import json, re, shutil, sys, pathlib
 from collections import defaultdict
 from sass.md.parse import parse_md, strip_comments
-from sass.paths import OUT
+from sass.paths import MD, RAW
 
 ENTRY = re.compile(r"(\w+)(?:\[[^\]]*\])?`\{([^}]*)\}|(\w+)")
 ROLES = {"TRUE": ("read", "write"), "OUTPUT": ("write", "write"), "ANTI": ("write", "read")}  # (column, row)
@@ -145,7 +145,7 @@ def build_arch(raw, out, arch):
     print(f"{arch}: {len(rows)} classes, {len({o for r in rows for o in r['opcodes']})} opcodes, "
           f"{unresolved} register operands without role")
 
-def main(raw=OUT / "raw", out=OUT):
+def main(raw=RAW, out=MD):
     raw, out = pathlib.Path(raw), pathlib.Path(out)
     for md in sorted(raw.glob("md_SM*.txt")):
         build_arch(raw, out, md.stem.removeprefix("md_"))

@@ -1,93 +1,106 @@
 # nvdisasm-re
 
-Reverse engineering NVIDIA's `nvdisasm` (CUDA 13.4) to recover how it models SASS instructions.
+[![opcode semantics](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fedmcman%2Fnvdisasm-re%2Fmain%2Fprocessor%2FSASS%2Fsemantics%2Fbadge.json)](https://raw.githack.com/edmcman/nvdisasm-re/main/processor/SASS/semantics/coverage.html)
+[![CI](https://github.com/edmcman/nvdisasm-re/actions/workflows/ci.yml/badge.svg)](https://github.com/edmcman/nvdisasm-re/actions/workflows/ci.yml)
 
-`nvdisasm` doesn't hard-code instruction knowledge. It embeds an encrypted, compressed
-**machine description** per GPU architecture and parses it at startup. This repo extracts
-those descriptions and turns them into a per-instruction table of operand semantics:
-which registers are read and written, how many registers each operand spans, which
-pipeline it issues to, and its dependency latencies.
+Reverse engineering NVIDIA's `nvdisasm` (CUDA 13.4) to recover how it models SASS instructions,
+and building on that a SASS assembler, disassembler, and Ghidra processor with instruction semantics.
 
-## What's embedded
+`nvdisasm` doesn't hard-code instruction knowledge: it embeds an encrypted, compressed
+**machine description** per GPU architecture. This repo extracts them and derives a
+per-instruction table of operand semantics (registers read and written, register spans,
+pipes, latencies). The results for CUDA 13.4 are committed, so you can browse them without
+running anything, in `src/sass/md/data/`:
 
-For each of SM75, SM80, SM86, SM89, SM90, SM100, SM101, SM103 and SM120, `.data` holds
-three blobs:
+```
+SM80/md/FFMA.txt               every md CLASS definition for FFMA
+SM80/semantics/FFMA.json       operand semantics for those classes
+SM80/latencies.txt             connectors, operation sets, latency tables
+SM80/patterns.txt              a tiny pattern file (JUMP_UNCOND: BRA)
+```
 
-| Blob | Contents |
-|---|---|
-| `md` | ~1,200–1,600 instruction `CLASS` definitions: `FORMAT` (syntax and operand names), `CONDITIONS` (legality rules), `PROPERTIES`, `PREDICATES` (operand bit sizes), `OPCODES`, `ENCODING` (bit layout) |
-| `latencies` | Register resources, operand "connectors" (`Ra`, `Rb`, `Rc`, `Rd`, `Pu`, `URa`, …), operation sets (pipes), and `TABLE_TRUE` / `TABLE_OUTPUT` / `TABLE_ANTI` dependency latencies |
-| `patterns` | A tiny pattern file (`JUMP_UNCOND: BRA`) |
+[`docs/machine-descriptions.md`](docs/machine-descriptions.md) describes the embedded blobs,
+the `src/sass/md/data/` layout and JSON format, and how to re-extract them.
 
-Each blob is encrypted with a byte-chained stream cipher: a glibc-LCG keystream plus a
-256-byte inverse S-box, seeded with a 16-bit per-architecture key. The `md` blobs are
-also LZ4 stream-compressed in `{u32 raw, u32 comp, data}` chunks.
+The machine descriptions are complete enough to decode instructions. `src/sass/` turns them
+into an assembler and two disassemblers, checked against `nvdisasm` itself. Install with `uv sync`.
 
-The descriptions carry **dataflow semantics, not functional semantics**. They tell you
-that FFMA writes one register `Rd` and reads `Ra`, `Sb` and `Rc`. They never say that it
-computes `Rd = Ra*Sb + Rc`.
+## Using `sass` as a library
 
-## Usage
+The `sass` package installs from git like any other dependency; the wheel carries the machine
+descriptions, and needs no CUDA tools, Ghidra or GPU:
 
 ```sh
-uv sync                              # installs the `sass` package (src/sass) and its console scripts
-uv run sass-extract-md [nvdisasm]    # -> out/raw/{md,latencies,patterns}_SMxx.txt (gitignored)
-uv run sass-layout-md                # -> out/SMxx/...
+uv add git+https://github.com/edmcman/nvdisasm-re   # or: pip install git+https://github.com/edmcman/nvdisasm-re
 ```
 
-`sass-extract-md` needs `objdump`; without an argument it uses the nvdisasm located by `src/sass/paths.py`.
-The offsets are specific to the CUDA 13.4 build (V13.4.92); other builds will need new
-addresses (see [`docs/nvdisasm-binary.md`](docs/nvdisasm-binary.md)).
+It caches derived data (decode tables, `nvdisasm` results) in `$SASS_CACHE`, else `.cache/` in a
+checkout, else `$XDG_CACHE_HOME/sass` (`~/.cache/sass`). Lifting every instruction of a cubin
+to semantics ([`examples/lift_cubin.py`](examples/lift_cubin.py)):
 
-The generated output from CUDA 13.4 is committed, so you can browse it without
-running anything:
+```python
+import sys
+from pathlib import Path
+from sass.decode import cubin, pydecode
+from sass.semantics import lifter
 
-```
-out/SM80/latencies.txt            connectors, operation sets, latency tables
-out/SM80/patterns.txt
-out/SM80/md/_00_ARCHITECTURE.txt  md preamble, one file per top-level section
-...                               (REGISTERS, TABLES, OPERATION PREDICATES, ...)
-out/SM80/md/FFMA.txt              every CLASS definition for FFMA
-out/SM80/semantics/FFMA.json      operand semantics for those classes
-```
-
-Each md is split losslessly: the files together contain every line of the original.
-
-## `semantics/<OPCODE>.json`
-
-A list with one record per instruction class:
-
-```json
-{
-  "cls": "ffma__RCR_RCR", "opcodes": ["FFMA"], "pipes": ["fmalighter_pipe"],
-  "inst_type": "INST_TYPE_COUPLED_MATH",
-  "operands": [
-    {"name": "Pg", "type": "Predicate", "resource": "PRED", "role": ["read"],  "span": 1},
-    {"name": "Rd", "type": "Register",  "resource": "GPR",  "role": ["write"], "span": 1},
-    {"name": "Ra", "type": "Register",  "resource": "GPR",  "role": ["read"],  "span": 1},
-    {"name": "Sb", "type": "C", ...},
-    {"name": "Rc", "type": "Register",  "resource": "GPR",  "role": ["read"],  "span": 1}
-  ],
-  "implicit": [{"name": "sBoard", "resource": "SCOREBOARD", "role": ["read", "write"]}, ...],
-  "true_latency": {"GPR:Rd,Rd2": [{"FMAI_WITHOUT_IMAD`{Ra,Rb,Rc}": "4", "MIO_SLOW_OPS`{Ra,Rb,Rc}": "8", ...}]}
-}
+data = Path(sys.argv[1]).read_bytes()
+arch = cubin.elf_arch(data)
+for name, body in cubin.text_sections(data).items():
+    print(arch, name)
+    for addr, word in enumerate(cubin.words(body)):
+        addr *= 16
+        try: sem = lifter.lift(arch, word, addr)
+        except pydecode.NoMatch as e: print(f"  {addr:#06x} undecodable: {e}"); continue
+        print(f"  {addr:#06x} {sem.text:40} {sem.status} {sem.reason}")
+        for loc, v in sem.writes: print(f"      {loc} <- {v}")
+        for s in sem.stores: print(f"      {s.space}[{s.address}] <- {s.value}")
+        if sem.flow: print(f"      flow {sem.flow.kind} -> {sem.flow.target}")
 ```
 
-- `role` comes from where the connector appears in the latency tables. TRUE columns and
-  ANTI rows are reads; TRUE rows, OUTPUT, and ANTI columns are writes.
-- `span` is the number of consecutive registers, `ceil(SIZE/32)`. About 10% of sizes depend
-  on modifiers (LDG `.64`/`.128`, HMMA formats). For those, `span` is the size expression
-  as a string, which must be evaluated against the instruction's decoded modifiers.
-- `implicit` lists connectors that apply to the opcode but never appear in any `FORMAT`,
-  such as scoreboards.
-- Roles apply to the whole opcode set, so conditional operands aren't distinguished.
+On [`examples/assembler/write_value.sass`](examples/assembler/write_value.sass) (`sass-assemble` it to a cubin first):
 
-## Decoding SASS from the machine descriptions
+```
+SM89 .text.write_value
+  0x0000 MOV R1, c[0x0][0x28]                     native
+      R1 <- cbank[0x28:64]:32
+  ...
+  0x0050 STG.E [R2.64], R5                        native
+      ram[R2:R3] <- R5
+  0x0060 EXIT                                     native
+      flow return -> 0x0:64
+```
 
-The `md` files are complete enough to decode instructions. `src/sass/` turns them into two
-disassemblers, both checked against `nvdisasm` itself.
+`sem.status` is `native` when the instruction has modelled semantics and `opaque` otherwise
+(`sem.reason` says why). [`examples/assemble_and_lift.py`](examples/assemble_and_lift.py) goes
+from SASS text to a word, nvdisasm's text and the lifted IR, and
+[`examples/evaluate.py`](examples/evaluate.py) runs a lifted instruction on concrete registers
+(`sass.semantics.evaluate`). The Ghidra processor and the test suite need a checkout.
 
-### Reference decoder (`src/sass/decode/pydecode.py`)
+Whole kernels run on the native emulator, which compiles each kernel's lifted semantics to C++
+(`sass.emulate`, a C++20 compiler on `PATH`; [`docs/emulation.md`](docs/emulation.md)):
+[`examples/emulator/`](examples/emulator) has three examples: `run_kernel.py` launches one over
+4096 threads, `trace_kernel.py` prints each step's register writes and the outputs, and
+`equivalence.py` compares kernels thread by thread on the same launches, and `show_cpp.py`
+prints the C++ the emulator compiles for a kernel (all three run the kernels of
+its `times3.sass`, assembled without CUDA tools).
+
+## Assembler (`src/sass/assemble/`)
+
+Assemble nvdisasm-style SASS into raw code or native CUDA cubins, with labels,
+explicit scheduling controls, parameters, shared memory, constants, and multiple kernels:
+
+```sh
+uv run sass-assemble examples/assembler/write_value.sass -o write_value.cubin
+uv run sass-assemble --format raw --arch SM89 code.sass -o code.bin
+```
+
+Assembly needs no CUDA tools. Raw output supports every committed machine description;
+cubin output supports established ABI profiles (SM107 is raw-only). Native execution
+is verified on SM89. See [`docs/assembling.md`](docs/assembling.md) for syntax, the
+Python API, scheduling responsibilities, and architecture-specific limits.
+
+## Reference decoder (`src/sass/decode/pydecode.py`)
 
 A pure-Python decoder that reproduces `nvdisasm`'s text exactly:
 
@@ -98,11 +111,11 @@ uv run sass-decode --arch SM89 0278050004000000000f000000e20f00 47790000f0270000
 ```
 
 ```
-        /*0000*/  MOV R5, 0x4 ;                        /* 0278050004000000000f000000e20f00 */
-        /*0010*/  BRA 0x2810 ;                         /* 47790000f02700000000800300ea0f00 */
+        /*0000*/  MOV R5, 0x4 ;                                                /* 0278050004000000000f000000e20f00 */
+        /*0010*/  BRA 0x2810 ;                                                 /* 47790000f02700000000800300ea0f00 */
 ```
 
-It runs on the committed `out/` files with no dependencies. `--float-hex` prints float
+It runs on the committed `src/sass/md/data/` files with no dependencies. `--float-hex` prints float
 immediates as raw bits, the way the Ghidra decoder does. From Python:
 
 ```python
@@ -113,32 +126,34 @@ d.klass.name  # 'imad_pseudo__RRR_RRR' (the md CLASS that matched)
 d.env         # decoded field values, e.g. d.env["Rd"] == 16
 ```
 
+`sass.provenance.evidence("SM89", word)` says which evidence ran a word's class and modifier form,
+e.g. `{"gpu": {"SM89", "SM90"}, "reference": {"SM89"}}`, from the committed
+`processor/SASS/semantics/evidence.json`; the wheel leaves it out (85 MB), so outside a checkout
+point `$SASS_EVIDENCE` at a copy.
 Words that don't decode raise `pydecode.NoMatch`. The rules it implements (how classes are
 matched, which md conventions `nvdisasm` honours, and its printing quirks) are listed in
 [`docs/decoding.md`](docs/decoding.md).
 
-### Ghidra processor (`processor/SASS/`)
+## Ghidra processor (`processor/SASS/`)
 
-Build and install with Python 3 and a working Ghidra installation. The generator
-uses the committed `out/` descriptions, so extracting `nvdisasm` again is unnecessary.
-The commands below use the native Linux compiler; this project has been tested with
-Ghidra 12.1.4.
+Build and install with Python 3 and a working Ghidra installation (tested with Ghidra 12.2, which needs Java 25).
+The generator uses the committed `src/sass/md/data/` descriptions.
 
-1. From the repository root, set your Ghidra installation path and build all nine
-   architecture languages:
+1. From the repository root, set your Ghidra installation path and build the languages
+   for every architecture:
 
    ```sh
-   export GHIDRA_INSTALL_DIR=/path/to/ghidra_12.1.4_PUBLIC
+   export GHIDRA_INSTALL_DIR=/path/to/ghidra_12.2_PUBLIC
    uv run sass-build-languages
    ```
 
    To build only selected architectures, pass them as arguments, for example
-   `uv run sass-build-languages SM89 SM90`. The default uses Ghidra's
-   `support/sleigh` launcher (`support/sleigh.bat` on Windows). For another compiler
-   location, pass `--sleigh /path/to/sleigh` (or `sleigh.exe`). The build generates
-   `.slaspec`, `.sla`, `sass.ldefs`, and coverage manifests in
-   `processor/SASS/data/languages/`, and checks compiler diagnostics and Ghidra's
-   decompressed language size limit.
+   `uv run sass-build-languages SM89 SM90`; `--fp exact` or `--fp readable` builds
+   one floating-point variant (default: both). Detailed semantic coverage is opt-in
+   with `--coverage`; normal builds write only the small runtime calling-convention
+   manifest. The SLEIGH compiler defaults to Ghidra's `support/sleigh` launcher
+   (`support/sleigh.bat` on Windows); pass `--sleigh /path/to/sleigh` (or `sleigh.exe`)
+   to use another.
 
 2. Close Ghidra and copy the complete processor module into its installation:
 
@@ -146,108 +161,33 @@ Ghidra 12.1.4.
    cp -a processor/SASS "$GHIDRA_INSTALL_DIR/Ghidra/Processors/"
    ```
 
-   The destination must be writable; use the permissions appropriate for your
-   installation. When updating, replace the installed `SASS` directory with the
-   newly built module. Keep `.sla`, `.slaspec`, `sass_common.sinc`, `sass.pspec`,
-   `sass.cspec`, and `sass.ldefs` from the same build together. Mixing versions can
-   fail at import with `Unknown register: R1`.
+   When updating, replace the installed `SASS` directory with the newly built module.
+   Keep `.sla`, `.slaspec`, `sass_common.sinc`, `sass.pspec`, `sass.cspec`, and
+   `sass.ldefs` from the same build together. Mixing versions can fail at import with
+   `Unknown register: R1`.
 
-3. Restart Ghidra. Import raw SASS instruction bytes using **Raw Binary**, then
-   choose **SASS**, **little endian**, **64 bit**, and the matching variant (such
-   as `sm89`, language ID `SASS:LE:64:sm89`). Each architecture also has a
-   `smXX_readable` variant. It writes floating-point arithmetic as the plain
+3. Restart Ghidra and import a `.cubin` (extract one from a fat binary with
+   `cuobjdump -xelf`). Ghidra's ELF loader recognizes it and picks the language
+   `SASS:LE:64:smXX` from the ELF header. Each architecture also has a
+   `smXX_readable` variant, which writes floating-point arithmetic as the plain
    formula (`a f* b f+ c`), ignoring rounding modes, denormal flushing, fused
-   rounding and NaN/signed-zero selection. The default variant computes
-   hardware-exact results. Each instruction is 16 bytes. Use the
-   kernel's extracted `.text.*` bytes and its code address; importing a whole cubin
-   as raw bytes includes ELF headers and other sections. This module supplies the
-   processor languages; it does not install a CUDA cubin loader or populate kernel
-   parameters automatically. Disassemble the code and run analysis to view p-code
-   and supported instruction semantics in the decompiler.
+   rounding and NaN/signed-zero selection; choose it in the import dialog's
+   Language field. The default variant computes hardware-exact results.
 
-`uv run sass-gen-sleigh SM75 SM80 ...` generates a SLEIGH spec per architecture
-(`sass_smXX.slaspec`, not committed: run the generator first) and `sass.ldefs` with languages `SASS:LE:64:smXX`
-(`--fp=readable` writes `sass_smXX_readable.slaspec`, language `SASS:LE:64:smXX_readable`). Ghidra
-compiles the `.sla` on first use. P-code preserves register reads and writes for every
-class. Instruction semantics add native integer, move, memory, control-flow and
-floating-point overrides, plus runtime primitives for other floating-point and warp
-operations. Unsupported variants retain explicit opaque calls. Operand values,
-coverage, runtime interfaces and verification commands are documented in
-[`docs/semantics.md`](docs/semantics.md).
-Predicates print glued to the mnemonic
-(`@P0:IMAD ...`) because SLEIGH can't put a space there, and float immediates print as raw bits.
-Computed 64-bit immediates may print as negative hexadecimal; the comparison tool checks
-their bits modulo 2^64 for `MOV.64`, `UMOV.64`, and `MOV64IUR`.
+Semantics, their coverage and their limits are documented in
+[`docs/semantics.md`](docs/semantics.md); generator details and Ghidra quirks in
+[`docs/sleigh.md`](docs/sleigh.md).
 
-Modifier-dependent spans are exact, including zero and non-power-of-two counts, and
-are selected inside per-class semantic subtables. Shared display fields and positive bit
-constraints keep compiled languages below Ghidra's 16 MiB decompressed `.sla` limit.
-Operand types identify register resources: an immediate with a register-like latency
-connector (such as IPA's attribute offset) is not treated as a register. Spans extending
-past the register bank use a sink so unusual words still decode; their dataflow is undefined.
+## Development
 
-For a scratch build, run `uv run sass-build-languages SM89 --output /tmp/sass-languages`
-(the build copies shared definitions automatically), then set
-`SASS_SLEIGH_OUT=/tmp/sass-languages` when running Ghidra tests. When using
-`sass.sleigh.gen` directly, copy `sass_common.sinc`, `sass.pspec`, and `sass.cspec`
-to the scratch directory first. Register dataflow is checked by
-`uv run pytest tests -m ghidra -k dataflow` (requires pyghidra; see Testing).
-
-### GPU semantics oracle
-
-`uv run pytest tests -m gpu --require-gpu` compiles 100 SM89 CUDA kernels
-(and patched variants), runs them on the GPU, then executes the same kernel text in Ghidra's p-code
-emulator. It checks 12,800 random/edge output values, including address setup,
-constant parameters, memory operations, predication, and loops. Patched fixtures
-select specific FP16 lane/MMA modes and FMNMX NaN modes; both the GPU and emulator
-execute the resulting cubin. A 64-bit PTX comparison checks the ptxas ISETP.EX
-lowering. F2FP fixtures cover packed F16/BF16 RN/RZ, E4M3/E5M2 FP8 packing
-with H1 C merges, and E4M3/E5M2 FP8-to-F16 UNPACK_B H0/H1 across all byte
-encodings. See
-[semantic coverage and limitations](docs/semantics.md) for the
-verified modes and excluded warp/concurrency operations.
-
-### Testing against nvdisasm
-
-The tests use `nvdisasm -b SMxx` as an oracle, over three corpora:
-
-- **real**: every instruction in the cubins inside the CUDA libraries (`cuobjdump -xelf`
-  of cuBLASLt, cuSPARSE, ...), about 3–6M unique words per architecture
-- **synthetic**: 64 random words per md class that satisfy its encoding constraints
-- **mutated**: real words with one or two bits flipped
-
-```sh
-uv run sass-compare-pydecode SM89 real 0       # pydecode vs nvdisasm (0 = whole corpus)
-uv run sass-compare-ghidra SM89 synthetic 0    # Ghidra (generated SLEIGH) vs pydecode
-uv run pytest tests                    # layers 0-1: helpers, per-class ratchet vs tests/baseline/
-uv run pytest tests -m ghidra --arch all --fp all   # layers 2-4 (compiled languages)
-uv run pytest tests -m gpu --require-gpu            # layer 5 (SM89 GPU)
-```
-
-`nvdisasm` results are cached in `.cache/oracle.sqlite`. Tool locations live in `src/sass/paths.py`:
-`NVDISASM` (default: the CUDA 13.4 copy in uv's cache or `/tmp/.venv`), `NVCC`, `CUOBJDUMP`,
-`GHIDRA_PY` and `SASS_SLEIGH_OUT` override them.
-
-Current results (CUDA 13.4 `nvdisasm`):
-
-- pydecode matches `nvdisasm` on every real word for all eight architectures that have
-  cubins (about 38M words), and on all synthetic and mutated words except 17 SM75
-  HMMA words. Some valid encodings print as blank lines in `nvdisasm`; the cause is
-  still unknown, so those are excluded from the counts.
-- The generated SLEIGH matches pydecode on every SM75 and SM89 word in all three corpora.
-  The other architectures are still being run.
-
-## Other findings
-
-- Opcode and operand names inside the binary are ROT13-obfuscated, so `strings` finds none.
-- The default "dataflow analysis" models the pre-Volta branch stack (SSY/PBK/PCNT/PRET/...
-  pushes, SYNC/BRK/CONT/RET/... pops) to infer the targets of indirect branches, which it
-  prints as `TARGET=` annotations. `--print-life-ranges` builds on the same framework,
-  using the connector def/use data above.
-
-Function addresses and details are in [`docs/nvdisasm-binary.md`](docs/nvdisasm-binary.md).
+[`AGENTS.md`](AGENTS.md) maps the source tree and the workflow for adding semantics;
+[`tests/README.md`](tests/README.md) describes the tests (`uv run pytest`, plus Ghidra and GPU
+markers). Reverse-engineering findings live in [`docs/`](docs/): the `nvdisasm` binary
+([`nvdisasm-binary.md`](docs/nvdisasm-binary.md)), hardware-established behavior
+([`hardware-facts.md`](docs/hardware-facts.md)), the test harness ([`testing.md`](docs/testing.md))
+and open questions ([`open.md`](docs/open.md)).
 
 ## Disclaimer
 
 Independent interoperability research. Not affiliated with or endorsed by NVIDIA. The
-contents of `out/` are derived from NVIDIA's `nvdisasm` binary.
+contents of `src/sass/md/data/` are derived from NVIDIA's `nvdisasm` binary.

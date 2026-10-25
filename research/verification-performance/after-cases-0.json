@@ -1,0 +1,74 @@
+{
+  "operation": "cases",
+  "arch": "SM89",
+  "architectures": [
+    "SM75",
+    "SM80",
+    "SM86",
+    "SM89",
+    "SM90",
+    "SM100",
+    "SM101",
+    "SM103",
+    "SM107",
+    "SM120"
+  ],
+  "classes": [
+    "ld__sImmOffset",
+    "hfma2__RRR"
+  ],
+  "sample": 0,
+  "runs": [
+    {
+      "wall_seconds": 0.958134004031308,
+      "cpu_seconds": 1.004302,
+      "peak_process_rss_kib": 119808,
+      "counts": {
+        "forms": 191,
+        "cases": 191
+      },
+      "load": [
+        2.30078125,
+        7.1513671875,
+        12.30322265625
+      ],
+      "workers": 32,
+      "sampled_tree_cpu_seconds": 1.05,
+      "sampled_tree_peak_rss_kib": 94668
+    },
+    {
+      "wall_seconds": 0.5774662039475515,
+      "cpu_seconds": 0.630732,
+      "peak_process_rss_kib": 97644,
+      "counts": {
+        "forms": 191,
+        "cases": 191
+      },
+      "load": [
+        2.75732421875,
+        7.16552734375,
+        12.27978515625
+      ],
+      "workers": 32,
+      "sampled_tree_cpu_seconds": 0.68,
+      "sampled_tree_peak_rss_kib": 97644
+    },
+    {
+      "wall_seconds": 0.5661524819443002,
+      "cpu_seconds": 0.61991,
+      "peak_process_rss_kib": 97828,
+      "counts": {
+        "forms": 191,
+        "cases": 191
+      },
+      "load": [
+        2.75732421875,
+        7.16552734375,
+        12.27978515625
+      ],
+      "workers": 32,
+      "sampled_tree_cpu_seconds": 0.67,
+      "sampled_tree_peak_rss_kib": 97828
+    }
+  ]
+}

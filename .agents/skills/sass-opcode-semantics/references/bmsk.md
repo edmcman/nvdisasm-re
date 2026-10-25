@@ -1,8 +1,9 @@
 # BMSK worked example
 
-This is the investigation performed in `/home/ed/Projects/nvdisasm-re` on
-2026-10-11. Addresses are historical evidence for the pinned binary, not
-portable identifiers. Consult the maintained repository notes for updates.
+This is the investigation performed on 2026-10-11, kept as a snapshot. Addresses
+are historical evidence for the pinned ptxas binary, not portable identifiers, and
+the counts below are that day's. The maintained notes are
+`research/ptxas/ptxas-finalizer-notes.md` and `docs/semantics.md` (BMSK).
 
 ## Compiler and path
 
@@ -24,10 +25,10 @@ of evidence.
 
 ## Probes and reproducible captures
 
-Repository artifacts:
+Repository artifacts (the PTX moved to `tests/ptx/` after the investigation):
 
-- `research/ptxas/bmsk_clamp.ptx`
-- `research/ptxas/bmsk_wrap.ptx`
+- `tests/ptx/bmsk/bmsk_clamp.ptx`
+- `tests/ptx/bmsk/bmsk_wrap.ptx`
 - `research/ptxas/bmsk_clamp_finalizer.jsonl`
 - `research/ptxas/bmsk_wrap_finalizer.jsonl`
 
@@ -45,7 +46,7 @@ To capture one probe, run from the repository root with a fresh JSONL path:
 PTXAS_CAPTURE=/tmp/bmsk-clamp-new.jsonl gdb -q -batch \
   -ex 'source research/ptxas/capture_finalizer.py' \
   -ex run --args /usr/local/cuda-13.0/bin/ptxas \
-  -arch=sm_100 research/ptxas/bmsk_clamp.ptx -o /tmp/bmsk-clamp-new.cubin
+  -arch=sm_100 tests/ptx/bmsk/bmsk_clamp.ptx -o /tmp/bmsk-clamp-new.cubin
 python3 research/ptxas/validate_capture.py /tmp/bmsk-clamp-new.jsonl /tmp/bmsk-clamp-new.cubin
 ```
 
@@ -81,9 +82,12 @@ Specification: [PTX bmsk](https://docs.nvidia.com/cuda/parallel-thread-execution
 
 ## Implementation and verification
 
-`src/sass/semantics/operations.py::emit_BMSK` supports register, uniform-register, immediate
-and ordinary constant-bank width operands. It retains the unresolved CX form
-as an opaque fallback. UBMSK was not added in this change.
+The BMSK family (now `bmsk` in `src/sass/semantics/families/integer.py`; originally
+`emit_BMSK` in `operations.py`) supported register, uniform-register, immediate
+and ordinary constant-bank width operands, and kept the then-unresolved CX form as
+an opaque fallback. UBMSK was not added in this change. The CX form has since gained
+native P-code on SM75-SM90 with its own patched-SASS GPU fixtures
+(`tests/kernels/bmsk_cx_semantics.cu`); see `docs/semantics.md`.
 
 The fixtures are `tests/cases/bmsk.py` and `tests/kernels/bmsk_semantics.cu`.
 Focused value tests can run as:
@@ -112,6 +116,5 @@ Recorded results for the completed investigation:
   decompressed; the largest was SM90 exact at 12,190,260 bytes.
 
 Hardware evidence covers SM89 register-input kernels. Other operand forms and
-architectures have emulator evidence. Full records are in
-`processor/SASS/semantics/verification.json` and the trace is in
+architectures have emulator evidence. The trace is in
 `research/ptxas/ptxas-finalizer-notes.md`.

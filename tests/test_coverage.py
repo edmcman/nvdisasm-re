@@ -1,7 +1,7 @@
 """The committed semantic coverage summary matches the generated languages' manifests."""
 import json
 import pytest
-from sass.sleigh import coverage
+from sass.sleigh import coverage, modifiers
 from sass.paths import LANGUAGES, ROOT
 
 SUMMARY = ROOT / "processor/SASS/semantics/coverage.json"
@@ -10,7 +10,19 @@ SUMMARY = ROOT / "processor/SASS/semantics/coverage.json"
 @pytest.mark.ghidra
 def test_coverage(request):
     now = coverage.summarize(LANGUAGES)
-    if request.config.getoption("--update-baseline"): SUMMARY.write_text(json.dumps(now, indent=2, sort_keys=True) + "\n")
+    if request.config.getoption("--update-baseline"): coverage.write(LANGUAGES, SUMMARY)
     committed = json.loads(SUMMARY.read_text())
     differ = {arch: [k for k in now[arch] if now[arch][k] != committed.get(arch, {}).get(k)] for arch in now if now[arch] != committed.get(arch)}
-    assert not differ and set(now) == set(committed), f"coverage.json is stale (python -m sass.sleigh.coverage {LANGUAGES} --output {SUMMARY}): {differ}"
+    assert not differ and set(now) == set(committed), f"coverage.json is stale ({coverage.REFRESH}): {differ}"
+
+
+def test_committed_evidence_forms_round_trip():
+    e = dict(gpu=['cases/fp32'], reference=3, modifiers=['ftz', 'rnd'],
+             forms=dict(gpu=[['FTZ', 'RN']], ptxas=[[None, 'RZ']], reference=[['FTZ', 'RN'], ['noftz', 'RZ']]))
+    packed = modifiers.compact(e)
+    assert packed['labels'] == [['FTZ', 'noftz', None], ['RN', 'RZ']]
+    assert packed['forms'] == {'gpu+reference': ['00'], 'ptxas': ['21'], 'reference': ['11']}
+    assert modifiers.expand(packed) == e
+    assert modifiers.compact({'reference': 1}) == modifiers.expand({'reference': 1}) == {'reference': 1}
+    empty = dict(modifiers=[], forms=dict(gpu=[[]]))
+    assert modifiers.compact(empty)['forms'] == {'gpu': ['']} and modifiers.expand(modifiers.compact(empty)) == empty

@@ -1,49 +1,31 @@
 """Execute generated instruction p-code with Ghidra's PcodeEmulator.
 
 Run under pyghidra's Python. stdin JSON lines: word, address, registers,
-memory [{space,address,hex}], observe registers/memory, optional runtime context.
+memory [{space,address,hex}], observe registers/memory, optional runtime context; or a whole-kernel
+request (`sass.launch.kernel_request`), whose kernel.trace adds each step's register writes for
+the first kernel.trace_threads threads. In-process callers start the JVM and use `session`.
 """
-import json,sys,os
+import json,sys
+from collections import Counter
 from pathlib import Path
 sys.path[:0]=[str(Path(__file__).parent),str(Path(__file__).parents[2])]
 import pyghidra
-from ghidra_decode import GHIDRA,load_language,parse
+from ghidra_decode import GHIDRA,java_class,load_language,parse
+from sass.emulate import schedule
 from sass.semantics.runtime import Runtime
 
-# Warp collectives: the runtime warp-context key and the operand each lane contributes.
-WARP_INPUTS={'SHFL':('values','Ra'),'VOTE':('predicates','Pp')}
 
-
-def block_emulator(jpype):
-    """src/sass/ghidra_bridge/BlockEmulator.java, compiled against this Ghidra into the cache and loaded beside it."""
-    import hashlib,subprocess,tempfile
-    from sass.paths import CACHE
-    from java.io import File
-    from java.net import URL,URLClassLoader
-    from java.lang import Class
-    from ghidra.pcode.emu import PcodeEmulator
-    source=Path(__file__).parent/'BlockEmulator.java'
-    out=CACHE/'java'/hashlib.sha256(source.read_bytes()+GHIDRA.encode()).hexdigest()[:16]
-    if not out.exists():
-        jars=':'.join(map(str,Path(GHIDRA,'Ghidra').rglob('*.jar')))
-        tmp=tempfile.mkdtemp(dir=out.parent.mkdir(parents=True,exist_ok=True) or out.parent)
-        subprocess.run(['javac','-proc:none','-nowarn','-cp',jars,'-d',tmp,str(source)],check=True)
-        try:os.rename(tmp,out)
-        except OSError:pass   # a concurrent process compiled it first
-    loader=URLClassLoader(jpype.JArray(URL)([File(str(out)).toURI().toURL()]),PcodeEmulator.class_.getClassLoader())
-    return jpype.JClass(Class.forName('sass.BlockEmulator',True,loader))
-
-
-def main(ldefs,langid):
-    pyghidra.start(install_dir=GHIDRA)
+def session(ldefs,langid):
+    """A request handler (request dict -> result dict) for one language; the JVM must be running."""
     import jpype
-    from java.util import HashMap,ArrayList
-    from java.lang import Class
+    from java.util import HashMap
     from ghidra.pcode.emu import PcodeEmulator
-    from ghidra.pcode.exec import PcodeUseropLibrary,PcodeExecutorStatePiece
+    from ghidra.pcode.exec import PcodeProgram,PcodeUseropLibrary,PcodeExecutorStatePiece
     from ghidra.program.model.pcode import Varnode
-    lang=load_language(ldefs,langid);space=lang.getDefaultSpace();variant=langid.rsplit(':',1)[1];arch=variant.split('_')[0].upper();runtime=Runtime(Path(ldefs).parent,int(arch[2:]),variant=variant)
+    lang=load_language(ldefs,langid);space=lang.getDefaultSpace();variant=langid.rsplit(':',1)[1];arch=variant.split('_')[0].upper();runtime=Runtime(int(arch[2:]))
     reason=PcodeExecutorStatePiece.Reason.INSPECT
+    from sass.sleigh.registers import REG_FILES
+    architectural=[(name,lang.getRegister(name)) for file,(_,_,count,zero,_) in REG_FILES.items() for i in range(count) if i!=zero for name in [file+str(i)]]
     definition=jpype.JClass('ghidra.pcode.exec.PcodeUseropLibrary$PcodeUseropDefinition')
     refs=[]
     class Userop:
@@ -51,6 +33,9 @@ def main(ldefs,langid):
         def getName(self):return self.name
         def getInputCount(self):return -1
         def isFunctional(self):return False
+        def canInterrupt(self):return False
+        def isOutSigned(self):return False
+        def isInSigned(self,i):return False
         def hasSideEffects(self):return True
         def modifiesContext(self):return False
         def canInlinePcode(self):return False
@@ -79,142 +64,100 @@ def main(ldefs,langid):
     # library field is protected; composing it preserves Ghidra's built-in ops.
     thread_class=jpype.JClass('ghidra.pcode.emu.DefaultPcodeThread')
     library_field=thread_class.class_.getDeclaredField('library');library_field.setAccessible(True)
-    class Lazy:
-        def __call__(self,language):
-            if not hasattr(self,'cls'):self.cls=block_emulator(jpype)
-            return self.cls(language)
-    BlockEmulator=Lazy()
+    BlockEmulator=java_class('BlockEmulator')
     def write_memory(state,memory):
         for mem in memory:
             sp=lang.getAddressFactory().getAddressSpace(mem['space']);data=bytes.fromhex(mem['hex'])
             state.setVar(Varnode(sp.getAddress(mem['address']),len(data)),jpype.JArray(jpype.JByte)(data))
-    def operand(state,d,name):
-        """A decoded register operand's value in a thread's state; the zero registers (RZ, PT, ...)
-        are hardwired in p-code, not stored, so they read as their constants."""
-        from sass.sleigh.gen import ENUM_FILE, REG_FILES
-        file=ENUM_FILE[d.klass.operand_types[name].type];zero=REG_FILES[file][3]
-        if d.env[name]==zero:return int(file in ('P','UP'))
-        return int.from_bytes(bytes(state.getVar(lang.getRegister(file+str(d.env[name])),reason)),'little')
-    def run_kernel(request):
-        """Threads start at the kernel entry and run to EXIT, each with its own emulator. With
-        kernel.cooperative, a block shares one emulator (BlockEmulator: common memory, private
-        localmem); its warps take turns, each turn stepping the live lanes at the warp's lowest PC
-        together (they form the active mask; a warp collective first gathers each lane's operand,
-        WARP_INPUTS), and BAR.SYNC holds a thread until every live thread of the block arrives
-        (barrier ids and thread counts are not modelled). Blocks run one after another."""
-        from sass.decode import pydecode
-        kernel=request['kernel'];code=bytes.fromhex(kernel['code']);base=int(kernel.get('address',0x100000))
-        count=int(kernel['threads']);block=int(kernel.get('block_size',32));outputs=[];steps=0;visited=set()
-        max_steps=int(kernel.get('max_steps',10000));name=kernel.get('name');cooperative=bool(kernel.get('cooperative'))
-        if count<=0 or block<=0 or max_steps<=0 or not code or len(code)%16:
-            raise ValueError('invalid kernel launch or instruction text')
-        decoded={}
-        def decode(pc):
-            if pc not in decoded:decoded[pc]=pydecode.decode(arch,code[pc-base:pc-base+16])
-            return decoded[pc]
-        def start(emulator,lane,first):
-            thread=emulator.newThread(f'thread {lane}');state=thread.getState()
-            library_field.set(thread,thread.getUseropLibrary().compose(lib))
-            if first:write_memory(state,request.get('memory',[])+[dict(space='ram',address=base,hex=code.hex())])
-            thread.overrideCounter(space.getAddress(base))
-            # Registers start at Ghidra's default zero value. Seed only launch
-            # inputs; hardwired RZ/PT come from the generated language.
-            for reg,value in {'SR_TID.X':lane%block,'SR_TID.Y':0,'SR_TID.Z':0,'SR_CTAID.X':lane//block,'SR_CTAID.Y':0,'SR_CTAID.Z':0}.items():
-                state.setVar(lang.getRegister(reg),jpype.JArray(jpype.JByte)(value.to_bytes(4,'little')))
-            return dict(lane=lane,thread=thread,state=state,last=base,steps=0,waiting=False,released=False)
-        counter=lambda t:int(t['thread'].getCounter().getOffset())
-        def step(t,pc,context):
-            if t['steps']>=max_steps:raise RuntimeError(f'kernel instruction limit ({max_steps}) at {pc:#x}, thread {t["lane"]}')
-            runtime.context=context;runtime.events=[];runtime.last_error=None;t['last']=pc
-            try:t['thread'].stepInstruction()
-            except Exception as error:
-                runtime.last_error=f'kernel {name} thread {t["lane"]} at {pc-base:#x}: {runtime.last_error or error}'
-                raise RuntimeError(runtime.last_error) from error
-            t['steps']+=1
-        def turn(warp):
-            """One lockstep instruction of a warp; False if none of its lanes could move."""
-            live=[t for t in warp if counter(t)!=0 and not t['waiting']]
-            if not live:return False
-            pc=min(map(counter,live));active=[t for t in live if counter(t)==pc]
-            if not base<=pc<base+len(code) or (pc-base)%16:
-                raise RuntimeError(f'kernel {name} thread {active[0]["lane"]}: PC outside kernel {pc:#x}')
-            inputs=None;visited.add(pc-base);d=decode(pc);context=dict(request.get('context',{}))
-            guarded=cooperative and 'Pg' in d.klass.operand_types
-            taking=[t for t in active if operand(t['state'],d,'Pg')^d.env.get(('Pg','not'),0)] if guarded else active
-            if cooperative and d.klass.name.startswith('bar__SYNC') and not all(t['released'] for t in taking):
-                for t in taking:t['waiting']=True
-                active=[t for t in active if t not in taking]
-            elif inputs:=WARP_INPUTS.get(d.klass.mnemonic) if cooperative else None:
-                key,source=inputs;values=[0]*32
-                for t in taking:values[t['lane']%32]=operand(t['state'],d,source)
-                context['warp']={'active':sum(1<<t['lane']%32 for t in taking),key:values}
-            for t in active:
-                step(t,pc,dict(context,warp=dict(context['warp'],lane=t['lane']%32)) if inputs else context)
-                t['released']=False
-            return True
-        if cooperative and block%32:raise ValueError('cooperative execution requires whole 32-thread warps')
-        for group in ([range(b,min(b+block,count)) for b in range(0,count,block)] if cooperative else [[t] for t in range(count)]):
-            emulator=BlockEmulator(lang) if cooperative else PcodeEmulator(lang)
-            lanes=[start(emulator,t,i==0 or not cooperative) for i,t in enumerate(group)]
-            warps=[lanes[i:i+32] for i in range(0,len(lanes),32)]
-            while live:=[t for t in lanes if counter(t)!=0]:
-                if all(t['waiting'] for t in live):
-                    for t in live:t['waiting'],t['released']=False,True
-                if not any([turn(w) for w in warps]):
-                    raise RuntimeError(f'kernel {name}: no thread can proceed')
-            steps+=sum(t['steps'] for t in lanes)
-            for t in lanes:
-                if decode(t['last']).klass.mnemonic!='EXIT':raise RuntimeError('kernel terminated without EXIT')
-                out=request['output'];offset=int(out['address'])+t['lane']*int(out.get('stride',4));size=int(out.get('size',4))
-                outputs.append(bytes(t['state'].getVar(Varnode(space.getAddress(offset),size),reason)).hex())
-        return dict(outputs=outputs,threads=count,steps=steps,visited=sorted(visited),exit='EXIT')
-    for line in sys.stdin:
-        request=json.loads(line)
-        try:
-            if 'kernel' in request:
-                out=run_kernel(request);print(json.dumps(out),flush=True);continue
-            emulator=PcodeEmulator(lang);thread=emulator.newThread();state=thread.getState()
-            address=int(request.get('address',0x1000));addr=space.getAddress(address)
-            thread.overrideCounter(addr)
-            runtime.context=request.get('context',{});runtime.events=[];runtime.last_error=None
-            # Initialize architectural registers, so tests may also inspect untouched ones.
-            from sass.sleigh.gen import REG_FILES
-            for file,(_,size,count,zero,zero_name) in REG_FILES.items():
-                for i in range(count):
-                    name=zero_name if i==zero else file+str(i)
-                    reg=lang.getRegister(name)
-                    initial=1 if name in ('PT','UPT') else 0
-                    state.setVar(reg,jpype.JArray(jpype.JByte)(initial.to_bytes(size,'little')))
-                if zero>=count:
-                    state.setVar(lang.getRegister(zero_name),jpype.JArray(jpype.JByte)(bytes(size)))
-            for name,value in request.get('registers',{}).items():
-                reg=lang.getRegister(name);size=int(reg.getMinimumByteSize());value=int(value)&((1<<(size*8))-1)
-                if name in ('RZ','URZ'):value=0
-                if name in ('PT','UPT'):value=1
-                state.setVar(reg,jpype.JArray(jpype.JByte)(value.to_bytes(size,'little')))
-            write_memory(state,request.get('memory',[]))
-            ins=parse(lang,addr,bytes.fromhex(request['word']))
-            program=ArrayList()
-            for op in ins.getPcode():program.add(op)
-            # Execute with the actual Ghidra byte arithmetic and state machinery.
-            thread.overrideCounter(space.getAddress(address+16))
-            thread.getExecutor().execute(program,HashMap(),lib)
-            registers={}
-            for name in request.get('observe',[]):
-                registers[name]=int.from_bytes(bytes(state.getVar(lang.getRegister(name),reason)),'little')
-            memories=[]
-            for mem in request.get('observe_memory',[]):
-                sp=lang.getAddressFactory().getAddressSpace(mem['space'])
-                data=bytes(state.getVar(Varnode(sp.getAddress(mem['address']),mem['size']),reason))
-                memories.append(dict(mem,hex=data.hex()))
-            out=dict(text=str(ins),registers=registers,memory=memories,counter=int(thread.getCounter().getOffset()),events=runtime.events)
-            if request.get('inspect_pcode'):
-                out['pcode_ops']=[str(op.getMnemonic()) for op in ins.getPcode()]
+    def value(state,r):return int.from_bytes(bytes(state.getVar(r,reason)),'little')
+    named={int(r.getOffset()):(n,r) for n,r in architectural}
+    class GhidraLane:
+        """A thread of a Ghidra emulator, stepped by `schedule.run_kernel`."""
+        def __init__(self,kernel,thread):self.kernel,self.thread,self.state=kernel,thread,thread.getState()
+        def pc(self):return int(self.thread.getCounter().getOffset())
+        def read(self,file,index):return value(self.state,lang.getRegister(file+str(index)))
+        def seed(self,name,v):self.state.setVar(lang.getRegister(name),jpype.JArray(jpype.JByte)(v.to_bytes(4,'little')))
+        def step(self,decoded,context):
+            runtime.context=context;runtime.events=[];runtime.last_error=None
+            try:self.thread.stepInstruction()
+            except Exception as error:raise schedule.Fault(runtime.last_error or str(error)) from error
+        def writes(self,pc):return {n:value(self.state,r) for n,r in self.kernel.destinations(pc)}
+    class KernelEngine:
+        """One request's emulators: a BlockEmulator (common memory, private localmem) per cooperative
+        block, a PcodeEmulator per thread otherwise."""
+        def __init__(self,request):
+            kernel=request['kernel'];self.code=bytes.fromhex(kernel['code']);self.base=int(kernel.get('address',0x100000))
+            self.memory=request.get('memory',[])+[dict(space='ram',address=self.base,hex=self.code.hex())];self.written={}
+        def group(self,threads,cooperative):
+            emulator=BlockEmulator(lang) if cooperative else PcodeEmulator(lang);lanes=[]
+            for i,t in enumerate(threads):
+                thread=emulator.newThread(f'thread {t}')
+                library_field.set(thread,thread.getUseropLibrary().compose(lib))
+                if i==0:write_memory(thread.getState(),self.memory)
+                thread.overrideCounter(space.getAddress(self.base));lanes.append(GhidraLane(self,thread))
+            return lanes
+        def output(self,lane,address,size):return bytes(lane.state.getVar(Varnode(space.getAddress(address),size),reason))
+        def destinations(self,pc):
+            """The architectural registers the instruction at pc writes: its p-code's register outputs."""
+            if pc not in self.written:
+                outs=[(int(v.getOffset()),int(v.getSize())) for op in parse(lang,space.getAddress(pc),self.code[pc-self.base:pc-self.base+16]).getPcode()
+                      if (v:=op.getOutput()) is not None and v.isRegister()]
+                self.written[pc]=list(dict.fromkeys(named[o+k] for o,size in outs for k in range(size) if o+k in named))
+            return self.written[pc]
+    true_registers=[(lang.getRegister(name),jpype.JArray(jpype.JByte)(b'\x01'+bytes(REG_FILES[file][1]-1)))
+                    for file,name in (('P','PT'),('UP','UPT')) if file in REG_FILES]
+    def instruction(request):
+        emulator=PcodeEmulator(lang);thread=emulator.newThread();state=thread.getState()
+        address=int(request.get('address',0x1000));addr=space.getAddress(address)
+        thread.overrideCounter(addr)
+        runtime.context=request.get('context',{});runtime.events=[];runtime.last_error=None
+        # Architectural registers start at Ghidra's default zero value, so tests may also inspect
+        # untouched ones; only PT/UPT start nonzero.
+        for reg,value in true_registers:state.setVar(reg,value)
+        for name,value in request.get('registers',{}).items():
+            reg=lang.getRegister(name);size=int(reg.getMinimumByteSize());value=int(value)&((1<<(size*8))-1)
+            if name in ('RZ','URZ'):value=0
+            if name in ('PT','UPT'):value=1
+            state.setVar(reg,jpype.JArray(jpype.JByte)(value.to_bytes(size,'little')))
+        write_memory(state,request.get('memory',[]))
+        ins=parse(lang,addr,bytes.fromhex(request['word']))
+        program=PcodeProgram.fromInstruction(ins,False);ops=program.getCode()
+        # Execute with the actual Ghidra byte arithmetic and state machinery.
+        thread.overrideCounter(space.getAddress(address+16))
+        # Composed, as in kernels: Java then runs the default methods (12.2's getSymbols), which JPype 1.5.2 proxies cannot.
+        thread.getExecutor().execute(program,thread.getUseropLibrary().compose(lib))
+        registers={}
+        for name in request.get('observe',[]):
+            registers[name]=int.from_bytes(bytes(state.getVar(lang.getRegister(name),reason)),'little')
+        memories=[]
+        for mem in request.get('observe_memory',[]):
+            sp=lang.getAddressFactory().getAddressSpace(mem['space'])
+            data=bytes(state.getVar(Varnode(sp.getAddress(mem['address']),mem['size']),reason))
+            memories.append(dict(mem,hex=data.hex()))
+        out=dict(text=str(ins),registers=registers,memory=memories,counter=int(thread.getCounter().getOffset()),events=runtime.events)
+        if request.get('inspect_pcode'):
+            out['pcode_ops']=dict(Counter(str(op.getMnemonic()) for op in ops))
+            out['pcode_userops']=[str(lang.getUserDefinedOpName(int(op.getInput(0).getOffset())))
+                                  for op in ops if str(op.getMnemonic())=='CALLOTHER']
+        return out
+    def handle(request):
+        try:return schedule.run_kernel(request,KernelEngine(request),arch) if 'kernel' in request else instruction(request)
         except Exception as error:
             import traceback
             traceback.print_exc(file=sys.stderr)
-            out={'error':runtime.last_error or str(error)}
-        print(json.dumps(out),flush=True)
+            # The scheduler's message names the kernel, thread and offset around the runtime's.
+            return {'error':str(error) if 'kernel' in request else runtime.last_error or str(error)}
+        finally:
+            # Ghidra 12.2's weak SYMBOL_CACHE values hold their keys, so every library an executor ran
+            # (each thread's, with its emulator) would stay reachable: 4-7 GB a session in CI's fixtures.
+            PcodeUseropLibrary.SYMBOL_CACHE.clear()
+    return handle
+
+
+def main(ldefs,langid):
+    pyghidra.start(install_dir=GHIDRA)
+    handle=session(ldefs,langid)
+    for line in sys.stdin:print(json.dumps(handle(json.loads(line))),flush=True)
 
 
 if __name__=='__main__':main(*sys.argv[1:])
