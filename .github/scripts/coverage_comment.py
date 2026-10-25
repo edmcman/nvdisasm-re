@@ -24,8 +24,8 @@ COMMENT_LIMIT = 60_000  # Leave room below GitHub's comment size limit.
 FIELDS = (
     ("opcodes", "Classes"),
     ("combination_status", "Modifier combinations"),
-    ("opcode_evidence", "Class verification"),
-    ("combination_evidence", "Combination verification"),
+    ("opcode_evidence", "Class evidence"),
+    ("combination_evidence", "Combination evidence"),
 )
 STATUS_COLORS = {
     "native": "🟢", "primitive": "🟡", "opaque": "🔴",
@@ -39,11 +39,13 @@ EVIDENCE_ORDER = ("gpu", "ptxas", "reference", "none")
 ORDERS = {"opcodes": STATUS_ORDER, "combination_status": STATUS_ORDER,
           "opcode_evidence": EVIDENCE_ORDER, "combination_evidence": EVIDENCE_ORDER}
 EVIDENCE_NAMES = {"gpu": "GPU", "ptxas": "ptxas", "reference": "Reference"}
+EVIDENCE_LABELS = {"gpu": "GPU checks", "ptxas": "PTX compilation",
+                   "reference": "Reference cases", "none": "No evidence"}
 # Shown when a level of evidence falls: what usually causes it and how to restore it.
 EVIDENCE_HINTS = {
-    "gpu": "A recorded GPU pass (`tests/baseline/gpu_case_passes.json`, `gpu_passes.json`) stops counting "
-           "when its family's cases or its fixture change. Re-run `uv run pytest -m gpu --require-gpu --family F` "
-           "on SM89, then `uv run sass-refresh-coverage`.",
+    "gpu": "GPU observations (`tests/baseline/gpu_observations/`) and fixture passes (`gpu_passes.json`) "
+           "must match the current cases and expectations. Re-run `nice uv run pytest -m gpu --require-gpu --family F` "
+           "on the relevant SM89 or SM90 device, then `nice uv run sass-refresh-coverage`.",
     "ptxas": "An annotated `tests/ptx` probe no longer emits these forms.",
     "reference": "Emulator cases for these forms were removed.",
 }
@@ -65,7 +67,14 @@ def trend(order, before, after, kind):
         return 0
     i = order.index(kind)
     levels = order[i:i + 1] if i == len(order) - 1 else order[:i + 1]
-    d = sum(after.get(k, 0) - before.get(k, 0) for k in levels) * (-1 if i == len(order) - 1 else 1)
+    d = sum(after.get(k, 0) - before.get(k, 0) for k in levels)
+    if order == EVIDENCE_ORDER and kind == "none":
+        scope = sum(after.values()) - sum(before.values())
+        # New modeled forms can have no checks; removed ones take their gaps with them.
+        # Neither change alone means existing evidence was lost or checks were added.
+        d = max(0, d - max(0, scope)) if d > 0 else min(0, d - min(0, scope))
+    if i == len(order) - 1:
+        d = -d
     return (d > 0) - (d < 0)
 
 
@@ -170,6 +179,16 @@ def names(ops):
     return shown + (f" and {len(ops) - LIMIT_NAMES} more" if len(ops) > LIMIT_NAMES else "")
 
 
+def evidence_gaps(old, new, op):
+    """Positive net gap changes when the opcode's modeled classes or combinations also grew."""
+    out = []
+    for field in ("opcode_evidence", "combination_evidence"):
+        before, after = old.get(field, {}).get(op, {}), new.get(field, {}).get(op, {})
+        out.append(max(0, after.get("none", 0) - before.get("none", 0))
+                   if sum(after.values()) > sum(before.values()) else 0)
+    return tuple(out)
+
+
 def callouts(compared):
     """GitHub alerts for evidence or coverage that fell, per level and architecture."""
     out, named = [], set()
@@ -192,6 +211,21 @@ def callouts(compared):
                        + "\n".join(lines) + f"\n>\n> {EVIDENCE_HINTS[kind]}\n")
     lines = []
     for arch, old, new, changed in compared:
+        gaps = {op: evidence_gaps(old, new, op) for op in changed}
+        gaps = {op: parts for op, parts in gaps.items() if any(parts)}
+        if gaps:
+            totals = [sum(parts[i] for parts in gaps.values()) for i in (0, 1)]
+            parts = [f"{what} without evidence **{d:+,}**"
+                     for what, d in zip(("classes", "combinations"), totals) if d]
+            lines.append(f"> - **{arch}**: {', '.join(parts)} · "
+                         f"{len(gaps)} {'opcode' if len(gaps) == 1 else 'opcodes'}: {names(list(gaps))}")
+    if lines:
+        out.append("> [!WARNING]\n> **Semantics grew with gaps in recorded evidence**\n>\n"
+                   + "\n".join(lines)
+                   + "\n>\n> These are net increases in modeled forms without recorded evidence. "
+                   "Add independent reference cases and record GPU checks for the added semantics.\n")
+    lines = []
+    for arch, old, new, changed in compared:
         fell = [op for op in changed if any(t < 0 for f in ("opcodes", "combination_status")
                                             for *_, t in deltas(f, old.get(f, {}).get(op, {}), new.get(f, {}).get(op, {})))]
         if fell:
@@ -202,7 +236,7 @@ def callouts(compared):
 
 
 def verification_table(compared):
-    """Per-architecture class and combination verification changes, or None when none changed."""
+    """Per-architecture class and combination evidence changes, or None when none changed."""
     rows = []
     for arch, old, new, _ in compared:
         cells = []
@@ -214,7 +248,7 @@ def verification_table(compared):
             rows.append(f"| {arch} | " + " | ".join(cells) + " |")
     if not rows:
         return None
-    return ("| Architecture | " + " | ".join(f"{STATUS_COLORS[k]} {k}" for k in EVIDENCE_ORDER) + " |\n"
+    return ("| Architecture | " + " | ".join(f"{STATUS_COLORS[k]} {EVIDENCE_LABELS[k]}" for k in EVIDENCE_ORDER) + " |\n"
             "| :--- | " + " | ".join("---:" for _ in EVIDENCE_ORDER) + " |\n" + "\n".join(rows) + "\n")
 
 
@@ -253,13 +287,17 @@ def render_legacy(base, head, base_sha, head_sha, run_url=None, repo=None):
                   for op in changed}
         worse, better = sum(-1 in t for t in trends.values()), sum(-1 not in t and 1 in t for t in trends.values())
         tally = "".join(f" · {tone(s)} {n} {word}" for s, n, word in ((-1, worse, "regressed"), (1, better, "improved")) if n)
+        gaps = sum(any(evidence_gaps(old, new, op)) for op in changed)
+        if gaps:
+            tally += f" · 🟡 {gaps} with evidence gaps"
         noun = "opcode" if len(changed) == 1 else "opcodes"
         details = [f"<details>\n<summary>{arch} · {len(changed)} changed {noun}{tally}</summary>\n", *diagrams([(arch, old, new, changed)], FIELDS)]
         # Regressions first, then improvements, then neutral changes.
         for op in sorted(changed, key=lambda op: (0 if -1 in trends[op] else 1 if 1 in trends[op] else 2, op)):
             label = " (added)" if op not in old.get("opcodes", {}) else " (removed)" if op not in new.get("opcodes", {}) else ""
             mark = "🔴 " if -1 in trends[op] else "🟢 " if 1 in trends[op] else ""
-            details.append(f"\n{mark}**{html.escape(op)}{label}**\n")
+            gap = " · 🟡 evidence gap grew" if any(evidence_gaps(old, new, op)) else ""
+            details.append(f"\n{mark}**{html.escape(op)}{label}**{gap}\n")
             details.extend(["| Metric | Before | After | Change |", "| :--- | ---: | ---: | :--- |"])
             for field, title in FIELDS:
                 b, h = old.get(field, {}).get(op, {}), new.get(field, {}).get(op, {})
@@ -268,7 +306,9 @@ def render_legacy(base, head, base_sha, head_sha, run_url=None, repo=None):
         details.append("\n</details>\n")
         sections.append("\n".join(details))
     header = (f"{MARKER}\n## 🧪 Semantic coverage\n\n" + (f"{badge(repo, head_sha)}\n\n" if repo else "")
-              + f"Comparing `{base_sha[:7]}` → `{head_sha[:7]}`" + (f" · [View CI run]({run_url})" if run_url else "") + "\n\n")
+              + f"Comparing `{base_sha[:7]}` → `{head_sha[:7]}`" + (f" · [View CI run]({run_url})" if run_url else "") + "\n\n"
+              + "Implemented semantics and recorded evidence are reported separately. Evidence includes recorded passing GPU checks, "
+              "PTX compilation, or available reference cases; it does not summarize current test results.\n\n")
     if not rows:
         body = header + "No semantic coverage changes compared with the PR base.\n"
         return {"full": body, "body": body, "changed": False}
@@ -278,18 +318,20 @@ def render_legacy(base, head, base_sha, head_sha, run_url=None, repo=None):
         coverage = "<details>\n<summary>Opcode coverage: ⚪ unchanged</summary>\n\n" + coverage + "\n</details>\n"
     verification = verification_table(compared)
     summary = (header + "".join(c + "\n" for c in callouts(compared))
-               + "### Verification changes\n\n" + (verification + "".join(diagrams(compared, FIELDS[2:])) if verification else "No verification changes.\n") + "\n"
+               + "### Recorded evidence changes\n\n" + (verification + "".join(diagrams(compared, FIELDS[2:])) if verification else "No recorded evidence changes.\n") + "\n"
                + ("### Opcode coverage\n\n" if moved else "") + coverage + "\n"
                "<details>\n<summary>How to read this report</summary>\n\n"
                "- **Opcode coverage** counts opcodes with at least one class with semantics, including partial or primitive semantics, "
                "in percentage points (pp).\n"
-               "- **Verification** counts use the strongest evidence: GPU, ptxas, reference, or none. "
+               "- **Recorded evidence** counts use the strongest evidence: GPU, ptxas, reference, or none (no evidence). "
                "Colors: 🔵 GPU · 🟤 ptxas · 🟢 reference · ⚪ none. "
-               "They do not imply hardware verification on other architectures.\n"
+               "Reference counts describe available cases, not passing runs. PTX compilation does not check execution results. "
+               "GPU checks apply to the architecture where they ran.\n"
                "- **Change** colors: 🟢 better · 🔴 worse · ⚪ neutral. A level is judged by its count together with the stronger levels, "
                "so evidence moving between levels (reference promoted to GPU, or GPU demoted to reference) is ⚪ for the lower level; "
-               "more opaque or unverified (none) counts are worse.\n"
-               "- **Diagrams** show what moved between levels, per architecture and under Verification changes summed over them, inferred from the counts "
+               "more opaque counts are worse. Increases in none that fit growth in modeled coverage are ⚪ with a 🟡 evidence-gap warning. "
+               "Losing recorded evidence remains 🔴; removing unevidenced semantics alone is ⚪.\n"
+               "- **Diagrams** show what moved between levels, per architecture and under Recorded evidence changes summed over them, inferred from the counts "
                "assuming the fewest moves; unchanged counts are omitted.\n"
                "- **Detail colors** indicate status: 🟢 native, 🟡 partial or primitive, 🔴 opaque.\n"
                "- Readable variants share the exact variants' coverage and are omitted.\n\n"
