@@ -345,4 +345,19 @@ def test_sankey_diagrams():
     assert "**Modifier combinations**\n\n```mermaid" in body
     assert "sankey-beta\nopaque (before),native (after),3\n```" in body
     assert "others fit" not in body
+    assert "height: 80\n" in body
     assert "```mermaid" not in render(before, copy.deepcopy(before))["body"]
+
+
+def test_summed_verification_diagram():
+    before = summary()
+    before["SM90"] = copy.deepcopy(before["SM89"])
+    after = copy.deepcopy(before)
+    for arch in ("SM89", "SM90"):
+        after[arch]["combination_evidence"]["FADD"] = {"gpu": 2, "reference": 1, "none": 5}
+    body = render(before, after)["body"]
+    verification = body[body.index("### Verification changes"):body.index("### Changed opcodes")]
+    assert "**Combination verification**" in verification
+    assert "sankey-beta\nreference (before),gpu (after),2\nnone (before),gpu (after),2\n```" in verification
+    assert "summed over 2 architectures" in verification
+    assert body.count("```mermaid") == 3
