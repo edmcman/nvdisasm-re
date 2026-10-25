@@ -5,7 +5,7 @@ Run from the repository root:
 
 This does not alter plans, profiles, references, or execution comparisons.
 """
-import json
+import itertools,json
 from collections import Counter,defaultdict
 from functools import cache
 from pathlib import Path
@@ -75,20 +75,24 @@ def fault_outputs(sig,samples):
  return variants
 
 def input_table():
- """Derive input-only selections from the independent reference-level audit."""
+ """Audit the supported semantic domain independently of the selected form plan.
+
+ Planning consumes this table, so deriving its domain from the saved plan makes
+ a reduced interaction suite erase inputs needed by later legal extensions.
+ """
  table={}
- for path in autocases.PLANS.glob('SM*.json'):
-  if '.gaps.' in path.name:continue
-  for e in json.loads(path.read_text())['forms']:
-   op='HSETP2' if e['cls'].startswith('hsetp2__') else 'HSET2' if e['cls'].startswith('hset2__') else None
-   if not op:continue
-   for fp in ('exact','readable'):
-    sig=signature(op,e['settings'],fp);a=audit(sig)
+ for op in ('HSET2','HSETP2'):
+  outputs=('BF','BM') if op=='HSET2' else ('H_AND','noh_and')
+  for fmt in ('F16','BF16'):
+   # BF16 has no FTZ variant. Readable F16 uses the no-FTZ signature.
+   for ftz,cmp,bop,pnot,sa,sb,output in itertools.product(
+       (False,True) if fmt=='F16' else (False,), CMPS, ('AND','OR','XOR'),
+       (False,True), SWIZZLES, SWIZZLES, outputs):
+    sig=(op,fmt,ftz,cmp,bop,pnot,sa,sb,output);a=audit(sig)
     vectors=[[j,j&1] for j in a['selected']]
     if a['hidden_ftz_witness']:
      x=a['hidden_ftz_example'];vectors.append([x['seed_index'],x['raw_predicate']])
     key='/'.join(str(int(v)) if isinstance(v,bool) else v for v in sig)
-    if key in table:assert table[key]==vectors
     table[key]=vectors
  return dict(version=1,inputs={fmt:autocase_profiles.PROFILES['half_forms'][fmt] for fmt in ('F16','BF16')},forms=table)
 

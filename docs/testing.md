@@ -18,6 +18,20 @@ established about instruction behavior is in [`docs/hardware-facts.md`](hardware
 
 ## Sampling
 
+Three-way verification (2026-10-25, issue #81) separates modifier selection from input sampling.
+The shared policy defaults to strength 3 for every opcode and permits per-opcode strength or
+exhaustive overrides. A deterministic greedy cover selects only legal complete native/primitive
+extensions that adapters can construct. Partial-only requirements remain gaps for issue #80.
+Scheduling/reuse fields were already excluded; memory hints and consistency qualifiers are retained.
+Family-local roles let additional neutral variants reuse a minimal input corpus, while value
+projections retain full profiles and manual regressions remain independent.
+
+Positive reference forms are stored separately from raw exact-form provenance. The coverage
+page and PR comment retain their existing class/form evidence tables, architecture cards,
+filters and diagrams. Three-way selection does not add a separate coverage metric to either report.
+The [performance measurement](verification-performance-2026-10-25.md) records a 71% reduction
+in all-architecture evidence wall time and the increased planning cost.
+
 Caller-controlled input sampling (2026-10-21; mechanism in
 [`tests/README.md`](../tests/README.md#sampling)):
 

@@ -26,7 +26,7 @@ BATCH_KERNELS = 32
 # writers claim scoreboard 0 and stores claim read scoreboard 1.
 CONTROL = (15 << 105) | (63 << 116) | (7 << 110) | (7 << 113)
 NAME = re.compile(r'(UR|UP|R|P)(\d+)$')
-BACKEND_CHECKS = {'__native', '__max_ops', '__counter', '__events', '__opaque', '__fp8_nan', '__memory'}
+BACKEND_CHECKS = {'__native', '__max_ops', '__counter', '__events', '__event_values', '__opaque', '__fp8_nan', '__memory'}
 
 
 @cache
@@ -80,7 +80,7 @@ def classify(case, klass=None, arch="SM89"):
             if reason := memory_reason(case, arch): return 'emulator', reason
         return hw['adapter'], ''
     if case.request.get('context'): raise ValueError(f'{case.id}: context requires a hardware adapter')
-    if '__counter' in case.expected or '__events' in case.expected:
+    if '__counter' in case.expected or '__events' in case.expected or '__event_values' in case.expected:
         raise ValueError(f'{case.id}: control assertion requires a hardware adapter')
     names = set(case.request.get('registers', {})) | set(case.request.get('observe', []))
     if any(not NAME.fullmatch(n) and n not in ('RZ', 'URZ', 'PT', 'UPT') for n in names):

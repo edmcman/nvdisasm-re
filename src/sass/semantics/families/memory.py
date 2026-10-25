@@ -73,7 +73,9 @@ def windows(i, space, addr):
     return [(s, a, a < zext(i.special_register(size), 64)) for s, a, size in offsets], ("ram", addr)
 
 
-@family("LDG", "STG", "LDS", "STS", "LDL", "STL", "LDC", "LDCU", "LD", "ST")
+@family("LDG", "STG", "LDS", "STS", "LDL", "STL", "LDC", "LDCU", "LD", "ST",
+        modifier_roles={"cop": "hint", "cop2": "hint", "sp2": "hint",
+                        "sem": "effect", "sco": "effect", "private": "effect"})
 def memory(i):
     """Rd = sz bits at the address (sign- or zero-extended), or store Rb's low sz bits there; LDC
     (LDCU into URd) reads constant bank Sa_bank at the low 32 bits of the address. LD/ST route a

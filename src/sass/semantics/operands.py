@@ -371,6 +371,10 @@ class Builder:
             found=modifiers.combinations(self,self.rows or [({},status)])
             row['combinations']=modifiers.merge(row['combinations'],found) if 'combinations' in row else found
             row['modifiers']=modifiers.value_statuses(row['combinations'])
+            from sass.semantics.family import family_for
+            fam = family_for(self.k)
+            row['modifier_roles'] = {n: role for n, role in getattr(fam, 'modifier_roles', {}).items()
+                                     if n in row['combinations']['labels']}
             row['raw_bits_preserved']=True
             row['flow']={n:v for n,v in self.g.props.get(self.k.name,{}).items() if n.startswith('BRANCH_')}
             if variant not in row.setdefault('variants',[]):row['variants'].append(variant)
