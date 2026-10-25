@@ -57,9 +57,6 @@ def test_coverage_gain_and_regression(reverse):
         before, after = after, before
     report = render(before, after)
     assert report["changed"]
-    assert ("🔴 -50 pp" if reverse else "🟢 +50 pp") in report["body"]
-    assert "1/2 (50%)" in report["body"]
-    assert "2/2 (100%)" in report["body"]
     assert "**LDG**" in report["body"]
     assert "**FADD**" not in report["body"]
     assert "| Metric | Before | After |" in report["body"]
@@ -67,7 +64,8 @@ def test_coverage_gain_and_regression(reverse):
     assert f"<summary>SM89 · 1 changed opcode · {tally}</summary>" in report["body"]
     assert ("🔴 **LDG**" if reverse else "🟢 **LDG**") in report["body"]
     assert "<summary>How to read this report</summary>" in report["body"]
-    assert "### Opcode coverage" in report["body"]
+    assert "Opcode coverage" not in report["body"]
+    assert report["body"].index("How to read this report") < report["body"].index("### Changed evidence")
     assert ("[!WARNING]" in report["body"]) == reverse
     assert "[!CAUTION]" not in report["body"]
 
@@ -79,11 +77,9 @@ def test_combination_and_verification_only_changes(field, label):
     after["SM89"][field]["FADD"] = {"gpu": 3}
     report = render(before, after)
     assert report["changed"]
-    assert "⚪ +0 pp" in report["body"]
     assert f"| {label} |" in report["body"]
     assert "🔵 gpu: **3**" in report["body"]
-    assert "<summary>Opcode coverage: ⚪ unchanged</summary>" in report["body"]
-    assert "### Opcode coverage" not in report["body"]
+    assert "Opcode coverage" not in report["body"]
 
 
 def gpu_demoted():
@@ -151,8 +147,6 @@ def test_added_removed_architectures_and_opcodes():
     after = summary()
     after["SM100"] = after.pop("SM89")
     report = render(before, after)
-    assert "SM89 | 1/2 (50%) | absent | removed" in report["body"]
-    assert "SM100 | absent | 1/2 (50%) | added" in report["body"]
     assert "**FADD (added)**" in report["body"]
     assert "**FADD (removed)**" in report["body"]
     assert report["body"].index("| SM89") < report["body"].index("| SM100")
@@ -325,10 +319,10 @@ def test_local_cli_compares_revision_with_working_tree(monkeypatch, capsys):
     assert "img.shields.io" not in out and "View CI run" not in out
 
 
-def test_comment_leads_with_head_pinned_coverage_badge():
+def test_comment_links_to_head_pinned_report_without_opcode_badge():
     body = render(summary(), summary())["body"]
-    assert ("https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fowner%2Frepo%2Fhead"
-            "%2Fprocessor%2FSASS%2Fsemantics%2Fbadge.json") in body
+    assert "[Full evidence coverage report]" in body
+    assert "img.shields.io" not in body
     assert "(https://raw.githack.com/owner/repo/head/processor/SASS/semantics/coverage.html)" in body
 
 
@@ -413,7 +407,7 @@ def test_more_combinations_without_evidence_preserve_existing_checks():
     assert "**FADD** · 🟡 evidence gap grew" in body
     assert "🟢 **FADD**" in body.split("### Semantic coverage changes", 1)[1]
     assert "regressed" not in body and "[!CAUTION]" not in body
-    assert "<summary>Opcode coverage: ⚪ unchanged</summary>" in body
+    assert "Opcode coverage" not in body
     assert "| SM89 | — | — | — | ⚪ combinations **+8** |" in body
 
 

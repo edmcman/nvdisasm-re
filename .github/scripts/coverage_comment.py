@@ -9,7 +9,6 @@ import json
 import os
 from pathlib import Path
 import subprocess
-import urllib.parse
 import urllib.request
 
 
@@ -17,7 +16,7 @@ MARKER = "<!-- nvdisasm-re:coverage -->"
 OUTDATED_MARKER = "<!-- nvdisasm-re:coverage-outdated -->"
 LABEL = "coverage"
 COVERAGE = "processor/SASS/semantics/coverage.json"
-BADGE = "processor/SASS/semantics/badge.json"
+REPORT = "processor/SASS/semantics/coverage.html"
 COMMENT_LIMIT = 60_000  # Leave room below GitHub's comment size limit.
 FIELDS = (
     ("opcodes", "Classes"),
@@ -159,20 +158,6 @@ def at_least(values, order, kind):
     return sum(values.get(k, 0) for k in order[:order.index(kind) + 1])
 
 
-def opcode_totals(entry):
-    # Same definition and rounding as sass.sleigh.coverage.opcode_percent / badge.
-    ops = entry.get("opcodes", {})
-    covered = sum(set(c) != {"opaque"} for c in ops.values())
-    return covered, len(ops), round(100 * covered / len(ops)) if ops else 0
-
-
-def totals_text(entry):
-    if entry is None:
-        return "absent"
-    covered, total, percent = opcode_totals(entry)
-    return f"{covered}/{total} ({percent}%)"
-
-
 def names(ops):
     shown = ", ".join(html.escape(op) for op in ops[:LIMIT_NAMES])
     return shown + (f" and {len(ops) - LIMIT_NAMES} more" if len(ops) > LIMIT_NAMES else "")
@@ -253,11 +238,9 @@ def verification_table(compared):
             "| :--- | " + " | ".join("---:" for _ in EVIDENCE_ORDER) + " |\n" + "\n".join(rows) + "\n")
 
 
-def badge(repo, sha):
-    """The README's opcode-coverage badge, read from the PR head's committed badge.json."""
-    raw = urllib.parse.quote(f"https://raw.githubusercontent.com/{repo}/{sha}/{BADGE}", safe="")
-    report = f"https://raw.githack.com/{repo}/{sha}/{BADGE.replace('badge.json', 'coverage.html')}"
-    return f"[![opcode semantics](https://img.shields.io/endpoint?url={raw})]({report})"
+def report_link(repo, sha):
+    """Link to the PR head's committed evidence report."""
+    return f"[Full evidence coverage report](https://raw.githack.com/{repo}/{sha}/{REPORT})"
 
 
 def detail_sections(compared, fields):
@@ -297,10 +280,10 @@ def detail_sections(compared, fields):
 
 def render(base, head, base_sha, head_sha, run_url=None, repo=None):
     """Return the full report, bounded comment, and whether reportable data changed; without a
-    repository or run (a local comparison) the badge and CI-run link are omitted."""
+    repository or run (a local comparison) the report and CI-run links are omitted."""
     archs = sorted((a for a in base.keys() | head.keys() if "_" not in a),
                    key=lambda a: int(a.removeprefix("SM")))
-    rows, compared, moved = [], [], False
+    compared = []
     for arch in archs:
         before, after = base.get(arch), head.get(arch)
         old, new = before or {}, after or {}
@@ -311,56 +294,38 @@ def render(base, head, base_sha, head_sha, run_url=None, repo=None):
         if before is not None and after is not None and not changed:
             continue
         compared.append((arch, old, new, changed))
-        if before is not None and after is not None:
-            pp = opcode_totals(after)[2] - opcode_totals(before)[2]
-            delta = f"{tone(pp)} {pp:+d} pp"
-            moved |= pp != 0
-        else:
-            delta = "added" if after is not None else "removed"
-            moved = True
-        rows.append(f"| {arch} | {totals_text(before)} | {totals_text(after)} | {delta} |")
     sections = detail_sections(compared, FIELDS[2:])
     if not sections:
         sections.append("No recorded evidence changes.\n")
     support = detail_sections(compared, FIELDS[:2])
     if support:
         sections += ["\n### Semantic coverage changes\n\n" + support[0], *support[1:]]
-    header = (f"{MARKER}\n## 🧪 Evidence coverage\n\n" + (f"{badge(repo, head_sha)}\n\n" if repo else "")
+    header = (f"{MARKER}\n## 🧪 Evidence coverage\n\n" + (f"{report_link(repo, head_sha)}\n\n" if repo else "")
               + f"Comparing `{base_sha[:7]}` → `{head_sha[:7]}`" + (f" · [View CI run]({run_url})" if run_url else "") + "\n\n"
               + "Implemented semantics and recorded evidence are reported separately. Evidence includes recorded passing GPU checks, "
               "PTX compilation, or available reference cases; it does not summarize current test results.\n\n")
-    if not rows:
+    if not compared:
         body = header + "No evidence coverage or modeled support changes compared with the PR base.\n"
         return {"full": body, "body": body, "changed": False}
-    coverage = ("| Architecture | Before | After | Change |\n"
-                "| :--- | ---: | ---: | ---: |\n" + "\n".join(rows) + "\n")
-    if not moved:
-        coverage = "<details>\n<summary>Opcode coverage: ⚪ unchanged</summary>\n\n" + coverage + "\n</details>\n"
     verification = verification_table(compared)
     evidence_overview = []
     for field, title in FIELDS[2:]:
         charts = diagrams(compared, ((field, title),), heading="####")
         evidence_overview.extend(charts or [f"#### {title}\n\nNo changes compared with the PR base.\n"])
-    summary = (header + "".join(c + "\n" for c in callouts(compared))
+    guide = ("<details>\n<summary>How to read this report</summary>\n\n"
+             "- **Evidence** uses the strongest recorded check: 🔵 GPU, 🟤 PTX compilation, 🟢 reference cases, or ⚪ none. "
+             "GPU checks apply only to the architecture tested. Compilation does not verify execution; reference counts describe available cases, not passing runs.\n"
+             "- **Change colors** mean 🟢 improved, 🔴 decreased, or ⚪ neutral. Each evidence level includes stronger checks, "
+             "so a reference promoted to GPU is neutral at the reference level. New modeled forms without checks are flagged as evidence gaps.\n"
+             "- **Diagrams** infer the fewest moves between levels from the counts; they do not track individual instructions. "
+             "The summaries combine architectures; each architecture's details are shown below.\n"
+             "- **Semantic coverage changes** count modeled classes and modifier combinations separately from evidence: "
+             "native is computed in p-code, primitive uses a runtime helper, partial models some forms, and opaque has no value semantics.\n\n"
+             "</details>\n\n")
+    summary = (header + guide + "".join(c + "\n" for c in callouts(compared))
                + "### Changed evidence\n\n" + "\n".join(evidence_overview) + "\n"
                + (verification or "No recorded evidence changes.\n") + "\n"
-               + ("### Opcode coverage\n\n" if moved else "") + coverage + "\n"
-               "<details>\n<summary>How to read this report</summary>\n\n"
-               "- **Opcode coverage** counts opcodes with at least one class with semantics, including partial or primitive semantics, "
-               "in percentage points (pp).\n"
-               "- **Recorded evidence** counts use the strongest evidence: GPU, ptxas, reference, or none (no evidence). "
-               "Colors: 🔵 GPU · 🟤 ptxas · 🟢 reference · ⚪ none. "
-               "Reference counts describe available cases, not passing runs. PTX compilation does not check execution results. "
-               "GPU checks apply to the architecture where they ran.\n"
-               "- **Change** colors: 🟢 better · 🔴 worse · ⚪ neutral. A level is judged by its count together with the stronger levels, "
-               "so evidence moving between levels (reference promoted to GPU, or GPU demoted to reference) is ⚪ for the lower level; "
-               "more opaque counts are worse. Increases in none that fit growth in modeled coverage are ⚪ with a 🟡 evidence-gap warning. "
-               "Losing recorded evidence remains 🔴; removing unevidenced semantics alone is ⚪.\n"
-               "- **Diagrams** show what moved between levels, per architecture and under Changed evidence summed over them, inferred from the counts "
-               "assuming the fewest moves; unchanged counts are omitted.\n"
-               "- **Detail colors** indicate status: 🟢 native, 🟡 partial or primitive, 🔴 opaque.\n"
-               "- Readable variants share the exact variants' coverage and are omitted.\n\n"
-               "</details>\n\n#### By architecture\n\n")
+               + "#### By architecture\n\n")
     full = summary + "\n".join(sections)
     body = full
     if len(full.encode("utf-8")) > COMMENT_LIMIT:
