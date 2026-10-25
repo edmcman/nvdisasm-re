@@ -304,8 +304,8 @@ hardware run does.
 Version 3 plans record the verification policy and each form's `profile_mode`.
 `sass.sleigh.verification.POLICY` defaults to strength 3 for every opcode. Its
 `VerificationPolicy(default_strength=3, opcode_strength={"OPCODE": 4})` constructor supports
-positive integer strengths and `"exhaustive"` per-opcode overrides; use the same shared policy
-for planning and reporting. Strength is capped at the number of varying modifiers. A class with
+positive integer strengths and `"exhaustive"` per-opcode overrides; use the shared policy
+when generating plans. Strength is capped at the number of varying modifiers. A class with
 no varying modifiers still has one anchor requirement.
 
 Scheduling and reuse fields remain excluded by the modifier inventory. Memory hints and

@@ -54,6 +54,7 @@ class Requirements:
             indices = [{v: j for j, v in enumerate(self.domains[n])} for n in names]
             self.groups.append((names, offset, strides, indices))
             offset += math.prod(len(self.domains[n]) for n in names)
+        self.lookup = {tuple(e[:-1]): e[-1] for e in self.c["table"]}
         self.required = self.project_table(lambda s: s != "opaque")
         self.plannable = self.project_table(lambda s: s in SUPPORTED)
         # A complete form's interaction mask is the intersection of per-label
@@ -87,6 +88,16 @@ class Requirements:
                     bit = offset + sum(indices[i][v] * strides[i] for i, v in enumerate(values))
                     bits |= 1 << bit
         return bits
+
+    def compatible(self, settings):
+        """Known settings extend to a modeled legal form; absent settings are not defaults."""
+        if any(n not in self.c["labels"] or v not in self.c["labels"][n] for n, v in settings.items() if v is not None):
+            return False
+        fixed = {n: v for n, v in settings.items() if v is not None}
+        if set(self.c["decides"]) <= fixed.keys():
+            return self.lookup.get(tuple(fixed[n] for n in self.c["decides"]), "opaque") != "opaque"
+        return any(status != "opaque" and all(n not in fixed or fixed[n] == v
+                   for n, v in zip(self.c["decides"], labs)) for *labs, status in self.c["table"])
 
     def mask(self, settings):
         known = {n: v for n, v in settings.items() if n in self.domains and v is not None}

@@ -88,6 +88,20 @@ def test_manual_regressions_do_not_suppress_generated_coverage(monkeypatch):
     assert report['counts']['generated'] == 2
 
 
+@pytest.mark.parametrize('invert,manual,blocked', [('unset', 1, 0), ('set', 0, 1)])
+def test_manual_cases_credit_only_modeled_forms(monkeypatch, invert, manual, blocked):
+    cases = tests.harness.autocases.generate('SM89', 'popc__RRR_RRR', {'Rb@invert': invert})
+    monkeypatch.setattr(tests.autocases, 'emulator_cases', lambda *a, **kw: {'int_alu': cases})
+    monkeypatch.setattr(tests.harness.autocases, 'OWNED', tests.harness.autocases.OWNED - {'POPC'})
+    row = dict(cls='popc__RRR_RRR', opcode='POPC', combinations=dict(
+        labels={'Rb@invert': ['unset', 'set']}, decides=['Rb@invert'],
+        table=[['unset', 'native'], ['set', 'opaque']], free=1))
+    plan, report = tests.autocases.plan('SM89', [row])
+    assert not plan['forms']
+    assert report['counts']['manual'] == manual
+    assert report['counts']['blocked'] == blocked
+
+
 def test_neutral_variants_only_multiply_minimal_profiles(monkeypatch):
     from sass.sleigh import verification
     monkeypatch.setattr(tests.autocases, 'emulator_cases', lambda *a, **kw: {})
