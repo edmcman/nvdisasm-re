@@ -28,7 +28,9 @@ projections retain full profiles and manual regressions remain independent.
 
 Positive reference forms are stored separately from raw exact-form provenance. Report and PR
 interaction totals keep reference, GPU and PTX evidence independent, and compare common tuple
-identities rather than treating newly introduced requirements as losses.
+identities rather than treating newly introduced requirements as losses. Interaction sections
+are additive: the existing class/form evidence tables, architecture cards, filters and diagrams
+retain their presentation.
 The [performance measurement](verification-performance-2026-10-25.md) records a 71% reduction
 in all-architecture evidence wall time and the increased planning cost.
 
@@ -428,6 +430,12 @@ hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` 
   which individual forms gained or lost evidence. The comment says “recorded evidence” throughout:
   GPU evidence records passing checks on the architecture where they ran, PTX evidence records
   compilation, and reference evidence records available cases, not current passing test results.
+- Three-way interaction evidence adds a separate summary and per-opcode tables to this presentation.
+  Reference, GPU and PTX sources are independent. Losses on common requirements trigger red
+  cautions; newly added and removed requirements are reported separately. When interaction metrics
+  are present, raw class/form evidence deltas remain visible in the original tables and diagrams
+  but are neutral because suite selection can change their counts. Semantic regressions and
+  amber evidence-gap warnings retain their existing judgments.
 - The PR carries a `coverage` label exactly while coverage differs from the base. When a newer
   report replaces the current comparison, CI posts it first, then edits previous reports into
   closed-by-default “Outdated coverage report” expansions with a superseded notice. Identical

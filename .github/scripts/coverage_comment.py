@@ -94,8 +94,8 @@ def deltas(field, before, after):
             for k in kinds if after.get(k, 0) != before.get(k, 0)]
 
 
-def change(field, before, after):
-    return "<br>".join(f"{tone(t)} {html.escape(k)} **{d:+,}**" for k, d, t in deltas(field, before, after)) or "—"
+def change(field, before, after, judged=True):
+    return "<br>".join(f"{tone(t if judged else 0)} {html.escape(k)} **{d:+,}**" for k, d, t in deltas(field, before, after)) or "—"
 
 
 def flows(field, before, after):
@@ -189,10 +189,10 @@ def evidence_gaps(old, new, op):
     return tuple(out)
 
 
-def callouts(compared):
+def callouts(compared, judge_evidence=True):
     """GitHub alerts for evidence or coverage that fell, per level and architecture."""
     out, named = [], set()
-    for kind in EVIDENCE_NAMES:
+    for kind in EVIDENCE_NAMES if judge_evidence else ():
         lines = []
         for arch, old, new, changed in compared:
             # An opcode is named once, at the strongest level that fell.
@@ -235,13 +235,13 @@ def callouts(compared):
     return out
 
 
-def verification_table(compared):
+def verification_table(compared, judged=True):
     """Per-architecture class and combination evidence changes, or None when none changed."""
     rows = []
     for arch, old, new, _ in compared:
         cells = []
         for kind in EVIDENCE_ORDER:
-            parts = [f"{tone(t)} {what} **{d:+,}**" for what, f in (("classes", "opcode_evidence"), ("combinations", "combination_evidence"))
+            parts = [f"{tone(t if judged else 0)} {what} **{d:+,}**" for what, f in (("classes", "opcode_evidence"), ("combinations", "combination_evidence"))
                      for k, d, t in deltas(f, total(old, f), total(new, f)) if k == kind]
             cells.append("<br>".join(parts) or "—")
         if any(c != "—" for c in cells):
@@ -259,19 +259,22 @@ def badge(repo, sha):
     return f"[![opcode semantics](https://img.shields.io/endpoint?url={raw})]({report})"
 
 
-def render_legacy(base, head, base_sha, head_sha, run_url=None, repo=None):
+def render_legacy(base, head, base_sha, head_sha, run_url=None, repo=None, interactions=None):
     """Return the full report, bounded comment, and whether reportable data changed; without a
     repository or run (a local comparison) the badge and CI-run link are omitted."""
     archs = sorted((a for a in base.keys() | head.keys() if "_" not in a),
                    key=lambda a: int(a.removeprefix("SM")))
     rows, sections, compared, moved = [], [], [], False
+    judge_evidence = interactions is None
     for arch in archs:
         before, after = base.get(arch), head.get(arch)
         old, new = before or {}, after or {}
-        ops = sorted(old.get("opcodes", {}).keys() | new.get("opcodes", {}).keys())
+        extra = (interactions or {}).get("archs", {}).get(arch, {})
+        extra_details = extra.get("details", {})
+        ops = sorted(old.get("opcodes", {}).keys() | new.get("opcodes", {}).keys() | extra_details.keys())
         changed = [op for op in ops if any(
             old.get(field, {}).get(op) != new.get(field, {}).get(op)
-            for field, _ in FIELDS)]
+            for field, _ in FIELDS) or op in extra_details]
         if before is not None and after is not None and not changed:
             continue
         compared.append((arch, old, new, changed))
@@ -283,8 +286,11 @@ def render_legacy(base, head, base_sha, head_sha, run_url=None, repo=None):
             delta = "added" if after is not None else "removed"
             moved = True
         rows.append(f"| {arch} | {totals_text(before)} | {totals_text(after)} | {delta} |")
-        trends = {op: {t for field, _ in FIELDS for *_, t in deltas(field, old.get(field, {}).get(op, {}), new.get(field, {}).get(op, {}))}
+        trends = {op: {t for field, _ in (FIELDS if judge_evidence else FIELDS[:2])
+                       for *_, t in deltas(field, old.get(field, {}).get(op, {}), new.get(field, {}).get(op, {}))}
                   for op in changed}
+        for op in changed:
+            trends[op] |= extra.get("trends", {}).get(op, set())
         worse, better = sum(-1 in t for t in trends.values()), sum(-1 not in t and 1 in t for t in trends.values())
         tally = "".join(f" · {tone(s)} {n} {word}" for s, n, word in ((-1, worse, "regressed"), (1, better, "improved")) if n)
         gaps = sum(any(evidence_gaps(old, new, op)) for op in changed)
@@ -298,11 +304,14 @@ def render_legacy(base, head, base_sha, head_sha, run_url=None, repo=None):
             mark = "🔴 " if -1 in trends[op] else "🟢 " if 1 in trends[op] else ""
             gap = " · 🟡 evidence gap grew" if any(evidence_gaps(old, new, op)) else ""
             details.append(f"\n{mark}**{html.escape(op)}{label}**{gap}\n")
-            details.extend(["| Metric | Before | After | Change |", "| :--- | ---: | ---: | :--- |"])
+            if any(old.get(f, {}).get(op) != new.get(f, {}).get(op) for f, _ in FIELDS):
+                details.extend(["| Metric | Before | After | Change |", "| :--- | ---: | ---: | :--- |"])
             for field, title in FIELDS:
                 b, h = old.get(field, {}).get(op, {}), new.get(field, {}).get(op, {})
                 if b != h:
-                    details.append(f"| {title} | {counts(b)} | {counts(h)} | {change(field, b, h)} |")
+                    details.append(f"| {title} | {counts(b)} | {counts(h)} | {change(field, b, h, judge_evidence or field in ('opcodes', 'combination_status'))} |")
+            if op in extra_details:
+                details.append(extra_details[op])
         details.append("\n</details>\n")
         sections.append("\n".join(details))
     header = (f"{MARKER}\n## 🧪 Semantic coverage\n\n" + (f"{badge(repo, head_sha)}\n\n" if repo else "")
@@ -316,9 +325,11 @@ def render_legacy(base, head, base_sha, head_sha, run_url=None, repo=None):
                 "| :--- | ---: | ---: | ---: |\n" + "\n".join(rows) + "\n")
     if not moved:
         coverage = "<details>\n<summary>Opcode coverage: ⚪ unchanged</summary>\n\n" + coverage + "\n</details>\n"
-    verification = verification_table(compared)
-    summary = (header + "".join(c + "\n" for c in callouts(compared))
+    verification = verification_table(compared, judge_evidence)
+    summary = (header + "".join(c + "\n" for c in callouts(compared, judge_evidence))
+               + "".join((interactions or {}).get("alerts", []))
                + "### Recorded evidence changes\n\n" + (verification + "".join(diagrams(compared, FIELDS[2:])) if verification else "No recorded evidence changes.\n") + "\n"
+               + (interactions or {}).get("summary", "")
                + ("### Opcode coverage\n\n" if moved else "") + coverage + "\n"
                "<details>\n<summary>How to read this report</summary>\n\n"
                "- **Opcode coverage** counts opcodes with at least one class with semantics, including partial or primitive semantics, "
@@ -330,12 +341,16 @@ def render_legacy(base, head, base_sha, head_sha, run_url=None, repo=None):
                "- **Change** colors: 🟢 better · 🔴 worse · ⚪ neutral. A level is judged by its count together with the stronger levels, "
                "so evidence moving between levels (reference promoted to GPU, or GPU demoted to reference) is ⚪ for the lower level; "
                "more opaque counts are worse. Increases in none that fit growth in modeled coverage are ⚪ with a 🟡 evidence-gap warning. "
-               "Losing recorded evidence remains 🔴; removing unevidenced semantics alone is ⚪.\n"
-               "- **Diagrams** show what moved between levels, per architecture and under Recorded evidence changes summed over them, inferred from the counts "
+               + ("Losing recorded evidence remains 🔴; removing unevidenced semantics alone is ⚪.\n"
+                  if judge_evidence else "Raw evidence deltas are ⚪ when interaction metrics are available; interaction losses on common requirements remain 🔴.\n")
+               + "- **Diagrams** show what moved between levels, per architecture and under Recorded evidence changes summed over them, inferred from the counts "
                "assuming the fewest moves; unchanged counts are omitted.\n"
                "- **Detail colors** indicate status: 🟢 native, 🟡 partial or primitive, 🔴 opaque.\n"
                "- Readable variants share the exact variants' coverage and are omitted.\n\n"
-               "</details>\n\n### Changed opcodes\n\n")
+               + ("- **Interaction verification** is additive. Its sources are independent, and changes are judged only on common requirements. "
+                  "Raw class/form evidence counts and diagrams remain visible; their deltas are neutral because changing the selected suite can change them.\n\n"
+                  if interactions is not None else "")
+               + "</details>\n\n### Changed opcodes\n\n")
     full = summary + "\n".join(sections)
     body = full
     if len(full.encode("utf-8")) > COMMENT_LIMIT:
@@ -402,72 +417,75 @@ def interaction_changes(old, new):
     return out
 
 
-def render(base, head, base_sha, head_sha, run_url=None, repo=None):
-    """Use interaction verification for new summaries; retain the legacy comparator for old data."""
-    if not any("interaction_evidence" in e for e in (*base.values(), *head.values())):
-        return render_legacy(base, head, base_sha, head_sha, run_url, repo)
-    # Exhaustive form evidence remains available in coverage.json, but is no longer
-    # a regression metric once interaction coverage is available.
-    def semantics(data):
-        return {arch: {k: v for k, v in entry.items() if k not in (
-            "interaction_evidence", "interaction_classes", "combination_evidence", "opcode_evidence")}
-            for arch, entry in data.items()}
-    support = render_legacy(semantics(base), semantics(head), base_sha, head_sha, run_url, repo)
-    sections, changed = [], support["changed"]
+def interaction_report(base, head):
+    """Additive interaction tables and judgments for the established report layout."""
+    archs, rows, notices, losses = {}, [], [], {k: [] for k in EVIDENCE_NAMES}
     for arch in sorted((a for a in base.keys() | head.keys() if "_" not in a), key=lambda a: int(a[2:])):
         old, new = base.get(arch, {}), head.get(arch, {})
         if old.get("interaction_evidence") == new.get("interaction_evidence") and old.get("interaction_classes") == new.get("interaction_classes"):
             continue
-        changed = True
-        lines = [f"### {arch}: interaction verification\n"]
+        comparable = "interaction_evidence" in old and "interaction_evidence" in new
+        changes = interaction_changes(old, new) if comparable else {}
         if "interaction_evidence" not in old:
-            lines.append("Interaction verification is newly introduced; no comparison with exhaustive-form evidence is made.\n")
+            notices.append(f"{arch}: interaction verification is newly introduced; exhaustive-form evidence is not compared with it.")
         elif "interaction_evidence" not in new:
-            lines.append("Interaction verification data was removed.\n")
-        changes = interaction_changes(old, new) if "interaction_evidence" in old and "interaction_evidence" in new else {}
-        lines.extend(["| Opcode | Strength | Required | Reference cases | GPU passes | PTX compilation |",
-                      "| :--- | ---: | ---: | ---: | ---: | ---: |"])
+            notices.append(f"{arch}: interaction verification data was removed.")
+        details, trends = {}, {}
+        totals = dict(total=0, covered={k: 0 for k in EVIDENCE_NAMES})
         ops = sorted(old.get("interaction_evidence", {}).keys() | new.get("interaction_evidence", {}).keys())
-        notes = []
         for op in ops:
             a, b = old.get("interaction_evidence", {}).get(op), new.get("interaction_evidence", {}).get(op)
+            e = b or a
+            if b:
+                totals["total"] += b["total"]
+                for k in EVIDENCE_NAMES:
+                    totals["covered"][k] += b["covered"][k]
             delta = changes.get(op, {})
             if a == b and not any(delta.get(k, 0) for k in ("added", "removed", "gpu", "reference", "ptxas")):
                 continue
-            e = b or a
+            if not e["total"] and not delta.get("removed"):
+                continue
             cells = [f"{e['covered'][k]:,} / {e['total']:,}" for k in ("reference", "gpu", "ptxas")]
-            lines.append(f"| {html.escape(op)} | {e['strength']} | {e['total']:,} | " + " | ".join(cells) + " |")
+            text = (f"\n**Interaction verification** (strength {e['strength']})\n\n"
+                    "| Required | Reference cases | GPU passes | PTX compilation |\n"
+                    "| ---: | ---: | ---: | ---: |\n"
+                    f"| {e['total']:,} | " + " | ".join(cells) + " |\n")
             if delta:
                 differences = ", ".join(f"{tone((delta[k] > 0) - (delta[k] < 0))} {k} {delta[k]:+,}" for k in ("reference", "gpu", "ptxas"))
-                notes.append(f"\n{html.escape(op)}: **{delta['common']:,} common requirements** · {differences}; "
-                             f"**{delta['added']:,} added**, **{delta['removed']:,} removed** requirements.\n")
-        lines.extend(notes)
-        sections.append("\n".join(lines))
-    if not changed:
-        return support
-    heading = (f"{MARKER}\n## 🧪 Semantic coverage\n\n" + (f"{badge(repo, head_sha)}\n\n" if repo else "")
-               + f"Comparing `{base_sha[:7]}` → `{head_sha[:7]}`" + (f" · [View CI run]({run_url})" if run_url else "") + "\n\n")
-    explanation = ("Verification covers legal interactions up to the configured strength, exhaustively for smaller classes. "
-                   "Scheduling and reuse fields are excluded; memory hints and consistency qualifiers are included. "
-                   "Reference counts describe available positive cases, GPU counts describe recorded passes on the named architecture, "
-                   "and PTX compilation establishes encoding evidence. Sources are independent and must not be added together. "
-                   "Only changes on common requirements are judged as improvements or regressions; new requirements are shown separately.\n\n")
-    native_lines = []
-    for arch in sorted((a for a in base.keys() | head.keys() if "_" not in a), key=lambda a: int(a[2:])):
-        for field, title in FIELDS[:2]:
-            a, b = base.get(arch, {}).get(field, {}), head.get(arch, {}).get(field, {})
-            for op in sorted(a.keys() | b.keys()):
-                if a.get(op) != b.get(op):
-                    native_lines.append(f"| {arch} | {html.escape(op)} | {title} | {counts(a.get(op, {}))} | {counts(b.get(op, {}))} | {change(field, a.get(op, {}), b.get(op, {}))} |")
-    native = ("| Architecture | Opcode | Metric | Before | After | Change |\n| :--- | :--- | :--- | ---: | ---: | :--- |\n" +
-              "\n".join(native_lines)) if native_lines else "Exact native support counts are unchanged.\n"
-    full = heading + explanation + "\n".join(sections) + "\n<details>\n<summary>Exact semantic support changes</summary>\n\n" + native + "\n</details>\n"
-    body = full
-    if len(full.encode()) > COMMENT_LIMIT:
-        body = heading + explanation + "\n".join(sections[:1]) + "\nDetails truncated; see the coverage-comment-report artifact.\n"
-        if len(body.encode()) > COMMENT_LIMIT:
-            body = heading + explanation + "Interaction metrics changed. See the coverage-comment-report artifact for the full report.\n"
-    return dict(full=full, body=body, changed=True)
+                text += (f"\n**{delta['common']:,} common requirements** · {differences}; "
+                         f"**{delta['added']:,} added**, **{delta['removed']:,} removed** requirements.\n")
+            else:
+                text += "\nInteraction metrics introduced or removed; no cross-metric comparison.\n"
+            details[op] = text
+            trends[op] = {(delta[k] > 0) - (delta[k] < 0) for k in EVIDENCE_NAMES} if delta else {0}
+        archs[arch] = dict(details=details, trends=trends)
+        cells = [f"{totals['covered'][k]:,} / {totals['total']:,}" for k in ("reference", "gpu", "ptxas")]
+        rows.append(f"| {arch} | {totals['total']:,} | " + " | ".join(cells) + " |")
+        for kind in EVIDENCE_NAMES:
+            fell = [op for op, delta in changes.items() if delta[kind] < 0]
+            if fell:
+                count = sum(changes[op][kind] for op in fell)
+                losses[kind].append(f"> - **{arch}**: common requirements **{count:+,}** · {len(fell)} opcodes: {names(fell)}")
+    summary = "### Interaction verification\n\n"
+    if rows:
+        summary += ("| Architecture | Required | Reference cases | GPU passes | PTX compilation |\n"
+                    "| :--- | ---: | ---: | ---: | ---: |\n" + "\n".join(rows) + "\n\n")
+        summary += "\n\n".join(notices) + ("\n\n" if notices else "")
+    else:
+        summary += "No interaction verification changes.\n\n"
+    summary += ("Sources are independent. Positive reference cases, recorded GPU passes on the named architecture, and PTX compilation "
+                "are counted separately. Only common requirements are judged; added and removed requirements are shown separately. "
+                "Scheduling/reuse fields are excluded, while memory hints and consistency qualifiers participate.\n\n")
+    alerts = [f"> [!CAUTION]\n> **{EVIDENCE_NAMES[k]} interaction evidence decreased**\n>\n" + "\n".join(lines)
+              + f"\n>\n> {EVIDENCE_HINTS[k]}\n\n" for k, lines in losses.items() if lines]
+    return dict(archs=archs, summary=summary, alerts=alerts)
+
+
+def render(base, head, base_sha, head_sha, run_url=None, repo=None):
+    """Keep the established report presentation and add interaction verification alongside it."""
+    interactions = interaction_report(base, head) if any(
+        "interaction_evidence" in e for e in (*base.values(), *head.values())) else None
+    return render_legacy(base, head, base_sha, head_sha, run_url, repo, interactions)
 
 
 def read_coverage(sha):

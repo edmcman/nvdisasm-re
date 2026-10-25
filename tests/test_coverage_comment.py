@@ -53,6 +53,15 @@ def test_added_requirements_do_not_make_common_verification_regress():
     assert "⚪ reference +0" in text and "🔴 reference" not in text
 
 
+def test_removing_the_last_requirements_remains_visible():
+    old, new = interaction_summary(), interaction_summary(required=0, reference=0)
+    new["SM89"]["interaction_classes"] = {}
+    text = render(old, new)["body"]
+    assert "**4 removed** requirements" in text
+    assert "| 0 | 0 / 0 | 0 / 0 | 0 / 0 |" in text
+    assert "[!CAUTION]" not in text
+
+
 def test_lost_common_interactions_are_a_regression():
     old, new = interaction_summary(reference=3), interaction_summary(reference=1)
     text = render(old, new)["body"]
@@ -71,7 +80,41 @@ def test_domain_changes_compare_stable_tuple_identities():
 def test_exact_form_reduction_is_not_a_regression_when_interactions_are_unchanged():
     old, new = interaction_summary(), interaction_summary()
     new["SM89"]["combination_evidence"]["FADD"] = {"none": 8}
-    assert not render(old, new)["changed"]
+    report = render(old, new)
+    text = report["body"]
+    assert report["changed"]
+    assert "### Recorded evidence changes" in text
+    assert "| Metric | Before | After | Change |" in text
+    assert "sankey" in text
+    assert "⚪ reference **-2**" in text
+    assert "[!CAUTION]" not in text and "regressed" not in text
+    assert "No interaction verification changes." in text
+
+
+def test_interaction_metrics_preserve_the_existing_report_presentation():
+    old, new = interaction_summary(), interaction_summary(reference=3)
+    new["SM89"]["opcodes"]["LDG"] = {"partially native": 1}
+    text = render(old, new)["body"]
+    assert "img.shields.io/endpoint" in text and "owner/repo/head/" in text
+    assert "### Recorded evidence changes" in text
+    assert "### Interaction verification" in text
+    assert "<summary>SM89 · 2 changed opcodes" in text
+    assert "<summary>How to read this report</summary>" in text
+    assert "| Metric | Before | After | Change |" in text
+    assert "sankey" in text
+    assert "🟢 reference +1" in text
+
+
+def test_common_interaction_losses_stay_red_when_semantics_grow():
+    old, new = interaction_summary(reference=3), interaction_summary(reference=1)
+    new["SM89"]["opcodes"]["LDG"] = {"partially native": 1}
+    text = render(old, new)["body"]
+    assert "[!CAUTION]" in text
+    assert "**Reference interaction evidence decreased**" in text
+    assert "🔴 **FADD**" in text
+    assert text.index("🔴 **FADD**") < text.index("🟢 **LDG**")
+    assert "🔴 reference -1" in text
+    assert "| Metric | Before | After | Change |\n| :--- | ---: | ---: | :--- |\n\n**Interaction" not in text
 
 
 def test_unchanged_and_readable_duplicates():

@@ -338,12 +338,14 @@ combinations are counted as unresolved rather than covered. Requirements needing
 extensions remain explicit deferred gaps under issue #80. These counts do not measure all input
 values or prove correct behavior.
 
-The coverage page and PR comment report reference, GPU and PTX interaction coverage independently.
+The coverage page and PR comment add independent reference, GPU and PTX interaction coverage
+alongside the existing class and complete-form evidence sections, cards, filters and diagrams.
 Only positive reference checks enter `verification_forms`; raw exact-form evidence, including
 error/fallback checks, remains available for provenance. Interaction coverage never invents an
 unexecuted exact form, and unknown evidence settings are never filled with modifier defaults.
 PR comparisons assess common requirements and report new requirements
-separately, so a larger denominator alone is not a regression.
+separately, so a larger denominator alone is not a regression. Raw evidence count changes remain
+visible but are neutral in interaction comparisons because suite selection can change them.
 
 ### Integer adapters (`harness/autocases.py`)
 

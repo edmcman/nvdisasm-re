@@ -9,7 +9,7 @@ const STATUSES = {
   opaque: 'no semantics: Ghidra knows only which registers it reads and writes'};
 const ORDER = Object.keys(STATUSES), PARTIAL = {'partially native': 'native', 'partially primitive': 'primitive'};
 const EVIDENCE = ['gpu', 'ptxas', 'reference'];   // strongest first
-const NAMES = {gpu: 'GPU', ptxas: 'ptxas', reference: 'reference', none: 'no evidence'};
+const NAMES = {gpu: 'GPU', ptxas: 'ptxas', reference: 'reference only', none: 'no evidence'};
 const LETTERS = {gpu: 'G', ptxas: 'P', reference: 'R'};
 const MEANS = {
   native: 'Every instruction with this setting is computed in p-code.',
@@ -47,7 +47,6 @@ const covered = counts => sum(Object.values(counts)) - (counts.opaque || 0);
 const total = counts => sum(Object.values(counts));
 // Compact, for cells and cards: exact up to 9999, then 12.3k, 606k, 51.4M (tooltips keep the exact counts).
 const short = n => n < 1e4 ? `${n}` : n < 1e6 ? `${+(n / 1e3).toFixed(n < 1e5 ? 1 : 0)}k` : `${+(n / 1e6).toFixed(1)}M`;
-const n = value => value.toLocaleString('en');
 const count = counts => partial(counts) ? `${short(covered(counts) - partial(counts))}+${short(partial(counts))}/${short(total(counts))}` : `${short(covered(counts))}/${short(total(counts))}`;
 const tally = (counts, order, zeros) => order.filter(k => zeros || counts[k]).map(k => `${(counts[k] || 0).toLocaleString('en')} ${NAMES[k] || k}`).join(', ');
 // The exact counts behind a compact one, for a tooltip.
@@ -71,17 +70,10 @@ function main(D) {
     const [c, m, ce, me] = at(arch, op);
     if (!total(c)) return tag === 'td' ? '<td class="absent"></td>' : '';
     const verified = (e, n) => n ? `\n   evidence: ${tally(e, [...EVIDENCE, 'none'], true)}` : '';
-    const interaction = summary[arch].interaction_evidence[op];
     const tip = `${op} on ${arch}${interactive ? ': click for details' : ''}\n`
       + `C: ${covered(c)} of ${total(c)} classes have semantics (${tally(c, ORDER)})${verified(ce, covered(c))}\n`
-      + `M: ${covered(m).toLocaleString('en')} of ${total(m).toLocaleString('en')} modifier combinations have semantics (${tally(m, ORDER)})\n`
-      + `${interaction.strength === 'exhaustive' ? 'Exhaustive' : `${interaction.strength}-wise`} interactions: reference ${interaction.covered.reference} of ${interaction.total}; GPU ${interaction.covered.gpu} of ${interaction.total}`;
-    const kinds = EVIDENCE.filter(k => interaction.covered[k]);
-    if (members[arch][op].some(i => {
-      const e = classes[i].interaction;
-      const ran = Object.values(e.masks).reduce((a, mask) => a | BigInt(`0x${mask}`), 0n);
-      return (BigInt(`0x${e.required}`) & ~ran) !== 0n;
-    })) kinds.push('none');
+      + `M: ${covered(m).toLocaleString('en')} of ${total(m).toLocaleString('en')} modifier combinations have semantics (${tally(m, ORDER)})${verified(me, covered(m))}`;
+    const kinds = [...EVIDENCE, 'none'].filter(k => ce[k] || me[k]);
     const attrs = interactive ? ` role="button" tabindex="0" data-arch="${arch}" data-ev="${kinds.join(' ')}"${covered(c) ? ' data-sem' : ''}` : '';
     return `<${tag} class="cell heat" style="${heat(covered(c) - partial(c) / 2, total(c))}"${attrs} title="${esc(tip)}">`
       + `<span class="line"><i>C</i>${count(c)}</span><span class="line values"><i>M</i>${count(m)}</span>${strip(c)}</${tag}>`;
@@ -95,10 +87,7 @@ function main(D) {
     return `<div class="card heat" data-arch="${arch}" role="button" tabindex="0" title="Filter to opcodes present on ${arch}; the bottom strip splits its classes by status" style="${heat(percent, 100)}">`
       + `<h2>${arch}</h2><div class="big">${percent}%</div><div class="sub">of opcodes have some semantics</div>`
       + `<dl><dt>opcodes</dt><dd>${withSem}/${ops.length}</dd><dt>classes</dt><dd title="${exact(status, 'classes')}">${count(status)}</dd><dt>combinations</dt><dd title="${exact(combos, 'modifier combinations')}">${count(combos)}</dd></dl>`
-      + `<div class="sub h">interaction evidence</div><dl>${EVIDENCE.map(k => {
-        const interactions = Object.values(s.interaction_evidence);
-        return `<dt>${NAMES[k]}</dt><dd>${n(sum(interactions.map(e => e.covered[k])))} / ${n(sum(interactions.map(e => e.total)))}</dd>`;
-      }).join('')}</dl>${strip(status)}</div>`;
+      + `<div class="sub h">classes by strongest evidence</div><dl>${EVIDENCE.filter(k => ev[k]).map(k => `<dt>${NAMES[k]}</dt><dd>${ev[k]}</dd>`).join('')}</dl>${strip(status)}</div>`;
   }
 
   function overall(e) {
@@ -117,13 +106,14 @@ function main(D) {
     }
     for (const [k, fs] of Object.entries(e.forms)) for (const f of fs) (forms[f] = forms[f] || []).push(k);
     const tested = Object.keys(forms).sort();
-    return (Object.entries(mods).map(([m, cs]) => `<div class="mod"><code>${esc(m)}</code>${e.modifier_roles[m] ? `<small>${esc(e.modifier_roles[m])}</small>` : ''}${cs.join('')}</div>`).join('') || '<div class="mod">no modifiers</div>')
-      + interactions(e.interaction)
-      + (tested.length ? `<details><summary>${tested.length} ${pl(tested.length, 'combination', 'combinations')} with evidence</summary><ul>${tested.map(f => `<li><code>${esc(f) || '(defaults)'}</code> ${badge(forms[f])}</li>`).join('')}</ul></details>` : '');
+    return (Object.entries(mods).map(([m, cs]) => `<div class="mod"><code>${esc(m)}</code>${e.modifier_roles?.[m] ? `<small>${esc(e.modifier_roles[m])}</small>` : ''}${cs.join('')}</div>`).join('') || '<div class="mod">no modifiers</div>')
+      + (tested.length ? `<details><summary>${tested.length} ${pl(tested.length, 'combination', 'combinations')} with evidence</summary><ul>${tested.map(f => `<li><code>${esc(f) || '(defaults)'}</code> ${badge(forms[f])}</li>`).join('')}</ul></details>` : '')
+      + interactions(e.interaction);
   }
 
   function interactions(e) {
     if (!e || !e.total) return '';
+    const n = value => value.toLocaleString('en');
     const title = e.strength === 'exhaustive' ? 'Exhaustive interactions' : `${e.strength}-wise interactions`;
     return `<div class="evidence-wrap"><table class="evidence"><caption>${title}</caption>`
       + `<thead><tr><th>Evidence</th><th>Covered</th><th>Missing</th></tr></thead><tbody>`
@@ -213,10 +203,14 @@ function main(D) {
         + `<p>In this example, <code>noftz</code> has a ${badge(['gpu'])}, but its tooltip shows how many of its combinations have GPU evidence. Expand “combinations with evidence” to see the recorded forms. Omitted operand flags are unset.</p>`;
     }
     if (covered(c)) out += `<h3>Testing evidence</h3>`
-      + interactions(summary[arch].interaction_evidence[op])
-      + `<p class="evidence-note">Interactions cover every legal tuple up to the configured strength, exhaustively for smaller classes. Hints and consistency controls participate; scheduling and reuse fields are excluded. Each tuple must extend to a complete legal form with modeled semantics. Partial-form adapter gaps remain visible.</p>`
-      + `<p class="evidence-note">Evidence sources are counted independently. Reference coverage records available positive cases, not their latest results. PTX compilation is encoding evidence. GPU passes apply to this architecture; they do not verify the CUDA concurrency model or emulator-only effect assertions.</p>`
-      + `<details><summary>Exact class and complete-form evidence</summary><p>Raw reference provenance includes diagnostic error/fallback checks. Only positive reference forms contribute to the interaction totals above.</p>${verification(ce, me)}</details>`;
+      + verification(ce, me)
+      + `<p class="evidence-note">Each class or combination is counted once, under its strongest recorded evidence: GPU, then ptxas, then reference. GPU evidence applies only to SM89 and SM90. Reference evidence records available test cases; this report does not run them or show their latest results.</p>`
+      + (ex ? `<p>For ${esc(op)} on ${arch}, GPU evidence covers at least one combination in ${n(ce.gpu || 0)} of the ${n(covered(c))} modeled classes, but just ${n(me.gpu || 0)} of the ${n(covered(m))} modeled combinations. ${n(me.none || 0)} modeled combinations have no recorded evidence. This is why class coverage, combination coverage and evidence are shown separately.</p>` : '');
+
+    if (covered(c)) out += `<h3>Interaction evidence</h3>`
+      + interactions(summary[arch].interaction_evidence?.[op])
+      + `<p class="evidence-note">Interaction requirements include every legal tuple up to the configured strength, exhaustively for smaller classes. Hints and consistency controls participate; scheduling and reuse fields are excluded. Each tuple must extend to a complete legal form with modeled semantics. Partial-form adapter gaps remain visible.</p>`
+      + `<p class="evidence-note">These sources are counted independently. Only positive reference forms contribute; raw reference provenance above also includes diagnostic error/fallback checks. GPU passes apply to this architecture and do not verify the CUDA concurrency model or emulator-only effect assertions. PTX compilation provides encoding evidence.</p>`;
 
     return out + (ex ? '' : `<h3>${esc(op)}’s classes</h3><p>${CHIPS}</p><div class="classes">${es.map(e => head(e) + body(e)).join('')}</div>`);
   }
@@ -227,7 +221,7 @@ function main(D) {
   }
 
   // ---- static parts
-  document.getElementById('ev').innerHTML = `<option value="">all evidence sources</option>` + [...EVIDENCE, 'none'].map(k => `<option value="${k}">${k === 'none' ? 'interactions without evidence' : NAMES[k]}</option>`).join('');
+  document.getElementById('ev').innerHTML = `<option value="">all evidence levels</option>` + [...EVIDENCE, 'none'].map(k => `<option value="${k}">${k === 'none' ? 'modeled, no evidence' : NAMES[k]}</option>`).join('');
   const cards = document.getElementById('cards');
   cards.innerHTML = archs.map(card).join('');
   grid.innerHTML = `<thead><tr><th title="C: classes with semantics / classes; M: modifier combinations with semantics / modifier combinations">opcode <small>(C, M)</small></th>`
