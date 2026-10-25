@@ -203,14 +203,31 @@ def compact(e):
     if any(len(ls) > len(DIGITS) for ls in labels): raise ValueError("a modifier has more labels than form digits")
     index, forms = [{l: DIGITS[j] for j, l in enumerate(ls)} for ls in labels], defaultdict(list)
     for f, kinds in rows.items(): forms["+".join(sorted(kinds))].append("".join(index[i][l] for i, l in enumerate(f)))
-    return {**e, "labels": labels, "forms": {k: sorted(v) for k, v in forms.items()}}
+    out = {**e, "labels": labels, "forms": {k: sorted(v) for k, v in forms.items()}}
+    if "verification_forms" in e:
+        positive = defaultdict(set)
+        for kind, fs in e["verification_forms"].items():
+            for f in fs: positive[tuple(f)].add(kind)
+        encoded = defaultdict(list)
+        for kind in e["verification_forms"]: encoded[kind] = []
+        for f, kinds in positive.items():
+            encoded["+".join(sorted(kinds))].append("".join(index[i][l] for i, l in enumerate(f)))
+        out["verification_forms"] = {k: sorted(v) for k, v in encoded.items()}
+    return out
 
 
 def expand(e):
     """The {kind: [[label per modifier]]} forms of a compact() entry, as tests/evidence.py writes them."""
     if "labels" not in e: return e
-    out = defaultdict(list)
-    for kinds, fs in e["forms"].items():
-        for f in fs:
-            for k in kinds.split("+"): out[k].append([e["labels"][i][DIGITS.index(c)] for i, c in enumerate(f)])
-    return {**{k: v for k, v in e.items() if k != "labels"}, "forms": {k: sorted(v, key=json.dumps) for k, v in sorted(out.items())}}
+    result = {k: v for k, v in e.items() if k != "labels"}
+    for collection in ("forms", "verification_forms"):
+        if collection not in e: continue
+        out = defaultdict(list)
+        for kinds, fs in e[collection].items():
+            for f in fs:
+                for k in kinds.split("+"): out[k].append([e["labels"][i][DIGITS.index(c)] for i, c in enumerate(f)])
+        # Preserve explicitly empty positive collections.
+        for kinds in e[collection]:
+            for k in kinds.split("+"): out.setdefault(k, [])
+        result[collection] = {k: sorted(v, key=json.dumps) for k, v in sorted(out.items())}
+    return result

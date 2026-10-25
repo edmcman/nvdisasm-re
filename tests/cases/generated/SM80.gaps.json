@@ -1,10 +1,12 @@
 {
   "counts": {
     "legal": 2730070,
-    "unresolved_semantics": 2146245,
-    "manual": 0,
-    "blocked": 475514,
-    "generated": 108311
+    "unresolved_semantics": 2151093,
+    "requirements": 173945,
+    "manual": 426,
+    "blocked": 57089,
+    "covered_requirements": 116856,
+    "generated": 12796
   },
   "gaps": [
     {
@@ -270,32 +272,56 @@
     {
       "cls": "bmov_pquad__RCR",
       "count": 1,
-      "reason": "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination (reason: pquad)"
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination (reason: pquad)": 1
+      }
     },
     {
       "cls": "bmov_pquad__RCXR",
       "count": 1,
-      "reason": "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination (reason: pquad)"
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination (reason: pquad)": 1
+      }
     },
     {
       "cls": "bmov_pquad__RIR",
       "count": 1,
-      "reason": "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination (reason: pquad)"
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination (reason: pquad)": 1
+      }
     },
     {
       "cls": "bmov_pquad__RRR",
       "count": 1,
-      "reason": "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination (reason: pquad)"
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination (reason: pquad)": 1
+      }
     },
     {
       "cls": "bmov_pquad__RUR",
       "count": 1,
-      "reason": "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination (reason: pquad)"
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination (reason: pquad)": 1
+      }
     },
     {
       "cls": "bmov_pquad_bar__RBR",
       "count": 1,
-      "reason": "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination (reason: pquad)"
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "ILLEGAL_INSTR_ENCODING_ERROR: Invalid instruction combination (reason: pquad)": 1
+      }
     },
     {
       "cls": "bpt__noDRAIN",
@@ -314,13 +340,17 @@
     },
     {
       "cls": "bra_uniform_",
-      "count": 8,
-      "reason": "unhandled control-flow modifiers"
+      "count": 16,
+      "reason": "unresolved semantics"
     },
     {
       "cls": "bra_uniform_",
-      "count": 16,
-      "reason": "unresolved semantics"
+      "count": 20,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "unhandled control-flow modifiers": 8
+      }
     },
     {
       "cls": "bra_uniform_pred_",
@@ -644,73 +674,129 @@
     },
     {
       "cls": "f2fp__RCR",
-      "count": 16,
-      "reason": "low-precision, upconversion and scaled format corpora remain manual"
+      "count": 32,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "low-precision, upconversion and scaled format corpora remain manual": 16
+      }
     },
     {
       "cls": "f2fp__RCxR",
-      "count": 16,
-      "reason": "low-precision, upconversion and scaled format corpora remain manual"
+      "count": 32,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "low-precision, upconversion and scaled format corpora remain manual": 16
+      }
     },
     {
       "cls": "f2fp__RIR",
-      "count": 16,
-      "reason": "low-precision, upconversion and scaled format corpora remain manual"
+      "count": 32,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "low-precision, upconversion and scaled format corpora remain manual": 16
+      }
     },
     {
       "cls": "f2fp__RRR",
-      "count": 16,
-      "reason": "low-precision, upconversion and scaled format corpora remain manual"
+      "count": 32,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "low-precision, upconversion and scaled format corpora remain manual": 16
+      }
     },
     {
       "cls": "f2fp__RUR",
-      "count": 16,
-      "reason": "low-precision, upconversion and scaled format corpora remain manual"
+      "count": 32,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "low-precision, upconversion and scaled format corpora remain manual": 16
+      }
     },
     {
       "cls": "f2fp_merge_c__RCR",
-      "count": 32,
-      "reason": "low-precision, upconversion and scaled format corpora remain manual"
+      "count": 80,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "low-precision, upconversion and scaled format corpora remain manual": 32
+      }
     },
     {
       "cls": "f2fp_merge_c__RCxR",
-      "count": 32,
-      "reason": "low-precision, upconversion and scaled format corpora remain manual"
+      "count": 80,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "low-precision, upconversion and scaled format corpora remain manual": 32
+      }
     },
     {
       "cls": "f2fp_merge_c__RIR",
-      "count": 32,
-      "reason": "low-precision, upconversion and scaled format corpora remain manual"
+      "count": 80,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "low-precision, upconversion and scaled format corpora remain manual": 32
+      }
     },
     {
       "cls": "f2fp_merge_c__RRC",
-      "count": 32,
-      "reason": "low-precision, upconversion and scaled format corpora remain manual"
+      "count": 80,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "low-precision, upconversion and scaled format corpora remain manual": 32
+      }
     },
     {
       "cls": "f2fp_merge_c__RRCx",
-      "count": 32,
-      "reason": "low-precision, upconversion and scaled format corpora remain manual"
+      "count": 80,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "low-precision, upconversion and scaled format corpora remain manual": 32
+      }
     },
     {
       "cls": "f2fp_merge_c__RRI",
-      "count": 32,
-      "reason": "low-precision, upconversion and scaled format corpora remain manual"
+      "count": 80,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "low-precision, upconversion and scaled format corpora remain manual": 32
+      }
     },
     {
       "cls": "f2fp_merge_c__RRR",
-      "count": 32,
-      "reason": "low-precision, upconversion and scaled format corpora remain manual"
+      "count": 80,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "low-precision, upconversion and scaled format corpora remain manual": 32
+      }
     },
     {
       "cls": "f2fp_merge_c__RRU",
-      "count": 32,
-      "reason": "low-precision, upconversion and scaled format corpora remain manual"
+      "count": 80,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "low-precision, upconversion and scaled format corpora remain manual": 32
+      }
     },
     {
       "cls": "f2fp_merge_c__RUR",
-      "count": 32,
-      "reason": "low-precision, upconversion and scaled format corpora remain manual"
+      "count": 80,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "low-precision, upconversion and scaled format corpora remain manual": 32
+      }
     },
     {
       "cls": "f2fp_rs__RCR",
@@ -760,87 +846,87 @@
     {
       "cls": "f2i_Rd64__CXb_64b",
       "count": 128,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i_Rd64__Cb_64b",
       "count": 128,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__CXb_16b",
       "count": 512,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__CXb_32b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__CXb_64b",
       "count": 384,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Cb_16b",
       "count": 512,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Cb_32b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Cb_64b",
       "count": 384,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__IU_32b",
       "count": 64,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Ib_16b",
       "count": 64,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Ib_64b",
       "count": 64,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Rb_16b",
       "count": 512,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Rb_32b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__Rb_64b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__URb_16b",
       "count": 512,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__URb_32b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__URb_64b",
       "count": 256,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "flo__RCR_RCR",
@@ -848,9 +934,21 @@
       "reason": "unresolved semantics"
     },
     {
+      "cls": "flo__RCR_RCR",
+      "count": 4,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
       "cls": "flo__RCxR_RCxR",
       "count": 8,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "flo__RCxR_RCxR",
+      "count": 8,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
       "cls": "flo__RRR_RRR",
@@ -858,9 +956,21 @@
       "reason": "unresolved semantics"
     },
     {
+      "cls": "flo__RRR_RRR",
+      "count": 4,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
       "cls": "flo__RUR_RUR",
       "count": 8,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "flo__RUR_RUR",
+      "count": 4,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
       "cls": "flo__RuIR_RIR",
@@ -919,3850 +1029,37 @@
     },
     {
       "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
+      "count": 64,
       "reason": "unresolved semantics"
     },
     {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_C",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
       "cls": "frnd__f16_CXb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
+      "count": 64,
       "reason": "unresolved semantics"
     },
     {
       "cls": "frnd__f16_I",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND"
-      },
+      "count": 8,
       "reason": "unresolved semantics"
     },
     {
-      "cls": "frnd__f16_I",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_I",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_I",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_I",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_I",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_I",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_I",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Rb@negate": "unset",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Rb@negate": "unset",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Rb@negate": "set",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Rb@negate": "set",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Rb@negate": "unset",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Rb@negate": "unset",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Rb@negate": "set",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Rb@negate": "set",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Rb@negate": "unset",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Rb@negate": "unset",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Rb@negate": "set",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Rb@negate": "set",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Rb@negate": "unset",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Rb@negate": "unset",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Rb@negate": "set",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Rb@negate": "set",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Rb@negate": "unset",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Rb@negate": "unset",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Rb@negate": "set",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Rb@negate": "set",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Rb@negate": "unset",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Rb@negate": "unset",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Rb@negate": "set",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Rb@negate": "set",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Rb@negate": "unset",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Rb@negate": "unset",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Rb@negate": "set",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Rb@negate": "set",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Rb@negate": "unset",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Rb@negate": "unset",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Rb@negate": "set",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Rb@negate": "set",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Rb@negate": "unset",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Rb@negate": "unset",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Rb@negate": "set",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Rb@negate": "set",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Rb@negate": "unset",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Rb@negate": "unset",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Rb@negate": "set",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Rb@negate": "set",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Rb@negate": "unset",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Rb@negate": "unset",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Rb@negate": "set",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Rb@negate": "set",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Rb@negate": "unset",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Rb@negate": "unset",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Rb@negate": "set",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Rb@negate": "set",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Rb@negate": "unset",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Rb@negate": "unset",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Rb@negate": "set",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "Rb@negate": "set",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Rb@negate": "unset",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Rb@negate": "unset",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Rb@negate": "set",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "Rb@negate": "set",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Rb@negate": "unset",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Rb@negate": "unset",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Rb@negate": "set",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "Rb@negate": "set",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Rb@negate": "unset",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Rb@negate": "unset",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Rb@negate": "set",
-        "Rb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
       "cls": "frnd__f16_R",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "Rb@negate": "set",
-        "Rb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "URb@negate": "unset",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "URb@negate": "unset",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "URb@negate": "set",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "URb@negate": "set",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "URb@negate": "unset",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "URb@negate": "unset",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "URb@negate": "set",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "URb@negate": "set",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "URb@negate": "unset",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "URb@negate": "unset",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "URb@negate": "set",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "URb@negate": "set",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "URb@negate": "unset",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "URb@negate": "unset",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "URb@negate": "set",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "URb@negate": "set",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "URb@negate": "unset",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "URb@negate": "unset",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "URb@negate": "set",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "URb@negate": "set",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "URb@negate": "unset",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "URb@negate": "unset",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "URb@negate": "set",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "URb@negate": "set",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "URb@negate": "unset",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "URb@negate": "unset",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "URb@negate": "set",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "URb@negate": "set",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "URb@negate": "unset",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "URb@negate": "unset",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "URb@negate": "set",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H0",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "URb@negate": "set",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "URb@negate": "unset",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "URb@negate": "unset",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "URb@negate": "set",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "URb@negate": "set",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "URb@negate": "unset",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "URb@negate": "unset",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "URb@negate": "set",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "URb@negate": "set",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "URb@negate": "unset",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "URb@negate": "unset",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "URb@negate": "set",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "URb@negate": "set",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "URb@negate": "unset",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "URb@negate": "unset",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "URb@negate": "set",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "noftz",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "URb@negate": "set",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "URb@negate": "unset",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "URb@negate": "unset",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "URb@negate": "set",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "ROUND",
-        "URb@negate": "set",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "URb@negate": "unset",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "URb@negate": "unset",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "URb@negate": "set",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "FLOOR",
-        "URb@negate": "set",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "URb@negate": "unset",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "URb@negate": "unset",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "URb@negate": "set",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "CEIL",
-        "URb@negate": "set",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "URb@negate": "unset",
-        "URb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "URb@negate": "unset",
-        "URb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "URb@negate": "set",
-        "URb@absolute": "unset"
-      },
+      "count": 64,
       "reason": "unresolved semantics"
     },
     {
       "cls": "frnd__f16_URb",
-      "settings": {
-        "hsel": "H1",
-        "ftz": "FTZ",
-        "fmt": "F16",
-        "rnd": "TRUNC",
-        "URb@negate": "set",
-        "URb@absolute": "set"
-      },
+      "count": 64,
       "reason": "unresolved semantics"
     },
     {
       "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_C",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
+      "count": 32,
       "reason": "unresolved semantics"
     },
     {
       "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "noftz",
-        "fmt": "F64",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "ROUND",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "ROUND",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "FLOOR",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "FLOOR",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "CEIL",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "CEIL",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "TRUNC",
-        "Sb@negate": "unset",
-        "Sb@absolute": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "frnd__f64_CXb",
-      "settings": {
-        "ftz": "FTZ",
-        "fmt": "F64",
-        "rnd": "TRUNC",
-        "Sb@negate": "set",
-        "Sb@absolute": "set"
-      },
+      "count": 32,
       "reason": "unresolved semantics"
     },
     {
@@ -4782,28 +1079,31 @@
     },
     {
       "cls": "hadd2__RC",
-      "count": 270,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 576,
+      "reason": "unresolved semantics"
     },
     {
       "cls": "hadd2__RC",
+      "count": 360,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 270
+      }
+    },
+    {
+      "cls": "hadd2__RCx",
       "count": 576,
       "reason": "unresolved semantics"
     },
     {
       "cls": "hadd2__RCx",
-      "count": 270,
-      "reason": "packed source-sign numerical corpus remains manual"
-    },
-    {
-      "cls": "hadd2__RCx",
-      "count": 576,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "hadd2__RI",
-      "count": 18,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 360,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 270
+      }
     },
     {
       "cls": "hadd2__RI",
@@ -4811,9 +1111,13 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hadd2__RR",
-      "count": 270,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "cls": "hadd2__RI",
+      "count": 55,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 18
+      }
     },
     {
       "cls": "hadd2__RR",
@@ -4821,14 +1125,27 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hadd2__RU",
-      "count": 270,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "cls": "hadd2__RR",
+      "count": 360,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 270
+      }
     },
     {
       "cls": "hadd2__RU",
       "count": 576,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "hadd2__RU",
+      "count": 360,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 270
+      }
     },
     {
       "cls": "hfma2_mma__RCR_norelu",
@@ -4922,28 +1239,31 @@
     },
     {
       "cls": "hfma2__RCR",
-      "count": 3402,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 8640,
+      "reason": "unresolved semantics"
     },
     {
       "cls": "hfma2__RCR",
+      "count": 1133,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 3402
+      }
+    },
+    {
+      "cls": "hfma2__RCxR",
       "count": 8640,
       "reason": "unresolved semantics"
     },
     {
       "cls": "hfma2__RCxR",
-      "count": 3402,
-      "reason": "packed source-sign numerical corpus remains manual"
-    },
-    {
-      "cls": "hfma2__RCxR",
-      "count": 8640,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "hfma2__RIR",
-      "count": 270,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 1133,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 3402
+      }
     },
     {
       "cls": "hfma2__RIR",
@@ -4951,9 +1271,13 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hfma2__RRC",
-      "count": 3402,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "cls": "hfma2__RIR",
+      "count": 360,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 270
+      }
     },
     {
       "cls": "hfma2__RRC",
@@ -4961,9 +1285,13 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hfma2__RRCx",
-      "count": 3402,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "cls": "hfma2__RRC",
+      "count": 1133,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 3402
+      }
     },
     {
       "cls": "hfma2__RRCx",
@@ -4971,9 +1299,13 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hfma2__RRI",
-      "count": 270,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "cls": "hfma2__RRCx",
+      "count": 1133,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 3402
+      }
     },
     {
       "cls": "hfma2__RRI",
@@ -4981,9 +1313,13 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hfma2__RRR",
-      "count": 3402,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "cls": "hfma2__RRI",
+      "count": 360,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 270
+      }
     },
     {
       "cls": "hfma2__RRR",
@@ -4991,9 +1327,13 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hfma2__RRU",
-      "count": 3402,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "cls": "hfma2__RRR",
+      "count": 1133,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 3402
+      }
     },
     {
       "cls": "hfma2__RRU",
@@ -5001,14 +1341,27 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hfma2__RUR",
-      "count": 3402,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "cls": "hfma2__RRU",
+      "count": 1133,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 3402
+      }
     },
     {
       "cls": "hfma2__RUR",
       "count": 8640,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "hfma2__RUR",
+      "count": 1133,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 3402
+      }
     },
     {
       "cls": "hfma2_relu__RCR",
@@ -5077,123 +1430,203 @@
     },
     {
       "cls": "hmnmx2__RCR",
-      "count": 1620,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 600,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 1620
+      }
     },
     {
       "cls": "hmnmx2__RCxR",
-      "count": 1620,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 600,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 1620
+      }
     },
     {
       "cls": "hmnmx2__RIR",
-      "count": 108,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 127,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 108
+      }
     },
     {
       "cls": "hmnmx2__RRR",
-      "count": 1620,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 600,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 1620
+      }
     },
     {
       "cls": "hmnmx2__RUR",
-      "count": 1620,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 600,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 1620
+      }
     },
     {
       "cls": "hmul2__RC",
-      "count": 810,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 468,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 810
+      }
     },
     {
       "cls": "hmul2__RCx",
-      "count": 810,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 468,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 810
+      }
     },
     {
       "cls": "hmul2__RI",
-      "count": 54,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 85,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 54
+      }
     },
     {
       "cls": "hmul2__RR",
-      "count": 810,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 468,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 810
+      }
     },
     {
       "cls": "hmul2__RU",
-      "count": 810,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 468,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 810
+      }
     },
     {
       "cls": "hset2__RC",
-      "count": 51840,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 1918,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 51840
+      }
     },
     {
       "cls": "hset2__RCx",
-      "count": 51840,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 1918,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 51840
+      }
     },
     {
       "cls": "hset2__RI",
-      "count": 3456,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 582,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 3456
+      }
     },
     {
       "cls": "hset2__RR",
-      "count": 51840,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 1918,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 51840
+      }
     },
     {
       "cls": "hset2__RU",
-      "count": 51840,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 1918,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 51840
+      }
     },
     {
       "cls": "hsetp2__RC",
-      "count": 51840,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 1918,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 51840
+      }
     },
     {
       "cls": "hsetp2__RCx",
-      "count": 51840,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 1918,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 51840
+      }
     },
     {
       "cls": "hsetp2__RI",
-      "count": 3456,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 582,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 3456
+      }
     },
     {
       "cls": "hsetp2__RR",
-      "count": 51840,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 1918,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 51840
+      }
     },
     {
       "cls": "hsetp2__RU",
-      "count": 51840,
-      "reason": "packed source-sign numerical corpus remains manual"
+      "count": 1918,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed source-sign numerical corpus remains manual": 51840
+      }
     },
     {
       "cls": "i2f_Rd64__CX_64b",
       "count": 8,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "i2f_Rd64__Cb_64b",
       "count": 8,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "i2f__CX_64b",
       "count": 16,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "i2f__Cb_64b",
       "count": 16,
-      "reason": "conversion runtime fallback cannot execute the full numerical profile"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "i2i__RCR_RCR",
@@ -5222,145 +1655,48 @@
     },
     {
       "cls": "imad_pseudo__RCR_RCR",
-      "settings": {
-        "fmt": "U32",
-        "Rc@negate": "unset"
-      },
-      "reason": "alternate or absent instruction class"
-    },
-    {
-      "cls": "imad_pseudo__RCR_RCR",
-      "settings": {
-        "fmt": "U32",
-        "Rc@negate": "set"
-      },
-      "reason": "alternate or absent instruction class"
-    },
-    {
-      "cls": "imad_pseudo__RCR_RCR",
-      "settings": {
-        "fmt": "S32",
-        "Rc@negate": "unset"
-      },
-      "reason": "alternate or absent instruction class"
-    },
-    {
-      "cls": "imad_pseudo__RCR_RCR",
-      "settings": {
-        "fmt": "S32",
-        "Rc@negate": "set"
-      },
-      "reason": "alternate or absent instruction class"
+      "count": 4,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "alternate or absent instruction class": 4
+      }
     },
     {
       "cls": "imad_pseudo__RRC_RRC",
-      "settings": {
-        "fmt": "U32",
-        "Sc@negate": "unset"
-      },
-      "reason": "alternate or absent instruction class"
-    },
-    {
-      "cls": "imad_pseudo__RRC_RRC",
-      "settings": {
-        "fmt": "U32",
-        "Sc@negate": "set"
-      },
-      "reason": "alternate or absent instruction class"
-    },
-    {
-      "cls": "imad_pseudo__RRC_RRC",
-      "settings": {
-        "fmt": "S32",
-        "Sc@negate": "unset"
-      },
-      "reason": "alternate or absent instruction class"
-    },
-    {
-      "cls": "imad_pseudo__RRC_RRC",
-      "settings": {
-        "fmt": "S32",
-        "Sc@negate": "set"
-      },
-      "reason": "alternate or absent instruction class"
+      "count": 4,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "alternate or absent instruction class": 4
+      }
     },
     {
       "cls": "imad_pseudo__RRR_RRR",
-      "settings": {
-        "fmt": "U32",
-        "Rc@negate": "unset"
-      },
-      "reason": "alternate or absent instruction class"
-    },
-    {
-      "cls": "imad_pseudo__RRR_RRR",
-      "settings": {
-        "fmt": "U32",
-        "Rc@negate": "set"
-      },
-      "reason": "alternate or absent instruction class"
-    },
-    {
-      "cls": "imad_pseudo__RRR_RRR",
-      "settings": {
-        "fmt": "S32",
-        "Rc@negate": "unset"
-      },
-      "reason": "alternate or absent instruction class"
-    },
-    {
-      "cls": "imad_pseudo__RRR_RRR",
-      "settings": {
-        "fmt": "S32",
-        "Rc@negate": "set"
-      },
-      "reason": "alternate or absent instruction class"
+      "count": 4,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "alternate or absent instruction class": 4
+      }
     },
     {
       "cls": "imad_pseudo__RRsI_RRI",
-      "settings": {
-        "fmt": "U32"
-      },
-      "reason": "alternate or absent instruction class"
-    },
-    {
-      "cls": "imad_pseudo__RRsI_RRI",
-      "settings": {
-        "fmt": "S32"
-      },
-      "reason": "alternate or absent instruction class"
+      "count": 2,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "alternate or absent instruction class": 2
+      }
     },
     {
       "cls": "imad_pseudo__RsIR_RIR",
-      "settings": {
-        "fmt": "U32",
-        "Rc@negate": "unset"
-      },
-      "reason": "alternate or absent instruction class"
-    },
-    {
-      "cls": "imad_pseudo__RsIR_RIR",
-      "settings": {
-        "fmt": "U32",
-        "Rc@negate": "set"
-      },
-      "reason": "alternate or absent instruction class"
-    },
-    {
-      "cls": "imad_pseudo__RsIR_RIR",
-      "settings": {
-        "fmt": "S32",
-        "Rc@negate": "unset"
-      },
-      "reason": "alternate or absent instruction class"
-    },
-    {
-      "cls": "imad_pseudo__RsIR_RIR",
-      "settings": {
-        "fmt": "S32",
-        "Rc@negate": "set"
-      },
-      "reason": "alternate or absent instruction class"
+      "count": 4,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "alternate or absent instruction class": 4
+      }
     },
     {
       "cls": "imma_",
@@ -5464,98 +1800,28 @@
     },
     {
       "cls": "ld__sImmOffset",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 0"
-    },
-    {
-      "cls": "ld__sImmOffset",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld__sImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "ld__sImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld__sImmOffset",
-      "count": 120,
-      "reason": "sem: encoding changes 2 to 0"
-    },
-    {
-      "cls": "ld__sImmOffset",
-      "count": 180,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "ld__sImmOffset",
-      "count": 60,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "ld__sImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "ld__sImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 2 to 4"
-    },
-    {
-      "cls": "ld__sImmOffset",
       "count": 10944,
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ld__uImmOffset",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 0"
+      "cls": "ld__sImmOffset",
+      "count": 366,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
-      "cls": "ld__uImmOffset",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld__uImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "ld__uImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld__uImmOffset",
-      "count": 120,
-      "reason": "sem: encoding changes 2 to 0"
-    },
-    {
-      "cls": "ld__uImmOffset",
-      "count": 180,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "ld__uImmOffset",
-      "count": 60,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "ld__uImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "ld__uImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 2 to 4"
+      "cls": "ld__sImmOffset",
+      "count": 427,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 360,
+        "sco: encoding changes 1 to 2": 60,
+        "sco: encoding changes 1 to 4": 60,
+        "sco: encoding changes 2 to 4": 60,
+        "sco: encoding changes 3 to 4": 240,
+        "sem: encoding changes 1 to 2": 60
+      }
     },
     {
       "cls": "ld__uImmOffset",
@@ -5563,49 +1829,24 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ld_memdesc__Ra64",
-      "count": 240,
-      "reason": "sem: encoding changes 1 to 0"
+      "cls": "ld__uImmOffset",
+      "count": 366,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
-      "cls": "ld_memdesc__Ra64",
-      "count": 240,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld_memdesc__Ra64",
-      "count": 120,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "ld_memdesc__Ra64",
-      "count": 120,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld_memdesc__Ra64",
-      "count": 240,
-      "reason": "sem: encoding changes 2 to 0"
-    },
-    {
-      "cls": "ld_memdesc__Ra64",
-      "count": 360,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "ld_memdesc__Ra64",
-      "count": 120,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "ld_memdesc__Ra64",
-      "count": 120,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "ld_memdesc__Ra64",
-      "count": 120,
-      "reason": "sco: encoding changes 2 to 4"
+      "cls": "ld__uImmOffset",
+      "count": 427,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 360,
+        "sco: encoding changes 1 to 2": 60,
+        "sco: encoding changes 1 to 4": 60,
+        "sco: encoding changes 2 to 4": 60,
+        "sco: encoding changes 3 to 4": 240,
+        "sem: encoding changes 1 to 2": 60
+      }
     },
     {
       "cls": "ld_memdesc__Ra64",
@@ -5613,49 +1854,24 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ld_uniform__Ra32",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 0"
+      "cls": "ld_memdesc__Ra64",
+      "count": 408,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
-      "cls": "ld_uniform__Ra32",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld_uniform__Ra32",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "ld_uniform__Ra32",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld_uniform__Ra32",
-      "count": 120,
-      "reason": "sem: encoding changes 2 to 0"
-    },
-    {
-      "cls": "ld_uniform__Ra32",
-      "count": 180,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "ld_uniform__Ra32",
-      "count": 60,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "ld_uniform__Ra32",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "ld_uniform__Ra32",
-      "count": 60,
-      "reason": "sco: encoding changes 2 to 4"
+      "cls": "ld_memdesc__Ra64",
+      "count": 472,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 720,
+        "sco: encoding changes 1 to 2": 120,
+        "sco: encoding changes 1 to 4": 120,
+        "sco: encoding changes 2 to 4": 120,
+        "sco: encoding changes 3 to 4": 480,
+        "sem: encoding changes 1 to 2": 120
+      }
     },
     {
       "cls": "ld_uniform__Ra32",
@@ -5663,49 +1879,24 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ld_uniform__Ra64",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 0"
+      "cls": "ld_uniform__Ra32",
+      "count": 366,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
-      "cls": "ld_uniform__Ra64",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld_uniform__Ra64",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "ld_uniform__Ra64",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld_uniform__Ra64",
-      "count": 120,
-      "reason": "sem: encoding changes 2 to 0"
-    },
-    {
-      "cls": "ld_uniform__Ra64",
-      "count": 180,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "ld_uniform__Ra64",
-      "count": 60,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "ld_uniform__Ra64",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "ld_uniform__Ra64",
-      "count": 60,
-      "reason": "sco: encoding changes 2 to 4"
+      "cls": "ld_uniform__Ra32",
+      "count": 427,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 360,
+        "sco: encoding changes 1 to 2": 60,
+        "sco: encoding changes 1 to 4": 60,
+        "sco: encoding changes 2 to 4": 60,
+        "sco: encoding changes 3 to 4": 240,
+        "sem: encoding changes 1 to 2": 60
+      }
     },
     {
       "cls": "ld_uniform__Ra64",
@@ -5713,49 +1904,24 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ld_uniform__RaRZ",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 0"
+      "cls": "ld_uniform__Ra64",
+      "count": 324,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
-      "cls": "ld_uniform__RaRZ",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld_uniform__RaRZ",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "ld_uniform__RaRZ",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "ld_uniform__RaRZ",
-      "count": 120,
-      "reason": "sem: encoding changes 2 to 0"
-    },
-    {
-      "cls": "ld_uniform__RaRZ",
-      "count": 180,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "ld_uniform__RaRZ",
-      "count": 60,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "ld_uniform__RaRZ",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "ld_uniform__RaRZ",
-      "count": 60,
-      "reason": "sco: encoding changes 2 to 4"
+      "cls": "ld_uniform__Ra64",
+      "count": 382,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 360,
+        "sco: encoding changes 1 to 2": 60,
+        "sco: encoding changes 1 to 4": 60,
+        "sco: encoding changes 2 to 4": 60,
+        "sco: encoding changes 3 to 4": 240,
+        "sem: encoding changes 1 to 2": 60
+      }
     },
     {
       "cls": "ld_uniform__RaRZ",
@@ -5763,14 +1929,46 @@
       "reason": "unresolved semantics"
     },
     {
+      "cls": "ld_uniform__RaRZ",
+      "count": 366,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
+      "cls": "ld_uniform__RaRZ",
+      "count": 427,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 360,
+        "sco: encoding changes 1 to 2": 60,
+        "sco: encoding changes 1 to 4": 60,
+        "sco: encoding changes 2 to 4": 60,
+        "sco: encoding changes 3 to 4": 240,
+        "sem: encoding changes 1 to 2": 60
+      }
+    },
+    {
       "cls": "ldc__RaNonRZ",
       "count": 19,
       "reason": "unresolved semantics"
     },
     {
+      "cls": "ldc__RaNonRZ",
+      "count": 1,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
       "cls": "ldc__RaRZ",
       "count": 19,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "ldc__RaRZ",
+      "count": 1,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
       "cls": "ldc_ur__URRzI",
@@ -5788,9 +1986,21 @@
       "reason": "unresolved semantics"
     },
     {
+      "cls": "ldg__sImmOffset",
+      "count": 2126,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
       "cls": "ldg__uImmOffset",
       "count": 12264,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "ldg__uImmOffset",
+      "count": 2276,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
       "cls": "ldg_memdesc__Ra64",
@@ -5798,9 +2008,21 @@
       "reason": "unresolved semantics"
     },
     {
+      "cls": "ldg_memdesc__Ra64",
+      "count": 2234,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
       "cls": "ldg_uniform__Ra32",
       "count": 12264,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "ldg_uniform__Ra32",
+      "count": 2332,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
       "cls": "ldg_uniform__Ra64",
@@ -5808,9 +2030,21 @@
       "reason": "unresolved semantics"
     },
     {
+      "cls": "ldg_uniform__Ra64",
+      "count": 1714,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
       "cls": "ldg_uniform__RaRZ",
       "count": 12264,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "ldg_uniform__RaRZ",
+      "count": 2332,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
       "cls": "ldgdepbar_",
@@ -5848,9 +2082,21 @@
       "reason": "unresolved semantics"
     },
     {
+      "cls": "ldl__sImmOffset",
+      "count": 12,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
       "cls": "ldl__uImmOffset",
       "count": 12,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "ldl__uImmOffset",
+      "count": 12,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
       "cls": "ldl_memdesc_",
@@ -5858,9 +2104,21 @@
       "reason": "unresolved semantics"
     },
     {
+      "cls": "ldl_memdesc_",
+      "count": 24,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
       "cls": "ldl_uniform_",
       "count": 12,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "ldl_uniform_",
+      "count": 12,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
       "cls": "lds__sImmOffset",
@@ -5868,14 +2126,32 @@
       "reason": "unresolved semantics"
     },
     {
+      "cls": "lds__sImmOffset",
+      "count": 8,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
       "cls": "lds__uImmOffset",
       "count": 2,
       "reason": "unresolved semantics"
     },
     {
+      "cls": "lds__uImmOffset",
+      "count": 2,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
       "cls": "lds_uniform_",
       "count": 8,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "lds_uniform_",
+      "count": 8,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
       "cls": "ldsm__UR_sI_R",
@@ -5904,47 +2180,77 @@
     },
     {
       "cls": "mov__RC",
-      "settings": {},
+      "count": 1,
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "mov__RC",
+      "count": 1,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
+      "cls": "mov__RCx",
+      "count": 1,
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov__RCx",
-      "settings": {},
+      "count": 1,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
+      "cls": "mov__RI",
+      "count": 1,
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov__RI",
-      "settings": {},
+      "count": 1,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
+      "cls": "mov__RR",
+      "count": 1,
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov__RR",
-      "settings": {},
+      "count": 1,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
+      "cls": "mov__RU",
+      "count": 1,
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov__RU",
-      "settings": {},
-      "reason": "unresolved semantics"
+      "count": 1,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
       "cls": "mov_indexedRF_IRFd__Cb",
-      "settings": {},
+      "count": 1,
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov_indexedRF_IRFd__Ib",
-      "settings": {},
+      "count": 1,
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov_indexedRF_IRFd__Rb",
-      "settings": {},
+      "count": 1,
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov_indexedRF_Rd_",
-      "settings": {},
+      "count": 1,
       "reason": "unresolved semantics"
     },
     {
@@ -5955,52 +2261,92 @@
     {
       "cls": "mufu__RCR_RC",
       "count": 32,
-      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 32
+      }
     },
     {
       "cls": "mufu__RCxR_RCx",
       "count": 32,
-      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 32
+      }
     },
     {
       "cls": "mufu__RIR_RI",
       "count": 8,
-      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 8
+      }
     },
     {
       "cls": "mufu__RRR_RR",
       "count": 32,
-      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 32
+      }
     },
     {
       "cls": "mufu__RUR_RU",
       "count": 32,
-      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 32
+      }
     },
     {
       "cls": "mufu_fp16__RC",
-      "count": 64,
-      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
+      "count": 104,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 64
+      }
     },
     {
       "cls": "mufu_fp16__RCx",
-      "count": 64,
-      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
+      "count": 104,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 64
+      }
     },
     {
       "cls": "mufu_fp16__RI",
       "count": 8,
-      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 8
+      }
     },
     {
       "cls": "mufu_fp16__RR",
-      "count": 64,
-      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
+      "count": 104,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 64
+      }
     },
     {
       "cls": "mufu_fp16__RU",
-      "count": 64,
-      "reason": "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage"
+      "count": 104,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 64
+      }
     },
     {
       "cls": "nanosleep__C",
@@ -6064,206 +2410,62 @@
     },
     {
       "cls": "plop3_lut_2out_1reg__RCR",
-      "settings": {
-        "Pp@not": "unset",
-        "Pr@not": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "plop3_lut_2out_1reg__RCR",
-      "settings": {
-        "Pp@not": "unset",
-        "Pr@not": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "plop3_lut_2out_1reg__RCR",
-      "settings": {
-        "Pp@not": "set",
-        "Pr@not": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "plop3_lut_2out_1reg__RCR",
-      "settings": {
-        "Pp@not": "set",
-        "Pr@not": "set"
-      },
+      "count": 4,
       "reason": "unresolved semantics"
     },
     {
       "cls": "plop3_lut_2out_1reg__RCxR",
-      "settings": {
-        "Pp@not": "unset",
-        "Pr@not": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "plop3_lut_2out_1reg__RCxR",
-      "settings": {
-        "Pp@not": "unset",
-        "Pr@not": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "plop3_lut_2out_1reg__RCxR",
-      "settings": {
-        "Pp@not": "set",
-        "Pr@not": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "plop3_lut_2out_1reg__RCxR",
-      "settings": {
-        "Pp@not": "set",
-        "Pr@not": "set"
-      },
+      "count": 4,
       "reason": "unresolved semantics"
     },
     {
       "cls": "plop3_lut_2out_1reg__RRR",
-      "settings": {
-        "Pp@not": "unset",
-        "Pr@not": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "plop3_lut_2out_1reg__RRR",
-      "settings": {
-        "Pp@not": "unset",
-        "Pr@not": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "plop3_lut_2out_1reg__RRR",
-      "settings": {
-        "Pp@not": "set",
-        "Pr@not": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "plop3_lut_2out_1reg__RRR",
-      "settings": {
-        "Pp@not": "set",
-        "Pr@not": "set"
-      },
+      "count": 4,
       "reason": "unresolved semantics"
     },
     {
       "cls": "plop3_lut_2out_1reg__RUR",
-      "settings": {
-        "Pp@not": "unset",
-        "Pr@not": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "plop3_lut_2out_1reg__RUR",
-      "settings": {
-        "Pp@not": "unset",
-        "Pr@not": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "plop3_lut_2out_1reg__RUR",
-      "settings": {
-        "Pp@not": "set",
-        "Pr@not": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "plop3_lut_2out_1reg__RUR",
-      "settings": {
-        "Pp@not": "set",
-        "Pr@not": "set"
-      },
+      "count": 4,
       "reason": "unresolved semantics"
     },
     {
       "cls": "plop3_lut_2out_2reg__RCR",
-      "settings": {
-        "Pp@not": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "plop3_lut_2out_2reg__RCR",
-      "settings": {
-        "Pp@not": "set"
-      },
+      "count": 2,
       "reason": "unresolved semantics"
     },
     {
       "cls": "plop3_lut_2out_2reg__RCxR",
-      "settings": {
-        "Pp@not": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "plop3_lut_2out_2reg__RCxR",
-      "settings": {
-        "Pp@not": "set"
-      },
+      "count": 2,
       "reason": "unresolved semantics"
     },
     {
       "cls": "plop3_lut_2out_2reg__RRR",
-      "settings": {
-        "Pp@not": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "plop3_lut_2out_2reg__RRR",
-      "settings": {
-        "Pp@not": "set"
-      },
+      "count": 2,
       "reason": "unresolved semantics"
     },
     {
       "cls": "plop3_lut_2out_2reg__RUR",
-      "settings": {
-        "Pp@not": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "plop3_lut_2out_2reg__RUR",
-      "settings": {
-        "Pp@not": "set"
-      },
+      "count": 2,
       "reason": "unresolved semantics"
     },
     {
       "cls": "plop3_lut_2out_3reg__RCR",
-      "settings": {},
+      "count": 1,
       "reason": "unresolved semantics"
     },
     {
       "cls": "plop3_lut_2out_3reg__RCxR",
-      "settings": {},
+      "count": 1,
       "reason": "unresolved semantics"
     },
     {
       "cls": "plop3_lut_2out_3reg__RRR",
-      "settings": {},
+      "count": 1,
       "reason": "unresolved semantics"
     },
     {
       "cls": "plop3_lut_2out_3reg__RUR",
-      "settings": {},
+      "count": 1,
       "reason": "unresolved semantics"
     },
     {
@@ -6403,78 +2605,28 @@
     },
     {
       "cls": "st__sImmOffset",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
-    },
-    {
-      "cls": "st__sImmOffset",
-      "count": 30,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "st__sImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "st__sImmOffset",
-      "count": 90,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "st__sImmOffset",
-      "count": 30,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "st__sImmOffset",
-      "count": 30,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "st__sImmOffset",
-      "count": 30,
-      "reason": "sco: encoding changes 2 to 4"
-    },
-    {
-      "cls": "st__sImmOffset",
       "count": 1134,
       "reason": "unresolved semantics"
     },
     {
-      "cls": "st__uImmOffset",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
+      "cls": "st__sImmOffset",
+      "count": 230,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
-      "cls": "st__uImmOffset",
-      "count": 30,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "st__uImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "st__uImmOffset",
-      "count": 90,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "st__uImmOffset",
-      "count": 30,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "st__uImmOffset",
-      "count": 30,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "st__uImmOffset",
-      "count": 30,
-      "reason": "sco: encoding changes 2 to 4"
+      "cls": "st__sImmOffset",
+      "count": 287,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 60,
+        "sco: encoding changes 1 to 2": 90,
+        "sco: encoding changes 1 to 4": 30,
+        "sco: encoding changes 2 to 4": 30,
+        "sco: encoding changes 3 to 4": 120,
+        "sem: encoding changes 1 to 2": 60
+      }
     },
     {
       "cls": "st__uImmOffset",
@@ -6482,39 +2634,24 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "st_memdesc__Ra64",
-      "count": 240,
-      "reason": "sem: encoding changes 1 to 2"
+      "cls": "st__uImmOffset",
+      "count": 230,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
-      "cls": "st_memdesc__Ra64",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "st_memdesc__Ra64",
-      "count": 120,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "st_memdesc__Ra64",
-      "count": 180,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "st_memdesc__Ra64",
-      "count": 60,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "st_memdesc__Ra64",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "st_memdesc__Ra64",
-      "count": 60,
-      "reason": "sco: encoding changes 2 to 4"
+      "cls": "st__uImmOffset",
+      "count": 287,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 60,
+        "sco: encoding changes 1 to 2": 90,
+        "sco: encoding changes 1 to 4": 30,
+        "sco: encoding changes 2 to 4": 30,
+        "sco: encoding changes 3 to 4": 120,
+        "sem: encoding changes 1 to 2": 60
+      }
     },
     {
       "cls": "st_memdesc__Ra64",
@@ -6522,39 +2659,24 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "st_uniform__Ra32",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
+      "cls": "st_memdesc__Ra64",
+      "count": 264,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
-      "cls": "st_uniform__Ra32",
-      "count": 30,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "st_uniform__Ra32",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "st_uniform__Ra32",
-      "count": 90,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "st_uniform__Ra32",
-      "count": 30,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "st_uniform__Ra32",
-      "count": 30,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "st_uniform__Ra32",
-      "count": 30,
-      "reason": "sco: encoding changes 2 to 4"
+      "cls": "st_memdesc__Ra64",
+      "count": 325,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 120,
+        "sco: encoding changes 1 to 2": 180,
+        "sco: encoding changes 1 to 4": 60,
+        "sco: encoding changes 2 to 4": 60,
+        "sco: encoding changes 3 to 4": 240,
+        "sem: encoding changes 1 to 2": 120
+      }
     },
     {
       "cls": "st_uniform__Ra32",
@@ -6562,39 +2684,24 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "st_uniform__Ra64",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
+      "cls": "st_uniform__Ra32",
+      "count": 230,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
-      "cls": "st_uniform__Ra64",
-      "count": 30,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "st_uniform__Ra64",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "st_uniform__Ra64",
-      "count": 90,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "st_uniform__Ra64",
-      "count": 30,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "st_uniform__Ra64",
-      "count": 30,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "st_uniform__Ra64",
-      "count": 30,
-      "reason": "sco: encoding changes 2 to 4"
+      "cls": "st_uniform__Ra32",
+      "count": 287,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 60,
+        "sco: encoding changes 1 to 2": 90,
+        "sco: encoding changes 1 to 4": 30,
+        "sco: encoding changes 2 to 4": 30,
+        "sco: encoding changes 3 to 4": 120,
+        "sem: encoding changes 1 to 2": 60
+      }
     },
     {
       "cls": "st_uniform__Ra64",
@@ -6602,39 +2709,24 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "st_uniform__RaRZ",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
+      "cls": "st_uniform__Ra64",
+      "count": 196,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
-      "cls": "st_uniform__RaRZ",
-      "count": 30,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "st_uniform__RaRZ",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "st_uniform__RaRZ",
-      "count": 90,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "st_uniform__RaRZ",
-      "count": 30,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "st_uniform__RaRZ",
-      "count": 30,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "st_uniform__RaRZ",
-      "count": 30,
-      "reason": "sco: encoding changes 2 to 4"
+      "cls": "st_uniform__Ra64",
+      "count": 249,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 60,
+        "sco: encoding changes 1 to 2": 90,
+        "sco: encoding changes 1 to 4": 30,
+        "sco: encoding changes 2 to 4": 30,
+        "sco: encoding changes 3 to 4": 120,
+        "sem: encoding changes 1 to 2": 60
+      }
     },
     {
       "cls": "st_uniform__RaRZ",
@@ -6642,39 +2734,24 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "stg__sImmOffset",
-      "count": 240,
-      "reason": "sem: encoding changes 1 to 2"
+      "cls": "st_uniform__RaRZ",
+      "count": 230,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
-      "cls": "stg__sImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "stg__sImmOffset",
-      "count": 120,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "stg__sImmOffset",
-      "count": 180,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "stg__sImmOffset",
-      "count": 60,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "stg__sImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "stg__sImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 2 to 4"
+      "cls": "st_uniform__RaRZ",
+      "count": 287,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 60,
+        "sco: encoding changes 1 to 2": 90,
+        "sco: encoding changes 1 to 4": 30,
+        "sco: encoding changes 2 to 4": 30,
+        "sco: encoding changes 3 to 4": 120,
+        "sem: encoding changes 1 to 2": 60
+      }
     },
     {
       "cls": "stg__sImmOffset",
@@ -6682,39 +2759,24 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "stg__uImmOffset",
-      "count": 240,
-      "reason": "sem: encoding changes 1 to 2"
+      "cls": "stg__sImmOffset",
+      "count": 264,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
-      "cls": "stg__uImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "stg__uImmOffset",
-      "count": 120,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "stg__uImmOffset",
-      "count": 180,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "stg__uImmOffset",
-      "count": 60,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "stg__uImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "stg__uImmOffset",
-      "count": 60,
-      "reason": "sco: encoding changes 2 to 4"
+      "cls": "stg__sImmOffset",
+      "count": 325,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 120,
+        "sco: encoding changes 1 to 2": 180,
+        "sco: encoding changes 1 to 4": 60,
+        "sco: encoding changes 2 to 4": 60,
+        "sco: encoding changes 3 to 4": 240,
+        "sem: encoding changes 1 to 2": 120
+      }
     },
     {
       "cls": "stg__uImmOffset",
@@ -6722,39 +2784,24 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "stg_memdesc__Ra64",
-      "count": 240,
-      "reason": "sem: encoding changes 1 to 2"
+      "cls": "stg__uImmOffset",
+      "count": 264,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
-      "cls": "stg_memdesc__Ra64",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "stg_memdesc__Ra64",
-      "count": 120,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "stg_memdesc__Ra64",
-      "count": 180,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "stg_memdesc__Ra64",
-      "count": 60,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "stg_memdesc__Ra64",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "stg_memdesc__Ra64",
-      "count": 60,
-      "reason": "sco: encoding changes 2 to 4"
+      "cls": "stg__uImmOffset",
+      "count": 325,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 120,
+        "sco: encoding changes 1 to 2": 180,
+        "sco: encoding changes 1 to 4": 60,
+        "sco: encoding changes 2 to 4": 60,
+        "sco: encoding changes 3 to 4": 240,
+        "sem: encoding changes 1 to 2": 120
+      }
     },
     {
       "cls": "stg_memdesc__Ra64",
@@ -6762,39 +2809,24 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "stg_uniform__Ra32",
-      "count": 240,
-      "reason": "sem: encoding changes 1 to 2"
+      "cls": "stg_memdesc__Ra64",
+      "count": 264,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
-      "cls": "stg_uniform__Ra32",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "stg_uniform__Ra32",
-      "count": 120,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "stg_uniform__Ra32",
-      "count": 180,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "stg_uniform__Ra32",
-      "count": 60,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "stg_uniform__Ra32",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "stg_uniform__Ra32",
-      "count": 60,
-      "reason": "sco: encoding changes 2 to 4"
+      "cls": "stg_memdesc__Ra64",
+      "count": 325,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 120,
+        "sco: encoding changes 1 to 2": 180,
+        "sco: encoding changes 1 to 4": 60,
+        "sco: encoding changes 2 to 4": 60,
+        "sco: encoding changes 3 to 4": 240,
+        "sem: encoding changes 1 to 2": 120
+      }
     },
     {
       "cls": "stg_uniform__Ra32",
@@ -6802,39 +2834,24 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "stg_uniform__Ra64",
-      "count": 120,
-      "reason": "sem: encoding changes 1 to 2"
+      "cls": "stg_uniform__Ra32",
+      "count": 264,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
-      "cls": "stg_uniform__Ra64",
-      "count": 30,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "stg_uniform__Ra64",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "stg_uniform__Ra64",
-      "count": 90,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "stg_uniform__Ra64",
-      "count": 30,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "stg_uniform__Ra64",
-      "count": 30,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "stg_uniform__Ra64",
-      "count": 30,
-      "reason": "sco: encoding changes 2 to 4"
+      "cls": "stg_uniform__Ra32",
+      "count": 325,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 120,
+        "sco: encoding changes 1 to 2": 180,
+        "sco: encoding changes 1 to 4": 60,
+        "sco: encoding changes 2 to 4": 60,
+        "sco: encoding changes 3 to 4": 240,
+        "sem: encoding changes 1 to 2": 120
+      }
     },
     {
       "cls": "stg_uniform__Ra64",
@@ -6842,44 +2859,49 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "stg_uniform__RaRZ",
-      "count": 240,
-      "reason": "sem: encoding changes 1 to 2"
+      "cls": "stg_uniform__Ra64",
+      "count": 196,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
-      "cls": "stg_uniform__RaRZ",
-      "count": 60,
-      "reason": "sco: encoding changes 5 to 0"
-    },
-    {
-      "cls": "stg_uniform__RaRZ",
-      "count": 120,
-      "reason": "sco: encoding changes 1 to 2"
-    },
-    {
-      "cls": "stg_uniform__RaRZ",
-      "count": 180,
-      "reason": "sco: encoding changes 3 to 4"
-    },
-    {
-      "cls": "stg_uniform__RaRZ",
-      "count": 60,
-      "reason": "private: encoding changes 1 to 0"
-    },
-    {
-      "cls": "stg_uniform__RaRZ",
-      "count": 60,
-      "reason": "sco: encoding changes 1 to 4"
-    },
-    {
-      "cls": "stg_uniform__RaRZ",
-      "count": 60,
-      "reason": "sco: encoding changes 2 to 4"
+      "cls": "stg_uniform__Ra64",
+      "count": 249,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 60,
+        "sco: encoding changes 1 to 2": 90,
+        "sco: encoding changes 1 to 4": 30,
+        "sco: encoding changes 2 to 4": 30,
+        "sco: encoding changes 3 to 4": 120,
+        "sem: encoding changes 1 to 2": 60
+      }
     },
     {
       "cls": "stg_uniform__RaRZ",
       "count": 504,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "stg_uniform__RaRZ",
+      "count": 264,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
+      "cls": "stg_uniform__RaRZ",
+      "count": 325,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "private: encoding changes 1 to 0": 120,
+        "sco: encoding changes 1 to 2": 180,
+        "sco: encoding changes 1 to 4": 60,
+        "sco: encoding changes 2 to 4": 60,
+        "sco: encoding changes 3 to 4": 240,
+        "sem: encoding changes 1 to 2": 120
+      }
     },
     {
       "cls": "stl__sImmOffset",
@@ -6887,9 +2909,21 @@
       "reason": "unresolved semantics"
     },
     {
+      "cls": "stl__sImmOffset",
+      "count": 12,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
       "cls": "stl__uImmOffset",
       "count": 12,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "stl__uImmOffset",
+      "count": 12,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
       "cls": "stl_memdesc_",
@@ -6897,9 +2931,21 @@
       "reason": "unresolved semantics"
     },
     {
+      "cls": "stl_memdesc_",
+      "count": 24,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
       "cls": "stl_uniform_",
       "count": 12,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "stl_uniform_",
+      "count": 12,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
       "cls": "sts__sImmOffset",
@@ -6907,14 +2953,32 @@
       "reason": "unresolved semantics"
     },
     {
+      "cls": "sts__sImmOffset",
+      "count": 8,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
       "cls": "sts__uImmOffset",
       "count": 2,
       "reason": "unresolved semantics"
     },
     {
+      "cls": "sts__uImmOffset",
+      "count": 2,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
       "cls": "sts_uniform_",
       "count": 8,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "sts_uniform_",
+      "count": 8,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
       "cls": "suatom_cas_imm_",
@@ -7307,9 +3371,21 @@
       "reason": "unresolved semantics"
     },
     {
+      "cls": "uflo__URURUR_URURUR",
+      "count": 8,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
       "cls": "uflo__URuIUR_URuIR",
       "count": 4,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "uflo__URuIUR_URuIR",
+      "count": 4,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
       "cls": "uiadd3_64__URURUR_URURUR",
@@ -7337,6 +3413,12 @@
       "reason": "unresolved semantics"
     },
     {
+      "cls": "uldc_const__RCR",
+      "count": 1,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
       "cls": "uldc_const__RCxR",
       "count": 6,
       "reason": "unresolved semantics"
@@ -7358,102 +3440,27 @@
     },
     {
       "cls": "up2ur__Imm",
-      "settings": {
-        "insert": "B1"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "up2ur__Imm",
-      "settings": {
-        "insert": "B2"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "up2ur__Imm",
-      "settings": {
-        "insert": "B3"
-      },
+      "count": 3,
       "reason": "unresolved semantics"
     },
     {
       "cls": "up2ur__URb",
-      "settings": {
-        "insert": "B0"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "up2ur__URb",
-      "settings": {
-        "insert": "B1"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "up2ur__URb",
-      "settings": {
-        "insert": "B2"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "up2ur__URb",
-      "settings": {
-        "insert": "B3"
-      },
+      "count": 4,
       "reason": "unresolved semantics"
     },
     {
       "cls": "uplop3_lut_2out_1reg__URURUR",
-      "settings": {
-        "UPp@not": "unset",
-        "UPr@not": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "uplop3_lut_2out_1reg__URURUR",
-      "settings": {
-        "UPp@not": "unset",
-        "UPr@not": "set"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "uplop3_lut_2out_1reg__URURUR",
-      "settings": {
-        "UPp@not": "set",
-        "UPr@not": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "uplop3_lut_2out_1reg__URURUR",
-      "settings": {
-        "UPp@not": "set",
-        "UPr@not": "set"
-      },
+      "count": 4,
       "reason": "unresolved semantics"
     },
     {
       "cls": "uplop3_lut_2out_2reg__URURUR",
-      "settings": {
-        "UPp@not": "unset"
-      },
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "uplop3_lut_2out_2reg__URURUR",
-      "settings": {
-        "UPp@not": "set"
-      },
+      "count": 2,
       "reason": "unresolved semantics"
     },
     {
       "cls": "uplop3_lut_2out_3reg__URURUR",
-      "settings": {},
+      "count": 1,
       "reason": "unresolved semantics"
     },
     {
@@ -7522,6 +3529,12 @@
       "reason": "unresolved semantics"
     },
     {
+      "cls": "vabsdiff4__RCxR_RCxR",
+      "count": 3,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
       "cls": "vabsdiff4__RRC_RRC",
       "count": 4,
       "reason": "unresolved semantics"
@@ -7530,6 +3543,12 @@
       "cls": "vabsdiff4__RRCx_RRCx",
       "count": 4,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "vabsdiff4__RRCx_RRCx",
+      "count": 4,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
     },
     {
       "cls": "vabsdiff4__RRR_RRR",

@@ -27,6 +27,53 @@ def render(before, after):
     return coverage_comment.render(before, after, "base", "head", "https://example.com/run", "owner/repo")
 
 
+def interaction_summary(required=15, reference=1):
+    result = summary()
+    result["SM89"]["interaction_classes"] = {"fadd_example": dict(
+        opcode="FADD", strength=3, effective_strength=2, domains={"A":["0","1"], "B":["0","1"]},
+        required=f"{required:x}", masks=dict(reference=f"{reference:x}", gpu="0", ptxas="0"),
+        total=required.bit_count(), covered=dict(reference=(reference & required).bit_count(), gpu=0, ptxas=0))}
+    entry = result["SM89"]["interaction_classes"]["fadd_example"]
+    result["SM89"]["interaction_evidence"] = {"FADD": {k: entry[k] for k in ("strength", "total", "covered")}}
+    return result
+
+
+def test_interaction_migration_does_not_compare_exhaustive_evidence():
+    old, new = summary(), interaction_summary()
+    new["SM89"]["combination_evidence"]["FADD"] = {"none": 8}
+    text = render(old, new)["body"]
+    assert "newly introduced" in text and "evidence decreased" not in text
+    assert "Required" in text and "Reference cases" in text
+
+
+def test_added_requirements_do_not_make_common_verification_regress():
+    old, new = interaction_summary(required=1), interaction_summary(required=15)
+    text = render(old, new)["body"]
+    assert "**1 common requirements**" in text and "**3 added**" in text
+    assert "⚪ reference +0" in text and "🔴 reference" not in text
+
+
+def test_lost_common_interactions_are_a_regression():
+    old, new = interaction_summary(reference=3), interaction_summary(reference=1)
+    text = render(old, new)["body"]
+    assert "🔴 reference -1" in text
+
+
+def test_domain_changes_compare_stable_tuple_identities():
+    old = interaction_summary()
+    new = copy.deepcopy(old)
+    entry = new["SM89"]["interaction_classes"]["fadd_example"]
+    entry.update(domains={"A":["0","1","2"], "B":["0","1"]}, required="3f", total=6)
+    changes = coverage_comment.interaction_changes(old["SM89"], new["SM89"])["FADD"]
+    assert changes == dict(common=4, added=2, removed=0, reference=0, gpu=0, ptxas=0)
+
+
+def test_exact_form_reduction_is_not_a_regression_when_interactions_are_unchanged():
+    old, new = interaction_summary(), interaction_summary()
+    new["SM89"]["combination_evidence"]["FADD"] = {"none": 8}
+    assert not render(old, new)["changed"]
+
+
 def test_unchanged_and_readable_duplicates():
     base = summary()
     head = copy.deepcopy(base)
@@ -295,7 +342,15 @@ def test_report_cli_reads_commits_and_writes_artifact(tmp_path, monkeypatch):
     assert commands == [["git", "show", f"{sha}:{coverage_comment.COVERAGE}"] for sha in ("base", "head")]
 
 
-def test_local_cli_compares_revision_with_working_tree(monkeypatch, capsys):
+@pytest.mark.parametrize("head,heading", [
+    (summary(), "### Changed opcodes"),
+    (interaction_summary(), "interaction verification"),
+])
+def test_local_cli_compares_revision_with_working_tree(monkeypatch, capsys, tmp_path, head, heading):
+    path = tmp_path / coverage_comment.COVERAGE
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps(head))
+    monkeypatch.setattr(coverage_comment, "__file__", str(tmp_path / ".github/scripts/coverage_comment.py"))
     for key in ("GITHUB_EVENT_PATH", "GITHUB_EVENT_NAME", "GITHUB_REPOSITORY"):
         monkeypatch.delenv(key, raising=False)
     commands = []
@@ -309,7 +364,7 @@ def test_local_cli_compares_revision_with_working_tree(monkeypatch, capsys):
     coverage_comment.main()
     out = capsys.readouterr().out
     assert commands == [["git", "show", f"main:{coverage_comment.COVERAGE}"]]
-    assert "Comparing `main` → `working`" in out and "### Changed opcodes" in out
+    assert "Comparing `main` → `working`" in out and heading in out
     assert "img.shields.io" not in out and "View CI run" not in out
 
 

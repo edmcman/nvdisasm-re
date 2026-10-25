@@ -282,7 +282,9 @@ uv run python -m tests.autocases SM89 --write --report tests/cases/generated/SM8
 ```
 
 reads the exact-language coverage manifest, expands its legal modifier combinations (including the
-factored free modifiers), and writes `cases/generated/SM89.json`. If manifests are missing, first
+factored free modifiers), and selects a deterministic constrained three-way suite before writing
+`cases/generated/SM89.json`. A requirement is a tuple with a complete legal, modelled extension;
+an adapter must successfully construct that extension before it counts as covered. If manifests are missing, first
 run `uv run sass-build-languages SM89 --fp exact --generate-only --coverage`. The committed
 `cases/generated/SMxx.gaps.json` are `--report` outputs.
 
@@ -299,6 +301,20 @@ hardware run does.
 
 ### Plans, profiles and retained cases
 
+Version 3 plans record the verification policy and each form's `profile_mode`.
+`sass.sleigh.verification.POLICY` defaults to strength 3 for every opcode. Its
+`VerificationPolicy(default_strength=3, opcode_strength={"OPCODE": 4})` constructor supports
+positive integer strengths and `"exhaustive"` per-opcode overrides; use the same shared policy
+for planning and reporting. Strength is capped at the number of varying modifiers. A class with
+no varying modifiers still has one anchor requirement.
+
+Scheduling and reuse fields remain excluded by the modifier inventory. Memory hints and
+consistency qualifiers stay in the interaction suite. Family-local `modifier_roles` declarations
+classify a field as `value`, `hint` or `effect`; undeclared fields are `value`. The first selected
+form for each value projection gets full input profiles; further hint/effect variants get minimal
+profiles, including an issued, nonzero memory access and exact emulator event arguments.
+These CPU event checks do not establish concurrent memory-ordering behavior on hardware.
+
 Plans store class/form choices, named input profiles and native assertions, not captured outputs.
 The normal `emulator_cases` loader expands them into shared cases for Python, Ghidra and the GPU,
 calculating expectations from the independent references at runtime. Strict encoding and a decode
@@ -314,11 +330,20 @@ test.
 
 ### The report
 
-The JSON report counts manual, generated, blocked and unresolved forms. Unsupported operations are
+The JSON report counts generated forms, covered and blocked interaction requirements, and exact
+legal/unresolved combinations. Unsupported operations are
 grouped by class to keep millions of gaps manageable; their exact forms remain in the manifest.
 Repeated extended-adapter gap reasons are likewise counted by class. Opaque and partially modelled
-combinations are counted as unresolved rather than covered. These counts measure instruction forms,
-not all input values or proof of correct behavior.
+combinations are counted as unresolved rather than covered. Requirements needing partially native
+extensions remain explicit deferred gaps under issue #80. These counts do not measure all input
+values or prove correct behavior.
+
+The coverage page and PR comment report reference, GPU and PTX interaction coverage independently.
+Only positive reference checks enter `verification_forms`; raw exact-form evidence, including
+error/fallback checks, remains available for provenance. Interaction coverage never invents an
+unexecuted exact form, and unknown evidence settings are never filled with modifier defaults.
+PR comparisons assess common requirements and report new requirements
+separately, so a larger denominator alone is not a regression.
 
 ### Integer adapters (`harness/autocases.py`)
 
@@ -427,6 +452,8 @@ Their scope and remaining gaps are summarized per batch in [`docs/testing.md`](.
 `--sample PERCENT` applies to every shared-case family in the lifted Python tests, Ghidra, the GPU
 runner and `python -m tests.semantics`. Values are integers from 0 through 100; `--exhaustive`
 aliases 100. It does not sample whole-kernel fixtures or the separate disassembly corpus (`--full`).
+It also does not expand a three-way plan into every full modifier combination: 100% expands the
+declared input corpus, and neutral variants retain their minimal declared corpus.
 
 **0% (the default)** keeps, for each available form, its lowest stable hash-ranked scenario.
 Additional representatives preserve lifted-emulator and SM89/SM90 GPU eligibility when necessary.

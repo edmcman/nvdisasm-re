@@ -48,6 +48,8 @@ def constants(c,k,form):
         expected=pair(out,result) if size==8 else {out:result}
         if k.mnemonic in ('LDC','LDCU'):
             expected.update(__max_ops={'count':32,'userops':['sass_memory_order']},__events=1)
+            from tests.harness.autocase_remaining import memory_event
+            expected['__event_values'] = memory_event(c, k, form)
         s.add(expected,form,hardware={'adapter':'memory'})
     return c
 

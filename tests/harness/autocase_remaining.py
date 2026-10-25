@@ -177,8 +177,45 @@ def access(c,k,form):
         # Exact named runtime effects are legitimate native memory operations.
         effects=['sass_memory_order']+(['sass_memory_descriptor'] if 'memoryDescriptor' in k.operand_types else [])
         expected['__events']=1
+        expected['__event_values'] = memory_event(c, k, form)
         # Generic window routing contains branches; value and event checks cover that native form.
         expected['__max_ops']=dict(count=128,userops=effects)
         if k.mnemonic in ('LD','ST'): expected['__max_ops']['branches']=True
         s.add(expected,form,hardware={'adapter':'memory'},**extras)
     return c
+
+
+def memory_event(c, k, form):
+    """The documented ordering-event ABI, from the test inputs, not lifted semantics."""
+    controls = []
+    for name in ('sem', 'sco', 'cop', 'cop2', 'private'):
+        if name not in k.operand_types: continue
+        atom = k.operand_types[name]
+        label = form.get(name, atom.default)
+        controls.append(c.md.enums[atom.type][label])
+    return [dict(op=k.mnemonic, controls=controls)]
+
+
+def issued_accesses(c):
+    """Neutral-variant anchors exercise an issued, nonzero access, from inputs alone.
+
+    A zero-filled load or a zero store into a zeroed arena would not detect a lost
+    access. Selection never depends on reference outputs or emulator inspection.
+    """
+    from sass.decode import pydecode
+    from tests.harness.autocases import Unsupported
+    out = []
+    for case in c:
+        decoded = pydecode.decode(c.arch, bytes.fromhex(case.request['word']))
+        if 'Pnz' in decoded.env:
+            n = decoded.env['Pnz']
+            value = 1 if n == 7 else case.request['registers'].get(f'P{n}', 0)
+            if not (value ^ decoded.env.get(('Pnz', 'not'), 0)): continue
+        if decoded.klass.mnemonic.startswith(('LD', 'ULDC')):
+            nonzero = any(any(bytes.fromhex(m['hex'])) for m in case.request.get('memory', []))
+        else:
+            n = decoded.env.get('Rb', 255)
+            nonzero = n != 255 and bool(case.request['registers'].get(f'R{n}', 0))
+        if nonzero: out.append(case)
+    if not out: raise Unsupported('neutral memory profile needs an issued nonzero access')
+    return out

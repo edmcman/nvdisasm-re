@@ -3,6 +3,7 @@
 Plain keys are observed registers; `__` keys are flags: __native (nonempty p-code without CALLOTHER),
 __max_ops (integer: at most N ops, no branches or CALLOTHER; dict: count bound and exact userop list, with explicit optional branch permission),
 __counter (final PC), __memory (first observed memory hex), __events (runtime event count),
+__event_values (exact runtime event records),
 __fp8_nan (an FP8 format: packed byte lanes match if equal or both NaN),
 __opaque (CALLOTHER p-code or an error starting with
 the given text). `error` expects a failure message.
@@ -24,6 +25,7 @@ def problems(expected, result):
         ("__counter" in expected, result.get("counter") == expected.get("__counter"), "counter"),
         ("__memory" in expected, bool(result.get("memory")) and result["memory"][0]["hex"] == expected.get("__memory"), "memory"),
         ("__events" in expected, len(result.get("events", [])) == expected.get("__events"), "events"),
+        ("__event_values" in expected, result.get("events") == expected.get("__event_values"), "event values"),
         ("__native" in expected, bool(ops) and "CALLOTHER" not in ops, "native p-code"),
         ("__max_ops" in expected, within_pcode_limit(expected.get("__max_ops"),result), "p-code op count")]
     return [name for wanted, ok, name in checks if wanted and not ok]

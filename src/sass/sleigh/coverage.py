@@ -5,6 +5,7 @@ from pathlib import Path
 from sass.paths import LANGUAGES,ROOT
 from sass.sleigh.gen import update
 from sass.sleigh.modifiers import compact,form
+from sass.sleigh import verification
 from sass.semantics.operations import OPERATION_FAMILIES
 
 EVIDENCE=('gpu','ptxas','reference')   # strongest first: a class or value counts once, under the first that ran it
@@ -83,7 +84,7 @@ def combination_summary(combos):
     for c,p in combos:status+=c;part+=p
     return dict(status),dict(part)
 
-def summarized(rows,ev,combos):
+def summarized(rows,ev,combos,interactions):
     """One manifest's summary, given its architecture's evidence and each row's combinations()."""
     by_op={}
     for r,c in zip(rows,combos):by_op.setdefault(r['opcode'],[]).append((r,c))
@@ -93,15 +94,18 @@ def summarized(rows,ev,combos):
                 operations={op:dict(Counter(r['status'] for r in groups[op])) if op in groups else {'absent':0} for op in sorted(OPERATION_FAMILIES)},
                 opaque_operations={r['cls']:r['reason'] for r in rows if r['opcode'] in OPERATION_FAMILIES and r['status']=='opaque'},
                 evidence=verified(rows,ev),opcode_evidence={op:v for op,g in groups.items() if (v:=verified(g,ev))},
-                combination_status={op:v[0] for op,v in tallies.items()},combination_evidence={op:v[1] for op,v in tallies.items() if v[1]})
+                combination_status={op:v[0] for op,v in tallies.items()},combination_evidence={op:v[1] for op,v in tallies.items() if v[1]},
+                interaction_evidence={op:verification.summary(interactions[r['cls']] for r in g) for op,g in groups.items()},
+                interaction_classes={r['cls']:dict(opcode=r['opcode'],**interactions[r['cls']]) for r in rows if interactions[r['cls']]['total']})
 
-def detailed(rows,ev,combos,entries):
+def detailed(rows,ev,combos,entries,interactions):
     """{opcode: [entry index]} of one manifest, adding each class's report entry (status, modifier
     values, tested combinations by kind) to `entries` once across the architectures that share it."""
     ops={}
     for r,(status,_) in zip(rows,combos):
         found=ev.get(r['cls'],{});names=found.get('modifiers',[])
         entry=json.dumps(dict(cls=r['cls'],status=r['status'],kinds=[k for k in EVIDENCE if k in found],
+            interaction=interactions[r['cls']],modifier_roles=r.get('modifier_roles',{}),
             combinations=dict(status),decides=r.get('combinations',{}).get('decides',[]),
             illegal={m:out for m,labs in r.get('combinations',{}).get('labels',{}).items() if (out:=[l for l in labs if l not in r['modifiers'].get(m,{})])},
             values=[list(v) for v in values(r,found)],
@@ -116,8 +120,10 @@ def analyze(directory,details=False):
     found=evidence(directory);summary,entries,archs={},{},{}
     for path in sorted(Path(directory).glob('sass_sm*_coverage.json')):
         rows=manifest(path);arch=path.stem.removeprefix('sass_').removesuffix('_coverage').upper();ev=found[arch.split('_')[0]]
-        combos=[combinations(r,ev.get(r['cls'],{})) for r in rows];summary[arch]=summarized(rows,ev,combos)
-        if details and '_' not in arch:archs[arch]=detailed(rows,ev,combos,entries)
+        combos=[combinations(r,ev.get(r['cls'],{})) for r in rows]
+        interactions={r['cls']:verification.Requirements(r).evidence(ev.get(r['cls'],{})) for r in rows}
+        summary[arch]=summarized(rows,ev,combos,interactions)
+        if details and '_' not in arch:archs[arch]=detailed(rows,ev,combos,entries,interactions)
     return found,summary,dict(classes=[json.loads(e) for e in entries],archs=archs)
 
 def summarize(directory):return analyze(directory)[1]
@@ -161,7 +167,7 @@ def report(summary,detail):
     archs=architectures(summary);of,order=categories()
     ops=sorted({op for a in archs for op in summary[a]['opcodes']},key=lambda op:(order.index(category(op,of)),op))
     data=dict(archs=archs,categories=[[c,members] for c in order if (members:=[op for op in ops if category(op,of)==c])],
-              summary={a:{k:summary[a][k] for k in ('opcodes','combination_status','opcode_evidence','combination_evidence')} for a in archs},
+              summary={a:{k:summary[a][k] for k in ('opcodes','combination_status','opcode_evidence','combination_evidence','interaction_evidence')} for a in archs},
               classes=detail['classes'],members=detail['archs'])
     page=Path(__file__).with_name('report')
     return ((page/'index.html').read_text().replace('__DATA__',packed(data))

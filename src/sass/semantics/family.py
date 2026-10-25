@@ -171,10 +171,14 @@ def rewrite(fn):
     return out
 
 
-def family(*opcodes, classes=None):
+def family(*opcodes, classes=None, modifier_roles=None):
     """Register fn for every md class of `opcodes`, or only those `classes(klass)` accepts (while an
     opcode is partly migrated, the other classes keep their old emitter). Unmodelled encodings use
-    the opaque call."""
+    the opaque call. `modifier_roles` declares family-local value/hint/effect verification roles;
+    undeclared modifiers affect values. Roles do not alter semantic guards."""
+    roles = dict(modifier_roles or {})
+    if any(role not in ("value", "hint", "effect") for role in roles.values()):
+        raise ValueError("modifier roles must be value, hint or effect")
     def register(fn):
         staged = rewrite(fn)
         def checked(i):
@@ -182,6 +186,7 @@ def family(*opcodes, classes=None):
             i.require_unasked_defaults()
             return result
         checked.__name__, checked.__wrapped__ = fn.__name__, fn
+        checked.modifier_roles = roles
         for op in opcodes: FAMILIES.setdefault(op, []).append((classes, checked))
         return checked
     return register

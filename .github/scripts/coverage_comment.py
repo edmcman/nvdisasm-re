@@ -5,7 +5,9 @@ Uses only the standard library; does not import or regenerate SASS semantics.
 import argparse
 from collections import Counter
 import html
+import itertools
 import json
+import math
 import os
 from pathlib import Path
 import subprocess
@@ -223,7 +225,7 @@ def badge(repo, sha):
     return f"[![opcode semantics](https://img.shields.io/endpoint?url={raw})]({report})"
 
 
-def render(base, head, base_sha, head_sha, run_url=None, repo=None):
+def render_legacy(base, head, base_sha, head_sha, run_url=None, repo=None):
     """Return the full report, bounded comment, and whether reportable data changed; without a
     repository or run (a local comparison) the badge and CI-run link are omitted."""
     archs = sorted((a for a in base.keys() | head.keys() if "_" not in a),
@@ -304,6 +306,126 @@ def render(base, head, base_sha, head_sha, run_url=None, repo=None):
             body += section
         body += notice
     return {"full": full, "body": body, "changed": True}
+
+
+def interaction_tuples(entry, mask):
+    """Stable tuple identities when class domains or effective strength changed."""
+    domains = entry["domains"]
+    offset = 0
+    for names in itertools.combinations(sorted(domains), entry["effective_strength"]):
+        size = math.prod(len(domains[n]) for n in names)
+        part = (mask >> offset) & ((1 << size) - 1)
+        strides = [math.prod(len(domains[n]) for n in names[i + 1:]) for i in range(len(names))]
+        while part:
+            bit = part & -part
+            index = bit.bit_length() - 1
+            yield tuple((n, domains[n][index // strides[i] % len(domains[n])]) for i, n in enumerate(names))
+            part ^= bit
+        offset += size
+
+
+def interaction_changes(old, new):
+    """Per-opcode common requirements, evidence deltas and newly added/removed requirements."""
+    out = {}
+    before, after = old.get("interaction_classes", {}), new.get("interaction_classes", {})
+    for cls in sorted(before.keys() | after.keys()):
+        a, b = before.get(cls), after.get(cls)
+        op = (b or a)["opcode"]
+        delta = out.setdefault(op, dict(common=0, added=0, removed=0, gpu=0, reference=0, ptxas=0))
+        if a is None:
+            delta["added"] += b["total"]
+            continue
+        if b is None:
+            delta["removed"] += a["total"]
+            continue
+        same = a["domains"] == b["domains"] and a["effective_strength"] == b["effective_strength"]
+        if same:
+            ar, br = int(a["required"], 16), int(b["required"], 16)
+            common = ar & br
+            delta["common"] += common.bit_count()
+            delta["added"] += (br & ~ar).bit_count()
+            delta["removed"] += (ar & ~br).bit_count()
+            for kind in ("reference", "gpu", "ptxas"):
+                delta[kind] += (int(b["masks"][kind], 16) & common).bit_count() - (int(a["masks"][kind], 16) & common).bit_count()
+        else:
+            ar = set(interaction_tuples(a, int(a["required"], 16)))
+            br = set(interaction_tuples(b, int(b["required"], 16)))
+            common = ar & br
+            delta["common"] += len(common)
+            delta["added"] += len(br - ar)
+            delta["removed"] += len(ar - br)
+            for kind in ("reference", "gpu", "ptxas"):
+                delta[kind] += len(set(interaction_tuples(b, int(b["masks"][kind], 16))) & common) - len(
+                    set(interaction_tuples(a, int(a["masks"][kind], 16))) & common)
+    return out
+
+
+def render(base, head, base_sha, head_sha, run_url=None, repo=None):
+    """Use interaction verification for new summaries; retain the legacy comparator for old data."""
+    if not any("interaction_evidence" in e for e in (*base.values(), *head.values())):
+        return render_legacy(base, head, base_sha, head_sha, run_url, repo)
+    # Exhaustive form evidence remains available in coverage.json, but is no longer
+    # a regression metric once interaction coverage is available.
+    def semantics(data):
+        return {arch: {k: v for k, v in entry.items() if k not in (
+            "interaction_evidence", "interaction_classes", "combination_evidence", "opcode_evidence")}
+            for arch, entry in data.items()}
+    support = render_legacy(semantics(base), semantics(head), base_sha, head_sha, run_url, repo)
+    sections, changed = [], support["changed"]
+    for arch in sorted((a for a in base.keys() | head.keys() if "_" not in a), key=lambda a: int(a[2:])):
+        old, new = base.get(arch, {}), head.get(arch, {})
+        if old.get("interaction_evidence") == new.get("interaction_evidence") and old.get("interaction_classes") == new.get("interaction_classes"):
+            continue
+        changed = True
+        lines = [f"### {arch}: interaction verification\n"]
+        if "interaction_evidence" not in old:
+            lines.append("Interaction verification is newly introduced; no comparison with exhaustive-form evidence is made.\n")
+        elif "interaction_evidence" not in new:
+            lines.append("Interaction verification data was removed.\n")
+        changes = interaction_changes(old, new) if "interaction_evidence" in old and "interaction_evidence" in new else {}
+        lines.extend(["| Opcode | Strength | Required | Reference cases | GPU passes | PTX compilation |",
+                      "| :--- | ---: | ---: | ---: | ---: | ---: |"])
+        ops = sorted(old.get("interaction_evidence", {}).keys() | new.get("interaction_evidence", {}).keys())
+        notes = []
+        for op in ops:
+            a, b = old.get("interaction_evidence", {}).get(op), new.get("interaction_evidence", {}).get(op)
+            delta = changes.get(op, {})
+            if a == b and not any(delta.get(k, 0) for k in ("added", "removed", "gpu", "reference", "ptxas")):
+                continue
+            e = b or a
+            cells = [f"{e['covered'][k]:,} / {e['total']:,}" for k in ("reference", "gpu", "ptxas")]
+            lines.append(f"| {html.escape(op)} | {e['strength']} | {e['total']:,} | " + " | ".join(cells) + " |")
+            if delta:
+                differences = ", ".join(f"{tone((delta[k] > 0) - (delta[k] < 0))} {k} {delta[k]:+,}" for k in ("reference", "gpu", "ptxas"))
+                notes.append(f"\n{html.escape(op)}: **{delta['common']:,} common requirements** · {differences}; "
+                             f"**{delta['added']:,} added**, **{delta['removed']:,} removed** requirements.\n")
+        lines.extend(notes)
+        sections.append("\n".join(lines))
+    if not changed:
+        return support
+    heading = (f"{MARKER}\n## 🧪 Semantic coverage\n\n" + (f"{badge(repo, head_sha)}\n\n" if repo else "")
+               + f"Comparing `{base_sha[:7]}` → `{head_sha[:7]}`" + (f" · [View CI run]({run_url})" if run_url else "") + "\n\n")
+    explanation = ("Verification covers legal interactions up to the configured strength, exhaustively for smaller classes. "
+                   "Scheduling and reuse fields are excluded; memory hints and consistency qualifiers are included. "
+                   "Reference counts describe available positive cases, GPU counts describe recorded passes on the named architecture, "
+                   "and PTX compilation establishes encoding evidence. Sources are independent and must not be added together. "
+                   "Only changes on common requirements are judged as improvements or regressions; new requirements are shown separately.\n\n")
+    native_lines = []
+    for arch in sorted((a for a in base.keys() | head.keys() if "_" not in a), key=lambda a: int(a[2:])):
+        for field, title in FIELDS[:2]:
+            a, b = base.get(arch, {}).get(field, {}), head.get(arch, {}).get(field, {})
+            for op in sorted(a.keys() | b.keys()):
+                if a.get(op) != b.get(op):
+                    native_lines.append(f"| {arch} | {html.escape(op)} | {title} | {counts(a.get(op, {}))} | {counts(b.get(op, {}))} | {change(field, a.get(op, {}), b.get(op, {}))} |")
+    native = ("| Architecture | Opcode | Metric | Before | After | Change |\n| :--- | :--- | :--- | ---: | ---: | :--- |\n" +
+              "\n".join(native_lines)) if native_lines else "Exact native support counts are unchanged.\n"
+    full = heading + explanation + "\n".join(sections) + "\n<details>\n<summary>Exact semantic support changes</summary>\n\n" + native + "\n</details>\n"
+    body = full
+    if len(full.encode()) > COMMENT_LIMIT:
+        body = heading + explanation + "\n".join(sections[:1]) + "\nDetails truncated; see the coverage-comment-report artifact.\n"
+        if len(body.encode()) > COMMENT_LIMIT:
+            body = heading + explanation + "Interaction metrics changed. See the coverage-comment-report artifact for the full report.\n"
+    return dict(full=full, body=body, changed=True)
 
 
 def read_coverage(sha):
