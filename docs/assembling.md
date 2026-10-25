@@ -134,9 +134,14 @@ code = assemble_raw("SM89", "entry: NOP; BRA entry;", base=0x100)
 image = assemble_cubin(open("examples/assembler/write_value.sass").read())
 ```
 
-The APIs return `bytes`. Invalid source raises `sass.assemble.AssemblyError`, a
-`ValueError` with filename, line, column, and a diagnostic. The existing
-`sass.decode.pyencode` API retains its harness-oriented behavior.
+These APIs return `bytes`. Invalid source raises `sass.assemble.AssemblyError`, a
+`ValueError` with filename, line, column, and a diagnostic.
+
+`sass.assemble.encoding.encode(arch, cls, **operands)` (hex string) and `word(...)` (integer)
+are the harness-facing API over the same encoder, taking a class name and operand values
+instead of source text. `permissive=True` truncates out-of-range and misaligned values, picks
+the nearest table row and skips legality and rendering checks, for the semantics harness's
+synthetic cases (`tests/harness/case.py` passes it). Both modes write starred literals.
 
 ```sh
 uv run pytest tests/test_assemble.py --arch all
@@ -148,3 +153,9 @@ Tests round-trip sampled legal forms and explicit controls on every machine
 description, compare independent nvdisasm output, check ELF and parameter metadata,
 and execute native SM89 cubins without compiled templates, including three-dimensional
 grid launches. CTAID.Z reads set the corresponding CUDA launch metadata flag.
+
+## Design notes
+
+- Assembly (2026-10-15): `sass.assemble` inverts the FORMAT renderer and validates the selected class directly. ALTERNATE syntax may encode into canonical non-ALTERNATE forms, so requiring the decoder to select the input class would reject valid syntax. Inverse tables must match exactly, and overlapping fields must agree. Starred numeric fields such as `src_rel_sb=*7` are ignored for decoding but need their stated initialization during assembly. Controls/defaults come from the `$(...)$` groups, including scheduling/reuse tables.
+- Native cubin probes (2026-10-15, CUDA 13.0.88): parameter bases are `0x160` on SM75/80/86/89, `0x210` on SM90, and `0x380` on SM100/103/110/120 (SM110 uses the SM101 md). The SM89 loader rejected an ELF readable by nvdisasm/cuobjdump until paired `.note.nv.tkinfo` and linked `.note.nv.cuinfo` were emitted. The writer identifies its tool as `sass-assemble`. SM107's cubin ABI remains unestablished, although its raw encoding is supported.
+- SM90+ compatibility (2026-10-15): nvdisasm 13.4 requires `.nv.compat` for these ABI-v8 profiles, even with native `.text` and no `.nv.merc.*` intermediate sections. Its section type is `0x70000086`; the attribute stream describes the ISA class and Mercury major/minor version separately from per-kernel `.nv.info`. The native writer emits these records with opportunistic/fastpath finalization disabled.

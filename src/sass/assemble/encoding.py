@@ -1,7 +1,9 @@
-"""Strict, class-local encoding, including alternate syntax and scheduling operands.
+"""Class-local encoding, including alternate syntax and scheduling operands.
 
-The older pyencode API deliberately remains unchanged: its permissive defaults are useful
-to the semantics harness. Assembly must never truncate or choose a nearby table row.
+Assembly is strict: it never truncates, chooses a nearby table row or writes an illegal word.
+`encode`/`word` are the harness-facing API over the same encoder; `permissive=True` accepts
+synthetic edge cases (out-of-range or misaligned values, illegal combinations) by truncating
+and picking the nearest table row, and still writes the md's starred literals.
 """
 import itertools
 import re
@@ -10,16 +12,17 @@ from functools import cache
 from sass.decode import ir, pydecode
 from sass.md import legal, parse
 from sass.sleigh.gen import default_value
+from sass.sleigh.registers import ENUM_FILE, REG_FILES
 
 
 @cache
-def classes(arch):
-    return {c['cls']: c for c in parse.load_classes(parse.OUT / arch)}
+def klass(arch, name):
+    return next(c for c in ir.load(arch).classes if c.name == name)
 
 
 @cache
 def scheduling(arch, name):
-    text = classes(arch)[name]['sections']['FORMAT']
+    text = parse.arch_classes(arch)[name]['sections']['FORMAT']
     atoms = []
     for group in re.findall(r'\$\((.*?)\)\$', text, re.S):
         for a in ir.parse_format(group):
@@ -34,7 +37,7 @@ def scheduling(arch, name):
 
 @cache
 def ignored_bits(arch, name):
-    text = classes(arch)[name]['sections']['ENCODING']
+    text = parse.arch_classes(arch)[name]['sections']['ENCODING']
     return tuple((ir.parse_field(lhs), int(value, 0)) for lhs, value in re.findall(
         r'^(BITS_\w+)\s*=\s*\*\s*(0[xX][\da-fA-F]+|0[bB][01]+|\d+)\s*;', text, re.M))
 
@@ -104,41 +107,46 @@ def alias_environments(md, k, env):
     return options
 
 
-def encode(md, k, requested):
+def encode_class(md, k, requested, base=None):
     """Return one deterministic exact encoding and its class-local decoded environment."""
     errors = []
     for supplied in alias_environments(md, k, requested):
         try:
-            return encode_environment(md, k, supplied)
+            return encode_environment(md, k, supplied, base=base)
         except (ValueError, pydecode.NoMatch) as exc:
             errors.append(str(exc))
     raise ValueError('; '.join(dict.fromkeys(errors)) or 'pseudo-op constraints do not match')
 
 
-def encode_environment(md, k, requested):
-    desired = defaults(md, k) | requested
+def encode_environment(md, k, requested, permissive=False, base=None):
+    desired = (defaults(md, k) if base is None else base) | requested
     # Alias operands describe syntax, not fields. Their actual values are checked below.
     choices = []
     for f, r in k.rules:
         match r:
             case ('op', name, scale, conv):
-                if name not in desired:
+                if name not in desired and not permissive:
                     raise ValueError(f'{name}: missing required operand')
-                value = desired[name]
+                value = desired.get(name, 0)
                 atom = k.operand_types.get(name)
                 signed = atom is not None and atom.type in ('SImm', 'RSImm')
                 limit = (1 << f.width) * scale
                 lo, hi = (-limit // 2, limit // 2) if signed else (0, limit)
-                if not lo <= value < hi:
+                if not permissive and not lo <= value < hi:
                     raise ValueError(f'{name}: {value} outside [{lo}, {hi - 1}]')
-                if value % scale:
+                if not permissive and value % scale:
                     raise ValueError(f'{name}: {value} must be aligned to {scale} bytes')
                 choices.append((f, [f.put((value // scale) % (1 << f.width))]))
             case ('attr', name, attr):
                 value = desired.get((name, attr), 0)
-                if not 0 <= value < 1 << f.width:
+                if not permissive and not 0 <= value < 1 << f.width:
                     raise ValueError(f'{name}@{attr}: out of range')
-                choices.append((f, [f.put(value)]))
+                choices.append((f, [f.put(value % (1 << f.width))]))
+            case ('table', 'IDENTICAL', args) if permissive:
+                choices.append((f, [f.put(desired.get(pydecode.key(args[0]), 0) % (1 << f.width))]))
+            case ('table', table, args) if permissive:
+                wanted = tuple(desired.get(pydecode.key(a), 0) for a in args if a[0] != 'const')
+                choices.append((f, [f.put(table_raw(md.name, table, args, wanted) % (1 << f.width))]))
             case ('table', 'IDENTICAL', args):
                 vals = [a[1] if a[0] == 'const' else desired.get(pydecode.key(a)) for a in args]
                 present = [v for v in vals if v is not None]
@@ -166,13 +174,19 @@ def encode_environment(md, k, requested):
         for f, value in ignored_bits(md.name, k.name):
             word |= f.put(value) & ~used
         for (f, _), bits in zip(choices, combination):
-            if (word ^ bits) & used & f.mask:
+            if not permissive and (word ^ bits) & used & f.mask:
                 break
             word = (word & ~f.mask) | bits
             used |= f.mask
         else:
             try:
                 env, widths = pydecode.decode_env(md, k, word)
+                if permissive:
+                    got = pydecode.decode(md.name, word.to_bytes(16, 'little'), conditions=False).klass
+                    # A pseudo alias (IMAD.MOV for IMAD with a zero source) is the same instruction printed differently.
+                    if got.name != k.name and not (got.alternate and (got.constraint_mask, got.constraint_bits) == (k.constraint_mask, k.constraint_bits)):
+                        raise ValueError(f'{k.name} encodes as {got.name}')
+                    return word.to_bytes(16, 'little'), env, widths
                 if bad := legal.violation(md, k, env):
                     raise ValueError(f'{bad[0]}: {bad[1]}')
                 env['__strict'] = k.strict
@@ -202,3 +216,43 @@ def encode_environment(md, k, requested):
             except (ValueError, pydecode.NoMatch) as exc:
                 last_error = str(exc)
     raise ValueError(last_error)
+
+
+@cache
+def table_raw(arch, table, args, wanted):
+    """The raw table-field value whose row matches the wanted argument values best (fewest
+    mismatches, then the smallest raw value); `wanted` lists the non-constant arguments in order."""
+    candidates = []
+    for raw, rows in pydecode.table_inverse(ir.load(arch), table).items():
+        for row in rows:
+            if all(a[0] != "const" or a[1] == v for a, v in zip(args, row)):
+                got = [v for a, v in zip(args, row) if a[0] != "const"]
+                candidates.append((sum(w != v for w, v in zip(wanted, got)), raw))
+    if not candidates: raise ValueError(table)
+    return min(candidates)[1]
+
+
+def harness_defaults(md, k):
+    """`defaults`, with guard and predicate operands defaulting to PT."""
+    return defaults(md, k) | {
+        a.name: REG_FILES[ENUM_FILE[a.type]][3] for a in k.operand_types.values()
+        if default_value(md, a) is None and a.type in ENUM_FILE and (a.kind == "guard" or "Predicate" in a.type)}
+
+
+def encode(arch, cls, *, permissive=False, **values):
+    """Hex word for `cls` with operand values (enum labels or numbers); `name@attr` sets modifiers."""
+    return encoded(arch, cls, permissive, tuple(sorted(values.items())))
+
+
+@cache
+def encoded(arch, cls, permissive, values):
+    """`encode`'s word: sweeps encode the same fields again and again, varying only the registers they seed."""
+    values = dict(values)
+    md, k = ir.load(arch), klass(arch, cls)
+    requested = {tuple(n.split("@")) if "@" in n else n:
+                 md.enums[k.operand_types[n].type][v] if isinstance(v, str) else v for n, v in values.items()}
+    return encode_environment(md, k, requested, permissive, harness_defaults(md, k))[0].hex()
+
+
+def word(arch, cls, **values):
+    return int.from_bytes(bytes.fromhex(encode(arch, cls, **values)), "little")

@@ -38,6 +38,8 @@ expectation, and records each emitted `sass:` class as ptxas evidence. Unannotat
 | `i2ip/pack_s4_s2.ptx` | SM89 | `cvt.pack.sat.s4.s32` and `cvt.pack.sat.s2.s32`; CUDA 13.0.88 emits I2IP S4/S2 forms |
 | `i2ip/pack_s8_s16.ptx` | SM89 | `cvt.pack.sat.s8.s32` and `cvt.pack.sat.s16.s32`; CUDA 13.0.88 emits I2IP S8/S16 forms |
 | `viaddmnmx/viaddmnmx_modes.ptx` | SM100 | Add followed by signed/unsigned min-max, including packed and `.relu` forms; CUDA 13.0.88 combines them into `VIADDMNMX` |
+| `f2f/f2f_f32_f64_param_sm75.ptx` | SM75 | `cvt.rn.f32.f64` of an `.f64` kernel parameter; CUDA 13.0.88 emits `F2F.F32.F64 R, c[0x0][0x160]` reading the whole 8-byte parameter (evidence for the `f2f_f64_downconvert__RCR_RCR` md fix) |
+| `f2f/f2f_f32_f64_param_sm80.ptx` | SM80 | `cvt.rn.f32.f64` of an `.f64` kernel parameter; CUDA 13.0.88 emits `F2F.F32.F64 R, c[0x0][0x160]` reading the whole 8-byte parameter (evidence for the `f2f_f64_downconvert__RCR_RCR` md fix) |
 | `qspc/address_spaces.cu` | SM89 | Inline PTX emits `QSPC.E.G`, `.L`, and `.S`; the GPU distinguishes generic global, local, and shared pointers |
 | `atom/global_int.ptx` | SM89 | `atom.global` integer operations at 32 and 64 bits; CUDA 13.4 emits `ATOMG.E.<op>.STRONG.GPU`, and warp-aggregates a uniform-address `add.u32` into `REDUX` plus one lane's `@P0 ATOMG` |
 | `atom/global_cas.ptx` | SM89 | `atom.cas d, [a], b, c`: `ATOMG.E.CAS Rd, [Ra], Rb, Rc` with the compare value `b` in Rb and the new value `c` in Rc; `.b64` uses register pairs for both |

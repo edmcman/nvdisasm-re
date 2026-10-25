@@ -8,11 +8,13 @@ usage: python3 -m sass.sleigh.gen SM89 [SM90 ...] [--fp=exact|readable] [--cover
 """
 import itertools, json, math, re, sys
 from sass.md import parse
-from sass.paths import LANGUAGES
+from sass.paths import LANGUAGES, variant
 from collections import defaultdict
+from functools import cache
 from pathlib import Path
 from sass.decode import ir, pydecode
 from sass.md import legal, expression
+from sass.sleigh.registers import ENUM_FILE, REG_FILES
 from sass.decode.pydecode import IMM, PREFIX, NoMatch, resolve, sext, value_text
 
 OUT = LANGUAGES
@@ -20,13 +22,8 @@ MAX_ENUM_BITS = 12
 PH = "\x00{}\x00"  # placeholder for a value symbol inside a rendered template
 
 # register file -> (register-space offset, element bytes, count, zero/true register index, its name)
-REG_FILES = {"R": (0x0000, 4, 256, 255, "RZ"), "UR": (0x0400, 4, 64, 255, "URZ"),
-             "P": (0x0800, 1, 8, 7, "PT"), "UP": (0x0808, 1, 8, 7, "UPT")}
 SPECIAL_BASE = 0x3000  # SpecialRegister file, named from the md enum
 RESOURCE_FILE = {"GPR": "R", "UGPR": "UR", "PRED": "P", "UPRED": "UP"}
-ENUM_FILE = {"Register": "R", "NonZeroRegister": "R", "ZeroRegister": "R",
-             "UniformRegister": "UR", "NonZeroUniformRegister": "UR", "ZeroUniformRegister": "UR",
-             "Predicate": "P", "Predicate_vimnmx": "P", "UniformPredicate": "UP"}
 SPANS = tuple(range(1, 9))
 
 # ---------- fields and constraints ----------
@@ -82,6 +79,24 @@ def member(gen, f, values):
 MAX_CUBE_BITS = 10
 MAX_DEAD_CUBES = 64
 
+def cubes_of(fields, classes, combos):
+    """Joint cubes (one (mask, bits) per field) covering the raw values of the given class tuples."""
+    return joint_cubes(tuple(f.width for f in fields), tuple(tuple(map(frozenset, c)) for c in classes), frozenset(combos))
+
+@cache
+def joint_cubes(widths, classes, combos):
+    """`cubes_of`, memoized: classes share conditions and fields."""
+    boxes = merge_boxes([tuple(classes[i][j] for i, j in enumerate(c)) for c in combos])
+    cover = lambda n, vs: [(0, 0)] if len(vs) == 1 << n else (cubes if n <= MAX_CUBE_BITS else split_cubes)(vs, n)
+    out = {c for box in boxes for c in itertools.product(*(cover(n, vs) for n, vs in zip(widths, box)))}
+    # Drop cubes inside another (same fields fixed with the same values, plus more): per mask
+    # tuple, the cubes' bits; a cube is inside one with fewer fixed bits that its bits agree with.
+    by_mask = defaultdict(set)
+    for c in out: by_mask[tuple(m for m, _ in c)].add(tuple(b for _, b in c))
+    inside = lambda c, dm, bits: (dm != tuple(m for m, _ in c) and all(m & d == d for (m, _), d in zip(c, dm))
+                                  and tuple(b & d for (_, b), d in zip(c, dm)) in bits)
+    return frozenset(c for c in out if not any(inside(c, dm, bits) for dm, bits in by_mask.items()))
+
 def merge_boxes(boxes):
     """Union boxes (tuples of value sets) that differ in one position, until none do."""
     boxes = set(boxes)
@@ -95,6 +110,11 @@ def merge_boxes(boxes):
 def cubes(values, n):
     """A small cover of `values` by cubes (mask of fixed bits, their values): Quine-McCluskey prime
     implicants and a greedy cover."""
+    return prime_cover(frozenset(values), n)
+
+@cache
+def prime_cover(values, n):
+    """`cubes`, memoized: classes share fields and legal value sets."""
     current, primes = {((1 << n) - 1, v) for v in values}, set()
     while current:
         merged, nxt = set(), set()
@@ -108,7 +128,7 @@ def cubes(values, n):
     while left:
         best = max(sorted(covers), key=lambda c: len(covers[c] & left))
         cover.append(best); left -= covers[best]
-    return sorted(cover)
+    return tuple(sorted(cover))
 
 def split_cubes(values, n):
     """Cubes from splitting on the top bit: equal halves leave that bit free (cheap, for wide fields)."""
@@ -230,23 +250,20 @@ class Gen:
         self.spans = {file: {1} for file in REG_FILES}
         self.special_spans = set()
         self.pcodeops = set()
-        md = parse.load_classes(parse.OUT / archname)
+        md = parse.load_classes(parse.MD / archname)
         self.props = {c["cls"]: c["props"] for c in md}
         self.sizes = {c["cls"]: c["preds"] for c in md}
         self.collect_coverage = coverage
         self.coverage = {}
-        self.runtime = {}
         self.temporaries = {}
         self._span_fields = {}
-        self.roles = {r["cls"]: r for p in (parse.OUT / archname / "semantics").glob("*.json") for r in json.loads(p.read_text())}
+        self.roles = {r["cls"]: r for p in (parse.MD / archname / "semantics").glob("*.json") for r in json.loads(p.read_text())}
 
     def write_manifests(self, directory):
-        """Always write primitive calling conventions; detailed coverage is opt-in."""
-        directory = Path(directory)
-        prefix = directory / f"sass_{variant(self.arch.name, self.fp)}"
-        Path(str(prefix) + "_runtime.json").write_text(json.dumps(list(self.runtime.values()), indent=2) + "\n")
+        """The detailed coverage manifest, when collected."""
         if self.collect_coverage:
-            Path(str(prefix) + "_coverage.json").write_text(json.dumps(list(self.coverage.values()), indent=2) + "\n")
+            prefix = Path(directory) / f"sass_{variant(self.arch.name, self.fp)}"
+            update(str(prefix) + "_coverage.json", json.dumps(list(self.coverage.values()), indent=2) + "\n")
 
     def field(self, tok, lo, hi, kind=""):
         name = f"{tok}{lo}_{hi}{kind}"
@@ -381,8 +398,15 @@ class Gen:
         atom = k.operand_types.get(name)
         rule = next((r for f, r in k.rules if r[0] == "op" and r[1] == name), None)
         src = self.source(k, name)
-        if atom is None or not atom.type.endswith("Imm") or atom.type == "F64Imm" or rule is None or rule[3] is not None \
-                or not src or src[0] != "field": return None
+        if atom is None or not atom.type.endswith("Imm") or rule is None or not src or src[0] != "field": return None
+        if rule[3] is not None:
+            # A convertFloatType immediate folds when every selector encoding picks the same layout
+            # (F64 supplies the high word; the 16-bit kinds are the packed bits).
+            layouts = {kind == "F64" for _, kind in self.float_formats(k, rule[3]) or ()}
+            if len(layouts) != 1: return None
+            wide = layouts.pop()
+        elif atom.type == "F64Imm": return None
+        else: wide = False
         _, f, scale = src
         text, shift, refs = None, 0, []
         for tok, lo, hi, n in reversed(pieces(f)):
@@ -391,7 +415,20 @@ class Gen:
             shift += n
         if atom.type.startswith("S") or atom.type == "RSImm":
             sb = 1 << (f.width - 1); text = f"(({text} ^ {sb:#x}) - {sb:#x})"
-        return (f"({text} * {scale})" if scale != 1 else text), refs
+        if scale != 1: text = f"({text} * {scale})"
+        return (f"({text} << 32)" if wide else text), refs
+
+    def float_formats(self, k, conv):
+        """[(pattern clauses, kind)]: each encoding of a convertFloatType rule's selector fields and
+        the float kind it picks (F16/E8M7/E6M9 are packed 16-bit values, F64 supplies its high word);
+        None when a selector is not a plain field."""
+        parts = [p.strip() for p in conv.split(",")]
+        names = sorted({c.split("==")[0].strip() for p in parts[0:-1:2] for c in p.split("||")})
+        sources = [self.source(k, n) for n in names]
+        if any(s is None or s[0] != "field" for s in sources): return None
+        return [([c for s, v in zip(sources, combo) for c in eq(self, s[1], v)],
+                 pydecode.float_kind(self.arch, {n: v * s[2] for n, s, v in zip(names, sources, combo)}, conv))
+                for combo in itertools.product(*(range(1 << s[1].width) for s in sources))]
 
     def branch_target(self, k, a):
         """Invisible subtable exporting a branch's destination (display keeps its own symbol)."""
@@ -805,10 +842,10 @@ class Gen:
             if domain is not None:
                 fields, classes, ok = restrict(fields, classes, ok, domain)
                 if not ok: return None, []
-            good = self.cubes_of(fields, classes, ok)
+            good = cubes_of(fields, classes, ok)
             if len(good) == 1:
                 clauses += [[l] for l in self.cube_lits(fields, next(iter(good)))]; continue
-            bad = self.cubes_of(fields, classes, set(itertools.product(*(range(len(c)) for c in classes))) - ok)
+            bad = cubes_of(fields, classes, set(itertools.product(*(range(len(c)) for c in classes))) - ok)
             if len(bad) <= min(len(good), MAX_DEAD_CUBES) and all(sum(bin(m).count("1") for m, _ in c) >= 2 for c in bad):
                 dead |= {(tuple(f.ranges for f in fields), c) for c in bad}
             else: tables.append(self.decision(fields, classes, ok))
@@ -823,15 +860,6 @@ class Gen:
         # One reference per root constructor; classes with the same conditions share the bundle.
         refs = tables if len(tables) < 2 else [self.subtable("legal", [('""', pattern([], [("sub", t) for t in tables]), "", "")])]
         return clauses, refs
-
-    def cubes_of(self, fields, classes, combos):
-        """Joint cubes (one (mask, bits) per field) covering the raw values of the given class tuples."""
-        boxes = merge_boxes([tuple(frozenset(classes[i][j]) for i, j in enumerate(c)) for c in combos])
-        cover = lambda f, vs: [(0, 0)] if len(vs) == 1 << f.width else (cubes if f.width <= MAX_CUBE_BITS else split_cubes)(vs, f.width)
-        out = {c for box in boxes for c in itertools.product(*(cover(f, vs) for f, vs in zip(fields, box)))}
-        # Drop cubes inside another (same fields fixed with the same values, plus more).
-        inside = lambda c, d: all(m & dm == dm and b & dm == db for (m, b), (dm, db) in zip(c, d))
-        return {c for c in out if not any(d != c and inside(c, d) for d in out)}
 
     def cube_lits(self, fields, cube):
         """Literals (one per token) fixing each field's cube bits."""
@@ -958,7 +986,7 @@ class Gen:
         table_lines=[line for line in self.table_lines if line.split(':',1)[0] in live]
         toks = defaultdict(set)
         for (tok, lo, hi, kind), name in self.fields.items(): toks[tok].add((lo, hi, kind, name))
-        out = [f"# Generated by src/sass/sleigh/gen.py from out/{self.arch.name}/md -- do not edit.",
+        out = [f"# Generated by src/sass/sleigh/gen.py from src/sass/md/data/{self.arch.name}/md -- do not edit.",
                '@include "sass_common.sinc"', ""] + register_defs(self.spans) + self.special_defs() + [
                    f'define register offset={0x1000000+i*0x10000:#x} size={size} [ {name} ];'
                    for i,(name,size) in enumerate(sorted(self.temporaries.items()))] + [""]
@@ -1049,17 +1077,20 @@ def sm_bits(sm, shift):
 MODES = ("exact", "readable")   # floating-point lowerings: hardware results, or the plain formula
 
 
-def variant(arch, fp="exact"):
-    """Language variant: exact float semantics keep the plain smXX name."""
-    return arch.lower() + ("" if fp == "exact" else "_" + fp)
+def update(path, text):
+    """Write a generated file only when its content changes: a rewritten .slaspec looks newer than its
+    compiled .sla, so Ghidra would recompile every language after each coverage refresh."""
+    path, data = Path(path), text.encode()
+    if not path.is_file() or path.read_bytes() != data: path.write_bytes(data)
+
 
 def write_ldefs():
-    variants = sorted({p.name.split(".")[0].removeprefix("sass_") for p in OUT.glob("sass_sm*.sla*")})  # specs, or compiled languages alone
-    (OUT / "sass.ldefs").write_text(LDEFS.format("".join(
+    variants = sorted({p.stem.removeprefix("sass_") for p in OUT.glob("sass_sm*") if p.suffix in (".sla", ".slaspec")})  # specs, or compiled languages alone
+    update(OUT / "sass.ldefs", LDEFS.format("".join(
         LANG.format(v=v, V=v.split("_")[0].upper(), D="".join(f" {m} floating point" for m in v.split("_")[1:]))
         for v in variants)))
     # Loaders pick the exact language; readable ones are chosen explicitly.
-    (OUT / "sass.opinion").write_text(OPINION.format("".join(
+    update(OUT / "sass.opinion", OPINION.format("".join(
         f'    <constraint primary="190" processor="SASS" endian="little" size="64" variant="{v}" secondary="{sm_bits(int(v[2:]), shift)}"/>\n'
         for v in variants if "_" not in v for shift in (0, 8))))
 
@@ -1067,7 +1098,7 @@ def main(archs, fp="exact", *, coverage=False):
     for arch in archs:
         g = Gen(arch, fp, coverage=coverage)
         text = g.slaspec()
-        (OUT / f"sass_{variant(arch, fp)}.slaspec").write_text(text)
+        update(OUT / f"sass_{variant(arch, fp)}.slaspec", text)
         g.write_manifests(OUT)
         print(f"{variant(arch, fp)}: {text.count(chr(10))} lines, {len(g.tables)} subtables, {len(g.skipped)} skipped")
         for name, why in g.skipped[:10]: print("   skipped", name, why)

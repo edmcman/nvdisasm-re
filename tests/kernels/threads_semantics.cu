@@ -38,3 +38,26 @@ extern "C" __global__ void sem_shared_exchange(const uint32_t *in, uint32_t *out
  s[t]=r*3+1; __syncthreads();
  out[i]=r^s[(t*5+7)&127];
 }
+// Divergent warps: only the lanes with c&1 set run the collective, over their activemask; out = result | activemask << 32.
+#define DIVERGENT(name, body) extern "C" __global__ void sem_##name(const uint32_t *in, uint64_t *out) { \
+ unsigned i=threadIdx.x+blockIdx.x*blockDim.x; uint32_t a=in[3*i],b=in[3*i+1],c=in[3*i+2],r=0,m=0; \
+ if (c&1) { m=__activemask(); body; } out[i]=(uint64_t)m<<32|r; }
+DIVERGENT(div_ballot, r=__ballot_sync(m, a&1))
+DIVERGENT(div_any, r=__any_sync(m, a&1))
+DIVERGENT(div_all, r=__all_sync(m, a&1))
+DIVERGENT(div_redux_add, r=__reduce_add_sync(m, a))
+DIVERGENT(div_redux_and, r=__reduce_and_sync(m, a))
+DIVERGENT(div_redux_or, r=__reduce_or_sync(m, a))
+DIVERGENT(div_redux_min, r=__reduce_min_sync(m, a))
+// SHFL.IDX whose source lane is not executing it: `a` is pinned in a register first, so a source lane
+// that skipped the branch (div_shfl_idle) or exited (div_shfl_exit) still holds its input there.
+extern "C" __global__ void sem_div_shfl_idle(const uint32_t *in, uint64_t *out) {
+ unsigned i=threadIdx.x+blockIdx.x*blockDim.x; uint32_t a=*(volatile const uint32_t *)&in[3*i],b=in[3*i+1],c=in[3*i+2],r=0,m=0;
+ if (c&1) { m=__activemask(); r=__shfl_sync(m, a, b&31); } else asm volatile("" :: "r"(a));
+ out[i]=(uint64_t)m<<32|r;
+}
+extern "C" __global__ void sem_div_shfl_exit(const uint32_t *in, uint64_t *out) {
+ unsigned i=threadIdx.x+blockIdx.x*blockDim.x; uint32_t a=*(volatile const uint32_t *)&in[3*i],b=in[3*i+1],c=in[3*i+2];
+ if (!(c&1)) { out[i]=0; asm volatile("" :: "r"(a)); return; }
+ uint32_t m=__activemask(); out[i]=(uint64_t)m<<32|__shfl_sync(m, a, b&31);
+}

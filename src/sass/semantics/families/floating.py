@@ -7,7 +7,7 @@ The readable lowering is the plain formula: round to nearest, no flushing, min/m
 (.SAT and the sign modifiers stay)."""
 from sass.semantics.bitvec import *
 from sass.semantics.fp import fpformat
-from sass.semantics.family import family, helper, outputs, unmodelled
+from sass.semantics.family import definition, family, float_abs, float_neg, helper, outputs, unmodelled
 from sass.semantics.families.integer import boolean
 
 SCALES = {'noscale': 0, 'D2': -1, 'D4': -2, 'D8': -3, 'M2': 1, 'M4': 2, 'M8': 3}
@@ -22,15 +22,23 @@ CANONICAL_NAN = 0x7fffffff   # min/max of two NaNs (SM89 GPU)
 def readable(i): return i.fp == 'readable'
 
 
-def flushed(x):
-    """A denormal to zero of the same sign, without a branch: x & (sign | (exponent != 0 ? ~sign : 0))."""
-    sign, exponent = SIGN_EXPONENT[x.w]
+IEEE = {16: 'F16', 32: 'F32', 64: 'F64'}
+
+
+@definition(lambda a: ("ftz" if a["fmt"] is None else f"ftz.{a['fmt'].lower()}", ["x"]))
+def flushed(x, fmt=None):
+    """Flush to zero: a denormal becomes zero of the same sign, other values are unchanged.
+
+    fmt: x's format when it isn't the IEEE one of its width (BF16). Without a branch:
+    x & (sign | (exponent != 0 ? ~sign : 0))."""
+    f = fpformat.FORMATS[fmt or IEEE[x.w]]
+    sign, exponent = 1 << f.width - 1, ((1 << f.ebits) - 1) << f.mbits
     return x & (zext((x & exponent) != 0, x.w) * (sign - 1) | sign)
 
 
 def flushes(i):
     """The class flushes denormals: .FTZ, in the exact lowering. .FMZ (FTZ plus 0 * x = 0) is
-    unmodelled there; the readable lowering ignores both."""
+    unmodelled there, except in FMUL/FFMA (product_inputs); the readable lowering ignores both."""
     for name in ('fmz', 'ftz'):
         if i.has_operand(name):
             label = i.select_fork(name)
@@ -53,15 +61,15 @@ def rounding(i):
     return 'RN' if readable(i) else str(mode)
 
 
-def fused(i, a, b, c):
+def fused(i, a, b, c, nans=()):
     """a * b + c: rounded once, or the unfused formula in the readable lowering."""
     rnd = rounding(i)   # asked either way: the readable lowering ignores it
-    return fadd(fmul(a, b), c) if readable(i) else ffma(a, b, c, rnd)
+    return fadd(fmul(a, b), c) if readable(i) else ffma(a, b, c, rnd, nans)
 
 
-@helper
+@definition("sat")
 def saturated(r):
-    """.SAT: clamp to [+0, 1]; NaN and -0 give +0."""
+    """Saturate: clamp to [+0, 1]; NaN and -0 give +0."""
     one, zero = const(ONE[r.w], r.w), const(0, r.w)
     return (r if fle(r, one) else one) if lnot(fnan(r)) & flt(zero, r) else zero
 
@@ -77,7 +85,7 @@ def operand_width(i, w, *names):
     if any(i.width(n) != w for n in ('Rd', *names)): unmodelled('width')
 
 
-@family('FADD', fallback='prim')
+@family('FADD')
 def fadd_(i):
     """Rd = Ra + Rc."""
     operand_width(i, 32, 'Ra|Sa', 'Rc|Sc')
@@ -85,11 +93,37 @@ def fadd_(i):
     return result(i, ftz, fadd(a, c, rounding(i)))
 
 
-@family('FMUL', fallback='prim')
+@helper
+def zero_factor(a, b):
+    """.FMZ: a factor with a zero exponent (zero or denormal) makes the product +0, even against
+    Inf or NaN (SM89 GPU)."""
+    exponent = SIGN_EXPONENT[32][1]
+    return ((a & exponent) == 0) | ((b & exponent) == 0)
+
+
+@helper
+def zeroed(zero, x): return const(0, 32) if zero else x
+
+
+def product_inputs(i, *names):
+    """(flushing, values): the operands with their modifiers, flushed under .FTZ or .FMZ. .FMZ also
+    makes both factors +0 when one has a zero exponent, so the product is +0 and FFMA adds Rc to
+    it; a decode-time choice, so .FTZ and .FMZ share one body (a third made SM90 exceed 16 MiB)."""
+    if readable(i) or not i.has_operand('fmz'): return float_inputs(i, *names)
+    if not i.select_in('fmz', ('FTZ', 'FMZ')): return False, [i.fvalue(n) for n in names]
+    values = [flushed(i.fvalue(n)) for n in names]
+    # Flushing keeps the exponent, so the unflushed factors are tested: each factor's value then
+    # doesn't recompute the other's flush (their modifier tables are shared already).
+    zero = i.select_lookup_const('fmz', {'FTZ': 0, 'FMZ': 1}, 1) & zero_factor(*(i.fvalue(n) for n in names[:2]))
+    values[:2] = [zeroed(zero, x) for x in values[:2]]
+    return True, values
+
+
+@family('FMUL')
 def fmul_(i):
     """Rd = Ra * Rb * 2^scale (.D2-.D8, .M2-.M8), rounded once."""
     operand_width(i, 32, 'Ra|Sa', 'Rb|Sb')
-    ftz, (a, b) = float_inputs(i, 'Ra|Sa', 'Rb|Sb')
+    ftz, (a, b) = product_inputs(i, 'Ra|Sa', 'Rb|Sb')
     scale = SCALES.get(str(i.select_fork('scale'))) if i.has_operand('scale') else 0
     if scale is None: unmodelled('scale')
     rnd = rounding(i)
@@ -99,36 +133,85 @@ def fmul_(i):
     return result(i, ftz, fmul(a, b, rnd, scale))
 
 
-@family('FFMA', fallback='prim')
+@family('FFMA')
 def ffma_(i):
     """Rd = Ra * Rb + Rc, rounded once."""
     operand_width(i, 32, 'Ra|Sa', 'Rb|Sb', 'Rc|Sc')
-    ftz, (a, b, c) = float_inputs(i, 'Ra|Sa', 'Rb|Sb', 'Rc|Sc')
+    ftz, (a, b, c) = product_inputs(i, 'Ra|Sa', 'Rb|Sb', 'Rc|Sc')
     return result(i, ftz, fused(i, a, b, c))
+
+
+def double_inputs(i, *names):
+    """(values with -/|.|, registers without, or () when none is modified): a NaN result propagates
+    the unmodified register (SM89 GPU), which is then the value itself."""
+    operand_width(i, 64, *names)
+    values, registers = [i.fvalue(n) for n in names], [i.fvalue(n, modifiers=False) for n in names]
+    return values, () if all(map(lambda v, r: v is r, values, registers)) else tuple(registers)
+
+
+def f64_name(kind, sources):
+    """A namer: <kind>.<mode>.f64 of the operands, then the registers before -/|.| (the NaN sources)
+    when an operand is modified."""
+    return lambda a: (f"{kind}.{a['rnd'].lower()}.f64", [*sources, *(["nans"] if a["nans"] else [])])
+
+
+@definition(f64_name("add", ["a", "c"]))
+def add_f64(a, c, rnd, nans=()):
+    """PTX add.f64 with the GPU's NaN: rounded once; a NaN result is the first NaN of the registers
+    before -/|.| (c, then a), quieted, else 0xfff8000000000000.
+
+    nans: those registers, when an operand is modified (else the operands)."""
+    return fadd(a, c, rnd, nans)
+
+
+@definition(f64_name("mul", ["a", "b"]))
+def mul_f64(a, b, rnd, nans=()):
+    """PTX mul.f64 with the GPU's NaN: rounded once; a NaN result is the first NaN of the registers
+    before -/|.| (b, then a), quieted, else 0xfff8000000000000.
+
+    nans: those registers, when an operand is modified (else the operands)."""
+    return fmul(a, b, rnd, nans=nans)
+
+
+@definition(f64_name("fma", ["a", "b", "c"]))
+def fma_f64(a, b, c, rnd, nans=()):
+    """PTX fma.f64 with the GPU's NaN: a * b + c rounded once (via binary128: rare midpoint double
+    rounding); a NaN result is the first NaN of the registers before -/|.| (b, c, then a), quieted,
+    else 0xfff8000000000000.
+
+    nans: those registers, when an operand is modified (else the operands)."""
+    return ffma(a, b, c, rnd, nans)
 
 
 @family('DADD')
 def dadd_(i):
     """Rd = Ra + Rc (FP64)."""
-    operand_width(i, 64, 'Ra|Sa', 'Rc|Sc')
-    a, c = i.fvalue('Ra|Sa'), i.fvalue('Rc|Sc')
-    return result(i, False, fadd(a, c, rounding(i)))
+    (a, c), nans = double_inputs(i, 'Ra|Sa', 'Rc|Sc')
+    return result(i, False, add_f64(a, c, rounding(i), nans))
 
 
 @family('DMUL')
 def dmul_(i):
     """Rd = Ra * Rb (FP64)."""
-    operand_width(i, 64, 'Ra|Sa', 'Rb|Sb')
-    a, b = i.fvalue('Ra|Sa'), i.fvalue('Rb|Sb')
-    return result(i, False, fmul(a, b, rounding(i)))
+    (a, b), nans = double_inputs(i, 'Ra|Sa', 'Rb|Sb')
+    return result(i, False, mul_f64(a, b, rounding(i), nans))
 
 
 @family('DFMA')
 def dfma_(i):
     """Rd = Ra * Rb + Rc (FP64), rounded once (via binary128: rare midpoint double rounding)."""
-    operand_width(i, 64, 'Ra|Sa', 'Rb|Sb', 'Rc|Sc')
-    a, b, c = i.fvalue('Ra|Sa'), i.fvalue('Rb|Sb'), i.fvalue('Rc|Sc')
-    return result(i, False, fused(i, a, b, c))
+    (a, b, c), nans = double_inputs(i, 'Ra|Sa', 'Rb|Sb', 'Rc|Sc')
+    rnd = rounding(i)
+    return result(i, False, fadd(fmul(a, b), c) if readable(i) else fma_f64(a, b, c, rnd, nans))
+
+
+@definition(lambda a: (f"setp.{a['label'].lower()}.f{a['x'].w}", ["x", "y"]))
+def minmax_order(label, x, y):
+    """DSETP.MIN/MAX's test (SM89 GPU): x is totalOrder-below-or-equal (MIN) or above (MAX) y, true
+    for a NaN y and false for a NaN x."""
+    key = lambda v: ite(extract(v, v.w - 1, v.w - 1) != 0, ~v, v | const(1 << v.w - 1, v.w))
+    order = key(x) <= key(y) if label == 'MIN' else key(y) < key(x)
+    return lnot(fnan(x)) & (fnan(y) | order)
 
 
 @helper
@@ -141,6 +224,7 @@ def float_test(label, x, y):
     match str(label):   # FSETP's fcomp and DSETP's test spell the same comparisons
         case 'T': return const(1, 1)
         case 'F': return const(0, 1)
+        case 'MIN' | 'MAX' as name: return minmax_order(name, x, y)
         case 'NUM': return lnot(unordered)
         case 'NAN': return unordered
         case 'NEU': return lnot(feq(x, y))
@@ -159,13 +243,15 @@ def combined(i, cond):
     return boolean(i.select_fork('bop'), cond, i.pred('Pp')) if i.has_operand('bop') else cond
 
 
-def set_predicates(i, cond):
-    """Pu = cond bop Pp, Pv = !cond bop Pp (or Pu = cond without a bop)."""
+def set_predicates(i, cond, minmax=None):
+    """Pu = cond bop Pp, Pv = !cond bop Pp (or Pu = cond without a bop); under `minmax` Pv is the
+    uncombined both-inputs-NaN flag."""
     if not i.has_operand('bop'): return outputs(Pu=cond)
-    return outputs(Pu=combined(i, cond), Pv=combined(i, lnot(cond)))
+    pv = combined(i, lnot(cond))
+    return outputs(Pu=combined(i, cond), Pv=pv if minmax is None else ite(minmax[0], minmax[1], pv))
 
 
-@family('FSETP', fallback='prim')
+@family('FSETP')
 def fsetp_(i):
     """Pu/Pv from comparing Ra with Rb (FTZ flushes the inputs)."""
     if i.width('Ra|Sa') != 32 or i.width('Rb|Sb') != 32: unmodelled('width')
@@ -186,7 +272,18 @@ def fset_(i):
 def dsetp_(i):
     """Pu/Pv from comparing Ra with Rc (FP64)."""
     if i.width('Ra|Sa') != 64 or i.width('Rc|Sc') != 64: unmodelled('width')
-    return set_predicates(i, comparison(i, 'test', i.fvalue('Ra|Sa'), i.fvalue('Rc|Sc')))
+    x, y = i.fvalue('Ra|Sa'), i.fvalue('Rc|Sc')
+    minmax = i.select_lookup('test', {l: const(int(l in ('MIN', 'MAX')), 1) for l in i.labels('test')})
+    return set_predicates(i, comparison(i, 'test', x, y), (minmax, fnan(x) & fnan(y)))
+
+
+@definition("fchk.divide")
+def division_check(a, b):
+    """Whether a / b needs the division slow path: from the biased exponents alone (signs, modifiers
+    and mantissas don't matter), a zero/denormal/tiny (ea <= 24) or Inf/NaN, b's reciprocal out of
+    range (eb <= 1 or eb >= 252), or the quotient's exponent out of range (SM89 GPU)."""
+    ea, eb = (zext(extract(x, 30, 23), 32) for x in (a, b))
+    return (ea <= 24) | (ea == 255) | (eb <= 1) | (eb >= 252) | sle(const(127, 32), ea - eb) | sle(const(125, 32), eb - ea)
 
 
 @family('FCHK')
@@ -196,8 +293,7 @@ def fchk(i):
     range (eb <= 1 or eb >= 252), or the quotient's exponent out of range (SM89 GPU: exact on 1.1M
     random and boundary pairs)."""
     if i.select_fork('mode') != 'DIVIDE': unmodelled('mode')
-    ea, eb = (zext(extract(i.fvalue(n), 30, 23), 32) for n in ('Ra', 'Rb|Sb'))
-    return outputs(Pu=(ea <= 24) | (ea == 255) | (eb <= 1) | (eb >= 252) | sle(const(127, 32), ea - eb) | sle(const(125, 32), eb - ea))
+    return outputs(Pu=division_check(i.fvalue('Ra'), i.fvalue('Rb|Sb')))
 
 
 @family('FSEL', 'UFSEL')
@@ -228,26 +324,68 @@ def numeric_minmax(p, x, y):
     return ((const(CANONICAL_NAN, 32) if fnan(y) else y) if fnan(x) else (x if fnan(y) else chosen))
 
 
+def minmax_name(kind, sources):
+    """A namer: min<kind>[.NaN].f32 or max<kind>[.NaN].f32 for a constant predicate (PT, !PT),
+    else fmnmx<kind>[.NaN] of the predicate too."""
+    def name(a):
+        nan, p = ".NaN" if a["nan"] else "", a["p"]
+        if is_const(p): return f"{'min' if value(p) else 'max'}{kind}{nan}.f32", sources
+        return f"fmnmx{kind}{nan}", ["p", *sources]
+    return name
+
+
+@definition(minmax_name("", ["x", "y"]))
+def fmnmx(p, x, y, nan=False):
+    """PTX min.f32 when the predicate holds, else max.f32, with the GPU's NaN: a number wins over
+    NaN, two NaNs give 0x7fffffff, and -0 is below +0; .NaN: any NaN gives 0x7fffffff."""
+    # .NAN: any NaN gives the canonical NaN, so only numbers reach the comparison.
+    return (const(CANONICAL_NAN, 32) if fnan(x) | fnan(y) else ordered_minmax(p, x, y)) if nan else numeric_minmax(p, x, y)
+
+
+def xorsign_name(a):
+    """A namer: min/max[.NaN].xorsign[.abs].f32 for a constant predicate, else fmnmx[.NaN].xorsign[.abs]
+    of it too; .abs when the operands are the registers' magnitudes (then not arguments)."""
+    nan, absolute, p = ".NaN" if a["nan"] else "", a["x"] is None, a["p"]
+    head = ("min" if value(p) else "max") if is_const(p) else "fmnmx"
+    name = f"{head}{nan}.xorsign{'.abs' if absolute else ''}" + (".f32" if is_const(p) else "")
+    return name, [*(["p"] if not is_const(p) else []), *([] if absolute else ["x", "y"]), "rx", "ry"]
+
+
+@definition(xorsign_name)
+def fmnmx_xorsign(p, rx, ry, x=None, y=None, nan=False):
+    """PTX min/max.xorsign.abs.f32 with the GPU's NaN: fmnmx of the operands, the result taking the
+    XOR of the registers' encoded signs unless it is a NaN.
+
+    x, y: the operands, when not the registers' magnitudes."""
+    x, y = (float_abs(rx), float_abs(ry)) if x is None else (x, y)
+    r = fmnmx(p, x, y, nan)
+    # The result is a NaN when an input is (.NAN) or both are (a number wins otherwise): asked of
+    # the inputs, not of r, so testing it doesn't repeat the comparison.
+    is_nan = (fnan(x) | fnan(y)) if nan else (fnan(x) & fnan(y))
+    return r if is_nan else (r & 0x7fffffff) | ((rx ^ ry) & 0x80000000)
+
+
+@definition(lambda a: ((f"{'min' if value(a['p']) else 'max'}.readable.f32", ["x", "y"]) if is_const(a["p"]) else ("fmnmx.readable", ["p", "x", "y"])))
+def readable_minmax(p, x, y):
+    """The readable lowering's FMNMX: min (predicate) or max by a float comparison alone, the second
+    operand winning ties and NaNs (no NaN or signed-zero rules)."""
+    return pick(p, x, y)
+
+
 @family('FMNMX')
 def fmnmx_(i):
     """Rd = Pp ? min(Ra, Rb) : max(Ra, Rb). .NAN: a NaN input gives the canonical NaN. .XORSIGN:
-    the magnitudes are compared and the result takes the XOR of the encoded signs (before |x|)."""
+    the modified operands are compared and the result takes the XOR of the encoded signs (before |x|)."""
     operand_width(i, 32, 'Ra|Sa', 'Rb|Sb')
     _, (a, b) = float_inputs(i, 'Ra|Sa', 'Rb|Sb')
     p = i.pred('Pp')
     xorsign = i.has_operand('xorsign') and i.select_fork('xorsign') == 'XORSIGN'
     nan = i.has_operand('nan') and i.select_fork('nan') == 'NAN'
-    if readable(i): return outputs(Rd=pick(p, a, b))
-    if xorsign: a, b = a & 0x7fffffff, b & 0x7fffffff
-    # .NAN: any NaN gives the canonical NaN, so only numbers reach the comparison.
-    r = (const(CANONICAL_NAN, 32) if fnan(a) | fnan(b) else ordered_minmax(p, a, b)) if nan else numeric_minmax(p, a, b)
-    if xorsign:
-        sign = (i.value('Ra|Sa', modifiers=False) ^ i.value('Rb|Sb', modifiers=False)) & 0x80000000
-        # The result is a NaN when an input is (.NAN) or both are (a number wins otherwise): asked of
-        # the inputs, not of r, so testing it doesn't repeat the comparison.
-        is_nan = (fnan(a) | fnan(b)) if nan else (fnan(a) & fnan(b))
-        r = r if is_nan else (r & 0x7fffffff) | sign
-    return outputs(Rd=r)
+    if readable(i): return outputs(Rd=readable_minmax(p, a, b))
+    if not xorsign: return outputs(Rd=fmnmx(p, a, b, nan))
+    ra, rb = i.value('Ra|Sa', modifiers=False), i.value('Rb|Sb', modifiers=False)
+    absolute = a is float_abs(ra) and b is float_abs(rb)
+    return outputs(Rd=fmnmx_xorsign(p, ra, rb, *((None, None) if absolute else (a, b)), nan))
 
 
 @helper
@@ -263,6 +401,22 @@ def numeric_pair3(p, x, y):
     return ((x if fnan(y) else y) if fnan(x) else (x if fnan(y) else chosen))
 
 
+@definition(minmax_name("3", ["x", "y", "z"]))
+def fmnmx3(p, x, y, z, nan=False):
+    """The min (predicate) or max of three F32 values, pairwise: a number wins over NaN, two NaNs
+    give the first, -0 is below +0; .NaN: any NaN gives 0x7fffffff."""
+    r = numeric_pair3(p, numeric_pair3(p, x, y), z)
+    if nan: r = const(CANONICAL_NAN, 32) if fnan(x) | fnan(y) | fnan(z) else r
+    return r
+
+
+@definition(lambda a: ((f"{'min' if value(a['p']) else 'max'}3.readable.f32", ["x", "y", "z"]) if is_const(a["p"]) else ("fmnmx3.readable", ["p", "x", "y", "z"])))
+def readable_minmax3(p, x, y, z):
+    """The readable lowering's FMNMX3: min (predicate) or max of three by float comparisons alone,
+    pairwise, the first operand winning ties and NaNs (no NaN or signed-zero rules)."""
+    return pick_right(p, pick_right(p, x, y), z)
+
+
 @family('FMNMX3')
 def fmnmx3_(i):
     """Rd = the min (Pp) or max (!Pp) of Ra, Rb, Rc, pairwise; .NAN: any NaN gives the canonical NaN."""
@@ -270,10 +424,8 @@ def fmnmx3_(i):
     _, (a, b, c) = float_inputs(i, 'Ra|Sa', 'Rb|Sb', 'Rc|Sc')
     p = i.pred('Pp')
     nan = i.has_operand('nan') and i.select_fork('nan') == 'NAN'
-    if readable(i): return outputs(Rd=pick_right(p, pick_right(p, a, b), c))
-    r = numeric_pair3(p, numeric_pair3(p, a, b), c)
-    if nan: r = const(CANONICAL_NAN, 32) if fnan(a) | fnan(b) | fnan(c) else r
-    return outputs(Rd=r)
+    if readable(i): return outputs(Rd=readable_minmax3(p, a, b, c))
+    return outputs(Rd=fmnmx3(p, a, b, c, nan))
 
 
 # SM120's uniform twins; their unmodelled encodings are opaque (the runtime primitives are scalar only).
@@ -328,12 +480,25 @@ def no_flush(i):
             if not readable(i) and not str(label).startswith(('noftz', 'nofmz')): unmodelled(f'{label}')
 
 
-@family('HADD2', 'HFMA2')
+@family('HADD2', 'HFMA2', 'HFMA2.MMA')
 def half_arithmetic(i):
     """Rd = per lane a + c (HADD2) or a * b + c (HFMA2) on binary16, rounded once (the readable
     lowering: unfused), with .SAT. HADD2.F32 adds the low lanes, rounds to binary16 and widens the
     result to binary32 (FTZ flushes inputs and the binary16 result)."""
-    fma = i.opcode == 'HFMA2'
+    mma = i.opcode == 'HFMA2.MMA'
+    if mma:
+        if i.has_operand('ofmt') and i.select_fork('ofmt') != 'F16_V2': unmodelled('MMA format')
+        # Preserve the hardware-established constant move, including its NaN payload.
+        if all(i.has_operand(n) for n in ('Ra', 'Rb', 'Sc', 'Sc1')):
+            no_flush(i)
+            if half_saturating(i): unmodelled('saturated MMA constant move')
+            if not (i.is_zero('Ra') and i.operand_negated('Ra') and i.is_zero('Rb') and not i.operand_negated('Rb')):
+                unmodelled('not the -RZ, RZ constant move')
+            canonical = lambda h: ite((extract(h, 14, 10) == 0x1f) & (extract(h, 9, 0) != 0), const(0x7fff, 16), h)
+            return outputs(Rd=concat(canonical(i.imm('Sc', 16)), canonical(i.imm('Sc1', 16))))
+        if i.cls not in ('hfma2_mma__RRR', 'hfma2_mma__RIR') or not i.has_operand('ofmt'):
+            unmodelled('MMA operand form')
+    fma = i.opcode in ('HFMA2', 'HFMA2.MMA')
     names = ['Ra|Sa', 'Rb|Sb', 'Rc|Sc'] if fma else ['Ra|Sa', 'Rc|Sc']
     if i.width('Rd') != 32: unmodelled('width')
     if not fma and i.cls.startswith('hadd2_F32'):
@@ -346,20 +511,26 @@ def half_arithmetic(i):
         if half_saturating(i): r = saturated(r)
         return outputs(Rd=widen_half(r))
     if i.select_fork('ofmt') != 'F16_V2': unmodelled('ofmt')
-    no_flush(i)
+    ftz = False
+    if mma:
+        mode = i.select_fork('fmz')
+        if mode not in ('nofmz_hfma2', 'nofmz', 'FTZ'): unmodelled(f'MMA {mode}')
+        ftz = mode == 'FTZ' and not readable(i)
+    else: no_flush(i)
     sat = half_saturating(i)
     inputs = [half_lanes(i, n, s) for n, s in zip(names, half_swizzles(i, fma))]
     lanes = []
     for lane in (0, 1):
-        x = [v[lane] for v in inputs]
+        x = [flushed(v[lane]) if ftz else v[lane] for v in inputs]
         r = (fadd(fmul(x[0], x[1]), x[2]) if readable(i) else ffma(*x)) if fma else fadd(*x)
+        if ftz: r = flushed(r)
         lanes.append(saturated(r) if sat else r)
     return outputs(Rd=concat(lanes[1], lanes[0]))
 
 
-@helper
+@definition("fmz")
 def half_flushed_fmz(x):
-    """.FMZ on an input: a denormal or zero becomes +0."""
+    """Flush to +0 (.FMZ on an F16 input): a denormal or zero becomes +0, other values are unchanged."""
     return x if (x & 0x7c00) != 0 else const(0, 16)
 
 
@@ -443,7 +614,9 @@ def hsetp2(i):
 SIGN32 = SIGN_EXPONENT[32][0]
 PAIR_SWAPPED = {'F32x2': False, 'F32x2.HI_LO': False, 'F32x2.LO_HI': True, 'F32': False}
 HALF_FORMATS = {'F16x2': 'F16', 'BF16x2': 'BF16'}
-NARROW_NAN = {'F16': (True, 0x7e00), 'BF16': (False, 0x7fff)}   # as F2FP's F16/BF16 packs
+# +0x7fff, as F2FP's F16/BF16 packs (SM89 GPU). F16 nominally keeps the NaN's sign: the narrowed
+# arithmetic NaN is always + (nanresult), and an unsigned F16 NaN made SM107 exact 866 KB larger.
+NARROW_NAN = {'F16': (True, 0x7fff), 'BF16': (False, 0x7fff)}
 
 
 def widened(i, fmt, x):
@@ -467,8 +640,8 @@ def pair_lanes(i, names, swizzle, neg=None, half=None):
     else:
         if swizzle and i.has_operand(swizzle) and i.select_fork(swizzle) != 'F32': unmodelled(swizzle)
         lanes = [v, v]
-    lanes = [i.modified(name, 'absolute', x, lambda x: x & (SIGN32 - 1)) for x in lanes]
-    lanes = [i.modified(name, 'negate', x, lambda x: x ^ SIGN32) for x in lanes]
+    lanes = [i.modified(name, 'absolute', x, float_abs) for x in lanes]
+    lanes = [i.modified(name, 'negate', x, float_neg) for x in lanes]
     if neg and i.has_operand(neg):
         # .NP on a broadcast: no ptxas form (it copies the register instead), so unmodelled.
         lanes[1] = lanes[1] ^ i.select_lookup_const(neg, {'PP': 0, 'NP': SIGN32} if half or v.w == 64 else {'PP': 0})
@@ -540,6 +713,7 @@ def ffma2(i):
 # ---- HMNMX2: packed min/max on F16, BF16 or E6M9 lanes ----------------------------------------------
 
 LANE_FORMATS = {'F16_V2': (0x7c00, 0x03ff), 'BF16_V2': (0x7f80, 0x007f), 'E6M9_V2': (0x7e00, 0x01ff)}
+LANES = list(LANE_FORMATS)   # a lane format's code: its index
 CANONICAL_HALF_NAN = 0x7fff
 
 
@@ -562,28 +736,64 @@ def lane_less(x, y, fmt):
 
 
 @helper
-def hmnmx2_lane(i, p, a, c, ar, cr, ftz, nan, xorsign):
-    """(result, A chosen) of one lane: a, c with modifiers, ar, cr as encoded (NaN tests, XORSIGN).
-    The lane format's NaN test and order are values chosen by ofmt, not a branch per format."""
-    formats = [f for f in LANE_FORMATS if f in i.labels('ofmt')]
-    by_format = lambda f: i.select_lookup('ofmt', {fmt: f(fmt) for fmt in formats})
+def lane_parts(code, p, a, c, ar, cr, ftz):
+    """(A NaN, C NaN, a, c, both zero, the zeros' pick, A taken) of one lane: a, c with modifiers
+    (flushed under .FTZ), ar, cr as encoded. The format's NaN test and order are chosen by its code
+    (a decode-time choice in SLEIGH), not a branch per format."""
+    by_format = lambda f: chosen(code, lambda k: f(LANES[k]))
     nan_a, nan_c = by_format(lambda fmt: lane_nan(ar, fmt)), by_format(lambda fmt: lane_nan(cr, fmt))
     if ftz: a, c = flushed(a), flushed(c)
     zeros = ((a | c) & 0x7fff) == 0
     zero_pick = (a | c) if p else (a & c)
     take_a = by_format(lambda fmt: lane_less(a, c, fmt)) == p
+    return nan_a, nan_c, a, c, zeros, zero_pick, take_a
+
+
+def lane_name(kind=""):
+    """A namer: min/max (a constant predicate) or hmnmx (of it), [.ftz][.NaN][.xorsign]<kind>, then
+    the lane format when constant (.f16, .bf16, .e6m9), else of its code too."""
+    return lambda a: lane_label(a, kind)
+
+
+def lane_label(a, kind):
+    code, p = a["code"], a["p"]
+    mods = [".ftz"] * a["ftz"] + [".NaN"] * a.get("nan", False) + [".xorsign"] * a.get("xorsign", False) + [kind] * bool(kind)
+    fmt = ["." + LANES[value(code)].split("_")[0].lower()] if is_const(code) else []
+    head = ("min" if value(p) else "max") if is_const(p) else "hmnmx"
+    return "".join([head, *mods, *fmt]), [*(["code"] if not fmt else []), *(["p"] if head == "hmnmx" else []),
+                                          "a", "c", *(["ar", "cr"] if a["ar"] is not None else [])]
+
+
+@definition(lane_name())
+def hmnmx_lane(code, p, a, c, ar=None, cr=None, ftz=False, nan=False, xorsign=False):
+    """PTX min (predicate) or max of two F16/BF16/E6M9 lanes with the GPU's NaN: a number wins over
+    NaN, two NaNs give 0x7fff, -0 is below +0; .NaN: any NaN gives 0x7fff; .xorsign: the result
+    takes the XOR of the encoded signs; .ftz flushes inputs and result.
+
+    code: the lane format's index in LANES; ar, cr: the lanes as encoded, when not a, c."""
+    ar, cr = (a, c) if ar is None else (ar, cr)
+    nan_a, nan_c, a, c, zeros, zero_pick, take_a = lane_parts(code, p, a, c, ar, cr, ftz)
     ordered = (zero_pick if zeros else (a if take_a else c))
-    chose_a = ((a == zero_pick) if zeros else take_a)
     both = nan_a & nan_c
     canonical = const(CANONICAL_HALF_NAN, 16)
     if nan: r = canonical if nan_a | nan_c else ordered
     else: r = canonical if both else (c if nan_a else (a if nan_c else ordered))
-    chose_a = const(1, 1) if both else (const(0, 1) if nan_a else (const(1, 1) if nan_c else chose_a))
     if xorsign:
         keep = (both | (nan_a | nan_c)) if nan else both
         r = r if keep else (r & 0x7fff) | ((ar ^ cr) & 0x8000)
     if ftz: r = flushed(r)
-    return r, chose_a
+    return r
+
+
+@definition(lane_name(".is_a"))
+def lane_chose_a(code, p, a, c, ar=None, cr=None, ftz=False):
+    """HMNMX2.IS_A: whether a lane's min (predicate) or max is A: A wins two NaNs, the number wins one.
+
+    ar, cr: the lanes as encoded, when not a, c."""
+    ar, cr = (a, c) if ar is None else (ar, cr)
+    nan_a, nan_c, a, c, zeros, zero_pick, take_a = lane_parts(code, p, a, c, ar, cr, ftz)
+    chose_a = ((a == zero_pick) if zeros else take_a)
+    return const(1, 1) if nan_a & nan_c else (const(0, 1) if nan_a else (const(1, 1) if nan_c else chose_a))
 
 
 @family('HMNMX2')
@@ -606,10 +816,13 @@ def hmnmx2(i):
     lanes = [half_lanes(i, n, s) for n, s in zip(names, swizzles)]
     raws = [raw_half_lanes(i, n, s) for n, s in zip(names, swizzles)]
     p = i.pred('Pp')
+    code = i.select_lookup_const('ofmt', {f: k for k, f in enumerate(LANES) if f in i.labels('ofmt')}, 2)
     # No readable variant, as before: FTZ and the NaN rules apply in both lowerings.
-    results = [hmnmx2_lane(i, p, lanes[0][k], lanes[1][k], raws[0][k], raws[1][k], ftz, nan, xorsign) for k in (0, 1)]
-    writes = dict(Rd=concat(results[1][0], results[0][0]))
-    if predicates: writes.update(Pu=results[0][1], Pv=results[1][1])
+    unmodified = all(lanes[n][k] is raws[n][k] for n in (0, 1) for k in (0, 1))   # then the label omits the raw lanes
+    raw = lambda k: (None, None) if unmodified else (raws[0][k], raws[1][k])
+    results = [hmnmx_lane(code, p, lanes[0][k], lanes[1][k], *raw(k), ftz, nan, xorsign) for k in (0, 1)]
+    writes = dict(Rd=concat(results[1], results[0]))
+    if predicates: writes.update({n: lane_chose_a(code, p, lanes[0][k], lanes[1][k], *raw(k), ftz) for k, n in enumerate(("Pu", "Pv"))})
     return outputs(**writes)
 
 

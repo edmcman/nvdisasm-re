@@ -1,9 +1,10 @@
 """Summarize generated, per-class semantic coverage without hiding fallbacks."""
 import argparse,base64,gzip,json,re,subprocess,sys
-from collections import Counter
+from collections import Counter,defaultdict
 from pathlib import Path
 from sass.paths import LANGUAGES,ROOT
-from sass.sleigh.modifiers import form
+from sass.sleigh.gen import update
+from sass.sleigh.modifiers import compact,form
 from sass.semantics.operations import OPERATION_FAMILIES
 
 EVIDENCE=('gpu','ptxas','reference')   # strongest first: a class or value counts once, under the first that ran it
@@ -45,19 +46,19 @@ def values(row,ev):
     that make it."""
     mods={m:v for m,v in row.get('modifiers',{}).items() if v}
     if not mods:return [(None,None,row['status'],[k for k in EVIDENCE if k in ev],{},{})]
-    names=ev.get('modifiers',[]);c=row['combinations']
-    forms={}
+    names=ev.get('modifiers',[]);c=row['combinations'];counts,ran,forms=defaultdict(Counter),{},{}
+    decided={m:c['decides'].index(m) for m in mods if m in c['decides']}
+    shares={m:c['free']//len(c['labels'][m]) for m in mods if m not in decided}   # a choice the table doesn't decide is free: an even share of every combination
+    for *labs,s in c['table']:
+        for m,i in decided.items():counts[m,labs[i]][s]+=c['free']
+        for m,n in shares.items():counts[m][s]+=n
     for kind,fs in ev.get('forms',{}).items():
         for f in fs:forms.setdefault(tuple(f),set()).add(kind)
-    def count(m,lab):
-        i=c['decides'].index(m) if m in c['decides'] else None;out=Counter()
-        for *labs,s in c['table']:
-            if i is None or labs[i]==lab:out[s]+=c['free'] if i is not None else c['free']//len(c['labels'][m])
-        return dict(out)
-    def tested(m,lab):
-        return strongest(ks for f,ks in forms.items() if dict(zip(names,f)).get(m)==lab)
-    ran={k:{(m,lab) for f in fs for m,lab in zip(names,f)} for k,fs in ev.get('forms',{}).items()}
-    return [(m,lab,status,[k for k in EVIDENCE if (m,lab) in ran.get(k,())],count(m,lab),tested(m,lab)) for m,vs in mods.items() for lab,status in vs.items()]
+    for f,ks in forms.items():
+        for choice in dict(zip(names,f)).items():ran.setdefault(choice,[]).append(ks)
+    def count(m,lab):return dict(counts.get((m,lab) if m in decided else m,{}))
+    return [(m,lab,status,[k for k in EVIDENCE if any(k in ks for ks in ran.get((m,lab),()))],count(m,lab),strongest(ran.get((m,lab),())))
+            for m,vs in mods.items() for lab,status in vs.items()]
 
 def combinations(row,ev):
     """(the class's modifier combinations by status, those with semantics by strongest evidence): a
@@ -76,46 +77,51 @@ def combinations(row,ev):
     part=Counter(strongest(tested.values()));part['none']=sum(counts.values())-counts['opaque']-len(tested)
     return counts,+part
 
-def combination_summary(rows,found):
-    """(modifier combinations by status, those with semantics by strongest evidence)."""
+def combination_summary(combos):
+    """(modifier combinations by status, those with semantics by strongest evidence) over classes' combinations()."""
     status,part=Counter(),Counter()
-    for r in rows:c,p=combinations(r,found.get(r['cls'],{}));status+=c;part+=p
+    for c,p in combos:status+=c;part+=p
     return dict(status),dict(part)
 
-def summarize(directory):
-    out={};found=evidence(directory)
-    for path in sorted(Path(directory).glob('sass_sm*_coverage.json')):
-        rows=manifest(path);arch=path.stem.removeprefix('sass_').removesuffix('_coverage').upper()
-        families={}
-        for op in sorted(OPERATION_FAMILIES):
-            group=[r for r in rows if r['opcode']==op]
-            families[op]=dict(Counter(r['status'] for r in group))
-            if not group:families[op]={'absent':0}
-        ev=found[arch.split('_')[0]];ops=sorted({r['opcode'] for r in rows})
-        by_op={op:[r for r in rows if r['opcode']==op] for op in ops};combos={op:combination_summary(g,ev) for op,g in by_op.items()}
-        out[arch]=dict(classes=len(rows),opcodes={op:dict(Counter(r['status'] for r in g)) for op,g in by_op.items()},status=dict(Counter(r['status'] for r in rows)),operations=families,
-                      opaque_operations={r['cls']:r['reason'] for r in rows if r['opcode'] in OPERATION_FAMILIES and r['status']=='opaque'},
-                      evidence=verified(rows,ev),opcode_evidence={op:v for op in ops if (v:=verified(by_op[op],ev))},
-                      combination_status={op:v[0] for op,v in combos.items()},combination_evidence={op:v[1] for op,v in combos.items() if v[1]})
-    return out
+def summarized(rows,ev,combos):
+    """One manifest's summary, given its architecture's evidence and each row's combinations()."""
+    by_op={}
+    for r,c in zip(rows,combos):by_op.setdefault(r['opcode'],[]).append((r,c))
+    by_op={op:by_op[op] for op in sorted(by_op)};groups={op:[r for r,_ in g] for op,g in by_op.items()}
+    tallies={op:combination_summary(c for _,c in g) for op,g in by_op.items()}
+    return dict(classes=len(rows),opcodes={op:dict(Counter(r['status'] for r in g)) for op,g in groups.items()},status=dict(Counter(r['status'] for r in rows)),
+                operations={op:dict(Counter(r['status'] for r in groups[op])) if op in groups else {'absent':0} for op in sorted(OPERATION_FAMILIES)},
+                opaque_operations={r['cls']:r['reason'] for r in rows if r['opcode'] in OPERATION_FAMILIES and r['status']=='opaque'},
+                evidence=verified(rows,ev),opcode_evidence={op:v for op,g in groups.items() if (v:=verified(g,ev))},
+                combination_status={op:v[0] for op,v in tallies.items()},combination_evidence={op:v[1] for op,v in tallies.items() if v[1]})
 
-def details(directory):
-    """Per-class detail for the report: {"classes": [entry], "archs": {arch: {opcode: [entry index]}}},
-    each class's entry (status, modifier values, tested combinations by kind) stored once across the
-    architectures that share it."""
-    found=evidence(directory);entries={};archs={}
+def detailed(rows,ev,combos,entries):
+    """{opcode: [entry index]} of one manifest, adding each class's report entry (status, modifier
+    values, tested combinations by kind) to `entries` once across the architectures that share it."""
+    ops={}
+    for r,(status,_) in zip(rows,combos):
+        found=ev.get(r['cls'],{});names=found.get('modifiers',[])
+        entry=json.dumps(dict(cls=r['cls'],status=r['status'],kinds=[k for k in EVIDENCE if k in found],
+            modifier_roles=r.get('modifier_roles',{}),
+            combinations=dict(status),decides=r.get('combinations',{}).get('decides',[]),
+            illegal={m:out for m,labs in r.get('combinations',{}).get('labels',{}).items() if (out:=[l for l in labs if l not in r['modifiers'].get(m,{})])},
+            values=[list(v) for v in values(r,found)],
+            forms={k:[form(dict(zip(names,f))) for f in fs] for k,fs in found.get('forms',{}).items()}),sort_keys=True)
+        ops.setdefault(r['opcode'],[]).append(entries.setdefault(entry,len(entries)))
+    return ops
+
+def analyze(directory,details=False):
+    """(evidence, summary, and when `details` the report's per-class detail {"classes": [entry],
+    "archs": {arch: {opcode: [entry index]}}}) of the manifests in `directory`: each file read once,
+    one manifest at a time (together they hold gigabytes), each class's combinations() computed once."""
+    found=evidence(directory);summary,entries,archs={},{},{}
     for path in sorted(Path(directory).glob('sass_sm*_coverage.json')):
-        arch=path.stem.removeprefix('sass_').removesuffix('_coverage').upper()
-        if '_' in arch:continue
-        for r in manifest(path):
-            ev=found[arch].get(r['cls'],{});names=ev.get('modifiers',[])
-            entry=json.dumps(dict(cls=r['cls'],status=r['status'],kinds=[k for k in EVIDENCE if k in ev],
-                combinations=dict(combinations(r,ev)[0]),decides=r.get('combinations',{}).get('decides',[]),
-                illegal={m:out for m,labs in r.get('combinations',{}).get('labels',{}).items() if (out:=[l for l in labs if l not in r['modifiers'].get(m,{})])},
-                values=[list(v) for v in values(r,ev)],
-                forms={k:[form(dict(zip(names,f))) for f in fs] for k,fs in ev.get('forms',{}).items()}),sort_keys=True)
-            archs.setdefault(arch,{}).setdefault(r['opcode'],[]).append(entries.setdefault(entry,len(entries)))
-    return dict(classes=[json.loads(e) for e in entries],archs=archs)
+        rows=manifest(path);arch=path.stem.removeprefix('sass_').removesuffix('_coverage').upper();ev=found[arch.split('_')[0]]
+        combos=[combinations(r,ev.get(r['cls'],{})) for r in rows];summary[arch]=summarized(rows,ev,combos)
+        if details and '_' not in arch:archs[arch]=detailed(rows,ev,combos,entries)
+    return found,summary,dict(classes=[json.loads(e) for e in entries],archs=archs)
+
+def summarize(directory):return analyze(directory)[1]
 
 def packed(data):
     """Base64 gzip of compact JSON, which the report inflates with DecompressionStream."""
@@ -164,11 +170,13 @@ def report(summary,detail):
 
 def write(directory,output):
     """The summary of the manifests and evidence in `directory`, and beside it the per-class evidence, badge and report."""
-    summary=summarize(directory);output=Path(output);output.write_text(json.dumps(summary,indent=2,sort_keys=True)+'\n')
-    found=evidence(directory)
-    output.with_name('evidence.json').write_text('{\n'+',\n'.join(f'{json.dumps(a)}:{{\n'+',\n'.join(f'{json.dumps(c)}:{json.dumps(e,sort_keys=True)}' for c,e in sorted(found[a].items()))+'}' for a in sorted(found))+'}\n')
-    output.with_name('badge.json').write_text(json.dumps(badge(summary),ensure_ascii=False)+'\n')
-    output.with_name('coverage.html').write_text(report(summary,details(directory)))
+    found,summary,detail=analyze(directory,details=True)
+    output=Path(output);update(output,json.dumps(summary,indent=2,sort_keys=True)+'\n')
+    update(output.with_name('evidence.json'),'{\n'+',\n'.join(f'{json.dumps(a)}:{{\n'+',\n'.join(f'{json.dumps(c)}:{json.dumps(compact(e),sort_keys=True)}' for c,e in sorted(found[a].items()))+'}' for a in sorted(found))+'}\n')
+    update(output.with_name('badge.json'),json.dumps(badge(summary),ensure_ascii=False)+'\n')
+    update(output.with_name('coverage.html'),report(summary,detail))
+    verdicts={p.name.removeprefix('sass_').removesuffix('_gpu_verdicts.json').upper():json.loads(p.read_text()) for p in sorted(Path(directory).glob('sass_sm*_gpu_verdicts.json'))}
+    update(output.with_name('gpu_verdicts.json'),json.dumps(verdicts,indent=1,sort_keys=True)+'\n')
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('directory');p.add_argument('--output');a=p.parse_args()

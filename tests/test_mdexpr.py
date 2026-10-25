@@ -3,7 +3,7 @@ import itertools
 import pytest
 from sass.decode import ir, pydecode
 from sass.md import expression
-from sass.decode import pyencode
+from sass.assemble import encoding
 
 
 @pytest.fixture(scope="module")
@@ -58,7 +58,7 @@ def test_table_lookup_and_defined(md):
 
 def test_strict_decoding(md):
     cls = "iadd3_noimm__RRR_RRR"
-    legal = bytes.fromhex(pyencode.encode("SM89", cls, Rd=4, Ra=2, Rb=6, Rc="RZ"))
+    legal = bytes.fromhex(encoding.encode("SM89", cls, Rd=4, Ra=2, Rb=6, Rc="RZ"))
     negate = sum(f.mask for f, r in next(k for k in md.classes if k.name == cls).rules if r in (("attr", "Ra", "negate"), ("attr", "Rb", "negate")))
     illegal = (int.from_bytes(legal, "little") | negate).to_bytes(16, "little")
     assert pydecode.decode("SM89", legal).klass.name == cls

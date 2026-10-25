@@ -15,7 +15,7 @@ from tests.harness.baseline import BASELINE, ratchet
 def class_results(arch, full):
     words = list(synth.synthetic(arch, 64, 0)) + (sample(arch, "real", 0)[0] if full else [])
     status = defaultdict(lambda: True)
-    for s, cls, _, _ in compare(arch, words).values(): status[cls] &= s in ("ok", "collision")  # collisions are Ghidra's cache, not the language
+    for s, cls, _, _ in compare(arch, words).values(): status[cls] &= s == "ok"
     return dict(sorted(status.items()))
 
 

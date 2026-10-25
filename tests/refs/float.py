@@ -11,13 +11,25 @@ FCOMPARISONS = ("LT", "EQ", "LE", "GT", "NE", "GE", "LTU", "EQU", "LEU", "GTU", 
 GPU_NAN = {16: 0x7fff, 32: 0x7fffffff, 64: 0xfff8000000000000}  # NaN results without a NaN operand (SM89)
 
 
-def rounded(op, inputs, width, mode="RN", ftz=False, sat=False):
+def rounded(op, inputs, width, mode="RN", ftz=False, sat=False, registers=None, scale=0):
     """FADD/FMUL/FFMA (and DADD..., HADD2... lanes): exactly rounded. NaN results are canonical,
-    except that FP64 propagates a NaN operand, quieted (SM89; which of two different NaNs is untested)."""
-    result = softfloat.arithmetic(op, inputs, width, mode, ftz, sat)
+    except that FP64 propagates the first NaN of Rb, Rc, Ra, quieted: the register as read, before
+    -/|.| (`registers`, default `inputs`, in operand order Ra, Rb or Rc, Rc) (SM89, 2026-10-22)."""
+    result = softfloat.arithmetic(op, inputs, width, mode, ftz, sat, scale)
     if softfloat.unpack(result, width)[0] != "nan": return result
-    nans = [x for x in inputs if softfloat.unpack(x, width)[0] == "nan"]
+    ra, *later = registers or inputs
+    nans = [x for x in later + [ra] if softfloat.unpack(x, width)[0] == "nan"]
     return nans[0] | 1 << 51 if width == 64 and nans else GPU_NAN[width]
+
+
+def fmz(op, inputs, mode="RN", sat=False, scale=0):
+    """FMUL/FFMA.FMZ (SM89): .FTZ, except that a factor with a zero exponent (zero or subnormal)
+    makes the product +0, even times Inf or NaN; FFMA then adds Rc to that +0 (so -0 under RM)."""
+    a, b = inputs[:2]
+    if a & 0x7f800000 and b & 0x7f800000: r = softfloat.arithmetic(op, inputs, 32, mode, True, sat, scale)
+    elif op == "mul": return 0
+    else: r = softfloat.arithmetic("add", [0, inputs[2]], 32, mode, True, sat)
+    return GPU_NAN[32] if softfloat.unpack(r, 32)[0] == "nan" else r
 
 
 def half2(op, inputs, **kw):
@@ -32,7 +44,7 @@ def hmul2(a, b, mode=None, sat=False):
     for shift in (0, 16):
         x, y = (a >> shift) & 0xffff, (b >> shift) & 0xffff
         if mode == "FMZ" and (x & 0x7c00 == 0 or y & 0x7c00 == 0): continue
-        out |= softfloat.arithmetic("mul", [x, y], 16, ftz=mode in ("FMZ", "FTZ"), sat=sat) << shift
+        out |= rounded("mul", [x, y], 16, ftz=mode in ("FMZ", "FTZ"), sat=sat) << shift
     return out
 
 
@@ -53,6 +65,18 @@ def fcompare(a, c, cmp):
         case _ if unordered: return cmp.endswith("U")
         case _:
             return {"LT": a < c, "EQ": a == c, "LE": a <= c, "GT": a > c, "NE": a != c, "GE": a >= c}[cmp.removesuffix("U")]
+
+
+def dsetp_compare(a, c, cmp, width=64):
+    """DSETP's comparison of two encodings. MIN/MAX (SM89 GPU) order a before c (MIN: a <= c, MAX: a > c)
+    by totalOrder, so -0 < +0 and subnormals count, but are true for any NaN c and false for a NaN a.
+    Their Pv output is 1 only when both are NaN, whatever the combiner and Pp."""
+    if cmp not in ("MIN", "MAX"): return fcompare(ordered(a, width), ordered(c, width), cmp)
+    if ordered(a, width) is None: return False
+    if ordered(c, width) is None: return True
+    magnitude = (1 << width - 1) - 1
+    key = lambda bits: ~(bits & magnitude) if bits >> width - 1 else bits
+    return key(a) <= key(c) if cmp == "MIN" else key(a) > key(c)
 
 
 BOPS = {"AND": lambda x, y: x and y, "OR": lambda x, y: x or y, "XOR": lambda x, y: x != y}
@@ -99,15 +123,18 @@ def fmnmx(x, y, is_min, nan_mode=False, ftz=False):
     return x if (f32(x) < f32(y)) == is_min else y
 
 
-def fmnmx_xorsign(x, y, is_min, nan_mode=False, ftz=False):
-    """min/max.xorsign.abs: select on magnitudes, then the XOR of the source signs unless NaN."""
+def fmnmx_xorsign(x, y, is_min, nan_mode=False, ftz=False, absolute=False, encoded=None):
+    """FMNMX.XORSIGN: compare signed operands, then replace the result sign with the XOR of the
+    encoded signs, before |x| and -x (`encoded`, default x and y; SM89)."""
+    ex, ey = encoded or (x, y)
+    sign = (ex ^ ey) & 0x80000000
     if ftz: x, y = ftz32(x), ftz32(y)
-    sign = (x ^ y) & 0x80000000
+    if absolute: x, y = x & 0x7fffffff, y & 0x7fffffff
     if nan_mode and (nan32(x) or nan32(y)): return 0x7fffffff
     if nan32(x): return 0x7fffffff if nan32(y) else (y & 0x7fffffff) | sign
     if nan32(y): return (x & 0x7fffffff) | sign
-    ax, ay = x & 0x7fffffff, y & 0x7fffffff
-    return (ax if (f32(ax) < f32(ay)) == is_min else ay) | sign
+    chosen = fmnmx(x, y, is_min)
+    return (chosen & 0x7fffffff) | sign
 
 
 def fmnmx3_pick(x, y, is_min, exact):
@@ -219,9 +246,9 @@ def i2f(x, n, signed, w, mode):
 
 
 def f2f(bits, src, dst, mode):
-    """F2F: rounded once; a NaN keeps sign and payload, quieted (SM89)."""
+    """F2F: rounded once; F16/F32 conversions canonicalize NaN, other widths quiet its payload (SM89)."""
     kind, sign, value = softfloat.unpack(bits, src)
-    if kind == "nan": return quiet(bits, src, dst)
+    if kind == "nan": return (1 << (dst - 1)) - 1 if {src, dst} == {16, 32} else quiet(bits, src, dst)
     if kind == "inf": return sign << dst - 1 | ((1 << dst - 1) - (1 << MANTISSA[dst]))
     return softfloat.pack(value, dst, mode, sign)
 
@@ -249,7 +276,7 @@ def widen_half(bits):
 
 
 def underflow_band(op, inputs, width, scale=0):
-    """True where Ghidra 12.1.4's FloatFormat.getEncoding rounds an RN result strictly between
+    """True where Ghidra's (12.1.4, 12.2) FloatFormat.getEncoding rounds an RN result strictly between
     half and one minimum subnormal to zero (IEEE gives the minimum subnormal)."""
     parts = [softfloat.unpack(x, width) for x in inputs]
     if any(kind not in ("finite", "zero") for kind, _, _ in parts): return False
@@ -268,12 +295,6 @@ def conversion_underflow(bits, src, dst):
     return kind == "finite" and tiny / 2 < abs(value) < tiny
 
 
-def same_halves(got, want, fmt="F16"):
-    """Equal 16-bit lanes, treating any two F16 NaNs as equal (BF16 compares exactly)."""
-    return all(g == w or fmt == "F16" and nan16(g) and nan16(w)
-               for g, w in (((got >> s) & 0xffff, (want >> s) & 0xffff) for s in (0, 16)))
-
-
 def readable(op, inputs, width, sat=False, scale=0):
     """The readable lowering's plain formula: unfused round-to-nearest without flushing.
     None where a NaN or the emulator's underflow band makes the comparison meaningless."""
@@ -286,3 +307,20 @@ def readable(op, inputs, width, sat=False, scale=0):
         value = softfloat.arithmetic(o, xs, width, sat=sat and i == len(steps) - 1)
         if softfloat.unpack(value, width)[0] == "nan": return None
     return value
+
+
+def fmnmx_readable(x, y, is_min):
+    """Readable FMNMX's documented ordered comparison; ties/unordered choose the second source for min."""
+    return x if (f32(x) < f32(y)) == is_min else y
+
+
+def source_modifiers(bits, width, absolute=False, negate=False):
+    """Apply floating-source absolute value before negation, preserving payload and magnitude bits."""
+    sign = 1 << (width - 1)
+    if absolute: bits &= sign - 1
+    return bits ^ sign if negate else bits
+
+
+def conversion_source(bits, width, absolute=False, negate=False):
+    """The source a conversion sees: a NaN ignores `|.|` and `-` and keeps the register's own sign (SM89 FRND.F64, F2F)."""
+    return bits if softfloat.unpack(bits, width)[0] == "nan" else source_modifiers(bits, width, absolute, negate)

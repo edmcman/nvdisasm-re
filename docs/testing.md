@@ -1,14 +1,603 @@
 # Testing notes
 
-See `tests/README.md` for the Python, Ghidra and GPU tests, commands, options, caches, prerequisites, ratchets and how to write cases and GPU fixtures (never pytest-xdist).
+Dated findings, design decisions and measurements behind the test harness: why it works the way
+it does and what changed when. How to run and write tests (commands, options, suites, shared
+cases, GPU fixtures, sampling, evidence, ratchets, caches, prerequisites; never pytest-xdist) is
+in [`tests/README.md`](../tests/README.md), which is canonical where the two overlap. What the GPU
+established about instruction behavior is in [`docs/hardware-facts.md`](hardware-facts.md).
 
-- Verification evidence per class (2026-10-15) is derived from the tests by `tests/evidence.py` into `processor/SASS/semantics/evidence.json` (`uv run sass-refresh-coverage`; CI fails when it is stale) and shown in the coverage report. `reference`: emulator cases (`tests/cases`) name the class, checked against `tests/refs`. `ptxas`: an annotated `tests/ptx` probe (`// sass: MNEMONIC`) makes ptxas 13.0.88 emit the class; this is lowering evidence, not values. `gpu` (SM89 only): the class is on a GPU fixture kernel's data path, a static slice over md register reads/writes (`tests/harness/dataflow.py:expected`) in code order: the backward slice of the output stores' data, not following load/store address operands (`Ra*`, `memoryDescriptor`), plus the instructions in both the forward slice of the input loads (LDG) and the full backward slice. Stores of sliced values carry the slice through memory to later loads; a branch on a forward-sliced predicate counts. Address arithmetic is excluded; LDG/STG count for every fixture. Only fixtures that passed on the GPU exactly as committed count: `pytest -m gpu` records each passing fixture's fingerprint (kernel image, launch, inputs, reference outputs) and device in `tests/baseline/gpu_passes.json` and drops failing ones, so editing a fixture or its reference removes its G marks until the GPU tests run again (CI rebuilds the same cubins from the pinned CUDA 13.0.88 wheels, so it checks fingerprints without a GPU). Limits: straight-line code order (no CFG; the kernels are essentially straight-line) and one memory cell. Mnemonic matching of fixture `targets` credited 80 SM89 classes, including address arithmetic; the slice credits 119.
-- Evidence and status per modifier value (2026-10-15). A class fixes only the operand form; its modifiers (FADD's `ftz`, `rnd`, `sat`; operand flags such as `Ra@negate`) are fields inside it. So class-level marks overclaimed: one FADD.RN fixture marked FADD "G" though FADD.FTZ.RZ never ran on hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` is modelled. `src/sass/sleigh/modifiers.py` defines a class's modifiers (the md modifiers but the scheduling hints, and each non-guard operand flag, `set`/`unset`, labelled by the first-defined enum member). A **form** is one combination of their values, decoded from an instruction word. `tests/evidence.py` records, per class, the forms each kind of evidence ran (`modifiers`: the column names; `forms`: {kind: [[label per modifier]]}), from the words themselves, independent of how the semantics branch. Full combinations are kept, so FTZ and RZ tested separately do not make FTZ+RZ tested. The generator writes each value's status into the manifests (`modifiers`: {modifier: {label: status}}), from the static rows `lower.enumerate_rows` produces: the status the admitting rows share, `partial` when some are opaque and some not (other modifiers decide; F2FP's `relu` is native only with `dstfmt=F16`), `primitive` when native and primitive rows mix. Values only illegal rows admit are left out, as are modifiers the encoding doesn't hold. The report marks a class `partial` when it has semantics but some of its values are opaque or partial (on SM89, 37 of F2FP's 42 classes with semantics; drawn half green, half red, and in the details as an "overall" chip coloured in proportion to its values), since the manifest's `native` only says some encoding is modelled. It also writes each class's `combinations`: {decides: [modifier], table: [[label..., status]], free: n}, the status of every combination of the modifiers that decide anything, each entry standing for `free` combinations of the rest; only legal combinations count: the md error conditions that read only modifiers are evaluated on each combination (`modifiers.conditions`), so F2FP's `srcfmt=F32` classes, which allow only `dstfmt` F16, E6M9 and BF16, no longer count 48 illegal TF32/E5M2/E4M3 combinations as opaque (on SM89 every F2FP class with semantics is then fully native). Each choice's chip status is derived from the same table (`modifiers.value_statuses`), and a choice no legal combination makes is left out. Labels are the enum member nvdisasm prints (`BF16`, not the first-defined `E8M7`). `modifiers.minimal` drops a modifier whose choices never change the status, so a uniform class is one entry (FADD's `fadd__RRR_RR`: native, 256 combinations) and `f2fp_merge_c__RCxR` is six (`dstfmt`, 16 each). Each cell shows C (classes) and M (modifier combinations, i.e. complete instruction forms; a class without modifiers counts as one) as full+partial/total, compacted (606k, 51.4M) with exact counts in the tooltip. A combination is verified only when a test ran exactly it: each tested form is looked up in its class's table. Evidence is counted once per class or value by its strongest kind, GPU, then ptxas, then reference (ptxas shows which PTX operation a class implements, a reference check only agreement with our own model); it is in the tooltips, the cards and the explanation box, not the cells. The evidence filter keeps rows with a matching cell and dims the others. A worked example (F2F on SM89, pinned to `f2f_f64_downconvert__RRR_RRR`: native except `.FTZ`, GPU-tested) heads the page; clicking a cell explains it the same way, rendered in the browser from the embedded detail. `coverage.html` is `src/sass/sleigh/report/index.html` with `report.css` and `report.js` inlined; Python only computes the data (the summary's per-opcode counts and the per-class detail), and the JavaScript renders the whole page from it, so the grid, cards, tooltips, example and explanations share one renderer and one set of numbers. The data is embedded as base64 gzip, inflated by the browser's `DecompressionStream`; `gzip.compress(mtime=0)` is byte-identical only for the same zlib (uv's Python 3.13 bundles 1.3.1, locally and in CI), which the CI diff of `coverage.html` relies on.
+- [Sampling](#sampling)
+- [Shared cases on the GPU](#shared-cases-on-the-gpu)
+- [Sharded case consumers](#sharded-case-consumers)
+- [Generated shared cases](#generated-shared-cases)
+- [Verification evidence and the coverage report](#verification-evidence-and-the-coverage-report)
+- [PR coverage comments](#pr-coverage-comments)
+- [Ghidra bridge and whole-kernel requests](#ghidra-bridge-and-whole-kernel-requests)
+- [Case construction](#case-construction)
+- [SM90 GPU runner port](#sm90-gpu-runner-port-2026-10-22)
 
-- `sass.ghidra_bridge` is the only path to `ghidra_emulate.py`/`ghidra_decode.py`; Ghidra tests run all selected languages concurrently, and `emulate_sharded` (`test_pcode_semantics`, `test_fixtures_emulated`) also splits each language's batch into chunks so up to 24 JVMs stay busy. `conftest.require_languages` fails on a stale `.sla` instead of letting concurrent Ghidra processes recompile it.
-- In-process callers (no subprocess per batch) start the JVM themselves and use `ghidra_decode.describe` and `ghidra_emulate.session(ldefs, language)`, a request handler; kernel requests with `kernel.trace` also return each step's register writes for the first `kernel.trace_threads` threads. `ghidra_bridge.kernel_request` builds a whole-kernel request from `cubin.kernel_image` metadata.
-- Launch constants (2026-10-15, nvcc 13.0 probe kernels each reading one of blockDim.x/y/z or using a local stack, per architecture): SM75-SM90 read blockDim from `c[0x0][0x0]`-`0x8` and the local stack base from `0x28`; SM100/SM103/SM110 (decoded as SM101)/SM120 use `0x360`-`0x368` and `0x37c`. `0x118` (SM80-SM89), `0x208` (SM90) and `0x358` (SM100+) hold the global memory descriptor; parameters start at `0x160`, `0x210` and `0x380`. SM107 has no nvcc 13 target, so it is not in `LAUNCH_LAYOUT`, and `kernel_request` refuses it rather than seed the wrong words. Since descriptors were modelled (2026-10-15), whole-kernel emulation of nvcc output gets through `desc[URx][Ra.64]` accesses: a scratch `out[i] = in[i] * 3 + blockDim.x` kernel gave the expected outputs on SM89, SM90, SM100 and SM120. The default descriptors stay 0 in bank 0. SM87's prologue needs BMOV barrier state from the environment.
-- Ghidra results are cached per request in `.cache/ghidra/` (2026-10-14), keyed by the language's `.sla`, specs and coverage manifest, every `src/sass` source and the Ghidra install; editing only tests reuses them. `check.ghidra_disasm` re-decodes failing words with `fresh=True` (no cache), because its prototype-hash collision check needs a new Ghidra process.
-- I2IP sub-byte forms (S2/U2 `.28`, S4/U4 `.24`) fill the high bits from C unshifted; only H1 selects C's high half (SM89 hardware, 2026-10-12; the earlier reference and p-code shifted for every non-H0 form).
-- FLO.S32 (plain `FLO`; ptxas emits it for `bfind.s32`) searches the complement of a negative source: the highest bit differing from the sign, so -1 gives -1 like 0. FLO.U32 searches the value (SM89 hardware, 2026-10-12, fixtures `bfind_s32`/`bfind_shift_s32`; the earlier emitter and reference treated S32 like U32).
-- Op-count samples (`synth.synthetic(..., legal=True)`) are md-legal words: up to 256 redraws use aligned low registers (UR0-UR63 on SM100+ are the only in-range uniform registers in 8-bit fields) or the zero register (HADD2.F32 requires `-RZ`).
+## Sampling
+
+Three-way verification (2026-10-25, issue #81) separates modifier selection from input sampling.
+The shared policy defaults to strength 3 for every opcode and permits per-opcode strength or
+exhaustive overrides. A deterministic greedy cover selects only legal complete native/primitive
+extensions that adapters can construct. Partial-only requirements remain gaps for issue #80.
+Scheduling/reuse fields were already excluded; memory hints and consistency qualifiers are retained.
+Family-local roles let additional neutral variants reuse a minimal input corpus, while value
+projections retain full profiles and manual regressions remain independent.
+
+Positive reference forms are stored separately from raw exact-form provenance. The coverage
+page and PR comment retain their existing class/form evidence tables, architecture cards,
+filters and diagrams. Three-way selection does not add a separate coverage metric to either report.
+The [performance measurement](verification-performance-2026-10-25.md) records a 71% reduction
+in all-architecture evidence wall time and the increased planning cost.
+
+Caller-controlled input sampling (2026-10-21; mechanism in
+[`tests/README.md`](../tests/README.md#sampling)):
+
+- `--sample 0..100` selects shared cases after generation and reference filtering, replacing the
+  earlier `Cases.sweep`-based sampling; `Cases.sweep` now enumerates its full domain. Selection is
+  local to manual families and generated planned forms, preserving shard independence; duplicate
+  forms across the two sources may retain multiple representatives. Reference evidence uses 0%.
+- GPU pass records include the percentage and sampling algorithm version; legacy records require
+  actual revalidation rather than being relabelled.
+- Retained cases always run in full, so retained corpora must stay small: keeping the SM100+ F2FP
+  suites whole made them about 149,000 retained cases per language (exhaustive 256-code sweeps ×
+  modifier combinations × five operand-source classes), more than the rest of the language's
+  shared cases at 0%. `@anchored` suites retain each sweep's anchors on the all-register class
+  (about 6,000 F2FP cases on SM100, 8,700 on SM107) and sample the rest, which records its reason
+  in `sampled_reasons`.
+- Generated adapters select reference-backed input descriptions before encoding/decoding, so
+  unselected instructions are never built; lightweight input/reference enumeration still runs
+  for the full profile. IMAD immediate aliases and explicit memory adapters retain eager
+  classification; selected deferred encodings are checked against their declared form/backend
+  eligibility.
+- Manual `c.add` cases were still encoded eagerly, which made F2FP's hand-written shard on SM100
+  take 35 s (66 of 100 profiled seconds encoding 148,876 cases to keep 6,996) and set each SM100+
+  language's evidence wall time. They now keep their fields and are encoded after selection
+  (`Cases.encode_words`, now `Cases.complete`), identified by fields rather than words, with forms
+  memoized per class and modifier fields (sampling version 3). The shard takes 9 s and SM100's exact evidence 13 s instead
+  of 39; at 100% the 1,778,617 hand-written cases are identical to eager encoding.
+- Wasted test work (2026-10-22, audited by file with measured costs). Hand-written sweeps computed
+  every candidate's reference before sampling discarded about 95% of them (SM100 F2FP: 148,886
+  built, 6,996 kept); an expected value may now be `Later(fn, *args)`, computed by `Cases.complete`
+  for kept cases only. `encoding.encode` is memoized (85-95% of kept cases repeat a word), per-class
+  modifier names and the non-alternate class map are cached, a worker parses its plan once per family
+  rather than per shard, and label checks consult the current enum before loading every
+  architecture's IR. `-m ghidra`/`-m gpu` no longer lift every CPU case at collection; the manual
+  cases' class list for naming Ghidra items is cached on disk per source digest; each worker keeps one
+  Ghidra-side process instead of starting one (about 20 s of CPU) per shard. Ghidra cache stamps hash
+  only the language's own `sass.ldefs` entry (any newly built language changed every stamp) and
+  normalized source and language-output paths, and no longer include the generator or the bridge
+  package. Scratch language directories outside the checkout also keep stable stamps. Coverage
+  writing is single-pass (296 to 151 CPU-s), generated files are rewritten only when they change (a
+  refresh made every `.sla` look stale), and generation caches legality enumeration, cube covers and
+  operation costs (9-28% less CPU per language in a fresh process: SM75 90 to 65 s, SM89 187
+  to 145 s, SM100 120 to 109 s). Every hand-written case list (300 architecture/lowering/
+  family lists), all 20 generated languages and the coverage outputs are byte-identical before
+  and after on the original base. The refresh takes about 10.5 minutes instead of 19 on that
+  32-core machine. After merging main's explicit runtime primitives and per-scenario GPU
+  fingerprints (2026-10-22), no runtime manifest is generated or hashed by Ghidra's cache. GPU
+  evidence follows the current probe fingerprints rather than expiring on a source-file digest;
+  coverage and evidence are regenerated from the combined tree.
+
+## Shared cases on the GPU
+
+- Shared hardware cases (2026-10-16): `tests/test_cases_on_gpu.py` executes exact-mode
+  `emulator_cases` using native cubins, preserving operand bits, register aliases and reference
+  outputs. `tests/harness/device_cases.py` batches scalar probes and isolates faults in bounded
+  subprocesses; `device_setup.py` binds memory, lanes and runtime windows. Unknown state is an
+  error, and model-only cases report explicit reasons. `device_evidence.py` records passes in
+  `tests/baseline/gpu_case_passes.json` (per scenario since 2026-10-22, below; observations
+  instead since 2026-10-23);
+  `tests/evidence.py` credits the tested word directly as `cases/FAMILY`. Records never replace
+  execution. Existing whole-kernel fixtures and their evidence remain integration coverage. Sampling
+  originally followed `Cases.sweep`; the percentage policy ([Sampling](#sampling)) supersedes it.
+- Probe-source digest (2026-10-17): the generator digest first hashed all of `src/sass`,
+  `tests/refs` and the harness, so any semantics or reference edit (PR #30's new
+  `tests/refs/integer.py` helpers) dropped every family's GPU evidence, FP included. It now hashes
+  only the import closure of `device_cases`/`device_setup`/`device_runner` within `sass` and
+  `tests` (no `sass.semantics` but `softfloat`, no `tests.cases` or `tests.harness.autocases`),
+  plus the target architecture's `src/sass/md/data/SMxx` (`SM89` before the SM90 port); the signature already fixes the inputs and expectations. Records are
+  all-or-nothing per family, so adding cases to a family still drops its evidence until a fresh
+  GPU run. Both superseded on 2026-10-22 (next item).
+- Per-scenario GPU passes (2026-10-22): the closure digest still dropped every record on edits
+  that build no probe. f641f09 changed only `sleigh/gen.py`'s immediate printing and a
+  fixture-only `gpu.py` request after the H100 run, so all 14 SM90 family records were stale on
+  `origin/main` (0 `cases/` classes in the committed evidence), and an agent's `gen.py`/`lifted.py`
+  cleanup did the same to both architectures. Adding HADD2 source-modifier cases would likewise
+  have dropped all 31,837 fp16 words on SM89. A pass is now `device_evidence.fingerprint(scenario)`:
+  the scenario's probe built alone (target word, inputs, setup, scheduling, capture layout, launch
+  shape), its hardware expectation and a hash of the comparison code (the F16 NaN lanes until NaNs
+  compared bitwise, #49), with no source digest. `record` adds the fingerprints that passed under the
+  device string and drops those that failed; scenarios without a result keep theirs. A word is
+  `gpu` evidence when every GPU scenario for it in the evidence run's selection has passed, so
+  new cases leave only their own words unverified. Store version 4 (`{architectures: {arch:
+  {device: [fingerprint]}}}`) was seeded from the v3 records valid under the old rules: all 14
+  SM89 families, and all 14 SM90 families, whose signatures and words match `origin/main`'s cases
+  and whose recorded digest is that of f641f09's parent (recomputed from its blobs). Fingerprints
+  are fewer than scenarios where several build identical probes (f2fp 4,991 for 5,471). SM89
+  evidence came out identical (566 `cases/` classes); SM90 recovered 124,530 words, from 141 GPU
+  classes (fixtures only) to 599, 595 of them `cases/`. A local int_simd GPU run afterwards
+  reproduced its migrated fingerprints byte for byte, and comments added to `gen.py`/`lifted.py`
+  left both architectures' verified words unchanged. The
+  single-case probe differs from its batched instance only in output and arena offsets; a
+  batching fault fails rather than passes.
+- GPU memory harness (2026-10-18): `device_setup.memory_binding` sign-extends `Ra_offset` by the
+  operand's own width (generic `LD` has a 32-bit offset, not 24) and adds the uniform register to
+  the address for every `*_uniform` LD/ST/LDG/STG/LDL/STL/LDS/STS class, not only
+  `ld_uniform`/`st_uniform`. A uniform pair is dropped from the case registers only when the
+  wrapper rebinds it; shared LDS/STS keep the case's own UR value.
+- Warp-context branches (2026-10-19): the GPU warp adapter runs BRA.DIV/.CONV with the branch
+  adapter's landing-PC capture; the context's `waiting` mask chooses whether every inactive lane
+  exits or every one waits at a `BSSY`/`BSYNC` barrier (`lane_guard(waiting=True)`, joined after
+  the observer's capture). The Ghidra bridge compiles its Java helpers with `--release` of the
+  running JVM (PATH's `javac` was Java 25, Ghidra's JVM 21) and removes a compile race's losing
+  temp directory.
+
+## Sharded case consumers
+
+2026-10-20. With fp32 at about 680,000 cases per language, every consumer that built a language's
+cases in one process became the bottleneck: `tests.evidence` (one worker per architecture, then
+SM89's `verified_words` rebuilding every family), `test_sweep_policy_and_all_cases_classified`
+(SM89 built sampled and exhaustive, serially: tens of minutes) and
+`test_retained_adapter_cases_have_reasons` (126 s). All now run `tests.harness.sharded.run` jobs,
+with `shards=sharded.manual` where only the manual cases matter (at that time only manual sweeps
+depended on `--exhaustive`; the percentage policy now applies to both sources). That required an
+order-free GPU signature (sum of per-scenario sha256 digests mod 2^256,
+`device_evidence.summary`), since strided shards don't preserve case order, so the records written
+before then went stale and needed a GPU re-run. `test_lifted_semantics` parametrizes from its
+results (one generation, not a tally pass and then an evaluation), and `test_pcode_semantics` from
+the saved plans' classes plus the manual cases. The memory side of the same change is in
+[`tests/README.md`](../tests/README.md#cost).
+
+## Generated shared cases
+
+How the planner, plans, profiles and adapters work is in
+[`tests/README.md`](../tests/README.md#generated-shared-cases). History, per batch:
+
+- Generated shared cases (2026-10-17): supported ordinary integer forms are owned by
+  `tests/autocases.py` and committed per-architecture plans. Named profiles in
+  `tests/harness/autocase_profiles.py` preserve edge values and seeded random corpora; adapters
+  place operands and calculate independent reference outputs at runtime. A retained manual
+  regression supplements generation rather than excluding that form. `@retained(reason)` records
+  why special-register, CX-header, p-code-cost or partial/opaque cases remain, and a test checks
+  the supported manual cases have reasons. Operations without adapters remain manual. Missing
+  architecture plans fail loudly, since silently skipping them would now lose migrated coverage.
+- Scalar coverage expansion (2026-10-17): IABS, UMOV, BMSK and fully modelled MOV forms use
+  reference-backed adapters. BMSK routes to its existing family and moves ordinary dense/seeded
+  inputs into profiles; descriptor bounds, header layouts, special registers and guards remain
+  named manual regressions. MOV's 64-bit register-pair cases check the high word, while partial
+  pixel-mask behavior remains explicit and unresolved.
+- Packed coverage expansion (2026-10-17): VIMNMX and VISET use independent lane references and
+  declarative seeded corpora. Fully modelled forms replace ordinary manual sweeps; VIMNMX with
+  unresolved predicate outputs retains its PT-only subset, and explicit CX descriptor regressions
+  remain manual.
+- Three-input packed expansion (2026-10-17): VIADDMNMX and VIMNMX3 use independent
+  modular-add/minmax references, preserving their seeded operand rotations in profiles. Every
+  supported B-source negation and predicate inversion is expanded from the md. Constant PT and
+  explicit CX descriptors remain focused manual regressions.
+- Boolean coverage expansion (2026-10-17): LOP3/ULOP3 profiles test every LUT bit with bit-sliced
+  A/B/C words (F0/CC/AA per byte), all 256 selectors, POR/PAND, input predicate inversion and
+  output aliases. The old selector sweep used input combinations 0..5 only; its original words
+  remain a supplemental profile. The reference enumerates bits using the PTX truth-table
+  definition and checks the live predicate result.
+- Arithmetic/carry expansion (2026-10-17): IADD3/UIADD3, LEA/ULEA and IMAD/UIMAD move ordinary
+  seeded sweeps into profiles. References retain negate-zero carry, .X predicate inputs, LEA
+  shifted-word selection, IMAD pair addends and older narrow HI carry boundaries. Operand widths
+  come from corrected md metadata. IMAD immediate B=0/1 printing aliases receive an explicit
+  class/settings check; alternate-only constructors remain reported gaps. Manual tests retain
+  constant UPT, aliased-output precedence, costs, special registers and independent literal
+  boundary examples.
+- Uniform bit adapters (2026-10-17): UBREV/UPOPC/USGXT reuse the independent
+  reversal/popcount/sign-extension references and shared bit profiles. These add new coverage; the
+  arithmetic migration routes generated cases through the existing carry family. Expanded carry
+  and int_alu hardware signatures require new passing GPU runs.
+- Floating/predicate expansion (2026-10-17): adapters for FADD/FMUL/FFMA, DADD/DMUL/DFMA,
+  FSEL/FMNMX/FMNMX3, FSET/FSETP/UFSETP/DSETP, FCHK/FRND, PLOP3/UPLOP3 and P2R/R2P/UP2UR. FP64
+  immediates encode the high word; constants and registers use full pairs. Exact/readable
+  references differ for unfused arithmetic, flushing and ordered min/max selection. Initial
+  floating profiles own unmodified data sources; source-sign, XORSIGN and FMZ corpora remain
+  manual, with explicit counted adapter gaps. Existing dense seeded, exponent-boundary,
+  exceptional-result and cost regressions still provide input coverage beyond the generated
+  profile. Predicate LUTs check all eight inputs, both outputs and input/output overlap; transfer
+  cases check masked preservation and destination aliases. Expanded fp32/fp64/conversions/
+  predicates families require fresh hardware passes.
+- Floating modifier/uniform follow-up (2026-10-18): FSEL, FRND and FCHK now apply source absolute
+  value before negation at the operand width, including negative zero and NaN payloads. FCHK
+  ignores those sign bits in its independent exponent test. The original 1,792-pair boundary/seed
+  corpus is shared by fixtures and a named profile; the ordinary manual FCHK loop is removed.
+  UFADD/UFMUL/UFFMA/UFSEL/UFRND adapters use the appropriate exact/readable formulas, and UFRND is
+  routed through conversions. Other FP source-sign, FMZ and XORSIGN gaps remain explicit. HFMA2's
+  no-flush spelling `nofmz_hfma2` also occurs in the `fmz` selector of older mixed-source FMUL/FFMA
+  forms; the adapter accepts it as an alias of `nofmz` and validates it with the ordinary
+  independent arithmetic references.
+- Scalar conversion form profiles (2026-10-18): F2I/UF2I, I2F/I2FP/UI2F/UI2FP and F2F use
+  independent conversion references for IEEE F16/F32/F64, integer widths, selectors and source
+  signs. Selected byte/half inputs carry nonzero filler in the other slices; destinations
+  alternate between separate and aliased registers. Floating and integer 64-bit immediates supply
+  the high word, unlike full register/constant pairs. Readable F2I truncates and readable F2F
+  rounds to nearest; I2F retains its rounding mode. Named eight-value profiles cover ordinary
+  forms; an unmodified-register boundary supplement owns the former scalar conversion corpora,
+  while literal hardware/encoding anchors remain manual with recorded reasons. BF16/other formats,
+  narrow F2I outputs, F2F FTZ and limited conversion runtime fallbacks remain explicit gaps or
+  unresolved semantics. No instruction semantics or hardware credits are added by generation.
+- Packed half/conversion form profiles (2026-10-18): named form profiles for F2IP/I2IP and
+  HADD2/HMUL2/HFMA2/HMNMX2/HSET2/HSETP2. Ordinary half profiles cover lane broadcasts, separate
+  packed immediates, constants/CX/uniform sources, predicate combines and destination overlap.
+  Mixed formats, source signs, XORSIGN/source-predicate outputs and predicate-controlled RELU
+  retain explicit gaps and denser manual regressions. The former F2I/I2F/I2FP/F2F register
+  boundary corpora moved into `conversion_boundaries`, including the legacy F2F half-input corpus;
+  fixtures reuse the same lists, and ordinary scalar conversion loops are removed.
+- Packed binary32/float-pack form profiles (2026-10-18): ordinary FADD2/FMUL2/FFMA2 profiles add
+  asymmetric binary32 pairs, lane swaps/broadcasts, NP lane signs, rounding/FTZ, uniform sources
+  and pair overlap. F2FP/UF2FP profiles add ordinary F32 PACK_AB/MERGE_C to F16/BF16/E6M9 and TF32
+  PACK_B, including rounding, RELU/SATFINITE and preserved-half selection. FP8/FP6/FP4, scaling and
+  specialized layouts remain named gaps and dense manual regressions. Manual retention reasons are
+  recorded throughout packed FP families.
+- Larger generated matrices (2026-10-18): plans keep the version-2 JSON schema, with one form per
+  line to reduce generated diff size. New scalar/packed adapter families aggregate unresolved gaps
+  by class, preserving counts; modifier-specific semantics still live in the coverage manifest's
+  factored table. Case generation and eligibility are unchanged.
+- Additional integer profiles (2026-10-18): native VIADD, UVIMNMX, UI2IP and MOV64IUR forms use
+  generated shared cases. VIADD reuses the original twelve seeded uniform arithmetic input pairs,
+  replacing their manual loop. Uniform min/max checks signed/unsigned packed lanes and both
+  predicate values; integer packing checks saturation, preserved C bits and aliased destinations.
+  The SM120 SATRELU_ui2ip enum gives SATRELU and RELU the same encoding, so the printed RELU
+  spelling includes saturation. Pair moves check both words of 64-bit immediates and
+  uniform-register pairs. Packed/saturating VIADD and opaque IADD remain explicit gaps.
+- Reduced half-comparison inputs (2026-10-18): HSET2/HSETP2 use the named
+  `half_comparison_forms` profile and an audited input-only selection table. Every generated form
+  and both lowerings remain. Selected seeds preserve both predicate values, separate/aliased HSET2
+  destinations, and the existing reference-level fault distinctions; additional unmasked subnormal
+  inputs expose FTZ in 22,080 forms where seed/predicate correlation previously hid it. The
+  comparison matrix falls from 4,571,136 to 1,957,914 cases per engine (57.2%). Expected outputs
+  still come from independent references at runtime. The table records its numeric corpus and
+  fails when stale; regression checks verify fault preservation and deterministic regeneration.
+  See `research/shared-case-matrix-audit.md` and regenerate with
+  `python -m research.audit_shared_cases OUTPUT.json --write-inputs tests/harness/data/half_comparison_inputs.json`.
+  Dense manual exceptional-value cases remain unchanged.
+- System and mixed-pair forms (2026-10-18): this 15-opcode batch adds FHADD2/FHMUL2/FHFMA2,
+  S2R/CS2R/S2UR, BRA/CALL/RET/EXIT/NOP, LDC/LDCU/ULDC and QSPC. Named profiles describe finite
+  mixed-lane inputs, constant bytes/banks/offsets, synthetic special registers, control-flow
+  predicates/displacements and mapped address ranges. Expectations come from independent
+  references; the mixed numerical helpers are shared with the unchanged dense manual corpus in
+  `tests/refs/mixed.py`. Pure instructions retain the strict native p-code assertion. Constant
+  loads with ordering require exactly the `sass_memory_order` userop plus one event; NOP requires
+  an inspected zero-op body. Structured p-code bounds are emulator assertions and do not change GPU
+  expectations or hardware classification. QSPC is classified as primitive in Python; its values
+  are checked in Ghidra. Ordinary constant-load and scalar control/register cases move to the
+  profiles. Manual aligned 64-bit constant pairs remain because their manifest forms are partially
+  native. Masked/cluster QSPC, missing-context failures, physical branch/lane/CTA/query anchors,
+  synchronization, kernel termination errors and dense mixed floating-point corpora remain with
+  explicit reasons.
+- Remaining modeled-operation batch (2026-10-18): `autocase_remaining.py` adds independent memory
+  and collective value profiles plus explicit synchronization environment contracts. Memory
+  profiles cover signed loads, stores, register aliases, uniform/zero bases, offsets and shared
+  strides; generic window boundaries and decoys remain manual. Warp profiles cover active masks,
+  both predicate polarities, signed reductions and wide matches. Synchronization checks exercise
+  the supplied environment response/event contract; they do not establish scheduler or
+  barrier-state-machine correctness. MUFU then had no hardware-specific numerical model: its
+  explicit failure contract is testable, but the planner reports a numerical-oracle gap rather
+  than treating errors as value coverage (full-width SIN/COS gained the fixed-point reference on
+  2026-10-19, [`docs/hardware-facts.md`](hardware-facts.md#mufu)). Generic memory's bounded p-code
+  contract explicitly permits window-routing branches while still requiring exactly the named
+  memory effects; ordinary pure-native and integer op-count guards stay strict.
+- DSETP coverage follow-up (2026-10-19): every comparison, including MIN/MAX, and source
+  absolute/negate combinations belong to the generated floating profile for every operand form
+  and architecture. Focused FP64 cases retain adjacent-mantissa, signed-zero, subnormal/normal
+  boundary, predicate alias/inversion/discard and false-guard checks. SM89 hardware validates all
+  5,366 DSETP shared cases.
+- FP64 arithmetic source-modifier follow-up (2026-10-19): DADD/DMUL/DFMA source absolute/negate
+  combinations belong to the generated floating profile for every operand form and architecture,
+  through the existing `source_modifiers` reference (absolute before negation). SM89 hardware
+  validates all 64,022 fp64 shared-case scenarios. The seeded manual FP64 corpus stays for its
+  denser rounding and cancellation inputs.
+
+## GPU observations instead of pass fingerprints (2026-10-23, #63)
+
+Pass fingerprints hashed the expectation and the comparison code, so any change to how results
+are judged expired every recorded pass: #61's bitwise NaN comparison would have taken SM90 GPU
+evidence from 599 classes to 141 had the H100 not been available to re-record it. GPU access may
+end, so what the GPU returned is now the durable record (`tests/README.md` "Shared-case hardware
+evidence"): observations keyed by the probe alone, judged afresh when evidence is built.
+
+The existing passes were converted without a GPU (`research/migrate_gpu_passes.py`, run at #61's
+01129e0). A scenario whose current fingerprint had passed was judged by exactly that comparison
+against exactly that expectation, so each exactly compared capture held its expected value. Only
+captures the comparison tolerated (an FP8 NaN byte, none in the current cases) or skipped (memory
+regions after the first) would be unknown. All 128,279 SM89 and 142,822 SM90 current GPU
+scenarios matched; the remaining 127,678 and 142,193 fingerprints were main-era ones no current
+scenario builds. The same inference at main 60cfa3a, where F16 NaN lanes were still tolerated
+(238 SM89 and 241 SM90 scenarios unknown there), added 8,207 and 8,398 observations of probes that
+no longer run and conflicted with none. Judged by the new path, the observations verify exactly the
+words the fingerprints did (110,870 SM89, 124,530 SM90), every GPU scenario passing. Run on main's
+comparison alone, the unknown F16 NaN lanes would have dropped 36 SM89 and 38 SM90 F2FP forms: the
+inference must run on the comparison that recorded the passes.
+
+## Committed evidence encoding (2026-10-23)
+
+`processor/SASS/semantics/evidence.json` had grown to 86 MB (49 MB on 2026-10-19), 84.7 MB of it
+form rows: 946,597 reference and 229,659 GPU rows, each spelling every modifier label, the GPU rows
+almost all repeating reference rows (1,090 of 1,121 classes). `sass.sleigh.modifiers.compact` now
+stores each class's labels once per modifier (`labels`) and each form once, as a string of label
+indices (one base-36 digit per modifier, at most 17 labels with `null` seen), under the evidence
+kinds that ran it (`"gpu+reference"`); `modifiers.expand` restores the `tests/evidence.py` rows (`sass.provenance` expands the class it
+looks up).
+13.7 MB, lossless over every class (`sass_smXX_evidence.json`, which `sass-coverage` reads, keeps the
+expanded rows).
+
+## Verification evidence and the coverage report
+
+Verification evidence per class (2026-10-15) is derived from the tests by `tests/evidence.py` into
+`processor/SASS/semantics/evidence.json` (`uv run sass-refresh-coverage`; CI fails when it is
+stale) and shown in the coverage report:
+
+- `reference`: emulator cases (`tests/cases`) name the class, checked against `tests/refs`.
+- `ptxas`: an annotated `tests/ptx` probe (`// sass: MNEMONIC`) makes ptxas 13.0.88 emit the
+  class; this is lowering evidence, not values.
+- `gpu` (SM89 and SM90, the architectures with GPU runs): the class is on a GPU fixture kernel's data path, a static slice over md
+  register reads/writes (`tests/harness/dataflow.py:expected`) in code order: the backward slice of
+  the output stores' data, not following load/store address operands (`Ra*`,
+  `memoryDescriptor`), plus the instructions in both the forward slice of the input loads (LDG)
+  and the full backward slice. Stores of sliced values carry the slice through memory to later
+  loads; a branch on a forward-sliced predicate counts. Address arithmetic is excluded; LDG/STG
+  count for every fixture. Only fixtures that passed on the GPU exactly as committed count:
+  `pytest -m gpu` records each passing fixture's fingerprint (kernel image, launch, inputs,
+  reference outputs) and device in `tests/baseline/gpu_passes.json` and drops failing ones, so
+  editing a fixture or its reference removes its G marks until the GPU tests run again (CI rebuilds
+  the same cubins from the pinned CUDA 13.0.88 wheels, so it checks fingerprints without a GPU).
+  Limits: straight-line code order (no CFG; the kernels are essentially straight-line) and one
+  memory cell. Mnemonic matching of fixture `targets` credited 80 SM89 classes, including address
+  arithmetic; the slice credits 119. Shared cases that pass on the GPU (2026-10-16) add
+  `cases/FAMILY` evidence ([above](#shared-cases-on-the-gpu)).
+
+Evidence and status per modifier value (2026-10-15). A class fixes only the operand form; its
+modifiers (FADD's `ftz`, `rnd`, `sat`; operand flags such as `Ra@negate`) are fields inside it. So
+class-level marks overclaimed: one FADD.RN fixture marked FADD "G" though FADD.FTZ.RZ never ran on
+hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` is modelled.
+
+- Forms: `src/sass/sleigh/modifiers.py` defines a class's modifiers (the md modifiers but the
+  scheduling hints, and each non-guard operand flag, `set`/`unset`, labelled by the first-defined
+  enum member). A **form** is one combination of their values, decoded from an instruction word.
+  `tests/evidence.py` records, per class, the forms each kind of evidence ran (`modifiers`: the
+  column names; `forms`: {kind: [[label per modifier]]}), from the words themselves, independent
+  of how the semantics branch. Full combinations are kept, so FTZ and RZ tested separately do not
+  make FTZ+RZ tested.
+- Value status: the generator writes each value's status into the manifests (`modifiers`:
+  {modifier: {label: status}}), from the static rows `lower.enumerate_rows` produces: the status
+  the admitting rows share, `partial` when some are opaque and some not (other modifiers decide;
+  F2FP's `relu` is native only with `dstfmt=F16`), `primitive` when native and primitive rows mix.
+  Values only illegal rows admit are left out, as are modifiers the encoding doesn't hold. The
+  report marks a class `partial` when it has semantics but some of its values are opaque or partial
+  (on SM89, 37 of F2FP's 42 classes with semantics; drawn half green, half red, and in the details
+  as an "overall" chip coloured in proportion to its values), since the manifest's `native` only
+  says some encoding is modelled.
+- Combinations: the generator also writes each class's `combinations`: {decides: [modifier],
+  table: [[label..., status]], free: n}, the status of every combination of the modifiers that
+  decide anything, each entry standing for `free` combinations of the rest. Only legal
+  combinations count: the md error conditions that read only modifiers are evaluated on each
+  combination (`modifiers.conditions`), so F2FP's `srcfmt=F32` classes, which allow only `dstfmt`
+  F16, E6M9 and BF16, no longer count 48 illegal TF32/E5M2/E4M3 combinations as opaque (on SM89
+  every F2FP class with semantics is then fully native). Each choice's chip status is derived from
+  the same table (`modifiers.value_statuses`), and a choice no legal combination makes is left
+  out. Labels are the enum member nvdisasm prints (`BF16`, not the first-defined `E8M7`).
+  `modifiers.minimal` drops a modifier whose choices never change the status, so a uniform class
+  is one entry (FADD's `fadd__RRR_RR`: native, 256 combinations) and `f2fp_merge_c__RCxR` is six
+  (`dstfmt`, 16 each).
+- Report cells: each cell shows C (classes) and M (modifier combinations, i.e. complete instruction
+  forms; a class without modifiers counts as one) as full+partial/total, compacted (606k, 51.4M)
+  with exact counts in the tooltip. A combination is verified only when a test ran exactly it:
+  each tested form is looked up in its class's table. Evidence is counted once per class or value
+  by its strongest kind, GPU, then ptxas, then reference (ptxas shows which PTX operation a class
+  implements, a reference check only agreement with our own model); it is in the tooltips, the
+  cards and the explanation box, not the cells. The evidence filter keeps rows with a matching
+  cell and dims the others. A worked example (F2F on SM89, pinned to
+  `f2f_f64_downconvert__RRR_RRR`: native except `.FTZ`, GPU-tested) heads the page; clicking a
+  cell explains it the same way, rendered in the browser from the embedded detail.
+- Rendering: `coverage.html` is `src/sass/sleigh/report/index.html` with `report.css` and
+  `report.js` inlined; Python only computes the data (the summary's per-opcode counts and the
+  per-class detail), and the JavaScript renders the whole page from it, so the grid, cards,
+  tooltips, example and explanations share one renderer and one set of numbers. The data is
+  embedded as base64 gzip, inflated by the browser's `DecompressionStream`;
+  `gzip.compress(mtime=0)` is byte-identical only for the same zlib (uv's Python 3.13 bundles
+  1.3.1, locally and in CI), which the CI diff of `coverage.html` relies on.
+
+## PR coverage comments
+
+2026-10-16, revised 2026-10-17, 2026-10-19 and 2026-10-25:
+
+- CI compares committed `processor/SASS/semantics/coverage.json` at the PR event's base and head
+  SHAs, independently of the generator freshness check. Same-repository PRs get a current bot
+  comment with per-architecture opcode totals and changed class/modifier-combination status and
+  recorded-evidence counts; fork PRs and pushes skip commenting. Readable variants are omitted.
+- Since 2026-10-17 the report leads with what changed: a red caution alert when GPU, ptxas or
+  reference evidence falls (each opcode named once, at the strongest level that fell, with how to
+  restore GPU passes), a warning when semantic coverage falls, and a per-architecture
+  verification-change table; the opcode-coverage table is collapsed when no architecture's
+  percentage moved. Every change is colored 🟢 better, 🔴 worse or ⚪ neutral, judging a level by
+  its count together with the stronger levels, so a GPU pass demoted to reference is 🔴 for GPU
+  and ⚪ for reference; more opaque counts are worse. Regressed opcodes sort first in each
+  architecture's details.
+- Since 2026-10-25, increasing `none` counts within growth in modeled classes or combinations
+  is neutral for evidence trends, with an amber “Semantics grew with gaps in recorded evidence”
+  warning and labels in opcode details. Added semantics without checks can be an implementation
+  improvement without being labeled a regression in evidence. Drops in existing evidence remain
+  red, including when semantics also grow. Removing unevidenced semantics alone does not count as
+  adding checks. Warnings report net increases per changed opcode; aggregate counts cannot identify
+  which individual forms gained or lost evidence. The comment says “recorded evidence” throughout:
+  GPU evidence records passing checks on the architecture where they ran, PTX evidence records
+  compilation, and reference evidence records available cases, not current passing test results.
+- The PR carries a `coverage` label exactly while coverage differs from the base. When a newer
+  report replaces the current comparison, CI posts it first, then edits previous reports into
+  closed-by-default “Outdated coverage report” expansions with a superseded notice. Identical
+  reports are not reposted, archived comments are ignored, and retries finish archiving without
+  duplicating the latest report. Reverting all changes posts a no-change report, archives the
+  previous summary, and removes the label, while an unchanged PR gets no initial comment. The
+  `coverage-comment-report` artifact contains the full Markdown report when comment details exceed
+  the size limit.
+- Each report opens with the README's opcode-coverage badge, pinned to the PR head SHA so it shows
+  the head's `badge.json` and links to its `coverage.html` (2026-10-17).
+- The standard-library helper is `.github/scripts/coverage_comment.py`; its comparison and mocked
+  API tests are `tests/test_coverage_comment.py`. Outside CI,
+  `python3 .github/scripts/coverage_comment.py local [REV]` prints the same report comparing `REV`
+  (default `HEAD`) with the working tree's `coverage.json`, without the badge or CI link
+  (2026-10-19; the `sass-opcode-coverage` skill uses it for before/after).
+
+## Ghidra tests in CI (2026-10-22)
+
+- The `ghidra-tests` job (`.github/workflows/ci.yml`) runs `pytest -m ghidra --arch SMxx --fp all`
+  once per architecture, each building only its two languages (`sass-build-languages SMxx`): capped
+  at `-Xmx4g`, they fit a standard runner. Ghidra's zip and `.cache/ghidra` results are
+  cached between runs. `test_coverage` is deselected; the coverage check runs elsewhere.
+- Fresh runners exposed a launcher race: concurrent first `support/sleigh` launches failed to save
+  the JDK path (`docs/sleigh.md`), so `sass-build-languages` launches it once before compiling.
+
+## Ghidra bridge and whole-kernel requests
+
+- `sass.ghidra_bridge` is the only path to `ghidra_emulate.py`/`ghidra_decode.py`; Ghidra tests run
+  all selected languages concurrently, and `emulate_sharded` (`test_pcode_semantics`,
+  `test_fixtures_emulated`) also splits each language's batch into chunks so up to 24 JVMs stay
+  busy. `tests/harness/select.require_languages` fails on a stale `.sla` instead of letting
+  concurrent Ghidra processes recompile it.
+- In-process callers (no subprocess per batch) start the JVM themselves and use
+  `ghidra_decode.describe` and `ghidra_emulate.session(ldefs, language)`, a request handler; kernel
+  requests with `kernel.trace` also return each step's register writes for the first
+  `kernel.trace_threads` threads. `launch.kernel_request` builds a whole-kernel request from
+  `cubin.kernel_image` metadata.
+- Result cache (2026-10-14): Ghidra results are cached per request in `.cache/ghidra/`, keyed by
+  the language's `.sla`, specs and manifest, every `src/sass` source and the Ghidra install;
+  editing only tests reuses them. Since 2026-10-21 the key is the sources the program imports
+  minus generator-only modules (`ghidra_bridge.GENERATORS`: families, operations, operands,
+  lowering, build), which reach Ghidra only through the hashed `.sla`/manifest: measured over
+  control/mufu/threads requests and samples of every family, the emulator loads 15 to 17 sass
+  modules and no generator, and `test_ghidra_bridge` guards that. The key previously also missed
+  `ghidra_decode.py`, which the emulator imports as a sibling script module. The launch layout
+  (`sass.launch`: `LAUNCH_LAYOUT`, `WINDOWS`, `kernel_request`) lives outside `ghidra_bridge`
+  because the GPU pass records' generator digest covered it: in the bridge package, every
+  cache-code edit invalidated all GPU evidence (no source digest since 2026-10-22).
+- Stale `.sla` after a coverage refresh (2026-10-21): `sass-refresh-coverage` (and
+  `sass.sleigh.build --generate-only`) rewrite every `.slaspec` even when the text is unchanged,
+  and `require_languages` compares modification times, so afterwards every Ghidra test fails setup
+  with "`.sla` is missing or stale" until `sass-build-languages` recompiles (1.5 minutes for all
+  languages; the `.sla` bytes come out identical).
+- Launch constants (2026-10-15, nvcc 13.0 probe kernels each reading one of blockDim.x/y/z or
+  using a local stack, per architecture): SM75-SM90 read blockDim from `c[0x0][0x0]`-`0x8` and the
+  local stack base from `0x28`; SM100/SM103/SM110 (decoded as SM101)/SM120 use `0x360`-`0x368` and
+  `0x37c`. `0x118` (SM80-SM89), `0x208` (SM90) and `0x358` (SM100+) hold the global memory
+  descriptor; parameters start at `0x160`, `0x210` and `0x380`. SM107 has no nvcc 13 target, so it
+  is not in `LAUNCH_LAYOUT`, and `kernel_request` refuses it rather than seed the wrong words. Since
+  descriptors were modelled (2026-10-15), whole-kernel emulation of nvcc output gets through
+  `desc[URx][Ra.64]` accesses: a scratch `out[i] = in[i] * 3 + blockDim.x` kernel gave the
+  expected outputs on SM89, SM90, SM100 and SM120. The default descriptors stay 0 in bank 0. SM87's
+  prologue needs BMOV barrier state from the environment.
+- One scheduler, two engines (2026-10-23): `ghidra_emulate.run_kernel`'s scheduling moved
+  unchanged into `sass.emulate.schedule` (seeding, lowest-PC warp turns, BAR.SYNC and WARPSYNC
+  holds, collectives' warp context, step limit, every error message, the response). Ghidra lanes
+  and the lifted semantics' lanes (`sass.emulate.reference`: `lifter.lift` per PC +
+  `evaluate.apply`, the in-place `execute`) both run under it, so whole kernels need no Ghidra.
+  `c.kernel` cases now also run in `test_lifted_semantics`. A one-time parity check (2026-10-23)
+  compared both engines' whole responses on every SM89/SM90 fixture, including the first 64
+  threads' traced writes (opaque errors by pcodeop, since Ghidra names its arguments and Python the
+  lifter's reason): all 2032 matched (7 minutes), as did the native engine's (`docs/emulation.md`).
+  Before #61 (the hardware NaN rule, #49), 16 differed by NaN results of FP arithmetic: the IR
+  returned IEEE +qNaN, the exact lowering the host's -qNaN, and the GPU neither. The only other
+  difference was Ghidra 12.1.4's minimum-subnormal underflow (section 3 of `docs/semantics.md`),
+  where Python's output is the hardware reference and the fixtures already excuse Ghidra's. The
+  check is not a test: both engines are judged against the same references on every instruction
+  (the shared cases) and kernel (the fixtures), now bitwise, and its extra reach (step counts and
+  interleaving) cost tens of minutes per CI job on SM89/SM90.
+- Inherent engine differences: p-code inspection (`__native`, `__max_ops`, `pcode_ops`) is
+  Ghidra-only; an instruction's `text` comes from SLEIGH on Ghidra and from pydecode in Python
+  (kernel traces use pydecode on both); Ghidra observes any SLEIGH register, the lifted harness
+  R/UR/P/UP and seeded SR; trace writes are p-code register outputs on Ghidra and lifted write
+  locations in Python (identical on every fixture so far); a non-cooperative thread still has no
+  warp context on either, so its collectives fail rather than act as a lone lane.
+
+## Case construction
+
+- Op-count samples (`synth.synthetic(..., legal=True)`) are md-legal words: up to 256 redraws use
+  aligned low registers (UR0-UR63 on SM100+ are the only in-range uniform registers in 8-bit
+  fields) or the zero register (HADD2.F32 requires `-RZ`).
+- Operand flags (`Rc@negate`, `Sb@invert`) are not keys of `k.operand_types`; ask
+  `tests.harness.case.flagged(k, name, flag)`, which reads them from the md format (2026-10-17).
+  Five case checks spelled `"Rc@negate" in k.operand_types` were always false, so IDP's negated
+  accumulator and the integer ALU's inverted sources had no cases until then; with them, all pass
+  on SM89.
+- Pseudo print forms (`IMAD.MOV`/`IADD`/`SHL`, alternate classes with the base class's constraint
+  bits) are accepted by the permissive encoder: a case on `imad__RsIR_RIR` with B = 0 or 1 is the
+  same instruction and also evidences `imad_pseudo__RsIR_RIR` (2026-10-17).
+
+## SM90 GPU runner port (2026-10-22)
+
+Both native shared-case probes and compiled/patched whole-kernel fixtures target SM89
+or SM90 explicitly. GPU pytest collection detects device ordinal 0; an explicit
+`--arch` must include its architecture. CPU-only selection retains the SM89 default.
+`tests.probe --arch` and `tests.observe --arch` likewise validate the requested target
+against the actual device. Workers carry the architecture in the serialized probe,
+validate the device before loading a module, and decode/encode every wrapper for it.
+
+Launch parameters use the assembler profile (SM89 0x160; SM90 0x210); the global
+descriptor is at 0x118 or 0x208. The local-stack word stays at 0x28, and SM90 generic
+shared addressing uses a zero low word with SR_SWINHI. Bindless CX headers use the
+shared `launch.cx_layout`: SM89 has a 45-bit address in 16-byte units, SM90 a 51-bit
+address in 64-byte units. Both size fields count 16-byte units. Boundary fixtures use
+the representable size range for their target rather than truncating SM89 header bits.
+
+Compiler wrapper patch sites are decoded and checked instead of fixed file offsets.
+The SM90 carry wrapper interleaves one output-address IMAD.WIDE among the reserved
+BARs; it is validated and hoisted ahead of the contiguous patch slots before those
+slots can overwrite R11 (the thread index). CX and scalar wrappers account for
+SM90 register/form changes. Relocated vote setup drains scoreboards and uses
+WAIT15_END_GROUP, preserving the predicate producer/consumer dependency.
+
+GPU evidence files partition records under `architectures`; old unpartitioned records
+are interpreted as SM89 only. A run replaces only the selected architecture/families.
+Source hashes include the target md, and shared-case signatures include architecture;
+old hashes may become stale after the port. The 1,462 captured inputs per MUFU operation also match on Hopper (2026-10-22);
+the fixtures run on both architectures, with independent pass records. Hardware passes are never inferred
+from successful case generation or Ghidra emulation.
+
+
+### SM90 port verification (2026-10-22)
+
+The port was verified on two machines; GPU pass records are partitioned by architecture, and
+SM89 records were not transferred to SM90.
+
+On the H100 NVL (SM90, device 0): the full legacy path plus native cubin smoke test passed (1,025
+tests). The full shared GPU run passed (603 tests, 76 skipped) before the final HFMA2.MMA
+extension. After that extension, the FP16 hardware run passed (244 tests, 52,387 shared
+scenarios); the restored original integer SIMD corpus passed (37 tests, 458 scenarios). All 1,462
+original captured inputs for each of the ten MUFU operations matched the SM89 observations. The
+focused all-architecture FP16 CPU and family-lowering run passed 621 tests and found one
+readable-reference failure; after correcting its fused versus unfused expectation, the SM90
+readable rerun passed all 43 tests (49,051 selected cases).
+
+On the RTX 4070 Laptop (SM89), after two fixes found there (WARPSYNC scheduling in the cooperative
+emulator, `docs/semantics.md`; folding SM90's `convertFloatType` half immediates, which made the
+HFMA2.MMA constant move 22 run-time operations instead of one COPY):
+
+- CPU suite, all architectures and lowerings: 11,271 passed (2,221,415 lifted cases).
+- All 20 languages built; Ghidra on every architecture and lowering passed: SM89/SM90 5,238 tests
+  (537,557 cases, including the nine SM90 divergent-thread fixtures that needed WARPSYNC), the
+  other eight architectures 8,987 tests (1,692,134 cases).
+- P-code op-count baselines changed only where expected and were accepted: immediate forms of
+  HMNMX2/HMUL2/HSET2/HSETP2 and the F2F upconversions shrink on SM80+ (their immediate's NaN tests
+  are now folded), HFMA2.MMA RRR becomes native FP16 arithmetic on SM90, and VIADDMNMX gains its
+  per-lane negation on SM90/SM100/SM103.
+- SM89 GPU: 1,602 passed, 77 skipped; the SM89 pass records were re-recorded with this harness.
+- Coverage and evidence were refreshed (`sass-refresh-coverage`).
+
+No comparison tolerance was weakened. BF16/FMZ/RELU and other unimplemented MMA arithmetic forms
+keep the opaque fallback.
+
+## NaN comparison policy (2026-10-22, issue #49)
+
+NaN results are compared bit for bit everywhere: emulator and Ghidra cases, GPU shared cases and
+scalar fixtures. Before, the GPU accepted any F16 NaN for HADD2/HMUL2/HFMA2 and F2FP F16
+(`half_nan_equal`, `same_halves`), scalar fixtures' emulator check accepted any F32/F64 NaN, and the
+FP32/FP64/FP16 sweeps and autocases skipped NaN results, because the semantics returned softfloat's
+generic NaNs rather than the GPU's. The SM89 probes behind `hardware-facts.md` "Arithmetic NaN
+results" fixed every NaN bit; the semantics now produce them (`semantics.md` section 3) and the
+generators compute expectations with `refs.float.rounded`, so NaN results create evidence. The one
+remaining NaN-class check, `__fp8_nan`, covers SM100+ FP8 downconversion, which has no hardware here.

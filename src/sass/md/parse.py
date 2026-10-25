@@ -1,7 +1,8 @@
 """Parsers for nvdisasm machine descriptions: classes, enums (REGISTERS) and TABLES."""
 import re
+from functools import cache
 from pathlib import Path
-from sass.paths import OUT
+from sass.paths import MD
 SECTIONS = ("FORMAT_ALIAS", "FORMAT", "CONDITIONS", "PROPERTIES", "PREDICATES", "OPCODES", "ENCODING")
 SECTION = re.compile(rf"^({'|'.join(SECTIONS)})\b", re.M)
 CLASS = re.compile(r'^(ALTERNATE\s+)?CLASS\s+"([^"]+)"(.*?)(?=^(?:ALTERNATE\s+)?CLASS\s+"|\Z)', re.S | re.M)
@@ -35,6 +36,12 @@ def preamble(archdir):
 def between(text, start, end):
     """Section body from header line `start` up to header line `end` (preamble splitting is not reliable)."""
     return re.search(rf"^{start}\s*$(.*?)^{end}\s*$", text, re.S | re.M)[1]
+
+@cache
+def arch_classes(arch):
+    """{class name: parsed class} of MD/<arch>: one parse per process for every reader."""
+    return {c["cls"]: c for c in load_classes(MD / arch)}
+
 
 def load_classes(archdir):
     """The arch's md classes, with the known md errors corrected (src/sass/md/fixes.py)."""
@@ -99,7 +106,7 @@ def parse_constants(text):
     return {n: int(v, 0) for n, v in re.findall(r"^\s*(\w+)\s*=\s*(-?(?:0x[0-9a-fA-F]+|\d+))\s*$", text, re.M)}
 
 def load_arch(arch):
-    d = OUT / arch
+    d = MD / arch
     pre = preamble(d)
     return dict(arch=arch, classes=load_classes(d),
                 constants=parse_constants(between(pre, "PARAMETERS", "STRING_MAP")),

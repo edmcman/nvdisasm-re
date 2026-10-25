@@ -2,50 +2,16 @@
 softfloat per lane. Source lanes follow ptxas's folding of f32x2 operands (sm_107a, CUDA 13.4): a
 register pair is (lane 0 = Rn, lane 1 = Rn+1), .LO_HI swaps it, .F32 and immediates broadcast one
 value; |x| applies to both lanes, -x to lane 0 and, XOR NEGA .NP, to lane 1, after the swizzle."""
+from tests.harness.manual import retained
 import random
 from sass.semantics.fp import softfloat
 from tests.harness.case import pair, source
-from tests.refs.bits import nan32
-from tests.refs.float import readable, underflow_band, widen_half
+from tests.refs.float import readable
+from tests.refs import mixed
 
 ROUNDINGS = ("RN", "RZ", "RM", "RP")
 OPS = {"FADD2": "add", "FHADD2": "add", "FMUL2": "mul", "FHMUL2": "mul", "FFMA2": "fma", "FHFMA2": "fma"}
 HALVES = {"F16x2": "F16", "BF16x2": "BF16"}
-
-
-def widen(bits, fmt):
-    return (bits << 16) if fmt == "BF16" else widen_half(bits)
-
-
-def ref_lanes(value, swizzle, absolute, negate, np_, half=None):
-    """Lane 0 and 1 of a source as binary32 bits (None: a NaN half, whose payload isn't compared)."""
-    if half:
-        lo, hi = value & 0xffff, value >> 16
-        lanes = [widen({"H1_H0": lo, "H0_H0": lo, "H1_H1": hi}[swizzle], half), widen({"H1_H0": hi, "H0_H0": lo, "H1_H1": hi}[swizzle], half)]
-    elif swizzle == "F32": lanes = [value, value]
-    else:
-        lanes = [value & 0xffffffff, value >> 32]
-        if swizzle == "F32x2.LO_HI": lanes.reverse()
-    if None in lanes: return None
-    lanes = [x & 0x7fffffff if absolute else x for x in lanes]
-    return [lanes[0] ^ (negate << 31), lanes[1] ^ ((negate ^ np_) << 31)]
-
-
-def lane_result(op, inputs, rnd, ftz, dst):
-    """One lane: the binary32 result, or the exact value rounded RZ straight to a half format (FTZ:
-    binary32 inputs and a F16 subnormal result flushed).
-    None when a NaN or Ghidra's RN underflow band makes the comparison meaningless."""
-    if any(nan32(x) for x in inputs) or rnd == "RN" and underflow_band(op, inputs, 32): return None
-    if dst is None:
-        r = softfloat.arithmetic(op, inputs, 32, rnd, ftz)
-        return None if nan32(r) else r
-    parts = [softfloat.unpack(x, 32, ftz) for x in inputs]
-    if any(k != "finite" and k != "zero" for k, _, _ in parts): return None
-    v = parts[0][2] + parts[1][2] if op == "add" else parts[0][2] * parts[1][2]
-    if not v: return None   # the zero's sign: not this suite's question
-    sign = int(v < 0)
-    # F16 straight from the exact value; BF16 truncates binary32's RZ (BF16 is binary32's top half).
-    return softfloat.pack(v, 32, "RZ", sign) >> 16 if dst == "BF16" else softfloat.pack(v, 16, "RZ", sign, ftz)
 
 
 def specs(k):
@@ -67,6 +33,7 @@ def half_values(rng):
     return [0, 0x8000, 1, 0x3c00, 0xbc00, 0x7bff, 0x7c00, 0x03ff, 0x3f80, 0xbf80, 0x7f7f, 0x0080] + [rng.getrandbits(16) for _ in range(8)]
 
 
+@retained('Seeded wide/mixed lane, source-sign/NP and directed-rounding corpora exceed the ordinary packed binary32 form profile.')
 def arithmetic(c):
     rng = random.Random("fp32x2")
     f32s, f16s = values(rng), half_values(rng)
@@ -105,14 +72,15 @@ def arithmetic(c):
                     if neg:
                         np_ = int(bool((n >> 3) & 1 and (wide or half)))
                         fields[neg] = "NP" if np_ else "PP"
-                    srcs.append(ref_lanes(value, swizzles[j] or "F32x2.HI_LO", absolute, negate, np_, half) if (wide or half) else ref_lanes(value, "F32", absolute, negate, np_))
+                    srcs.append(mixed.ref_lanes(value, swizzles[j] or "F32x2.HI_LO", absolute, negate, np_, half) if (wide or half) else mixed.ref_lanes(value, "F32", absolute, negate, np_))
                 if None in srcs: continue
-                lanes = [lane_result(op, [s[lane] for s in srcs], rnd, bool(flush), dst) for lane in (0, 1)]
+                lanes = [mixed.lane_result(op, [s[lane] for s in srcs], rnd, bool(flush), dst) for lane in (0, 1)]
                 if None in lanes: continue
                 want = lanes[0] | lanes[1] << 16 if dst else lanes[0] | lanes[1] << 32
                 c.add(k.name, fields, regs, dict(R8=want, __native=True) if dst else dict(pair("R8", want), __native=True))
 
 
+@retained('Seeded unfused readable pair regressions exceed the ordinary packed form profile.')
 def readable_formulas(c):
     """The readable lowering: round to nearest per lane, no flushing, rounding mode ignored."""
     if c.fp != "readable": return

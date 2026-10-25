@@ -13,7 +13,7 @@ are `sass.semantics.bitvec` expressions. Backends supply the answers: `sass.sema
 works for both binding times: `a if c else b`, `and`, `or` and `not` evaluate natively on static
 values and build IR on dynamic ones.
 """
-import ast, inspect, json, textwrap
+import ast, inspect, json, string, textwrap
 from dataclasses import dataclass, field
 from functools import cache
 from sass.md import parse
@@ -56,13 +56,6 @@ class Outputs:
         return [(n, self.writes[n]) for n in names]
 
 
-class Primitive(Exception):
-    """This encoding is executed by its runtime primitive (sass_prim_*, src/sass/semantics/runtime.py)."""
-
-
-def primitive(reason="runtime primitive"): raise Primitive(reason)
-
-
 def outputs(order=(), flow=None, stores=(), effects=(), atomic=None, **writes):
     return Outputs(writes, tuple(order), flow, tuple(stores), tuple(effects), atomic)
 
@@ -79,7 +72,8 @@ class Store:
 
 @dataclass(frozen=True)
 class Effect:
-    """A call to the pcodeop `name` with Expr arguments and no result (memory ordering events)."""
+    """A call to the pcodeop `name` with Expr arguments and no result (memory ordering events,
+    synchronization primitives)."""
     name: str
     args: tuple
 
@@ -94,6 +88,15 @@ class Atomic:
 def store(space, address, value, cond=None): return Store(space, address, value, cond)
 def effect(name, *args): return Effect(name, tuple(args))
 def atomic(*args): return Atomic(tuple(args))
+
+
+def primitive_names(result):
+    """The runtime primitives an Outputs needs: its primitive values' and primitive effects' names."""
+    memo = {}
+    roots = [bitvec.lowered(r, memo) for r in (*result.writes.values(), *(e for s in result.stores for e in (s.address, s.value, s.cond)),
+             *(a for e in result.effects for a in e.args), *((result.flow.target, result.flow.cond) if result.flow else ()))]
+    return {e.name.removeprefix(bitvec.PRIMITIVE_OP) for e in result.effects if e.name.startswith(bitvec.PRIMITIVE_OP)} | \
+        {n.args[0] for r in roots if isinstance(r, Expr) for n in bitvec.leaves(r, "primitive")}
 
 
 @dataclass(frozen=True)
@@ -135,8 +138,14 @@ def _not(a): return bitvec.lnot(a)
 
 
 class Rewrite(ast.NodeTransformer):
-    @staticmethod
-    def thunk(node): return ast.Lambda(ast.arguments([], [], None, [], [], None, []), node)
+    def __init__(self, name): self.name = name
+
+    def thunk(self, node):
+        # A := in a deferred operand would bind inside the lambda: unset (or a global) outside it.
+        if walrus := next((n for n in ast.walk(node) if isinstance(n, ast.NamedExpr)), None):
+            raise SyntaxError(f"{self.name}: := in a conditional's branch or a later and/or operand binds "
+                              f"inside the staged lambda (line {walrus.lineno}); assign before the expression")
+        return ast.Lambda(ast.arguments([], [], None, [], [], None, []), node)
 
     def call(self, name, *args): return ast.Call(ast.Name(name, ast.Load()), list(args), [])
 
@@ -163,8 +172,8 @@ def rewrite(fn):
     tree = ast.parse(textwrap.dedent("".join(lines)))
     (fdef,) = tree.body
     fdef.decorator_list = []
-    tree = ast.fix_missing_locations(Rewrite().visit(tree))
     ast.increment_lineno(tree, first - 1)
+    tree = ast.fix_missing_locations(Rewrite(fn.__name__).visit(tree))
     env = fn.__globals__
     env.update(_sem_cond=_cond, _sem_and=_and, _sem_or=_or, _sem_not=_not)
     exec(compile(tree, inspect.getsourcefile(fn), "exec"), env)
@@ -173,17 +182,22 @@ def rewrite(fn):
     return out
 
 
-def family(*opcodes, classes=None, fallback="opaque"):
+def family(*opcodes, classes=None, modifier_roles=None):
     """Register fn for every md class of `opcodes`, or only those `classes(klass)` accepts (while an
     opcode is partly migrated, the other classes keep their old emitter). Unmodelled encodings use
-    the opaque call, or with fallback='prim' the runtime primitive (src/sass/semantics/runtime.py)."""
+    the opaque call. `modifier_roles` declares family-local value/hint/effect verification roles;
+    undeclared modifiers affect values. Roles do not alter semantic guards."""
+    roles = dict(modifier_roles or {})
+    if any(role not in ("value", "hint", "effect") for role in roles.values()):
+        raise ValueError("modifier roles must be value, hint or effect")
     def register(fn):
         staged = rewrite(fn)
         def checked(i):
             result = staged(i)
             i.require_unasked_defaults()
             return result
-        checked.__name__, checked.__wrapped__, checked.fallback = fn.__name__, fn, fallback
+        checked.__name__, checked.__wrapped__ = fn.__name__, fn
+        checked.modifier_roles = roles
         for op in opcodes: FAMILIES.setdefault(op, []).append((classes, checked))
         return checked
     return register
@@ -200,6 +214,84 @@ def helper(fn):
     return rewrite(fn)
 
 
+DEFINITIONS = {}   # defined operator -> (function, {operand count: (the arguments its name fixes, the kept ones' shapes)})
+
+
+def same(a, b):
+    """Equal plain values or constants (an int and a constant of its value too), identical expressions."""
+    if isinstance(a, tuple) or isinstance(b, tuple):
+        return type(a) is type(b) and len(a) == len(b) and all(map(same, a, b))
+    if isinstance(a, Expr) and isinstance(b, Expr): return a is b
+    if isinstance(b, Expr): a, b = b, a
+    return bitvec.is_const(a) and isinstance(b, int) and a.args[0] == b & bitvec.mask(a.w) if isinstance(a, Expr) else a == b
+
+
+def definition(name):
+    """A defined operator: a call builds `op(label, *arguments)`, which a consumer sees as one
+    operation and backends compute by its expansion (bitvec.lowered: the function, staged like a
+    helper, applied to the arguments). `name` is a template over parameters that are plain values,
+    which are then not arguments, or namer(arguments) -> (label, kept parameter names) for an
+    operation named by its constant decode-time arguments: the others must be the same in every call
+    of one label and operand count (checked), since the label stands for them. Tuple arguments
+    (Dest, Rounding) are their fields. The docstring's first paragraph describes it."""
+    def register(fn):
+        staged, signature = rewrite(fn), inspect.signature(fn)
+        description = " ".join(inspect.getdoc(fn).split("\n\n")[0].split())
+        fields = {f for _, f, _, _ in string.Formatter().parse(name) if f} if isinstance(name, str) else set()
+        widths = {}
+        def defined(*args, **kwargs):
+            bound = signature.bind(*args, **kwargs); bound.apply_defaults()
+            arguments = bound.arguments
+            if isinstance(name, str): label, kept = name.format(**{f: arguments[f] for f in fields}), [k for k in arguments if k not in fields]
+            else: label, kept = name(arguments)
+            fixed = {k: v for k, v in arguments.items() if k not in kept}
+            shapes = [(k, type(arguments[k]), len(arguments[k])) if isinstance(arguments[k], tuple) else (k, None, 1) for k in kept]
+            operands = [x for k in kept for x in (arguments[k] if isinstance(arguments[k], tuple) else (arguments[k],))]
+            if label not in DEFINITIONS:
+                if label in bitvec.OPS or label in BUILTIN: raise TypeError(f"{label} is an IR operator")
+                DEFINITIONS[label] = fn, {}
+                bitvec.DEFINED[label] = bitvec.Definition(expander(staged, DEFINITIONS[label][1]), description)
+            owner, forms = DEFINITIONS[label]
+            if owner is not fn: raise TypeError(f"{label} names {owner.__name__} and {fn.__name__}")
+            known, known_shapes = forms.setdefault(len(operands), (fixed, shapes))
+            if known_shapes != shapes or known.keys() != fixed.keys() or not all(same(known[k], fixed[k]) for k in fixed):
+                raise TypeError(f"{label} doesn't determine {fn.__name__}'s arguments: {known} and {fixed}")
+            key = (label, *(x.w if isinstance(x, Expr) else None for x in operands))
+            if key not in widths: widths[key] = staged(**arguments).w
+            return bitvec.op(label, *operands, w=widths[key])
+        defined.__name__, defined.__wrapped__, defined.body = fn.__name__, fn, staged
+        return defined
+    return register
+
+
+BUILTIN = {"const", "param", "reg", "load", "ite", "sel", "primitive", "tuple"}
+
+
+@definition(lambda a: (f"abs.f{a['x'].w}", ["x"]))
+def float_abs(x):
+    """PTX abs on a float: its sign bit cleared."""
+    return x & ((1 << x.w - 1) - 1)
+
+
+@definition(lambda a: (f"neg.f{a['x'].w}", ["x"]))
+def float_neg(x):
+    """PTX neg on a float: its sign bit flipped."""
+    return x ^ (1 << x.w - 1)
+
+
+def expander(staged, forms):
+    """The expansion of a label's operands: the fixed arguments of its form (by operand count) and
+    the kept ones rebuilt."""
+    def expand(*operands):
+        fixed, shapes = forms[len(operands)]
+        rest, kept = list(operands), {}
+        for k, t, n in shapes:
+            if t is None: kept[k] = rest.pop(0)
+            else: kept[k], rest = (t._make if hasattr(t, "_make") else t)(rest[:n]), rest[n:]
+        return staged(**fixed, **kept)
+    return expand
+
+
 # ---- md facts about a class -------------------------------------------------------------------
 
 MODIFIERS = ("negate", "absolute", "invert", "not")
@@ -211,7 +303,7 @@ REG_TYPES = {"Register": "R", "NonZeroRegister": "R", "ZeroRegister": "R",
 
 @cache
 def roles(arch_name):
-    return {r["cls"]: r for p in (parse.OUT / arch_name / "semantics").glob("*.json") for r in json.loads(p.read_text())}
+    return {r["cls"]: r for p in (parse.MD / arch_name / "semantics").glob("*.json") for r in json.loads(p.read_text())}
 
 
 def compound(k):
@@ -224,14 +316,31 @@ def compound(k):
 @cache
 def predicates(arch_name):
     """md PREDICATES per class (IDEST_SIZE, ISRC_A_SIZE, ...; bits)."""
-    return {c["cls"]: c["preds"] for c in parse.load_classes(parse.OUT / arch_name)}
+    return {name: c["preds"] for name, c in parse.arch_classes(arch_name).items()}
 
 
 def constant_width(arch_name, cls, name):
     """Bits of a constant-bank operand's value: its source slot's md ISRC_<slot>_SIZE (Sc:
-    ISRC_C_SIZE; corrected md errors in src/sass/md/fixes.py), else 32."""
+    ISRC_C_SIZE; corrected md errors in src/sass/md/fixes.py), else 32. A CX operand's md size is
+    its 64-bit header's, so its value has the width of the same operand in the class group's
+    c[][] form (IMAD.WIDE's cx[][] addend: 64 bits, SM89 GPU)."""
+    if getattr(md_classes(arch_name)[cls].operand_types.get(name), "type", None) == "CX":
+        direct = direct_constant(arch_name, cls, name)
+        return constant_width(arch_name, direct, name) if direct else 32
     size = predicates(arch_name).get(cls, {}).get(f"ISRC_{name[-1].upper()}_SIZE") if name[:1] == "S" else None
     return size if size in (32, 64) else 32
+
+
+@cache
+def md_classes(arch_name): return {k.name: k for k in ir.load(arch_name).classes}
+
+
+@cache
+def direct_constant(arch_name, cls, name):
+    """The class in `cls`'s md group (its name before "__") whose operand `name` is a c[][] constant."""
+    group = cls.split("__")[0]
+    return next((k.name for k in md_classes(arch_name).values() if not k.alternate and k.name.split("__")[0] == group
+                 and getattr(k.operand_types.get(name), "type", None) == "C"), None)
 
 
 @cache
@@ -256,12 +365,13 @@ def encoded(k):
 
 
 class Label(str):
-    """An enum label; comparisons check the other side is a label this operand has somewhere."""
-    def __new__(cls, label, names, operand):
-        s = super().__new__(cls, label); s.names, s.operand = names, operand; return s
+    """An enum label; comparisons check the other side is a label this operand has somewhere: in its
+    own enum (`labels`), else on any architecture (which loads every one, so only then)."""
+    def __new__(cls, label, names, operand, labels):
+        s = super().__new__(cls, label); s.names, s.operand, s.labels = names, operand, labels; return s
 
     def check(self, other):
-        if other not in operand_labels(self.operand):
+        if other not in self.labels and other not in operand_labels(self.operand):
             raise ValueError(f"{other!r} is not a label of any {self.operand} operand on any architecture")
 
     def __eq__(self, other):
@@ -327,7 +437,7 @@ class Instruction:
     def width(self, names):
         name = self.resolve(names); a = self.atom(name)
         if a.type in REG_TYPES: return self.span(name) * (1 if REG_TYPES[a.type] in ("P", "UP") else 32)
-        if a.type == "C": return constant_width(self.arch.name, self.cls, name)
+        if a.type in ("C", "CX"): return constant_width(self.arch.name, self.cls, name)
         if a.type == "PR": return PR_BITS
         bits = int((a.args.split("/")[0] or "32").split(",")[0]) if a.args and a.type.endswith("Imm") else 32
         return {"F16Imm": 16, "F32Imm": 32, "F64Imm": 64}.get(a.type, 64 if bits > 32 else 32)
@@ -355,7 +465,7 @@ class Instruction:
         elif len(set(enum.values())) == 1: v = next(iter(enum.values()))
         else: raise KeyError(f"{self.cls}.{name} is neither encoded nor defaulted")
         names_of = [l for l, x in self.arch.enum_defs[a.type] if x == v]
-        return Label(self.arch.rev_enums[a.type][v], frozenset(names_of), name)
+        return Label(self.arch.rev_enums[a.type][v], frozenset(names_of), name, enum.keys())
 
     def default(self, names): return self.atom(self.resolve(names)).default
 
@@ -385,6 +495,15 @@ class Instruction:
 
     def choice_bits(self, name, lo, bits, table):
         raise NotImplementedError
+
+    def select_in(self, names, labels):
+        """Whether the selector's label is one of `labels`: one fork for the set, not one per label
+        (a select_lookup among them then shares a body)."""
+        name = self.resolve(names); a = self.atom(name)
+        enum = self.arch.enums[a.type]
+        self.asked.add(name)
+        if name not in self._encoded: return self.select_fork(name) in labels
+        return bool(self.answer(("in", name, frozenset(enum[l] for l in labels if l in enum)), (True, False)))
 
     def select_lookup_const(self, names, table, w=32):
         """A w-bit number chosen by a selector's label (format constants, rounding-mode flags):
@@ -490,9 +609,8 @@ class Instruction:
         name = self.resolve(names); self.asked.add(name)
         v = self.operand(name, width or self.width(name))
         if not modifiers: return v
-        sign = 1 << v.w - 1
-        v = self.modified(name, "absolute", v, lambda x: x & (sign - 1))
-        return self.modified(name, "negate", v, lambda x: x ^ sign)
+        v = self.modified(name, "absolute", v, float_abs)
+        return self.modified(name, "negate", v, float_neg)
 
     def pred(self, names, modifiers=True):
         name = self.resolve(names); self.asked.add(name)

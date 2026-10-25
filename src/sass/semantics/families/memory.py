@@ -44,9 +44,9 @@ def descriptor(i):
     policy that never changes the value accessed (SM89 GPU, docs/hardware-facts.md)."""
     if not i.has_operand("memoryDescriptor"): return []
     i.ignore("memoryDescriptor")
-    # SM75-SM89 select the implicit descriptor of ordinary CUDA pointers (noexp_desc) or URx (EXP);
-    # SM90+ always name URx. The implicit form passes 0 (SM89's c[0x0][0x118]), keeping one effect shape.
-    if i.has_operand("e_desc") and i.select_fork("e_desc") == "noexp_desc": return [effect("sass_memory_descriptor", const(0, 64))]
+    # SM89 reads the selected UR pair even when noexp_desc hides it in the
+    # disassembly. A range descriptor can trap with either value of bit 101.
+    if i.has_operand("e_desc"): i.ignore("e_desc")
     return [effect("sass_memory_descriptor", i.value(i.resolve("Ra_URb|Ra_URc"), modifiers=False))]
 
 
@@ -98,7 +98,9 @@ def routed_stores(i, space, addr, value, cond=None):
     return [*stores, store(*last, value, both(outside))]
 
 
-@family("LDG", "STG", "LDS", "STS", "LDL", "STL", "LDC", "LDCU", "LD", "ST")
+@family("LDG", "STG", "LDS", "STS", "LDL", "STL", "LDC", "LDCU", "LD", "ST",
+        modifier_roles={"cop": "hint", "cop2": "hint", "sp2": "hint",
+                        "sem": "effect", "sco": "effect", "private": "effect"})
 def memory(i):
     """Rd = sz bits at the address (sign- or zero-extended), or store Rb's low sz bits there; LDC
     (LDCU into URd) reads constant bank Sa_bank at the low 32 bits of the address. LD/ST route a

@@ -138,11 +138,11 @@ def test_exact_tables_and_shared_fields():
     md = ir.load('SM89')
     k = next(c for c in md.classes if c.mnemonic == 'MOV' and c.name == 'mov__RR')
     with pytest.raises(ValueError, match='outside'):
-        encoding.encode(md, k, {'Rd': 256, 'Ra': 0})
+        encoding.encode_class(md, k, {'Rd': 256, 'Ra': 0})
     f = ir.Field('shared', ((7, 0),))
     k = replace(k, rules=[(f, ('table', 'IDENTICAL', (('op', 'a', 1, None), ('op', 'b', 1, None))))])
     with pytest.raises(ValueError, match='IDENTICAL'):
-        encoding.encode(md, k, {'a': 1, 'b': 2})
+        encoding.encode_class(md, k, {'a': 1, 'b': 2})
 
 
 def test_machine_description_roundtrips(assembler_arch):
@@ -294,12 +294,23 @@ def test_cli(tmp_path):
     assert output.read_bytes() == b'keep on failure'
 
 
+def test_module_constant_banks():
+    kernel = '.target SM89\n.kernel first\n.registers 8\n.constant 3, "78563412"\nMOV R0, c[3][0]; EXIT;\n.endkernel\n'
+    other = kernel.replace('first', 'second')
+    image = assemble_cubin(kernel + other)
+    assert cubin.kernel_image(image, 'first')['constants'][3] == bytes.fromhex('78563412')
+    assert cubin.kernel_image(image, 'second')['constants'][3] == bytes.fromhex('78563412')
+    with pytest.raises(AssemblyError, match='module-wide'):
+        assemble_cubin(kernel + other.replace('78563412', '01000000'))
+
+
 @pytest.mark.gpu
 def test_native_cubin_on_gpu(request):
     """Execute native entry points without compiling or patching any cubin template."""
     from tests.harness import gpu
+    if gpu.target(request.config) is None: pytest.skip(request.config._gpu_unavailable)
     try:
-        driver = gpu.Driver()
+        driver = gpu.Driver(gpu.target(request.config))
     except (OSError, RuntimeError) as exc:
         if request.config.getoption('--require-gpu'):
             raise
@@ -323,13 +334,17 @@ STG.E [R2.64], R6;''')
 S2R R5, SR_CTAID.Z @sched(dst_wr_sb=0);
 IMAD.WIDE.U32 R2, R5, 4, R2;''')
     empty = '.kernel empty\n.registers 4\nEXIT;\n.endkernel\n'
-    data = assemble_cubin(SIMPLE + loop + constant + shared + dynamic + cta + empty)
+    module_constant = constant.replace('constant_value', 'module_constant_value').replace('.constant 2,', '.constant 3,').replace('c[2][0]', 'c[3][0]')
+    from sass import launch
+    text = (SIMPLE + loop + constant + module_constant + shared + dynamic + cta + empty).replace('0x118', hex(launch.GLOBAL_DESCRIPTOR[driver.arch]))
+    if driver.arch == "SM90": text = text.replace(".64]", "]")
+    data = assemble_cubin(text.replace(".target SM89", ".target " + driver.arch))
     module = ctypes.c_void_p(); pointer = ctypes.c_uint64()
     try:
         driver.call('cuModuleLoadData', ctypes.byref(module), ctypes.c_char_p(data))
         driver.call('cuMemAlloc_v2', ctypes.byref(pointer), ctypes.c_size_t(12))
         for name, expected, dynamic_bytes in [('write_value', 19, 0), ('loop_value', 22, 0),
-                                               ('constant_value', 0x12345678, 0), ('shared_value', 19, 0),
+                                               ('constant_value', 0x12345678, 0), ('module_constant_value', 0x12345678, 0), ('shared_value', 19, 0),
                                                ('dynamic_value', 19, 4)]:
             fn = ctypes.c_void_p(); value = ctypes.c_uint32(19)
             driver.call('cuModuleGetFunction', ctypes.byref(fn), module, name.encode())
@@ -357,3 +372,15 @@ IMAD.WIDE.U32 R2, R5, 4, R2;''')
         if module.value:
             driver.call('cuModuleUnload', module)
         driver.close()
+
+
+@pytest.mark.parametrize('permissive', [False, True])
+def test_starred_literals_are_written(permissive):
+    word = encoding.word('SM89', 'imad__RRR_RRR', permissive=permissive)
+    assert word >> 81 & 7 == 7
+
+
+def test_permissive_truncates_where_strict_raises():
+    with pytest.raises(ValueError, match='outside'):
+        encoding.encode('SM89', 'mov__RR', Rd=256)
+    assert encoding.encode('SM89', 'mov__RR', Rd=256, permissive=True) == encoding.encode('SM89', 'mov__RR', Rd=0, permissive=True)

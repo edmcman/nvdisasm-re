@@ -1,10 +1,9 @@
 """Operand values for p-code, independent of assembly display.
 
-The opaque ABI is (register and immediate inputs...).
-Primitive calls add the class ordinal and decoded scalar inputs. Modifiers and
+The opaque ABI is (register and immediate inputs...). Modifiers and
 scheduling operands without value semantics stay in the instruction bytes.
 The coverage manifest records names and widths in that order. Unknown stateful
-operands are explicit runtime primitives, never fabricated constants.
+operands are explicit runtime calls (sass_operand_value), never fabricated constants.
 """
 from dataclasses import dataclass
 import re
@@ -35,7 +34,7 @@ class Value:
 
 class Builder:
     def __init__(self, gen, klass, guard, spans, known={}):
-        from sass.sleigh.gen import ENUM_FILE, REG_FILES
+        from sass.sleigh.registers import ENUM_FILE, REG_FILES
         self.g, self.k, self.spans, self.known = gen, klass, spans, known
         self.body = [f'build {guard};'] if guard else []
         self.refs, self.values, self.outputs, self.inventory = [], {}, {}, []
@@ -195,25 +194,15 @@ class Builder:
         return Value(sym, size, 'decoded')
 
     def converted_immediate(self, atom, src, size, conv):
-        from sass.sleigh.gen import pattern, pieces, eq
-        from itertools import product
-        parts = [p.strip() for p in conv.split(',')]
-        names = sorted({c.split('==')[0].strip() for p in parts[0:-1:2] for c in p.split('||')})
-        sources = [self.g.source(self.k,n) for n in names]
-        if any(s is None or s[0]!='field' for s in sources): return self.unknown(atom,size)
-        cons = []
-        f = src[1]
+        from sass.sleigh.gen import pattern, pieces
+        formats = self.g.float_formats(self.k, conv)
+        if formats is None: return self.unknown(atom,size)
         rawrefs, expr, shift = [], None, 0
-        for tok,lo,hi,width in reversed(pieces(f)):
+        for tok,lo,hi,width in reversed(pieces(src[1])):
             field=self.g.field(tok,lo,hi,'_sem');rawrefs.append((tok,field))
             expr=field if expr is None else f'({field} << {shift}) | ({expr})';shift+=width
-        for combo in product(*(range(1<<s[1].width) for s in sources)):
-            env={n:v*s[2] for n,s,v in zip(names,sources,combo)}
-            kind=pydecode.float_kind(self.g.arch,env,conv)
-            clauses=[c for s,v in zip(sources,combo) for c in eq(self.g,s[1],v)]
-            # F16/E8M7/E6M9 are packed 16-bit values, F64 supplies its high word.
-            val=f'({expr}) << 32' if kind=='F64' else expr
-            cons.append(('t',pattern(clauses,rawrefs),f' [ t = inst_start * 0 + ({val}); ]',f'export *[const]:{size} t;'))
+        cons=[('t',pattern(clauses,rawrefs),f' [ t = inst_start * 0 + ({f"({expr}) << 32" if kind=="F64" else expr}); ]',f'export *[const]:{size} t;')
+              for clauses,kind in formats]
         sym=self.g.subtable('v',cons);self.refs.append(('sub',sym))
         return Value(sym,size,'float-bits')
 
@@ -236,7 +225,7 @@ class Builder:
         from sass.semantics.family import constant_width
         from sass.semantics.operations import ghidra_family, ghidra_lowers
         atom=self.k.operand_types.get(name)
-        if atom and atom.type=='C' and ghidra_family(self.g.arch.name, self.k):return constant_width(self.g.arch.name,self.k.name,name)//8
+        if atom and atom.type in ('C','CX') and ghidra_family(self.g.arch.name, self.k):return constant_width(self.g.arch.name,self.k.name,name)//8
         if self.k.mnemonic=='MOV':
             rd=next((o for o in self.g.roles.get(self.k.name,{}).get('operands',[]) if o['name']=='Rd'),{})
             if isinstance(rd.get('span'),int):return 4*rd['span']
@@ -334,11 +323,10 @@ class Builder:
         """The pattern reference (('sub', table) or (token, field)) a symbol needs, if any."""
         return next((r for r in self.refs if r[1] == symbol), None)
 
-    def call(self, prefix='opaque'):
-        stem='sass_'+prefix+'_'+re.sub(r'\W','_',self.k.mnemonic)
-        args=[] if prefix=='opaque' else [f'{self.k.order}:4']
-        used=[v.symbol for n,v in self.values.items() if prefix!='opaque' or self.opaque_input(n,v)]
-        args += used
+    def call(self):
+        """The opaque call: every register and immediate input, every output assigned its result."""
+        stem='sass_opaque_'+re.sub(r'\W','_',self.k.mnemonic)
+        args=used=[v.symbol for n,v in self.values.items() if self.opaque_input(n,v)]
         self.g.pcodeops.add(stem)
         call=f'{stem}({", ".join(args)})'
         kind,target=self.flow()
@@ -372,8 +360,6 @@ class Builder:
 
     def finish(self, status, reason=''):
         variant=dict(spans=self.spans,inputs=list(self.values),outputs={n:v.size for n,v in self.outputs.items()})
-        runtime=self.g.runtime.setdefault(self.k.name,dict(cls=self.k.name,variants=[]))
-        if variant not in runtime['variants']:runtime['variants'].append(variant)
         if self.g.collect_coverage:
             row=self.g.coverage.setdefault(self.k.name,dict(cls=self.k.name,opcode=self.k.mnemonic,
                   status=status,reason=reason,operands=self.inventory,
@@ -385,6 +371,10 @@ class Builder:
             found=modifiers.combinations(self,self.rows or [({},status)])
             row['combinations']=modifiers.merge(row['combinations'],found) if 'combinations' in row else found
             row['modifiers']=modifiers.value_statuses(row['combinations'])
+            from sass.semantics.family import family_for
+            fam = family_for(self.k)
+            row['modifier_roles'] = {n: role for n, role in getattr(fam, 'modifier_roles', {}).items()
+                                     if n in row['combinations']['labels']}
             row['raw_bits_preserved']=True
             row['flow']={n:v for n,v in self.g.props.get(self.k.name,{}).items() if n.startswith('BRANCH_')}
             if variant not in row.setdefault('variants',[]):row['variants'].append(variant)

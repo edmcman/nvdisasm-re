@@ -219,7 +219,14 @@ def gpu_output(name, op, sz, a, b, c):
 def float_same(sz):
     """Emulated and reference outputs equal, the final cell compared NaN-blind (the semantics don't
     model NaN payloads, docs/semantics.md)."""
-    from tests.harness.scalar import nan, same_halves
+    from tests.refs.bits import nan16
+    # Preserve the draft's comparison contract after scalar removed these helpers.
+    def nan(x, width):
+        exponent, mantissa = (0x7ff0000000000000, 0xfffffffffffff) if width == 64 else (0x7f800000, 0x7fffff)
+        return x & exponent == exponent and x & mantissa != 0
+    def same_halves(got, want):
+        return all(((got >> s) & 0xffff) == ((want >> s) & 0xffff) or
+                   nan16(got >> s & 0xffff) and nan16(want >> s & 0xffff) for s in (0, 16))
     match sz:
         case "F32.FTZ.RN": return lambda e, w: e & 0xffffffff == w & 0xffffffff and (e >> 32 == w >> 32 or nan(e >> 32, 32) and nan(w >> 32, 32))
         case "F16x2.RN": return lambda e, w: e & 0xffffffff == w & 0xffffffff and same_halves(e >> 32, w >> 32)
@@ -227,20 +234,22 @@ def float_same(sz):
     return lambda e, w: e == w
 
 
-def gpu_fixtures():
+def gpu_fixtures(arch="SM89"):
     import struct
     from sass.semantics.operations import ghidra_lowers
     from tests.harness.gpu import Fixture, compile
-    image = compile("atomic_semantics", "-diag-suppress=177,550")
+    image = compile("atomic_semantics", "-diag-suppress=177,550", arch=arch)
     out = []
     for name, (op, sz, target) in KERNELS.items():
         vs, w = gpu_vectors(name, op, sz), width(sz)
         out.append(Fixture(name=f"atom_{name}", image=image, kernel=f"atom_{name}", data=b"".join(struct.pack("<QQQ" if w == 64 else "<III", *v) for v in vs),
                            expected=[gpu_output(name, op, sz, *v) for v in vs], input_size=w // 8, output_size=8, targets=(target,),
                            emulator_same=float_same(sz), vectors=vs,
-                           modes=("exact",) if ghidra_lowers("SM89", target.split(".")[0]) else ()))   # SM89's language leaves it opaque
+                           modes=("exact",) if ghidra_lowers(arch, target.split(".")[0]) else ()))   # SM89's language leaves it opaque
     return out
 
 
 def emulator_cases(c):
     for build in (integers, floats, compare_and_swap, aliasing, generic, address_forms, unmodelled, illegal): build(c)
+    c[:] = [case._replace(hardware=dict(skip="Atomic memory probes use the whole-kernel GPU fixtures; the shared memory adapter does not support atomics."))
+            for case in c]

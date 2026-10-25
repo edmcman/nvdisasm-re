@@ -2,7 +2,9 @@
 scheduling hints (FADD's `ftz`, `rnd`, `sat`), and `operand@flag` per operand flag (`Ra@negate`),
 set or unset. A form is one combination of their values. Shared by the generator (each value's
 semantics status), tests/evidence.py (the forms the tests ran) and the coverage report."""
-import itertools, math
+import itertools, json, math
+from collections import defaultdict
+from functools import cache
 from sass.decode import ir
 from sass.md import expression, legal
 
@@ -84,13 +86,41 @@ def labelled(b, rows):
 
 
 def conditions(b, dom):
-    """The class's md error conditions that read only its modifiers, and the modifiers they read:
-    the legal combinations (F2FP: srcfmt F32 only with dstfmt F16, E6M9 or BF16)."""
+    """The class's md error conditions that read only its modifiers, as (keys read, the legal value
+    tuples of those keys), and every modifier they read: the legal combinations (F2FP: srcfmt F32
+    only with dstfmt F16, E6M9 or BF16)."""
     out, read = [], set()
     for _, expr, _ in legal.operand_errors(b.g.arch.name, b.k):
         names = {expression.env_key(n) for n in expression.condition_source(b.g.arch.name, expr)[1]}
-        if names and names <= dom.keys(): out.append(expr); read |= names
+        if names and names <= dom.keys():
+            keys = tuple(key for key in dom if key in names)
+            out.append((keys, holding(b.g.arch.name, expr, tuple((key, tuple(dom[key].values())) for key in keys))))
+            read |= names
     return out, read
+
+
+@cache
+def holding(arch_name, expr, domains):
+    """The value tuples over `domains` ((key, values) per modifier the condition reads) for which
+    md condition `expr` holds. Each condition reads a few modifiers, so checking a combination's
+    projections replaces evaluating every condition on every combination (SUATOM: 84k)."""
+    arch, keys = ir.load(arch_name), [key for key, _ in domains]
+    return frozenset(vs for vs in itertools.product(*(values for _, values in domains))
+                     if expression.holds(arch, expr, dict(zip(keys, vs))))
+
+
+def legal_product(choices, checks):
+    """itertools.product(*choices) of (label, value) pairs, in its order, keeping the tuples whose
+    values pass every check (positions, legal value tuples). Each check prunes as soon as its last
+    position is chosen: SUATOM's 1.6M combinations have 84k legal ones."""
+    due = [[] for _ in choices]
+    for at, legal in checks: due[max(at)].append((at, legal))
+    def walk(i, chosen, values):
+        if i == len(choices): yield chosen; return
+        for choice in choices[i]:
+            vs = values + (choice[1],)
+            if all(tuple(vs[j] for j in at) in legal for at, legal in due[i]): yield from walk(i + 1, chosen + (choice,), vs)
+    return walk(0, (), ())
 
 
 def combinations(b, rows):
@@ -99,13 +129,16 @@ def combinations(b, rows):
     some md condition reads; each entry stands for `free` combinations of the other modifiers, which
     change neither. Combinations only illegal rows admit are left out too."""
     dom, rows = labelled(b, rows)
-    exprs, read = conditions(b, dom)
+    checks, read = conditions(b, dom)
     decides = [key for key in dom if key in read or any(not admits(a, key, v) for a, _ in rows for v in dom[key].values())]
+    # Per row, the values it admits of each deciding modifier it restricts (by position in decides).
+    restricts = [(s, [(i, {v for v in dom[key].values() if admits(a, key, v)}) for i, key in enumerate(decides)
+                      if not all(admits(a, key, v) for v in dom[key].values())]) for a, s in rows]
+    checks = [(tuple(decides.index(key) for key in keys), legal) for keys, legal in checks]
     table = []
-    for labs in itertools.product(*(dom[key].items() for key in decides)):
-        env = {key: v for key, (_, v) in zip(decides, labs)}
-        if not all(expression.holds(b.g.arch, e, env) for e in exprs): continue
-        if ss := {s for a, s in rows if all(admits(a, key, v) for key, v in env.items())}:
+    for labs in legal_product([list(dom[key].items()) for key in decides], checks):
+        vs = tuple(v for _, v in labs)
+        if ss := {s for s, allowed in restricts if all(vs[i] in values for i, values in allowed)}:
             table.append([*(lab for lab, _ in labs), combined(ss)])
     labels = {name(k): list(dom[k]) for k in dom}
     return minimal(dict(labels=labels, decides=[name(k) for k in decides], table=table,
@@ -153,3 +186,48 @@ def merge(a, b):
     order = lambda labs: [labels[m].index(l) for m, l in zip(decides, labs)]
     return minimal(dict(labels=labels, decides=decides, free=math.prod(len(labels[m]) for m in labels if m not in decides),
                         table=[[*labs, combined({s for s in (ea.get(labs), eb.get(labs)) if s})] for labs in sorted(ea.keys() | eb.keys(), key=order)]))
+
+
+DIGITS = "0123456789abcdefghijklmnopqrstuvwxyz"
+
+
+def compact(e):
+    """A class's evidence as committed in evidence.json: each modifier's labels once, and each form a
+    string of label indices (one digit per modifier) under the evidence kinds that ran it
+    ("gpu+reference"), rather than every kind's rows of labels, which reached 86 MB (2026-10-23)."""
+    if "forms" not in e: return e
+    rows = defaultdict(set)
+    for kind, fs in e["forms"].items():
+        for f in fs: rows[tuple(f)].add(kind)
+    labels = [sorted({f[i] for f in rows}, key=json.dumps) for i in range(len(e["modifiers"]))]
+    if any(len(ls) > len(DIGITS) for ls in labels): raise ValueError("a modifier has more labels than form digits")
+    index, forms = [{l: DIGITS[j] for j, l in enumerate(ls)} for ls in labels], defaultdict(list)
+    for f, kinds in rows.items(): forms["+".join(sorted(kinds))].append("".join(index[i][l] for i, l in enumerate(f)))
+    out = {**e, "labels": labels, "forms": {k: sorted(v) for k, v in forms.items()}}
+    if "verification_forms" in e:
+        positive = defaultdict(set)
+        for kind, fs in e["verification_forms"].items():
+            for f in fs: positive[tuple(f)].add(kind)
+        encoded = defaultdict(list)
+        for kind in e["verification_forms"]: encoded[kind] = []
+        for f, kinds in positive.items():
+            encoded["+".join(sorted(kinds))].append("".join(index[i][l] for i, l in enumerate(f)))
+        out["verification_forms"] = {k: sorted(v) for k, v in encoded.items()}
+    return out
+
+
+def expand(e):
+    """The {kind: [[label per modifier]]} forms of a compact() entry, as tests/evidence.py writes them."""
+    if "labels" not in e: return e
+    result = {k: v for k, v in e.items() if k != "labels"}
+    for collection in ("forms", "verification_forms"):
+        if collection not in e: continue
+        out = defaultdict(list)
+        for kinds, fs in e[collection].items():
+            for f in fs:
+                for k in kinds.split("+"): out[k].append([e["labels"][i][DIGITS.index(c)] for i, c in enumerate(f)])
+        # Preserve explicitly empty positive collections.
+        for kinds in e[collection]:
+            for k in kinds.split("+"): out.setdefault(k, [])
+        result[collection] = {k: sorted(v, key=json.dumps) for k, v in sorted(out.items())}
+    return result

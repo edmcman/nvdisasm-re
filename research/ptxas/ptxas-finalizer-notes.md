@@ -656,7 +656,7 @@ assignment `BITS_1_75_75_relu=cw`; `relu` is merely the shared field's name.
 `CWMode` defines `C=0`, `W=1`.
 
 The committed probes and complete captures are
-`tests/ptx/bmsk/bmsk_clamp.ptx` / `bmsk_clamp_finalizer.jsonl` and
+`tests/ptx/bmsk/bmsk_clamp.ptx` / `research/ptxas/bmsk_clamp_finalizer.jsonl` and
 `tests/ptx/bmsk/bmsk_wrap.ptx` / `bmsk_wrap_finalizer.jsonl`. Each capture's 24 words (384
 bytes) was checked against the cubin produced by that same SM100 compiler run
 using `validate_capture.py`. The arithmetic words, in little-endian byte order:
@@ -959,3 +959,58 @@ Ghidra.
   class's only mnemonic. 812 handlers have none. A handler whose rows differ
   is `..._shared_<n>_rows`. The 45 names that would collide get the address
   appended.
+
+## Register-allocator verifier and the P2R-R2P pattern (2026-10-16)
+
+Looking for ptxas code that writes P2R into a non-RZ base. Addresses are for
+the CUDA 13.0.88 ptxas in Ghidra (image base 0x400000, so the strings at file
+offsets 0x1deffd0 and 0x1df0038 are at 0x21effd0 and 0x21f0038). The functions
+below are renamed in the Ghidra project.
+
+- `ra_verify_instruction` (`0xa75cc0`) checks each vreg source operand
+  (kind 1, not a DEF, id not in 0x29..0x2c) of an instruction after
+  allocation. It compares the operand's producers before allocation
+  (ctx+0x268/0x298) with those after (ctx+0x280) through
+  `ra_verify_match_operand` (`0xa75220`). On failure it calls
+  `ra_verify_report_operand_problem` (`0xa55d80`), which prints the producer
+  lists, "Additions"/"Removals" (BENIGN or POTENTIAL PROBLEM) and one line per
+  problem record, then "Please use -knob DUMPIR=AllocateRegisters". DUMPIR is
+  OCG knob 0x10a.
+- `ra_verify_trace_operand_producers` (`0xa73f30`) walks from an operand's use
+  back through spill/refill, rematerialization and predicate-save code to the
+  original definitions. It records problems with `ra_verify_add_problem`
+  (`0xa55c00`): it allocates a 0x38-byte record with the code at +0x18 and the
+  instruction at +0x20 (+0x28 is the old instruction for code 7) and appends
+  it to ctx+0x228.
+
+  | Code | Problem |
+  |---|---|
+  | 1 | no spill matches a refill |
+  | 2 | a refill reads possibly uninitialized memory |
+  | 3 | no P2R-R2P match |
+  | 4 | no bit-spill-refill match |
+  | 5 | an uninitialized value reaches the operand |
+  | 6 | extra defs |
+  | 7 | rematerialization mismatch |
+  | 8 | an instruction destroys the base of a P2R-R2P pattern |
+  | 9 | an instruction destroys the base of a bit-spill pattern |
+  | 10 | original defs disappeared |
+- `ra_is_p2r_r2p_pattern_op` (`0xa57590`) is true for ORI opcodes 0xad and
+  0x10b (after masking the 0x3000 flag bits); code 8 is raised at 0xa7425b
+  when such an instruction's base check (`FUN_00a56f80`) fails.
+  `ra_is_bit_spill_pattern_op` (`0xa57610`) is the same test for 0x9b and
+  0x10c. Which of each pair is the save and which the restore is unresolved.
+- The "base" of a P2R-R2P pattern is a GPR that a later instruction must not
+  overwrite between save and restore. So the allocator does have a strategy
+  that keeps predicates in a live GPR. It never appeared in output: PTX and
+  CUDA kernels on SM75/89/90/100 with up to 40 live predicates, calls to
+  extern functions, `-maxrregcount` 16-48 and `-O0`..`-O3` gave only
+  `P2R Rd, PR, RZ, mask` (one predicate per register, in effect `selp`);
+  `research/ptxas/p2r_base_probe.py` reproduces this.
+  The bit-spiller (`RegAllocSpillBit*` knobs) packs predicates with
+  `LOP3 R, R, ~bit, RZ, 0xc0` and `@P LOP3 R, R, bit, RZ, 0xfc` instead.
+  The 17,580 P2Rs in the SM89 SASS of cuSPARSE, cuSOLVER and NPP
+  (`libnppif`) all have RZ bases. The knob or condition that selects the
+  P2R-R2P strategy is not found.
+- The merge rule was settled on the GPU instead (`docs/hardware-facts.md`,
+  2026-10-16).

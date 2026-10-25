@@ -17,7 +17,7 @@ from collections import defaultdict
 from dataclasses import dataclass, replace
 from sass.semantics import bitvec
 from sass.semantics.bitvec import Expr
-from sass.semantics.family import Primitive, Instruction, Illegal, Unmodelled, PR_BITS, REG_TYPES, family_for
+from sass.semantics.family import Instruction, Illegal, Unmodelled, PR_BITS, REG_TYPES, family_for, primitive_names
 import sass.semantics.families  # registers the families
 
 ELEMENT = {"R": 32, "UR": 32, "P": 1, "UP": 1}   # bits per register element
@@ -56,13 +56,22 @@ class Symbolic(Instruction):
         return bitvec.param(name, width)
 
     def modified(self, name, attr, v, f):
-        # A decode-time choice of this value, not a branch of every row on the bit; except for a
-        # loaded operand, whose load each choice table would repeat (rows keep it in one body).
+        # A decode-time choice of this value, not a branch of every row on the bit. A value holding
+        # a loaded operand would repeat its load in each choice table: a mask modifier (v & K, v ^ K,
+        # v | K: |x|, -x) then chooses its constant instead, applied to the one load; any other forks
+        # the rows (each keeps the load in one body).
         key = (name, attr)
         if key not in self._encoded: return v
-        if getattr(self.b.values.get(name), "kind", None) in LOADS: return super().modified(name, attr, v, f)
+        choose = lambda x, fx: [((bit,), t) for bit, t in ((0, x), (1, fx)) if clauses(self.b, key, bit) is not None]
+        if holds_load(self.b, v):
+            placeholder = bitvec.param("__modified", v.w)
+            t = bitvec.lowered(f(placeholder))   # a defined modifier (abs.f32) as its mask
+            if t.op not in MASKS or t.args[0] is not placeholder or not bitvec.is_const(t.args[1]): return super().modified(name, attr, v, f)
+            self.asked.add(key)
+            cases = choose(bitvec.const(MASKS[t.op], v.w), t.args[1])
+            return bitvec.op(t.op, v, cases[0][1] if len(cases) == 1 else sel((key,), cases, v.w))
         self.asked.add(key)
-        cases = [((bit,), t) for bit, t in ((0, v), (1, f(v))) if clauses(self.b, key, bit) is not None]
+        cases = choose(v, f(v))
         return cases[0][1] if len(cases) == 1 or cases[0][1] is cases[-1][1] else sel((key,), cases, v.w)
 
     def span(self, name):
@@ -176,17 +185,49 @@ def constant_slices(b, e):
     return e
 
 
+def without_nan_results(e, memo):
+    """e with each nanresult(r, nan) as r, choice arms included: the readable lowering keeps
+    Ghidra's NaN bits, and so never computes the GPU's NaN."""
+    if not isinstance(e, Expr) or e.op in ("param", "reg", "const"): return e
+    if e not in memo:
+        match e.op:
+            case "nanresult": memo[e] = without_nan_results(e.args[0], memo)
+            case "sel": memo[e] = sel(e.args[0], [(v, without_nan_results(t, memo)) for v, t in e.args[1]], e.w)
+            case _:
+                args = tuple(without_nan_results(a, memo) for a in e.args)
+                memo[e] = e if all(x is y for x, y in zip(args, e.args)) else Expr(e.op, args, e.w)
+    return memo[e]
+
+
+def lowered_outputs(out):
+    """out with its defined operators as their expansions (bitvec.lowered): SLEIGH has none."""
+    memo = {}
+    x = lambda e: bitvec.lowered(e, memo)
+    return replace(out, writes={n: x(t) for n, t in out.writes.items()},
+                   stores=tuple(replace(s, address=x(s.address), value=x(s.value), cond=x(s.cond)) for s in out.stores),
+                   effects=tuple(replace(e, args=tuple(map(x, e.args))) for e in out.effects),
+                   flow=out.flow and replace(out.flow, target=x(out.flow.target), cond=x(out.flow.cond)))
+
+
+def readable_outputs(out):
+    memo = {}
+    strip = lambda e: without_nan_results(e, memo)
+    return replace(out, writes={n: strip(t) for n, t in out.writes.items()},
+                   stores=tuple(replace(s, address=strip(s.address), value=strip(s.value)) for s in out.stores))
+
+
 def enumerate_rows(b, fam):
     """[(assignment, Outputs | Unmodelled)] over the static questions the family asks."""
     rows, todo = [], [{}]
     while todo:
         assignment = todo.pop()
         try:
-            out = fam(Symbolic(b, assignment))
+            out = lowered_outputs(fam(Symbolic(b, assignment)))
+            if b.g.fp == "readable": out = readable_outputs(out)
             rows.append((assignment, replace(out, writes={n: constant_slices(b, t) for n, t in out.writes.items()})))
         except Branch as br:
             todo += [{**assignment, br.key: v} for v in reversed(br.domain)]
-        except (Unmodelled, Primitive) as e: rows.append((assignment, e))
+        except Unmodelled as e: rows.append((assignment, e))
         except Illegal as e: rows.append((assignment, e))
     return rows
 
@@ -242,7 +283,8 @@ class Merger:
     choices it built so that a choice agreeing with an earlier one is that one (LOP3's Pu reuses
     Rd's table)."""
 
-    def __init__(self):
+    def __init__(self, loads=frozenset()):
+        self.loads = loads                 # (operand, p-code ops of its load), for cost
         self.choices = defaultdict(list)   # keys -> [(cases, default, choice)]
         self.merged = {}                   # (trees, rows) -> merge: subtrees recur (operands, wide values)
         self.deciding = {}                 # (partition of the rows, rows) -> determining keys
@@ -253,8 +295,8 @@ class Merger:
         index = {}
         partition = tuple(index.setdefault(v, len(index)) for v in values)
         memo = (partition, id(assignments))
-        if memo not in self.deciding: self.deciding[memo] = determining_keys(partition, assignments)
-        return self.deciding[memo]
+        if memo not in self.deciding: self.deciding[memo] = (determining_keys(partition, assignments), assignments)   # keep the id's owner alive
+        return self.deciding[memo][0]
 
     def choice(self, keys, cases, w):
         """sel over keys with cases {values: tree}; the most common arm becomes a default row (no
@@ -314,11 +356,11 @@ class Merger:
                 parts[(v,)] = rows
             return parts
         best, best_cost, best_key = per_output(trees, assignments), None, None
-        best_cost = cost(best)
+        best_cost = self.cost(best)
         for key in sorted({k for a in assignments for k in a}, key=repr):
             if (parts := split(key)) is None: continue
             candidate = self.choice((key,), {v: per_output([trees[j] for j in r], [assignments[j] for j in r]) for v, r in parts.items()}, 0)
-            if (c := cost(candidate)) < best_cost: best_cost, best_key = c, key
+            if (c := self.cost(candidate)) < best_cost: best_cost, best_key = c, key
         if best_key is None: return best
         return self.choice((best_key,), {v: self.bodies([trees[j] for j in r], [assignments[j] for j in r])
                                          for v, r in split(best_key).items()}, 0)
@@ -330,7 +372,8 @@ class Merger:
         first = trees[0]
         if all(t is first for t in trees): return first
         memo = (tuple(map(id, trees)), id(assignments))
-        if memo not in self.merged: self.merged[memo] = (self.merge_rows(trees, assignments), assignments)   # keep the rows alive
+        # Keep what the ids name alive (interned trees are freed when unused), so no id is reused.
+        if memo not in self.merged: self.merged[memo] = (self.merge_rows(trees, assignments), trees, assignments)
         return self.merged[memo][0]
 
     def merge_rows(self, trees, assignments):
@@ -360,7 +403,9 @@ class Merger:
         # are cheaper as one table of whole trees than as nested tables over the same key.
         whole = self.keys([id(t) for t in trees], assignments)
         flat = self.choice(whole, {tuple(a.get(k) for k in whole): t for t, a in zip(trees, assignments)}, first.w)
-        return min((factored, flat), key=cost)
+        return min((factored, flat), key=self.cost)
+
+    def cost(self, e): return cost(e, self.loads)
 
 
 def specialize(e, assignment, memo=None):
@@ -392,22 +437,33 @@ RUNTIME = 8   # an operation executed per instruction outweighs a node of .sla
 
 
 @cache
-def cost(e):
+def cost(e, loads=frozenset()):
     """Generated size (nodes outside choices once, every choice arm with its row) plus RUNTIME per
     operation on the longest execution path. A choice is its own subtable: its arms can't reuse
-    values computed in the body or another table, so what several tables reference runs again."""
+    values computed in the body or another table, so what several tables reference runs again,
+    a loaded operand's load (`loads`: (operand, ops)) too."""
     seen = set()
     def static(n):
         if not isinstance(n, Expr) or n in seen: return 0
         seen.add(n)
         if n.op == "sel": return sum(CONSTRUCTOR + static(t) for _, t in n.args[1])
         return 1 + sum(static(a) for a in n.args)
-    def path(n, done):
-        if not isinstance(n, Expr) or n in done or n.op in ("const", "param", "reg"): return 0
+    return static(e) + RUNTIME * operations(e, loads)
+
+
+@cache
+def operations(e, loads=frozenset()):
+    """Operations on e's longest execution path: each one outside choices once, plus a choice's
+    longest arm (memoized: arms share subtrees and nest choices), and a loaded operand's load each
+    time a table reads it."""
+    load_ops, done = dict(loads), set()
+    def path(n):
+        if not isinstance(n, Expr) or n in done or n.op in ("const", "reg"): return 0
         done.add(n)
-        if n.op == "sel": return 1 + max(path(t, set()) for _, t in n.args[1])
-        return (n.op != "tuple") + sum(path(a, done) for a in n.args)
-    return static(e) + RUNTIME * path(e, set())
+        if n.op == "param": return load_ops.get(n.args[0], 0)
+        if n.op == "sel": return 1 + max(operations(t, loads) for _, t in n.args[1])
+        return (n.op != "tuple") + sum(path(a) for a in n.args)
+    return path(e)
 
 
 def size(e):
@@ -673,11 +729,16 @@ class Lower:
                 return self.local(e.w, expr(" | ".join(map(str, reversed(parts))), *parts))
             case "ite": return self.ite(*a)
             case "fadd" | "fmul" | "ffma": return self.float_op(e)
+            case "nanresult": return self.nan_result(e)
             case "fconv": v = self.value(a[0]); return self.local(e.w, expr(f"float2float({v})", v))   # sized by its local
             case "flt" | "fle" | "feq": return self.binary(FLOAT_CMP[e.op], self.value(a[0]), self.value(a[1]))
             case "fnan": v = self.value(a[0]); return expr(f"nan({v})", v)
             case "sel": return self.sel(e)
             case "load": v = self.value(a[1]); return self.local(e.w, expr(f"*[{a[0]}]:{n} {v}", v))
+            case "primitive":   # computed once into a local: the runtime may record an event
+                fn = bitvec.PRIMITIVE_OP + a[0]; self.b.g.pcodeops.add(fn)
+                vs = [self.value(x) for x in a[1:]]
+                return self.local(e.w, expr(f"{fn}({', '.join(v.text for v in vs)})", *vs))
             case "sar": return self.clean(e.w, self.binary("s>>", self.signed(a[0]), self.amount(a[1])))
             case "slt" | "sle": return self.binary(SLEIGH_OP[e.op], self.signed(a[0]), self.signed(a[1]))
             case "shl": return self.clean(e.w, self.binary("<<", self.value(a[0]), self.amount(a[1])))
@@ -703,6 +764,12 @@ class Lower:
         elif rnd == "RN": v = self.nearest(e.op, xs, n, scale)
         else: return self.directed(e.op, xs, n, rnd, scale)
         return v   # materialized by value() when used more than once
+
+    def nan_result(self, e):
+        """r, or the GPU's NaN (bitvec.sass_nan) where r is a NaN, without a branch (the readable
+        lowering has none: readable_outputs)."""
+        r, nan = self.named(self.value(e.args[0]), e.w), self.value(e.args[1])
+        return self.local(e.w, expr(f"{r} ^ (({nan} ^ {r}) * zext(nan({r})))", r, nan))
 
     def float_formula(self, op, xs, n, scale):
         match op:
@@ -748,7 +815,7 @@ class Lower:
         r = self.local(8 * n, expr(f"float2float({s})", s))
         d = self.local(8 * w, expr(f"({s} f- float2float({r}))" + (f" f+ {residual}" if residual else ""), s, r, *([residual] if residual else [])))
         negative = self.local(8, expr(f"{r} s< 0", r))
-        # Infinite inputs leave a NaN residual: the result is exact. Ghidra 12.1.4 orders NaN in
+        # Infinite inputs leave a NaN residual: the result is exact. Ghidra (12.1.4, 12.2) orders NaN in
         # binary128 comparisons, so test it explicitly.
         ordered = self.local(8, expr(f"!nan({d})", d))
         # RP needs only the error's upward test, RM only the downward one.
@@ -919,7 +986,10 @@ class Fold:
                 return "0x0" if k >= w else self.mask(f"{sub(a[0])} << {k}", w) if e.op == "shl" else self.mask(f"{sub(a[0])} >> {k}", w - k)
             case "extract": return self.mask(f"{sub(a[0])} >> {a[2]}", w)
             case "zext": return sub(a[0])
-            case "concat": return f"(({sub(a[0])} << {a[1].w}) | {sub(a[1])})"
+            case "concat":
+                result = sub(a[0])
+                for part in a[1:]: result = f"(({result} << {part.w}) | {sub(part)})"
+                return result
             case "eq" | "ne":
                 d = self.nonzero(f"{sub(a[0])} ^ {sub(a[1])}")
                 return d if e.op == "ne" else f"(1 - {d})"
@@ -942,6 +1012,21 @@ def value_table(b, e):
 
 
 LOADS = ("constant-load", "cx-load")   # operands whose subtable does a memory access when built
+LOAD_OPS = {"constant-load": 1, "cx-load": 11}   # p-code operations of those subtables (cx: bounds check, address, load)
+MASKS = {"and": -1, "xor": 0, "or": 0}   # mask operations and the constant that leaves a value unchanged
+
+
+def holds_load(b, e):
+    """Whether e reads a loaded operand: a value table holding it would load again."""
+    seen, stack = set(), [e]
+    while stack:
+        n = stack.pop()
+        if not isinstance(n, Expr) or n in seen: continue
+        seen.add(n)
+        if n.op == "param" and getattr(b.values.get(n.args[0]), "kind", None) in LOADS: return True
+        stack.extend(n.args)
+    return False
+
 
 
 def shared_subtrees(trees, b=None, leaves=frozenset()):
@@ -962,9 +1047,7 @@ def shared_subtrees(trees, b=None, leaves=frozenset()):
         for n in nodes(t, frozenset()): counts[n] += 1
         direct |= nodes(t).keys()
     # Even small shared parts: measured on SM89, hoisting everything shared gives the smallest .sla.
-    loads = lambda n: b is not None and (reads_memory(n) or any(m.op == "param" and getattr(b.values.get(m.args[0]), "kind", None) in LOADS
-                                                                for m in nodes(n, frozenset())))
-    shared = [n for n, c in counts.items() if c > 1 and n in direct and n.op not in ("const", "param", "reg") and not loads(n)]
+    shared = [n for n, c in counts.items() if c > 1 and n in direct and n.op not in ("const", "param", "reg") and not (reads_memory(n) or b is not None and holds_load(b, n))]
     def below(n, seen):
         for a in n.args:
             if isinstance(a, Expr) and a not in seen: seen.add(a); below(a, seen)
@@ -1065,28 +1148,14 @@ def lower_flow(low, kind, target, cond, always):
 
 # ---- the class -------------------------------------------------------------------------------
 
-def statuses(rows, unmodelled):
-    """[(assignment, status)]: what each row lowers to, with `unmodelled` for the fallback's and
-    None for an illegal encoding's."""
+def statuses(rows):
+    """[(assignment, status)]: what each row lowers to, None for an illegal encoding."""
     def status(r):
         match r:
-            case Primitive(): return "primitive"
             case Illegal(): return None
-            case Exception(): return unmodelled
-            case _: return "native"
+            case Exception(): return "opaque"
+            case _: return "primitive" if primitive_names(r) else "native"
     return [(a, status(r)) for a, r in rows]
-
-
-def emit_primitive(b, rows):
-    """The runtime primitive for the encodings the family sends there (behind selector guards),
-    the opaque call for the rest."""
-    from sass.semantics.operations import dispatch
-    if any(not isinstance(r, Exception) for _, r in rows): raise TypeError(f"{b.k.name}: primitive rows mixed with native ones")
-    b.rows = statuses(rows, "opaque")
-    lines = b.call("prim"); refs = list(dict.fromkeys(b.call_refs)); b.body += lines
-    guard(b, rows, [isinstance(r, Primitive) for _, r in rows])
-    dispatch(b, "opaque", refs=sorted(refs, key=repr))
-    return "primitive", "; ".join(sorted({str(r) for _, r in rows if isinstance(r, Primitive)}))
 
 
 def guard(b, rows, modelled):
@@ -1107,14 +1176,11 @@ def emit(b):
     from sass.semantics.operations import dispatch
     fam = family_for(b.k)
     rows = enumerate_rows(b, fam)
-    if any(isinstance(r, Primitive) for _, r in rows): return emit_primitive(b, rows)
-    b.rows = statuses(rows, "primitive" if fam.fallback == "prim" else "opaque")
+    b.rows = statuses(rows)
     native = [(a, r) for a, r in rows if not isinstance(r, Exception)]
     why = "; ".join(sorted({str(r) for _, r in rows if isinstance(r, Exception)}))
-    if not native:
-        if fam.fallback != "prim": return "opaque", why or "no modelled encodings"
-        b.body += b.call("prim")
-        return "primitive", why
+    if not native: return "opaque", why or "no modelled encodings"
+    used = [primitive_names(r) for _, r in native]
     i = Symbolic(b, {})
     kinds = {r.flow.kind if r.flow else None for _, r in native}
     if len(kinds) > 1: raise TypeError(f"{b.k.name}: rows differ in control transfer {sorted(map(str, kinds))}")
@@ -1143,7 +1209,7 @@ def emit(b):
     optional = [n for n in names if n not in FIXED and not pseudo(n) and REG_TYPES.get(b.k.operand_types[n].type) in ("P", "UP")
                 and clauses(b, ("zero", n), True) not in (None, [])]
     assignments = [a for a, _ in resolved]
-    merger = Merger()
+    merger = Merger(frozenset((n, LOAD_OPS[v.kind]) for n, v in b.values.items() if getattr(v, "kind", None) in LOAD_OPS))
     def body(live):
         if not live: return Code()
         merged = merger.bodies([Expr("tuple", tuple(dict(w)[n] for n in live), 0) for _, w in resolved], assignments)
@@ -1159,6 +1225,7 @@ def emit(b):
     # Unmodelled combinations keep the complete opaque fallback, behind the native encodings'
     # patterns over only the keys that decide native vs unmodelled.
     guard(b, rows, [not isinstance(r, Exception) for _, r in rows])
-    dispatch(b, fam.fallback, refs=sorted(refs, key=repr))
-    return "native", ("decode-time selector guards retain complete opaque fallbacks" if len(native) < len(rows)
-                      else "semantics family")
+    dispatch(b, refs=sorted(refs, key=repr))
+    reason = "decode-time selector guards retain complete opaque fallbacks" if len(native) < len(rows) else "semantics family"
+    if all(used): return "primitive", f"runtime primitives {', '.join(sorted(set().union(*used)))}; {reason}"
+    return "native", reason

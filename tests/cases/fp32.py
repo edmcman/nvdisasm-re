@@ -1,11 +1,12 @@
 """FP32: FADD/FMUL/FFMA (every rounding mode, FTZ, SAT, FMUL scale) against the exact softfloat
 model; FSETP and FSET; SM120's uniform UFADD/UFMUL/UFFMA/UFSETP/UFSEL; FSEL/FMNMX/FMNMX3 selection rules; FCHK's division slow-path test; readable-lowering
 formulas."""
+from tests.harness.manual import retained
 import itertools, random
 from sass.semantics.fp import softfloat
-from tests.harness.case import cx_source, is_cx, put, source
+from tests.harness.case import put, source
 from tests.refs.bits import f32, ftz32, nan32
-from tests.refs.float import FCOMPARISONS, fchk_divide, fcompare, fset, fmnmx, fmnmx3_pick, fmnmx_xorsign, ordered, readable, rounded, underflow_band
+from tests.refs.float import FCOMPARISONS, fchk_divide, fcompare, fset, fmnmx, fmnmx3_pick, fmnmx_xorsign, fmz, ordered, readable, rounded, underflow_band
 
 ROUNDINGS = ("RN", "RZ", "RM", "RP")
 
@@ -21,6 +22,7 @@ def vectors(floats):
     return [(floats[i], floats[(i * 7 + 3) % len(floats)], floats[(i * 5 + 1) % len(floats)]) for i in range(len(floats))]
 
 
+@retained('Dense Cartesian signed-zero/NaN selection, constant PT, XORSIGN and partial predicate-output regressions exceed the form profile.')
 def selection(c):
     edges = [0, 0x80000000, 1, 0x80000001, 0x007fffff, 0x3f800000, 0xbf800000, 0x7f800000, 0xff800000, 0x7fc00000, 0x7f800001, 0xffc01234]
     for a, b in itertools.product(edges, repeat=2):
@@ -71,31 +73,27 @@ def selection(c):
                 c.add(k.name, fields, {"R2": a, "R4": b}, {"R8": fmnmx_xorsign(a, b, is_min, nan == "NAN", ftz == "FTZ"), "__native": True})
 
 
+@retained('Seeded rounding/cancellation and exponent boundaries, directed residuals, dense FMZ zero/Inf/NaN factor pairs and p-code costs exceed the form profile.')
 def arithmetic(c):
     for cls, fields, regs, expected in [
-            ("fadd__RRR_RR", dict(Rd=8, Ra=2, Rc=4), dict(R2=0x3f800000, R4=0x40000000), dict(R8=0x40400000)),
-            ("fmul__RRR_RR", dict(Rd=8, Ra=2, Rb=4), dict(R2=0x3fc00000, R4=0x40000000), dict(R8=0x40400000)),
-            ("ffma__RRR_RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6), dict(R2=0x3fc00000, R4=0x40000000, R6=0xbf800000), dict(R8=0x40000000)),
-            ("fadd__RRR_RR", dict(Rd=8, Ra=2, Rc=4, **{"Ra@negate": 1}), dict(R2=0x3f800000, R4=0x40000000), dict(R8=0x3f800000)),
-            ("fadd__RRI_RI", dict(Rd=8, Ra=2, Sc=0x40000000), dict(R2=0x3f800000), dict(R8=0x40400000)),
-            ("fadd__RRR_RR", dict(Rd=8, Ra=2, Rc=4), dict(R2=0x3f800000, R4=0x40000000), dict(R8=0x40400000, __max_ops=2)),
+            ("fadd__RRR_RR", dict(Rd=8, Ra=2, Rc=4), dict(R2=0x3f800000, R4=0x40000000), dict(R8=0x40400000, __max_ops=7)),
             ("fadd__RRR_RR", dict(Rd=8, Ra=2, Rc=4, rnd="RZ"), dict(R2=0x3f800000, R4=0x33800001), dict(R8=0x3f800000))]:
         c.add(cls, fields, regs, expected)
     rng = random.Random("fp32")
-    edges = [0, 0x80000000, 1, 0x80000001, 0x007fffff, 0x00800000, 0x3f800000, 0xbf800000, 0x7f7fffff, 0xff7fffff, 0x7f800000, 0xff800000, 0x3effffff, 0x4b800001]
+    edges = [0, 0x80000000, 1, 0x80000001, 0x007fffff, 0x00800000, 0x3f800000, 0xbf800000, 0x7f7fffff, 0xff7fffff, 0x7f800000, 0xff800000, 0x3effffff, 0x4b800001, 0x7fc12345, 0xff812345]
     vs = vectors(edges + [rng.getrandbits(32) & 0xbfffffff for _ in range(10)] + [rng.getrandbits(32) for _ in range(10)])
     for x, y, z in vs:
         for rnd, flush, sat in itertools.product(ROUNDINGS, (False, True), (False, True)):
             for op, cls, fields in ops(flush):
                 inputs = [x, y, z][:3 if op == "fma" else 2]
-                want = softfloat.arithmetic(op, inputs, 32, rnd, flush, sat)
-                if nan32(want) or (rnd == "RN" and underflow_band(op, inputs, 32)): continue
+                want = rounded(op, inputs, 32, rnd, flush, sat)
+                if rnd == "RN" and underflow_band(op, inputs, 32): continue
                 c.add(cls, dict(fields, rnd=rnd, sat="SAT" if sat else "nosat"), dict(R2=x, R4=y, R6=z), dict(R8=want, __native=True))
     for scale, k in [("D2", -1), ("D8", -3), ("M2", 1), ("M8", 3)]:
         for x, y, _ in vs:
             for rnd in ROUNDINGS:
-                want = softfloat.arithmetic("mul", [x, y], 32, rnd, False, False, k)
-                if not (nan32(want) or rnd == "RN" and underflow_band("mul", [x, y], 32, k)):
+                want = rounded("mul", [x, y], 32, rnd, scale=k)
+                if not (rnd == "RN" and underflow_band("mul", [x, y], 32, k)):
                     c.add("fmul__RRR_RR", dict(Rd=8, Ra=2, Rb=4, scale=scale, rnd=rnd), dict(R2=x, R4=y), dict(R8=want, __native=True))
     # Directed cases whose residual lies below fp64 precision, and exact cancellations
     # whose zero sign depends on the rounding mode.
@@ -106,10 +104,18 @@ def arithmetic(c):
         _, cls, fields = next(o for o in ops(False) if o[0] == op)
         for rnd in ROUNDINGS:
             c.add(cls, dict(fields, rnd=rnd), dict(zip(("R2", "R4", "R6"), inputs)), dict(R8=softfloat.arithmetic(op, inputs, 32, rnd), __native=True))
+    # .FMZ: a zero or subnormal factor gives a +0 product even times Inf or NaN, then FFMA adds Rc.
+    factors = [0, 0x80000000, 1, 0x807fffff, 0x3f800000, 0x7f800000, 0xff800000, 0x7fc00000, 0xffc00001]
+    for x, y in itertools.product(factors, repeat=2):
+        for rnd in ("RN", "RM"):
+            for op, cls, fields in ops(True, mul_flush="FMZ")[1:]:
+                for z in ((0x80000000, 0x7fc00000, 1, 0xbf800000) if op == "fma" else (0,)):
+                    want = fmz(op, [x, y, z][:3 if op == "fma" else 2], rnd)
+                    c.add(cls, dict(fields, fmz="FMZ", rnd=rnd), dict(R2=x, R4=y, R6=z), dict(R8=want, __native=True))
 
 
+@retained('Exceptional comparison pairs and constant PT/aliased-predicate regressions exceed the form profile.')
 def compare(c):
-    c.add("fsetp__RRR_RRR", dict(Pu=0, Pv=1, Pp=2, Ra=2, Rb=4, fcomp="LT", bop="AND"), dict(R2=0x3f800000, R4=0x40000000, P2=1), dict(P0=1, P1=0))
     c.add("fsetp__RRR_RRR", dict(Pu=0, Pv=1, Pp=0, Ra=2, Rb=4, fcomp="NAN", bop="AND"), dict(R2=0x7fc00000, R4=0, P0=1), dict(P0=1, P1=0))
     for a, b in [(0x3f800000, 0x40000000), (0x40000000, 0x3f800000), (0x3f800000, 0x3f800000), (0x7fc00000, 0x3f800000), (0x3f800000, 0xffc00000), (1, 0)]:
         for flush in (False, True):
@@ -125,29 +131,19 @@ SET_PAIRS = [(0x3f800000, 0x40000000), (0x40000000, 0x3f800000), (0x3f800000, 0x
              (0x3f800000, 0xffc00000), (1, 0), (0x80000001, 1), (0x7f800000, 0x7f7fffff), (0xff800000, 0xff800000), (0x7fc00000, 0x7fc00000)]
 
 
+@retained('Exceptional FSET pairs with constant PT and a same-source/output signed-zero alias exceed the form profile.')
 def fset_cases(c):
-    """FSET.BF: every comparison with and without FTZ; each bop against Pp, !Pp; each source form."""
+    """Constant-PT exceptional pairs and a same-source/output alias; ordinary forms use profiles."""
     for (a, b), cmp, ftz in itertools.product(SET_PAIRS, FCOMPARISONS + ("T", "F"), (False, True)):
         c.add("fset__RRR_RRR", dict(Rd=8, Ra=2, Rb=4, Pp="PT", fcomp=cmp, bop="AND", ftz="FTZ" if ftz else "noftz"), dict(R2=a, R4=b),
               dict(R8=fset(a, b, cmp, ftz=ftz and c.fp == "exact"), __native=True))
-    for (a, b), bop, p, inverted in itertools.product(SET_PAIRS[:3], ("AND", "OR", "XOR"), (0, 1), (0, 1)):
-        c.add("fset__RRR_RRR", dict(Rd=8, Ra=2, Rb=4, Pp=3, fcomp="LT", bop=bop, **{"Pp@not": inverted}), dict(R2=a, R4=b, P3=p),
-              dict(R8=fset(a, b, "LT", bop, bool(p) != bool(inverted)), __native=True))
-    for k in c.of("FSET", cx=None):
-        b = "Sb" if is_cx(k) else source(k, "Rb", "URb", "Sb")
-        for n, (x, y) in enumerate(SET_PAIRS[:6]):
-            fields, regs, memory = dict(Rd=8, Ra=2, Pp="PT", fcomp="LT", bop="AND", **{"Ra@negate": n & 1, "Ra@absolute": n >> 1 & 1}), dict(R2=x), []
-            if is_cx(k):
-                cx_fields, cx_regs, memory = cx_source(c.arch, k, b, y); fields.update(cx_fields); regs.update(cx_regs)
-            else: put(k, b, y, fields, regs, memory, 4, ureg=6, bank=(0, 0x20), imm=("F32Imm",))
-            a = x & 0x7fffffff if n & 2 else x
-            c.add(k.name, fields, regs, dict(R8=fset(a ^ 0x80000000 if n & 1 else a, y, "LT"), __native=True), memory=memory, portable=True)
     c.add("fset__RRR_RRR", dict(Rd=2, Ra=2, Rb=2, Pp="PT", fcomp="EQ", bop="AND", **{"Rb@negate": 1}), dict(R2=0x80000000), dict(R2=0x3f800000, __native=True))
 
 
+@retained('Uniform seeded arithmetic, exceptional comparison pairs and constant UPT inputs exceed the generated form profile.')
 def uniform(c):
     """SM120's uniform twins of FADD/FMUL/FFMA/FSETP/FSEL: every rounding mode and FTZ over edge
-    triples, every comparison and bop, and the immediate forms."""
+    triples, exceptional comparison pairs and constant UPT inputs."""
     edges = [0, 0x80000000, 1, 0x80000001, 0x00800000, 0x3f800000, 0xbf800000, 0x3fc00000, 0x7f7fffff, 0x7f800000, 0xff800000, 0x4b800001]
     regs = lambda x, y, z: dict(UR2=x, UR4=y, UR6=z)
     for (x, y, z), rnd, flush in itertools.product(vectors(edges), ROUNDINGS, (False, True)):
@@ -155,14 +151,9 @@ def uniform(c):
                                 ("mul", "ufmul__UUU", dict(URd=8, URa=2, URb=4, fmz="FTZ" if flush else "nofmz_hfma2")),
                                 ("fma", "uffma__UUU_UUU", dict(URd=8, URa=2, URb=4, URc=6, fmz="FTZ" if flush else "nofmz_hfma2"))]:
             inputs = [x, y, z][:3 if op == "fma" else 2]
-            want = softfloat.arithmetic(op, inputs, 32, rnd, flush)
-            if nan32(want) or (rnd == "RN" and underflow_band(op, inputs, 32)): continue
+            want = rounded(op, inputs, 32, rnd, flush)
+            if rnd == "RN" and underflow_band(op, inputs, 32): continue
             c.add(cls, dict(fields, rnd=rnd), regs(x, y, z), dict(UR8=want, __native=True))
-    for cls, fields, inputs in [("ufadd__URURsI_URURI", dict(URd=8, URa=2, Sc=0x3fc00000), ("add", [0x40000000, 0x3fc00000])),
-                                ("ufmul__URIR", dict(URd=8, URa=2, Sb=0xc0400000), ("mul", [0x40000000, 0xc0400000])),
-                                ("uffma__URIUR_URIUR", dict(URd=8, URa=2, Sb=0x3fc00000, URc=6), ("fma", [0x40000000, 0x3fc00000, 0xbf800000])),
-                                ("uffma__URURI_URURI", dict(URd=8, URa=2, URb=4, Sc=0x3f800000), ("fma", [0x40000000, 0x40000000, 0x3f800000]))]:
-        c.add(cls, fields, regs(0x40000000, 0x40000000, 0xbf800000), dict(UR8=softfloat.arithmetic(*inputs, 32), __native=True), portable=True)
     for (a, b), cmp, bop, p in itertools.product(SET_PAIRS, FCOMPARISONS + ("T", "F"), ("AND", "OR", "XOR"), (0, 1)):
         result = fcompare(ordered(a, 32), ordered(b, 32), cmp)
         combine = {"AND": lambda x: x and p, "OR": lambda x: x or p, "XOR": lambda x: x != p}[bop]
@@ -178,6 +169,7 @@ def uniform(c):
               dict(UR8=want, __native=True), portable=True)
 
 
+@retained('Seeded unfused/underflow, FMZ and p-code-cost regressions exceed the readable form profile.')
 def readable_formulas(c):
     """The readable language's plain unfused formula, which ignores rounding modes and flushing."""
     if c.fp != "readable": return
@@ -208,58 +200,37 @@ def readable_formulas(c):
 
 
 def fchk_pairs():
-    """Both sides of every FCHK boundary for each numerator exponent, mantissa extremes and signs
-    alternating, then random pairs up to a multiple of 128 (a, b)."""
-    rng, out = random.Random("fchk"), []
-    mantissas, signs = (0, 0x7fffff, 1, 0x400000), (0, 1 << 31)
-    for ea in range(256):
-        for eb in sorted({x for t in (1, 251, ea - 127, ea + 124) for x in (t, t + 1) if 0 <= x < 256}):
-            n = len(out)
-            out.append((signs[n % 2] | ea << 23 | mantissas[n % 4], signs[n // 2 % 2] | eb << 23 | mantissas[(n + 1) % 4]))
-    return out + [(rng.getrandbits(32), rng.getrandbits(32)) for _ in range(-len(out) % 128 + 128)]
-
-
-def fchk_cases(c):
-    """FCHK.DIVIDE from every source kind, with sign modifiers (which it ignores)."""
-    pairs = fchk_pairs()[::16] + [(0, 0x3f800000), (0x3f800000, 0), (0x7fc00000, 0x3f800000), (0x3f800000, 0x40000000)]
-    for k in c.of("FCHK", cx=None):
-        cx = is_cx(k)
-        b = "Sb" if cx else source(k, "Rb", "URb", "Sb")
-        for n, (x, y) in enumerate(pairs):
-            fields, regs, memory = dict(Pu=1, Ra=2, **{"Ra@negate": n & 1, "Ra@absolute": n >> 1 & 1}), dict(R2=x), []
-            if cx:
-                cx_fields, cx_regs, memory = cx_source(c.arch, k, b, y); fields.update(cx_fields); regs.update(cx_regs)
-            else: put(k, b, y, fields, regs, memory, 4, ureg=6, bank=(0, 0x20), imm=("F32Imm",))
-            c.add(k.name, fields, regs, dict(P1=fchk_divide(x, y), __native=True), memory=memory, portable=True)
+    from tests.harness import autocase_profiles
+    return list(autocase_profiles.fchk_pairs())
 
 
 def emulator_cases(c):
-    selection(c); arithmetic(c); compare(c); fset_cases(c); uniform(c); fchk_cases(c); readable_formulas(c)
+    selection(c); arithmetic(c); compare(c); fset_cases(c); uniform(c); readable_formulas(c)
 
 
-def gpu_fixtures():
+def gpu_fixtures(arch="SM89"):
     from tests.harness import scalar
-    out = [scalar.launch(f, lambda *v, op=f[1:]: rounded(op, v[:3 if op == "fma" else 2], 32), underflow=True) for f in ("fadd", "fmul", "ffma")]
-    out += [scalar.launch(f, lambda *v, op=f[1:4], m=f[-2:].upper(): rounded(op, v[:3 if op == "fma" else 2], 32, m))
+    out = [scalar.launch(f, lambda *v, op=f[1:]: rounded(op, v[:3 if op == "fma" else 2], 32), underflow=True, arch=arch) for f in ("fadd", "fmul", "ffma")]
+    out += [scalar.launch(f, lambda *v, op=f[1:4], m=f[-2:].upper(): rounded(op, v[:3 if op == "fma" else 2], 32, m), arch=arch)
             for f in sorted(f for f in scalar.ROUNDED if f[0] == "f")]
-    out += [scalar.launch("fsetp", lambda a, b, _: int(fcompare(ordered(a, 32), ordered(b, 32), "LT"))),
-            scalar.launch("fsel", lambda a, b, c: a ^ 0x80000000 if c else b),
-            scalar.launch("fadd_ftz", lambda a, b, _: rounded("add", [a, b], 32, ftz=True)),
-            scalar.launch("ffma_sat", lambda *v: rounded("fma", v, 32, sat=True))]
-    out += [scalar.launch(f, lambda x, y, _, f=f: fmnmx(x, y, f.startswith("fmin"), f.endswith("_nan"), "ftz" in f))
+    out += [scalar.launch("fsetp", lambda a, b, _: int(fcompare(ordered(a, 32), ordered(b, 32), "LT")), arch=arch),
+            scalar.launch("fsel", lambda a, b, c: a ^ 0x80000000 if c else b, arch=arch),
+            scalar.launch("fadd_ftz", lambda a, b, _: rounded("add", [a, b], 32, ftz=True), arch=arch),
+            scalar.launch("ffma_sat", lambda *v: rounded("fma", v, 32, sat=True), arch=arch)]
+    out += [scalar.launch(f, lambda x, y, _, f=f: fmnmx(x, y, f.startswith("fmin"), f.endswith("_nan"), "ftz" in f), arch=arch)
             for f in ("fmin", "fmax", "fmin_nan", "fmax_nan", "fmin_ftz_nan", "fmax_ftz_nan", "fmin_ftz", "fmax_ftz")]
-    out.append(scalar.launch("fmin_xorsign", lambda x, y, _: fmnmx_xorsign(x, y, True)))
-    out += [scalar.launch(f, lambda a, b, c, s=s: fset(a, b, s["fcomp"], s.get("bop", "AND"), (c != 0) != bool(s.get("Pp@not")), s.get("ftz") == "FTZ"))
+    out.append(scalar.launch("fmin_xorsign", lambda x, y, _: fmnmx_xorsign(x, y, True, absolute=True), arch=arch))
+    out += [scalar.launch(f, lambda a, b, c, s=s: fset(a, b, s["fcomp"], s.get("bop", "AND"), (c != 0) != bool(s.get("Pp@not")), s.get("ftz") == "FTZ"), arch=arch)
             for f, (m, s) in scalar.SETS.items() if m == "FSET"]
     # FCHK P0, R2, R5 in a probe slot, P0 read back through P2R into the stored R11.
-    from tests.harness.gpu import sm89
+    from tests.harness.gpu import encode
     from tests.harness.templates import slot_fixture
-    nop, p2r = sm89("nop_"), sm89("p2r__RsIR_RIR", Rd=11, Pr="PR", Ra="RZ", Sb=1, insert="B0")
+    nop, p2r = encode("nop_", arch=arch), encode("p2r__RsIR_RIR", Rd=11, Pr="PR", Ra="RZ", Sb=1, insert="B0", arch=arch)
     pairs = fchk_pairs()
     for n in range(len(pairs) // 128):
         rows = pairs[128 * n:128 * (n + 1)]
         mods = {"Ra@negate": n & 1, "Rb@absolute": n >> 1 & 1}
-        fchk = sm89("fchk__RRR_RR", Pu=0, Ra=2, Rb=5, **mods)
+        fchk = encode("fchk__RRR_RR", Pu=0, Ra=2, Rb=5, arch=arch, **mods)
         out.append(slot_fixture(f"fchk_{n}", [fchk] + [nop] * 7, [(a, b, 0) for a, b in rows],
-                                [fchk_divide(a, b) for a, b in rows], 0x100, final=p2r))
+                                [fchk_divide(a, b) for a, b in rows], 0, final=p2r, arch=arch))
     return out

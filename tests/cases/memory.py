@@ -1,5 +1,6 @@
 """Memory: global/shared/local loads and stores, generic LD/ST, explicit descriptors, constant loads (LDC/ULDC/LDCU), shared
 stride addressing and QSPC address-space queries."""
+from tests.harness.manual import retained
 from tests.harness.case import cbank
 from tests.refs import memory
 
@@ -8,27 +9,18 @@ def loads_stores(c):
     for op, space in [("ldg", "ram"), ("lds", "shared"), ("ldl", "localmem")]:
         for sz, data, want in [("S8", "ff", 0xffffffff), ("U16", "3412", 0x1234), ("32", "78563412", 0x12345678),
                                ("64", "0100000002000000", 1), ("128", "01000000020000000300000004000000", 1)]:
+            if op != "ldg" and sz not in ("64","128"): continue  # LDG remains partial; ordinary narrow LDS/LDL accesses are generated.
             expected = {"R8": want, **({"R9": 2} if sz in ("64", "128") else {}), **(dict(R10=3, R11=4) if sz == "128" else {})}
             c.add(op + "__sImmOffset", dict(Rd=8, Ra=2, Ra_offset=-4, sz=sz), dict(R2=0x104, R3=0), expected,
                   memory=[dict(space=space, address=0x100, hex=data)])
-    for op, space in [("stg", "ram"), ("sts", "shared"), ("stl", "localmem")]:
-        c.add(op + "__sImmOffset", dict(Ra=2, Ra_offset=0, Rb=4, sz="32"), dict(R2=0x100, R3=0, R4=0x12345678), dict(__memory="78563412"),
-              observe_memory=[dict(space=space, address=0x100, size=4)])
-    # Shared-memory X4/X8/X16 addressing scales the base register without changing it.
-    for stride, factor in [("X4", 4), ("X8", 8), ("X16", 16)]:
-        c.add("lds__sImmOffset", dict(Rd=8, Ra=2, Ra_offset=4, stride=stride), dict(R2=0x10), dict(R8=0x12345678),
-              memory=[dict(space="shared", address=0x10 * factor + 4, hex="78563412")])
-    c.add("ldc__RaNonRZ", dict(Rd=8, Ra=2, Ra_offset=16, Sa_bank=3), dict(R2=0x100), dict(R8=0x12345678), memory=[cbank(3, 0x110, 0x12345678)])
     c.add("mov__RC", dict(Rd=8, Sb_bank=2, Sb_addr=16, PixMaskU04=15), {}, dict(R8=0x12345678), memory=[cbank(2, 16, 0x12345678)])
-    for label, data, want in [("U8", "ff", 255), ("S8", "ff", 0xffffffff), ("U16", "ffff", 65535), ("S16", "ffff", 0xffffffff),
-                              ("32", "78563412", 0x12345678), ("64", "0100000002000000", 1)]:
-        c.add("uldc_const__RCR", dict(URd=8, Sa_bank=2, Sa_addr=16, sz=label), {}, dict(UR8=want, **({"UR9": 2} if label == "64" else {})),
-              memory=[dict(space="cbank", address=(2 << 32) | 16, hex=data)])
-        # SM100+'s LDCU: the same load at URa + Sa_offset (URZ: the offset alone).
-        for ura, regs in ((2, {"UR2": 0x100}), ("URZ", {})):
-            at = (0x100 if ura == 2 else 0) + 16
-            c.add("ldcu_const_RCR_", dict(URd=8, URa=ura, Sa_bank=2, Sa_offset=16, sz=label), regs, dict(UR8=want, **({"UR9": 2} if label == "64" else {})),
-                  memory=[dict(space="cbank", address=(2 << 32) | at, hex=data)])
+    # Aligned 64-bit constant pairs remain partially native in the manifest and
+    # cannot be owned by the planner's ordinary native-form enumeration.
+    c.add("uldc_const__RCR", dict(URd=8, Sa_bank=2, Sa_addr=16, sz="64"), {}, dict(UR8=1, UR9=2),
+          memory=[cbank(2,16,0x200000001,size=8)])
+    for ura,regs,at in ((2,{"UR2":0x100},0x110),("URZ",{},16)):
+        c.add("ldcu_const_RCR_", dict(URd=8, URa=ura, Sa_bank=2, Sa_offset=16, sz="64"), regs,
+              dict(UR8=1, UR9=2), memory=[cbank(2,at,0x200000001,size=8)])
     c.add("ldcu_const_RCR_", dict(URd=8, URa="URZ", Sa_bank=2, Sa_offset=16, texunpack="TEXUNPACK"), {}, dict(error="sass_opaque_LDCU"))
 
 
@@ -85,7 +77,7 @@ DESCRIPTORS = [0, 0x14f0000000000000, 0x1230000000000000, 0xf2a74de452e6b438, 0x
 
 def descriptors(c):
     """desc[URx] forms access memory as their implicit forms do whatever the descriptor, except that a
-    range-form descriptor stops at the runtime; SM75-SM89's implicit form (e_desc noexp_desc) ignores URx."""
+    range-form descriptor stops at the runtime; SM89 reads URx even with noexp_desc."""
     for desc in DESCRIPTORS:
         neutral = memory.descriptor_neutral(desc)
         for op, space, ra in (("ldg", "ram", 64), ("ld", "shared", 64), ("ldl", "localmem", 32)):
@@ -93,17 +85,17 @@ def descriptors(c):
             if not (k := c.classes.get(cls)): continue
             for exp in ("EXP", "noexp_desc") if "e_desc" in k.operand_types else ("EXP",):
                 addr = SHARED[0] + 0x100 if space == "shared" else 0x100
-                regs = dict(WINDOWS, R2=(addr + 4) & 0xffffffff, R3=addr >> 32, UR4=desc & 0xffffffff, UR5=desc >> 32)
-                fields = dict(Rd=8, Ra=2, Ra_URb=4, Ra_offset=-4, sz="32", **({"e_desc": exp} if "e_desc" in k.operand_types else {}),
+                regs = dict(WINDOWS, R2=(addr + 4) & 0xffffffff, R3=addr >> 32, UR8=desc & 0xffffffff, UR9=desc >> 32)
+                fields = dict(Rd=8, Ra=2, Ra_URb=8, Ra_offset=-4, sz="32", **({"e_desc": exp} if "e_desc" in k.operand_types else {}),
                               **({} if ra == 32 else dict(e="E", input_reg_sz_64_dist="64")))
-                want = dict(R8=0x12345678) if neutral or exp == "noexp_desc" else dict(error="range-form memory descriptor")
+                want = dict(R8=0x12345678) if neutral else dict(error="range-form memory descriptor")
                 c.add(cls, fields, regs, want, memory=[dict(space=space, address=0x100, hex="78563412")])
         for op, space, ra in (("stg", "ram", 64), ("st", "localmem", 64), ("stl", "localmem", 32)):
             cls = op + ("_memdesc__Ra64" if ra == 64 else "_memdesc_")
             if not (k := c.classes.get(cls)): continue
             addr = LOCAL[0] + 0x40 if op == "st" else 0x40
-            regs = dict(WINDOWS, R2=addr & 0xffffffff, R3=addr >> 32, R6=0x12345678, UR4=desc & 0xffffffff, UR5=desc >> 32)
-            fields = dict(Ra=2, Ra_URc=4, Ra_offset=0, Rb=6, sz="32", **({"e_desc": "EXP"} if "e_desc" in k.operand_types else {}),
+            regs = dict(WINDOWS, R2=addr & 0xffffffff, R3=addr >> 32, R6=0x12345678, UR8=desc & 0xffffffff, UR9=desc >> 32)
+            fields = dict(Ra=2, Ra_URc=8, Ra_offset=0, Rb=6, sz="32", **({"e_desc": "EXP"} if "e_desc" in k.operand_types else {}),
                           **({} if ra == 32 else dict(e="E", input_reg_sz_64_dist="64")))
             c.add(cls, fields, regs, dict(__memory="78563412") if neutral else dict(error="range-form memory descriptor"),
                   observe_memory=[dict(space=space, address=0x40, size=4)])
@@ -134,9 +126,7 @@ def qspc(c):
         fields = dict(Pg="PT", Pu=1, e=e, Ra=2, Ra_offset=0)
         for space, base, offset, expected in (("G", 0x100020, -32, 1), ("S", 0x220, 0, 1), ("L", 0x420, 0, 1), ("G", 0x420, 0, 0)):
             c.add(k.name, dict(fields, Rd="RZ", space=space, Ra_offset=offset), {"R2": base}, {"P1": expected}, context=context)
-        c.add(k.name, dict(fields, Rd="RZ", space="G"), {"R2": 0x100000}, dict(error="address_spaces.global context required"))
-        for base, expected in ((0x100000, {"P1": 1, "R8": 1}), (0x420, {"P1": 0, "R8": 4}), (0x220, {"P1": 0, "R8": 2})):
-            c.add(k.name, dict(fields, Rd=8, space="G"), {"R2": base}, expected, context=context)
+        c.add(k.name, dict(fields, Rd="RZ", space="G"), {"R2": 0x100000}, dict(error="address_spaces context required"))
         if "D" in c.enum(k, "space"):
             c.add(k.name, dict(fields, Rd="RZ", space="D"), {"R2": 0x620}, {"P1": 1}, context=context)
             c.add(k.name, dict(fields, Rd="RZ", space="D"), {"R2": 0x420}, {"P1": 0}, context=context)
@@ -146,23 +136,53 @@ def qspc(c):
             c.add(k.name, dict(Pg="PT", Pu=1, Rd="RZ", e=e, space="S", Ra=2, input_reg_sz_32_dist="U32", Ra_URb=4, Ra_offset=0),
                   {"R2": 0x100, "UR4": 0x120}, {"P1": 1}, context=context)
 
+    # Hardware-representable generic pointers use a 64-bit base. The adapter binds
+    # these model addresses to real global/shared/local allocations/window bases.
+    if k := c.classes.get('qspc__RaNonRZ'):
+        physical = {'address_spaces': dict(context['address_spaces'])}
+        if c.arch == 'SM90':
+            physical['address_spaces']['shared_cluster'] = [[0x200, 0x300], [0x600, 0x700]]
+        for origin, base in (('global', 0x100020), ('shared', 0x220), ('local', 0x420)):
+            for query in ('G', 'S', 'L'):
+                query_space = {'G':'global', 'S':'shared', 'L':'local'}[query]
+                predicate, tag = memory.query(base, physical['address_spaces'], query_space)
+                c.add(k.name, dict(Pg='PT', Pu=1, Rd=8, e='E', Ra=2, Ra_offset=0, space=query),
+                      dict(R2=base, R3=0), dict(P1=predicate, R8=tag),
+                      context=physical, hardware={'adapter': 'qspc', 'space': origin})
 
+
+@retained("LDG predicate-output forms and aligned memory/constant register pairs are partially native; window edges/decoys, descriptors, zero-fill guards, masked/cluster queries, physical query anchors and error cases exceed generated ordinary profiles.")
 def emulator_cases(c):
     loads_stores(c); generic(c); descriptors(c); zero_fill(c); qspc(c)
 
+    from sass.decode import pydecode
+    from tests.harness.case import encode
+    for index, case in enumerate(list(c.complete())):
+        hw = case.hardware or {'adapter': 'memory'}
+        if case.cls.startswith('qspc') and not case.hardware:
+            hw = {'skip': 'synthetic 32-bit address-provenance map; paired E cases use physical addresses'}
+        c[index] = case._replace(hardware=hw)
+        if 'word' not in case.request or 'error' in case.expected: continue
+        d = pydecode.decode(c.arch, bytes.fromhex(case.request['word']))
+        if d.klass.mnemonic in ('LDG', 'STG') and d.env.get('e') == 0:
+            fields = {n: d.env[n] for n in d.klass.operand_types if n in d.env}
+            fields.update({'@'.join(n): value for n, value in d.env.items() if isinstance(n, tuple)})
+            encoded = encode(c.arch, case.cls, **dict(fields, e='E'))
+            c.append(case._replace(request=dict(case.request, word=encoded), hardware={'adapter': 'memory'}))
 
-def pnz_fixture():
+
+def pnz_fixture(arch="SM89"):
     """sem_pnz with its guarded LD always issued: the branch around it never taken (@!PT) and its
     predicate, inverted, as LD's Pnz."""
     from dataclasses import replace
-    from sass.decode.pyencode import encode
+    from tests.harness.case import encode
     from tests.harness import scalar
     from tests.harness.gpu import Template
-    f = scalar.launch("pnz", memory.pnz_kernel)
+    f = scalar.launch("pnz", memory.pnz_kernel, arch=arch)
     t = Template(f.image, "sem_pnz")
     code = {o: t.decoded(o) for o in range(0, len(t.code), 16)}
     skip, = [d for d in code.values() if d.klass.mnemonic == "BRA" and d.env["Pg"] != 7]
-    word = lambda d, **fields: (int.from_bytes(bytes.fromhex(encode("SM89", d.klass.name, **{**scalar.operands(d), **fields})), "little"), t.control(o))
+    word = lambda d, **fields: (int.from_bytes(bytes.fromhex(encode(arch, d.klass.name, **{**scalar.operands(d), **fields})), "little"), t.control(o))
     words = {}
     for o, d in code.items():
         match d.klass.mnemonic:
@@ -171,16 +191,16 @@ def pnz_fixture():
     return replace(f, image=t.patch(words))
 
 
-def desc_param_fixtures():
+def desc_param_fixtures(arch="SM89"):
     """sem_desc_param once per bit-59-clear descriptor in DESCRIPTORS (range forms may trap)."""
     from dataclasses import replace
     from tests.harness import scalar
-    f = scalar.launch("desc_param", memory.desc_param_kernel)
+    f = scalar.launch("desc_param", memory.desc_param_kernel, arch=arch)
     return [replace(f, name=f"desc_param_{d:x}", arguments=((8, d),)) for d in DESCRIPTORS if memory.descriptor_neutral(d)]
 
 
-def gpu_fixtures():
+def gpu_fixtures(arch="SM89"):
     from tests.harness import scalar
-    return [scalar.launch("shared", lambda a, *_: a), scalar.launch("local", lambda a, b, c: (a + (c & 255) * b) & 0xffffffff),
-            scalar.launch("ldc", lambda a, *_: (a & 31) ** 2), scalar.launch("generic", memory.generic_kernel),
-            scalar.launch("desc", memory.desc_kernel), pnz_fixture(), *desc_param_fixtures()]
+    return [scalar.launch("shared", lambda a, *_: a, arch=arch), scalar.launch("local", lambda a, b, c: (a + (c & 255) * b) & 0xffffffff, arch=arch),
+            scalar.launch("ldc", lambda a, *_: (a & 31) ** 2, arch=arch), scalar.launch("generic", memory.generic_kernel, arch=arch),
+            scalar.launch("desc", memory.desc_kernel, arch=arch), pnz_fixture(arch=arch), *desc_param_fixtures(arch=arch)]

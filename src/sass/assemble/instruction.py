@@ -304,7 +304,7 @@ def assemble(arch, text, addr=0, schedule=None, symbols=None):
                         m = pydecode.IMM.fullmatch(a.type)
                         if m and m['float']:
                             values[a.name] = float_bits(values[a.name], m['float'])
-                data, env, widths = encoding.encode(md, k, values)
+                data, env, widths = encoding.encode_class(md, k, values)
                 env['__addr'] = addr
                 view = ExplicitView(md, env, widths, lexemes)
                 guard, items = pydecode.render_items(k, view)

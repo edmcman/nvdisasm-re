@@ -2,8 +2,9 @@
 exact spans and BRANCH_TYPE."""
 from sass.md import expression
 from sass.decode import pydecode
-from sass.semantics.operations import ghidra_family
-from sass.sleigh.gen import ENUM_FILE, REG_FILES, RESOURCE_FILE, Gen
+from sass.semantics.family import family_for
+from sass.sleigh.gen import RESOURCE_FILE, Gen
+from sass.sleigh.registers import ENUM_FILE, REG_FILES
 from sass import ghidra_bridge
 from tests.refs.integer import prmt
 
@@ -40,9 +41,6 @@ def expected(g, d, optimized=False, ignore=()):
     """md register cells (reads, writes) of decoded instruction d; `ignore` names operands whose reads to skip."""
     reads, writes = set(), set()
     unused=set(ignore)
-    if optimized and 'e_desc' in d.klass.operand_types and d.env.get('e_desc')==0:
-        # Implicit pointer forms use their address registers directly.
-        unused.update(('Ra_URb','Ra_URc'))
     if optimized and d.klass.mnemonic in ('LOP3','ULOP3') and 'imm8' in d.env:
         lut=d.env['imm8']
         for bit,names in [(2,('Ra','Sa','URa')),(1,('Rb','Sb','URb')),(0,('Rc','Sc','URc'))]:
@@ -53,9 +51,9 @@ def expected(g, d, optimized=False, ignore=()):
     if optimized and d.klass.mnemonic in ('ISETP','UISETP','FSETP','FSET','HSET2','HSETP2','VISET'):
         name={'FSETP':'fcomp','FSET':'fcomp','HSET2':'cmp','HSETP2':'cmp'}.get(d.klass.mnemonic,'icmp')
         operand=d.klass.operand_types.get(name)
-        if (operand and not d.env.get('ex') and
+        if (operand and
                 d.env.get(name) in {g.arch.enums[operand.type].get(n) for n in ('F','T')}):
-            unused.update(('Ra','Sa','Rb','Sb','Rc','Sc','URa','URb','URc'))
+            unused.update(('Ra','Sa','Rb','Sb','Rc','Sc','URa','URb','URc','Pr','UPr'))
         ex=d.klass.operand_types.get('ex')
         if (d.klass.mnemonic=='ISETP' and 'Pr' in d.env and ex and
                 d.env.get('ex')==g.arch.enums[ex.type].get('noex')):
@@ -131,8 +129,8 @@ def expected(g, d, optimized=False, ignore=()):
                 used=[j for j in range(4) if prmt(0 if right else 255<<(8*j),d.env['Sb'],
                                                  255<<(8*j) if right else 0,mode)]
                 needed=set(range(base+size*index,base+size*index+max(used,default=-1)+1))
-            if optimized and role=='read' and span==1 and d.klass.mnemonic in ('F2FP','UF2FP','F2IP','F2F','F2I','I2F','FRND'):
-                # F2FP/F2IP and the 16/8-bit conversion sources read an operand's half or byte named
+            if optimized and role=='read' and span==1 and d.klass.mnemonic in ('F2FP','UF2FP','F2IP','F2F','F2I','I2F','FRND','MUFU'):
+                # F2FP/F2IP, MUFU's 16-bit forms and the 16/8-bit conversion sources read an operand's half or byte named
                 # by the selector after it in FORMAT (extract, extract_B, selB, hsel, bsel): the bytes
                 # up to it (SLEIGH truncates to the low bytes, then shifts). The scaled MERGE_C
                 # forms, without a selector, read all of C: the scales above the kept low half.
@@ -184,7 +182,7 @@ def expected(g, d, optimized=False, ignore=()):
         cells=set(range(base,base+size*7))
         reads.update(cells)
         if d.klass.mnemonic=='R2P':writes.update(cells)
-    if optimized and ghidra_family(g.arch.name, d.klass) and discarded(g, d):
+    if optimized and family_for(d.klass) and discarded(g, d):
         reads = set()   # every destination is RZ/PT: native code computes nothing
     if guard:
         file = ENUM_FILE[guard.type]
@@ -223,7 +221,7 @@ def problems(arch, fp, words):
         elif (flow := result["flow"]) != (want_flow := expected_flow(gen, d)):
             out.append(f"{d.klass.name} {w.hex()} {d.text}: flow {flow}, md {want_flow}")
         elif (got := actual(result["ops"])) != (want := expected(gen, d, optimized=not any(
-                (op.get("userop") or "").startswith(("sass_opaque_", "sass_prim_")) for op in result["ops"]))):
+                (op.get("userop") or "").startswith("sass_opaque_") for op in result["ops"]))):
             out.append(f"{d.klass.name} {w.hex()} {d.text}: reads missing={sorted(want[0] - got[0])} extra={sorted(got[0] - want[0])}; "
                        f"writes missing={sorted(want[1] - got[1])} extra={sorted(got[1] - want[1])}")
     return len(todo), out

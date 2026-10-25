@@ -4,10 +4,10 @@ three inputs per thread and write one output; families supply vectors and refere
 import random
 from functools import cache
 from sass.decode import ir, pydecode
-from sass.decode.pyencode import encode, klass
+from sass.assemble.encoding import klass
+from tests.harness.case import encode
 from tests.harness.gpu import ENCODING, Fixture, Template, compile
 from sass.semantics.fp import softfloat
-from tests.refs.bits import nan16
 from tests.refs.float import underflow_band
 
 EDGES = [0, 0xffffffff, 0x80000000, 0x7fffffff, 0x7f800000, 0xff800000, 0x7fc00000, 1, 0x007fffff, 0x00800000, 0x3f800000,
@@ -76,19 +76,18 @@ RELU_UNPACK = tuple(f"f2fp_{f}_unpack_{h}_relu" for f in ("e4m3", "e5m2") for h 
 
 
 @cache
-def template():
+def template(arch="SM89"):
     """The compiled, patched scalar_semantics cubin."""
-    image = compile("scalar_semantics", "-diag-suppress=177")
+    image = compile("scalar_semantics", "-diag-suppress=177", arch=arch)
     out = bytearray(image)
-    for family, (mnemonic, cls, fields) in PATCHES.items(): out = _patch(out, image, family, mnemonic, cls, fields)
+    for family, (mnemonic, cls, fields) in PATCHES.items(): out = _patch(out, image, family, mnemonic, cls, fields, arch=arch)
     for family in RELU_UNPACK:
         t = Template(bytes(out), "sem_" + family)
         for offset in _find(t, "F2FP", family, 2):
-            old = int.from_bytes(t.code[offset:offset + 16], "little")
-            replacement = old ^ (1 << 75)
-            if pydecode.decode("SM89", replacement.to_bytes(16, "little")).env.get("relu") != ir.load("SM89").enums[t.decoded(offset).klass.operand_types["relu"].type]["RELU"]:
-                raise ValueError(f"{family}: patched selector did not decode as RELU")
-            out = bytearray(t.patch({offset: (replacement, old & ~ENCODING)}, bytes(out)))
+            d = t.decoded(offset)
+            values = dict(operands(d), relu='RELU')
+            replacement = int.from_bytes(bytes.fromhex(encode(arch, d.klass.name, **values)), 'little')
+            out = bytearray(t.patch({offset: (replacement, t.control(offset))}, bytes(out)))
     return bytes(out)
 
 
@@ -106,12 +105,22 @@ def operands(d, k=None):
             **{"@".join(n): v for n, v in d.env.items() if isinstance(n, tuple) and len(n) == 2 and n[0] in names}}
 
 
-def _patch(out, image, family, mnemonic, cls, fields):
+def _patch(out, image, family, mnemonic, cls, fields, arch="SM89"):
     """Re-encode the family's one target instruction with `fields`, keeping its controls."""
     t = Template(image, "sem_" + family)
+    if arch == 'SM90':
+        if family.startswith('hfma2_move'): cls = 'hfma2_mma__RRI'
+        if family in ('hadd2_lanes', 'hfma2_lanes', 'hmul2_lanes', 'hmul2_fmz'):
+            mnemonic = 'HFMA2.MMA'
+            cls = {'hadd2_lanes': 'hadd2__RR', 'hfma2_lanes': 'hfma2__RRR',
+                   'hmul2_lanes': 'hmul2__RR', 'hmul2_fmz': 'hmul2__RR'}[family]
     offset, = _find(t, mnemonic, family)
     d = t.decoded(offset)
-    values = {**operands(d, klass("SM89", cls or d.klass.name)), **fields}
+    fields = dict(fields)
+    if family == 'imad_hi_c':
+        from sass.assemble import elf
+        fields['Sc_addr'] = elf.PROFILES[arch].parameter_base + 16
+    values = {**operands(d, klass(arch, cls or d.klass.name)), **fields}
     words = {}
     if family.startswith("f2fp_e") and "_pack" in family:
         # The compiler's third input is the last LDG before this F2FP; hardware carries the selected
@@ -126,21 +135,16 @@ def _patch(out, image, family, mnemonic, cls, fields):
         for o in masks:
             m = t.decoded(o); ops = operands(m)
             ops["Ra" if m.env["Sb"] == 0xffff0000 else "Rc"] = values["Rd"]
-            words[o] = (int.from_bytes(bytes.fromhex(encode("SM89", m.klass.name, **ops)), "little"), t.control(o))
-    words[offset] = (int.from_bytes(bytes.fromhex(encode("SM89", cls or d.klass.name, **values)), "little"), t.control(offset))
+            words[o] = (int.from_bytes(bytes.fromhex(encode(arch, m.klass.name, **ops)), "little"), t.control(o))
+    words[offset] = (int.from_bytes(bytes.fromhex(encode(arch, cls or d.klass.name, **values)), "little"), t.control(offset))
     return bytearray(t.patch(words, bytes(out)))
 
 
-def same_halves(got, want):
-    """Packed F16 lanes equal, or both NaN."""
-    return all(((got >> s) & 0xffff) == ((want >> s) & 0xffff) or nan16(got >> s & 0xffff) and nan16(want >> s & 0xffff) for s in (0, 16))
-
-
-def fixture(family, vs, expected=None, targets=(), wide=False, wide_output=None, arguments=(), **kw):
+def fixture(family, vs, expected=None, targets=(), wide=False, wide_output=None, arguments=(), arch="SM89", **kw):
     """A sem_<family> launch over vectors `vs`; wide: 64-bit inputs and outputs."""
     import struct
     data = b"".join(struct.pack("<QQQ" if wide else "<III", *v) for v in vs)
-    return Fixture(name=family, image=template(), kernel="sem_" + family, data=data, expected=expected, input_size=8 if wide else 4,
+    return Fixture(name=family, image=template(arch=arch), kernel="sem_" + family, data=data, expected=expected, input_size=8 if wide else 4,
                    output_size=8 if wide or wide_output else 4, arguments=arguments, targets=targets, vectors=vs, **kw)
 
 
@@ -183,7 +187,6 @@ TARGETS.update({f: (m,) for f, (m, _) in SETS.items()})
 ROUNDED = {f"{op}_{m}" for op in ("fadd", "fmul", "ffma", "dadd", "dmul", "dfma") for m in ("rz", "rm", "rp")}  # directed-rounding kernels
 HALF_OUTPUTS = {"hadd2", "hfma2", "hmul2", "hmul2_sat", "hmul2_ftz", "hmul2_fmz", "hadd2_sat", "hfma2_sat", "hadd2_lanes", "hfma2_lanes", "hmul2_lanes"}
 WIDE = {"dadd", "dmul", "dfma", "dsetp", "isetp_ex"} | {f for f in ROUNDED if f.startswith("d")}
-FLOAT_OUTPUTS = {"dadd", "dmul", "dfma", "fadd", "fmul", "ffma", "i2f", "fadd_ftz", "ffma_sat"} | ROUNDED
 
 
 def scalar_vectors(family):
@@ -280,11 +283,6 @@ def half_underflow(emulated, want):
     return all(e == w or e & 0x7fff == 0 and w == e | 1 for e, w in (((emulated >> s) & 0xffff, (want >> s) & 0xffff) for s in (0, 16)))
 
 
-def nan(x, width):
-    exponent, mantissa = (0x7ff0000000000000, 0xfffffffffffff) if width == 64 else (0x7f800000, 0x7fffff)
-    return x & exponent == exponent and x & mantissa != 0
-
-
 def underflow_bug(family, inputs, emulated, want):
     """The emulator's RN minimum-subnormal underflow (refs.float.underflow_band): it returns a
     signed zero where the reference (and the GPU) has the signed minimum subnormal."""
@@ -297,18 +295,21 @@ def underflow_bug(family, inputs, emulated, want):
     return emulated == sign and want == sign | 1
 
 
-def launch(family, reference=None, same=None, underflow=False):
+def launch(family, reference=None, same=None, underflow=False, arch="SM89"):
     """Fixture for scalar family `family`; reference(x, y, z) gives the expected output;
     underflow excuses the emulator's known minimum-subnormal defect."""
     vs = scalar_vectors(family)
-    width = 64 if family in WIDE else 32
-    if family.startswith("f2fp_f16_pack_"): emulator_same = same_halves
-    elif family in HALF_OUTPUTS: emulator_same = lambda e, w: same_halves(e, w) or half_underflow(e, w)
-    elif family in FLOAT_OUTPUTS: emulator_same = lambda e, w: e == w or nan(e, width) and nan(w, width)
-    else: emulator_same = lambda e, w: e == w
-    return fixture(family, vs, [reference(*v) for v in vs] if reference else None, targets=TARGETS[family], wide=family in WIDE,
+    emulator_same = (lambda e, w: e == w or half_underflow(e, w)) if family in HALF_OUTPUTS else (lambda e, w: e == w)
+    targets = TARGETS[family]
+    if arch == 'SM90':
+        replacements = {'IMNMX': 'VIMNMX.U32', 'HADD2': 'HFMA2.MMA', 'HMUL2': 'HFMA2.MMA',
+                        'HMUL2.SAT': 'HFMA2.MMA.SAT', 'HADD2.SAT': 'HFMA2.MMA.SAT', 'HFMA2.SAT': 'HFMA2.MMA.SAT',
+                        'HMUL2.FTZ': 'HFMA2.MMA.FTZ'}
+        if family in ('imnmx','hadd2','hmul2','hmul2_sat','hadd2_sat','hfma2_sat','hmul2_ftz'):
+            targets = tuple(replacements[t] for t in targets)
+    return fixture(family, vs, [reference(*v) for v in vs] if reference else None, targets=targets, wide=family in WIDE,
                    wide_output=family.startswith(("f2fp_e4m3_unpack_", "f2fp_e5m2_unpack_")),
                    arguments=((8, 0x00000002ffffffff),) if family == "imad_hi_c" else ((4, 0x3fc00000),) if family == "f2fp_f16_pack_c" else (),
                    same=same or (lambda g, w: g == w), emulator_same=emulator_same,
-                   excused=(lambda i, e, w: underflow_bug(family, vs[i], e, w)) if underflow else (lambda i, e, w: False))
+                   excused=(lambda i, e, w: underflow_bug(family, vs[i], e, w)) if underflow else (lambda i, e, w: False), arch=arch)
 

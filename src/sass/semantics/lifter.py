@@ -10,7 +10,7 @@ from sass.decode import ir, pydecode
 from sass.md import expression
 from sass.semantics import bitvec
 from sass.semantics.bitvec import Expr
-from sass.semantics.family import Instruction, Illegal, Primitive, Unmodelled, PR_BITS, REG_TYPES, family_for, roles
+from sass.semantics.family import Instruction, Illegal, Unmodelled, PR_BITS, REG_TYPES, family_for, roles, primitive_names
 import sass.semantics.families  # registers the families
 
 ELEMENT = {"R": 32, "UR": 32, "P": 1, "UP": 1}
@@ -22,13 +22,14 @@ class Semantics:
     cls: str
     text: str
     addr: int
-    status: str                                  # native | opaque
+    status: str                                  # native | primitive (uses runtime primitives) | opaque
     reason: str = ""
     guard: Expr | None = None                    # execute only if nonzero
     writes: list = field(default_factory=list)   # [(register location, value)], simultaneous
     flow: object = None                          # sem_family.Flow over concrete values, or None
     stores: list = field(default_factory=list)   # [sem_family.Store], after the writes
     atomic: object = None                        # sem_family.Atomic: the loads and stores are indivisible
+    effects: list = field(default_factory=list)  # [sem_family.Effect], before everything else
 
 
 class Lifted(Instruction):
@@ -155,8 +156,6 @@ def lift(arch_name, word, addr=0, fp="exact", conditions=True):
     try: result = fam(i)
     except Unmodelled as e:
         out.reason = str(e); return out
-    except Primitive as e:
-        out.status, out.reason = "primitive", str(e); return out
     except Illegal as e: raise pydecode.NoMatch(f"{d.klass.name}: {e} ({e.evidence})")
     for name, value in result.ordered():
         if not i.has_operand(name): continue  # e.g. no second carry output in this class
@@ -170,7 +169,8 @@ def lift(arch_name, word, addr=0, fp="exact", conditions=True):
         out.writes.append((bitvec.reg(*loc, element=ELEMENT[loc[0]]), value))
     out.writes = list(zip([l for l, _ in out.writes], bitvec.narrow([v for _, v in out.writes])))
     out.flow, out.stores, out.atomic = result.flow, list(result.stores), result.atomic
+    out.flow, out.stores, out.effects = result.flow, list(result.stores), list(result.effects)
     if out.flow is not None and bitvec.is_const(out.flow.cond, 1):
         out.flow = replace(out.flow, cond=None)
-    out.status = "native"
+    out.status = "primitive" if primitive_names(result) else "native"
     return out
