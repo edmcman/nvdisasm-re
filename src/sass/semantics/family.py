@@ -504,6 +504,15 @@ class Instruction:
         a = self.atom(self.resolve(names))
         return sorted(set(self.arch.rev_enums[a.type].values()))
 
+    def legal_labels(self, names):
+        """The selector's labels that no md condition on it alone forbids (SM89's ISWZ has F32, which
+        HADD2's conditions ban there): no legal word encodes the others, so a choice needn't cover them."""
+        from sass.md import expression, legal
+        name = self.resolve(names); enum = self.arch.enums[self.atom(name).type]
+        alone = [e for _, e, _ in legal.errors(self.k)
+                 if {expression.env_key(n) for n in expression.condition_source(self.arch.name, e)[1]} == {name}]
+        return [l for l in self.labels(name) if all(expression.holds(self.arch, e, {name: enum[l]}) for e in alone)]
+
     def choice(self, name, values):
         """Backend: values[encoded value] of an encoded selector (encoded value -> expression)."""
         raise NotImplementedError

@@ -134,8 +134,8 @@
         "reference": 160
       },
       "HFMA2": {
-        "none": 10788,
-        "reference": 156
+        "none": 21612,
+        "reference": 276
       },
       "HMNMX2": {
         "none": 6826,
@@ -598,8 +598,9 @@
         "opaque": 900
       },
       "HFMA2": {
-        "native": 10944,
-        "opaque": 148512
+        "native": 21853,
+        "opaque": 137568,
+        "partially native": 35
       },
       "HMMA": {
         "opaque": 384
@@ -1123,7 +1124,7 @@
     "evidence": {
       "none": 14,
       "ptxas": 15,
-      "reference": 511
+      "reference": 516
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -1149,11 +1150,6 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
-      "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRI": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_x_xor_imm__RIR_RIR": "X not modelled; carry out",
@@ -1303,7 +1299,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 5
+        "reference": 10
       },
       "HMNMX2": {
         "reference": 6
@@ -1734,8 +1730,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HMMA": {
         "opaque": 4
@@ -2366,8 +2361,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -2655,8 +2649,8 @@
     },
     "status": {
       "native": 310,
-      "opaque": 438,
-      "partially native": 163,
+      "opaque": 433,
+      "partially native": 168,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -2796,8 +2790,8 @@
         "reference": 161
       },
       "HFMA2": {
-        "none": 43619,
-        "reference": 157
+        "none": 87275,
+        "reference": 277
       },
       "HMNMX2": {
         "none": 6826,
@@ -3259,8 +3253,9 @@
         "opaque": 300
       },
       "HFMA2": {
-        "native": 43776,
-        "opaque": 115680
+        "native": 87412,
+        "opaque": 71904,
+        "partially native": 140
       },
       "HMMA": {
         "opaque": 384
@@ -3784,7 +3779,7 @@
     "evidence": {
       "none": 14,
       "ptxas": 15,
-      "reference": 511
+      "reference": 516
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -3810,11 +3805,6 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
-      "hfma2_relu__RIR": "RELU; ofmt",
-      "hfma2_relu__RRI": "RELU; ofmt",
-      "hfma2_relu__RRR": "RELU; ofmt",
-      "hfma2_relu__RRU": "RELU; ofmt",
-      "hfma2_relu__RUR": "RELU; ofmt",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_x_xor_imm__RIR_RIR": "X not modelled; carry out",
@@ -3964,7 +3954,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 5
+        "reference": 10
       },
       "HMNMX2": {
         "reference": 6
@@ -4395,8 +4385,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HMMA": {
         "opaque": 4
@@ -5027,8 +5016,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -5316,8 +5304,8 @@
     },
     "status": {
       "native": 310,
-      "opaque": 438,
-      "partially native": 163,
+      "opaque": 433,
+      "partially native": 168,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -5442,8 +5430,8 @@
         "reference": 160
       },
       "HFMA2": {
-        "none": 10788,
-        "reference": 156
+        "none": 21612,
+        "reference": 276
       },
       "HMNMX2": {
         "none": 6826,
@@ -5864,8 +5852,9 @@
         "opaque": 900
       },
       "HFMA2": {
-        "native": 10944,
-        "opaque": 148512
+        "native": 21853,
+        "opaque": 137568,
+        "partially native": 35
       },
       "HMMA": {
         "opaque": 384
@@ -6343,7 +6332,7 @@
     },
     "evidence": {
       "none": 14,
-      "reference": 501
+      "reference": 506
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -6359,11 +6348,6 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
-      "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRI": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldcu_const_RCxR_": "bank",
@@ -6493,7 +6477,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 5
+        "reference": 10
       },
       "HMNMX2": {
         "reference": 6
@@ -6888,8 +6872,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HMMA": {
         "opaque": 4
@@ -7476,8 +7459,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -7764,8 +7746,8 @@
     },
     "status": {
       "native": 307,
-      "opaque": 389,
-      "partially native": 141,
+      "opaque": 384,
+      "partially native": 146,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -7890,8 +7872,8 @@
         "reference": 161
       },
       "HFMA2": {
-        "none": 43619,
-        "reference": 157
+        "none": 87275,
+        "reference": 277
       },
       "HMNMX2": {
         "none": 6826,
@@ -8312,8 +8294,9 @@
         "opaque": 300
       },
       "HFMA2": {
-        "native": 43776,
-        "opaque": 115680
+        "native": 87412,
+        "opaque": 71904,
+        "partially native": 140
       },
       "HMMA": {
         "opaque": 384
@@ -8791,7 +8774,7 @@
     },
     "evidence": {
       "none": 14,
-      "reference": 501
+      "reference": 506
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -8807,11 +8790,6 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
-      "hfma2_relu__RIR": "RELU; ofmt",
-      "hfma2_relu__RRI": "RELU; ofmt",
-      "hfma2_relu__RRR": "RELU; ofmt",
-      "hfma2_relu__RRU": "RELU; ofmt",
-      "hfma2_relu__RUR": "RELU; ofmt",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldcu_const_RCxR_": "bank",
@@ -8941,7 +8919,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 5
+        "reference": 10
       },
       "HMNMX2": {
         "reference": 6
@@ -9336,8 +9314,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HMMA": {
         "opaque": 4
@@ -9924,8 +9901,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -10212,8 +10188,8 @@
     },
     "status": {
       "native": 307,
-      "opaque": 389,
-      "partially native": 141,
+      "opaque": 384,
+      "partially native": 146,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -10350,8 +10326,8 @@
         "reference": 160
       },
       "HFMA2": {
-        "none": 10788,
-        "reference": 156
+        "none": 21612,
+        "reference": 276
       },
       "HMNMX2": {
         "none": 6826,
@@ -10807,8 +10783,9 @@
         "opaque": 900
       },
       "HFMA2": {
-        "native": 10944,
-        "opaque": 148512
+        "native": 21853,
+        "opaque": 137568,
+        "partially native": 35
       },
       "HMMA": {
         "opaque": 384
@@ -11325,7 +11302,7 @@
     },
     "evidence": {
       "none": 17,
-      "reference": 526
+      "reference": 531
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -11351,11 +11328,6 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
-      "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRI": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_x_xor_imm__RIR_RIR": "X not modelled; carry out",
@@ -11502,7 +11474,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 5
+        "reference": 10
       },
       "HMNMX2": {
         "reference": 6
@@ -11925,8 +11897,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HMMA": {
         "opaque": 4
@@ -12551,8 +12522,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -12840,8 +12810,8 @@
     },
     "status": {
       "native": 310,
-      "opaque": 431,
-      "partially native": 163,
+      "opaque": 426,
+      "partially native": 168,
       "partially primitive": 6,
       "primitive": 64
     }
@@ -12978,8 +12948,8 @@
         "reference": 161
       },
       "HFMA2": {
-        "none": 43619,
-        "reference": 157
+        "none": 87275,
+        "reference": 277
       },
       "HMNMX2": {
         "none": 6826,
@@ -13434,8 +13404,9 @@
         "opaque": 300
       },
       "HFMA2": {
-        "native": 43776,
-        "opaque": 115680
+        "native": 87412,
+        "opaque": 71904,
+        "partially native": 140
       },
       "HMMA": {
         "opaque": 384
@@ -13952,7 +13923,7 @@
     },
     "evidence": {
       "none": 17,
-      "reference": 526
+      "reference": 531
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -13978,11 +13949,6 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
-      "hfma2_relu__RIR": "RELU; ofmt",
-      "hfma2_relu__RRI": "RELU; ofmt",
-      "hfma2_relu__RRR": "RELU; ofmt",
-      "hfma2_relu__RRU": "RELU; ofmt",
-      "hfma2_relu__RUR": "RELU; ofmt",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_x_xor_imm__RIR_RIR": "X not modelled; carry out",
@@ -14129,7 +14095,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 5
+        "reference": 10
       },
       "HMNMX2": {
         "reference": 6
@@ -14552,8 +14518,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HMMA": {
         "opaque": 4
@@ -15178,8 +15143,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -15467,8 +15431,8 @@
     },
     "status": {
       "native": 310,
-      "opaque": 431,
-      "partially native": 163,
+      "opaque": 426,
+      "partially native": 168,
       "partially primitive": 6,
       "primitive": 64
     }
@@ -15617,8 +15581,8 @@
         "reference": 160
       },
       "HFMA2": {
-        "none": 10788,
-        "reference": 156
+        "none": 21612,
+        "reference": 276
       },
       "HMNMX2": {
         "none": 6826,
@@ -16066,8 +16030,9 @@
         "opaque": 900
       },
       "HFMA2": {
-        "native": 10944,
-        "opaque": 148512
+        "native": 21853,
+        "opaque": 137568,
+        "partially native": 35
       },
       "HMMA": {
         "opaque": 384
@@ -16526,7 +16491,7 @@
     },
     "evidence": {
       "none": 21,
-      "reference": 544
+      "reference": 549
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -16552,11 +16517,6 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
-      "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRI": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_64_imm__RsIR_RIR": "width",
@@ -16737,7 +16697,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 5
+        "reference": 10
       },
       "HMNMX2": {
         "reference": 6
@@ -17150,8 +17110,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HMMA": {
         "opaque": 4
@@ -17718,8 +17677,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -18009,8 +17967,8 @@
     },
     "status": {
       "native": 305,
-      "opaque": 379,
-      "partially native": 190,
+      "opaque": 374,
+      "partially native": 195,
       "partially primitive": 6,
       "primitive": 64
     }
@@ -18159,8 +18117,8 @@
         "reference": 161
       },
       "HFMA2": {
-        "none": 43619,
-        "reference": 157
+        "none": 87275,
+        "reference": 277
       },
       "HMNMX2": {
         "none": 6826,
@@ -18607,8 +18565,9 @@
         "opaque": 300
       },
       "HFMA2": {
-        "native": 43776,
-        "opaque": 115680
+        "native": 87412,
+        "opaque": 71904,
+        "partially native": 140
       },
       "HMMA": {
         "opaque": 384
@@ -19067,7 +19026,7 @@
     },
     "evidence": {
       "none": 21,
-      "reference": 544
+      "reference": 549
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -19093,11 +19052,6 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
-      "hfma2_relu__RIR": "RELU; ofmt",
-      "hfma2_relu__RRI": "RELU; ofmt",
-      "hfma2_relu__RRR": "RELU; ofmt",
-      "hfma2_relu__RRU": "RELU; ofmt",
-      "hfma2_relu__RUR": "RELU; ofmt",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_64_imm__RsIR_RIR": "width",
@@ -19278,7 +19232,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 5
+        "reference": 10
       },
       "HMNMX2": {
         "reference": 6
@@ -19691,8 +19645,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HMMA": {
         "opaque": 4
@@ -20259,8 +20212,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -20550,8 +20502,8 @@
     },
     "status": {
       "native": 305,
-      "opaque": 379,
-      "partially native": 190,
+      "opaque": 374,
+      "partially native": 195,
       "partially primitive": 6,
       "primitive": 64
     }
@@ -20672,8 +20624,8 @@
         "reference": 160
       },
       "HFMA2": {
-        "none": 10788,
-        "reference": 156
+        "none": 21612,
+        "reference": 276
       },
       "HMNMX2": {
         "none": 6826,
@@ -21143,8 +21095,9 @@
         "opaque": 900
       },
       "HFMA2": {
-        "native": 10944,
-        "opaque": 148512
+        "native": 21853,
+        "opaque": 137568,
+        "partially native": 35
       },
       "HMMA": {
         "opaque": 384
@@ -21682,7 +21635,7 @@
     },
     "evidence": {
       "none": 20,
-      "reference": 554
+      "reference": 559
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -21698,11 +21651,6 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
-      "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRI": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
       "iadd_64_imm__RsIR_RIR": "width",
       "iadd_64_noimm__RRR_RRR": "width",
       "iadd_64_noimm__RUR_RUR": "width",
@@ -21869,7 +21817,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 5
+        "reference": 10
       },
       "HMNMX2": {
         "reference": 6
@@ -22306,8 +22254,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HMMA": {
         "opaque": 4
@@ -22953,8 +22900,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -23246,8 +23192,8 @@
     },
     "status": {
       "native": 357,
-      "opaque": 441,
-      "partially native": 150,
+      "opaque": 436,
+      "partially native": 155,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -23368,8 +23314,8 @@
         "reference": 161
       },
       "HFMA2": {
-        "none": 43619,
-        "reference": 157
+        "none": 87275,
+        "reference": 277
       },
       "HMNMX2": {
         "none": 6826,
@@ -23839,8 +23785,9 @@
         "opaque": 300
       },
       "HFMA2": {
-        "native": 43776,
-        "opaque": 115680
+        "native": 87412,
+        "opaque": 71904,
+        "partially native": 140
       },
       "HMMA": {
         "opaque": 384
@@ -24378,7 +24325,7 @@
     },
     "evidence": {
       "none": 20,
-      "reference": 554
+      "reference": 559
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -24394,11 +24341,6 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
-      "hfma2_relu__RIR": "RELU; ofmt",
-      "hfma2_relu__RRI": "RELU; ofmt",
-      "hfma2_relu__RRR": "RELU; ofmt",
-      "hfma2_relu__RRU": "RELU; ofmt",
-      "hfma2_relu__RUR": "RELU; ofmt",
       "iadd_64_imm__RsIR_RIR": "width",
       "iadd_64_noimm__RRR_RRR": "width",
       "iadd_64_noimm__RUR_RUR": "width",
@@ -24565,7 +24507,7 @@
         "reference": 6
       },
       "HFMA2": {
-        "reference": 5
+        "reference": 10
       },
       "HMNMX2": {
         "reference": 6
@@ -25002,8 +24944,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HMMA": {
         "opaque": 4
@@ -25649,8 +25590,7 @@
         "partially native": 3
       },
       "HFMA2": {
-        "opaque": 5,
-        "partially native": 5
+        "partially native": 10
       },
       "HFMA2.MMA": {
         "absent": 0
@@ -25942,8 +25882,8 @@
     },
     "status": {
       "native": 357,
-      "opaque": 441,
-      "partially native": 150,
+      "opaque": 436,
+      "partially native": 155,
       "partially primitive": 6,
       "primitive": 61
     }
@@ -26055,8 +25995,8 @@
         "reference": 714
       },
       "HADD2": {
-        "none": 1080,
-        "reference": 96
+        "none": 3378,
+        "reference": 126
       },
       "HFMA2": {
         "none": 24500,
@@ -26423,12 +26363,14 @@
         "opaque": 1
       },
       "HADD2": {
-        "native": 1176,
-        "opaque": 7144
+        "native": 2080,
+        "opaque": 4816,
+        "partially native": 1424
       },
       "HFMA2": {
-        "native": 24768,
-        "opaque": 325440
+        "native": 24733,
+        "opaque": 325440,
+        "partially native": 35
       },
       "HMMA": {
         "opaque": 384
@@ -28153,8 +28095,8 @@
         "reference": 714
       },
       "HADD2": {
-        "none": 2255,
-        "reference": 97
+        "none": 5457,
+        "reference": 127
       },
       "HFMA2": {
         "none": 74035,
@@ -28521,12 +28463,14 @@
         "opaque": 1
       },
       "HADD2": {
-        "native": 2352,
-        "opaque": 5968
+        "native": 4160,
+        "opaque": 2736,
+        "partially native": 1424
       },
       "HFMA2": {
-        "native": 74304,
-        "opaque": 275904
+        "native": 74199,
+        "opaque": 275904,
+        "partially native": 105
       },
       "HMMA": {
         "opaque": 384
@@ -30251,15 +30195,16 @@
         "reference": 714
       },
       "HADD2": {
-        "none": 1080,
-        "reference": 96
+        "none": 1734,
+        "reference": 102
       },
       "HFMA2": {
-        "none": 24500,
-        "reference": 268
+        "none": 49036,
+        "reference": 500
       },
       "HFMA2.MMA": {
-        "reference": 1
+        "none": 3767,
+        "reference": 73
       },
       "HMNMX2": {
         "none": 6936,
@@ -30643,15 +30588,18 @@
       },
       "HADD2": {
         "native": 1176,
-        "opaque": 2352
+        "opaque": 1692,
+        "partially native": 660
       },
       "HFMA2": {
-        "native": 24768,
-        "opaque": 160992
+        "native": 49501,
+        "opaque": 136224,
+        "partially native": 35
       },
       "HFMA2.MMA": {
-        "opaque": 5759,
-        "partially native": 1
+        "native": 3837,
+        "opaque": 1920,
+        "partially native": 3
       },
       "HMMA": {
         "opaque": 192
@@ -31008,7 +30956,7 @@
     "evidence": {
       "none": 16,
       "ptxas": 1,
-      "reference": 602
+      "reference": 628
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -31034,32 +30982,6 @@
       "frnd__f16_URb": "F16",
       "frnd__f64_C": "32-bit source for F64",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "MMA operand form",
-      "hfma2_mma__RCR_relu": "MMA operand form",
-      "hfma2_mma__RCxR_norelu": "MMA operand form",
-      "hfma2_mma__RCxR_relu": "MMA operand form",
-      "hfma2_mma__RIR_norelu": "MMA operand form",
-      "hfma2_mma__RIR_relu": "MMA operand form",
-      "hfma2_mma__RRC_norelu": "MMA operand form",
-      "hfma2_mma__RRC_relu": "MMA operand form",
-      "hfma2_mma__RRCx_norelu": "MMA operand form",
-      "hfma2_mma__RRCx_relu": "MMA operand form",
-      "hfma2_mma__RRI_relu": "FMZ; FTZ; INVALID3; RELU",
-      "hfma2_mma__RRR_norelu": "MMA operand form",
-      "hfma2_mma__RRR_relu": "MMA operand form",
-      "hfma2_mma__RRU_norelu": "MMA operand form",
-      "hfma2_mma__RRU_relu": "MMA operand form",
-      "hfma2_mma__RUR_norelu": "MMA operand form",
-      "hfma2_mma__RUR_relu": "MMA operand form",
-      "hfma2_relu__RCR": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RCxR": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RIR": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RRC": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RRCx": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RRI": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RRR": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RRU": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RUR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f_Rd64__Cb_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
@@ -31184,10 +31106,10 @@
         "reference": 5
       },
       "HFMA2": {
-        "reference": 9
+        "reference": 18
       },
       "HFMA2.MMA": {
-        "reference": 1
+        "reference": 18
       },
       "HMNMX2": {
         "reference": 5
@@ -31551,12 +31473,10 @@
         "partially native": 5
       },
       "HFMA2": {
-        "opaque": 9,
-        "partially native": 9
+        "partially native": 18
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "partially native": 18
       },
       "HMMA": {
         "opaque": 4
@@ -32020,12 +31940,10 @@
         "partially native": 5
       },
       "HFMA2": {
-        "opaque": 9,
-        "partially native": 9
+        "partially native": 18
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "partially native": 18
       },
       "HMNMX2": {
         "native": 5
@@ -32305,8 +32223,8 @@
     },
     "status": {
       "native": 418,
-      "opaque": 348,
-      "partially native": 128,
+      "opaque": 322,
+      "partially native": 154,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -32418,16 +32336,16 @@
         "reference": 714
       },
       "HADD2": {
-        "none": 2255,
-        "reference": 97
+        "none": 2909,
+        "reference": 103
       },
       "HFMA2": {
-        "none": 74035,
-        "reference": 269
+        "none": 148107,
+        "reference": 501
       },
       "HFMA2.MMA": {
-        "none": 2,
-        "reference": 1
+        "none": 3767,
+        "reference": 73
       },
       "HMNMX2": {
         "none": 6936,
@@ -32811,15 +32729,18 @@
       },
       "HADD2": {
         "native": 2352,
-        "opaque": 1176
+        "opaque": 516,
+        "partially native": 660
       },
       "HFMA2": {
-        "native": 74304,
-        "opaque": 111456
+        "native": 148503,
+        "opaque": 37152,
+        "partially native": 105
       },
       "HFMA2.MMA": {
-        "opaque": 5757,
-        "partially native": 3
+        "native": 3834,
+        "opaque": 1920,
+        "partially native": 6
       },
       "HMMA": {
         "opaque": 192
@@ -33176,7 +33097,7 @@
     "evidence": {
       "none": 16,
       "ptxas": 1,
-      "reference": 602
+      "reference": 628
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -33202,32 +33123,6 @@
       "frnd__f16_URb": "F16",
       "frnd__f64_C": "32-bit source for F64",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "MMA operand form",
-      "hfma2_mma__RCR_relu": "MMA operand form",
-      "hfma2_mma__RCxR_norelu": "MMA operand form",
-      "hfma2_mma__RCxR_relu": "MMA operand form",
-      "hfma2_mma__RIR_norelu": "MMA operand form",
-      "hfma2_mma__RIR_relu": "MMA operand form",
-      "hfma2_mma__RRC_norelu": "MMA operand form",
-      "hfma2_mma__RRC_relu": "MMA operand form",
-      "hfma2_mma__RRCx_norelu": "MMA operand form",
-      "hfma2_mma__RRCx_relu": "MMA operand form",
-      "hfma2_mma__RRI_relu": "RELU",
-      "hfma2_mma__RRR_norelu": "MMA operand form",
-      "hfma2_mma__RRR_relu": "MMA operand form",
-      "hfma2_mma__RRU_norelu": "MMA operand form",
-      "hfma2_mma__RRU_relu": "MMA operand form",
-      "hfma2_mma__RUR_norelu": "MMA operand form",
-      "hfma2_mma__RUR_relu": "MMA operand form",
-      "hfma2_relu__RCR": "RELU; ofmt",
-      "hfma2_relu__RCxR": "RELU; ofmt",
-      "hfma2_relu__RIR": "RELU; ofmt",
-      "hfma2_relu__RRC": "RELU; ofmt",
-      "hfma2_relu__RRCx": "RELU; ofmt",
-      "hfma2_relu__RRI": "RELU; ofmt",
-      "hfma2_relu__RRR": "RELU; ofmt",
-      "hfma2_relu__RRU": "RELU; ofmt",
-      "hfma2_relu__RUR": "RELU; ofmt",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f_Rd64__Cb_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
@@ -33352,10 +33247,10 @@
         "reference": 5
       },
       "HFMA2": {
-        "reference": 9
+        "reference": 18
       },
       "HFMA2.MMA": {
-        "reference": 1
+        "reference": 18
       },
       "HMNMX2": {
         "reference": 5
@@ -33719,12 +33614,10 @@
         "partially native": 5
       },
       "HFMA2": {
-        "opaque": 9,
-        "partially native": 9
+        "partially native": 18
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "partially native": 18
       },
       "HMMA": {
         "opaque": 4
@@ -34188,12 +34081,10 @@
         "partially native": 5
       },
       "HFMA2": {
-        "opaque": 9,
-        "partially native": 9
+        "partially native": 18
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "partially native": 18
       },
       "HMNMX2": {
         "native": 5
@@ -34473,8 +34364,8 @@
     },
     "status": {
       "native": 418,
-      "opaque": 348,
-      "partially native": 128,
+      "opaque": 322,
+      "partially native": 154,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -34592,11 +34483,12 @@
         "reference": 245
       },
       "HFMA2": {
-        "none": 24500,
-        "reference": 268
+        "none": 49036,
+        "reference": 500
       },
       "HFMA2.MMA": {
-        "reference": 1
+        "none": 3767,
+        "reference": 73
       },
       "HMNMX2": {
         "none": 11722,
@@ -34993,12 +34885,14 @@
         "opaque": 1176
       },
       "HFMA2": {
-        "native": 24768,
-        "opaque": 271584
+        "native": 49501,
+        "opaque": 246816,
+        "partially native": 35
       },
       "HFMA2.MMA": {
-        "opaque": 5759,
-        "partially native": 1
+        "native": 3837,
+        "opaque": 1920,
+        "partially native": 3
       },
       "HMMA": {
         "opaque": 480
@@ -35386,7 +35280,7 @@
     },
     "evidence": {
       "none": 14,
-      "reference": 634
+      "reference": 660
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -35409,32 +35303,6 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "MMA operand form",
-      "hfma2_mma__RCR_relu": "MMA operand form",
-      "hfma2_mma__RCxR_norelu": "MMA operand form",
-      "hfma2_mma__RCxR_relu": "MMA operand form",
-      "hfma2_mma__RIR_norelu": "MMA operand form",
-      "hfma2_mma__RIR_relu": "MMA operand form",
-      "hfma2_mma__RRC_norelu": "MMA operand form",
-      "hfma2_mma__RRC_relu": "MMA operand form",
-      "hfma2_mma__RRCx_norelu": "MMA operand form",
-      "hfma2_mma__RRCx_relu": "MMA operand form",
-      "hfma2_mma__RRI_relu": "FMZ; FTZ; INVALID3; RELU",
-      "hfma2_mma__RRR_norelu": "MMA operand form",
-      "hfma2_mma__RRR_relu": "MMA operand form",
-      "hfma2_mma__RRU_norelu": "MMA operand form",
-      "hfma2_mma__RRU_relu": "MMA operand form",
-      "hfma2_mma__RUR_norelu": "MMA operand form",
-      "hfma2_mma__RUR_relu": "MMA operand form",
-      "hfma2_relu__RCR": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RCxR": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RIR": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RRC": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RRCx": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RRI": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RRR": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RRU": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RUR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
@@ -35559,10 +35427,10 @@
         "reference": 10
       },
       "HFMA2": {
-        "reference": 9
+        "reference": 18
       },
       "HFMA2.MMA": {
-        "reference": 1
+        "reference": 18
       },
       "HMNMX2": {
         "reference": 5
@@ -35936,12 +35804,10 @@
         "partially native": 5
       },
       "HFMA2": {
-        "opaque": 9,
-        "partially native": 9
+        "partially native": 18
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "partially native": 18
       },
       "HMMA": {
         "opaque": 4
@@ -36438,12 +36304,10 @@
         "partially native": 5
       },
       "HFMA2": {
-        "opaque": 9,
-        "partially native": 9
+        "partially native": 18
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "partially native": 18
       },
       "HMNMX2": {
         "native": 1,
@@ -36725,8 +36589,8 @@
     },
     "status": {
       "native": 433,
-      "opaque": 356,
-      "partially native": 142,
+      "opaque": 330,
+      "partially native": 168,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -36844,12 +36708,12 @@
         "reference": 246
       },
       "HFMA2": {
-        "none": 74035,
-        "reference": 269
+        "none": 148107,
+        "reference": 501
       },
       "HFMA2.MMA": {
-        "none": 2,
-        "reference": 1
+        "none": 3767,
+        "reference": 73
       },
       "HMNMX2": {
         "none": 11722,
@@ -37245,12 +37109,14 @@
         "native": 2940
       },
       "HFMA2": {
-        "native": 74304,
-        "opaque": 222048
+        "native": 148503,
+        "opaque": 147744,
+        "partially native": 105
       },
       "HFMA2.MMA": {
-        "opaque": 5757,
-        "partially native": 3
+        "native": 3834,
+        "opaque": 1920,
+        "partially native": 6
       },
       "HMMA": {
         "opaque": 480
@@ -37638,7 +37504,7 @@
     },
     "evidence": {
       "none": 14,
-      "reference": 634
+      "reference": 660
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -37661,32 +37527,6 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "MMA operand form",
-      "hfma2_mma__RCR_relu": "MMA operand form",
-      "hfma2_mma__RCxR_norelu": "MMA operand form",
-      "hfma2_mma__RCxR_relu": "MMA operand form",
-      "hfma2_mma__RIR_norelu": "MMA operand form",
-      "hfma2_mma__RIR_relu": "MMA operand form",
-      "hfma2_mma__RRC_norelu": "MMA operand form",
-      "hfma2_mma__RRC_relu": "MMA operand form",
-      "hfma2_mma__RRCx_norelu": "MMA operand form",
-      "hfma2_mma__RRCx_relu": "MMA operand form",
-      "hfma2_mma__RRI_relu": "RELU",
-      "hfma2_mma__RRR_norelu": "MMA operand form",
-      "hfma2_mma__RRR_relu": "MMA operand form",
-      "hfma2_mma__RRU_norelu": "MMA operand form",
-      "hfma2_mma__RRU_relu": "MMA operand form",
-      "hfma2_mma__RUR_norelu": "MMA operand form",
-      "hfma2_mma__RUR_relu": "MMA operand form",
-      "hfma2_relu__RCR": "RELU; ofmt",
-      "hfma2_relu__RCxR": "RELU; ofmt",
-      "hfma2_relu__RIR": "RELU; ofmt",
-      "hfma2_relu__RRC": "RELU; ofmt",
-      "hfma2_relu__RRCx": "RELU; ofmt",
-      "hfma2_relu__RRI": "RELU; ofmt",
-      "hfma2_relu__RRR": "RELU; ofmt",
-      "hfma2_relu__RRU": "RELU; ofmt",
-      "hfma2_relu__RUR": "RELU; ofmt",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
@@ -37811,10 +37651,10 @@
         "reference": 10
       },
       "HFMA2": {
-        "reference": 9
+        "reference": 18
       },
       "HFMA2.MMA": {
-        "reference": 1
+        "reference": 18
       },
       "HMNMX2": {
         "reference": 5
@@ -38187,12 +38027,10 @@
         "native": 10
       },
       "HFMA2": {
-        "opaque": 9,
-        "partially native": 9
+        "partially native": 18
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "partially native": 18
       },
       "HMMA": {
         "opaque": 4
@@ -38688,12 +38526,10 @@
         "native": 10
       },
       "HFMA2": {
-        "opaque": 9,
-        "partially native": 9
+        "partially native": 18
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "partially native": 18
       },
       "HMNMX2": {
         "native": 1,
@@ -38975,8 +38811,8 @@
     },
     "status": {
       "native": 438,
-      "opaque": 356,
-      "partially native": 137,
+      "opaque": 330,
+      "partially native": 163,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -39099,11 +38935,12 @@
         "none": 1518
       },
       "HFMA2": {
-        "gpu": 269,
-        "none": 24499
+        "gpu": 501,
+        "none": 49035
       },
       "HFMA2.MMA": {
-        "gpu": 1
+        "gpu": 73,
+        "none": 3767
       },
       "HMNMX2": {
         "gpu": 209,
@@ -39515,12 +39352,14 @@
         "opaque": 1176
       },
       "HFMA2": {
-        "native": 24768,
-        "opaque": 271584
+        "native": 49501,
+        "opaque": 246816,
+        "partially native": 35
       },
       "HFMA2.MMA": {
-        "opaque": 5759,
-        "partially native": 1
+        "native": 3837,
+        "opaque": 1920,
+        "partially native": 3
       },
       "HMMA": {
         "opaque": 480
@@ -39912,7 +39751,7 @@
       }
     },
     "evidence": {
-      "gpu": 575,
+      "gpu": 601,
       "none": 26,
       "reference": 75
     },
@@ -39937,32 +39776,6 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "MMA operand form",
-      "hfma2_mma__RCR_relu": "MMA operand form",
-      "hfma2_mma__RCxR_norelu": "MMA operand form",
-      "hfma2_mma__RCxR_relu": "MMA operand form",
-      "hfma2_mma__RIR_norelu": "MMA operand form",
-      "hfma2_mma__RIR_relu": "MMA operand form",
-      "hfma2_mma__RRC_norelu": "MMA operand form",
-      "hfma2_mma__RRC_relu": "MMA operand form",
-      "hfma2_mma__RRCx_norelu": "MMA operand form",
-      "hfma2_mma__RRCx_relu": "MMA operand form",
-      "hfma2_mma__RRI_relu": "FMZ; FTZ; INVALID3; RELU",
-      "hfma2_mma__RRR_norelu": "MMA operand form",
-      "hfma2_mma__RRR_relu": "MMA operand form",
-      "hfma2_mma__RRU_norelu": "MMA operand form",
-      "hfma2_mma__RRU_relu": "MMA operand form",
-      "hfma2_mma__RUR_norelu": "MMA operand form",
-      "hfma2_mma__RUR_relu": "MMA operand form",
-      "hfma2_relu__RCR": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RCxR": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RIR": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RRC": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RRCx": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RRI": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RRR": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RRU": "FMZ; FTZ; INVALID3; RELU; ofmt",
-      "hfma2_relu__RUR": "FMZ; FTZ; INVALID3; RELU; ofmt",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
@@ -40096,10 +39909,10 @@
         "gpu": 10
       },
       "HFMA2": {
-        "gpu": 9
+        "gpu": 18
       },
       "HFMA2.MMA": {
-        "gpu": 1
+        "gpu": 18
       },
       "HMNMX2": {
         "gpu": 5
@@ -40484,12 +40297,10 @@
         "partially native": 5
       },
       "HFMA2": {
-        "opaque": 9,
-        "partially native": 9
+        "partially native": 18
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "partially native": 18
       },
       "HMMA": {
         "opaque": 4
@@ -40991,12 +40802,10 @@
         "partially native": 5
       },
       "HFMA2": {
-        "opaque": 9,
-        "partially native": 9
+        "partially native": 18
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "partially native": 18
       },
       "HMNMX2": {
         "native": 1,
@@ -41280,8 +41089,8 @@
     },
     "status": {
       "native": 461,
-      "opaque": 378,
-      "partially native": 142,
+      "opaque": 352,
+      "partially native": 168,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -41405,13 +41214,13 @@
         "reference": 1
       },
       "HFMA2": {
-        "gpu": 269,
-        "none": 74034,
+        "gpu": 501,
+        "none": 148106,
         "reference": 1
       },
       "HFMA2.MMA": {
-        "gpu": 1,
-        "none": 2
+        "gpu": 73,
+        "none": 3767
       },
       "HMNMX2": {
         "gpu": 209,
@@ -41822,12 +41631,14 @@
         "native": 2940
       },
       "HFMA2": {
-        "native": 74304,
-        "opaque": 222048
+        "native": 148503,
+        "opaque": 147744,
+        "partially native": 105
       },
       "HFMA2.MMA": {
-        "opaque": 5757,
-        "partially native": 3
+        "native": 3834,
+        "opaque": 1920,
+        "partially native": 6
       },
       "HMMA": {
         "opaque": 480
@@ -42219,7 +42030,7 @@
       }
     },
     "evidence": {
-      "gpu": 575,
+      "gpu": 601,
       "none": 26,
       "reference": 75
     },
@@ -42244,32 +42055,6 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR_norelu": "MMA operand form",
-      "hfma2_mma__RCR_relu": "MMA operand form",
-      "hfma2_mma__RCxR_norelu": "MMA operand form",
-      "hfma2_mma__RCxR_relu": "MMA operand form",
-      "hfma2_mma__RIR_norelu": "MMA operand form",
-      "hfma2_mma__RIR_relu": "MMA operand form",
-      "hfma2_mma__RRC_norelu": "MMA operand form",
-      "hfma2_mma__RRC_relu": "MMA operand form",
-      "hfma2_mma__RRCx_norelu": "MMA operand form",
-      "hfma2_mma__RRCx_relu": "MMA operand form",
-      "hfma2_mma__RRI_relu": "RELU",
-      "hfma2_mma__RRR_norelu": "MMA operand form",
-      "hfma2_mma__RRR_relu": "MMA operand form",
-      "hfma2_mma__RRU_norelu": "MMA operand form",
-      "hfma2_mma__RRU_relu": "MMA operand form",
-      "hfma2_mma__RUR_norelu": "MMA operand form",
-      "hfma2_mma__RUR_relu": "MMA operand form",
-      "hfma2_relu__RCR": "RELU; ofmt",
-      "hfma2_relu__RCxR": "RELU; ofmt",
-      "hfma2_relu__RIR": "RELU; ofmt",
-      "hfma2_relu__RRC": "RELU; ofmt",
-      "hfma2_relu__RRCx": "RELU; ofmt",
-      "hfma2_relu__RRI": "RELU; ofmt",
-      "hfma2_relu__RRR": "RELU; ofmt",
-      "hfma2_relu__RRU": "RELU; ofmt",
-      "hfma2_relu__RUR": "RELU; ofmt",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
@@ -42403,10 +42188,10 @@
         "gpu": 10
       },
       "HFMA2": {
-        "gpu": 9
+        "gpu": 18
       },
       "HFMA2.MMA": {
-        "gpu": 1
+        "gpu": 18
       },
       "HMNMX2": {
         "gpu": 5
@@ -42790,12 +42575,10 @@
         "native": 10
       },
       "HFMA2": {
-        "opaque": 9,
-        "partially native": 9
+        "partially native": 18
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "partially native": 18
       },
       "HMMA": {
         "opaque": 4
@@ -43296,12 +43079,10 @@
         "native": 10
       },
       "HFMA2": {
-        "opaque": 9,
-        "partially native": 9
+        "partially native": 18
       },
       "HFMA2.MMA": {
-        "opaque": 17,
-        "partially native": 1
+        "partially native": 18
       },
       "HMNMX2": {
         "native": 1,
@@ -43585,8 +43366,8 @@
     },
     "status": {
       "native": 466,
-      "opaque": 378,
-      "partially native": 137,
+      "opaque": 352,
+      "partially native": 163,
       "partially primitive": 1,
       "primitive": 72
     }
@@ -43713,11 +43494,13 @@
       },
       "HFMA2": {
         "gpu": 269,
-        "none": 24499
+        "none": 49035,
+        "reference": 232
       },
       "HFMA2.MMA": {
         "gpu": 14,
-        "none": 307
+        "none": 3760,
+        "reference": 66
       },
       "HMNMX2": {
         "gpu": 219,
@@ -44162,13 +43945,14 @@
         "opaque": 1764
       },
       "HFMA2": {
-        "native": 24768,
-        "opaque": 436224
+        "native": 49501,
+        "opaque": 411456,
+        "partially native": 35
       },
       "HFMA2.MMA": {
-        "native": 320,
-        "opaque": 6879,
-        "partially native": 1
+        "native": 3837,
+        "opaque": 3360,
+        "partially native": 3
       },
       "HGMMA": {
         "opaque": 26880
@@ -44638,7 +44422,7 @@
     "evidence": {
       "gpu": 599,
       "none": 36,
-      "reference": 78
+      "reference": 102
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -44663,30 +44447,6 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR": "MMA format; MMA operand form",
-      "hfma2_mma__RCxR": "MMA format; MMA operand form",
-      "hfma2_mma__RRC": "MMA format; MMA operand form",
-      "hfma2_mma__RRCx": "MMA format; MMA operand form",
-      "hfma2_mma__RRU": "MMA format; MMA operand form",
-      "hfma2_mma__RUR": "MMA format; MMA operand form",
-      "hfma2_mma_relu__RCR": "MMA format; MMA operand form",
-      "hfma2_mma_relu__RCxR": "MMA format; MMA operand form",
-      "hfma2_mma_relu__RIR": "MMA format; MMA operand form",
-      "hfma2_mma_relu__RRC": "MMA format; MMA operand form",
-      "hfma2_mma_relu__RRCx": "MMA format; MMA operand form",
-      "hfma2_mma_relu__RRI": "FMZ; FTZ; INVALID3; MMA format; RELU",
-      "hfma2_mma_relu__RRR": "MMA format; MMA operand form",
-      "hfma2_mma_relu__RRU": "MMA format; MMA operand form",
-      "hfma2_mma_relu__RUR": "MMA format; MMA operand form",
-      "hfma2_relu__RCR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RCxR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RIR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRC": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRCx": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRI": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRR": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RRU": "FMZ; FTZ; OOB; RELU; ofmt",
-      "hfma2_relu__RUR": "FMZ; FTZ; OOB; RELU; ofmt",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
@@ -44822,10 +44582,12 @@
         "gpu": 10
       },
       "HFMA2": {
-        "gpu": 9
+        "gpu": 9,
+        "reference": 9
       },
       "HFMA2.MMA": {
-        "gpu": 3
+        "gpu": 3,
+        "reference": 15
       },
       "HMNMX2": {
         "gpu": 10
@@ -45240,12 +45002,10 @@
         "partially native": 5
       },
       "HFMA2": {
-        "opaque": 9,
-        "partially native": 9
+        "partially native": 18
       },
       "HFMA2.MMA": {
-        "opaque": 15,
-        "partially native": 3
+        "partially native": 18
       },
       "HGMMA": {
         "opaque": 6
@@ -45822,12 +45582,10 @@
         "partially native": 5
       },
       "HFMA2": {
-        "opaque": 9,
-        "partially native": 9
+        "partially native": 18
       },
       "HFMA2.MMA": {
-        "opaque": 15,
-        "partially native": 3
+        "partially native": 18
       },
       "HMNMX2": {
         "native": 1,
@@ -46110,8 +45868,8 @@
     },
     "status": {
       "native": 485,
-      "opaque": 460,
-      "partially native": 156,
+      "opaque": 436,
+      "partially native": 180,
       "partially primitive": 6,
       "primitive": 66
     }
@@ -46239,12 +45997,13 @@
       },
       "HFMA2": {
         "gpu": 269,
-        "none": 98802,
-        "reference": 1
+        "none": 197642,
+        "reference": 233
       },
       "HFMA2.MMA": {
         "gpu": 14,
-        "none": 309
+        "none": 3760,
+        "reference": 66
       },
       "HMNMX2": {
         "gpu": 219,
@@ -46689,13 +46448,14 @@
         "opaque": 588
       },
       "HFMA2": {
-        "native": 99072,
-        "opaque": 361920
+        "native": 198004,
+        "opaque": 262848,
+        "partially native": 140
       },
       "HFMA2.MMA": {
-        "native": 320,
-        "opaque": 6877,
-        "partially native": 3
+        "native": 3834,
+        "opaque": 3360,
+        "partially native": 6
       },
       "HGMMA": {
         "opaque": 26880
@@ -47165,7 +46925,7 @@
     "evidence": {
       "gpu": 599,
       "none": 36,
-      "reference": 78
+      "reference": 102
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -47190,30 +46950,6 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
-      "hfma2_mma__RCR": "MMA format; MMA operand form",
-      "hfma2_mma__RCxR": "MMA format; MMA operand form",
-      "hfma2_mma__RRC": "MMA format; MMA operand form",
-      "hfma2_mma__RRCx": "MMA format; MMA operand form",
-      "hfma2_mma__RRU": "MMA format; MMA operand form",
-      "hfma2_mma__RUR": "MMA format; MMA operand form",
-      "hfma2_mma_relu__RCR": "MMA format; MMA operand form",
-      "hfma2_mma_relu__RCxR": "MMA format; MMA operand form",
-      "hfma2_mma_relu__RIR": "MMA format; MMA operand form",
-      "hfma2_mma_relu__RRC": "MMA format; MMA operand form",
-      "hfma2_mma_relu__RRCx": "MMA format; MMA operand form",
-      "hfma2_mma_relu__RRI": "MMA format; RELU",
-      "hfma2_mma_relu__RRR": "MMA format; MMA operand form",
-      "hfma2_mma_relu__RRU": "MMA format; MMA operand form",
-      "hfma2_mma_relu__RUR": "MMA format; MMA operand form",
-      "hfma2_relu__RCR": "RELU; ofmt",
-      "hfma2_relu__RCxR": "RELU; ofmt",
-      "hfma2_relu__RIR": "RELU; ofmt",
-      "hfma2_relu__RRC": "RELU; ofmt",
-      "hfma2_relu__RRCx": "RELU; ofmt",
-      "hfma2_relu__RRI": "RELU; ofmt",
-      "hfma2_relu__RRR": "RELU; ofmt",
-      "hfma2_relu__RRU": "RELU; ofmt",
-      "hfma2_relu__RUR": "RELU; ofmt",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
@@ -47349,10 +47085,12 @@
         "gpu": 10
       },
       "HFMA2": {
-        "gpu": 9
+        "gpu": 9,
+        "reference": 9
       },
       "HFMA2.MMA": {
-        "gpu": 3
+        "gpu": 3,
+        "reference": 15
       },
       "HMNMX2": {
         "gpu": 10
@@ -47767,12 +47505,10 @@
         "partially native": 5
       },
       "HFMA2": {
-        "opaque": 9,
-        "partially native": 9
+        "partially native": 18
       },
       "HFMA2.MMA": {
-        "opaque": 15,
-        "partially native": 3
+        "partially native": 18
       },
       "HGMMA": {
         "opaque": 6
@@ -48349,12 +48085,10 @@
         "partially native": 5
       },
       "HFMA2": {
-        "opaque": 9,
-        "partially native": 9
+        "partially native": 18
       },
       "HFMA2.MMA": {
-        "opaque": 15,
-        "partially native": 3
+        "partially native": 18
       },
       "HMNMX2": {
         "native": 1,
@@ -48637,8 +48371,8 @@
     },
     "status": {
       "native": 485,
-      "opaque": 460,
-      "partially native": 156,
+      "opaque": 436,
+      "partially native": 180,
       "partially primitive": 6,
       "primitive": 66
     }

@@ -1,10 +1,10 @@
 {
   "counts": {
     "legal": 3093438,
-    "unresolved_semantics": 2451246,
-    "requirements": 162293,
+    "unresolved_semantics": 2450377,
+    "requirements": 164284,
     "manual": 46,
-    "blocked": 36272,
+    "blocked": 38263,
     "covered_requirements": 126021,
     "generated": 12556
   },
@@ -960,72 +960,107 @@
     },
     {
       "cls": "hadd2__RC",
-      "count": 1760,
+      "count": 1536,
       "reason": "unresolved semantics"
     },
     {
       "cls": "hadd2__RC",
-      "count": 360,
+      "count": 242,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
+      "cls": "hadd2__RC",
+      "count": 566,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "packed source-sign numerical corpus remains manual": 270
+        "mixed-precision and sign-swizzle lane corpus remains manual": 14,
+        "packed source-sign numerical corpus remains manual": 480
       }
     },
     {
       "cls": "hadd2__RCx",
-      "count": 1760,
+      "count": 1536,
       "reason": "unresolved semantics"
     },
     {
       "cls": "hadd2__RCx",
-      "count": 360,
+      "count": 242,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
+      "cls": "hadd2__RCx",
+      "count": 566,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "packed source-sign numerical corpus remains manual": 270
+        "mixed-precision and sign-swizzle lane corpus remains manual": 14,
+        "packed source-sign numerical corpus remains manual": 480
       }
     },
     {
       "cls": "hadd2__RI",
-      "count": 104,
+      "count": 96,
       "reason": "unresolved semantics"
     },
     {
       "cls": "hadd2__RI",
-      "count": 55,
+      "count": 58,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
+      "cls": "hadd2__RI",
+      "count": 80,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "packed source-sign numerical corpus remains manual": 18
+        "mixed-precision and sign-swizzle lane corpus remains manual": 2,
+        "packed source-sign numerical corpus remains manual": 24
       }
     },
     {
       "cls": "hadd2__RR",
-      "count": 1760,
+      "count": 1536,
       "reason": "unresolved semantics"
     },
     {
       "cls": "hadd2__RR",
-      "count": 360,
+      "count": 300,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
+      "cls": "hadd2__RR",
+      "count": 566,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "packed source-sign numerical corpus remains manual": 270
+        "mixed-precision and sign-swizzle lane corpus remains manual": 14,
+        "packed source-sign numerical corpus remains manual": 480
       }
     },
     {
       "cls": "hadd2__RU",
-      "count": 1760,
+      "count": 1536,
       "reason": "unresolved semantics"
     },
     {
       "cls": "hadd2__RU",
-      "count": 360,
+      "count": 300,
+      "reason": "partial-form planning deferred to #80",
+      "unit": "interactions"
+    },
+    {
+      "cls": "hadd2__RU",
+      "count": 566,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "packed source-sign numerical corpus remains manual": 270
+        "mixed-precision and sign-swizzle lane corpus remains manual": 14,
+        "packed source-sign numerical corpus remains manual": 480
       }
     },
     {
@@ -1100,7 +1135,7 @@
     },
     {
       "cls": "hfma2__RRI",
-      "count": 2784,
+      "count": 2819,
       "reason": "unresolved semantics"
     },
     {
@@ -1109,7 +1144,7 @@
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "packed source-sign numerical corpus remains manual": 270
+        "packed source-sign numerical corpus remains manual": 235
       }
     },
     {

@@ -141,6 +141,10 @@ in [`docs/testing.md`](testing.md).
   operations Inf-Inf, 0*Inf):
   - FADD/FMUL/FFMA: always +0x7fffffff, whatever the operands, payloads or modifiers.
   - HADD2/HMUL2/HFMA2 (F16_V2, and HFMA2 BF16_V2): each NaN lane is +0x7fff.
+- HFMA2.RELU and HFMA2.MMA.RELU (2026-10-24, 54 `tests.probe` scenarios, then the shared half-lane
+  cases): `Rd = Pp ? relu(r) : r` per lane. RELU makes negative values, -0 and negative subnormals +0
+  and keeps the canonical +0x7fff NaN; the RELU classes' predicate operand Pp enables it (Pp false or
+  `!Pp` true gives the plain HFMA2 result). HFMA2.MMA gives the same values as HFMA2.
   - DADD/DMUL/DFMA: the first NaN register of Rb, Rc, Ra (DADD: Rc before Ra; DMUL: Rb before Ra),
     quieted, with its own sign and payload: `-`/`|.|` on it are ignored (as FRND.F64 and F2F).
     Signaling and quiet NaNs have no priority over each other. Without a NaN operand an invalid
