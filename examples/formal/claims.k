@@ -1,4 +1,4 @@
-requires "sass.k"
+requires "sass.md"
 
 // Claims concern the executable IR. They import no runtime primitive axioms.
 module SASS-CLAIMS

@@ -60,7 +60,7 @@ def compile(backend="llvm"):
     if f"v{k.VERSION}" not in version and f" {k.VERSION}" not in version:
         raise ToolError(f"expected K {k.VERSION}, got {version.strip()}")
     digest = hashlib.sha256(version.encode())
-    for source in sorted(k.DEFINITION.parent.glob("*.k")):
+    for source in k.SOURCES:
         digest.update(source.name.encode())
         digest.update(source.read_bytes())
     root = paths.CACHE / "formal/k" / digest.hexdigest()[:20]

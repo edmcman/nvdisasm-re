@@ -21,8 +21,8 @@ def semantics(**kwargs):
 def test_vocabulary_and_package_data():
     assert k.OPERATORS == set(bitvec.OPS) | {"const", "param", "reg", "load", "ite", "primitive"}
     assert k.DEFINITION.is_file()
-    for name in ("bits.k", "float.k"):
-        assert k.DEFINITION.with_name(name).is_file()
+    for source in k.SOURCES:
+        assert source.is_file()
 
 
 def test_named_expansion_and_shared_nodes():

@@ -1,4 +1,4 @@
-requires "sass.k"
+requires "sass.md"
 
 // This claim must fail. It is deliberately separate from the passing claims.
 module SASS-FALSE-CLAIM

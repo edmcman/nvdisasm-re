@@ -144,6 +144,18 @@ jobs:
           sudo apt-get install -y "$RUNNER_TEMP/k.deb" z3
       - name: Execute the IR model and prove its example claims
         run: nice uv run pytest -m k --arch SM89,SM90 --fp all
+      - name: Publish the executable formal definition
+        run: |
+          sudo apt-get install -y --no-install-recommends pandoc texlive-latex-extra texlive-fonts-recommended
+          nice uv run python -m sass.formal.k.document
+      - uses: actions/upload-artifact@v7
+        with:
+          name: formal-semantics
+          path: |
+            .cache/formal-doc/sass-ir-semantics.md
+            .cache/formal-doc/sass-ir-semantics.tex
+            .cache/formal-doc/sass-ir-semantics.pdf
+            .cache/formal-doc/sass-ir-semantics.log
   ghidra-tests:
     needs: architectures
     runs-on: ubuntu-latest

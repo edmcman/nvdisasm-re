@@ -1133,8 +1133,8 @@ remain fallback paths.
 ## 15. K backend (2026-10-26)
 
 `src/sass/formal/k/` defines the **executable IR in K**, rather than independently
-redefining each SASS opcode. `bits.k` gives the width-explicit integer operators;
-`float.k` gives exact IEEE binary arithmetic; `sass.k` gives expression evaluation
+redefining each SASS opcode. `bits.md` gives the width-explicit integer operators;
+`float.md` gives exact IEEE binary arithmetic; `sass.md` gives expression evaluation
 and instruction/program state transitions. The Python exporter translates the
 existing lifter's output into terms interpreted by those handwritten rules.
 
@@ -1220,14 +1220,50 @@ A small branching example and direct K commands:
 
 ```sh
 nice uv run python examples/formal/export.py
-nice kompile src/sass/formal/k/sass.k --main-module SASS --syntax-module SASS \
+nice kompile src/sass/formal/k/sass.md --main-module SASS --syntax-module SASS \
   --backend llvm --output-definition .cache/k-llvm
 nice krun .cache/formal-example/input.sass --definition .cache/k-llvm --output json
-nice kompile src/sass/formal/k/sass.k --main-module SASS --syntax-module SASS \
+nice kompile src/sass/formal/k/sass.md --main-module SASS --syntax-module SASS \
   --backend haskell --output-definition .cache/k-haskell
 nice kprove examples/formal/claims.k --definition .cache/k-haskell \
   --spec-module SASS-CLAIMS -I src/sass/formal/k
 ```
+
+### Published definition
+
+The three modules are literate Markdown: explanations, mathematical notation,
+and fenced `k` blocks. K compiles these files directly, extracting the code
+blocks. Read [integer bitvectors](../src/sass/formal/k/bits.md),
+[exact floating point](../src/sass/formal/k/float.md), and
+[instruction execution](../src/sass/formal/k/sass.md) alongside the
+[reading guide](../src/sass/formal/k/reference.md).
+
+Build a complete reference document from those same sources:
+
+```sh
+# Debian/Ubuntu document dependencies; no K installation is needed for rendering.
+sudo apt-get install --no-install-recommends pandoc texlive-latex-extra texlive-fonts-recommended
+nice uv run python -m sass.formal.k.document
+# Or generate Markdown and LaTeX without a TeX installation:
+nice uv run python -m sass.formal.k.document --tex-only
+```
+
+The default output directory is `sass.paths.CACHE / "formal-doc"`:
+`sass-ir-semantics.md`, `.tex`, and `.pdf`, with a LaTeX `.log`.
+`--output-directory PATH` chooses a destination. The publication includes every
+handwritten rule, typeset equations, a table of contents, and a source SHA-256
+fingerprint. Pandoc and LaTeX render the executable blocks as formatted K
+listings; the explanatory equations do not replace them. CI publishes the
+Markdown, LaTeX, and PDF as the `formal-semantics` artifact.
+
+K's own LaTeX output is unavailable in the pinned release. Upstream removed
+the serializer, output mode, and `latex(...)` functionality in
+[PR #3968](https://github.com/runtimeverification/k/pull/3968), merged
+2024-02-09. The [review issue](https://github.com/runtimeverification/k/issues/3909)
+records missing formatting-prelude support; the older PL tutorial still
+describes the removed interface (checked 2026-10-26). This publication follows
+the current [literate Markdown workflow](https://kframework.org/k-distribution/k-tutorial/1_basic/08_literate_programming/)
+with ordinary document tools.
 
 ### Runtime contracts and verification limits
 

@@ -1,4 +1,22 @@
-requires "float.k"
+# Instruction and program execution
+
+`sass.md` defines `SASS`, importing exact floating point and bitvectors.
+A program maps instruction addresses to lifted instructions. PC zero denotes
+termination; each fall-through instruction advances PC by 16 bytes.
+
+## IR syntax
+
+An expression `node(ID, OP, W, ARGS)` carries a stable instruction-local id,
+operator, result width, and argument list. An instruction contains its address,
+optional guard, ordered effects, register writes, memory stores, and optional
+flow. `absent` represents an unconditional guard; `unsupported` retains the
+reason why an instruction could not be modeled.
+
+The `run` input supplies the program, registers, byte memory, parameters,
+runtime responses, environment, and instruction budget, in that order.
+
+```k
+requires "float.md"
 
 // State transitions of the executable IR, with an explicit environment boundary.
 module SASS
@@ -23,6 +41,24 @@ module SASS
   syntax KResult ::= Int | String | List
   syntax Map ::= "(" Map ")" [bracket]
 
+```
+
+## Machine configuration
+
+The configuration separates architectural state from execution bookkeeping.
+The `k` cell is the current computation; `~>` sequences its continuations.
+
+| Cells | Responsibility |
+| :--- | :--- |
+| `program`, `pc`, `nextPc` | Instruction lookup and pending control transfer |
+| `regs`, `memory` | Architectural register elements and bytes |
+| `params` | Explicit expression inputs |
+| `responses`, `environment`, `events` | Assumed runtime transcript and environment state |
+| `memo` | Values already evaluated in this instruction |
+| `pendingRegs`, `pendingMemory` | Writes awaiting commit |
+| `step`, `remaining`, `status` | Progress, budget, and termination reason |
+
+```k
   configuration
     <sass>
       <k> $PGM:Input </k>
@@ -43,6 +79,22 @@ module SASS
       <status> "running" </status>
     </sass>
 
+```
+
+## Continuations and state helpers
+
+The internal constructors below describe evaluation stages. Register elements
+have width 32 for R/UR/SR and width 1 for P/UP. An absent register element or
+memory byte reads as zero. Wide registers and memory values are little-endian.
+For example, a memory read of $n$ bytes at address $a$ denotes
+
+$$
+\operatorname{read}(M,s,a,n)=\sum_{j=0}^{n-1}M(s,a+j)\,2^{8j},
+$$
+
+with zero for missing entries. `overlay` commits a pending map over a base map.
+
+```k
   syntax KItem ::= "next" | dispatch(Instruction) | gate(Instruction)
                  | eval(OptionalExpr) | evalArgs(List, List) | argument(List, List)
                  | remember(Int) | choose(Expr, Expr)
@@ -104,6 +156,25 @@ module SASS
     OP ==String "ne" orBool OP ==String "ult" orBool OP ==String "ule" orBool OP ==String "slt" orBool
     OP ==String "sle" orBool OP ==String "zext" orBool OP ==String "sext" orBool OP ==String "extract" orBool OP ==String "concat"
 
+```
+
+## Dispatch, predication, and termination
+
+Dispatch resets memoized values and pending writes. A false guard skips the
+instruction body, including effects and operand reads. A true guard schedules
+these phases in order:
+
+$$
+\text{effects}\ \longrightarrow\ \text{register values}\
+\longrightarrow\ \text{stores}\ \longrightarrow\ \text{flow}\
+\longrightarrow\ \text{commit}.
+$$
+
+PC zero halts successfully. A nonzero PC with no remaining budget fails with
+`instruction limit`; an absent instruction address fails with `PC outside
+program`. An unsupported instruction fails only if its guard is true.
+
+```k
   rule <k> run(program(P, ENTRY), R, M, A, RESP, ENV, LIMIT) => next ... </k>
        <program> _ => P </program> <pc> _ => ENTRY </pc>
        <regs> _ => R </regs> <memory> _ => M </memory> <params> _ => A </params>
@@ -128,6 +199,20 @@ module SASS
     requires V =/=Int 0
   rule <k> V:Int ~> gate(unsupported(_, _, WHY)) => fail(WHY) ... </k> requires V =/=Int 0
 
+```
+
+## Expression evaluation and sharing
+
+The memoized-value rule has priority over evaluation. Each expression id is
+evaluated at most once per instruction, including runtime primitives.
+Conditional expressions evaluate the condition and only the chosen arm.
+Other argument lists evaluate left to right. Missing parameters fail explicitly.
+
+Register and load expressions read architectural state. Integer and
+floating-point operators dispatch to the preceding modules. Primitive nodes
+request an explicit environment response.
+
+```k
   // Expr ids are stable within one instruction. The cache resets at dispatch.
   rule <k> eval(node(ID, _, _, _)) => CACHE[ID] ... </k> <memo> CACHE </memo>
     requires ID in_keys(CACHE) [priority(40)]
@@ -160,6 +245,25 @@ module SASS
   rule <k> VS:List ~> compute(ID, OP, W, WS) => fp(OP, W, VS, WS) ~> remember(ID) ... </k>
     requires isFloatOp(OP)
 
+```
+
+## Explicit runtime contracts
+
+A runtime request is indexed by $(\text{step},\text{pc},\text{id})$. Its response
+contains the name, evaluated arguments, result width, result value, events,
+and environment before and after the operation.
+
+K accepts a response only if the name, arguments, width, and pre-environment
+match and $0\leq v<2^w$. It then installs the post-environment and appends the
+provided events. Missing and mismatched responses fail. Effects have width zero
+and must return zero. Effect ids are negative; expression ids are nonnegative.
+
+This is an explicit assumption boundary. The rules do not give a default
+answer to a primitive, model GPU scheduling, or establish that a supplied
+response matches hardware. Proof-specific environment rules belong in a
+separate contract module with documented assumptions.
+
+```k
   // A concrete contract instance supplies a result and an explicit environment transition.
   // No primitive receives a default answer. Proof-specific contract modules may add rules
   // for invoke, but are separate from this concrete response-transcript definition.
@@ -178,6 +282,16 @@ module SASS
     requires NAME =/=String N orBool ARGS =/=K A orBool W =/=Int WIDTH orBool V <Int 0 orBool V >=Int (2 ^Int W)
              orBool BEFORE =/=K ENV
 
+```
+
+## Effects and staged writes
+
+Effects execute first, in order. Register writes and byte stores accumulate in
+pending maps while their expressions continue to read the pre-write architectural
+state. Store guards are lazy: a false guard reads neither address nor value.
+Overlapping destinations use ordered, last-write-wins updates.
+
+```k
   rule <k> effects(.List) => .K ... </k>
   rule <k> effects(ListItem(effect(ID, NAME, ARGS)) REST)
            => evalArgs(ARGS, .List) ~> effectArgs(ID, NAME) ~> discard ~> effects(REST) ... </k>
@@ -196,6 +310,18 @@ module SASS
   rule <k> A:Int ~> storeAddress(S, V:Expr) => eval(V) ~> storeValue(S, A, widthOf(V)) ... </k>
   rule <k> V:Int ~> storeValue(S, A, W) => .K ... </k>
        <pendingMemory> M => writeBytes(S, A, W /Int 8, V, M) </pendingMemory>
+```
+
+## Control transfer and commit
+
+Flow evaluates its guard before its target. A false flow guard keeps the
+fall-through PC. Calls and returns use the lifted target directly; this model
+adds no call stack. Commit overlays pending writes, then advances PC, increments
+the step, and consumes one unit of budget. A skipped instruction performs the
+same step accounting without writes. Failure clears the computation and records
+the reason.
+
+```k
   rule <k> transfer(noFlow) => .K ... </k>
   rule <k> transfer(flow(_, T, C)) => eval(C) ~> flowGuard(T) ... </k>
   rule <k> 0 ~> flowGuard(_) => .K ... </k>
@@ -209,3 +335,4 @@ module SASS
        <step> N => N +Int 1 </step> <remaining> L => L -Int 1 </remaining>
   rule <k> fail(WHY) ~> _ => .K </k> <status> _ => WHY </status>
 endmodule
+```

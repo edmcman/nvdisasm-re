@@ -6,7 +6,8 @@ from pathlib import Path
 from sass.decode import pydecode
 from sass.semantics import bitvec, lifter
 
-DEFINITION = Path(__file__).with_name("sass.k")
+SOURCES = tuple(Path(__file__).with_name(name) for name in ("bits.md", "float.md", "sass.md"))
+DEFINITION = SOURCES[-1]
 VERSION = "7.1.337"
 IMAGE = "nvdisasm-re-k:7.1.337"
 
@@ -235,7 +236,7 @@ def _export(instructions, base):
     if not terms: raise ExportError("program is empty")
     program = f"program({kmap(terms)}, {base})"
     comments = "\n".join("// " + string(m["text"]) for m in metadata)
-    source = (f'requires "sass.k"\n\nmodule SASS-EXPORTED\n  imports SASS\n'
+    source = (f'requires "sass.md"\n\nmodule SASS-EXPORTED\n  imports SASS\n'
               f'  syntax Program ::= exportedProgram() [function]\n'
               f'  {comments}\n  rule exportedProgram() => {program}\nendmodule\n')
     return Export(source, program, tuple(sorted(contracts)), tuple(metadata))
