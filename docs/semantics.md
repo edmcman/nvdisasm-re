@@ -18,7 +18,8 @@ Contents:
 [11. Runtime primitives](#11-runtime-primitives) ·
 [12. SM107](#12-sm107-2026-10-14) ·
 [13. Runtime ABI](#13-runtime-abi) ·
-[14. Build and verification](#14-build-and-verification)
+[14. Build and verification](#14-build-and-verification) ·
+[15. K backend](#15-k-backend-2026-10-26)
 
 Reading notes:
 - Hardware evidence is SM89 (RTX 4070 Laptop GPU) and, since 2026-10-22, SM90 (H100 NVL);
@@ -1119,3 +1120,161 @@ generated probes establish this normal-completion rule, which is inferred on oth
 architectures. Unknown exceptional conditions that might produce Pu=1 remain
 listed in `docs/open.md`; dual-register accesses and unresolved addressing modes
 remain fallback paths.
+
+## 15. K backend (2026-10-26)
+
+`src/sass/formal/k/` defines the **executable IR in K**, rather than independently
+redefining each SASS opcode. `bits.k` gives the width-explicit integer operators;
+`float.k` gives exact IEEE binary arithmetic; `sass.k` gives expression evaluation
+and instruction/program state transitions. The Python exporter translates the
+existing lifter's output into terms interpreted by those handwritten rules.
+
+The model supports every operator in `bitvec.OPS`, constants, parameters,
+registers, memory loads, lazy conditionals, and runtime primitive nodes. Named
+`@definition` operators expand through their existing definitions; the manifest
+retains their names. Decode-time `sel` nodes and staging-only tuples are rejected.
+An opaque decoded instruction becomes an explicit unsupported transition, not a
+made-up effect. Architecture support follows the existing lifter, including its
+selector guards and fallback forms.
+
+### State and floating point
+
+Registers use R/UR/SR 32-bit and P/UP 1-bit elements. Memory is byte-addressed and
+partitioned by the existing space names. Both use the evaluator's zero defaults
+and little-endian wide values. Predication happens before effects or operand
+reads; a false guard still advances PC by 16. Effects precede value evaluation.
+Register and memory writes are staged until their values and the branch target
+are evaluated, so every architectural read sees the state before the instruction's
+writes. Destination overlaps retain ordered, last-write-wins behavior. Expression
+ids preserve sharing and memoization within an instruction, including primitives;
+the memo resets on the next instruction.
+
+IEEE operations use exact dyadics (an integer significand times a power of two),
+with one final rounding, including fused multiply-add and FMUL scaling. The rules
+retain RN/RZ/RM/RP, signed zero, normal/subnormal boundaries, overflow, infinities,
+canonical NaNs, and conversion sign rules. SASS-specific FTZ, saturation, and
+payload selection remain the existing family expansions; they are evaluated as
+bitvector expressions. The readable mode exports the existing readable IR
+formulas rather than introducing a different K arithmetic implementation.
+
+A program is a map from PC to lifted instructions. `export_program` defaults to
+base `0x100000`, requires nonempty 16-byte-aligned code and an aligned nonzero base,
+and reserves PC zero for termination. `export_instruction` also requires an aligned,
+nonzero instruction address; re-lift at such an address rather than silently skipping
+an instruction lifted at the default zero address. Missing targets, unsupported instructions,
+unbound parameters, runtime contract errors, and exhausted instruction budgets
+have explicit statuses. Calls and returns follow the lifter's existing flow
+targets; no additional call stack, CUDA launch model, scheduler, or concurrent
+memory model is introduced.
+
+### Export and execution
+
+K **7.1.337** is pinned. Exporting itself needs only Python:
+
+```python
+from sass.formal import k
+from sass.semantics import lifter
+
+instruction = lifter.lift("SM89", word, addr=0x100000)
+exported = k.export_instruction(instruction)
+# Or: exported = k.export_program("SM89", code, base=0x100000, fp="exact")
+print(exported.source)
+print(exported.manifest())
+```
+
+`sass-export-k --arch SM89 input.bin -o program.k` writes a K module and the
+adjacent `program.json` contract/provenance manifest. `--base` and `--fp` select
+the address and existing floating-point mode. A cubin's code can be obtained
+through the existing `sass.decode.cubin` reader.
+
+The optional Python tool adapter compiles definitions into `sass.paths.CACHE`,
+keyed by source content, backend, and toolchain version. Compilation is locked
+and marked complete only after success. It executes through K, not through the
+Python evaluator:
+
+```python
+from sass.formal.k import tools
+from sass.semantics import evaluate
+
+state = evaluate.State(regs={("R", 2): 17})
+result = tools.execute(k.input_term(exported, state, limit=10000))
+print(result["regs"], result["pc"], result["status"])
+```
+
+Large generated terms use KAST JSON input to avoid the generalized text parser's
+memory cost. The ground-term encoder recognizes the exporter's constructors only.
+Use `structured=False` for hand-written input requiring additional K syntax.
+`tools.execute(..., backend="haskell")` uses the symbolic backend for concrete
+execution; LLVM is the default. Tool calls run under `nice`.
+
+A small branching example and direct K commands:
+
+```sh
+nice uv run python examples/formal/export.py
+nice kompile src/sass/formal/k/sass.k --main-module SASS --syntax-module SASS \
+  --backend llvm --output-definition .cache/k-llvm
+nice krun .cache/formal-example/input.sass --definition .cache/k-llvm --output json
+nice kompile src/sass/formal/k/sass.k --main-module SASS --syntax-module SASS \
+  --backend haskell --output-definition .cache/k-haskell
+nice kprove examples/formal/claims.k --definition .cache/k-haskell \
+  --spec-module SASS-CLAIMS -I src/sass/formal/k
+```
+
+### Runtime contracts and verification limits
+
+Runtime primitives and effects are an explicit environment boundary. The
+manifest lists names, argument/result widths, required context categories, and
+per-instruction call-site ids. These context categories describe the contract
+provider's responsibility; they do not claim a formalization of that environment.
+
+Concrete execution requires a response transcript. Each entry is indexed by
+zero-based execution `step`, instruction `pc`, and site `id` (expression ids for
+values, `-1`, `-2`, ... for effects). A response supplies the operation `name`,
+evaluated integer `arguments`, result `width` and `value`, `events`, and the
+environment maps `before` and `environment` (after). K checks the request, result
+range, and pre-environment match; it appends the supplied events and installs the
+supplied post-environment. Missing or mismatched responses fail. A width-zero
+effect returns zero. Skipped guards/conditional arms do not request responses.
+
+`k.input_term(..., responses=[...], environment=".Map")` constructs this input.
+Events are a K List; environment values are K Maps. They default to `.List` and
+the supplied initial environment. If an effect changes the environment, subsequent
+responses must explicitly identify that new pre-environment. The model never
+calls the Python or C++ runtime implicitly. Tests may obtain observations from
+that runtime and explicitly supply them; this establishes agreement with the
+runtime's model, not additional hardware evidence.
+
+Symbolic proofs import the base model and any chosen contract module explicitly.
+A contract module may provide rules for `invoke`; those rules are assumptions
+about the environment and should be documented alongside the claim. The base
+model supplies no MUFU approximation axioms, warp scheduling axioms, or barrier
+no-ops. A primitive response transcript is a concrete assumed environment trace.
+
+`examples/formal/claims.k` contains claims for a predicated-off instruction,
+modular addition, aliased operand reads, and a short branching program, with no
+primitive contracts. `false-claim.k` deliberately asserts `1 + 1 = 3` and must
+fail. These proofs establish properties of the handwritten IR model. Export
+correctness is regression-tested against the existing evaluator and shared
+cases; hardware correctness still depends on independent references and GPU
+observations. K checks do not inflate the committed SASS hardware evidence.
+
+### Optional toolchain container
+
+The published Noble package is pinned by SHA-256. It can be installed on a CI
+runner or used in an isolated container:
+
+```sh
+mkdir -p .cache/k-toolchain
+curl -fL --retry 3 -o .cache/k-toolchain/k.deb \
+  https://github.com/runtimeverification/k/releases/download/v7.1.337/kframework_7.1.337_amd64_ubuntu_noble.deb
+nice docker build -f src/sass/formal/k/Dockerfile \
+  -t nvdisasm-re-k:7.1.337 .cache/k-toolchain
+SASS_K_CONTAINER=nvdisasm-re-k:7.1.337 nice uv run pytest -m k --arch SM89,SM90 --fp all
+```
+
+The Dockerfile verifies
+`3692997e6bfa4be490d24bd9201289d4a05872889c9da725dda21e99d03d6990`
+before installing. `SASS_K_CONTAINER` selects the tool container; alternatively
+use installed tools on PATH or `SASS_K_BIN` for a directory of K executables.
+Container executions disable networking and run as the caller. Definitions,
+inputs, and outputs are bound at their original absolute paths.

@@ -22,7 +22,8 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "ghidra: needs compiled SLEIGH languages and Ghidra's pyghidra venv")
     config.addinivalue_line("markers", "gpu: needs an SM89 or SM90 CUDA device")
     config.addinivalue_line("markers", "native: the native emulator (sass.emulate): its C++ runtime, generated code, kernels and equivalence testing")
-    if not config.option.markexpr: config.option.markexpr = "not ghidra and not gpu and not native"
+    config.addinivalue_line("markers", "k: needs the pinned K Framework toolchain")
+    if not config.option.markexpr: config.option.markexpr = "not ghidra and not gpu and not native and not k"
 
 
 def pytest_terminal_summary(terminalreporter, config):

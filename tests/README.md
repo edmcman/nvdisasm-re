@@ -2,7 +2,8 @@
 
 Each test checks one artifact against one oracle, so a failure points at one component. Tests are
 grouped by what they need to run; markers say only that: `ghidra` (compiled SLEIGH languages and
-Ghidra's pyghidra venv) and `gpu` (an SM89 or SM90 device).
+Ghidra's pyghidra venv), `gpu` (an SM89 or SM90 device), `native` (the C++ emulator), and
+`k` (K Framework 7.1.337).
 
 - [Running](#running): commands, options, what to run when, cost
 - [Suites](#suites): what each test file checks, and against what
@@ -22,6 +23,7 @@ uv run sass-build-languages                            # before the Ghidra tests
 uv run pytest -m ghidra --arch all --fp all            # Ghidra tests
 uv run pytest -m gpu --require-gpu                     # GPU tests (outside the sandbox)
 uv run pytest -m native --arch SM89,SM90               # the native emulator: C++ runtime, generated code, kernels
+nice uv run pytest -m k --arch SM89,SM90 --fp all       # execute and prove the handwritten K IR model
 ```
 
 | Option | Meaning |
@@ -71,6 +73,7 @@ Rough wall times and peak memory (summed PSS) on a 32-core, 93 GiB machine with 
 | language build (about 17 compilers at once) | 1.75 minutes | 27 GiB |
 | Ghidra tests, all languages | 8 minutes cold, 2.5 minutes cached (mostly building the cases); 2 hours cold for `--arch all --fp all` (2.2 million selected cases, load 55-85 from two other suites, 2026-10-22) | 25 GiB |
 | GPU tests | 15 s | |
+| K IR execution/proof tests, SM89/SM90 and both FP modes (2026-10-26) | about 4 minutes with base definitions cached; LLVM/Haskell compilation adds a cold setup cost | |
 
 Ghidra results are cached per program by the sources it imports (`ghidra_bridge.sources`), so an
 edit elsewhere in `src/sass` keeps them. Generator modules (families, operations, operands,
@@ -117,6 +120,8 @@ libraries), so `test_pydecode_disassembly` checks synthetic and mutated words on
 | `test_autocases.py`, `test_*_autocases.py`, `test_half_comparison_profiles.py` | are generated cases reproducible and reference-backed? | the [planner and adapters](#generated-shared-cases) | saved plans, independent references |
 | `test_sampling.py`, `test_evidence.py`, `test_device_cases.py` | do sampling, evidence and GPU-probe construction behave? (no GPU needed) | `harness/sampling.py`, `tests/evidence.py`, `harness/device_*.py` | hand cases, mocked runners |
 | `test_export_cases.py` | is the [shared-case export](#exporting-shared-cases) complete and decodable? | `tests/export_cases.py` | `cases.emulator_cases`, pydecode |
+| `test_k_export.py` | does the K export preserve executable IR and identify its assumptions? | formal exporter and package data | explicit structures and decoder |
+| `test_k_semantics.py` (`-m k`) | do the handwritten K rules execute the IR correctly and prove their example claims? | K bitvectors, IEEE arithmetic and state transitions | Python evaluator, shared cases, passing and deliberately false claims |
 | `test_coverage_comment.py` | does CI's PR coverage comment compare and post correctly? | `.github/scripts/coverage_comment.py` | mocked GitHub API |
 
 ### Ghidra tests: `uv run pytest -m ghidra`
