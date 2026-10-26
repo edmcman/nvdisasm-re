@@ -395,6 +395,22 @@ remains a runtime primitive; other MUFU operations and FP16 remain unresolved.
 
 ## Memory
 
+- ATOMS.POPC.INC.32 (2026-10-25, RTX 4070 Laptop GPU, SM89;
+  [probe and raw observations](../research/popc_inc/README.md)): for a uniform shared
+  address (`Ra=RZ`, UR2 plus offset), **every participating lane receives the same old
+  counter value**, and memory becomes `old + popcount(participating_mask)` modulo 2^32.
+  With counter 10 and lanes 0, 2 and 5, the register results are 10, 10, 10 and memory
+  ends at 13: the `old + rank` hypothesis in #75 was wrong. Forty-four scenarios cover
+  predication and exited lanes, full/sparse/single/zero masks, overflow, offsets
+  0/+16/-16, destinations R8/RZ, and repeated executions. Four ordinary ATOMS.ADD
+  controls return distinct old values, confirming the wrapper captures individual lanes.
+  CUDA 13.0.88 ptxas emits the RZ form for discarded-result shared increments on
+  SM80/SM89/SM90/SM100 at O1–O3; consumed results use ATOMS.ADD, SHFL and explicit rank
+  arithmetic. The returning words were synthetic, not compiler-generated. Support for
+  that form is deferred until a real use is found; the IR remains lane-scoped.
+  Nonzero/nonuniform Ra, other architectures' return values and competing warps are
+  untested. The capture's MEMBAR.ALL.CTA is separate from the target, so these probes
+  establish values, not intrinsic memory-ordering guarantees or verification coverage.
 - Implicit memory descriptor forms use ordinary global/local pointers (explicit ones below).
   Shared-memory X4 addressing scales the base register without changing its value.
 - Generic addressing (2026-10-15, one-off S2R/cvta probes and the `generic` fixture in

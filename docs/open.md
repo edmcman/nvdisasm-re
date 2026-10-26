@@ -1,5 +1,11 @@
 # Open questions and roadmap
 
+- Consumer warp/MUFU APIs (#75 design decision, 2026-10-25): retain lane-scoped IR and
+  the existing runtime primitives. A typed warp context and supported SIN/COS wrappers
+  remain follow-up API work. Defer the returning ATOMS.POPC.INC form until it is found
+  in real code; its SM89 result is a common old value, not old plus lane rank
+  ([hardware finding](hardware-facts.md#memory)). A pre-instruction `read_init` snapshot
+  primitive remains a possible extension if a supported instruction requires it.
 - Cooperative scheduling covers one interleaving: round-robin lockstep keeps warps in step, so `shared_exchange` likely passes even with BAR.SYNC as a no-op. Run cooperative kernels under adversarial schedules (warp-greedy until blocked, reverse, seeded random) and require identical results: that tests barrier enforcement and that fixture kernels are race-free. Timing proper matters only for racy code, fence-based ordering (memory model, not cycles) and scoreboards: the emulator completes instructions instantly, trusting control bits, and GPU fixtures keep the original controls on patched words, so a patched slot with longer or variable latency could read stale values on the GPU.
 - Native emulator (2026-10-23, `docs/emulation.md`). Next:
   - Speed: structure-of-arrays registers with SIMD across inputs, flat per-thread memory instead of
