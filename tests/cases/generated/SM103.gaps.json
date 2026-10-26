@@ -1,12 +1,12 @@
 {
   "counts": {
     "legal": 9425933,
-    "unresolved_semantics": 8976471,
-    "requirements": 150920,
+    "unresolved_semantics": 8828527,
+    "requirements": 151582,
     "manual": 0,
-    "blocked": 48608,
-    "covered_requirements": 102312,
-    "generated": 11268
+    "blocked": 41335,
+    "covered_requirements": 110247,
+    "generated": 11620
   },
   "gaps": [
     {
@@ -1569,38 +1569,12 @@
     },
     {
       "cls": "fadd2_imm__RRI",
-      "count": 352,
+      "count": 224,
       "reason": "unresolved semantics"
     },
     {
       "cls": "fadd2_imm__RRI",
-      "count": 193,
-      "reason": "partial operand adapter unavailable",
-      "unit": "interactions"
-    },
-    {
-      "cls": "fadd2_imm__RRI",
-      "count": 85,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed F32 source-sign corpus remains manual": 24
-      }
-    },
-    {
-      "cls": "fadd2_rc__RRR",
-      "count": 4480,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "fadd2_rc__RRR",
-      "count": 970,
-      "reason": "partial operand adapter unavailable",
-      "unit": "interactions"
-    },
-    {
-      "cls": "fadd2_rc__RRR",
-      "count": 360,
+      "count": 144,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
@@ -1608,23 +1582,31 @@
       }
     },
     {
+      "cls": "fadd2_rc__RRR",
+      "count": 1408,
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "fadd2_rc__RRR",
+      "count": 728,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed F32 source-sign corpus remains manual": 3000
+      }
+    },
+    {
       "cls": "fadd2_urc__RRU",
-      "count": 4480,
+      "count": 1408,
       "reason": "unresolved semantics"
     },
     {
       "cls": "fadd2_urc__RRU",
-      "count": 970,
-      "reason": "partial operand adapter unavailable",
-      "unit": "interactions"
-    },
-    {
-      "cls": "fadd2_urc__RRU",
-      "count": 360,
+      "count": 728,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "packed F32 source-sign corpus remains manual": 120
+        "packed F32 source-sign corpus remains manual": 3000
       }
     },
     {
@@ -1644,102 +1626,72 @@
     },
     {
       "cls": "ffma2_rb_rc__RRR",
-      "count": 82432,
+      "count": 44544,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ffma2_rb_rc__RRR",
-      "count": 2307,
-      "reason": "partial operand adapter unavailable",
-      "unit": "interactions"
-    },
-    {
-      "cls": "ffma2_rb_rc__RRR",
-      "count": 923,
+      "count": 1901,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "packed F32 source-sign corpus remains manual": 504
+        "packed F32 source-sign corpus remains manual": 37800
       }
     },
     {
       "cls": "ffma2_rb_urc__RRU",
-      "count": 82432,
+      "count": 44544,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ffma2_rb_urc__RRU",
-      "count": 2307,
-      "reason": "partial operand adapter unavailable",
-      "unit": "interactions"
-    },
-    {
-      "cls": "ffma2_rb_urc__RRU",
-      "count": 923,
+      "count": 1901,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "packed F32 source-sign corpus remains manual": 504
+        "packed F32 source-sign corpus remains manual": 37800
       }
     },
     {
       "cls": "ffma2_rb_x__RRI",
-      "count": 6784,
+      "count": 4992,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ffma2_rb_x__RRI",
-      "count": 757,
-      "reason": "partial operand adapter unavailable",
-      "unit": "interactions"
-    },
-    {
-      "cls": "ffma2_rb_x__RRI",
-      "count": 360,
+      "count": 658,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "packed F32 source-sign corpus remains manual": 120
+        "packed F32 source-sign corpus remains manual": 1800
       }
     },
     {
       "cls": "ffma2_urb_rc__RUR",
-      "count": 82432,
+      "count": 44544,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ffma2_urb_rc__RUR",
-      "count": 2307,
-      "reason": "partial operand adapter unavailable",
-      "unit": "interactions"
-    },
-    {
-      "cls": "ffma2_urb_rc__RUR",
-      "count": 923,
+      "count": 1901,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "packed F32 source-sign corpus remains manual": 504
+        "packed F32 source-sign corpus remains manual": 37800
       }
     },
     {
       "cls": "ffma2_x_rc__RIR",
-      "count": 6784,
+      "count": 3712,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ffma2_x_rc__RIR",
-      "count": 970,
-      "reason": "partial operand adapter unavailable",
-      "unit": "interactions"
-    },
-    {
-      "cls": "ffma2_x_rc__RIR",
-      "count": 360,
+      "count": 728,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "packed F32 source-sign corpus remains manual": 120
+        "packed F32 source-sign corpus remains manual": 3000
       }
     },
     {
@@ -1826,38 +1778,12 @@
     },
     {
       "cls": "fmul2_imm__RIR",
-      "count": 256,
+      "count": 128,
       "reason": "unresolved semantics"
     },
     {
       "cls": "fmul2_imm__RIR",
-      "count": 158,
-      "reason": "partial operand adapter unavailable",
-      "unit": "interactions"
-    },
-    {
-      "cls": "fmul2_imm__RIR",
-      "count": 66,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed F32 source-sign corpus remains manual": 24
-      }
-    },
-    {
-      "cls": "fmul2_rb__RRR",
-      "count": 3328,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "fmul2_rb__RRR",
-      "count": 669,
-      "reason": "partial operand adapter unavailable",
-      "unit": "interactions"
-    },
-    {
-      "cls": "fmul2_rb__RRR",
-      "count": 306,
+      "count": 119,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
@@ -1865,23 +1791,31 @@
       }
     },
     {
+      "cls": "fmul2_rb__RRR",
+      "count": 1536,
+      "reason": "unresolved semantics"
+    },
+    {
+      "cls": "fmul2_rb__RRR",
+      "count": 584,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "packed F32 source-sign corpus remains manual": 1800
+      }
+    },
+    {
       "cls": "fmul2_urb__RUR",
-      "count": 3328,
+      "count": 1536,
       "reason": "unresolved semantics"
     },
     {
       "cls": "fmul2_urb__RUR",
-      "count": 669,
-      "reason": "partial operand adapter unavailable",
-      "unit": "interactions"
-    },
-    {
-      "cls": "fmul2_urb__RUR",
-      "count": 306,
+      "count": 584,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "packed F32 source-sign corpus remains manual": 120
+        "packed F32 source-sign corpus remains manual": 1800
       }
     },
     {
@@ -2606,38 +2540,13 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ld__sImmOffset",
-      "count": 3456,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ld__uImmOffset",
-      "count": 3456,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ld_memdesc__Ra64",
-      "count": 768,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ld_uniform__Ra32",
-      "count": 3456,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ld_uniform__Ra64",
-      "count": 768,
-      "reason": "unresolved semantics"
-    },
-    {
       "cls": "ldc__RaNonRZ",
-      "count": 19,
+      "count": 18,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ldc__RaRZ",
-      "count": 19,
+      "count": 18,
       "reason": "unresolved semantics"
     },
     {
@@ -2652,7 +2561,7 @@
     },
     {
       "cls": "ldcu_const_RCR_",
-      "count": 4,
+      "count": 2,
       "reason": "unresolved semantics"
     },
     {
@@ -2683,31 +2592,6 @@
     {
       "cls": "ldg_256_uniform__RaRZ",
       "count": 1152,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldg__sImmOffset",
-      "count": 1536,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldg__uImmOffset",
-      "count": 1536,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldg_memdesc__Ra64",
-      "count": 768,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldg_uniform__Ra32",
-      "count": 1536,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldg_uniform__Ra64",
-      "count": 768,
       "reason": "unresolved semantics"
     },
     {
@@ -2768,41 +2652,6 @@
     {
       "cls": "ldgsts_memdesc_",
       "count": 1152,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldl__sImmOffset",
-      "count": 12,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldl__uImmOffset",
-      "count": 12,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldl_memdesc_",
-      "count": 12,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldl_uniform_",
-      "count": 12,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "lds__sImmOffset",
-      "count": 8,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "lds__uImmOffset",
-      "count": 2,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "lds_uniform_",
-      "count": 8,
       "reason": "unresolved semantics"
     },
     {
@@ -3336,27 +3185,17 @@
     },
     {
       "cls": "st__sImmOffset",
-      "count": 432,
+      "count": 336,
       "reason": "unresolved semantics"
     },
     {
       "cls": "st__uImmOffset",
-      "count": 432,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "st_memdesc__Ra64",
-      "count": 96,
+      "count": 336,
       "reason": "unresolved semantics"
     },
     {
       "cls": "st_uniform__Ra32",
-      "count": 432,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "st_uniform__Ra64",
-      "count": 96,
+      "count": 336,
       "reason": "unresolved semantics"
     },
     {
@@ -3391,62 +3230,27 @@
     },
     {
       "cls": "stg__sImmOffset",
-      "count": 444,
+      "count": 252,
       "reason": "unresolved semantics"
     },
     {
       "cls": "stg__uImmOffset",
-      "count": 444,
+      "count": 252,
       "reason": "unresolved semantics"
     },
     {
       "cls": "stg_memdesc__Ra64",
-      "count": 222,
+      "count": 126,
       "reason": "unresolved semantics"
     },
     {
       "cls": "stg_uniform__Ra32",
-      "count": 444,
+      "count": 252,
       "reason": "unresolved semantics"
     },
     {
       "cls": "stg_uniform__Ra64",
-      "count": 222,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stl__sImmOffset",
-      "count": 12,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stl__uImmOffset",
-      "count": 12,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stl_memdesc_",
-      "count": 12,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stl_uniform_",
-      "count": 12,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "sts__sImmOffset",
-      "count": 8,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "sts__uImmOffset",
-      "count": 2,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "sts_uniform_",
-      "count": 8,
+      "count": 126,
       "reason": "unresolved semantics"
     },
     {

@@ -423,7 +423,7 @@ hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` 
 
 ## PR coverage comments
 
-2026-10-16, revised 2026-10-17, 2026-10-19 and 2026-10-25:
+2026-10-16, revised 2026-10-17, 2026-10-19, 2026-10-25 and 2026-10-26:
 
 - CI compares committed `processor/SASS/semantics/coverage.json` at the PR event's base and head
   SHAs, independently of the generator freshness check. Same-repository PRs get a current bot
@@ -446,6 +446,32 @@ hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` 
   which individual forms gained or lost evidence. The comment says “recorded evidence” throughout:
   GPU evidence records passing checks on the architecture where they ran, PTX evidence records
   compilation, and reference evidence records available cases, not current passing test results.
+- Since 2026-10-26 the report is organized around the questions a reviewer asks, in order: a
+  summary line each for what changed (opcodes with their architectures, consecutive ones as
+  ranges such as `SM100–SM120`), implemented semantics, recorded evidence, evidence gaps and what
+  needs attention; then a semantics table and an evidence table (one row per opcode and set of
+  architectures with identical changes), the evidence gaps under a note that they are not test
+  failures, and a numbered "Needs attention" list. Each attention item names the affected classes
+  and forms and the next useful check: the GPU run on SM89/SM90, reference cases with `--arch` on
+  architectures without a GPU, a `tests/ptx` probe, or the family's lowering tests for weakened
+  semantics, with the case family read from `evidence.json`'s GPU sources. The CAUTION/WARNING
+  alerts and top-level Sankey diagrams, which read as failures and showed evidence flowing from
+  "opaque", were dropped; the diagrams remain in the per-architecture details, the evidence source
+  now labelled "no semantics".
+- Forms are named from the per-class detail embedded in the committed `coverage.html` (modifier
+  values with their combinations by status, evidence kinds and checked combinations), read at both
+  SHAs; a form is one modifier value (`ftz=FTZ`, a set flag such as `Ra@negate`; unset flags are the
+  default and omitted) summed over the opcode's classes. Without a readable page at either SHA the
+  report falls back to counts. Class-level comparison also catches what opcode totals hide: in
+  #77, `hfma2__RRI` lost 35 native combinations (now partially native) on every architecture,
+  while the old report flagged only SM75 because other HFMA2 classes' gains masked it elsewhere.
+- Merged with #88's report changes (2026-10-26): the collapsed guide opens the comment, a link
+  to the head's `coverage.html` replaces the badge, the redundant opcode-percentage table is gone,
+  and the guide and the weakened-semantics next check note that a counting correction (#88's
+  per-domain coverage collector) can lower counts without removing an implementation.
+- When the summary alone would exceed the comment limit (#86's evidence redefinition: 48
+  opcodes, 129 attention items), the comment keeps the first 25 rows or items of each list and
+  points to the `coverage-comment-report` artifact for the rest.
 - The PR carries a `coverage` label exactly while coverage differs from the base. When a newer
   report replaces the current comparison, CI posts it first, then edits previous reports into
   closed-by-default “Outdated coverage report” expansions with a superseded notice. Identical
@@ -454,12 +480,13 @@ hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` 
   previous summary, and removes the label, while an unchanged PR gets no initial comment. The
   `coverage-comment-report` artifact contains the full Markdown report when comment details exceed
   the size limit.
-- Each report opens with the README's opcode-coverage badge, pinned to the PR head SHA so it shows
-  the head's `badge.json` and links to its `coverage.html` (2026-10-17).
+- Each report opened with the README's opcode-coverage badge, pinned to the PR head SHA so it showed
+  the head's `badge.json` and linked to its `coverage.html` (2026-10-17); since 2026-10-26 it links
+  the head's `coverage.html` directly.
 - The standard-library helper is `.github/scripts/coverage_comment.py`; its comparison and mocked
   API tests are `tests/test_coverage_comment.py`. Outside CI,
   `python3 .github/scripts/coverage_comment.py local [REV]` prints the same report comparing `REV`
-  (default `HEAD`) with the working tree's `coverage.json`, without the badge or CI link
+  (default `HEAD`) with the working tree's `coverage.json` and `coverage.html`, without the report or CI link
   (2026-10-19; the `sass-opcode-coverage` skill uses it for before/after).
 
 ## Ghidra tests in CI (2026-10-22)

@@ -1,12 +1,12 @@
 {
   "counts": {
     "legal": 1468878,
-    "unresolved_semantics": 1011824,
-    "requirements": 137640,
+    "unresolved_semantics": 992392,
+    "requirements": 138645,
     "manual": 0,
     "blocked": 30925,
-    "covered_requirements": 106715,
-    "generated": 12012
+    "covered_requirements": 107720,
+    "generated": 12015
   },
   "gaps": [
     {
@@ -2344,38 +2344,13 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ld__sImmOffset",
-      "count": 3456,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ld__uImmOffset",
-      "count": 3456,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ld_memdesc__Ra64",
-      "count": 768,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ld_uniform__Ra32",
-      "count": 3456,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ld_uniform__Ra64",
-      "count": 768,
-      "reason": "unresolved semantics"
-    },
-    {
       "cls": "ldc__RaNonRZ",
-      "count": 19,
+      "count": 18,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ldc__RaRZ",
-      "count": 19,
+      "count": 18,
       "reason": "unresolved semantics"
     },
     {
@@ -2405,7 +2380,7 @@
     },
     {
       "cls": "ldcu_const_RCR_",
-      "count": 6,
+      "count": 4,
       "reason": "unresolved semantics"
     },
     {
@@ -2456,31 +2431,6 @@
     {
       "cls": "ldg_256_uniform__RaRZ",
       "count": 1152,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldg__sImmOffset",
-      "count": 1536,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldg__uImmOffset",
-      "count": 1536,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldg_memdesc__Ra64",
-      "count": 768,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldg_uniform__Ra32",
-      "count": 1536,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldg_uniform__Ra64",
-      "count": 768,
       "reason": "unresolved semantics"
     },
     {
@@ -2541,41 +2491,6 @@
     {
       "cls": "ldgsts_memdesc_",
       "count": 1152,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldl__sImmOffset",
-      "count": 12,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldl__uImmOffset",
-      "count": 12,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldl_memdesc_",
-      "count": 12,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldl_uniform_",
-      "count": 12,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "lds__sImmOffset",
-      "count": 8,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "lds__uImmOffset",
-      "count": 2,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "lds_uniform_",
-      "count": 8,
       "reason": "unresolved semantics"
     },
     {
@@ -3017,27 +2932,17 @@
     },
     {
       "cls": "st__sImmOffset",
-      "count": 432,
+      "count": 336,
       "reason": "unresolved semantics"
     },
     {
       "cls": "st__uImmOffset",
-      "count": 432,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "st_memdesc__Ra64",
-      "count": 96,
+      "count": 336,
       "reason": "unresolved semantics"
     },
     {
       "cls": "st_uniform__Ra32",
-      "count": 432,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "st_uniform__Ra64",
-      "count": 96,
+      "count": 336,
       "reason": "unresolved semantics"
     },
     {
@@ -3072,62 +2977,27 @@
     },
     {
       "cls": "stg__sImmOffset",
-      "count": 444,
+      "count": 252,
       "reason": "unresolved semantics"
     },
     {
       "cls": "stg__uImmOffset",
-      "count": 444,
+      "count": 252,
       "reason": "unresolved semantics"
     },
     {
       "cls": "stg_memdesc__Ra64",
-      "count": 222,
+      "count": 126,
       "reason": "unresolved semantics"
     },
     {
       "cls": "stg_uniform__Ra32",
-      "count": 444,
+      "count": 252,
       "reason": "unresolved semantics"
     },
     {
       "cls": "stg_uniform__Ra64",
-      "count": 222,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stl__sImmOffset",
-      "count": 12,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stl__uImmOffset",
-      "count": 12,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stl_memdesc_",
-      "count": 12,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stl_uniform_",
-      "count": 12,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "sts__sImmOffset",
-      "count": 8,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "sts__uImmOffset",
-      "count": 2,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "sts_uniform_",
-      "count": 8,
+      "count": 126,
       "reason": "unresolved semantics"
     },
     {

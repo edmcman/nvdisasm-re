@@ -50,21 +50,22 @@ exhaustive operand or exact-form verification.
 
 | Architecture | Partial classes | Classes with declared adapter | Selected partial forms | Full-profile partial forms | Remaining interactions in declared adapters |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| SM75 | 63 | 63 | 1,424 | 394 | 987 |
-| SM80 | 70 | 70 | 1,765 | 349 | 774 |
-| SM86 | 65 | 65 | 1,622 | 260 | 0 |
-| SM89 | 65 | 65 | 1,622 | 260 | 0 |
-| SM90 | 61 | 61 | 1,372 | 225 | 0 |
-| SM100 | 66 | 55 | 1,373 | 228 | 0 |
-| SM101 | 52 | 52 | 1,337 | 192 | 0 |
-| SM103 | 66 | 55 | 1,373 | 228 | 0 |
-| SM107 | 74 | 50 | 1,325 | 180 | 0 |
-| SM120 | 50 | 50 | 1,325 | 180 | 0 |
+| SM75 | 28 | 28 | 241 | 241 | 987 |
+| SM80 | 29 | 29 | 182 | 182 | 774 |
+| SM86 | 24 | 24 | 93 | 93 | 0 |
+| SM89 | 24 | 24 | 93 | 93 | 0 |
+| SM90 | 24 | 24 | 92 | 92 | 0 |
+| SM100 | 18 | 18 | 94 | 94 | 0 |
+| SM101 | 15 | 15 | 58 | 58 | 0 |
+| SM103 | 18 | 18 | 94 | 94 | 0 |
+| SM107 | 13 | 13 | 46 | 46 | 0 |
+| SM120 | 13 | 13 | 46 | 46 | 0 |
 
 The SM75/SM80 HADD2 blockers cover additional source-sign/mixed-precision corpora
-and operand legality restrictions. SM100/SM103 packed F32 and SM107 mixed F32/half
-classes without a declared partial adapter remain explicit gaps. Their existing
-manual regressions were not replaced.
+and operand legality restrictions. Source-sign and mixed-precision forms outside
+the supported adapters retain their existing manual regressions and explicit gaps.
+This table includes main's `aac935b` register-span correction: several memory and
+packed-float classes previously reported as partial are now correctly native.
 
 ## Performance
 
@@ -72,6 +73,8 @@ The baseline is `8ad9abd32bc65761aecba9ef61ff2131ccb20448`, imported from an imm
 archive. Both small-workload planners read the same corrected SM89 manifests and
 write isolated plans. Each case-generation measurement reads its corresponding
 fresh plan, rather than mixing an old saved plan with a new dry-run inventory.
+These historical measurements describe the initial implementation committed as
+`2c5c81e`, before integrating main's subsequent generic-LD/span corrections.
 The workload contains `ld__sImmOffset`, `ldg__sImmOffset`, `stg__sImmOffset`,
 `flo__RRR_RRR` and `mov__RR`. Values are medians of three fresh processes.
 
@@ -168,3 +171,25 @@ Their value semantics are unchanged: the corrected table correlations remove
 later aliases that cannot be the decoded tuple for their raw field. Atomic
 instructions' opaque inventories shrink for the same reason. The opcode badge
 is unchanged.
+
+## Integration with current main
+
+The PR integrates main at `aac935b`, including the generic-LD and register-span
+corrections and the reorganized coverage report. The partial-class audit above
+uses this combined tree; the earlier performance and report comparisons remain
+dated measurements of the initial implementation against `8ad9abd`.
+
+Combined-tree validation passed 389 planner/adapter tests, 237,013 shared CPU
+cases on every architecture and both lowerings, and 52,578 Ghidra cases on
+SM89/SM90 in both lowerings. The SM89 shared GPU selection passed 12,033
+hardware-valid scenarios, with 1,641 explicit model-only exclusions (222 tests
+passed, 15 skipped). Both branches' GPU observations were preserved when
+merging; main's generic32 regression cases remain manual.
+
+Against this main revision, the report records 68 newly GPU-checked combinations
+and 787 new reference combinations. It also flags 477 combinations losing GPU
+checks or all evidence: SM90 replacement cases have not run on that GPU, HADD2
+uses the generated selection described above, and LDG retains nine fewer exact
+reference combinations per architecture after replacing its manual selection.
+The lower modeled memory counts reflect the decoded-table correction described
+above. All ten plans reproduce and the ten final artifact checks pass.

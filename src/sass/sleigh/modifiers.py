@@ -52,7 +52,9 @@ def domain(b):
     md, out = b.g.arch, {}
     for key, t in modifiers(b.k):
         if key in b.known: encoded = {b.known[key]}
-        elif raw := b.g.raw_values(b.k, key): encoded = set(raw[1].values())
+        elif raw := b.g.raw_values(b.k, key):
+            allowed = b.domain.get(raw[0].ranges)
+            encoded = {v for x, v in raw[1].items() if allowed is None or x in allowed}
         else: continue
         values = range(2) if t is None else dict.fromkeys(v for _, v in md.enum_defs.get(t, []))
         out[key] = {label(md, t, v): v for v in values if v in encoded}
@@ -193,7 +195,8 @@ def minimal(c):
 def merge(a, b):
     """Two variants' combination tables as one: a combination both produce gets their combined status."""
     labels = {m: list(dict.fromkeys(a["labels"].get(m, []) + b["labels"].get(m, []))) for m in {**a["labels"], **b["labels"]}}
-    decides = [m for m in labels if m in a["decides"] or m in b["decides"]]
+    decides = [m for m in labels if m in a["decides"] or m in b["decides"]
+               or set(a["labels"].get(m, [])) != set(b["labels"].get(m, []))]
     def expand(c):
         out = {}
         for *labs, status in c["table"]:

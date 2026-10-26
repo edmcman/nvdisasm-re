@@ -23,6 +23,8 @@ def test_normal_plans_represent_each_added_variant(arch):
     if arch == "SM75":
         assert {"U", "U.U8", "U.S8", "U.U16", "U.S16", "U.64", "U.128"} <= {
             f["sz"] for f in chosen["lds__sImmOffset"]}
+        assert all(entry["native"] for entry in plan["forms"]
+                   if entry["cls"] == "lds__sImmOffset" and entry["settings"]["sz"] in {"U.64", "U.128"})
     # Every supported prefetch label must be represented for every class that
     # implements it, independently of the planner's covering-array algorithm.
     # Python CI runs without generated language manifests. Assert the added

@@ -45,13 +45,59 @@ def generic(c):
     c.add("st_uniform__RaRZ", dict(Ra="RZ", Ra_URc=4, Ra_offset=0, Rb=6, sz="U16", e="E"),
           dict(WINDOWS, UR4=(LOCAL[0] + 0x10) & 0xffffffff, UR5=LOCAL[0] >> 32, R6=0xabcd1234), dict(__memory="3412"),
           observe_memory=[dict(space="localmem", address=0x10, size=2)])
-    c.add("ld__sImmOffset", dict(Rd=8, Ra=2, Ra_offset=0, sz="32", e="noe"), dict(WINDOWS, R2=0x100), dict(error="sass_opaque_LD"))
     # An unsigned offset with its top bit set is a zero-extended absolute address.
     for op, space in (("ld", "ram"), ("ldg", "ram"), ("lds", "shared")):
         if k := c.classes.get(op + "__uImmOffset"):
             at = 1 << int(k.operand_types["Ra_offset"].args.split("/")[0]) - 1 | 0x10
             c.add(k.name, dict(Rd=8, Ra="RZ", Ra_offset=at, sz="32", **({} if op == "lds" else dict(e="E"))), WINDOWS, dict(R8=0x12345678),
                   memory=[dict(space=space, address=at, hex="78563412")])
+
+
+@retained("SM89 LD.noe discovery: modulo-32 address sums, ignored adjacent registers, and full-width windows.")
+def generic32(c):
+    data = bytes.fromhex("80f634920200008003000000ffffffff")
+    sizes = {"U8": 1, "S8": 1, "U16": 2, "S16": 2, "32": 4, "64": 8, "128": 16}
+    for base, offset in ((0x104, -4), (0xfffffff0, 0x110), (0x10, -0x20), (0x10, -0x6fffff10)):
+        address = memory.generic32(base, offset)
+        for sz, n in sizes.items():
+            value = memory.constant(data[:n], sz.startswith("S"))
+            expected = {f"R{8 + j}": value >> (32 * j) & 0xffffffff for j in range(max(1, n // 4))}
+            expected["R3"] = 0xdeadbeef
+            c.add("ld__sImmOffset", dict(Rd=8, Ra=2, Ra_offset=offset, sz=sz, e="noe"),
+                  dict(WINDOWS, R2=base, R3=0xdeadbeef), expected,
+                  memory=[dict(space="ram", address=address, hex=data[:n].hex())], hardware=dict(adapter="memory"))
+    for cls, base, uniform in (("ld_uniform__Ra32", 0xfffffff0, 0x114), ("ld_uniform__RaRZ", 0, 0x104)):
+        address = memory.generic32(base, -4, uniform)
+        for sz, n in sizes.items():
+            value = memory.constant(data[:n], sz.startswith("S"))
+            expected = {f"R{8 + j}": value >> (32 * j) & 0xffffffff for j in range(max(1, n // 4))}
+            expected.update(R3=0xdeadbeef, UR5=0xabcdef01)
+            c.add(cls, dict(Rd=8, Ra="RZ" if base == 0 else 2, Ra_URb=4, Ra_offset=-4, sz=sz, e="noe"),
+                  dict(WINDOWS, R2=base, R3=0xdeadbeef, UR4=uniform, UR5=0xabcdef01), expected,
+                  memory=[dict(space="ram", address=address, hex=data[:n].hex())], hardware=dict(adapter="memory"))
+    # An address/destination alias must be read before any destination is written.
+    value = memory.constant(data[:8])
+    c.add("ld__sImmOffset", dict(Rd=2, Ra=2, Ra_offset=-4, sz="64", e="noe"),
+          dict(WINDOWS, R2=0x104, R3=0xdeadbeef), dict(R2=value & 0xffffffff, R3=value >> 32),
+          memory=[dict(space="ram", address=memory.generic32(0x104, -4), hex=data[:8].hex())], hardware=dict(adapter="memory"))
+    c.add("ld__sImmOffset", dict(Rd="RZ", Ra=2, Ra_offset=0, sz="128", e="noe"),
+          dict(WINDOWS, R2=0x100, R3=0xdeadbeef, R8=0x1234), dict(R3=0xdeadbeef, R8=0x1234),
+          memory=[dict(space="ram", address=0x100, hex=data.hex())], hardware=dict(adapter="memory"))
+    for negate in (0, 1):
+        c.add("ld__sImmOffset", dict(Rd=8, Ra=2, Ra_offset=0, sz="128", e="noe", Pnz=0, **{"Pnz@not": negate}),
+              dict(R2=1, R3=0xdeadbeef, P0=negate), dict(R8=0, R9=0, R10=0, R11=0, R3=0xdeadbeef, P0=negate),
+              hardware=dict(adapter="scalar"))
+    # Low words of high windows, and their adjacent bounds, remain global.
+    for base, extent in (SHARED, LOCAL):
+        for delta in (-4, 0, 0x100, extent - 4, extent):
+            address = memory.generic32(base & 0xffffffff, delta)
+            space, at = memory.generic(address, SHARED, LOCAL)
+            assert space == "ram"
+            c.add("ld__sImmOffset", dict(Rd=8, Ra=2, Ra_offset=delta, sz="32", e="noe"),
+                  dict(WINDOWS, R2=base & 0xffffffff, R3=base >> 32), dict(R8=memory.constant(data[:4])),
+                  memory=[dict(space=space, address=at, hex=data[:4].hex())])
+    c.add("ld__uImmOffset", dict(Rd=8, Ra="RZ", Ra_offset=0x59000100, sz="32", e="noe"), WINDOWS,
+          dict(R8=memory.constant(data[:4])), memory=[dict(space="ram", address=0x59000100, hex=data[:4].hex())])
 
 
 # createpolicy's fractional evict_last (1.0) and evict_first (0.25), bit-59-clear random values, all but bit 59, and
@@ -137,7 +183,7 @@ def qspc(c):
 
 @retained("Window edges/decoys, descriptors, zero-fill guards, masked/cluster queries, physical query anchors and error cases exceed generated ordinary profiles.")
 def emulator_cases(c):
-    unsupported_constant_unpack(c); generic(c); descriptors(c); zero_fill(c); qspc(c)
+    unsupported_constant_unpack(c); generic(c); generic32(c); descriptors(c); zero_fill(c); qspc(c)
 
     from sass.decode import pydecode
     from tests.harness.case import encode

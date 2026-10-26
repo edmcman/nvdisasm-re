@@ -761,15 +761,15 @@ class Gen:
             # alignment rules on several fields multiply the global decision tree).
             legality, tables = self.conditions(k, domain)
             if legality is None: continue   # no legal encoding has this span
-            body, refs = self.fixed_semantics(k, None, spans, known, nested=True)
+            body, refs = self.fixed_semantics(k, None, spans, known, nested=True, domain=domain)
             cons.append(('""', pattern(clauses + legality, refs + [("sub", t) for t in tables]), "", body))
         table = self.subtable("s", cons)
         body = f"build {guard}; " if guard else ""
         return body + f"build {table};", [("sub", table)]
 
-    def fixed_semantics(self, k, guard, spans, known, nested=False):
+    def fixed_semantics(self, k, guard, spans, known, nested=False, domain=None):
         from sass.semantics.operands import emit
-        if nested:return emit(self, k, guard, spans, known)
+        if nested:return emit(self, k, guard, spans, known, domain=domain)
         body, refs = emit(self, k, None, spans, known)
         table = self.subtable("s", [('""', pattern([], refs), "", body)])
         return (f"build {guard}; " if guard else "") + f"build {table};", [("sub", table)]
