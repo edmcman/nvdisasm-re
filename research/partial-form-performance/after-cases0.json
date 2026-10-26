@@ -1,0 +1,78 @@
+{
+  "operation": "cases",
+  "arch": "SM89",
+  "architectures": [
+    "SM75",
+    "SM80",
+    "SM86",
+    "SM89",
+    "SM90",
+    "SM100",
+    "SM101",
+    "SM103",
+    "SM107",
+    "SM120"
+  ],
+  "classes": [
+    "ld__sImmOffset",
+    "ldg__sImmOffset",
+    "stg__sImmOffset",
+    "flo__RRR_RRR",
+    "mov__RR"
+  ],
+  "sample": 0,
+  "runs": [
+    {
+      "wall_seconds": 1.113266023923643,
+      "cpu_seconds": 1.161695,
+      "peak_process_rss_kib": 85468,
+      "counts": {
+        "forms": 634,
+        "cases": 634
+      },
+      "load": [
+        5.84228515625,
+        11.82373046875,
+        13.90966796875
+      ],
+      "workers": 32,
+      "sampled_tree_cpu_seconds": 1.21,
+      "sampled_tree_peak_rss_kib": 85468
+    },
+    {
+      "wall_seconds": 1.159152821986936,
+      "cpu_seconds": 1.206524,
+      "peak_process_rss_kib": 85620,
+      "counts": {
+        "forms": 634,
+        "cases": 634
+      },
+      "load": [
+        5.84228515625,
+        11.82373046875,
+        13.90966796875
+      ],
+      "workers": 32,
+      "sampled_tree_cpu_seconds": 1.26,
+      "sampled_tree_peak_rss_kib": 85620
+    },
+    {
+      "wall_seconds": 1.1312029639957473,
+      "cpu_seconds": 1.1813799999999999,
+      "peak_process_rss_kib": 85360,
+      "counts": {
+        "forms": 634,
+        "cases": 634
+      },
+      "load": [
+        5.84228515625,
+        11.82373046875,
+        13.90966796875
+      ],
+      "workers": 32,
+      "sampled_tree_cpu_seconds": 1.24,
+      "sampled_tree_peak_rss_kib": 85360
+    }
+  ],
+  "plan_dir": "/tmp/issue80-bench-after"
+}

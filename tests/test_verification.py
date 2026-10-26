@@ -102,6 +102,27 @@ def test_partial_requirements_are_not_credited_without_a_case():
     assert cover.uncovered & ~req.plannable
 
 
+def test_partial_candidates_require_explicit_opt_in_and_acceptance():
+    r = row(2)
+    r["combinations"].update(decides=["A"], free=2,
+                             table=[["0", "native"], ["1", "partially native"]])
+    default = verification.Requirements(r)
+    assert all(status == "native" for _, status in verification.forms(r, default.statuses))
+    req = verification.Requirements(r, statuses=verification.SUPPORTED | {"partially native"})
+    target = set().union(*(tuples(s, 3) for s, _ in verification.forms(r)))
+    cover = verification.Cover(req)
+    candidate = cover.next()
+    assert cover.uncovered == req.required
+    selected = []
+    # Reject the first candidate. Its requirements must remain uncovered.
+    while candidate := cover.next():
+        selected.append(candidate[0])
+        cover.accept(candidate[2])
+    covered = set().union(*(tuples(s, 3) for s in selected))
+    assert req.plannable == req.required
+    assert cover.uncovered.bit_count() == len(target - covered) == 1
+
+
 def test_positive_forms_compact_round_trip():
     entry = dict(modifiers=["A"], forms=dict(reference=[["0"], ["1"]]),
                  verification_forms=dict(reference=[["1"]]))

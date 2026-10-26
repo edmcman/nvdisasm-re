@@ -82,7 +82,7 @@ def arithmetic(c):
         c.add("hfma2__RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6, iswzA=a, iswzB=b, iswzC=d), dict(R2=x, R4=y, R6=z),
               dict(R8=reference("fma", [lanes(x, a), lanes(y, b), lanes(z, d)]), __native=True))
     for cls, fields in [("hadd2__RI", dict(Rd=8, Ra=2, Sc=y >> 16, Sc1=y & 0xffff)), ("hfma2__RIR", dict(Rd=8, Ra=2, Sb=y >> 16, Sb1=y & 0xffff, Rc=6)),
-                        ("hfma2__RRI", dict(Rd=8, Ra=2, Rb=4, Sc=z >> 16, Sc1=z & 0xffff)), ("hadd2__RC", dict(Rd=8, Ra=2, Sc_bank=0, Sc_addr=0x100)),
+                        ("hadd2__RC", dict(Rd=8, Ra=2, Sc_bank=0, Sc_addr=0x100)),
                         ("hfma2__RCR", dict(Rd=8, Ra=2, Sb_bank=0, Sb_addr=0x100, Rc=6)), ("hfma2__RRC", dict(Rd=8, Ra=2, Rb=4, Sc_bank=0, Sc_addr=0x104)),
                         ("hadd2__RU", dict(Rd=8, Ra=2, URc=4)), ("hfma2__RRU", dict(Rd=8, Ra=2, Rb=4, URc=6))]:
         fma = cls.startswith("hfma")
@@ -282,43 +282,8 @@ def comparisons(c):
                 c.add(k.name, f, regs, expect(k.name, a, y, cmp="LT"), memory=memory, portable=True)
 
 
-@retained('Mixed F32/half widening and literal half-lane boundaries remain outside the initial packed form adapter.')
-def widening(c):
-    # HADD2.F32 adds two half lanes, takes the selected low result and widens it to F32. Its
-    # first operand is -RZ; the second source's selector chooses the half for the low result.
-    values = [0, 0x80000000, 0x00010001, 0x80010001, 0x03ff0400, 0x040003ff, 0x35553aaa, 0x3c004000, 0xbc00c000, 0x7bff3c00, 0x7c003c00, 0x3c007c00, 0x7e003c00]
-    for k in c.of("HADD2", "hadd2_F32", cx=None):
-        if any(a.type == "CX" for a in k.operand_types.values()):
-            c.add(k.name, dict(Rd=8, Ra="RZ", URc=4, Sc_offset=0, ofmt="F32", **{"Ra@negate": 1}), cx_header(c.arch, 4, 0x1000),
-                  {"R8": 0x3f800000, "__native": True}, memory=[ram(0x1000, 0x3c003c00)])
-            if c.fp == "readable":
-                cx_fields, cx_regs, memory = cx_source(c.arch, k, cx_name(k), 0x3c003c00)
-                c.add(k.name, {"Rd": 8, "Ra": "RZ", "ofmt": "F32", "Ra@negate": 1, **cx_fields}, cx_regs, {"R8": 0x3f800000, "__native": True},
-                      memory=memory, portable=True)
-            continue
-        src = source(k, "Rc", "URc", "Sc"); typ = k.operand_types[src].type
-        swizzle_name = source(k, "iswzB_as_C", "iswzB")
-        # Attribute modifiers live in the rule list, not operand_types.
-        attrs = {(r[1], r[2]) for _, r in k.rules if r[0] == "attr"}
-        for ftz, sat, swizzle, absolute, negate, value in product(("noftz", "FTZ"), ("nosat", "SAT"), SWIZZLES if swizzle_name else ("H1_H0",),
-                                                                 (0, 1), (0, 1), values):
-            fields, regs, memory = {"Rd": 8, "Ra": "RZ", "ofmt": "F32", "ftz": ftz, "sat": sat, "iswzA": "H1_H0", "Ra@negate": 1}, {}, []
-            source_value = value
-            if absolute: source_value &= 0x7fff7fff
-            if negate: source_value ^= 0x80008000
-            if typ == "F16Imm": fields[src] = source_value = value & 0xffff
-            else: put(k, src, value, fields, regs, memory, 4, bank=(2, 0x100), imm=())
-            if (src, "absolute") in attrs: fields[src + "@absolute"] = absolute
-            if (src, "negate") in attrs: fields[src + "@negate"] = negate
-            if swizzle_name: fields[swizzle_name] = swizzle
-            lane = (source_value >> 16) & 0xffff if swizzle == "H1_H1" else source_value & 0xffff
-            want = widen_half(softfloat.arithmetic("add", [0x8000, lane], 16, ftz=ftz == "FTZ" and c.fp != "readable", sat=sat == "SAT"))
-            if want is not None: c.add(k.name, fields, regs, {"R8": want, "__native": True}, memory=memory)
-        # A 16-bit scalar literal occupies the low lane in this one-use form.
-        if typ == "F16Imm":
-            for half in (0x0001, 0x3c00, 0x8000, 0xbc00):
-                c.add(k.name, {"Rd": 8, "Ra": "RZ", "Sc": half, "ofmt": "F32", "ftz": "noftz", "sat": "nosat", "iswzA": "H1_H0", "Ra@negate": 1}, {},
-                      {"R8": widen_half(softfloat.arithmetic("add", [0x8000, half], 16)), "__native": True})
+@retained('Literal HFMA2.MMA moves must lower to one operation; a live factor takes the arithmetic path.')
+def literal_move_cost(c):
     move = next((name for name in ("hfma2_mma__RRI_norelu", "hfma2_mma__RRI") if name in c.classes), None)
     if move:
         canonical = lambda h: 0x7fff if h & 0x7c00 == 0x7c00 and h & 0x3ff else h
@@ -362,16 +327,6 @@ def single_source(c):
                     if want is not None: c.add("hadd2__RR", dict(fields, **zero), {"R2": x}, dict(R8=want, __native=True))
                     widened = widen_half(want & 0xffff) if want is not None else None
                     if widened is not None: c.add("hadd2__RR", dict(fields, ofmt="F32", **zero), {"R2": x}, dict(R8=widened, __native=True))
-    # SM75's .F32 result of an ordinary HADD2: x (either operand) plus -RZ widened, as SM89's HADD2.F32 classes.
-    for x in (0x3c00c000, 0x80000000, 0x00010001, 0x7bff3c00, 0x7e003c00, 0x7c00fc00):
-        for swizzle, sat in product(SWIZZLES, ("nosat", "SAT")):
-            lane = lanes(x, swizzle)[0]
-            want = widen_half(rounded("add", [lane, 0x8000], 16, sat=sat == "SAT"))
-            if want is None: continue
-            for fields, regs in ((dict(Ra=2, Rc="RZ", iswzA=swizzle, iswzB_as_C="H0_H0", **{"Rc@negate": 1}), {"R2": x}),
-                                 (dict(Ra="RZ", Rc=4, iswzA="H0_H0", iswzB_as_C=swizzle, **{"Ra@negate": 1}), {"R4": x})):
-                fields = dict(fields, Rd=8, ofmt="F32", sat=sat)
-                if legal("hadd2__RR", **fields): c.add("hadd2__RR", fields, regs, dict(R8=want, __native=True))
     # Not modelled: HFMA2/HMUL2/HSET2's .F32 sources (ptxas never fuses a conversion into them, so they may
     # act in binary32), and an .F32 result of a sum with a nonzero operand (its rounding is unknown).
     if sources:
@@ -396,7 +351,7 @@ def readable_formulas(c):
 
 
 def emulator_cases(c):
-    arithmetic(c); minmax(c); comparisons(c); widening(c); single_source(c); readable_formulas(c)
+    arithmetic(c); minmax(c); comparisons(c); literal_move_cost(c); single_source(c); readable_formulas(c)
 
 
 def hmnmx2_reference(family):

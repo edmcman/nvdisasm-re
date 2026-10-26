@@ -26,7 +26,9 @@ def work(args):
         counts = dict(report["counts"], forms=len(plan["forms"]))
     elif args.operation == "cases":
         counts = dict(forms=0, cases=0)
-        for entry in autocases.saved_plan(args.arch)["forms"]:
+        plan = (json.loads((args.plan_dir / f"{args.arch}.json").read_text())
+                if args.plan_dir else autocases.saved_plan(args.arch))
+        for entry in plan["forms"]:
             if entry["cls"] not in args.classes:
                 continue
             kwargs = {"profile_mode": entry["profile_mode"]} if "profile_mode" in entry else {}
@@ -110,6 +112,7 @@ def main():
     parser.add_argument("--repeat", type=int, default=3)
     parser.add_argument("--out", type=Path)
     parser.add_argument("--artifacts", type=Path, default=Path("/tmp/verification-evidence"))
+    parser.add_argument("--plan-dir", type=Path, help="read isolated comparison plans instead of committed plans")
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
     if args.worker:
@@ -121,9 +124,13 @@ def main():
                "--arch", args.arch, "--sample", str(args.sample),
                "--classes", *args.classes, "--architectures", *args.architectures,
                "--artifacts", str(args.artifacts)]
+    if args.plan_dir:
+        command += ["--plan-dir", str(args.plan_dir)]
     runs = [measured(command) for _ in range(args.repeat)]
     result = dict(operation=args.operation, arch=args.arch, architectures=args.architectures,
                   classes=args.classes, sample=args.sample, runs=runs)
+    if args.plan_dir:
+        result['plan_dir'] = str(args.plan_dir)
     text = json.dumps(result, indent=2) + "\n"
     if args.out:
         args.out.write_text(text)

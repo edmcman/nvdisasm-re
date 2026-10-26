@@ -1,21 +1,10 @@
 """Memory: global/shared/local loads and stores, generic LD/ST, explicit descriptors, constant loads (LDC/ULDC/LDCU), shared
 stride addressing and QSPC address-space queries."""
 from tests.harness.manual import retained
-from tests.harness.case import cbank
 from tests.refs import memory
 
 
-def loads_stores(c):
-    for op, space in [("ldg", "ram"), ("lds", "shared"), ("ldl", "localmem")]:
-        for sz, data, want in [("S8", "ff", 0xffffffff), ("U16", "3412", 0x1234), ("32", "78563412", 0x12345678),
-                               ("64", "0100000002000000", 1), ("128", "01000000020000000300000004000000", 1)]:
-            if op != "ldg" and sz not in ("64","128"): continue  # LDG remains partial; ordinary narrow LDS/LDL accesses are generated.
-            expected = {"R8": want, **({"R9": 2} if sz in ("64", "128") else {}), **(dict(R10=3, R11=4) if sz == "128" else {})}
-            c.add(op + "__sImmOffset", dict(Rd=8, Ra=2, Ra_offset=-4, sz=sz), dict(R2=0x104, R3=0), expected,
-                  memory=[dict(space=space, address=0x100, hex=data)])
-    c.add("mov__RC", dict(Rd=8, Sb_bank=2, Sb_addr=16, PixMaskU04=15), {}, dict(R8=0x12345678), memory=[cbank(2, 16, 0x12345678)])
-    # Ordinary wide constant loads are owned by generated profiles now that
-    # their span domains no longer make them appear partially native.
+def unsupported_constant_unpack(c):
     c.add("ldcu_const_RCR_", dict(URd=8, URa="URZ", Sa_bank=2, Sa_offset=16, texunpack="TEXUNPACK"), {}, dict(error="sass_opaque_LDCU"))
 
 
@@ -192,9 +181,9 @@ def qspc(c):
                       context=physical, hardware={'adapter': 'qspc', 'space': origin})
 
 
-@retained("Aligned memory/constant register pairs, window edges/decoys, descriptors, zero-fill guards, masked/cluster queries, physical query anchors and error cases exceed generated ordinary profiles.")
+@retained("Window edges/decoys, descriptors, zero-fill guards, masked/cluster queries, physical query anchors and error cases exceed generated ordinary profiles.")
 def emulator_cases(c):
-    loads_stores(c); generic(c); generic32(c); descriptors(c); zero_fill(c); qspc(c)
+    unsupported_constant_unpack(c); generic(c); generic32(c); descriptors(c); zero_fill(c); qspc(c)
 
     from sass.decode import pydecode
     from tests.harness.case import encode

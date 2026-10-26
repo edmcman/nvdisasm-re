@@ -13,7 +13,7 @@ from sass.sleigh.modifiers import settings
 from sass.sleigh import verification
 from tests.cases import emulator_cases
 from tests.harness import autocases
-from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp, autocase_system, autocase_mixed_fp, autocase_remaining
+from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp, autocase_system, autocase_mixed_fp, autocase_remaining, autocase_partial
 
 
 def forms(row):
@@ -40,7 +40,8 @@ def plan(arch, rows, policy=verification.POLICY):
     for row in rows:
         c = row.get('combinations')
         if c is None: raise ValueError(f"{row['cls']}: missing combination table; regenerate with --coverage")
-        requirements = verification.Requirements(row, policy)
+        statuses = verification.SUPPORTED | ({'partially native'} if row['opcode'] in autocase_partial.ROWS else set())
+        requirements = verification.Requirements(row, policy, statuses)
         counts['legal'] += len(c['table']) * c['free']
         unresolved = sum(c['free'] for e in c['table'] if e[-1] not in verification.SUPPORTED)
         counts['unresolved_semantics'] += unresolved
@@ -59,7 +60,7 @@ def plan(arch, rows, policy=verification.POLICY):
             if missing:
                 deferred = (requirements.required & ~requirements.plannable & ~ran).bit_count()
                 if deferred:
-                    gaps.append(dict(cls=row['cls'], count=deferred, reason='partial-form planning deferred to #80', unit='interactions'))
+                    gaps.append(dict(cls=row['cls'], count=deferred, reason='partial operand adapter unavailable', unit='interactions'))
                 if missing > deferred:
                     gaps.append(dict(cls=row['cls'], count=missing-deferred, reason='needs a reference/operand adapter', unit='interactions'))
             continue
@@ -68,22 +69,23 @@ def plan(arch, rows, policy=verification.POLICY):
         roles = row.get('modifier_roles', {})
         while candidate := cover.next():
             form, status, mask = candidate
+            native = status in ('native', 'partially native')
             profiles = autocase_profiles.names(row['opcode'], row['cls'], form)
             try:
-                reason = autocase_remaining.blocked_reason(row['opcode'],row['cls'],form) or autocase_extended.blocked_reason(row['opcode'],form) or autocase_packed_fp.blocked_reason(row['opcode'],form) or autocase_wide_fp.blocked_reason(row['opcode'],form)
+                reason = autocase_remaining.blocked_reason(row['opcode'],row['cls'],form) or autocase_extended.blocked_reason(row['opcode'],form) or autocase_packed_fp.blocked_reason(row['opcode'],form,row['cls']) or autocase_wide_fp.blocked_reason(row['opcode'],form)
                 if reason: raise autocases.Unsupported(reason)
-                autocases.generate(arch, row['cls'], form, profiles=profiles, native=status == 'native', sample=0)
+                autocases.generate(arch, row['cls'], form, profiles=profiles, native=native, sample=0)
                 # Every neutral variant must have a usable minimal floor, even
                 # when this particular form becomes the full-profile anchor.
                 if any(roles.get(n, 'value') != 'value' for n in form):
-                    autocases.generate(arch, row['cls'], form, profiles=profiles, native=status == 'native',
+                    autocases.generate(arch, row['cls'], form, profiles=profiles, native=native,
                                        sample=0, profile_mode='minimal')
             except (autocases.Unsupported, ValueError) as error:
                 blocked_reasons[str(error)] += 1
             else:
                 cover.accept(mask)
                 selected.append(dict(family=autocases.FAMILIES[row['opcode']], cls=row['cls'], settings=form,
-                                     profiles=profiles, native=status == 'native', strength=policy.strength(row)))
+                                     profiles=profiles, native=native, strength=policy.strength(row)))
         seen = set()
         for entry in sorted(selected, key=lambda e: identity(e['cls'], e['settings'])):
             projection = tuple((n, v) for n, v in sorted(entry['settings'].items()) if roles.get(n, 'value') == 'value')
@@ -96,7 +98,7 @@ def plan(arch, rows, policy=verification.POLICY):
         if cover.uncovered:
             deferred = (cover.uncovered & ~requirements.plannable).bit_count()
             if deferred:
-                gaps.append(dict(cls=row['cls'], count=deferred, reason='partial-form planning deferred to #80', unit='interactions'))
+                gaps.append(dict(cls=row['cls'], count=deferred, reason='partial operand adapter unavailable', unit='interactions'))
             missing = (cover.uncovered & requirements.plannable).bit_count()
             if missing:
                 gaps.append(dict(cls=row['cls'], count=missing, reason='no usable reference/operand adapter', unit='interactions',

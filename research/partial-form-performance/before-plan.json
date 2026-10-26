@@ -1,0 +1,95 @@
+{
+  "operation": "plan",
+  "arch": "SM89",
+  "architectures": [
+    "SM75",
+    "SM80",
+    "SM86",
+    "SM89",
+    "SM90",
+    "SM100",
+    "SM101",
+    "SM103",
+    "SM107",
+    "SM120"
+  ],
+  "classes": [
+    "ld__sImmOffset",
+    "ldg__sImmOffset",
+    "stg__sImmOffset",
+    "flo__RRR_RRR",
+    "mov__RR"
+  ],
+  "sample": 0,
+  "runs": [
+    {
+      "wall_seconds": 4.7277334430255,
+      "cpu_seconds": 4.775493999999999,
+      "peak_process_rss_kib": 335488,
+      "counts": {
+        "legal": 11433,
+        "unresolved_semantics": 5193,
+        "requirements": 5892,
+        "manual": 4,
+        "blocked": 1061,
+        "covered_requirements": 4831,
+        "generated": 467,
+        "forms": 467
+      },
+      "load": [
+        6.12744140625,
+        12.4951171875,
+        14.18798828125
+      ],
+      "workers": 32,
+      "sampled_tree_cpu_seconds": 4.87,
+      "sampled_tree_peak_rss_kib": 335488
+    },
+    {
+      "wall_seconds": 4.912586197024211,
+      "cpu_seconds": 4.963608,
+      "peak_process_rss_kib": 335544,
+      "counts": {
+        "legal": 11433,
+        "unresolved_semantics": 5193,
+        "requirements": 5892,
+        "manual": 4,
+        "blocked": 1061,
+        "covered_requirements": 4831,
+        "generated": 467,
+        "forms": 467
+      },
+      "load": [
+        6.35791015625,
+        12.43701171875,
+        14.15966796875
+      ],
+      "workers": 32,
+      "sampled_tree_cpu_seconds": 5.06,
+      "sampled_tree_peak_rss_kib": 335544
+    },
+    {
+      "wall_seconds": 4.78258799307514,
+      "cpu_seconds": 4.833069,
+      "peak_process_rss_kib": 335588,
+      "counts": {
+        "legal": 11433,
+        "unresolved_semantics": 5193,
+        "requirements": 5892,
+        "manual": 4,
+        "blocked": 1061,
+        "covered_requirements": 4831,
+        "generated": 467,
+        "forms": 467
+      },
+      "load": [
+        6.0087890625,
+        12.263671875,
+        14.09423828125
+      ],
+      "workers": 32,
+      "sampled_tree_cpu_seconds": 4.93,
+      "sampled_tree_peak_rss_kib": 335588
+    }
+  ]
+}

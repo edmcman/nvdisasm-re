@@ -11,9 +11,21 @@ FAMILIES={op:'conversions' if op in PACK_OPS else 'fp16' for op in OPS}
 SWIZZLES={'H1_H0','H0_H0','H1_H1'}
 
 
-def blocked_reason(op,form):
+def constant_move(op, form, cls):
+    return (op in FMA_OPS and '__RRI' in cls
+            and form.get('Ra@negate') == 'set' and form.get('Rb@negate', 'unset') == 'unset'
+            and form.get('ofmt', 'F16_V2') == 'F16_V2'
+            and form.get('fmz', 'nofmz') in ('nofmz', 'nofmz_hfma2')
+            and form.get('sat', form.get('satrelu', 'nosat')) == 'nosat'
+            and not any(n.endswith('@absolute') and v == 'set' for n, v in form.items())
+            and all(v == 'H1_H0' for n, v in form.items() if n.startswith('iswz')))
+
+
+def blocked_reason(op,form,cls=''):
     if op not in HALF_OPS:return None
-    if any(n.endswith(('@absolute','@negate')) and v=='set' for n,v in form.items()):
+    if constant_move(op, form, cls) or op == 'HADD2' and form.get('ofmt') == 'F32':
+        return None
+    if any(n.endswith(('@absolute','@negate')) and v=='set' for n,v in form.items()) and not (op in FMA_OPS and '__RRI' in cls):
         return 'packed source-sign numerical corpus remains manual'
     if any(n.startswith('iswz') and v not in SWIZZLES for n,v in form.items()):
         return 'mixed-precision and sign-swizzle lane corpus remains manual'
@@ -32,6 +44,9 @@ def operand(s,name,value,reg):
     if name is None:raise autocases.Unsupported('unsupported packed operand layout')
     if name+'1' in s.k.operand_types:
         s.fields[name]=value>>16; s.fields[name+'1']=value&0xffff
+    elif s.k.operand_types[name].type == 'F16Imm':
+        s.fields[name] = value & 0xffff
+        return value & 0xffff
     else:s.operand((name,),value,reg)
     return value
 
@@ -46,9 +61,64 @@ def generate(c,k,form,profiles):
     expected=['packed_conversion_forms'] if k.mnemonic in PACK_OPS else ['half_comparison_forms'] if k.mnemonic in ('HSET2','HSETP2') else ['half_forms']
     if profiles!=expected:raise autocases.Unsupported('incompatible packed profiles')
     if k.mnemonic in PACK_OPS:return conversions(c,k,form)
-    reason=blocked_reason(k.mnemonic,form)
+    if constant_move(k.mnemonic, form, k.name):
+        return literal_move(c, k, form)
+    if k.mnemonic == 'HADD2' and form.get('ofmt') == 'F32':
+        return widening(c, k, form)
+    reason=blocked_reason(k.mnemonic,form,k.name)
     if reason:raise autocases.Unsupported(reason)
     return half(c,k,form)
+
+
+def literal_move(c, k, form):
+    from tests.harness import autocases
+    if not {'Ra', 'Rb', 'Sc', 'Sc1'} <= k.operand_types.keys():
+        raise autocases.Unsupported('literal half move needs two zero registers and two immediate lanes')
+    for word in autocase_profiles.PROFILES['half_forms']['F16']:
+        s = autocases.Inputs(c, k, form)
+        s.fields.update(Ra='RZ', Rb='RZ', Sc=word >> 16, Sc1=word & 0xffff)
+        # Independently rounded fused -0*+0+literal, including canonical NaNs.
+        result = float.half2('fma', [(0x8000, 0x8000), (0, 0), (word & 0xffff, word >> 16)])
+        s.add({s.output(('Rd',), 8): result}, form, portable=True)
+    return c
+
+
+def widening(c, k, form):
+    from tests.harness import autocases
+    names = [source(k, 'Ra'), source(k, 'Rc', 'Sc', 'URc')]
+    zero = next((n for n in names if n in k.operand_types
+                 and k.operand_types[n].type in ('Register', 'ZeroRegister')
+                 and form.get(n+'@negate') == 'set' and form.get(n+'@absolute', 'unset') == 'unset'), None)
+    if zero is None:
+        raise autocases.Unsupported('F32 half widening requires an explicit negative zero register')
+    other = next(n for n in names if n != zero)
+    swizzle = 'iswzA' if other == 'Ra' else source(k, 'iswzB_as_C', 'iswzB')
+    selector = form.get(swizzle, 'H1_H0')
+    if selector not in SWIZZLES | {'F32'}:
+        raise autocases.Unsupported('unresolved widening source swizzle')
+    if form.get('sat', 'nosat') not in ('nosat', 'SAT'):
+        raise autocases.Unsupported('unresolved widening saturation')
+    spec = autocase_profiles.PROFILES['half_forms']
+    values = (autocase_profiles.PROFILES['floating_forms'][32] if selector == 'F32'
+              else tuple(dict.fromkeys(spec['F16'] + spec['widening'])))
+    for value in values:
+        s = autocases.Inputs(c, k, form)
+        s.fields[zero] = 'RZ'
+        if selector == 'F32':
+            raw = value & (0x7fffffff if form.get(other+'@absolute') == 'set' else 0xffffffff)
+            raw ^= 0x80000000 if form.get(other+'@negate') == 'set' else 0
+            lane = float.f2f(raw, 32, 16, 'RZ')
+        else:
+            raw = value & (0x7fff7fff if form.get(other+'@absolute') == 'set' else 0xffffffff)
+            raw ^= 0x80008000 if form.get(other+'@negate') == 'set' else 0
+            lane = lanes(raw, selector)[0]
+        operand(s, other, value, 4)
+        result = float.widen_half(float.rounded('add', [0x8000, lane], 16,
+                                  ftz=c.fp == 'exact' and form.get('ftz') == 'FTZ',
+                                  sat=form.get('sat') == 'SAT'))
+        if result is not None:
+            s.add({s.output(('Rd',), 8): result}, form, portable=True)
+    return c
 
 
 def conversions(c,k,form):
@@ -105,7 +175,12 @@ def half(c,k,form):
         a=values[j]
         s=autocases.Inputs(c,k,form)
         raw=(a,values[(j+3)%len(values)],values[(j+5)%len(values)])
-        pairs=[lanes(operand(s,n,v,r),form.get(sw,'H1_H0')) for n,v,r,sw in zip(names,raw,(4,6,8),swizzles)]
+        pairs=[]
+        for n,v,r,sw in zip(names,raw,(4,6,8),swizzles):
+            value = operand(s,n,v,r)
+            if form.get(n+'@absolute') == 'set': value &= 0x7fff7fff
+            if form.get(n+'@negate') == 'set': value ^= 0x80008000
+            pairs.append(lanes(value,form.get(sw,'H1_H0')))
         packed=[lo | hi<<16 for lo,hi in pairs]
         p=raw_predicate; pred=source(k,'Pp')
         if pred:

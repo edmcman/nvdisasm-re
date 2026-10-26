@@ -1,12 +1,12 @@
 {
   "counts": {
-    "legal": 1751613,
-    "unresolved_semantics": 1204236,
-    "requirements": 140137,
-    "manual": 33,
-    "blocked": 42228,
-    "covered_requirements": 97909,
-    "generated": 10879
+    "legal": 1040531,
+    "unresolved_semantics": 574172,
+    "requirements": 130656,
+    "manual": 0,
+    "blocked": 31317,
+    "covered_requirements": 99339,
+    "generated": 11010
   },
   "gaps": [
     {
@@ -96,152 +96,152 @@
     },
     {
       "cls": "atom_arrive__Ra32_arrive",
-      "count": 126,
+      "count": 48,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atom_arrive__Ra32_popcinc",
-      "count": 126,
+      "count": 48,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atom_arrive__Ra64_arrive",
-      "count": 126,
+      "count": 48,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atom_arrive__Ra64_popcinc",
-      "count": 126,
+      "count": 48,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atom_cas__RaNonRZ_CAS",
-      "count": 1008,
+      "count": 384,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atom_cas__RaNonRZ_CAST",
-      "count": 2016,
+      "count": 768,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atom_cas__RaRZ_CAS",
-      "count": 1008,
+      "count": 384,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atom_cas__RaRZ_CAST",
-      "count": 2016,
+      "count": 768,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atom_fp__RaNonRZ",
-      "count": 6300,
+      "count": 2400,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atom_fp__RaRZ",
-      "count": 6300,
+      "count": 2400,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atom_fp_uniform__Ra32",
-      "count": 6300,
+      "count": 2400,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atom_fp_uniform__Ra64",
-      "count": 3150,
+      "count": 1200,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atom_fp_uniform__memdesc",
-      "count": 3150,
+      "count": 1200,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atom_int__RaNonRZ",
-      "count": 6552,
+      "count": 2496,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atom_int__RaRZ",
-      "count": 6552,
+      "count": 2496,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atom_int_uniform__Ra32",
-      "count": 6552,
+      "count": 2496,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atom_int_uniform__Ra64",
-      "count": 3276,
+      "count": 1248,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atom_int_uniform__memdesc",
-      "count": 3276,
+      "count": 1248,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_cas__RaNonRZ",
-      "count": 1008,
+      "count": 384,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_cas__RaRZ",
-      "count": 1008,
+      "count": 384,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_fp__RaNonRZ",
-      "count": 6300,
+      "count": 2400,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_fp__RaRZ",
-      "count": 6300,
+      "count": 2400,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_fp_uniform__Ra32",
-      "count": 6300,
+      "count": 2400,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_fp_uniform__Ra64",
-      "count": 3150,
+      "count": 1200,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_fp_uniform__memdesc",
-      "count": 3150,
+      "count": 1200,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_int__RaNonRZ",
-      "count": 6768,
+      "count": 2568,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_int__RaRZ",
-      "count": 6768,
+      "count": 2568,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_int_uniform__Ra32",
-      "count": 6768,
+      "count": 2568,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_int_uniform__Ra64",
-      "count": 3384,
+      "count": 1284,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_int_uniform__memdesc",
-      "count": 3384,
+      "count": 1284,
       "reason": "unresolved semantics"
     },
     {
@@ -1558,21 +1558,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "flo__RRR_RRR",
-      "count": 4,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "flo__RUR_RUR",
       "count": 8,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "flo__RUR_RUR",
-      "count": 4,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "flo__RuIR_RIR",
@@ -1682,33 +1670,6 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hadd2_F32__RI",
-      "count": 28,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed source-sign numerical corpus remains manual": 12
-      }
-    },
-    {
-      "cls": "hadd2_F32__RR",
-      "count": 329,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed source-sign numerical corpus remains manual": 144
-      }
-    },
-    {
-      "cls": "hadd2_F32__RU",
-      "count": 329,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed source-sign numerical corpus remains manual": 144
-      }
-    },
-    {
       "cls": "hadd2__RI",
       "count": 36,
       "reason": "unresolved semantics"
@@ -1770,15 +1731,6 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hfma2__RRI",
-      "count": 360,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed source-sign numerical corpus remains manual": 235
-      }
-    },
-    {
       "cls": "hfma2__RRR",
       "count": 19584,
       "reason": "unresolved semantics"
@@ -1838,15 +1790,6 @@
       "cls": "hfma2_relu__RRI",
       "count": 2016,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "hfma2_relu__RRI",
-      "count": 360,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed source-sign numerical corpus remains manual": 270
-      }
     },
     {
       "cls": "hfma2_relu__RRR",
@@ -2298,76 +2241,6 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ld__sImmOffset",
-      "count": 703,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 4032,
-        "sco: encoding changes 1 to 2": 672,
-        "sco: encoding changes 1 to 4": 672,
-        "sco: encoding changes 2 to 4": 672,
-        "sco: encoding changes 3 to 4": 2688,
-        "sem: encoding changes 1 to 2": 672
-      }
-    },
-    {
-      "cls": "ld__uImmOffset",
-      "count": 703,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 4032,
-        "sco: encoding changes 1 to 2": 672,
-        "sco: encoding changes 1 to 4": 672,
-        "sco: encoding changes 2 to 4": 672,
-        "sco: encoding changes 3 to 4": 2688,
-        "sem: encoding changes 1 to 2": 672
-      }
-    },
-    {
-      "cls": "ld_memdesc__Ra64",
-      "count": 593,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 2016,
-        "sco: encoding changes 1 to 2": 336,
-        "sco: encoding changes 1 to 4": 336,
-        "sco: encoding changes 2 to 4": 336,
-        "sco: encoding changes 3 to 4": 1344,
-        "sem: encoding changes 1 to 2": 336
-      }
-    },
-    {
-      "cls": "ld_uniform__Ra32",
-      "count": 703,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 4032,
-        "sco: encoding changes 1 to 2": 672,
-        "sco: encoding changes 1 to 4": 672,
-        "sco: encoding changes 2 to 4": 672,
-        "sco: encoding changes 3 to 4": 2688,
-        "sem: encoding changes 1 to 2": 672
-      }
-    },
-    {
-      "cls": "ld_uniform__Ra64",
-      "count": 593,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 2016,
-        "sco: encoding changes 1 to 2": 336,
-        "sco: encoding changes 1 to 4": 336,
-        "sco: encoding changes 2 to 4": 336,
-        "sco: encoding changes 3 to 4": 1344,
-        "sem: encoding changes 1 to 2": 336
-      }
-    },
-    {
       "cls": "ldc__RaNonRZ",
       "count": 18,
       "reason": "unresolved semantics"
@@ -2393,15 +2266,6 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ldcu_const_RCR_",
-      "count": 1,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "unknown constant-load size": 1
-      }
-    },
-    {
       "cls": "ldcu_const_RCxR_",
       "count": 9,
       "reason": "unresolved semantics"
@@ -2413,93 +2277,23 @@
     },
     {
       "cls": "ldg_256_memdesc__Ra64",
-      "count": 3168,
+      "count": 1152,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ldg_256_uniform__Ra32",
-      "count": 3168,
+      "count": 1152,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ldg_256_uniform__Ra64",
-      "count": 3168,
+      "count": 1152,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ldg_256_uniform__RaRZ",
-      "count": 3168,
+      "count": 1152,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldg__sImmOffset",
-      "count": 703,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 4032,
-        "sco: encoding changes 1 to 2": 672,
-        "sco: encoding changes 1 to 4": 672,
-        "sco: encoding changes 2 to 4": 672,
-        "sco: encoding changes 3 to 4": 2688,
-        "sem: encoding changes 1 to 2": 672
-      }
-    },
-    {
-      "cls": "ldg__uImmOffset",
-      "count": 703,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 4032,
-        "sco: encoding changes 1 to 2": 672,
-        "sco: encoding changes 1 to 4": 672,
-        "sco: encoding changes 2 to 4": 672,
-        "sco: encoding changes 3 to 4": 2688,
-        "sem: encoding changes 1 to 2": 672
-      }
-    },
-    {
-      "cls": "ldg_memdesc__Ra64",
-      "count": 593,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 2016,
-        "sco: encoding changes 1 to 2": 336,
-        "sco: encoding changes 1 to 4": 336,
-        "sco: encoding changes 2 to 4": 336,
-        "sco: encoding changes 3 to 4": 1344,
-        "sem: encoding changes 1 to 2": 336
-      }
-    },
-    {
-      "cls": "ldg_uniform__Ra32",
-      "count": 703,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 4032,
-        "sco: encoding changes 1 to 2": 672,
-        "sco: encoding changes 1 to 4": 672,
-        "sco: encoding changes 2 to 4": 672,
-        "sco: encoding changes 3 to 4": 2688,
-        "sem: encoding changes 1 to 2": 672
-      }
-    },
-    {
-      "cls": "ldg_uniform__Ra64",
-      "count": 593,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 2016,
-        "sco: encoding changes 1 to 2": 336,
-        "sco: encoding changes 1 to 4": 336,
-        "sco: encoding changes 2 to 4": 336,
-        "sco: encoding changes 3 to 4": 1344,
-        "sem: encoding changes 1 to 2": 336
-      }
     },
     {
       "cls": "ldgdepbar_",
@@ -2538,27 +2332,27 @@
     },
     {
       "cls": "ldgsts__RR32U",
-      "count": 2304,
+      "count": 1152,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ldgsts__RR64U",
-      "count": 2304,
+      "count": 1152,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ldgsts__RUR",
-      "count": 2304,
+      "count": 1152,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ldgsts__desc_RRU",
-      "count": 2304,
+      "count": 1152,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ldgsts_memdesc_",
-      "count": 2304,
+      "count": 1152,
       "reason": "unresolved semantics"
     },
     {
@@ -2612,32 +2406,14 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "mov__RI",
-      "count": 1,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "mov__RR",
-      "count": 1,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "mov__RR",
-      "count": 1,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
-      "cls": "mov__RU",
       "count": 1,
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov__RU",
       "count": 1,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "mov_indexedRF_IRFd__Ib",
@@ -2820,7 +2596,7 @@
     {
       "cls": "qspc__RaNonRZ",
       "count": 2,
-      "reason": "partial-form planning deferred to #80",
+      "reason": "partial operand adapter unavailable",
       "unit": "interactions"
     },
     {
@@ -2831,7 +2607,7 @@
     {
       "cls": "qspc__RaRZ",
       "count": 2,
-      "reason": "partial-form planning deferred to #80",
+      "reason": "partial operand adapter unavailable",
       "unit": "interactions"
     },
     {
@@ -2842,7 +2618,7 @@
     {
       "cls": "qspc_urb__Ra32",
       "count": 2,
-      "reason": "partial-form planning deferred to #80",
+      "reason": "partial operand adapter unavailable",
       "unit": "interactions"
     },
     {
@@ -2853,7 +2629,7 @@
     {
       "cls": "qspc_urb__Ra64",
       "count": 1,
-      "reason": "partial-form planning deferred to #80",
+      "reason": "partial operand adapter unavailable",
       "unit": "interactions"
     },
     {
@@ -2888,52 +2664,52 @@
     },
     {
       "cls": "redg_fp__RaNonRZ",
-      "count": 6300,
+      "count": 2400,
       "reason": "unresolved semantics"
     },
     {
       "cls": "redg_fp__RaRZ",
-      "count": 6300,
+      "count": 2400,
       "reason": "unresolved semantics"
     },
     {
       "cls": "redg_fp_uniform__Ra32",
-      "count": 6300,
+      "count": 2400,
       "reason": "unresolved semantics"
     },
     {
       "cls": "redg_fp_uniform__Ra64",
-      "count": 3150,
+      "count": 1200,
       "reason": "unresolved semantics"
     },
     {
       "cls": "redg_fp_uniform__memdesc",
-      "count": 3150,
+      "count": 1200,
       "reason": "unresolved semantics"
     },
     {
       "cls": "redg_int__RaNonRZ",
-      "count": 5544,
+      "count": 2112,
       "reason": "unresolved semantics"
     },
     {
       "cls": "redg_int__RaRZ",
-      "count": 5544,
+      "count": 2112,
       "reason": "unresolved semantics"
     },
     {
       "cls": "redg_int_uniform__Ra32",
-      "count": 5544,
+      "count": 2112,
       "reason": "unresolved semantics"
     },
     {
       "cls": "redg_int_uniform__Ra64",
-      "count": 2772,
+      "count": 1056,
       "reason": "unresolved semantics"
     },
     {
       "cls": "redg_int_uniform__memdesc",
-      "count": 2772,
+      "count": 1056,
       "reason": "unresolved semantics"
     },
     {
@@ -2998,88 +2774,18 @@
     },
     {
       "cls": "st__sImmOffset",
-      "count": 882,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "st__sImmOffset",
-      "count": 347,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 84,
-        "sco: encoding changes 1 to 2": 126,
-        "sco: encoding changes 1 to 4": 42,
-        "sco: encoding changes 2 to 4": 42,
-        "sco: encoding changes 3 to 4": 168,
-        "sem: encoding changes 1 to 2": 84
-      }
-    },
-    {
-      "cls": "st__uImmOffset",
-      "count": 882,
+      "count": 336,
       "reason": "unresolved semantics"
     },
     {
       "cls": "st__uImmOffset",
-      "count": 347,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 84,
-        "sco: encoding changes 1 to 2": 126,
-        "sco: encoding changes 1 to 4": 42,
-        "sco: encoding changes 2 to 4": 42,
-        "sco: encoding changes 3 to 4": 168,
-        "sem: encoding changes 1 to 2": 84
-      }
-    },
-    {
-      "cls": "st_memdesc__Ra64",
-      "count": 305,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 84,
-        "sco: encoding changes 1 to 2": 126,
-        "sco: encoding changes 1 to 4": 42,
-        "sco: encoding changes 2 to 4": 42,
-        "sco: encoding changes 3 to 4": 168,
-        "sem: encoding changes 1 to 2": 84
-      }
-    },
-    {
-      "cls": "st_uniform__Ra32",
-      "count": 882,
+      "count": 336,
       "reason": "unresolved semantics"
     },
     {
       "cls": "st_uniform__Ra32",
-      "count": 347,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 84,
-        "sco: encoding changes 1 to 2": 126,
-        "sco: encoding changes 1 to 4": 42,
-        "sco: encoding changes 2 to 4": 42,
-        "sco: encoding changes 3 to 4": 168,
-        "sem: encoding changes 1 to 2": 84
-      }
-    },
-    {
-      "cls": "st_uniform__Ra64",
-      "count": 305,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 84,
-        "sco: encoding changes 1 to 2": 126,
-        "sco: encoding changes 1 to 4": 42,
-        "sco: encoding changes 2 to 4": 42,
-        "sco: encoding changes 3 to 4": 168,
-        "sem: encoding changes 1 to 2": 84
-      }
+      "count": 336,
+      "reason": "unresolved semantics"
     },
     {
       "cls": "stas_64__Ra64",
@@ -3093,22 +2799,22 @@
     },
     {
       "cls": "stg_256_memdesc__Ra64",
-      "count": 360,
+      "count": 198,
       "reason": "unresolved semantics"
     },
     {
       "cls": "stg_256_uniform__Ra32",
-      "count": 360,
+      "count": 198,
       "reason": "unresolved semantics"
     },
     {
       "cls": "stg_256_uniform__Ra64",
-      "count": 360,
+      "count": 198,
       "reason": "unresolved semantics"
     },
     {
       "cls": "stg_256_uniform__RaRZ",
-      "count": 360,
+      "count": 198,
       "reason": "unresolved semantics"
     },
     {
@@ -3117,35 +2823,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "stg__sImmOffset",
-      "count": 268,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 168,
-        "sco: encoding changes 1 to 2": 252,
-        "sco: encoding changes 1 to 4": 84,
-        "sco: encoding changes 2 to 4": 84,
-        "sem: encoding changes 1 to 2": 168
-      }
-    },
-    {
       "cls": "stg__uImmOffset",
       "count": 252,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stg__uImmOffset",
-      "count": 268,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 168,
-        "sco: encoding changes 1 to 2": 252,
-        "sco: encoding changes 1 to 4": 84,
-        "sco: encoding changes 2 to 4": 84,
-        "sem: encoding changes 1 to 2": 168
-      }
     },
     {
       "cls": "stg_memdesc__Ra64",
@@ -3153,53 +2833,14 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "stg_memdesc__Ra64",
-      "count": 218,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 84,
-        "sco: encoding changes 1 to 2": 126,
-        "sco: encoding changes 1 to 4": 42,
-        "sco: encoding changes 2 to 4": 42,
-        "sem: encoding changes 1 to 2": 84
-      }
-    },
-    {
       "cls": "stg_uniform__Ra32",
       "count": 252,
       "reason": "unresolved semantics"
     },
     {
-      "cls": "stg_uniform__Ra32",
-      "count": 268,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 168,
-        "sco: encoding changes 1 to 2": 252,
-        "sco: encoding changes 1 to 4": 84,
-        "sco: encoding changes 2 to 4": 84,
-        "sem: encoding changes 1 to 2": 168
-      }
-    },
-    {
       "cls": "stg_uniform__Ra64",
       "count": 126,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stg_uniform__Ra64",
-      "count": 218,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "private: encoding changes 1 to 0": 84,
-        "sco: encoding changes 1 to 2": 126,
-        "sco: encoding changes 1 to 4": 42,
-        "sco: encoding changes 2 to 4": 42,
-        "sem: encoding changes 1 to 2": 84
-      }
     },
     {
       "cls": "stsm__UR_sI_R",
@@ -3218,42 +2859,42 @@
     },
     {
       "cls": "suatom_cas_reg_",
-      "count": 13608,
+      "count": 5184,
       "reason": "unresolved semantics"
     },
     {
       "cls": "suatom_cas_urc_",
-      "count": 13608,
+      "count": 5184,
       "reason": "unresolved semantics"
     },
     {
       "cls": "suatom_reg_",
-      "count": 167832,
+      "count": 63936,
       "reason": "unresolved semantics"
     },
     {
       "cls": "suatom_urc_",
-      "count": 167832,
+      "count": 63936,
       "reason": "unresolved semantics"
     },
     {
       "cls": "suld_d_reg_",
-      "count": 33264,
+      "count": 12096,
       "reason": "unresolved semantics"
     },
     {
       "cls": "suld_d_urc_",
-      "count": 33264,
+      "count": 12096,
       "reason": "unresolved semantics"
     },
     {
       "cls": "suld_p_reg_",
-      "count": 7128,
+      "count": 2592,
       "reason": "unresolved semantics"
     },
     {
       "cls": "suld_p_urc_",
-      "count": 7128,
+      "count": 2592,
       "reason": "unresolved semantics"
     },
     {
@@ -3268,32 +2909,32 @@
     },
     {
       "cls": "sured_reg_",
-      "count": 154224,
+      "count": 58752,
       "reason": "unresolved semantics"
     },
     {
       "cls": "sured_urc_",
-      "count": 154224,
+      "count": 58752,
       "reason": "unresolved semantics"
     },
     {
       "cls": "sust_d_reg_",
-      "count": 31752,
+      "count": 12096,
       "reason": "unresolved semantics"
     },
     {
       "cls": "sust_d_urc_",
-      "count": 31752,
+      "count": 12096,
       "reason": "unresolved semantics"
     },
     {
       "cls": "sust_p_reg_",
-      "count": 6804,
+      "count": 2592,
       "reason": "unresolved semantics"
     },
     {
       "cls": "sust_p_urc_",
-      "count": 6804,
+      "count": 2592,
       "reason": "unresolved semantics"
     },
     {
@@ -3433,12 +3074,12 @@
     },
     {
       "cls": "ublkcp_",
-      "count": 132,
+      "count": 84,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ublkcp_desc_",
-      "count": 121,
+      "count": 77,
       "reason": "unresolved semantics"
     },
     {
@@ -3453,12 +3094,12 @@
     },
     {
       "cls": "ublkred_",
-      "count": 462,
+      "count": 308,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ublkred_desc_",
-      "count": 372,
+      "count": 248,
       "reason": "unresolved semantics"
     },
     {
@@ -3502,21 +3143,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "uflo__URURUR_URURUR",
-      "count": 8,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "uflo__URuIUR_URuIR",
       "count": 4,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "uflo__URuIUR_URuIR",
-      "count": 4,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "ugetnextworkid_",

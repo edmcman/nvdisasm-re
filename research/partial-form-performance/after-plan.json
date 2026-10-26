@@ -1,0 +1,92 @@
+{
+  "operation": "plan",
+  "arch": "SM89",
+  "architectures": [
+    "SM75",
+    "SM80",
+    "SM86",
+    "SM89",
+    "SM90",
+    "SM100",
+    "SM101",
+    "SM103",
+    "SM107",
+    "SM120"
+  ],
+  "classes": [
+    "ld__sImmOffset",
+    "ldg__sImmOffset",
+    "stg__sImmOffset",
+    "flo__RRR_RRR",
+    "mov__RR"
+  ],
+  "sample": 0,
+  "runs": [
+    {
+      "wall_seconds": 1.905369246029295,
+      "cpu_seconds": 1.949678,
+      "peak_process_rss_kib": 334944,
+      "counts": {
+        "legal": 11433,
+        "unresolved_semantics": 5193,
+        "requirements": 5892,
+        "generated": 634,
+        "covered_requirements": 5892,
+        "blocked": 0,
+        "forms": 634
+      },
+      "load": [
+        5.916015625,
+        11.93896484375,
+        13.9580078125
+      ],
+      "workers": 32,
+      "sampled_tree_cpu_seconds": 2.02,
+      "sampled_tree_peak_rss_kib": 296160
+    },
+    {
+      "wall_seconds": 1.9911853841040283,
+      "cpu_seconds": 2.041417,
+      "peak_process_rss_kib": 334884,
+      "counts": {
+        "legal": 11433,
+        "unresolved_semantics": 5193,
+        "requirements": 5892,
+        "generated": 634,
+        "covered_requirements": 5892,
+        "blocked": 0,
+        "forms": 634
+      },
+      "load": [
+        5.916015625,
+        11.93896484375,
+        13.9580078125
+      ],
+      "workers": 32,
+      "sampled_tree_cpu_seconds": 2.15,
+      "sampled_tree_peak_rss_kib": 334884
+    },
+    {
+      "wall_seconds": 1.9681341389659792,
+      "cpu_seconds": 2.0194069999999997,
+      "peak_process_rss_kib": 334836,
+      "counts": {
+        "legal": 11433,
+        "unresolved_semantics": 5193,
+        "requirements": 5892,
+        "generated": 634,
+        "covered_requirements": 5892,
+        "blocked": 0,
+        "forms": 634
+      },
+      "load": [
+        5.916015625,
+        11.93896484375,
+        13.9580078125
+      ],
+      "workers": 32,
+      "sampled_tree_cpu_seconds": 2.08,
+      "sampled_tree_peak_rss_kib": 334836
+    }
+  ]
+}

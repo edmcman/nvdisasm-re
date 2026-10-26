@@ -25,11 +25,13 @@ def constants(c,k,form):
     if set(form)-{'sz','ad','texunpack'}: raise autocases.Unsupported('unhandled constant-load modifiers')
     if form.get('ad','IA') != 'IA' or form.get('texunpack','notexunpack') != 'notexunpack':
         raise autocases.Unsupported('specialized constant addressing remains manual')
-    sz=form['sz']; sizes={'U8':1,'S8':1,'U16':2,'S16':2,'32':4,'64':8}
+    sz=form['sz']; sizes={'U8':1,'S8':1,'U16':2,'S16':2,'32':4,'64':8,'128':16}
     if sz not in sizes: raise autocases.Unsupported('unknown constant-load size')
     if 'Sa_bank' not in k.operand_types: raise autocases.Unsupported('indirect constant-bank addressing remains unresolved')
     spec=autocase_profiles.PROFILES['constant_load_forms'];size=sizes[sz]
     for j,word in enumerate(spec['words']):
+        if size == 16:
+            word = spec['wide_words'][j]
         s=autocases.Inputs(c,k,form);bank=spec['banks'][j%2];offset=spec['offsets'][j%2]
         base=0;name=source(k,'Ra','URa')
         if name:
@@ -45,7 +47,10 @@ def constants(c,k,form):
         s.memory.append(dict(space='cbank',address=(bank<<32)|at,hex=data.hex()))
         result=memory.constant(data,sz.startswith('S'))
         out=s.output(('Rd','URd'),4 if j&1 else 8)
-        expected=pair(out,result) if size==8 else {out:result}
+        prefix = out.rstrip('0123456789')
+        register = int(out[len(prefix):])
+        expected = {prefix + str(register+i): result >> (32*i) & 0xffffffff
+                    for i in range(max(1, size//4))}
         if k.mnemonic in ('LDC','LDCU'):
             expected.update(__max_ops={'count':32,'userops':['sass_memory_order']},__events=1)
             from tests.harness.autocase_remaining import memory_event

@@ -44,8 +44,8 @@ uv run pytest -m native --arch SM89,SM90               # the native emulator: C+
 - **Before committing:** the GPU tests if shared cases, fixtures, references or the GPU harness
   changed. CI runs the Python and Ghidra tests on every architecture and lowering.
 
-GPU tests detect device ordinal 0 before collecting cases; this host's H100 NVL selects
-SM90. An explicit `--arch SM90` (or a list/`all` containing SM90) must include that
+GPU tests detect device ordinal 0 before collecting cases; an H100 NVL selects SM90 and
+an RTX 4070 selects SM89. An explicit architecture list must include the detected
 device; only its architecture runs on hardware. CPU-only tests still default to SM89.
 Both shared cases and compiled whole-kernel fixtures use the selected architecture.
 Whole-kernel Ghidra tests support `--arch SM89,SM90 --fp all` without a GPU.
@@ -71,6 +71,12 @@ Rough wall times and peak memory (summed PSS) on a 32-core, 93 GiB machine with 
 | language build (about 17 compilers at once) | 1.75 minutes | 27 GiB |
 | Ghidra tests, all languages | 8 minutes cold, 2.5 minutes cached (mostly building the cases); 2 hours cold for `--arch all --fp all` (2.2 million selected cases, load 55-85 from two other suites, 2026-10-22) | 25 GiB |
 | GPU tests | 15 s | |
+
+These historical timings precede the current shared-case workload. The
+[2026-10-26 partial-form report](../docs/partial-form-planning-2026-10-26.md)
+records affected-family validation and an isolated planner/evidence comparison.
+The selected SM89 GPU suite took 222 seconds alongside two software suites;
+that includes CPU case preparation and is not an isolated hardware timing.
 
 Ghidra results are cached per program by the sources it imports (`ghidra_bridge.sources`), so an
 edit elsewhere in `src/sass` keeps them. Generator modules (families, operations, operands,
@@ -288,7 +294,9 @@ uv run python -m tests.autocases SM89 --write --report tests/cases/generated/SM8
 reads the exact-language coverage manifest, expands its legal modifier combinations (including the
 factored free modifiers), and selects a deterministic constrained three-way suite before writing
 `cases/generated/SM89.json`. A requirement is a tuple with a complete legal, modelled extension;
-an adapter must successfully construct that extension before it counts as covered. If manifests are missing, first
+an adapter must successfully construct that extension before it counts as covered. Declared
+operand-row adapters can target native instructions within partially native forms; this does
+not change the class's support classification. If manifests are missing, first
 run `uv run sass-build-languages SM89 --fp exact --generate-only --coverage`. The committed
 `cases/generated/SMxx.gaps.json` are `--report` outputs.
 
@@ -321,9 +329,19 @@ three-way policy. Tests require each new size, source/destination form and prefe
 label to have generated coverage. LDG profiles observe the predicate result,
 including an old true output and an alias with the zero-fill input. Ordinary
 completed loads clear that output (SM89 probes, 2026-10-25). Dual register forms
-and reserved memory controls remain explicit adapter gaps. The normal planner
-defers partially native forms; aligned SM75 LDS.U 64- and 128-bit cases are
-retained through the same autocase adapter.
+and reserved memory controls remain explicit adapter gaps. The normal planner also targets
+declared operand rows in partially native forms, including aligned SM75 LDS.U pairs/quads.
+
+Partial-form planning (2026-10-26, #80): `harness/autocase_partial.py` declares eligible
+operand rows. They include aligned memory pairs/quads and constant loads, full-mask MOV,
+PT/UPT predicate-discarding FLO/UFLO, R2UR, ordinary IADD, VABSDIFF4 and VIMNMX, HADD2 F32
+widening, and supported HFMA2/HFMA2.MMA literal arithmetic. Actual words keep inspected
+native/effect guards; an opaque fallback cannot pass. Unresolved rows remain adapter gaps.
+The generated wide-memory profiles contain distinct high words. Migrated ordinary manual
+cases are removed; focused cost, constant-predicate, window/descriptor and fallback regressions
+remain. `PYTHONPATH=src:. python research/partial_form_audit.py` reports every partial native
+class's selected forms and blockers. Modifier combinations decoded from one table field remain
+correlated, so encoding aliases cannot inflate the inventory or receive false provenance.
 
 Verification update (2026-10-25): the regenerated plans and aligned memory
 profiles were rerun on SM89. The current SM90 selection has 192 fewer LD forms
@@ -356,9 +374,10 @@ The JSON report counts generated forms, covered and blocked interaction requirem
 legal/unresolved combinations. Unsupported operations are
 grouped by class to keep millions of gaps manageable; their exact forms remain in the manifest.
 Repeated extended-adapter gap reasons are likewise counted by class. Opaque and partially modelled
-combinations are counted as unresolved rather than covered. Requirements needing partially native
-extensions remain explicit deferred gaps under issue #80. These counts do not measure all input
-values or prove correct behavior.
+combinations remain unresolved in the exhaustive support inventory. Partially native extensions
+can satisfy interaction requirements through declared operand rows; missing adapters and failed
+construction remain explicit gaps. These counts do not measure all input values or prove correct
+behavior.
 
 The coverage page and PR comment retain their existing class and complete-form evidence sections,
 cards, filters and diagrams. Three-way selection does not add a separate coverage metric.
@@ -368,7 +387,7 @@ the report's evidence counts; unknown evidence settings are never filled with mo
 
 ### Integer adapters (`harness/autocases.py`)
 
-Cover BREV, POPC, FLO, SGXT, PRMT, UPRMT, ISETP, UISETP, IMNMX, SEL, USEL, IDP, SHF, USHF, IABS, UMOV,
+Cover BREV, POPC, FLO, UFLO, SGXT, PRMT, UPRMT, ISETP, UISETP, IMNMX, SEL, USEL, IDP, SHF, USHF, IABS, UMOV,
 BMSK, VIMNMX, VISET, VIADDMNMX, VIMNMX3, LOP3, ULOP3, IADD3, UIADD3, LEA, ULEA, IMAD, UIMAD, UBREV,
 UPOPC, USGXT and MOV register-pair forms. The planner routes IDP and packed-integer cases to
 `int_simd`, BMSK to `bmsk`, arithmetic/carry adapters to `carry`, and the other operations to
@@ -385,16 +404,16 @@ architecture.
   manual cases retain descriptor bounds, unusual headers, special registers and guard behavior.
 - **IABS** profiles include the signed minimum and the former random inputs.
 - **MOV/UMOV** register-pair profiles verify both words; UMOV retains explicit p-code cost tests.
-  Partially modelled pixel-mask forms stay manual and unresolved in the planner.
+  Partial MOV classes use the full pixel mask; other masks retain opaque regressions.
 - **PRMT/UPRMT** zero registers and p-code costs stay retained; hand-calculated PRMT examples also
   check the reference directly in `test_refs.py`.
-- **FLO**'s partially modelled predicate outputs keep an explicit PT-only retained subset.
+- **FLO/UFLO** discard unresolved predicate outputs with PT/UPT in generated cases.
 - **IMNMX** outputs that are opaque on newer architectures stay retained.
 - **Packed min/max and comparison** profiles preserve the former seeded lane patterns. They
   exercise every supported lane width, signedness, comparison, predicate inversion and RELU form,
   with destination aliases. Three-input profiles also exercise modular lane addition, B-source
   negation, three-way min/max and aliases with each source. VIMNMX forms with unresolved predicate
-  outputs retain explicit PT-only manual coverage.
+  outputs use PT-only generated rows; constant predicate inputs retain focused regressions.
 - **LOP3/ULOP3** profiles cover all 256 truth tables with all eight Boolean input combinations
   packed into each byte. Edge and seeded profiles check zero/nonzero predicate results, POR/PAND,
   predicate inversion, register aliases and the former manual selector/random corpora. Constant

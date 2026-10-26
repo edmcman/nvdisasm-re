@@ -254,8 +254,13 @@ def widen(x, src, dst, nan=None):
 
 
 def narrow_name(a):
-    """narrow.<mode>[.satfinite].<dst>.<src>: the NaN and overflow results are its definition's."""
-    return f"narrow.{a['rnd'].lower()}{'.satfinite' if a['satfinite'] else ''}.{a['dst'].lower()}.{a['src'].lower()}", ["x"]
+    """The conversion and its explicit NaN/overflow policies determine one definition."""
+    label = f"narrow.{a['rnd'].lower()}{'.satfinite' if a['satfinite'] else ''}.{a['dst'].lower()}.{a['src'].lower()}"
+    for policy in ("nan", "overflow"):
+        if a[policy] is not None:
+            signed, magnitude = a[policy]
+            label += f".{policy}.{int(signed)}.{magnitude:x}"
+    return label, ["x"]
 
 
 @definition(narrow_name)
