@@ -1,0 +1,32 @@
+% Pandoc/LaTeX presentation of executable K blocks. No semantic translation.
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{upquote}
+\usepackage{tikz}
+\definecolor{kkeyword}{RGB}{25,65,110}
+\definecolor{kcomment}{RGB}{80,100,80}
+\definecolor{kstring}{RGB}{120,65,30}
+\lstdefinelanguage{K}{
+  morekeywords={requires,module,endmodule,imports,syntax,configuration,rule,claim},
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]"
+}
+\lstset{
+  language=K,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{kkeyword}\bfseries,
+  commentstyle=\color{kcomment},
+  stringstyle=\color{kstring},
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  upquote=true,
+  breaklines=true,
+  breakatwhitespace=true,
+  breakindent=1em,
+  postbreak=\mbox{\textcolor{gray}{$\hookrightarrow$}\space},
+  aboveskip=0.8em,
+  belowskip=0.8em
+}

@@ -123,6 +123,41 @@ jobs:
         with:
           python-version: "3.13"
       - run: uv run pytest --arch ${{ matrix.arch }} --fp all
+  k-tests:
+    needs: pr-covers-push
+    if: needs.pr-covers-push.outputs.skip != 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      JAVA_TOOL_OPTIONS: -Xmx2g
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.13"
+      - name: Install pinned K Framework
+        run: |
+          curl -fL --retry 3 -o "$RUNNER_TEMP/k.deb" \
+            https://github.com/runtimeverification/k/releases/download/v7.1.337/kframework_7.1.337_amd64_ubuntu_noble.deb
+          echo "3692997e6bfa4be490d24bd9201289d4a05872889c9da725dda21e99d03d6990  $RUNNER_TEMP/k.deb" | sha256sum -c -
+          sudo apt-get update
+          sudo apt-get install -y "$RUNNER_TEMP/k.deb" z3
+      - name: Execute the IR model and prove its example claims
+        run: nice uv run pytest -m k --arch SM89,SM90 --fp all
+      - name: Publish the executable formal definition
+        run: |
+          sudo apt-get install -y --no-install-recommends pandoc texlive-latex-extra texlive-fonts-recommended lmodern
+          nice uv run python -m sass.formal.k.document --prove-example
+      - uses: actions/upload-artifact@v7
+        with:
+          name: formal-semantics
+          path: |
+            .cache/formal-doc/sass-ir-semantics.md
+            .cache/formal-doc/sass-ir-semantics.tex
+            .cache/formal-doc/sass-ir-semantics.pdf
+            .cache/formal-doc/sass-ir-semantics.log
+            .cache/formal-doc/rules.json
+            .cache/formal-doc/example/
   ghidra-tests:
     needs: architectures
     runs-on: ubuntu-latest
