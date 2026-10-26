@@ -17,6 +17,6 @@ The Markdown files remain the executable definition. The publisher also
 writes `rules.json`, containing every rule's exact source text, filename,
 and line number.
 
-The lifted example later in the document includes an operational execution
-proof checked against these K rules. That proof describes the exported IR
-program's execution; it supplies no hardware equivalence evidence.
+The lifted example later in the document includes actual K reachability claims
+and the prover's output. These check the exported IR program's execution;
+they supply no hardware equivalence evidence.

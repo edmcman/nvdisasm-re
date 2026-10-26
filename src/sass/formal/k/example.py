@@ -129,7 +129,10 @@ class Example:
             "{{input}}": self.input(0),
             "{{traces}}": "\n".join(traces),
             "{{diagram}}": self.diagram(),
-            "{{derivation}}": execution.derivation(self),
+            "{{claims}}": execution.complete_claims((directory / "claims.k").read_text()),
+            "{{proof_output}}": ("```text\n" + proof["output"].rstrip() + "\n```"
+                                 if proof["status"] == "proved"
+                                 else "K was not run for this publication."),
             "{{proof_status}}": proof["status"],
         }
         text = k.DEFINITION.with_name("worked-example.md").read_text()

@@ -1265,11 +1265,12 @@ the `formal-semantics` artifact.
 The worked program is assembled, lifted, and exported by the document builder.
 It increments an aliased R0, branches on P0, optionally adds two, and exits.
 The document includes the actual lifted IR and K module, inputs, and reference
-execution proofs for both branch paths. Eleven generated reachability claims
+K reachability claims for both branch paths. Eleven generated claims
 cover each instruction, halting, and the two complete executions.
 `--prove-example` checks them with K and stops publication on failure.
-The PDF displays claim-labeled boundary transitions and their composition;
-`proof.json` records the proof status and source fingerprint. Without the option,
+The PDF quotes the two complete-execution claims directly from `claims.k`
+and includes the prover's actual standard output. `proof.json` records that
+output, proof status, and source fingerprint. Without the option,
 the publication explicitly marks the claims as unchecked. A state graph uses
 the generated boundary values. The executable rule listings cover all three
 modules. The K source remains the executable definition. A K regression checks
@@ -1295,7 +1296,7 @@ calls Pandoc with XeLaTeX.
 [KEVM's Jello Paper](https://jellopaper.org/evm/) displays explanatory prose and literal K code. These
 workflows publish the executable source but do not restore the historical
 mathematical rule formatter. This document follows that approach with plain
-K listings. Its lifted-program execution proof remains checked with K.
+K listings. Its lifted-program reachability claims remain checked with K.
 
 ### Runtime contracts and verification limits
 

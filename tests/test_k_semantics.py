@@ -220,8 +220,19 @@ def test_document_example(tmp_path):
         assert result["memory"] == {} and result["events"] == []
     proof = execution.publication(worked, tmp_path, example.LIMIT, prove=True)
     assert proof["status"] == "proved" and proof["claim_count"] == 11
+    assert "#Top" in proof["output"]
+    assert (tmp_path / "proof.log").read_text().startswith(proof["output"])
     # A wrong intermediate result must fail even when the other claims are valid.
     source = execution.specification(worked, example.LIMIT)
+    assert source == (tmp_path / "claims.k").read_text()
+    quoted = execution.complete_claims(source)
+    assert quoted.count("  claim ") == 2
+    for label in ("p0-complete", "p1-complete"):
+        assert f"[label({label})]" in quoted
+    unchecked = worked.publication(tmp_path / "unchecked")
+    assert quoted in unchecked
+    assert "K was not run for this publication." in unchecked
+    assert "C_j" not in unchecked and r"\frac{" not in unchecked
     target = '=> (location("R", 0) |-> 0) (location("P", 0) |-> 0) </regs>'
     assert target in source
     wrong = source.replace(target, target.replace("|-> 0)", "|-> 1)", 1), 1)

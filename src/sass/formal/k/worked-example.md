@@ -15,65 +15,17 @@ P0 is the input predicate. All other architectural inputs default to zero.
 
 The first addition wraps to zero modulo $2^{32}$. If P0 is true, the branch
 skips the second addition. If P0 is false, execution falls through and adds two.
-Both paths reach EXIT:
-
-$$
-\begin{aligned}
-\text{P0}=0:\quad&
-\mathtt{100000}\to\mathtt{100010}\to\mathtt{100020}
-\to\mathtt{100030}\to 0,\\
-\text{P0}=1:\quad&
-\mathtt{100000}\to\mathtt{100010}\to\mathtt{100030}\to 0.
-\end{aligned}
-$$
-
-Addresses in this diagram are hexadecimal. EXIT's lifted return target is
-PC zero, which terminates this IR program.
-
-## Operational proof of execution
-
-Proof status for this publication: **{{proof_status}}**.
-
-For each predicate input, the builder emits a reachability claim for every
-instruction, a halt claim, and a claim for the complete execution.
-With `--prove-example`, K checks all eleven claims against the actual
-exported program and the executable IR rules. Failure stops publication.
-Without that option, the status above is **not checked**; the displayed
-judgments are proposed claims.
-
-Write $C_j=\langle pc,R0,j\rangle$ for the architectural projection of an
-instruction-boundary configuration. P0 is fixed to the path's input.
-PC and R0 are shown in hexadecimal; the step count is decimal.
-The initial configuration is ready for dispatch after `run` installs its inputs.
-The claims also fix the program, empty memory and runtime inputs, running
-status, and remaining budget $8-j$. Memo and pending maps are quantified
-because dispatch resets them. An arrow below denotes reachability through
-K's internal rewrites, rather than a new instruction-level semantic rule.
-Its label identifies the exact claim in `example/claims.k`.
-
-{{derivation}}
-
-The first claim proves the wraparound update to R0. The branch claim proves
-either skipped predication or transfer to `0x100030`. The final instruction
-claim proves transfer to PC zero; the halt claim then proves termination.
-The complete-execution claims also check the composed endpoints.
-The proof concerns this lifted IR program and supplies no hardware evidence.
-
-The `example/` artifacts include `claims.k` and `proof.json`; checked builds
-also include the prover output in `proof.log`. Reproduce the proof with:
-
-```sh
-nice kprove .cache/formal-doc/example/claims.k \
-  --definition PATH_TO_COMPILED_SASS \
-  --spec-module SASS-EXECUTION-PROOF -I src/sass/formal/k
-```
+Both paths reach EXIT. EXIT's lifted return target is PC zero, which terminates
+this IR program.
 
 ## The two executions as a state graph
 
 Each box shows the PC and R0 at an instruction boundary. The two concrete
 inputs share the displayed prefix, with P0 initially equal to $p$. Edge labels
 identify the instruction or predicate choice. Final boxes include the executed
-instruction count. The state values are generated from the reference traces.
+instruction count. The state values are generated from the reference evaluator's
+traces. This graph illustrates those traces; it is not a K proof or an
+additional execution relation.
 
 ```{=latex}
 {{diagram}}
@@ -137,6 +89,40 @@ nice krun .cache/formal-doc/example/input-p0-0.sass \
   --definition .cache/formal-example-k --output pretty
 nice krun .cache/formal-doc/example/input-p0-1.sass \
   --definition .cache/formal-example-k --output pretty
+```
+
+## K reachability claims and prover result
+
+Proof status for this publication: **{{proof_status}}**.
+
+The following are the two complete-execution claims copied directly from
+`example/claims.k`, in K syntax. Each starts with `next` ready to dispatch
+and asserts the final computation, registers, PC, instruction count, and
+status. The program and other state cells remain explicit.
+
+```k
+{{claims}}
+```
+
+The full specification also contains a claim for each instruction and a halt
+claim for each predicate input. With `--prove-example`, K checks all eleven
+claims against the exported program and executable IR rules. Failure stops
+publication. Builds without that option mark the claims as **not checked**.
+
+K's standard output for this publication:
+
+{{proof_output}}
+
+`#Top` is the prover's successful result for the checked specification.
+It is not an execution trace. The full output, including diagnostics, is in
+`example/proof.log`; `proof.json` records the status, standard output, and
+source fingerprint. The proof concerns this lifted IR program and supplies
+no hardware evidence. Reproduce it with:
+
+```sh
+nice kprove .cache/formal-doc/example/claims.k \
+  --definition PATH_TO_COMPILED_SASS \
+  --spec-module SASS-EXECUTION-PROOF -I src/sass/formal/k
 ```
 
 ## Execution at instruction boundaries
