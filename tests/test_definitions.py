@@ -18,6 +18,24 @@ F16_DEST = fpformat.Dest(10, -14, 0x7bff, 0, 0x7fff, 1, 0x7c00)
 X, Y, P = param("x", 32), param("y", 32), param("p", 1)
 
 
+@pytest.mark.parametrize("reverse", [False, True])
+def test_narrow_exception_policies_have_independent_definitions(reverse):
+    policies = [{}, {"nan": (True, 0x7fff)}, {"overflow": (False, 0x7bff)},
+                {"nan": (False, 0x7e00), "overflow": (True, 0x7bff)}]
+    if reverse: policies.reverse()
+    expressions = [fpformat.narrow(X, "F32", "F16", "RZ", **policy) for policy in policies]
+    assert len({e.op for e in expressions}) == len(policies)
+    for policy, expr in zip(policies, expressions):
+        nan_signed, nan_magnitude = policy.get("nan", (False, 0x7fff))
+        overflow_signed, overflow_magnitude = policy.get("overflow", (True, 0x7c00))
+        for value, expected in [
+            (0xffc00001, (int(nan_signed) << 15) | nan_magnitude),
+            (0xff800000, (int(overflow_signed) << 15) | overflow_magnitude),
+            (0x3f800000, 0x3c00),
+        ]:
+            assert evaluate(expr, None, {"x": value}) == expected
+
+
 def defined(e):
     """The defined operator nodes in e."""
     seen, out, stack = set(), [], [e]

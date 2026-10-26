@@ -155,7 +155,9 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   - Conversions: F2F `cvt[.<mode>].<dst>.<src>`; FRND `cvt.r<m>i.<fmt>.<fmt>`; F2I
     `cvt.r<m>i[.ntz].<s|u><n>.<fmt>`; I2F `cvt.<mode>.<dst>.<s|u><n>`; F2IP `cvt.rni.sat.<s|u>8.f32`;
     I2I `cvt.sat.<s|u><n>.s32`; I2IP `cvt.pack[.sat][.relu][.h1].<s|u><n>.s32`; `narrow.<mode>.<dst>.<src>` (`fpformat.narrow`:
-    FADD2-style narrowing, HMUL2's BF16 forms); F2FP `f2fp.pack…`, `f2fp.cvt…` lanes for every
+    FADD2-style narrowing, HMUL2's BF16 forms; explicit NaN/overflow policies add
+    `.<nan|overflow>.<signed>.<hex-magnitude>` so different policies have distinct definitions,
+    corrected 2026-10-26); F2FP `f2fp.pack…`, `f2fp.cvt…` lanes for every
     16-bit, 8/6/4-bit, S2_6, TF32 and up-conversion (`.scaled` with a UE8M0 scale), and
     `cvt.rn.bf16x2.ue8m0x2`.
   - Integer and bits: `abs.s32`, `mul.wide.<s|u>32` (IMAD.HI/WIDE), `bmsk`, `szext`, `shf`,
