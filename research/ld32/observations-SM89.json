@@ -1,0 +1,634 @@
+[
+ {
+  "name": "plain",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x41aae100",
+  "word": "80790802000000000008100000c00f00",
+  "instruction": "LD R8, [R2]",
+  "inputs": {
+   "R2": 1101717760,
+   "R3": 3735928559,
+   "UR4": 0,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": 8,
+   "Ra": 2,
+   "Ra_offset": 0,
+   "e": "noe",
+   "sz": "32"
+  },
+  "registers": {
+   "R2": 1101717760,
+   "R3": 3735928559,
+   "R8": 305419896,
+   "R9": 0,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 0,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "positive_offset",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x41568100",
+  "word": "80790802100000000008100000c00f00",
+  "instruction": "LD R8, [R2+0x10]",
+  "inputs": {
+   "R2": 1096188144,
+   "R3": 3735928559,
+   "UR4": 0,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": 8,
+   "Ra": 2,
+   "Ra_offset": 16,
+   "e": "noe",
+   "sz": "32"
+  },
+  "registers": {
+   "R2": 1096188144,
+   "R3": 3735928559,
+   "R8": 305419896,
+   "R9": 0,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 0,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "negative_offset",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x41901100",
+  "word": "80790802f0ffffff0008100000c00f00",
+  "instruction": "LD R8, [R2+-0x10]",
+  "inputs": {
+   "R2": 1099960592,
+   "R3": 3735928559,
+   "UR4": 0,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": 8,
+   "Ra": 2,
+   "Ra_offset": -16,
+   "e": "noe",
+   "sz": "32"
+  },
+  "registers": {
+   "R2": 1099960592,
+   "R3": 3735928559,
+   "R8": 305419896,
+   "R9": 0,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 0,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "overflow",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x41a74100",
+  "word": "807908021041a7410008100000c00f00",
+  "instruction": "LD R8, [R2+0x41a74110]",
+  "inputs": {
+   "R2": 4294967280,
+   "R3": 3735928559,
+   "UR4": 0,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": 8,
+   "Ra": 2,
+   "Ra_offset": 1101480208,
+   "e": "noe",
+   "sz": "32"
+  },
+  "registers": {
+   "R2": 4294967280,
+   "R3": 3735928559,
+   "R8": 305419896,
+   "R9": 0,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 0,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "uniform",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x41ddd100",
+  "word": "8079080204fcffff0008100800c00f00",
+  "instruction": "LD R8, [R2.U32+UR4+-0x4]",
+  "inputs": {
+   "R2": 256,
+   "R3": 3735928559,
+   "UR4": 1105055748,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": 8,
+   "Ra": 2,
+   "Ra_offset": -4,
+   "e": "noe",
+   "sz": "32",
+   "Ra_URb": 4
+  },
+  "registers": {
+   "R2": 256,
+   "R3": 3735928559,
+   "R8": 305419896,
+   "R9": 0,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 1105055748,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "uniform_overflow",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x40564100",
+  "word": "80790802040000000008100800c00f00",
+  "instruction": "LD R8, [R2.U32+UR4]",
+  "inputs": {
+   "R2": 4294967292,
+   "R3": 3735928559,
+   "UR4": 1079394564,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": 8,
+   "Ra": 2,
+   "Ra_offset": 0,
+   "e": "noe",
+   "sz": "32",
+   "Ra_URb": 4
+  },
+  "registers": {
+   "R2": 4294967292,
+   "R3": 3735928559,
+   "R8": 305419896,
+   "R9": 0,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 1079394564,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "uniform_zero",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x40872100",
+  "word": "807908ff040000000008100800c00f00",
+  "instruction": "LD R8, [UR4]",
+  "inputs": {
+   "R2": 0,
+   "R3": 3735928559,
+   "UR4": 1082597632,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": 8,
+   "Ra": "RZ",
+   "Ra_offset": 0,
+   "e": "noe",
+   "sz": "32",
+   "Ra_URb": 4
+  },
+  "registers": {
+   "R2": 0,
+   "R3": 3735928559,
+   "R8": 305419896,
+   "R9": 0,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 1082597632,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "absolute",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x40fbc100",
+  "word": "807908ff00c1fb400008100000c00f00",
+  "instruction": "LD R8, [0x40fbc100]",
+  "inputs": {
+   "R2": 1090240768,
+   "R3": 3735928559,
+   "UR4": 0,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": 8,
+   "Ra": "RZ",
+   "Ra_offset": 1090240768,
+   "e": "noe",
+   "sz": "32"
+  },
+  "registers": {
+   "R2": 1090240768,
+   "R3": 3735928559,
+   "R8": 305419896,
+   "R9": 0,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 0,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "U8",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x411b8100",
+  "word": "80790802000000000000100000c00f00",
+  "instruction": "LD.U8 R8, [R2]",
+  "inputs": {
+   "R2": 1092321536,
+   "R3": 3735928559,
+   "UR4": 0,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": 8,
+   "Ra": 2,
+   "Ra_offset": 0,
+   "e": "noe",
+   "sz": "U8"
+  },
+  "registers": {
+   "R2": 1092321536,
+   "R3": 3735928559,
+   "R8": 120,
+   "R9": 0,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 0,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "S8",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x41cd2100",
+  "word": "80790802000000000002100000c00f00",
+  "instruction": "LD.S8 R8, [R2]",
+  "inputs": {
+   "R2": 1103962368,
+   "R3": 3735928559,
+   "UR4": 0,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": 8,
+   "Ra": 2,
+   "Ra_offset": 0,
+   "e": "noe",
+   "sz": "S8"
+  },
+  "registers": {
+   "R2": 1103962368,
+   "R3": 3735928559,
+   "R8": 120,
+   "R9": 0,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 0,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "U16",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x41b97100",
+  "word": "80790802000000000004100000c00f00",
+  "instruction": "LD.U16 R8, [R2]",
+  "inputs": {
+   "R2": 1102672128,
+   "R3": 3735928559,
+   "UR4": 0,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": 8,
+   "Ra": 2,
+   "Ra_offset": 0,
+   "e": "noe",
+   "sz": "U16"
+  },
+  "registers": {
+   "R2": 1102672128,
+   "R3": 3735928559,
+   "R8": 22136,
+   "R9": 0,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 0,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "S16",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x40407100",
+  "word": "80790802000000000006100000c00f00",
+  "instruction": "LD.S16 R8, [R2]",
+  "inputs": {
+   "R2": 1077965056,
+   "R3": 3735928559,
+   "UR4": 0,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": 8,
+   "Ra": 2,
+   "Ra_offset": 0,
+   "e": "noe",
+   "sz": "S16"
+  },
+  "registers": {
+   "R2": 1077965056,
+   "R3": 3735928559,
+   "R8": 22136,
+   "R9": 0,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 0,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "64",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x408f0100",
+  "word": "8079080200000000000a100000c00f00",
+  "instruction": "LD.64 R8, [R2]",
+  "inputs": {
+   "R2": 1083113728,
+   "R3": 3735928559,
+   "UR4": 0,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": 8,
+   "Ra": 2,
+   "Ra_offset": 0,
+   "e": "noe",
+   "sz": "64"
+  },
+  "registers": {
+   "R2": 1083113728,
+   "R3": 3735928559,
+   "R8": 305419896,
+   "R9": 2147483650,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 0,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "128",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x40016100",
+  "word": "8079080200000000000c100000c00f00",
+  "instruction": "LD.128 R8, [R2]",
+  "inputs": {
+   "R2": 1073832192,
+   "R3": 3735928559,
+   "UR4": 0,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": 8,
+   "Ra": 2,
+   "Ra_offset": 0,
+   "e": "noe",
+   "sz": "128"
+  },
+  "registers": {
+   "R2": 1073832192,
+   "R3": 3735928559,
+   "R8": 305419896,
+   "R9": 2147483650,
+   "R10": 3,
+   "R11": 4294967295,
+   "UR4": 0,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "alias",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x415e7100",
+  "word": "80790202000000000008100000c00f00",
+  "instruction": "LD R2, [R2]",
+  "inputs": {
+   "R2": 1096708352,
+   "R3": 3735928559,
+   "UR4": 0,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": 2,
+   "Ra": 2,
+   "Ra_offset": 0,
+   "e": "noe",
+   "sz": "32"
+  },
+  "registers": {
+   "R2": 305419896,
+   "R3": 3735928559,
+   "R8": 0,
+   "R9": 0,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 0,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "discard",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x411c0100",
+  "word": "8079ff02000000000008100000c00f00",
+  "instruction": "LD RZ, [R2]",
+  "inputs": {
+   "R2": 1092354304,
+   "R3": 3735928559,
+   "UR4": 0,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": "RZ",
+   "Ra": 2,
+   "Ra_offset": 0,
+   "e": "noe",
+   "sz": "32"
+  },
+  "registers": {
+   "R2": 1092354304,
+   "R3": 3735928559,
+   "R8": 0,
+   "R9": 0,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 0,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "zero_fill",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x407fb100",
+  "word": "80790802000000000708100000c00f00",
+  "instruction": "LD R8, [R2], P0",
+  "inputs": {
+   "R2": 1,
+   "R3": 3735928559,
+   "UR4": 0,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "fields": {
+   "Rd": 8,
+   "Ra": 2,
+   "Ra_offset": 0,
+   "e": "noe",
+   "sz": "32",
+   "Pnz": 0
+  },
+  "registers": {
+   "R2": 1,
+   "R3": 3735928559,
+   "R8": 0,
+   "R9": 0,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 0,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "upper_half",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x90000100",
+  "word": "80790802000000000008100000c00f00",
+  "instruction": "LD R8, [R2]",
+  "inputs": {
+   "R2": 2415919360,
+   "R3": 3735928559,
+   "UR4": 0,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": 8,
+   "Ra": 2,
+   "Ra_offset": 0,
+   "e": "noe",
+   "sz": "32"
+  },
+  "registers": {
+   "R2": 2415919360,
+   "R3": 3735928559,
+   "R8": 305419896,
+   "R9": 0,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 0,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ },
+ {
+  "name": "underflow",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "pointer": "0x90000100",
+  "word": "80790802f00000900008100000c00f00",
+  "instruction": "LD R8, [R2+-0x6fffff10]",
+  "inputs": {
+   "R2": 16,
+   "R3": 3735928559,
+   "UR4": 0,
+   "UR5": 2882400001
+  },
+  "fields": {
+   "Rd": 8,
+   "Ra": 2,
+   "Ra_offset": -1879047952,
+   "e": "noe",
+   "sz": "32"
+  },
+  "registers": {
+   "R2": 16,
+   "R3": 3735928559,
+   "R8": 305419896,
+   "R9": 0,
+   "R10": 0,
+   "R11": 0,
+   "UR4": 0,
+   "UR5": 2882400001,
+   "P0": 0
+  },
+  "memory": []
+ }
+]

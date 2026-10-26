@@ -162,6 +162,10 @@ and Ghidra tests. No CUDA compiler is needed for these generated probes.
   inactive lanes either all exit or, with the context's `waiting` mask, all wait at a
   `BSSY`/`BSYNC` barrier.
 - Memory adapters bind logical addresses to real allocations and runtime shared/local windows.
+  Generic LD without `.E` uses a registered low-address host arena on Linux x86-64, requiring
+  CUDA's device alias to equal the CPU pointer and fit in 32 bits. Address binding respects
+  encoded register widths and 32-bit LD address arithmetic; adjacent registers retain their inputs.
+  An unavailable low device alias is a runner failure rather than a truncated high pointer.
 - Each invocation executes the selected tests, even when passing evidence exists.
 - The terminal summary reports the sampling percentage, passed, failed and emulator-only
   scenarios, including exclusion reasons. Emulator errors, runtime events, impossible synthetic

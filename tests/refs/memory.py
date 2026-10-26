@@ -10,6 +10,15 @@ def generic(address, shared, local):
     return "ram", address
 
 
+def generic32(base, offset=0, uniform=0):
+    """LD.noe's generic address: unsigned 32-bit sum, from SM89 GPU probes.
+
+    Adjacent registers are not inputs. Apply the ordinary full-width window
+    comparison to this zero-extended address, not to the windows' low words.
+    """
+    return (base + uniform + offset) % (1 << 32)
+
+
 def generic_kernel(a, b, c):
     """sem_generic: little-endian bytes of a with byte 1 replaced by b's low byte (ST, ST.U8), read
     back as the word w (LD) and the sign-extended high half h (LD.S16); w ^ h + 3 * w, any space."""

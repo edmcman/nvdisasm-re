@@ -27,6 +27,7 @@ expectation, and records each emitted `sass:` class as ptxas evidence. Unannotat
 | `arithmetic/one_add.ptx` | SM100 | Minimal one-instruction add probe |
 | `bmsk/bmsk_clamp.ptx` | SM89 | `BMSK` clamp mode |
 | `bmsk/bmsk_wrap.ptx` | SM89 | `BMSK.W` wrap mode |
+| `ld/generic_u32.ptx` | SM89 | Zero-extend a 32-bit address before a generic load; CUDA 13.0.88 emits `LD.E`, not non-`.E` LD |
 | `bmsk/cx_candidate_indirect_const_no_cx.ptx` | SM89 | Negative CX search probe; emits an ordinary constant load plus register-source `BMSK` |
 | `bfind/flo_bfind.ptx` | SM89 | PTX `bfind.u32` and `bfind.shiftamt.u32` lowering to the `FLO` family |
 | `vabsdiff4/vabsdiff4_modes.ptx` | SM89 | PTX merge, `.add`, lane mask, and `.sat` forms; CUDA 13.0.88 expands them to scalar SASS sequences and emits no `VABSDIFF4` instruction |

@@ -356,19 +356,20 @@ def execute(driver, probes, binary=None):
                     data = bytes.fromhex(hexdata)
                     if offset < 0 or offset + len(data) > 64: raise ValueError('reserved launch constants cannot be seeded')
                     constant_data[offset:offset + len(data)] = data
-            params = ctypes.create_string_buffer(bytes(constant_data)); arena = ctypes.c_uint64()
-            driver.call('cuMemAlloc_v2', ctypes.byref(arena), ctypes.c_size_t(len(p.arena) or 16))
-            if p.arena: driver.call('cuMemcpyHtoD_v2', arena, ctypes.create_string_buffer(p.arena), ctypes.c_size_t(len(p.arena)))
-            args = (ctypes.c_void_p * 3)(ctypes.addressof(params), ctypes.addressof(output), ctypes.addressof(arena))
-            driver.call('cuMemsetD8_v2', output, 0xcc, ctypes.c_size_t(p.output_size))
-            driver.call('cuLaunchKernel', fn, p.grid, 1, 1, p.threads, 1, 1, 0, None, args, None)
-            driver.call('cuCtxSynchronize')
-            buffer = ctypes.create_string_buffer(p.output_size)
-            driver.call('cuMemcpyDtoH_v2', buffer, output, ctypes.c_size_t(p.output_size))
+            params = ctypes.create_string_buffer(bytes(constant_data))
+            low = any(s.kind == 'memory' and decoded(s.case.request['word'], arch).klass.mnemonic == 'LD'
+                      and decoded(s.case.request['word'], arch).env.get('e') == 0
+                      for s in p.scenarios)
+            with driver.arena(p.arena, low=low) as arena:
+                args = (ctypes.c_void_p * 3)(ctypes.addressof(params), ctypes.addressof(output), ctypes.addressof(arena))
+                driver.call('cuMemsetD8_v2', output, 0xcc, ctypes.c_size_t(p.output_size))
+                driver.call('cuLaunchKernel', fn, p.grid, 1, 1, p.threads, 1, 1, 0, None, args, None)
+                driver.call('cuCtxSynchronize')
+                buffer = ctypes.create_string_buffer(p.output_size)
+                driver.call('cuMemcpyDtoH_v2', buffer, output, ctypes.c_size_t(p.output_size))
             for s, (offset, names) in zip(p.scenarios, p.observations):
                 values = [int.from_bytes(buffer.raw[i:i + 4], 'little') for i in range(offset, offset + len(names) * 4, 4)]
                 results[s.id] = dict(names=names, values=values)
-            driver.call('cuMemFree_v2', arena)
     finally:
         failed = sys.exception() is not None
         try:

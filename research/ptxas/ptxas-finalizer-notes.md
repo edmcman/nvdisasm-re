@@ -1014,3 +1014,17 @@ below are renamed in the Ghidra project.
   P2R-R2P strategy is not found.
 - The merge rule was settled on the GPU instead (`docs/hardware-facts.md`,
   2026-10-16).
+
+## Generic LD address width (2026-10-25, #79)
+
+CUDA 13.0.88 ptxas (`nvidia/cu13/bin/ptxas` in the worktree's dev environment;
+SHA256 `daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2`)
+rejects a `.b32` address register in `ld.u32` in an `.address_size 64` module:
+it warns that the widths conflict, then reports that 32-bit compilation is no
+longer supported. Changing the module to `.address_size 32` is rejected too.
+`tests/ptx/ld/generic_u32.ptx` explicitly converts the 32-bit address to `.u64`;
+on SM89 it emits `MOV R3, RZ` followed by `LD.E R3, [R2.64]`. This establishes
+that lowering, not a compiler trigger for non-`.E` LD. No compiler dispatch
+addresses were investigated or renamed. Synthetic SM89 probes independently
+establish non-`.E` LD's 32-bit wrapping sum and zero-extension
+(`research/ld32.py`, `docs/hardware-facts.md`).
