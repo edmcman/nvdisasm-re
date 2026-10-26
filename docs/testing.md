@@ -21,7 +21,9 @@ established about instruction behavior is in [`docs/hardware-facts.md`](hardware
 Three-way verification (2026-10-25, issue #81) separates modifier selection from input sampling.
 The shared policy defaults to strength 3 for every opcode and permits per-opcode strength or
 exhaustive overrides. A deterministic greedy cover selects only legal complete native/primitive
-extensions that adapters can construct. Partial-only requirements remain gaps for issue #80.
+extensions that adapters can construct. Since 2026-10-26 (#80), adapters may also declare
+supported operand rows within partially native forms. Those cases retain native/effect guards;
+the class's exhaustive support classification remains partial.
 Scheduling/reuse fields were already excluded; memory hints and consistency qualifiers are retained.
 Family-local roles let additional neutral variants reuse a minimal input corpus, while value
 projections retain full profiles and manual regressions remain independent.
@@ -156,6 +158,22 @@ the saved plans' classes plus the manual cases. The memory side of the same chan
 How the planner, plans, profiles and adapters work is in
 [`tests/README.md`](../tests/README.md#generated-shared-cases). History, per batch:
 
+- Partial operand rows (2026-10-26, #80): the planner's shared status selection admits partial
+  native candidates only for adapters with an explicit operand-row contract. Predicate outputs
+  are discarded with PT/UPT where their meaning is unknown, MOV enables the full pixel mask,
+  memory pairs/quads use aligned registers, and literal half arithmetic uses ordinary register
+  factors or its supported negative-zero move shortcut. Full/minimal input profiles and
+  three-way selection apply normally. Failed construction never earns interaction coverage,
+  and opaque P-code still fails native/effect guards. Ordinary FLO, VABSDIFF4, partial VIMNMX,
+  wide memory/constant and HADD2 widening manual cases were removed; window/descriptor,
+  constant-predicate, conversion-boundary, fallback and operation-count regressions remain.
+  Shared table fields constrain modifier combinations to their decoded tuples: LD's
+  sem/sco/private encoding aliases no longer create impossible independent forms. The strict
+  encoder and exact provenance checks remain unchanged.
+  `research/partial_form_audit.py` reports every partial native class, its declared operand rows,
+  selected partial forms and remaining interaction blockers. The
+  [dated audit and performance report](partial-form-planning-2026-10-26.md) records
+  the migration, remaining gaps and validation.
 - Generated shared cases (2026-10-17): supported ordinary integer forms are owned by
   `tests/autocases.py` and committed per-architecture plans. Named profiles in
   `tests/harness/autocase_profiles.py` preserve edge values and seeded random corpora; adapters

@@ -3,8 +3,8 @@ from tests.harness import autocase_profiles
 from tests.harness.case import source
 from tests.refs import integer
 
-OPS = {'VIADD', 'UVIMNMX', 'UI2IP', 'I2I', 'MOV64IUR'}
-FAMILIES = {op: 'int_simd' if op == 'UVIMNMX' else 'conversions' if op in ('UI2IP', 'I2I') else 'int_alu' for op in OPS}
+OPS = {'VIADD', 'IADD', 'R2UR', 'VABSDIFF4', 'UVIMNMX', 'UI2IP', 'I2I', 'MOV64IUR'}
+FAMILIES = {op: 'int_simd' if op in ('UVIMNMX', 'VABSDIFF4') else 'conversions' if op in ('UI2IP', 'I2I') else 'int_alu' for op in OPS}
 
 
 def generate(c, k, form, profiles):
@@ -12,6 +12,25 @@ def generate(c, k, form, profiles):
     op = k.mnemonic
     if profiles != autocase_profiles.names(op, k.name, form):
         raise autocases.Unsupported('incompatible additional integer profiles')
+    if op == 'R2UR':
+        if k.name != 'r2ur__noOR' or form:
+            raise autocases.Unsupported('R2UR OR/fill/broadcast rows remain unresolved')
+        for j, value in enumerate(autocase_profiles.values('move32')):
+            s = autocases.Inputs(c, k, form)
+            s.operand(('Ra',), value, 4)
+            s.add({s.output(('URd',), 4 if j & 1 else 8): integer.mov(value)}, form)
+        return c
+    if op == 'VABSDIFF4':
+        if set(form) - {'fmt', 'red'} or form.get('fmt') not in ('U8', 'S8') or form.get('red') not in ('ACC', 'SIMD_MRG'):
+            raise autocases.Unsupported('unsupported byte-difference format/reduction')
+        for j, (a, b, acc, _, _) in enumerate(v for profile in profiles for v in autocase_profiles.vectors(profile)):
+            s = autocases.Inputs(c, k, form)
+            s.operand(('Ra',), a, 4)
+            s.operand(('Rb', 'Sb', 'URb'), b, 6)
+            s.operand(('Rc', 'Sc', 'URc'), acc, 8)
+            result = integer.vabsdiff4(a, b, acc, form['fmt'] == 'S8', form['red'])
+            s.add({s.output(('Rd',), (4, 6, 8, 2)[j % 4]): result}, form)
+        return c
     if op == 'I2I':
         if set(form) - {'dstfmt', 'srcfmt', 'SAT'}:
             raise autocases.Unsupported('unhandled integer narrowing modifiers')
@@ -37,11 +56,13 @@ def generate(c, k, form, profiles):
     if op == 'UI2IP':
         return pack(c, k, form)
     bname = source(k, 'Sb', 'Rb', 'URb')
-    if op == 'VIADD':
+    if op in ('VIADD', 'IADD'):
         allowed = {'fmt', 'isat', 'Ra@negate', bname+'@negate'}
         if set(form)-allowed: raise autocases.Unsupported('unhandled integer add modifiers')
-        if form.get('fmt') not in ('32', 'U32', 'S32') or form.get('isat', 'noisat') != 'noisat':
+        if form.get('fmt', '32') not in ('32', 'U32', 'S32') or form.get('isat', 'noisat') != 'noisat':
             raise autocases.Unsupported('packed and saturating VIADD remain unresolved')
+        if op == 'IADD' and not k.name.startswith(('iadd_noimm__', 'iadd_imm__')):
+            raise autocases.Unsupported('IADD extended/wide rows remain unresolved')
     else:
         if set(form)-{'fmt', 'relu', 'UPp@not'}:
             raise autocases.Unsupported('unhandled uniform min/max modifiers')
@@ -56,7 +77,7 @@ def generate(c, k, form, profiles):
         s = autocases.Inputs(c, k, form)
         s.operand(('Ra', 'URa'), a, 4)
         s.operand((bname,), b, 6)
-        if op == 'VIADD':
+        if op in ('VIADD', 'IADD'):
             result = integer.iadd3(a, b, 0, (form.get('Ra@negate')=='set',
                                           form.get(bname+'@negate')=='set', False))[0]
         else:

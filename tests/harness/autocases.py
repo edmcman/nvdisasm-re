@@ -10,10 +10,10 @@ from sass.sleigh.modifiers import settings
 from tests.harness.case import Case, Cases, READABLE_FLOATS, put, source, cx_source
 from tests.harness import sampling
 from tests.refs import integer
-from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp, autocase_integer_extra, autocase_system, autocase_mixed_fp, autocase_remaining
+from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp, autocase_integer_extra, autocase_system, autocase_mixed_fp, autocase_remaining, autocase_partial
 
 PLANS = ROOT / 'tests/cases/generated'
-OPS = {'BREV', 'POPC', 'FLO', 'SGXT', 'PRMT', 'UPRMT', 'IABS', 'MOV', 'UMOV', 'BMSK', 'UBREV', 'UPOPC', 'USGXT'}
+OPS = {'BREV', 'POPC', 'FLO', 'UFLO', 'SGXT', 'PRMT', 'UPRMT', 'IABS', 'MOV', 'UMOV', 'BMSK', 'UBREV', 'UPOPC', 'USGXT'}
 INTEGER_OPS = {'ISETP', 'UISETP', 'IMNMX', 'SEL', 'USEL', 'IDP', 'SHF', 'USHF', 'LOP3', 'ULOP3'}
 CARRY_OPS = {'IADD3', 'UIADD3', 'LEA', 'ULEA', 'IMAD', 'UIMAD'}
 INTEGER_OPS |= CARRY_OPS
@@ -29,7 +29,7 @@ FAMILIES.update(autocase_extended.FAMILIES)
 FAMILIES.update(autocase_packed_fp.FAMILIES)
 FAMILIES.update(autocase_wide_fp.FAMILIES)
 FAMILIES.update({op:"conversions" for op in autocase_conversions.OPS})
-OWNED = OPS - {'FLO'}  # FLO's partially modelled predicate outputs retain explicit PT-only cases.
+OWNED = OPS
 
 
 class Unsupported(ValueError): pass
@@ -97,6 +97,7 @@ def candidates(arch, cls, form, fp='exact', profiles=None, native=True):
     c.deferred = True
     if cls not in c.classes: raise Unsupported('alternate or absent instruction class')
     k = c.classes[cls]
+    c.operand_constraints = autocase_partial.operands(k, form)
     if k.mnemonic not in OPS:
         raise Unsupported('needs a reference/operand adapter')
     profiles = autocase_profiles.names(k.mnemonic, cls, form) if profiles is None else profiles
@@ -128,13 +129,15 @@ def candidates(arch, cls, form, fp='exact', profiles=None, native=True):
     if k.mnemonic in ('LOP3', 'ULOP3'): return finish(logic_cases(c, k, form, profiles), native)
     if k.mnemonic in PACKED_OPS: return finish(packed_cases(c, k, form, profiles), native)
     if k.mnemonic in INTEGER_OPS: return finish(integer_cases(c, k, form, profiles), native)
-    profile = 'permutation' if k.mnemonic in ('PRMT', 'UPRMT') else 'sgxt' if k.mnemonic in ('SGXT', 'USGXT') else 'bits'
+    profile = ('permutation' if k.mnemonic in ('PRMT', 'UPRMT')
+               else 'sgxt' if k.mnemonic in ('SGXT', 'USGXT')
+               else 'flo_bits' if k.mnemonic in ('FLO', 'UFLO') else 'bits')
     if profiles != [profile]: raise Unsupported('incompatible input profiles')
     src = source(k, 'Sb') if 'Sb' in k.operand_types else source(k, 'Rb', 'URb')
     dest = source(k, 'Rd', 'URd')
     if src is None or dest is None:
         raise Unsupported('unsupported operand layout')
-    allowed = {'fmt', 'sh'} if k.mnemonic == 'FLO' else {'fmt', 'cw'} if k.mnemonic in ('SGXT', 'USGXT') else {'pmode', 'idx'} if k.mnemonic in ('PRMT', 'UPRMT') else set()
+    allowed = {'fmt', 'sh'} if k.mnemonic in ('FLO', 'UFLO') else {'fmt', 'cw'} if k.mnemonic in ('SGXT', 'USGXT') else {'pmode', 'idx'} if k.mnemonic in ('PRMT', 'UPRMT') else set()
     allowed |= {src + '@invert'}
     if set(form) - allowed:
         raise Unsupported('unhandled modifiers: ' + ', '.join(sorted(set(form) - allowed)))
@@ -164,9 +167,8 @@ def candidates(arch, cls, form, fp='exact', profiles=None, native=True):
                     operand = (~operand & 0xffffffff) if form.get(src + '@invert') == 'set' else operand
                     if k.mnemonic in ('BREV', 'UBREV'): result = integer.brev(operand)
                     elif k.mnemonic in ('POPC', 'UPOPC'): result = operand.bit_count()
-                    elif k.mnemonic == 'FLO':
+                    elif k.mnemonic in ('FLO', 'UFLO'):
                         if form.get('sh', 'nosh') not in ('SH', 'nosh'): raise Unsupported('unknown FLO mode')
-                        s.fields['Pu'] = 'PT'
                         result = integer.flo(operand, form.get('sh') == 'SH', form.get('fmt') == 'S32')
                     else:
                         if form.get('cw', 'C') not in ('C', 'W'): raise Unsupported('unknown SGXT mode')
@@ -197,6 +199,7 @@ class Inputs:
     def __init__(self, c, k, form, bank=None):
         self.c, self.k = c, k
         self.fields = {n: int(v == 'set') if '@' in n else v for n, v in form.items()}
+        self.fields.update(getattr(c, 'operand_constraints', {}))
         self.registers, self.memory = {}, []
         self.bank = bank
 
@@ -232,6 +235,8 @@ class Inputs:
         return prefix + str(reg)
 
     def add(self, expected, form, imad_alias=False, portable=False, **extras):
+        if any(self.fields.get(n) != v for n, v in getattr(self.c, 'operand_constraints', {}).items()):
+            raise Unsupported('adapter changed its declared partial operand row')
         if self.c.fp == 'readable' and not portable and self.k.mnemonic in READABLE_FLOATS: return
         hardware = extras.pop('hardware', None)
         observe = extras.pop('observe', None)
@@ -378,7 +383,7 @@ def packed_cases(c, k, form, profiles):
     if form.get('fmt') not in formats: raise Unsupported('unsupported packed integer format')
     width, signed = formats[form['fmt']]
     if op != 'VISET':
-        if any(n in k.operand_types for n in ('Pu', 'Pv')):
+        if any(n in k.operand_types and getattr(c, 'operand_constraints', {}).get(n) != 'PT' for n in ('Pu', 'Pv')):
             raise Unsupported('unresolved packed min/max predicate outputs')
         if form.get('relu') not in ('norelu', 'RELU') or (not signed and form['relu'] == 'RELU'):
             raise Unsupported('unsupported packed min/max RELU mode')

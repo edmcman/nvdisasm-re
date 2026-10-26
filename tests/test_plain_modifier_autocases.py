@@ -21,14 +21,8 @@ def test_normal_plans_represent_each_added_variant(arch):
         if k.mnemonic == "I2I":
             assert {f["dstfmt"] for f in chosen.get(name, [])} == {"S8", "U8", "S16", "U16"}, name
     if arch == "SM75":
-        assert {"U", "U.U8", "U.S8", "U.U16", "U.S16"} <= {
+        assert {"U", "U.U8", "U.S8", "U.U16", "U.S16", "U.64", "U.128"} <= {
             f["sz"] for f in chosen["lds__sImmOffset"]}
-        from tests.cases import memory
-        from tests.harness.case import Cases
-        cases = Cases(arch, "exact")
-        memory.uniform_shared_pairs(cases)
-        assert {modifiers.settings(arch, pydecode.decode(arch, bytes.fromhex(case.request["word"])))["sz"]
-                for case in cases} == {"U.64", "U.128"}
     # Every supported prefetch label must be represented for every class that
     # implements it, independently of the planner's covering-array algorithm.
     # Python CI runs without generated language manifests. Assert the added

@@ -229,6 +229,10 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   raw `forms.reference` still includes diagnostic error/fallback checks. Interaction masks in
   `coverage.json` project these positive forms onto constrained three-way requirements and keep
   reference, GPU and PTX sources independent. Native support remains an exhaustive count.
+  Since 2026-10-26 (#80), declared operand rows let the case planner verify supported words
+  within partial native forms too. This changes selection and evidence, not value semantics:
+  mixed operand rows keep their partial classification, and untested exact forms receive no
+  provenance. Native/effect guards still reject opaque fallbacks.
 - `uv run sass-census SMxx...` ranks classes in the real corpus by static occurrence and
   native/primitive/opaque status (each word's status is its family's decision for that encoding, via
   `lifter`; ~2 min per arch on 32 cores).

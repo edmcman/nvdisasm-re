@@ -144,6 +144,8 @@ def access(c,k,form):
         raise Unsupported('unresolved dual memory registers')
     size=widths[form['sz']];load=k.mnemonic.startswith('LD')
     for index,value in enumerate(autocase_profiles.PROFILES['remaining_forms']['words']):
+        if size > 4:
+            value = autocase_profiles.PROFILES['remaining_forms']['wide_words'][index] & ((1 << (size * 8)) - 1)
         s=Inputs(c,k,form);base=0x100;offset=(-16,0,16)[index]
         stride={'X1':1,'X4':4,'X8':8,'X16':16}[form.get('stride','X1')]
         ra = 4 if load and size == 16 else 2
@@ -191,6 +193,8 @@ def access(c,k,form):
                     expected[f'P{pu}']=memory.load_predicate(1,False)
         else:
             s.operand(('Rb',),value,4 if size==16 else 6,size=size)
+            if size == 16:
+                s.registers.update({f'R{s.fields["Rb"]+j}': value >> (32*j) & 0xffffffff for j in range(4)})
             expected['__memory']=data.hex()
             extras['observe_memory']=[dict(space=space,address=address,size=size)]
         # Exact named runtime effects are legitimate native memory operations.

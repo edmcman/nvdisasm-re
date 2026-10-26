@@ -56,6 +56,16 @@ in [`docs/testing.md`](testing.md).
   records; local addresses include `c[0][0x28]`. Constant bank 2 is per-kernel, while bank 3 uses a
   module-wide `.nv.constant3` section, matching ptxas output; `.nv.constant3.kernel` leaves bank-3
   inputs unreadable as intended data.
+- Partial-form planner validation (2026-10-26, #80): the generated memory, int_alu, int_simd
+  and fp16 selections passed 11,974 hardware-valid shared scenarios on SM89 at default
+  sampling; 1,640 model-only scenarios reported explicit exclusions. Recorded outputs are in
+  `tests/baseline/gpu_observations/SM89.jsonl`. This validates the tested words and operand
+  rows, including ordinary LDG completion and aligned wide accesses; it does not establish
+  unresolved output predicates, concurrent memory ordering or other architectures.
+  The [audit report](partial-form-planning-2026-10-26.md) lists the operand contracts
+  and software checks. After completing the migrated FLO/VABSDIFF4/HADD2 boundary
+  corpora, the changed three families passed 7,999 shared scenarios again.
+  No new SM90 hardware run was made for this change.
 
 ## Integer and predicate
 

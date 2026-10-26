@@ -93,8 +93,7 @@
         "reference": 276
       },
       "FLO": {
-        "none": 8,
-        "reference": 12
+        "reference": 20
       },
       "FMNMX": {
         "none": 511,
@@ -130,12 +129,12 @@
         "reference": 428
       },
       "HADD2": {
-        "none": 740,
-        "reference": 160
+        "none": 778,
+        "reference": 122
       },
       "HFMA2": {
-        "none": 21612,
-        "reference": 276
+        "none": 21600,
+        "reference": 288
       },
       "HMNMX2": {
         "none": 6826,
@@ -191,28 +190,24 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 12303,
+        "reference": 1137
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
-        "none": 1,
-        "reference": 6
+        "reference": 7
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 20371,
+        "reference": 1133
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -224,8 +219,8 @@
         "reference": 4
       },
       "MOV": {
-        "none": 2,
-        "reference": 2
+        "none": 1,
+        "reference": 3
       },
       "MUFU": {
         "none": 342,
@@ -282,20 +277,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 808,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 1809,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -304,7 +297,7 @@
         "reference": 12
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UIADD3": {
         "none": 18,
@@ -362,9 +355,8 @@
         "reference": 71
       },
       "VIMNMX": {
-        "none": 14,
         "ptxas": 7,
-        "reference": 15
+        "reference": 29
       },
       "VIMNMX3": {
         "ptxas": 1,
@@ -400,10 +392,10 @@
         "opaque": 21
       },
       "ATOM": {
-        "opaque": 57960
+        "opaque": 22080
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 20640
       },
       "ATOMS": {
         "opaque": 279
@@ -680,9 +672,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 9600,
+        "opaque": 8064,
+        "partially native": 3840
       },
       "LDC": {
         "native": 10,
@@ -695,9 +687,9 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 12672,
-        "partially native": 16896
+        "native": 15360,
+        "opaque": 4608,
+        "partially native": 6144
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -706,7 +698,7 @@
         "opaque": 252
       },
       "LDGSTS": {
-        "opaque": 11520
+        "opaque": 5760
       },
       "LDL": {
         "native": 120,
@@ -806,7 +798,7 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 18048
       },
       "REDUX": {
         "primitive": 12
@@ -847,17 +839,17 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 1200,
+        "opaque": 1008,
+        "partially native": 480
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 1920,
+        "opaque": 1800,
+        "partially native": 768
       },
       "STL": {
         "native": 120,
@@ -874,19 +866,19 @@
         "opaque": 90
       },
       "SUATOM": {
-        "opaque": 362880
+        "opaque": 138240
       },
       "SULD": {
-        "opaque": 80784
+        "opaque": 29376
       },
       "SUQUERY": {
         "opaque": 24
       },
       "SURED": {
-        "opaque": 308448
+        "opaque": 117504
       },
       "SUST": {
-        "opaque": 77112
+        "opaque": 29376
       },
       "SYNCS": {
         "opaque": 48
@@ -910,13 +902,13 @@
         "opaque": 4
       },
       "UBLKCP": {
-        "opaque": 253
+        "opaque": 161
       },
       "UBLKPF": {
         "opaque": 2
       },
       "UBLKRED": {
-        "opaque": 834
+        "opaque": 556
       },
       "UBMSK": {
         "opaque": 4
@@ -1122,9 +1114,9 @@
       }
     },
     "evidence": {
-      "none": 14,
+      "none": 11,
       "ptxas": 15,
-      "reference": 516
+      "reference": 519
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -1374,8 +1366,8 @@
         "reference": 2
       },
       "MOV": {
-        "none": 2,
-        "reference": 2
+        "none": 1,
+        "reference": 3
       },
       "MUFU": {
         "none": 2,
@@ -1448,7 +1440,7 @@
         "reference": 4
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UIADD3": {
         "ptxas": 2,
@@ -2749,8 +2741,7 @@
         "reference": 276
       },
       "FLO": {
-        "none": 8,
-        "reference": 12
+        "reference": 20
       },
       "FMNMX": {
         "none": 511,
@@ -2786,12 +2777,12 @@
         "reference": 428
       },
       "HADD2": {
-        "none": 1339,
-        "reference": 161
+        "none": 1377,
+        "reference": 123
       },
       "HFMA2": {
-        "none": 87275,
-        "reference": 277
+        "none": 87263,
+        "reference": 289
       },
       "HMNMX2": {
         "none": 6826,
@@ -2847,28 +2838,24 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 12303,
+        "reference": 1137
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
-        "none": 1,
-        "reference": 6
+        "reference": 7
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 20371,
+        "reference": 1133
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -2880,8 +2867,8 @@
         "reference": 4
       },
       "MOV": {
-        "none": 2,
-        "reference": 2
+        "none": 1,
+        "reference": 3
       },
       "MUFU": {
         "none": 342,
@@ -2938,20 +2925,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 808,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 1809,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -2960,7 +2945,7 @@
         "reference": 12
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UIADD3": {
         "none": 18,
@@ -3018,9 +3003,8 @@
         "reference": 71
       },
       "VIMNMX": {
-        "none": 14,
         "ptxas": 7,
-        "reference": 15
+        "reference": 29
       },
       "VIMNMX3": {
         "ptxas": 1,
@@ -3056,10 +3040,10 @@
         "opaque": 21
       },
       "ATOM": {
-        "opaque": 57960
+        "opaque": 22080
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 20640
       },
       "ATOMS": {
         "opaque": 279
@@ -3335,9 +3319,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 9600,
+        "opaque": 8064,
+        "partially native": 3840
       },
       "LDC": {
         "native": 10,
@@ -3350,9 +3334,9 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 12672,
-        "partially native": 16896
+        "native": 15360,
+        "opaque": 4608,
+        "partially native": 6144
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -3361,7 +3345,7 @@
         "opaque": 252
       },
       "LDGSTS": {
-        "opaque": 11520
+        "opaque": 5760
       },
       "LDL": {
         "native": 120,
@@ -3461,7 +3445,7 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 18048
       },
       "REDUX": {
         "primitive": 12
@@ -3502,17 +3486,17 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 1200,
+        "opaque": 1008,
+        "partially native": 480
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 1920,
+        "opaque": 1800,
+        "partially native": 768
       },
       "STL": {
         "native": 120,
@@ -3529,19 +3513,19 @@
         "opaque": 90
       },
       "SUATOM": {
-        "opaque": 362880
+        "opaque": 138240
       },
       "SULD": {
-        "opaque": 80784
+        "opaque": 29376
       },
       "SUQUERY": {
         "opaque": 24
       },
       "SURED": {
-        "opaque": 308448
+        "opaque": 117504
       },
       "SUST": {
-        "opaque": 77112
+        "opaque": 29376
       },
       "SYNCS": {
         "opaque": 48
@@ -3565,13 +3549,13 @@
         "opaque": 4
       },
       "UBLKCP": {
-        "opaque": 253
+        "opaque": 161
       },
       "UBLKPF": {
         "opaque": 2
       },
       "UBLKRED": {
-        "opaque": 834
+        "opaque": 556
       },
       "UBMSK": {
         "opaque": 4
@@ -3777,9 +3761,9 @@
       }
     },
     "evidence": {
-      "none": 14,
+      "none": 11,
       "ptxas": 15,
-      "reference": 516
+      "reference": 519
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -4029,8 +4013,8 @@
         "reference": 2
       },
       "MOV": {
-        "none": 2,
-        "reference": 2
+        "none": 1,
+        "reference": 3
       },
       "MUFU": {
         "none": 2,
@@ -4103,7 +4087,7 @@
         "reference": 4
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UIADD3": {
         "ptxas": 2,
@@ -5394,8 +5378,7 @@
         "reference": 193
       },
       "FLO": {
-        "none": 8,
-        "reference": 12
+        "reference": 20
       },
       "FMNMX": {
         "none": 511,
@@ -5426,12 +5409,12 @@
         "reference": 428
       },
       "HADD2": {
-        "none": 740,
-        "reference": 160
+        "none": 778,
+        "reference": 122
       },
       "HFMA2": {
-        "none": 21612,
-        "reference": 276
+        "none": 21600,
+        "reference": 288
       },
       "HMNMX2": {
         "none": 6826,
@@ -5485,28 +5468,24 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 12303,
+        "reference": 1137
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
-        "none": 1,
-        "reference": 6
+        "reference": 7
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 20371,
+        "reference": 1133
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -5518,8 +5497,8 @@
         "reference": 4
       },
       "MOV": {
-        "none": 2,
-        "reference": 2
+        "none": 1,
+        "reference": 3
       },
       "MUFU": {
         "none": 342,
@@ -5576,20 +5555,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 808,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 1809,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -5598,7 +5575,7 @@
         "reference": 12
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UIADD3": {
         "none": 18,
@@ -5675,10 +5652,10 @@
         "opaque": 21
       },
       "ATOM": {
-        "opaque": 57960
+        "opaque": 22080
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 20640
       },
       "ATOMS": {
         "opaque": 279
@@ -5927,9 +5904,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 9600,
+        "opaque": 8064,
+        "partially native": 3840
       },
       "LDC": {
         "native": 10,
@@ -5942,9 +5919,9 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 12672,
-        "partially native": 16896
+        "native": 15360,
+        "opaque": 4608,
+        "partially native": 6144
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -5953,7 +5930,7 @@
         "opaque": 252
       },
       "LDGSTS": {
-        "opaque": 11520
+        "opaque": 5760
       },
       "LDL": {
         "native": 120,
@@ -6044,7 +6021,7 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 18048
       },
       "REDUX": {
         "primitive": 12
@@ -6081,17 +6058,17 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 1200,
+        "opaque": 1008,
+        "partially native": 480
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 1920,
+        "opaque": 1800,
+        "partially native": 768
       },
       "STL": {
         "native": 120,
@@ -6108,19 +6085,19 @@
         "opaque": 90
       },
       "SUATOM": {
-        "opaque": 362880
+        "opaque": 138240
       },
       "SULD": {
-        "opaque": 80784
+        "opaque": 29376
       },
       "SUQUERY": {
         "opaque": 24
       },
       "SURED": {
-        "opaque": 308448
+        "opaque": 117504
       },
       "SUST": {
-        "opaque": 77112
+        "opaque": 29376
       },
       "SYNCS": {
         "opaque": 48
@@ -6144,13 +6121,13 @@
         "opaque": 4
       },
       "UBLKCP": {
-        "opaque": 253
+        "opaque": 161
       },
       "UBLKPF": {
         "opaque": 2
       },
       "UBLKRED": {
-        "opaque": 834
+        "opaque": 556
       },
       "UBMSK": {
         "opaque": 4
@@ -6331,8 +6308,8 @@
       }
     },
     "evidence": {
-      "none": 14,
-      "reference": 506
+      "none": 11,
+      "reference": 509
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -6550,8 +6527,8 @@
         "reference": 2
       },
       "MOV": {
-        "none": 2,
-        "reference": 2
+        "none": 1,
+        "reference": 3
       },
       "MUFU": {
         "none": 2,
@@ -6624,7 +6601,7 @@
         "reference": 4
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UIADD3": {
         "reference": 4
@@ -7836,8 +7813,7 @@
         "reference": 193
       },
       "FLO": {
-        "none": 8,
-        "reference": 12
+        "reference": 20
       },
       "FMNMX": {
         "none": 511,
@@ -7868,12 +7844,12 @@
         "reference": 428
       },
       "HADD2": {
-        "none": 1339,
-        "reference": 161
+        "none": 1377,
+        "reference": 123
       },
       "HFMA2": {
-        "none": 87275,
-        "reference": 277
+        "none": 87263,
+        "reference": 289
       },
       "HMNMX2": {
         "none": 6826,
@@ -7927,28 +7903,24 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 12303,
+        "reference": 1137
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
-        "none": 1,
-        "reference": 6
+        "reference": 7
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 20371,
+        "reference": 1133
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -7960,8 +7932,8 @@
         "reference": 4
       },
       "MOV": {
-        "none": 2,
-        "reference": 2
+        "none": 1,
+        "reference": 3
       },
       "MUFU": {
         "none": 342,
@@ -8018,20 +7990,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 808,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 1809,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -8040,7 +8010,7 @@
         "reference": 12
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UIADD3": {
         "none": 18,
@@ -8117,10 +8087,10 @@
         "opaque": 21
       },
       "ATOM": {
-        "opaque": 57960
+        "opaque": 22080
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 20640
       },
       "ATOMS": {
         "opaque": 279
@@ -8369,9 +8339,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 9600,
+        "opaque": 8064,
+        "partially native": 3840
       },
       "LDC": {
         "native": 10,
@@ -8384,9 +8354,9 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 12672,
-        "partially native": 16896
+        "native": 15360,
+        "opaque": 4608,
+        "partially native": 6144
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -8395,7 +8365,7 @@
         "opaque": 252
       },
       "LDGSTS": {
-        "opaque": 11520
+        "opaque": 5760
       },
       "LDL": {
         "native": 120,
@@ -8486,7 +8456,7 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 18048
       },
       "REDUX": {
         "primitive": 12
@@ -8523,17 +8493,17 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 1200,
+        "opaque": 1008,
+        "partially native": 480
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 1920,
+        "opaque": 1800,
+        "partially native": 768
       },
       "STL": {
         "native": 120,
@@ -8550,19 +8520,19 @@
         "opaque": 90
       },
       "SUATOM": {
-        "opaque": 362880
+        "opaque": 138240
       },
       "SULD": {
-        "opaque": 80784
+        "opaque": 29376
       },
       "SUQUERY": {
         "opaque": 24
       },
       "SURED": {
-        "opaque": 308448
+        "opaque": 117504
       },
       "SUST": {
-        "opaque": 77112
+        "opaque": 29376
       },
       "SYNCS": {
         "opaque": 48
@@ -8586,13 +8556,13 @@
         "opaque": 4
       },
       "UBLKCP": {
-        "opaque": 253
+        "opaque": 161
       },
       "UBLKPF": {
         "opaque": 2
       },
       "UBLKRED": {
-        "opaque": 834
+        "opaque": 556
       },
       "UBMSK": {
         "opaque": 4
@@ -8773,8 +8743,8 @@
       }
     },
     "evidence": {
-      "none": 14,
-      "reference": 506
+      "none": 11,
+      "reference": 509
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -8992,8 +8962,8 @@
         "reference": 2
       },
       "MOV": {
-        "none": 2,
-        "reference": 2
+        "none": 1,
+        "reference": 3
       },
       "MUFU": {
         "none": 2,
@@ -9066,7 +9036,7 @@
         "reference": 4
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UIADD3": {
         "reference": 4
@@ -10286,8 +10256,7 @@
         "reference": 276
       },
       "FLO": {
-        "none": 8,
-        "reference": 12
+        "reference": 20
       },
       "FMNMX": {
         "none": 511,
@@ -10322,12 +10291,12 @@
         "reference": 428
       },
       "HADD2": {
-        "none": 740,
-        "reference": 160
+        "none": 778,
+        "reference": 122
       },
       "HFMA2": {
-        "none": 21612,
-        "reference": 276
+        "none": 21600,
+        "reference": 288
       },
       "HMNMX2": {
         "none": 6826,
@@ -10381,28 +10350,24 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 12303,
+        "reference": 1137
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
-        "none": 1,
-        "reference": 6
+        "reference": 7
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 20371,
+        "reference": 1133
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -10414,8 +10379,8 @@
         "reference": 4
       },
       "MOV": {
-        "none": 2,
-        "reference": 2
+        "none": 1,
+        "reference": 3
       },
       "MUFU": {
         "none": 360,
@@ -10472,20 +10437,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 808,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 1809,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -10494,7 +10457,7 @@
         "reference": 12
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UIADD3": {
         "none": 18,
@@ -10549,8 +10512,7 @@
         "reference": 77
       },
       "VIMNMX": {
-        "none": 18,
-        "reference": 18
+        "reference": 36
       },
       "VIMNMX3": {
         "reference": 36
@@ -10585,10 +10547,10 @@
         "opaque": 21
       },
       "ATOM": {
-        "opaque": 57960
+        "opaque": 22080
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 20640
       },
       "ATOMS": {
         "opaque": 279
@@ -10865,9 +10827,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 9600,
+        "opaque": 8064,
+        "partially native": 3840
       },
       "LDC": {
         "native": 10,
@@ -10880,9 +10842,9 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 12672,
-        "partially native": 16896
+        "native": 15360,
+        "opaque": 4608,
+        "partially native": 6144
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -10891,7 +10853,7 @@
         "opaque": 252
       },
       "LDGSTS": {
-        "opaque": 11520
+        "opaque": 5760
       },
       "LDL": {
         "native": 120,
@@ -10991,7 +10953,7 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 18048
       },
       "REDUX": {
         "primitive": 12
@@ -11032,17 +10994,17 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 1200,
+        "opaque": 1008,
+        "partially native": 480
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 1920,
+        "opaque": 1800,
+        "partially native": 768
       },
       "STL": {
         "native": 120,
@@ -11059,19 +11021,19 @@
         "opaque": 90
       },
       "SUATOM": {
-        "opaque": 362880
+        "opaque": 138240
       },
       "SULD": {
-        "opaque": 80784
+        "opaque": 29376
       },
       "SUQUERY": {
         "opaque": 24
       },
       "SURED": {
-        "opaque": 308448
+        "opaque": 117504
       },
       "SUST": {
-        "opaque": 77112
+        "opaque": 29376
       },
       "SYNCS": {
         "opaque": 48
@@ -11095,13 +11057,13 @@
         "opaque": 4
       },
       "UBLKCP": {
-        "opaque": 253
+        "opaque": 161
       },
       "UBLKPF": {
         "opaque": 2
       },
       "UBLKRED": {
-        "opaque": 834
+        "opaque": 556
       },
       "UBMSK": {
         "opaque": 4
@@ -11301,8 +11263,8 @@
       }
     },
     "evidence": {
-      "none": 17,
-      "reference": 531
+      "none": 14,
+      "reference": 534
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -11547,8 +11509,8 @@
         "reference": 2
       },
       "MOV": {
-        "none": 2,
-        "reference": 2
+        "none": 1,
+        "reference": 3
       },
       "MUFU": {
         "none": 5,
@@ -11621,7 +11583,7 @@
         "reference": 4
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UIADD3": {
         "reference": 4
@@ -12908,8 +12870,7 @@
         "reference": 276
       },
       "FLO": {
-        "none": 8,
-        "reference": 12
+        "reference": 20
       },
       "FMNMX": {
         "none": 511,
@@ -12944,12 +12905,12 @@
         "reference": 428
       },
       "HADD2": {
-        "none": 1339,
-        "reference": 161
+        "none": 1377,
+        "reference": 123
       },
       "HFMA2": {
-        "none": 87275,
-        "reference": 277
+        "none": 87263,
+        "reference": 289
       },
       "HMNMX2": {
         "none": 6826,
@@ -13003,28 +12964,24 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 12303,
+        "reference": 1137
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
-        "none": 1,
-        "reference": 6
+        "reference": 7
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 20371,
+        "reference": 1133
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -13036,8 +12993,8 @@
         "reference": 4
       },
       "MOV": {
-        "none": 2,
-        "reference": 2
+        "none": 1,
+        "reference": 3
       },
       "MUFU": {
         "none": 360,
@@ -13094,20 +13051,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 808,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 1809,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -13116,7 +13071,7 @@
         "reference": 12
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UIADD3": {
         "none": 18,
@@ -13171,8 +13126,7 @@
         "reference": 77
       },
       "VIMNMX": {
-        "none": 18,
-        "reference": 18
+        "reference": 36
       },
       "VIMNMX3": {
         "reference": 36
@@ -13207,10 +13161,10 @@
         "opaque": 21
       },
       "ATOM": {
-        "opaque": 57960
+        "opaque": 22080
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 20640
       },
       "ATOMS": {
         "opaque": 279
@@ -13486,9 +13440,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 9600,
+        "opaque": 8064,
+        "partially native": 3840
       },
       "LDC": {
         "native": 10,
@@ -13501,9 +13455,9 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 12672,
-        "partially native": 16896
+        "native": 15360,
+        "opaque": 4608,
+        "partially native": 6144
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -13512,7 +13466,7 @@
         "opaque": 252
       },
       "LDGSTS": {
-        "opaque": 11520
+        "opaque": 5760
       },
       "LDL": {
         "native": 120,
@@ -13612,7 +13566,7 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 18048
       },
       "REDUX": {
         "primitive": 12
@@ -13653,17 +13607,17 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 1200,
+        "opaque": 1008,
+        "partially native": 480
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 1920,
+        "opaque": 1800,
+        "partially native": 768
       },
       "STL": {
         "native": 120,
@@ -13680,19 +13634,19 @@
         "opaque": 90
       },
       "SUATOM": {
-        "opaque": 362880
+        "opaque": 138240
       },
       "SULD": {
-        "opaque": 80784
+        "opaque": 29376
       },
       "SUQUERY": {
         "opaque": 24
       },
       "SURED": {
-        "opaque": 308448
+        "opaque": 117504
       },
       "SUST": {
-        "opaque": 77112
+        "opaque": 29376
       },
       "SYNCS": {
         "opaque": 48
@@ -13716,13 +13670,13 @@
         "opaque": 4
       },
       "UBLKCP": {
-        "opaque": 253
+        "opaque": 161
       },
       "UBLKPF": {
         "opaque": 2
       },
       "UBLKRED": {
-        "opaque": 834
+        "opaque": 556
       },
       "UBMSK": {
         "opaque": 4
@@ -13922,8 +13876,8 @@
       }
     },
     "evidence": {
-      "none": 17,
-      "reference": 531
+      "none": 14,
+      "reference": 534
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -14168,8 +14122,8 @@
         "reference": 2
       },
       "MOV": {
-        "none": 2,
-        "reference": 2
+        "none": 1,
+        "reference": 3
       },
       "MUFU": {
         "none": 5,
@@ -14242,7 +14196,7 @@
         "reference": 4
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UIADD3": {
         "reference": 4
@@ -15541,8 +15495,7 @@
         "reference": 100
       },
       "FLO": {
-        "none": 8,
-        "reference": 12
+        "reference": 20
       },
       "FMNMX": {
         "none": 511,
@@ -15577,12 +15530,12 @@
         "reference": 428
       },
       "HADD2": {
-        "none": 740,
-        "reference": 160
+        "none": 778,
+        "reference": 122
       },
       "HFMA2": {
-        "none": 21612,
-        "reference": 276
+        "none": 21600,
+        "reference": 288
       },
       "HMNMX2": {
         "none": 6826,
@@ -15617,8 +15570,7 @@
         "reference": 3
       },
       "IADD": {
-        "none": 7,
-        "reference": 1
+        "reference": 8
       },
       "IADD3": {
         "none": 29,
@@ -15637,28 +15589,24 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 12303,
+        "reference": 1137
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
-        "none": 1,
-        "reference": 6
+        "reference": 7
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 20371,
+        "reference": 1133
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -15670,8 +15618,8 @@
         "reference": 4
       },
       "MOV": {
-        "none": 2,
-        "reference": 5
+        "none": 1,
+        "reference": 6
       },
       "MOV64IUR": {
         "reference": 2
@@ -15731,20 +15679,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 808,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 1809,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -15753,7 +15699,7 @@
         "reference": 12
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UIADD3": {
         "none": 18,
@@ -15827,10 +15773,10 @@
         "opaque": 2
       },
       "ATOM": {
-        "opaque": 57708
+        "opaque": 21984
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 20640
       },
       "ATOMS": {
         "opaque": 275
@@ -16105,9 +16051,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 9600,
+        "opaque": 8064,
+        "partially native": 3840
       },
       "LDC": {
         "native": 10,
@@ -16120,9 +16066,9 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 12672,
-        "partially native": 16896
+        "native": 15360,
+        "opaque": 4608,
+        "partially native": 6144
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -16131,7 +16077,7 @@
         "opaque": 216
       },
       "LDGSTS": {
-        "opaque": 11520
+        "opaque": 5760
       },
       "LDL": {
         "native": 120,
@@ -16216,7 +16162,7 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 18048
       },
       "REDUX": {
         "primitive": 12
@@ -16254,17 +16200,17 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 1200,
+        "opaque": 1008,
+        "partially native": 480
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 1920,
+        "opaque": 1800,
+        "partially native": 768
       },
       "STL": {
         "native": 120,
@@ -16287,13 +16233,13 @@
         "opaque": 8
       },
       "UBLKCP": {
-        "opaque": 1661
+        "opaque": 1057
       },
       "UBLKL2CCTL": {
         "opaque": 5
       },
       "UBLKRED": {
-        "opaque": 834
+        "opaque": 556
       },
       "UBMSK": {
         "opaque": 4
@@ -16490,8 +16436,8 @@
       }
     },
     "evidence": {
-      "none": 21,
-      "reference": 549
+      "none": 16,
+      "reference": 554
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -16728,8 +16674,7 @@
         "reference": 3
       },
       "IADD": {
-        "none": 2,
-        "reference": 1
+        "reference": 3
       },
       "IADD3": {
         "reference": 6
@@ -16772,8 +16717,8 @@
         "reference": 2
       },
       "MOV": {
-        "none": 2,
-        "reference": 5
+        "none": 1,
+        "reference": 6
       },
       "MOV64IUR": {
         "reference": 2
@@ -16849,7 +16794,7 @@
         "reference": 4
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UIADD3": {
         "reference": 4
@@ -18077,8 +18022,7 @@
         "reference": 100
       },
       "FLO": {
-        "none": 8,
-        "reference": 12
+        "reference": 20
       },
       "FMNMX": {
         "none": 511,
@@ -18113,12 +18057,12 @@
         "reference": 428
       },
       "HADD2": {
-        "none": 1339,
-        "reference": 161
+        "none": 1377,
+        "reference": 123
       },
       "HFMA2": {
-        "none": 87275,
-        "reference": 277
+        "none": 87263,
+        "reference": 289
       },
       "HMNMX2": {
         "none": 6826,
@@ -18153,8 +18097,7 @@
         "reference": 3
       },
       "IADD": {
-        "none": 7,
-        "reference": 1
+        "reference": 8
       },
       "IADD3": {
         "none": 29,
@@ -18173,28 +18116,24 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 12303,
+        "reference": 1137
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
-        "none": 1,
-        "reference": 6
+        "reference": 7
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 20371,
+        "reference": 1133
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -18206,8 +18145,8 @@
         "reference": 4
       },
       "MOV": {
-        "none": 2,
-        "reference": 5
+        "none": 1,
+        "reference": 6
       },
       "MOV64IUR": {
         "reference": 2
@@ -18267,20 +18206,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 808,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 1809,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -18289,7 +18226,7 @@
         "reference": 12
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UIADD3": {
         "none": 18,
@@ -18363,10 +18300,10 @@
         "opaque": 2
       },
       "ATOM": {
-        "opaque": 57708
+        "opaque": 21984
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 20640
       },
       "ATOMS": {
         "opaque": 275
@@ -18640,9 +18577,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 9600,
+        "opaque": 8064,
+        "partially native": 3840
       },
       "LDC": {
         "native": 10,
@@ -18655,9 +18592,9 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 12672,
-        "partially native": 16896
+        "native": 15360,
+        "opaque": 4608,
+        "partially native": 6144
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -18666,7 +18603,7 @@
         "opaque": 216
       },
       "LDGSTS": {
-        "opaque": 11520
+        "opaque": 5760
       },
       "LDL": {
         "native": 120,
@@ -18751,7 +18688,7 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 18048
       },
       "REDUX": {
         "primitive": 12
@@ -18789,17 +18726,17 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 1200,
+        "opaque": 1008,
+        "partially native": 480
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 1920,
+        "opaque": 1800,
+        "partially native": 768
       },
       "STL": {
         "native": 120,
@@ -18822,13 +18759,13 @@
         "opaque": 8
       },
       "UBLKCP": {
-        "opaque": 1661
+        "opaque": 1057
       },
       "UBLKL2CCTL": {
         "opaque": 5
       },
       "UBLKRED": {
-        "opaque": 834
+        "opaque": 556
       },
       "UBMSK": {
         "opaque": 4
@@ -19025,8 +18962,8 @@
       }
     },
     "evidence": {
-      "none": 21,
-      "reference": 549
+      "none": 16,
+      "reference": 554
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -19263,8 +19200,7 @@
         "reference": 3
       },
       "IADD": {
-        "none": 2,
-        "reference": 1
+        "reference": 3
       },
       "IADD3": {
         "reference": 6
@@ -19307,8 +19243,8 @@
         "reference": 2
       },
       "MOV": {
-        "none": 2,
-        "reference": 5
+        "none": 1,
+        "reference": 6
       },
       "MOV64IUR": {
         "reference": 2
@@ -19384,7 +19320,7 @@
         "reference": 4
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UIADD3": {
         "reference": 4
@@ -20592,8 +20528,7 @@
         "reference": 193
       },
       "FLO": {
-        "none": 8,
-        "reference": 12
+        "reference": 20
       },
       "FMNMX": {
         "none": 511,
@@ -20620,12 +20555,12 @@
         "reference": 428
       },
       "HADD2": {
-        "none": 740,
-        "reference": 160
+        "none": 778,
+        "reference": 122
       },
       "HFMA2": {
-        "none": 21612,
-        "reference": 276
+        "none": 21600,
+        "reference": 288
       },
       "HMNMX2": {
         "none": 6826,
@@ -20660,8 +20595,7 @@
         "reference": 3
       },
       "IADD": {
-        "none": 7,
-        "reference": 1
+        "reference": 8
       },
       "IADD3": {
         "none": 29,
@@ -20680,28 +20614,24 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 12303,
+        "reference": 1137
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
-        "none": 1,
-        "reference": 6
+        "reference": 7
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 20371,
+        "reference": 1133
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -20713,8 +20643,8 @@
         "reference": 4
       },
       "MOV": {
-        "none": 2,
-        "reference": 5
+        "none": 1,
+        "reference": 6
       },
       "MOV64IUR": {
         "reference": 2
@@ -20774,20 +20704,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 808,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 1809,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -20809,7 +20737,7 @@
         "reference": 113
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UFMUL": {
         "none": 3168,
@@ -20918,10 +20846,10 @@
         "opaque": 21
       },
       "ATOM": {
-        "opaque": 57960
+        "opaque": 22080
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 20640
       },
       "ATOMS": {
         "opaque": 279
@@ -21175,9 +21103,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 9600,
+        "opaque": 8064,
+        "partially native": 3840
       },
       "LDC": {
         "native": 10,
@@ -21190,9 +21118,9 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 13056,
-        "partially native": 16896
+        "native": 15360,
+        "opaque": 4992,
+        "partially native": 6144
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -21201,7 +21129,7 @@
         "opaque": 252
       },
       "LDGSTS": {
-        "opaque": 11520
+        "opaque": 5760
       },
       "LDL": {
         "native": 120,
@@ -21298,7 +21226,7 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 18048
       },
       "REDUX": {
         "primitive": 12
@@ -21335,17 +21263,17 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 1200,
+        "opaque": 1008,
+        "partially native": 480
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 1920,
+        "opaque": 1800,
+        "partially native": 768
       },
       "STL": {
         "native": 120,
@@ -21359,19 +21287,19 @@
         "opaque": 18
       },
       "SUATOM": {
-        "opaque": 725760
+        "opaque": 276480
       },
       "SULD": {
-        "opaque": 161568
+        "opaque": 58752
       },
       "SUQUERY": {
         "opaque": 48
       },
       "SURED": {
-        "opaque": 616896
+        "opaque": 235008
       },
       "SUST": {
-        "opaque": 154224
+        "opaque": 58752
       },
       "SYNCS": {
         "opaque": 48
@@ -21395,13 +21323,13 @@
         "opaque": 6
       },
       "UBLKCP": {
-        "opaque": 231
+        "opaque": 147
       },
       "UBLKPF": {
         "opaque": 2
       },
       "UBLKRED": {
-        "opaque": 462
+        "opaque": 308
       },
       "UBMSK": {
         "opaque": 4
@@ -21634,8 +21562,8 @@
       }
     },
     "evidence": {
-      "none": 20,
-      "reference": 559
+      "none": 15,
+      "reference": 564
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -21847,8 +21775,7 @@
         "reference": 3
       },
       "IADD": {
-        "none": 2,
-        "reference": 1
+        "reference": 3
       },
       "IADD3": {
         "reference": 6
@@ -21891,8 +21818,8 @@
         "reference": 2
       },
       "MOV": {
-        "none": 2,
-        "reference": 5
+        "none": 1,
+        "reference": 6
       },
       "MOV64IUR": {
         "reference": 2
@@ -21979,7 +21906,7 @@
         "reference": 3
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UFMUL": {
         "reference": 2
@@ -23282,8 +23209,7 @@
         "reference": 193
       },
       "FLO": {
-        "none": 8,
-        "reference": 12
+        "reference": 20
       },
       "FMNMX": {
         "none": 511,
@@ -23310,12 +23236,12 @@
         "reference": 428
       },
       "HADD2": {
-        "none": 1339,
-        "reference": 161
+        "none": 1377,
+        "reference": 123
       },
       "HFMA2": {
-        "none": 87275,
-        "reference": 277
+        "none": 87263,
+        "reference": 289
       },
       "HMNMX2": {
         "none": 6826,
@@ -23350,8 +23276,7 @@
         "reference": 3
       },
       "IADD": {
-        "none": 7,
-        "reference": 1
+        "reference": 8
       },
       "IADD3": {
         "none": 29,
@@ -23370,28 +23295,24 @@
         "reference": 312
       },
       "LD": {
-        "none": 36096,
-        "reference": 864
+        "none": 12303,
+        "reference": 1137
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDCU": {
-        "none": 1,
-        "reference": 6
+        "reference": 7
       },
       "LDG": {
-        "none": 58254,
-        "reference": 882
+        "none": 20371,
+        "reference": 1133
       },
       "LDL": {
-        "none": 46,
-        "reference": 122
+        "reference": 168
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 78
@@ -23403,8 +23324,8 @@
         "reference": 4
       },
       "MOV": {
-        "none": 2,
-        "reference": 5
+        "none": 1,
+        "reference": 6
       },
       "MOV64IUR": {
         "reference": 2
@@ -23464,20 +23385,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 3786,
-        "reference": 624
+        "none": 808,
+        "reference": 872
       },
       "STG": {
-        "none": 5092,
-        "reference": 620
+        "none": 1809,
+        "reference": 879
       },
       "STL": {
-        "none": 48,
-        "reference": 120
+        "reference": 168
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -23499,7 +23418,7 @@
         "reference": 113
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UFMUL": {
         "none": 3168,
@@ -23608,10 +23527,10 @@
         "opaque": 21
       },
       "ATOM": {
-        "opaque": 57960
+        "opaque": 22080
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 20640
       },
       "ATOMS": {
         "opaque": 279
@@ -23865,9 +23784,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 9600,
+        "opaque": 8064,
+        "partially native": 3840
       },
       "LDC": {
         "native": 10,
@@ -23880,9 +23799,9 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 42240,
-        "opaque": 13056,
-        "partially native": 16896
+        "native": 15360,
+        "opaque": 4992,
+        "partially native": 6144
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -23891,7 +23810,7 @@
         "opaque": 252
       },
       "LDGSTS": {
-        "opaque": 11520
+        "opaque": 5760
       },
       "LDL": {
         "native": 120,
@@ -23988,7 +23907,7 @@
         "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 18048
       },
       "REDUX": {
         "primitive": 12
@@ -24025,17 +23944,17 @@
         "primitive": 16
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 1200,
+        "opaque": 1008,
+        "partially native": 480
       },
       "STAS": {
         "opaque": 6
       },
       "STG": {
-        "native": 4080,
-        "opaque": 2448,
-        "partially native": 1632
+        "native": 1920,
+        "opaque": 1800,
+        "partially native": 768
       },
       "STL": {
         "native": 120,
@@ -24049,19 +23968,19 @@
         "opaque": 18
       },
       "SUATOM": {
-        "opaque": 725760
+        "opaque": 276480
       },
       "SULD": {
-        "opaque": 161568
+        "opaque": 58752
       },
       "SUQUERY": {
         "opaque": 48
       },
       "SURED": {
-        "opaque": 616896
+        "opaque": 235008
       },
       "SUST": {
-        "opaque": 154224
+        "opaque": 58752
       },
       "SYNCS": {
         "opaque": 48
@@ -24085,13 +24004,13 @@
         "opaque": 6
       },
       "UBLKCP": {
-        "opaque": 231
+        "opaque": 147
       },
       "UBLKPF": {
         "opaque": 2
       },
       "UBLKRED": {
-        "opaque": 462
+        "opaque": 308
       },
       "UBMSK": {
         "opaque": 4
@@ -24324,8 +24243,8 @@
       }
     },
     "evidence": {
-      "none": 20,
-      "reference": 559
+      "none": 15,
+      "reference": 564
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -24537,8 +24456,7 @@
         "reference": 3
       },
       "IADD": {
-        "none": 2,
-        "reference": 1
+        "reference": 3
       },
       "IADD3": {
         "reference": 6
@@ -24581,8 +24499,8 @@
         "reference": 2
       },
       "MOV": {
-        "none": 2,
-        "reference": 5
+        "none": 1,
+        "reference": 6
       },
       "MOV64IUR": {
         "reference": 2
@@ -24669,7 +24587,7 @@
         "reference": 3
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UFMUL": {
         "reference": 2
@@ -25967,8 +25885,7 @@
         "reference": 333
       },
       "FLO": {
-        "none": 20,
-        "reference": 16
+        "reference": 36
       },
       "FMNMX": {
         "none": 215,
@@ -25995,12 +25912,12 @@
         "reference": 714
       },
       "HADD2": {
-        "none": 3378,
-        "reference": 126
+        "none": 3271,
+        "reference": 233
       },
       "HFMA2": {
-        "none": 24500,
-        "reference": 268
+        "none": 24494,
+        "reference": 274
       },
       "HMUL2": {
         "none": 3353,
@@ -26047,24 +25964,21 @@
         "reference": 240
       },
       "LD": {
-        "none": 39606,
-        "reference": 714
+        "none": 39363,
+        "reference": 957
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDG": {
-        "none": 71824,
-        "reference": 752
+        "none": 71589,
+        "reference": 987
       },
       "LDL": {
-        "none": 34,
-        "reference": 92
+        "reference": 126
       },
       "LDS": {
-        "none": 32,
-        "reference": 94
+        "reference": 126
       },
       "LEA": {
         "reference": 132
@@ -26076,8 +25990,7 @@
         "reference": 4
       },
       "MOV": {
-        "none": 2,
-        "reference": 3
+        "reference": 5
       },
       "MUFU": {
         "none": 398,
@@ -26130,26 +26043,24 @@
         "reference": 16
       },
       "ST": {
-        "none": 4425,
-        "reference": 615
+        "none": 4191,
+        "reference": 849
       },
       "STG": {
-        "none": 8427,
-        "reference": 645
+        "none": 8188,
+        "reference": 884
       },
       "STL": {
-        "none": 36,
-        "reference": 90
+        "reference": 126
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UIADD3": {
         "none": 18,
@@ -26197,8 +26108,7 @@
         "reference": 48
       },
       "VABSDIFF4": {
-        "none": 7,
-        "reference": 29
+        "reference": 36
       },
       "VOTE": {
         "reference": 6
@@ -26730,9 +26640,9 @@
       }
     },
     "evidence": {
-      "none": 16,
+      "none": 10,
       "ptxas": 1,
-      "reference": 583
+      "reference": 589
     },
     "opaque_operations": {
       "call_rel__RRR": "depth INC; relative register target",
@@ -26865,8 +26775,7 @@
         "reference": 9
       },
       "FLO": {
-        "none": 1,
-        "reference": 4
+        "reference": 5
       },
       "FMNMX": {
         "reference": 5
@@ -26954,8 +26863,7 @@
         "reference": 2
       },
       "MOV": {
-        "none": 2,
-        "reference": 3
+        "reference": 5
       },
       "MUFU": {
         "none": 4,
@@ -27022,7 +26930,7 @@
         "reference": 2
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UIADD3": {
         "reference": 4
@@ -27067,8 +26975,7 @@
         "reference": 3
       },
       "VABSDIFF4": {
-        "none": 1,
-        "reference": 8
+        "reference": 9
       },
       "VOTE": {
         "reference": 1
@@ -28067,8 +27974,7 @@
         "reference": 333
       },
       "FLO": {
-        "none": 20,
-        "reference": 16
+        "reference": 36
       },
       "FMNMX": {
         "none": 215,
@@ -28095,12 +28001,12 @@
         "reference": 714
       },
       "HADD2": {
-        "none": 5457,
-        "reference": 127
+        "none": 5350,
+        "reference": 234
       },
       "HFMA2": {
-        "none": 74035,
-        "reference": 269
+        "none": 74029,
+        "reference": 275
       },
       "HMUL2": {
         "none": 3353,
@@ -28147,24 +28053,21 @@
         "reference": 240
       },
       "LD": {
-        "none": 39606,
-        "reference": 714
+        "none": 39363,
+        "reference": 957
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDG": {
-        "none": 71824,
-        "reference": 752
+        "none": 71589,
+        "reference": 987
       },
       "LDL": {
-        "none": 34,
-        "reference": 92
+        "reference": 126
       },
       "LDS": {
-        "none": 32,
-        "reference": 94
+        "reference": 126
       },
       "LEA": {
         "reference": 132
@@ -28176,8 +28079,7 @@
         "reference": 4
       },
       "MOV": {
-        "none": 2,
-        "reference": 3
+        "reference": 5
       },
       "MUFU": {
         "none": 398,
@@ -28230,26 +28132,24 @@
         "reference": 16
       },
       "ST": {
-        "none": 4425,
-        "reference": 615
+        "none": 4191,
+        "reference": 849
       },
       "STG": {
-        "none": 8427,
-        "reference": 645
+        "none": 8188,
+        "reference": 884
       },
       "STL": {
-        "none": 36,
-        "reference": 90
+        "reference": 126
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UIADD3": {
         "none": 18,
@@ -28297,8 +28197,7 @@
         "reference": 48
       },
       "VABSDIFF4": {
-        "none": 7,
-        "reference": 29
+        "reference": 36
       },
       "VOTE": {
         "reference": 6
@@ -28830,9 +28729,9 @@
       }
     },
     "evidence": {
-      "none": 16,
+      "none": 10,
       "ptxas": 1,
-      "reference": 583
+      "reference": 589
     },
     "opaque_operations": {
       "call_rel__RRR": "depth INC; relative register target",
@@ -28965,8 +28864,7 @@
         "reference": 9
       },
       "FLO": {
-        "none": 1,
-        "reference": 4
+        "reference": 5
       },
       "FMNMX": {
         "reference": 5
@@ -29054,8 +28952,7 @@
         "reference": 2
       },
       "MOV": {
-        "none": 2,
-        "reference": 3
+        "reference": 5
       },
       "MUFU": {
         "none": 4,
@@ -29122,7 +29019,7 @@
         "reference": 2
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UIADD3": {
         "reference": 4
@@ -29167,8 +29064,7 @@
         "reference": 3
       },
       "VABSDIFF4": {
-        "none": 1,
-        "reference": 8
+        "reference": 9
       },
       "VOTE": {
         "reference": 1
@@ -30167,8 +30063,7 @@
         "reference": 333
       },
       "FLO": {
-        "none": 20,
-        "reference": 16
+        "reference": 36
       },
       "FMNMX": {
         "none": 454,
@@ -30195,16 +30090,16 @@
         "reference": 714
       },
       "HADD2": {
-        "none": 1734,
-        "reference": 102
+        "none": 1681,
+        "reference": 155
       },
       "HFMA2": {
-        "none": 49036,
-        "reference": 500
+        "none": 49024,
+        "reference": 512
       },
       "HFMA2.MMA": {
-        "none": 3767,
-        "reference": 73
+        "none": 3751,
+        "reference": 89
       },
       "HMNMX2": {
         "none": 6936,
@@ -30255,24 +30150,21 @@
         "reference": 520
       },
       "LD": {
-        "none": 41855,
-        "reference": 1069
+        "none": 14458,
+        "reference": 1418
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDG": {
-        "none": 66392,
-        "reference": 1060
+        "none": 23504,
+        "reference": 1444
       },
       "LDL": {
-        "none": 58,
-        "reference": 152
+        "reference": 210
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 132
@@ -30284,8 +30176,7 @@
         "reference": 4
       },
       "MOV": {
-        "none": 2,
-        "reference": 3
+        "reference": 5
       },
       "MUFU": {
         "none": 398,
@@ -30341,26 +30232,24 @@
         "reference": 16
       },
       "ST": {
-        "none": 5427,
-        "reference": 747
+        "none": 1304,
+        "reference": 1048
       },
       "STG": {
-        "none": 8955,
-        "reference": 747
+        "none": 2640,
+        "reference": 1056
       },
       "STL": {
-        "none": 60,
-        "reference": 150
+        "reference": 210
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UIADD3": {
         "none": 18,
@@ -30408,8 +30297,7 @@
         "reference": 48
       },
       "VABSDIFF4": {
-        "none": 7,
-        "reference": 29
+        "reference": 36
       },
       "VOTE": {
         "reference": 6
@@ -30435,10 +30323,10 @@
         "opaque": 21
       },
       "ATOM": {
-        "opaque": 46872
+        "opaque": 17856
       },
       "ATOMG": {
-        "opaque": 44280
+        "opaque": 16812
       },
       "ATOMS": {
         "opaque": 206
@@ -30669,9 +30557,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 30660,
-        "opaque": 24528,
-        "partially native": 12264
+        "native": 11340,
+        "opaque": 9072,
+        "partially native": 4536
       },
       "LDC": {
         "native": 10,
@@ -30679,14 +30567,14 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 48180,
-        "partially native": 19272
+        "native": 17820,
+        "partially native": 7128
       },
       "LDGDEPBAR": {
         "opaque": 1
       },
       "LDGSTS": {
-        "opaque": 16128
+        "opaque": 8064
       },
       "LDL": {
         "native": 150,
@@ -30766,7 +30654,7 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 37422
+        "opaque": 14256
       },
       "REDUX": {
         "primitive": 12
@@ -30809,13 +30697,13 @@
         "opaque": 25
       },
       "ST": {
-        "native": 4410,
-        "opaque": 3528,
-        "partially native": 1764
+        "native": 1680,
+        "opaque": 1344,
+        "partially native": 672
       },
       "STG": {
-        "native": 6930,
-        "partially native": 2772
+        "native": 2640,
+        "partially native": 1056
       },
       "STL": {
         "native": 150,
@@ -30826,16 +30714,16 @@
         "partially native": 18
       },
       "SUATOM": {
-        "opaque": 725760
+        "opaque": 276480
       },
       "SULD": {
-        "opaque": 161568
+        "opaque": 58752
       },
       "SURED": {
-        "opaque": 616896
+        "opaque": 235008
       },
       "SUST": {
-        "opaque": 154224
+        "opaque": 58752
       },
       "TEX": {
         "opaque": 18720
@@ -30954,9 +30842,9 @@
       }
     },
     "evidence": {
-      "none": 16,
+      "none": 10,
       "ptxas": 1,
-      "reference": 628
+      "reference": 634
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -31081,8 +30969,7 @@
         "reference": 9
       },
       "FLO": {
-        "none": 1,
-        "reference": 4
+        "reference": 5
       },
       "FMNMX": {
         "reference": 5
@@ -31176,8 +31063,7 @@
         "reference": 2
       },
       "MOV": {
-        "none": 2,
-        "reference": 3
+        "reference": 5
       },
       "MUFU": {
         "none": 4,
@@ -31247,7 +31133,7 @@
         "reference": 2
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UIADD3": {
         "reference": 4
@@ -31292,8 +31178,7 @@
         "reference": 3
       },
       "VABSDIFF4": {
-        "none": 1,
-        "reference": 8
+        "reference": 9
       },
       "VOTE": {
         "reference": 1
@@ -32308,8 +32193,7 @@
         "reference": 333
       },
       "FLO": {
-        "none": 20,
-        "reference": 16
+        "reference": 36
       },
       "FMNMX": {
         "none": 454,
@@ -32336,16 +32220,16 @@
         "reference": 714
       },
       "HADD2": {
-        "none": 2909,
-        "reference": 103
+        "none": 2856,
+        "reference": 156
       },
       "HFMA2": {
-        "none": 148107,
-        "reference": 501
+        "none": 148095,
+        "reference": 513
       },
       "HFMA2.MMA": {
-        "none": 3767,
-        "reference": 73
+        "none": 3751,
+        "reference": 89
       },
       "HMNMX2": {
         "none": 6936,
@@ -32396,24 +32280,21 @@
         "reference": 520
       },
       "LD": {
-        "none": 41855,
-        "reference": 1069
+        "none": 14458,
+        "reference": 1418
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDG": {
-        "none": 66392,
-        "reference": 1060
+        "none": 23504,
+        "reference": 1444
       },
       "LDL": {
-        "none": 58,
-        "reference": 152
+        "reference": 210
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 132
@@ -32425,8 +32306,7 @@
         "reference": 4
       },
       "MOV": {
-        "none": 2,
-        "reference": 3
+        "reference": 5
       },
       "MUFU": {
         "none": 398,
@@ -32482,26 +32362,24 @@
         "reference": 16
       },
       "ST": {
-        "none": 5427,
-        "reference": 747
+        "none": 1304,
+        "reference": 1048
       },
       "STG": {
-        "none": 8955,
-        "reference": 747
+        "none": 2640,
+        "reference": 1056
       },
       "STL": {
-        "none": 60,
-        "reference": 150
+        "reference": 210
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UIADD3": {
         "none": 18,
@@ -32549,8 +32427,7 @@
         "reference": 48
       },
       "VABSDIFF4": {
-        "none": 7,
-        "reference": 29
+        "reference": 36
       },
       "VOTE": {
         "reference": 6
@@ -32576,10 +32453,10 @@
         "opaque": 21
       },
       "ATOM": {
-        "opaque": 46872
+        "opaque": 17856
       },
       "ATOMG": {
-        "opaque": 44280
+        "opaque": 16812
       },
       "ATOMS": {
         "opaque": 206
@@ -32810,9 +32687,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 30660,
-        "opaque": 24528,
-        "partially native": 12264
+        "native": 11340,
+        "opaque": 9072,
+        "partially native": 4536
       },
       "LDC": {
         "native": 10,
@@ -32820,14 +32697,14 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 48180,
-        "partially native": 19272
+        "native": 17820,
+        "partially native": 7128
       },
       "LDGDEPBAR": {
         "opaque": 1
       },
       "LDGSTS": {
-        "opaque": 16128
+        "opaque": 8064
       },
       "LDL": {
         "native": 150,
@@ -32907,7 +32784,7 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 37422
+        "opaque": 14256
       },
       "REDUX": {
         "primitive": 12
@@ -32950,13 +32827,13 @@
         "opaque": 25
       },
       "ST": {
-        "native": 4410,
-        "opaque": 3528,
-        "partially native": 1764
+        "native": 1680,
+        "opaque": 1344,
+        "partially native": 672
       },
       "STG": {
-        "native": 6930,
-        "partially native": 2772
+        "native": 2640,
+        "partially native": 1056
       },
       "STL": {
         "native": 150,
@@ -32967,16 +32844,16 @@
         "partially native": 18
       },
       "SUATOM": {
-        "opaque": 725760
+        "opaque": 276480
       },
       "SULD": {
-        "opaque": 161568
+        "opaque": 58752
       },
       "SURED": {
-        "opaque": 616896
+        "opaque": 235008
       },
       "SUST": {
-        "opaque": 154224
+        "opaque": 58752
       },
       "TEX": {
         "opaque": 18720
@@ -33095,9 +32972,9 @@
       }
     },
     "evidence": {
-      "none": 16,
+      "none": 10,
       "ptxas": 1,
-      "reference": 628
+      "reference": 634
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -33222,8 +33099,7 @@
         "reference": 9
       },
       "FLO": {
-        "none": 1,
-        "reference": 4
+        "reference": 5
       },
       "FMNMX": {
         "reference": 5
@@ -33317,8 +33193,7 @@
         "reference": 2
       },
       "MOV": {
-        "none": 2,
-        "reference": 3
+        "reference": 5
       },
       "MUFU": {
         "none": 4,
@@ -33388,7 +33263,7 @@
         "reference": 2
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UIADD3": {
         "reference": 4
@@ -33433,8 +33308,7 @@
         "reference": 3
       },
       "VABSDIFF4": {
-        "none": 1,
-        "reference": 8
+        "reference": 9
       },
       "VOTE": {
         "reference": 1
@@ -34451,8 +34325,7 @@
         "reference": 333
       },
       "FLO": {
-        "none": 20,
-        "reference": 16
+        "reference": 36
       },
       "FMNMX": {
         "none": 987,
@@ -34479,16 +34352,16 @@
         "reference": 714
       },
       "HADD2": {
-        "none": 1519,
-        "reference": 245
+        "none": 1556,
+        "reference": 208
       },
       "HFMA2": {
-        "none": 49036,
-        "reference": 500
+        "none": 49024,
+        "reference": 512
       },
       "HFMA2.MMA": {
-        "none": 3767,
-        "reference": 73
+        "none": 3751,
+        "reference": 89
       },
       "HMNMX2": {
         "none": 11722,
@@ -34542,24 +34415,21 @@
         "reference": 520
       },
       "LD": {
-        "none": 50709,
-        "reference": 1035
+        "none": 17456,
+        "reference": 1360
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDG": {
-        "none": 80254,
-        "reference": 1058
+        "none": 28211,
+        "reference": 1357
       },
       "LDL": {
-        "none": 58,
-        "reference": 152
+        "reference": 210
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 132
@@ -34571,8 +34441,7 @@
         "reference": 4
       },
       "MOV": {
-        "none": 2,
-        "reference": 3
+        "reference": 5
       },
       "MUFU": {
         "none": 398,
@@ -34628,20 +34497,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 5427,
-        "reference": 747
+        "none": 1304,
+        "reference": 1048
       },
       "STG": {
-        "none": 8955,
-        "reference": 747
+        "none": 2640,
+        "reference": 1056
       },
       "STL": {
-        "none": 60,
-        "reference": 150
+        "reference": 210
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -34650,7 +34517,7 @@
         "reference": 12
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UIADD3": {
         "none": 18,
@@ -34698,8 +34565,7 @@
         "reference": 48
       },
       "VABSDIFF4": {
-        "none": 7,
-        "reference": 29
+        "reference": 36
       },
       "VOTE": {
         "reference": 6
@@ -34725,10 +34591,10 @@
         "opaque": 21
       },
       "ATOM": {
-        "opaque": 46872
+        "opaque": 17856
       },
       "ATOMG": {
-        "opaque": 44280
+        "opaque": 16812
       },
       "ATOMS": {
         "opaque": 206
@@ -34966,9 +34832,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 36960,
-        "opaque": 29568,
-        "partially native": 14784
+        "native": 13440,
+        "opaque": 10752,
+        "partially native": 5376
       },
       "LDC": {
         "native": 10,
@@ -34976,14 +34842,14 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 58080,
-        "partially native": 23232
+        "native": 21120,
+        "partially native": 8448
       },
       "LDGDEPBAR": {
         "opaque": 1
       },
       "LDGSTS": {
-        "opaque": 16128
+        "opaque": 8064
       },
       "LDL": {
         "native": 150,
@@ -35063,7 +34929,7 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 37422
+        "opaque": 14256
       },
       "REDUX": {
         "primitive": 12
@@ -35106,13 +34972,13 @@
         "opaque": 25
       },
       "ST": {
-        "native": 4410,
-        "opaque": 3528,
-        "partially native": 1764
+        "native": 1680,
+        "opaque": 1344,
+        "partially native": 672
       },
       "STG": {
-        "native": 6930,
-        "partially native": 2772
+        "native": 2640,
+        "partially native": 1056
       },
       "STL": {
         "native": 150,
@@ -35123,19 +34989,19 @@
         "partially native": 18
       },
       "SUATOM": {
-        "opaque": 725760
+        "opaque": 276480
       },
       "SULD": {
-        "opaque": 161568
+        "opaque": 58752
       },
       "SUQUERY": {
         "opaque": 48
       },
       "SURED": {
-        "opaque": 616896
+        "opaque": 235008
       },
       "SUST": {
-        "opaque": 154224
+        "opaque": 58752
       },
       "TEX": {
         "opaque": 18720
@@ -35279,8 +35145,8 @@
       }
     },
     "evidence": {
-      "none": 14,
-      "reference": 660
+      "none": 8,
+      "reference": 666
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -35402,8 +35268,7 @@
         "reference": 9
       },
       "FLO": {
-        "none": 1,
-        "reference": 4
+        "reference": 5
       },
       "FMNMX": {
         "reference": 5
@@ -35500,8 +35365,7 @@
         "reference": 2
       },
       "MOV": {
-        "none": 2,
-        "reference": 3
+        "reference": 5
       },
       "MUFU": {
         "none": 4,
@@ -35574,7 +35438,7 @@
         "reference": 4
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UIADD3": {
         "reference": 4
@@ -35619,8 +35483,7 @@
         "reference": 3
       },
       "VABSDIFF4": {
-        "none": 1,
-        "reference": 8
+        "reference": 9
       },
       "VOTE": {
         "reference": 1
@@ -36676,8 +36539,7 @@
         "reference": 333
       },
       "FLO": {
-        "none": 20,
-        "reference": 16
+        "reference": 36
       },
       "FMNMX": {
         "none": 987,
@@ -36704,16 +36566,16 @@
         "reference": 714
       },
       "HADD2": {
-        "none": 2694,
-        "reference": 246
+        "none": 2731,
+        "reference": 209
       },
       "HFMA2": {
-        "none": 148107,
-        "reference": 501
+        "none": 148095,
+        "reference": 513
       },
       "HFMA2.MMA": {
-        "none": 3767,
-        "reference": 73
+        "none": 3751,
+        "reference": 89
       },
       "HMNMX2": {
         "none": 11722,
@@ -36767,24 +36629,21 @@
         "reference": 520
       },
       "LD": {
-        "none": 50709,
-        "reference": 1035
+        "none": 17456,
+        "reference": 1360
       },
       "LDC": {
-        "none": 2,
-        "reference": 10
+        "reference": 12
       },
       "LDG": {
-        "none": 80254,
-        "reference": 1058
+        "none": 28211,
+        "reference": 1357
       },
       "LDL": {
-        "none": 58,
-        "reference": 152
+        "reference": 210
       },
       "LDS": {
-        "none": 16,
-        "reference": 47
+        "reference": 63
       },
       "LEA": {
         "reference": 132
@@ -36796,8 +36655,7 @@
         "reference": 4
       },
       "MOV": {
-        "none": 2,
-        "reference": 3
+        "reference": 5
       },
       "MUFU": {
         "none": 398,
@@ -36853,20 +36711,18 @@
         "reference": 16
       },
       "ST": {
-        "none": 5427,
-        "reference": 747
+        "none": 1304,
+        "reference": 1048
       },
       "STG": {
-        "none": 8955,
-        "reference": 747
+        "none": 2640,
+        "reference": 1056
       },
       "STL": {
-        "none": 60,
-        "reference": 150
+        "reference": 210
       },
       "STS": {
-        "none": 18,
-        "reference": 45
+        "reference": 63
       },
       "UBREV": {
         "reference": 2
@@ -36875,7 +36731,7 @@
         "reference": 12
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UIADD3": {
         "none": 18,
@@ -36923,8 +36779,7 @@
         "reference": 48
       },
       "VABSDIFF4": {
-        "none": 7,
-        "reference": 29
+        "reference": 36
       },
       "VOTE": {
         "reference": 6
@@ -36950,10 +36805,10 @@
         "opaque": 21
       },
       "ATOM": {
-        "opaque": 46872
+        "opaque": 17856
       },
       "ATOMG": {
-        "opaque": 44280
+        "opaque": 16812
       },
       "ATOMS": {
         "opaque": 206
@@ -37190,9 +37045,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 36960,
-        "opaque": 29568,
-        "partially native": 14784
+        "native": 13440,
+        "opaque": 10752,
+        "partially native": 5376
       },
       "LDC": {
         "native": 10,
@@ -37200,14 +37055,14 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 58080,
-        "partially native": 23232
+        "native": 21120,
+        "partially native": 8448
       },
       "LDGDEPBAR": {
         "opaque": 1
       },
       "LDGSTS": {
-        "opaque": 16128
+        "opaque": 8064
       },
       "LDL": {
         "native": 150,
@@ -37287,7 +37142,7 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 37422
+        "opaque": 14256
       },
       "REDUX": {
         "primitive": 12
@@ -37330,13 +37185,13 @@
         "opaque": 25
       },
       "ST": {
-        "native": 4410,
-        "opaque": 3528,
-        "partially native": 1764
+        "native": 1680,
+        "opaque": 1344,
+        "partially native": 672
       },
       "STG": {
-        "native": 6930,
-        "partially native": 2772
+        "native": 2640,
+        "partially native": 1056
       },
       "STL": {
         "native": 150,
@@ -37347,19 +37202,19 @@
         "partially native": 18
       },
       "SUATOM": {
-        "opaque": 725760
+        "opaque": 276480
       },
       "SULD": {
-        "opaque": 161568
+        "opaque": 58752
       },
       "SUQUERY": {
         "opaque": 48
       },
       "SURED": {
-        "opaque": 616896
+        "opaque": 235008
       },
       "SUST": {
-        "opaque": 154224
+        "opaque": 58752
       },
       "TEX": {
         "opaque": 18720
@@ -37503,8 +37358,8 @@
       }
     },
     "evidence": {
-      "none": 14,
-      "reference": 660
+      "none": 8,
+      "reference": 666
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -37626,8 +37481,7 @@
         "reference": 9
       },
       "FLO": {
-        "none": 1,
-        "reference": 4
+        "reference": 5
       },
       "FMNMX": {
         "reference": 5
@@ -37724,8 +37578,7 @@
         "reference": 2
       },
       "MOV": {
-        "none": 2,
-        "reference": 3
+        "reference": 5
       },
       "MUFU": {
         "none": 4,
@@ -37798,7 +37651,7 @@
         "reference": 4
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UIADD3": {
         "reference": 4
@@ -37843,8 +37696,7 @@
         "reference": 3
       },
       "VABSDIFF4": {
-        "none": 1,
-        "reference": 8
+        "reference": 9
       },
       "VOTE": {
         "reference": 1
@@ -38902,8 +38754,7 @@
         "none": 11187
       },
       "FLO": {
-        "gpu": 16,
-        "none": 20
+        "gpu": 36
       },
       "FMNMX": {
         "gpu": 104,
@@ -38931,16 +38782,16 @@
         "none": 12342
       },
       "HADD2": {
-        "gpu": 246,
-        "none": 1518
+        "gpu": 249,
+        "none": 1515
       },
       "HFMA2": {
-        "gpu": 501,
-        "none": 49035
+        "gpu": 513,
+        "none": 49023
       },
       "HFMA2.MMA": {
-        "gpu": 73,
-        "none": 3767
+        "gpu": 89,
+        "none": 3751
       },
       "HMNMX2": {
         "gpu": 209,
@@ -38998,29 +38849,26 @@
         "none": 917
       },
       "LD": {
-        "gpu": 867,
-        "none": 50707,
-        "reference": 170
+        "gpu": 1137,
+        "none": 17454,
+        "reference": 225
       },
       "LDC": {
-        "gpu": 5,
-        "none": 2,
-        "reference": 5
+        "gpu": 6,
+        "reference": 6
       },
       "LDG": {
-        "gpu": 623,
-        "none": 80251,
-        "reference": 438
+        "gpu": 807,
+        "none": 28208,
+        "reference": 553
       },
       "LDL": {
-        "gpu": 122,
-        "none": 58,
-        "reference": 30
+        "gpu": 168,
+        "reference": 42
       },
       "LDS": {
-        "gpu": 37,
-        "none": 16,
-        "reference": 10
+        "gpu": 49,
+        "reference": 14
       },
       "LEA": {
         "gpu": 132
@@ -39032,8 +38880,7 @@
         "gpu": 4
       },
       "MOV": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 5
       },
       "MUFU": {
         "gpu": 42,
@@ -39091,24 +38938,22 @@
         "gpu": 16
       },
       "ST": {
-        "gpu": 624,
-        "none": 5426,
-        "reference": 124
+        "gpu": 875,
+        "none": 1303,
+        "reference": 174
       },
       "STG": {
-        "gpu": 432,
-        "none": 8954,
-        "reference": 316
+        "gpu": 619,
+        "none": 2639,
+        "reference": 438
       },
       "STL": {
-        "gpu": 121,
-        "none": 59,
-        "reference": 30
+        "gpu": 168,
+        "reference": 42
       },
       "STS": {
-        "gpu": 35,
-        "none": 18,
-        "reference": 10
+        "gpu": 49,
+        "reference": 14
       },
       "UBREV": {
         "gpu": 2
@@ -39117,7 +38962,7 @@
         "gpu": 12
       },
       "UFLO": {
-        "none": 12
+        "gpu": 12
       },
       "UIADD3": {
         "gpu": 32,
@@ -39165,8 +39010,7 @@
         "none": 47
       },
       "VABSDIFF4": {
-        "gpu": 32,
-        "none": 4
+        "gpu": 36
       },
       "VOTE": {
         "gpu": 6
@@ -39192,10 +39036,10 @@
         "opaque": 21
       },
       "ATOM": {
-        "opaque": 46872
+        "opaque": 17856
       },
       "ATOMG": {
-        "opaque": 44280
+        "opaque": 16812
       },
       "ATOMS": {
         "opaque": 206
@@ -39433,9 +39277,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 36960,
-        "opaque": 29568,
-        "partially native": 14784
+        "native": 13440,
+        "opaque": 10752,
+        "partially native": 5376
       },
       "LDC": {
         "native": 10,
@@ -39443,15 +39287,15 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 58080,
-        "opaque": 15840,
-        "partially native": 23232
+        "native": 21120,
+        "opaque": 5760,
+        "partially native": 8448
       },
       "LDGDEPBAR": {
         "opaque": 1
       },
       "LDGSTS": {
-        "opaque": 16128
+        "opaque": 8064
       },
       "LDL": {
         "native": 150,
@@ -39534,7 +39378,7 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 37422
+        "opaque": 14256
       },
       "REDUX": {
         "primitive": 12
@@ -39577,14 +39421,14 @@
         "opaque": 25
       },
       "ST": {
-        "native": 4410,
-        "opaque": 3528,
-        "partially native": 1764
+        "native": 1680,
+        "opaque": 1344,
+        "partially native": 672
       },
       "STG": {
-        "native": 6930,
-        "opaque": 1890,
-        "partially native": 2772
+        "native": 2640,
+        "opaque": 720,
+        "partially native": 1056
       },
       "STL": {
         "native": 150,
@@ -39595,19 +39439,19 @@
         "partially native": 18
       },
       "SUATOM": {
-        "opaque": 725760
+        "opaque": 276480
       },
       "SULD": {
-        "opaque": 161568
+        "opaque": 58752
       },
       "SUQUERY": {
         "opaque": 48
       },
       "SURED": {
-        "opaque": 616896
+        "opaque": 235008
       },
       "SUST": {
-        "opaque": 154224
+        "opaque": 58752
       },
       "TEX": {
         "opaque": 18720
@@ -39751,8 +39595,8 @@
       }
     },
     "evidence": {
-      "gpu": 601,
-      "none": 26,
+      "gpu": 606,
+      "none": 21,
       "reference": 75
     },
     "opaque_operations": {
@@ -39884,8 +39728,7 @@
         "gpu": 9
       },
       "FLO": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 5
       },
       "FMNMX": {
         "gpu": 5
@@ -39987,8 +39830,7 @@
         "gpu": 2
       },
       "MOV": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 5
       },
       "MUFU": {
         "gpu": 5,
@@ -40067,7 +39909,7 @@
         "gpu": 4
       },
       "UFLO": {
-        "none": 2
+        "gpu": 2
       },
       "UIADD3": {
         "gpu": 4
@@ -40112,8 +39954,7 @@
         "gpu": 3
       },
       "VABSDIFF4": {
-        "gpu": 8,
-        "none": 1
+        "gpu": 9
       },
       "VOTE": {
         "gpu": 1
@@ -41180,8 +41021,7 @@
         "none": 11187
       },
       "FLO": {
-        "gpu": 16,
-        "none": 20
+        "gpu": 36
       },
       "FMNMX": {
         "gpu": 104,
@@ -41209,18 +41049,18 @@
         "none": 12342
       },
       "HADD2": {
-        "gpu": 246,
-        "none": 2693,
+        "gpu": 249,
+        "none": 2690,
         "reference": 1
       },
       "HFMA2": {
-        "gpu": 501,
-        "none": 148106,
+        "gpu": 513,
+        "none": 148094,
         "reference": 1
       },
       "HFMA2.MMA": {
-        "gpu": 73,
-        "none": 3767
+        "gpu": 89,
+        "none": 3751
       },
       "HMNMX2": {
         "gpu": 209,
@@ -41278,29 +41118,26 @@
         "none": 917
       },
       "LD": {
-        "gpu": 867,
-        "none": 50707,
-        "reference": 170
+        "gpu": 1137,
+        "none": 17454,
+        "reference": 225
       },
       "LDC": {
-        "gpu": 5,
-        "none": 2,
-        "reference": 5
+        "gpu": 6,
+        "reference": 6
       },
       "LDG": {
-        "gpu": 623,
-        "none": 80251,
-        "reference": 438
+        "gpu": 807,
+        "none": 28208,
+        "reference": 553
       },
       "LDL": {
-        "gpu": 122,
-        "none": 58,
-        "reference": 30
+        "gpu": 168,
+        "reference": 42
       },
       "LDS": {
-        "gpu": 37,
-        "none": 16,
-        "reference": 10
+        "gpu": 49,
+        "reference": 14
       },
       "LEA": {
         "gpu": 132
@@ -41312,8 +41149,7 @@
         "gpu": 4
       },
       "MOV": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 5
       },
       "MUFU": {
         "gpu": 42,
@@ -41371,24 +41207,22 @@
         "gpu": 16
       },
       "ST": {
-        "gpu": 624,
-        "none": 5426,
-        "reference": 124
+        "gpu": 875,
+        "none": 1303,
+        "reference": 174
       },
       "STG": {
-        "gpu": 432,
-        "none": 8954,
-        "reference": 316
+        "gpu": 619,
+        "none": 2639,
+        "reference": 438
       },
       "STL": {
-        "gpu": 121,
-        "none": 59,
-        "reference": 30
+        "gpu": 168,
+        "reference": 42
       },
       "STS": {
-        "gpu": 35,
-        "none": 18,
-        "reference": 10
+        "gpu": 49,
+        "reference": 14
       },
       "UBREV": {
         "gpu": 2
@@ -41397,7 +41231,7 @@
         "gpu": 12
       },
       "UFLO": {
-        "none": 12
+        "gpu": 12
       },
       "UIADD3": {
         "gpu": 32,
@@ -41445,8 +41279,7 @@
         "none": 47
       },
       "VABSDIFF4": {
-        "gpu": 32,
-        "none": 4
+        "gpu": 36
       },
       "VOTE": {
         "gpu": 6
@@ -41472,10 +41305,10 @@
         "opaque": 21
       },
       "ATOM": {
-        "opaque": 46872
+        "opaque": 17856
       },
       "ATOMG": {
-        "opaque": 44280
+        "opaque": 16812
       },
       "ATOMS": {
         "opaque": 206
@@ -41712,9 +41545,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 36960,
-        "opaque": 29568,
-        "partially native": 14784
+        "native": 13440,
+        "opaque": 10752,
+        "partially native": 5376
       },
       "LDC": {
         "native": 10,
@@ -41722,15 +41555,15 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 58080,
-        "opaque": 15840,
-        "partially native": 23232
+        "native": 21120,
+        "opaque": 5760,
+        "partially native": 8448
       },
       "LDGDEPBAR": {
         "opaque": 1
       },
       "LDGSTS": {
-        "opaque": 16128
+        "opaque": 8064
       },
       "LDL": {
         "native": 150,
@@ -41813,7 +41646,7 @@
         "partially native": 1
       },
       "RED": {
-        "opaque": 37422
+        "opaque": 14256
       },
       "REDUX": {
         "primitive": 12
@@ -41856,14 +41689,14 @@
         "opaque": 25
       },
       "ST": {
-        "native": 4410,
-        "opaque": 3528,
-        "partially native": 1764
+        "native": 1680,
+        "opaque": 1344,
+        "partially native": 672
       },
       "STG": {
-        "native": 6930,
-        "opaque": 1890,
-        "partially native": 2772
+        "native": 2640,
+        "opaque": 720,
+        "partially native": 1056
       },
       "STL": {
         "native": 150,
@@ -41874,19 +41707,19 @@
         "partially native": 18
       },
       "SUATOM": {
-        "opaque": 725760
+        "opaque": 276480
       },
       "SULD": {
-        "opaque": 161568
+        "opaque": 58752
       },
       "SUQUERY": {
         "opaque": 48
       },
       "SURED": {
-        "opaque": 616896
+        "opaque": 235008
       },
       "SUST": {
-        "opaque": 154224
+        "opaque": 58752
       },
       "TEX": {
         "opaque": 18720
@@ -42030,8 +41863,8 @@
       }
     },
     "evidence": {
-      "gpu": 601,
-      "none": 26,
+      "gpu": 606,
+      "none": 21,
       "reference": 75
     },
     "opaque_operations": {
@@ -42163,8 +41996,7 @@
         "gpu": 9
       },
       "FLO": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 5
       },
       "FMNMX": {
         "gpu": 5
@@ -42266,8 +42098,7 @@
         "gpu": 2
       },
       "MOV": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 5
       },
       "MUFU": {
         "gpu": 5,
@@ -42346,7 +42177,7 @@
         "gpu": 4
       },
       "UFLO": {
-        "none": 2
+        "gpu": 2
       },
       "UIADD3": {
         "gpu": 4
@@ -42391,8 +42222,7 @@
         "gpu": 3
       },
       "VABSDIFF4": {
-        "gpu": 8,
-        "none": 1
+        "gpu": 9
       },
       "VOTE": {
         "gpu": 1
@@ -43460,8 +43290,8 @@
         "none": 11187
       },
       "FLO": {
-        "gpu": 16,
-        "none": 20
+        "gpu": 6,
+        "reference": 30
       },
       "FMNMX": {
         "gpu": 104,
@@ -43489,18 +43319,19 @@
         "none": 12342
       },
       "HADD2": {
-        "gpu": 246,
-        "none": 1518
+        "gpu": 150,
+        "none": 1515,
+        "reference": 99
       },
       "HFMA2": {
-        "gpu": 269,
-        "none": 49035,
-        "reference": 232
+        "gpu": 252,
+        "none": 49023,
+        "reference": 261
       },
       "HFMA2.MMA": {
         "gpu": 14,
-        "none": 3760,
-        "reference": 66
+        "none": 3738,
+        "reference": 88
       },
       "HMNMX2": {
         "gpu": 219,
@@ -43558,29 +43389,26 @@
         "none": 916
       },
       "LD": {
-        "gpu": 56,
-        "none": 36094,
-        "reference": 810
+        "gpu": 66,
+        "none": 12301,
+        "reference": 1073
       },
       "LDC": {
         "gpu": 6,
-        "none": 1,
-        "reference": 5
+        "reference": 6
       },
       "LDG": {
-        "gpu": 11,
-        "none": 58251,
-        "reference": 874
+        "gpu": 7,
+        "none": 20368,
+        "reference": 1129
       },
       "LDL": {
-        "gpu": 75,
-        "none": 46,
-        "reference": 47
+        "gpu": 73,
+        "reference": 95
       },
       "LDS": {
-        "gpu": 37,
-        "none": 16,
-        "reference": 10
+        "gpu": 35,
+        "reference": 28
       },
       "LEA": {
         "gpu": 132
@@ -43592,8 +43420,8 @@
         "gpu": 4
       },
       "MOV": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 3,
+        "reference": 2
       },
       "MUFU": {
         "gpu": 42,
@@ -43652,24 +43480,22 @@
         "gpu": 16
       },
       "ST": {
-        "gpu": 335,
-        "none": 3786,
-        "reference": 289
+        "gpu": 343,
+        "none": 808,
+        "reference": 529
       },
       "STG": {
-        "gpu": 305,
-        "none": 6431,
-        "reference": 320
+        "gpu": 310,
+        "none": 1810,
+        "reference": 568
       },
       "STL": {
         "gpu": 63,
-        "none": 47,
-        "reference": 58
+        "reference": 105
       },
       "STS": {
         "gpu": 35,
-        "none": 18,
-        "reference": 10
+        "reference": 28
       },
       "UBREV": {
         "gpu": 2
@@ -43678,7 +43504,7 @@
         "gpu": 12
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UIADD3": {
         "gpu": 32,
@@ -43726,8 +43552,8 @@
         "none": 47
       },
       "VABSDIFF4": {
-        "gpu": 32,
-        "none": 4
+        "gpu": 8,
+        "reference": 28
       },
       "VIADD": {
         "gpu": 9
@@ -43769,10 +43595,10 @@
         "opaque": 21
       },
       "ATOM": {
-        "opaque": 56952
+        "opaque": 21696
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 20640
       },
       "ATOMS": {
         "opaque": 229
@@ -44032,9 +43858,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 9600,
+        "opaque": 8064,
+        "partially native": 3840
       },
       "LDC": {
         "native": 10,
@@ -44042,8 +43868,8 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 42240,
-        "partially native": 16896
+        "native": 15360,
+        "partially native": 6144
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -44052,7 +43878,7 @@
         "opaque": 144
       },
       "LDGSTS": {
-        "opaque": 11520
+        "opaque": 5760
       },
       "LDL": {
         "native": 120,
@@ -44139,10 +43965,10 @@
         "partially native": 1
       },
       "REDAS": {
-        "opaque": 60
+        "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 18048
       },
       "REDUX": {
         "primitive": 12
@@ -44185,16 +44011,16 @@
         "opaque": 25
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 1200,
+        "opaque": 1008,
+        "partially native": 480
       },
       "STAS": {
-        "opaque": 12
+        "opaque": 6
       },
       "STG": {
-        "native": 5040,
-        "partially native": 2016
+        "native": 1920,
+        "partially native": 768
       },
       "STL": {
         "native": 120,
@@ -44208,19 +44034,19 @@
         "opaque": 12
       },
       "SUATOM": {
-        "opaque": 725760
+        "opaque": 276480
       },
       "SULD": {
-        "opaque": 161568
+        "opaque": 58752
       },
       "SUQUERY": {
         "opaque": 48
       },
       "SURED": {
-        "opaque": 616896
+        "opaque": 235008
       },
       "SUST": {
-        "opaque": 154224
+        "opaque": 58752
       },
       "SYNCS": {
         "opaque": 47
@@ -44244,13 +44070,13 @@
         "opaque": 10
       },
       "UBLKCP": {
-        "opaque": 209
+        "opaque": 133
       },
       "UBLKPF": {
         "opaque": 2
       },
       "UBLKRED": {
-        "opaque": 462
+        "opaque": 308
       },
       "UBMSK": {
         "opaque": 4
@@ -44420,9 +44246,9 @@
       }
     },
     "evidence": {
-      "gpu": 599,
-      "none": 36,
-      "reference": 102
+      "gpu": 589,
+      "none": 31,
+      "reference": 117
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -44557,8 +44383,8 @@
         "gpu": 9
       },
       "FLO": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 3,
+        "reference": 2
       },
       "FMNMX": {
         "gpu": 5
@@ -44579,7 +44405,8 @@
         "gpu": 5
       },
       "HADD2": {
-        "gpu": 10
+        "gpu": 8,
+        "reference": 2
       },
       "HFMA2": {
         "gpu": 9,
@@ -44661,8 +44488,8 @@
         "gpu": 2
       },
       "MOV": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 3,
+        "reference": 2
       },
       "MUFU": {
         "gpu": 5,
@@ -44741,7 +44568,7 @@
         "gpu": 4
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UIADD3": {
         "gpu": 4
@@ -44786,8 +44613,8 @@
         "gpu": 3
       },
       "VABSDIFF4": {
-        "gpu": 8,
-        "none": 1
+        "gpu": 2,
+        "reference": 7
       },
       "VIADD": {
         "gpu": 5
@@ -45962,8 +45789,8 @@
         "none": 11187
       },
       "FLO": {
-        "gpu": 16,
-        "none": 20
+        "gpu": 6,
+        "reference": 30
       },
       "FMNMX": {
         "gpu": 104,
@@ -45991,19 +45818,19 @@
         "none": 12342
       },
       "HADD2": {
-        "gpu": 246,
-        "none": 2693,
-        "reference": 1
+        "gpu": 150,
+        "none": 2690,
+        "reference": 100
       },
       "HFMA2": {
-        "gpu": 269,
-        "none": 197642,
-        "reference": 233
+        "gpu": 252,
+        "none": 197630,
+        "reference": 262
       },
       "HFMA2.MMA": {
         "gpu": 14,
-        "none": 3760,
-        "reference": 66
+        "none": 3738,
+        "reference": 88
       },
       "HMNMX2": {
         "gpu": 219,
@@ -46061,29 +45888,26 @@
         "none": 916
       },
       "LD": {
-        "gpu": 56,
-        "none": 36094,
-        "reference": 810
+        "gpu": 66,
+        "none": 12301,
+        "reference": 1073
       },
       "LDC": {
         "gpu": 6,
-        "none": 1,
-        "reference": 5
+        "reference": 6
       },
       "LDG": {
-        "gpu": 11,
-        "none": 58251,
-        "reference": 874
+        "gpu": 7,
+        "none": 20368,
+        "reference": 1129
       },
       "LDL": {
-        "gpu": 75,
-        "none": 46,
-        "reference": 47
+        "gpu": 73,
+        "reference": 95
       },
       "LDS": {
-        "gpu": 37,
-        "none": 16,
-        "reference": 10
+        "gpu": 35,
+        "reference": 28
       },
       "LEA": {
         "gpu": 132
@@ -46095,8 +45919,8 @@
         "gpu": 4
       },
       "MOV": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 3,
+        "reference": 2
       },
       "MUFU": {
         "gpu": 42,
@@ -46155,24 +45979,22 @@
         "gpu": 16
       },
       "ST": {
-        "gpu": 335,
-        "none": 3786,
-        "reference": 289
+        "gpu": 343,
+        "none": 808,
+        "reference": 529
       },
       "STG": {
-        "gpu": 305,
-        "none": 6431,
-        "reference": 320
+        "gpu": 310,
+        "none": 1810,
+        "reference": 568
       },
       "STL": {
         "gpu": 63,
-        "none": 47,
-        "reference": 58
+        "reference": 105
       },
       "STS": {
         "gpu": 35,
-        "none": 18,
-        "reference": 10
+        "reference": 28
       },
       "UBREV": {
         "gpu": 2
@@ -46181,7 +46003,7 @@
         "gpu": 12
       },
       "UFLO": {
-        "none": 12
+        "reference": 12
       },
       "UIADD3": {
         "gpu": 32,
@@ -46229,8 +46051,8 @@
         "none": 47
       },
       "VABSDIFF4": {
-        "gpu": 32,
-        "none": 4
+        "gpu": 8,
+        "reference": 28
       },
       "VIADD": {
         "gpu": 9
@@ -46272,10 +46094,10 @@
         "opaque": 21
       },
       "ATOM": {
-        "opaque": 56952
+        "opaque": 21696
       },
       "ATOMG": {
-        "opaque": 54288
+        "opaque": 20640
       },
       "ATOMS": {
         "opaque": 229
@@ -46535,9 +46357,9 @@
         "opaque": 2
       },
       "LD": {
-        "native": 26400,
-        "opaque": 22176,
-        "partially native": 10560
+        "native": 9600,
+        "opaque": 8064,
+        "partially native": 3840
       },
       "LDC": {
         "native": 10,
@@ -46545,8 +46367,8 @@
         "partially native": 2
       },
       "LDG": {
-        "native": 42240,
-        "partially native": 16896
+        "native": 15360,
+        "partially native": 6144
       },
       "LDGDEPBAR": {
         "opaque": 1
@@ -46555,7 +46377,7 @@
         "opaque": 144
       },
       "LDGSTS": {
-        "opaque": 11520
+        "opaque": 5760
       },
       "LDL": {
         "native": 120,
@@ -46642,10 +46464,10 @@
         "partially native": 1
       },
       "REDAS": {
-        "opaque": 60
+        "opaque": 30
       },
       "REDG": {
-        "opaque": 47376
+        "opaque": 18048
       },
       "REDUX": {
         "primitive": 12
@@ -46688,16 +46510,16 @@
         "opaque": 25
       },
       "ST": {
-        "native": 3150,
-        "opaque": 2646,
-        "partially native": 1260
+        "native": 1200,
+        "opaque": 1008,
+        "partially native": 480
       },
       "STAS": {
-        "opaque": 12
+        "opaque": 6
       },
       "STG": {
-        "native": 5040,
-        "partially native": 2016
+        "native": 1920,
+        "partially native": 768
       },
       "STL": {
         "native": 120,
@@ -46711,19 +46533,19 @@
         "opaque": 12
       },
       "SUATOM": {
-        "opaque": 725760
+        "opaque": 276480
       },
       "SULD": {
-        "opaque": 161568
+        "opaque": 58752
       },
       "SUQUERY": {
         "opaque": 48
       },
       "SURED": {
-        "opaque": 616896
+        "opaque": 235008
       },
       "SUST": {
-        "opaque": 154224
+        "opaque": 58752
       },
       "SYNCS": {
         "opaque": 47
@@ -46747,13 +46569,13 @@
         "opaque": 10
       },
       "UBLKCP": {
-        "opaque": 209
+        "opaque": 133
       },
       "UBLKPF": {
         "opaque": 2
       },
       "UBLKRED": {
-        "opaque": 462
+        "opaque": 308
       },
       "UBMSK": {
         "opaque": 4
@@ -46923,9 +46745,9 @@
       }
     },
     "evidence": {
-      "gpu": 599,
-      "none": 36,
-      "reference": 102
+      "gpu": 589,
+      "none": 31,
+      "reference": 117
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -47060,8 +46882,8 @@
         "gpu": 9
       },
       "FLO": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 3,
+        "reference": 2
       },
       "FMNMX": {
         "gpu": 5
@@ -47082,7 +46904,8 @@
         "gpu": 5
       },
       "HADD2": {
-        "gpu": 10
+        "gpu": 8,
+        "reference": 2
       },
       "HFMA2": {
         "gpu": 9,
@@ -47164,8 +46987,8 @@
         "gpu": 2
       },
       "MOV": {
-        "gpu": 4,
-        "none": 1
+        "gpu": 3,
+        "reference": 2
       },
       "MUFU": {
         "gpu": 5,
@@ -47244,7 +47067,7 @@
         "gpu": 4
       },
       "UFLO": {
-        "none": 2
+        "reference": 2
       },
       "UIADD3": {
         "gpu": 4
@@ -47289,8 +47112,8 @@
         "gpu": 3
       },
       "VABSDIFF4": {
-        "gpu": 8,
-        "none": 1
+        "gpu": 2,
+        "reference": 7
       },
       "VIADD": {
         "gpu": 5

@@ -1,0 +1,42 @@
+{
+  "operation": "cases",
+  "arch": "SM89",
+  "architectures": [
+    "SM75",
+    "SM80",
+    "SM86",
+    "SM89",
+    "SM90",
+    "SM100",
+    "SM101",
+    "SM103",
+    "SM107",
+    "SM120"
+  ],
+  "classes": [
+    "ld__sImmOffset",
+    "ldg__sImmOffset",
+    "stg__sImmOffset"
+  ],
+  "sample": 0,
+  "runs": [
+    {
+      "wall_seconds": 0.9478002690011635,
+      "cpu_seconds": 1.0024879999999998,
+      "peak_process_rss_kib": 84248,
+      "counts": {
+        "forms": 467,
+        "cases": 467
+      },
+      "load": [
+        6.35791015625,
+        12.43701171875,
+        14.15966796875
+      ],
+      "workers": 32,
+      "sampled_tree_cpu_seconds": 1.06,
+      "sampled_tree_peak_rss_kib": 84248
+    }
+  ],
+  "plan_dir": "/tmp/issue80-bench-before"
+}

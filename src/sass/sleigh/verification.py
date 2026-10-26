@@ -42,8 +42,9 @@ def forms(row, statuses=None):
 
 
 class Requirements:
-    def __init__(self, row, policy=POLICY):
+    def __init__(self, row, policy=POLICY, statuses=SUPPORTED):
         self.row, self.c = row, row["combinations"]
+        self.statuses = frozenset(statuses)
         self.domains = {n: sorted(ls) for n, ls in sorted(self.c["labels"].items()) if len(ls) > 1}
         self.configured_strength = policy.strength(row)
         self.strength = len(self.domains) if self.configured_strength == "exhaustive" else min(
@@ -56,7 +57,7 @@ class Requirements:
             offset += math.prod(len(self.domains[n]) for n in names)
         self.lookup = {tuple(e[:-1]): e[-1] for e in self.c["table"]}
         self.required = self.project_table(lambda s: s != "opaque")
-        self.plannable = self.project_table(lambda s: s in SUPPORTED)
+        self.plannable = self.project_table(lambda s: s in self.statuses)
         # A complete form's interaction mask is the intersection of per-label
         # masks. Each mask leaves groups not mentioning its modifier unchanged.
         # This costs O(modifiers) integer operations per candidate, rather than
@@ -121,7 +122,7 @@ class Cover:
         names = sorted(requirements.c["labels"])
         self.names, self.heap = names, []
         seen = set()
-        for settings, status in forms(requirements.row, SUPPORTED):
+        for settings, status in forms(requirements.row, requirements.statuses):
             mask = requirements.mask(settings)
             # Equal masks have equal interactions, but their operands may differ;
             # retain alternatives so adapter failures can try another extension.

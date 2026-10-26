@@ -5,7 +5,7 @@ semantics status), tests/evidence.py (the forms the tests ran) and the coverage 
 import itertools, json, math
 from collections import defaultdict
 from functools import cache
-from sass.decode import ir
+from sass.decode import ir, pydecode
 from sass.md import expression, legal
 
 FLAG = ("unset", "set")
@@ -96,6 +96,26 @@ def conditions(b, dom):
             keys = tuple(key for key in dom if key in names)
             out.append((keys, holding(b.g.arch.name, expr, tuple((key, tuple(dom[key].values())) for key in keys))))
             read |= names
+    # Multiple modifiers decoded from one table field are correlated. Encoding
+    # aliases after its first matching row do not create additional decoded forms
+    # (LD's sem/sco/private is one such table).
+    written = {pydecode.key(r) for _, r in b.k.rules if r[0] in ('op', 'attr')}
+    for field, rule in b.k.rules:
+        if rule[0] != 'table' or rule[1] == 'IDENTICAL':
+            continue
+        _, table, args = rule
+        keys = tuple(pydecode.key(a) for a in args if a[0] != 'const' and pydecode.key(a) in dom)
+        if len(keys) > 1 and not any(a[0] != 'const' and pydecode.key(a) in written for a in args):
+            choices = set()
+            for raw, rows in pydecode.table_inverse(b.g.arch, table).items():
+                if not isinstance(raw, int) or not 0 <= raw < 1 << field.width:
+                    continue
+                row = next((row for row in rows if all(a[0] != 'const' or a[1] == v for a, v in zip(args, row))), None)
+                if row is not None:
+                    choices.add(tuple(v for a, v in zip(args, row) if a[0] != 'const' and pydecode.key(a) in dom))
+            out.append((keys, frozenset(choices)))
+            read.update(keys)
+        written.update(pydecode.key(a) for a in args if a[0] != 'const')
     return out, read
 
 

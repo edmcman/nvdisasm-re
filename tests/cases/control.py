@@ -11,7 +11,6 @@ def emulator_cases(c):
     c.add("cs2r_", dict(Rd=8, SRa="SRZ", sz="64"), dict(R8=1, R9=2), dict(R8=0, R9=0))
     c.add('s2ur_', dict(URd=8, SRa='SR_CTAID.X'), {'SR_CTAID.X':77}, dict(UR8=77, __native=True),
           hardware={'adapter':'ctaid'})
-    c.add("r2ur__noOR", dict(URd=8, Ra=2), dict(R2=0x89abcdef), dict(UR8=0x89abcdef, __native=True))
     c.add("r2ur__noOR", dict(URd=8, Ra=2, Pu=0), dict(R2=1), dict(__opaque="sass_opaque_R2UR"))
     # The physical branch adapter currently supports this exact displacement.
     c.add("bra_", dict(sImm=32), {}, dict(__counter=0x1030))

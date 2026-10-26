@@ -34,6 +34,14 @@ PROFILES = {
     'packed_minmax3': dict(words=(0, MASK32, 0x80007fff, 0x7fff8000, 0x12345678, 0xdeadbeef), random=('vimnmx3', 6), offsets=(2, 4), predicate='both'),
     'packed_minmax': dict(words=(0, MASK32, 0x80007fff, 0x7fff8000, 0x12345678, 0xdeadbeef), random=('vimnmx', 8), packed='minmax'),
     'packed_compare': dict(words=(0, MASK32, 0x80007fff, 0x7fff8000, 0x7f80ff01, 0x12345678), random=('viset', 6), packed='compare'),
+    'byte_difference': dict(vectors=(
+        (0, 0x807f01ff, 0x7f80ff01, 0, 0),
+        (MASK32, 0xff010080, 0x01020304, 0, 0),
+        (0x807f01ff, 0x7f80ff01, 0, 0, 0),
+        (0xff010080, 0x01020304, MASK32, 0, 0),
+        (0x7f80ff01, 0, 0x807f01ff, 0, 0),
+        (0x01020304, MASK32, 0xff010080, 0, 0),
+        (0x807f01ff, 0xff010080, 0x13579bdf, 0, 0))),
     'absolute': dict(values=(0, 1, 0xffffffff, 0x7fffffff, 0x80000000, 0x80000001),
                      random=('int_alu', 20), component=1),
     'move32': dict(values=(0, 1, 0xffffffff, 0x7fffffff, 0x80000000, 0x01234567, 0xaaaaaaaa),
@@ -45,6 +53,9 @@ PROFILES = {
     'mask_domain': dict(pairs=tuple(itertools.product(range(34), repeat=2))),
     'bits': dict(values=(0, 1, 0x80000000, MASK32, 0x01234567, 0xaaaaaaaa, 0x55555555, 0x80000001, 0x80ff017f),
                  random=('brev_popc', 20), banks=((2, 16), (3, 24))),
+    'flo_bits': dict(values=(0, 1, 2, 0x80000000, MASK32, 0xfffffffe, 0x01000000, 0x00ffffff,
+                            0x01234567, 0xaaaaaaaa, 0x55555555, 0x80000001, 0x80ff017f),
+                     random=('brev_popc', 20), banks=((2, 16), (3, 24))),
     'sgxt': dict(values=(0, 1, 0x7f, 0x80, 0xff, 0x7fffffff, 0x80000000, MASK32, 0x80ff017f, 0x55555555),
                  widths=(0, 1, 7, 8, 31, 32, 33, 0xff, MASK32)),
     'permutation': dict(data=((0x80ff017f, 0x55aa0081), (0x03020100, 0x07060504)),
@@ -121,7 +132,7 @@ def names(op, cls, form):
     if op == 'I2I': return ['integer_narrowing']
     if op == 'UI2IP': return ['packed_conversion_forms']
     if op == 'UVIMNMX': return ['packed_minmax']
-    if op == 'VIADD': return ['integer_edges','uniform_arithmetic_random']
+    if op in ('VIADD', 'IADD'): return ['integer_edges','uniform_arithmetic_random']
     if op in autocase_wide_fp.OPS: return ['binary32_pair_forms'] if op in autocase_wide_fp.PAIR_OPS else ['float_pack_forms']
     if op in ('HSET2','HSETP2'): return ['half_comparison_forms']
     if op in autocase_packed_fp.OPS: return ['packed_conversion_forms'] if op in autocase_packed_fp.PACK_OPS else ['half_forms']
@@ -135,11 +146,13 @@ def names(op, cls, form):
     elif op == 'VIADDMNMX': out = ['integer_edges', 'packed_add_minmax']
     elif op == 'VIMNMX3': out = ['integer_edges', 'packed_minmax3']
     elif op == 'VIMNMX': out = ['integer_edges', 'packed_minmax']
+    elif op == 'VABSDIFF4': out = ['integer_edges', 'byte_difference']
     elif op == 'VISET': out = ['integer_edges', 'packed_compare']
     elif op == 'IABS': out = ['absolute']
-    elif op in ('MOV', 'UMOV'): out = ['move64' if form.get('size') == '64' else 'move32']
+    elif op in ('MOV', 'UMOV', 'R2UR'): out = ['move64' if form.get('size') == '64' else 'move32']
     elif op == 'BMSK': out = ['mask_edges']
-    elif op in ('BREV', 'POPC', 'FLO', 'UBREV', 'UPOPC'): out = ['bits']
+    elif op in ('FLO', 'UFLO'): out = ['flo_bits']
+    elif op in ('BREV', 'POPC', 'UBREV', 'UPOPC'): out = ['bits']
     elif op in ('SGXT', 'USGXT'): out = ['sgxt']
     elif op in ('PRMT', 'UPRMT'): out = ['permutation']
     elif op in ('SHF', 'USHF'): out = ['shift_edges']
@@ -235,6 +248,9 @@ PROFILES['packed_conversion_forms'] = {
 }
 PROFILES['half_forms'] = {
     'F16': (0,0x80000000,0x3c004000,0xbc00c000,0x00018001,0x7bfffbff,0x7c003c00,0x3c007e01),
+    'widening': (0x00010001,0x80010001,0x03ff0400,0x040003ff,0x35553aaa,0x34003800,
+                 0x00003c00,0x00008000,0x0000bc00,
+                 0x7bff3c00,0x3c007c00,0x7e003c00,0x7c00fc00),
     'BF16': (0,0x80000000,0x3f804000,0xbf80c000,0x00018001,0x7f7fff7f,0x7f803f80,0x3f807fc1),
     'E6M9': (0,0x80000000,0x3e004000,0xbe00c000,0x00018001,0x7dfffdff,0x7e003e00,0x3e007f01),
 }
@@ -395,6 +411,8 @@ PROFILES['mixed_pair_forms'] = {
 }
 PROFILES['constant_load_forms'] = {
     'words': (0,0xffffffffffffffff,0x800180ff,0x89abcdef01234567,0x12345678,0x0000000200000001),
+    'wide_words': (0, (1 << 128)-1, 0x800180ff, 0xfedcba98765432100123456789abcdef,
+                   0x12345678, 0x00000004000000030000000200000001),
     'banks': (2,3), 'offsets': (-16,16),
 }
 PROFILES['special_register_forms'] = {
@@ -413,7 +431,10 @@ PROFILES['address_query_forms'] = {
 }
 
 
-PROFILES['remaining_forms'] = {'words': (0,0x89abcdef,0xffffffff)}
+PROFILES['remaining_forms'] = {
+    'words': (0, 0x89abcdef, 0xffffffff),
+    'wide_words': (0, 0xfedcba98765432100123456789abcdef, (1 << 128) - 1),
+}
 PROFILES['integer_narrowing'] = dict(values=(
     0, 1, -1, 127, 128, -128, -129, 255, 256, 32767, 32768,
     -32768, -32769, 65535, 65536, 0x7fffffff, -0x80000000,

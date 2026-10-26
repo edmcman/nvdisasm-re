@@ -140,12 +140,12 @@ def test_minimal_declared_profile_remains_minimal_at_exhaustive_input_depth():
 
 def test_unresolved_forms_are_reported_without_generating(monkeypatch):
     monkeypatch.setattr(tests.autocases, 'emulator_cases', lambda *a, **kw: {})
-    row = dict(cls='flo__RRR_RRR', opcode='FLO', combinations=dict(
+    row = dict(cls='unadapted', opcode='UNADAPTED', combinations=dict(
         labels={}, decides=[], table=[['partially native']], free=1))
     generated, report = tests.autocases.plan('SM89', [row])
     assert not generated['forms']
     assert report['counts']['unresolved_semantics'] == 1
-    assert any(g['reason'] == 'partial-form planning deferred to #80' for g in report['gaps'])
+    assert any(g['reason'] == 'partial operand adapter unavailable' for g in report['gaps'])
 
 
 def test_simd_plan_uses_its_own_family(monkeypatch):
@@ -272,9 +272,13 @@ def test_packed_generated_cases(arch, cls, form):
 
 
 def test_packed_partial_predicate_outputs_stay_explicit():
-    with pytest.raises(tests.harness.autocases.Unsupported, match='predicate outputs'):
-        tests.harness.autocases.generate('SM100', 'vimnmx__RRR_RRR',
-            {'fmt':'U32', 'relu':'norelu', 'Pp@not':'unset'})
+    cases = tests.harness.autocases.generate('SM100', 'vimnmx__RRR_RRR',
+        {'fmt':'U32', 'relu':'norelu', 'Pp@not':'unset'})
+    assert cases
+    for case in cases:
+        decoded = pydecode.decode('SM100', bytes.fromhex(case.request['word']))
+        assert decoded.env['Pu'] == 7
+        assert decoded.env['Pv'] == 7
 
 
 @pytest.mark.parametrize('profile,seed,count,edges', [

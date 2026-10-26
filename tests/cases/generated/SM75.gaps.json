@@ -3,10 +3,10 @@
     "legal": 3093438,
     "unresolved_semantics": 2450377,
     "requirements": 164284,
-    "manual": 46,
-    "blocked": 38263,
-    "covered_requirements": 126021,
-    "generated": 12556
+    "manual": 0,
+    "blocked": 29207,
+    "covered_requirements": 135077,
+    "generated": 13856
   },
   "gaps": [
     {
@@ -820,21 +820,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "flo__RCR_RCR",
-      "count": 4,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "flo__RCxR_RCxR",
       "count": 8,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "flo__RCxR_RCxR",
-      "count": 8,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "flo__RRR_RRR",
@@ -842,21 +830,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "flo__RRR_RRR",
-      "count": 4,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "flo__RUR_RUR",
       "count": 8,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "flo__RUR_RUR",
-      "count": 4,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "flo__RuIR_RIR",
@@ -965,13 +941,7 @@
     },
     {
       "cls": "hadd2__RC",
-      "count": 242,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
-      "cls": "hadd2__RC",
-      "count": 566,
+      "count": 249,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
@@ -986,13 +956,7 @@
     },
     {
       "cls": "hadd2__RCx",
-      "count": 242,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
-      "cls": "hadd2__RCx",
-      "count": 566,
+      "count": 249,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
@@ -1007,13 +971,7 @@
     },
     {
       "cls": "hadd2__RI",
-      "count": 58,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
-      "cls": "hadd2__RI",
-      "count": 80,
+      "count": 54,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
@@ -1028,13 +986,7 @@
     },
     {
       "cls": "hadd2__RR",
-      "count": 300,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
-      "cls": "hadd2__RR",
-      "count": 566,
+      "count": 128,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
@@ -1049,16 +1001,11 @@
     },
     {
       "cls": "hadd2__RU",
-      "count": 300,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
-      "cls": "hadd2__RU",
-      "count": 566,
+      "count": 307,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
+        "F32 half widening requires an explicit negative zero register": 192,
         "mixed-precision and sign-swizzle lane corpus remains manual": 14,
         "packed source-sign numerical corpus remains manual": 480
       }
@@ -1137,15 +1084,6 @@
       "cls": "hfma2__RRI",
       "count": 2819,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "hfma2__RRI",
-      "count": 360,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed source-sign numerical corpus remains manual": 235
-      }
     },
     {
       "cls": "hfma2__RRR",
@@ -1565,32 +1503,14 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ld__sImmOffset",
-      "count": 398,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "ld__uImmOffset",
       "count": 12672,
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ld__uImmOffset",
-      "count": 398,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "ld_uniform__Ra32",
       "count": 12672,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ld_uniform__Ra32",
-      "count": 398,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "ld_uniform__Ra64",
@@ -1598,21 +1518,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ld_uniform__Ra64",
-      "count": 356,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "ld_uniform__RaRZ",
       "count": 12672,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ld_uniform__RaRZ",
-      "count": 398,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "ld_zd__sImmOffset",
@@ -1645,21 +1553,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ldc__RaNonRZ",
-      "count": 1,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "ldc__RaRZ",
       "count": 19,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldc__RaRZ",
-      "count": 1,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "ldc_ur__URRzI",
@@ -1677,32 +1573,14 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ldg__sImmOffset",
-      "count": 440,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "ldg__uImmOffset",
       "count": 6912,
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ldg__uImmOffset",
-      "count": 440,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "ldg_uniform__Ra32",
       "count": 6912,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldg_uniform__Ra32",
-      "count": 440,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "ldg_uniform__Ra64",
@@ -1710,21 +1588,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ldg_uniform__Ra64",
-      "count": 356,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "ldg_uniform__RaRZ",
       "count": 6912,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldg_uniform__RaRZ",
-      "count": 440,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "ldg_zd__sImmOffset",
@@ -1757,21 +1623,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ldl__sImmOffset",
-      "count": 12,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "ldl__uImmOffset",
       "count": 12,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldl__uImmOffset",
-      "count": 12,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "ldl_uniform_",
@@ -1779,21 +1633,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ldl_uniform_",
-      "count": 12,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "lds__sImmOffset",
       "count": 16,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "lds__sImmOffset",
-      "count": 16,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "lds__uImmOffset",
@@ -1801,21 +1643,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "lds__uImmOffset",
-      "count": 4,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "lds_uniform_",
       "count": 16,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "lds_uniform_",
-      "count": 16,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "lds_zd__sImmOffset",
@@ -1873,21 +1703,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "mov__RC",
-      "count": 1,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "mov__RCx",
       "count": 1,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "mov__RCx",
-      "count": 1,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "mov__RI",
@@ -1895,32 +1713,14 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "mov__RI",
-      "count": 1,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "mov__RR",
-      "count": 1,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "mov__RR",
-      "count": 1,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
-      "cls": "mov__RU",
       "count": 1,
       "reason": "unresolved semantics"
     },
     {
       "cls": "mov__RU",
       "count": 1,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
+      "reason": "unresolved semantics"
     },
     {
       "cls": "movm_",
@@ -2263,21 +2063,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "st__sImmOffset",
-      "count": 190,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "st__uImmOffset",
       "count": 1584,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "st__uImmOffset",
-      "count": 190,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "st_uniform__Ra32",
@@ -2285,21 +2073,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "st_uniform__Ra32",
-      "count": 190,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "st_uniform__Ra64",
       "count": 432,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "st_uniform__Ra64",
-      "count": 160,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "st_uniform__RaRZ",
@@ -2307,21 +2083,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "st_uniform__RaRZ",
-      "count": 190,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "stg__sImmOffset",
       "count": 864,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stg__sImmOffset",
-      "count": 220,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "stg__uImmOffset",
@@ -2329,21 +2093,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "stg__uImmOffset",
-      "count": 220,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "stg_uniform__Ra32",
       "count": 864,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stg_uniform__Ra32",
-      "count": 220,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "stg_uniform__Ra64",
@@ -2351,32 +2103,14 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "stg_uniform__Ra64",
-      "count": 160,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "stg_uniform__RaRZ",
       "count": 864,
       "reason": "unresolved semantics"
     },
     {
-      "cls": "stg_uniform__RaRZ",
-      "count": 220,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "stl__sImmOffset",
       "count": 12,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stl__sImmOffset",
-      "count": 12,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "stl__uImmOffset",
@@ -2384,21 +2118,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "stl__uImmOffset",
-      "count": 12,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "stl_uniform_",
       "count": 12,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "stl_uniform_",
-      "count": 12,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "sts__sImmOffset",
@@ -2406,32 +2128,14 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "sts__sImmOffset",
-      "count": 8,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "sts__uImmOffset",
       "count": 2,
       "reason": "unresolved semantics"
     },
     {
-      "cls": "sts__uImmOffset",
-      "count": 2,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "sts_uniform_",
       "count": 8,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "sts_uniform_",
-      "count": 8,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "suatom_cas_imm_",
@@ -2824,21 +2528,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "uflo__URURUR_URURUR",
-      "count": 8,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "uflo__URuIUR_URuIR",
       "count": 4,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "uflo__URuIUR_URuIR",
-      "count": 4,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "uiadd3_64__URURUR_URURUR",
@@ -2864,12 +2556,6 @@
       "cls": "uldc_const__RCR",
       "count": 1,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "uldc_const__RCR",
-      "count": 1,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "uldc_const__RCxR",
@@ -2982,12 +2668,6 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "vabsdiff4__RCxR_RCxR",
-      "count": 3,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
-    },
-    {
       "cls": "vabsdiff4__RRC_RRC",
       "count": 4,
       "reason": "unresolved semantics"
@@ -2996,12 +2676,6 @@
       "cls": "vabsdiff4__RRCx_RRCx",
       "count": 4,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "vabsdiff4__RRCx_RRCx",
-      "count": 4,
-      "reason": "partial-form planning deferred to #80",
-      "unit": "interactions"
     },
     {
       "cls": "vabsdiff4__RRR_RRR",

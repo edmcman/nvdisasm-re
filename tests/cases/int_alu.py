@@ -1,27 +1,11 @@
 """Scalar integer and bit operations: IMAD/IADD3/LOP3/LEA/SHF/ISETP/PRMT, uniform aliases,
 BREV/POPC/FLO/SGXT and MOV."""
 import random
-from tests.harness.case import put, source
 from tests.refs.bits import MASK32, sext
 from tests.refs.integer import brev, flo, prmt
 from tests.harness.manual import retained
 
-@retained("FLO has partially modelled predicate outputs: these explicit PT-only cases verify its supported subset.")
-def flo_subset(c):
-    # FLO returns the highest set-bit index, .SH the normalization shift; zero gives -1; .S32
-    # searches the complement of negative values.
-    for k in c.of("FLO"):
-        src = source(k, "Rb", "URb", "Sb")
-        if src is None: continue
-        for fmt in ("S32", "U32"):
-            for mode in ("nosh", "SH"):
-                for value in (0, 1, 2, 0x80000000, 0xffffffff, 0xfffffffe, 0x01000000, 0x00ffffff):
-                    fields, regs, memory = {"Rd": 2, "Pu": "PT", "fmt": fmt, "sh": mode}, {}, []
-                    put(k, src, value, fields, regs, memory, 4, bank=(2, 16), imm=(k.operand_types[src].type,))
-                    c.add(k.name, fields, regs, {"R2": flo(value, mode == "SH", fmt == "S32"), "__native": True}, memory=memory)
-
-
-@retained("Uniform arithmetic/move p-code cost contracts, zero/special registers, and opaque IADD anchors.")
+@retained("Uniform arithmetic/move p-code cost contracts and zero/special registers.")
 def arithmetic(c):
     # Mixed register banks and uniform aliases retain original md operand names.
     rng = random.Random("uniform")
@@ -33,7 +17,6 @@ def arithmetic(c):
         c.add("uimad__URURUR_URURUR", dict(common, fmt="U32"), regs, dict(UR2=(a * b + d) & MASK32, __max_ops=2))
         c.add("umov__UR", dict(URd=2, URb=4), regs, dict(UR2=b, __max_ops=1))
         c.add("umov__UI", dict(URd=2, Sb=b), {}, dict(UR2=b, __max_ops=1))
-        c.add("iadd_noimm__RRR_RRR", dict(Rd=2, Ra=2, Rb=4), regs, dict(R2=(a + b) & MASK32))
     # URZ is 63 in SM75-SM90 but 255 in SM100+, where 63 is the ordinary UR63
     # (ptxas emits UIMAD.WIDE.U32 ..., URZ with the eight-bit encoding).
     a, b, d = 0x9abcdef1, 0x87654321, 0x13579bdf
@@ -79,8 +62,6 @@ def fixed(c):
           dict(R2=2, UR4=3), dict(P0=1, P1=0, __native=True))
     c.add("mov__RI", dict(Rd=3, Sb=0xdeadbeef, PixMaskU04=15), {}, dict(R3=0xdeadbeef, __max_ops=1))
     c.add("mov__RR", dict(Rd=3, Rb=2, PixMaskU04=15), dict(R2=0xdeadbeef), dict(R3=0xdeadbeef, __max_ops=1))
-    # MOV pixel masks are only partly modelled; retain its explicit full-mask alias subset.
-    c.add("mov__RR", dict(Rd=2, Rb=2, PixMaskU04=15), dict(R2=0xdeadbeef), dict(R2=0xdeadbeef))
     # Compact p-code: ordinary forms lower to a fixed number of operations.
     for cls, fields, registers, result, limit in [
             ("iadd3_noimm__RRR_RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6), dict(R2=1, R4=2, R6=3), 6, 2),
@@ -145,7 +126,7 @@ def opaque_imnmx(c):
 
 
 def emulator_cases(c):
-    for part in (flo_subset, arithmetic, permute_register_regressions, fixed, imad_constant, logic_constants, opaque_imnmx): part(c)
+    for part in (arithmetic, permute_register_regressions, fixed, imad_constant, logic_constants, opaque_imnmx): part(c)
 
 
 def gpu_fixtures(arch="SM89"):
