@@ -48,10 +48,10 @@ def defined(e):
     return out
 
 
-def operators(arch, text):
+def operators(arch, text, fp="exact"):
     """{name: [arguments]} of the defined operators in a lifted instruction's writes."""
     found = {}
-    for _, v in lifter.lift(arch, assemble_instruction(arch, text)).writes:
+    for _, v in lifter.lift(arch, assemble_instruction(arch, text), fp=fp).writes:
         for n in defined(v): found.setdefault(n.op, []).append(n.args)
     return found
 
@@ -107,6 +107,66 @@ def test_ftz_inside_fmnmx():
     assert set(found) == {"min.f32", "ftz"}
     (args,) = found["min.f32"]
     assert [a.op for a in args] == ["ftz", "ftz"]
+
+
+COMPARISONS = "LT EQ LE GT NE GE NUM NAN LTU EQU LEU GTU NEU GEU".split()
+
+
+@pytest.mark.parametrize("fp", ["exact", "readable"])
+@pytest.mark.parametrize("arch, text, width, arguments, endpoints", [
+    ("SM89", "FSETP.{cmp}.AND P0, P1, R2, R3, P2", 32, (R(2), R(3)), ("F", "T")),
+    ("SM89", "FSET.BF.{cmp}.AND R0, R2, R3, P2", 32, (R(2), R(3)), ("F", "T")),
+    ("SM89", "DSETP.{cmp}.AND P0, P1, R2, R4, P2", 64, (reg("R", 2, 2), reg("R", 4, 2)), ("MIN", "MAX")),
+    ("SM120", "UFSETP.{cmp}.AND UP0, UP1, UR2, UR3, UP2", 32, (reg("UR", 2, 1), reg("UR", 3, 1)), ("F", "T")),
+])
+def test_comparison_names(fp, arch, text, width, arguments, endpoints):
+    for label in [*COMPARISONS, *endpoints]:
+        name = f"setp.{label.lower()}.f{width}"
+        found = operators(arch, text.format(cmp=label), fp)
+        assert set(found) == {name}, (label, found)
+        assert all(len(args) == 2 and all(g is w for g, w in zip(args, arguments)) for args in found[name])
+
+
+@pytest.mark.parametrize("width", [32, 64])
+@pytest.mark.parametrize("label", [*COMPARISONS, "F", "T", "MIN", "MAX"])
+def test_comparison_reference(width, label):
+    from tests.refs import float
+    x, y = param("x", width), param("y", width)
+    expr = floating.float_test(label, x, y)
+    assert expr.op == f"setp.{label.lower()}.f{width}" and expr.w == 1
+    assert expr.args == (x, y)
+    plain = bitvec.lowered(expr)
+    assert not defined(plain)
+    assert plain is bitvec.lowered(floating.float_test.body(label, x, y))
+    values = SPECIAL32 if width == 32 else [
+        0, 0x8000000000000000, 1, 0x8000000000000001, 0x000fffffffffffff,
+        0x0010000000000000, 0x3ff0000000000000, 0xbff0000000000000, 0x7fefffffffffffff,
+        0x7ff0000000000000, 0xfff0000000000000, 0x7ff8000000000000, 0xfff8000000000001,
+        0x7ff0000000000001,
+    ]
+    for a in values:
+        for b in values:
+            want = float.dsetp_compare(a, b, label, width)
+            env = {"x": a, "y": b}
+            assert evaluate(expr, None, env) == evaluate(plain, None, env) == want, (a, b)
+
+
+@pytest.mark.parametrize("fp", ["exact", "readable"])
+def test_comparison_modifiers_and_show(fp):
+    found = operators("SM89", "FSETP.GTU.FTZ.AND P0, PT, -R2, |R3|, PT", fp)
+    (args,) = found["setp.gtu.f32"]
+    if fp == "exact":
+        assert [a.op for a in args] == ["ftz", "ftz"]
+        args = tuple(a.args[0] for a in args)
+    assert [a.op for a in args] == ["neg.f32", "abs.f32"]
+    assert set(found) == {"setp.gtu.f32", "neg.f32", "abs.f32"} | ({"ftz"} if fp == "exact" else set())
+    sem = lifter.lift("SM89", assemble_instruction("SM89", "FSETP.GTU.AND P0, PT, R2, R3, PT"), fp=fp)
+    assert bitvec.show([(str(l), v) for l, v in sem.writes]) == "P0 := setp.gtu.f32(R2, R3)"
+    assert sem.writes[0][1].w == 1
+    expanded = bitvec.lowered(sem.writes[0][1])
+    assert expanded is (bitvec.fnan(R(2)) | bitvec.fnan(R(3))) | bitvec.flt(R(3), R(2))
+    assert floating.float_test("GTU", const(0x7fc00000, 32), const(0, 32)).op == "setp.gtu.f32"
+    assert bitvec.lowered(floating.float_test("GTU", const(0x7fc00000, 32), const(0, 32))) is const(1, 1)
 
 
 def same(operator, function, *xs, values=VALUES32):
