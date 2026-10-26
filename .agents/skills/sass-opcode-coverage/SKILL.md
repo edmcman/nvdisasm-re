@@ -154,10 +154,11 @@ Update the documentation that the change affects:
 - `docs/hardware-facts.md`: anything the GPU established, dated.
 
 Compare with the starting commit using the same renderer as the PR coverage comment:
-`python3 .github/scripts/coverage_comment.py local REV`. It prints per-architecture
-and per-opcode status and evidence changes against the working tree's
-`coverage.json`, and calls out regressions such as a family's dropped GPU evidence.
-Every regression it flags needs an explanation or a fix.
+`python3 .github/scripts/coverage_comment.py local REV`. It compares the working
+tree's `coverage.json` and `coverage.html` with REV's, names the classes and modifier
+forms whose semantics or evidence changed, and lists what needs attention (weakened
+semantics, lost evidence, semantics no evidence has run) with the next check for each.
+Every 🔴 item it lists needs an explanation or a fix.
 
 Report:
 - the opcode and why it was chosen;
