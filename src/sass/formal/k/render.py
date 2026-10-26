@@ -1,6 +1,8 @@
-"""Typeset K rule text without interpreting or composing its rewrites."""
+"""Typeset source K rules using a bounded mathematical syntax presentation."""
 from dataclasses import dataclass
 import re
+
+from sass.formal.k import notation
 
 
 STRINGS = re.compile(r'"(?:\\.|[^"\\])*"')
@@ -34,57 +36,72 @@ def textext(text):
     return "".join(parts)
 
 
-def wrapped_rows(text, width=100):
-    """Wrap only at whitespace outside string literals."""
-    rows = []
-    for line in text.splitlines():
-        line = line.strip()
-        while len(line) > width:
-            strings = [match.span() for match in STRINGS.finditer(line)]
-            spaces = [match for match in re.finditer(r"\s+", line)
-                      if 0 < match.start() <= width
-                      and not any(start <= match.start() < end for start, end in strings)]
-            if not spaces:
-                break
-            space = spaces[-1]
-            rows.append(line[:space.start()])
-            line = line[space.end():]
-        if line:
-            rows.append(line)
-    return rows
-
-
-def formula(text, *, width=100, align="c"):
-    """Use natural math widths, with an optional left-aligned continuation."""
-    rows = wrapped_rows(text, width)
-    if not rows:
+def formula(text, *, width=72, align="c", prefix="", suffix=""):
+    """Render parsed terms, keeping continuations within their formula column."""
+    if not text:
         return r"\vphantom{\text{\footnotesize K}}"
+    term = notation.parse(text) if isinstance(text, str) else text
+    rows = notation.rows(term, width)
+    rows[0] = prefix + rows[0]
+    rows[-1] += suffix
     return (r"\begin{array}[t]{@{}" + align + r"@{}}"
-            + r"\\".join(r"\text{\ttfamily\footnotesize " + textext(row) + "}" for row in rows)
+            + r"\\".join(rows)
             + r"\end{array}")
 
 
+def cell(text):
+    """Separate a cell's name and framing ellipses from its term or local rewrite."""
+    visible = outside_strings(text)
+    match = re.fullmatch(r"<([A-Za-z]\w*)>(.*)</\1>", visible, re.DOTALL)
+    if not match:
+        raise ValueError(f"unsupported cell syntax: {text!r}")
+    body = text[match.start(2):match.end(2)].strip()
+    before = body.startswith("...")
+    after = body.endswith("...")
+    if before:
+        body = body[3:].lstrip()
+    if after:
+        body = body[:-3].rstrip()
+    opening = r"\langle " + (r"\cdots\, " if before else "")
+    closing = (r"\,\cdots " if after else "") + r"\rangle_{\mathrm{" + match[1] + "}}"
+    return body, opening, closing
+
+
 def rewrites(text):
-    """Give each local rewrite separate LHS, arrow, and left-aligned RHS columns."""
+    """Keep local rewrites inside mathematical cells; never compose transitions."""
     cells = list(re.finditer(r"<[A-Za-z]\w*>", outside_strings(text)))
     starts = [match.start() for match in cells] if cells and cells[0].start() == 0 else [0]
     blocks = [text[start:end].strip()
               for start, end in zip(starts, starts[1:] + [len(text)])]
     rows = []
     for block in blocks:
+        opening, closing = "", ""
+        if block.startswith("<"):
+            block, opening, closing = cell(block)
         arrows = list(re.finditer("=>", outside_strings(block)))
         if not arrows:
-            rows.append(r"\multicolumn{3}{c}{" + formula(block) + "}")
+            rows.append(r"\multicolumn{3}{c}{"
+                        + formula(block, prefix=opening, suffix=closing) + "}")
             continue
         if len(arrows) != 1:
             raise ValueError("expected one local rewrite per cell or function rule")
         position = arrows[0].start()
         left, right = block[:position].strip(), block[position + 2:].strip()
-        left_rows = wrapped_rows(left, 54)
-        right_width = max(20, 100 - max(map(len, left_rows)) - 4)
-        rows.append(formula(left, width=54, align="l")
-                    + r"&\Longrightarrow&"
-                    + formula(right, width=right_width, align="l"))
+        left, right = notation.parse(left), notation.parse(right)
+        left_width = min(32, left.width())
+        right_width = max(25, 72 - left_width - 8)
+        local = (formula(left, width=32, align="l")
+                 + r"&\Longrightarrow&"
+                 + formula(right, width=right_width, align="l"))
+        if opening:
+            # Each cell has its own natural-width columns. Enclose the whole
+            # rewrite so a multi-line term cannot outlive its closing bracket.
+            local = (opening.replace(r"\langle", r"\left\langle")
+                     + r"\begin{array}{@{}r@{\;}c@{\;}l@{}}" + local + r"\end{array}"
+                     + closing.replace(r"\rangle", r"\right\rangle"))
+            rows.append(r"\multicolumn{3}{c}{" + local + "}")
+        else:
+            rows.append(local)
     return r"\begin{array}{@{}r@{\;}c@{\;}l@{}}" + r"\\[2pt]".join(rows) + r"\end{array}"
 
 
@@ -110,12 +127,12 @@ class Rule:
     def latex(self):
         conclusion, premise, attributes = self.parts()
         label = self.source.replace("_", r"\_")
-        lines = [r"\[\begin{gathered}",
+        lines = [r"{\small\[\begin{gathered}",
                  r"\frac{" + formula(premise) + "}{" + rewrites(conclusion) + "}"]
         metadata = rf"\text{{\scriptsize\color{{gray}}{label}:{self.line}}}"
         if attributes:
             metadata += r"\qquad\text{\ttfamily\scriptsize " + textext(attributes) + "}"
-        lines += [r"\\[2pt]" + metadata, r"\end{gathered}\]"]
+        lines += [r"\\[2pt]" + metadata, r"\end{gathered}\]}"]
         return "\n".join(lines)
 
 
@@ -152,7 +169,11 @@ def publication(source):
             if "=>" not in outside_strings(rule.text):
                 raise ValueError(f"expected K rewrite at {rule.source}:{rule.line}")
             rules.append(rule)
-            pieces.append("```{=latex}\n" + rule.latex() + "\n```")
+            try:
+                latex = rule.latex()
+            except ValueError as error:
+                raise ValueError(f"{rule.source}:{rule.line}: {error}") from error
+            pieces.append("```{=latex}\n" + latex + "\n```")
         flush()
         return "\n\n".join(pieces)
 

@@ -41,7 +41,7 @@ def build(directory, *, pdf=True, prove_example=False):
         else:
             sections.append(content.decode())
     worked = example.make().publication(directory / "example", prove=prove_example)
-    for name in ("example.py", "execution.py", "worked-example.md", "render.py", "document.tex"):
+    for name in ("example.py", "execution.py", "worked-example.md", "render.py", "notation.py", "document.tex"):
         digest.update(name.encode())
         digest.update(k.DEFINITION.with_name(name).read_bytes())
     digest.update(worked.encode())

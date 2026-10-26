@@ -1256,9 +1256,12 @@ The default output directory is `sass.paths.CACHE / "formal-doc"`:
 handwritten rule, typeset equations, a table of contents, and a source SHA-256
 fingerprint. The publisher retains formatted K declarations and generates
 naturally sized operational inference rules directly from every K `rule`:
-literal `requires` conditions appear above the bar, with the rewrite below it.
-Terms, cell contexts, and rule attributes are preserved; only the layout and
-rewrite-arrow glyph change. Every rule cites its source location, and
+`requires` conditions appear above the bar, with the rewrite below it.
+A bounded syntax parser renders arithmetic, Boolean operators, powers, lists,
+maps, and configuration cells using mathematical notation. It preserves K's
+grouping, quoted literals, casts, cell contexts, and rule attributes, and
+rejects unknown syntax instead of guessing. The document defines its notation,
+including truncating integer division and Euclidean remainder. Every rule cites its source location, and
 `rules.json` preserves its exact original text. This is a presentation of the
 K source rather than a second mathematical definition. Pandoc and LaTeX render
 the result. CI publishes the Markdown, LaTeX, PDF, and source-rule manifest as
@@ -1289,6 +1292,20 @@ records missing formatting-prelude support; the older PL tutorial still
 describes the removed interface (checked 2026-10-26). This publication follows
 the current [literate Markdown workflow](https://kframework.org/k-distribution/k-tutorial/1_basic/08_literate_programming/)
 with ordinary document tools.
+
+Publication finding (2026-10-26): the current K documentation uses literate
+Markdown and `k-web-theme`; its
+[book builder](https://github.com/runtimeverification/k-web-theme/blob/master/index.js)
+calls Pandoc with XeLaTeX.
+[KEVM's Jello Paper](https://jellopaper.org/evm/) displays explanatory prose and literal K code. These
+workflows publish the executable source but do not restore the historical
+mathematical rule formatter. Our `notation.py` supplies the missing presentation
+layer for this definition's syntax. Precedence is taken from
+[`builtin/domains.md` in K 7.1.337](https://github.com/runtimeverification/k/blob/v7.1.337/k-distribution/include/kframework/builtin/domains.md);
+tests reconstruct the original tokens of
+every parsed rule expression and check the nonstandard Boolean and power
+groupings. The notation changes presentation, not executable K or verification
+evidence.
 
 ### Runtime contracts and verification limits
 
