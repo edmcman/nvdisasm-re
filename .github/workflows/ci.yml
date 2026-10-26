@@ -147,7 +147,7 @@ jobs:
       - name: Publish the executable formal definition
         run: |
           sudo apt-get install -y --no-install-recommends pandoc texlive-latex-extra texlive-fonts-recommended
-          nice uv run python -m sass.formal.k.document
+          nice uv run python -m sass.formal.k.document --prove-example
       - uses: actions/upload-artifact@v7
         with:
           name: formal-semantics
@@ -156,6 +156,8 @@ jobs:
             .cache/formal-doc/sass-ir-semantics.tex
             .cache/formal-doc/sass-ir-semantics.pdf
             .cache/formal-doc/sass-ir-semantics.log
+            .cache/formal-doc/rules.json
+            .cache/formal-doc/example/
   ghidra-tests:
     needs: architectures
     runs-on: ubuntu-latest

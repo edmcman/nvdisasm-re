@@ -207,6 +207,31 @@ def test_generated_module(tmp_path):
     assert '\\"halted\\"' in result.stdout
 
 
+def test_document_example(tmp_path):
+    from sass.formal.k import example, execution
+    worked = example.make()
+    for predicate, value, steps in ((0, 2, 4), (1, 0, 3)):
+        state, trace = worked.trace(predicate)
+        assert state.pc == 0 and state.regs == {("R", 0): value, ("P", 0): predicate}
+        assert len(trace) == steps
+        result = tools.execute(k.input_term(worked.exported, worked.initial(predicate), limit=example.LIMIT))
+        assert result["status"] == "halted" and result["pc"] == 0
+        assert result["step"] == steps and result["regs"] == state.regs
+        assert result["memory"] == {} and result["events"] == []
+    proof = execution.publication(worked, tmp_path, example.LIMIT, prove=True)
+    assert proof["status"] == "proved" and proof["claim_count"] == 11
+    # A wrong intermediate result must fail even when the other claims are valid.
+    source = execution.specification(worked, example.LIMIT)
+    target = '=> (location("R", 0) |-> 0) (location("P", 0) |-> 0) </regs>'
+    assert target in source
+    wrong = source.replace(target, target.replace("|-> 0)", "|-> 1)", 1), 1)
+    path = tmp_path / "wrong.k"
+    path.write_text(wrong)
+    result = tools.prove(path, "SASS-EXECUTION-PROOF", check=False)
+    assert result.returncode == 1 and "#Top" not in result.stdout
+    assert "[Error] Prover:" in result.stderr
+
+
 def test_symbolic_claims():
     root = Path(__file__).resolve().parents[1] / "examples/formal"
     result = tools.prove(root / "claims.k", "SASS-CLAIMS", timeout=180)

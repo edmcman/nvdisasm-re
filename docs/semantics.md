@@ -1244,6 +1244,8 @@ Build a complete reference document from those same sources:
 # Debian/Ubuntu document dependencies; no K installation is needed for rendering.
 sudo apt-get install --no-install-recommends pandoc texlive-latex-extra texlive-fonts-recommended
 nice uv run python -m sass.formal.k.document
+# Check the lifted example's reachability claims during publication (requires K):
+nice uv run python -m sass.formal.k.document --prove-example
 # Or generate Markdown and LaTeX without a TeX installation:
 nice uv run python -m sass.formal.k.document --tex-only
 ```
@@ -1252,9 +1254,32 @@ The default output directory is `sass.paths.CACHE / "formal-doc"`:
 `sass-ir-semantics.md`, `.tex`, and `.pdf`, with a LaTeX `.log`.
 `--output-directory PATH` chooses a destination. The publication includes every
 handwritten rule, typeset equations, a table of contents, and a source SHA-256
-fingerprint. Pandoc and LaTeX render the executable blocks as formatted K
-listings; the explanatory equations do not replace them. CI publishes the
-Markdown, LaTeX, and PDF as the `formal-semantics` artifact.
+fingerprint. The publisher retains formatted K declarations and generates
+naturally sized operational inference rules directly from every K `rule`:
+literal `requires` conditions appear above the bar, with the rewrite below it.
+Terms, cell contexts, and rule attributes are preserved; only the layout and
+rewrite-arrow glyph change. Every rule cites its source location, and
+`rules.json` preserves its exact original text. This is a presentation of the
+K source rather than a second mathematical definition. Pandoc and LaTeX render
+the result. CI publishes the Markdown, LaTeX, PDF, and source-rule manifest as
+the `formal-semantics` artifact.
+
+The worked program is assembled, lifted, and exported by the document builder.
+It increments an aliased R0, branches on P0, optionally adds two, and exits.
+The document includes the actual lifted IR and K module, inputs, and reference
+execution proofs for both branch paths. Eleven generated reachability claims
+cover each instruction, halting, and the two complete executions.
+`--prove-example` checks them with K and stops publication on failure.
+The PDF displays claim-labeled boundary transitions and their composition;
+`proof.json` records the proof status and source fingerprint. Without the option,
+the publication explicitly marks the claims as unchecked. A state graph uses
+the generated boundary values. The general operational rules cover all three
+modules. The K source remains the executable definition. A K regression checks
+the final registers and instruction counts, proves the execution claims, and
+rejects a corrupted intermediate result. Reproducible assembly, bytes, manifest,
+module, inputs, claims, and proof records are written to `formal-doc/example/`
+and included in the CI artifact. Rendering unchecked claims needs no K installation;
+CI checks the proof when publishing.
 
 K's own LaTeX output is unavailable in the pinned release. Upstream removed
 the serializer, output mode, and `latex(...)` functionality in
