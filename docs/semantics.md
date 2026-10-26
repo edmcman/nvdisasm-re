@@ -1254,16 +1254,11 @@ The default output directory is `sass.paths.CACHE / "formal-doc"`:
 `sass-ir-semantics.md`, `.tex`, and `.pdf`, with a LaTeX `.log`.
 `--output-directory PATH` chooses a destination. The publication includes every
 handwritten rule, typeset equations, a table of contents, and a source SHA-256
-fingerprint. The publisher retains formatted K declarations and generates
-naturally sized operational inference rules directly from every K `rule`:
-`requires` conditions appear above the bar, with the rewrite below it.
-A bounded syntax parser renders arithmetic, Boolean operators, powers, lists,
-maps, and configuration cells using mathematical notation. It preserves K's
-grouping, quoted literals, casts, cell contexts, and rule attributes, and
-rejects unknown syntax instead of guessing. The document defines its notation,
-including truncating integer division and Euclidean remainder. Every rule cites its source location, and
-`rules.json` preserves its exact original text. This is a presentation of the
-K source rather than a second mathematical definition. Pandoc and LaTeX render
+fingerprint. The publisher includes the executable K code blocks verbatim,
+with syntax highlighting and visual line wrapping. Conditions, casts, cell
+contexts, and attributes retain their original K spelling and grouping.
+`rules.json` preserves every rule's exact text, filename, and source line.
+Pandoc and LaTeX render
 the result. CI publishes the Markdown, LaTeX, PDF, and source-rule manifest as
 the `formal-semantics` artifact.
 
@@ -1276,7 +1271,7 @@ cover each instruction, halting, and the two complete executions.
 The PDF displays claim-labeled boundary transitions and their composition;
 `proof.json` records the proof status and source fingerprint. Without the option,
 the publication explicitly marks the claims as unchecked. A state graph uses
-the generated boundary values. The general operational rules cover all three
+the generated boundary values. The executable rule listings cover all three
 modules. The K source remains the executable definition. A K regression checks
 the final registers and instruction counts, proves the execution claims, and
 rejects a corrupted intermediate result. Reproducible assembly, bytes, manifest,
@@ -1299,13 +1294,8 @@ Markdown and `k-web-theme`; its
 calls Pandoc with XeLaTeX.
 [KEVM's Jello Paper](https://jellopaper.org/evm/) displays explanatory prose and literal K code. These
 workflows publish the executable source but do not restore the historical
-mathematical rule formatter. Our `notation.py` supplies the missing presentation
-layer for this definition's syntax. Precedence is taken from
-[`builtin/domains.md` in K 7.1.337](https://github.com/runtimeverification/k/blob/v7.1.337/k-distribution/include/kframework/builtin/domains.md);
-tests reconstruct the original tokens of
-every parsed rule expression and check the nonstandard Boolean and power
-groupings. The notation changes presentation, not executable K or verification
-evidence.
+mathematical rule formatter. This document follows that approach with plain
+K listings. Its lifted-program execution proof remains checked with K.
 
 ### Runtime contracts and verification limits
 
