@@ -59,6 +59,12 @@ for every push and pull request (the Ghidra tests on a stock Ghidra 12.2, buildi
 architecture's languages first), and fails when a generated plan (`tests.autocases --check`) or the committed
 coverage and evidence are stale.
 
+The K semantics CI job is opt-in. In GitHub's **Actions → CI → Run workflow**, select the
+branch and enable **Run K semantics tests and publish the formal definition**, or run
+`gh workflow run ci.yml --ref main -f run_k_tests=true`. This runs normal CI plus the K
+tests, example proofs and formal-definition artifact generation. Pushes, pull requests
+and manual runs with the checkbox left off skip the K job.
+
 ### Cost
 
 Rough wall times and peak memory (summed PSS) on a 32-core, 93 GiB machine with other work running
