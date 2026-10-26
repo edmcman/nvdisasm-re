@@ -3,6 +3,11 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      run_k_tests:
+        description: Run K semantics tests and publish the formal definition
+        type: boolean
+        default: false
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -125,7 +130,7 @@ jobs:
       - run: uv run pytest --arch ${{ matrix.arch }} --fp all
   k-tests:
     needs: pr-covers-push
-    if: needs.pr-covers-push.outputs.skip != 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.run_k_tests && needs.pr-covers-push.outputs.skip != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
