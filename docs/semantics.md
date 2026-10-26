@@ -146,8 +146,20 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
     FRND/F2I's input `.FTZ`), `fmz` (HMUL2), `sat`, `fchk.divide`, DSETP's `setp.min/max.f64`.
   - FP64 arithmetic: `add/mul/fma.<mode>.f64` (DADD/DMUL/DFMA). Their NaN result comes from the
     registers before -/|.| (`sass_nan`), so with a modified operand those registers follow the
-    operands as NaN sources: `fma.rn.f64(-R2, R4, R6, R2, R4, R6)`. FP32's NaN is a constant, so
-    FADD/FMUL/FFMA stay the IR's `fadd`/`fmul`/`ffma` under `nanresult`.
+    operands as NaN sources: `fma.rn.f64(-R2, R4, R6, R2, R4, R6)`.
+  - FP16/FP32 arithmetic shape contract (2026-10-26): at widths 16 and 32, `bitvec.fadd`,
+    `fmul` and `ffma` build exactly these shapes before constant folding:
+    ```text
+    nanresult(fadd(a, b, mode), canonical_nan)
+    nanresult(fmul(a, b, mode, scale), canonical_nan)
+    nanresult(ffma(a, b, c, mode), canonical_nan)
+    ```
+    `canonical_nan` is a same-width constant: `0x7fff` for FP16, `0x7fffffff` for FP32.
+    No NaN-source operands are needed. `mode` is the rounding mode; `fmul` always carries
+    `scale`, including zero, and computes `a * b * 2^scale` rounded once. Operand and result
+    modifiers remain outside this arithmetic shape. sass2cu recognizes this structure to emit
+    CUDA intrinsics; changing its operator names, argument order, nesting or NaN representation
+    is a consumer-visible change.
   - Min/max: FMNMX `min/max[.NaN][.xorsign.abs].f32` or `fmnmx…` with a register predicate; FMNMX3
     `min3/max3…`; HMNMX2 lanes `min/max[.ftz][.NaN][.xorsign].<f16|bf16|e6m9>` or `hmnmx…`, and
     `….is_a`; the readable lowering's `min.readable.f32`, `min3.readable.f32`. Integer
