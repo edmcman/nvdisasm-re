@@ -11,6 +11,7 @@ the bar and the rewrite below it. Unconditional rules have an empty premise.
 The source location is printed beneath the rule. The arrow
 $\Longrightarrow$ is the source token `=>`. Attributes such as `[priority(40)]`
 and `[owise]` are retained below the rewrite. Cells occupy separate lines.
+Wrapped replacements align in the right-hand column after the rewrite arrow.
 K determines matching, evaluation,
 rule priority, and fallback behavior; the page layout introduces no new
 execution relation. Rules with `[function]` symbols compute values; rules

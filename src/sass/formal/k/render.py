@@ -34,15 +34,15 @@ def textext(text):
     return "".join(parts)
 
 
-def formula(text):
-    """Use natural math widths; wrap only at whitespace outside string literals."""
+def wrapped_rows(text, width=100):
+    """Wrap only at whitespace outside string literals."""
     rows = []
     for line in text.splitlines():
         line = line.strip()
-        while len(line) > 100:
+        while len(line) > width:
             strings = [match.span() for match in STRINGS.finditer(line)]
             spaces = [match for match in re.finditer(r"\s+", line)
-                      if 0 < match.start() <= 100
+                      if 0 < match.start() <= width
                       and not any(start <= match.start() < end for start, end in strings)]
             if not spaces:
                 break
@@ -51,11 +51,41 @@ def formula(text):
             line = line[space.end():]
         if line:
             rows.append(line)
+    return rows
+
+
+def formula(text, *, width=100, align="c"):
+    """Use natural math widths, with an optional left-aligned continuation."""
+    rows = wrapped_rows(text, width)
     if not rows:
         return r"\vphantom{\text{\footnotesize K}}"
-    return (r"\begin{gathered}"
+    return (r"\begin{array}[t]{@{}" + align + r"@{}}"
             + r"\\".join(r"\text{\ttfamily\footnotesize " + textext(row) + "}" for row in rows)
-            + r"\end{gathered}")
+            + r"\end{array}")
+
+
+def rewrites(text):
+    """Give each local rewrite separate LHS, arrow, and left-aligned RHS columns."""
+    cells = list(re.finditer(r"<[A-Za-z]\w*>", outside_strings(text)))
+    starts = [match.start() for match in cells] if cells and cells[0].start() == 0 else [0]
+    blocks = [text[start:end].strip()
+              for start, end in zip(starts, starts[1:] + [len(text)])]
+    rows = []
+    for block in blocks:
+        arrows = list(re.finditer("=>", outside_strings(block)))
+        if not arrows:
+            rows.append(r"\multicolumn{3}{c}{" + formula(block) + "}")
+            continue
+        if len(arrows) != 1:
+            raise ValueError("expected one local rewrite per cell or function rule")
+        position = arrows[0].start()
+        left, right = block[:position].strip(), block[position + 2:].strip()
+        left_rows = wrapped_rows(left, 54)
+        right_width = max(20, 100 - max(map(len, left_rows)) - 4)
+        rows.append(formula(left, width=54, align="l")
+                    + r"&\Longrightarrow&"
+                    + formula(right, width=right_width, align="l"))
+    return r"\begin{array}{@{}r@{\;}c@{\;}l@{}}" + r"\\[2pt]".join(rows) + r"\end{array}"
 
 
 @dataclass(frozen=True)
@@ -80,12 +110,8 @@ class Rule:
     def latex(self):
         conclusion, premise, attributes = self.parts()
         label = self.source.replace("_", r"\_")
-        # Keep tokens intact while putting configuration cells on separate lines.
-        for match in reversed(list(re.finditer(r"<[A-Za-z]\w*>", outside_strings(conclusion)))):
-            if match.start():
-                conclusion = conclusion[:match.start()] + "\n" + conclusion[match.start():]
         lines = [r"\[\begin{gathered}",
-                 r"\frac{" + formula(premise) + "}{" + formula(conclusion) + "}"]
+                 r"\frac{" + formula(premise) + "}{" + rewrites(conclusion) + "}"]
         metadata = rf"\text{{\scriptsize\color{{gray}}{label}:{self.line}}}"
         if attributes:
             metadata += r"\qquad\text{\ttfamily\scriptsize " + textext(attributes) + "}"

@@ -55,3 +55,16 @@ def test_natural_width_and_literal_tex_characters():
     # A long literal must not be split across formula rows.
     literal = '"' + "a " * 70 + '"'
     assert literal in render.formula(literal)
+
+
+def test_wrapped_rhs_stays_in_replacement_column():
+    _, rules = render.publication(k.DEFINITION.with_name("float.md"))
+    rule = next(rule for rule in rules
+                if rule.text.startswith('  rule roundBump(Q, REM, D, "RN", _)'))
+    latex = rule.latex()
+    # All replacement rows belong to the left-aligned third column after the arrow.
+    replacement = latex.split(r"&\Longrightarrow&", 1)[1]
+    assert replacement.startswith(r"\begin{array}[t]{@{}l@{}}")
+    assert "orBool" in replacement
+    assert r"\\\text{\ttfamily\footnotesize ((2 *Int REM" in replacement
+    assert "roundBump(Q, REM, D" not in replacement
