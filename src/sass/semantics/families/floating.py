@@ -25,7 +25,8 @@ def readable(i): return i.fp == 'readable'
 IEEE = {16: 'F16', 32: 'F32', 64: 'F64'}
 
 
-@definition(lambda a: ("ftz" if a["fmt"] is None else f"ftz.{a['fmt'].lower()}", ["x"]))
+@definition(lambda a: ("ftz" if a["fmt"] is None and a["x"].w == 32 else
+                       f"ftz.b{a['x'].w}" if a["fmt"] is None else f"ftz.{a['fmt'].lower()}", ["x"]))
 def flushed(x, fmt=None):
     """Flush to zero: a denormal becomes zero of the same sign, other values are unchanged.
 
@@ -67,7 +68,7 @@ def fused(i, a, b, c, nans=()):
     return fadd(fmul(a, b), c) if readable(i) else ffma(a, b, c, rnd, nans)
 
 
-@definition("sat")
+@definition(lambda a: (f"sat.f{a['r'].w}", ["r"]))
 def saturated(r):
     """Saturate: clamp to [+0, 1]; NaN and -0 give +0."""
     one, zero = const(ONE[r.w], r.w), const(0, r.w)
@@ -823,7 +824,7 @@ def hmnmx_lane(code, p, a, c, ar=None, cr=None, ftz=False, nan=False, xorsign=Fa
     return r
 
 
-@definition(lane_name(".is_a"))
+@definition(lane_name(".is.a"))
 def lane_chose_a(code, p, a, c, ar=None, cr=None, ftz=False):
     """HMNMX2.IS_A: whether a lane's min (predicate) or max is A: A wins two NaNs, the number wins one.
 
