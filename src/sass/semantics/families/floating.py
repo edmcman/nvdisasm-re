@@ -205,7 +205,7 @@ def dfma_(i):
     return result(i, False, fadd(fmul(a, b), c) if readable(i) else fma_f64(a, b, c, rnd, nans))
 
 
-@definition(lambda a: (f"setp.{a['label'].lower()}.f{a['x'].w}", ["x", "y"]))
+@helper
 def minmax_order(label, x, y):
     """DSETP.MIN/MAX's test (SM89 GPU): x is totalOrder-below-or-equal (MIN) or above (MAX) y, true
     for a NaN y and false for a NaN x."""
@@ -214,10 +214,14 @@ def minmax_order(label, x, y):
     return lnot(fnan(x)) & (fnan(y) | order)
 
 
-@helper
+FLOAT_TESTS = frozenset('F LT EQ LE GT NE GE NUM NAN LTU EQU LEU GTU NEU GEU T MIN MAX'.split())
+
+
+@definition(lambda a: (f"setp.{a['label'].lower()}.f{a['x'].w}", ["x", "y"]))
 def float_test(label, x, y):
     """The md comparison `label`: ordered tests are false with a NaN, ...U ones true; NEU is
-    plain inequality, NUM/NAN test for NaN."""
+    plain inequality, NUM/NAN test for NaN, T/F are constant true/false. MIN/MAX use DSETP's
+    total-order test, true for a NaN y and false for a NaN x."""
     unordered = fnan(x) | fnan(y)
     ordered = {'LT': lambda: flt(x, y), 'EQ': lambda: feq(x, y), 'LE': lambda: fle(x, y),
                'GT': lambda: flt(y, x), 'GE': lambda: fle(y, x), 'NE': lambda: lnot(unordered) & lnot(feq(x, y))}
@@ -230,12 +234,11 @@ def float_test(label, x, y):
         case 'NEU': return lnot(feq(x, y))
         case 'LTU' | 'EQU' | 'LEU' | 'GTU' | 'GEU' as name: return unordered | ordered[name[:2]]()
         case 'LT' | 'EQ' | 'LE' | 'GT' | 'GE' | 'NE' as name: return ordered[name]()
-    return None   # unmodelled
 
 
 def comparison(i, names, x, y):
     """The comparison the selector chooses, as one value for both predicates."""
-    return i.select_lookup(names, {label: float_test(label, x, y) for label in i.labels(names)})
+    return i.select_lookup(names, {label: float_test(label, x, y) for label in i.labels(names) if label in FLOAT_TESTS})
 
 
 def combined(i, cond):

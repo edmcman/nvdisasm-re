@@ -127,7 +127,7 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
 - **Which functions are definitions.** When the semantics needs a helper for an operation, that
   helper is a `@definition`; an operation written inline from IR operators (IADD3's carry-out,
   LEA's shift-add, IMAD's a * b + c) needs none. Exceptions stay `@helper`s or plain functions: a
-  definition's internal pieces (`ordered_minmax`, `round_integral`, NaN tests, comparisons), kept
+  definition's internal pieces (`ordered_minmax`, `round_integral`, NaN tests, primitive comparisons), kept
   out of the contract so families can be restructured, and anything that can't be an operator (it
   asks the instruction, taking `i`, so it must run while the family does since SLEIGH enumerates
   rows from its questions; or it returns a tuple or None). `bitvec`'s own min/max/abs are IR
@@ -144,7 +144,10 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
     `fvalue` and the conversions' sources; SLEIGH's `Symbolic.modified` lowers one before
     recognizing its mask).
   - Float: `ftz`/`ftz.bf16` (`floating.flushed`, shared by FADD/FFMA/FMNMX, the packed lanes and
-    FRND/F2I's input `.FTZ`), `fmz` (HMUL2), `sat`, `fchk.divide`, DSETP's `setp.min/max.f64`.
+    FRND/F2I's input `.FTZ`), `fmz` (HMUL2), `sat`, `fchk.divide`; comparisons
+    `setp.<cmp>.f32` (FSETP/FSET/UFSETP) and `setp.<cmp>.f64` (DSETP), including MIN/MAX
+    (2026-10-26). The comparison takes the two modified operands and returns one bit;
+    FTZ, predicate combination and FSET's result conversion remain outside the operator.
   - FP64 arithmetic: `add/mul/fma.<mode>.f64` (DADD/DMUL/DFMA). Their NaN result comes from the
     registers before -/|.| (`sass_nan`), so with a modified operand those registers follow the
     operands as NaN sources: `fma.rn.f64(-R2, R4, R6, R2, R4, R6)`.
@@ -178,7 +181,7 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
     `bfind[.shiftamt]`, `dp4a`/`dp2a`, `vabsdiff4`.
 
   Tests: `tests/test_definitions.py`.
-- Not defined: the readable lowering's other plain formulas, comparisons and predicate logic
+- Not defined: the readable lowering's other plain formulas, primitive comparisons and predicate logic
   (already readable), moves, memory and control flow. MUFU and the warp primitives are primitive
   nodes, named already.
 
