@@ -97,7 +97,9 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   constant decode-time choices in the name and drops those arguments. In the lifter that gives
   `f2fp.pack.rz.bf16x2.f32(R2, R3)`; otherwise it falls back to the general `f2fp.pack(<fields>, a, b)`.
   A name must determine what it drops: every call of a label with one operand count must agree on
-  the dropped arguments, or `definition` raises. That is how the expansion rebuilds them. Names
+  the dropped arguments and flattened operand widths, or `definition` raises `TypeError`. That is
+  how the expansion rebuilds them. Labels use only ASCII letters, digits and dots; replacing dots
+  with underscores gives distinct C++ names (2026-10-26). Names
   follow PTX where it has the operation, are not exact otherwise, and compose
   (`min.f32(ftz(R2), ftz(R3))`). A name belongs to one definition.
 - **Opaque and never folded.** Defined operators are not in `OPS`, so neither they nor their parents
@@ -144,7 +146,8 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
     `fvalue` and the conversions' sources; SLEIGH's `Symbolic.modified` lowers one before
     recognizing its mask).
   - Float: `ftz`/`ftz.bf16` (`floating.flushed`, shared by FADD/FFMA/FMNMX, the packed lanes and
-    FRND/F2I's input `.FTZ`), `fmz` (HMUL2), `sat`, `fchk.divide`; comparisons
+    FRND/F2I's input `.FTZ`; implied IEEE half/double use `ftz.b16`/`ftz.b64`),
+    `fmz` (HMUL2), `sat.f16`/`sat.f32`, `fchk.divide`; comparisons
     `setp.<cmp>.f32` (FSETP/FSET/UFSETP) and `setp.<cmp>.f64` (DSETP), including MIN/MAX
     (2026-10-26). The comparison takes the two modified operands and returns one bit;
     FTZ, predicate combination and FSET's result conversion remain outside the operator.
@@ -166,7 +169,7 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
     is a consumer-visible change.
   - Min/max: FMNMX `min/max[.NaN][.xorsign.abs].f32` or `fmnmx…` with a register predicate; FMNMX3
     `min3/max3…`; HMNMX2 lanes `min/max[.ftz][.NaN][.xorsign].<f16|bf16|e6m9>` or `hmnmx…`, and
-    `….is_a`; the readable lowering's `min.readable.f32`, `min3.readable.f32`. Integer
+    `….is.a`; the readable lowering's `min.readable.f32`, `min3.readable.f32`. Integer
     `min/max.<s|u>32` (IMNMX with PT/!PT, VIMNMX lanes) or `imnmx`/`vimnmx…`, and `relu.s32`.
   - Conversions: F2F `cvt[.<mode>].<dst>.<src>`; FRND `cvt.r<m>i.<fmt>.<fmt>`; F2I
     `cvt.r<m>i[.ntz].<s|u><n>.<fmt>`; I2F `cvt.<mode>.<dst>.<s|u><n>`; F2IP `cvt.rni.sat.<s|u>8.f32`;
@@ -177,10 +180,21 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
     16-bit, 8/6/4-bit, S2_6, TF32 and up-conversion (`.scaled` with a UE8M0 scale), and
     `cvt.rn.bf16x2.ue8m0x2`.
   - Integer and bits: `abs.s32`, `mul.wide.<s|u>32` (IMAD.HI/WIDE), `bmsk`, `szext`, `shf`,
-    `prmt.b32[.<mode>]` (immediate selectors as decode-time codes), `brev.b32`, `popc.b32`,
+    `prmt.b32[.<mode>]` (always a 32-bit selector), `brev.b32`, `popc.b32`,
     `bfind[.shiftamt]`, `dp4a`/`dp2a`, `vabsdiff4`.
 
   Tests: `tests/test_definitions.py`.
+- **PRMT selectors (2026-10-26).** Every mode takes three 32-bit operands, including immediate
+  selectors. The family zero-extends its small decode-time choices: four independent nibbles for
+  IDX, one 1- or 2-bit choice for other modes. The expansion extracts the relevant bits, unwrapping
+  the zero extension and concatenation; constants or choices with constant arms use `chosen`.
+  Other selectors use the run-time expansion, so the registered expansion also works on arbitrary
+  32-bit parameters. Static and dynamic forms share a label; full slaspecs are byte-identical on
+  all ten supported architectures in both exact and readable modes.
+- **Fallback metadata (2026-10-26).** General `f2fp.cvt`/`f2fp.pack` calls materialize plain
+  destination fields, rounding flags, SATFINITE and RELU as constants with the widths of their
+  decode-time counterparts, so plain and symbolic metadata share one operand-width signature.
+  Defined labels spell the fixed-point format S2_6 as `s2.6` to stay within the label alphabet.
 - Not defined: the readable lowering's other plain formulas, primitive comparisons and predicate logic
   (already readable), moves, memory and control flow. MUFU and the warp primitives are primitive
   nodes, named already.

@@ -227,11 +227,14 @@ def permute(a, s, b, mode):
     default (IDX) takes nibble j for byte j, its bit 3 replicating the byte's sign; f4e/b4e forward
     or backward from s & 3; rc8/rc16 replicate a byte or half; ecl/ecr clamp at the edges.
 
-    s: the selector register, or an immediate's selector values chosen at decode time (narrower:
-    IDX's four nibbles, else the one value)."""
-    if s.w < 32:   # an immediate: each byte picked at decode time
-        code = lambda j: extract(s, 4 * j + 3, 4 * j) if mode == 'IDX' else s
-        return concat(*reversed([chosen(code(j), lambda v: picked_byte(a, b, mode, j, v)) for j in range(4)]))
+    s: a 32-bit selector. Constants and zero-extended decode-time choices select bytes statically;
+    other expressions, including parameters, use the run-time expansion."""
+    # Extraction unwraps the immediate's zero extension and, for IDX, the concatenation of its
+    # four independent nibble choices. Width alone cannot identify a decode-time choice.
+    codes = [extract(s, 4 * j + 3, 4 * j) if mode == 'IDX' else extract(s, prmt_bits(mode) - 1, 0)
+             for j in range(4)]
+    if all(is_const(code) or (code.op == 'sel' and all(is_const(t) for _, t in code.args[1])) for code in codes):
+        return concat(*reversed([chosen(code, lambda v: picked_byte(a, b, mode, j, v)) for j, code in enumerate(codes)]))
     data = concat(b, a)
     picked = []
     for j in range(4):
@@ -269,7 +272,7 @@ def prmt(i):
         bits = prmt_bits(mode)
         code = lambda lo: i.select_bits('Rb|Sb', lo, bits, {v: const(v, bits) for v in range(1 << bits)})
         s = concat(*(code(4 * j) for j in reversed(range(4)))) if mode == 'IDX' else code(0)
-        return outputs(Rd=permute(a, s, b, mode))
+        return outputs(Rd=permute(a, zext(s, 32), b, mode))
     return outputs(Rd=permute(a, i.value('Rb|Sb'), b, mode))
 
 

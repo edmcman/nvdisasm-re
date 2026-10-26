@@ -195,6 +195,12 @@ def pack16_name(kind, lanes):
         sat, relu = fpformat.constant(a["sat"]), fpformat.constant(a["relu"])
         fmt, m = fpformat.format_of(a["d"]), fpformat.mode(a["r"])
         if None in (fmt, m, sat, relu) or [fpformat.constant(x) for x in a["d"][3:]] != [0, 0x7fff, 1, FORMATS[fmt].inf_code]:
+            # A fallback exposes every field. Give plain metadata the same widths as the
+            # decode-time expressions, so one label also has one operand-width signature.
+            a["d"] = fpformat.Dest(*(fpformat.value(v, 1 if k.endswith("signed") else 32)
+                                    for k, v in zip(a["d"]._fields, a["d"])))
+            a["r"] = fpformat.Rounding(*(fpformat.value(v, 1) for v in a["r"]))
+            for k in ("sat", "relu"): a[k] = fpformat.value(a[k], 1)
             return f"f2fp.{kind}", ["d", "r", "sat", "relu", *lanes]
         flags = [".satfinite"] * bool(sat) + [".relu"] * bool(relu)
         return f"f2fp.{kind}.{m.lower()}{''.join(flags)}.{fmt.lower()}{'x2' if len(lanes) > 1 else ''}.f32", lanes
@@ -302,8 +308,8 @@ def scaled_pair(i, convert, one_scale):
 
 def s2_6_name(a):
     mods = flags(relu=a["relu"])
-    if mods is None: return f"f2fp.cvt.s2_6.{a['src'].lower()}.scaled", ["relu", "x", "scale"]
-    return f"f2fp.cvt.rn.satfinite{mods}.s2_6.{a['src'].lower()}.scaled", ["x", "scale"]
+    if mods is None: return f"f2fp.cvt.s2.6.{a['src'].lower()}.scaled", ["relu", "x", "scale"]
+    return f"f2fp.cvt.rn.satfinite{mods}.s2.6.{a['src'].lower()}.scaled", ["x", "scale"]
 
 
 @definition(s2_6_name)
@@ -370,7 +376,7 @@ def upconvert_name(scaled):
     def name(a):
         mods = flags(satfinite=a["sat"], relu=a["relu"]) if scaled else flags(relu=a["relu"])
         if is_const(a["code"]) and mods is not None:
-            fmt = UPCONVERTS[a["kind"]][value(a["code"])].lower()
+            fmt = UPCONVERTS[a["kind"]][value(a["code"])].lower().replace("_", ".")
             return (f"f2fp.cvt.rn{mods}.bf16.{fmt}.scaled", ["byte", "scale"]) if scaled else (f"f2fp.cvt{mods}.f16.{fmt}", ["byte"])
         return (f"f2fp.cvt.bf16.{a['kind']}", ["code", "relu", "sat", "byte", "scale"]) if scaled else (f"f2fp.cvt.f16.{a['kind']}", ["code", "relu", "byte"])
     return name

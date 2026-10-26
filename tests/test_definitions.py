@@ -7,7 +7,7 @@ from sass.semantics import bitvec, lifter
 from sass.semantics.bitvec import const, param, reg
 from sass.semantics.evaluate import evaluate
 from sass.semantics.family import definition
-from sass.semantics.families import convert, f2fp, f2i, floating
+from sass.semantics.families import convert, f2fp, f2i, floating, integer
 from sass.semantics.fp import fpformat
 
 R = lambda n: reg("R", n, 1)
@@ -69,7 +69,8 @@ def operators(arch, text, fp="exact"):
     ("F2FP.SATFINITE.RELU.BF16.F32.PACK_AB R0, R2, R3", "f2fp.pack.rn.satfinite.relu.bf16x2.f32", [(R(2), R(3))]),
     ("FMNMX.NAN R0, R2, R3, PT", "min.NaN.f32", [(R(2), R(3))]),
     ("FMNMX.NAN R0, R2, R3, P1", "fmnmx.NaN", [(reg("P", 1, 1, element=1), R(2), R(3))]),
-    ("FADD.SAT R0, R2, R3", "sat", None),
+    ("FADD.SAT R0, R2, R3", "sat.f32", None),
+    ("HADD2.SAT R0, R2, R3", "sat.f16", None),
     ("FRND.FLOOR R0, R2", "cvt.rmi.f32.f32", [(R(2),)]),
     ("F2I.TRUNC.NTZ R0, R2", "cvt.rzi.ntz.s32.f32", [(R(2),)]),
     ("F2I.U32.CEIL R0, R2", "cvt.rpi.u32.f32", [(R(2),)]),
@@ -83,7 +84,7 @@ def operators(arch, text, fp="exact"):
     ("BMSK R0, R2, R3", "bmsk.clamp.b32", [(R(2), R(3))]),
     ("IABS R0, R2", "abs.s32", [(R(2),)]),
     ("IMAD.WIDE R0, R2, R3, R4", "mul.wide.s32", [(R(2), R(3))]),
-    ("PRMT R0, R2, 0x3210, R3", "prmt.b32", [(R(2), const(0x3210, 16), R(3))]),
+    ("PRMT R0, R2, 0x3210, R3", "prmt.b32", [(R(2), const(0x3210, 32), R(3))]),
     ("PRMT R0, R2, R4, R3", "prmt.b32", [(R(2), R(4), R(3))]),
     ("SHF.L.W.U32.HI R0, R2, R4, R3", "shf.l.wrap.hi.u32", [(R(2), R(3), R(4))]),
     ("BREV R0, R2", "brev.b32", [(R(2),)]),
@@ -241,6 +242,126 @@ def test_chosen():
     assert bitvec.chosen(code, lambda v: X) is X
 
 
+@pytest.mark.parametrize("mode", integer.PRMT_MODES)
+def test_prmt_selector_contract(mode):
+    """All source forms have one width signature, and an immediate-first expansion accepts params."""
+    from tests.refs.integer import prmt
+    label = f"prmt.b32{'' if mode == 'IDX' else '.' + mode.lower()}"
+    suffix = "" if mode == "IDX" else "." + mode
+    immediate = operators("SM89", f"PRMT{suffix} R0, R2, 0x3210, R3")[label][0]
+    register = operators("SM89", f"PRMT{suffix} R0, R2, R4, R3")[label][0]
+    assert tuple(a.w for a in immediate) == tuple(a.w for a in register) == (32, 32, 32)
+    b = param("b", 32)
+    expanded = bitvec.DEFINED[label].expand(X, Y, b)
+    assert not bitvec.leaves(expanded, "sel")
+    rng = random.Random(42)
+    selectors = [0, 1, 3, 0x3210, 0x7654, 0x8888, 0xffff, 0xffff0000, 0xffffffff]
+    selectors += [n << (4 * j) for j in range(4) for n in range(16)]
+    selectors += [rng.getrandbits(32) for _ in range(32)]
+    for selector in selectors:
+        for a, c in [(0x80ff017f, 0x7f0081fe), (rng.getrandbits(32), rng.getrandbits(32))]:
+            want = prmt(a, selector, c, mode)
+            assert evaluate(expanded, None, {"x": a, "y": selector, "b": c}) == want
+            constant = integer.permute(X, const(selector, 32), b, mode)
+            assert evaluate(constant, None, {"x": a, "b": c}) == want
+            dynamic = bitvec.substitute(constant, {const(selector, 32): Y}.get)
+            assert evaluate(dynamic, None, {"x": a, "y": selector, "b": c}) == want
+
+
+@pytest.mark.parametrize("mode", integer.PRMT_MODES)
+def test_prmt_decode_time_selector(mode):
+    """The widened selector preserves independent choice tables and their byte selections."""
+    from sass.sleigh.lower import sel
+    from tests.refs.integer import prmt
+    bits = integer.prmt_bits(mode)
+    choices = [sel((f"s{j}",), [((v,), const(v, bits)) for v in range(1 << bits)], bits)
+               for j in range(4 if mode == "IDX" else 1)]
+    selector = bitvec.zext(bitvec.concat(*reversed(choices)), 32)
+    b = param("b", 32)
+    expr = integer.permute(X, selector, b, mode)
+    expanded = bitvec.lowered(expr)
+    # No run-time shifts survive the static selection path.
+    assert expanded.op == "concat"
+    assert {n.args[0] for n in bitvec.leaves(expanded, "sel")} == {n.args[0] for n in choices}
+    for v in range(1 << bits):
+        # The expanded choices contain bytes; bind each key to its corresponding arm.
+        concrete = bitvec.substitute(expanded, lambda n: dict(n.args[1])[(v,)] if n.op == "sel" else None)
+        s = sum(v << (4 * j) for j in range(4)) if mode == "IDX" else v
+        assert evaluate(concrete, None, {"x": 0x80ff017f, "b": 0x7f0081fe}) == prmt(0x80ff017f, s, 0x7f0081fe, mode)
+    # The operator registered with decode-time choices also expands over a parameter.
+    dynamic = bitvec.op(expr.op, X, Y, b, w=32)
+    assert evaluate(dynamic, None, {"x": 0x80ff017f, "y": 0xffffffff, "b": 0x7f0081fe}) == prmt(0x80ff017f, 0xffffffff, 0x7f0081fe, mode)
+
+
+@definition("test.width.{tag}")
+def width_form(values, tag):
+    """Concatenate flattened operands for the width-contract tests."""
+    return bitvec.concat(*values)
+
+
+@definition("test.scalarwidth.{tag}")
+def scalar_width(x, tag):
+    """A scalar operand for the width-contract tests."""
+    return x
+
+
+@pytest.mark.parametrize("first", [16, 32])
+@pytest.mark.parametrize("tuple_argument", [False, True])
+def test_a_name_determines_operand_widths(first, tuple_argument):
+    tag = f"{first}.{int(tuple_argument)}"
+    operand = param("width", first)
+    call = width_form if tuple_argument else scalar_width
+    values = (operand, P) if tuple_argument else operand
+    expr = call(values, tag)
+    constants = (const(0, first), const(0, 1)) if tuple_argument else const(0, first)
+    assert call(constants, tag).w == expr.w
+    other = param("other.width", 48 - first)
+    with pytest.raises(TypeError, match="operand widths"):
+        call((other, P) if tuple_argument else other, tag)
+    assert bitvec.lowered(expr) is (bitvec.concat(*values) if tuple_argument else operand)
+
+
+def test_operand_counts_have_independent_widths():
+    assert width_form((param("half", 16),), "arity").w == 16
+    pair = (X, Y)
+    assert width_form(pair, "arity").w == 64
+    assert bitvec.lowered(width_form(pair, "arity")) is bitvec.concat(*pair)
+
+
+@definition(lambda a: (a["label"], ["x"]))
+def labelled(x, label):
+    """An identity with a caller-supplied label."""
+    return x
+
+
+@pytest.mark.parametrize("label", ["", "test_bad", "test-bad", "test/bad", "test bad", "test.é", "test.bad\n", None])
+def test_invalid_definition_labels(label):
+    with pytest.raises(TypeError, match="invalid defined operator label"):
+        labelled(X, label)
+    assert label not in bitvec.DEFINED
+
+
+def test_valid_definition_label():
+    assert bitvec.lowered(labelled(X, "Test.Label09")) is X
+
+
+@pytest.mark.parametrize("width, label", [(16, "ftz.b16"), (32, "ftz"), (64, "ftz.b64")])
+def test_flush_names_fix_widths(width, label):
+    x = param("flush", width)
+    expr = floating.flushed(x)
+    assert expr.op == label and expr.args == (x,)
+    assert bitvec.lowered(expr) is bitvec.lowered(floating.flushed.body(x))
+
+
+def test_fixed_point_and_lane_choice_labels():
+    half, byte, scale = param("half", 16), param("byte", 8), param("scale", 8)
+    assert f2fp.to_s2_6(0, X, scale, "F32").op == "f2fp.cvt.rn.satfinite.s2.6.f32.scaled"
+    assert f2fp.to_s2_6(P, X, scale, "F32").op == "f2fp.cvt.s2.6.f32.scaled"
+    code = const(f2fp.UPCONVERTS["8b.scaled"].index("S2_6"), 3)
+    assert f2fp.upconverted_scaled(code, 0, 0, byte, scale, "8b.scaled").op == "f2fp.cvt.rn.bf16.s2.6.scaled"
+    assert floating.lane_chose_a(const(0, 2), P, half, half).op == "hmnmx.is.a.f16"
+
+
 def test_fmnmx3_names():
     assert operators("SM100", "FMNMX3 R0, R2, R3, R4, PT").keys() == {"min3.f32"}
     assert operators("SM100", "FMNMX3.NAN R0, R2, R3, R4, !PT").keys() == {"max3.NaN.f32"}
@@ -293,7 +414,9 @@ def lossy(x, k):
 def test_a_name_determines_its_constants():
     """A name stands for the arguments it drops: a call disagreeing with them is an error, and a
     name that isn't F2FP's destination falls back to the general one."""
-    assert f2fp.pack16_lane(F16_DEST._replace(nan_signed=1), fpformat.rounding("RN"), 0, 0, X).op == "f2fp.cvt"
+    general = f2fp.pack16_lane(F16_DEST._replace(nan_signed=1), fpformat.rounding("RN"), 0, 0, X)
+    assert general.op == "f2fp.cvt"
+    assert tuple(a.w for a in general.args) == (32, 32, 32, 1, 32, 1, 32, 1, 1, 1, 1, 1, 1, 32)
     lossy(X, 1)
     with pytest.raises(TypeError, match="doesn't determine"): lossy(X, 2)
 

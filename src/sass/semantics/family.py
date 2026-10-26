@@ -13,7 +13,7 @@ are `sass.semantics.bitvec` expressions. Backends supply the answers: `sass.sema
 works for both binding times: `a if c else b`, `and`, `or` and `not` evaluate natively on static
 values and build IR on dynamic ones.
 """
-import ast, inspect, json, string, textwrap
+import ast, inspect, json, re, string, textwrap
 from dataclasses import dataclass, field
 from functools import cache
 from sass.md import parse
@@ -203,7 +203,7 @@ def helper(fn):
     return rewrite(fn)
 
 
-DEFINITIONS = {}   # defined operator -> (function, {operand count: (the arguments its name fixes, the kept ones' shapes)})
+DEFINITIONS = {}   # defined operator -> (function, {operand count: (fixed arguments, kept shapes, operand widths)})
 
 
 def same(a, b):
@@ -221,8 +221,9 @@ def definition(name):
     helper, applied to the arguments). `name` is a template over parameters that are plain values,
     which are then not arguments, or namer(arguments) -> (label, kept parameter names) for an
     operation named by its constant decode-time arguments: the others must be the same in every call
-    of one label and operand count (checked), since the label stands for them. Tuple arguments
-    (Dest, Rounding) are their fields. The docstring's first paragraph describes it."""
+    of one label and operand count (checked), since the label stands for them. Operand widths must
+    agree too. Labels contain only ASCII letters, digits and dots. Tuple arguments (Dest, Rounding)
+    are their fields. The docstring's first paragraph describes it."""
     def register(fn):
         staged, signature = rewrite(fn), inspect.signature(fn)
         description = " ".join(inspect.getdoc(fn).split("\n\n")[0].split())
@@ -233,19 +234,24 @@ def definition(name):
             arguments = bound.arguments
             if isinstance(name, str): label, kept = name.format(**{f: arguments[f] for f in fields}), [k for k in arguments if k not in fields]
             else: label, kept = name(arguments)
+            if not isinstance(label, str) or re.fullmatch(r"[A-Za-z0-9.]+", label) is None:
+                raise TypeError(f"invalid defined operator label: {label!r}")
             fixed = {k: v for k, v in arguments.items() if k not in kept}
             shapes = [(k, type(arguments[k]), len(arguments[k])) if isinstance(arguments[k], tuple) else (k, None, 1) for k in kept]
             operands = [x for k in kept for x in (arguments[k] if isinstance(arguments[k], tuple) else (arguments[k],))]
+            operand_widths = tuple(x.w if isinstance(x, Expr) else None for x in operands)
             if label not in DEFINITIONS:
                 if label in bitvec.OPS or label in BUILTIN: raise TypeError(f"{label} is an IR operator")
                 DEFINITIONS[label] = fn, {}
                 bitvec.DEFINED[label] = bitvec.Definition(expander(staged, DEFINITIONS[label][1]), description)
             owner, forms = DEFINITIONS[label]
             if owner is not fn: raise TypeError(f"{label} names {owner.__name__} and {fn.__name__}")
-            known, known_shapes = forms.setdefault(len(operands), (fixed, shapes))
+            known, known_shapes, known_widths = forms.setdefault(len(operands), (fixed, shapes, operand_widths))
             if known_shapes != shapes or known.keys() != fixed.keys() or not all(same(known[k], fixed[k]) for k in fixed):
                 raise TypeError(f"{label} doesn't determine {fn.__name__}'s arguments: {known} and {fixed}")
-            key = (label, *(x.w if isinstance(x, Expr) else None for x in operands))
+            if known_widths != operand_widths:
+                raise TypeError(f"{label} doesn't determine {fn.__name__}'s operand widths: {known_widths} and {operand_widths}")
+            key = (label, *operand_widths)
             if key not in widths: widths[key] = staged(**arguments).w
             return bitvec.op(label, *operands, w=widths[key])
         defined.__name__, defined.__wrapped__, defined.body = fn.__name__, fn, staged
@@ -272,7 +278,7 @@ def expander(staged, forms):
     """The expansion of a label's operands: the fixed arguments of its form (by operand count) and
     the kept ones rebuilt."""
     def expand(*operands):
-        fixed, shapes = forms[len(operands)]
+        fixed, shapes, _ = forms[len(operands)]
         rest, kept = list(operands), {}
         for k, t, n in shapes:
             if t is None: kept[k] = rest.pop(0)
