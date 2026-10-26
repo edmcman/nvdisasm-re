@@ -1242,7 +1242,7 @@ Build a complete reference document from those same sources:
 
 ```sh
 # Debian/Ubuntu document dependencies; no K installation is needed for rendering.
-sudo apt-get install --no-install-recommends pandoc texlive-latex-extra texlive-fonts-recommended
+sudo apt-get install --no-install-recommends pandoc texlive-latex-extra texlive-fonts-recommended lmodern
 nice uv run python -m sass.formal.k.document
 # Check the lifted example's reachability claims during publication (requires K):
 nice uv run python -m sass.formal.k.document --prove-example

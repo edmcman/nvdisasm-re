@@ -146,7 +146,7 @@ jobs:
         run: nice uv run pytest -m k --arch SM89,SM90 --fp all
       - name: Publish the executable formal definition
         run: |
-          sudo apt-get install -y --no-install-recommends pandoc texlive-latex-extra texlive-fonts-recommended
+          sudo apt-get install -y --no-install-recommends pandoc texlive-latex-extra texlive-fonts-recommended lmodern
           nice uv run python -m sass.formal.k.document --prove-example
       - uses: actions/upload-artifact@v7
         with:
