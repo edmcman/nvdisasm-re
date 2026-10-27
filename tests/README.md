@@ -73,6 +73,9 @@ Rough wall times and peak memory (summed PSS) on a 32-core, 93 GiB machine with 
 | Run | Time | Memory |
 |---|---|---|
 | Python tests, SM89 | 25 s | 10 GiB |
+| `test_definition_functions.py`, structural tests (2026-10-27) | 14 s, including discovery from manual cases on SM75/80/89/90 in both FP modes | |
+| `test_definition_functions.py -m native` (2026-10-27) | 27 s cold, including discovery and both C++ backends | |
+| `test_definition_functions.py -m gpu --require-gpu`, SM89 (2026-10-27) | about 4 s | |
 | `test_emulate_cases.py`, SM89 (2026-10-23) | 2 minutes cold (a C++ library per shard), seconds cached | |
 | `test_kernels_native.py`, SM89 and SM90 (2026-10-23) | 4 minutes cold (about 1,000 kernels compile), under a minute cached | |
 | Python tests, every architecture and lowering | 3 minutes | 13 GiB (25 GiB with `--exhaustive`) |

@@ -199,6 +199,61 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   (already readable), moves, memory and control flow. MUFU and the warp primitives are primitive
   nodes, named already.
 
+### For consumers: generated C++ definitions (2026-10-27)
+
+`sass.emulate.definitions` generates pure functions from the defined operators a consumer has
+lifted. The definitions and their operand-count forms must first be registered in the same Python
+process, normally by lifting instructions. There is no persistent registry or prebuilt header:
+
+```python
+from sass.assemble import assemble_instruction
+from sass.emulate import definitions
+from sass.semantics import lifter
+
+word = assemble_instruction("SM89", "FMNMX.FTZ R0, R2, R3, PT")
+semantics = lifter.lift("SM89", word)
+uses = definitions.definition_uses(value for _, value in semantics.writes)
+header = definitions.definitions_header(uses)
+# Write header to a file the consuming C++ translation unit includes.
+# The consumer can emit sass::def::min_f32(sass::def::ftz(a), sass::def::ftz(b)).
+```
+
+- `definition_uses(exprs)` returns a set of `(label, operand_widths)` pairs. It traverses the
+  original expressions and their arguments, collecting nested operators without expanding them.
+  Pass all relevant expression roots, including guards, stores and effects when needed.
+- `definition_name(label, widths)` returns the unqualified C++ name in `sass::def`, replacing
+  dots with underscores. A label and operand count fix the operand widths. Different operand
+  counts produce overloads; widths alone cannot distinguish overloads because `Bits<W>` aliases
+  the same storage type for multiple widths.
+- `definition_function(label, widths)` returns a complete `SASS_HD inline` function inside
+  `namespace sass::def`. Its operands and result are `sass::Bits<W>`: `uint64_t` through 64 bits
+  and `sass::u128` through 128 bits. Callers must supply unsigned bit patterns with all bits above
+  each operand's declared width zero; results obey the same invariant.
+- `definitions_header(uses)` returns a self-contained header including `sass/fp.hpp` and
+  `sass/bits.hpp`, with each requested function once in deterministic order. Each function
+  fully expands nested definitions, so no dependency order is needed.
+
+Unknown or mismatched forms, invalid C++ names and ambiguous signatures raise `ValueError`.
+Expansions requiring registers, memory loads, runtime primitives, unresolved decode-time selectors,
+unbound parameters, or widths above 128 bits raise `NotImplementedError`. Generation failures name
+the label and operand widths. The source of an expansion and the generated temporaries are not a
+stable interface.
+
+The generated functions use the backend selected by `sass/fp.hpp`: host floating point by default,
+softfloat with `SASS_FP_SOFT`, and CUDA intrinsics in device code. `SASS_HD` makes the functions
+available to both host and device compilation; ordinary `inline` allows multiple translation units
+to include the header. Host builds need C++20, no fast math or floating-point contraction, rounding
+mode support, and MXCSR FTZ/DAZ disabled, as the native runtime requires. CUDA builds need C++20,
+`-ftz=false`, and no `--use_fast_math`. For example:
+
+```sh
+c++ -std=c++20 -O2 -ffp-contract=off -fno-fast-math -frounding-math \
+    -I src/sass/emulate/include consumer.cpp
+nvcc -std=c++20 -ftz=false --fmad=false -I src/sass/emulate/include consumer.cu
+```
+
+This API does not switch the emulator's backend or replace its existing inlined expansions.
+
 ### Operand values (2026-10-07)
 - `src/sass/semantics/operands.py` (`Builder`) preserves exact register effects for all classes and
   builds operand values independently of assembly display.
