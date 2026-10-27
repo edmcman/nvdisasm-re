@@ -1,4 +1,5 @@
 """Test selection from the pytest options (see conftest.py) and the stale-language guard."""
+import re
 import pytest
 from sass.paths import LANGUAGES
 from sass.sleigh.build import ARCHES
@@ -9,7 +10,9 @@ def selected(config, marker=None):
     """Whether -m names `marker` (expensive tests build their parameters only then), or, when None,
     whether it selects unmarked tests."""
     expr = config.option.markexpr
-    if marker: return marker in expr and f"not {marker}" not in expr
+    if marker:
+        token = rf"\b{re.escape(marker)}\b"
+        return bool(re.search(token, expr)) and not re.search(rf"\bnot\s+{token}", expr)
     from _pytest.mark.expression import Expression
     return not expr or Expression.compile(expr).evaluate(lambda name, **kwargs: False)
 

@@ -1,22 +1,35 @@
 """Consumer headers compile on host/device and compute the parameterized IR expansions."""
-import ctypes, hashlib, itertools, random, struct, subprocess, tempfile
+import hashlib, random, re, struct, subprocess, sys, tempfile
 from pathlib import Path
 from types import SimpleNamespace
+from functools import cache
 import pytest
 from sass import paths
 from sass.assemble import assemble_instruction
 from sass.emulate import build, definitions
 from sass.semantics import bitvec, family, lifter
 from sass.semantics.evaluate import evaluate
-from tests import cases
-from tests.harness import gpu
-from tests.test_emulate_fp import special
+from tests.harness import definition_functions, gpu, native_full
+from tests.test_emulate_fp import binary, half_boundaries, special
 
 
 @family.definition("test.wide")
 def wide(x):
     """Exercise operands and results above 64 bits."""
     return bitvec.concat(bitvec.extract(x, 63, 0), bitvec.extract(x, 127, 64))
+
+
+@family.definition("test.many")
+def many(x, others):
+    """Five mixed-width arguments, including two independent 128-bit operands."""
+    for other in others: x = x ^ bitvec.zext(other, 128)
+    return x
+
+
+@family.definition("test.mixed")
+def mixed(x, y):
+    """Encode a mixed-width tuple independently of the enumeration argument builder."""
+    return bitvec.concat(y, x)
 
 
 @family.definition("test.overload")
@@ -73,32 +86,9 @@ def selector(x):
     return bitvec.Expr("sel", ("selector", ((0, x), (1, bitvec.const(1, 32)))), 32)
 
 
-def roots(semantics):
-    out = [semantics.guard, *(value for _, value in semantics.writes)]
-    for store in semantics.stores: out.extend((store.cond, store.address, store.value))
-    for effect in semantics.effects: out.extend(effect.args)
-    if semantics.flow: out.extend((semantics.flow.cond, semantics.flow.target))
-    return out
-
-
 def uses_of(arch, text, fp="exact"):
-    return definitions.definition_uses(roots(lifter.lift(arch, assemble_instruction(arch, text), fp=fp)))
-
-
-@pytest.fixture(scope="module")
-def real_uses():
-    """Manual shared cases: deduplicate words before lifting, without generated-plan work."""
-    uses = set()
-    for arch, fp in itertools.product(("SM75", "SM80", "SM89", "SM90"), ("exact", "readable")):
-        words = set()
-        for fam in cases.FAMILIES:
-            for case in cases.stream(arch, fp, fam, 0, None):
-                word = case.request.get("word")
-                if word is None or word in words: continue
-                words.add(word)
-                semantics = lifter.lift(arch, bytes.fromhex(word), fp=fp, conditions=False)
-                uses.update(definitions.definition_uses(roots(semantics)))
-    return sorted(uses)
+    sem = lifter.lift(arch, assemble_instruction(arch, text), fp=fp)
+    return definitions.definition_uses(definition_functions.roots(sem))
 
 
 def test_collect_nested_and_deduplicate():
@@ -148,8 +138,53 @@ def test_reject_unsupported_widths():
 
 def test_real_expansions_accept_parameters(real_uses):
     assert ("prmt.b32", (32, 32, 32)) in real_uses
+    assert len(real_uses) > 100
     for label, widths in real_uses:
-        assert "SASS_HD inline" in definitions.definition_function(label, widths)
+        assert re.fullmatch(r"[A-Za-z0-9.]+", label), (label, widths)
+        params = [bitvec.param(f"a{k}", width) for k, width in enumerate(widths)]
+        expansion = bitvec.lowered(bitvec.DEFINED[label].expand(*params))
+        assert tuple(widths) == family.DEFINITIONS[label][1][len(widths)][2]
+        assert 1 <= expansion.w <= 128
+        allowed = set(params)
+        for node in definitions.nodes([expansion]):
+            assert node.op not in ("reg", "load", "primitive", "sel"), (label, node)
+            assert node.op != "param" or node in allowed, (label, node)
+            assert 1 <= node.w <= 128, (label, node)
+        assert f"sass::Bits<{expansion.w}>" in definitions.definition_function(label, widths)
+
+
+@pytest.mark.parametrize("marker, count", [(None, 0), ("native", 0), ("native_full", 15)])
+def test_full_suite_selection(marker, count):
+    command = [sys.executable, "-m", "pytest", "--collect-only", "-q", "tests/test_native_full.py"]
+    if marker: command.extend(["-m", marker])
+    result = subprocess.run(command, capture_output=True, text=True)
+    assert result.returncode == (0 if count else 5), result.stdout + result.stderr
+    collected = [line for line in result.stdout.splitlines() if line.startswith("tests/test_native_full.py::")]
+    assert len(collected) == count, result.stdout
+
+
+@pytest.mark.native
+def test_full_enumeration_counts_boundaries_and_mismatch():
+    equal = native_full.Enumeration("boundary.RN", (3, 2), "sass::u128(index) << 96", "sass::u128(index) << 96")
+    mismatch = native_full.Enumeration("mismatch.RZ", (3, 2), "sass::u128(index) << 96",
+                                      "(sass::u128(index) << 96) ^ (sass::u128(index == 31) << 100)")
+    empty = native_full.Enumeration("empty", (), "sass::u64(7)", "sass::u64(7)")
+    mixed(bitvec.param("low", 3), bitvec.param("high", 2))
+    use = ("test.mixed", (3, 2))
+    encoded = native_full.Enumeration("encoding", (3, 2), native_full.defined(use).soft, "sass::u64(index)")
+    fn = native_full.compiled([equal, mismatch, empty, encoded], [use])
+    assert native_full.complete(fn, 0, equal)[0] == 32
+    assert native_full.complete(fn, 2, empty)[0] == 1
+    assert native_full.complete(fn, 3, encoded)[0] == 32
+    assert equal.inputs(0) == (0, 0) and equal.inputs(31) == (7, 3)
+    assert native_full.chunk(fn, 1, mismatch, 0, 31) == 31
+    with pytest.raises(AssertionError, match=r"mismatch.RZ, signature \(3, 2\), index 0x1f, inputs"):
+        native_full.chunk(fn, 1, mismatch, 31, 1)
+    import ctypes
+    out = (ctypes.c_uint64 * 5)()
+    assert fn(0, 32, 0, out) == 0
+    for start, count in ((32, 1), (33, 0), (0, native_full.CHUNK + 1)):
+        assert fn(0, start, count, out) == bitvec.mask(64)
 
 
 def test_nested_expansion_and_empty_header():
@@ -166,8 +201,9 @@ def extra_uses():
     overload(bitvec.param("x", 32))
     overload(bitvec.param("x", 32), (bitvec.param("y", 32),))
     nested(bitvec.param("x", 32))
+    many(bitvec.param("wide", 128), tuple(bitvec.param(f"other{k}", w) for k, w in enumerate((1, 32, 64, 128))))
     return [("test.wide", (128,)), ("test.overload", (32,)), ("test.overload", (32, 32)),
-            ("test.nested", (32,))]
+            ("test.nested", (32,)), ("test.many", (128, 1, 32, 64, 128))]
 
 
 def vectors(widths):
@@ -184,69 +220,85 @@ def vectors(widths):
         for value in values:
             row = [0] * len(widths); row[k] = value
             yield tuple(row)
+    # Conversion midpoints and their immediate neighbours exercise all rounding modes.
+    for width in (32, 64):
+        if width not in widths: continue
+        # The direct FP suite checks every selected midpoint. Keep this per-definition
+        # corpus bounded while spanning zero/subnormal/normal/overflow transitions.
+        boundaries = list(half_boundaries(width))
+        for value in dict.fromkeys([*boundaries[:18], *boundaries[::64], *boundaries[-6:]]):
+            yield tuple(value if w == width else 0 for w in widths)
+        if widths.count(width) >= 2:
+            first, second = [k for k, w in enumerate(widths) if w == width][:2]
+            for a, b in binary(width, 710 + width, 16):
+                row = [0] * len(widths)
+                row[first], row[second] = a, b
+                yield tuple(row)
     rng = random.Random(710)
     for _ in range(64): yield tuple(rng.getrandbits(width) for width in widths)
 
 
-def wrapper(uses, device=False):
-    """One dispatch function; every operand/result travels as two u64 limbs."""
-    head = ('extern "C" __global__ void run(const sass::u64 *input, sass::u64 *output) {\n'
-            '  const unsigned thread = blockIdx.x * blockDim.x + threadIdx.x;\n'
-            '  const sass::u64 *a = input + (thread / 2) * 8;\n'
-            '  sass::u64 *out = output + thread;\n'
-            '  const unsigned which = a[6];') if device else (
-            'extern "C" void run(unsigned which, const sass::u64 *a, sass::u64 *out) {')
-    lines = [head, "  switch (which) {"]
-    for i, (label, widths) in enumerate(uses):
-        args = [f"sass::Bits<{width}>(a[{2*k}])" if width <= 64 else
-                f"(sass::u128(a[{2*k}]) | sass::u128(a[{2*k+1}]) << 64)"
-                for k, width in enumerate(widths)]
-        name = definitions.definition_name(label, widths)
-        outputs = ["      out[0] = thread % 2 ? sass::u64(sass::u128(value) >> 64) : sass::u64(value);"] if device else [
-            "      out[0] = sass::u64(value);", "      out[1] = sass::u64(sass::u128(value) >> 64);"]
-        lines.extend([f"    case {i}: {{", f"      auto value = sass::def::{name}({', '.join(args)});",
-                      *outputs, "      break;", "    }"])
-    return "\n".join([*lines, "  }", "}"])
+@cache
+def expression(label, widths):
+    params = [bitvec.param(f"a{k}", width) for k, width in enumerate(widths)]
+    return bitvec.DEFINED[label].expand(*params)
 
 
 def expected(label, widths, values):
-    params = [bitvec.param(f"a{k}", width) for k, width in enumerate(widths)]
-    expression = bitvec.lowered(bitvec.DEFINED[label].expand(*params))
-    return evaluate(expression, None, dict(zip((p.args[0] for p in params), values)))
+    return evaluate(expression(label, widths), None, {f"a{k}": value for k, value in enumerate(values)})
 
 
 @pytest.mark.native
 @pytest.mark.parametrize("backend", ("softfloat", "host"))
 def test_generated_functions(real_uses, backend):
     uses = sorted(set(real_uses + extra_uses()))
-    # Batch compilation bounds translation-unit size and reuses build.library's source cache.
-    for start in range(0, len(uses), 48):
-        batch = uses[start:start + 48]
-        prefix = "" if backend == "softfloat" else "#undef SASS_FP_SOFT\n"
-        source = prefix + definitions.definitions_header(batch).replace("#pragma once\n", "") + wrapper(batch)
-        lib = build.library(source, f"definitions-{backend}")
-        fn = lib.run
-        fn.argtypes = [ctypes.c_uint, ctypes.POINTER(ctypes.c_uint64), ctypes.POINTER(ctypes.c_uint64)]
-        fn.restype = None
+    for start in range(0, len(uses), definition_functions.BATCH):
+        batch = uses[start:start + definition_functions.BATCH]
+        fn = definition_functions.compiled(batch, backend)
+        oracle = definition_functions.compiled(batch, "softfloat") if backend == "host" else None
         for i, (label, widths) in enumerate(batch):
             for values in vectors(widths):
-                limbs = [limb for value in values for limb in (value & bitvec.mask(64), value >> 64)]
-                inputs = (ctypes.c_uint64 * max(1, len(limbs)))(*limbs)
-                output = (ctypes.c_uint64 * 2)()
-                fn(i, inputs, output)
-                assert output[0] | output[1] << 64 == expected(label, widths, values), (backend, label, values)
+                want = (definition_functions.call(oracle, i, values) if oracle else
+                        expected(label, widths, values))
+                assert definition_functions.call(fn, i, values) == want, (backend, label, widths, values)
 
 
 @pytest.mark.gpu
-def test_generated_functions_cuda(request):
+def test_generated_functions_cuda(request, real_uses):
     arch = gpu.target(request.config)
     if arch is None: pytest.skip(request.config._gpu_unavailable)
-    uses = set(extra_uses()[:1])
-    for text in ("FMNMX.FTZ R0, R2, R3, PT", "FSETP.LTU.AND P0, PT, R2, R3, PT",
-                 "F2F.F16.F32 R0, R2", "PRMT R0, R2, R4, R3", "IMAD.WIDE.U32 R0, R2, R3, R4"):
-        uses.update(uses_of(arch, text))
-    uses = sorted(uses)
-    source = definitions.definitions_header(uses).replace("#pragma once\n", "") + wrapper(uses, device=True)
+    uses = sorted(set(real_uses + extra_uses()))
+    driver = gpu.Driver(arch)
+    try:
+        for start in range(0, len(uses), definition_functions.BATCH):
+            batch = uses[start:start + definition_functions.BATCH]
+            source = definitions.definitions_header(batch).replace("#pragma once\n", "") + definition_functions.wrapper(batch, device=True)
+            image = cuda_image(arch, source)
+            oracle = definition_functions.compiled(batch, "softfloat")
+            stride = 1 + 2 * max(map(lambda use: len(use[1]), batch))
+            data, want, rows = [], [], []
+            for i, (label, widths) in enumerate(batch):
+                for values in vectors(widths):
+                    limbs = [limb for value in values for limb in (value & bitvec.mask(64), value >> 64)]
+                    data.extend([i, *limbs, *([0] * (stride - 1 - len(limbs)))])
+                    value = definition_functions.call(oracle, i, values)
+                    want.extend((value & bitvec.mask(64), value >> 64))
+                    rows.append((label, widths, values))
+            padding = (-len(rows)) % 16
+            data.extend(data[:stride] * padding)
+            want.extend(want[:2] * padding)
+            fixture = SimpleNamespace(image=image.read_bytes(), kernel="run",
+                                      data=struct.pack("<" + "Q" * len(data), *data), threads=2 * (len(rows) + padding),
+                                      block=32, output_size=8, arguments=())
+            got = driver.run(fixture)
+            assert len(got) == len(want)
+            for i, row in enumerate(rows):
+                assert got[2*i:2*i+2] == want[2*i:2*i+2], (arch, row, got[2*i:2*i+2], want[2*i:2*i+2])
+    finally:
+        driver.close()
+
+
+def cuda_image(arch, source):
     flags = ["--allow-unsupported-compiler", "-std=c++20", "-ftz=false", "--fmad=false", "-cubin",
              f"-arch=sm_{arch[2:]}", "-I", str(build.INCLUDE)]
     version = subprocess.run([paths.NVCC, "--version"], capture_output=True, text=True, check=True).stdout
@@ -260,21 +312,4 @@ def test_generated_functions_cuda(request):
             cu.write_text(source)
             subprocess.run([paths.NVCC, *flags, str(cu), "-o", str(cubin)], check=True)
             cubin.replace(image)
-    data, want = [], []
-    for i, (label, widths) in enumerate(uses):
-        for values in vectors(widths):
-            limbs = [limb for value in values for limb in (value & bitvec.mask(64), value >> 64)]
-            data.extend([*limbs, *([0] * (6 - len(limbs))), i, 0])
-            value = expected(label, widths, values)
-            want.extend((value & bitvec.mask(64), value >> 64))
-    rows = len(want) // 2
-    padding = (-rows) % 32
-    data.extend(data[:8] * padding); want.extend(want[:2] * padding)
-    # Two threads compute one row, each returning one u64 limb through the existing driver.
-    fixture = SimpleNamespace(image=image.read_bytes(), kernel="run",
-                              data=struct.pack("<" + "Q" * len(data), *data), threads=2 * (rows + padding),
-                              block=32, output_size=8, arguments=())
-    driver = gpu.Driver(arch)
-    try: got = driver.run(fixture)
-    finally: driver.close()
-    assert got == want
+    return image
