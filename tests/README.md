@@ -162,7 +162,7 @@ Need an SM89 or SM90 device (outside the sandbox), but not Ghidra.
 | `test_cases_on_gpu.py` | do shared instruction cases agree with hardware? | `refs/`, through generated native probes | SM89/SM90 GPU; what each scenario returned is recorded in `baseline/gpu_observations/SMxx.jsonl` |
 | `test_refs_on_gpu.py` | are the references right on hardware? | `refs/`, through the GPU fixtures | SM89/SM90 GPU (CLI `uv run python -m tests.observe FAMILY`); records passing fixtures' fingerprints in `baseline/gpu_passes.json`, which with the shared-case observations is the source of `gpu` evidence (`tests/evidence.py`, per class and per form: the modifier combinations that ran) |
 | `test_assemble.py::test_native_cubin_on_gpu` | do native cubins load and execute? | self-contained kernels assembled without compiled templates | SM89/SM90 Driver API: parameters, branches, constants, shared memory, multiple entries |
-| `test_fp_cuda.py` | do all CUDA floating-point templates compile and return exact results? | `fp_cuda.hpp` and device softfloat fallback | Python softfloat across widths/modes, exceptional values, subnormals, scaled multiply and conversion pairs |
+| `test_fp_cuda.py` | do all CUDA floating-point templates compile and return exact results? | `fp_cuda.hpp`, shared conversion and scaled-operand helpers | Python softfloat across widths/modes, exceptional values, subnormals, scaled multiply and conversion pairs |
 
 `test_cases_on_gpu.py` runs the hardware-valid cases from `emulator_cases(c)` directly: encoded
 words, seeded registers, constants and independent reference outputs are shared with the Python
@@ -203,18 +203,27 @@ nice uv run pytest -m gpu --require-gpu tests/test_fp_cuda.py  # outside the san
 
 `test_emulate_fp.py` compares both `native.fp` (softfloat) and `native.fp_host` with Python
 softfloat across all widths/modes, including same-width conversions and scale boundaries
-−512/512 and fallback scales −513/513. Exhaustive runs enumerate every FP16 source encoding
-for conversions and increase the random arithmetic corpus fivefold. The CUDA smoke kernel
+−512/512, −513/513, −1024/1024 and −2048/2048. Exhaustive runs enumerate every FP16 source
+encoding for conversions, both signs of every finite half conversion midpoint and its
+adjacent FP32/FP64 source encodings, and increase the random arithmetic corpus fivefold.
+Scaled-product cases move exact products across overflow, normal/subnormal and
+zero-rounding boundaries, including extreme signed-int scales. The CUDA smoke kernel
 instantiates every template and checks device selection even with `SASS_FP_SOFT` defined;
-its build flags retain subnormals and disable contraction. Host environment tests isolate
+its exhaustive corpus includes the same half conversion boundaries and a larger half FMA
+sample; its build flags retain subnormals and disable contraction. Host environment tests isolate
 MXCSR mutation and caller rounding-mode checks in subprocesses, preserving the pytest process.
 See [backend requirements](../docs/emulation.md#floating-point-backends-2026-10-27).
 
-On 2026-10-27, both CPU backends passed the focused tests with Clang (exhaustive)
-and GCC (default corpus). The exhaustive backend, generated-operator, primitives,
+On 2026-10-27, the initial exhaustive backend, generated-operator, primitives,
 examples and selected FP64 SM89/SM90 native-emulator run passed 472 tests in 109 s
-from a cold worktree cache; the focused GCC run passed 367 tests in 10 s.
-The two CUDA selector configurations passed on SM89 in 6 s, including compilation.
+from a cold worktree cache. After removing the accelerated backends' softfloat dependencies,
+Clang's complete exhaustive operator/environment checks passed 488 tests in 82 s.
+After the final host tiny-result optimization, exhaustive scaled-product, multiply, FMA
+and rounding checks passed 343 tests in 35 s; explicitly selecting `CXX=g++` passed
+513 default-corpus backend, generated-operator, primitives and example tests in 39 s.
+The two exhaustive CUDA selector configurations passed on SM89 in 46 s, including
+compilation; the final focused selector checks passed in 10 s. The default compiler
+in this checkout was Clang, so GCC must be selected explicitly to reproduce its run.
 These results validate the backend operators; CUDA verification on SM90 remains separate.
 
 ## Writing tests

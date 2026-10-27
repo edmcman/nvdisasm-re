@@ -1,6 +1,7 @@
 // Strict native arithmetic. Compile with dynamic rounding and contraction disabled.
 #pragma once
-#include "sass/softfloat.hpp"
+#include "sass/fp_convert.hpp"
+#include "sass/fp_multiply.hpp"
 #ifndef __CUDA_ARCH__
 #include <cfenv>
 #include <cmath>
@@ -18,7 +19,7 @@ class Rounding {
   int saved;
   bool changed;
 public:
-  explicit Rounding(Rnd mode) : saved(std::fegetround()), changed(false) {
+  explicit SASS_FORCEINLINE Rounding(Rnd mode) : saved(std::fegetround()), changed(false) {
     const int modes[] = {FE_TONEAREST, FE_TOWARDZERO, FE_UPWARD, FE_DOWNWARD};
     changed = saved != modes[mode];
     if (saved == -1 || (changed && std::fesetround(modes[mode])))
@@ -30,11 +31,30 @@ public:
 };
 
 template <int W> SASS_HD inline u64 canonical(u64 bits) {
-  return softfloat::isnan<W>(bits) ? softfloat::nan<W>() : bits;
+  return is_nan<W>(bits) ? nan_bits<W>() : bits;
 }
 
 SASS_HD inline double half(u64 bits) {
-  return value<64>(softfloat::convert<16, 64>(bits, RN));
+  return value<64>(fp_convert::half_to<64>(bits));
+}
+
+// Both inputs are prepared normal operands with combined exponent below minimum.
+// Round their exact product on the subnormal grid, avoiding SSE's tiny-result penalty.
+template <int W> SASS_HD SASS_FORCEINLINE u64 tiny_product(u64 a, u64 b, Rnd mode) {
+  constexpr int M = fraction_bits<W>(), B = W == 32 ? 127 : 1023;
+  constexpr u64 fraction = (u64(1) << M) - 1;
+  using Wide = std::conditional_t<W == 32, u64, unsigned __int128>;
+  const int e = int((a >> M) & (2 * B + 1)) + int((b >> M) & (2 * B + 1)) - 2 * B;
+  const int shift = M + (1 - B) - e;  // bounded by M+1 .. 2M+2
+  const Wide product = Wide((a & fraction) | (u64(1) << M)) * ((b & fraction) | (u64(1) << M));
+  const u64 q = product >> shift, sign = (a ^ b) & (u64(1) << (W - 1));
+  const bool guard = (product >> (shift - 1)) & 1;
+  const bool sticky = (product & ((Wide(1) << (shift - 1)) - 1)) != 0;
+  const bool up = mode == RN ? guard && (sticky || (q & 1))
+                  : mode == RP ? (guard || sticky) && !sign
+                  : mode == RM ? (guard || sticky) && sign : false;
+  // q may carry into the first normal binade; its encoding still equals q.
+  return sign | (q + up);
 }
 
 // TwoSum gives s + residual exactly. RN and no contraction are required by its proof.
@@ -58,7 +78,7 @@ SASS_HD inline OddSum round_odd_sum(double product, double addend) {
 
 template <int W> SASS_HD inline u64 add(u64 a, u64 b, Rnd mode) {
   if constexpr (W == 16) {
-    Rounding rounding(RN);
+    // All half sums fit exactly in double; zero signs are handled explicitly below.
     volatile double x = half(a), y = half(b), result = x + y;
     u64 bits = canonical<64>(encoding<64>(result));
     if ((bits & 0x7fffffffffffffffULL) == 0) {
@@ -66,7 +86,7 @@ template <int W> SASS_HD inline u64 add(u64 a, u64 b, Rnd mode) {
                        ? a >> 15 : mode == RM;
       return u64(sign) << 15;
     }
-    return softfloat::convert<64, 16>(bits, mode);
+    return fp_convert::to_half<64>(bits, mode);
   } else {
     Rounding rounding(mode);
     volatile Native<W> x = value<W>(a), y = value<W>(b), result = x + y;
@@ -74,56 +94,44 @@ template <int W> SASS_HD inline u64 add(u64 a, u64 b, Rnd mode) {
   }
 }
 
-template <int W> SASS_HD inline u64 mul(u64 a, u64 b, Rnd mode, int scale) {
-  if constexpr (W == 64) {
-    if (scale) return softfloat::mul<W>(a, b, mode, scale);
-    Rounding rounding(mode);
-    volatile double x = value<64>(a), y = value<64>(b), result = x * y;
-    return canonical<64>(encoding<64>(result));
+template <int W> SASS_HD SASS_FORCEINLINE u64 mul(u64 a, u64 b, Rnd mode, int scale) {
+  if constexpr (W == 16) {
+    // The 22-bit product is exact in double in every caller rounding mode.
+    volatile double x = half(a), y = half(b), product = x * y;
+    return fp_convert::to_half<64>(canonical<64>(encoding<64>(product)), mode, scale);
   } else {
-    if constexpr (W == 32) {
-      if (!scale) {
-        Rounding rounding(mode);
-        volatile float x = value<32>(a), y = value<32>(b), result = x * y;
-        return canonical<32>(encoding<32>(result));
-      }
+    u64 scaled_a = a, scaled_b = b;
+    if (scale && !fp_convert::scale_normal<W>(a, scale, scaled_a)
+              && !fp_convert::scale_normal<W>(b, scale, scaled_b)) {
+      const auto operands = fp_multiply::prepare<W>(a, b, mode, scale);
+      if (!operands.multiply) return operands.result;
+      scaled_a = operands.a;
+      scaled_b = operands.b;
+      constexpr int M = fraction_bits<W>(), B = W == 32 ? 127 : 1023;
+      if (int((scaled_a >> M) & (2 * B + 1)) + int((scaled_b >> M) & (2 * B + 1)) < B + 1)
+        return tiny_product<W>(scaled_a, scaled_b, mode);
     }
-    if (scale < -512 || scale > 512) return softfloat::mul<W>(a, b, mode, scale);
-    Rounding rounding(RN);
-    volatile double x = W == 16 ? half(a) : double(value<32>(a));
-    volatile double y = W == 16 ? half(b) : double(value<32>(b));
-    volatile double product = x * y;
-    volatile double scaled = std::ldexp(product, scale);
-    const u64 bits = canonical<64>(encoding<64>(scaled));
-    if constexpr (W == 16) return softfloat::convert<64, 16>(bits, mode);
-    else {
-      if (softfloat::isnan<64>(bits)) return softfloat::nan<32>();
-      Rounding narrowing(mode);
-      volatile float result = float(scaled);
-      return encoding<32>(result);
-    }
+    Rounding rounding(mode);
+    volatile Native<W> x = value<W>(scaled_a), y = value<W>(scaled_b), result = x * y;
+    return canonical<W>(encoding<W>(result));
   }
 }
 
 template <int W> SASS_HD inline u64 fma(u64 a, u64 b, u64 c, Rnd mode) {
   if constexpr (W == 16) {
-    const auto x = softfloat::unpack<16>(a), y = softfloat::unpack<16>(b), z = softfloat::unpack<16>(c);
-    const int sign = x.term.sign ^ y.term.sign;
-    if (x.kind == softfloat::NaN || y.kind == softfloat::NaN || z.kind == softfloat::NaN)
-      return softfloat::nan<16>();
-    if ((x.kind == softfloat::Inf && y.kind == softfloat::Zero) ||
-        (y.kind == softfloat::Inf && x.kind == softfloat::Zero)) return softfloat::nan<16>();
-    if (x.kind == softfloat::Inf || y.kind == softfloat::Inf)
-      return z.kind == softfloat::Inf && z.term.sign != sign ? softfloat::nan<16>() : softfloat::inf<16>(sign);
-    if (z.kind == softfloat::Inf) return c;
+    const u64 x = a & 0x7fff, y = b & 0x7fff, z = c & 0x7fff, sign = (a ^ b) & 0x8000;
+    if (x > 0x7c00 || y > 0x7c00 || z > 0x7c00) return 0x7e00;
+    if ((x == 0x7c00 && !y) || (y == 0x7c00 && !x)) return 0x7e00;
+    if (x == 0x7c00 || y == 0x7c00)
+      return z == 0x7c00 && ((c ^ sign) & 0x8000) ? 0x7e00 : sign | 0x7c00;
+    if (z == 0x7c00) return c;
     Rounding rounding(RN);
     volatile double av = half(a), bv = half(b), product = av * bv;
     const auto sum = round_odd_sum(product, half(c));
     if (sum.sum == 0 && sum.residual == 0) {
-      const bool zero_product = x.kind == softfloat::Zero || y.kind == softfloat::Zero;
-      return u64(zero_product && z.kind == softfloat::Zero && z.term.sign == sign ? sign : mode == RM) << 15;
+      return ((!x || !y) && !z && !((c ^ sign) & 0x8000)) ? sign : mode == RM ? 0x8000 : 0;
     }
-    return softfloat::convert<64, 16>(encoding<64>(sum.odd), mode);
+    return fp_convert::to_half<64>(encoding<64>(sum.odd), mode);
   } else {
     Rounding rounding(mode);
     volatile Native<W> x = value<W>(a), y = value<W>(b), z = value<W>(c);
@@ -133,9 +141,11 @@ template <int W> SASS_HD inline u64 fma(u64 a, u64 b, u64 c, Rnd mode) {
 }
 
 template <int S, int D> SASS_HD inline u64 convert(u64 bits, Rnd mode) {
-  if constexpr (S == 16 || D == 16 || S == D) return softfloat::convert<S, D>(bits, mode);
+  if constexpr (S == D) return fp_convert::identity<S>(bits);
+  else if constexpr (S == 16) return fp_convert::half_to<D>(bits);
+  else if constexpr (D == 16) return fp_convert::to_half<S>(bits, mode);
   else {
-    if (softfloat::isnan<S>(bits)) return (bits >> (S - 1)) << (D - 1) | softfloat::nan<D>();
+    if (is_nan<S>(bits)) return (bits >> (S - 1)) << (D - 1) | nan_bits<D>();
     Rounding rounding(mode);
     volatile Native<S> source = value<S>(bits);
     volatile Native<D> result = Native<D>(source);
@@ -143,7 +153,7 @@ template <int S, int D> SASS_HD inline u64 convert(u64 bits, Rnd mode) {
   }
 }
 
-template <int W> SASS_HD inline bool isnan(u64 bits) { return softfloat::isnan<W>(bits); }
+template <int W> SASS_HD inline bool isnan(u64 bits) { return is_nan<W>(bits); }
 template <int W> SASS_HD inline auto comparison_value(u64 bits) {
   if constexpr (W == 16) return half(bits);
   else return value<W>(bits);
