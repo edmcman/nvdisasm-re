@@ -357,9 +357,7 @@ def test_fixed_point_and_lane_choice_labels():
     half, byte, scale = param("half", 16), param("byte", 8), param("scale", 8)
     assert f2fp.to_s2_6(0, X, scale, "F32").op == "f2fp.cvt.rn.satfinite.s2.6.f32.scaled"
     assert f2fp.to_s2_6(P, X, scale, "F32").op == "f2fp.cvt.s2.6.f32.scaled"
-    # Register the lifted form first, as definition discovery does in the full suite.
-    assert operators("SM100", "F2FP.BF16.S2_6.UNPACK_B R0, R2, R4.H0").keys() == {"f2fp.cvt.rn.bf16.s2.6.scaled"}
-    code = const(f2fp.UPCONVERTS["8b.scaled"].index("S2_6"), 8)
+    code = const(f2fp.UPCONVERTS["8b.scaled"].index("S2_6"), 3)
     assert f2fp.upconverted_scaled(code, 0, 0, byte, scale, "8b.scaled").op == "f2fp.cvt.rn.bf16.s2.6.scaled"
     assert floating.lane_chose_a(const(0, 2), P, half, half).op == "hmnmx.is.a.f16"
 

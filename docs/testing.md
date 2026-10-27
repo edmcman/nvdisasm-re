@@ -646,12 +646,3 @@ generic NaNs rather than the GPU's. The SM89 probes behind `hardware-facts.md` "
 results" fixed every NaN bit; the semantics now produce them (`semantics.md` section 3) and the
 generators compute expectations with `refs.float.rounded`, so NaN results create evidence. The one
 remaining NaN-class check, `__fp8_nan`, covers SM100+ FP8 downconversion, which has no hardware here.
-
-## Definition discovery and selector widths (2026-10-27)
-
-PR #98's expanded all-architecture discovery exposed an order-dependent label test:
-`test_fixed_point_and_lane_choice_labels` passed a 3-bit S2_6 source-format constant,
-while the lifter registers that choice as an 8-bit constant. Defined operators require
-their fixed expression arguments to agree, including widths. The test now uses the
-lifter's 8-bit selector and first lifts a scaled S2_6 instruction, so the registration
-conflict is exercised even when this test runs alone.
