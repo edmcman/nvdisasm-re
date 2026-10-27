@@ -357,19 +357,6 @@ loading that same library from cache took 0.0005 s. Enumeration results are not 
 every invocation compares the complete input domains again. Discovery also runs once in
 each pytest session even when the C++ libraries are cached.
 
-The validation machine had loaded NVIDIA kernel driver 580.178.04 while installed
-userspace libraries were 580.196.07. Normal CUDA initialization failed with status 804.
-Matching 580.178.04 userspace libraries were downloaded from the configured NVIDIA
-repository and extracted under `/tmp/n6-driver`, then selected only for the test process:
-
-```sh
-LD_LIBRARY_PATH=/tmp/n6-driver/root/usr/lib/x86_64-linux-gnu \
-    nice uv run pytest -m gpu --require-gpu --arch SM89 tests/test_definition_functions.py tests/test_fp_cuda.py
-```
-
-This initialized the RTX 4070 Laptop GPU with CUDA driver API 13.0. The ordinary GPU
-command above applies when the installed userspace and loaded kernel driver match.
-
 ## Writing tests
 
 Each `cases/<family>.py` (listed in `cases/__init__.py` `FAMILIES`) provides `emulator_cases(c)`

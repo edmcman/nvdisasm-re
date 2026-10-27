@@ -1,5 +1,6 @@
 """Consumer headers compile on host/device and compute the parameterized IR expansions."""
 import hashlib, random, re, struct, subprocess, sys, tempfile
+from itertools import product
 from pathlib import Path
 from types import SimpleNamespace
 from functools import cache
@@ -138,6 +139,7 @@ def test_reject_unsupported_widths():
 
 def test_real_expansions_accept_parameters(real_uses):
     assert ("prmt.b32", (32, 32, 32)) in real_uses
+    assert ("lut3", (8, 1, 1, 1)) in real_uses
     assert len(real_uses) > 100
     for label, widths in real_uses:
         assert re.fullmatch(r"[A-Za-z0-9.]+", label), (label, widths)
@@ -151,6 +153,43 @@ def test_real_expansions_accept_parameters(real_uses):
             assert node.op != "param" or node in allowed, (label, node)
             assert 1 <= node.w <= 128, (label, node)
         assert f"sass::Bits<{expansion.w}>" in definitions.definition_function(label, widths)
+
+
+@pytest.mark.native
+@pytest.mark.parametrize("backend", ("softfloat", "host"))
+def test_generated_lut3_complete_domain(backend):
+    use = ("lut3", (8, 1, 1, 1))
+    assert use in uses_of("SM89", "PLOP3.LUT P0, P1, P2, P3, P4, 0xa8, 0x96")
+    assert definitions.definition_name(*use) == "lut3"
+    header = definitions.definitions_header([use])
+    assert "sass::Bits<1> lut3(sass::Bits<8> a0," in header
+    fn = definition_functions.compiled([use], backend)
+    for table in range(256):
+        for p, q, r in product((0, 1), repeat=3):
+            assert definition_functions.call(fn, 0, (table, p, q, r)) == (
+                table >> (4 * p + 2 * q + r) & 1)
+
+
+@pytest.mark.gpu
+def test_generated_lut3_cuda_complete_domain(request):
+    arch = gpu.target(request.config)
+    if arch is None: pytest.skip(request.config._gpu_unavailable)
+    use = ("lut3", (8, 1, 1, 1))
+    assert use in uses_of(arch, "PLOP3.LUT P0, P1, P2, P3, P4, 0xa8, 0x96")
+    source = definitions.definitions_header([use]).replace("#pragma once\n", "") + definition_functions.wrapper([use], device=True)
+    data, want = [], []
+    for table in range(256):
+        for p, q, r in product((0, 1), repeat=3):
+            data.extend((0, table, 0, p, 0, q, 0, r, 0))
+            want.extend((table >> (4 * p + 2 * q + r) & 1, 0))
+    fixture = SimpleNamespace(image=cuda_image(arch, source).read_bytes(), kernel="run",
+                              data=struct.pack("<" + "Q" * len(data), *data), threads=len(want),
+                              block=32, output_size=8, arguments=())
+    driver = gpu.Driver(arch)
+    try:
+        assert driver.run(fixture) == want
+    finally:
+        driver.close()
 
 
 @pytest.mark.parametrize("marker, count", [(None, 0), ("native", 0), ("native_full", 15)])
