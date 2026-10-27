@@ -2,8 +2,8 @@
 
 Each test checks one artifact against one oracle, so a failure points at one component. Tests are
 grouped by what they need to run; markers say only that: `ghidra` (compiled SLEIGH languages and
-Ghidra's pyghidra venv), `gpu` (an SM89 or SM90 device), `native` (the C++ emulator), and
-`k` (K Framework 7.1.337).
+Ghidra's pyghidra venv), `gpu` (an SM89 or SM90 device), `native` (the C++ emulator),
+`native_full` (complete C++ input enumerations), and `k` (K Framework 7.1.337).
 
 - [Running](#running): commands, options, what to run when, cost
 - [Suites](#suites): what each test file checks, and against what
@@ -23,6 +23,7 @@ uv run sass-build-languages                            # before the Ghidra tests
 uv run pytest -m ghidra --arch all --fp all            # Ghidra tests
 uv run pytest -m gpu --require-gpu                     # GPU tests (outside the sandbox)
 uv run pytest -m native --arch SM89,SM90               # the native emulator: C++ runtime, generated code, kernels
+nice uv run pytest -m native_full -s                  # complete C++ enumerations, with benchmark progress
 nice uv run pytest -m k --arch SM89,SM90 --fp all       # execute and prove the handwritten K IR model
 ```
 
@@ -73,12 +74,16 @@ Rough wall times and peak memory (summed PSS) on a 32-core, 93 GiB machine with 
 | Run | Time | Memory |
 |---|---|---|
 | Python tests, SM89 | 25 s | 10 GiB |
-| `test_definition_functions.py`, structural tests (2026-10-27) | 14 s, including discovery from manual cases on SM75/80/89/90 in both FP modes | |
-| `test_definition_functions.py -m native` (2026-10-27) | 27 s cold, including discovery and both C++ backends | |
-| `test_definition_functions.py -m gpu --require-gpu`, SM89 (2026-10-27) | about 4 s | |
+| Definition discovery, all 10 architectures and both FP modes (2026-10-27) | 111 s; 893 signatures from manual and generated cases | |
+| Four regular backend files plus structural checks, GCC (2026-10-27) | 157 s, 509 tests; includes discovery | |
+| Same regular checks, Clang (2026-10-27) | 222 s with full enumeration also running; 509 tests | |
+| Definition CUDA and existing FP backend checks, SM89 (2026-10-27) | 254 s with full enumeration also running; 3 tests, 893 discovered signatures | |
+| Complete C++ enumerations, all-architecture inventory (2026-10-27) | 608 s, 15 tests; 563 domains, 878,099,506,688 comparisons | |
 | `test_emulate_cases.py`, SM89 (2026-10-23) | 2 minutes cold (a C++ library per shard), seconds cached | |
 | `test_kernels_native.py`, SM89 and SM90 (2026-10-23) | 4 minutes cold (about 1,000 kernels compile), under a minute cached | |
 | N7 focused native checks, 529 tests (2026-10-27) | 55 s without competing test jobs; generated-function discovery 13 s | |
+| Combined N6/N7 regular checks, 696 tests (2026-10-27) | 187 s; all-architecture manual/generated discovery 122 s | |
+| Combined N6/N7 softfloat integration/random-IR/examples, 26 tests (2026-10-27) | 16 s with warm caches | |
 | N7 softfloat integration/random-IR/examples, 22 tests (2026-10-27) | 21 s without competing test jobs | |
 | Native shared cases, kernels and equivalence, SM89/SM90 and both FP modes, 5,102 tests (2026-10-27) | 4 min 39 s with cold host/generated-call libraries; kernel execution/compilation phase 212 s | |
 | Python tests, every architecture and lowering | 3 minutes | 13 GiB (25 GiB with `--exhaustive`) |
@@ -132,6 +137,8 @@ libraries), so `test_pydecode_disassembly` checks synthetic and mutated words on
 | `test_mufu.py` | does the MUFU runtime match hardware? | the C++ MUFU model (`include/sass/mufu.hpp`), the runtime's MUFU primitive | `refs/mufu.py`, recorded SM89 outputs |
 | `test_emulate_fp.py`, `test_emulate_primitives.py` (`-m native`) | do both explicit CPU floating-point backends and the primitives compute the IR? | `softfloat.hpp`, `fp_host.hpp`, `primitives.hpp` | `bitvec.OPS` (Python softfloat), `refs/primitive.py` |
 | `test_fp_backends.py` (`-m native`) | do selection, environment rejection/restoration and FP16 round-to-odd work? | `fp.hpp`, host FMA, library loading | Python softfloat, exact residual/odd assertions, isolated subprocesses |
+| `test_definition_functions.py` (structural, `-m native`, `-m gpu`) | do discovered definitions expand over parameters and compile as pure functions? | `sass.emulate.definitions`, generated host/softfloat/CUDA functions, arbitrary arity and 128-bit values | Python `evaluate`, then compiled softfloat |
+| `test_native_full.py` (`-m native_full` only) | do complete small input domains agree between C++ backends? | FP16 add/multiply, conversions, discovered definitions with at most 32 operand bits | compiled softfloat against host, enumeration counts and endpoints |
 | `test_emulate_ops.py` (`-m native`) | does the generated C++ compute the IR? | `sass.emulate.cxx` on random unsimplified trees over every operator | `evaluate` |
 | `test_native_definitions.py` (`-m native`) | do generated calls preserve pre-state, guards, laziness and instruction faults? | `codegen` fragments/kernels, function collection, 128-bit values and overloads | `evaluate`, inline lowering, SM89/SM90 and both FP modes |
 | `test_emulate_cases.py` (`-m native`) | does the generated C++ compute the right values? | `sass.emulate.cxx` fragments, a library per shard | `refs/`, through the emulator cases (not `__events`) |
@@ -234,7 +241,8 @@ in this checkout was Clang, so GCC must be selected explicitly to reproduce its 
 These results validate the backend operators; CUDA verification on SM90 remains separate.
 
 N7 validation (2026-10-27) switches the native default to the host backend and generated
-operator calls. The focused suite below passed 529 tests in 55 s without competing test jobs.
+operator calls. Before integrating N6's expanded inventory, the focused suite below passed
+529 tests in 55 s without competing test jobs.
 The same run took 180 s alongside cold kernel compilation: discovery alone rose from 13 s
 to 55 s and returned to 13 s in the quiet repeat. This is compilation contention, not a new
 validation baseline. The SM89/SM90 shared-case, whole-kernel and equivalence run passed
@@ -242,6 +250,13 @@ validation baseline. The SM89/SM90 shared-case, whole-kernel and equivalence run
 The softfloat override passed 22 integration, random-IR and example tests in 21 s without
 competing test jobs (84 s alongside cold kernel compilation). Definition and generated-function
 structural checks passed 159 tests in 20 s, including the 13 s manual-case discovery phase.
+After integrating N6, the combined regular suite passed 696 tests in 187 s. Its discovery
+took 122 s because it includes generated cases on all ten architectures and both FP modes,
+rather than the earlier manual-only SM89 inventory. The shared helper explicitly selects
+each backend, and the complete-domain runner includes both backend headers; a regular
+regression compiles that runner and checks its first and last FP16 arithmetic/conversion chunks.
+The softfloat override passed 26 integration, random-IR and example checks in 16 s with warm
+caches after the combined run.
 
 ```sh
 nice uv run pytest -m native tests/test_native_definitions.py tests/test_fp_backends.py \
@@ -260,6 +275,100 @@ or their `Fragments`/`Kernel` wrappers selects inline expansion.
 The reproducible four-way benchmark is
 [`research/native_backend_benchmark.py`](../research/native_backend_benchmark.py);
 its methodology and recorded results are in [emulation.md](../docs/emulation.md).
+
+### Generated definitions and complete C++ enumerations (2026-10-27)
+
+Definition discovery streams manual and generated shared cases on every architecture in
+`sass.sleigh.build.ARCHES`: SM75, SM80, SM86, SM89, SM90, SM100, SM101, SM103, SM107
+and SM120, in both exact and readable modes, always at the existing default sample. Workers
+deduplicate words within each shard and return a representative instruction and result
+width for each label/signature. The parent lifts representatives to register expansions,
+checks widths across streams, and discovers once per test session. Structural tests check
+label grammar, parameter expansion and purity, retaining rejection, overload and wide-value
+regressions. The ordinary backend corpus includes signed zeros, exceptional values,
+subnormals, conversion midpoints, cancellation, arithmetic ties and seeded random tuples.
+Softfloat functions compare with Python `evaluate`; host and CUDA functions compare with
+the compiled softfloat functions. Compilation batches contain at most 48 definitions.
+CUDA dispatch sizes rows to the batch's argument count and carries every operand/result
+as two 64-bit limbs, including a five-argument regression with two 128-bit inputs.
+
+```sh
+nice uv run pytest tests/test_definition_functions.py
+CXX=g++ nice uv run pytest -m native tests/test_definition_functions.py tests/test_emulate_fp.py tests/test_fp_backends.py tests/test_emulate_ops.py
+CXX=clang++ nice uv run pytest -m native tests/test_definition_functions.py tests/test_emulate_fp.py tests/test_fp_backends.py tests/test_emulate_ops.py
+nice uv run pytest -m gpu --require-gpu tests/test_definition_functions.py tests/test_fp_cuda.py  # outside the sandbox
+nice uv run pytest -m native_full -s
+```
+
+`native_full` is registered separately and excluded by default; `-m native` also omits
+it. Marker selection matches whole names so `-m native_full` does not trigger expensive
+native-emulator collection. There is no new CLI option. `--exhaustive` and shared-case
+sampling retain their existing meanings; complete backend enumerations always enumerate
+their full domains.
+
+The full suite compares all 2³² FP16 operand pairs for add and multiply in RN/RZ/RP/RM,
+all 2¹⁶ FP16 encodings widened to FP32 and FP64, all 2³² FP32 encodings narrowed to FP16
+in each rounding mode, and every tuple of each discovered definition whose operands sum
+to at most 32 bits. The FP domains alone contain 51,539,738,624 comparisons. Comparisons
+run inside compiled C++ loops, in chunks of at most 2²⁴ tuples, using constant storage per
+worker rather than input/result arrays. Operand zero varies fastest. Each operation checks
+its exact count and both domain endpoints; failures report the operation/mode, signature,
+input tuple and both results, including high limbs.
+
+Before the remaining chunks start, the full runner benchmarks non-overlapping chunks spread
+across the domain at the same concurrency used by the full enumeration. It reports the
+measured estimate and completed count/time with `-s`. The initial single-thread estimate
+divided by 32 overestimated scaling on the 24-core/32-thread hybrid CPU; the parallel
+benchmark avoids that assumption. Volatile local results keep each comparison observable,
+including when the generated integer bodies are identical, so the compiler cannot replace
+enumeration with a proof of equality.
+
+These tests establish backend implementation agreement. SM89 CUDA results validate these
+generated functions on SM89; they do not add instruction-form GPU evidence on other
+architectures. Autocase plans, references, sampling rules and opcode evidence are unchanged.
+
+The all-architecture regular run used `-m 'not gpu and not native_full'` on those same four
+files to include the structural checks as well: GCC 11.4 passed 509 tests in 156.98 s,
+Clang 14 passed 509 in 221.87 s. Discovery took 111.43/110.23 s respectively. Clang shared
+the CPU with full enumeration; its generated softfloat/host checks took 39.92/29.60 s,
+versus GCC's 21.49/10.20 s. This timing difference includes contention and new compilation
+and is not an isolated compiler-performance comparison.
+
+The expanded CUDA run passed all 893 discovered signatures plus the synthetic arity/width
+regressions on SM89, alongside both existing FP CUDA backend configurations: 3 tests in
+254.22 s. Discovery took 192.45 s while full enumeration competed for CPU; generated
+function compilation and execution took 40.14 s. Earlier batches were cached, while the
+additional architectures introduced new batches. This is a partially cached timing.
+
+The complete all-architecture suite passed 15 tests in 607.61 s with Clang: 563 domains
+(14 direct FP domains and 549 generated definitions), totaling 878,099,506,688 comparisons.
+Discovery took 119.19 s; generated-definition enumeration and compilation took 401.86 s.
+This used cached libraries from the earlier four-architecture inventory and compiled the
+additional batches, while the regular Clang and CUDA checks overlapped parts of the run.
+The earlier four-architecture full run completed 240 domains and 627,069,557,760
+comparisons in 398.62 s. Expanding discovery added 323 eligible domains; the longer
+run reflects that extra work and concurrent validation. Representative parallel chunk
+benchmarks predicted about 8–10 s for complete FP16 arithmetic/min/max domains and
+about 1–2 s for simple integer domains; completed timings stayed near those estimates.
+
+Compilation caches are keyed by the source, headers, compiler identity and flags. A fresh
+Clang compile/load of the representative FP16-add enumeration library took 0.6854 s;
+loading that same library from cache took 0.0005 s. Enumeration results are not cached:
+every invocation compares the complete input domains again. Discovery also runs once in
+each pytest session even when the C++ libraries are cached.
+
+The validation machine had loaded NVIDIA kernel driver 580.178.04 while installed
+userspace libraries were 580.196.07. Normal CUDA initialization failed with status 804.
+Matching 580.178.04 userspace libraries were downloaded from the configured NVIDIA
+repository and extracted under `/tmp/n6-driver`, then selected only for the test process:
+
+```sh
+LD_LIBRARY_PATH=/tmp/n6-driver/root/usr/lib/x86_64-linux-gnu \
+    nice uv run pytest -m gpu --require-gpu --arch SM89 tests/test_definition_functions.py tests/test_fp_cuda.py
+```
+
+This initialized the RTX 4070 Laptop GPU with CUDA driver API 13.0. The ordinary GPU
+command above applies when the installed userspace and loaded kernel driver match.
 
 ## Writing tests
 

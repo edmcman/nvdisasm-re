@@ -254,6 +254,16 @@ nvcc -std=c++20 -ftz=false --fmad=false -I src/sass/emulate/include consumer.cu
 
 This API does not switch the emulator's backend or replace its existing inlined expansions.
 
+Validation (2026-10-27) discovers labels/signatures from manual and generated shared cases
+on every supported architecture in both FP modes. Parameter expansions and purity are checked before
+compilation. The regular native tests compare generated softfloat functions with Python
+`evaluate`, then host functions with softfloat; CUDA tests check the same pure-function
+inventory with arbitrary argument counts and 128-bit inputs/results. The separate
+`native_full` suite compares complete FP16 add/multiply and conversion domains and every
+discovered definition with at most 32 operand bits in bounded C++ chunks.
+See [invocations and timing](../tests/README.md#generated-definitions-and-complete-c-enumerations-2026-10-27).
+These are backend checks; instruction-form evidence remains separate.
+
 ### Operand values (2026-10-07)
 - `src/sass/semantics/operands.py` (`Builder`) preserves exact register effects for all classes and
   builds operand values independently of assembly display.

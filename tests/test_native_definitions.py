@@ -33,6 +33,16 @@ def test_collector_is_optional_and_functions_precede_bodies():
     assert "namespace sass::def" not in codegen.semantic_fragments([s], False)
 
 
+def test_complete_domain_runner_binds_both_backends():
+    from tests.harness import native_full
+    # Compile both explicit namespaces with the host default and exercise boundary chunks.
+    specs = [native_full.floating("add", "RN"), native_full.floating("convert", "RM", 32, 16)]
+    fn = native_full.compiled(specs)
+    for i, spec in enumerate(specs):
+        for start in (0, spec.total - 64):
+            assert native_full.chunk(fn, i, spec, start, 64) == 64
+
+
 def test_signatures_are_validated_before_merging(monkeypatch):
     x = bitvec.reg("R", 0, 1)
     nested(x); overload(x)

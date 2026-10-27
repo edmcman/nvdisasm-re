@@ -2,6 +2,13 @@
 and `gpu` (an SM89 or SM90 device). Plain `pytest` runs the Python tests, which need neither."""
 
 from tests.harness import sampling
+import pytest
+
+
+@pytest.fixture(scope="session")
+def real_uses():
+    from tests.harness import definition_functions
+    return definition_functions.discover()
 
 
 def pytest_addoption(parser):
@@ -22,8 +29,9 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "ghidra: needs compiled SLEIGH languages and Ghidra's pyghidra venv")
     config.addinivalue_line("markers", "gpu: needs an SM89 or SM90 CUDA device")
     config.addinivalue_line("markers", "native: the native emulator (sass.emulate): its C++ runtime, generated code, kernels and equivalence testing")
+    config.addinivalue_line("markers", "native_full: complete C++ input enumerations (explicit opt-in, separate from native)")
     config.addinivalue_line("markers", "k: needs the pinned K Framework toolchain")
-    if not config.option.markexpr: config.option.markexpr = "not ghidra and not gpu and not native and not k"
+    if not config.option.markexpr: config.option.markexpr = "not ghidra and not gpu and not native and not native_full and not k"
 
 
 def pytest_terminal_summary(terminalreporter, config):
