@@ -38,8 +38,8 @@ def location(arch, name):
 
 
 class Kernel(machine.Library):
-    def __init__(self, arch, code, base, fp="exact"):
-        source, self.instructions = codegen.kernel(arch, code, base, fp)
+    def __init__(self, arch, code, base, fp="exact", definition_calls=True):
+        source, self.instructions = codegen.kernel(arch, code, base, fp, definition_calls)
         super().__init__(source, "kernel")
         self.arch, self.code, self.base = arch, code, base
         lib = self.lib

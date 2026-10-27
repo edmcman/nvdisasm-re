@@ -40,9 +40,29 @@ response identical across the engines) and the inherent differences.
 - `codegen.kernel` makes one translation unit per kernel: a function per instruction word, a
   dispatch table, EXIT flags and the decoder's message for undecodable words. `build.library`
   compiles it into `CACHE/emulate` keyed by the source, the runtime headers, the compiler and the
-  flags (`-O2 -ffp-contract=off -fno-fast-math -frounding-math -msse2 -mfpmath=sse
-  -DSASS_FP_SOFT`). Required flags follow `SASS_CXXFLAGS` so custom options cannot silently
-  override strict arithmetic or switch the emulator's backend.
+  flags (`-O2 -ffp-contract=off -fno-fast-math -frounding-math -msse2 -mfpmath=sse`).
+  Required flags follow `SASS_CXXFLAGS` so custom options cannot silently override strict
+  arithmetic. `SASS_CXXFLAGS=-DSASS_FP_SOFT` selects the reference backend; its libraries
+  have different cache keys from the default host libraries.
+
+### Generated operator calls (2026-10-27)
+
+`codegen.fragments`, `codegen.semantic_fragments` and `codegen.kernel` call N5's pure
+defined-operator functions in `sass::def` by default. Each translation unit emits only
+the requested forms, once per signature, before the instruction functions. Operand
+widths determine the registered form and its `Bits<W>` arguments; operand-count
+variants use overloads. Nested definitions inside these functions remain expanded
+inline. Instruction operands still read the pre-state, and primitive arguments in an
+`ite` remain lazy. Guards still precede effects and value evaluation.
+
+Each instruction's functions are validated before its uses join the translation
+unit. An unsupported expansion produces that instruction's `not compiled` fault;
+its partial uses cannot leave invalid functions in the library. Functions must be
+pure, have bound parameters and resolved selectors, and fit in 128-bit values.
+Pass the trailing `definition_calls=False` option to any of the three generators
+to expand definitions inline for comparison or troubleshooting. `machine.Fragments`
+and `kernel.Kernel` expose the same option. Direct `cxx.instruction` and `cxx.Lower`
+retain inline expansion unless given a definition-use collector.
 
 ## Primitives and floating point
 
@@ -72,9 +92,10 @@ Arguments and results are integer IEEE encodings. Arithmetic NaNs are positive c
 quiet NaNs; conversion NaNs keep the source sign and use the destination's canonical payload.
 `fp_common.hpp` owns `Rnd` (RN=0, RZ=1, RP=2, RM=3) and `SASS_HD`.
 
-The emulator still builds with `SASS_FP_SOFT`. The C ABI hook `sass_fp` and Python
-`native.fp` explicitly use the reference. The ABI-identical `sass_fp_host` and
-`native.fp_host` expose the host implementation for comparison without switching the emulator.
+The native emulator defaults to `fp_host`. Use `SASS_CXXFLAGS=-DSASS_FP_SOFT` for
+the explicit reference option. The C ABI hook `sass_fp` and Python `native.fp`
+remain bound to softfloat independently of that selection. The ABI-identical
+`sass_fp_host` and `native.fp_host` explicitly expose the host implementation.
 
 The host backend requires x86 SSE2, IEEE subnormal handling, dynamic rounding support
 (`-frounding-math`), no fast math and no contraction. Every native arithmetic operation
@@ -115,8 +136,8 @@ addends without double rounding. The intermediate calculation establishes RN reg
 of the caller's mode, with contraction disabled. Exact-zero signs and exceptional
 values are handled separately. FP32↔FP64 conversions use native widening or directed
 narrowing. Same-width conversions preserve the encoding except for signed canonical NaNs.
-The host and CUDA backends neither include nor call softfloat; it remains the emulator's
-selected backend and the independent reference for tests.
+The host and CUDA backends neither include nor call softfloat; it remains an
+explicit emulator option and the independent reference for tests.
 
 The CUDA backend uses explicit rounding intrinsics (RP maps to `_ru`, RM to `_rd`),
 directed double-to-float conversion and the same scaled multiplication strategy.
@@ -140,8 +161,8 @@ After each runtime library load, `build.library` checks MXCSR bits `0x8040`
 process settings. A consumer must arrange the IEEE environment before loading the
 runtime and keep it while executing. The external sass2cu shim must perform the
 same check at startup; its source is absent here, so this repository cannot install
-that guard in the shim. F16C optimization, broader A.6 campaigns, the complete
-emulator CUDA port and the A.7 backend switch remain separate work.
+that guard in the shim. F16C optimization, broader A.6 campaigns and the complete
+emulator CUDA port remain separate work.
 
 Focused normal-input benchmarks on 2026-10-27 measured host FP16 add/multiply/FMA at
 about 7–19 ns per operation, roughly 1.5–2.5 times faster than CPU softfloat in RN/RM.
@@ -161,6 +182,79 @@ script also prints aggregate Gop/s and saves its source, cubin and JSON results 
 against the reference and include scaled FP64 with two subnormal operands producing normal
 or subnormal outputs. These focused measurements do not establish the fastest implementation
 for every operand distribution, compiler or CPU.
+
+### Native backend and generated-call benchmark (2026-10-27)
+
+[`research/native_backend_benchmark.py`](../research/native_backend_benchmark.py)
+compares all four host/softfloat and generated-call/inline combinations. Each workload
+uses the same deterministic input image, 8,192 threads and 16 repetitions of its SASS
+body, on SM89 exact semantics with one worker. Arithmetic covers packed FP16 and
+FP32/FP64 add, multiply and FMA (including directed modes); conversion covers
+FP16/32/64 and integer conversions. Integer work uses PRMT/IMAD/IADD3; cooperative
+work uses SHFL, WARPSYNC and BAR.SYNC. The first warp is checked against the Python
+reference using only its 1 KiB input buffer, and every full response is compared across
+all four configurations before reporting comparisons.
+
+Generation medians use three samples after warming MD/lifting discovery. Each cold
+compilation sample uses a fresh temporary cache, and includes source hashing, compilation,
+loading and MXCSR validation. Warm execution takes 15 samples (five per compiled library),
+after an untimed warmup, including `Kernel.run`'s Python launch, memory setup and output
+handling. The compiler is Clang 18.1.8 with the strict flags above. The CPU is an Intel
+i9-13900HX, pinned to logical CPU 8, a performance core; configurations rotate between
+repetitions. No other test jobs ran during measurement.
+
+Warm execution medians, milliseconds:
+
+| Workload | Softfloat inline | Host inline | Softfloat calls | Host calls |
+|---|---:|---:|---:|---:|
+| FP16 | 25.50 | 16.54 | 25.37 | 16.71 |
+| FP32 | 14.36 | 7.93 | 14.16 | 8.06 |
+| FP64 | 14.70 | 8.68 | 14.72 | 8.46 |
+| Conversions | 11.39 | 11.41 | 10.95 | 10.78 |
+| Integer | 5.60 | 5.45 | 5.46 | 5.46 |
+| Cooperative | 20.70 | 20.54 | 20.49 | 20.76 |
+
+Generation / cold compilation medians, milliseconds:
+
+| Workload | Softfloat inline | Host inline | Softfloat calls | Host calls |
+|---|---:|---:|---:|---:|
+| FP16 | 18.10 / 758.9 | 18.25 / 936.3 | 18.70 / 756.0 | 18.50 / 959.0 |
+| FP32 | 14.67 / 745.9 | 14.70 / 776.1 | 13.62 / 730.9 | 13.63 / 775.4 |
+| FP64 | 18.38 / 772.4 | 18.64 / 812.2 | 15.16 / 754.8 | 15.46 / 762.6 |
+| Conversions | 105.03 / 1024.5 | 106.03 / 1076.7 | 68.12 / 869.9 | 63.97 / 904.5 |
+| Integer | 20.44 / 681.0 | 20.22 / 720.1 | 19.81 / 695.9 | 19.24 / 737.4 |
+| Cooperative | 17.93 / 784.8 | 17.74 / 825.9 | 17.51 / 784.6 | 17.55 / 838.2 |
+
+Holding generated calls fixed, the host backend improves arithmetic execution by
+1.52× (FP16), 1.76× (FP32) and 1.74× (FP64). It adds cold compilation cost, most
+visibly FP16 (959 versus 756 ms), because the selected backend compiles different
+arithmetic implementations; this first-use cost is retained for faster repeated execution.
+Conversion, integer and cooperative workloads establish no substantial backend gain.
+
+Holding the host backend fixed, generated calls reduce conversion generation by
+40% and compilation by 16%, with a 5.5% warm improvement. The conversion translation
+unit shrinks from 397,104 to 77,745 bytes by sharing expansions. FP64 generation and
+compilation also improve. Most other warm differences are within approximately 2%,
+with overlapping sample ranges; there is no general runtime speedup claim for calls.
+Small compilation costs remain for FP16/integer/cooperative kernels (about 1–3%),
+accepted for the shared function interface and reduced duplication; inline lowering
+remains available for consumers measuring a different workload.
+
+The initial unpinned run showed apparent warm regressions, including integer differences
+where the FP backend should have little effect, with sample ranges up to 2–3×.
+Pinning the repeated run removed those large differences. The pinned
+[complete samples](../research/native-backends-2026-10-27.json) and the
+[unpinned diagnostic run](../research/native-backends-2026-10-27-unpinned.json)
+retain all configurations, flags and output hashes. Reproduce the pinned run on this
+machine with:
+
+```sh
+nice taskset -c 8 uv run python research/native_backend_benchmark.py \
+    --out /tmp/native-backends.json
+```
+
+Choose a suitable performance core on other machines. These results describe these
+workloads, this compiler and one CPU; they do not predict every kernel's performance.
 
 ## Models
 

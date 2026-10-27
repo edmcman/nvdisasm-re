@@ -63,7 +63,7 @@ def fp(op, width, a, b=0, c=0, mode="RN", scale=0, dst=None):
 
 
 def fp_host(op, width, a, b=0, c=0, mode="RN", scale=0, dst=None):
-    """Explicit host backend; the emulator and fp() continue using softfloat."""
+    """Explicit host backend, also the emulator's default; fp() remains the softfloat reference."""
     return library().sass_fp_host(FP_OPS.index(op), width, dst or width, ROUNDING.index(mode), scale, a, b, c)
 
 

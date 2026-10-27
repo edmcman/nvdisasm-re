@@ -36,8 +36,9 @@ def string(text): return json.dumps(text)
 
 
 class Lower:
-    def __init__(self, arch):
+    def __init__(self, arch, definition_uses=None):
         self.arch, self.lines, self.scopes, self.count, self.primitive_below, self.lowering = arch, [], [{}], 0, {}, {}
+        self.definition_uses = definition_uses
 
     def emit(self, line): self.lines.append(line)
 
@@ -74,7 +75,16 @@ class Lower:
         match e.op:
             case "const": return literal(a[0], w)
             case "reg": return self.temp(w, self.read(*a))
-            case op if op in bitvec.DEFINED: return self.value(bitvec.lowered(e, self.lowering))
+            case op if op in bitvec.DEFINED:
+                if self.definition_uses is None: return self.value(bitvec.lowered(e, self.lowering))
+                from sass.emulate import definitions
+                if not all(isinstance(arg, Expr) for arg in a):
+                    raise NotImplementedError(f"{op}: defined operands must be bitvector expressions")
+                widths = tuple(arg.w for arg in a)
+                name = definitions.definition_name(op, widths)
+                self.definition_uses.add((op, widths))
+                args = ", ".join(f"sass::Bits<{arg.w}>({self.value(arg)})" for arg in a)
+                return self.temp(w, f"sass::def::{name}({args})")
             case "load": return self.temp(w, f"c.space({SPACES[a[0]]}).load<{w}>({SPACES[a[0]]}, {self.value(a[1])})")
             case "ite" if self.lazy(a[1]) or self.lazy(a[2]):
                 c = self.value(a[0]); name = f"v{self.count}"; self.count += 1
@@ -158,13 +168,14 @@ class Lower:
         else: self.emit(f"throw sass::Fault{{{string(name)}}};")
 
 
-def instruction(semantics, function, decoded):
-    """C++ `static void function(sass::Ctx &c)` executing `semantics` (status opaque: its fault)."""
+def instruction(semantics, function, decoded, definition_uses=None):
+    """C++ `static void function(sass::Ctx &c)` executing `semantics` (status opaque: its fault).
+    With a use collector, call defined operators; otherwise expand them inline."""
     head = f"SASS_HD static void {function}(sass::Ctx &c) {{  // {semantics.text}"
     if semantics.status == "opaque":
         stem = "sass_opaque_" + "".join(ch if ch.isalnum() else "_" for ch in decoded.klass.mnemonic)
         return "\n".join([head, f"  throw sass::Fault{{{string(f'{stem} ({semantics.reason})')}}};", "}"])
-    low = Lower(semantics.arch)
+    low = Lower(semantics.arch, definition_uses)
     low.emit("auto &t = c.t;")
     if semantics.guard is not None:
         low.emit(f"if (!{low.value(semantics.guard)}) {{ t.pc = UINT64_C({semantics.addr + 16:#x}); return; }}")
