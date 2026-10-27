@@ -78,6 +78,9 @@ Rough wall times and peak memory (summed PSS) on a 32-core, 93 GiB machine with 
 | `test_definition_functions.py -m gpu --require-gpu`, SM89 (2026-10-27) | about 4 s | |
 | `test_emulate_cases.py`, SM89 (2026-10-23) | 2 minutes cold (a C++ library per shard), seconds cached | |
 | `test_kernels_native.py`, SM89 and SM90 (2026-10-23) | 4 minutes cold (about 1,000 kernels compile), under a minute cached | |
+| N7 focused native checks, 529 tests (2026-10-27) | 55 s without competing test jobs; generated-function discovery 13 s | |
+| N7 softfloat integration/random-IR/examples, 22 tests (2026-10-27) | 21 s without competing test jobs | |
+| Native shared cases, kernels and equivalence, SM89/SM90 and both FP modes, 5,102 tests (2026-10-27) | 4 min 39 s with cold host/generated-call libraries; kernel execution/compilation phase 212 s | |
 | Python tests, every architecture and lowering | 3 minutes | 13 GiB (25 GiB with `--exhaustive`) |
 | language build (about 17 compilers at once) | 1.75 minutes | 27 GiB |
 | Ghidra tests, all languages | 8 minutes cold, 2.5 minutes cached (mostly building the cases); 2 hours cold for `--arch all --fp all` (2.2 million selected cases, load 55-85 from two other suites, 2026-10-22) | 25 GiB |
@@ -130,6 +133,7 @@ libraries), so `test_pydecode_disassembly` checks synthetic and mutated words on
 | `test_emulate_fp.py`, `test_emulate_primitives.py` (`-m native`) | do both explicit CPU floating-point backends and the primitives compute the IR? | `softfloat.hpp`, `fp_host.hpp`, `primitives.hpp` | `bitvec.OPS` (Python softfloat), `refs/primitive.py` |
 | `test_fp_backends.py` (`-m native`) | do selection, environment rejection/restoration and FP16 round-to-odd work? | `fp.hpp`, host FMA, library loading | Python softfloat, exact residual/odd assertions, isolated subprocesses |
 | `test_emulate_ops.py` (`-m native`) | does the generated C++ compute the IR? | `sass.emulate.cxx` on random unsimplified trees over every operator | `evaluate` |
+| `test_native_definitions.py` (`-m native`) | do generated calls preserve pre-state, guards, laziness and instruction faults? | `codegen` fragments/kernels, function collection, 128-bit values and overloads | `evaluate`, inline lowering, SM89/SM90 and both FP modes |
 | `test_emulate_cases.py` (`-m native`) | does the generated C++ compute the right values? | `sass.emulate.cxx` fragments, a library per shard | `refs/`, through the emulator cases (not `__events`) |
 | `test_kernels_native.py` (`-m native`) | do whole kernels compute their references natively? | `sass.emulate.kernel` (model 1 non-cooperative, model 2 cooperative fixtures; `c.kernel` cases) | `refs/`, through the GPU fixtures; the scheduler's errors |
 | `test_equivalence.py` (`-m native`) | does equivalence testing find exactly the differing threads? | `sass.emulate.equivalence` | a kernel against itself and a NOP-patched copy |
@@ -228,6 +232,34 @@ The two exhaustive CUDA selector configurations passed on SM89 in 46 s, includin
 compilation; the final focused selector checks passed in 10 s. The default compiler
 in this checkout was Clang, so GCC must be selected explicitly to reproduce its run.
 These results validate the backend operators; CUDA verification on SM90 remains separate.
+
+N7 validation (2026-10-27) switches the native default to the host backend and generated
+operator calls. The focused suite below passed 529 tests in 55 s without competing test jobs.
+The same run took 180 s alongside cold kernel compilation: discovery alone rose from 13 s
+to 55 s and returned to 13 s in the quiet repeat. This is compilation contention, not a new
+validation baseline. The SM89/SM90 shared-case, whole-kernel and equivalence run passed
+5,102 tests in 279 s in both FP modes, including cooperative fixtures and expected faults.
+The softfloat override passed 22 integration, random-IR and example tests in 21 s without
+competing test jobs (84 s alongside cold kernel compilation). Definition and generated-function
+structural checks passed 159 tests in 20 s, including the 13 s manual-case discovery phase.
+
+```sh
+nice uv run pytest -m native tests/test_native_definitions.py tests/test_fp_backends.py \
+    tests/test_emulate_fp.py tests/test_definition_functions.py tests/test_emulate_ops.py \
+    tests/test_emulate_primitives.py tests/test_examples.py
+nice uv run pytest -m native tests/test_emulate_cases.py tests/test_kernels_native.py \
+    tests/test_equivalence.py --arch SM89,SM90 --fp all
+SASS_CXXFLAGS=-DSASS_FP_SOFT nice uv run pytest -m native tests/test_native_definitions.py \
+    tests/test_emulate_ops.py tests/test_examples.py
+```
+
+Backend-selection tests run isolated subprocesses with the actual default or environment
+override, check the selected namespace and strict flags, and verify distinct cache paths.
+`native.fp` remains explicitly bound to softfloat. `definition_calls=False` on the generators
+or their `Fragments`/`Kernel` wrappers selects inline expansion.
+The reproducible four-way benchmark is
+[`research/native_backend_benchmark.py`](../research/native_backend_benchmark.py);
+its methodology and recorded results are in [emulation.md](../docs/emulation.md).
 
 ## Writing tests
 

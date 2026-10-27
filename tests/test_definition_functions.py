@@ -222,7 +222,7 @@ def test_generated_functions(real_uses, backend):
     # Batch compilation bounds translation-unit size and reuses build.library's source cache.
     for start in range(0, len(uses), 48):
         batch = uses[start:start + 48]
-        prefix = "" if backend == "softfloat" else "#undef SASS_FP_SOFT\n"
+        prefix = "#undef SASS_FP_SOFT\n" + ("#define SASS_FP_SOFT\n" if backend == "softfloat" else "")
         source = prefix + definitions.definitions_header(batch).replace("#pragma once\n", "") + wrapper(batch)
         lib = build.library(source, f"definitions-{backend}")
         fn = lib.run

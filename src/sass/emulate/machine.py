@@ -112,8 +112,10 @@ class Fragments(Library):
     """Independent single instructions, [(arch, word, address)] or lifted `Semantics`
     (`semantics=True`), each executed by `execute`."""
 
-    def __init__(self, instructions, fp="exact", semantics=False):
-        super().__init__(codegen.semantic_fragments(instructions) if semantics else codegen.fragments(instructions, fp), "fragments")
+    def __init__(self, instructions, fp="exact", semantics=False, definition_calls=True):
+        source = (codegen.semantic_fragments(instructions, definition_calls) if semantics else
+                  codegen.fragments(instructions, fp, definition_calls))
+        super().__init__(source, "fragments")
         self.lib.sass_fragment.argtypes = [ctypes.c_int, ctypes.POINTER(Thread), ctypes.c_void_p, ctypes.POINTER(WarpContext),
                                            ctypes.POINTER(Environment), ctypes.c_char_p, ctypes.c_size_t]
 

@@ -8,9 +8,9 @@ from sass.semantics.fp import softfloat
 pytestmark = pytest.mark.native
 
 
-def isolated(script):
+def isolated(script, cxxflags=""):
     result = subprocess.run([sys.executable, "-c", script], capture_output=True, text=True,
-                            env={**os.environ, "PYTHONPATH": str(build.HERE.parent.parent)})
+                            env={**os.environ, "PYTHONPATH": str(build.HERE.parent.parent), "SASS_CXXFLAGS": cxxflags})
     assert result.returncode == 0, result.stdout + result.stderr
 
 
@@ -19,7 +19,6 @@ def test_selection(backend):
     isolated(f'''
 from sass.emulate import build
 source = """
-{"#undef SASS_FP_SOFT" if backend == "host" else "#define SASS_FP_SOFT"}
 #include "sass/fp.hpp"
 #include "sass/fp_host.hpp"
 static_assert(sass::fp::RN == 0 && sass::fp::RZ == 1 && sass::fp::RP == 2 && sass::fp::RM == 3);
@@ -28,7 +27,22 @@ extern "C" int selected() {{
 }}
 """
 assert build.library(source, "fp-selection").selected() == 1
-assert "-DSASS_FP_SOFT" in build.flags()
+assert ("-DSASS_FP_SOFT" in build.flags()) == {backend == "softfloat"}
+for flag in ("-ffp-contract=off", "-fno-fast-math", "-frounding-math", "-msse2", "-mfpmath=sse"):
+    assert flag in build.flags()
+''', cxxflags="-DSASS_FP_SOFT" if backend == "softfloat" else "")
+
+
+def test_backend_cache_paths_are_distinct():
+    isolated('''
+import os
+from sass.emulate import build
+source = '#include "sass/fp.hpp"'
+host = build.path(source, "selection")
+os.environ["SASS_CXXFLAGS"] = "-DSASS_FP_SOFT"
+soft = build.path(source, "selection")
+assert host != soft
+assert host.parent == soft.parent
 ''')
 
 

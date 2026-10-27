@@ -11,7 +11,7 @@ INCLUDE = HERE / "include"
 SOURCES = sorted([*INCLUDE.rglob("*.hpp"), *HERE.glob("*.cpp")])   # what a compiled library may contain
 # No contraction or fast math: the arithmetic must round exactly as written.
 FLAGS = ("-std=c++20", "-O2", "-fPIC", "-shared", "-ffp-contract=off", "-fno-fast-math",
-         "-frounding-math", "-msse2", "-mfpmath=sse", "-DSASS_FP_SOFT")
+         "-frounding-math", "-msse2", "-mfpmath=sse")
 
 
 @cache
