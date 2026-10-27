@@ -1,4 +1,4 @@
-"""The C++ floating point (sass/emulate/include/sass/softfloat.hpp) computes the IR's definition
+"""Both explicit C++ floating-point backends (softfloat and fp_host) compute the IR's definition
 (`bitvec.OPS`, Python softfloat) bit for bit: the special-value cross product, random encodings,
 near-cancelling pairs and exact ties; --exhaustive takes five times the random inputs and every FP16
 source of a conversion."""
@@ -14,6 +14,11 @@ pytestmark = pytest.mark.native  # opt-in: -m native
 WIDTHS = (16, 32, 64)
 MODES = native.ROUNDING
 RANDOM = 300
+
+
+@pytest.fixture(params=(native.fp, native.fp_host), ids=("softfloat", "host"))
+def backend(request):
+    return request.param
 
 
 @pytest.fixture
@@ -67,42 +72,42 @@ def check(name, inputs, ours, theirs):
 
 @pytest.mark.parametrize("w", WIDTHS)
 @pytest.mark.parametrize("mode", MODES)
-def test_add(w, mode, scale):
-    check(f"fadd{w}.{mode}", binary(w, w, RANDOM * scale), lambda a, b: native.fp("add", w, a, b, mode=mode),
+def test_add(w, mode, scale, backend):
+    check(f"fadd{w}.{mode}", binary(w, w, RANDOM * scale), lambda a, b: backend("add", w, a, b, mode=mode),
           lambda a, b: bitvec.OPS["fadd"]([a, b, mode], [w, w, None], w))
 
 
 @pytest.mark.parametrize("w", WIDTHS)
 @pytest.mark.parametrize("mode", MODES)
-@pytest.mark.parametrize("power", (0, -2, 1, 3))
-def test_mul(w, mode, power, scale):
-    check(f"fmul{w}.{mode}.{power}", binary(w, w + 1, RANDOM * scale), lambda a, b: native.fp("mul", w, a, b, mode=mode, scale=power),
+@pytest.mark.parametrize("power", (0, -2, 1, 3, -512, 512, -513, 513))
+def test_mul(w, mode, power, scale, backend):
+    check(f"fmul{w}.{mode}.{power}", binary(w, w + 1, RANDOM * scale), lambda a, b: backend("mul", w, a, b, mode=mode, scale=power),
           lambda a, b: bitvec.OPS["fmul"]([a, b, mode, power], [w, w, None, None], w))
 
 
 @pytest.mark.parametrize("w", WIDTHS)
 @pytest.mark.parametrize("mode", MODES)
-def test_fma(w, mode, scale):
-    check(f"ffma{w}.{mode}", ternary(w, w + 2, RANDOM * scale), lambda a, b, c: native.fp("fma", w, a, b, c, mode=mode),
+def test_fma(w, mode, scale, backend):
+    check(f"ffma{w}.{mode}", ternary(w, w + 2, RANDOM * scale), lambda a, b, c: backend("fma", w, a, b, c, mode=mode),
           lambda a, b, c: bitvec.OPS["ffma"]([a, b, c, mode], [w, w, w, None], w))
 
 
-@pytest.mark.parametrize("src, dst", [(s, d) for s in WIDTHS for d in WIDTHS if s != d])
+@pytest.mark.parametrize("src, dst", [(s, d) for s in WIDTHS for d in WIDTHS])
 @pytest.mark.parametrize("mode", MODES)
-def test_convert(src, dst, mode, scale):
+def test_convert(src, dst, mode, scale, backend):
     rng = random.Random(src * dst)
     inputs = [(x,) for x in (range(1 << 16) if src == 16 and scale > 1 else [*special(src), *(rng.getrandbits(src) for _ in range(4 * RANDOM * scale))])]
-    check(f"fconv{src}->{dst}.{mode}", inputs, lambda x: native.fp("convert", src, x, mode=mode, dst=dst),
+    check(f"fconv{src}->{dst}.{mode}", inputs, lambda x: backend("convert", src, x, mode=mode, dst=dst),
           lambda x: bitvec.OPS["fconv"]([x, mode], [src, None], dst))
 
 
 @pytest.mark.parametrize("w", WIDTHS)
 @pytest.mark.parametrize("op", ("lt", "le", "eq"))
-def test_compare(w, op, scale):
-    check(f"f{op}{w}", binary(w, w + 3, RANDOM * scale), lambda a, b: native.fp(op, w, a, b),
+def test_compare(w, op, scale, backend):
+    check(f"f{op}{w}", binary(w, w + 3, RANDOM * scale), lambda a, b: backend(op, w, a, b),
           lambda a, b: bitvec.OPS["f" + op]([a, b], [w, w], 1))
 
 
 @pytest.mark.parametrize("w", WIDTHS)
-def test_nan(w):
-    check(f"fnan{w}", [(x,) for x in special(w)], lambda x: native.fp("nan", w, x), lambda x: bitvec.OPS["fnan"]([x], [w], 1))
+def test_nan(w, backend):
+    check(f"fnan{w}", [(x,) for x in special(w)], lambda x: backend("nan", w, x), lambda x: bitvec.OPS["fnan"]([x], [w], 1))

@@ -11,7 +11,7 @@ def compiled(arch, semantics, decoded, function):
     """The C++ function executing one instruction; an IR form the lowering lacks becomes its fault."""
     try: return cxx.instruction(semantics, function, decoded)
     except NotImplementedError as error:
-        return f"static void {function}(sass::Ctx &) {{ throw sass::Fault{{{cxx.string(f'not compiled: {error}')}}}; }}"
+        return f"SASS_HD static void {function}(sass::Ctx &) {{ throw sass::Fault{{{cxx.string(f'not compiled: {error}')}}}; }}"
 
 
 def fragments(instructions, fp="exact"):
@@ -88,7 +88,7 @@ def kernel(arch, code, base, fp="exact"):
     instructions = [Instruction(arch, code[i:i + 16], base + i, fp) for i in range(0, len(code), 16)]
     bodies, tables = [], []
     for i, ins in enumerate(instructions):
-        if ins.decoded is None: bodies.append(f"static void i{i}(sass::Ctx &) {{}}"); continue
+        if ins.decoded is None: bodies.append(f"SASS_HD static void i{i}(sass::Ctx &) {{}}"); continue
         bodies.append(compiled(arch, ins.semantics, ins.decoded, f"i{i}"))
         if dests := destinations(ins.semantics):
             tables.append(f"static const uint32_t D{i}[] = {{{', '.join(str(FILE_IDS[f] << 16 | n) for f, n in dests)}}};")

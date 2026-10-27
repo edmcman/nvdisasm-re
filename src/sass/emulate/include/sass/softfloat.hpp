@@ -1,16 +1,13 @@
 // Bit-exact binary IEEE arithmetic: the C++ form of sass.semantics.fp.softfloat (round once; NaN
 // results are the canonical quiet NaN, which the IR's nanresult replaces by the GPU's).
 #pragma once
-#include <algorithm>
 #include <bit>
-#include <cmath>
-#include <cstdint>
+#include "sass/fp_common.hpp"
 
-namespace sass::fp {
+namespace sass::softfloat {
+using namespace fp_common;
 using u64 = uint64_t;
 using u128 = unsigned __int128;
-
-enum Rnd { RN, RZ, RP, RM };
 
 template <int W> struct Format;
 template <> struct Format<16> { static constexpr int E = 5, M = 10; };
@@ -23,17 +20,21 @@ enum Kind { Zero, Finite, Inf, NaN };
 struct Term { int sign; u128 sig; int exp; };
 struct Unpacked { Kind kind; Term term; };
 
-inline int msb(u128 x) {
+SASS_HD inline int msb(u128 x) {
   u64 hi = u64(x >> 64);
+#ifdef __CUDA_ARCH__
+  return hi ? 127 - __clzll(hi) : 63 - __clzll(u64(x));
+#else
   return hi ? 127 - std::countl_zero(hi) : 63 - std::countl_zero(u64(x));
+#endif
 }
 
-template <int W> constexpr int bias() { return (1 << (Format<W>::E - 1)) - 1; }
-template <int W> constexpr u64 exponents() { return (u64(1) << Format<W>::E) - 1; }
-template <int W> constexpr u64 nan() { return exponents<W>() << Format<W>::M | u64(1) << (Format<W>::M - 1); }
-template <int W> constexpr u64 inf(int sign) { return u64(sign) << (W - 1) | exponents<W>() << Format<W>::M; }
+template <int W> SASS_HD constexpr int bias() { return (1 << (Format<W>::E - 1)) - 1; }
+template <int W> SASS_HD constexpr u64 exponents() { return (u64(1) << Format<W>::E) - 1; }
+template <int W> SASS_HD constexpr u64 nan() { return exponents<W>() << Format<W>::M | u64(1) << (Format<W>::M - 1); }
+template <int W> SASS_HD constexpr u64 inf(int sign) { return u64(sign) << (W - 1) | exponents<W>() << Format<W>::M; }
 
-template <int W> Unpacked unpack(u64 bits) {
+template <int W> SASS_HD Unpacked unpack(u64 bits) {
   constexpr int M = Format<W>::M;
   int sign = bits >> (W - 1) & 1;
   u64 ex = bits >> M & exponents<W>(), mant = bits & ((u64(1) << M) - 1);
@@ -43,11 +44,11 @@ template <int W> Unpacked unpack(u64 bits) {
 }
 
 // The encoding of a term rounded once in `mode`; zero_sign signs an exact zero.
-template <int W> u64 pack(Term t, Rnd mode, int zero_sign) {
+template <int W> SASS_HD u64 pack(Term t, Rnd mode, int zero_sign) {
   constexpr int M = Format<W>::M;
   if (!t.sig) return u64(zero_sign) << (W - 1);
   const u64 sign = u64(t.sign) << (W - 1);
-  const int minimum = 1 - bias<W>(), e = msb(t.sig) + t.exp, shift = std::max(e, minimum) - M, k = shift - t.exp;
+  const int minimum = 1 - bias<W>(), e = msb(t.sig) + t.exp, shift = (e > minimum ? e : minimum) - M, k = shift - t.exp;
   u64 q;
   if (k <= 0) q = u64(t.sig << -k);  // exact: then at most M+1 bits
   else {
@@ -71,31 +72,31 @@ template <int W> u64 pack(Term t, Rnd mode, int zero_sign) {
     return infinite ? inf<W>(t.sign) : sign | (exponents<W>() - 1) << M | ((u64(1) << M) - 1);
   }
   if (q < u64(1) << M) return sign | q;
-  return sign | u64(std::max(ex, minimum) + bias<W>()) << M | (q - (u64(1) << M));
+  return sign | u64((ex > minimum ? ex : minimum) + bias<W>()) << M | (q - (u64(1) << M));
 }
 
 // t with its most significant bit at bit 125. Inputs carry at most 106 significant bits, so at
 // least 19 low bits are then zero: a jamming shift by fewer bits is exact, and a longer one cancels
 // at most one leading bit, far above the jammed bit.
-inline Term normal(Term t) {
+SASS_HD inline Term normal(Term t) {
   const int s = 125 - msb(t.sig);
   return {t.sign, t.sig << s, t.exp - s};
 }
 
-inline u128 jam(u128 x, int d) { return d >= 128 ? x != 0 : x >> d | ((x & ((u128(1) << d) - 1)) != 0); }
+SASS_HD inline u128 jam(u128 x, int d) { return d >= 128 ? x != 0 : x >> d | ((x & ((u128(1) << d) - 1)) != 0); }
 
 // a + b, exact unless jammed (then still correctly rounded by pack); a zero sum keeps sign 0.
-inline Term sum(Term a, Term b) {
+SASS_HD inline Term sum(Term a, Term b) {
   if (!a.sig) return b;
   if (!b.sig) return a;
   a = normal(a), b = normal(b);
-  if (a.exp < b.exp) std::swap(a, b);
+  if (a.exp < b.exp) { const Term tmp = a; a = b; b = tmp; }
   b.sig = jam(b.sig, a.exp - b.exp);
   if (a.sign == b.sign) return {a.sign, a.sig + b.sig, a.exp};
   return a.sig >= b.sig ? Term{a.sign, a.sig - b.sig, a.exp} : Term{b.sign, b.sig - a.sig, a.exp};
 }
 
-template <int W> u64 add(u64 a, u64 b, Rnd mode) {
+template <int W> SASS_HD u64 add(u64 a, u64 b, Rnd mode) {
   const auto x = unpack<W>(a), y = unpack<W>(b);
   if (x.kind == NaN || y.kind == NaN) return nan<W>();
   if (x.kind == Inf && y.kind == Inf && x.term.sign != y.term.sign) return nan<W>();
@@ -105,9 +106,9 @@ template <int W> u64 add(u64 a, u64 b, Rnd mode) {
   return pack<W>(sum(x.term, y.term), mode, zero);
 }
 
-inline Term product(Term a, Term b, int scale = 0) { return {a.sign ^ b.sign, a.sig * b.sig, a.exp + b.exp + scale}; }
+SASS_HD inline Term product(Term a, Term b, int scale = 0) { return {a.sign ^ b.sign, a.sig * b.sig, a.exp + b.exp + scale}; }
 
-template <int W> u64 mul(u64 a, u64 b, Rnd mode, int scale) {
+template <int W> SASS_HD u64 mul(u64 a, u64 b, Rnd mode, int scale) {
   const auto x = unpack<W>(a), y = unpack<W>(b);
   const int sign = x.term.sign ^ y.term.sign;
   if (x.kind == NaN || y.kind == NaN) return nan<W>();
@@ -116,7 +117,7 @@ template <int W> u64 mul(u64 a, u64 b, Rnd mode, int scale) {
   return pack<W>(product(x.term, y.term, scale), mode, sign);
 }
 
-template <int W> u64 fma(u64 a, u64 b, u64 c, Rnd mode) {
+template <int W> SASS_HD u64 fma(u64 a, u64 b, u64 c, Rnd mode) {
   const auto x = unpack<W>(a), y = unpack<W>(b), z = unpack<W>(c);
   const int sign = x.term.sign ^ y.term.sign;
   if (x.kind == NaN || y.kind == NaN || z.kind == NaN) return nan<W>();
@@ -131,7 +132,7 @@ template <int W> u64 fma(u64 a, u64 b, u64 c, Rnd mode) {
 }
 
 // An encoding converted between widths (NaN: canonical, keeping the sign).
-template <int S, int D> u64 convert(u64 bits, Rnd mode) {
+template <int S, int D> SASS_HD u64 convert(u64 bits, Rnd mode) {
   const auto x = unpack<S>(bits);
   switch (x.kind) {
     case NaN: return u64(x.term.sign) << (D - 1) | nan<D>();
@@ -141,19 +142,16 @@ template <int S, int D> u64 convert(u64 bits, Rnd mode) {
   }
 }
 
-// Every 16/32/64-bit value is exact in a double, which orders them (NaN unordered, -0 == +0).
-template <int W> double value(u64 bits) {
-  const auto x = unpack<W>(bits);
-  switch (x.kind) {
-    case NaN: return NAN;
-    case Inf: return x.term.sign ? -INFINITY : INFINITY;
-    case Zero: return 0.0;
-    default: { const double v = std::ldexp(double(u64(x.term.sig)), x.term.exp); return x.term.sign ? -v : v; }
-  }
+// IEEE encodings order finite magnitudes; NaNs are unordered and both zeros are equal.
+template <int W> SASS_HD bool isnan(u64 bits) { return unpack<W>(bits).kind == NaN; }
+template <int W> SASS_HD bool eq(u64 a, u64 b) {
+  constexpr u64 magnitude = (u64(1) << (W - 1)) - 1;
+  return !isnan<W>(a) && !isnan<W>(b) && (a == b || (!(a & magnitude) && !(b & magnitude)));
 }
-
-template <int W> bool isnan(u64 bits) { return unpack<W>(bits).kind == NaN; }
-template <int W> bool lt(u64 a, u64 b) { return value<W>(a) < value<W>(b); }
-template <int W> bool le(u64 a, u64 b) { return value<W>(a) <= value<W>(b); }
-template <int W> bool eq(u64 a, u64 b) { return value<W>(a) == value<W>(b); }
-}  // namespace sass::fp
+template <int W> SASS_HD bool lt(u64 a, u64 b) {
+  if (isnan<W>(a) || isnan<W>(b) || eq<W>(a, b)) return false;
+  const bool sa = a >> (W - 1), sb = b >> (W - 1);
+  return sa != sb ? sa : sa ? a > b : a < b;
+}
+template <int W> SASS_HD bool le(u64 a, u64 b) { return eq<W>(a, b) || lt<W>(a, b); }
+}  // namespace sass::softfloat

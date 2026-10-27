@@ -160,7 +160,7 @@ class Lower:
 
 def instruction(semantics, function, decoded):
     """C++ `static void function(sass::Ctx &c)` executing `semantics` (status opaque: its fault)."""
-    head = f"static void {function}(sass::Ctx &c) {{  // {semantics.text}"
+    head = f"SASS_HD static void {function}(sass::Ctx &c) {{  // {semantics.text}"
     if semantics.status == "opaque":
         stem = "sass_opaque_" + "".join(ch if ch.isalnum() else "_" for ch in decoded.klass.mnemonic)
         return "\n".join([head, f"  throw sass::Fault{{{string(f'{stem} ({semantics.reason})')}}};", "}"])

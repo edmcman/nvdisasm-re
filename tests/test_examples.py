@@ -46,6 +46,6 @@ def test_trace_kernel():
 @pytest.mark.native
 def test_show_cpp(tmp_path):
     out = run("emulator/show_cpp.py", "buggy")
-    assert "static void i10(sass::Ctx &c) {  // @P0 IADD3 R5, R5, 0x1, RZ" in out and "if (!v0) { t.pc = UINT64_C(0x1000b0); return; }" in out
+    assert "SASS_HD static void i10(sass::Ctx &c) {  // @P0 IADD3 R5, R5, 0x1, RZ" in out and "if (!v0) { t.pc = UINT64_C(0x1000b0); return; }" in out
     assert run("emulator/show_cpp.py", "times3", str(tmp_path / "t.cpp")).startswith("times3: 16 instructions")
     assert 'extern "C" uint32_t sass_run(' in (tmp_path / "t.cpp").read_text()

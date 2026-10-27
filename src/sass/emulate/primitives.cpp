@@ -5,6 +5,7 @@
 #include <string_view>
 #include "sass/primitives.hpp"
 #include "sass/softfloat.hpp"
+#include "sass/fp_host.hpp"
 
 using namespace sass;
 
@@ -35,16 +36,28 @@ int report(const prim::Status &s, char *message, size_t size) {
   return 1;
 }
 
-template <int W> uint64_t arithmetic(int op, int dst, fp::Rnd mode, int scale, uint64_t a, uint64_t b, uint64_t c) {
+template <int W> uint64_t arithmetic(int op, int dst, softfloat::Rnd mode, int scale, uint64_t a, uint64_t b, uint64_t c) {
   switch (op) {
-    case 0: return fp::add<W>(a, b, mode);
-    case 1: return fp::mul<W>(a, b, mode, scale);
-    case 2: return fp::fma<W>(a, b, c, mode);
-    case 3: return dst == 16 ? fp::convert<W, 16>(a, mode) : dst == 32 ? fp::convert<W, 32>(a, mode) : fp::convert<W, 64>(a, mode);
-    case 4: return fp::lt<W>(a, b);
-    case 5: return fp::le<W>(a, b);
-    case 6: return fp::eq<W>(a, b);
-    default: return fp::isnan<W>(a);
+    case 0: return softfloat::add<W>(a, b, mode);
+    case 1: return softfloat::mul<W>(a, b, mode, scale);
+    case 2: return softfloat::fma<W>(a, b, c, mode);
+    case 3: return dst == 16 ? softfloat::convert<W, 16>(a, mode) : dst == 32 ? softfloat::convert<W, 32>(a, mode) : softfloat::convert<W, 64>(a, mode);
+    case 4: return softfloat::lt<W>(a, b);
+    case 5: return softfloat::le<W>(a, b);
+    case 6: return softfloat::eq<W>(a, b);
+    default: return softfloat::isnan<W>(a);
+  }
+}
+template <int W> uint64_t host_arithmetic(int op, int dst, fp_host::Rnd mode, int scale, uint64_t a, uint64_t b, uint64_t c) {
+  switch (op) {
+    case 0: return fp_host::add<W>(a, b, mode);
+    case 1: return fp_host::mul<W>(a, b, mode, scale);
+    case 2: return fp_host::fma<W>(a, b, c, mode);
+    case 3: return dst == 16 ? fp_host::convert<W, 16>(a, mode) : dst == 32 ? fp_host::convert<W, 32>(a, mode) : fp_host::convert<W, 64>(a, mode);
+    case 4: return fp_host::lt<W>(a, b);
+    case 5: return fp_host::le<W>(a, b);
+    case 6: return fp_host::eq<W>(a, b);
+    default: return fp_host::isnan<W>(a);
   }
 }
 }  // namespace
@@ -62,9 +75,14 @@ int sass_memory_descriptor(uint64_t descriptor, char *message, size_t size) {
 
 // op: 0 add, 1 mul, 2 fma, 3 convert to `dst` bits, 4 lt, 5 le, 6 eq, 7 nan; mode: RN RZ RP RM.
 uint64_t sass_fp(int op, int width, int dst, int mode, int scale, uint64_t a, uint64_t b, uint64_t c) {
-  const auto m = fp::Rnd(mode);
+  const auto m = softfloat::Rnd(mode);
   return width == 16 ? arithmetic<16>(op, dst, m, scale, a, b, c) : width == 32 ? arithmetic<32>(op, dst, m, scale, a, b, c)
                                                                                 : arithmetic<64>(op, dst, m, scale, a, b, c);
+}
+uint64_t sass_fp_host(int op, int width, int dst, int mode, int scale, uint64_t a, uint64_t b, uint64_t c) {
+  const auto m = softfloat::Rnd(mode);
+  return width == 16 ? host_arithmetic<16>(op, dst, m, scale, a, b, c) : width == 32 ? host_arithmetic<32>(op, dst, m, scale, a, b, c)
+                                                                                : host_arithmetic<64>(op, dst, m, scale, a, b, c);
 }
 
 uint32_t sass_reduced_sine(uint32_t offset) { return mufu::reduced_sine(offset); }

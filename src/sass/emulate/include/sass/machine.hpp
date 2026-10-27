@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include "sass/bits.hpp"
 #include "sass/primitives.hpp"
-#include "sass/softfloat.hpp"
+#include "sass/fp.hpp"
 
 namespace sass {
 enum Space : int { Ram, Shared, Localmem, Cbank, SPACES };
