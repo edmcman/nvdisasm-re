@@ -31,6 +31,7 @@ def library():
     lib.sass_memory_descriptor.argtypes = [ctypes.c_uint64, ctypes.c_char_p, ctypes.c_size_t]
     lib.sass_fp.argtypes = [ctypes.c_int] * 5 + [ctypes.c_uint64] * 3
     lib.sass_fp.restype = ctypes.c_uint64
+    lib.sass_fp_host.argtypes, lib.sass_fp_host.restype = lib.sass_fp.argtypes, lib.sass_fp.restype
     lib.sass_reduced_sine.argtypes, lib.sass_reduced_sine.restype = [ctypes.c_uint32], ctypes.c_uint32
     lib.sass_mufu_coefficient.argtypes, lib.sass_mufu_coefficient.restype = [ctypes.c_int, ctypes.c_int], ctypes.c_int64
     return lib
@@ -59,6 +60,11 @@ def memory_descriptor(descriptor): checked(library().sass_memory_descriptor, des
 def fp(op, width, a, b=0, c=0, mode="RN", scale=0, dst=None):
     """softfloat's op (FP_OPS) in C++ on encodings of `width` bits; convert produces `dst` bits."""
     return library().sass_fp(FP_OPS.index(op), width, dst or width, ROUNDING.index(mode), scale, a, b, c)
+
+
+def fp_host(op, width, a, b=0, c=0, mode="RN", scale=0, dst=None):
+    """Explicit host backend; the emulator and fp() continue using softfloat."""
+    return library().sass_fp_host(FP_OPS.index(op), width, dst or width, ROUNDING.index(mode), scale, a, b, c)
 
 
 def reduced_sine(offset): return library().sass_reduced_sine(offset)

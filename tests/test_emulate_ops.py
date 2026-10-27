@@ -84,4 +84,6 @@ def test_wider_than_128_bits_is_not_compiled():
     wide = Expr("concat", (bitvec.reg("R", 0, 4), bitvec.reg("R", 4, 4)), 256)
     s = lifter.Semantics("SM89", "tree", "tree", 0x1000, "native", writes=[(bitvec.reg("R", 16, 8), wide)])
     with pytest.raises(NotImplementedError, match="256-bit concat"): cxx.instruction(s, "f", None)
-    assert "not compiled: 256-bit concat (values hold at most 128 bits)" in codegen.compiled("SM89", s, None, "f")
+    generated = codegen.compiled("SM89", s, None, "f")
+    assert generated.startswith("SASS_HD static void f(")
+    assert "not compiled: 256-bit concat (values hold at most 128 bits)" in generated
