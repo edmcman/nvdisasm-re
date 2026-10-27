@@ -1,11 +1,12 @@
 """Defined operators (family.definition, bitvec.lowered): the names arrive in lifted instructions,
 an operator computes exactly its function, and names survive substitution and constants."""
 import random
+from itertools import product
 import pytest
 from sass.assemble import assemble_instruction
 from sass.semantics import bitvec, lifter
 from sass.semantics.bitvec import const, param, reg
-from sass.semantics.evaluate import evaluate
+from sass.semantics.evaluate import State, evaluate, execute
 from sass.semantics.family import definition
 from sass.semantics.families import convert, f2fp, f2i, floating, integer
 from sass.semantics.fp import fpformat
@@ -16,6 +17,54 @@ SPECIAL32 = [0, 0x80000000, 1, 0x80000001, 0x007fffff, 0x00800000, 0x3f800000, 0
 VALUES32 = SPECIAL32 + [random.Random(7).getrandbits(32) for _ in range(200)]
 F16_DEST = fpformat.Dest(10, -14, 0x7bff, 0, 0x7fff, 1, 0x7c00)
 X, Y, P = param("x", 32), param("y", 32), param("p", 1)
+
+
+def test_lut3_complete_domain():
+    """Check the named lookup and its expansion against all eight entries of every table."""
+    table = param("table", 8)
+    p, q, r = (param(name, 1) for name in ("p", "q", "r"))
+    expression = integer.lut3(table, p, q, r)
+    assert expression.op == "lut3" and expression.w == 1
+    assert expression.args == (table, p, q, r)
+    expanded = bitvec.lowered(expression)
+    for value in range(256):
+        for a, b, c in product((0, 1), repeat=3):
+            inputs = dict(table=value, p=a, q=b, r=c)
+            expected = value >> (4 * a + 2 * b + c) & 1
+            assert evaluate(expression, None, inputs) == expected
+            assert evaluate(expanded, None, inputs) == expected
+    constant = integer.lut3(const(0xa8, 8), const(1, 1), const(0, 1), const(1, 1))
+    assert constant.op == "lut3"
+    assert bitvec.lowered(constant) is const(1, 1)
+
+
+@pytest.mark.parametrize("arch", ("SM75", "SM80", "SM86", "SM89", "SM90",
+                                  "SM100", "SM101", "SM103", "SM107", "SM120"))
+@pytest.mark.parametrize("fp", ("exact", "readable"))
+@pytest.mark.parametrize("instruction,file,third", [
+    ("PLOP3", "P", "P4"), ("PLOP3", "P", "UP4"), ("UPLOP3", "UP", "UP4"),
+])
+@pytest.mark.parametrize("aliased,constant", [(False, False), (True, False), (False, True)])
+def test_plop3_lut3_names_and_writes(arch, fp, instruction, file, third, aliased, constant):
+    prefix = "UP" if file == "UP" else "P"
+    dest = 2 if aliased else 0
+    second = dest if aliased else 1
+    source = ("UPT" if file == "UP" else "PT") if constant else f"{prefix}2"
+    text = f"{instruction}.LUT {prefix}{dest}, {prefix}{second}, !{source}, {prefix}3, !{third}, 0xa8, 0x96"
+    sem = lifter.lift(arch, assemble_instruction(arch, text), fp=fp)
+    calls = [node for _, value in sem.writes for node in defined(value)]
+    assert len(calls) == 2
+    assert all(node.op == "lut3" and node.w == 1 and
+               tuple(arg.w for arg in node.args) == (8, 1, 1, 1) for node in calls)
+    assert {node.args[0].args[0] for node in calls} == {0xa8, 0x96}
+    for p, q, r in product((0, 1), repeat=3):
+        third_file = "UP" if third.startswith("UP") else "P"
+        state = State({(file, 2): p, (file, 3): q, (third_file, 4): r})
+        index = 4 * ((1 if constant else p) ^ 1) + 2 * q + (r ^ 1)
+        got = execute(sem, state)
+        assert got.read(file, dest, 1) == (0xa8 >> index & 1)
+        if not aliased:
+            assert got.read(file, second, 1) == (0x96 >> index & 1)
 
 
 @pytest.mark.parametrize("reverse", [False, True])

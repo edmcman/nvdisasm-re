@@ -181,7 +181,7 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
     `cvt.rn.bf16x2.ue8m0x2`.
   - Integer and bits: `abs.s32`, `mul.wide.<s|u>32` (IMAD.HI/WIDE), `bmsk`, `szext`, `shf`,
     `prmt.b32[.<mode>]` (always a 32-bit selector), `brev.b32`, `popc.b32`,
-    `bfind[.shiftamt]`, `dp4a`/`dp2a`, `vabsdiff4`.
+    `bfind[.shiftamt]`, `dp4a`/`dp2a`, `vabsdiff4`, `lut3` (PLOP3/UPLOP3, 2026-10-27).
 
   Tests: `tests/test_definitions.py`.
 - **PRMT selectors (2026-10-26).** Every mode takes three 32-bit operands, including immediate
@@ -195,11 +195,55 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   destination fields, rounding flags, SATFINITE and RELU as constants with the widths of their
   decode-time counterparts, so plain and symbolic metadata share one operand-width signature.
   Defined labels spell the fixed-point format S2_6 as `s2.6` to stay within the label alphabet.
-- Not defined: the readable lowering's other plain formulas, primitive comparisons and predicate logic
-  (already readable), moves, memory and control flow. MUFU and the warp primitives are primitive
+- Not defined: the readable lowering's other plain formulas, primitive comparisons and other predicate
+  logic (already readable), moves, memory and control flow. MUFU and the warp primitives are primitive
   nodes, named already.
 
-### For consumers: generated C++ definitions (2026-10-27)
+### For consumers (2026-10-27)
+
+The supported interface is the lifted IR's defined-operator labels, operand signatures and
+meanings, plus the generated-function API below. Consumers should pin the repository revision
+and review the dated change notes when updating it.
+
+- **Labels and signatures.** Labels contain only ASCII letters, digits and dots
+  (`[A-Za-z0-9.]+`), with case significant. A label plus its operand count fixes the ordered
+  operand widths, result width and meaning, including any decode-time arguments omitted from
+  the call. Operand-count variants may differ; widths alone do not select a different form.
+  The registry checks these invariants when a form is encountered. The vocabulary may grow
+  as more instructions are lifted; registration happens in the current Python process.
+- **Values.** Operands and results are bit patterns of their declared widths, including floats
+  as IEEE encodings and predicates as one-bit values. Signed interpretation belongs to the
+  operation. C++ callers must clear bits above each operand's width; generated results also
+  have those bits clear.
+- **Floating-point shapes.** The FP16/FP32 `nanresult(fadd|fmul|ffma(...), canonical_nan)`
+  shapes documented above are part of the interface, including argument order, rounding mode,
+  FMUL's scale and the NaN constants. Rounding modes are RN, RZ, RP and RM.
+  Operand/result modifiers remain outside that shape.
+  FP32/FP64 comparisons are `setp.<cmp>.f32`/`setp.<cmp>.f64`, with two modified operands
+  and a one-bit result; FTZ and predicate combination remain outside the comparison.
+- **Expansion boundaries.** Use `bitvec.DEFINED[label].expand(*operands)` to obtain an
+  operator's meaning as IR, or `bitvec.lowered(expr)` to expand a whole expression.
+  Expansion structure, internal helpers, simplifier output and generated C++ temporaries
+  are implementation details. Consumers may evaluate or generically translate an expansion,
+  but must not recognize an operation by matching its internal structure.
+- **Truth tables.** `lut3(T, p, q, r)` has operand widths `(8, 1, 1, 1)` and a one-bit
+  result: bit `(p << 2) | (q << 1) | r` of `T`. The table is an operand, not part of the
+  label. PLOP3 and UPLOP3 use one call for each output after applying input inversions;
+  instruction guards and aliased-output ordering remain outside the operator.
+
+Consumer-visible change notes:
+
+- **2026-10-26:** named FP32/FP64 comparisons became `setp.<cmp>.f32`/`.f64`.
+  PRMT labels now always take a 32-bit selector, including immediate forms.
+  FP16/FP32 arithmetic shapes became an explicit contract. Narrowing labels distinguish
+  explicit NaN/overflow policies; fixed-point labels spell S2_6 as `s2.6`.
+- **2026-10-27:** added the generated-function API and host/CUDA floating-point backends.
+  Native emulation defaults to the host backend and generated calls, with reference/inline
+  options retained. Added `lut3(8, 1, 1, 1) -> 1` for PLOP3/UPLOP3; its lookup expansion
+  and instruction values are unchanged. Future changes to an existing label's meaning or
+  signature, or to a contracted arithmetic shape, must add a dated note here.
+
+#### Generated C++ definitions
 
 `sass.emulate.definitions` generates pure functions from the defined operators a consumer has
 lifted. The definitions and their operand-count forms must first be registered in the same Python
@@ -242,17 +286,27 @@ stable interface.
 The generated functions use the backend selected by `sass/fp.hpp`: host floating point by default,
 softfloat with `SASS_FP_SOFT`, and CUDA intrinsics in device code. `SASS_HD` makes the functions
 available to both host and device compilation; ordinary `inline` allows multiple translation units
-to include the header. Host builds need C++20, no fast math or floating-point contraction, rounding
-mode support, and MXCSR FTZ/DAZ disabled, as the native runtime requires. CUDA builds need C++20,
-`-ftz=false`, and no `--use_fast_math`. For example:
+to include the header. Backend arithmetic produces positive canonical quiet NaNs; conversions
+preserve the source NaN sign with the destination's canonical payload. The enclosing IR applies
+the instruction's NaN policy, including FP16/FP32's `0x7fff`/`0x7fffffff` and FP64's
+NaN-source rules. Consumers calling the backend directly must also apply that policy.
+
+Host builds need x86 SSE2, C++20, no fast math or floating-point contraction, rounding mode
+support, and MXCSR FTZ/DAZ disabled, as the native runtime requires. Generated headers do not
+check MXCSR: a consumer must check bits `0x8040` at startup and keep them clear during execution.
+The native runtime rejects enabled FTZ/DAZ when loading a library. CUDA builds need C++20,
+`-ftz=false`, `--fmad=false`, no `--use_fast_math`, and matching CUDA/CCCL headers. For example:
 
 ```sh
 c++ -std=c++20 -O2 -ffp-contract=off -fno-fast-math -frounding-math \
-    -I src/sass/emulate/include consumer.cpp
+    -msse2 -mfpmath=sse -I src/sass/emulate/include consumer.cpp
 nvcc -std=c++20 -ftz=false --fmad=false -I src/sass/emulate/include consumer.cu
 ```
 
-This API does not switch the emulator's backend or replace its existing inlined expansions.
+The native emulator uses the host backend and generated calls by default.
+`SASS_CXXFLAGS=-DSASS_FP_SOFT` selects its reference backend; `definition_calls=False` selects
+inline expansion in `codegen.fragments`, `codegen.semantic_fragments`, `codegen.kernel`,
+`machine.Fragments` and `kernel.Kernel`. Header generation itself does not change those settings.
 
 Validation (2026-10-27) discovers labels/signatures from manual and generated shared cases
 on every supported architecture in both FP modes. Parameter expansions and purity are checked before
@@ -509,9 +563,14 @@ These are backend checks; instruction-form evidence remains separate.
 
 ### PLOP3
 - PLOP3/UPLOP3 (`integer.py`): Pu and Pv both look their bit up in their truth table
-  (`imm8 >> (4p+2q+r)`): enumerating Pu's 256 tables into boolean expressions cost ~30 KB of SLEIGH per
+  through the defined operator `lut3(imm8, p, q, r)` (2026-10-27), which expands to
+  `(imm8 >> (4p+2q+r)) & 1`: enumerating Pu's 256 tables into boolean expressions cost ~30 KB of SLEIGH per
   class (SM90 was near the `.sla` cap) and both jointly 65536 rows. If Pu and Pv alias, Pu wins (SM89).
   Register-source classes stay opaque.
+- Naming the lookup preserves all 20 generated SLEIGH sources byte for byte (2026-10-27).
+  The complete 2,048 table/input combinations pass Python evaluation and generated host/softfloat
+  functions; existing predicate cases pass both engines on every architecture and FP mode.
+  The generated function also passes all 2,048 inputs on SM89 CUDA.
 
 ### BMSK and the CX bounded load
 - BMSK emits a 32-bit mask from position and width. Instruction bit 75 selects clamp (0, `BMSK`) or wrap
