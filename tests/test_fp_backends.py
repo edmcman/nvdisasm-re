@@ -88,6 +88,46 @@ assert control.set_round(0) == 0
 ''')
 
 
+def test_rounding_only_sets_changed_modes():
+    isolated('''
+from sass.emulate import build
+original_flags = build.flags
+build.flags = lambda: [*original_flags(), "-Wl,--wrap=fesetround"]
+lib = build.library("""
+#include "sass/fp_host.hpp"
+extern "C" int __real_fesetround(int);
+static int calls;
+extern "C" int __wrap_fesetround(int mode) {
+  ++calls;
+  return __real_fesetround(mode);
+}
+extern "C" int scopes(int caller, int outer, int inner) {
+  const int modes[] = {FE_TONEAREST, FE_TOWARDZERO, FE_UPWARD, FE_DOWNWARD};
+  if (__real_fesetround(modes[caller])) return -1;
+  calls = 0;
+  {
+    sass::fp_host::Rounding first{sass::fp_host::Rnd(outer)};
+    if (std::fegetround() != modes[outer]) return -1;
+    {
+      sass::fp_host::Rounding second{sass::fp_host::Rnd(inner)};
+      if (std::fegetround() != modes[inner]) return -1;
+    }
+    if (std::fegetround() != modes[outer]) return -1;
+  }
+  const bool restored = std::fegetround() == modes[caller];
+  __real_fesetround(FE_TONEAREST);
+  return restored ? calls : -1;
+}
+""", "fp-rounding-transitions")
+for caller in range(4):
+    for outer in range(4):
+        for inner in range(4):
+            # Matched scopes perform zero setters; each change sets and restores once.
+            expected = 2 * (caller != outer) + 2 * (outer != inner)
+            assert lib.scopes(caller, outer, inner) == expected, (caller, outer, inner)
+''')
+
+
 @pytest.fixture(scope="module")
 def odd_sum():
     import ctypes

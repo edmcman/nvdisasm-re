@@ -79,6 +79,9 @@ The emulator still builds with `SASS_FP_SOFT`. The C ABI hook `sass_fp` and Pyth
 The host backend requires x86 SSE2, IEEE subnormal handling, dynamic rounding support
 (`-frounding-math`), no fast math and no contraction. Every native arithmetic operation
 establishes the requested rounding mode, including RN, and restores the caller's mode.
+The scope reads the current mode and calls `fesetround` only when it differs from the
+requested mode; restoration likewise happens only after a change. It does not cache
+process or thread settings, so external changes and nested scopes remain visible.
 FP32/FP64 use native add/multiply and `std::fma`. Scaled FP32 multiply forms the exact
 double product, applies an exact power-of-two scale, then narrows once; scales outside
 −512…512 use softfloat. In that range even the smallest FP32 product stays normal in

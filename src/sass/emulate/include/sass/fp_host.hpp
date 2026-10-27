@@ -16,13 +16,15 @@ using namespace fp_common;
 
 class Rounding {
   int saved;
+  bool changed;
 public:
-  explicit Rounding(Rnd mode) : saved(std::fegetround()) {
+  explicit Rounding(Rnd mode) : saved(std::fegetround()), changed(false) {
     const int modes[] = {FE_TONEAREST, FE_TOWARDZERO, FE_UPWARD, FE_DOWNWARD};
-    if (saved == -1 || std::fesetround(modes[mode]))
+    changed = saved != modes[mode];
+    if (saved == -1 || (changed && std::fesetround(modes[mode])))
       throw std::runtime_error("sass::fp_host cannot establish IEEE rounding");
   }
-  ~Rounding() { std::fesetround(saved); }
+  ~Rounding() { if (changed) std::fesetround(saved); }
   Rounding(const Rounding &) = delete;
   Rounding &operator=(const Rounding &) = delete;
 };
