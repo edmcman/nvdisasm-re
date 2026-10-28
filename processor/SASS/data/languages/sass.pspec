@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <processor_spec>
   <programcounter register="PC"/>
+  <register_data>
+    <register name="SR_TID.X" rename="threadIdx_x" alias="SR_TID.X"/>
+    <register name="SR_TID.Y" rename="threadIdx_y" alias="SR_TID.Y"/>
+    <register name="SR_TID.Z" rename="threadIdx_z" alias="SR_TID.Z"/>
+    <register name="SR_CTAID.X" rename="blockIdx_x" alias="SR_CTAID.X"/>
+    <register name="SR_CTAID.Y" rename="blockIdx_y" alias="SR_CTAID.Y"/>
+    <register name="SR_CTAID.Z" rename="blockIdx_z" alias="SR_CTAID.Z"/>
+  </register_data>
 </processor_spec>

@@ -507,6 +507,18 @@ def test_show():
     assert fmnmx[0].startswith("t0 = R2 & ") and fmnmx[2].strip() == "╰ ftz(R2)"   # a shared tN's line points at its operator
 
 
+@pytest.mark.parametrize("expand", [False, True])
+def test_show_distinguishes_runtime_primitives(expand):
+    ballot = bitvec.primitive("ballot", 32, reg("P", 0, 1, element=1))
+    assert bitvec.show([(None, ballot)], expand=expand) == "primitive_ballot(P0)"
+    assert ballot.op == "primitive" and ballot.args[0] == "ballot"
+    assert bitvec.primitive_label("sass_prim_bar") == "primitive_bar"
+    assert bitvec.show([(None, param("ballot", 32))]) == "ballot"
+    sem = lifter.lift("SM89", assemble_instruction("SM89", "SHFL.BFLY PT, R5, R2, 0x1, 0x1f"))
+    text = bitvec.show(sem.writes, expand=expand)
+    assert all(name in text for name in ("primitive_lane()", "primitive_active()", "primitive_read_lane(R2,"))
+
+
 @definition("test.duplicate")
 def first(x):
     """One."""

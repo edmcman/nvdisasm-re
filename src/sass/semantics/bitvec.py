@@ -548,6 +548,11 @@ INFIX = {"add": "+", "sub": "-", "mul": "*", "and": "&", "or": "|", "xor": "^", 
          "sar": "s>>", "eq": "==", "ne": "!=", "ult": "<", "ule": "<=", "slt": "s<", "sle": "s<="}
 
 
+def primitive_label(name):
+    """A runtime primitive's display label, accepting its operation name or pcodeop name."""
+    return "primitive_" + name.removeprefix(PRIMITIVE_OP)
+
+
 FLIPPED = {"ult": ">", "ule": ">=", "slt": "s>", "sle": "s>="}
 
 
@@ -603,7 +608,8 @@ def show(outputs, expand=False, describe=False):
     constants with their width only when it isn't 32 bits. A defined operator prints as a call
     (with the value of a constant expression after it), with `describe` followed by the English
     descriptions of those used; `expand` prints the lowered expressions instead, each expansion
-    pointing at the operator it came from (on its tN line when it has one)."""
+    pointing at the operator it came from (on its tN line when it has one). Runtime primitives
+    print with a `primitive_` prefix to distinguish calls supplied by the execution environment."""
     origins, used, memo = {}, set(), {}
     if expand:
         outputs = [(d, lowered(e, memo, lambda out, e: origins.__setitem__(out, e))) for d, e in outputs]
@@ -653,7 +659,7 @@ def show(outputs, expand=False, describe=False):
                 case "zext" | "sext": return cat(f"{e.op}{e.w}(", text(a[0], True), ")")
                 case "extract": return cat(text(a[0]), f"[{a[1]}:{a[2]}]" if a[1] != a[2] else f"[{a[1]}]")
                 case "concat": return cat("concat(", joined([text(x, True) for x in a]), ")")
-                case "primitive": return cat(f"{a[0]}(", joined([text(x, True) for x in a[1:]]), ")")
+                case "primitive": return cat(f"{primitive_label(a[0])}(", joined([text(x, True) for x in a[1:]]), ")")
                 case "ult" | "ule" | "slt" | "sle" if is_const(a[0]) and not is_const(a[1]):
                     # Comparisons are canonically < / <=; print `x > k` the way it is usually written.
                     s = cat(text(a[1]), f" {FLIPPED[e.op]} ", number(a[0], e.op[0] == "s"))
