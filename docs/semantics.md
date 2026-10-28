@@ -121,7 +121,10 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
 - **Printing** (`bitvec.show`): operators print as calls, a constant expression's value after it
   (`... = 0x3f800000`), and with `describe=True` the descriptions. `expand=True` prints the lowered
   expressions with each expansion pointing at its operator. A leaf result (a constant, a register)
-  gets no pointer: any operator could have produced it.
+  gets no pointer: any operator could have produced it. Runtime primitive calls print with a
+  `primitive_` prefix (2026-10-28), such as `primitive_lane()` and `primitive_ballot(P0)`.
+  `bitvec.primitive_label(name)` supplies the same labels to other renderers; operation names and
+  the `sass_prim_<name>` runtime ABI retain their existing spelling.
 - **Structural tests.** A family test of a subexpression's `.op` stops matching when that
   subexpression is an operator. The only one is `fpformat.narrow`'s `nanresult` test, which sees
   its raw input, not an operator. Check `.op ==` uses before defining an operator whose output they
@@ -1091,6 +1094,10 @@ Family `families/memory.py` (Phase 6b).
   families are native around these: SHFL computes its source lane and bound and reads it with
   `read_lane` (a valid source that isn't executing gives 0, SM89); VOTE's modes compare the ballot with
   `active`.
+  `read_lane` assumes the environment has prepared the lane values for this instruction execution;
+  it does not rendezvous lanes, reconverge control flow or order memory. The cooperative scheduler
+  supplies that snapshot before evaluating the instruction. A consumer translating collectives must
+  preserve this execution-context precondition separately from the value expression.
   - VOTEU is VOTE into URd/UPu.
   - MATCH.ANY gives the active lanes holding the lane's value (U32, or U64's register pair); MATCH.ALL
     gives the active mask and Pu = 1 when they all agree (else 0, 0).
