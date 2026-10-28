@@ -1054,7 +1054,7 @@ LDEFS = """<?xml version="1.0" encoding="UTF-8"?>
 {}</language_definitions>
 """
 LANG = """  <language processor="SASS" endian="little" size="64" variant="{v}" version="1.1"
-            slafile="sass_{v}.sla" processorspec="sass.pspec" id="SASS:LE:64:{v}">
+            slafile="sass_{v}.sla" processorspec="{pspec}" id="SASS:LE:64:{v}">
     <description>NVIDIA SASS {V}{D} (from nvdisasm machine description)</description>
     <compiler name="default" spec="sass.cspec" id="default"/>
   </language>
@@ -1085,9 +1085,14 @@ def update(path, text):
 
 
 def write_ldefs():
+    from sass.sleigh import processor_spec
     variants = sorted({p.stem.removeprefix("sass_") for p in OUT.glob("sass_sm*") if p.suffix in (".sla", ".slaspec")})  # specs, or compiled languages alone
+    template = (OUT / "sass.pspec").read_text()
+    for arch in sorted({v.split("_")[0] for v in variants}):
+        update(OUT / f"sass_{arch}.pspec", processor_spec.render(template, arch.upper()))
     update(OUT / "sass.ldefs", LDEFS.format("".join(
-        LANG.format(v=v, V=v.split("_")[0].upper(), D="".join(f" {m} floating point" for m in v.split("_")[1:]))
+        LANG.format(v=v, V=v.split("_")[0].upper(), pspec=f"sass_{v.split('_')[0]}.pspec",
+                    D="".join(f" {m} floating point" for m in v.split("_")[1:]))
         for v in variants)))
     # Loaders pick the exact language; readable ones are chosen explicitly.
     update(OUT / "sass.opinion", OPINION.format("".join(

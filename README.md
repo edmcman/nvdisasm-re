@@ -162,17 +162,36 @@ The generator uses the committed `src/sass/md/data/` descriptions.
    ```
 
    When updating, replace the installed `SASS` directory with the newly built module.
-   Keep `.sla`, `.slaspec`, `sass_common.sinc`, `sass.pspec`, `sass.cspec`, and
+   Keep `.sla`, `.slaspec`, `sass_common.sinc`, all `.pspec` files, `sass.cspec`, and
    `sass.ldefs` from the same build together. Mixing versions can fail at import with
    `Unknown register: R1`.
+   Include `SASS/lib/SASS.jar`, which the normal build generates. The
+   complete `sass-processor.tar.gz` release archive includes it; the languages-only
+   archive does not replace the complete module.
 
 3. Restart Ghidra and import a `.cubin` (extract one from a fat binary with
-   `cuobjdump -xelf`). Ghidra's ELF loader recognizes it and picks the language
+   `cuobjdump -xelf`). The **CUDA Cubin** loader uses Ghidra's ELF importer and picks the language
    `SASS:LE:64:smXX` from the ELF header. Each architecture also has a
    `smXX_readable` variant, which writes floating-point arithmetic as the plain
    formula (`a f* b f+ c`), ignoring rounding modes, denormal flushing, fused
    rounding and NaN/signed-zero selection; choose it in the import dialog's
    Language field. The default variant computes hardware-exact results.
+
+   Constant bank 0 has automatic labels for known launch fields (`blockDim_x/y/z`,
+   `local_stack_base`, generic address window bases), known default global-memory
+   descriptor slots, and `kernel_arguments` at the ABI argument base. The argument
+   region defaults to a 4 KiB byte array during **CUDA Cubin** import, before
+   analysis. Interior offsets display relative to `kernel_arguments` (for example,
+   `[16]` for byte offset `0x10`); individual arguments depend on the kernel. The bank
+   is uninitialized, so runtime values remain unknown. SM107's layout is unresolved
+   and receives no labels. Reimport existing programs to receive the new labels.
+
+   Automatic analysis enables **SASS Kernel Arguments**. It reads each kernel's
+   `.nv.info` parameter offsets and sizes and creates function parameters in
+   constant bank 0. The decompiler then shows `arg_0`, `arg_1`, etc. in the
+   signature and body. Names and types absent from the metadata remain unknown;
+   user-edited signatures are preserved. After installing the analyzer, restart
+   Ghidra and analyze an existing program to populate its arguments.
 
 Semantics, their coverage and their limits are documented in
 [`docs/semantics.md`](docs/semantics.md); generator details and Ghidra quirks in

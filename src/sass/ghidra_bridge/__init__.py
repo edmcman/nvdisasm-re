@@ -69,8 +69,13 @@ def stamp(program, arch, fp):
     specs, the sass sources the program runs and the Ghidra install. Paths are relative to the
     checkout or language directory, so identical files in scratch builds agree too."""
     name = variant(arch, fp)
-    files = [LANGUAGES / f"sass_{name}.sla", LANGUAGES / "sass.pspec", LANGUAGES / "sass.cspec", *sources(program)]
-    h = hashlib.sha256(GHIDRA_PY.encode() + os.environ.get("GHIDRA_INSTALL_DIR", "").encode() + language_entry(name))
+    entry = language_entry(name)
+    specs = ET.fromstring(entry) if entry else None
+    pspec = specs.get("processorspec") if specs is not None else "sass.pspec"
+    compiler = specs.find("compiler") if specs is not None else None
+    cspec = compiler.get("spec") if compiler is not None else "sass.cspec"
+    files = [LANGUAGES / f"sass_{name}.sla", LANGUAGES / pspec, LANGUAGES / cspec, *sources(program)]
+    h = hashlib.sha256(GHIDRA_PY.encode() + os.environ.get("GHIDRA_INSTALL_DIR", "").encode() + entry)
     for f in files:
         key = Path("languages") / f.relative_to(LANGUAGES) if f.is_relative_to(LANGUAGES) else f.relative_to(ROOT)
         h.update(str(key).encode()); h.update(f.read_bytes() if f.exists() else b"")

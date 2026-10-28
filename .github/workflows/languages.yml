@@ -1,7 +1,7 @@
 name: languages
 on:
   push:
-    paths: ["src/sass/**", "processor/SASS/data/languages/**", ".github/workflows/languages.yml"]
+    paths: ["src/sass/**", "processor/SASS/data/languages/**", "processor/SASS/src/**", ".github/workflows/languages.yml"]
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -59,7 +59,9 @@ jobs:
           path: |
             languages/sass_sm*.sla
             languages/sass_sm*.slaspec
+            languages/sass_sm*.pspec
             languages/build-results-*.json
+            languages/lib/SASS.jar
   release:
     needs: compile
     runs-on: ubuntu-latest
@@ -78,11 +80,16 @@ jobs:
       - name: package
         run: |
           cp processor/SASS/data/languages/{sass_common.sinc,sass.pspec,sass.cspec} languages/
+          # Recreate the merged language index and architecture-specific processor specs.
           uv run python -c 'from pathlib import Path; from sass.sleigh import gen; gen.OUT = Path("languages"); gen.write_ldefs()'
           jq -s 'add' languages/build-results-*.json > languages/build-results.json && rm languages/build-results-*.json
           # Ghidra recompiles a writable .sla whose .slaspec is missing or older than it or its includes.
           touch languages/*.sla
-          tar -czf sass-languages.tar.gz -C languages .
+          tar --exclude=./lib -czf sass-languages.tar.gz -C languages .
+          cp -a languages/. processor/SASS/data/languages/
+          mkdir -p processor/SASS/lib
+          cp languages/lib/SASS.jar processor/SASS/lib/
+          tar --exclude=SASS/data/languages/lib -czf sass-processor.tar.gz -C processor SASS
       - name: publish
         env:
           GH_TOKEN: ${{ github.token }}
@@ -92,5 +99,5 @@ jobs:
           kind=$([ "$GITHUB_REF" = refs/heads/main ] && echo --latest || echo --prerelease)
           gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" $kind \
             --title "SLEIGH languages for ${GITHUB_SHA::7}" \
-            --notes "Compiled SASS languages (all architectures, exact and readable) for ${GITHUB_SHA}. Unpack into processor/SASS/data/languages/."
-          gh release upload "$TAG" sass-languages.tar.gz --clobber
+            --notes "Complete SASS processor with automatic kernel-argument analysis: unpack sass-processor.tar.gz into Ghidra/Processors/. The languages-only archive unpacks into processor/SASS/data/languages/."
+          gh release upload "$TAG" sass-languages.tar.gz sass-processor.tar.gz --clobber

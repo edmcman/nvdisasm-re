@@ -42,8 +42,9 @@ def test_stamp_ignores_other_languages_and_checkout_location(tmp_path, monkeypat
     from sass.sleigh.gen import LANG, LDEFS as TEMPLATE
     def checkout(root, variants, description="NVIDIA SASS", output=None):
         languages = output or root / "processor/SASS/data/languages"; languages.mkdir(parents=True, exist_ok=True)
-        for f in ("sass_sm89.sla", "sass.pspec", "sass.cspec"): (languages / f).write_text(f)
-        entries = "".join(LANG.format(v=v, V=v.upper(), D="") for v in variants).replace("NVIDIA SASS", description)
+        for f in ("sass_sm89.sla", "sass_sm89.pspec", "sass.cspec"): (languages / f).write_text(f)
+        entries = "".join(LANG.format(v=v, V=v.upper(), D="", pspec=f"sass_{v.split('_')[0]}.pspec")
+                          for v in variants).replace("NVIDIA SASS", description)
         (languages / "sass.ldefs").write_text(TEMPLATE.format(entries))
         monkeypatch.setattr(ghidra_bridge, "ROOT", root); monkeypatch.setattr(ghidra_bridge, "LANGUAGES", languages)
         monkeypatch.setattr(ghidra_bridge, "LDEFS", languages / "sass.ldefs")
@@ -54,6 +55,23 @@ def test_stamp_ignores_other_languages_and_checkout_location(tmp_path, monkeypat
     assert checkout(tmp_path / "b", ["sm89"]) == alone
     assert checkout(tmp_path / "a", ["sm89"], output=tmp_path / "external-languages") == alone
     assert checkout(tmp_path / "a", ["sm89"], "changed") != alone
+
+
+def test_stamp_hashes_selected_processor_spec(tmp_path, monkeypatch):
+    from sass.sleigh import gen
+    monkeypatch.setattr(ghidra_bridge, "ROOT", tmp_path)
+    monkeypatch.setattr(ghidra_bridge, "LANGUAGES", tmp_path)
+    monkeypatch.setattr(ghidra_bridge, "LDEFS", tmp_path / "sass.ldefs")
+    monkeypatch.setattr(ghidra_bridge, "sources", lambda program: [])
+    entry = gen.LANG.format(v="sm89", V="SM89", D="", pspec="sass_sm89.pspec")
+    (tmp_path / "sass.ldefs").write_text(gen.LDEFS.format(entry))
+    (tmp_path / "sass_sm89.pspec").write_text("original")
+    original = ghidra_bridge.stamp("ghidra_emulate.py", "SM89", "exact")
+    (tmp_path / "sass.pspec").write_text("template changed")
+    (tmp_path / "sass_sm90.pspec").write_text("another language changed")
+    assert ghidra_bridge.stamp("ghidra_emulate.py", "SM89", "exact") == original
+    (tmp_path / "sass_sm89.pspec").write_text("selected spec changed")
+    assert ghidra_bridge.stamp("ghidra_emulate.py", "SM89", "exact") != original
 
 
 def test_threads_keep_their_own_sessions(tmp_path):
