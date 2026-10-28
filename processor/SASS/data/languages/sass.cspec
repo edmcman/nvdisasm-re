@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <compiler_spec>
   <data_organization><pointer_size value="8"/></data_organization>
-  <global><range space="ram"/><range space="cbank"/><range space="shared"/></global>
+  <global>
+    <range space="ram"/><range space="cbank"/><range space="shared"/>
+    <register name="SR_TID.X"/><register name="SR_TID.Y"/><register name="SR_TID.Z"/>
+    <register name="SR_CTAID.X"/><register name="SR_CTAID.Y"/><register name="SR_CTAID.Z"/>
+  </global>
   <stackpointer register="R1" space="localmem"/>
   <default_proto>
     <prototype name="__kernel" extrapop="0" stackshift="0">

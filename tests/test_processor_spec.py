@@ -76,11 +76,16 @@ def test_imported_constant_labels(tmp_path, request, arch, dims, fp, arguments):
     uniform_load = "LDCU" if arch == "SM100" else "ULDC"
     descriptor = 0x358 if arch == "SM100" else 0x208 if arch == "SM90" else 0x118
     store = "STG.E [R2.64], R0" if arch in ("SM80", "SM89") else "STG.E desc[UR4][R2.64], R0"
+    predicates = "PT, PT, " if arch == "SM100" else ""
+    coordinates = "\n".join(f"""S2R R4, SR_TID.{axis};
+S2R R5, SR_CTAID.{axis};
+IADD3 R0, {predicates}R0, R4, R5;""" for axis in "XYZ")
     data = assemble_cubin(f""".target {arch}
 .kernel constant_labels
 .param output, 8, 8
 .registers 8, 8
 {load} R0, c[0][{dims:#x}];
+{coordinates}
 {load} R2, c[0][$output];
 {load} R3, c[0][$output+4];
 {uniform_load}.64 UR4, c[0][{descriptor:#x}];

@@ -186,6 +186,11 @@ The generator uses the committed `src/sass/md/data/` descriptions.
    is uninitialized, so runtime values remain unknown. SM107's layout is unresolved
    and receives no labels. Reimport existing programs to receive the new labels.
 
+   Thread and block coordinates appear as `threadIdx_x/y/z` and `blockIdx_x/y/z`
+   in the decompiler. They are marked as global register state, removing Ghidra's
+   unexplained-input `in_` prefix. Original `SR_TID.X/Y/Z` and `SR_CTAID.X/Y/Z`
+   names remain aliases for register access and emulation.
+
    Automatic analysis enables **SASS Kernel Arguments**. It reads each kernel's
    `.nv.info` parameter offsets and sizes and creates function parameters in
    constant bank 0. The decompiler then shows `arg_0`, `arg_1`, etc. in the

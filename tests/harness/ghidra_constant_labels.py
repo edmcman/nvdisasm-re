@@ -43,6 +43,12 @@ def main(ldefs, language_id, cubin, *options):
     decompiler = DecompInterface()
     try:
         program = loaded.getPrimaryDomainObject()
+        for original, readable in (("SR_TID", "threadIdx"), ("SR_CTAID", "blockIdx")):
+            for axis in "xyz":
+                register = lang.getRegister(f"{original}.{axis.upper()}")
+                assert register is not None
+                assert register == lang.getRegister(f"{readable}_{axis}")
+                assert register.getMinimumByteSize() == 4
         block = program.getMemory().getBlock("constant_bank_0")
         assert block is not None and not block.isInitialized()
         assert block.isRead() and not block.isWrite() and not block.isExecute()
@@ -73,6 +79,35 @@ def main(ldefs, language_id, cubin, *options):
             assert DisassembleCommand(other.getStart(), AddressSet(other.getStart(), other.getEnd()), True).applyTo(program)
         finally:
             program.endTransaction(transaction, True)
+        # Renaming display registers must preserve old-name seeding and S2R
+        # execution, including every thread/block coordinate.
+        import jpype
+        from ghidra.pcode.emu import PcodeEmulator
+        from ghidra.pcode.exec import PcodeProgram, PcodeExecutorStatePiece
+        reason = PcodeExecutorStatePiece.Reason.INSPECT
+        coordinates = [instruction for instruction in program.getListing().getInstructions(
+            AddressSet(code.getStart(), code.getEnd()), True)
+            if str(instruction.getMnemonicString()) == "S2R"]
+        assert len(coordinates) == 6
+        for instruction in coordinates:
+            original, readable, target, axis = next(
+                (original, readable, target, axis)
+                for original, readable, target in (("SR_TID", "threadIdx", "R4"),
+                                                   ("SR_CTAID", "blockIdx", "R5"))
+                for axis in "xyz" if f"{original}.{axis.upper()}" in str(instruction))
+            emulator = PcodeEmulator(lang)
+            thread = emulator.newThread()
+            state = thread.getState()
+            expected = 0x10203040 + "xyz".index(axis)
+            register = lang.getRegister(f"{original}.{axis.upper()}")
+            state.setVar(register, jpype.JArray(jpype.JByte)(
+                expected.to_bytes(4, "little")))
+            pcode = PcodeProgram.fromInstruction(instruction, False)
+            thread.getExecutor().execute(pcode, thread.getUseropLibrary())
+            value = int.from_bytes(bytes(state.getVar(lang.getRegister(target), reason)), "little")
+            assert value == expected
+            assert int.from_bytes(bytes(state.getVar(
+                lang.getRegister(f"{readable}_{axis}"), reason)), "little") == expected
         extra = {}
         from ghidra.app.plugin.core.analysis import AutoAnalysisManager
         from ghidra.framework.options import OptionType
@@ -129,6 +164,10 @@ def main(ldefs, language_id, cubin, *options):
         assert result.decompileCompleted(), str(result.getErrorMessage())
         text = str(result.getDecompiledFunction().getC())
         assert "blockDim_x" in text, text
+        for coordinate in ("threadIdx", "blockIdx"):
+            for axis in "xyz":
+                assert f"{coordinate}_{axis}" in text, text
+                assert f"in_{coordinate}_{axis}" not in text, text
         assert ("arg_0" if "--arguments" in options else "kernel_arguments") in text, text
         if str(lang.getLanguageID()).endswith(("sm90", "sm90_readable", "sm100", "sm100_readable")):
             assert "default_global_descriptor" in text, text
