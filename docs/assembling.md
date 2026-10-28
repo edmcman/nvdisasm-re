@@ -44,6 +44,17 @@ use different instructions. Invalid combinations, out-of-range values, and
 misaligned operands fail; values are never truncated or approximated by a nearby
 encoding-table row. Decoded `???N` placeholders are not valid source.
 
+Modifiers must appear in the md FORMAT order that nvdisasm prints, and the
+assembler does not reorder them: `F2F.FTZ.F64.F32` and `F2I.FTZ.F16.TRUNC.NTZ`
+assemble, `F2F.F64.F32.FTZ` does not. Address spellings differ by architecture.
+SM75 has no `[Ra.64]` operand, because `.E` alone selects a 64-bit address
+(`LDG.E R2, [R4]`, printed `LDG.E.SYS`). On SM80 and later, `[Ra.64]` is the
+memory-descriptor form (`desc[UR][Ra.64]` with the descriptor omitted). It
+exists for LDG, STG, LD, ST, RED and non-CAS ATOM/ATOMG, but not for
+ATOM.CAS/ATOMG.CAS, which take `[Ra]` (2026-10-28). Integer immediates accept
+only integer syntax, so an unsupported `.64` suffix is reported as a syntax
+mismatch. It is no longer misread as an offset.
+
 Floating immediates accept decimals, signed `INF`, `QNAN`, and `SNAN`, or raw hex
 bits. Decimals round to the selected immediate format. F64 immediates store only
 their high 32 bits; values needing nonzero low bits are rejected. Use raw bits for

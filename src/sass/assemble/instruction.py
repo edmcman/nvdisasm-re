@@ -12,6 +12,8 @@ from sass.sleigh.gen import default_value
 
 
 NUMBER = r'[+-]?(?:0[xX][0-9a-fA-F_]+|0[bB][01_]+|(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?|INF|QNAN|SNAN)'
+# Integer immediates take no decimal point, so a register suffix like `.64` cannot pass for an offset.
+INTEGER = r'[+-]?(?:0[xX][0-9a-fA-F_]+|0[bB][01_]+|\d+)'
 MARKER = re.compile(r'«(\d+)»')
 
 
@@ -65,8 +67,10 @@ def atom_pattern(md, k, a):
     etype = next((t for n, t, _, _ in k.aliases if n == a.name), a.type)
     if etype in md.enums:
         return '(?:' + '|'.join(re.escape(n) for n in sorted(md.enums[etype], key=len, reverse=True)) + ')'
-    if pydecode.IMM.fullmatch(a.type):
-        return '(?:' + NUMBER + r'|[A-Za-z_.$][\w.$]*)' if a.type == 'RSImm' else NUMBER
+    if m := pydecode.IMM.fullmatch(a.type):
+        if m['float']:
+            return NUMBER
+        return '(?:' + INTEGER + r'|[A-Za-z_.$][\w.$]*)' if a.type == 'RSImm' else INTEGER
     if a.type == 'BITSET':
         return r'\{\s*(?:\d+(?:\s*,\s*\d+)*)?\s*\}'
     if a.type in pydecode.PREFIX:
