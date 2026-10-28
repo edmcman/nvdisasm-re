@@ -522,9 +522,9 @@ class's selected forms and blockers. Modifier combinations decoded from one tabl
 correlated, so encoding aliases cannot inflate the inventory or receive false provenance.
 
 Verification update (2026-10-25): the regenerated plans and aligned memory
-profiles were rerun on SM89. The current SM90 selection has 192 fewer LD forms
-with matching recorded GPU evidence than main; its existing raw observations
-are preserved, and restoring that evidence requires an SM90 run.
+profiles were rerun on SM89. On 2026-10-28 the sampled SM90 GPU suite reran
+the current selection on an H100 NVL. Relative to the previous recorded evidence,
+865 additional LD modifier combinations gained GPU evidence.
 
 Scheduling and reuse fields remain excluded by the modifier inventory. Memory hints and
 consistency qualifiers stay in the generated suite. Family-local `modifier_roles` declarations
