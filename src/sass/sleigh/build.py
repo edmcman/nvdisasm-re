@@ -91,6 +91,6 @@ def main():
         (a.output/'build-results.json').write_text(json.dumps(results,indent=2)+'\n')
         from sass.sleigh import processor
         processor.build(install,a.output)
-        print('SASS cubin loader and kernel-argument analyzer: compiled',flush=True)
+        print('SASS cubin loader, kernel-argument analyzer and engine browser: compiled',flush=True)
 
 if __name__=='__main__':main()

@@ -89,6 +89,7 @@ Rough wall times and peak memory (summed PSS) on a 32-core, 93 GiB machine with 
 | Python tests, every architecture and lowering | 3 minutes | 13 GiB (25 GiB with `--exhaustive`) |
 | language build (about 17 compilers at once) | 1.75 minutes | 27 GiB |
 | Ghidra tests, all languages | 8 minutes cold, 2.5 minutes cached (mostly building the cases); 2 hours cold for `--arch all --fp all` (2.2 million selected cases, load 55-85 from two other suites, 2026-10-22) | 25 GiB |
+| Engine browser, Ghidra (2026-10-29) | about 4 s for 45 synthetic fixtures and four imports; about 16 s including the supplied YOLO engine, two real imports and 65 `nvdisasm` checks; language builds separate | |
 | GPU tests | 15 s | |
 | K IR execution/proof tests, SM89/SM90 and both FP modes (2026-10-26) | about 4 minutes with base definitions cached; LLVM/Haskell compilation adds a cold setup cost | |
 
