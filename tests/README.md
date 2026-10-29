@@ -456,10 +456,13 @@ another. To derive a reference from hardware, see
 
 ### Comparison tolerances
 
-GPU vs reference is exact, except F16 NaN payload/sign in F16 packs and packed F16 arithmetic, and
-the bits outside the converted width of the wide conversion fixtures. Emulator vs reference
-tolerates floating-point NaN payload/sign, and excuses Ghidra's minimum-subnormal underflow
-(fp16/32/64) only on its exact signature. FP8 emulator cases compare NaN class only (`__fp8_nan`).
+Shared instruction cases compare GPU and emulator register bits exactly, including
+ordinary HADD2/HMUL2/HFMA2's canonical `0x7fff` NaN lanes in exact mode.
+FP8 cases may compare NaN class only (`__fp8_nan`). Readable arithmetic profiles
+skip NaN payload checks. Whole-kernel fixtures declare their own `same` and
+`emulator_same` policies; wide conversion fixtures may mask bits outside the
+converted width, and arithmetic fixtures excuse Ghidra's minimum-subnormal
+underflow (fp16/32/64) only on its exact signature.
 
 ## Generated shared cases
 
@@ -757,7 +760,14 @@ the same shards on every core.
 
 ### Raw single-instruction probes
 
-Use `Cases.probe(cls, fields, registers, observe=[...], ...)` and
+Almost always use autocases for single-instruction GPU discovery: extend or add
+the adapter/profile, then re-observe its candidates with `device_cases.observe`.
+The runner ignores expectations. Missing adapter support is a reason to fix the
+adapter, not to write a parallel manual probe matrix. Whole-kernel compiler
+sequences are an exception because they span more than one instruction.
+
+For a concrete documented harness limitation, use
+`Cases.probe(cls, fields, registers, observe=[...], ...)` and
 `tests.harness.device_cases.observe(cases)` to discover outputs without a reference. It uses the
 same generated wrappers and setup adapters, returning raw registers and observed memory without
 comparisons or evidence updates. `python -m tests.probe INPUT.json --out OUTPUT.json [--arch SM90]` accepts a JSON

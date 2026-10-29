@@ -71,7 +71,10 @@ def floating(c,k,form):
     if op=='FCHK':
         spec=autocase_profiles.PROFILES['fchk_boundaries']
         vectors += [(a,b,0) for a,b in (*autocase_profiles.fchk_pairs()[::spec['stride']],*spec['extra_pairs'])]
-    for j,raw in enumerate(vectors):
+    vectors=[(v,j&1) for j,v in enumerate(vectors)]
+    if op in ('FSETP','DSETP'):
+        vectors += [((a,b,0),p) for a,b in autocase_profiles.PROFILES['setp_comparison_pairs'][width] for p in (0,1)]
+    for j,(raw,raw_predicate) in enumerate(vectors):
         s=autocases.Inputs(c,k,form)
         xs=[];encoded=[]
         for n,v,r in zip(names,raw,(4,6,8)):
@@ -79,7 +82,7 @@ def floating(c,k,form):
             encoded.append(value)
             xs.append((float.conversion_source if op=='FRND' else float.source_modifiers)(value,width,form.get(n+'@absolute')=='set',form.get(n+'@negate')=='set'))
         p=source(k,'Pp','UPp')
-        pred=j&1
+        pred=raw_predicate
         if p:
             s.predicate((p,),pred,0)
             pred ^= form.get(p+'@not')=='set'
@@ -107,7 +110,7 @@ def floating(c,k,form):
             yes=integer.combine(condition,pred,form['bop']); no=integer.combine(not condition,pred,form['bop'])
             if cmp in ('MIN','MAX'): no=all(float.ordered(x,width) is None for x in prepared)
             if op!='FSET':
-                s.add({s.output(('Pu','UPu'),0):yes,s.output(('Pv','UPv'),1):no},form,portable=True); continue
+                s.setp_outputs(yes, no, form); continue
             result=0x3f800000 if yes else 0
         elif op=='FSEL': result=(float.flush(xs[0],32) if ftz else xs[0]) if pred else (float.flush(xs[1],32) if ftz else xs[1])
         elif op=='FMNMX':

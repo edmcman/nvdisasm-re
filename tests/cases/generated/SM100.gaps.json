@@ -1,12 +1,12 @@
 {
   "counts": {
     "legal": 9425799,
-    "unresolved_semantics": 8828411,
-    "requirements": 151540,
+    "unresolved_semantics": 8826135,
+    "requirements": 153360,
     "manual": 0,
-    "blocked": 41293,
-    "covered_requirements": 110247,
-    "generated": 11620
+    "blocked": 31979,
+    "covered_requirements": 121381,
+    "generated": 11975
   },
   "gaps": [
     {
@@ -734,11 +734,6 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "f2f_f64_upconvert__R_32I_R_RIR",
-      "count": 4,
-      "reason": "unresolved semantics"
-    },
-    {
       "cls": "f2f_f64_upconvert__R_I16_R_RIR",
       "count": 12,
       "reason": "unresolved semantics"
@@ -749,18 +744,8 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "f2f_f64_upconvert__R_R32_R_RRR",
-      "count": 16,
-      "reason": "unresolved semantics"
-    },
-    {
       "cls": "f2f_f64_upconvert__R_UR16_R_RUR",
       "count": 96,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2f_f64_upconvert__R_UR32_R_RUR",
-      "count": 16,
       "reason": "unresolved semantics"
     },
     {
@@ -1447,21 +1432,6 @@
       }
     },
     {
-      "cls": "f2i__IU_32b",
-      "count": 64,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2i__Ib_16b",
-      "count": 64,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2i__Ib_64b",
-      "count": 64,
-      "reason": "unresolved semantics"
-    },
-    {
       "cls": "f2i__Ib_bf16",
       "count": 64,
       "reason": "unresolved semantics"
@@ -1476,21 +1446,6 @@
       }
     },
     {
-      "cls": "f2i__Rb_16b",
-      "count": 512,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2i__Rb_32b",
-      "count": 256,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2i__Rb_64b",
-      "count": 256,
-      "reason": "unresolved semantics"
-    },
-    {
       "cls": "f2i__Rb_bf16",
       "count": 512,
       "reason": "unresolved semantics"
@@ -1503,21 +1458,6 @@
       "attempts": {
         "conversion format outside scalar IEEE profile": 256
       }
-    },
-    {
-      "cls": "f2i__URb_16b",
-      "count": 512,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2i__URb_32b",
-      "count": 256,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "f2i__URb_64b",
-      "count": 256,
-      "reason": "unresolved semantics"
     },
     {
       "cls": "f2i__URb_bf16",
@@ -1889,55 +1829,19 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hadd2__RI",
-      "count": 55,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed source-sign numerical corpus remains manual": 18
-      }
-    },
-    {
       "cls": "hadd2__RR",
       "count": 432,
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hadd2__RR",
-      "count": 360,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed source-sign numerical corpus remains manual": 270
-      }
-    },
-    {
       "cls": "hadd2__RU",
       "count": 432,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "hadd2__RU",
-      "count": 360,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed source-sign numerical corpus remains manual": 270
-      }
     },
     {
       "cls": "hfma2__RIR",
       "count": 1152,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "hfma2__RIR",
-      "count": 360,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed source-sign numerical corpus remains manual": 270
-      }
     },
     {
       "cls": "hfma2__RRI",
@@ -1950,55 +1854,19 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hfma2__RRR",
-      "count": 1133,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed source-sign numerical corpus remains manual": 3402
-      }
-    },
-    {
       "cls": "hfma2__RRU",
       "count": 19584,
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hfma2__RRU",
-      "count": 1133,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed source-sign numerical corpus remains manual": 3402
-      }
-    },
-    {
       "cls": "hfma2__RUR",
       "count": 19584,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "hfma2__RUR",
-      "count": 1133,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed source-sign numerical corpus remains manual": 3402
-      }
     },
     {
       "cls": "hfma2_relu__RIR",
       "count": 1440,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "hfma2_relu__RIR",
-      "count": 360,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed source-sign numerical corpus remains manual": 270
-      }
     },
     {
       "cls": "hfma2_relu__RRI",
@@ -2011,41 +1879,14 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hfma2_relu__RRR",
-      "count": 1133,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed source-sign numerical corpus remains manual": 3402
-      }
-    },
-    {
       "cls": "hfma2_relu__RRU",
       "count": 24192,
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hfma2_relu__RRU",
-      "count": 1133,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed source-sign numerical corpus remains manual": 3402
-      }
-    },
-    {
       "cls": "hfma2_relu__RUR",
       "count": 24192,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "hfma2_relu__RUR",
-      "count": 1133,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "packed source-sign numerical corpus remains manual": 3402
-      }
     },
     {
       "cls": "hmma_sparse_",
@@ -2152,32 +1993,29 @@
     },
     {
       "cls": "hmul2__RI",
-      "count": 116,
+      "count": 31,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "mixed-format packed arithmetic remains manual": 3,
-        "packed source-sign numerical corpus remains manual": 63
+        "mixed-format packed arithmetic remains manual": 12
       }
     },
     {
       "cls": "hmul2__RR",
-      "count": 578,
+      "count": 110,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "mixed-format packed arithmetic remains manual": 9,
-        "packed source-sign numerical corpus remains manual": 945
+        "mixed-format packed arithmetic remains manual": 144
       }
     },
     {
       "cls": "hmul2__RU",
-      "count": 578,
+      "count": 110,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "mixed-format packed arithmetic remains manual": 9,
-        "packed source-sign numerical corpus remains manual": 945
+        "mixed-format packed arithmetic remains manual": 144
       }
     },
     {

@@ -8,7 +8,23 @@ nvcc; `Cases(arch)` (or `tests.probe --arch`) must match the device's architectu
 `tests/README.md` "Hardware evidence and probes" summarizes the same tools and how
 passing shared-case runs become evidence.
 
-## Python API
+## Autocase discovery
+
+Use this for ordinary single-instruction discovery, extending or adding the
+adapter/profile when necessary. The observation runner ignores expectations;
+raw outputs do not earn verification credit.
+
+```python
+import json
+from tests.harness import autocases, device_cases
+
+cases = autocases.generate("SM89", "popc__RRR_RRR", {"Rb@invert": "unset"}, sample=100)
+print(json.dumps(device_cases.observe(cases), indent=1))
+```
+
+## Low-level Python API
+
+Use standalone inputs only for a concrete documented harness limitation.
 
 ```python
 import json
@@ -53,6 +69,16 @@ the CLI exit nonzero. Keep the input JSON and observations with the investigatio
 when they establish a new behavior; label the words as synthetic rather than
 compiler-generated unless a PTX compilation independently establishes that mapping.
 
+Almost always use autocases for single-instruction GPU discovery. Inspect the
+opcode's adapter and profiles; add an adapter when absent and extend it for
+missing forms, values or aliases.
+`autocases.generate(arch, cls, form, sample=100)` returns shared cases
+that `device_cases.observe` can re-observe without using their expectations.
+Fix or extend the adapter/profile for missing scenarios; do not reproduce its
+ordinary form/input matrix in a research script. Standalone probes require a
+concrete documented harness limitation. Whole-kernel compiler sequences are an
+exception because they span more than a single instruction.
+
 ## Memory and warp setup
 
 For memory, pass `hardware={"adapter": "memory"}` and the existing request fields:
@@ -73,9 +99,9 @@ instruction's operand form merely to make an existing probe run.
 
 Vary one selector at a time and choose inputs that distinguish plausible rules.
 Observe aliased registers and all relevant predicates, not just the main result.
-Write an independent reference from the evidence, then replace the draft
-`c.probe(..., observe=[...])` with `c.add(..., expected=reference(...))` in the
-appropriate family's `emulator_cases`. Draft probes are rejected in regression
+Write an independent reference from the evidence, then add the value cases to
+the autocase adapter/profile, adding an adapter when absent. Use retained manual
+cases only for focused regressions that exceed the profile. Draft probes are rejected in regression
 suites, and raw observations never create GPU verification evidence. Run the
 shared GPU tests (`nice uv run pytest -m gpu --require-gpu --family F`) to validate
 the reference and record passing evidence; each word counts once all its scenarios pass. Then run the

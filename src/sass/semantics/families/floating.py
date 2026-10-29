@@ -252,7 +252,8 @@ def set_predicates(i, cond, minmax=None):
     uncombined both-inputs-NaN flag."""
     if not i.has_operand('bop'): return outputs(Pu=cond)
     pv = combined(i, lnot(cond))
-    return outputs(Pu=combined(i, cond), Pv=pv if minmax is None else ite(minmax[0], minmax[1], pv))
+    return outputs(Pu=combined(i, cond), Pv=pv if minmax is None else ite(minmax[0], minmax[1], pv),
+                   order=('Pv', 'Pu'))  # equal destinations: Pu wins (SM89)
 
 
 @family('FSETP')
@@ -455,13 +456,14 @@ def half_lanes(i, names, swizzle):
 
 
 def single(i, name, swizzle, raw):
-    """SM75 HADD2's .F32 source (`HADD2 R0, R2.F32, -RZ.H0_H0` is ptxas's cvt.rz.f16.f32): the binary32
-    register, after |x| and -x on its sign, rounded toward zero to binary16 in both lanes. ptxas also
-    fuses cvt.rz.f16.f32 with add.f16x2 into HADD2 with a register, so the sum is of the narrowed value;
-    B follows (the sum commutes). Its NaN doesn't matter: the sum's NaN is canonical. None elsewhere:
-    ptxas doesn't fuse the conversion into HFMA2/HMUL2, whose .F32 sources (and HSET2/HSETP2's) may act
-    in binary32, and SM80+ forbid F32 (no SM75 GPU to tell)."""
-    if i.opcode != 'HADD2' or not i.has_operand(swizzle) or 'F32' not in i.legal_labels(swizzle): return None
+    """SM75 .F32 input narrowed RZ to binary16 and broadcast after float sign modifiers.
+
+    ptxas emits HADD2 for cvt.rz.f16.f32 with both output lanes observable.
+    It folds that conversion into HSET2/HSETP2 in either input position, and
+    with both inputs converted. Mixed HADD2 arithmetic retains its existing
+    inferred source model. HMUL2/HFMA2's precision remains unresolved.
+    SM80+ forbid these input selectors; there is no SM75 GPU observation."""
+    if i.opcode not in ('HADD2', 'HSET2', 'HSETP2') or not i.has_operand(swizzle) or 'F32' not in i.legal_labels(swizzle): return None
     x = i.modified(name, 'absolute', raw, lambda v: v & 0x7fffffff)
     x = i.modified(name, 'negate', x, lambda v: v ^ 0x80000000)
     return fpformat.narrow(x, 'F32', 'F16', 'RZ')
@@ -645,7 +647,7 @@ def hsetp2(i):
     """Pu = lane 0's comparison bop Pp, Pv = lane 1's; .H_AND: Pu = (both lanes) bop Pp, Pv = !(both lanes) bop Pp."""
     low, high = half_comparisons(i)
     if i.select_fork('h_and') == 'H_AND': return set_predicates(i, low & high)
-    return outputs(Pu=combined(i, low), Pv=combined(i, high))
+    return outputs(Pu=combined(i, low), Pv=combined(i, high), order=('Pv', 'Pu'))
 
 
 # ---- packed binary32 pairs: FADD2/FMUL2/FFMA2 and the mixed FHADD2/FHFMA2/FHMUL2 (SM107) ------------

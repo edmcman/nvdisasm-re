@@ -295,44 +295,18 @@ def literal_move_cost(c):
               dict(R8=reference("fma", [lanes(0x40003c00, negate=True), [0, 0], [0x4000, 0x3c00]]), __native=True))
 
 
-@retained('SM75 .F32 sources (binary32 narrowed toward zero) and .F32 results need a binary32 corpus outside the half-lane form adapter.')
+@retained('Unresolved SM75 mixed arithmetic precision and nonzero F32-result sums require explicit opaque guards.')
 def single_source(c):
-    # SM75's R.F32 source: the binary32 register (after |x|, -x on its sign) rounded toward zero to
-    # binary16 in both lanes (ptxas's cvt.rz.f16.f32 is HADD2 R, R.F32, -RZ.H0_H0): around the
-    # RZ overflow (65520 rounds to 65504), the subnormal range, NaN and infinities.
-    singles = [0, 0x80000000, 0x3f800000, 0xbf800000, 0x3eaaaaab, 0x477fe000, 0x477fefff, 0x477ff000, 0x47800000, 0xc7c35000,
-               0x7f800000, 0xff800000, 0x7fc00000, 0xffc00001, 0x38800000, 0x387fc000, 0x33800000, 0x337fffff, 0x33000000, 0x00000001]
-    other, addend = 0x3c00c000, 0x34003800
+    # Ordinary .F32 inputs and conversion/widening controls belong to the
+    # autocase profiles. Retain only the unresolved-form assertions here.
     if "hadd2__RR" not in c.classes: return
-    def legal(cls, **fields):   # the md's conditions: SM75 alone allows .F32 sources, SM75/SM80 .F32 results here
+    def legal(cls, **fields):
         try: encoding.encode(c.arch, cls, **fields); return True
-        except (KeyError, ValueError): return False   # an absent label, or a violated condition
+        except (KeyError, ValueError): return False
     sources = legal("hadd2__RR", Rd=8, Ra=2, Rc=4, iswzA="F32")
-    for j, x in enumerate(singles if sources else ()):
-        for absolute, negate in ((0, 0), (1, 0), (0, 1)):
-            mods = (x & 0x7fffffff if absolute else x) ^ (0x80000000 if negate else 0)
-            narrowed = [f2f(mods, 32, 16, "RZ")] * 2
-            for f32_operand in ("Ra", "Rc"):
-                swizzle = "iswzA" if f32_operand == "Ra" else "iswzB_as_C"
-                fields = {"Rd": 8, "Ra": 2, "Rc": 4, swizzle: "F32", f32_operand + "@absolute": absolute, f32_operand + "@negate": negate}
-                regs = {"R2": x, "R4": other} if f32_operand == "Ra" else {"R2": other, "R4": x}
-                pair = [narrowed, lanes(other)] if f32_operand == "Ra" else [lanes(other), narrowed]
-                for sat in (False, True):
-                    want = reference("add", pair, sat)
-                    if want is not None: c.add("hadd2__RR", dict(fields, sat="SAT" if sat else "nosat"), regs, dict(R8=want, __native=True))
-                # -RZ: the conversion itself (cvt.rz[.sat].f16.f32), and with an .F32 result back to binary32.
-                if f32_operand == "Ra":
-                    zero = {"Rc": "RZ", "Rc@negate": 1, "iswzB_as_C": "H0_H0"}
-                    want = reference("add", [narrowed, [0x8000, 0x8000]])
-                    if want is not None: c.add("hadd2__RR", dict(fields, **zero), {"R2": x}, dict(R8=want, __native=True))
-                    widened = widen_half(want & 0xffff) if want is not None else None
-                    if widened is not None: c.add("hadd2__RR", dict(fields, ofmt="F32", **zero), {"R2": x}, dict(R8=widened, __native=True))
-    # Not modelled: HFMA2/HMUL2/HSET2's .F32 sources (ptxas never fuses a conversion into them, so they may
-    # act in binary32), and an .F32 result of a sum with a nonzero operand (its rounding is unknown).
     if sources:
         c.add("hfma2__RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6, iswzA="F32"), {}, dict(error="sass_opaque_HFMA2"))
         c.add("hmul2__RR", dict(Rd=8, Ra=2, Rb=4, iswzA="F32"), {}, dict(error="sass_opaque_HMUL2"))
-        c.add("hset2__RR", dict(Rd=8, Ra=2, Rc=4, iswzA="F32"), {}, dict(error="sass_opaque_HSET2"))
     if legal("hadd2__RR", Rd=8, Ra=2, Rc=4, ofmt="F32"): c.add("hadd2__RR", dict(Rd=8, Ra=2, Rc=4, ofmt="F32"), {}, dict(error="sass_opaque_HADD2"))
 
 

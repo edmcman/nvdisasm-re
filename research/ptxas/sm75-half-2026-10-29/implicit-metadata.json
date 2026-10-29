@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-29",
+  "arch": "SM75",
+  "kind": "compiler evidence; no GPU execution",
+  "entries": 114,
+  "optimization_levels": [
+    0,
+    3
+  ],
+  "f32_source_counts": {
+    "0": {},
+    "3": {
+      "HADD2": 21,
+      "HFMA2": 3,
+      "HMUL2": 4
+    }
+  },
+  "compiler_sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+  "generator": {
+    "path": "research/ptxas/sm75_half_lowering.py",
+    "sha256": "4041c12912ea59908b29e5a02ed55e2a574fbe3ac7b13aac990563520f3ea571",
+    "arguments": [
+      "--implicit"
+    ]
+  },
+  "files": {
+    "implicit-matrix-O0.sass": "e18d710dff7e308e68a2b96a70630b36efa657ae93cc598422aea581c54dc89d",
+    "implicit-matrix-O3.sass": "c41b1a69edc5474aedea886df023a470598ffdc0d405903b4903c8760fc43693",
+    "implicit-matrix-decoded.json": "4fe1f59eb42eb5300bfa9f90b1f0ace12f9d3b6a6c2df68b3dabccae8f3749be"
+  },
+  "regenerable_artifacts": {
+    "implicit-matrix.ptx": "27f3b3ff4480a8284240b201cb761ab783c8973e6eb404ce4bd8239cffe612cb",
+    "implicit-matrix-O0.cubin": "65cc7e3b178d4eeab114948e1c34441cfaec6e8e654f0454a83aab15006ed08e",
+    "implicit-matrix-O3.cubin": "752ccedfbd63cc510888dbe4df96c94fcaa30ac117d5c2b3f8ea5a5e9cea33d0"
+  },
+  "checksum_format": "sha256 of uncompressed content; .gz members use mtime=0"
+}

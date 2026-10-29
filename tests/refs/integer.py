@@ -14,6 +14,14 @@ def combine(value, predicate, bop):
     return int({"AND": value and predicate, "OR": value or predicate, "XOR": value ^ predicate}[bop])
 
 
+def predicate_outputs(u, v, pu, pv):
+    """SETP writes both computed values; equal destinations retain Pu (SM89, 2026-10-29).
+
+    Destination keys are register names. Inputs must already be read before calling this.
+    """
+    return {pv: int(v), pu: int(u)}
+
+
 def isetp(a, b, comparison, bop, predicate, signed=False, low=None):
     """Integer compare and complementary predicate results. In .EX, equal high words
     inherit the low-word comparison (except the constant F/T comparisons)."""

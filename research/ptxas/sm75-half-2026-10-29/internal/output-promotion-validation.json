@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-29",
+  "kind": "compiler evidence; no GPU execution",
+  "compiler_sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+  "input": {
+    "path": "tests/ptx/fp16/sm75_half_sum_widen.ptx",
+    "sha256": "415d31e7e3d3dc81b49b4661db8c3530c31893922ef076a75fc879c632049552"
+  },
+  "instrumentation": {
+    "path": "research/ptxas/capture_sm75_half.py",
+    "sha256": "f1a4ce07da8c25466da8d64c21806f210717525255a7716c8e51be147957f86b",
+    "environment": {
+      "SM75_HALF_TRACE_REWRITES": "1"
+    }
+  },
+  "files": {
+    "output-promotion.jsonl": "7e388dfa9df1969d12d4c4333ccd668297fe8be464f0e65e18ea5f0e81d8b29f",
+    "output-promotion.cubin": "f4b5532146ee7f7fc3b8ad0de55675d9d85748b1c850087ee87143a1db2025ec"
+  },
+  "validation": {
+    "kind": "partial compiler capture; exact word membership",
+    "captured_words": 6,
+    "unique_words": 3,
+    "opcodes": {
+      "HADD2": 6
+    },
+    "control_bits_masked": false
+  },
+  "promotion_rewrites": [
+    {
+      "opcode": 270,
+      "operand": 0,
+      "before": "6400009000000000000000f00000000054000010000000020000007000000000540000100000000400000070000000000000006000000000",
+      "after": "6400009000000000000000f00000000054000010000000020000007000000000540000100000000400000070000000000100006000000000"
+    },
+    {
+      "opcode": 60,
+      "operand": 1,
+      "before": "6500009000000000640000100000000000c01c6000000000",
+      "after": "6500009000000000640000100000000000c0186000000000"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-29",
+  "arch": "SM75",
+  "kind": "compiler lowering; no GPU execution",
+  "entries": 262,
+  "optimization_levels": [
+    0,
+    3
+  ],
+  "base_commit": "45a76ddacc69e5b030efe803379bd7852c617590",
+  "tools": {
+    "ptxas": {
+      "sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+      "version": "ptxas: NVIDIA (R) Ptx optimizing assembler\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:55:12_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n"
+    },
+    "nvdisasm": {
+      "sha256": "fa719d636e2dcebdbce466e07ab69f144feabc2fdb3eda52380fbd4a5c189faf",
+      "version": "nvdisasm: NVIDIA (R) CUDA disassembler\nCopyright (c) 2005-2026 NVIDIA Corporation\nBuilt on Tue_Sep_01_08:46:02_PDT_2026\nCuda compilation tools, release 13.4, V13.4.92\nBuild cuda_13.4.r13.4/compiler.38855100_0\n"
+    }
+  },
+  "files": {
+    "matrix-O0.sass": "67ce0e472bc665d14eb9d2b324d51bf662a423dbc9e55273a45a2cdac00a5d4d",
+    "matrix-O3.sass": "3f155c963f92c7f8cadc36ba3c34184259d52eb97613ad967857703cc1c47c6e",
+    "matrix-O0-decoded.json": "750a9f2aa1d0f4f1ca73e9da0e96d68f83e3204640dc9abb2a6d06bfafd28a93",
+    "matrix-O3-decoded.json": "43989f1edeb1ab1a10af7b68378bb7cc96aefb675a293903f17baf898689bc0d"
+  },
+  "regenerable_artifacts": {
+    "matrix.ptx": "4ede3df58ead2225fe94952c6a536524f13bcf40f647bf03fc619b64146ac1e1",
+    "matrix-O0.cubin": "9f36373fbd167367ed7d8b7cb431d559586dc246714a77dae42ac4e9efb568d5",
+    "matrix-O3.cubin": "631b0387a85e398853a05503a8c97e3b744f3d3467ba34f3499679ef93f5fa62"
+  },
+  "generator": {
+    "path": "research/ptxas/sm75_half_lowering.py",
+    "sha256": "0b28e52454f3afddf3b3b9d7b41950906647d4886b17eb285f489f1b84ac45e1"
+  },
+  "checksum_format": "files and regenerable_artifacts hash uncompressed content; stored .gz files decompress to those bytes"
+}

@@ -1,0 +1,132 @@
+{
+  "date": "2026-10-29",
+  "compiler_sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+  "kind": "compiler evidence; no GPU execution",
+  "archive_sha256": "c03fed4f7526a96e3fa61700d09185246fa1ac5b450130e4e946d374b4626821",
+  "inputs": {
+    "precision-single-add.ptx": "0ccec75fc1ce61fa878515d2a156c2b6bb3a488cbf5d127ea8eabe6c13a44283",
+    "precision-single-mul-rn.ptx": "2363f7ef6b2a319f78ec1ca23dd066ab827b9f56bb618d09c028969e43061228",
+    "precision-single-mul.ptx": "a8099055bbaa2d58699d18f637f3e5e71985bd35b3f086cd3808591076dad546",
+    "single-add-default-phases.txt": "a732c0cd042fde0211cf30b30641db3a2f9afb18ccae2db8f9d0aa919a926764",
+    "single-add-default.cubin": "e72762210f991b6d0c806df803fc9aafdc5b4dffc0653fa5b16551a408d13795",
+    "single-add-default.jsonl": "d7d24e86ce60eff1d0fc6fc06e73293a9d8d308987b2597f35a72e5a3f93909a",
+    "single-add-nofmad-phases.txt": "555309b24f842d1f7a9c54facfb1dae603d9d771ee5cf652cd869379973d2cf2",
+    "single-add-nofmad.cubin": "9e9f5ac64c64f4d8b0c3b7702dbb60e373e2a2c5edd6a50428c35249240935af",
+    "single-add-nofmad.jsonl": "98b2e548e404d69159d56ac52ebb808966d550b3e74f719af4d22b69f651d6d5",
+    "single-mul-default-phases.txt": "9462d59dc2839657b1aa0574ff00d2dc8dd1d84b73d6f17e2e7a95c1efdb5449",
+    "single-mul-default.cubin": "47fb1c163b442eb8fa0fc476a6bcdf6efda2c362d167c08fdd1c2119332b4c9c",
+    "single-mul-default.jsonl": "a08c26457c3d4d8a1f89a3a4fc0a9ffce01aa26f6f691cd8f8564c12307f3670",
+    "single-mul-explicit.cubin": "42a1daaa5952932548380ff23652cd861a03416b126b766f9842a5e4ada7482b",
+    "single-mul-explicit.jsonl": "c0f39938c21129805a8786d0b827bac44b231edcb29a0a69094d84f209192a92",
+    "single-mul-nofmad-phases.txt": "64c3349d6c7b07cdd7274790d2c5f48a3ff83febba47847e66f06d1236f86b35",
+    "single-mul-nofmad.cubin": "eb6ba28fa21a7f28e6672106b7cb5324a8d2bacb4b3687d6e9dc66ded99fa707",
+    "single-mul-nofmad.jsonl": "ab4d7dfb51815851eacc13098d14f84512870bf013262f226ef6c6e3dd651ee1"
+  },
+  "instrumentation": {
+    "research/ptxas/capture_sm75_half.py": "f1a4ce07da8c25466da8d64c21806f210717525255a7716c8e51be147957f86b",
+    "research/ptxas/ori_print.py": "d2085e966ca3da0dbfe284734807d18d9214d09e0ea8960dfec5ffdc901577d0"
+  },
+  "environment": {
+    "SM75_HALF_TRACE_RULES": "1",
+    "SM75_HALF_TRACE_REWRITES": "1",
+    "SM75_HALF_TRACE_FRONTEND": "1"
+  },
+  "results": {
+    "single-mul-default": {
+      "flags": "0x11a",
+      "operand": 2,
+      "eligible": 1,
+      "validation": {
+        "kind": "partial compiler capture; exact word membership",
+        "captured_words": 2,
+        "unique_words": 1,
+        "opcodes": {
+          "HMUL2": 2
+        },
+        "control_bits_masked": false
+      },
+      "dag_precision": "0x0",
+      "constructor_barrier": 0,
+      "float_hook": "0x6bcb20",
+      "ptx_policy": [
+        0,
+        0,
+        0
+      ]
+    },
+    "single-mul-nofmad": {
+      "flags": "0x211a",
+      "operand": 2,
+      "eligible": 0,
+      "validation": {
+        "kind": "partial compiler capture; exact word membership",
+        "captured_words": 4,
+        "unique_words": 2,
+        "opcodes": {
+          "HADD2": 2,
+          "HMUL2": 2
+        },
+        "control_bits_masked": false
+      },
+      "dag_precision": "0x20000000",
+      "constructor_barrier": 1,
+      "float_hook": "0x6bcb20",
+      "ptx_policy": [
+        1,
+        0,
+        16
+      ]
+    },
+    "single-mul-explicit": {
+      "flags": "0x211a",
+      "operand": 2,
+      "eligible": 0,
+      "validation": {
+        "kind": "partial compiler capture; exact word membership",
+        "captured_words": 4,
+        "unique_words": 2,
+        "opcodes": {
+          "HADD2": 2,
+          "HMUL2": 2
+        },
+        "control_bits_masked": false
+      },
+      "dag_precision": "0x20000000",
+      "constructor_barrier": 1,
+      "float_hook": "0x6bcb20",
+      "ptx_policy": [
+        0,
+        16,
+        16
+      ]
+    },
+    "single-add-default": {
+      "flags": "0x10e",
+      "operand": 0,
+      "eligible": 1,
+      "validation": {
+        "kind": "partial compiler capture; exact word membership",
+        "captured_words": 2,
+        "unique_words": 1,
+        "opcodes": {
+          "HADD2": 2
+        },
+        "control_bits_masked": false
+      }
+    },
+    "single-add-nofmad": {
+      "flags": "0x210e",
+      "operand": 0,
+      "eligible": 0,
+      "validation": {
+        "kind": "partial compiler capture; exact word membership",
+        "captured_words": 4,
+        "unique_words": 2,
+        "opcodes": {
+          "HADD2": 4
+        },
+        "control_bits_masked": false
+      }
+    }
+  }
+}

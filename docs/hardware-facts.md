@@ -16,6 +16,7 @@ in [`docs/testing.md`](testing.md).
 - [Warps, threads and control flow](#warps-threads-and-control-flow)
 - [Encoding](#encoding)
 - [SM90 runner validation](#sm90-runner-validation-2026-10-22)
+- [SETP aliases, FTZ widening and narrow conversions](#setp-aliases-ftz-widening-and-narrow-conversions-2026-10-29)
 
 ## The GPU oracle
 
@@ -592,3 +593,83 @@ and several HADD2/HMUL2/HFMA2 fixtures to HFMA2.MMA. The constant-move patch use
 `hfma2_mma__RRI_norelu` on SM89. Using ordinary `hfma2__RRI` during the initial port
 incorrectly changed NaN canonicalization; the patch now preserves MMA. Target-execution checks
 name the actual instruction; independent expected values are unchanged.
+
+## SETP aliases, FTZ widening and narrow conversions (2026-10-29)
+
+Device scope: SM89, NVIDIA GeForce RTX 4070 Laptop GPU, loaded kernel module
+580.178.04. CUDA initialized with locally extracted, checksum-verified
+`libnvidia-compute-580` 580.178.04-1ubuntu1 libraries; system packages and the
+running kernel were unchanged. Compiler-generated kernels used nvcc/ptxas
+13.0.88 at `-O3`, without fast math. Compiled double-kernel inputs, outputs,
+exact instruction words, disassembly and tool identities are retained in
+`research/sass2cu-2026-10-29/`. Single-instruction regression inputs come from
+the maintained autocase profiles; hardware outputs are recorded in
+`tests/baseline/gpu_observations/SM89.jsonl`. Initial synthetic discovery
+records are preserved in the local investigation archive and earn no
+verification credit.
+
+- **SETP output aliases:** Pu wins when Pu and Pv name the same predicate.
+  Inputs are read before either result is written; disabled guards preserve the
+  old predicate. Separate-output controls distinguished the two results.
+  The initial 18,350 vectors covered ISETP with and without `.EX`, both UISETP
+  classes, FSETP, DSETP (including MIN/MAX), and HSETP2 with both lane reductions.
+  Comparisons, boolean operations, predicate inputs, integer signedness,
+  floating unordered/constant comparisons and input/output aliases were varied.
+  Semantics explicitly write Pv before Pu. SM89 has no UFSETP class; its shared
+  implementation is supported by inference, not a UFSETP hardware observation.
+- **F2F.FTZ.F64.F32:** F32 subnormal inputs flush to signed zero before widening.
+  Normal values widen exactly. NaNs retain the original register sign and
+  top-aligned payload and are quieted; absolute/negate modifiers do not change
+  that NaN result. FTZ leaves NaNs intact. The initial 144 vectors crossed
+  signed zeros, subnormal/normal boundaries, finite values, infinities and
+  signed quiet/signalling NaNs with the source modifiers. Other FTZ conversion
+  directions remain explicitly uninvestigated.
+- **Ordinary half arithmetic:** The October 22 canonical-NaN observation is
+  retained and supplemented with exact-bit HADD2/HMUL2/HFMA2 cases for each
+  operand and lane, signed quiet/signalling payloads, mixed finite/NaN lanes,
+  multiple NaNs, invalid arithmetic, saturation and broadcasts. Exact-mode
+  expectations require canonical positive `0x7fff` per unsaturated NaN lane;
+  SAT maps NaN results to positive zero. Readable mode
+  retains its documented numerical contract and skips NaN payload assertions.
+- **Compiled double fmin/fmax:** Each runtime-input kernel executed 64 pairs.
+  The emitted sequence uses `DSETP.MIN/MAX.AND`, high-word FSEL, low-word SEL
+  and guarded LOP3 quieting. A numeric operand wins against one NaN. Two NaNs
+  return the second operand with its quiet bit set, preserving sign/payload.
+  Mixed signed zeros return negative zero for fmin and positive zero for fmax,
+  independent of order; two negative zeros remain negative. This is evidence
+  for the compiled sequence, rather than one DSETP instruction in isolation.
+- **Narrow F2I:** The initial 1,768 vectors covered S8/U8/S16/U16 from
+  F16/F32/F64, rounding modes, saturation boundaries, NaNs and infinities.
+  Signed numerical results extend through the full 32-bit destination;
+  unsigned results are zero-extended. `.NTZ` produces zero for NaNs. Without
+  `.NTZ`, the narrow destination's top-bit NaN sentinel is zero-extended even
+  for signed destinations: S8 NaN gives `0x00000080`, whereas a numerical
+  saturated minimum gives `0xffffff80`; S16 gives `0x00008000` versus
+  `0xffff8000`. Narrow BF16 sources and predicate-result forms remain opaque.
+
+Reference-backed SM89 validation passed 28,504 shared GPU scenarios across
+int_alu, fp32, fp64, fp16 and conversions, plus the whole-kernel fixtures;
+375 emulator-only scenarios were excluded.
+An additional exhaustive run passed 83,524 shared fp16/conversion scenarios,
+with 368 emulator-only exclusions.
+After adding explicit HFMA2 zero-times-infinity inputs, the final exhaustive
+fp16 rerun passed 54,472 shared scenarios, with 43 emulator-only exclusions.
+Exclusions are opaque/error assertions or synthetic launch constants. Recorded outputs live
+in `tests/baseline/gpu_observations/SM89.jsonl`; only passing reference-backed
+cases and fixtures contribute verification evidence.
+
+No SM75 GPU was used. New ptxas traces establish HADD2 conversion's packed
+high-lane duplication and RZ conversion folding into HSET2/HSETP2 comparisons.
+These are compiler evidence, documented in `docs/semantics.md`, and create no
+SM75 GPU verification. General mixed HADD2 arithmetic retains inferred input
+precision; HMUL2/HFMA2 `.F32` sources remain unresolved.
+The follow-up SM89 shared fp16 run passed 8,484 scenarios with 43 emulator-only
+exclusions after extending the SM75 comparison adapter. It verifies the
+affected SM89 cases, not the SM75-only F32 selectors. Live compiler RE and
+saved Ghidra annotations locate the differing HSET2/HMUL2 promotion decisions;
+these remain compiler evidence and create no SM75 hardware claim.
+Further compiler-only investigation found that default-rounding add/mul can
+fold RZ conversion into mixed HADD2/HMUL2, and implicit mul/add can contract
+to mixed HFMA2 in all three operand positions. Explicit `.rn` inhibits that
+promotion. This corrects the scope of the earlier negative compiler findings;
+it adds no SM75 hardware evidence and does not establish exact input precision.

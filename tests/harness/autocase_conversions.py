@@ -22,14 +22,18 @@ def generate(c,k,form,profiles):
             or dst not in (integers if op=='F2I' else floats)):
         raise autocases.Unsupported('conversion format outside scalar IEEE profile')
     sw,dw=int(src[1:]),int(dst[1:])
-    if op=='F2I' and dw not in (32,64): raise autocases.Unsupported('narrow integer destinations remain unmodelled')
-    if op=='F2F' and form.get('ftz','noftz')!='noftz': raise autocases.Unsupported('F2F FTZ remains unmodelled')
+    if op=='F2F' and form.get('ftz','noftz')!='noftz' and (src,dst)!=('F32','F64'):
+        raise autocases.Unsupported('uninvestigated F2F FTZ direction')
     name=source(k,'Sb','Rb','URb'); dest=source(k,'Rd','URd')
     if not name or not dest: raise autocases.Unsupported('unsupported conversion source layout')
     mode=MODES.get(form.get('rnd','RN'))
     if mode is None: raise autocases.Unsupported('unknown conversion rounding')
     spec=autocase_profiles.PROFILES['conversion_forms']
     values=spec['integers'] if op in ('I2F','I2FP') else spec['floats'][sw]
+    if op=='F2I' and dw < 32:
+        values=tuple(dict.fromkeys((*values, *autocase_profiles.narrow_conversion_values(sw,dw,dst.startswith('S')))))
+    if op=='F2F' and (src,dst)==('F32','F64'):
+        values=tuple(dict.fromkeys((*values,*autocase_profiles.PROFILES['f2f_widening_ftz'])))
     dense=autocase_profiles.PROFILES['conversion_boundaries']
     if k.operand_types[name].type in ('Register','UniformRegister') and form.get('ftz','noftz')=='noftz' and not any(n.endswith(('@absolute','@negate')) and v=='set' for n,v in form.items()):
         extra=dense['integers'] if op in ('I2F','I2FP') else dense['f2f16'] if op=='F2F' and sw==16 else dense['floats'][sw]
@@ -53,11 +57,11 @@ def generate(c,k,form,profiles):
             value=(effective>>shift)&((1<<sw)-1)
             value=float.conversion_source(value,sw,form.get(name+'@absolute')=='set',form.get(name+'@negate')=='set')
             if op=='F2I':
-                result=float.f2i(value,sw,dw,dst.startswith('S'),mode if c.fp=='exact' else 'RZ',form.get('ntz')=='NTZ',form.get('ftz')=='FTZ')
+                result=float.f2i_register(value,sw,dw,dst.startswith('S'),mode if c.fp=='exact' else 'RZ',form.get('ntz')=='NTZ',form.get('ftz')=='FTZ')
             else:
                 rounding=mode if c.fp=='exact' else 'RN'
                 if c.fp=='readable' and float.conversion_underflow(value,sw,dw): continue
-                result=float.f2f(value,sw,dw,rounding)
+                result=float.f2f(value,sw,dw,rounding,form.get('ftz')=='FTZ')
         out=s.output((dest,),4 if j%2 else 2)
         expected=pair(out,result) if dw==64 else {out:result}
         s.add(expected,form,portable=True)
