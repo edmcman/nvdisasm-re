@@ -238,6 +238,14 @@ def f2i(bits, w, n, signed, mode, ntz, ftz=False):
     return r & ((1 << n) - 1)
 
 
+def f2i_register(bits, w, n, signed, mode, ntz, ftz=False):
+    """SM89 narrow F2I: signed numerical results extend to 32 bits; NaN sentinel does not."""
+    result = f2i(bits, w, n, signed, mode, ntz, ftz)
+    if n < 32 and signed and softfloat.unpack(bits, w)[0] != "nan" and result >> (n - 1):
+        result |= 0xffffffff ^ ((1 << n) - 1)
+    return result
+
+
 def i2f(x, n, signed, w, mode):
     """I2F: the n-bit integer x as a w-bit float, rounded once."""
     x &= (1 << n) - 1
@@ -245,12 +253,42 @@ def i2f(x, n, signed, w, mode):
     return softfloat.pack(Fraction(x), w, mode)
 
 
-def f2f(bits, src, dst, mode):
+def f2f(bits, src, dst, mode, ftz=False):
     """F2F: rounded once; F16/F32 conversions canonicalize NaN, other widths quiet its payload (SM89)."""
+    if ftz:
+        if (src, dst) != (32, 64): raise ValueError("uninvestigated FTZ direction")
+        bits = flush(bits, src)
     kind, sign, value = softfloat.unpack(bits, src)
     if kind == "nan": return (1 << (dst - 1)) - 1 if {src, dst} == {16, 32} else quiet(bits, src, dst)
     if kind == "inf": return sign << dst - 1 | ((1 << dst - 1) - (1 << MANTISSA[dst]))
     return softfloat.pack(value, dst, mode, sign)
+
+
+def half_source(bits, selector, absolute=False, negate=False):
+    """Packed half lanes, or SM75's compiler-backed RZ binary32 broadcast.
+
+    Apply sign modifiers in the source format, then convert/select lanes.
+    """
+    if selector == 'F32':
+        bits = (bits & (0x7fffffff if absolute else 0xffffffff)) ^ (0x80000000 if negate else 0)
+        half = f2f(bits, 32, 16, 'RZ')
+        return half, half
+    bits = (bits & (0x7fff7fff if absolute else 0xffffffff)) ^ (0x80008000 if negate else 0)
+    low, high = bits & 0xffff, bits >> 16
+    return {'H1_H0': (low, high), 'H0_H0': (low, low), 'H1_H1': (high, high)}[selector]
+
+
+def double_minmax(a, b, is_min):
+    """CUDA 13.0.88 -O3 SM89 fmin/fmax: numeric operand wins; two NaNs quiet b.
+
+    Signed zeros are ordered -0 < +0, independently of operand order.
+    """
+    x, y = ordered(a, 64), ordered(b, 64)
+    if x is None and y is None: return quiet(b, 64, 64)
+    if x is None: return b
+    if y is None: return a
+    if x == y == 0: return (a | b) if is_min else (a & b)
+    return a if (x < y if is_min else x > y) else b
 
 
 def fchk_divide(a, b):

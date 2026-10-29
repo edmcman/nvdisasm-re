@@ -116,4 +116,23 @@ def gpu_fixtures(arch="SM89"):
     return [scalar.launch(f, lambda *v, op=f[1:]: rounded(op, v[:3 if op == "fma" else 2], 64), underflow=True, arch=arch) for f in ("dadd", "dmul", "dfma")] + \
            [scalar.launch(f, lambda *v, op=f[1:4], m=f[-2:].upper(): rounded(op, v[:3 if op == "fma" else 2], 64, m), arch=arch)
             for f in sorted(f for f in scalar.ROUNDED if f[0] == "d")] + \
-           [scalar.launch("dsetp", lambda a, b, _: int(fcompare(ordered(a, 64), ordered(b, 64), "LTU")), arch=arch)]
+           [scalar.launch("dsetp", lambda a, b, _: int(fcompare(ordered(a, 64), ordered(b, 64), "LTU")), arch=arch)] + double_minmax_fixtures(arch)
+
+
+def double_minmax_fixtures(arch="SM89"):
+    """Runtime CUDA fmin/fmax, including bitwise signed-zero and two-NaN checks."""
+    import struct
+    from tests.harness import gpu
+    from tests.refs.float import double_minmax
+    values = (0, 1 << 63, 0x3ff0000000000000, 0xbff0000000000000,
+              0x7ff8123456789abc, 0xfff876543210abcd,
+              0x7ff0123456789abc, 0xfff076543210abcd)
+    vectors = [(a,b,0) for a in values for b in values]
+    image = gpu.compile("double_minmax", "-O3", arch=arch)
+    return [gpu.Fixture(name, image, name,
+                        b"".join(struct.pack("<QQQ", *v) for v in vectors),
+                        [double_minmax(a,b,is_min) for a,b,_ in vectors],
+                        input_size=8, output_size=8, vectors=vectors,
+                        targets=(f"DSETP.{'MIN' if is_min else 'MAX'}", "FSEL", "SEL", "LOP3"),
+                        exit=True)
+            for name,is_min in (("double_fmin",True),("double_fmax",False))]

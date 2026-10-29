@@ -240,6 +240,74 @@ PROFILES["conversion_forms"] = {
     "filler": 0xa5a5a5a5,
 }
 
+PROFILES['f2f_widening_ftz'] = (
+    0, 0x80000000, 1, 0x80000001, 0x007fffff, 0x807fffff,
+    0x00800000, 0x80800000, 0x00800001, 0x7f7fffff, 0xff7fffff,
+    0x7f800000, 0xff800000, 0x7fc12345, 0xffc54321, 0x7f812345, 0xff812345,
+)
+
+PROFILES['half_f32_sources'] = dict(
+    # Includes the former retained SM75 corpus and distinguishing RZ boundaries.
+    floats=(0, 0x80000000, 0x3f800000, 0xbf800000, 0x3eaaaaab,
+            0x477fe000, 0x477fefff, 0x477ff000, 0x47800000, 0xc7c35000,
+            0x7f800000, 0xff800000, 0x7fc00000, 0xffc00001,
+            0x38800000, 0x387fc000, 0x33800000, 0x337fffff, 0x33000000, 1,
+            0x3f801001, 0xbf801001, 0x33000001, 0xb3000001, 0x7f812345),
+    pairs=((0x3f801001, 0x3c013c00), (0xbf801001, 0xbc01bc00),
+           (0x33000001, 0x00010000), (0xb3000001, 0x80018000),
+           (0x477ff000, 0x7c007bff), (0x7f812345, 0x3c00fc00)),
+    float_pairs=((0x3f801001, 0x3f800001), (0xbf801001, 0xbf800001),
+                 (0x33000001, 0), (0x7f812345, 0xffc12345)),
+)
+
+PROFILES['narrow_integer_conversion'] = dict(
+    offsets=(-1, "-1/2", 0, "1/2", 1),
+    values=(0, "1/2", "-1/2", "3/2", "-3/2"),
+)
+
+
+@cache
+def narrow_conversion_values(src_width, dst_width, signed):
+    """Exact threshold neighbours representable in each source format."""
+    from fractions import Fraction
+    from sass.semantics.fp import softfloat
+    spec = PROFILES['narrow_integer_conversion']
+    bounds = (-(1 << dst_width - 1), (1 << dst_width - 1) - 1) if signed else (0, (1 << dst_width) - 1)
+    values = [Fraction(v) for v in spec['values']]
+    values += [Fraction(bound) + Fraction(offset) for bound in bounds for offset in spec['offsets']]
+    return tuple(dict.fromkeys(softfloat.pack(v, src_width, "RN") for v in values))
+
+
+# Every NaN sign/kind in each operand and each lane, with the other lane finite.
+# Inputs, not results: exact canonicalization comes from refs.float.rounded.
+PROFILES['half_nan_bits'] = dict(
+    nans=(0x7e55, 0xfe23, 0x7d01, 0xfc17),
+    finite=(0x3c003c00, 0x40004000, 0x38003800),
+    invalid=((0x7c007c00, 0xfc00fc00, 0),
+             (0, 0x7c007c00, 0),
+             (0x7c007c00, 0x3c003c00, 0xfc00fc00)),
+)
+
+PROFILES['setp_comparison_pairs'] = {
+    32: ((0,0x80000000), (0x3f800000,0x40000000), (0x7fc12345,0),
+         (0,0xff812345), (0x7fc12345,0xff812345)),
+    64: ((0,1 << 63), (0x3ff0000000000000,0x4000000000000000),
+         (0x7ff8123456789abc,0), (0,0xfff0123456789abc),
+         (0x7ff8123456789abc,0xfff0123456789abc)),
+}
+
+
+def half_nan_vectors(arity):
+    spec = PROFILES['half_nan_bits']
+    for position, lane, nan in itertools.product(range(arity), (0, 1), spec['nans']):
+        values = list(spec['finite'][:arity])
+        values[position] = (values[position] & ~(0xffff << (16 * lane))) | nan << (16 * lane)
+        yield tuple(values)
+    # Two independent payloads, one in each input, distinguish propagation from canonicalization.
+    yield (0xfe237e55, 0x7d01fc17, 0x3c004000)[:arity]
+    yield spec['invalid'][0 if arity == 2 else 2][:arity]
+    yield spec['invalid'][1][:arity]
+
 
 PROFILES['packed_conversion_forms'] = {
     'floats': (0,0x80000000,0x3fc00000,0xbfc00000,0x43000000,0xc3000000,0x7f800000,0x7fc12345),

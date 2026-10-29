@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-29",
+  "arch": "SM89",
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+  "base_commit": "45a76ddacc69e5b030efe803379bd7852c617590",
+  "instruction_origin": "compiler-generated whole-kernel observations; single-instruction findings are maintained in autocase regressions",
+  "vectors": {
+    "double_fmin": 64,
+    "double_fmax": 64
+  },
+  "driver_package": {
+    "version": "580.178.04-1ubuntu1",
+    "sha256": "fa75f7696a957669c0c67992df584a3dd3d6e6a30ea15754ac4a0dfeab7ae3b8"
+  },
+  "compiler": {
+    "nvcc": {
+      "sha256": "b8e2347d9d7fcadf8812a27324d515de99d033d3e48611811ece7e66d7895f8a",
+      "version": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n"
+    },
+    "ptxas": {
+      "sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+      "version": "ptxas: NVIDIA (R) Ptx optimizing assembler\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:55:12_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n"
+    },
+    "nvdisasm": {
+      "sha256": "fa719d636e2dcebdbce466e07ab69f144feabc2fdb3eda52380fbd4a5c189faf",
+      "version": "nvdisasm: NVIDIA (R) CUDA disassembler\nCopyright (c) 2005-2026 NVIDIA Corporation\nBuilt on Tue_Sep_01_08:46:02_PDT_2026\nCuda compilation tools, release 13.4, V13.4.92\nBuild cuda_13.4.r13.4/compiler.38855100_0\n"
+    }
+  },
+  "kernel_flags": [
+    "-O3",
+    "--allow-unsupported-compiler",
+    "-cubin",
+    "-arch=sm_89"
+  ],
+  "local_discovery_vectors": {
+    "initial_predicates": 18350,
+    "initial_conversions": 1912
+  }
+}

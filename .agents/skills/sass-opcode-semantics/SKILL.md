@@ -91,10 +91,16 @@ and cover count/width limits, signedness, zero registers, predicates, source/
 destination aliases, discarded results, and each supported operand form. Record
 unresolved forms individually.
 
-For SM89/SM90 single-instruction discovery, prefer `Cases.probe` and
-`tests.harness.device_cases.observe`, or `uv run python -m tests.probe INPUT.json
---out OUTPUT.json`. They use the regression runner's generated wrappers and return
-raw registers/memory without a reference or evidence credit. Read
+For SM89/SM90 single-instruction discovery, almost always use autocases. Inspect
+the adapter and profiles; add an adapter when absent and extend it for missing
+forms, inputs or aliases. Derive inputs from its candidates and run
+`tests.harness.device_cases.observe`, which ignores expectations. Missing adapter
+support is a reason to fix the adapter, not to write a parallel manual probe
+matrix. Standalone `Cases.probe` or `tests.probe` inputs require a concrete
+documented harness limitation. Compiler-generated whole-kernel probes are an
+exception because they test more than one instruction.
+These paths use the regression runner's generated wrappers and return raw
+registers/memory without a reference or evidence credit. Read
 [generated GPU probes](references/gpu-probes.md) for the API, JSON input, memory/warp
 setup, and how to promote observations into independent reference-backed cases;
 `tests/README.md` "Hardware evidence and probes" describes how passing runs become
@@ -140,8 +146,10 @@ md-decoded instruction, `src/sass/semantics/family.py`), lowered to SLEIGH by
   old state). The backends handle hardwired zeros, guards, register spans and md
   conditions.
 
-Promote probes to value cases in the family's `emulator_cases()` in `tests/cases/<family>.py`
-and independent references to `tests/refs/` (AGENTS.md steps 1-2). Prefer
+Promote findings into independent references in `tests/refs/` and autocase
+adapters/profiles in `tests/harness/` (AGENTS.md steps 1-2). Add an adapter when
+absent. Reserve the family's retained `emulator_cases()` for focused regressions
+that exceed the profile. Prefer
 `tests/harness/case.py` helpers (`Cases.add`, `c.sweep`, `put`, `cx_source`) over a
 second decoding or execution framework; `tests/README.md` "Writing tests" covers
 shared cases, fixtures, references and tolerances. If the opcode has an autocase

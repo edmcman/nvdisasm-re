@@ -1,0 +1,30 @@
+{
+  "kind": "partial compiler capture; exact word membership",
+  "captured_words": 34,
+  "unique_words": 13,
+  "opcodes": {
+    "HADD2": 26,
+    "HFMA2": 4,
+    "HMUL2": 4
+  },
+  "control_bits_masked": false,
+  "paired_pattern_observations": {
+    "set": {
+      "promotion_flags": 3,
+      "weights": [
+        1.0,
+        1.0
+      ],
+      "type_changed_to_float": true
+    },
+    "mul": {
+      "promotion_flags": 2,
+      "weights": [
+        1.0,
+        1.0
+      ],
+      "type_changed_to_float": false,
+      "eligibility_clear_next_pc": "0x821039"
+    }
+  }
+}

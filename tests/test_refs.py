@@ -47,6 +47,28 @@ def test_isetp_extended_reference():
     assert isetp(0xffffffff, 0, 'LT', 'AND', True) == (0, 1)
 
 
+def test_narrow_f2i_upper_bits():
+    from tests.refs.float import f2i_register
+    assert f2i_register(0xbfc00000,32,8,True,'RN',False) == 0xfffffffe
+    assert f2i_register(0xff800000,32,16,True,'RZ',True) == 0xffff8000
+    assert f2i_register(0x7fc12345,32,8,True,'RN',False) == 0x80
+    assert f2i_register(0xff812345,32,16,True,'RN',False) == 0x8000
+    assert f2i_register(0xff812345,32,16,False,'RN',True) == 0
+
+
+def test_double_minmax_bits():
+    from tests.refs.float import double_minmax
+    for a,b in ((0,1 << 63),(1 << 63,0)):
+        assert double_minmax(a,b,True) == 1 << 63
+        assert double_minmax(a,b,False) == 0
+    q,s,one=0xfff876543210abcd,0x7ff0123456789abc,0x3ff0000000000000
+    for is_min in (False,True):
+        assert double_minmax(q,s,is_min) == s | (1 << 51)
+        assert double_minmax(s,q,is_min) == q
+        assert double_minmax(q,one,is_min) == one
+        assert double_minmax(one,q,is_min) == one
+
+
 @pytest.mark.parametrize('fmt', ['U32', 'S32', 'U64', 'S64'])
 @pytest.mark.parametrize('direction', ['L', 'R'])
 @pytest.mark.parametrize('mode', ['C', 'W'])
@@ -161,3 +183,15 @@ def test_viaddmnmx_negates_each_packed_lane():
         assert viaddmnmx(0, 1, 0x7fffffff, 16, signed, True, negate_b=True) == 0x0000ffff
     assert viaddmnmx(0, 1, 0x7fffffff, 32, False, True, negate_b=True) == 0x7fffffff
     assert viaddmnmx(0, 1, 0x7fffffff, 32, True, True, negate_b=True) == 0xffffffff
+
+
+@pytest.mark.parametrize('bits,want', [
+    (0x3f801001,0x3c00), (0xbf801001,0xbc00),
+    (0x33000001,0), (0xb3000001,0x8000),
+    (0x477ff000,0x7bff), (0x7f812345,0x7fff),
+])
+def test_sm75_half_f32_source_rounds_before_broadcast(bits,want):
+    from tests.refs import float
+    assert float.half_source(bits,'F32') == (want,want)
+    if bits & 0x7f800000 != 0x7f800000:
+        assert float.half_source(bits,'F32',absolute=True) == (want & 0x7fff,)*2

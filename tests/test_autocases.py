@@ -48,6 +48,79 @@ def test_generated_reference_cases(cls, form):
     assert lifted.run('SM89', 'exact', wrong)[1]
 
 
+@pytest.mark.parametrize('cls,fields', [
+    ('isetp__RRR_RRR_noEX', dict(Pu=0,Pv=1,Pp=0,Ra=2,Rb=4,icmp='LT',fmt='U32',bop='AND')),
+    ('isetp__RRR_RRR_EX', dict(Pu=0,Pv=1,Pp=0,Pr=1,Ra=2,Rb=4,icmp='LT',fmt='S32',bop='XOR')),
+    ('uisetp_optional_upr__URURUR_URURUR', dict(UPu=0,UPv=1,UPp=0,UPr=1,URa=2,URb=4,icmp='LT',fmt='S32',bop='AND')),
+    ('fsetp__RRR_RRR', dict(Pu=0,Pv=1,Pp=0,Ra=2,Rb=4,fcomp='LTU',bop='AND')),
+    ('dsetp__RRR_RR', dict(Pu=0,Pv=1,Pp=0,Ra=2,Rc=4,test='MIN',bop='AND')),
+    ('hsetp2__RR', dict(Pu=0,Pv=1,Pp=0,Ra=2,Rc=4,cmp='LT',bop='AND',h_and='noh_and')),
+    ('hsetp2__RR', dict(Pu=0,Pv=1,Pp=0,Ra=2,Rc=4,cmp='LT',bop='XOR',h_and='H_AND')),
+])
+def test_generated_setp_equal_destinations(cls, fields):
+    from tests.harness.case import encode
+    decoded = pydecode.decode('SM89', bytes.fromhex(encode('SM89',cls,**fields)))
+    cases = tests.harness.autocases.generate('SM89',cls,settings('SM89',decoded),sample=100)
+    controls, aliases, guards = [], [], []
+    uniform = cls.startswith('uisetp')
+    u,v,g = ('UPu','UPv','UPg') if uniform else ('Pu','Pv','Pg')
+    for case in cases:
+        d=pydecode.decode('SM89',bytes.fromhex(case.request['word']))
+        if d.env[g] != 7: guards.append(case)
+        elif d.env[u] == d.env[v]: aliases.append(case)
+        else: controls.append(case)
+        assert not lifted.run('SM89','exact',case)[1], case
+    assert aliases and guards and controls
+    # At least one control distinguishes the two outputs; equal destinations
+    # must keep its first result, not merely pass because both values coincide.
+    prefix = 'UP' if uniform else 'P'
+    assert any(c.expected[prefix+'0'] != c.expected[prefix+'1'] for c in controls)
+    minimum=tests.harness.autocases.generate('SM89',cls,settings('SM89',decoded),sample=0)
+    assert {c.hardware['sampling_floor'] for c in minimum} == {'setp-control','setp-alias','setp-disabled'}
+
+
+@pytest.mark.parametrize('src', [16,32,64])
+@pytest.mark.parametrize('dst', ['S8','U8','S16','U16'])
+def test_generated_narrow_f2i(src,dst):
+    from tests.harness.case import encode
+    cls=f'f2i__Rb_{src}b'
+    decoded=pydecode.decode('SM89',bytes.fromhex(encode('SM89',cls,Rd=8,Rb=2,dstfmt=dst,rnd='ROUND',ntz='nontz')))
+    cases=tests.harness.autocases.generate('SM89',cls,settings('SM89',decoded),sample=100)
+    assert cases
+    for case in cases: assert not lifted.run('SM89','exact',case)[1], case
+
+
+def test_generated_widening_ftz_keeps_nan_bits():
+    from tests.harness.case import encode
+    cls='f2f_f64_upconvert__R_R32_R_RRR'
+    decoded=pydecode.decode('SM89',bytes.fromhex(encode('SM89',cls,Rd=8,Rb=2,ftz='FTZ',**{'Rb@absolute':1,'Rb@negate':1})))
+    cases=tests.harness.autocases.generate('SM89',cls,settings('SM89',decoded),sample=100)
+    assert cases
+    for case in cases: assert not lifted.run('SM89','exact',case)[1], case
+
+
+@pytest.mark.parametrize('cls,swizzles', [
+    ('hadd2__RR', {'iswzA':'F32', 'iswzB_as_C':'H1_H0'}),
+    ('hadd2__RR', {'iswzA':'H1_H0', 'iswzB_as_C':'F32'}),
+    ('hset2__RR', {'iswzA':'F32', 'iswzB_as_C':'H1_H0'}),
+    ('hset2__RR', {'iswzA':'H1_H0', 'iswzB_as_C':'F32'}),
+    ('hset2__RR', {'iswzA':'F32', 'iswzB_as_C':'F32'}),
+    ('hsetp2__RR', {'iswzA':'F32', 'iswzB_as_C':'H1_H0'}),
+    ('hsetp2__RR', {'iswzA':'H1_H0', 'iswzB_as_C':'F32'}),
+    ('hsetp2__RR', {'iswzA':'F32', 'iswzB_as_C':'F32'}),
+])
+@pytest.mark.parametrize('fp', ['exact','readable'])
+def test_generated_sm75_f32_half_sources(cls,swizzles,fp):
+    from tests.harness.case import encode
+    fields=dict(swizzles,Ra=2,Rc=4)
+    if cls.startswith('hset'): fields.update(cmp='EQ',bop='AND')
+    decoded=pydecode.decode('SM75',bytes.fromhex(encode('SM75',cls,**fields)))
+    cases=tests.harness.autocases.generate('SM75',cls,settings('SM75',decoded),fp=fp,sample=100)
+    assert cases
+    assert any(0x3f801001 in c.request['registers'].values() for c in cases)
+    for case in cases: assert not lifted.run('SM75',fp,case)[1],case
+
+
 def test_unsupported_form_never_enters_suite():
     with pytest.raises(tests.harness.autocases.Unsupported, match='unhandled modifiers'):
         tests.harness.autocases.generate('SM89', 'popc__RRR_RRR', {'Rb@invert':'set', 'mystery':'set'})

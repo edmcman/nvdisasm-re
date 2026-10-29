@@ -111,17 +111,21 @@ def int_name(a):
     """cvt.r<mode>i[.ntz].<s|u><n>.<fmt> (.ntz: NaN gives 0) for constant choices, else cvt.i<n>.<fmt>
     of them too."""
     n, fmt, m, signed, nan = a["n"], a["fmt"].lower(), fpformat.mode(a["r"]), a["signed"], a["nan"]
-    if m and is_const(signed) and is_const(nan) and value(nan) in (0, 1 << n - 1):
-        return f"cvt.{m.lower()}i{'.ntz' if value(nan) == 0 else ''}.{'s' if value(signed) else 'u'}{n}.{fmt}", ["x"]
-    return f"cvt.i{n}.{fmt}", ["signed", "r", "nan", "x"]
+    bits = a["limit_bits"]
+    logical = int(value(bits)) if bits is not None and is_const(bits) else n
+    if m and is_const(signed) and is_const(nan) and value(nan) in (0, 1 << logical - 1):
+        return f"cvt.{m.lower()}i{'.ntz' if value(nan) == 0 else ''}.{'s' if value(signed) else 'u'}{logical}.{fmt}", ["x"]
+    return f"cvt.i{n}.{fmt}", ["signed", "r", "nan", "x", *(["limit_bits"] if bits is not None else [])]
 
 
 @definition(int_name)
-def float_to_int(x, fmt, n, signed, r, nan):
+def float_to_int(x, fmt, n, signed, r, nan, limit_bits=None):
     """PTX cvt.rni/rzi/rmi/rpi from a float to an n-bit signed or unsigned integer, saturated; NaN
     gives the destination's top bit, or 0 with .NTZ (the GPU's).
 
-    signed: a 1-bit expression; nan: the n-bit NaN result."""
+    signed: a 1-bit expression; nan: the n-bit NaN result.
+    limit_bits: the saturated integer width when smaller than the n-bit register.
+    Signed numerical results extend through the register; NaN's sentinel does not."""
     f = FORMATS[fmt]
     sign, exponent = extract(x, f.width - 1, f.width - 1) == 1, extract(x, f.width - 2, f.mbits)
     is_nan, is_inf = fpformat.classify(x, fmt)
@@ -134,9 +138,9 @@ def float_to_int(x, fmt, n, signed, r, nan):
     up = fpformat.round_up(r, kept, rest, const(1, 64) << (shift - 1), sign)
     magnitude = left if sle(const(f.mbits, 32), e) else kept + zext(up, 64)
     huge = is_inf | sle(const(n, 32), e)                                             # |x| >= 2^n
-    low = 1 << n - 1                                                                 # |signed minimum|
-    high = const((1 << n - 1) - 1, 64) if signed else const((1 << n) - 1, 64)
-    negative = (const(low, n) if huge | (const(low, 64) < magnitude) else trunc(-magnitude, n)) if signed else const(0, n)
+    low = const(1 << n - 1, 64) if limit_bits is None else const(1, 64) << (zext(limit_bits, 64) - 1)
+    high = low - 1 if signed else (low << 1) - 1
+    negative = (trunc(-low, n) if huge | (low < magnitude) else trunc(-magnitude, n)) if signed else const(0, n)
     positive = trunc(high, n) if huge | (high < magnitude) else trunc(magnitude, n)
     return nan if is_nan else (negative if sign else positive)
 
@@ -144,19 +148,24 @@ def float_to_int(x, fmt, n, signed, r, nan):
 @family("F2I")
 def f2i(i):
     """Rd = Rb (F16 or BF16 from H0/H1, F32, F64) rounded to an integer (ROUND/FLOOR/CEIL/TRUNC) and
-    saturated to S32/U32/S64/U64, .FTZ flushing a denormal input. NaN gives 0 with .NTZ, else the
+    saturated to S8/U8/S16/U16/S32/U32/S64/U64, .FTZ flushing a denormal input. NaN gives 0 with .NTZ, else the
     destination's top bit (SM89 GPU, also U64). The readable lowering takes every mode as TRUNC.
-    8/16-bit destinations and predicate outputs are unmodelled."""
+    Narrow signed results are sign-extended into Rd, except NaN's sentinel is zero-extended.
+    Predicate outputs and narrow BF16 sources are unmodelled."""
     src = str(i.select_fork("srcfmt"))
     if src not in ("F16", "BF16", "F32", "F64"): unmodelled(src)
     if any(i.has_operand(n) for n in ("Pu", "Pv")): unmodelled("predicate outputs")
     n = i.width("Rd")
-    signed = lookup(i, "dstfmt", {f"{s}{n}": int(s == "S") for s in "SU"}, 1)
-    nan = lookup(i, "ntz", {"NTZ": 0, "nontz": 1 << n - 1}, n)
-    r = fpformat.rounding("RZ") if readable(i) and i.labels("rnd") else rounding(i)
+    formats = {label: (bits, sg) for label, (bits, sg) in SOURCES.items()
+               if bits <= n and (src != "BF16" or bits >= 32)}
+    signed = lookup(i, "dstfmt", {label: int(sg) for label, (_, sg) in formats.items()}, 1)
+    bits = lookup(i, "dstfmt", {label: bits for label, (bits, _) in formats.items()}, 7)
+    top = lookup(i, "dstfmt", {label: 1 << bits - 1 for label, (bits, _) in formats.items()}, n)
+    nan = i.select_lookup("ntz", {"NTZ": const(0, n), "nontz": top})
+    r = fpformat.Rounding(*(const(int(v), 1) for v in fpformat.rounding("RZ"))) if readable(i) and i.labels("rnd") else rounding(i)
     if readable(i): i.ignore("rnd")
     x = flush(i, source(i, "Rb|Sb", FORMATS[src].width), src)
-    return outputs(Rd=float_to_int(x, src, n, signed, r, nan))
+    return outputs(Rd=float_to_int(x, src, n, signed, r, nan, bits))
 
 
 SOURCES = {"S8": (8, True), "U8": (8, False), "S16": (16, True), "U16": (16, False),
@@ -258,12 +267,15 @@ def f2f(i):
     """Rd = Rb converted between F16, F32 and F64, rounded once in rnd's mode (narrowing); a NaN
     is canonicalized for F16/F32 conversions, otherwise keeps the register's quieted sign/payload, ignoring -/|.| (SM89 GPU).
     The readable lowering rounds to nearest.
-    .FTZ and the BF16/E8M7/E6M9 formats are unmodelled."""
+    .FTZ flushes an F32 input when widening to F64 (SM89); other .FTZ directions
+    and the BF16/E8M7/E6M9 formats are unmodelled."""
     dst, src = str(i.select_fork("dstfmt.srcfmt")).split(".")
     if src not in FLOATS.values() or dst not in FLOATS.values(): unmodelled(f"{dst}.{src}")
-    if i.select_fork("ftz") != "noftz": unmodelled("ftz")
+    ftz = i.select_fork("ftz") == "FTZ"
+    if ftz and (src, dst) != ("F32", "F64"): unmodelled("uninvestigated FTZ direction")
     s, d = FORMATS[src], FORMATS[dst]
     x = source(i, "Rb|Sb", s.width)
+    if ftz: x = flushed(x)
     r = rounding(i)
     raw = source(i, "Rb|Sb", s.width, modified=False)
     if readable(i): r = with_nan(fconv(x, d.width), x, raw, src, dst)

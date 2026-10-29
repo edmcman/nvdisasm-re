@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-29",
+  "architecture": "SM75",
+  "kind": "live compiler RE; no GPU execution; no reference verification credit",
+  "compiler_sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+  "gdb_version": "GNU gdb (Ubuntu 12.1-0ubuntu1~22.04.2) 12.1",
+  "image_base": "0x400000",
+  "files": {
+    "final-half-controls.jsonl.gz": {
+      "sha256": "62c705db2abeb9fe61081124b168ffe1314a8f725d1c099c84c6651f98b2c461",
+      "content_sha256": "7d3066011ad706f969acf95684fd899677b58c397812eda3a48a7bba0cd75c32",
+      "bytes": 54297
+    },
+    "final-half-controls.cubin": {
+      "sha256": "c293f1816b6b5c1d943b35988a449c8e568d112de1d61810f452eae70075fa71",
+      "content_sha256": "c293f1816b6b5c1d943b35988a449c8e568d112de1d61810f452eae70075fa71",
+      "bytes": 13288
+    },
+    "set-capability-watch.jsonl.gz": {
+      "sha256": "8e8e7e8acd036f42859771188a8f99f3d2c0264207838e991dd9556f7ec8d757",
+      "content_sha256": "63a0c78eaea8a3efa606b8752e597dedf16b9221b63c7e20135ca75436df4edb",
+      "bytes": 8619
+    },
+    "set-capability-watch.cubin": {
+      "sha256": "f9ee5fd14175a02fb88c837bbe3f036668cdfe50aa4ce760305062d411763798",
+      "content_sha256": "f9ee5fd14175a02fb88c837bbe3f036668cdfe50aa4ce760305062d411763798",
+      "bytes": 3112
+    },
+    "mul-capability-watch.jsonl.gz": {
+      "sha256": "d0134f113684ff5e75a77833b19ace0299897b09ccd17d29c929f22f875a4ef1",
+      "content_sha256": "43299a928ae4971a67ede0f68ca04e467777b6d78f08ba1cd9773840ef0ced7f",
+      "bytes": 21827
+    },
+    "mul-capability-watch.cubin": {
+      "sha256": "75ecbe36123ecda5e469305c2feddebbb392b93cc6c9f55bccc8348b37986b7a",
+      "content_sha256": "75ecbe36123ecda5e469305c2feddebbb392b93cc6c9f55bccc8348b37986b7a",
+      "bytes": 3112
+    },
+    "validation.json": {
+      "sha256": "6067f5611c5683bc2f93f21c6a2971fd84b3f49b95e729967206d3a99ecb388e",
+      "content_sha256": "6067f5611c5683bc2f93f21c6a2971fd84b3f49b95e729967206d3a99ecb388e",
+      "bytes": 571
+    }
+  },
+  "instrumentation": {
+    "capture_sm75_half.py": "1da718607eeabf71796a1ec17ac30931282094b65cd5010ea0e849c110ea6e84",
+    "validate_sm75_half_capture.py": "dfb4466289df0d36dd49a39f3af0b65991ac962db1bf3a5c11624e0adfbb5280"
+  },
+  "inputs": {
+    "set_packed_0_rz.ptx": "cf92f905068f9d8b004b30c31f436bc74f0e2676acaa2beaa6fb85a56217a587",
+    "mul_packed_0_rz.ptx": "4ff59ab7f8ff012919165943879a67cd58b9230aa08218c94ade66e696477a57",
+    "sm75_precision_controls.ptx": "3474b1ece1630ae82b7d9eb005030a97f635a8906be8eb58fadea4b5fa2d8b3e"
+  }
+}

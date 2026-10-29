@@ -234,6 +234,31 @@ class Inputs:
         self.fields[name] = reg
         return prefix + str(reg)
 
+    def setp_outputs(self, u, v, form):
+        """Separate-output control and equal-output regression with Pu's measured priority.
+
+        The reference values were computed from the original inputs, so aliasing a
+        destination with Pp or Pr never changes the second output's calculation.
+        """
+        pu = self.output(('Pu', 'UPu'), 0)
+        pv = self.output(('Pv', 'UPv'), 1)
+        self.add(integer.predicate_outputs(u, v, pu, pv), form, portable=True,
+                 hardware={'sampling_floor': 'setp-control'})
+        pv = self.output(('Pv', 'UPv'), 0)
+        self.add(integer.predicate_outputs(u, v, pu, pv), form, portable=True,
+                 hardware={'sampling_floor': 'setp-alias'})
+        # A disabled guard aliases the equal output and preserves its old value.
+        guard = source(self.k, 'Pg', 'UPg')
+        if guard:
+            self.fields[guard] = 0
+            self.fields[guard + '@not'] = 0
+            initial = dict(self.registers)
+            self.registers = dict(initial, **{pu: 0})
+            self.add({pu: 0}, form, portable=True, hardware={'sampling_floor': 'setp-disabled'})
+            self.fields[guard + '@not'] = 1
+            self.registers = dict(initial, **{pu: 1})
+            self.add({pu: 1}, form, portable=True, hardware={'sampling_floor': 'setp-disabled'})
+
     def add(self, expected, form, imad_alias=False, portable=False, **extras):
         if any(self.fields.get(n) != v for n, v in getattr(self.c, 'operand_constraints', {}).items()):
             raise Unsupported('adapter changed its declared partial operand row')
@@ -438,7 +463,8 @@ def integer_cases(c, k, form, profiles):
             if low: s.predicate((low,), prior, 1 if j & 1 else 5)
             inherited = prior ^ (form.get(low + '@not') == 'set') if low and form.get('ex') == 'EX' else None
             pu, pv = integer.isetp(a, b, form['icmp'], form['bop'], effective, form['fmt'] == 'S32', inherited)
-            expected = {s.output(('Pu', 'UPu'), 0):pu, s.output(('Pv', 'UPv'), 1):pv}
+            s.setp_outputs(pu, pv, form)
+            continue
         else:
             if op == 'IMNMX': result = integer.vminmax((a, b), 32, form['fmt'] == 'S32', effective)
             elif op in ('SEL', 'USEL'): result = a if effective else b

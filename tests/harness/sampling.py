@@ -86,6 +86,10 @@ def buckets(arch, case):
     """One ordinary floor plus any applicable backend floors for this decoded form."""
     key, word = case_form(arch, case), case.request.get('word')
     yield key, 'reference'
+    # Input-scenario floors declared by adapters, independent of expectations.
+    # A disabled guard cannot replace an active alias or separate-output control.
+    if floor := (case.hardware or {}).get('sampling_floor'):
+        yield key, floor
     from tests.harness import lifted
     if lifted.applies(case): yield key, 'lifted'
     if arch in ('SM89', 'SM90'):

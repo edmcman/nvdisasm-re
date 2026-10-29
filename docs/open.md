@@ -36,7 +36,15 @@
     constant-bank-0 parameters from `.nv.info` offsets/sizes are implemented by
     `SassKernelArgumentsAnalyzer` (2026-10-28); missing names/types remain unspecified.
   - Stays primitive (explicit `sass_prim_<name>` calls since 2026-10-22): the warp collectives' environment reads (SHFL, VOTE, MATCH, REDUX, ELECT are otherwise native), BAR, BSSY/BSYNC, QSPC's address space, MUFU (hardware approximation; measured on SM89, modelling scoped in #21). Ghidra's emulator FloatFormat underflow bug (`docs/semantics.md`) could be reported upstream.
-  - F2I's 8/16-bit destinations and the CX 64-bit-source F2I/I2F classes lost their untested runtime fallback (2026-10-22) and are opaque until modelled natively with GPU evidence.
+  - F2I's 8/16-bit destinations from F16/F32/F64 are now native with SM89 evidence (2026-10-29). Narrow BF16 and predicate outputs remain opaque. The CX 64-bit-source F2I/I2F classes lost their untested runtime fallback (2026-10-22) and remain opaque.
+  - SM75 mixed half precision (2026-10-29): HADD2 RZ conversion/broadcast and
+    HSET2/HSETP2 F32 inputs have fresh compiler evidence. General mixed HADD2
+    arithmetic retains inferred input narrowing. HMUL2/HFMA2 F32 inputs and
+    nonzero HADD2.F32 output sums remain opaque: their arithmetic rounding
+    point is unresolved. Live ptxas RE locates the rejected HMUL2 conversion
+    promotion, but the rejection and encoder fields do not establish GPU
+    arithmetic. An informative lowering or SM75 autocase GPU observation
+    would settle these forms; no SM75 GPU evidence was created.
 - SM107 semantics still inferred (2026-10-14; the rest has ptxas 13.4 / PTX 9.4 / cuda_fp8.hpp evidence, `docs/semantics.md`): Rd[31:16] of the scaled F2FP downconverts (taken as Rc[15:0]; ptxas passes 0), VISET's packed 16x2/8x4 lanes (ptxas only emits .S32/.U32), NaN results of FH*2's F16/BF16 outputs, and `.FTZ` of the F16x2-result FHADD2/FHMUL2 (PTX defines `.ftz` for half types generally, not in §9.7.5). Opaque: FH*2/FFMA2 `.FMZ`, `.NP` on broadcasts, UE5M3 upconverts, E8 downconvert. An SM107 GPU would settle all of them.
 - LEPC's value (2026-10-14): CuLifter writes 0 and ptxas emits no LEPC for SM89 indirect calls (relocated MOV return addresses instead). One SM89 probe (`docs/hardware-facts.md`) gave the kernel's start if `c[0x2]` function pointers are absolute; an absolute anchor (a relocated code address, which our cubin loader doesn't apply) would settle it. LEPC stays opaque; `lepc__R_I_R`'s RSImm suggests an address relative to the next instruction, but plain LEPC's base is unknown.
 - ELECT (SM90+) follows PTX `elect.sync` without hardware evidence; its `Pp` form and `.IGNOREKILL` are opaque.

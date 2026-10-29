@@ -25,9 +25,13 @@ def blocked_reason(op,form,cls=''):
     if op not in HALF_OPS:return None
     if constant_move(op, form, cls) or op == 'HADD2' and form.get('ofmt') == 'F32':
         return None
-    if any(n.endswith(('@absolute','@negate')) and v=='set' for n,v in form.items()) and not (op in FMA_OPS and '__RRI' in cls):
+    mixed = any(n.startswith('iswz') and v == 'F32' for n,v in form.items())
+    if (any(n.endswith(('@absolute','@negate')) and v=='set' for n,v in form.items())
+            and op not in ('HADD2','HMUL2',*FMA_OPS)
+            and not (mixed and op in ('HSET2','HSETP2'))):
         return 'packed source-sign numerical corpus remains manual'
-    if any(n.startswith('iswz') and v not in SWIZZLES for n,v in form.items()):
+    allowed = SWIZZLES | ({'F32'} if op in ('HADD2','HSET2','HSETP2') else set())
+    if any(n.startswith('iswz') and v not in allowed for n,v in form.items()):
         return 'mixed-precision and sign-swizzle lane corpus remains manual'
     if form.get('xorsign','noxorsign')!='noxorsign' or 'isA' in form:
         return 'min/max XORSIGN and source-predicate outputs remain manual'
@@ -99,7 +103,7 @@ def widening(c, k, form):
     if form.get('sat', 'nosat') not in ('nosat', 'SAT'):
         raise autocases.Unsupported('unresolved widening saturation')
     spec = autocase_profiles.PROFILES['half_forms']
-    values = (autocase_profiles.PROFILES['floating_forms'][32] if selector == 'F32'
+    values = (autocase_profiles.PROFILES['half_f32_sources']['floats'] if selector == 'F32'
               else tuple(dict.fromkeys(spec['F16'] + spec['widening'])))
     for value in values:
         s = autocases.Inputs(c, k, form)
@@ -170,17 +174,37 @@ def half(c,k,form):
     if op in FMA_OPS:swizzles += [next((n for n in ('iswzB','iswzC_as_B') if n in form),None),next((n for n in ('iswzC','iswzB_as_C') if n in form),None)]
     else:swizzles += [next((n for n in ('iswzB_as_C','iswzB') if n in form),None)]
     values=autocase_profiles.PROFILES['half_forms'][fmt]
-    samples=autocase_half_profiles.select(op,form,c.fp) if op in ('HSET2','HSETP2') else ((j,j&1) for j in range(len(values)))
-    for j,raw_predicate in samples:
-        a=values[j]
+    mixed = [form.get(sw) == 'F32' for sw in swizzles]
+    samples=autocase_half_profiles.select(op,form,c.fp) if op in ('HSET2','HSETP2') and not any(mixed) else ((j,j&1) for j in range(len(values)))
+    vectors=[((values[j],values[(j+3)%len(values)],values[(j+5)%len(values)]),p) for j,p in samples]
+    if op in ('HADD2','HMUL2','HFMA2') and fmt=='F16':
+        vectors += [(v,0) for v in autocase_profiles.half_nan_vectors(len(names))]
+    vectors=[(raw,p,None) for raw,p in vectors]
+    if any(mixed):
+        spec = autocase_profiles.PROFILES['half_f32_sources']
+        vectors = [(tuple(spec['floats'][(j+3*n)%len(spec['floats'])] if mixed[n] else v
+                          for n,v in enumerate(raw[:len(names)])),p,None)
+                   for j,(raw,p,_) in enumerate(vectors)]
+        vectors += [(tuple(x if is_float else half for is_float in mixed),p,None)
+                    for x,half in spec['pairs'] for p in (0,1)]
+        if all(mixed):
+            vectors += [(pair,p,None) for pair in spec['float_pairs'] for p in (0,1)]
+        if op == 'HADD2' and mixed.count(True) == 1:
+            other = names[mixed.index(False)]
+            if (k.operand_types[other].type in ('Register','ZeroRegister')
+                    and form.get(other+'@negate') == 'set'
+                    and form.get(other+'@absolute','unset') == 'unset'):
+                vectors += [(tuple(x if is_float else 0 for is_float in mixed),0,other)
+                            for x in spec['floats']]
+    for j,(raw,raw_predicate,zero) in enumerate(vectors):
         s=autocases.Inputs(c,k,form)
-        raw=(a,values[(j+3)%len(values)],values[(j+5)%len(values)])
         pairs=[]
         for n,v,r,sw in zip(names,raw,(4,6,8),swizzles):
             value = operand(s,n,v,r)
-            if form.get(n+'@absolute') == 'set': value &= 0x7fff7fff
-            if form.get(n+'@negate') == 'set': value ^= 0x80008000
-            pairs.append(lanes(value,form.get(sw,'H1_H0')))
+            if n == zero: s.fields[n] = 'RZ'
+            pairs.append(float.half_source(value,form.get(sw,'H1_H0'),
+                                           form.get(n+'@absolute') == 'set',
+                                           form.get(n+'@negate') == 'set'))
         packed=[lo | hi<<16 for lo,hi in pairs]
         p=raw_predicate; pred=source(k,'Pp')
         if pred:
@@ -213,8 +237,7 @@ def half(c,k,form):
             if op=='HSET2':result=float.hset2(*packed,bf=form['bval']=='BF',**kw)
             else:
                 pu,pv=float.hsetp2(*packed,h_and=form['h_and']=='H_AND',**kw)
-                expected={s.output(('Pu',),0):int(pu),s.output(('Pv',),1):int(pv)}
-                s.add(expected,form,portable=True);continue
+                s.setp_outputs(pu, pv, form);continue
         out=s.output(('Rd',),4 if j&1 else 2)
         s.add({out:result},form,portable=True)
     return c

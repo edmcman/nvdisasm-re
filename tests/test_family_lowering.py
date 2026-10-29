@@ -7,6 +7,19 @@ import pytest
 from tests.harness.select import arches
 
 
+def test_conversion_definition_widths_across_modes():
+    """Shared definitions must retain operand widths when readable fixes rounding."""
+    from sass.sleigh.gen import Gen
+    from sass.semantics.operands import Builder
+    from sass.semantics.family import family_for
+    from sass.sleigh.lower import enumerate_rows
+    for fp in ('exact','readable'):
+        g=Gen('SM89',fp)
+        for name in ('f2i_Rd64__Rb_16b','f2i__Rb_32b'):
+            k=next(k for k in g.arch.classes if k.name==name)
+            assert enumerate_rows(Builder(g,k,None,g.span_variants(k)[0][0]),family_for(k))
+
+
 def crashes(job):
     """(arch, [crash]) over every `shards`-th class of arch, starting at `shard`."""
     from sass.sleigh.gen import Gen

@@ -736,7 +736,9 @@ These are backend checks; instruction-form evidence remains separate.
 ### SM120 uniform floats (2026-10-14)
 - UFADD/UFMUL/UFFMA/UFSETP/UFSEL/UFRND/UF2I/UI2F/UI2FP register the scalar families
   FADD/FMUL/FFMA/FSETP/FSEL/FRND/F2I/I2F (operand names resolve to URa, UPp, ...). The uniform twins'
-  unmodelled encodings (F16/BF16 UFRND, UF2I's 8/16-bit destinations) are opaque, like the scalar ones'.
+  unmodelled encodings, including F16/BF16 UFRND and narrow BF16 UF2I, stay opaque.
+  Narrow F16/F32/F64 UF2I follows the shared scalar conversion model (2026-10-29,
+  inferred; no SM120 GPU measurement).
 
 ## 6. FP64
 - DADD/DMUL/DFMA are native in every rounding mode with 64-bit register pairs, uniform inputs, high-word
@@ -772,13 +774,36 @@ These are backend checks; instruction-form evidence remains separate.
   makes a result whose sign is set (negative, -0, negative subnormals) +0; NaN results are already the
   canonical +0x7fff. Pp is the RELU enable: with Pp false (or `!Pp` true) the result is the plain
   HFMA2's. ptxas emits `.RELU` from `fma.rn.relu.f16x2` with Pp = PT (SM80/89/90).
-- SM75 `.F32` source (2026-10-24, ptxas sm_75, no SM75 GPU): `R.F32` reads the register as binary32
-  (after `|x|`/`-x` on its sign), rounds it toward zero to binary16 and broadcasts it to both lanes.
-  ptxas compiles `cvt.rz[.sat].f16.f32` to `HADD2[.SAT] Rd, Ra.F32, -RZ.H0_H0`, and fuses
-  `cvt.rz.f16.f32` + `add.f16x2` into `HADD2 Rd, Ra.F32, Rb`, so the sum is of the narrowed value;
-  HADD2's B follows (the sum commutes; ptxas emits only A). HFMA2/HMUL2/HSET2/HSETP2 `.F32` sources stay
-  opaque: ptxas doesn't fuse the conversion into fma/mul, so they may act in binary32, and there is no
-  SM75 GPU to tell. SM80+ forbid `.F32` swizzles (`Instruction.legal_labels` keeps their arms out).
+- SM75 `.F32` inputs (2026-10-29, ptxas 13.0.88, no SM75 GPU): read binary32,
+  apply float sign modifiers, narrow RZ to binary16 and broadcast. HADD2 with
+  `-RZ` implements conversion; an explicit PTX packed broadcast stores both
+  result lanes directly, making high-lane duplication compiler-backed.
+  HSET2/HSETP2 are now native for `.F32` inputs: new traces fold RZ conversions
+  into ordered, unordered, numeric and NaN comparisons, in either operand
+  position and with both inputs converted. Sign modifiers and FTZ sequencing
+  are inferred from the shared source/half comparison model; these compiler
+  traces establish plain RZ conversion folding.
+  General mixed HADD2 arithmetic retains its inferred input-conversion model,
+  including B's precision. The new 262-entry compiler matrix does not reproduce
+  the previously reported nonzero-operand fusion, so that earlier claim is
+  not treated as additional compiler evidence. HMUL2/HFMA2 `.F32` source
+  precision remains unresolved and opaque; the tested compiler patterns
+  retain separate conversions. SM80+ forbid these selectors. Exact words and
+  bounded negative findings are in `research/ptxas/sm75-half-2026-10-29/`.
+  Live ptxas tracing further locates the rejected HMUL2 conversion promotion:
+  its consumer clears an eligibility bit that HSET2 retains. The legacy
+  encoder establishes operand selectors, but neither it nor that rejection
+  establishes whether arithmetic narrows the F32 input before operating or
+  retains its precision until result rounding. This uncertainty concerns
+  mixed half instructions, not ordinary F32 arithmetic. Compact compiler
+  captures are in that evidence directory's `internal/` subdirectory.
+  Function addresses and roles are documented in
+  `research/ptxas/ptxas-finalizer-notes.md`; annotations were saved in Ghidra.
+- SM75 mixed source inputs, conversion controls and comparison aliases now
+  use autocases, including RZ/RN/direct-float distinguishing boundaries,
+  both lanes, signed zeros, subnormals, saturation and NaNs. The former
+  manual HADD2 `.F32` corpus is a profile supplement; retained cases contain
+  only unresolved-form guards.
 - SM75/SM80 `.F32` result of the ordinary HADD2 classes: native only with a `-RZ` operand (SM80's md
   requires `-RZ` as Ra; ptxas sm_75 writes `HADD2.F32 Rd, Ra.H0_H0, -RZ.H0_H0` for `cvt.f32.f16`). The
   sum of two nonzero operands stays opaque: whether it rounds to binary16 before widening is unknown.
@@ -846,7 +871,7 @@ These are backend checks; instruction-form evidence remains separate.
 
 ### FRND, I2F/I2FP, F2F, F2I (`convert.py`, 2026-10-13)
 - FRND (F32/F64), I2F/I2FP (8/16/32/64-bit sources with bsel/hsel, F16/BF16/F32/F64 destinations), F2F
-  (F16/F32/F64) and F2I (F16/BF16/F32/F64 to S/U 32/64) are exact in every rounding mode on `fpformat`
+  (F16/F32/F64) and F2I (F16/F32/F64 to S/U 8/16/32/64; BF16 to 32/64) are exact in every rounding mode on `fpformat`
   (`int_parts`, 64-bit `round_parts`; `arith` picks W=64 for F64).
 - Rounding modes, destination formats, signedness and NTZ are decode-time lookups
   (`fpformat.chosen_rounding`, shared with F2FP; `fpformat.round_up` is the one round-up rule): forking
@@ -854,18 +879,49 @@ These are backend checks; instruction-form evidence remains separate.
 - F2F/F2I/I2F/FRND with a half/byte source read only that slice (checked by `part_selector` in
   `tests/harness/dataflow.py`, used by `test_pcode_dataflow`).
 - .FTZ flushes a denormal input (FRND, F2I; SM89). F2F .FTZ and its BF16/E8M7/E6M9 formats are
-  unmodelled.
+  unmodelled except F2F.FTZ.F64.F32 (2026-10-29): an F32 subnormal becomes signed
+  zero before exact widening. Normal inputs are unchanged; NaNs keep the source
+  register's sign and aligned payload, quieted, ignoring absolute/negate.
+  Other FTZ directions retain explicit opaque guards.
 - NaN results follow SM89: FRND F32 gives 0x7fffffff, F64 keeps the quieted sign/payload. F2F
   canonicalizes NaNs between F16 and F32; other pairs (F16/F64, F32/F64) keep the register's quieted
   sign/payload, ignoring -/|.| (shared GPU probes 2026-10-16). I2F's 64-bit immediate is the high word of
   its source (2026-10-16).
 - F2I: NaN gives 0 with .NTZ, else the destination's top bit (SM89, also U64); infinities and overflow
-  saturate to the destination limits. The readable lowering takes every mode as TRUNC. 8/16-bit
-  destinations and predicate outputs are opaque. Absolute clears the source
+  saturate to the destination limits. Narrow signed numerical results extend their
+  sign through Rd's upper bits; unsigned results extend with zeros. A narrow NaN
+  sentinel is zero-extended even for S8/S16 (SM89, 2026-10-29). Decode-time
+  saturation limits reuse the same conversion body across destination formats.
+  This adds six operations to the previously native representative F2I bodies,
+  while avoiding a separate body for each narrow format and the language size
+  limit. Reviewed operation-count baselines include the newly native forms.
+  The readable lowering takes every mode as TRUNC. Predicate outputs and narrow
+  BF16 sources remain opaque. Absolute clears the source
   sign bit before negate toggles it; patched SM89 GPU fixtures verify absolute, negate and combined
   forms against an independent integer reference (128 whole-kernel comparisons per form). The
   F32-to-S32 `.TRUNC.NTZ` form was the first hardware-verified one (NaN to zero, infinities and overflow
   clamped).
+
+### SETP aliases and exact half NaNs (2026-10-29)
+
+- ISETP/UISETP, FSETP/UFSETP, DSETP and HSETP2 compute both outputs from the
+  original inputs, then write Pv followed by Pu. Pu wins equal destinations.
+  SM89 directly establishes ISETP/UISETP, FSETP, DSETP (including MIN/MAX) and
+  both HSETP2 lane modes. UFSETP follows the shared implementation; this is not
+  a separate hardware claim. Disabled guards preserve the old predicate.
+- Autocase adapters emit separate-output controls, active equal-output cases and
+  disabled-guard cases. Input-scenario sampling floors retain each category in
+  minimum runs, independently of expected values.
+- Ordinary HADD2/HMUL2/HFMA2 exact profiles compare produced F16 NaN lanes with
+  `0x7fff` bit for bit. Inputs include positive/negative quiet and signaling NaNs
+  in every operand position and lane, distinct payloads, invalid arithmetic,
+  saturation and broadcasts. SAT maps a NaN result to +0. Readable mode keeps
+  its formula contract and skips NaN payload checks.
+- CUDA 13.0.88 `-O3` double fmin/fmax fixtures run the compiler's DSETP.MIN/MAX,
+  FSEL/SEL and guarded LOP3 sequence. Their exact reference orders signed zeros
+  as -0 < +0, selects the numeric input when only one input is NaN, and quiets
+  the second operand when both are NaNs. This describes the observed compiled
+  sequence, not a standalone double min/max opcode.
 
 ### F2IP
 - Native for packed F32-to-S8/U8 conversion with round-to-nearest-even, NTZ, no RELU and materialized

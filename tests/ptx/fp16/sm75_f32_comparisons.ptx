@@ -1,0 +1,326 @@
+// sass: HSET2 HSETP2
+// CUDA 13.0.88 -O3; compiler evidence, no SM75 GPU validation.
+.version 8.8
+.target sm_75
+.address_size 64
+
+.visible .entry set_packed_0_rz(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+set.lt.f16x2.f16x2 r15, r4, r1;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry set_packed_1_rz(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+set.lt.f16x2.f16x2 r15, r1, r4;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry setp_packed_0_rz(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+setp.lt.f16x2 p|q, r4, r1;
+selp.u32 r15, 1, 0, p;
+selp.u32 r14, 2, 0, q;
+or.b32 r15, r15, r14;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry setp_packed_1_rz(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+setp.lt.f16x2 p|q, r1, r4;
+selp.u32 r15, 1, 0, p;
+selp.u32 r14, 2, 0, q;
+or.b32 r15, r15, r14;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry set_eq_both_float(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+mov.b32 f1, r1;
+cvt.rz.f16.f32 h5, f1;
+mov.b32 r5, {h5, h5};
+set.eq.f16x2.f16x2 r15, r4, r5;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry setp_eq_both_float(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+mov.b32 f1, r1;
+cvt.rz.f16.f32 h5, f1;
+mov.b32 r5, {h5, h5};
+setp.eq.f16x2 p|q, r4, r5;
+selp.u32 r14, 1, 0, p;
+selp.u32 r15, 2, 0, q;
+or.b32 r15, r15, r14;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry set_nan_float_half(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+set.nan.f16x2.f16x2 r15, r4, r1;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry setp_nan_float_half(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+setp.nan.f16x2 p|q, r4, r1;
+selp.u32 r14, 1, 0, p;
+selp.u32 r15, 2, 0, q;
+or.b32 r15, r15, r14;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry set_num_both_float(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+mov.b32 f1, r1;
+cvt.rz.f16.f32 h5, f1;
+mov.b32 r5, {h5, h5};
+set.num.f16x2.f16x2 r15, r4, r5;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry setp_num_both_float(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+mov.b32 f1, r1;
+cvt.rz.f16.f32 h5, f1;
+mov.b32 r5, {h5, h5};
+setp.num.f16x2 p|q, r4, r5;
+selp.u32 r14, 1, 0, p;
+selp.u32 r15, 2, 0, q;
+or.b32 r15, r15, r14;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry set_geu_float_half(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+set.geu.f16x2.f16x2 r15, r4, r1;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry setp_leu_both_float(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+mov.b32 f1, r1;
+cvt.rz.f16.f32 h5, f1;
+mov.b32 r5, {h5, h5};
+setp.leu.f16x2 p|q, r4, r5;
+selp.u32 r14, 1, 0, p;
+selp.u32 r15, 2, 0, q;
+or.b32 r15, r15, r14;
+    st.global.b32 [dest], r15;
+    ret;
+}

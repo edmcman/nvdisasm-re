@@ -440,7 +440,8 @@ def isetp(i):
         if comparison not in ('F', 'T'): cond = cond if a != b else low
     elif i.has_operand('Pr'): i.ignore('Pr')
     p, bop = i.pred('Pp'), i.select_fork('bop')
-    return outputs(Pu=boolean(bop, cond, p), Pv=boolean(bop, lnot(cond), p))
+    return outputs(Pu=boolean(bop, cond, p), Pv=boolean(bop, lnot(cond), p),
+                   order=('Pv', 'Pu'))  # equal destinations: Pu wins (SM89)
 
 
 @definition(lambda a: (f"imnmx.{'s' if a['signed'] else 'u'}32", ["p", "a", "b"]))
