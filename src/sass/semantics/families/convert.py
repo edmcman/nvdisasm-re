@@ -1,6 +1,8 @@
 """IEEE conversions on sass.semantics.fp.fpformat: FRND (round to integral), I2F (integer to float), F2F (float
 to float) and F2I's general forms (float to integer). Rounding is exact in every mode; NaN and
 out-of-range results follow SM89 hardware (tests/cases/conversions.py GPU fixtures)."""
+from functools import wraps
+
 from sass.semantics.fp import fpformat
 from sass.semantics.fp.fpformat import FORMATS
 from sass.semantics.bitvec import *
@@ -118,6 +120,18 @@ def int_name(a):
     return f"cvt.i{n}.{fmt}", ["signed", "r", "nan", "x", *(["limit_bits"] if bits is not None else [])]
 
 
+def full_integer_width(fn):
+    """Canonicalize full width when a specialized name omits the width operand."""
+    @wraps(fn)
+    def call(x, fmt, n, signed, r, nan, limit_bits=None):
+        if limit_bits is None:
+            args = dict(fmt=fmt, n=n, signed=signed, r=r, nan=nan, limit_bits=None)
+            if int_name(args)[1] == ["x"]: limit_bits = const(n, 7)
+        return fn(x, fmt, n, signed, r, nan, limit_bits)
+    return call
+
+
+@full_integer_width
 @definition(int_name)
 def float_to_int(x, fmt, n, signed, r, nan, limit_bits=None):
     """PTX cvt.rni/rzi/rmi/rpi from a float to an n-bit signed or unsigned integer, saturated; NaN

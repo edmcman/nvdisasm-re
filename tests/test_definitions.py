@@ -4,7 +4,7 @@ import random
 from itertools import product
 import pytest
 from sass.assemble import assemble_instruction
-from sass.semantics import bitvec, lifter
+from sass.semantics import bitvec, family, lifter
 from sass.semantics.bitvec import const, param, reg
 from sass.semantics.evaluate import State, evaluate, execute
 from sass.semantics.family import definition
@@ -445,6 +445,54 @@ def test_expansion_conversions(mode):
             args = (X, "F32", 32, const(signed, 1), r, const(nan, 32))
             same(convert.float_to_int(*args), convert.float_to_int.body(*args), X)
     for signed in (False, True): same(f2i.f32_to_8bit(X, signed), f2i.f32_to_8bit.body(X, signed), X)
+
+
+@pytest.mark.parametrize("n,fmt", [(32, "F32"), (64, "F64")])
+@pytest.mark.parametrize("reverse", [False, True])
+def test_float_to_int_full_width_definition_is_order_independent(n, fmt, reverse, monkeypatch):
+    label = f"cvt.rni.ntz.s{n}.{fmt.lower()}"
+    monkeypatch.setattr(family, "DEFINITIONS", family.DEFINITIONS.copy())
+    monkeypatch.setattr(bitvec, "DEFINED", bitvec.DEFINED.copy())
+    family.DEFINITIONS.pop(label, None)
+    bitvec.DEFINED.pop(label, None)
+    x = param("float_to_int_source", n)
+    args = (x, fmt, n, const(1, 1), fpformat.rounding("RN"), const(0, n))
+    widths = [None, const(n, 7)]
+    if reverse: widths.reverse()
+    first, second = (convert.float_to_int(*args, limit_bits=width) for width in widths)
+    assert first.op == second.op
+    assert first.args == second.args
+    for value in (0, 0x7f800000 if n == 32 else 0x7ff0000000000000):
+        assert evaluate(first, None, {"float_to_int_source": value}) == \
+               evaluate(second, None, {"float_to_int_source": value})
+
+
+def test_float_to_int_narrow_limit_remains_distinct():
+    args = (X, "F32", 32, const(1, 1), fpformat.rounding("RN"), const(0, 32))
+    full = convert.float_to_int(*args)
+    narrow = convert.float_to_int(*args, limit_bits=const(8, 7))
+    assert full.op != narrow.op
+    assert evaluate(full, None, {"x": 0x43000000}) == 128
+    assert evaluate(narrow, None, {"x": 0x43000000}) == 127
+
+
+def test_float_to_int_dynamic_definition_keeps_optional_width_operand(monkeypatch):
+    monkeypatch.setattr(family, "DEFINITIONS", family.DEFINITIONS.copy())
+    monkeypatch.setattr(bitvec, "DEFINED", bitvec.DEFINED.copy())
+    family.DEFINITIONS.pop("cvt.i32.f32", None)
+    bitvec.DEFINED.pop("cvt.i32.f32", None)
+    signed = param("float_to_int_signed", 1)
+    r = fpformat.Rounding(*(const(int(flag), 1) for flag in fpformat.rounding("RN")))
+    nan = const(0, 32)
+    args = (X, "F32", 32, signed, r, nan)
+    default = convert.float_to_int(*args)
+    explicit = convert.float_to_int(*args, limit_bits=const(32, 7))
+    assert default.op == explicit.op == "cvt.i32.f32"
+    assert default.args == (signed, *r, nan, X)
+    assert explicit.args == (*default.args, const(32, 7))
+    for signed_value in (0, 1):
+        inputs = {"x": 0x43000000, "float_to_int_signed": signed_value}
+        assert evaluate(default, None, inputs) == evaluate(explicit, None, inputs)
 
 
 def test_names_without_constants():
