@@ -44,7 +44,8 @@ expectation, and records each emitted `sass:` class as ptxas evidence. Unannotat
 | `qspc/address_spaces.cu` | SM89 | Inline PTX emits `QSPC.E.G`, `.L`, and `.S`; the GPU distinguishes generic global, local, and shared pointers |
 | `fp16/sm75_broadcast_rz.ptx` | SM75 | RZ float-to-half followed by an observable two-lane broadcast; `HADD2 ... R.F32, -RZ` stores its full result directly |
 | `fp16/sm75_f32_comparisons.ptx` | SM75 | Explicit RZ conversion feeding half comparisons; ptxas folds it into HSET2/HSETP2 `.F32` source selectors in either/both operand positions |
-| `fp16/sm75_precision_controls.ptx` | SM75 | Mul/FMA retain a separate RZ conversion; widening and full-float arithmetic remain separate stages. These are bounded compiler controls, not SM75 GPU tests |
+| `fp16/sm75_precision_controls.ptx` | SM75 | Explicit-rounding Mul/FMA retain a separate RZ conversion; widening and full-float arithmetic remain separate stages. These are bounded compiler controls, not SM75 GPU tests |
+| `fp16/sm75_implicit_rounding.ptx` | SM75 | Default-rounding add/mul and fused implicit mul/add fold RZ conversions into F32 inputs; explicit `.rn` and RN-conversion controls retain conversion boundaries. Compiler emission evidence, not SM75 precision verification |
 
 The `BMSK.CX` PTX trigger remains unknown. The selector in CUDA 13.0.88
 `ptxas` checks the width operand's modifier bit 24, constant-source metadata

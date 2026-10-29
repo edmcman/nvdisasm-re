@@ -40,9 +40,15 @@ def test_asymmetric_lane_broadcasts(word,swizzle,expected):
     assert autocase_packed_fp.lanes(word,swizzle)==expected
 
 
-def test_half_mixed_precision_is_an_explicit_gap():
+@pytest.mark.parametrize('opcode',['HMUL2','HFMA2'])
+def test_half_mixed_precision_is_an_explicit_gap(opcode):
     form={'ofmt':'F16_V2','iswzA':'F32'}
-    assert 'mixed-precision' in autocase_packed_fp.blocked_reason('HADD2',form)
+    assert 'mixed-precision' in autocase_packed_fp.blocked_reason(opcode,form)
+
+
+def test_hadd2_inferred_float_input_uses_shared_adapter():
+    form={'ofmt':'F16_V2','iswzA':'F32'}
+    assert autocase_packed_fp.blocked_reason('HADD2',form) is None
 
 
 @pytest.mark.parametrize('fp',['exact','readable'])

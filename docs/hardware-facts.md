@@ -668,3 +668,8 @@ exclusions after extending the SM75 comparison adapter. It verifies the
 affected SM89 cases, not the SM75-only F32 selectors. Live compiler RE and
 saved Ghidra annotations locate the differing HSET2/HMUL2 promotion decisions;
 these remain compiler evidence and create no SM75 hardware claim.
+Further compiler-only investigation found that default-rounding add/mul can
+fold RZ conversion into mixed HADD2/HMUL2, and implicit mul/add can contract
+to mixed HFMA2 in all three operand positions. Explicit `.rn` inhibits that
+promotion. This corrects the scope of the earlier negative compiler findings;
+it adds no SM75 hardware evidence and does not establish exact input precision.

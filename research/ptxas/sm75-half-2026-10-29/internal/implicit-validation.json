@@ -1,0 +1,147 @@
+{
+  "date": "2026-10-29",
+  "compiler_sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+  "kind": "compiler evidence; no GPU execution",
+  "input": {
+    "path": "tests/ptx/fp16/sm75_implicit_rounding.ptx",
+    "sha256": "fb7d57875610e9b41d9f6dafdeb88977c6613e3479d1d21c8d34a2879ebcd0d0"
+  },
+  "instrumentation": {
+    "path": "research/ptxas/capture_sm75_half.py",
+    "sha256": "2e3cfb7227b860680a8dea51a5ccedd7a31e78eaab9a5e2c6b3394dd434e77af",
+    "environment": {
+      "SM75_HALF_TRACE_RULES": "1"
+    }
+  },
+  "files": {
+    "implicit-controls.jsonl": "db0157e4bb9535536c0eb0182202de072b86074ee33d0835d024bb8333645f18",
+    "implicit-controls.cubin": "4ace478d654ff7e1a50679745dbba83b7cd4ead899eb6e99d9cc3cc718591a8c"
+  },
+  "validation": {
+    "kind": "partial compiler capture; exact word membership",
+    "captured_words": 30,
+    "unique_words": 15,
+    "opcodes": {
+      "HADD2": 10,
+      "HFMA2": 6,
+      "HMUL2": 14
+    },
+    "control_bits_masked": false
+  },
+  "eligibility_counts": [
+    {
+      "flags": "0x10e",
+      "operand": 0,
+      "result": 0,
+      "count": 2
+    },
+    {
+      "flags": "0x10e",
+      "operand": 1,
+      "result": 0,
+      "count": 2
+    },
+    {
+      "flags": "0x10e",
+      "operand": 2,
+      "result": 1,
+      "count": 1
+    },
+    {
+      "flags": "0x10e",
+      "operand": 4,
+      "result": 1,
+      "count": 1
+    },
+    {
+      "flags": "0x117",
+      "operand": 0,
+      "result": 0,
+      "count": 3
+    },
+    {
+      "flags": "0x117",
+      "operand": 1,
+      "result": 0,
+      "count": 3
+    },
+    {
+      "flags": "0x117",
+      "operand": 2,
+      "result": 1,
+      "count": 1
+    },
+    {
+      "flags": "0x117",
+      "operand": 4,
+      "result": 1,
+      "count": 1
+    },
+    {
+      "flags": "0x117",
+      "operand": 6,
+      "result": 1,
+      "count": 1
+    },
+    {
+      "flags": "0x11a",
+      "operand": 0,
+      "result": 0,
+      "count": 3
+    },
+    {
+      "flags": "0x11a",
+      "operand": 0,
+      "result": 1,
+      "count": 2
+    },
+    {
+      "flags": "0x11a",
+      "operand": 1,
+      "result": 0,
+      "count": 3
+    },
+    {
+      "flags": "0x11a",
+      "operand": 2,
+      "result": 1,
+      "count": 2
+    },
+    {
+      "flags": "0x11a",
+      "operand": 4,
+      "result": 1,
+      "count": 2
+    },
+    {
+      "flags": "0x210e",
+      "operand": 0,
+      "result": 0,
+      "count": 1
+    },
+    {
+      "flags": "0x210e",
+      "operand": 1,
+      "result": 0,
+      "count": 1
+    },
+    {
+      "flags": "0x211a",
+      "operand": 0,
+      "result": 0,
+      "count": 2
+    },
+    {
+      "flags": "0x211a",
+      "operand": 1,
+      "result": 0,
+      "count": 2
+    },
+    {
+      "flags": "0x211a",
+      "operand": 2,
+      "result": 0,
+      "count": 2
+    }
+  ]
+}

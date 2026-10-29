@@ -48,6 +48,32 @@ def instruction(address):
                 flags=flags, type=kind, operands=raw(address + 0x54, count * 8).hex())
 
 
+class HalfOperandEligibilityReturned(gdb.FinishBreakpoint):
+    def __init__(self, row):
+        super().__init__(gdb.newest_frame(), internal=True)
+        self.row = row
+
+    def stop(self):
+        record(dict(self.row, stage="operand_eligibility_returned", result=reg("rax") & 255))
+        return False
+
+
+class HalfOperandEligibility(gdb.Breakpoint):
+    def stop(self):
+        address = reg("rsi")
+        row = instruction(address)
+        if row["opcode"] not in (0x10e, 0x117, 0x11a, 0x11d):
+            return False
+        context, index = pointer(reg("rdi")), reg("rdx")
+        row.update(stage="operand_eligibility", operand=index,
+                   properties=struct.unpack("<I", raw(pointer(context + 0x308) + row["opcode"] * 4, 4))[0],
+                   context_flags=raw(context + 0x574, 1).hex(),
+                   paired_operand=raw(address + 0x5c + index * 8, 4).hex())
+        record(row)
+        HalfOperandEligibilityReturned(row)
+        return False
+
+
 class ConversionRemoved(gdb.Breakpoint):
     def stop(self):
         address = reg("rsi")
@@ -165,6 +191,8 @@ HalfEmitter("*0xc52190", "hfma2_fields")
 # HADD2 has another field builder behind its selector; capturing the whole
 # selector also preserves its input shape and final encoded word.
 HalfEmitter("*0xa3ed80", "hadd2_selector")
+if os.environ.get("SM75_HALF_TRACE_RULES"):
+    HalfOperandEligibility("*0x820960", internal=True)
 if os.environ.get("SM75_HALF_WATCH_CVT"):
     # Use a single-entry PTX input: this consumes two hardware watchpoints.
     WatchFirstHalfConversion("*0xc6508d", internal=True)

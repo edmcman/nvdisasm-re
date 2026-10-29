@@ -120,11 +120,53 @@ def matrix():
                 yield entry(f"{operation}_{comparison}_{'both_float' if both_float else 'float_half'}", setup + "\n" + body)
 
 
+def implicit_matrix():
+    """Isolate explicit arithmetic rounding from input-conversion rounding."""
+    for rounding in ("rn", "rz", "rm", "rp"):
+        for packed in (False, True):
+            fmt = "f16x2" if packed else "f16"
+            for operation, arity in (("add", 2), ("mul", 2), ("fma", 3)):
+                # FMA requires an explicit rounding modifier in PTX.
+                modifiers = ("rn",) if operation == "fma" else ("implicit", "rn")
+                for position in range(arity):
+                    for modifier in modifiers:
+                        args = list(("r4", "r1", "r2") if packed else ("h4", "h0", "h2"))[:arity]
+                        args[0], args[position] = args[position], args[0]
+                        setup = f"cvt.{rounding}.f16.f32 h4, f0;"
+                        if packed:
+                            setup += "\nmov.b32 r4, {h4, h4};"
+                        suffix = "" if modifier == "implicit" else f".{modifier}"
+                        setup += f"\n{operation}{suffix}.{fmt} {'r15' if packed else 'h15'}, {', '.join(args)};"
+                        if not packed:
+                            setup += "\nmov.b32 r15, {h15, h15};"
+                        yield entry(f"{operation}_{'packed' if packed else 'scalar'}_{position}_{rounding}_{modifier}", setup)
+        for position in range(3):
+            for modifier in ("implicit", "rn"):
+                args = ["r4", "r1", "r2"]
+                args[0], args[position] = args[position], args[0]
+                suffix = "" if modifier == "implicit" else f".{modifier}"
+                yield entry(f"mul_add_packed_{position}_{rounding}_{modifier}", f"""
+    cvt.{rounding}.f16.f32 h4, f0;
+    mov.b32 r4, {{h4, h4}};
+    mul{suffix}.f16x2 r5, {args[0]}, {args[1]};
+    add{suffix}.f16x2 r15, r5, {args[2]};""")
+    # Test whether implicit scalar float addition can fold widened half inputs.
+    for modifier in ("implicit", "rn"):
+        suffix = "" if modifier == "implicit" else f".{modifier}"
+        yield entry(f"half_add_to_float_{modifier}", f"""
+    cvt.f32.f16 f0, h0;
+    cvt.f32.f16 f1, h1;
+    add{suffix}.f32 f3, f0, f1;
+    mov.b32 r15, f3;""")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--implicit", action="store_true",
+                        help="search implicit versus explicit arithmetic rounding")
     args = parser.parse_args()
-    entries = list(matrix())
+    entries = list(implicit_matrix() if args.implicit else matrix())
     args.output.write_text(HEADER + "".join(entries))
     print(f"{len(entries)} runtime-input entries -> {args.output}")
 

@@ -57,3 +57,46 @@ def test_compiler_keeps_half_conversion_before_mul_fma(name,opcode,compiled_sm75
     consumers=[f for d,f in rows if d.klass.mnemonic==opcode]
     assert len(consumers)==1
     assert not any(n.startswith('iswz') and v=='F32' for n,v in consumers[0].items())
+
+
+@pytest.mark.parametrize('name,opcode,selector', [
+    ('add_packed_0_rz_implicit','HADD2','iswzA'),
+    ('add_packed_1_rz_implicit','HADD2','iswzB_as_C'),
+    ('mul_packed_0_rz_implicit','HMUL2','iswzA'),
+    ('mul_packed_1_rz_implicit','HMUL2','iswzB'),
+    ('mul_scalar_0_rz_implicit','HMUL2','iswzA'),
+    ('mul_scalar_1_rz_implicit','HMUL2','iswzB'),
+    ('mul_add_packed_0_rz_implicit','HFMA2','iswzA'),
+    ('mul_add_packed_1_rz_implicit','HFMA2','iswzB'),
+    ('mul_add_packed_2_rz_implicit','HFMA2','iswzC'),
+])
+def test_implicit_rounding_folds_rz_half_input(name,opcode,selector,compiled_sm75_half):
+    rows=decoded(compiled_sm75_half[name])
+    arithmetic=[(d,f) for d,f in rows if d.klass.mnemonic in ('HADD2','HMUL2','HFMA2','F2F')]
+    assert len(arithmetic)==1
+    d,form=arithmetic[0]
+    assert d.klass.mnemonic==opcode
+    assert form[selector]=='F32'
+    assert form['ofmt']=='F16_V2'
+    assert not any(n.endswith(('@absolute','@negate')) and v=='set' for n,v in form.items())
+    # Runtime source and result must remain observable in the actual cubin.
+    assert any(d.klass.mnemonic=='LDG' for d,_ in rows)
+    stores=[d for d,_ in rows if d.klass.mnemonic=='STG']
+    assert len(stores)==1 and stores[0].env['Rb']==arithmetic[0][0].env['Rd']
+
+
+@pytest.mark.parametrize('name,conversion_opcode,opcodes', [
+    ('mul_packed_0_rn_implicit','F2F',['HMUL2']),
+    ('mul_packed_0_rz_rn','HADD2',['HMUL2']),
+    ('mul_add_packed_0_rz_rn','HADD2',['HMUL2','HADD2']),
+])
+def test_rounding_controls_preserve_conversion_boundary(name,conversion_opcode,opcodes,compiled_sm75_half):
+    rows=decoded(compiled_sm75_half[name])
+    conversion=[d for d,f in rows if d.klass.mnemonic==conversion_opcode and
+                (f.get('iswzA')=='F32' if conversion_opcode=='HADD2' else
+                 f.get('dstfmt.srcfmt')=='F16.F32' and f.get('rnd')=='RN')]
+    assert len(conversion)==1
+    if conversion_opcode=='HADD2': assert conversion[0].env['Rc']==255
+    consumers=[(d,f) for d,f in rows if d.klass.mnemonic in ('HADD2','HMUL2','HFMA2') and d is not conversion[0]]
+    assert [d.klass.mnemonic for d,_ in consumers]==opcodes
+    assert not any(v=='F32' for _,f in consumers for n,v in f.items() if n.startswith('iswz'))

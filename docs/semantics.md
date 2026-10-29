@@ -784,18 +784,24 @@ These are backend checks; instruction-form evidence remains separate.
   are inferred from the shared source/half comparison model; these compiler
   traces establish plain RZ conversion folding.
   General mixed HADD2 arithmetic retains its inferred input-conversion model,
-  including B's precision. The new 262-entry compiler matrix does not reproduce
-  the previously reported nonzero-operand fusion, so that earlier claim is
-  not treated as additional compiler evidence. HMUL2/HFMA2 `.F32` source
-  precision remains unresolved and opaque; the tested compiler patterns
-  retain separate conversions. SM80+ forbid these selectors. Exact words and
-  bounded negative findings are in `research/ptxas/sm75-half-2026-10-29/`.
-  Live ptxas tracing further locates the rejected HMUL2 conversion promotion:
-  its consumer clears an eligibility bit that HSET2 retains. The legacy
-  encoder establishes operand selectors, but neither it nor that rejection
-  establishes whether arithmetic narrows the F32 input before operating or
-  retains its precision until result rounding. This uncertainty concerns
-  mixed half instructions, not ordinary F32 arithmetic. Compact compiler
+  including B's precision. The initial 262-entry matrix used explicit arithmetic
+  rounding and did not reproduce nonzero-operand conversion fusion. A subsequent
+  114-entry matrix isolates that restriction: default-rounding half add/mul
+  folds RZ conversions into HADD2/HMUL2 F32 inputs, for scalar and packed
+  consumers in either position. Implicit mul/add contracts to HFMA2 with an
+  F32 input in each of its three positions. RN/RM/RP input conversions and
+  explicit arithmetic `.rn` retain separate conversions in these controls.
+  These contraction-permitted traces support the existing inferred HADD2
+  model but do not establish exact SM75 arithmetic rounding. HMUL2/HFMA2
+  `.F32` source precision therefore remains unresolved and opaque.
+  SM80+ forbid these selectors. Exact words and bounded findings are in
+  `research/ptxas/sm75-half-2026-10-29/`.
+  Live ptxas tracing identifies the difference: explicit rounding sets ORI
+  flag `0x2000`, blocking the packed-source promotion exception; omitting it
+  accepts the same RZ-converted register. The encoder and optimizer policy
+  still do not prove whether hardware narrows before arithmetic or retains
+  F32 precision until result rounding. This uncertainty concerns mixed half
+  instructions, not ordinary F32 arithmetic. Compact compiler
   captures are in that evidence directory's `internal/` subdirectory.
   Function addresses and roles are documented in
   `research/ptxas/ptxas-finalizer-notes.md`; annotations were saved in Ghidra.

@@ -52,6 +52,12 @@ decoded operands, accounting for register allocation and scheduling; claim that 
 bit selects a mode only when the evidence isolates that bit. Record word bytes as
 little-endian and bit numbers from `int.from_bytes(word, 'little')`.
 
+For floating-point lowering searches, compare default rounding with explicit
+`.rn`, and compare separate implicit multiply/add with explicit FMA. Explicit
+rounding can inhibit compiler rewrites even when its numerical default is RN.
+Do not generalize a negative emission result from explicit-rounding controls to
+all inputs, or infer exact hardware rounding from a contraction-permitted trace.
+
 Label compiler-generated, manually patched and synthetic samples separately: a
 disassembler-accepted synthetic word does not prove ptxas emits it.
 

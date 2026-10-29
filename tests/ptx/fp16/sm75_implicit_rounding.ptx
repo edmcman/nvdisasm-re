@@ -1,0 +1,302 @@
+// sass: HADD2 HMUL2 HFMA2
+// CUDA 13.0.88 -O3; default rounding enables RZ-conversion folding.
+// Compiler evidence only; no SM75 GPU validation.
+.version 8.8
+.target sm_75
+.address_size 64
+
+.visible .entry mul_packed_0_rn_implicit(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rn.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+mul.f16x2 r15, r4, r1;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry mul_scalar_0_rz_implicit(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mul.f16 h15, h4, h0;
+mov.b32 r15, {h15, h15};
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry mul_scalar_1_rz_implicit(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mul.f16 h15, h0, h4;
+mov.b32 r15, {h15, h15};
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry add_packed_0_rz_implicit(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+add.f16x2 r15, r4, r1;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry add_packed_1_rz_implicit(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+add.f16x2 r15, r1, r4;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry mul_packed_0_rz_implicit(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+mul.f16x2 r15, r4, r1;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry mul_packed_0_rz_rn(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+mul.rn.f16x2 r15, r4, r1;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry mul_packed_1_rz_implicit(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+    cvt.rz.f16.f32 h4, f0;
+mov.b32 r4, {h4, h4};
+mul.f16x2 r15, r1, r4;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry mul_add_packed_0_rz_implicit(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+
+    cvt.rz.f16.f32 h4, f0;
+    mov.b32 r4, {h4, h4};
+    mul.f16x2 r5, r4, r1;
+    add.f16x2 r15, r5, r2;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry mul_add_packed_0_rz_rn(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+
+    cvt.rz.f16.f32 h4, f0;
+    mov.b32 r4, {h4, h4};
+    mul.rn.f16x2 r5, r4, r1;
+    add.rn.f16x2 r15, r5, r2;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry mul_add_packed_1_rz_implicit(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+
+    cvt.rz.f16.f32 h4, f0;
+    mov.b32 r4, {h4, h4};
+    mul.f16x2 r5, r1, r4;
+    add.f16x2 r15, r5, r2;
+    st.global.b32 [dest], r15;
+    ret;
+}
+
+.visible .entry mul_add_packed_2_rz_implicit(.param .u64 input, .param .u64 output) {
+    .reg .b64 a, b, offset, source, dest;
+    .reg .b32 r<16>, tid;
+    .reg .b16 h<16>;
+    .reg .f32 f<16>;
+    .reg .pred p, q;
+    ld.param.u64 a, [input];
+    ld.param.u64 b, [output];
+    mov.u32 tid, %tid.x;
+    mul.wide.u32 offset, tid, 16;
+    add.u64 source, a, offset;
+    mul.wide.u32 offset, tid, 4;
+    add.u64 dest, b, offset;
+    ld.global.v4.b32 {r0, r1, r2, r3}, [source];
+    mov.b32 f0, r0;
+    mov.b32 {h0, h1}, r1;
+    mov.b32 {h2, h3}, r2;
+
+    cvt.rz.f16.f32 h4, f0;
+    mov.b32 r4, {h4, h4};
+    mul.f16x2 r5, r2, r1;
+    add.f16x2 r15, r5, r4;
+    st.global.b32 [dest], r15;
+    ret;
+}

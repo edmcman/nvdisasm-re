@@ -1087,3 +1087,58 @@ annotated and saved in Ghidra. Comments/decompilation exports and full validatio
 logs are preserved in the local investigation archive; compact traces remain
 in the repository.
 No SM75 GPU was used.
+
+### Explicit rounding versus default rounding
+
+The initial matrix's arithmetic instructions explicitly requested `.rn`.
+Follow-up live tracing isolated the effect of that choice. For the same
+RZ-converted packed multiply input, `mul.rn.f16x2` produces ORI flags
+`0x211a` and eligibility rejects source index 2; `mul.f16x2` produces flags
+`0x11a`, accepts that source and emits `HMUL2 R7, R2.F32, R3`.
+Both consumers have instruction-property word `0x00000c00`, paired-source
+lookahead `0x70000000` and context flags `1` at `+0x574`. This is an isolated
+compiler-policy difference, not a failed target capability check.
+
+`0x820960`'s packed-source exception requires flag `0x2000` clear,
+property bit `0x800` set, an even operand index and an absent second paired
+operand. It calls `0x817480` but ignores the returned value in this branch.
+`0x817480`, now named `check_float_half_conversion_target_eligibility`,
+checks conversion opcode `0x3c` and types 6/7; it returns false for both
+the HSET2 and HMUL2 consumer opcodes. It is not a general arithmetic
+capability predicate. `0x7df3a0`, now named
+`lookup_ori_instruction_properties`, returns ordinary four-byte opcode
+property records from context table `+0x308`, with operand-dependent special
+cases for `0x6d`/`0x55`. Both functions and the refined `0x820960` explanation
+were annotated and saved in the connected Ghidra program.
+
+`sm75_half_lowering.py --implicit` generates a second matrix of 114
+runtime-input entries, compiled at `-O0` and `-O3`. At `-O3` it emits:
+
+- Mixed HADD2 for implicit half add, with an F32 input in either position
+  and scalar or packed other input (four entries).
+- Mixed HMUL2 for implicit half multiply, with the same four input layouts.
+- Mixed HFMA2 from implicit packed multiply/add, with an F32 input in
+  each of its three positions.
+
+Only RZ input conversions fold in these controls. RN/RM/RP conversions stay
+separate; explicitly rounded arithmetic also retains its conversion.
+Explicit FMA requires a rounding modifier, so a separate implicit multiply/add
+sequence is necessary to expose the contracted form. O0 emits none of these
+F32 source selectors. Widened-half float sums still use separate widening and
+FADD, with or without explicit arithmetic rounding; no nonzero HADD2.F32
+output sum was established.
+
+`sm75-half-2026-10-29/implicit-metadata.json` pins the matrix and preserved
+disassembly/decoded words. `tests/ptx/fp16/sm75_implicit_rounding.ptx` retains
+twelve informative entries and their structural assertions.
+`capture_sm75_half.py` now accepts `SM75_HALF_TRACE_RULES=1` to record the
+eligibility inputs/returns alongside final encoding. The new compact capture
+contains 30 half words (10 HADD2, 14 HMUL2, six HFMA2), 15 unique; all match
+their own cubin exactly, including control bits. Its metadata and validation
+are in `internal/implicit-validation.json`.
+
+The earlier negative emission statements apply to explicit-rounding
+controls, not to all compiler inputs. These new traces permit contraction,
+so they do not settle the exact arithmetic precision of a directly encoded
+mixed instruction. The existing HADD2 source model remains inferred;
+HMUL2/HFMA2 source precision remains opaque. No SM75 GPU was used.

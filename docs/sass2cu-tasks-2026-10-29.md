@@ -40,3 +40,24 @@ No SM75 GPU evidence was created. General mixed HADD2 source precision remains
 inferred; HMUL2/HFMA2 F32 sources and nonzero HADD2.F32 sums remain opaque.
 The current compiler patterns and internal eligibility policy do not establish
 their rounding point.
+
+Default-rounding compiler follow-up:
+
+- [x] Isolate explicit `.rn` from implicit RN using live compiler traces.
+- [x] Find mixed HADD2/HMUL2 and contracted HFMA2 emission in each source
+  position; preserve the 114-entry matrix and twelve stable controls.
+- [x] Add structural compiler regressions and validate all 30 newly captured
+  words against their cubin without masking.
+- [x] Save the corrected promotion policy and conversion-helper roles in Ghidra.
+- [x] Record default versus explicit rounding as a required compiler-search
+  comparison in the investigation skill.
+- [x] Refresh coverage/evidence for the new PTX fixture and update the PR.
+
+The default-rounding patterns permit contraction. They correct the earlier
+negative emission finding but do not settle exact hardware rounding; the
+precision guards remain in place.
+Validation passed 194 focused checks, including 27 compiler regressions,
+plus the exact-word capture check and coverage consistency. The SM75 refresh
+processed 68,536 reference cases. Normalized evidence comparison confirms
+that only compiler-emission forms changed (HADD2 4→7, HMUL2 2→6, HFMA2 2→5);
+reference and GPU evidence are unchanged, with no SM75 GPU claim.

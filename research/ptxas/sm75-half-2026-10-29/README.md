@@ -27,13 +27,28 @@ position and with both operands converted. The observable packed broadcast
 stores the full HADD2 result immediately, without PRMT/SHF or another operation
 to duplicate the low lane. Its high-lane duplication is now compiler-backed.
 
-HMUL2/HFMA2 retain an explicit HADD2 conversion followed by half arithmetic.
+With explicitly rounded arithmetic, HMUL2/HFMA2 retain an explicit HADD2
+conversion followed by half arithmetic.
 Float arithmetic before conversion remains FADD/FMUL/FFMA followed by
 conversion. HADD2.F32 widening uses a negative-zero operand. This search
 emitted no mixed `.F32` HMUL2/HFMA2 source, no nonzero-operand HADD2.F32 sum,
 and no fused mixed HADD2 arithmetic. These are bounded negative findings for
 the recorded compiler and patterns, not statements that hardware forbids the
 encodings or that no compiler input can emit them.
+
+The subsequent **default-rounding** search does emit those mixed input forms.
+`sm75_half_lowering.py --implicit` generates 114 entries; the
+`implicit-metadata.json`, compressed disassemblies and decoded words preserve
+both optimization levels. At O3, implicit add/mul fold RZ conversions into
+HADD2/HMUL2 F32 inputs in either source position, with scalar or packed
+other inputs. Implicit packed mul/add contracts to HFMA2 with an F32 input
+in each of its three positions. Explicit `.rn` inhibits promotion;
+RN/RM/RP input conversions also stay separate. O0 emits no F32 inputs.
+The optimized matrix has 21 HADD2 F32-source instructions (17 conversions,
+four mixed sums), four mixed HMUL2 and three mixed HFMA2.
+`tests/ptx/fp16/sm75_implicit_rounding.ptx` retains twelve informative controls.
+These traces permit arithmetic contraction and do not establish exact SM75
+hardware precision. No nonzero HADD2.F32 output sum was found.
 
 Stable regression PTX is in `tests/ptx/fp16/sm75_*.ptx`.
 `tests/test_ptx_sm75_half.py` checks actual selector fields, conversion removal,
@@ -70,10 +85,23 @@ clears bit 0 at store `0x821035` (watchpoint next PC `0x821039`). At gate
 to HADD2. These fields are phase-local scratch metadata, so unrelated writes
 are not evidence of a semantic transformation.
 
-The rejection identifies a compiler restriction. It does not distinguish
+The rejection in the original explicit-rounding control identifies a compiler
+restriction. The new trace isolates flag `0x2000`: explicit `.rn` sets it,
+blocking the packed-source promotion exception in `0x820960`; omitting `.rn`
+accepts the same source. `0x817480` checks conversions, rather than general
+arithmetic capability, and its false return is ignored by the exception.
+It does not distinguish
 whether a directly encoded mixed HMUL2/HFMA2 instruction narrows an F32 input
 before arithmetic or retains its precision until result rounding. The encoder
 also cannot establish this. Those forms remain opaque.
+
+`internal/implicit-controls.jsonl.gz` records the new consumer eligibility
+and final encoder path; `implicit-controls.cubin` is the same compiler run's
+output. `implicit-validation.json` pins inputs/instrumentation and validates
+all 30 captured half words exactly, with no control masking. Add
+`SM75_HALF_TRACE_RULES=1` to the capture command below and use
+`sm75_implicit_rounding.ptx` to reproduce it. Two additional functions and
+the refined promotion predicate were annotated and saved in Ghidra.
 
 Reproduce the clean control capture using a fresh output path:
 
@@ -120,6 +148,13 @@ coverage refresh completed and its final consistency check passed.
 The SM89 hardware run and rejudged observations validate the affected SM89
 cases. They do not validate SM75-only F32 selectors. The compiler matrix,
 live RE and software agreement remain separate from GPU verification.
+
+The default-rounding follow-up passed 194 focused checks, including 27
+compiler regressions, plus exact-word capture validation and coverage
+consistency. Its scoped SM75 refresh processed 68,536 reference cases.
+Normalized evidence differs only in compiler forms for HADD2/HMUL2/HFMA2;
+reference and GPU evidence remain unchanged. No additional architecture
+hardware claim is made.
 
 The full investigation archive, including validation logs, Ghidra exports,
 duplicate source snapshots and regenerated binaries, is preserved locally at
