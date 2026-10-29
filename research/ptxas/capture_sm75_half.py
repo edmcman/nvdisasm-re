@@ -74,6 +74,76 @@ class HalfOperandEligibility(gdb.Breakpoint):
         return False
 
 
+class PromotionRewriteFinished(gdb.FinishBreakpoint):
+    def __init__(self, address, before):
+        super().__init__(gdb.newest_frame(), internal=True)
+        self.address, self.before = address, before
+
+    def stop(self):
+        record(dict(stage="promotion_rewrite", before=self.before, after=instruction(self.address)))
+        return False
+
+
+class PromotionRewrite(gdb.Breakpoint):
+    def stop(self):
+        address = reg("rsi")
+        before = instruction(address)
+        before["operand"] = reg("rdx")
+        before["backtrace"] = gdb.execute("bt 6", to_string=True)
+        PromotionRewriteFinished(address, before)
+        return False
+
+
+class FrontendPrecision(gdb.Breakpoint):
+    def stop(self):
+        obj, context, node = reg("rdi"), reg("rsi"), reg("rdx")
+        vtable = pointer(obj)
+        record(dict(stage="frontend_precision", context=hex(context),
+                    dag_opcode=struct.unpack("<I", raw(node + 8, 4))[0],
+                    dag_precision=struct.unpack("<I", raw(node + 0x14, 4))[0],
+                    float_hook=hex(pointer(vtable + 0x60)),
+                    packed_hook=hex(pointer(vtable + 0x68))))
+        return False
+
+
+class PtxRoundingPolicy(gdb.Breakpoint):
+    def stop(self):
+        backend, node = reg("rdi"), reg("rsi")
+        definition = pointer(node + 0x20)
+        if struct.unpack("<I", raw(definition + 8, 4))[0] != 0x34:
+            return False
+        record(dict(stage="ptx_rounding_policy", instruction_type=0x34,
+                    disable_contraction=raw(backend + 0x772f, 1)[0],
+                    rounding_byte=raw(node + 0x39, 1)[0],
+                    backtrace=gdb.execute("bt 6", to_string=True)))
+        return False
+
+
+class PtxRoundingAttribute(gdb.Breakpoint):
+    def stop(self):
+        node = reg("rdi")
+        definition = pointer(node + 0x20)
+        if struct.unpack("<I", raw(definition + 8, 4))[0] != 0x34:
+            return False
+        record(dict(stage="ptx_rounding_attribute", instruction_type=0x34,
+                    rounding_byte=raw(node + 0x39, 1)[0],
+                    backtrace=gdb.execute("bt 6", to_string=True)))
+        return False
+
+
+class InstructionPrecision(gdb.Breakpoint):
+    def stop(self):
+        context, opcode = reg("rsi"), reg("rdx") & 0xffffffff
+        if opcode & 0xffffcfff not in (0x10e, 0x117, 0x11a):
+            return False
+        properties = pointer(context + 0x308)
+        record(dict(stage="instruction_precision", opcode=opcode,
+                    barrier=raw(context + 0x100, 1)[0],
+                    properties=struct.unpack("<I", raw(properties + (opcode & 0xffffcfff) * 4, 4))[0],
+                    backtrace=gdb.execute("bt 7", to_string=True)))
+        return False
+
+
 class ConversionRemoved(gdb.Breakpoint):
     def stop(self):
         address = reg("rsi")
@@ -193,6 +263,13 @@ HalfEmitter("*0xc52190", "hfma2_fields")
 HalfEmitter("*0xa3ed80", "hadd2_selector")
 if os.environ.get("SM75_HALF_TRACE_RULES"):
     HalfOperandEligibility("*0x820960", internal=True)
+if os.environ.get("SM75_HALF_TRACE_REWRITES"):
+    PromotionRewrite("*0x820ba0", internal=True)
+if os.environ.get("SM75_HALF_TRACE_FRONTEND"):
+    PtxRoundingPolicy("*0x62e890", internal=True)
+    PtxRoundingAttribute("*0x650220", internal=True)
+    FrontendPrecision("*0xc09a90", internal=True)
+    InstructionPrecision("*0x92c240", internal=True)
 if os.environ.get("SM75_HALF_WATCH_CVT"):
     # Use a single-entry PTX input: this consumes two hardware watchpoints.
     WatchFirstHalfConversion("*0xc6508d", internal=True)

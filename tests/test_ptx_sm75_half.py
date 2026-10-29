@@ -100,3 +100,54 @@ def test_rounding_controls_preserve_conversion_boundary(name,conversion_opcode,o
     consumers=[(d,f) for d,f in rows if d.klass.mnemonic in ('HADD2','HMUL2','HFMA2') and d is not conversion[0]]
     assert [d.klass.mnemonic for d,_ in consumers]==opcodes
     assert not any(v=='F32' for _,f in consumers for n,v in f.items() if n.startswith('iswz'))
+
+
+def test_implicit_half_sum_can_write_float(compiled_sm75_half):
+    rows=decoded(compiled_sm75_half['half_add_then_widen_implicit'])
+    additions=[(d,f) for d,f in rows if d.klass.mnemonic=='HADD2']
+    assert len(additions)==1
+    d,form=additions[0]
+    assert form['ofmt']=='F32'
+    assert (form['iswzA'],form['iswzB_as_C'])==('H0_H0','H1_H1')
+    assert d.env['Ra']!=255 and d.env['Rc']!=255
+    assert any(d.klass.mnemonic=='LDG' for d,_ in rows)
+    assert any(store.klass.mnemonic=='STG' and store.env['Rb']==d.env['Rd'] for store,_ in rows)
+
+
+def assert_half_sum_then_widen(code):
+    additions=[(d,f) for d,f in decoded(code) if d.klass.mnemonic=='HADD2']
+    assert [f['ofmt'] for _,f in additions]==['F16_V2','F32']
+    first,second=(d for d,_ in additions)
+    assert first.env['Ra']!=255 and first.env['Rc']!=255
+    assert second.env['Ra']==first.env['Rd'] and second.env['Rc']==255
+    assert additions[1][1]['Rc@negate']=='set'
+
+
+def test_explicit_half_sum_rounds_before_widening(compiled_sm75_half):
+    assert_half_sum_then_widen(compiled_sm75_half['half_add_then_widen_rn'])
+
+
+def test_no_fmad_keeps_implicit_half_sum_boundary(tmp_path):
+    output=tmp_path/'sum.cubin'
+    source=ROOT/'tests/ptx/fp16/sm75_half_sum_widen.ptx'
+    subprocess.run([PTXAS,'-O3','--fmad=false','-arch=sm_75',str(source),'-o',str(output)],
+                   check=True,capture_output=True)
+    sections=cubin.text_sections(output.read_bytes())
+    assert_half_sum_then_widen(sections['.text.half_add_then_widen_implicit'])
+
+
+@pytest.mark.parametrize('name,consumer_opcodes', [
+    ('mul_packed_0_rz_implicit',['HMUL2']),
+    ('mul_add_packed_0_rz_implicit',['HMUL2','HADD2']),
+])
+def test_no_fmad_keeps_implicit_mixed_input_boundary(name,consumer_opcodes,tmp_path):
+    output=tmp_path/'input.cubin'
+    source=ROOT/'tests/ptx/fp16/sm75_implicit_rounding.ptx'
+    subprocess.run([PTXAS,'-O3','--fmad=false','-arch=sm_75',str(source),'-o',str(output)],
+                   check=True,capture_output=True)
+    rows=decoded(cubin.text_sections(output.read_bytes())['.text.'+name])
+    half=[(d,f) for d,f in rows if d.klass.mnemonic in ('HADD2','HMUL2','HFMA2')]
+    assert [d.klass.mnemonic for d,_ in half]==['HADD2']+consumer_opcodes
+    conversion,form=half[0]
+    assert form['iswzA']=='F32' and conversion.env['Rc']==255
+    assert all(v!='F32' for _,f in half[1:] for k,v in f.items() if k.startswith('iswz'))

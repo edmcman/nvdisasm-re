@@ -48,7 +48,18 @@ The optimized matrix has 21 HADD2 F32-source instructions (17 conversions,
 four mixed sums), four mixed HMUL2 and three mixed HFMA2.
 `tests/ptx/fp16/sm75_implicit_rounding.ptx` retains twelve informative controls.
 These traces permit arithmetic contraction and do not establish exact SM75
-hardware precision. No nonzero HADD2.F32 output sum was found.
+hardware precision.
+
+A subsequent scalar `add.f16` followed by `cvt.f32.f16` emits a single
+`HADD2.F32` with two nonzero half inputs; explicit `add.rn.f16` retains the
+half result and separate widening. `--fmad=false` also retains the boundary.
+Paired live traces show that `--fmad=false` marks the implicit half add and
+multiply with the explicit-rounding barrier flag `0x2000` before the first
+recorded compiler phase, causing the promotion predicate to reject them.
+`tests/ptx/fp16/sm75_half_sum_widen.ptx` and
+`tests/test_ptx_sm75_half.py` preserve these compiler controls. Neither
+emission alone establishes whether the fused result passes through half
+precision before reaching the float destination.
 
 Stable regression PTX is in `tests/ptx/fp16/sm75_*.ptx`.
 `tests/test_ptx_sm75_half.py` checks actual selector fields, conversion removal,
@@ -102,6 +113,13 @@ all 30 captured half words exactly, with no control masking. Add
 `SM75_HALF_TRACE_RULES=1` to the capture command below and use
 `sm75_implicit_rounding.ptx` to reproduce it. Two additional functions and
 the refined promotion predicate were annotated and saved in Ghidra.
+The follow-up `internal/output-promotion.jsonl.gz` and paired cubin capture
+the two result-promotion rewrites and six exact matching encoder records.
+`output-promotion-validation.json` pins their input, tool and checksums.
+Use `SM75_HALF_TRACE_REWRITES=1` with the sum fixture to reproduce the trace.
+`internal/contraction-policy.tar.gz` retains the paired default and
+`--fmad=false` single-entry inputs, phase dumps, captures and cubins; its
+validation manifest checks the rejection and emitted words.
 
 Reproduce the clean control capture using a fresh output path:
 

@@ -813,6 +813,10 @@ These are backend checks; instruction-form evidence remains separate.
 - SM75/SM80 `.F32` result of the ordinary HADD2 classes: native only with a `-RZ` operand (SM80's md
   requires `-RZ` as Ra; ptxas sm_75 writes `HADD2.F32 Rd, Ra.H0_H0, -RZ.H0_H0` for `cvt.f32.f16`). The
   sum of two nonzero operands stays opaque: whether it rounds to binary16 before widening is unknown.
+  With implicit rounding, ptxas 13.0.88 emits the nonzero form for `add.f16` followed by widening;
+  explicit `.rn` or `--fmad=false` keeps the half-result boundary. This is compiler evidence, not an
+  SM75 hardware measurement. The controls and live output-selector rewrite are in
+  `research/ptxas/sm75-half-2026-10-29/`.
 - Swizzles and HMNMX2's per-format NaN test/order are `select_lookup` values (forking on them made SM90
   18.75 MB).
 - HADD2.F32 is native on SM86/89/90/100/101/103/120: it adds the selected low half lanes from `-RZ` and

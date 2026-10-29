@@ -44,8 +44,10 @@
     point is unresolved. Live ptxas RE explains the earlier rejected HMUL2
     conversion promotion: explicit `.rn` sets a flag that blocks the rewrite.
     New default-rounding controls emit mixed HADD2/HMUL2 and contracted HFMA2
-    with F32 inputs in every operand position. These contraction-permitted
-    traces establish emission, but not exact GPU rounding. A precision-preserving
+    with F32 inputs in every operand position, and a two-input HADD2.F32
+    when a half sum is widened. Explicit rounding and `--fmad=false` prevent
+    the latter fusion. These contraction-permitted traces establish emission,
+    but not exact GPU rounding. A precision-preserving
     lowering or SM75 autocase GPU observation would settle these forms;
     no SM75 GPU evidence was created.
 - SM107 semantics still inferred (2026-10-14; the rest has ptxas 13.4 / PTX 9.4 / cuda_fp8.hpp evidence, `docs/semantics.md`): Rd[31:16] of the scaled F2FP downconverts (taken as Rc[15:0]; ptxas passes 0), VISET's packed 16x2/8x4 lanes (ptxas only emits .S32/.U32), NaN results of FH*2's F16/BF16 outputs, and `.FTZ` of the F16x2-result FHADD2/FHMUL2 (PTX defines `.ftz` for half types generally, not in §9.7.5). Opaque: FH*2/FFMA2 `.FMZ`, `.NP` on broadcasts, UE5M3 upconverts, E8 downconvert. An SM107 GPU would settle all of them.

@@ -1142,3 +1142,102 @@ controls, not to all compiler inputs. These new traces permit contraction,
 so they do not settle the exact arithmetic precision of a directly encoded
 mixed instruction. The existing HADD2 source model remains inferred;
 HMUL2/HFMA2 source precision remains opaque. No SM75 GPU was used.
+
+### Nonzero float-result add and constant evaluation follow-up
+
+Further runtime-input tracing found the missing nonzero output form:
+`add.f16` followed by `cvt.f32.f16` emits
+`HADD2.F32 R7, R2.H0_H0, R2.H1_H1` at O3. Its word is
+`30720702020000300048000000d04f00`. Explicit `add.rn.f16` instead
+retains a half-result HADD2 and a separate widening HADD2.F32.
+`--fmad=false` prevents this fusion and the previously observed mixed
+HMUL2/HFMA2 input fusions. These are compiler controls, not measured SM75
+arithmetic results.
+
+Paired single-entry traces explain the `--fmad=false` effect. Before the
+first recorded phase (`OriCheckInitialProgram`), ptxas marks otherwise
+implicit half `add` and `mul` with ORI flag `0x2000`, the same barrier
+seen with explicit `.rn`. The default packed multiply reaches
+`0x820960` as `0x11a`; source index 2 is accepted, and the conversion
+is promoted away. With `--fmad=false`, it reaches the same predicate as
+`0x211a`; index 2 is rejected and the conversion remains. The implicit
+half sum similarly reaches the predicate as `0x10e` (destination index 0
+accepted) or `0x210e` (rejected), respectively. The flag thus explains
+why this option blocks the transformations; the tests do not establish
+the value semantics of an unblocked instruction.
+`internal/contraction-policy.tar.gz` preserves three PTX inputs, five
+compiler captures and cubins, and four phase dumps. The adjacent validation
+manifest pins their checksums and confirms exact emitted word membership.
+
+The flag's origin is now traced through the frontend. In the same single
+multiply, entry to `lower_ptx_instruction_to_ocg` (`0x62e890`) has
+`backend+0x772f` and PTX rounding byte `instruction+0x39` equal to `(0, 0)`
+for default, `(1, 0)` for `--fmad=false`, and `(0, 0x10)` for explicit
+`.rn`. With contraction disabled, the eligible multiply case writes `0x10`
+at `0x643fbd` (watchpoint PC `0x643fc2`). The frontend's
+`encode_ptx_arithmetic_rounding_attributes` (`0x650220`) maps that
+rounding byte to descriptor attribute `0x90` value `0xbc`;
+`encode_ocg_instruction_attribute` (`0x917a60`) sets descriptor bit 29.
+`0xa2f940` copies it to DAG node `+0x14`, and
+`dag_floating_precision_barrier` (`0x6bcb20`) reads it.
+`select_ori_instructions` sets context byte `+0x100` at `0xc0f0b4`;
+`create_and_insert_lowering_ir_instruction` (`0x92c240`) uses that byte
+to add ORI flag `0x2000` for the eligible half opcode. The paired archive
+contains the frontend observations, and the writer and readers are annotated
+in Ghidra. These establish precisely why the compiler rejects promotion, not
+the arithmetic performed by the promoted instruction.
+
+Two finite examples distinguish the unresolved models, without claiming a
+hardware result. A float source `0x3f801001` multiplied by half `1.0`
+produces half `0x3c00` if first narrowed RZ, versus `0x3c01` if retained
+through the product and rounded RN to half. The same example distinguishes
+an FMA with a half-zero addend. For HADD2.F32, half inputs `0x3c00` and
+`0x1000` produce float `0x3f800000` if the sum is rounded RN to half first,
+versus `0x3f801000` if written as the exact float sum. These are calculated
+model predictions, not observations.
+
+An all-phase trace localizes output fusion to `GeneralOptimizeMid2`, after
+`MidExpansion` constructs packed ORI opcode `0x10e`. The wrapper at
+`0xc5f7e0` uses legacy target vtable `0x21d82b0` slot `+0xc0`, pointing
+to `0x84ec30`, now `optimize_legacy_arithmetic_and_half_promotion`.
+The live call chain reaches `0x821370` and `0x820ba0`: destination index
+0 of HADD changes the last control operand from `0x60000000` to
+`0x60000001`, retaining nominal type 7 and both half sources. Source index
+1 of the widening conversion changes its control from `0x601cc000` to
+`0x6018c000`; the resulting identity conversion is removed through
+`0x82151e` and `0x9253c0`. This corrects the earlier negative emission
+statement; it does not establish whether the hardware retains or discards
+the original half-result rounding boundary.
+
+The numerical constant search identified the following additional paths:
+
+| Address | Ghidra name | Established role |
+| --- | --- | --- |
+| `0x8211a0` | `rewrite_half_move_at_float_promotion_boundary` | Rewrites MOV/conversion boundaries according to promotion analysis. |
+| `0x817630` | `check_half_float_conversion_promotion_policy` | Checks conversion types, rounding and target policy. |
+| `0x849110` | `optimize_legacy_constant_operands_early` | Legacy early optimizer walks instructions and rewrites constant sources. |
+| `0xa9d9b0` | `rewrite_legacy_constant_sources_and_simplify` | Calls source rewrite hooks, then instruction simplification. |
+| `0x92c0d0` | `simplify_ori_instruction_in_place` | Updates an instruction through the general simplifier. |
+| `0x926a30` | `simplify_ori_operands_and_opcode` | General ORI normalization and opcode simplification. |
+| `0x91a0f0` | `resolve_ori_operand_value_type` | Resolves packed per-operand type selectors. |
+| `0x859bd0` | `evaluate_float32_constant_multiply` | Evaluates ordinary FP32 constant multiply through `0x868130`. |
+| `0xa8e4d0` | `classify_legacy_integer_simplification_opcode` | Restricted opcode/type hook; excludes these packed-half arithmetic opcodes. |
+| `0x7db270` | `evaluate_generic_typed_constant_multiply` | Multiplies decoded constants as host doubles, using one nominal type. |
+| `0x7db1e0` | `decode_typed_floating_constant_as_double` | Dispatches decoding of already typed constants. |
+| `0x91dc00` | `decode_binary16_constant_as_double` | Decodes already stored half bits; does not narrow FP32 inputs. |
+| `0xaeb330` | `expand_packed_float32_arithmetic_to_scalar` | Splits packed nominal-F32 arithmetic into scalar operations; its caller excludes nominal-F16 forms. |
+
+These functions were renamed, commented and saved in the connected Ghidra
+`ptxas` program, alongside the new output-promotion comments at `0x820ba0`
+and `0x821370`. The inspected constant evaluator is not an established
+numerical model for mixed packed-half instructions. HMUL2/HFMA2 input
+rounding and exact nonzero HADD2.F32 arithmetic remain unresolved.
+An isolated synthetic compiler experiment introduced the SM75-style F32
+source selector into SM80 ORI after `GeneralOptimizeMid2`; later legalization
+did not expand it. The resulting HMUL2 word
+`32720702030000000004000000ca4f00` fails strict SM80 machine-description
+legality. This was debugger-mutated IR, not normal compiler emission or
+GPU execution; it cannot establish a fallback model.
+Local compiler captures are under `.cache/request5-sm75/`:
+`nonzero-add-{all-phases,phases}.txt`, `nonzero-add-precision.jsonl`,
+`nonzero-add-traced.cubin`, and `optimizer-target.jsonl`.
