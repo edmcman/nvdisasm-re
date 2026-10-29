@@ -73,6 +73,9 @@ def test_unencoded_format_operand_cannot_change_value():
     ('MOV R999, R0', 'syntax'),
     ('MOV R0 R1', 'syntax'),
     ('MOV R0, R1, R2', 'syntax'),
+    ('MOV R0, 1.5', 'syntax'),
+    # No CAS form takes a .64 address; the suffix must not parse as an offset.
+    ('ATOMG.E.CAS.STRONG.GPU PT, R0, [R2.64], R4, R5', 'syntax'),
     ('MOV R0, R1 @sched(typo=1)', 'unknown scheduling'),
     ('NOP @sched(req_bit_set=64)', 'outside'),
     ('NOP @sched(usched_info=TYPO)', 'expected a USCHED_INFO'),
