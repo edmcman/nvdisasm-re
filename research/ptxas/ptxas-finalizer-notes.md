@@ -1052,8 +1052,10 @@ The search retains separate conversion before HMUL2/HFMA2, float arithmetic
 before narrowing, and negative-zero widening operands. It does not reproduce
 the earlier reported nonzero-operand HADD2 fusion. These negatives apply only
 to this compiler and matrix; they do not establish unsupported hardware
-encodings. General mixed HADD2 arithmetic remains an inferred source model;
-HMUL2/HFMA2 `.F32` precision and nonzero HADD2.F32 sums remain opaque.
+encodings. At this stage general mixed HADD2 arithmetic retained an inferred
+source model; HMUL2/HFMA2 `.F32` precision and nonzero HADD2.F32 sums were
+opaque. The subsequent compiler-backed models are described in
+`docs/semantics.md`.
 Live compiler tracing subsequently established the SM75 legacy encoder path:
 `0xc5dbb0` → `0x1bb27e0`, with HADD2 selection at `0xa3ed80`, HMUL2
 selection at `0xa3f250` and field emission at `0xc529c0`, and HFMA2 selection
@@ -1139,9 +1141,10 @@ are in `internal/implicit-validation.json`.
 
 The earlier negative emission statements apply to explicit-rounding
 controls, not to all compiler inputs. These new traces permit contraction,
-so they do not settle the exact arithmetic precision of a directly encoded
-mixed instruction. The existing HADD2 source model remains inferred;
-HMUL2/HFMA2 source precision remains opaque. No SM75 GPU was used.
+so they do not independently measure arithmetic precision on a GPU.
+Subsequent analysis of the standalone conversion-and-operation traces
+supports the inferred RZ input model now used for unflushed HMUL2/HFMA2.
+No SM75 GPU was used.
 
 ### Nonzero float-result add and constant evaluation follow-up
 
@@ -1230,8 +1233,9 @@ The numerical constant search identified the following additional paths:
 These functions were renamed, commented and saved in the connected Ghidra
 `ptxas` program, alongside the new output-promotion comments at `0x820ba0`
 and `0x821370`. The inspected constant evaluator is not an established
-numerical model for mixed packed-half instructions. HMUL2/HFMA2 input
-rounding and exact nonzero HADD2.F32 arithmetic remain unresolved.
+numerical model for mixed packed-half instructions. Subsequent analysis of
+the PTX inputs and emitted instructions supports the inferred input rounding
+and half-rounded widening models documented in `docs/semantics.md`.
 An isolated synthetic compiler experiment introduced the SM75-style F32
 source selector into SM80 ORI after `GeneralOptimizeMid2`; later legalization
 did not expand it. The resulting HMUL2 word

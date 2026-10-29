@@ -30,9 +30,11 @@ def blocked_reason(op,form,cls=''):
             and op not in ('HADD2','HMUL2',*FMA_OPS)
             and not (mixed and op in ('HSET2','HSETP2'))):
         return 'packed source-sign numerical corpus remains manual'
-    allowed = SWIZZLES | ({'F32'} if op in ('HADD2','HSET2','HSETP2') else set())
+    allowed = SWIZZLES | ({'F32'} if op in ('HADD2','HMUL2','HFMA2','HSET2','HSETP2') else set())
     if any(n.startswith('iswz') and v not in allowed for n,v in form.items()):
         return 'mixed-precision and sign-swizzle lane corpus remains manual'
+    if mixed and op in ('HMUL2','HFMA2') and form.get('fmz', 'nofmz') in ('FTZ', 'FMZ'):
+        return 'mixed F32 input with FTZ or FMZ remains unresolved'
     if form.get('xorsign','noxorsign')!='noxorsign' or 'isA' in form:
         return 'min/max XORSIGN and source-predicate outputs remain manual'
     if op in ('HADD2','HMUL2',*FMA_OPS) and form.get('ofmt','F16_V2')!='F16_V2':
@@ -89,10 +91,13 @@ def literal_move(c, k, form):
 
 def widening(c, k, form):
     from tests.harness import autocases
+    if c.arch == 'SM75':
+        return widening_sm75(c, k, form)
     names = [source(k, 'Ra'), source(k, 'Rc', 'Sc', 'URc')]
     zero = next((n for n in names if n in k.operand_types
                  and k.operand_types[n].type in ('Register', 'ZeroRegister')
-                 and form.get(n+'@negate') == 'set' and form.get(n+'@absolute', 'unset') == 'unset'), None)
+                 and form.get(n+'@negate') == 'set'
+                 and (c.arch == 'SM80' or form.get(n+'@absolute', 'unset') == 'unset')), None)
     if zero is None:
         raise autocases.Unsupported('F32 half widening requires an explicit negative zero register')
     other = next(n for n in names if n != zero)
@@ -122,6 +127,60 @@ def widening(c, k, form):
                                   sat=form.get('sat') == 'SAT'))
         if result is not None:
             s.add({s.output(('Rd',), 8): result}, form, portable=True)
+    return c
+
+
+def widening_sm75(c, k, form):
+    """Both half inputs may be nonzero in SM75's F32-result HADD2."""
+    from tests.harness import autocases
+    names = [source(k, 'Ra'), source(k, 'Rc', 'Sc', 'URc')]
+    if not all(names): raise autocases.Unsupported('unsupported widening source layout')
+    swizzles = ['iswzA', source(k, 'iswzB_as_C', 'iswzB')]
+    selectors = [form.get(sw, 'H1_H0') for sw in swizzles]
+    if any(sw not in SWIZZLES | {'F32'} for sw in selectors):
+        raise autocases.Unsupported('unresolved widening source swizzle')
+    if form.get('sat', 'nosat') not in ('nosat', 'SAT'):
+        raise autocases.Unsupported('unresolved widening saturation')
+    zero = next((n for n in names if getattr(c, 'operand_constraints', {}).get(n) == 'RZ'), None)
+    if form.get('ftz') == 'FTZ' and 'F32' in selectors and zero is None:
+        raise autocases.Unsupported('F32 widening with mixed input and FTZ remains unresolved')
+
+    spec = autocase_profiles.PROFILES['half_forms']
+    values = tuple(dict.fromkeys(spec['F16'] + spec['widening']))
+    vectors = [(v, values[(j + 3) % len(values)]) for j, v in enumerate(values)]
+    vectors += [(0x3c003c00, 0x10001000), (0x10001000, 0x3c003c00)]
+    mixed = [sw == 'F32' for sw in selectors]
+    if any(mixed):
+        mixed_spec = autocase_profiles.PROFILES['half_f32_sources']
+        vectors = [tuple(mixed_spec['floats'][(j + 3 * n) % len(mixed_spec['floats'])]
+                         if mixed[n] else v for n, v in enumerate(pair))
+                   for j, pair in enumerate(vectors)]
+        vectors += [tuple(x if is_float else half for is_float in mixed)
+                    for x, half in mixed_spec['pairs']]
+        if all(mixed): vectors += list(mixed_spec['float_pairs'])
+
+    for j, raw in enumerate(vectors):
+        s = autocases.Inputs(c, k, form)
+        inputs = []
+        for n, value, reg, selector in zip(names, raw, (4, 6), selectors):
+            if n == zero:
+                s.fields[n] = 'RZ'
+                value = 0
+            else:
+                value = operand(s, n, value, reg)
+            inputs.append(float.half_source(value, selector,
+                                             form.get(n+'@absolute') == 'set',
+                                             form.get(n+'@negate') == 'set')[0])
+        sat = form.get('sat') == 'SAT'
+        ftz = c.fp == 'exact' and form.get('ftz') == 'FTZ'
+        if c.fp == 'exact':
+            if float.underflow_band('add', inputs, 16): continue
+            result = float.rounded('add', inputs, 16, ftz=ftz, sat=sat)
+        else:
+            result = float.readable('add', inputs, 16, sat=sat)
+        result = None if result is None else float.widen_half(result)
+        if result is not None:
+            s.add({s.output(('Rd',), (4, 6, 2)[j % 3]): result}, form, portable=True)
     return c
 
 
@@ -188,7 +247,33 @@ def half(c,k,form):
         vectors += [(tuple(x if is_float else half for is_float in mixed),p,None)
                     for x,half in spec['pairs'] for p in (0,1)]
         if all(mixed):
-            vectors += [(pair,p,None) for pair in spec['float_pairs'] for p in (0,1)]
+            vectors += [(tuple(pair[n % len(pair)] for n in range(len(mixed))),p,None)
+                        for pair in spec['float_pairs'] for p in (0,1)]
+        if op in ('HMUL2', 'HFMA2') and mixed.count(True) == 1:
+            index = mixed.index(True)
+            # Neutral operands isolate input rounding even when a PTX multiply/add contracts.
+            neutral = [0x3c003c00, 0x3c003c00] if op == 'HMUL2' else [0x3c003c00, 0x3c003c00, 0]
+            if op == 'HFMA2' and index == 2: neutral[0] = 0
+            for value in (0x3f801800, 0xbf801800, 0x7fc12345, 0xffc54321, 0x7f812345, 0xff812345):
+                raw = list(neutral)
+                raw[index] = value
+                vectors.append((tuple(raw), 0, None))
+            for other in range(len(names)):
+                if other == index: continue
+                for half_nan in (0x7e55, 0xfe23, 0x7d01, 0xfc17):
+                    raw = list(neutral)
+                    raw[index] = 0x3f800000
+                    raw[other] = half_nan | (half_nan << 16)
+                    vectors.append((tuple(raw), 0, None))
+            if op == 'HMUL2' or index < 2:
+                raw = list(neutral)
+                raw[index] = 0x7f800000
+                raw[1 - index] = 0
+                vectors.append((tuple(raw), 0, None))
+            else:
+                raw = list(neutral)
+                raw[0], raw[1], raw[2] = 0, 0x7c007c00, 0x3f800000
+                vectors.append((tuple(raw), 0, None))
         if op == 'HADD2' and mixed.count(True) == 1:
             other = names[mixed.index(False)]
             if (k.operand_types[other].type in ('Register','ZeroRegister')

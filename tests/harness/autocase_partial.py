@@ -17,13 +17,13 @@ ROWS = {
     'IADD': 'ordinary 32-bit add and Pu=PT',
     'VABSDIFF4': 'Pu=PT',
     'VIMNMX': 'Pu=Pv=PT where present',
-    'HADD2': 'F32 widening with a negative zero register operand',
+    'HADD2': 'F32 widening; negative zero register operand where required',
     'HFMA2': 'ordinary register factors plus literal half lanes; default literal-move row',
     'HFMA2.MMA': 'ordinary register factors plus literal half lanes; default literal-move row',
 }
 
 
-def operands(k, form):
+def operands(k, form, arch=None):
     """Fixed operand fields, applied before reference inputs are constructed."""
     op = k.mnemonic
     fields = {}
@@ -39,9 +39,11 @@ def operands(k, form):
         from tests.harness import autocase_packed_fp
         if autocase_packed_fp.constant_move(op, form, k.name):
             fields.update(Ra='RZ', Rb='RZ')
-        elif op == 'HADD2' and form.get('ofmt') == 'F32':
+        elif (op == 'HADD2' and form.get('ofmt') == 'F32'
+              and (arch != 'SM75' or form.get('ftz') == 'FTZ'
+                   and any(n.startswith('iswz') and v == 'F32' for n, v in form.items()))):
             for n in ('Ra', 'Rc'):
-                if n in k.operand_types and k.operand_types[n].type in ('Register', 'ZeroRegister') and form.get(n+'@negate') == 'set' and form.get(n+'@absolute', 'unset') == 'unset':
+                if n in k.operand_types and k.operand_types[n].type in ('Register', 'ZeroRegister') and form.get(n+'@negate') == 'set' and (arch == 'SM80' or form.get(n+'@absolute', 'unset') == 'unset'):
                     fields[n] = 'RZ'
                     break
     return fields
