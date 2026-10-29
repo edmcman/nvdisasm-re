@@ -1,4 +1,4 @@
-"""Build the processor's Ghidra loader and analyzers against the selected installation."""
+"""Build the processor's Ghidra loader, analyzers and filesystem against the installation."""
 import os
 import shutil
 import subprocess
