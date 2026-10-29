@@ -97,7 +97,7 @@ def candidates(arch, cls, form, fp='exact', profiles=None, native=True):
     c.deferred = True
     if cls not in c.classes: raise Unsupported('alternate or absent instruction class')
     k = c.classes[cls]
-    c.operand_constraints = autocase_partial.operands(k, form)
+    c.operand_constraints = autocase_partial.operands(k, form, arch)
     if k.mnemonic not in OPS:
         raise Unsupported('needs a reference/operand adapter')
     profiles = autocase_profiles.names(k.mnemonic, cls, form) if profiles is None else profiles

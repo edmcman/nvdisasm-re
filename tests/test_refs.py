@@ -69,6 +69,17 @@ def test_double_minmax_bits():
         assert double_minmax(one,q,is_min) == one
 
 
+def test_sm75_mixed_half_reference_boundaries():
+    from tests.refs import float
+    # This input is closer to the next half under RN, but RZ selects 1.0.
+    source = float.half_source(0x3f801800, 'F32')
+    assert source == (0x3c00, 0x3c00)
+    assert float.half2('mul', [source, (0x3c00, 0x3c00)]) == 0x3c003c00
+    assert float.half2('fma', [source, (0x3c00, 0x3c00), (0, 0)]) == 0x3c003c00
+    # 1 + 2^-11 is halfway between two half values, so RN-even gives 1.
+    assert float.widen_half(float.rounded('add', [0x3c00, 0x1000], 16)) == 0x3f800000
+
+
 @pytest.mark.parametrize('fmt', ['U32', 'S32', 'U64', 'S64'])
 @pytest.mark.parametrize('direction', ['L', 'R'])
 @pytest.mark.parametrize('mode', ['C', 'W'])

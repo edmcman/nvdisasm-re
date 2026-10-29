@@ -661,8 +661,9 @@ cases and fixtures contribute verification evidence.
 No SM75 GPU was used. New ptxas traces establish HADD2 conversion's packed
 high-lane duplication and RZ conversion folding into HSET2/HSETP2 comparisons.
 These are compiler evidence, documented in `docs/semantics.md`, and create no
-SM75 GPU verification. General mixed HADD2 arithmetic retains inferred input
-precision; HMUL2/HFMA2 `.F32` sources remain unresolved.
+SM75 GPU verification. Mixed HADD2/HMUL2/HFMA2 F32 inputs and SM75 two-input
+HADD2.F32 now use compiler-backed inferred models; no new GPU observations
+were made. Mixed-input FTZ/FMZ ordering and SM75 NaN bits remain unverified.
 The follow-up SM89 shared fp16 run passed 8,484 scenarios with 43 emulator-only
 exclusions after extending the SM75 comparison adapter. It verifies the
 affected SM89 cases, not the SM75-only F32 selectors. Live compiler RE and
@@ -672,4 +673,5 @@ Further compiler-only investigation found that default-rounding add/mul can
 fold RZ conversion into mixed HADD2/HMUL2, and implicit mul/add can contract
 to mixed HFMA2 in all three operand positions. Explicit `.rn` inhibits that
 promotion. This corrects the scope of the earlier negative compiler findings;
-it adds no SM75 hardware evidence and does not establish exact input precision.
+it adds no SM75 hardware evidence. Standalone conversions plus half operations
+support the inferred input rounding when the compiler preserves the PTX result.

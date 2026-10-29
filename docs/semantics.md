@@ -791,17 +791,29 @@ These are backend checks; instruction-form evidence remains separate.
   consumers in either position. Implicit mul/add contracts to HFMA2 with an
   F32 input in each of its three positions. RN/RM/RP input conversions and
   explicit arithmetic `.rn` retain separate conversions in these controls.
-  These contraction-permitted traces support the existing inferred HADD2
-  model but do not establish exact SM75 arithmetic rounding. HMUL2/HFMA2
-  `.F32` source precision therefore remains unresolved and opaque.
+  The standalone add/mul traces contain no multiply-add to contract: if
+  ptxas preserves the explicit RZ conversion's observable result, the emitted
+  mixed HADD2/HMUL2 must produce the same result as conversion followed by
+  the half operation.
+  A neutral-operand example also distinguishes input conversion in each
+  contracted HFMA2 position without depending on product rounding.
+  This is compiler-backed functional inference, not an SM75 hardware
+  measurement. HADD2, HMUL2 and HFMA2 now use that model for their legal
+  `.F32` inputs, including multiple inputs: RZ-narrow each F32 source to F16,
+  broadcast it, then perform the half operation. NaN canonicalization follows
+  the shared SM89-established half model and is inferred on SM75. General
+  mixed HMUL2/HFMA2 inputs with FTZ or FMZ stay opaque until the flushing
+  order is established; constant zero-factor shortcuts retain their existing
+  treatment.
   SM80+ forbid these selectors. Exact words and bounded findings are in
   `research/ptxas/sm75-half-2026-10-29/`.
   Live ptxas tracing identifies the difference: explicit rounding sets ORI
   flag `0x2000`, blocking the packed-source promotion exception; omitting it
   accepts the same RZ-converted register. The encoder and optimizer policy
-  still do not prove whether hardware narrows before arithmetic or retains
-  F32 precision until result rounding. This uncertainty concerns mixed half
-  instructions, not ordinary F32 arithmetic. Compact compiler
+  alone do not establish the functional rounding rule; the standalone PTX
+  lowering gives the conditional inference above, without revealing the
+  hardware's internal implementation. This concerns mixed half instructions,
+  not ordinary F32 arithmetic. Compact compiler
   captures are in that evidence directory's `internal/` subdirectory.
   Function addresses and roles are documented in
   `research/ptxas/ptxas-finalizer-notes.md`; annotations were saved in Ghidra.
@@ -810,12 +822,16 @@ These are backend checks; instruction-form evidence remains separate.
   both lanes, signed zeros, subnormals, saturation and NaNs. The former
   manual HADD2 `.F32` corpus is a profile supplement; retained cases contain
   only unresolved-form guards.
-- SM75/SM80 `.F32` result of the ordinary HADD2 classes: native only with a `-RZ` operand (SM80's md
-  requires `-RZ` as Ra; ptxas sm_75 writes `HADD2.F32 Rd, Ra.H0_H0, -RZ.H0_H0` for `cvt.f32.f16`). The
-  sum of two nonzero operands stays opaque: whether it rounds to binary16 before widening is unknown.
-  With implicit rounding, ptxas 13.0.88 emits the nonzero form for `add.f16` followed by widening;
-  explicit `.rn` or `--fmad=false` keeps the half-result boundary. This is compiler evidence, not an
-  SM75 hardware measurement. The controls and live output-selector rewrite are in
+- SM75 `.F32` result of the ordinary HADD2 classes supports both nonzero
+  operands using the compiler-backed model: round their low-lane sum to F16,
+  then widen it to F32. With implicit rounding, ptxas 13.0.88 emits this form
+  for `add.f16` followed by widening; explicit `.rn` or `--fmad=false` keeps
+  the half-result boundary in separate instructions. This is an inference,
+  not an SM75 hardware measurement. SM80's machine description requires Ra
+  to be `-RZ` for this result format; a two-nonzero-operand encoding is not
+  legal there. On SM75, a mixed F32 input with FTZ and a nonzero second
+  operand stays opaque; the existing negative-zero conversion remains native.
+  The controls and live output-selector rewrite are in
   `research/ptxas/sm75-half-2026-10-29/`.
 - Swizzles and HMNMX2's per-format NaN test/order are `select_lookup` values (forking on them made SM90
   18.75 MB).

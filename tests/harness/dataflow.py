@@ -41,6 +41,12 @@ def expected(g, d, optimized=False, ignore=()):
     """md register cells (reads, writes) of decoded instruction d; `ignore` names operands whose reads to skip."""
     reads, writes = set(), set()
     unused=set(ignore)
+    ofmt = d.klass.operand_types.get('ofmt')
+    formats = g.arch.enums.get(ofmt.type, {}) if ofmt else {}
+    half_f32_result = (d.klass.mnemonic == 'HADD2' and
+                       (d.klass.name.startswith('hadd2_F32') or
+                        ofmt is not None and 'F32' in formats and
+                        d.env.get('ofmt', formats.get(ofmt.default)) == formats['F32']))
     if optimized and d.klass.mnemonic in ('LOP3','ULOP3') and 'imm8' in d.env:
         lut=d.env['imm8']
         for bit,names in [(2,('Ra','Sa','URa')),(1,('Rb','Sb','URb')),(0,('Rc','Sc','URc'))]:
@@ -88,20 +94,20 @@ def expected(g, d, optimized=False, ignore=()):
         for role in o['role']:
             if role=='read' and o['name'] in unused:continue
             needed=cells
-            if (optimized and role=='read' and span==1 and d.klass.mnemonic=='HADD2'
-                    and d.klass.name.startswith('hadd2_F32')):
+            if optimized and role=='read' and span==1 and half_f32_result:
                 # HADD2.F32 widens only its low result lane. H1_H0 and H0_H0
                 # select the low half directly; H1_H1 selects the high half
-                # through a word shift. Modifiers and that shift retain a full
-                # word read in generated p-code.
+                # through a word shift. Low-half reads remain two bytes even
+                # with source sign modifiers.
                 selector={'Ra':'iswzA','Rc':'iswzB','URc':'iswzB'}.get(o['name'])
                 if selector not in d.klass.operand_types and o['name'] in ('Rc','URc'):
                     selector='iswzB_as_C'
                 atom=d.klass.operand_types.get(selector) if selector else None
-                if atom and not any(d.env.get((o['name'],attr),0)
-                                    for attr in ('absolute','negate')):
-                    h1h1=g.arch.enums[atom.type].get('H1_H1')
-                    if d.env.get(selector)!=h1h1:
+                if atom:
+                    enum = g.arch.enums[atom.type]
+                    selected = d.env.get(selector, enum.get(atom.default))
+                    low_half = {enum[n] for n in ('H1_H0', 'H0_H0') if n in enum}
+                    if selected in low_half:
                         needed=set(range(base+size*index,base+size*index+2))
             elif optimized and role=='read' and span==1 and (d.klass.mnemonic in ('HADD2','HFMA2','HMUL2','HMNMX2','HSET2','HSETP2')
                                                                or d.klass.mnemonic in ('FHADD2','FHFMA2') and o['name']=='Ra'):

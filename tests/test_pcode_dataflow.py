@@ -4,6 +4,10 @@ import json
 from collections import Counter
 import pytest
 from sass import synth
+from sass.assemble import encoding
+from sass.decode import pydecode
+from sass.sleigh.gen import Gen
+from sass.sleigh.registers import REG_FILES
 from tests.cases import f2fp
 from sass.check.pydecode_disasm import sample
 from tests.harness.select import arches, modes, require_languages, selected, skipped
@@ -13,6 +17,31 @@ from tests.harness.baseline import BASELINE
 from sass.paths import variant
 
 REAL_SAMPLE = 2000
+
+
+@pytest.mark.parametrize('absolute,negate', [(0, 0), (0, 1), (1, 0), (1, 1)])
+@pytest.mark.parametrize('swizzle,size', [('H1_H0', 2), ('H0_H0', 2), ('H1_H1', 4), ('F32', 4)])
+def test_sm75_f32_result_dataflow_uses_selected_input_width(swizzle, size, absolute, negate):
+    word = encoding.encode('SM75', 'hadd2__RR', Rd=8, Ra=2, Rc=4, ofmt='F32', iswzA=swizzle,
+                           **{'Ra@absolute': absolute, 'Ra@negate': negate})
+    decoded = pydecode.decode('SM75', bytes.fromhex(word))
+    reads, _ = dataflow.expected(Gen('SM75', 'exact'), decoded, optimized=True)
+    base, stride, *_ = REG_FILES['R']
+    cells = set(range(base + 2 * stride, base + 3 * stride))
+    assert reads & cells == set(range(base + 2 * stride, base + 2 * stride + size))
+
+
+@pytest.mark.parametrize('arch,cls', [('SM80', 'hadd2__RR'), ('SM89', 'hadd2_F32__RR')])
+@pytest.mark.parametrize('swizzle,size', [('H1_H0', 2), ('H0_H0', 2), ('H1_H1', 4)])
+@pytest.mark.parametrize('absolute,negate', [(0, 0), (1, 1)])
+def test_f32_result_dataflow_uses_selected_second_input_width(arch, cls, swizzle, size, absolute, negate):
+    word = encoding.encode(arch, cls, Rd=8, Ra='RZ', Rc=4, ofmt='F32', iswzB_as_C=swizzle,
+                           **{'Ra@negate': 1, 'Rc@absolute': absolute, 'Rc@negate': negate})
+    decoded = pydecode.decode(arch, bytes.fromhex(word))
+    reads, _ = dataflow.expected(Gen(arch, 'exact'), decoded, optimized=True)
+    base, stride, *_ = REG_FILES['R']
+    cells = set(range(base + 4 * stride, base + 5 * stride))
+    assert reads & cells == set(range(base + 4 * stride, base + 4 * stride + size))
 
 
 def words(arch, full):

@@ -2,10 +2,10 @@
   "counts": {
     "legal": 1515880,
     "unresolved_semantics": 868946,
-    "requirements": 199075,
+    "requirements": 199153,
     "manual": 0,
-    "blocked": 20567,
-    "covered_requirements": 178508,
+    "blocked": 20519,
+    "covered_requirements": 178634,
     "generated": 16673
   },
   "gaps": [
@@ -984,27 +984,9 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hadd2__RR",
-      "count": 24,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "ILLEGAL_INSTR_ENCODING_SASS_ONLY_ERROR: Disallowed specification: .ofmt cannot be .F32 when Ra != RZ": 36
-      }
-    },
-    {
       "cls": "hadd2__RU",
       "count": 576,
       "reason": "unresolved semantics"
-    },
-    {
-      "cls": "hadd2__RU",
-      "count": 24,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "F32 half widening requires an explicit negative zero register": 36
-      }
     },
     {
       "cls": "hfma2_mma__RCR_norelu",

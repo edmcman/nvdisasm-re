@@ -295,19 +295,18 @@ def literal_move_cost(c):
               dict(R8=reference("fma", [lanes(0x40003c00, negate=True), [0, 0], [0x4000, 0x3c00]]), __native=True))
 
 
-@retained('Unresolved SM75 mixed arithmetic precision and nonzero F32-result sums require explicit opaque guards.')
+@retained('SM75 mixed F32 inputs with unresolved FTZ/FMZ ordering require explicit opaque guards.')
 def single_source(c):
-    # Ordinary .F32 inputs and conversion/widening controls belong to the
-    # autocase profiles. Retain only the unresolved-form assertions here.
+    # Mixed inputs and two-source widening belong to the autocase profiles.
     if "hadd2__RR" not in c.classes: return
     def legal(cls, **fields):
         try: encoding.encode(c.arch, cls, **fields); return True
         except (KeyError, ValueError): return False
     sources = legal("hadd2__RR", Rd=8, Ra=2, Rc=4, iswzA="F32")
     if sources:
-        c.add("hfma2__RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6, iswzA="F32"), {}, dict(error="sass_opaque_HFMA2"))
-        c.add("hmul2__RR", dict(Rd=8, Ra=2, Rb=4, iswzA="F32"), {}, dict(error="sass_opaque_HMUL2"))
-    if legal("hadd2__RR", Rd=8, Ra=2, Rc=4, ofmt="F32"): c.add("hadd2__RR", dict(Rd=8, Ra=2, Rc=4, ofmt="F32"), {}, dict(error="sass_opaque_HADD2"))
+        c.add("hfma2__RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6, iswzA="F32", fmz="FMZ"), {}, dict(error="sass_opaque_HFMA2"), portable=True)
+        c.add("hmul2__RR", dict(Rd=8, Ra=2, Rb=4, iswzA="F32", fmz="FTZ"), {}, dict(error="sass_opaque_HMUL2"), portable=True)
+        c.add("hadd2__RR", dict(Rd=8, Ra=2, Rc=4, iswzA="F32", ofmt="F32", ftz="FTZ"), {}, dict(error="sass_opaque_HADD2"), portable=True)
 
 
 @retained('Seeded unfused and FTZ/FMZ readable formula regressions exceed the ordinary form profile.')

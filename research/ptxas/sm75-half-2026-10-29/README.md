@@ -47,8 +47,37 @@ RN/RM/RP input conversions also stay separate. O0 emits no F32 inputs.
 The optimized matrix has 21 HADD2 F32-source instructions (17 conversions,
 four mixed sums), four mixed HMUL2 and three mixed HFMA2.
 `tests/ptx/fp16/sm75_implicit_rounding.ptx` retains twelve informative controls.
-These traces permit arithmetic contraction and do not establish exact SM75
-hardware precision.
+The standalone add/mul controls do not contain a multiply-add to contract.
+For example, `mul_packed_0_rz_implicit` loads runtime inputs, applies
+`cvt.rz.f16.f32` and `mul.f16x2`, and stores the result. Its only arithmetic
+instruction is `HMUL2 R7, R2.F32, R3`, immediately followed by the store. If
+ptxas preserves this PTX's observable RZ conversion and multiplication, that
+particular instruction form must produce their combined result. For F32
+`0x3f801800` and two half `1.0` lanes, the PTX result is `0x3c003c00`;
+retaining the full F32 operand through multiplication and then rounding RN
+would give `0x3c013c01`. This is a compiler-backed inference conditional on
+the optimization contract and compiler correctness, not an SM75 GPU result
+or proof of the internal hardware pipeline. The mul/add-to-HFMA2 controls
+allow contraction, but choosing a half `1.0` multiplier and a `+0` addend
+makes product rounding irrelevant for an F32 multiplicand; choosing a zero
+product does the same for an F32 addend. With the same F32 input, each of
+the three emitted HFMA2 positions then has the same distinguishing expected
+bits. These examples do not establish all modifier and exceptional cases.
+The [CUDA 13.0 PTX ISA](https://docs.nvidia.com/cuda/archive/13.0.1/parallel-thread-execution/index.html#half-precision-floating-point-instructions-mul)
+specifies RN as the default for half multiplication and permits aggressive
+optimization of unqualified operations, including multiply-add contraction.
+
+As an independent generator, Mesa NAK at
+`393bf0d1467c4a7e208fd0d36b05b99438926079` has SM70+ encoders for HADD2,
+HMUL2 and HFMA2, but their IR inputs are F16v2 and their source-swizzle encoder
+does not offer the SM75 F32 selector. Its checked-in construction paths set
+the F32 output flag to false. It therefore supplies no independent rule for
+these forms. Its
+[IR](https://github.com/chaotic-cx/mesa-mirror/blob/393bf0d1467c4a7e208fd0d36b05b99438926079/src/nouveau/compiler/nak/ir.rs)
+and [SM70 encoder](https://github.com/chaotic-cx/mesa-mirror/blob/393bf0d1467c4a7e208fd0d36b05b99438926079/src/nouveau/compiler/nak/sm70_encode.rs)
+show the source types and available swizzles. CuLifter's HADD2 implementation rounds a half result before
+widening, but its shared half-operand reader handles packed-half swizzles and
+does not handle the F32 input selector; this is a model, not SM75 validation.
 
 A subsequent scalar `add.f16` followed by `cvt.f32.f16` emits a single
 `HADD2.F32` with two nonzero half inputs; explicit `add.rn.f16` retains the
@@ -57,9 +86,12 @@ Paired live traces show that `--fmad=false` marks the implicit half add and
 multiply with the explicit-rounding barrier flag `0x2000` before the first
 recorded compiler phase, causing the promotion predicate to reject them.
 `tests/ptx/fp16/sm75_half_sum_widen.ptx` and
-`tests/test_ptx_sm75_half.py` preserve these compiler controls. Neither
-emission alone establishes whether the fused result passes through half
-precision before reaching the float destination.
+`tests/test_ptx_sm75_half.py` preserve these compiler controls. If the
+unqualified PTX add's half-result boundary is preserved, its emitted form
+must return that half-rounded value widened to F32. For half inputs `0x3c00`
+and `0x1000`, this is `0x3f800000`; a direct F32 sum is `0x3f801000`. The
+unqualified add permits optimization, and these are compiler inferences, not
+SM75 GPU observations or evidence of the internal arithmetic stages.
 
 Stable regression PTX is in `tests/ptx/fp16/sm75_*.ptx`.
 `tests/test_ptx_sm75_half.py` checks actual selector fields, conversion removal,
@@ -104,7 +136,8 @@ arithmetic capability, and its false return is ignored by the exception.
 It does not distinguish
 whether a directly encoded mixed HMUL2/HFMA2 instruction narrows an F32 input
 before arithmetic or retains its precision until result rounding. The encoder
-also cannot establish this. Those forms remain opaque.
+also cannot establish this. The standalone PTX observations above support a
+functional RZ-input model; the unflushed forms now use it as an inference.
 
 `internal/implicit-controls.jsonl.gz` records the new consumer eligibility
 and final encoder path; `implicit-controls.cubin` is the same compiler run's

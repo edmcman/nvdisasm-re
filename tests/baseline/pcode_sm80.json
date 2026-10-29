@@ -3755,7 +3755,14 @@
 },
 "hadd2__RI": {
 "BRANCH": 1,
-"CALLOTHER": 1
+"COPY": 2,
+"FLOAT2FLOAT": 4,
+"FLOAT_ADD": 1,
+"FLOAT_NAN": 1,
+"INT_MULT": 1,
+"INT_RIGHT": 1,
+"INT_XOR": 2,
+"INT_ZEXT": 1
 },
 "hadd2__RR": {
 "CALLOTHER": 1,
@@ -3765,7 +3772,7 @@
 "hadd2__RU": {
 "BOOL_NEGATE": 1,
 "CBRANCH": 3,
-"COPY": 4,
+"COPY": 5,
 "FLOAT2FLOAT": 4,
 "FLOAT_ADD": 1,
 "FLOAT_LESS": 1,
