@@ -63,6 +63,7 @@ def main(config_path):
         from ghidra.app.plugin.processors.sleigh import SleighLanguageProvider
         from ghidra.program.model.lang import LanguageProvider
         from ghidra.program.util import DefaultLanguageService
+        from ghidra.app.util.opinion import QueryOpinionService
         ctor = SleighLanguageProvider.class_.getDeclaredConstructor(ResourceFile.class_)
         ctor.setAccessible(True)
         language_provider = ctor.newInstance(ResourceFile(File(config["ldefs"])))
@@ -72,6 +73,25 @@ def main(config_path):
         field = DefaultLanguageService.class_.getDeclaredField("languageService")
         field.setAccessible(True)
         field.set(None, language_service)
+
+        # The private language provider does not install its .opinion file in
+        # Ghidra's application resources. Load the checkout's generated mapping
+        # with Ghidra's own parser, after replacing the language service. Remove
+        # any installed CUDA opinions first so a local installation cannot mask
+        # a missing or broken checkout mapping.
+        initialize = QueryOpinionService.class_.getDeclaredMethod("initialize")
+        initialize.setAccessible(True)
+        initialize.invoke(None)
+        database = QueryOpinionService.class_.getDeclaredField("DATABASE")
+        database.setAccessible(True)
+        elf_opinions = database.get(None).get("Executable and Linking Format (ELF)")
+        if elf_opinions is not None:
+            elf_opinions.remove("190")
+        assert not QueryOpinionService.query("Executable and Linking Format (ELF)", "190",
+                                             str(0x6005904))
+        parse = QueryOpinionService.class_.getDeclaredMethod("parseFile", ResourceFile.class_)
+        parse.setAccessible(True)
+        parse.invoke(None, ResourceFile(File(str(Path(config["ldefs"]).with_name("sass.opinion")))))
 
     def import_module(fs, module):
         from sass.decode import cubin
@@ -85,6 +105,11 @@ def main(config_path):
         try:
             supported = LoaderService.getSupportedLoadSpecs(provider, LoaderService.ACCEPT_ALL, monitor)
             assert str(supported.firstKey().getName()) == "CUDA Cubin", str(supported)
+            cuda_specs = supported.get(supported.firstKey())
+            assert any(spec.isPreferred() and spec.getLanguageCompilerSpec() is not None and
+                       str(spec.getLanguageCompilerSpec().languageID) ==
+                       f"SASS:LE:64:{cubin.elf_arch(data).lower()}" for spec in cuda_specs), \
+                f"No preferred CUDA load specification for {module['path']}: {list(cuda_specs)}"
             # Let ELF opinions select the architecture, as the browser's Import action does.
             loaded = ProgramLoader.builder().source(provider).load()
             try:
