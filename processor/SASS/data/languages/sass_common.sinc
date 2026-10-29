@@ -1,7 +1,8 @@
 # Shared SASS definitions; tokens, fields and constructors are generated per arch into sass_smXX.slaspec.
 
 define endian=little;
-define alignment=16;
+# Permit raw or embedded instructions at arbitrary addresses; each instruction is still 16 bytes.
+define alignment=1;
 
 define space ram      type=ram_space      size=8 default;
 define space cbank    type=ram_space size=8;
