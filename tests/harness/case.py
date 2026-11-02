@@ -132,6 +132,7 @@ class Cases(list):
         super().__init__()
         self.arch, self.fp, self.md = arch, fp, ir.load(arch)
         self.classes = primary_classes(arch)
+        self.input_profile, self.exhaustive = None, False
 
     def add(self, cls, fields, registers, expected, portable=False, observe=None, hardware=None, **extras):
         """portable: valid for both lowerings even if the mnemonic is in READABLE_FLOATS. The word

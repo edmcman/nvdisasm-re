@@ -75,19 +75,19 @@ def arithmetic(c):
                       fmz='FTZ' if ftz else 'nofmz_hfma2', satrelu='SAT' if sat else 'nosat', **{'Ra@negate': int(negate)}),
                       dict(R2=x, R4=y, R6=z), dict(R2=want, __native=True))
         c.add('hfma2_mma__RRR', dict(Rd=2, Ra=2, Rb=4, Rc=6, fmz='FMZ'), {}, dict(error='sass_opaque_HFMA2_MMA'))
-        c.add('hfma2_mma__RRR', dict(Rd=2, Ra=2, Rb=4, Rc=6, ofmt='BF16_V2'), {}, dict(error='sass_opaque_HFMA2_MMA'))
     # Distinct broadcasts on each input and asymmetric immediate/constant lanes.
     x, y, z = 0x3c004000, 0x42004400, 0x38003c00
     for a, b, d in product(SWIZZLES, repeat=3):
         c.add("hfma2__RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6, iswzA=a, iswzB=b, iswzC=d), dict(R2=x, R4=y, R6=z),
               dict(R8=reference("fma", [lanes(x, a), lanes(y, b), lanes(z, d)]), __native=True))
     for cls, fields in [("hadd2__RI", dict(Rd=8, Ra=2, Sc=y >> 16, Sc1=y & 0xffff)), ("hfma2__RIR", dict(Rd=8, Ra=2, Sb=y >> 16, Sb1=y & 0xffff, Rc=6)),
-                        ("hadd2__RC", dict(Rd=8, Ra=2, Sc_bank=0, Sc_addr=0x100)),
-                        ("hfma2__RCR", dict(Rd=8, Ra=2, Sb_bank=0, Sb_addr=0x100, Rc=6)), ("hfma2__RRC", dict(Rd=8, Ra=2, Rb=4, Sc_bank=0, Sc_addr=0x104)),
+                        ("hadd2__RC", dict(Rd=8, Ra=2, Sc_bank=2, Sc_addr=0x100)),
+                        ("hfma2__RCR", dict(Rd=8, Ra=2, Sb_bank=2, Sb_addr=0x100, Rc=6)), ("hfma2__RRC", dict(Rd=8, Ra=2, Rb=4, Sc_bank=2, Sc_addr=0x104)),
                         ("hadd2__RU", dict(Rd=8, Ra=2, URc=4)), ("hfma2__RRU", dict(Rd=8, Ra=2, Rb=4, URc=6))]:
         fma = cls.startswith("hfma")
         want = reference("fma" if fma else "add", [lanes(x), lanes(y)] + ([lanes(z)] if fma else []))
-        c.add(cls, fields, dict(R2=x, R4=y, R6=z, UR4=y, UR6=z), dict(R8=want, __native=True), memory=[cbank(0, 0x100, y | (z << 32), 8)])
+        memory = [cbank(2, 0x100, y | (z << 32), 8)] if any(n.endswith('_bank') for n in fields) else []
+        c.add(cls, fields, dict(R2=x, R4=y, R6=z, UR4=y, UR6=z), dict(R8=want, __native=True), memory=memory)
     if 'hfma2_mma__RIR' in c.classes and 'ofmt' in c.classes['hfma2_mma__RIR'].operand_types:
         c.add('hfma2_mma__RIR', dict(Rd=8, Ra=2, Sb=y >> 16, Sb1=y & 0xffff, Rc=6),
               dict(R2=x, R6=z), dict(R8=reference('fma', [lanes(x), lanes(y), lanes(z)]), __native=True))
@@ -105,14 +105,13 @@ def arithmetic(c):
                 regs, memory = {"R2": x, "R4": x}, []
                 if typ in ("F16Imm", "UImm"): fields.update(Sb=y >> 16, Sb1=y & 0xffff)
                 elif src == "Rb" or typ in ("UniformRegister", "C"):
-                    put(k, src, y, fields, regs, memory, 6, bank=(0, 0x100)); fields["iswzB"] = sb
+                    put(k, src, y, fields, regs, memory, 6, bank=(2, 0x100)); fields["iswzB"] = sb
                 else: continue
                 a, b = lanes(x, sa, bool(i & 1), bool(i & 2)), lanes(y, sb if "iswzB" in k.operand_types else "H1_H0")
                 if fmt == "F16_V2": got = [softfloat.arithmetic("mul", [a[lane], b[lane]], 16) for lane in (0, 1)]
                 else: got = [half_product(a[lane], b[lane], *MUL_FORMATS[fmt][1:], MUL_FORMATS[fmt][0]) for lane in (0, 1)]
                 if None in got: continue
                 c.add(k.name, fields, regs, dict(R2=got[0] | got[1] << 16, __native=True), memory=memory)
-    c.add("hadd2__RR", dict(Rd=8, Ra=2, Rc=4, ftz="FTZ"), {}, dict(error="sass_opaque_HADD2"))
     c.add("hfma2__RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6, fmz="FMZ"), {}, dict(error="sass_opaque_HFMA2"))
 
     for mode, sat in product(("FMZ", "FTZ"), (False, True)):
@@ -183,7 +182,7 @@ def minmax(c):
             fields = dict(Rd=8, Ra=2, Pp="PT", iswzA="H1_H0", iswzB="H1_H0", nan="nonan", ftz="noftz")
             if "xorsign" in c.classes[cls].operand_types: fields["xorsign"] = "noxorsign"
             regs, memory = {"R2": a}, []
-            put(c.classes[cls], source(c.classes[cls], "URb", "Sb"), b, fields, regs, memory, 4, bank=(0, 0x100))
+            put(c.classes[cls], source(c.classes[cls], "URb", "Sb"), b, fields, regs, memory, 4, bank=(2, 0x100))
             c.add(cls, fields, regs, {"R8": half_minmax(a, b, True), "__native": True}, memory=memory)
     # NVIDIA's HMNMX2 patent describes Pu/Pv as per-lane source indicators; IS_A enables
     # them and true denotes source A.
@@ -278,7 +277,7 @@ def comparisons(c):
                 if is_cx(k):
                     cx_fields, cx_regs, memory = cx_source(c.arch, k, b, y); f.update(cx_fields); regs.update(cx_regs)
                 elif typ in ("F16Imm", "F64Imm"): f.update(Sc=y >> 16, Sc1=y & 0xffff)
-                else: put(k, b, y, f, regs, memory, 4, ureg=6, bank=(0, 0x20))
+                else: put(k, b, y, f, regs, memory, 4, ureg=6, bank=(2, 0x20))
                 c.add(k.name, f, regs, expect(k.name, a, y, cmp="LT"), memory=memory, portable=True)
 
 
@@ -395,4 +394,16 @@ def gpu_fixtures(arch="SM89"):
         want = [widen_half(softfloat.arithmetic("add", [0x8000, lane(x)], 16, ftz=ftz == "FTZ", sat=sat == "SAT")) for x in packed]
         out.append(slot_fixture(f"hadd2_f32_{ftz}_{sat}_{selector}_{absolute}_{negate}", [], [(i, ~i & 0xffffffff, x) for i, x in enumerate(packed)], want, 8,
                                 final=encode("hadd2_F32__RR", arch=arch, **fields), nobarrier_emulation=True, arch=arch))
-    return out
+    return out + half_widen_fixtures(arch)
+
+
+def half_widen_fixtures(arch="SM89"):
+    import struct
+    from tests.harness import autocase_profiles, gpu
+    vectors = [(v, 0, 0) for v in autocase_profiles.V16]
+    vectors += vectors[:4]
+    image = gpu.compile("half_widen", "-O3", arch=arch)
+    return [gpu.Fixture("half_widen", image, "half_widen",
+                        b"".join(struct.pack("<III", *v) for v in vectors),
+                        [widen_half(v) for v, _, _ in vectors], vectors=vectors,
+                        targets=("HADD2.F32",), exit=True)]

@@ -591,7 +591,8 @@ the bits, while retaining rejection of other ambiguous provenance maps.
 Testing/environment: nvcc 13.0.88 lowers the SM90 scalar IMNMX fixture to VIMNMX.U32
 and several HADD2/HMUL2/HFMA2 fixtures to HFMA2.MMA. The constant-move patch uses `hfma2_mma__RRI` on SM90, corresponding to
 `hfma2_mma__RRI_norelu` on SM89. Using ordinary `hfma2__RRI` during the initial port
-incorrectly changed NaN canonicalization; the patch now preserves MMA. Target-execution checks
+changed the instruction class; that run did not establish a different NaN rule.
+The patch now preserves MMA. Target-execution checks
 name the actual instruction; independent expected values are unchanged.
 
 ## SETP aliases, FTZ widening and narrow conversions (2026-10-29)
@@ -675,3 +676,132 @@ to mixed HFMA2 in all three operand positions. Explicit `.rn` inhibits that
 promotion. This corrects the scope of the earlier negative compiler findings;
 it adds no SM75 hardware evidence. Standalone conversions plus half operations
 support the inferred input rounding when the compiler preserves the PTX result.
+## Half requests R1–R12 (2026-11-02, SM89)
+
+Device: NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0.
+Compiler fixtures use nvcc/ptxas 13.0.88, `-O3`, without fast math;
+the decoding oracle is nvdisasm 13.4.92. Discovery uses synthetic
+autocase encodings and `device_cases.observe`, independently of expectations.
+`research/half_precision_2026_11_02.py` reproduces the request forms and saves
+instruction words, original inputs, raw outputs, tool paths and SHA256s.
+The runtime `__half2float` fixture is compiler-generated, rather than synthetic.
+
+The V16 domain is the supplied 28 signed values: zeros, `0001`, `03ff`,
+`0400`, `0401`, `1c00`, `3c00`, `7bff`, infinities, quiet NaNs `7e00`,
+`7e01`, `7fff`, and signalling NaNs `7c01`, `7dff`. Representative
+two-source forms use all 784 ordered pairs. Three-source forms cover
+every pair of positions with the remaining source in `{+0, 1, +inf, qNaN}`;
+high lanes differ deterministically and duplicate vectors are removed.
+Swizzles and sign modifiers use smaller samples. BF16 has a separate
+24-value domain and rationally chosen witnesses.
+
+These are discovery counts, not verification credit:
+
+| Request | Observations | Established result |
+|---|---:|---|
+| R1 | 196 | HADD2.F32 H0_H0/H1_H1, FTZ/no-FTZ: every tested NaN sign/payload gives `0x7fffffff`. |
+| R2 | 18,839 | Ordinary HADD2/HFMA2 FTZ flush signed input subnormals and exact results below minimum normal, before rounding. SAT, half swizzles, absolute/negate and `-RZ` agree with that rule. |
+| R3 | 33,506 | MMA FTZ with SAT/RELU follows the same rule. HMUL2 FMZ still zeroes a zero/subnormal factor before multiplication, including multiplication by infinity. |
+| R4 | 1,904 | Min/max register predicates, inversion, both predicate values, signed-zero/two-NaN pairs and source modifiers agree with the existing reference. |
+| R6 | 17,178 | FMA midpoint witnesses require direct half rounding; overflow brackets, cancellation zeros and tiny-product/large-addend cases agree. |
+| R7 | 36 | Ordinary HFMA2 `-RZ, RZ, hi, lo` preserves finite/zero/subnormal/infinity bits and canonicalizes every NaN lane to `0x7fff`. |
+| R8 | 1,104 | Bank-2 H0_H0/H1_H1 comparison/min/max sources support negate, absolute and negate-absolute in the measured forms. |
+| R9 | 17,251 | Discovery includes equal sources and in-place H1 widening; shared regression profiles additionally cover each destination alias and independently false P1 guarding equal HSETP2 outputs. |
+| R10 | 32 | F2I.FTZ.F16.TRUNC.NTZ on H0 agrees bitwise on V16 and representable integer-boundary witnesses. |
+| R12 | 17,533 | HFMA2.BF16_V2 and RELU are fused, RN once, preserve subnormals and return canonical positive `0x7fff` NaNs. RELU is enabled by Pp. |
+
+R1 replaces an unmeasured `0x7fc00000` assumption; it is a widening
+instruction observation, independent of F2F conversion behavior.
+R3 distinguishes pre-rounding flushing: `0400 * 3bff` rounds to `0400`
+without flushing but gives `0000` with FTZ/FMZ; the negative witness gives
+`8000`. `1c00 * 1c00` also gives a subnormal result from normal inputs.
+R6's `(3c01, 3bff, 0009)` gives `3c01`, whereas a binary32 intermediate
+would give `3c00`; `(3c02, 3bff, 000f)` gives `3c01` rather than `3c02`.
+Both signs, and sums/FMA results bracketing ±65520, are included.
+R12's exact rational reference rejects input flushing on 2,593 observations;
+tiny addends on either side of a BF16 midpoint also distinguish binary32
+intermediate rounding.
+
+R5 changes harness bindings: retained affected constants now use bank 2,
+and immediate/uniform HADD2 cases no longer carry unused memory.
+R7's missing ordinary constant move was a planning gap: three-modifier
+interaction coverage did not select the entire required modifier
+conjunction. Explicit anchors now keep it in the shared plans.
+The shared GPU suite records reference-backed results in
+`tests/baseline/gpu_observations/SM89.jsonl`; raw discovery earns no evidence.
+The exhaustive SM89 verification passed 540 tests in 653.48 seconds:
+313,861 hardware scenarios, including the complete representative domains and the
+compiler-generated runtime widening fixture. The selection also contains
+326 emulator-only cases: 324 use driver-owned launch constants and two
+assert errors or opaque semantics. Reproduce with the existing private
+driver-library environment and
+`nice uv run pytest tests/test_cases_on_gpu.py tests/test_refs_on_gpu.py -m gpu --require-gpu --family fp16 --family conversions --exhaustive -q`.
+
+The final full-form audit added 113 explicit SM89 anchors. Regeneration
+changed the selection of 1,528 forms; an exhaustive follow-up through the
+same shared GPU harness passed all 74,336 scenarios, with no emulator-only
+cases, in 199.68 seconds (17 class-level tests). That audit checked each
+requested complete form against both the shared plan and its GPU evidence;
+covering each three-modifier interaction is insufficient for that purpose.
+
+A subsequent anchor review released 160 SM89 specifications. The regenerated
+plans preserve all existing three-way requirement coverage, while min/max's
+source modifiers, broadcasts and predicate inversion are audited separately.
+Original requested forms remain checked against their recorded reference-backed
+observations; discovery captures receive no credit. The revised default SM89
+half selection passed 10,223 hardware scenarios in 34.67 seconds (68 tests),
+with one emulator-only opaque/error assertion. This changes the regression
+selection, not the numerical findings above.
+
+Hardware claims above apply to the measured SM89 forms. Corresponding
+semantics on other architectures are inferred where the machine descriptions
+permit them. HADD2/HFMA2 FMZ and unresolved mixed-F32 flushing remain guarded.
+
+### Focused half request verification (2026-11-02)
+
+The subsequent request-by-request review replaced all 451 request-specific
+modifier-plan anchors with focused autocase input profiles. Their 548
+declared checks deduplicate to 545 exact SM89 scenarios. All passed bitwise
+reference-backed GPU verification as part of 13,184 default half/conversion
+hardware scenarios (203 tests, 35.62 seconds). The device and private-driver
+setup are unchanged. Instructions originate from the maintained adapters
+and native assembler; recorded observations retain their words, inputs and
+outputs. Generic three-way modifier coverage remains unchanged, including
+BF16 as a format selector.
+
+R10 now includes ten additional neighboring half values around integer
+thresholds. For F2I.FTZ.F16.TRUNC.NTZ.H0, inputs
+`3bff,3c00,3c01,3fff,4000,4001` produce integers `0,1,1,1,2,2`;
+their sign-bit partners produce `0,-1,-1,-1,-2,-2`, encoded in
+two's-complement 32-bit outputs. Together with V16 and the existing
+half-integer inputs, the focused conversion domain has 42 values.
+
+R12's focused BF16 domain contains 48 vectors, each checked with ordinary
+FMA and RELU enabled/disabled by its predicate. Added overflow brackets
+`7f7f * 3f80 + c`, for `c=7aff,7b00,7b01`, produce
+`7f7f,7f80,7f80`; sign-mirrored inputs produce
+`ff7f,ff80,ff80`. Added zero-times-infinity and opposed-infinity
+witnesses produce canonical positive NaN `7fff`. Existing exceptional,
+subnormal, fusion and rounding observations remain valid; reducing routine
+case generation does not change their numerical findings or verification
+scope.
+
+### Future SM75 hardware questions (2026-11-02)
+
+These are supplied hypotheses, not new numerical observations. SM75-only
+encodings must run on SM75 hardware, not SM89:
+
+| Form | Inputs | Half-rounding hypothesis | Alternative to distinguish |
+|---|---|---|---|
+| HMUL2.F32 H0_H0/H0_H0 | `3c01`, `3c01` | `3f804000` | Exact product `3f804008` |
+| HFMA2.F32, three H0_H0 sources | `3c01`, `3c01`, `+0` | `3f804000` | `3f804008` |
+| Two-source HADD2.F32 | `7bff`, `7bff` | Infinity `7f800000` | Finite sum `47ffe000` |
+| Two-source HADD2.F32 | `3c00`, `1000` | `3f800000` | `3f801000` |
+| HADD2 with F32 and H0_H0 sources | `3f801800`, `1000` | `3c003c00` | `3c013c01` |
+| HADD2.FTZ with F32 and H0_H0 sources | `35800000`, `0400` | `04000400` | `04100410` |
+
+Also test SAT/FTZ with F32-result multiply/FMA; FTZ with an F32 source
+in each multiply/FMA position; mixed-source signs, constants and high
+lanes in HMUL2/HFMA2/HSET2/HSETP2; widened NaNs and ordinary constant-move
+NaNs; and the full half corpus with default contraction enabled.
+SM89 observations do not settle those SM75 questions.

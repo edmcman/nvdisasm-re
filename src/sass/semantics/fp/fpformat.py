@@ -8,7 +8,7 @@ SASS conversions differ there (SATFINITE, E4M3 without infinity, canonical NaNs)
 Independent of tests/refs/fpformat.py, which is the oracle.
 """
 from typing import NamedTuple
-from sass.semantics.bitvec import Expr, concat, const, extract, is_const, ite, lnot, signed, sle, slt, smax, umin, zext
+from sass.semantics.bitvec import Expr, concat, const, extract, is_const, ite, lnot, op, signed, sle, slt, smax, umin, zext
 from sass.semantics.family import definition
 
 W = 32  # width of the exponent and significand arithmetic; 64 for formats wider than 32 bits
@@ -149,13 +149,8 @@ class Parts(NamedTuple):
 
 
 def leading(sig, bits):
-    """The position of the highest set bit of sig (< 2^bits); 0 for 0. A binary search: log2(bits) steps."""
-    lead, step = const(0, sig.w), 1 << (bits - 1).bit_length() - 1
-    while step:
-        high = (sig >> (lead + step)) != 0
-        lead = ite(high, lead + step, lead)
-        step >>= 1
-    return lead
+    """The position of the highest set bit of sig (< 2^bits); 0 for 0."""
+    return sig.w - 1 - op('lzcount', sig | 1)
 
 
 def parts(x, fmt, normalized=False):
@@ -169,6 +164,57 @@ def parts(x, fmt, normalized=False):
     lsb = (ite(e == 0, const(1, w), zext(e, w)) if f.ebits else const(1, w)) - (f.bias + f.mbits)
     top = lsb + (leading(sig, f.mbits + 1) if normalized else const(f.mbits, w))
     return Parts(sign, sig, lsb, top, is_nan, is_inf)
+
+def aligned(sig, lsb, grid):
+    shift = grid - lsb
+    right = umin(shift, const(sig.w - 1, sig.w))
+    rest = sig & ((const(1, sig.w) << right) - 1)
+    jammed = (sig >> right) | zext(rest != 0, sig.w)
+    return ite(sle(shift, const(0, sig.w)), sig << -shift, jammed)
+
+
+def fused_parts(a, b, c, fmt):
+    """Fused small-format arithmetic: exact significands, sticky alignment, one RN rounding.
+    NaNs and invalid operations give the format's canonical positive NaN."""
+    f = FORMATS[fmt]
+    if f.mbits > 10: raise ValueError('fused significands require at most 11 bits')
+    pa, pb, pc = (parts(x, fmt, normalized=fmt != 'BF16') for x in (a, b, c))
+    product = pa.sig * pb.sig
+    plsb = pa.lsb + pb.lsb
+    clsb, csig = pc.lsb, pc.sig
+    # BF16 exponent bounds retain at least ten bits even for a one-bit product.
+    ptop = plsb + (2 * f.mbits + 1 if fmt == 'BF16' else leading(product, 2 * (f.mbits + 1)))
+    ctop = pc.top
+    top = ite(product == 0, ctop, ite(csig == 0, ptop, smax(ptop, ctop)))
+    # The product has at most 22 significant bits; distant terms need only a sticky bit.
+    grid = top - 24
+    p, q = aligned(product, plsb, grid), aligned(csig, clsb, grid)
+    psign = pa.sign ^ pb.sign
+    total = ite(psign == 1, -p, p) + ite(pc.sign == 1, -q, q)
+    negative = slt(total, const(0, total.w))
+    magnitude = ite(negative, -total, total)
+    sign = ite(total == 0, psign & pc.sign, extract(total, total.w - 1, total.w - 1))
+    pinf = pa.inf | pb.inf
+    invalid = (pa.inf & (pb.sig == 0) & lnot(pb.inf)) | (pb.inf & (pa.sig == 0) & lnot(pa.inf))
+    invalid = invalid | (pinf & pc.inf & (psign != pc.sign))
+    nan = pa.nan | pb.nan | pc.nan | invalid
+    infsign = ite(pinf, psign, pc.sign)
+    p = Parts(ite(pinf | pc.inf, infsign, sign), magnitude, grid,
+              grid + leading(magnitude, 32), nan, pinf | pc.inf)
+    out_sign, mag, _ = round_parts(p, dest(fmt), rounding('RN'), general=True)
+    return concat(out_sign, extract(mag, f.ebits + f.mbits - 1, 0))
+
+@definition("fma.rn.bf16")
+def bf16_fused(a, b, c):
+    """BF16 fused multiply-add rounded once to nearest even, preserving subnormals.
+    NaN results are canonical positive 0x7fff (SM89)."""
+    return fused_parts(a, b, c, 'BF16')
+
+@definition("fma.rn.bf16x2")
+def bf16_packed(a, b, c):
+    """Two BF16 fused multiply-add lanes, rounded once to nearest even."""
+    return concat(*(bf16_fused(*(extract(x, lane * 16 + 15, lane * 16) for x in (a, b, c)))
+                    for lane in (1, 0)))
 
 
 def fixed_parts(x, frac_bits):

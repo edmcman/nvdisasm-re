@@ -102,6 +102,7 @@ class Lower:
                 x, y = (f"sass::sx<{v.w}>({self.value(v)})" for v in a)
                 return self.temp(w, f"sass::u64({x} {'<' if e.op == 'slt' else '<='} {y})")
             case "not": return self.temp(w, masked(f"(~{self.value(a[0])})", w))
+            case "lzcount": return self.temp(w, f"sass::lzcount<{a[0].w}>({self.value(a[0])})")
             case "neg": return self.temp(w, masked(f"({ty(w)}(0) - {self.value(a[0])})", w))
             case "shl" | "shr" | "sar": return self.temp(w, f"sass::{e.op}<{w}>({self.value(a[0])}, {self.value(a[1])})")
             case "zext": return self.temp(w, f"{ty(w)}({self.value(a[0])})")

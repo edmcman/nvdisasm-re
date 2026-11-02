@@ -32,12 +32,18 @@ def generate(c,k,form,profiles):
     values=spec['integers'] if op in ('I2F','I2FP') else spec['floats'][sw]
     if op=='F2I' and dw < 32:
         values=tuple(dict.fromkeys((*values, *autocase_profiles.narrow_conversion_values(sw,dw,dst.startswith('S')))))
+    if c.exhaustive and not c.input_profile and op == 'F2I' and src == 'F16' and (
+            form.get('ftz'), form.get('rnd'), form.get('ntz'), form.get('hsel')) == ('FTZ', 'TRUNC', 'NTZ', 'H0'):
+        values=tuple(dict.fromkeys((*values, *autocase_profiles.V16,
+                                   *autocase_profiles.narrow_conversion_values(sw,dw,dst.startswith('S')))))
     if op=='F2F' and (src,dst)==('F32','F64'):
         values=tuple(dict.fromkeys((*values,*autocase_profiles.PROFILES['f2f_widening_ftz'])))
     dense=autocase_profiles.PROFILES['conversion_boundaries']
     if k.operand_types[name].type in ('Register','UniformRegister') and form.get('ftz','noftz')=='noftz' and not any(n.endswith(('@absolute','@negate')) and v=='set' for n,v in form.items()):
         extra=dense['integers'] if op in ('I2F','I2FP') else dense['f2f16'] if op=='F2F' and sw==16 else dense['floats'][sw]
         values=tuple(dict.fromkeys((*values,*extra)))
+    if c.input_profile:
+        values = c.input_profile.values
     for j,raw in enumerate(values):
         s=autocases.Inputs(c,k,form)
         value=raw & ((1<<sw)-1)
@@ -62,7 +68,7 @@ def generate(c,k,form,profiles):
                 rounding=mode if c.fp=='exact' else 'RN'
                 if c.fp=='readable' and float.conversion_underflow(value,sw,dw): continue
                 result=float.f2f(value,sw,dw,rounding,form.get('ftz')=='FTZ')
-        out=s.output((dest,),4 if j%2 else 2)
+        out=s.output((dest,),c.input_profile.destination if c.input_profile else 4 if j%2 else 2)
         expected=pair(out,result) if dw==64 else {out:result}
         s.add(expected,form,portable=True)
     return c

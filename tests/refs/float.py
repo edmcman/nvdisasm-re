@@ -16,6 +16,14 @@ def rounded(op, inputs, width, mode="RN", ftz=False, sat=False, registers=None, 
     except that FP64 propagates the first NaN of Rb, Rc, Ra, quieted: the register as read, before
     -/|.| (`registers`, default `inputs`, in operand order Ra, Rb or Rc, Rc) (SM89, 2026-10-22)."""
     result = softfloat.arithmetic(op, inputs, width, mode, ftz, sat, scale)
+    if width == 16 and ftz:
+        parts = [softfloat.unpack(x, 16, ftz=True) for x in inputs]
+        if all(kind in ('finite', 'zero') for kind, _, _ in parts):
+            values = [v for _, _, v in parts]
+            exact = (values[0] + values[1] if op == 'add' else
+                     values[0] * values[1] * Fraction(2) ** scale + (values[2] if op == 'fma' else 0))
+            if 0 < abs(exact) < Fraction(2) ** -14:
+                return 0 if sat else int(exact < 0) << 15
     if softfloat.unpack(result, width)[0] != "nan": return result
     ra, *later = registers or inputs
     nans = [x for x in later + [ra] if softfloat.unpack(x, width)[0] == "nan"]
@@ -306,9 +314,9 @@ def f2ip_byte(bits, signed):
 
 
 def widen_half(bits):
-    """Exact F16 -> F32; None for NaN (payloads are not compared)."""
+    """HADD2.F32 widening: exact finite values, canonical +0x7fffffff for NaN (SM89)."""
     kind, sign, value = softfloat.unpack(bits, 16)
-    if kind == "nan": return None
+    if kind == "nan": return 0x7fffffff
     if kind == "inf": return (sign << 31) | 0x7f800000
     return softfloat.pack(value, 32, zero_sign=sign)
 

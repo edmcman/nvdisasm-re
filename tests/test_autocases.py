@@ -76,7 +76,8 @@ def test_generated_setp_equal_destinations(cls, fields):
     prefix = 'UP' if uniform else 'P'
     assert any(c.expected[prefix+'0'] != c.expected[prefix+'1'] for c in controls)
     minimum=tests.harness.autocases.generate('SM89',cls,settings('SM89',decoded),sample=0)
-    assert {c.hardware['sampling_floor'] for c in minimum} == {'setp-control','setp-alias','setp-disabled'}
+    floors = {'setp-control', 'setp-alias', 'setp-disabled'}
+    assert {c.hardware['sampling_floor'] for c in minimum} == floors
 
 
 @pytest.mark.parametrize('src', [16,32,64])

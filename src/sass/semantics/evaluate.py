@@ -6,6 +6,7 @@ module walks expressions and applies an instruction's writes. Registers are stor
 Widths are in bits; memory is byte-addressed.
 """
 from dataclasses import dataclass, field
+from functools import lru_cache
 from sass.semantics import bitvec
 from sass.semantics.bitvec import Expr, mask
 
@@ -41,11 +42,14 @@ class Unknown(Exception):
     """The expression needs a value the state can't provide (an unbound parameter)."""
 
 
+expanded = lru_cache(maxsize=128)(bitvec.lowered)
+
+
 def evaluate(e, state, params=None, memo=None, runtime=None):
     """e's value (its defined operators by their expansions); a primitive is computed by `runtime`
     (`sass.semantics.runtime.Runtime`)."""
     memo = {} if memo is None else memo
-    e = bitvec.lowered(e)
+    e = expanded(e)
     def ev(e):
         if not isinstance(e, Expr): return e
         if e in memo: return memo[e]

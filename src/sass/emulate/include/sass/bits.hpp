@@ -25,4 +25,16 @@ template <int W, class N> SASS_HD constexpr Bits<W> shl(Bits<W> x, N n) { return
 template <int W, class N> SASS_HD constexpr Bits<W> shr(Bits<W> x, N n) { return n < N(W) ? x >> int(n) : 0; }
 template <int W, class N> SASS_HD constexpr Bits<W> sar(Bits<W> x, N n) { return wrap<W>(Bits<W>(sx<W>(x) >> (n < N(W) ? int(n) : W - 1))); }
 template <int F, int T> SASS_HD constexpr Bits<T> sext(Bits<F> x) { return wrap<T>(Bits<T>(Signed<T>(sx<F>(x)))); }
+template <int W> SASS_HD constexpr Bits<W> lzcount(Bits<W> x) {
+  if constexpr (W > 64) {
+    u64 hi = u64(x >> 64);
+    return hi ? lzcount<64>(hi) - (128 - W) : (W - 64) + lzcount<64>(u64(x));
+  } else {
+#ifdef __CUDA_ARCH__
+    return __clzll(x) - (64 - W);
+#else
+    return std::countl_zero(u64(x)) - (64 - W);
+#endif
+  }
+}
 }  // namespace sass
