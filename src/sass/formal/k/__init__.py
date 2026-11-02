@@ -13,7 +13,7 @@ IMAGE = "nvdisasm-re-k:7.1.337"
 
 # Keep this explicit: a new executable IR operator requires a K rule, not an opaque fallback.
 OPERATORS = frozenset("""
-add sub mul and or xor not neg shl shr sar eq ne ult ule slt sle
+add sub mul and or xor not neg lzcount shl shr sar eq ne ult ule slt sle
 zext sext extract concat fadd fmul ffma nanresult flt fle feq fnan fconv
 const param reg load ite primitive
 """.split())
@@ -91,7 +91,7 @@ class Encoder:
             if isinstance(arg, bitvec.Expr): self.check(arg)
         if expr.op in bitvec.DEFINED: return
         op, args, width = expr.op, expr.args, expr.w
-        unary = {"not", "neg", "zext", "sext", "fnan"}
+        unary = {"not", "neg", "lzcount", "zext", "sext", "fnan"}
         binary = {"add", "sub", "mul", "and", "or", "xor", "eq", "ne", "ult", "ule", "slt", "sle",
                   "shl", "shr", "sar", "nanresult", "flt", "fle", "feq"}
         arity = {**dict.fromkeys(unary, 1), **dict.fromkeys(binary, 2),

@@ -29,7 +29,6 @@ module SASS-FLOAT
                | packBits(Int, Int, Int, String, Int) [function]
                | packRounded(Int, Int, Int, String, Int) [function]
                | fpOverflow(Int, Int, String) [function]
-               | log2Floor(Int) [function]
                | dyadicRound(Int, Int, String) [function]
                | roundedMagnitude(Int, Int, String, Bool) [function]
                | roundBump(Int, Int, Int, String, Bool) [function]
@@ -97,7 +96,7 @@ The all-ones exponent distinguishes infinity from NaN. Zero retains its sign.
 
 ## Magnitude and rounding
 
-`log2Floor` computes the leading-bit position for a positive integer.
+`log2Floor` from `SASS-BITS` computes the leading-bit position for a positive integer.
 Rounding separates the magnitude's quotient and remainder, then chooses
 whether to increment the quotient.
 
@@ -112,9 +111,6 @@ The sign is applied after rounding the magnitude. An exact quotient never
 receives an increment.
 
 ```k
-  rule log2Floor(X) => 0 requires X >=Int 1 andBool X <Int 2
-  rule log2Floor(X) => 1 +Int log2Floor(X >>Int 1) requires X >=Int 2
-
   // Rounding is performed once, including a fused multiply-add and scaled multiply.
   rule dyadicRound(S, D, _) => S <<Int D requires D >=Int 0
   rule dyadicRound(S, D, R) => (1 -Int (2 *Int boolBit(S <Int 0))) *Int

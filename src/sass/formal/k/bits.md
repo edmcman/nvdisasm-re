@@ -23,6 +23,7 @@ module SASS-BITS
                | boolBit(Bool) [function, total]
                | bv(String, Int, List, List) [function]
                | catBits(List, List) [function]
+               | log2Floor(Int) [function]
 
 ```
 
@@ -86,12 +87,21 @@ its oversized-count case shifts the signed value by $w-1$ and normalizes.
   rule bv("eq",  _, ListItem(A:Int) ListItem(B:Int), _) => boolBit(A ==Int B)
 ```
 
-## Comparisons
+## Leading zeros and comparisons
+
+Leading-zero count uses the operand width, including that width for zero,
+and normalizes the count to the result width. `log2Floor` gives the leading-bit
+position of a positive integer and is also used by floating-point rounding.
 
 Unsigned comparisons use the encodings directly. Signed comparisons use the
 operand widths in `WS`, independently of the one-bit result width.
 
 ```k
+  rule log2Floor(X) => 0 requires X >=Int 1 andBool X <Int 2
+  rule log2Floor(X) => 1 +Int log2Floor(X >>Int 1) requires X >=Int 2
+  rule bv("lzcount", W, ListItem(0), ListItem(X:Int)) => norm(X, W)
+  rule bv("lzcount", W, ListItem(A:Int), ListItem(X:Int))
+    => norm(X -Int 1 -Int log2Floor(A), W) requires A >Int 0
   rule bv("ne",  _, ListItem(A:Int) ListItem(B:Int), _) => boolBit(A =/=Int B)
   rule bv("ult", _, ListItem(A:Int) ListItem(B:Int), _) => boolBit(A <Int B)
   rule bv("ule", _, ListItem(A:Int) ListItem(B:Int), _) => boolBit(A <=Int B)

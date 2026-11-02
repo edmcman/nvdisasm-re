@@ -12,6 +12,7 @@ Ghidra decodes at run time, so a class's semantics must cover every word of the 
    keep the complete opaque fallback via `operations.dispatch`.
 """
 import itertools
+from types import SimpleNamespace
 from functools import cache
 from collections import defaultdict
 from dataclasses import dataclass, replace
@@ -21,6 +22,7 @@ from sass.semantics.family import Instruction, Illegal, Unmodelled, PR_BITS, REG
 import sass.semantics.families  # registers the families
 
 ELEMENT = {"R": 32, "UR": 32, "P": 1, "UP": 1}   # bits per register element
+SHARED = frozenset({"fma.rn.bf16x2", "add.ftz.f16x2", "mul.ftz.f16x2", "fma.ftz.f16x2"})
 def nbytes(w): return (w + 7) // 8
 
 
@@ -202,7 +204,7 @@ def without_nan_results(e, memo):
 def lowered_outputs(out):
     """out with its defined operators as their expansions (bitvec.lowered): SLEIGH has none."""
     memo = {}
-    x = lambda e: bitvec.lowered(e, memo)
+    x = lambda e: bitvec.lowered(e, memo, preserve=SHARED)
     return replace(out, writes={n: x(t) for n, t in out.writes.items()},
                    stores=tuple(replace(s, address=x(s.address), value=x(s.value), cond=x(s.cond)) for s in out.stores),
                    effects=tuple(replace(e, args=tuple(map(x, e.args))) for e in out.effects),
@@ -458,6 +460,9 @@ def determining_keys(values, assignments):
         seen = {}
         return any(seen.setdefault(t[:i] + t[i + 1:], v) != v for v, t in full)
     needed = [k for i, k in enumerate(universe) if necessary(i)]
+    if len(full) != len(rows):
+        needed += [k for k in universe if k not in needed and
+                   not determines(tuple(x for x in universe if x != k))]
     rest = [k for k in universe if k not in needed]
     for n in range(len(rest) + 1):
         for extra in itertools.combinations(rest, n):
@@ -525,10 +530,11 @@ class Code:
 class Lower:
     """Lower expressions into one constructor's Code, materializing shared nodes once."""
 
-    def __init__(self, b, code, uses, hoisted=frozenset()):
+    def __init__(self, b, code, uses, hoisted=frozenset(), context=()):
         # Names are numbered per constructor, so identical subtables are shared.
         self.b, self.code, self.uses, self.memo, self.serial = b, code, uses, [{}], 0
         self.hoisted = hoisted   # subtrees that live in their own value subtable
+        self.context = context
 
     def folded(self, e):
         """e computed while decoding, when its leaves are constants and plain immediate fields: a
@@ -644,6 +650,7 @@ class Lower:
     def lower(self, e):
         a, n = e.args, nbytes(e.w)
         match e.op:
+            case name if name in SHARED: return self.shared_call(e)
             case "const":
                 if n > 8: return self.local(e.w, Operand(f"zext({a[0]:#x}:8)", "expr"))
                 return Operand(f"{a[0]:#x}:{n}", "const")
@@ -671,6 +678,9 @@ class Lower:
                 return self.clean(e.w, self.truncated(expr(f"{v} >> {lo}", v), w, n))
             case "not" if e.w == 1: v = self.value(a[0]); return expr(f"!{v}", v)
             case "not": v = self.value(a[0]); return self.clean(e.w, expr(f"~{v}", v))
+            case "lzcount":
+                v = self.value(a[0])
+                return expr(f"(lzcount({v}) - {8 * nbytes(a[0].w) - a[0].w})", v)
             case "xor" if bitvec.is_const(a[1]) and a[0].op == "zext" and a[0].args[0].w % 8 == 0 \
                     and bitvec.value(a[1]) == bitvec.mask(a[0].args[0].w):
                 # Inverting the low bytes of a zero-extended value: zext(~x), as compact as written.
@@ -711,6 +721,22 @@ class Lower:
             case "add" | "sub" | "mul": return self.clean(e.w, self.binary(SLEIGH_OP[e.op], self.value(a[0]), self.value(a[1])))
             case op if op in SLEIGH_OP: return self.binary(SLEIGH_OP[op], self.value(a[0]), self.value(a[1]))
         raise NotImplementedError(f"lowering of {e.op}")
+
+    def shared_call(self, e):
+        g = self.b.g
+        signature = e.op, tuple(a.w for a in e.args), e.w
+        if signature not in g.shared_calls:
+            name = f"shared{len(g.shared_calls)}"
+            g.shared_calls[signature] = name, [dict() for _ in e.args]
+        name, arguments = g.shared_calls[signature]
+        for index, (argument, constructors) in enumerate(zip(e.args, arguments)):
+            code = Code()
+            value = Lower(self.b, code, count_uses([argument]), context=self.context).value(argument)
+            text = code.body(value, argument.w)
+            pat = code.pattern(g.class_constraints(self.b.k) + list(self.context))
+            constructors[pat, text] = None
+        self.b.refs.append(("sub", name))
+        return Operand(name, "name", frozenset({("sub", name)}))
 
     # ---- floating point: exactly rounded (the exact language) or the plain formula (readable) ----
     # Ghidra's float ops round to nearest at the operands' size. Exact results come from a wider
@@ -756,11 +782,24 @@ class Lower:
     def half_op(self, op, xs, scale):
         """binary16: a native product (as the FP32 one), else computed in binary64 (sums exact) or
         binary128 (FMA) and narrowed once."""
-        if op == "fmul" and not scale: return self.local(16, self.float_formula(op, xs, 2, 0))
+        if op == "fmul" and not scale:
+            r = self.local(16, self.float_formula(op, xs, 2, 0))
+            wide = [self.widen_float(x, 8) for x in xs]
+            exact = self.local(64, self.float_formula(op, wide, 8, 0))
+            return self.half_underflow(exact, r)
         n = 16 if op == "ffma" else 8
         wide = [self.widen_float(x, n) for x in xs]
         x = self.local(8 * n, self.float_formula(op, wide, n, scale))
-        return self.local(16, expr(f"float2float({x})", x))
+        r = self.local(16, expr(f"float2float({x})", x))
+        return self.half_underflow(self.widen_float(x, 8) if n == 16 else x, r) if op != "fadd" else r
+
+    def half_underflow(self, exact, rounded):
+        """Ghidra 12.x rounds (half, one) minimum subnormal to zero; IEEE rounds it up."""
+        mag = self.local(64, expr(f"{exact} & 0x7fffffffffffffff:8", exact))
+        band = self.local(1, expr(f"(0x3e60000000000000:8 f< {mag}) && ({mag} f< 0x3e70000000000000:8)", mag))
+        sign = self.truncated(self.local(64, expr(f"{exact} >> 48", exact)), 64, 2)
+        tiny = self.local(16, expr(f"({sign} & 0x8000:2) | 1:2", sign))
+        return self.local(16, expr(f"{rounded} ^ (({rounded} ^ {tiny}) * zext({band}))", rounded, tiny, band))
 
     def directed(self, op, xs, n, rnd, scale):
         """RZ/RP/RM: s = RN_wide(exact), residual e (TwoSum; zero for exact wide products),
@@ -884,12 +923,34 @@ class Lower:
         for values, tree in cases:
             cl = [c for k, v in zip(keys, values) if v is not None for c in clauses(self.b, k, v)]
             code = Code()
-            v = Lower(self.b, code, count_uses([tree]), shared).value(tree)
+            v = Lower(self.b, code, count_uses([tree]), shared, self.context + tuple(cl)).value(tree)
             text = code.body(v, e.w)
             constructors.append(('""', code.pattern(cl), "", text))
         table = self.b.g.subtable("sel", constructors)
         self.b.refs.append(("sub", table))
         return Operand(table, "name", frozenset([("sub", table)]))
+
+
+def shared_tables(g):
+    """Emit one pure expression body, with operand-form tables supplying its arguments."""
+    for (label, widths, width), (name, arguments) in g.shared_calls.items():
+        symbols = [f"{name}arg{index}" for index in range(len(arguments))]
+        for symbol, constructors in zip(symbols, arguments):
+            g.table_lines.extend(f'{symbol}: "" is {pat} {{ {text} }}'
+                                 for pat, text in sorted(constructors))
+        params = [bitvec.param(symbol, bits) for symbol, bits in zip(symbols, widths)]
+        tree = bitvec.lowered(bitvec.DEFINED[label].expand(*params))
+        b = SimpleNamespace(g=g, values={}, refs=[], serial=0)
+
+        class Parameters(Lower):
+            def folded(self, e): return None
+            def param(self, name, w):
+                return Operand(name, "name", frozenset({("sub", name)}))
+
+        code = Code()
+        value = Parameters(b, code, count_uses([tree])).value(tree)
+        text = code.body(value, width)
+        g.table_lines.append(f'{name}: "" is {code.pattern()} {{ {text} }}')
 
 
 class Fold:
@@ -1000,7 +1061,8 @@ def shared_subtrees(trees, b=None, leaves=frozenset()):
             n = stack.pop()
             if isinstance(n, Expr) and n not in out:
                 out[n] = None
-                if n not in leaves: stack.extend(reversed([a for a in n.args if isinstance(a, Expr)]))
+                if n not in leaves and n.op not in SHARED:
+                    stack.extend(reversed([a for a in n.args if isinstance(a, Expr)]))
         return out
     counts, direct = defaultdict(int), set()
     for t in trees:
@@ -1009,6 +1071,7 @@ def shared_subtrees(trees, b=None, leaves=frozenset()):
     # Even small shared parts: measured on SM89, hoisting everything shared gives the smallest .sla.
     shared = [n for n, c in counts.items() if c > 1 and n in direct and n.op not in ("const", "param", "reg") and not (b is not None and holds_load(b, n))]
     def below(n, seen):
+        if n.op in SHARED: return seen
         for a in n.args:
             if isinstance(a, Expr) and a not in seen: seen.add(a); below(a, seen)
         return seen
@@ -1022,7 +1085,7 @@ def count_uses(roots):
     def visit(e):
         if not isinstance(e, Expr): return
         uses[e] += 1
-        if uses[e] > 1 or e.op == "sel": return
+        if uses[e] > 1 or e.op == "sel" or e.op in SHARED: return
         for a in e.args: visit(a)
     for r in roots: visit(r)
     return uses
@@ -1041,14 +1104,14 @@ def predicate_writes(i, name, e):
     return [(f"P{k}", bitvec.extract(e, k, k)) for k in range(PR_BITS)]
 
 
-def lower_body(b, names, e):
+def lower_body(b, names, e, context=()):
     """Code for a merged body: a tuple writes `names`; a choice is a table of whole bodies."""
-    if e.op == "tuple": return lower_writes(b, list(zip(names, e.args)))
+    if e.op == "tuple": return lower_writes(b, list(zip(names, e.args)), context)
     keys, rows = e.args
     constructors = []
     for values, arm in rows:
-        code = lower_body(b, names, arm)
         cl = [c for k, v in zip(keys, values) if v is not None for c in clauses(b, k, v)]
+        code = lower_body(b, names, arm, context + tuple(cl))
         constructors.append(('""', code.pattern(cl), "", code.body()))
     table = b.g.subtable("body", constructors)
     b.refs.append(("sub", table))
@@ -1056,12 +1119,12 @@ def lower_body(b, names, e):
     return out
 
 
-def lower_writes(b, writes):
+def lower_writes(b, writes, context=()):
     """Code writing [(output name, Expr)]: shared values computed before any branch, later values
     captured before the first write (which may alias their inputs), the first write inline; then
     the control transfer (b.flow_kind) to the FLOW target if its condition holds."""
     code = Code()
-    low = Lower(b, code, count_uses([e for _, e in writes]))
+    low = Lower(b, code, count_uses([e for _, e in writes]), context=context)
     extra = dict(w for w in writes if pseudo(w[0]))
     # Effects (memory-ordering calls) come before any load the values do.
     for k, (name, nargs) in enumerate(b.effect_shapes):

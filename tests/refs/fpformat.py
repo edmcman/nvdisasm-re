@@ -77,6 +77,27 @@ def unpack(bits, src):
 
 def encode(fmt, sign, code): return (sign << (width(fmt) - 1)) | code
 
+def fused(a, b, c, fmt="BF16"):
+    """Independent rational FMA with canonical NaNs and one rounding (SM89 BF16)."""
+    (ka, sa, a), (kb, sb, b), (kc, sc, c) = (decode(fmt, x) for x in (a, b, c))
+    f = FORMATS[fmt]
+    inf = ((1 << f.ebits) - 1) << f.mbits
+    nan, sign = inf | ((1 << f.mbits) - 1), sa ^ sb
+    if "nan" in (ka, kb, kc) or ka == "inf" and b == 0 or kb == "inf" and a == 0: return nan
+    if "inf" in (ka, kb): return nan if kc == "inf" and sc != sign else encode(fmt, sign, inf)
+    if kc == "inf": return encode(fmt, sc, inf)
+    exact = (-a if sa else a) * (-b if sb else b) + (-c if sc else c)
+    zero_sign = (a == 0 or b == 0) and c == 0 and sign and sc
+    negative = exact < 0 if exact else zero_sign
+    code, overflow = round_magnitude(fmt, abs(exact), negative=negative)
+    return encode(fmt, negative, inf if overflow else code)
+
+
+def readable_bf16_fused(a, b, c):
+    value = softfloat.arithmetic("mul", [a << 16, b << 16], 32)
+    value = softfloat.arithmetic("add", [value, c << 16], 32)
+    return None if softfloat.unpack(value, 32)[0] == "nan" else narrow(value, "F32", "BF16", satfinite=False)
+
 
 def narrow(bits, src, fmt, rnd="RN", satfinite=True, relu=False, nan=None, overflow=None, scale=127):
     """Round an F32/F16/BF16 value, times 2^(127 - scale) (a UE8M0 scale; 255: NaN), to `fmt`.

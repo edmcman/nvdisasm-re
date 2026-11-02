@@ -655,3 +655,232 @@ while the lifter registers that choice as an 8-bit constant. Defined operators r
 their fixed expression arguments to agree, including widths. The test now uses the
 lifter's 8-bit selector and first lifts a scaled S2_6 instruction, so the registration
 conflict is exercised even when this test runs alone.
+## Half modifier planning and generation timing (2026-11-02)
+
+The SM89 half request suite adds explicit form anchors before constrained
+three-way planning. Three-way coverage guarantees each legal combination of
+three modifiers, but does not guarantee the entire conjunction used by an
+HFMA2 literal move. Its required conjunction is now an explicit anchor.
+Anchors use each architecture's enum labels; SM75 has no BF16 arithmetic
+label, and MMA's default no-flush spelling differs across architectures.
+SM107's pure-half HMUL2 format decodes to `F16_V2`, so the adapter accepts
+that normalized label as well as its `F16x2.F16x2.F16x2` spelling.
+The initial request audit checked each complete target form against both the shared
+SM89 plan and its reference-backed GPU evidence. Discovery coverage alone
+did not satisfy this check. Explicit anchors retained the requested FTZ
+swizzle/sign combinations, comparison/min/max constant forms, HMUL2 flush
+modes and the guarded HSETP2 alias form.
+The final audit adds 113 SM89 anchors (451 total in the new adapter), but
+only 40 net planned forms: 17,585 to 17,625. Constrained replanning selects
+1,528 new forms and removes 1,488; the exhaustive follow-up verifies every
+input of all 1,528 new forms.
+
+The new SM75 HADD2 FTZ rows exposed a generator performance bug. Some rows
+leave irrelevant modifiers unasked. `determining_keys` inferred mandatory
+keys only from rows asking every key, then searched thousands of subsets
+for these partial rows. A key is also mandatory when removing it from the
+complete key set makes two partial rows indistinguishable. Checking that
+condition preserves the chosen minimum key set and skips the needless search.
+The captured 13-row, 13-key cases fell from about 0.3 seconds to under
+1 millisecond; the six mandatory keys were unchanged.
+
+Sequential full manifest comparisons used all ten architectures, both FP
+modes, detailed coverage and the default 20 workers, under `nice`. The
+unchanged `101d313` archive took 59.82 seconds; the expanded half semantics
+took 172.72 seconds before the search fix and 62.94 seconds after it.
+All 40 specs/manifests were byte-identical before and after the search fix.
+The last timing included the lightweight 9-second anchor checks on another
+core. A separate SM100 exact comparison took 23.00 seconds unchanged and
+20.33 seconds with the expanded semantics: one architecture alone did not
+expose the SM75 regression. The initial two-minute estimate did not measure
+the full job and should not be used as a baseline.
+
+The shared-expression prototype exposed a second repeated-work cost: the Python
+evaluator expanded the same immutable BF16 expression for every input. An
+`uvx py-spy dump` of the final regression loop identified `bitvec.lowered`
+and `fpformat.fused_parts` as the active stack. Evaluation now caches at most
+128 expanded expressions; state reads and numerical results are still evaluated
+afresh. On 512 identical BF16 inputs, uncached expansion took 1.468 seconds
+and cached expansion 0.076 seconds, with identical output hashes. The focused
+55-test run took 13.49 seconds, compared with 69.54 seconds before caching
+while language builds were also running. Those suite timings have different
+contention and are not an isolated speedup measurement.
+
+A separate unchanged-domain comparison used 748 SM89 I2F/FRND forms from
+`101d313`, sample 0%, and the same frozen cases for evidence aggregation.
+Generation took 2.755 seconds in the archive and 2.310 seconds in the current
+checkout; request hashes matched. Median evidence aggregation took 0.00437
+and 0.00198 seconds, respectively, with matching result hashes. Other
+validation jobs were running, so these are checks for a large regression,
+not whole-refresh timing estimates. Expanded half domains deliberately do
+more work and are excluded from this identical-input comparison.
+
+The final all-architecture refresh completed in about four minutes after the
+validation jobs finished. The refreshed report has no hardware disagreements.
+All ten request-form audits and the two coverage checks pass (12 tests,
+11.67 seconds); they require each requested SM89 form to have shared GPU
+evidence. The final anchor checks passed 952 Python tests across architectures
+and FP modes, and 396 SM89 Ghidra tests across exact/readable modes.
+The regenerated half cases also pass all 132 SM89 native C++ tests across
+both FP modes (31.81 seconds).
+An isolated run of the two new regression modules, `test_half_evidence.py`
+and `test_modifier_merging.py`, passed 58 tests in 15.43 seconds. This measures
+their standalone cost, excluding the expanded shared domains. Comparable
+before/after wall times for the complete Python, Ghidra, native and GPU
+suites were not collected; the recorded totals are not incremental costs.
+
+A final sequential pipeline comparison used the complete tracked archive of
+`101d313387451b7fdafddba05d2e50cf734d3ed1` and the final checkout, each with
+its own manifests, plans, references and stored GPU observations. Both used
+the same Python interpreter, warm machine-description/oracle cache,
+`PYTHON_CPU_COUNT=20`, `PYTHONHASHSEED=0`, isolated outputs and `nice`.
+Generation, case streaming and evidence used 20 workers; planning used ten
+workers; compilation used eight compilers with the existing 4 GiB heap cap.
+These are single paired wall-time measurements across all ten architectures
+and both FP modes, with all families and the default 0% sweep sample.
+
+| Phase | Unchanged | Final | Added |
+|---|---:|---:|---:|
+| SLEIGH generation and detailed manifests | 55.96 s | 62.84 s | 6.87 s |
+| Autocase planning | 73.68 s | 97.77 s | 24.09 s |
+| Shared case generation | 99.67 s | 122.12 s | 22.46 s |
+| Evidence, including shared case generation | 136.35 s | 171.79 s | 35.44 s |
+| SLEIGH compilation | 36.58 s | 38.47 s | 1.89 s |
+| Coverage report rendering | 15.44 s | 15.73 s | 0.29 s |
+| Refresh stages: generation + evidence + report | 207.76 s | 250.36 s | 42.60 s |
+
+The refresh row sums separately measured stages; it excludes wrapper overhead.
+Case generation is already inside evidence, so those two rows must not be
+added together. Evidence checks stored GPU observations; these timings do not
+include launching new GPU tests. All ten regenerated plans matched their
+revision's saved plans, and all 20 languages compiled successfully.
+Failed benchmark setup attempts were discarded.
+
+Planned forms increased from 143,241 to 147,331, and coverage requirements
+from 1,774,892 to 1,834,054. Selected shared cases increased from 735,481 to
+766,875; all 31,394 added cases belong to `fp16`, whose count rose from
+143,975 to 175,369. Representative exhaustive input matrices also enlarge
+the candidate domains traversed before sampling, so selected-case growth
+alone does not measure the extra generation work. Reference evidence,
+including generation, adds 25.06 seconds; checks of stored SM89/SM90 GPU
+observations add 10.40 seconds.
+
+A five-second `uvx py-spy record` of the current SM89 planning worker captured
+499 samples without errors. The greedy coverage selector's `next` accounted
+for about 52% of sampled leaf time. This identifies the active planning
+hotspot, but does not attribute the entire before/after difference to it.
+The raw timings, per-phase metadata and benchmark scripts are retained locally
+in `.cache/half-pipeline-timings-2026-11-02/`; the planning profile is
+`.cache/half-pipeline-current-plan-SM89.speedscope.json`.
+
+The subsequent user review released 160 of the 451 SM89 anchor specifications:
+all 149 min/max anchors and 11 arithmetic controls or redundant sign/broadcast
+variants. At that stage, the remaining 291 comprised 26 arithmetic/conversion anchors and
+265 comparison anchors still awaiting review. Replanning reduces the ten
+architectures' total from 147,331 to 146,370 forms and SM89 from 17,625 to
+17,478. Requirement, covered and blocked counts are unchanged on every
+architecture. The run took 94.84 seconds; this is not an isolated timing
+comparison with the earlier run.
+
+Selected shared cases after the reduction total 764,953, of which 173,447
+belong to `fp16`: 1,922 fewer than before review and 29,472 more than the
+unchanged revision. Predicate comparisons still account for 25,464 of the
+added cases, value comparisons for 2,384, min/max for 334 and arithmetic/
+widening for 1,290. The comparison anchors had not yet been reviewed.
+The reduction passed 186 adapter/planner/regression tests, 896 all-architecture
+lifted tests over 173,389 scenarios, and 264 SM89 Ghidra/native tests; Ghidra
+checked 19,047 exact/readable scenarios. Default SM89 GPU validation passed
+10,223 hardware scenarios, with one intentional emulator-only error assertion.
+These execution totals are validation results, not incremental timing
+measurements. The final half-regression and refreshed-coverage checks passed
+59 tests in 33.21 seconds; the refreshed hardware verdicts contain no
+disagreements.
+
+Broadcast and sign operations decompose before min/max, with predicate inversion
+handled separately. The regression audit now checks F16 source/sign operations,
+each broadcast and each predicate-inversion setting separately, instead of
+requiring the entire fixed cross-product. Original requested complete forms are
+still generated and re-judged against their stored reference-backed GPU
+observations; they are not automatically credited as current planned evidence.
+That intermediate audit required surviving SM89 anchors to remain in the shared
+plan and have GPU evidence. It restricted metadata lookups to eligible,
+plannable half/F2I forms, preserving synthetic-row and wholly opaque-row handling.
+
+An anchor guarantees a complete modifier form, not its numerical inputs.
+`-RZ` scenarios need an architectural zero-register operand: adding negative
+zero preserves a negative-zero value where adding positive zero does not under
+RN. Flushing-order witnesses need normal inputs whose exact result is just below
+minimum normal but rounds up to it without flushing. These are input/operand
+regressions; their necessity does not establish a need to anchor every surrounding
+modifier combination. The per-specification review is retained locally in
+`.cache/half-anchor-review-2026-11-02.json`.
+
+### Focused request regressions (2026-11-02)
+
+The request-by-request review subsequently replaced all 451 original SM89
+anchor specifications with focused autocase input profiles. There are no
+remaining request-specific planner anchors. `autocase_half_requests` generates
+the retained scenarios through the ordinary packed/conversion adapters once
+per architecture and FP mode, independently of the modifier plan. The default
+stream keeps every applicable focused scenario; readable exclusions retain
+their documented approximation contract.
+
+| Request | Declared SM89 checks |
+|---|---:|
+| R1 NaN widening | 40 |
+| R2 ordinary FTZ | 30 |
+| R3 MMA FTZ/SAT/RELU and HMUL2 FMZ | 74 |
+| R4 min/max predicates and finite source modifiers | 114 |
+| R6 rounding, zeros and unary `-RZ` | 39 |
+| R7 ordinary literal move | 14 |
+| R8 constant-bank sign/broadcast operands | 36 |
+| R9 aliases and independent false guard | 15 |
+| R10 exact half-to-integer conversion | 42 |
+| R12 BF16 FMA/RELU | 144 |
+
+The 548 declared checks deduplicate to 545 exact SM89 scenarios. R4 comprises
+60 exceptional/predicate checks and 54 finite source-modifier checks. These
+counts describe the focused inputs, not new modifier requirements or net case
+growth. Source kinds and classes absent on an architecture are omitted.
+
+Routine modifier generation no longer constructs the V16 pair/triple or BF16
+matrices, or appends the request-specific rounding/unary/alias vectors to every
+planned form. Full matrices remain available at 100% sampling and through
+expectation-free discovery. The independent-false HSETP2 guard is now two
+focused scenarios rather than an additional sampling floor on every form.
+BF16 remains a format-selector value in the ordinary three-way plan.
+
+All ten plans retain identical requirement, covered and blocked counts.
+Planning took 80.04 seconds; this is not a new paired timing comparison.
+The plans contain 144,665 forms, including 17,284 on SM89. Validation passed
+3,046 lifted tests over 224,248 scenarios across the affected half/conversion
+families, all architectures and both modes; 804 SM89 Ghidra/native tests, with
+25,561 Ghidra scenarios; and 13,184 default SM89 hardware scenarios. The GPU
+selection also contains 326 existing emulator-only cases: 324 driver-owned
+launch-constant cases and two error assertions.
+
+An isolated comparison against unchanged revision `101d313`, with the same
+warm caches, 20 workers, all ten architectures and both modes, measured:
+
+| Phase | Unchanged | Focused profiles | Added time |
+|---|---:|---:|---:|
+| Default shared-case generation | 94.20 s | 96.46 s | 2.26 s |
+| Evidence generation, including shared cases | 133.39 s | 135.99 s | 2.59 s |
+
+These phases overlap in work and must not be added together. The default
+selection contains 747,838 cases versus 735,481 unchanged, an increase of
+12,357 (1.68%). Half cases are 155,492 versus 143,975; conversion cases are
+68,830 versus 67,990. Before the focused review, the selection contained
+766,875 cases and the paired increases were 22.46 and 35.44 seconds.
+The revised evidence phase spends 3.53 additional seconds checking retained
+SM89 observations; reference evidence including generation took 0.61 seconds
+less and SM90 checks took 0.25 seconds less. This accounts for the remaining
+cost without attributing ordinary timing variation to a speedup.
+Raw timings and isolated outputs are in `.cache/half-focused-pipeline/`.
+
+The final `sass-refresh-coverage` completed successfully. Its 747,838
+reference-backed cases match the isolated count; semantic class/status and
+opcode counts remain unchanged across all twenty languages. SM89 verdicts
+contain 9,245 passing half scenarios and 3,939 passing conversion scenarios,
+with no recorded hardware disagreements. The final adapter, request audit,
+modifier and coverage consistency checks passed 181 tests in 29.17 seconds.

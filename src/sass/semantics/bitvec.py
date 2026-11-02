@@ -130,6 +130,7 @@ OPS = {
     "or": lambda v, ws, w: v[0] | v[1],
     "xor": lambda v, ws, w: v[0] ^ v[1],
     "not": lambda v, ws, w: ~v[0] & mask(w),
+    "lzcount": lambda v, ws, w: (ws[0] - v[0].bit_length()) & mask(w),
     "neg": lambda v, ws, w: -v[0] & mask(w),
     # Shift counts are unsigned values of any width; shifting by >= the width gives 0 (or sign fill).
     "shl": lambda v, ws, w: (v[0] << v[1]) & mask(w) if v[1] < w else 0,
@@ -510,20 +511,21 @@ def substitute(e, mapping, memo=None):
     return out
 
 
-def lowered(e, memo=None, origin=None):
+def lowered(e, memo=None, origin=None, *, preserve=frozenset()):
     """e with each defined operator replaced by its expansion, lowered too (decode-time choices'
     arms included); the rest rebuilt, and so simplified and folded as if the expansions had been
-    built in place, only where that changes something. origin(expansion, node) hears each one."""
+    built in place, only where that changes something. origin(expansion, node) hears each one.
+    Labels in preserve retain their calls, with their arguments lowered."""
     memo = {} if memo is None else memo
     if not isinstance(e, Expr) or e.op in ("const", "param", "reg"): return e
     if e not in memo:
-        args = [lowered(a, memo, origin) for a in (e.args if e.op != "sel" else ())]
+        args = [lowered(a, memo, origin, preserve=preserve) for a in (e.args if e.op != "sel" else ())]
         match e.op:
             case "sel":
-                arms = tuple((v, lowered(t, memo, origin)) for v, t in e.args[1])
+                arms = tuple((v, lowered(t, memo, origin, preserve=preserve)) for v, t in e.args[1])
                 out = e if all(x is y for (_, x), (_, y) in zip(arms, e.args[1])) else Expr("sel", (e.args[0], arms), e.w)
-            case name if name in DEFINED:
-                out = lowered(DEFINED[name].expand(*args), memo, origin)
+            case name if name in DEFINED and name not in preserve:
+                out = lowered(DEFINED[name].expand(*args), memo, origin, preserve=preserve)
                 if origin: origin(out, e)
             case _: out = e if all(x is y for x, y in zip(args, e.args)) else rebuilt(e, args)
         memo[e] = out

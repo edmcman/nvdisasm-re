@@ -53,10 +53,11 @@ class Pending(NamedTuple):
     def modifier_form(self): return self.cls, tuple(sorted(self.modifiers.items()))
 
 
-def generate(arch, cls, form, fp='exact', profiles=None, native=True, sample=sampling.COMPLETE, profile_mode='full'):
+def generate(arch, cls, form, fp='exact', profiles=None, native=True, sample=sampling.COMPLETE, profile_mode='full', discovery=False, input_profile=None):
     """Choose reference-backed input descriptions before encoding the selected cases."""
     sample = sampling.percentage(sample)
-    c = candidates(arch, cls, form, fp, profiles, native)
+    c = candidates(arch, cls, form, fp, profiles, native, discovery=discovery,
+                   exhaustive=sample == sampling.COMPLETE, input_profile=input_profile)
     if profile_mode not in ('full', 'minimal'): raise ValueError('unknown generated profile mode')
     if profile_mode == 'minimal':
         if c.classes[cls].mnemonic in autocase_remaining.MEMORY | {'LDC', 'LDCU', 'ULDC'}:
@@ -90,11 +91,19 @@ def checked_word(arch, cls, fields, form, imad_alias=False):
         raise Unsupported('encoded instruction does not preserve the requested class/form')
     return word
 
+def encoded_form(arch, k, fields):
+    defaults = {n: 2 if n.endswith('_bank') else 0 for n, atom in k.operand_types.items()
+                if n.endswith(('_bank', '_addr', '_offset')) or atom.type.endswith('Imm')}
+    return settings(arch, pydecode.decode(arch, bytes.fromhex(encoding.encode(arch, k.name, **(defaults | fields)))))
 
-def candidates(arch, cls, form, fp='exact', profiles=None, native=True):
+
+def candidates(arch, cls, form, fp='exact', profiles=None, native=True, discovery=False, exhaustive=False, input_profile=None):
     """Describe reference-backed inputs for a full form, deferring encoding."""
     c = Cases(arch, fp)
     c.deferred = True
+    c.discovery = discovery
+    c.exhaustive = exhaustive or discovery
+    c.input_profile = input_profile
     if cls not in c.classes: raise Unsupported('alternate or absent instruction class')
     k = c.classes[cls]
     c.operand_constraints = autocase_partial.operands(k, form, arch)
@@ -181,6 +190,7 @@ def candidates(arch, cls, form, fp='exact', profiles=None, native=True):
 def finish(c, native):
     """Union overlapping profiles, rejecting inconsistent expectations for the same scenario."""
     if not c: raise Unsupported("input profiles produced no cases")
+    native = native and not getattr(c, 'discovery', False)
     unique = {}
     for case in c:
         if native:
@@ -240,6 +250,15 @@ class Inputs:
         The reference values were computed from the original inputs, so aliasing a
         destination with Pp or Pr never changes the second output's calculation.
         """
+        if profile := self.c.input_profile:
+            if profile.guard is not None:
+                self.fields.update(Pg=1, Pu=0, Pv=0)
+                self.registers.update(P1=0, P0=profile.guard)
+                self.add({'P0': profile.guard}, form, portable=True)
+            else:
+                pu, pv = self.output(('Pu',), 2), self.output(('Pv',), 3)
+                self.add(integer.predicate_outputs(u, v, pu, pv), form, portable=True)
+            return
         pu = self.output(('Pu', 'UPu'), 0)
         pv = self.output(('Pv', 'UPv'), 1)
         self.add(integer.predicate_outputs(u, v, pu, pv), form, portable=True,
@@ -265,6 +284,10 @@ class Inputs:
         if self.c.fp == 'readable' and not portable and self.k.mnemonic in READABLE_FLOATS: return
         hardware = extras.pop('hardware', None)
         observe = extras.pop('observe', None)
+        if getattr(self.c, 'discovery', False):
+            observe = observe or [n for n in expected if not n.startswith('__')]
+            expected = {}
+            hardware = dict(hardware or {}, probe=True)
         request = self.c.request(None, self.registers, expected, observe, dict(memory=self.memory, **extras))
         # These paths need the actual decoded class/environment to classify them.
         # They are small; keep their existing eager validation and alias behavior.
@@ -501,6 +524,9 @@ def family_forms(plans, arch, family):
 def stream(arch, fp, family, start=0, step=1, sample=sampling.DEFAULT):
     """The family's generated cases, form by form; with start/step, every step-th planned form from start."""
     if family not in FAMILIES.values(): return
+    if start == 0 and family in ('fp16', 'conversions'):
+        from tests.harness import autocase_half_requests
+        yield from autocase_half_requests.cases(arch, fp, family)
     for entry in family_forms(PLANS, arch, family)[start::step]:
         yield from generate(arch, entry['cls'], entry['settings'], fp, entry['profiles'], entry['native'],
                             sample=sample, profile_mode=entry['profile_mode'])

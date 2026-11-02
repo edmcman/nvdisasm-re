@@ -15,7 +15,28 @@ SIGN_EXPONENT = {16: (0x8000, 0x7c00), 32: (0x80000000, 0x7f800000), 64: (1 << 6
 ONE = {16: 0x3c00, 32: 0x3f800000, 64: 0x3ff0000000000000}
 
 
-def widen_half(x): return fconv(x, 32)
+@definition("widen.f16.f32")
+def widen_half(x):
+    """Exact half widening with HADD2.F32's canonical positive NaN 0x7fffffff (SM89)."""
+    return ite(fnan(x), const(0x7fffffff, 32), fconv(x, 32))
+
+
+@definition("add.rn.f16")
+def half_add(a, b):
+    """Binary16 addition rounded once to nearest even; NaN results are positive 0x7fff."""
+    return fadd(a, b)
+
+
+@definition("mul.rn.f16")
+def half_mul(a, b):
+    """Binary16 multiplication rounded once to nearest even; NaN results are positive 0x7fff."""
+    return fmul(a, b)
+
+
+@definition("fma.rn.f16")
+def half_fma(a, b, c):
+    """Binary16 fused multiply-add rounded once to nearest even; NaN results are positive 0x7fff."""
+    return ffma(a, b, c)
 CANONICAL_NAN = 0x7fffffff   # min/max of two NaNs (SM89 GPU)
 
 
@@ -495,21 +516,21 @@ def half_saturating(i):
     return label == 'SAT', i.pred('Pp') if relu and label == 'RELU' else None
 
 
-@definition(lambda a: (f"relu.f{a['r'].w}", ["r"]))
-def float_rectified(r):
+@definition(lambda a: (f"relu.{a['fmt'].lower()}" if a['fmt'] else f"relu.f{a['r'].w}", ["r"]))
+def float_rectified(r, fmt=None):
     """PTX .relu on a float lane: a result whose sign is set (negative, -0) becomes +0; an arithmetic
     NaN result is already the canonical positive one (SM89 GPU, HFMA2.RELU)."""
     return const(0, r.w) if slt(r, const(0, r.w)) else r
 
 
 def no_flush(i):
-    """HADD2/HFMA2: FTZ/FMZ are unmodelled in the exact lowering, ignored by the readable one."""
+    """Half FTZ flushes inputs and results; FMZ remains unresolved outside HMUL2."""
     flushing = False
     for name in ('ftz', 'fmz'):
         if i.has_operand(name):
             label = i.select_fork(name)
             if not str(label).startswith(('noftz', 'nofmz')):
-                if not readable(i): unmodelled(f'{label}')
+                if label != 'FTZ' and not readable(i): unmodelled(f'{label}')
                 flushing = True
     return flushing
 
@@ -523,6 +544,26 @@ def negative_zero_product(i):
 def canonical_half(h):
     """h, or the canonical +0x7fff when it is a NaN (bit tests, so an immediate folds)."""
     return ite((extract(h, 14, 10) == 0x1f) & (extract(h, 9, 0) != 0), const(0x7fff, 16), h)
+
+@definition("ftz.result.{operation}.f16")
+def half_flushed_result(operation, xs, r):
+    """Flush an exact result below F16 minimum normal to signed zero before rounding.
+    Inputs are already flushed; r is the RN arithmetic result."""
+    wide = [fconv(x, 64) for x in xs]
+    exact = (op('fadd', *wide, 'RN', w=64) if operation == 'add'
+             else op('fmul', *wide[:2], 'RN', 0, w=64))
+    if operation == 'fma': exact = op('fadd', exact, wide[2], 'RN', w=64)
+    return ite(flt(float_abs(exact), const(0x3f10000000000000, 64)), r & 0x8000, r)
+
+@definition("{operation}.ftz.f16x2")
+def packed_ftz(operation, xs):
+    """Per-lane half RN arithmetic with signed input and pre-rounding result flushing."""
+    arithmetic = {'add': half_add, 'mul': half_mul, 'fma': half_fma}[operation]
+    lanes = []
+    for lane in (1, 0):
+        values = tuple(flushed(extract(x, lane * 16 + 15, lane * 16)) for x in xs)
+        lanes.append(half_flushed_result(operation, values, arithmetic(*values)))
+    return concat(*lanes)
 
 
 @family('HADD2', 'HFMA2', 'HFMA2.MMA')
@@ -549,10 +590,28 @@ def half_arithmetic(i):
                                for n in ('Ra', 'Rc') if i.has_operand(n))
         a, c = (half_lanes(i, n, s, allow_single)[0] for n, s in zip(names, swizzles))
         if ftz: a, c = flushed(a), flushed(c)
-        r = fadd(a, c)
-        if ftz: r = flushed(r)
+        r = fadd(a, c) if readable(i) else half_add(a, c)
+        if ftz: r = half_flushed_result('add', (a, c), r)
         if half_saturating(i)[0]: r = saturated(r)
         return outputs(Rd=widen_half(r))
+    if ofmt == 'BF16_V2' and fma:
+        if no_flush(i): unmodelled('BF16 flushing')
+        sat, relu = half_saturating(i)
+        if sat: unmodelled('BF16 SAT')
+        inputs = [half_lanes(i, n, s, False) for n, s in zip(names, half_swizzles(i, fma))]
+        if not readable(i):
+            r = fpformat.bf16_packed(*(concat(x[1], x[0]) for x in inputs))
+            return outputs(Rd=r if relu is None else concat(*(
+                float_rectified(extract(r, lane * 16 + 15, lane * 16), 'BF16') if relu
+                else extract(r, lane * 16 + 15, lane * 16) for lane in (1, 0))))
+        lanes = []
+        for lane in (0, 1):
+            x = [v[lane] for v in inputs]
+            if readable(i):
+                a, b, c = [concat(v, const(0, 16)) for v in x]
+                r = fpformat.narrow(fadd(fmul(a, b), c), 'F32', 'BF16')
+            lanes.append(r if relu is None else float_rectified(r, 'BF16') if relu else r)
+        return outputs(Rd=concat(lanes[1], lanes[0]))
     if ofmt != 'F16_V2': unmodelled('ofmt')
     ftz = False
     mixed_flushing = False
@@ -560,7 +619,9 @@ def half_arithmetic(i):
         mode = i.select_fork('fmz')
         if mode not in ('nofmz_hfma2', 'nofmz', 'FTZ'): unmodelled(f'MMA {mode}')
         ftz = mode == 'FTZ' and not readable(i)
-    else: mixed_flushing = no_flush(i)
+    else:
+        mixed_flushing = no_flush(i)
+        ftz = mixed_flushing and not readable(i)
     sat, relu = half_saturating(i)
     if fma and i.has_operand('Sc1') and not (sat or ftz) and relu is None and negative_zero_product(i):
         # -0 * 0 + imm is imm with its NaN halves canonical, computed while decoding (SLEIGH doesn't fold
@@ -568,13 +629,15 @@ def half_arithmetic(i):
         # A word, not a concat: the lanes' choices can't absorb it, so the folded constant is the whole Rd.
         hi, lo = (zext(canonical_half(i.imm(n, 16)), 32) for n in ('Sc', 'Sc1'))
         return outputs(Rd=(hi << 16) | lo)
-    inputs = [half_lanes(i, n, s, not (fma and mixed_flushing))
+    inputs = [half_lanes(i, n, s, not mixed_flushing)
               for n, s in zip(names, half_swizzles(i, fma))]
+    packed = packed_ftz('fma' if fma else 'add', tuple(concat(v[1], v[0]) for v in inputs)) if ftz else None
     lanes = []
     for lane in (0, 1):
         x = [flushed(v[lane]) if ftz else v[lane] for v in inputs]
-        r = (fadd(fmul(x[0], x[1]), x[2]) if readable(i) else ffma(*x)) if fma else fadd(*x)
-        if ftz: r = flushed(r)
+        r = (extract(packed, lane * 16 + 15, lane * 16) if packed is not None else
+             (fadd(fmul(x[0], x[1]), x[2]) if fma else fadd(*x)) if readable(i)
+             else half_fma(*x) if fma else half_add(*x))
         r = saturated(r) if sat else r
         lanes.append(r if relu is None else float_rectified(r) if relu else r)
     return outputs(Rd=concat(lanes[1], lanes[0]))
@@ -617,12 +680,13 @@ def hmul2(i):
         lanes = [fpformat.narrow(fmul(as_double(x, fa), as_double(to_d(y), d)), 'F64', d) for x, y in zip(a, b)]
         return outputs(Rd=concat(lanes[1], lanes[0]))
     lanes = []
+    packed = packed_ftz('mul', tuple(concat(v[1], v[0]) for v in (a, b))) if mode == 'FTZ' else None
     for lane in (0, 1):
         x, y = a[lane], b[lane]
         fx, fy = {'FTZ': (flushed(x), flushed(y)), 'FMZ': (half_flushed_fmz(x), half_flushed_fmz(y))}.get(mode, (x, y))
-        r = fmul(fx, fy)
+        r = extract(packed, lane * 16 + 15, lane * 16) if packed is not None else fmul(fx, fy) if readable(i) else half_mul(fx, fy)
         if sat: r = saturated(r)
-        if mode in ('FTZ', 'FMZ'): r = flushed(r)
+        if mode == 'FMZ': r = half_flushed_result('mul', (fx, fy), r)
         if mode == 'FMZ': r = const(0, 16) if ((x & 0x7c00) == 0) | ((y & 0x7c00) == 0) else r
         lanes.append(r)
     return outputs(Rd=concat(lanes[1], lanes[0]))

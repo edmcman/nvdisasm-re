@@ -151,7 +151,7 @@ with zero for missing entries. `overlay` commits a pending map over a base map.
     OP ==String "flt" orBool OP ==String "fle" orBool OP ==String "feq" orBool OP ==String "fnan" orBool OP ==String "fconv"
   rule isOrdinaryOp(OP) =>
     OP ==String "add" orBool OP ==String "sub" orBool OP ==String "mul" orBool OP ==String "and" orBool
-    OP ==String "or" orBool OP ==String "xor" orBool OP ==String "not" orBool OP ==String "neg" orBool
+    OP ==String "or" orBool OP ==String "xor" orBool OP ==String "not" orBool OP ==String "neg" orBool OP ==String "lzcount" orBool
     OP ==String "shl" orBool OP ==String "shr" orBool OP ==String "sar" orBool OP ==String "eq" orBool
     OP ==String "ne" orBool OP ==String "ult" orBool OP ==String "ule" orBool OP ==String "slt" orBool
     OP ==String "sle" orBool OP ==String "zext" orBool OP ==String "sext" orBool OP ==String "extract" orBool OP ==String "concat"

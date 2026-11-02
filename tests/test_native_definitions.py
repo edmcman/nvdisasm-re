@@ -19,6 +19,20 @@ def same_state(got, want):
     assert got.pc == want.pc
 
 
+def test_leading_zero_count_widths():
+    widths = (1, 3, 8, 16, 32, 64, 65, 127, 128)
+    source, output = bitvec.reg('R', 4, 4), bitvec.reg('R', 0, 1)
+    expressions = [bitvec.zext(bitvec.extract(bitvec.op('lzcount', bitvec.extract(source, width - 1, 0)),
+                                           min(width, 32) - 1, 0), 32)
+                   for width in widths]
+    library = machine.Fragments([semantics([(output, expression)]) for expression in expressions], semantics=True)
+    for index, width in enumerate(widths):
+        for value in (0, 1, 1 << (width - 1), bitvec.mask(width)):
+            state = evaluate.State({('R', 4 + lane): value >> (32 * lane) & 0xffffffff for lane in range(4)})
+            got = library.execute(index, state, {})
+            assert got.regs.get(('R', 0), 0) == width - value.bit_length()
+
+
 def test_collector_is_optional_and_functions_precede_bodies():
     x = bitvec.reg("R", 0, 1)
     s = semantics([(x, nested(overload(x)))])

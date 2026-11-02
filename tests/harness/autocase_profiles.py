@@ -135,7 +135,9 @@ def names(op, cls, form):
     if op in ('VIADD', 'IADD'): return ['integer_edges','uniform_arithmetic_random']
     if op in autocase_wide_fp.OPS: return ['binary32_pair_forms'] if op in autocase_wide_fp.PAIR_OPS else ['float_pack_forms']
     if op in ('HSET2','HSETP2'): return ['half_comparison_forms']
-    if op in autocase_packed_fp.OPS: return ['packed_conversion_forms'] if op in autocase_packed_fp.PACK_OPS else ['half_forms']
+    if op in autocase_packed_fp.OPS:
+        if op in autocase_packed_fp.PACK_OPS: return ['packed_conversion_forms']
+        return ['half_forms']
     if op in autocase_conversions.OPS: return ["conversion_forms","conversion_boundaries"]
     if op in autocase_extended.PREDICATE_OPS: return ['predicate_forms']
     if op=='FCHK': return ['floating_forms','fchk_boundaries']
@@ -322,6 +324,69 @@ PROFILES['half_forms'] = {
     'BF16': (0,0x80000000,0x3f804000,0xbf80c000,0x00018001,0x7f7fff7f,0x7f803f80,0x3f807fc1),
     'E6M9': (0,0x80000000,0x3e004000,0xbe00c000,0x00018001,0x7dfffdff,0x7e003e00,0x3e007f01),
 }
+
+
+V16 = tuple(x | sign for x in (0, 1, 0x03ff, 0x0400, 0x0401, 0x1c00, 0x3c00,
+                               0x7bff, 0x7c00, 0x7e00, 0x7e01, 0x7fff, 0x7c01, 0x7dff)
+            for sign in (0, 0x8000))
+PROFILES['half_request_matrix'] = dict(values=V16, anchors=(0, 0x3c00, 0x7c00, 0x7e00))
+
+
+def half_request_form(cls, form):
+    return (cls in ('hadd2__RR', 'hmul2__RR', 'hfma2__RRR', 'hfma2_mma__RRR',
+                    'hfma2_mma__RRR_norelu', 'hfma2_mma__RRR_relu')
+            and form.get('ofmt', 'F16_V2') == 'F16_V2'
+            and not any(n.endswith(('@absolute', '@negate')) and v == 'set' for n, v in form.items())
+            and all(v == 'H1_H0' for n, v in form.items() if n.startswith('iswz'))
+            and form.get('fmz') != 'FMZ')
+
+
+@cache
+def half_request_vectors(arity):
+    spec = PROFILES['half_request_matrix']
+    values = spec['values']
+    indices = {v: i for i, v in enumerate(values)}
+    vectors = itertools.product(values, repeat=2) if arity == 2 else (
+        tuple(pair[names.index(n)] if n in names else anchor for n in range(3))
+        for names in itertools.combinations(range(3), 2)
+        for pair in itertools.product(values, repeat=2) for anchor in spec['anchors'])
+    return tuple(dict.fromkeys(tuple(v | values[(indices[v] + 2*n + 1) % len(values)] << 16
+                                     for n, v in enumerate(raw)) for raw in vectors))
+
+PROFILES['half_rounding_witnesses'] = {
+    'add': ((0x8000, 0), (0x0401, 0x8400),
+            *((0x7bff | s, x | s) for s in (0, 0x8000) for x in (0x4b80, 0x4c00, 0x4c40))),
+    'fma': ((0x3c01, 0x3bff, 9), (0x3c02, 0x3bff, 15),
+            (0xbc01, 0x3bff, 0x8009), (0xbc02, 0x3bff, 0x800f),
+            (0x3c00, 0x4000, 0xc000), (0xbc00, 0x4000, 0x4000),
+            (1, 1, 0x7bff), (0x8001, 1, 0x7bff),
+            (0x0400, 0x3bff, 0), (0x8400, 0x3bff, 0x8000),
+            (0x1c00, 0x1c00, 0), (0x9c00, 0x1c00, 0),
+            *((0x7bff | s, 0x3c00, x | s) for s in (0, 0x8000) for x in (0x4b80, 0x4c00, 0x4c40))),
+    'mul': ((0x0400, 0x3bff), (0x8400, 0x3bff),
+            (0x1c00, 0x1c00), (0x9c00, 0x1c00),
+            (1, 0x7c00), (0x8001, 0x7c00)),
+}
+
+PROFILES['bf16_fma'] = dict(
+    values=(0, 0x8000, 1, 0x8001, 0x007f, 0x807f, 0x0080, 0x8080,
+            0x0081, 0x3f00, 0x3f80, 0xbf80, 0x3f81, 0x3f7f, 0x3fc0,
+            0x7f7f, 0xff7f, 0x7f80, 0xff80, 0x7fc0, 0xffc1, 0x7fff, 0x7f81, 0xffbf),
+    witnesses=((0x3fc0, 0x3f81, 0x8001), (0x3fc0, 0x3f83, 1),
+               (0x3f81, 0x3f7f, 0xbf80), (0x3f80, 0x4000, 0xc000),
+               (0x0080, 0x3f7f, 0), (1, 1, 0x7f7f), (0x8001, 1, 0x7f7f)),
+)
+
+
+@cache
+def bf16_fma_vectors():
+    values = PROFILES['bf16_fma']['values']
+    vectors = (tuple(pair[names.index(n)] if n in names else anchor for n in range(3))
+               for names in itertools.combinations(range(3), 2)
+               for pair in itertools.product(values, repeat=2) for anchor in (0, 0x3f80, 0x7f80, 0x7fc0))
+    return tuple(dict.fromkeys(tuple(v | values[(values.index(v) + 2*n + 1) % len(values)] << 16
+                                     for n, v in enumerate(raw)) for raw in vectors)) + tuple(
+        tuple(v | v << 16 for v in raw) for raw in PROFILES['bf16_fma']['witnesses'])
 
 
 PROFILES["conversion_boundaries"] = {'when': 'unmodified_register_noftz',

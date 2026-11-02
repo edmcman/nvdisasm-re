@@ -4,6 +4,15 @@ from sass.semantics import bitvec
 from sass.semantics.evaluate import evaluate
 
 
+@pytest.mark.parametrize("width", [1, 3, 8, 16, 32, 64, 65, 127, 128])
+def test_leading_zero_count(width):
+    expression = bitvec.op('lzcount', bitvec.param('x', width))
+    for value in [0, bitvec.mask(width), *(1 << bit for bit in range(width))]:
+        want = len(f"{value:0{width}b}".split('1', 1)[0])
+        assert evaluate(expression, None, dict(x=value)) == want
+        assert bitvec.is_const(bitvec.op('lzcount', bitvec.const(value, width)), want)
+
+
 @pytest.mark.parametrize("widths", [(8, 8), (3, 5, 1, 7), (17, 31, 16), (65, 7, 64), (1,) * 128])
 def test_concat(widths):
     parts = [bitvec.param(f"p{j}", w) for j, w in enumerate(widths)]

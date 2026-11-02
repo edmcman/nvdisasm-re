@@ -157,6 +157,14 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   - FP64 arithmetic: `add/mul/fma.<mode>.f64` (DADD/DMUL/DFMA). Their NaN result comes from the
     registers before -/|.| (`sass_nan`), so with a modified operand those registers follow the
     operands as NaN sources: `fma.rn.f64(-R2, R4, R6, R2, R4, R6)`.
+  - Half arithmetic (2026-11-02): `add.rn.f16`, `mul.rn.f16`, `fma.rn.f16`
+    take two, two and three F16 encodings, respectively, and return one F16
+    encoding with one RN rounding and canonical positive NaN `0x7fff`.
+    `fma.rn.bf16` applies the analogous BF16 contract. Instruction-level
+    flushing, SAT and RELU remain outside these definitions.
+    `widen.f16.f32` preserves finite values, signed zeros and infinities exactly;
+    every NaN becomes `0x7fffffff`, measured for SM89 HADD2.F32. This is the
+    widening instruction's contract, separate from F2F conversion selectors.
   - FP16/FP32 arithmetic shape contract (2026-10-26): at widths 16 and 32, `bitvec.fadd`,
     `fmul` and `ffma` build exactly these shapes before constant folding:
     ```text
@@ -473,7 +481,7 @@ These are backend checks; instruction-form evidence remains separate.
   treats every rounding mode as round-to-nearest and drops FTZ/FMZ flushing, fused single rounding and
   the FMNMX NaN/±0 rules (including .NAN) and the arithmetic NaN result (Ghidra's NaN bits); families write readable FFMA/scaled FMUL as their unfused
   operations. SAT, absolute and negate remain. So encodings unmodelled in the exact lowering (HADD2/HFMA2
-  .FTZ/.FMZ and the like) are native here. Its reference is the unfused RN softfloat formula, compared
+  .FMZ and the like) are native here. Its reference is the unfused RN softfloat formula, compared
   bit for bit.
 - Exact, round-to-nearest: at native width, except that FFMA and FMUL scaling go through the doubled
   format. RN FFMA computes `a*b` exactly in fp64 and narrows the fp64 sum (`float2float(fp64 a*b + c)`):
@@ -492,7 +500,9 @@ These are backend checks; instruction-form evidence remains separate.
 - Ghidra 12.1.4 and 12.2 limits (12.2's `FloatFormat` changes only `opNotEqual`'s `|` to `||`):
   - Its emulator flushes results strictly between half and one minimum subnormal (2^-150, 2^-149 for
     fp32) to zero instead of rounding to the minimum subnormal (`FloatFormat.getEncoding`, the `n < 0`
-    branch). The p-code itself is IEEE, so the RN tests exclude that band, for FP32, FP64 and FP16.
+    branch). The p-code itself is IEEE. FP32 and FP64 RN tests exclude that band.
+    The exact F16 lowering corrects it from the wider arithmetic result (2026-11-02);
+    its arithmetic profiles retain those inputs. Readable F16 keeps the plain formula.
   - Its binary128 `f<` orders NaN operands, so the directed-rounding code guards with `nan()`.
 
 ## 4. Integer
@@ -766,10 +776,16 @@ These are backend checks; instruction-form evidence remains separate.
 - HADD2/HFMA2 F16_V2 under RN: H1_H0/H0_H0/H1_H1 selection, per-lane absolute/negate, SAT, packed
   register/uniform/constant inputs and separate lane immediates (high first in FORMAT). HFMA2 widens to
   binary128 for an exact finite product and sum and narrows once; HADD2 widens to fp64. Both results are
-  captured before writing an overlapping destination. A low-half broadcast (H0_H0) reads only two bytes
-  in native p-code, with or without |x|/-x (applied to the half).
-- Exact HADD2/HFMA2 F16_V2 leave .FTZ/.FMZ opaque; readable ignores them (also on SM100+ `hfma2_mma`
-  classes). BF16/E6M9 arithmetic formats and H0_NH1 inputs stay opaque.
+  captured before writing an overlapping destination. A register low-half broadcast (H0_H0)
+  uses its low two bytes, with or without |x|/-x (applied to the half). Constant-bank
+  sources load four bytes before lane selection (corrected 2026-11-02).
+- Exact HADD2/HFMA2 F16_V2 support .FTZ (2026-11-02, SM89): flush signed input
+  subnormals and exact results below minimum normal before rounding. HFMA2.MMA
+  follows the same rule, including SAT/RELU. HADD2/HFMA2 FMZ remains unresolved;
+  readable retains its documented treatment of flushing.
+  HFMA2.BF16_V2 and RELU use integer fused arithmetic with sticky alignment and
+  one shared RN rounding; readable retains unfused binary32 intermediate arithmetic.
+  E6M9 arithmetic formats and H0_NH1 inputs stay opaque.
 - HFMA2/HFMA2.MMA `.RELU` (2026-10-24, SM89 GPU): `Rd = Pp ? relu(r) : r` per lane, where `relu.f16`
   makes a result whose sign is set (negative, -0, negative subnormals) +0; NaN results are already the
   canonical +0x7fff. Pp is the RELU enable: with Pp false (or `!Pp` true) the result is the plain
@@ -842,13 +858,18 @@ These are backend checks; instruction-form evidence remains separate.
   fixtures confirm the register form for all 48 selector/modifier combinations (128 inputs each); RC
   forms are emulator-tested. SM90 CX is emulator-tested; other CX forms use the shared bounded-load
   provider where their md classes exist.
-- HMUL2 multiplies each selected pair after widening to fp32, which holds the exact finite binary16
-  product, then narrows once. F16_V2 supports FMZ, FTZ and no-flush modes, with SAT and no-SAT. FTZ
-  flushes subnormal inputs and results, keeping their signs. On SM89, FMZ produces canonical +0 when
+- HADD2.F32 NaNs (2026-11-02, R1): every tested input sign and payload gives
+  `0x7fffffff`, with H0_H0/H1_H1 and FTZ/no-FTZ. The earlier `0x7fc00000`
+  result was unmeasured and is replaced by `widen.f16.f32`.
+- HMUL2 multiplies each selected pair with `mul.rn.f16`, rounding once.
+  F16_V2 supports FMZ, FTZ and no-flush modes, with SAT and no-SAT. FTZ
+  flushes subnormal inputs and exact results below minimum normal before rounding,
+  keeping their signs (2026-11-02). On SM89, FMZ produces canonical +0 when
   either selected input has an all-zero exponent, including zero times infinity (GPU-checked). SAT clamps
   the result to [0, 1]. Register, uniform, immediate and constant-bank sources are covered where the md
   provides them. BF16_V2 and SM107's mixed formats: see [SM107](#12-sm107-2026-10-14).
-- The Ghidra minimum-subnormal limitation also applies to FP16.
+- Exact F16 arithmetic corrects Ghidra's minimum-subnormal encoding error
+  without excluding the affected band (2026-11-02).
 
 ### HFMA2.MMA
 - `HFMA2.MMA Rd, -RZ, RZ, imm_hi, imm_lo` (the constant move): hardware shows it preserves finite
@@ -1393,6 +1414,11 @@ retains their names. Decode-time `sel` nodes and staging-only tuples are rejecte
 An opaque decoded instruction becomes an explicit unsupported transition, not a
 made-up effect. Architecture support follows the existing lifter, including its
 selector guards and fallback forms.
+
+On 2026-11-02, the K backend gained `lzcount` for the half/BF16 expansions.
+The count uses the source width (zero returns that width) and wraps to the
+result width. Integer leading-zero counting and floating-point rounding share
+`SASS-BITS`'s `log2Floor` helper.
 
 ### State and floating point
 

@@ -105,10 +105,20 @@ def test_zero_address_is_not_silently_skipped():
     bitvec.Expr("ite", (bitvec.const(0, 32), bitvec.const(1, 32), bitvec.const(2, 32)), 32),
     bitvec.Expr("fadd", (bitvec.const(1, 32), bitvec.const(2, 32), "invalid"), 32),
     bitvec.Expr("extract", (bitvec.const(1, 32), 40, 9), 32),
+    bitvec.Expr("lzcount", (), 32),
+    bitvec.Expr("lzcount", (1,), 32),
+    bitvec.Expr("lzcount", (bitvec.const(1, 32), bitvec.const(0, 32)), 32),
 ])
 def test_malformed_ir_rejected(expr):
     with pytest.raises(k.ExportError):
         k.export_instruction(semantics(writes=[(bitvec.reg("R", 0, 1), expr)]))
+
+
+def test_leading_zero_count_export():
+    value = bitvec.Expr("lzcount", (bitvec.reg("R", 1, 1),), 32)
+    exported = k.export_instruction(semantics(writes=[(bitvec.reg("R", 0, 1), value)]))
+    assert '"lzcount"' in exported.program
+    assert exported.contracts == ()
 
 
 def test_instruction_sequence(export_arch):
