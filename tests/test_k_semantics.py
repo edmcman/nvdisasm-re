@@ -73,6 +73,16 @@ def test_integer_vocabulary():
     run_expressions(expressions)
 
 
+def test_leading_zero_count():
+    expressions = [
+        raw("lzcount", result_width, bitvec.const(value, width))
+        for width in (1, 3, 8, 16, 32, 64, 65, 128)
+        for value in (0, *(1 << bit for bit in range(width)), bitvec.mask(width))
+        for result_width in (1, 8, width)
+    ]
+    run_expressions(expressions)
+
+
 def float_values(width):
     e, m = {16: (5, 10), 32: (8, 23), 64: (11, 52)}[width]
     sign, infinity = 1 << (width - 1), ((1 << e) - 1) << m

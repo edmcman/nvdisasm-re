@@ -1415,6 +1415,11 @@ An opaque decoded instruction becomes an explicit unsupported transition, not a
 made-up effect. Architecture support follows the existing lifter, including its
 selector guards and fallback forms.
 
+On 2026-11-02, the K backend gained `lzcount` for the half/BF16 expansions.
+The count uses the source width (zero returns that width) and wraps to the
+result width. Integer leading-zero counting and floating-point rounding share
+`SASS-BITS`'s `log2Floor` helper.
+
 ### State and floating point
 
 Registers use R/UR/SR 32-bit and P/UP 1-bit elements. Memory is byte-addressed and
