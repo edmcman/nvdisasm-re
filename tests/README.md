@@ -420,6 +420,12 @@ three inputs and writes one output. The GPU output is compared with `expected` u
 kernel, run whole in the emulator from entry to EXIT, is compared with `expected` using
 `emulator_same` (default `same`), with `excused` admitting known emulator defects.
 
+`Fixture.arguments` adds `(size, value)` parameters after the input/output pointers.
+Values are unsigned integers packed little-endian, or exact-size `bytes`, `bytearray` or
+`memoryview` payloads, including aggregates. Pack signed integers and floating-point values
+explicitly with `struct.pack`. Both launch paths validate argument counts, sizes and values
+against their cubin's metadata; the GPU runner validates before allocating device resources.
+
 Patched carry-kernel slots (`templates.slot_fixture`) must leave UR4/UR5 alone: the kernel loads
 its default memory descriptor there (`ULDC.64 UR4, c[0x0][0x118]` at 0x30) and its final `STG.E`
 uses it implicitly, so a value with bit 27 set in UR5 (descriptor bit 59) traps with

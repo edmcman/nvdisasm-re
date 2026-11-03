@@ -24,6 +24,14 @@ step), the step limit and every error message. Engines supply lanes (`schedule.L
 `seed`, `step`, `writes`). `docs/testing.md` records a one-time parity check (every fixture's whole
 response identical across the engines) and the inherent differences.
 
+Kernel arguments follow the cubin's parameter order, sizes and offsets.
+`launch.serialize_arguments` accepts unsigned integers, encoded little-endian at the declared
+size, or `bytes`, `bytearray` and `memoryview` payloads of exactly that size. Aggregate arguments
+can use raw bytes (for example, a 12-byte struct); signed integers and floating-point values
+use explicitly packed bytes, such as `struct.pack("<i", -1)` or `struct.pack("<f", 1.5)`.
+Missing or extra arguments, negative or overflowing integers, wrong payload sizes and unsupported
+types are rejected. Packing preserves alignment gaps and neighboring constants (2026-11-03).
+
 ## The native machine
 
 - `include/sass/machine.hpp`: a thread's register file (R, UR, SR, P, UP and the PC), sparse

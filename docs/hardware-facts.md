@@ -50,6 +50,12 @@ in [`docs/testing.md`](testing.md).
   entry, a backward branch loop, initialized constant bank 2, static/dynamic shared-memory accesses
   with BAR.SYNC, and CTAID.Z in a three-dimensional grid. These are executable/ABI checks, not
   hardware evidence for every instruction or other architecture.
+- Kernel argument sizes (2026-11-03, `tests/test_launch.py::test_aggregate_kernel_gpu`):
+  the fixture runner passed 1-, 2-, 3-, 4-, 8-, 12- and 16-byte parameters in one compiled kernel
+  on SM89. A weighted checksum of every parameter byte, including embedded zeros and high bits,
+  agreed with the independent expected outputs and the equivalent lifted-emulator request for
+  all 32 threads. SM89 and SM90 reference-emulator regressions also pass; hardware validation
+  here covers SM89.
 - Native probe setup (2026-10-16): variable-latency scheduling must cover constant-source ALU, FCHK
   and DSETP as well as loads. Assigning write/read scoreboards from the md scheduling fields and
   draining them resolves stale-output failures. Native local storage uses EIATTR_MIN_STACK_SIZE

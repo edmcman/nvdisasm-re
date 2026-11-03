@@ -64,11 +64,19 @@ class Fixture:
         return hashlib.sha256(self.data + repr(launch).encode()).hexdigest()[:16]
 
 
+def fixture_arguments(f, image):
+    sizes = [p["size"] for p in image["parameters"]]
+    declared = [8, 8] + [size for size, _ in f.arguments]
+    for ordinal, (size, declaration) in enumerate(zip(sizes, declared)):
+        if size != declaration:
+            raise ValueError(f"{f.name}: argument {ordinal} ({size} bytes): fixture declares {declaration} bytes")
+    return launch.serialize_arguments(sizes, (INPUT, OUTPUT, *(v for _, v in f.arguments)))
+
+
 def launch_parts(f):
     """Fixture f's kernel image and `launch.kernel_request`'s other arguments (launch dimensions, stack, parameters)."""
     image = cubin.kernel_image(f.emulator_image or f.image, f.kernel)
-    if [p["size"] for p in image["parameters"]] != [8, 8] + [size for size, _ in f.arguments]:
-        raise ValueError(f"{f.name}: unexpected kernel parameter layout")
+    fixture_arguments(f, image)
     if not f.threads or len(f.data) % (3 * f.input_size) or f.threads % f.block or f.block % 32: raise ValueError("input must contain whole blocks of whole warps")
     memory = [dict(space="ram", address=INPUT, hex=f.data.hex()), dict(space="ram", address=OUTPUT, hex="cc" * f.threads * f.output_size)]
     return (image, (INPUT, OUTPUT, *(v for _, v in f.arguments)), memory, f.threads, f.block,
@@ -154,7 +162,9 @@ class Driver:
                 if host is not None: libc.munmap(C.c_void_p(host), C.c_size_t(size))
 
     def run(self, f):
-        self.require_arch(cubin.kernel_image(f.image, f.kernel)["arch"])
+        image = cubin.kernel_image(f.image, f.kernel)
+        self.require_arch(image["arch"])
+        payloads = fixture_arguments(f, image)
         module, fn = C.c_void_p(), C.c_void_p()
         self.call("cuModuleLoadData", C.byref(module), C.c_char_p(f.image))
         try:
@@ -164,7 +174,8 @@ class Driver:
             self.call("cuMemAlloc_v2", C.byref(b), C.c_size_t(f.threads * f.output_size))
             try:
                 self.call("cuMemcpyHtoD_v2", a, C.create_string_buffer(f.data), C.c_size_t(len(f.data)))
-                values = [a, b] + [(C.c_uint64 if size == 8 else C.c_uint32)(v) for size, v in f.arguments]
+                payloads[:2] = launch.serialize_arguments((8, 8), (a.value, b.value))
+                values = [C.create_string_buffer(payload, len(payload)) for payload in payloads]
                 params = (C.c_void_p * len(values))(*(C.cast(C.byref(v), C.c_void_p) for v in values))
                 self.call("cuLaunchKernel", fn, C.c_uint(f.threads // f.block), C.c_uint(1), C.c_uint(1), C.c_uint(f.block), C.c_uint(1), C.c_uint(1),
                           C.c_uint(0), C.c_void_p(), params, C.c_void_p())

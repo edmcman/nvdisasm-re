@@ -26,6 +26,30 @@ def window_registers():
             for part, v in (("LO", base & 0xffffffff), ("HI", base >> 32), ("SZ", size))}
 
 
+def serialize_arguments(sizes, arguments):
+    sizes, arguments = tuple(sizes), tuple(arguments)
+    if len(arguments) < len(sizes):
+        raise ValueError(f"argument {len(arguments)} ({sizes[len(arguments)]} bytes): missing value")
+    if len(arguments) > len(sizes):
+        raise ValueError(f"argument {len(sizes)} (no declared size): extra value")
+    result = []
+    for ordinal, (size, value) in enumerate(zip(sizes, arguments)):
+        label = f"argument {ordinal} ({size} bytes)"
+        match value:
+            case int():
+                if value < 0 or value.bit_length() > size * 8:
+                    raise ValueError(f"{label}: unsigned integer out of range")
+                payload = value.to_bytes(size, "little")
+            case bytes() | bytearray() | memoryview():
+                payload = bytes(value)
+                if len(payload) != size:
+                    raise ValueError(f"{label}: payload has {len(payload)} bytes")
+            case _:
+                raise TypeError(f"{label}: unsupported value type {type(value).__name__}")
+        result.append(payload)
+    return result
+
+
 def kernel_request(image, arguments, memory, threads, block, output, cooperative=False, context=None):
     """The emulator's whole-kernel request for `image` (`sass.decode.cubin.kernel_image`) launched as
     `threads` threads in blocks of `block`: `arguments` are the kernel parameter values in order, packed
@@ -33,6 +57,7 @@ def kernel_request(image, arguments, memory, threads, block, output, cooperative
     thread's SR_*WIN* registers); `memory` adds regions
     [{space, address, hex}]; `output` is {address, size, stride}, read back per thread."""
     if image["arch"] not in LAUNCH_LAYOUT: raise ValueError(f"{image['arch']}: launch constant layout unknown (known: {', '.join(LAUNCH_LAYOUT)})")
+    payloads = serialize_arguments((p["size"] for p in image["parameters"]), arguments)
     dims, stack, shared, local = LAUNCH_LAYOUT[image["arch"]]
     constants = dict(image["constants"]); bank = bytearray(constants.get(0, b""))
     bank.extend(bytes(max(0, image["parameter_base"] + image["parameter_size"] - len(bank))))
@@ -40,8 +65,9 @@ def kernel_request(image, arguments, memory, threads, block, output, cooperative
     struct.pack_into("<I", bank, stack, 0x1000)
     for offset, window in ((shared, "SWIN"), (local, "LWIN")):
         if offset is not None: struct.pack_into("<Q", bank, offset, WINDOWS[window][0])
-    for parameter, value in zip(image["parameters"], arguments):
-        struct.pack_into("<Q" if parameter["size"] == 8 else "<I", bank, image["parameter_base"] + parameter["offset"], value)
+    for parameter, payload in zip(image["parameters"], payloads):
+        offset = image["parameter_base"] + parameter["offset"]
+        bank[offset:offset + parameter["size"]] = payload
     constants[0] = bytes(bank)
     return dict(kernel=dict(name=image["name"], code=image["code"].hex(), threads=threads, block_size=block, cooperative=cooperative,
                             registers=window_registers()),
