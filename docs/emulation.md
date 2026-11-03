@@ -309,6 +309,43 @@ workloads, this compiler and one CPU; they do not predict every kernel's perform
 - `scope="launch"` (default): interacting blocks sharing global storage under the SC contract above.
 - Scoped CUDA weak memory remains planned (`docs/open.md`).
 
+## Real-workload validation (2026-11-03)
+
+`research/yolo_all.py` and `research/yolo_record.cpp` record ordinary eager YOLOv8n inference
+through CUPTI and replay every launch independently against its captured GPU memory. The first
+run used pretrained weights, a seeded random `[1, 3, 64, 64]` input, PyTorch 2.7.1+cu126 and an
+SM89 RTX 4070 Laptop GPU. All 313 inference launches (27 symbols) were captured without reported
+capture errors or unsupported launch APIs. The native executor matched every captured allocation
+byte for 16 launches: five additions, two nearest-neighbor upsamplings, six arange launches and
+three fills. The other 297 launches stopped explicitly: 167 at BSSY, 69 at
+BAR.SYNC.DEFER_BLOCKING, 57 at unresolved MUFU.RSQ and four at unresolved MUFU.RCP. There were
+no numerical mismatches or replay budget skips. These are first executed blockers; static
+instruction inventories also contain missing tensor-core and asynchronous-memory operations.
+The executor does not yet run the entire network. The retained summary is
+`research/yolo-results-2026-11-03.json`; missing semantics are tracked in
+[issue #117](https://github.com/edmcman/nvdisasm-re/issues/117).
+
+Capture runs outside the sandbox. Use a separate environment with
+`torch==2.7.1`, `torchvision==0.22.1`, and `ultralytics==8.3.0`:
+
+```bash
+nice c++ -std=c++20 -O2 -shared -fPIC -pthread -I/usr/local/cuda/include \
+  research/yolo_record.cpp -L/usr/local/cuda/lib64 -L/usr/local/cuda/lib64/stubs \
+  -Wl,-rpath,/usr/local/cuda/lib64 -lcupti -lcuda -o /tmp/yolo-record.so
+nice /path/to/yolo-env/bin/python research/yolo_all.py capture /tmp/yolo-capture \
+  --recorder /tmp/yolo-record.so --weights /path/to/yolov8n.pt --size 64
+nice uv run python research/yolo_all.py replay /tmp/yolo-capture --max-threads 262144
+```
+
+The recorder serializes launches, saves loaded cubins and parameter bytes, and snapshots
+parameter-reachable allocations (including candidate indirect pointers) before/after each launch.
+CUDA memory and metadata queries run on a helper thread rather than inside CUPTI callbacks.
+Unsupported launch forms, inaccessible allocations and capture limits become explicit errors.
+Replay compares all captured allocations, including unchanged inputs; it records the first
+execution failure per launch and retains budget skips separately. The capture is about 2.5 GiB;
+raw cubins, weights and snapshots remain local. This validates individual launches from this
+specific inference path, not alternate shapes, algorithms, dtypes, or concurrent execution.
+
 ## Equivalence testing
 
 `sass.emulate.equivalence.differences(a, b, launches)` runs two kernel images
