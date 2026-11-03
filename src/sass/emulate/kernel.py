@@ -6,6 +6,7 @@ import ctypes, os
 from concurrent.futures import ThreadPoolExecutor
 from functools import cache
 from sass.decode import ir
+from sass import launch
 from sass.emulate import codegen, machine, schedule
 
 DONE, FAULTED, LIMITED, OUTSIDE, NO_EXIT, UNDECODABLE, UNMODELLED, OMITS, DISAGREE, STUCK = range(10)
@@ -19,7 +20,9 @@ class Seed(ctypes.Structure):
 class Launch(ctypes.Structure):
     _fields_ = [*((n, ctypes.c_uint64) for n in ("first", "last", "block", "max_steps", "traced")),
                 ("image", ctypes.c_void_p), ("seeds", ctypes.POINTER(Seed)),
-                *((n, ctypes.c_uint32) for n in ("nseeds", "tid_x", "ctaid_x", "cooperative")),
+                ("nseeds", ctypes.c_uint32), ("block_dims", ctypes.c_uint32 * 3), ("grid_dims", ctypes.c_uint32 * 3),
+                ("tid", ctypes.c_uint32 * 3), ("ctaid", ctypes.c_uint32 * 3),
+                *((n, ctypes.c_uint32) for n in ("laneid", "cooperative")),
                 ("env", ctypes.POINTER(machine.Environment)),
                 *((n, ctypes.c_uint64) for n in ("count", "out_address", "out_size", "out_stride")),
                 ("outputs", ctypes.POINTER(ctypes.c_uint8)), ("visited", ctypes.POINTER(ctypes.c_uint8)), ("trace", ctypes.c_void_p)]
@@ -75,11 +78,12 @@ class Kernel(machine.Library):
         """The response to a kernel request; raises with the scheduler's message on failure."""
         kernel = request["kernel"]; code, base, count, block, max_steps = schedule.launch(kernel)
         name, out, cooperative = kernel.get("name"), request["output"], bool(kernel.get("cooperative"))
-        if cooperative and block % 32: raise ValueError(schedule.COOPERATIVE_WARPS)
         size, stride, address = int(out.get("size", 4)), int(out.get("stride", 4)), int(out["address"])
         traced = int(kernel.get("trace_threads", 1)) if kernel.get("trace") else 0
         sr = ir.load(self.arch).enums["SpecialRegister"]
-        named = {k: v for k, v in schedule.seeds(kernel, 0, block).items() if k not in ("SR_TID.X", "SR_CTAID.X")}
+        grid, dims, _ = launch.geometry(count, kernel.get("block", block), kernel.get("grid"))
+        indices = lambda name: (ctypes.c_uint32 * 3)(*(sr[f"SR_{name}.{axis}"] for axis in "XYZ"))
+        named = kernel.get("registers", {})
         seeds = (Seed * max(len(named), 1))(*(Seed(*location(self.arch, k), v) for k, v in named.items()))
         regions = [(m["space"], int(m["address"]), bytes.fromhex(m["hex"])) for m in request.get("memory", [])] + [("ram", base, code)]
         image, env = self.memory(regions), machine.environment(request.get("context", {}))
@@ -92,9 +96,10 @@ class Kernel(machine.Library):
             first, last = span
             outputs, visited, result = (ctypes.c_uint8 * ((last - first) * size or 1))(), (ctypes.c_uint8 * (len(code) // 16))(), Result()
             trace = self.lib.sass_trace_new() if traced else None
-            launch = Launch(first, last, block, max_steps, traced, image, seeds, len(named), sr["SR_TID.X"], sr["SR_CTAID.X"], int(cooperative),
+            run = Launch(first, last, block, max_steps, traced, image, seeds, len(named),
+                            (ctypes.c_uint32 * 3)(*dims), (ctypes.c_uint32 * 3)(*grid), indices("TID"), indices("CTAID"), sr["SR_LANEID"], int(cooperative),
                             ctypes.pointer(env), count, address, size, stride, outputs, visited, trace)
-            self.lib.sass_run(ctypes.byref(launch), ctypes.byref(result))
+            self.lib.sass_run(ctypes.byref(run), ctypes.byref(result))
             return result, bytes(outputs)[:(last - first) * size], bytes(visited), trace
 
         parts = []

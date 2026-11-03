@@ -536,6 +536,27 @@ hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` 
   `desc[URx][Ra.64]` accesses: a scratch `out[i] = in[i] * 3 + blockDim.x` kernel gave the
   expected outputs on SM89, SM90, SM100 and SM120. The default descriptors stay 0 in bank 0. SM87's
   prologue needs BMOV barrier state from the environment.
+- Grid dimensions (2026-11-03): `nice uv run python research/launch_constants.py`
+  compiles six independent scalar `blockDim`/`gridDim` probe kernels per supported
+  target. SM75/SM80/SM86/SM89/SM90 read grid dimensions from `0xc/0x10/0x14`;
+  SM100/SM101/SM103/SM120 use `0x370/0x374/0x378`. nvcc calls the SM101
+  machine-description target `sm_110`. SM90 prints the zero bank offset as `[RZ]`.
+  `launch.GRID_LAYOUT` packs these fields, and processor specs label them `gridDim_x/y/z`.
+  The SM107 launch-layout limitation remains.
+- Concurrent cold decode-cache loads (2026-11-03): native compiler threads can call
+  `ir.load` for the same architecture before its in-process cache is populated.
+  PID-only temporary filenames collided between those writers. Cache writes now
+  use a unique temporary directory per writer and atomically replace the snapshot;
+  pruning retains the current key, including snapshots another writer just published.
+  `test_decode_cache.py` forces eight writers to finish writing before any rename.
+- Multidimensional scheduler validation (2026-11-03): coordinate fixtures compare
+  block-major, X-fastest ordering against independently enumerated coordinates,
+  with unit axes, multiple blocks and 2D/3D blocks. Cooperative fixtures cover block
+  sizes 1/17/33/45, partial ballots, valid-source shuffles, WARPSYNC, block barriers
+  and per-block shared memory. SM90's `WARPSYNC.ALL` modifier is implicit in its
+  machine-description format, so `sync_form` must recognize it even without an
+  `all` entry in the decoded environment. Scalar legacy requests keep their shape
+  and permit truncated final emulator blocks.
 - One scheduler, two engines (2026-10-23): `ghidra_emulate.run_kernel`'s scheduling moved
   unchanged into `sass.emulate.schedule` (seeding, lowest-PC warp turns, BAR.SYNC and WARPSYNC
   holds, collectives' warp context, step limit, every error message, the response). Ghidra lanes

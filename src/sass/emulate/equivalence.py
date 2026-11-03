@@ -13,10 +13,11 @@ class Launch:
     arguments: tuple
     memory: tuple
     output: dict
-    threads: int
-    block: int = 32
+    threads: int | None = None
+    block: int | tuple | list = 32
     cooperative: bool = False
     context: dict | None = None
+    grid: int | tuple | list | None = None
 
 
 @dataclass(frozen=True)
@@ -28,7 +29,7 @@ class Difference:
 
 
 def response(image, run, fp):
-    request = launch.kernel_request(image, run.arguments, list(run.memory), run.threads, run.block, run.output, run.cooperative, run.context)
+    request = launch.kernel_request(image, run.arguments, list(run.memory), run.threads, run.block, run.output, run.cooperative, run.context, grid=run.grid)
     return kernel.run_kernel(request, image["arch"], fp)
 
 

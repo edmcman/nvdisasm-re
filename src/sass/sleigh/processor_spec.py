@@ -22,6 +22,8 @@ def render(template, arch):
         dims, stack, shared, local = launch.LAUNCH_LAYOUT[arch]
         symbols.extend((f"blockDim_{axis}", dims + i * 4, 4, f"Block dimension {axis}")
                        for i, axis in enumerate("xyz"))
+        symbols.extend((f"gridDim_{axis}", launch.GRID_LAYOUT[arch] + i * 4, 4, f"Grid dimension {axis}")
+                       for i, axis in enumerate("xyz"))
         symbols.append(("local_stack_base", stack, 4, "Per-thread local stack base"))
         for name, offset in (("shared_window_base", shared), ("local_window_base", local)):
             if offset is not None:

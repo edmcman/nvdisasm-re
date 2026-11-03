@@ -3,6 +3,7 @@ the CUDA Driver API, and build the equivalent whole-kernel emulator request."""
 import ctypes as C, hashlib, struct, subprocess, sys
 from contextlib import contextmanager
 from dataclasses import dataclass, field
+from math import prod
 from typing import Callable
 from sass import launch
 from sass.decode import cubin, pydecode
@@ -51,8 +52,9 @@ class Fixture:
     excused: Callable = lambda i, emulated, want: False
     modes: tuple = ("exact",)  # fp lowerings to emulate
     vectors: list = field(default_factory=list, repr=False)
-    block: int = 32
+    block: int | tuple | list = 32
     cooperative: bool = False
+    grid: int | tuple | list | None = None
 
     @property
     def threads(self): return len(self.data) // (3 * self.input_size)
@@ -61,15 +63,33 @@ class Fixture:
     def fingerprint(self):
         """What a GPU run checks: the kernel (text, constants, parameters; not the other kernels sharing its cubin), launch, inputs and reference outputs."""
         launch = (cubin.kernel_image(self.image, self.kernel), self.kernel, self.input_size, self.output_size, self.arguments, self.block, self.expected)
+        if self.grid is not None: launch += (self.grid,)
         return hashlib.sha256(self.data + repr(launch).encode()).hexdigest()[:16]
+
+
+def fixture_geometry(f):
+    if f.input_size <= 0 or not f.data or len(f.data) % (3 * f.input_size):
+        raise ValueError("input must contain complete thread records")
+    grid, block, count = launch.geometry(f.threads, f.block, f.grid)
+    if count % prod(block): raise ValueError("input must contain whole CUDA blocks")
+    if f.expected is not None and len(f.expected) != count: raise ValueError("expected output count does not match threads")
+    return grid, block, count
+
+
+def fixture_arguments(f, image):
+    sizes = [p["size"] for p in image["parameters"]]
+    declared = [8, 8] + [size for size, _ in f.arguments]
+    for ordinal, (size, declaration) in enumerate(zip(sizes, declared)):
+        if size != declaration:
+            raise ValueError(f"{f.name}: argument {ordinal} ({size} bytes): fixture declares {declaration} bytes")
+    return launch.serialize_arguments(sizes, (INPUT, OUTPUT, *(v for _, v in f.arguments)))
 
 
 def launch_parts(f):
     """Fixture f's kernel image and `launch.kernel_request`'s other arguments (launch dimensions, stack, parameters)."""
     image = cubin.kernel_image(f.emulator_image or f.image, f.kernel)
-    if [p["size"] for p in image["parameters"]] != [8, 8] + [size for size, _ in f.arguments]:
-        raise ValueError(f"{f.name}: unexpected kernel parameter layout")
-    if not f.threads or len(f.data) % (3 * f.input_size) or f.threads % f.block or f.block % 32: raise ValueError("input must contain whole blocks of whole warps")
+    fixture_arguments(f, image)
+    fixture_geometry(f)
     memory = [dict(space="ram", address=INPUT, hex=f.data.hex()), dict(space="ram", address=OUTPUT, hex="cc" * f.threads * f.output_size)]
     return (image, (INPUT, OUTPUT, *(v for _, v in f.arguments)), memory, f.threads, f.block,
             dict(address=OUTPUT, size=f.output_size, stride=f.output_size), f.cooperative,
@@ -78,7 +98,7 @@ def launch_parts(f):
 
 def request(f):
     """The emulator's whole-kernel request for fixture f."""
-    return launch.kernel_request(*launch_parts(f))
+    return launch.kernel_request(*launch_parts(f), grid=f.grid)
 
 
 class Driver:
@@ -154,7 +174,10 @@ class Driver:
                 if host is not None: libc.munmap(C.c_void_p(host), C.c_size_t(size))
 
     def run(self, f):
-        self.require_arch(cubin.kernel_image(f.image, f.kernel)["arch"])
+        image = cubin.kernel_image(f.image, f.kernel)
+        self.require_arch(image["arch"])
+        payloads = fixture_arguments(f, image)
+        grid, block, _ = fixture_geometry(f)
         module, fn = C.c_void_p(), C.c_void_p()
         self.call("cuModuleLoadData", C.byref(module), C.c_char_p(f.image))
         try:
@@ -164,9 +187,10 @@ class Driver:
             self.call("cuMemAlloc_v2", C.byref(b), C.c_size_t(f.threads * f.output_size))
             try:
                 self.call("cuMemcpyHtoD_v2", a, C.create_string_buffer(f.data), C.c_size_t(len(f.data)))
-                values = [a, b] + [(C.c_uint64 if size == 8 else C.c_uint32)(v) for size, v in f.arguments]
+                payloads[:2] = launch.serialize_arguments((8, 8), (a.value, b.value))
+                values = [C.create_string_buffer(payload, len(payload)) for payload in payloads]
                 params = (C.c_void_p * len(values))(*(C.cast(C.byref(v), C.c_void_p) for v in values))
-                self.call("cuLaunchKernel", fn, C.c_uint(f.threads // f.block), C.c_uint(1), C.c_uint(1), C.c_uint(f.block), C.c_uint(1), C.c_uint(1),
+                self.call("cuLaunchKernel", fn, *(C.c_uint(n) for n in (*grid, *block)),
                           C.c_uint(0), C.c_void_p(), params, C.c_void_p())
                 result = C.create_string_buffer(f.threads * f.output_size)
                 self.call("cuCtxSynchronize"); self.call("cuMemcpyDtoH_v2", result, b, C.c_size_t(f.threads * f.output_size))

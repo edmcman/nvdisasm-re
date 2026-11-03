@@ -420,6 +420,12 @@ three inputs and writes one output. The GPU output is compared with `expected` u
 kernel, run whole in the emulator from entry to EXIT, is compared with `expected` using
 `emulator_same` (default `same`), with `excused` admitting known emulator defects.
 
+`Fixture.arguments` adds `(size, value)` parameters after the input/output pointers.
+Values are unsigned integers packed little-endian, or exact-size `bytes`, `bytearray` or
+`memoryview` payloads, including aggregates. Pack signed integers and floating-point values
+explicitly with `struct.pack`. Both launch paths validate argument counts, sizes and values
+against their cubin's metadata; the GPU runner validates before allocating device resources.
+
 Patched carry-kernel slots (`templates.slot_fixture`) must leave UR4/UR5 alone: the kernel loads
 its default memory descriptor there (`ULDC.64 UR4, c[0x0][0x118]` at 0x30) and its final `STG.E`
 uses it implicitly, so a value with bit 27 set in UR5 (descriptor bit 59) traps with
@@ -440,6 +446,20 @@ block as one (`cases/threads.py`, `kernels/threads_semantics.cu`):
   into the runtime's warp context.
 - `BAR.SYNC` holds a thread until every live thread of the block arrives. Barrier ids and thread
   counts are not modelled; blocks run one after another.
+
+`Fixture.grid` and `Fixture.block` accept integers or one-to-three-element tuples/lists
+(omitted axes are 1). Explicit geometry must match the input record count; GPU fixtures
+require complete CUDA blocks, including blocks with a partial final warp. Geometry and
+argument validation precede allocation. `launch_parts` retains its eight positional
+items; `request` forwards `grid` separately. Explicit grid geometry enters the fixture
+fingerprint, while existing default fingerprints retain their format.
+
+`kernels/launch_geometry.cu`, `harness/launch_geometry.py` and the independent
+`refs/launch.py` cover 2D/3D coordinates and dimensions, lane IDs, and four-block
+cooperative launches with block sizes 1, 17, 33 and 45. `ptxas` removes a converged
+`__syncwarp` as NOP; the fixture replaces that NOP with WARPSYNC to exercise the
+scheduler and hardware barrier. `test_launch.py` checks the Python engine and validation;
+`test_launch_backends.py` runs the same references in native/Ghidra and on the GPU.
 
 This is one legal interleaving, not the hardware scheduler: it gives the right answer for
 correctly synchronized kernels, but doesn't by itself show that a barrier is enforced (see

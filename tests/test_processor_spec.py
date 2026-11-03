@@ -42,6 +42,9 @@ def test_architecture_labels(languages, arch, dims, args, stack, shared, local, 
     if dims is not None:
         expected.update({f"blockDim_{axis}": (f"cbank:{dims + i * 4:#x}", 4)
                          for i, axis in enumerate("xyz")})
+        grid = 0xc if dims == 0 else 0x370
+        expected.update({f"gridDim_{axis}": (f"cbank:{grid + i * 4:#x}", 4)
+                         for i, axis in enumerate("xyz")})
     for name, offset, size in (("kernel_arguments", args, 4096), ("local_stack_base", stack, 4),
                               ("shared_window_base", shared, 8), ("local_window_base", local, 8),
                               ("default_global_descriptor", descriptor, 8)):
