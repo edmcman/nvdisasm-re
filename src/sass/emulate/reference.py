@@ -9,7 +9,7 @@ from sass.semantics import evaluate, lifter
 from sass.semantics.runtime import Runtime, UnsupportedSemantics
 
 NAME = re.compile(r"(UR|UP|R|P)(\d+)$")
-SHARED = ("ram", "shared", "cbank")   # a cooperative block's common spaces; localmem is per thread
+SHARED = ("ram", "shared", "cbank")   # a block's common spaces; localmem is per thread
 TRACED = ("R", "UR", "P", "UP")       # the architectural files a trace reports
 
 
@@ -19,18 +19,23 @@ class Kernel:
     def __init__(self, request, arch, fp="exact"):
         kernel = request["kernel"]; self.code = bytes.fromhex(kernel["code"]); self.base = int(kernel.get("address", 0x100000))
         self.arch, self.fp, self.runtime, self.lifted = arch, fp, Runtime(int(arch[2:])), {}
+        self.global_memory = None
         self.memory = request.get("memory", []) + [dict(space="ram", address=self.base, hex=self.code.hex())]
 
     def lift(self, pc):
         if pc not in self.lifted: self.lifted[pc] = lifter.lift(self.arch, self.code[pc - self.base:pc - self.base + 16], pc, self.fp)
         return self.lifted[pc]
 
-    def group(self, threads, cooperative):
+    def group(self, threads, scope):
         shared = {space: {} for space in SHARED}
+        if scope == "launch" and self.global_memory is not None: shared["ram"] = self.global_memory
         lanes = [Lane(self, evaluate.State(memory={**shared, "localmem": {}})) for _ in threads]
         for mem in self.memory:
+            if scope == "launch" and self.global_memory is not None and mem["space"] == "ram": continue
             data = bytes.fromhex(mem["hex"])
-            lanes[0].state.store(mem["space"], int(mem["address"]), 8 * len(data), int.from_bytes(data, "little"))
+            for lane in lanes if mem["space"] == "localmem" else lanes[:1]:
+                lane.state.store(mem["space"], int(mem["address"]), 8 * len(data), int.from_bytes(data, "little"))
+        if scope == "launch": self.global_memory = shared["ram"]
         return lanes
 
     def output(self, lane, address, size): return lane.state.load("ram", address, 8 * size).to_bytes(size, "little")

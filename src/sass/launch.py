@@ -84,7 +84,7 @@ def serialize_arguments(sizes, arguments):
     return result
 
 
-def kernel_request(image, arguments, memory, threads=None, block=32, output=None, cooperative=False, context=None, *, grid=None):
+def kernel_request(image, arguments, memory, threads=None, block=32, output=None, context=None, *, grid=None, scope="launch", schedule="round_robin"):
     """The emulator's whole-kernel request for `image` (`sass.decode.cubin.kernel_image`) launched as
     `threads` threads in blocks of `block`: `arguments` are the kernel parameter values in order, packed
     into constant bank 0 with the launch dimensions, local stack base and generic windows (also in every
@@ -107,7 +107,7 @@ def kernel_request(image, arguments, memory, threads=None, block=32, output=None
         offset = image["parameter_base"] + parameter["offset"]
         bank[offset:offset + parameter["size"]] = payload
     constants[0] = bytes(bank)
-    return dict(kernel=dict(name=image["name"], code=image["code"].hex(), threads=threads, block_size=prod(block), cooperative=cooperative,
+    return dict(kernel=dict(name=image["name"], code=image["code"].hex(), threads=threads, block_size=prod(block), scope=scope, schedule=schedule,
                             registers=window_registers(), **(dict(grid=grid, block=block) if explicit else
                                                            dict(block=block) if block[1:] != (1, 1) else {})),
                 memory=[dict(space="cbank", address=index << 32, hex=value.hex()) for index, value in constants.items()] + memory,

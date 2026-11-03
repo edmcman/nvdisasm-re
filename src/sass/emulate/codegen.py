@@ -1,7 +1,6 @@
 """Lifted instructions as C++ translation units for `sass.emulate.build`: fragments (independent
 single instructions, for differential tests) and whole kernels."""
-from sass.decode import pydecode
-from sass.emulate import cxx, definitions, schedule
+from sass.emulate import cxx, definitions, metadata
 from sass.semantics import lifter
 
 PRELUDE = '#include "sass/machine.hpp"\n#include "sass/abi.hpp"\n'
@@ -66,16 +65,8 @@ extern "C" int sass_fragment(int id, sass::Thread *t, sass::Memory *m, const sas
 """
 
 
-FILE_IDS = {"R": 0, "UR": 1, "SR": 2, "P": 3, "UP": 4}
+FILE_IDS = metadata.FILE_IDS
 TRACED = ("R", "UR", "P", "UP")   # the files a trace reports (schedule's architectural registers)
-
-
-def operand(location):
-    """A C++ sass::Operand from schedule.operand_location (None: no operand, reading 0)."""
-    match location:
-        case None: return "{0, 0, 0, 0, 0}"
-        case "const", value: return f"{{1, 0, 0, 0, UINT64_C({value:#x})}}"
-        case file, index, span: return f"{{2, {FILE_IDS[file]}, {index}, {span}, 0}}"
 
 
 def destinations(semantics):
@@ -83,32 +74,13 @@ def destinations(semantics):
     return [(file, index + k) for location, _ in semantics.writes for file, index, count in [location.args] if file in TRACED for k in range(count)]
 
 
-class Instruction:
-    """One kernel word: its decoding (or the decoder's message), lifting and scheduler facts."""
-
+class Instruction(metadata.Instruction):
     def __init__(self, arch, word, address, fp):
-        self.decoded = self.error = self.semantics = None
-        try: self.decoded = pydecode.decode(arch, word)
-        except pydecode.NoMatch as error: self.error = str(error); return
-        self.semantics = lifter.lift(arch, word, address, fp)
+        super().__init__(arch, word)
+        self.semantics = lifter.lift(arch, word, address, fp) if self.decoded else None
 
     def info(self, arch, i):
-        d = self.decoded
-        if d is None: return f"{{0, 0, 0, 0, 0, 0, 0, 0, {operand(None)}, {operand(None)}, {operand(None)}, {operand(None)}, 0, {cxx.string(self.error)}, nullptr}}"
-        k, env = d.klass, d.env
-        location = lambda name: schedule.operand_location(arch, d, name) if name in k.operand_types else None
-        key, source = schedule.WARP_INPUTS.get(k.mnemonic, (None, None))
-        sync, mask, sync_operand = 0, 0, None
-        if k.mnemonic == "WARPSYNC":
-            match schedule.sync_form(arch, d):
-                case "all",: sync = 1
-                case "immediate", mask: sync = 2
-                case "operand", name: sync, sync_operand = 3, location(name)
-        dests = destinations(self.semantics)
-        fields = [int(k.mnemonic == "EXIT"), int(k.name.startswith("bar__SYNC")), int(k.mnemonic == "WARPSYNC"),
-                  {None: 0, "values": 1, "predicates": 2}[key], env.get(("Pg", "not"), 0), env.get(("Pp", "not"), 0), sync, len(dests)]
-        operands = [location("Pg"), location("Pp") if "Pp" in k.operand_types else ("const", 1), location(source) if source else None, sync_operand]
-        return "{" + ", ".join([*map(str, fields), *map(operand, operands), f"UINT64_C({mask:#x})", "nullptr", f"D{i}" if dests else "nullptr"]) + "}"
+        return super().info(arch, i, destinations(self.semantics) if self.semantics else ())
 
 
 def kernel(arch, code, base, fp="exact", definition_calls=True):

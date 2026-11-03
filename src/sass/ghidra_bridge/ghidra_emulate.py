@@ -83,13 +83,14 @@ def session(ldefs,langid):
             except Exception as error:raise schedule.Fault(runtime.last_error or str(error)) from error
         def writes(self,pc):return {n:value(self.state,r) for n,r in self.kernel.destinations(pc)}
     class KernelEngine:
-        """One request's emulators: a BlockEmulator (common memory, private localmem) per cooperative
+        """One request's emulators: a BlockEmulator (common memory, private localmem) per interacting
         block, a PcodeEmulator per thread otherwise."""
         def __init__(self,request):
             kernel=request['kernel'];self.code=bytes.fromhex(kernel['code']);self.base=int(kernel.get('address',0x100000))
             self.memory=request.get('memory',[])+[dict(space='ram',address=self.base,hex=self.code.hex())];self.written={}
-        def group(self,threads,cooperative):
-            emulator=BlockEmulator(lang) if cooperative else PcodeEmulator(lang);lanes=[]
+        def group(self,threads,scope):
+            if scope == "launch": raise ValueError("Ghidra does not support launch scope; use scope=block or thread")
+            emulator=BlockEmulator(lang) if scope == "block" else PcodeEmulator(lang);lanes=[]
             for i,t in enumerate(threads):
                 thread=emulator.newThread(f'thread {t}')
                 library_field.set(thread,thread.getUseropLibrary().compose(lib))

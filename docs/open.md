@@ -20,8 +20,8 @@
     with MP/SB/LB/IRIW litmus kernels against the PTX model's allowed outcomes. Equivalence under it
     compares sets of outcomes (refinement), not one output per input.
   - Atomics and fences raise in every engine until those families exist.
-  - Launch-wide global memory (`scope="launch"`) for the native and Python engines; Ghidra's
-    BlockEmulator keeps it per block, so parity runs stay per block.
+  - Launch-wide SC global memory is implemented (2026-11-03, #114), through one C++ scheduler
+    for every backend. Ghidra comparisons explicitly select block/thread scope.
   - Adversarial schedules (seeded warp order, reverse, warp-greedy) in the shared scheduler, then
     the C++ port.
   - A standalone libFuzzer harness linking both kernels of an equivalence pair.

@@ -15,14 +15,33 @@ ptxas's SASS for a translation of it) over very many inputs, often without a GPU
 ## Whole-kernel requests and the shared scheduler (2026-10-23)
 
 A kernel request (`sass.launch.kernel_request`) gets the same response from every engine:
-`{outputs, threads, steps, visited, exit[, trace]}` or `{error}`. `sass.emulate.schedule` is the one
-scheduler (moved from `ghidra_emulate.run_kernel`): seeding (`SR_TID.X/Y/Z`, `SR_CTAID.X/Y/Z`, `SR_LANEID`,
-the launch's window registers), non-cooperative threads each alone with their own memory,
-cooperative blocks whose warps take turns stepping the live lanes at the warp's lowest PC, BAR.SYNC
-and WARPSYNC holds, the warp context collectives read (each lane's operand gathered before the
-step), the step limit and every error message. Engines supply lanes (`schedule.Lane`: `pc`, `read`,
-`seed`, `step`, `writes`). `docs/testing.md` records a one-time parity check (every fixture's whole
-response identical across the engines) and the inherent differences.
+`{outputs, threads, steps, visited, exit[, trace]}` or `{error}`. Since 2026-11-03,
+all engines use the C++ scheduler in `include/sass/run.hpp`. Native instructions execute directly;
+Python reference and Ghidra lanes use a C callback adapter. `schedule.py` supplies request
+validation, decoded instruction facts, and diagnostics; it contains no scheduling loop.
+
+`scope="launch"` is the default for Python/native: global (`ram`) storage is shared across the
+launch, shared storage is private to each block, and local storage is private to each thread.
+`scope="block"` isolates global memory by block; `scope="thread"` runs isolated threads without
+warp collectives. Ghidra accepts block/thread scope and explicitly rejects launch scope.
+The removed `cooperative` request field raises a migration error. Replace old `False` with
+`scope="thread"` and old `True` with `scope="block"`; remove the positional boolean from
+`kernel_request` calls and pass scope by keyword.
+
+Launch execution is sequentially consistent with all blocks resident. Each round visits every
+block's warps once, executing the live lanes at their lowest PC in ascending lane order.
+`schedule="reverse"` reverses block and warp visitation; `"round_robin"` is the default.
+Alternate schedules require launch scope. BAR.SYNC holds remain block-local, and WARPSYNC
+membership and collective operands remain warp-local. Outputs are read after every thread exits.
+A launch uses one scheduler invocation regardless of host worker count; independent requests
+can execute concurrently. Memory resets for each request.
+
+This stronger visibility model does not validate CUDA weak-memory protocols or GPU residency
+requirements. Atomics, fences, MMIO and external/system scope accesses are rejected in launch
+scope. Convergence-barrier state operations (BSSY, BSYNC, BREAK, BMOV) are also rejected
+until their scheduler semantics exist. Other unsupported instructions retain their runtime errors; synchronization context
+flags cannot enable rejected ordering operations. Polling may exhaust the per-thread instruction
+limit; when no warp can progress the scheduler reports `no thread can proceed` instead.
 
 Kernel arguments follow the cubin's parameter order, sizes and offsets.
 `launch.serialize_arguments` accepts unsigned integers, encoded little-endian at the declared
@@ -33,7 +52,7 @@ Missing or extra arguments, negative or overflowing integers, wrong payload size
 types are rejected. Packing preserves alignment gaps and neighboring constants (2026-11-03).
 
 Launch geometry (2026-11-03): `kernel_request(image, arguments, memory, threads=None,
-block=32, output=None, cooperative=False, context=None, *, grid=None)` accepts integers or
+block=32, output=None, context=None, *, grid=None, scope="launch", schedule="round_robin")` accepts integers or
 one-to-three-element tuples/lists for `grid` and `block`; omitted axes are 1. For example,
 `grid=(2, 3), block=(3, 3, 5)` launches 270 threads. Explicit geometry derives the count;
 a supplied `threads` must agree. Dimensions are positive uint32 integers and the total
@@ -47,10 +66,9 @@ are enumerated with X varying fastest, then Y, then Z. Output records, traces an
 thread numbers use that block-major linear order. `SR_LANEID` is the block-local linear
 thread rank modulo 32.
 
-Cooperative blocks may end in a partial warp. Warp groups restart in every block;
+Interacting blocks may end in a partial warp. Warp groups restart in every block;
 active/waiting masks and WARPSYNC membership include only existing lanes. BAR.SYNC
-still waits for every live thread in the block. This preserves the existing sequential
-block model and synchronization scope.
+still waits for every live thread in the block. Barrier scope remains the block.
 
 ## The native machine
 
@@ -286,18 +304,10 @@ workloads, this compiler and one CPU; they do not predict every kernel's perform
 
 ## Models
 
-- Model 1, single thread (`include/sass/run.hpp`, 2026-10-23): non-cooperative launches. Each
-  thread runs alone from the entry to EXIT over its own copy-on-write memory; threads run in parallel
-  chunks (`kernel.Kernel.run`), and the first failing thread's error is the response, as the
-  scheduler's sequential order gives. Collectives fail as in the other engines, without a warp context.
-- Model 2, multi-thread sequentially consistent (`include/sass/run.hpp`, 2026-10-23): cooperative
-  launches, a function-by-function port of `schedule.py` (lowest-PC turns, BAR.SYNC holds and the
-  all-waiting release, WARPSYNC groups, collectives' gathered operands, the waiting mask). A block
-  shares `ram`/`shared`/`cbank`, each thread keeps its own `localmem`, and blocks run in parallel
-  chunks (global memory is per block, as in the other engines). The scheduler's static decisions
-  (`schedule.operand_location`, `sync_form`) are made once in Python and emitted per instruction, so
-  the C++ only executes them; its outcomes are formatted with `schedule`'s messages.
-- Model 3, scoped weak memory: planned after the atomic and fence families (`docs/open.md`).
+- `scope="thread"`: isolated thread execution, parallel native worker chunks.
+- `scope="block"`: interacting warps within isolated blocks, parallel native worker chunks.
+- `scope="launch"` (default): interacting blocks sharing global storage under the SC contract above.
+- Scoped CUDA weak memory remains planned (`docs/open.md`).
 
 ## Equivalence testing
 

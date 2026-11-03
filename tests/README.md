@@ -436,7 +436,7 @@ Ghidra and on the GPU, and creates evidence.
 
 #### Multi-thread fixtures
 
-Scalar fixtures emulate every thread alone. `Fixture(cooperative=True, block=N)` emulates each
+Scalar fixtures emulate every thread alone. `Fixture(scope="block", block=N)` emulates each
 block as one (`cases/threads.py`, `kernels/threads_semantics.cu`):
 
 - `BlockEmulator.java`, compiled on first use into `.cache/java/`, is a `PcodeEmulator` whose
@@ -450,7 +450,7 @@ block as one (`cases/threads.py`, `kernels/threads_semantics.cu`):
 `Fixture.grid` and `Fixture.block` accept integers or one-to-three-element tuples/lists
 (omitted axes are 1). Explicit geometry must match the input record count; GPU fixtures
 require complete CUDA blocks, including blocks with a partial final warp. Geometry and
-argument validation precede allocation. `launch_parts` retains its eight positional
+argument validation precede allocation. `launch_parts` supplies seven positional
 items; `request` forwards `grid` separately. Explicit grid geometry enters the fixture
 fingerprint, while existing default fingerprints retain their format.
 

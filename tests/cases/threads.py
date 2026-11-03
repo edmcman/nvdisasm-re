@@ -135,7 +135,7 @@ def gpu_fixtures(arch="SM89"):
 
     def fixture(name, vs, expected, targets, **kw):
         return Fixture(name=name, image=image, kernel="sem_" + name, data=b"".join(struct.pack("<III", *v) for v in vs),
-                       expected=expected, targets=targets, vectors=vs, cooperative=True, **{"output_size": 8, **kw})
+                       expected=expected, targets=targets, vectors=vs, scope="block", **{"output_size": 8, **kw})
 
     out = []
     for mode in ("idx", "up", "down", "bfly"):
@@ -174,7 +174,7 @@ def gpu_fixtures(arch="SM89"):
         alls = [warp.vote([c & 1 for _, _, c in vs[32 * w:32 * w + 32]])[2] for w in range(WARPS)]
         out.append(Fixture(name=name, image=voteu, kernel="sem_" + name, data=b"".join(struct.pack("<III", *v) for v in vs),
                            expected=[votes[w][0] | alls[w] << 32 for w in range(WARPS) for _ in range(32)], targets=("VOTEU.ANY",), vectors=vs,
-                           cooperative=True, output_size=8))
+                           scope="block", output_size=8))
     vs = vote_inputs(random.Random("vote"))
     votes = [warp.vote([a & 1 for a, _, _ in vs[32 * w:32 * w + 32]]) for w in range(WARPS)]
     out.append(fixture("vote", vs, [ballot | (any_ | all_ << 1 | uni << 2) << 32 for ballot, any_, all_, uni in votes for _ in range(32)],

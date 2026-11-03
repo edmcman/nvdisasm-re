@@ -182,7 +182,7 @@ class Cases(list):
     def kernel(self, name, cls, fields, error, max_steps=4):
         """A one-instruction kernel expected to stop with `error`."""
         if cls not in self.classes: return
-        request = dict(kernel=dict(name=name, code=encode(self.arch, cls, **fields), threads=1, max_steps=max_steps),
+        request = dict(kernel=dict(name=name, code=encode(self.arch, cls, **fields), threads=1, max_steps=max_steps, scope="thread"),
                        output=dict(address=0x200000000))
         self.append(Case(name, request, dict(error=error)))
 
