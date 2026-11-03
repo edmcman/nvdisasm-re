@@ -15,15 +15,21 @@ FAMILIES['MUFU'] = 'mufu'
 
 
 def blocked_reason(op, cls, form):
-    if op == 'MUFU' and (not cls.startswith('mufu__') or form.get('mufuop', form.get('op')) not in ('SIN', 'COS')):
-        return 'MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage'
+    if op != 'MUFU': return None
+    match form.get('mufuop', form.get('op')), cls.startswith('mufu__'), form.get('fmt', form.get('width', 'F16')):
+        case ('SIN' | 'COS'), True, _: return None
+        case ('RCP' | 'RSQ' | 'RCP64H' | 'RSQ64H'), True, _: return None
+        case ('RCP' | 'RSQ'), False, 'F16': return None
+        case _: return 'MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage'
 
 
 def generate(c,k,form,profiles):
     from tests.harness.autocases import Unsupported
     if k.mnemonic == 'MUFU' and not blocked_reason('MUFU', k.name, form):
-        if profiles != ['mufu_sincos']: raise Unsupported('incompatible MUFU SIN/COS profile')
-        return trigonometric(c, k, form)
+        match profiles:
+            case ['mufu_sincos']: return trigonometric(c, k, form)
+            case ['mufu_reciprocal']: return reciprocals(c, k, form)
+            case _: raise Unsupported('incompatible MUFU profile')
     if profiles != ['remaining_forms']: raise Unsupported('incompatible remaining-operation profile')
     if k.mnemonic in MEMORY: return access(c,k,form)
     if k.mnemonic in WARP: return collective(c,k,form)
@@ -46,6 +52,48 @@ def trigonometric(c, k, form):
         result = mufu.sincos(value, form.get('mufuop', form.get('op')),
             form.get(src+'@absolute') == 'set', form.get(src+'@negate') == 'set')
         s.add({s.output(('Rd',), 2 if index % 3 == 0 else 8): result}, form)
+    return c
+
+
+def reciprocals(c, k, form):
+    from tests.harness.autocases import Inputs, Unsupported
+    from tests.harness.case import source
+    src = source(k, 'Rb', 'Sb', 'URb')
+    op = form.get('mufuop', form.get('op'))
+    fmt = '64H' if op.endswith('64H') else 'F32' if k.name.startswith('mufu__') else form.get('fmt', form.get('width', 'F16'))
+    if src is None or fmt not in ('F32', '64H', 'F16'): raise Unsupported('unresolved MUFU precision')
+    if k.name.startswith('mufu_fp16_simd'): raise Unsupported('SIMD MUFU reciprocal packing remains unresolved')
+    spec = autocase_profiles.PROFILES['mufu_reciprocal']
+    values = c.input_profile.values if c.input_profile else spec[{'F16': 'halves', '64H': 'high_words', 'F32': 'words'}[fmt]]
+    for index, value in enumerate(values):
+        s = Inputs(c, k, form)
+        immediate = k.operand_types[src].type in ('F16Imm', 'F32Imm', 'F64Imm')
+        selected = int(form.get('extract', 'H0')[1])
+        physical = value
+        if fmt == 'F16' and not immediate:
+            physical = value << 16 | 0x7e01 if selected else value | 0xfc01 << 16
+        match k.operand_types[src].type:
+            case 'F16Imm' | 'F32Imm' | 'F64Imm': s.fields[src] = value << 32 if fmt == '64H' else value
+            case _: s.operand((src,), physical, 2)
+        sign = 0x8000 if fmt == 'F16' else 0x80000000
+        modified = value & ~sign if form.get(src+'@absolute') == 'set' else value
+        if form.get(src+'@negate') == 'set': modified ^= sign
+        dest = c.input_profile.destination if c.input_profile else 2 if index % 3 == 0 else 8
+        output = s.output(('Rd',), dest)
+        # Discovery must never consult a prospective reference.
+        expected = {output: 0 if c.discovery else mufu.reciprocal(modified, op, fmt)}
+        if not c.discovery: expected['__mufu'] = dict(op=op, fmt=fmt, accuracy='exact')
+        if not immediate and k.operand_types[src].type == 'Register': s.registers['R3'] = 0xdeadbeef
+        s.add(expected, form)
+        if not c.discovery and index == 0:
+            original = s.registers
+            s.fields['Pg'] = 0
+            s.registers = dict(original, P0=0, **{output: 0x13579bdf})
+            s.add({output: 0x13579bdf}, form)
+            s.fields.pop('Pg')
+            s.registers = original
+            s.fields['Rd'] = 255
+            s.add({'R255': 0}, form)
     return c
 
 

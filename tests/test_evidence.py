@@ -65,6 +65,20 @@ def test_fixture_dataflow_uses_target_architecture():
         assert any(template.decoded(offset).klass.mnemonic == 'IADD3' for offset in sliced)
 
 
+def test_cooperative_targets_record_synchronization_effects():
+    from dataclasses import replace
+    from sass.sleigh.gen import Gen
+    from tests.harness import gpu, synchronization
+    fixture = synchronization.fixtures('SM89')[-1]
+    template = gpu.Template(fixture.image, fixture.kernel)
+    sync = {offset for offset, d in evidence.decoded('SM89', template.code)
+            if d.klass.mnemonic in {'BAR', 'BSSY', 'BSYNC'}}
+    gen = Gen('SM89')
+    assert sync <= evidence.fixture_path(gen, fixture, template.code)
+    assert evidence.fixture_path(gen, replace(fixture, scope='thread'), template.code) == evidence.on_data_path(gen, template.code)
+    assert evidence.fixture_path(gen, replace(fixture, targets=()), template.code) == evidence.on_data_path(gen, template.code)
+
+
 def test_negative_reference_forms_preserve_provenance_without_verification(monkeypatch):
     cls = 'popc__RRR_RRR'
     positive = Case(cls, {'word': encoding.encode('SM89', cls)}, {'R0': 0})

@@ -408,7 +408,69 @@ independent regression reference (`tests/refs/mufu.py`) enumerates square terms 
 rationals; production uses the fast high/low decomposition and integer float encoding. Runtime
 tests compare every captured reduced grid point with `--exhaustive`, and the shared cases target
 all 64 segment boundaries, retained-square thresholds, source modifiers and operand forms. MUFU
-remains a runtime primitive; other MUFU operations and FP16 remain unresolved.
+remains a runtime primitive. Reciprocal support added on 2026-11-03 is described below;
+the other MUFU operations remain unresolved.
+
+### Reciprocal precisions (2026-11-03)
+
+`research/mufu/reciprocal_observe.py` collects raw autocase observations without computing
+expectations. The SM89 RTX 4070 Laptop captures are in `research/mufu/reciprocal/`.
+These discovery files alone earn no verification evidence; independent references and
+precision-specific fixtures promote the established behavior.
+
+Both RCP and RSQ were observed for all 65,536 F16 inputs with H0 and H1 extraction.
+The other half contains different poison values in the two captures; selected results agree
+for every input and occupy Rd[15:0], with Rd[31:16] zero. RCP matches precision-specific
+round-toward-zero arithmetic exactly, with overflow to infinity and preserved subnormal
+inputs. RSQ follows the same rule except for 15 positive finite inputs whose low 11 bits are
+`0x713`: those outputs are one F16 ulp above the truncated result. NaNs and negative
+nonzero RSQ inputs produce `0x7fff`; signed zeros produce signed infinities. The shared
+integer runtime matches all four complete captures exactly.
+
+F32 captures contain 8,962 inputs per operation: regular normalized-mantissa grids in
+both exponent parities, every finite exponent boundary and its neighbors, and exceptional
+values. The 64H captures contain 14,338 inputs per operation over the corresponding
+double-high-word domains. The high-word contract is a 32-bit source interpreted as
+`source << 32` in binary64, and a high-word destination; neither input nor output consumes
+the neighboring register. F64 immediate encodings convert to this high-word contract.
+Generated hardware cases cover the available register, immediate, constant, CX and uniform
+forms, source modifiers, predicates, aliases and zero-register destinations.
+
+The initial implementation used bounded integer division/square-root models. Investigation
+of the existing SIN quantization notes then identified the same 15-bit retained-partial-product
+square in reciprocal observations: ordinary squaring, or truncating after a complete square,
+cannot satisfy all the observed rounding intervals. RCP has 128 mantissa segments;
+RSQ has 64, with separate tables for the two exponent parities.
+
+`reciprocal_fit.py` fits interval constraints and solves coefficient grids using exact integer
+output-rounding bounds. Sparse fits initially matched their fitting inputs but missed independent
+random captures; `reciprocal_refine.py` selects new autocase inputs where feasible coefficient
+sets disagree, rather than consulting a reference. The resulting fixed-point representation
+uses a 57-bit accumulator, 42 fractional constant bits, `57-local_width` linear bits and
+40 quadratic bits. These widths describe a fitted realization, not recovered physical ROM
+storage. F32 uses nearest-even output rounding; 64H keeps the high word with truncation.
+Powers with a unit normalized significand use the separately observed exact result.
+
+The shared runtime and independent rational reference reproduce the captured words exactly.
+Complete normalized-domain observations are delta-encoded, with device identity, target form
+and SHA-256 in each `*-full.json`. `reciprocal_verify.py` compares both the fitted model and
+the actual C++ runtime against every captured output; `validation.json` records the domains
+and mismatch counts. The complete RCP mantissa domain and both RSQ exponent parities
+contain 25,165,824 F32 words and 3,145,728 64H words. All 28,311,552 observed words
+have zero model or runtime mismatches. This establishes the normalized domains on SM89;
+exponent transitions, exceptional inputs and operand forms are checked separately.
+
+The hardware operations themselves remain approximations to mathematical reciprocal and
+reciprocal square root. The earlier exhaustive survey's IEEE-reference distances—1 F32 ulp
+for RCP, 2 for RSQ and 1 high-word ulp for 64H—are separate from model-versus-hardware
+accuracy. Exact comparisons remain local to the modeled reciprocal forms.
+
+F16's limit is zero ulps on the complete observed domain; it does not inherit an F32
+tolerance. BF16 reciprocals remain explicit unresolved runtime errors. SM103's
+SIMD MUFU classes permit EX2 only, not reciprocal operations; EX2 remains unresolved.
+BF16 forms permitted by the machine descriptions are generated as error contracts and
+do not acquire numerical verification credit. SM90 and the other architectures have
+software support inferred from their descriptions, without new hardware verification.
 
 ## Memory
 
@@ -835,3 +897,39 @@ WARPSYNC; on SM89 it uses immediate mask `0xffffffff`.
 
 The SM90 fixtures have independent reference expectations and run in the CPU
 engines; this run adds no SM90 hardware observation.
+
+### Reconvergence and deferred barriers (2026-11-03)
+
+The nine `sync_*` fixtures in `tests/harness/synchronization.py` passed on the SM89
+RTX 4070 Laptop GPU. They exercise divergent and nested BSSY/BSYNC, ID reuse,
+predicated membership, exited participants, ordinary and deferred BAR generations,
+independent IDs with 32-thread counts, register/immediate ID and count operands,
+and a shared-memory exchange combining reconvergence, deferred BAR and MUFU.RCP.
+Each fixture asserts that its target instructions were visited in emulation.
+The BSSY-target fixture establishes that BSYNC falls through to its next instruction
+even when the recorded target is farther away. Exited lanes do not prevent convergence
+or a default-count block barrier from completing.
+
+`research/deferred_barrier.py` compiles the divergent timing kernels in
+`tests/kernels/deferred_barrier.cu`, verifies the compiler's DEFER_BLOCKING encoding,
+then compares patches retaining the original scheduling controls except where named.
+`research/deferred-barrier-SM89.json` records code, patches, tool versions/hashes and
+eight raw repetitions per variant. One warp delays its arrival by 200,000 clock ticks.
+With DEFER_BLOCKING, the earlier warp's subsequent global-timer sample precedes the
+delayed arrival by about 91–92 microseconds. Replacing it with ordinary BAR.SYNC
+removes that lead. Assigning a read scoreboard to the deferred BAR and waiting for it
+in the timer's request bits does not force the timer to wait.
+
+Inserting LDS, MUFU.RCP, S2R or BRA before the timer removes the lead even without
+an explicit dependency wait; replacing LDS with a fixed MOV preserves it. The timing
+consumer's data operand is zeroed in every variant so that a loaded value cannot be
+mistaken for elapsed time. These observations establish blocking at subsequent
+decoupled instruction issue on these SM89 forms, rather than at every following
+instruction or solely at an explicit scoreboard wait. The runtime applies the machine
+description's decoupled classification to other instructions by inference.
+
+Python, native and Ghidra run the fixtures under round-robin, reverse and reproducible
+seeded orders, including partial warps and invalid/incompatible waits. The form sharing
+one physical register for both BAR ID and count is explicitly unresolved; reductions,
+arrival-only forms, BREAK and BMOV remain unsupported. This run adds no SM90
+hardware evidence and does not establish full YOLO replay.

@@ -17,6 +17,52 @@ def scenario(value=19, expected=None, **kwargs):
     return device_cases.Scenario('unit', case, *device_cases.classify(case))
 
 
+def reciprocal_scenarios(arch, precision, op, destination=8):
+    from sass.decode import ir
+    from tests.harness import autocases
+    from tests.harness.autocase_half_requests import Inputs
+    cls = 'mufu_fp16__RR' if precision == 'F16' else 'mufu__RRR_RR'
+    k = next(k for k in ir.load(arch).classes if k.name == cls)
+    fields = dict(mufuop=op)
+    if precision == 'F16': fields.update(width='F16', extract='H1')
+    form = autocases.encoded_form(arch, k, fields)
+    cases = autocases.generate(arch, cls, form, discovery=True,
+                              input_profile=Inputs(values=tuple(range(0, 65536, 509)), destination=destination))
+    return [device_cases.Scenario('probe', c, 'scalar', arch=arch) for c in cases]
+
+
+def test_parallel_discovery_preserves_target_and_padding():
+    scenarios = reciprocal_scenarios('SM89', 'F16', 'RSQ', 2)
+    probe, = device_cases.kernels(scenarios, raw=True)
+    assert probe.grid == 2 and probe.threads == 128
+    assert len(probe.observations) == len(scenarios) == 129
+    offset, target = probe.code.targets[0]
+    image = device_cases.image([probe])
+    actual = int.from_bytes(cubin.kernel_image(image, 'probe_0')['code'][offset:offset + 16], 'little')
+    assert actual & device_cases.ENCODING == int.from_bytes(bytes.fromhex(target), 'little') & device_cases.ENCODING
+    assert len(device_cases.kernels(scenarios)) == 3
+    guarded = scenarios[0].case._replace(request=dict(scenarios[0].case.request, registers={'P0': 0}))
+    assert device_cases.parallel_word(device_cases.Scenario('probe', guarded, 'scalar')) is None
+
+
+@pytest.mark.gpu
+def test_parallel_discovery_matches_serial_gpu(request):
+    from tests.harness import gpu
+    arch = gpu.target(request.config)
+    if arch is None: pytest.skip(request.config._gpu_unavailable)
+    driver = gpu.Driver(arch)
+    try:
+        for precision, ops in [('F32', ('RCP', 'RSQ')), ('64H', ('RCP64H', 'RSQ64H')), ('F16', ('RCP', 'RSQ'))]:
+            for op in ops:
+                for destination in (2, 8):
+                    scenarios = reciprocal_scenarios(arch, precision, op, destination)
+                    parallel = device_cases.execute(driver, device_cases.kernels(scenarios, raw=True))
+                    serial = device_cases.execute(driver, [device_cases.scalar_probe(scenarios[i:i + 64], f'serial_{i}', raw=True)
+                                                           for i in range(0, len(scenarios), 64)])
+                    assert parallel == serial, (precision, op, destination)
+    finally: driver.close()
+
+
 def test_target_encoding_and_scratch_preserve_aliases():
     c = Cases('SM89')
     c.add('imad_wide__RRR_RRR', dict(Rd=2, Ra=2, Rb=4, Rc=6, fmt='U32'), dict(R2=3, R4=4, R6=5), dict(R2=17, R3=0))

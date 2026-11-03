@@ -4,9 +4,9 @@
     "unresolved_semantics": 905496,
     "requirements": 214069,
     "manual": 0,
-    "blocked": 2179,
-    "covered_requirements": 211890,
-    "generated": 17284
+    "blocked": 1983,
+    "covered_requirements": 212086,
+    "generated": 17384
   },
   "gaps": [
     {
@@ -1710,92 +1710,94 @@
     },
     {
       "cls": "mufu__RCR_RC",
-      "count": 32,
+      "count": 16,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 32
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 16
       }
     },
     {
       "cls": "mufu__RCxR_RCx",
-      "count": 32,
+      "count": 16,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 32
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 16
       }
     },
     {
       "cls": "mufu__RIR_RI",
-      "count": 8,
+      "count": 6,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 8
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 4,
+        "Sb: 18442240474082181120 outside [0, 4294967295]": 1,
+        "Sb: 4607182418800017408 outside [0, 4294967295]": 1
       }
     },
     {
       "cls": "mufu__RRR_RR",
-      "count": 32,
+      "count": 16,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 32
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 16
       }
     },
     {
       "cls": "mufu__RUR_RU",
-      "count": 32,
+      "count": 16,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 32
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 16
       }
     },
     {
       "cls": "mufu_fp16__RC",
-      "count": 104,
+      "count": 72,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 64
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 48
       }
     },
     {
       "cls": "mufu_fp16__RCx",
-      "count": 104,
+      "count": 72,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 64
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 48
       }
     },
     {
       "cls": "mufu_fp16__RI",
-      "count": 8,
+      "count": 6,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 8
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 6
       }
     },
     {
       "cls": "mufu_fp16__RR",
-      "count": 104,
+      "count": 72,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 64
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 48
       }
     },
     {
       "cls": "mufu_fp16__RU",
-      "count": 104,
+      "count": 72,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 64
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 48
       }
     },
     {

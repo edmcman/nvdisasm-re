@@ -120,7 +120,8 @@ SUPPLEMENTS = (
 
 def names(op, cls, form):
     from tests.harness import autocase_remaining
-    if op == 'MUFU' and not autocase_remaining.blocked_reason(op, cls, form): return ['mufu_sincos']
+    if op == 'MUFU' and not autocase_remaining.blocked_reason(op, cls, form):
+        return ['mufu_sincos' if form.get('mufuop', form.get('op')) in ('SIN', 'COS') else 'mufu_reciprocal']
     if op in autocase_remaining.OPS: return ['remaining_forms']
     from tests.harness import autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp
     if op in ('FHADD2','FHMUL2','FHFMA2'): return ['mixed_pair_forms']
@@ -580,3 +581,15 @@ PROFILES['mufu_sincos'] = {'words': (
     0x3effffff, 0x3f000000, 0x3f000001, 0x3f400000, 0xbf800000,
     0x4a7fffff, 0x4a800000, 0x4a800001, 0x4b000000, 0x7f7fffff,
     0x7f800000, 0xff800000, 0x7fc00000, 0xff800001)}
+PROFILES['mufu_reciprocal'] = {'words': (
+    0, 0x80000000, 1, 0x807fffff, 0x00800000, 0x00800001,
+    0x3f7fffff, 0x3f800000, 0x3f800001, 0x40000000, 0xbf800001,
+    0x7e7fffff, 0x7e800000, 0x7e800001, 0x7f7fffff,
+    0x7f800000, 0xff800000, 0x7fc12345, 0xff800001),
+    'high_words': (0, 0x80000000, 1, 0x800fffff, 0x00100000, 0x00100001,
+                   0x3fefffff, 0x3ff00000, 0x3ff00001, 0x40000000, 0xbff00001,
+                   0x7fcfffff, 0x7fd00000, 0x7fd00001, 0x7fefffff,
+                   0x7ff00000, 0xfff00000, 0x7ff12345, 0xfff00001),
+    'halves': (0, 0x8000, 1, 0x8001, 0x100, 0x101, 0x3ff, 0x400, 0x401,
+               0x712, 0x713, 0x714, 0x3bff, 0x3c00, 0x3c01,
+               0x4000, 0xbc01, 0x7713, 0x7bff, 0x7c00, 0xfc00, 0x7e01, 0xfc01)}

@@ -25,7 +25,7 @@ prim::Status call(std::string_view name, const prim::Warp &w, uint32_t need, con
     for (int fn = 0; fn < 10; ++fn) {
       std::string upper(name.substr(5));
       for (auto &c : upper) c = char(std::toupper(c));
-      if (upper == prim::MUFU_NAMES[fn]) return prim::mufu(prim::Mufu(fn), nargs == 2, need, arg(0), out);
+      if (upper == prim::MUFU_NAMES[fn]) return prim::mufu(prim::Mufu(fn), nargs == 2, need, arg(0), out, nargs == 2 && need ? uint32_t(arg(1)[std::countr_zero(need)]) : 0);
     }
   return {nullptr, "primitive " + std::string(name)};
 }

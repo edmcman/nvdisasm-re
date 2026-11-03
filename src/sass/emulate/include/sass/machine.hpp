@@ -138,9 +138,9 @@ inline uint64_t redux(const Ctx &c, prim::Reduction op, uint64_t x) {
   const WarpContext &w = warp(c);
   return one(w.lane, [&](uint32_t need, uint64_t *out) { return prim::redux(op, env_warp(w), need, v.data(), out); });
 }
-inline uint64_t mufu(const Ctx &, prim::Mufu fn, bool half, uint64_t x) {
+inline uint64_t mufu(const Ctx &, prim::Mufu fn, bool half, uint64_t x, uint32_t format = 0) {
   uint64_t in[32] = {x};
-  return one(0, [&](uint32_t need, uint64_t *out) { return prim::mufu(fn, half, need, in, out); });
+  return one(0, [&](uint32_t need, uint64_t *out) { return prim::mufu(fn, half, need, in, out, format); });
 }
 inline uint64_t address_space(const Ctx &c, uint64_t address) {
   if (c.env.ranges_error) throw Fault{c.env.ranges_error};

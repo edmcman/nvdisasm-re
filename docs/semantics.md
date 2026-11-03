@@ -1235,7 +1235,17 @@ Family `families/memory.py` (Phase 6b).
   full-width SIN/COS with the recovered SM89 integer model (`fp/mufu.py` 2026-10-19, `emulate/include/sass/mufu.hpp` since 2026-10-23): fixed-point turn
   reduction, 64 integer coefficient triples, retained square terms and final float32 rounding toward
   zero. The model is generated wherever those forms exist; hardware evidence is SM89 only. The other
-  functions and the 16-bit forms raise until a hardware model exists.
+  functions remain unresolved except RCP/RSQ and their 64H forms (2026-11-03).
+  F32/64H reciprocals use integer piecewise quadratics with the same retained-partial-product
+  square as SIN, independently established exceptional values and flushing. The coefficients
+  are a reproducible high-precision realization of the observed function; their widths do not
+  establish the physical SFU table format. Backend and GPU comparisons are exact; the recorded
+  validation domains are in `research/mufu/reciprocal/validation.json`.
+  FP16 reciprocals have a precision-specific model matching every captured SM89
+  input exactly, including subnormals, overflow and RSQ's 15 rounding exceptions.
+  BF16 reciprocals retain an explicit unsupported runtime fallback; their format argument
+  is preserved by every backend. Other architectures generate supported forms from their
+  machine descriptions; the numerical hardware evidence here is SM89 only.
 - CPU arithmetic references use the
   [NVIDIA PTX arithmetic definitions](https://docs.nvidia.com/cuda/parallel-thread-execution/) as
   reference conventions; GPU checks are needed to establish SASS equivalence.

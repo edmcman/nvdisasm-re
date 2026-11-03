@@ -2,6 +2,7 @@
 import json
 from sass.decode import ir, pydecode
 from sass.emulate import schedule
+from sass.md import parse
 
 FILE_IDS = {"R": 0, "UR": 1, "SR": 2, "P": 3, "UP": 4}
 
@@ -16,21 +17,30 @@ def operand(location):
 
 class Instruction:
     def __init__(self, arch, word):
+        self.word = int.from_bytes(word, 'little')
         self.decoded = self.error = None
         try: self.decoded = pydecode.decode(arch, word)
         except pydecode.NoMatch as error: self.error = str(error)
+
+    def unsupported_scope(self, arch):
+        d = self.decoded
+        if d is None: return 0
+        k = d.klass
+        labels = {n: ir.load(arch).rev_enums[a.type].get(d.env[n], '')
+                  for n, a in k.operand_types.items() if n in ('sem', 'sco') and n in d.env}
+        return 2 if k.mnemonic in ('ATOM', 'ATOMG', 'ATOMS', 'RED', 'REDG', 'MEMBAR', 'FENCE') or labels.get('sem') == 'MMIO' or labels.get('sco') in ('SYS', 'VC') else 1
 
     def unsupported(self, arch):
         d = self.decoded
         if d is None: return None
         k = d.klass
-        labels = {n: ir.load(arch).rev_enums[a.type].get(d.env[n], '')
-                  for n, a in k.operand_types.items() if n in ('sem', 'sco') and n in d.env}
-        if k.mnemonic == 'BAR' and (k.name != 'bar__SYNC_II_optionalCount_II' or d.env.get('Sb', 0) or d.env.get('Sc', 0)):
-            return 'unsupported barrier in launch scope: ' + d.text
-        if k.mnemonic in ('BSSY', 'BSYNC', 'BREAK', 'BMOV'):
-            return 'unsupported synchronization in launch scope: ' + d.text
-        if k.mnemonic in ('ATOM', 'ATOMG', 'ATOMS', 'RED', 'REDG', 'MEMBAR', 'FENCE') or labels.get('sem') == 'MMIO' or labels.get('sco') in ('SYS', 'VC'):
+        if k.mnemonic == 'BAR' and not k.name.startswith(('bar__SYNC_', 'bar__SYNC_dfrBlk_')):
+            return 'unsupported barrier in cooperative scope: ' + d.text
+        if k.mnemonic == 'BAR' and {'Rb', 'Rc'} <= k.operand_types.keys():
+            return 'unresolved packed-register barrier: ' + d.text
+        if k.mnemonic in ('BREAK', 'BMOV'):
+            return 'unsupported synchronization in cooperative scope: ' + d.text
+        if self.unsupported_scope(arch) == 2:
             return 'unsupported ordering in launch scope: ' + d.text
         return None
 
@@ -38,7 +48,11 @@ class Instruction:
         d = self.decoded
         if d is None: return f"{{0, 0, 0, 0, 0, 0, 0, 0, {operand(None)}, {operand(None)}, {operand(None)}, {operand(None)}, 0, {json.dumps(self.error)}, nullptr, nullptr}}"
         k, env = d.klass, d.env
-        location = lambda name: schedule.operand_location(arch, d, name) if name in k.operand_types else None
+        def location(name):
+            if name not in k.operand_types: return None
+            match k.operand_types[name].type:
+                case 'UImm' | 'SImm': return 'const', env[name]
+                case _: return schedule.operand_location(arch, d, name)
         key, source = schedule.WARP_INPUTS.get(k.mnemonic, (None, None))
         sync, mask, sync_operand = 0, 0, None
         if k.mnemonic == "WARPSYNC":
@@ -49,4 +63,13 @@ class Instruction:
         fields = [int(k.mnemonic == "EXIT"), int(k.name.startswith("bar__SYNC")), int(k.mnemonic == "WARPSYNC"),
                   {None: 0, "values": 1, "predicates": 2}[key], env.get(("Pg", "not"), 0), env.get(("Pp", "not"), 0), sync, len(dests)]
         operands = [location("Pg"), location("Pp") if "Pp" in k.operand_types else ("const", 1), location(source) if source else None, sync_operand]
-        return "{" + ", ".join([*map(str, fields), *map(operand, operands), f"UINT64_C({mask:#x})", "nullptr", f"D{i}" if dests else "nullptr", json.dumps(self.unsupported(arch)) if self.unsupported(arch) else "nullptr"]) + "}"
+        convergence = {'BSSY': 1, 'BSYNC': 2}.get(k.mnemonic, 0)
+        target = env.get('Sa', 0)
+        extra = [str(convergence), str(env.get('barReg', 0)), str(target),
+                 operand(location('Sb' if 'Sb' in k.operand_types else 'Rb') if k.mnemonic == 'BAR' else None),
+                 operand(location('Sc' if 'Sc' in k.operand_types else 'Rc') if k.mnemonic == 'BAR' else None),
+                 str(int('dfrBlk' in k.name)),
+                 str(int('DECOUPLED' in parse.arch_classes(arch)[k.name]['props'].get('INSTRUCTION_TYPE', ''))),
+                 str(self.word >> 116 & 63), str(self.word >> 113 & 7), str(self.word >> 110 & 7),
+                 str(self.unsupported_scope(arch))]
+        return "{" + ", ".join([*map(str, fields), *map(operand, operands), f"UINT64_C({mask:#x})", "nullptr", f"D{i}" if dests else "nullptr", json.dumps(self.unsupported(arch)) if self.unsupported(arch) else "nullptr", *extra]) + "}"

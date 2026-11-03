@@ -98,6 +98,14 @@ def on_data_path(g, code):
     return backward(data, branch) | forward & backward(insts, branch)
 
 
+def fixture_path(g, fixture, code):
+    synchronization = {'BAR', 'BSSY', 'BSYNC', 'WARPSYNC'}
+    return on_data_path(g, code) | {
+        offset for offset, d in decoded(g.arch.name, code)
+        if fixture.scope != 'thread' and d.klass.mnemonic in synchronization
+        and any(hits(mnemonic(d), target) for target in fixture.targets)}
+
+
 @cache
 def gpu(arch="SM89", sample=sampling.DEFAULT):
     """(class, settings, fixture name) for the target instructions on the data path of a GPU fixture
@@ -107,7 +115,7 @@ def gpu(arch="SM89", sample=sampling.DEFAULT):
     g, out = Gen(arch), []
     for f in (f for _, f in gpu_fixtures(arch=arch) if passed(f)):
         code = Template(f.image, f.kernel).code
-        sliced = on_data_path(g, code)
+        sliced = fixture_path(g, f, code)
         out += [(d.klass.name, settings(arch, d), f.name) for o, d in decoded(arch, code) if o in sliced]
     from tests.harness import device_evidence
     for family, word in device_evidence.verified_words(arch, sample):

@@ -146,7 +146,7 @@ class Lower:
         if family == "redux" and variant in primitive.REDUCTIONS:
             return f"sass::lane::redux(c, sass::prim::Reduction({primitive.REDUCTIONS.index(variant)}), {args[0]})"
         if family == "mufu" and variant.upper() in primitive.MUFU:
-            return f"sass::lane::mufu(c, sass::prim::Mufu({primitive.MUFU.index(variant.upper())}), {str(len(args) == 2).lower()}, {args[0]})"
+            return f"sass::lane::mufu(c, sass::prim::Mufu({primitive.MUFU.index(variant.upper())}), {str(len(args) == 2).lower()}, {', '.join(args)})"
         return f"(throw sass::Fault{{{string('primitive ' + name)}}}, sass::u64(0))"
 
     def store(self, s):

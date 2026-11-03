@@ -82,6 +82,12 @@ def generate(arch, cls, form, fp='exact', profiles=None, native=True, sample=sam
 
 
 def checked_word(arch, cls, fields, form, imad_alias=False):
+    return checked_encoding(arch, cls, tuple(sorted(fields.items())), tuple(sorted(form.items())), imad_alias)
+
+
+@lru_cache(4096)
+def checked_encoding(arch, cls, fields, form, imad_alias):
+    fields, form = dict(fields), dict(form)
     word = encoding.encode(arch, cls, **fields)
     decoded = pydecode.decode(arch, bytes.fromhex(word))
     found = settings(arch, decoded)

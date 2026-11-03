@@ -41,6 +41,8 @@ def run(request, engine, arch):
             lane = lanes[index]
             w = warp.contents
             context = dict(request.get('context', {}))
+            if scope != 'thread':
+                context['synchronization'] = dict(context.get('synchronization', {}), bssy=True, bsync=True, bar=True, warpsync=True)
             if w.present:
                 context['warp'] = dict(lane=w.lane, active=w.active, waiting=w.waiting,
                                        values=list(w.values), predicates=list(w.predicates))

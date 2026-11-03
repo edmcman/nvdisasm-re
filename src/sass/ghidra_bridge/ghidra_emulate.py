@@ -25,6 +25,19 @@ def session(ldefs,langid):
     lang=load_language(ldefs,langid);space=lang.getDefaultSpace();variant=langid.rsplit(':',1)[1];arch=variant.split('_')[0].upper();runtime=Runtime(int(arch[2:]))
     reason=PcodeExecutorStatePiece.Reason.INSPECT
     from sass.sleigh.registers import REG_FILES
+    aliases={file+str(zero):name for file,(_,_,_,zero,name) in REG_FILES.items()}
+    hardwired={name:int(file in ('P','UP')) for file,(_,_,_,_,name) in REG_FILES.items()}
+    def register(name):
+        reg=lang.getRegister(aliases.get(name,name))
+        if reg is None:raise ValueError(f'unknown register {name}')
+        return reg
+    def read(state,name):
+        canonical=aliases.get(name,name)
+        return hardwired[canonical] if canonical in hardwired else value(state,register(canonical))
+    def seed(state,name,v):
+        canonical=aliases.get(name,name);reg=register(canonical);size=int(reg.getMinimumByteSize())
+        v=hardwired.get(canonical,int(v))&((1<<(size*8))-1)
+        state.setVar(reg,jpype.JArray(jpype.JByte)(v.to_bytes(size,'little')))
     architectural=[(name,lang.getRegister(name)) for file,(_,_,count,zero,_) in REG_FILES.items() for i in range(count) if i!=zero for name in [file+str(i)]]
     definition=jpype.JClass('ghidra.pcode.exec.PcodeUseropLibrary$PcodeUseropDefinition')
     refs=[]
@@ -75,8 +88,8 @@ def session(ldefs,langid):
         """A thread of a Ghidra emulator, stepped by `schedule.run_kernel`."""
         def __init__(self,kernel,thread):self.kernel,self.thread,self.state=kernel,thread,thread.getState()
         def pc(self):return int(self.thread.getCounter().getOffset())
-        def read(self,file,index):return value(self.state,lang.getRegister(file+str(index)))
-        def seed(self,name,v):self.state.setVar(lang.getRegister(name),jpype.JArray(jpype.JByte)(v.to_bytes(4,'little')))
+        def read(self,file,index):return read(self.state,file+str(index))
+        def seed(self,name,v):seed(self.state,name,v)
         def step(self,decoded,context):
             runtime.context=context;runtime.events=[];runtime.last_error=None
             try:self.thread.stepInstruction()
@@ -88,13 +101,19 @@ def session(ldefs,langid):
         def __init__(self,request):
             kernel=request['kernel'];self.code=bytes.fromhex(kernel['code']);self.base=int(kernel.get('address',0x100000))
             self.memory=request.get('memory',[])+[dict(space='ram',address=self.base,hex=self.code.hex())];self.written={}
+            self.global_state=PcodeEmulator(lang).getSharedState() if kernel.get('scope','launch')=='launch' else None
+            if self.global_state is not None:write_memory(self.global_state,[m for m in self.memory if m['space'] not in ('shared','localmem')])
         def group(self,threads,scope):
-            if scope == "launch": raise ValueError("Ghidra does not support launch scope; use scope=block or thread")
-            emulator=BlockEmulator(lang) if scope == "block" else PcodeEmulator(lang);lanes=[]
+            match scope:
+                case 'launch':emulator=BlockEmulator(lang,self.global_state)
+                case 'block':emulator=BlockEmulator(lang)
+                case _:emulator=PcodeEmulator(lang)
+            lanes=[]
             for i,t in enumerate(threads):
                 thread=emulator.newThread(f'thread {t}')
                 library_field.set(thread,thread.getUseropLibrary().compose(lib))
-                if i==0:write_memory(thread.getState(),self.memory)
+                write_memory(thread.getState(),[m for m in self.memory if m['space']=='localmem' or i==0 and
+                             (scope!='launch' or m['space']=='shared')])
                 thread.overrideCounter(space.getAddress(self.base));lanes.append(GhidraLane(self,thread))
             return lanes
         def output(self,lane,address,size):return bytes(lane.state.getVar(Varnode(space.getAddress(address),size),reason))
@@ -116,10 +135,7 @@ def session(ldefs,langid):
         # untouched ones; only PT/UPT start nonzero.
         for reg,value in true_registers:state.setVar(reg,value)
         for name,value in request.get('registers',{}).items():
-            reg=lang.getRegister(name);size=int(reg.getMinimumByteSize());value=int(value)&((1<<(size*8))-1)
-            if name in ('RZ','URZ'):value=0
-            if name in ('PT','UPT'):value=1
-            state.setVar(reg,jpype.JArray(jpype.JByte)(value.to_bytes(size,'little')))
+            seed(state,name,value)
         write_memory(state,request.get('memory',[]))
         ins=parse(lang,addr,bytes.fromhex(request['word']))
         program=PcodeProgram.fromInstruction(ins,False);ops=program.getCode()
@@ -129,7 +145,7 @@ def session(ldefs,langid):
         thread.getExecutor().execute(program,thread.getUseropLibrary().compose(lib))
         registers={}
         for name in request.get('observe',[]):
-            registers[name]=int.from_bytes(bytes(state.getVar(lang.getRegister(name),reason)),'little')
+            registers[name]=read(state,name)
         memories=[]
         for mem in request.get('observe_memory',[]):
             sp=lang.getAddressFactory().getAddressSpace(mem['space'])

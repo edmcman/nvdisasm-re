@@ -95,9 +95,15 @@ def options(kernel):
     if "cooperative" in kernel: raise ValueError("cooperative was removed; use scope='thread', 'block', or 'launch'")
     scope, order = kernel.get("scope", "launch"), kernel.get("schedule", "round_robin")
     if scope not in ("thread", "block", "launch"): raise ValueError("invalid memory scope: " + str(scope))
-    if order not in ("round_robin", "reverse"): raise ValueError("invalid schedule: " + str(order))
+    if order not in ("round_robin", "reverse", "seeded"): raise ValueError("invalid schedule: " + str(order))
     if scope != "launch" and order != "round_robin": raise ValueError("schedule requires launch scope")
-    return scope, order == "reverse"
+    match order:
+        case "round_robin": return scope, 0
+        case "reverse": return scope, 1
+        case "seeded":
+            seed = int(kernel.get('schedule_seed', 0x5a55))
+            if not 0 <= seed < (1 << 32) - 2: raise ValueError("invalid schedule seed")
+            return scope, seed + 2
 
 
 def run_kernel(request, engine, arch):

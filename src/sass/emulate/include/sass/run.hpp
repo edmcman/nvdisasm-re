@@ -3,6 +3,9 @@
 #pragma once
 #include <algorithm>
 #include <vector>
+#include <map>
+#include <numeric>
+#include <random>
 #include "sass/machine.hpp"
 
 namespace sass {
@@ -18,6 +21,11 @@ struct Info {
   const char *decode_error;                         // the decoder's message for a word that does not decode
   const uint32_t *dests;                            // trace: file << 16 | index of each register written
   const char *unsupported;
+  uint32_t convergence, convergence_id;
+  int64_t target;
+  Operand bar_id, bar_count;
+  uint32_t deferred, deferred_gate, waits, read_dependency, write_dependency;
+  uint32_t unsupported_scope;
 };
 
 struct Program { uint64_t base, count; void (*const *code)(Ctx &); const Info *info; };
@@ -67,6 +75,8 @@ struct Lane {
   uint64_t index = 0, last = 0, steps = 0;
   bool waiting = false, released = false, has_sync = false;
   uint32_t sync = 0;
+  int convergence = -1, barrier = -1;
+  bool bar_parked = false;
   bool live() const { return t.pc != 0; }
 };
 
@@ -75,6 +85,10 @@ struct Run {
   const Launch &l;
   Result &r;
   uint64_t group = 0;
+  struct Convergence { uint32_t members = 0; uint64_t target = 0; };
+  using Convergences = std::array<Convergence, 16>;
+  struct Barrier { uint32_t count = 0; bool implicit = false; std::vector<Lane *> members; };
+  using Barriers = std::map<uint32_t, Barrier>;
 
   uint32_t lane_id(const Lane &u) const { return uint32_t(u.index % l.block % 32); }
 
@@ -118,11 +132,13 @@ struct Run {
     if (u.steps >= l.max_steps) return stop(Limited, u.index, pc);
     u.last = pc;
     const Info &info = p.info[i];
-    if (l.scope == 2 && info.unsupported && (!info.guard.kind || (read(u.t, info.guard) ^ info.guard_not)))
+    if (l.scope >= info.unsupported_scope && info.unsupported && (!info.guard.kind || (read(u.t, info.guard) ^ info.guard_not)))
       return stop(Faulted, u.index, pc, info.unsupported);
     const bool traced = l.trace && u.index < l.traced;
     const bool taken = traced && (!info.guard.kind || (read(u.t, info.guard) ^ info.guard_not));
-    Ctx c{u.t, shared, u.local, w, *l.env};
+    Environment env = *l.env;
+    if (l.scope) env.sync |= (1u << Bar) | (1u << Bssy) | (1u << Bsync) | (1u << Warpsync);
+    Ctx c{u.t, shared, u.local, w, env};
     if (l.step_lane) {
       char message[512] = {};
       if (l.step_lane(u.index, &u.t, &w, message, sizeof message)) return stop(Faulted, u.index, pc, message);
@@ -180,8 +196,18 @@ struct Run {
   }
 
   // schedule.turn: Done with moved set when a lane stepped.
-  uint32_t turn(std::vector<Lane *> &warp, Memory &shared, bool &moved) {
+  uint32_t turn(std::vector<Lane *> &warp, Convergences &convergences, Barriers &barriers, uint32_t block_count, Memory &shared, bool &moved) {
     moved = false;
+    for (uint32_t id = 0; id < convergences.size(); ++id) {
+      auto &c = convergences[id];
+      if (!c.members) continue;
+      bool ready = true;
+      for (Lane *u : warp) if (c.members >> lane_id(*u) & 1 && u->live() && u->convergence != int(id)) ready = false;
+      if (!ready) continue;
+      for (Lane *u : warp) if (u->convergence == int(id))
+        u->waiting = false, u->released = true, u->convergence = -1;
+      c = {};
+    }
     if (uint32_t s = release(warp)) return s;
     uint64_t pc = UINT64_MAX;
     for (Lane *u : warp) if (u->live() && !u->waiting) pc = std::min(pc, u->t.pc);
@@ -193,15 +219,50 @@ struct Run {
     moved = true;
     const Info &info = p.info[i];
     for (Lane *u : active) if (!info.guard.kind || (read(u->t, info.guard) ^ info.guard_not)) taking.push_back(u);
-    if (l.scope == 2 && info.unsupported && !taking.empty())
+    if (l.scope >= info.unsupported_scope && info.unsupported && !taking.empty())
       return stop(Faulted, taking.front()->index, pc, info.unsupported);
     const auto drop = [&](const std::vector<Lane *> &held) {
       active.erase(std::remove_if(active.begin(), active.end(), [&](Lane *u) { return std::find(held.begin(), held.end(), u) != held.end(); }), active.end());
     };
+    if (info.deferred_gate) {
+      std::vector<Lane *> held;
+      for (Lane *u : taking) if (u->barrier >= 0) u->waiting = true, held.push_back(u);
+      drop(held);
+      taking.erase(std::remove_if(taking.begin(), taking.end(), [&](Lane *u) { return u->barrier >= 0; }), taking.end());
+    }
     WarpContext w{};
-    if (info.bar_sync && !std::all_of(taking.begin(), taking.end(), [](Lane *u) { return u->released; })) {
-      for (Lane *u : taking) u->waiting = true;
-      drop(taking);
+    if (info.convergence) {
+      auto &c = convergences[info.convergence_id];
+      std::vector<Lane *> members;
+      for (Lane *u : taking) if (read(u->t, info.pp) ^ info.pp_not) members.push_back(u);
+      if (info.convergence == 1 && !members.empty()) {
+        if (c.members) return stop(Faulted, members.front()->index, pc, "BSSY reuses an active convergence ID");
+        c.target = pc + 16 + info.target;
+        for (Lane *u : members) c.members |= 1u << lane_id(*u);
+      } else if (info.convergence == 2) {
+        std::vector<Lane *> held;
+        for (Lane *u : members) if (!u->released) {
+          if (!(c.members >> lane_id(*u) & 1)) return stop(Faulted, u->index, pc, "BSYNC lane has no matching BSSY");
+          u->waiting = true, u->convergence = int(info.convergence_id);
+          held.push_back(u);
+        }
+        drop(held);
+      }
+    } else if (info.bar_sync) {
+      std::vector<Lane *> held;
+      for (Lane *u : taking) if (!u->released) {
+        const uint64_t id = read(u->t, info.bar_id), count = read(u->t, info.bar_count);
+        if (id >= 16 || count > block_count || (count && count % 32))
+          return stop(Faulted, u->index, pc, "unsupported barrier ID or participant count");
+        auto &b = barriers[uint32_t(id)];
+        const uint32_t expected = count ? uint32_t(count) : block_count;
+        if (b.count && (b.count != expected || b.implicit != !count)) return stop(Faulted, u->index, pc, "incompatible barrier participant counts");
+        b.count = expected, b.implicit = !count;
+        b.members.push_back(u);
+        u->barrier = int(id), u->bar_parked = !info.deferred;
+        if (!info.deferred) u->waiting = true, held.push_back(u);
+      }
+      drop(held);
     } else if (info.warpsync) {
       std::vector<Lane *> held;
       for (Lane *u : taking) if (!u->released && (read(u->t, info.pp) ^ info.pp_not)) held.push_back(u);
@@ -239,10 +300,20 @@ struct Run {
       Memory memory;
       std::vector<Lane> lanes;
       std::vector<std::vector<Lane *>> warps;
+      std::vector<Convergences> convergence;
+      Barriers barriers;
     };
     Memory global; global.base = l.image;
     const uint64_t n = (l.last - l.first + l.block - 1) / l.block;
     std::vector<Block> blocks(n);
+    std::mt19937 random(l.reverse > 1 ? l.reverse - 2 : 0);
+    const auto order = [&](size_t count) {
+      std::vector<size_t> indices(count);
+      std::iota(indices.begin(), indices.end(), 0);
+      if (l.reverse == 1) std::reverse(indices.begin(), indices.end());
+      else if (l.reverse > 1) std::shuffle(indices.begin(), indices.end(), random);
+      return indices;
+    };
     for (uint64_t j = 0; j < n; ++j) {
       auto &b = blocks[j];
       b.memory.base = l.image;
@@ -252,24 +323,34 @@ struct Run {
       for (uint64_t k = 0; k < b.lanes.size(); ++k) {
         start(b.lanes[k], first + k);
         b.lanes[k].local.base = l.image;
-        if (k % 32 == 0) b.warps.emplace_back();
+        if (k % 32 == 0) b.warps.emplace_back(), b.convergence.emplace_back();
         b.warps.back().push_back(&b.lanes[k]);
       }
     }
     for (;;) {
       bool any = false, alive = false;
-      for (uint64_t j = 0; j < n; ++j) {
-        auto &b = blocks[l.reverse ? n - 1 - j : j];
+      for (size_t j : order(n)) {
+        auto &b = blocks[j];
         group = b.lanes.front().index;
         std::vector<Lane *> live;
         for (auto &u : b.lanes) if (u.live()) live.push_back(&u);
         if (live.empty()) continue;
         alive = true;
-        if (std::all_of(live.begin(), live.end(), [](Lane *u) { return u->waiting && !u->has_sync; }))
-          for (Lane *u : live) u->waiting = false, u->released = true;
-        for (size_t k = 0; k < b.warps.size(); ++k) {
+        for (auto it = b.barriers.begin(); it != b.barriers.end();) {
+          auto &barrier = it->second;
+          uint32_t required = barrier.count;
+          if (barrier.implicit)
+            for (auto &u : b.lanes)
+              if (!u.live() && std::find(barrier.members.begin(), barrier.members.end(), &u) == barrier.members.end()) --required;
+          if (barrier.members.size() != required) { ++it; continue; }
+          for (Lane *u : barrier.members)
+            u->waiting = false, u->released = u->bar_parked, u->barrier = -1, u->bar_parked = false;
+          it = b.barriers.erase(it);
+          any = true;
+        }
+        for (size_t index : order(b.warps.size())) {
           bool moved;
-          if (uint32_t s = turn(b.warps[l.reverse ? b.warps.size() - 1 - k : k], b.memory, moved)) return s;
+          if (uint32_t s = turn(b.warps[index], b.convergence[index], b.barriers, uint32_t(b.lanes.size()), b.memory, moved)) return s;
           any |= moved;
         }
         if (l.scope == 1) break;

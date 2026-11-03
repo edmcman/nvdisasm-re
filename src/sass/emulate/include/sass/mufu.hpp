@@ -1,8 +1,9 @@
-// MUFU.SIN/COS: the fixed-point model recovered from SM89 GPU outputs (docs/hardware-facts.md,
-// research/mufu/sin-fit/QUANTIZATION.md); every one of the 2^23 reduced grid offsets matches hardware.
+// SM89 MUFU fixed-point models: docs/hardware-facts.md and research/mufu/.
 #pragma once
 #include <bit>
 #include <cstdint>
+#include "sass/reciprocal_coefficients.hpp"
+#include "sass/softfloat.hpp"
 
 namespace sass::mufu {
 // Hardware-recovered coefficients: constant / 2^25, linear / 2^20, quadratic / 2^22.
@@ -72,11 +73,20 @@ inline constexpr int64_t COEFFICIENTS[64][3] = {
     {33514014, 1263, -1263},
     {33544326, 632, -1265}};
 
+inline int64_t retained_square(uint32_t local, int width) {
+  const int low_bits = width - 7;
+  const int64_t high = local >> low_bits, low = local & ((1 << low_bits) - 1);
+  int64_t square = 2 * high * high;
+  for (int bit = 0; bit < 7; ++bit) {
+    const int shift = low_bits - 2 - bit;
+    square += ((high >> bit) & 1) * (shift >= 0 ? low >> shift : low << -shift);
+  }
+  return square;
+}
+
 // The positive result word at an integer first-quadrant offset in [0, 2^23).
 inline uint32_t reduced_sine(uint32_t offset) {
-  const int64_t segment = offset >> 17, local = offset & 0x1ffff, high = local >> 10, low = local & 1023;
-  int64_t square = 2 * high * high;
-  for (int bit = 0; bit < 7; ++bit) square += ((high >> bit) & 1) * (low >> (8 - bit));
+  const int64_t segment = offset >> 17, local = offset & 0x1ffff, square = retained_square(local, 17);
   const auto [a, b, c] = COEFFICIENTS[segment];
   const int64_t accumulator = (a << 12) + b * local + c * square;
   if (!accumulator) return 0;
@@ -102,5 +112,63 @@ inline uint32_t sincos(uint32_t bits, bool cosine) {
   if (quadrant & 1) offset ^= 0x7fffff;
   const bool negative = (quadrant >= 2) ^ (!cosine && (bits >> 31));
   return reduced_sine(offset) | uint32_t(negative) << 31;
+}
+
+inline softfloat::u128 square_root(softfloat::u128 value) {
+  softfloat::u128 result = 0, bit = softfloat::u128(1) << 126;
+  while (bit > value) bit >>= 2;
+  while (bit) {
+    if (value >= result + bit) value -= result + bit, result = (result >> 1) + bit;
+    else result >>= 1;
+    bit >>= 2;
+  }
+  return result;
+}
+
+template <int W> inline uint64_t reciprocal(uint64_t bits, bool rsq) {
+  using namespace softfloat;
+  const auto x = unpack<W>(bits);
+  const uint64_t sign = uint64_t(x.term.sign) << (W - 1);
+  const uint64_t canonical = (uint64_t(1) << (W - 1)) - 1;
+  if (x.kind == NaN) return canonical;
+  const bool subnormal = W != 16 && !(bits & (exponents<W>() << Format<W>::M));
+  if (x.kind == Zero || subnormal) return inf<W>(x.term.sign);
+  if (rsq && x.term.sign) return canonical;
+  if (x.kind == Inf) return sign;
+  u128 significand;
+  int exponent;
+  if constexpr (W != 16) {
+    const int fraction_bits = W == 32 ? 23 : 20;
+    const uint32_t fraction = uint32_t(W == 32 ? bits : bits >> 32) & ((1 << fraction_bits) - 1);
+    const int input_exponent = int(bits >> Format<W>::M & exponents<W>()) - bias<W>();
+    const int parity = rsq ? input_exponent & 1 : 0;
+    const int width = fraction_bits - (rsq ? 6 : 7), segment = fraction >> width;
+    const int64_t local = fraction & ((1 << width) - 1);
+    const int64_t (*coefficients)[3] = W == 32 ? (rsq ? RSQ32[parity] : RCP32) : (rsq ? RSQ64[parity] : RCP64);
+    const auto [a, b, c] = coefficients[segment];
+    significand = !fraction && !parity ? int64_t(1) << 57 :
+                  (a << 15) + b * local + c * retained_square(uint32_t(local), width) * 4;
+    exponent = -57 - (rsq ? (input_exponent - parity) / 2 : input_exponent);
+  } else {
+    auto t = x.term;
+    const int zeros = std::countr_zero(uint64_t(t.sig));
+    t.sig >>= zeros, t.exp += zeros;
+    if (rsq) {
+      if (t.exp % 2) t.sig <<= 1, --t.exp;
+      significand = square_root((u128(1) << 120) / t.sig);
+      exponent = -60 - t.exp / 2;
+    } else {
+      significand = (u128(1) << 120) / t.sig;
+      exponent = -120 - t.exp;
+    }
+  }
+  if constexpr (W == 16)
+    if (msb(significand) + exponent > bias<W>()) return inf<W>(x.term.sign);
+  uint64_t result = pack<W>({rsq ? 0 : x.term.sign, significand, exponent}, W == 32 ? RN : RZ, 0);
+  if constexpr (W == 16)
+    if (rsq && (bits & 0x7ff) == 0x713) ++result;
+  if constexpr (W != 16)
+    if (!(result & (exponents<W>() << Format<W>::M))) result &= uint64_t(1) << (W - 1);
+  return result;
 }
 }  // namespace sass::mufu

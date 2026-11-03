@@ -1,5 +1,6 @@
 """Lifted instructions as C++ translation units for `sass.emulate.build`: fragments (independent
 single instructions, for differential tests) and whole kernels."""
+from sass.decode import pydecode
 from sass.emulate import cxx, definitions, metadata
 from sass.semantics import lifter
 

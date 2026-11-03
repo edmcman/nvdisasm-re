@@ -9,6 +9,7 @@ __opaque (CALLOTHER p-code or an error starting with
 the given text). `error` expects a failure message.
 """
 from tests.refs.fpformat import same_fp8
+from tests.refs.mufu import reciprocal_same
 
 
 def problems(expected, result):
@@ -18,10 +19,14 @@ def problems(expected, result):
     if "__opaque" in expected:
         return [] if "CALLOTHER" in ops or result.get("error", "").startswith(expected["__opaque"]) else ["opaque fallback"]
     registers = {n: v for n, v in expected.items() if not n.startswith("__")}
+    match expected:
+        case {'__mufu': spec}:
+            same = set(result.get('registers', {})) == set(registers) and all(reciprocal_same(result['registers'][n], v, **spec) for n, v in registers.items())
+        case {'__fp8_nan': fmt}:
+            same = set(result.get('registers', {})) == set(registers) and all(same_fp8(result['registers'][n], v, fmt) for n, v in registers.items())
+        case _: same = result.get('registers') == registers
     checks = [
-        (True, result.get("registers") == registers if "__fp8_nan" not in expected else
-         set(result.get("registers", {})) == set(registers) and
-         all(same_fp8(result["registers"][n], v, expected["__fp8_nan"]) for n, v in registers.items()), "registers"),
+        (True, same, "registers"),
         ("__counter" in expected, result.get("counter") == expected.get("__counter"), "counter"),
         ("__memory" in expected, bool(result.get("memory")) and result["memory"][0]["hex"] == expected.get("__memory"), "memory"),
         ("__events" in expected, len(result.get("events", [])) == expected.get("__events"), "events"),

@@ -20,10 +20,11 @@ all engines use the C++ scheduler in `include/sass/run.hpp`. Native instructions
 Python reference and Ghidra lanes use a C callback adapter. `schedule.py` supplies request
 validation, decoded instruction facts, and diagnostics; it contains no scheduling loop.
 
-`scope="launch"` is the default for Python/native: global (`ram`) storage is shared across the
+`scope="launch"` is the default for every engine: global (`ram`) storage is shared across the
 launch, shared storage is private to each block, and local storage is private to each thread.
 `scope="block"` isolates global memory by block; `scope="thread"` runs isolated threads without
-warp collectives. Ghidra accepts block/thread scope and explicitly rejects launch scope.
+warp collectives. Ghidra routes global memory through one launch state, shared memory through
+each block's state, and local memory through each thread's state.
 The removed `cooperative` request field raises a migration error. Replace old `False` with
 `scope="thread"` and old `True` with `scope="block"`; remove the positional boolean from
 `kernel_request` calls and pass scope by keyword.
@@ -31,6 +32,7 @@ The removed `cooperative` request field raises a migration error. Replace old `F
 Launch execution is sequentially consistent with all blocks resident. Each round visits every
 block's warps once, executing the live lanes at their lowest PC in ascending lane order.
 `schedule="reverse"` reverses block and warp visitation; `"round_robin"` is the default.
+`"seeded"` shuffles both orders reproducibly using `schedule_seed` (default `0x5a55`).
 Alternate schedules require launch scope. BAR.SYNC holds remain block-local, and WARPSYNC
 membership and collective operands remain warp-local. Outputs are read after every thread exits.
 A launch uses one scheduler invocation regardless of host worker count; independent requests
@@ -38,10 +40,24 @@ can execute concurrently. Memory resets for each request.
 
 This stronger visibility model does not validate CUDA weak-memory protocols or GPU residency
 requirements. Atomics, fences, MMIO and external/system scope accesses are rejected in launch
-scope. Convergence-barrier state operations (BSSY, BSYNC, BREAK, BMOV) are also rejected
-until their scheduler semantics exist. Other unsupported instructions retain their runtime errors; synchronization context
+scope. BREAK and BMOV remain rejected. Other unsupported instructions retain their runtime errors; synchronization context
 flags cannot enable rejected ordering operations. Polling may exhaust the per-thread instruction
 limit; when no warp can progress the scheduler reports `no thread can proceed` instead.
+
+Since 2026-11-03, BSSY snapshots enabled participants in a warp-local convergence ID.
+BSYNC holds arrivals until the remaining live participants arrive; exited lanes are removed.
+IDs can nest and be reused after completion. BSYNC resumes at its next instruction, even
+when BSSY's target is farther away. Cooperative execution supplies synchronization handlers
+to native, Python and Ghidra lanes; isolated instruction evaluation still requires explicit context.
+
+BAR.SYNC generations are block-local and keyed by ID. Immediate/register IDs and
+immediate/register counts are supported when they are separate operands; explicit counts must
+be multiples of 32 within the launched block. Omitted counts include all non-exited threads.
+The form encoding ID and count in one shared register remains explicitly unresolved.
+DEFER_BLOCKING records arrival and permits coupled instructions to proceed; subsequent
+decoupled instructions wait for that generation. The SM89 timing probe establishes this
+boundary for LDS, MUFU, S2R and BRA, against a passing CS2R/MOV control. Other decoupled classes
+use the same machine-description classification, an inference beyond those tested forms.
 
 Kernel arguments follow the cubin's parameter order, sizes and offsets.
 `launch.serialize_arguments` accepts unsigned integers, encoded little-endian at the declared
