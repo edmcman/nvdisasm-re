@@ -29,8 +29,8 @@ def nopped(image, mnemonic):
 def test_equivalence(name, request):
     if ARCH not in arches(request.config): pytest.skip(f"an {ARCH} kernel")
     f = fixture(name)
-    image, arguments, memory, threads, block, output, cooperative, context = gpu.launch_parts(f)
-    runs = [equivalence.Launch(arguments, tuple(memory), output, threads, block, cooperative, context)]
+    image, arguments, memory, threads, block, output, context = gpu.launch_parts(f)
+    runs = [equivalence.Launch(arguments, tuple(memory), output, threads, block, f.scope, context)]
     assert equivalence.equivalent(image, image, runs)
     mnemonic = next(m for m in (t.split(".")[0] for t in f.targets) if m != "NOP")
     other = nopped(image, mnemonic)
@@ -44,7 +44,7 @@ def test_equivalence(name, request):
 def test_geometry_equivalence(arch, request):
     if arch not in arches(request.config): pytest.skip("architecture not selected")
     f = next(f for f in launch_geometry.fixtures(arch) if f.name == "geometry_1_ctaid_z")
-    image, arguments, memory, threads, block, output, cooperative, context = gpu.launch_parts(f)
+    image, arguments, memory, threads, block, output, context = gpu.launch_parts(f)
     run = equivalence.Launch(arguments, tuple(memory), output, block=block, grid=f.grid, context=context)
     assert equivalence.equivalent(image, image, [run])
     assert equivalence.response(image, run, "exact")["outputs"] == [v.to_bytes(4, "little").hex() for v in f.expected]

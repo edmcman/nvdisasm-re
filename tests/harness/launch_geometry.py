@@ -30,6 +30,6 @@ def fixtures(arch):
         values = [((i + 1) * 0x9e3779b9) & 0xffffffff for i in range(size * prod(grid))]
         data = b"".join(struct.pack("<III", v, 0, 0) for v in values)
         out.append(gpu.Fixture(f"partial_{size}", image, "partial", data, launch.partial(values, size),
-                               output_size=8, block=block, grid=grid, cooperative=True, exit=True,
+                               output_size=8, block=block, grid=grid, scope="block", exit=True,
                                targets=("VOTE", "SHFL", "WARPSYNC", "BAR", "STS", "LDS")))
     return out

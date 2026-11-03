@@ -2,7 +2,7 @@
 and environment, built from `evaluate.State`s and runtime contexts, and compiled fragment libraries
 that execute single instructions on them."""
 import ctypes
-from sass.emulate import build, codegen
+from sass.emulate import build
 from sass.semantics import evaluate, primitive
 from sass.semantics.runtime import Runtime, UnsupportedSemantics
 
@@ -113,6 +113,7 @@ class Fragments(Library):
     (`semantics=True`), each executed by `execute`."""
 
     def __init__(self, instructions, fp="exact", semantics=False, definition_calls=True):
+        from sass.emulate import codegen
         source = (codegen.semantic_fragments(instructions, definition_calls) if semantics else
                   codegen.fragments(instructions, fp, definition_calls))
         super().__init__(source, "fragments")

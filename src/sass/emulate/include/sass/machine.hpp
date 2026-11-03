@@ -28,12 +28,15 @@ struct Memory {
   using Page = std::array<uint8_t, 1 << PAGE>;
   std::unordered_map<uint64_t, std::unique_ptr<Page>> pages[SPACES];
   const Memory *base = nullptr;
+  Memory *global = nullptr;
 
   const Page *find(int s, uint64_t n) const {
+    if (s == Ram && global) return global->find(s, n);
     if (auto it = pages[s].find(n); it != pages[s].end()) return it->second.get();
     return base ? base->find(s, n) : nullptr;
   }
   Page &own(int s, uint64_t n) {
+    if (s == Ram && global) return global->own(s, n);
     auto &slot = pages[s][n];
     if (!slot) {
       slot = std::make_unique<Page>();
@@ -72,7 +75,7 @@ struct Environment {
 
 struct Fault { std::string message; };
 
-// m: the memory the lane shares (a cooperative block's); local: its own localmem (m when alone).
+// m: the memory the lane shares (a block's); local: its own localmem (m when alone).
 struct Ctx {
   Thread &t; Memory &m, &local; const WarpContext &warp; const Environment &env;
   Memory &space(int s) const { return s == Localmem ? local : m; }

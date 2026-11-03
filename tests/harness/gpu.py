@@ -33,8 +33,7 @@ class Fixture:
     `emulator_same(emulated, want)` (default `same`). The emulator may run a different
     `emulator_image` (default image); `excused(i, emulated, want)` admits known emulator defects;
     `visited` offsets and `targets` mnemonics must execute; `exit` requires termination through EXIT. `block` threads form a block;
-    `cooperative` emulates each block as one (warps in lockstep, shared memory, BAR.SYNC, WARPSYNC) instead
-    of every thread alone."""
+    `scope` selects thread isolation or interacting blocks for emulator comparisons."""
     name: str
     image: bytes
     kernel: str
@@ -53,7 +52,7 @@ class Fixture:
     modes: tuple = ("exact",)  # fp lowerings to emulate
     vectors: list = field(default_factory=list, repr=False)
     block: int | tuple | list = 32
-    cooperative: bool = False
+    scope: str = "thread"
     grid: int | tuple | list | None = None
 
     @property
@@ -92,13 +91,13 @@ def launch_parts(f):
     fixture_geometry(f)
     memory = [dict(space="ram", address=INPUT, hex=f.data.hex()), dict(space="ram", address=OUTPUT, hex="cc" * f.threads * f.output_size)]
     return (image, (INPUT, OUTPUT, *(v for _, v in f.arguments)), memory, f.threads, f.block,
-            dict(address=OUTPUT, size=f.output_size, stride=f.output_size), f.cooperative,
-            dict(synchronization=dict(bssy=True, bsync=True, **({"bar": True, "warpsync": True} if f.cooperative else {}))))
+            dict(address=OUTPUT, size=f.output_size, stride=f.output_size),
+            dict(synchronization=dict(bssy=True, bsync=True, **({"bar": True, "warpsync": True} if f.scope != "thread" else {}))))
 
 
 def request(f):
     """The emulator's whole-kernel request for fixture f."""
-    return launch.kernel_request(*launch_parts(f), grid=f.grid)
+    return launch.kernel_request(*launch_parts(f), grid=f.grid, scope=f.scope)
 
 
 class Driver:

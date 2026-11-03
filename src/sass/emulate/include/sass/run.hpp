@@ -1,9 +1,5 @@
-// Whole kernels on generated instructions: sass.emulate.schedule's launches in C++.
-// Model 1 (non-cooperative): each thread alone with its own memory over the launch image.
-// Model 2 (cooperative, sequentially consistent): a block shares ram/shared/cbank (each thread its
-// own localmem); its warps take turns stepping the live lanes at the warp's lowest PC, with
-// schedule.py's BAR.SYNC holds, WARPSYNC groups and gathered collective operands. A generated kernel
-// defines its Program; Python formats the outcome with schedule's messages.
+// Whole-kernel scheduling for native instructions and callback-backed lanes.
+// Launch scope interleaves blocks with sequentially consistent global storage.
 #pragma once
 #include <algorithm>
 #include <vector>
@@ -21,6 +17,7 @@ struct Info {
   uint64_t sync_mask;
   const char *decode_error;                         // the decoder's message for a word that does not decode
   const uint32_t *dests;                            // trace: file << 16 | index of each register written
+  const char *unsupported;
 };
 
 struct Program { uint64_t base, count; void (*const *code)(Ctx &); const Info *info; };
@@ -34,12 +31,13 @@ struct Launch {
   uint64_t first, last, block, max_steps, traced;   // [first, last): threads (model 1) or block-aligned threads (model 2)
   const Memory *image;
   const Seed *seeds;
-  uint32_t nseeds, block_dims[3], grid_dims[3], tid[3], ctaid[3], laneid, cooperative;
+  uint32_t nseeds, block_dims[3], grid_dims[3], tid[3], ctaid[3], laneid, scope, reverse;
   const Environment *env;
   uint64_t count, out_address, out_size, out_stride;   // count: the launch's threads
   uint8_t *outputs;   // (last - first) * out_size bytes
   uint8_t *visited;   // a byte per instruction
   Trace *trace;       // or null
+  uint32_t (*step_lane)(uint64_t, Thread *, const WarpContext *, char *, size_t);
 };
 
 enum Outcome : uint32_t { Done, Faulted, Limited, Outside, NoExit, Undecodable, Unmodelled, Omits, Disagree, Stuck };
@@ -120,10 +118,15 @@ struct Run {
     if (u.steps >= l.max_steps) return stop(Limited, u.index, pc);
     u.last = pc;
     const Info &info = p.info[i];
+    if (l.scope == 2 && info.unsupported && (!info.guard.kind || (read(u.t, info.guard) ^ info.guard_not)))
+      return stop(Faulted, u.index, pc, info.unsupported);
     const bool traced = l.trace && u.index < l.traced;
     const bool taken = traced && (!info.guard.kind || (read(u.t, info.guard) ^ info.guard_not));
     Ctx c{u.t, shared, u.local, w, *l.env};
-    try { p.code[i](c); } catch (const Fault &f) { return stop(Faulted, u.index, pc, f.message.c_str()); }
+    if (l.step_lane) {
+      char message[512] = {};
+      if (l.step_lane(u.index, &u.t, &w, message, sizeof message)) return stop(Faulted, u.index, pc, message);
+    } else try { p.code[i](c); } catch (const Fault &f) { return stop(Faulted, u.index, pc, f.message.c_str()); }
     ++u.steps;
     if (traced) {
       l.trace->steps.push_back({u.index, uint32_t(i), taken, uint32_t(l.trace->values.size()), taken ? info.ndests : 0});
@@ -146,7 +149,7 @@ struct Run {
 
   // Model 1.
   uint32_t single() {
-    static const WarpContext alone{};   // no warp context: collectives fail as in a non-cooperative launch
+    static const WarpContext alone{};   // no warp context: collectives fail as in a isolated thread
     for (uint64_t thread = l.first; thread < l.last; ++thread) {
       group = thread;
       Lane u;
@@ -190,6 +193,8 @@ struct Run {
     moved = true;
     const Info &info = p.info[i];
     for (Lane *u : active) if (!info.guard.kind || (read(u->t, info.guard) ^ info.guard_not)) taking.push_back(u);
+    if (l.scope == 2 && info.unsupported && !taking.empty())
+      return stop(Faulted, taking.front()->index, pc, info.unsupported);
     const auto drop = [&](const std::vector<Lane *> &held) {
       active.erase(std::remove_if(active.begin(), active.end(), [&](Lane *u) { return std::find(held.begin(), held.end(), u) != held.end(); }), active.end());
     };
@@ -229,48 +234,63 @@ struct Run {
     return Done;
   }
 
-  // Model 2: one block after another.
-  uint32_t cooperative() {
-    for (uint64_t b = l.first; b < l.last; b += l.block) {
-      group = b;
-      Memory shared;
-      shared.base = l.image;
-      std::vector<Lane> lanes(std::min(b + l.block, l.count) - b);
-      for (uint64_t k = 0; k < lanes.size(); ++k) {
-        start(lanes[k], b + k);
-        lanes[k].local.base = k == 0 ? l.image : nullptr;   // the first thread wrote the request's memory
-      }
+  uint32_t blocks() {
+    struct Block {
+      Memory memory;
+      std::vector<Lane> lanes;
       std::vector<std::vector<Lane *>> warps;
-      for (uint64_t k = 0; k < lanes.size(); ++k) {
-        if (k % 32 == 0) warps.emplace_back();
-        warps.back().push_back(&lanes[k]);
+    };
+    Memory global; global.base = l.image;
+    const uint64_t n = (l.last - l.first + l.block - 1) / l.block;
+    std::vector<Block> blocks(n);
+    for (uint64_t j = 0; j < n; ++j) {
+      auto &b = blocks[j];
+      b.memory.base = l.image;
+      b.memory.global = l.scope == 2 ? &global : nullptr;
+      const uint64_t first = l.first + j * l.block;
+      b.lanes.resize(std::min(first + l.block, l.last) - first);
+      for (uint64_t k = 0; k < b.lanes.size(); ++k) {
+        start(b.lanes[k], first + k);
+        b.lanes[k].local.base = l.image;
+        if (k % 32 == 0) b.warps.emplace_back();
+        b.warps.back().push_back(&b.lanes[k]);
       }
-      for (;;) {
+    }
+    for (;;) {
+      bool any = false, alive = false;
+      for (uint64_t j = 0; j < n; ++j) {
+        auto &b = blocks[l.reverse ? n - 1 - j : j];
+        group = b.lanes.front().index;
         std::vector<Lane *> live;
-        for (Lane &u : lanes) if (u.live()) live.push_back(&u);
-        if (live.empty()) break;
+        for (auto &u : b.lanes) if (u.live()) live.push_back(&u);
+        if (live.empty()) continue;
+        alive = true;
         if (std::all_of(live.begin(), live.end(), [](Lane *u) { return u->waiting && !u->has_sync; }))
           for (Lane *u : live) u->waiting = false, u->released = true;
-        bool any = false;
-        for (auto &warp : warps) {
+        for (size_t k = 0; k < b.warps.size(); ++k) {
           bool moved;
-          if (uint32_t s = turn(warp, shared, moved)) return s;
+          if (uint32_t s = turn(b.warps[l.reverse ? b.warps.size() - 1 - k : k], b.memory, moved)) return s;
           any |= moved;
         }
-        if (!any) return stop(Stuck, b, 0);
+        if (l.scope == 1) break;
       }
+      if (!alive) break;
+      if (!any) return stop(Stuck, group, 0);
+    }
+    for (auto &b : blocks) {
       std::vector<Lane *> all;
-      for (Lane &u : lanes) all.push_back(&u);
-      if (uint32_t s = finish(all, [](Lane &, void *m) -> Memory & { return *static_cast<Memory *>(m); }, &shared)) return s;
+      for (auto &u : b.lanes) all.push_back(&u);
+      if (uint32_t s = finish(all, [](Lane &, void *m) -> Memory & { return *static_cast<Memory *>(m); }, &b.memory)) return s;
     }
     return Done;
   }
+
 };
 
 inline uint32_t run(const Program &p, const Launch &l, Result &r) {
   r = Result{};
   Run run{p, l, r};
-  return l.cooperative ? run.cooperative() : run.single();
+  return l.scope ? run.blocks() : run.single();
 }
 }  // namespace sass
 

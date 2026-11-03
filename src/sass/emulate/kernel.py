@@ -1,20 +1,20 @@
-"""Whole kernels on the native emulator: a kernel request (`sass.launch.kernel_request`) answered
-like `sass.emulate.schedule.run_kernel`, from C++ generated per kernel (`codegen.kernel`, run by
-include/sass/run.hpp): model 1 for non-cooperative launches (threads in parallel chunks), model 2 for
-cooperative ones (blocks in parallel chunks)."""
+"""Native whole-kernel execution through the common C++ scheduler."""
 import ctypes, os
 from concurrent.futures import ThreadPoolExecutor
 from functools import cache
 from sass.decode import ir
 from sass import launch
-from sass.emulate import codegen, machine, schedule
+from sass.emulate import metadata, machine, schedule
 
 DONE, FAULTED, LIMITED, OUTSIDE, NO_EXIT, UNDECODABLE, UNMODELLED, OMITS, DISAGREE, STUCK = range(10)
-NAMES = {v: k for k, v in codegen.FILE_IDS.items()}
+NAMES = {v: k for k, v in metadata.FILE_IDS.items()}
 
 
 class Seed(ctypes.Structure):
     _fields_ = [("file", ctypes.c_uint32), ("index", ctypes.c_uint32), ("value", ctypes.c_uint64)]
+
+
+Step = ctypes.CFUNCTYPE(ctypes.c_uint32, ctypes.c_uint64, ctypes.POINTER(machine.Thread), ctypes.POINTER(machine.WarpContext), ctypes.c_void_p, ctypes.c_size_t)
 
 
 class Launch(ctypes.Structure):
@@ -22,10 +22,10 @@ class Launch(ctypes.Structure):
                 ("image", ctypes.c_void_p), ("seeds", ctypes.POINTER(Seed)),
                 ("nseeds", ctypes.c_uint32), ("block_dims", ctypes.c_uint32 * 3), ("grid_dims", ctypes.c_uint32 * 3),
                 ("tid", ctypes.c_uint32 * 3), ("ctaid", ctypes.c_uint32 * 3),
-                *((n, ctypes.c_uint32) for n in ("laneid", "cooperative")),
+                *((n, ctypes.c_uint32) for n in ("laneid", "scope", "reverse")),
                 ("env", ctypes.POINTER(machine.Environment)),
                 *((n, ctypes.c_uint64) for n in ("count", "out_address", "out_size", "out_stride")),
-                ("outputs", ctypes.POINTER(ctypes.c_uint8)), ("visited", ctypes.POINTER(ctypes.c_uint8)), ("trace", ctypes.c_void_p)]
+                ("outputs", ctypes.POINTER(ctypes.c_uint8)), ("visited", ctypes.POINTER(ctypes.c_uint8)), ("trace", ctypes.c_void_p), ("step_lane", Step)]
 
 
 class Result(ctypes.Structure):
@@ -36,13 +36,17 @@ class Result(ctypes.Structure):
 def location(arch, name):
     """(file id, index) of a register named R4, UR2, P0, UP1 or SR_*."""
     for file in ("UR", "UP", "R", "P"):
-        if name.startswith(file) and name[len(file):].isdigit(): return codegen.FILE_IDS[file], int(name[len(file):])
-    return codegen.FILE_IDS["SR"], ir.load(arch).enums["SpecialRegister"][name]
+        if name.startswith(file) and name[len(file):].isdigit(): return metadata.FILE_IDS[file], int(name[len(file):])
+    return metadata.FILE_IDS["SR"], ir.load(arch).enums["SpecialRegister"][name]
 
 
 class Kernel(machine.Library):
     def __init__(self, arch, code, base, fp="exact", definition_calls=True):
+        from sass.emulate import codegen
         source, self.instructions = codegen.kernel(arch, code, base, fp, definition_calls)
+        self.initialize(source, arch, code, base)
+
+    def initialize(self, source, arch, code, base):
         super().__init__(source, "kernel")
         self.arch, self.code, self.base = arch, code, base
         lib = self.lib
@@ -65,6 +69,7 @@ class Kernel(machine.Library):
 
     def steps(self, trace):
         """The trace's steps as schedule records them."""
+        from sass.emulate import codegen
         out, thread, index, taken, values, count = [], ctypes.c_uint64(), ctypes.c_uint32(), ctypes.c_uint32(), ctypes.POINTER(ctypes.c_uint64)(), ctypes.c_uint32()
         for k in range(self.lib.sass_trace_size(trace)):
             self.lib.sass_trace_step(trace, k, thread, index, taken, values, count)
@@ -74,10 +79,12 @@ class Kernel(machine.Library):
                             writes={f"{file}{n}": values[j] for j, (file, n) in enumerate(dests)}))
         return out
 
-    def run(self, request, workers=None):
+    def run(self, request, workers=None, step_lane=None):
         """The response to a kernel request; raises with the scheduler's message on failure."""
         kernel = request["kernel"]; code, base, count, block, max_steps = schedule.launch(kernel)
-        name, out, cooperative = kernel.get("name"), request["output"], bool(kernel.get("cooperative"))
+        name, out = kernel.get("name"), request["output"]
+        scope, reverse = schedule.options(kernel)
+        interacting = scope != "thread"
         size, stride, address = int(out.get("size", 4)), int(out.get("stride", 4)), int(out["address"])
         traced = int(kernel.get("trace_threads", 1)) if kernel.get("trace") else 0
         sr = ir.load(self.arch).enums["SpecialRegister"]
@@ -87,9 +94,10 @@ class Kernel(machine.Library):
         seeds = (Seed * max(len(named), 1))(*(Seed(*location(self.arch, k), v) for k, v in named.items()))
         regions = [(m["space"], int(m["address"]), bytes.fromhex(m["hex"])) for m in request.get("memory", [])] + [("ram", base, code)]
         image, env = self.memory(regions), machine.environment(request.get("context", {}))
-        unit = block if cooperative else 1   # chunks hold whole blocks
-        units = -(-count // unit); work = units * (block if cooperative else 1)
+        unit = block if interacting else 1   # chunks hold whole blocks
+        units = -(-count // unit); work = units * (block if interacting else 1)
         chunks = max(1, min(units, work // 1024, 4 * (workers or os.cpu_count() or 1)))
+        if scope == "launch" or step_lane: chunks = 1
         bounds = [(min(count, unit * (units * i // chunks)), min(count, unit * (units * (i + 1) // chunks))) for i in range(chunks)]
 
         def part(span):
@@ -97,14 +105,16 @@ class Kernel(machine.Library):
             outputs, visited, result = (ctypes.c_uint8 * ((last - first) * size or 1))(), (ctypes.c_uint8 * (len(code) // 16))(), Result()
             trace = self.lib.sass_trace_new() if traced else None
             run = Launch(first, last, block, max_steps, traced, image, seeds, len(named),
-                            (ctypes.c_uint32 * 3)(*dims), (ctypes.c_uint32 * 3)(*grid), indices("TID"), indices("CTAID"), sr["SR_LANEID"], int(cooperative),
-                            ctypes.pointer(env), count, address, size, stride, outputs, visited, trace)
+                            (ctypes.c_uint32 * 3)(*dims), (ctypes.c_uint32 * 3)(*grid), indices("TID"), indices("CTAID"), sr["SR_LANEID"], {"thread": 0, "block": 1, "launch": 2}[scope], int(reverse),
+                            ctypes.pointer(env), count, address, size, stride, outputs, visited, trace, step_lane or Step())
             self.lib.sass_run(ctypes.byref(run), ctypes.byref(result))
             return result, bytes(outputs)[:(last - first) * size], bytes(visited), trace
 
         parts = []
         try:
-            with ThreadPoolExecutor(workers or os.cpu_count()) as pool: parts = list(pool.map(part, bounds))
+            if chunks == 1: parts = [part(bounds[0])]
+            else:
+                with ThreadPoolExecutor(workers or os.cpu_count()) as pool: parts = list(pool.map(part, bounds))
             if failed := [r for r, _, _, _ in parts if r.outcome != DONE]:
                 raise RuntimeError(self.message(min(failed, key=lambda r: r.group), name, max_steps))
             data = b"".join(o for _, o, _, _ in parts)

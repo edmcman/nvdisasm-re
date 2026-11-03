@@ -21,6 +21,10 @@ def test_geometry_backend(arch, engine, request):
     results = run({arch: (arch, "exact", [gpu.request(f) for f in fixtures])})[arch]
     for f, result in zip(fixtures, results):
         assert not hardware.emulated_problems(f, result), (f.name, result)
+    if engine == "ghidra":
+        unsupported = gpu.request(fixtures[0])
+        unsupported["kernel"]["scope"] = "launch"
+        assert "does not support launch scope" in run({arch: (arch, "exact", [unsupported])})[arch][0]["error"]
     traced = gpu.request(fixtures[1])
     traced["kernel"].update(trace=True, trace_threads=fixtures[1].threads)
     result = run({arch: (arch, "exact", [traced])})[arch][0]
@@ -35,8 +39,8 @@ MOV R0, 1;
 @P0 WARPSYNC {"0x1" if arch == "SM89" else "R0"};
 EXIT;
 .endkernel
-"""), "diagnostic"), (), [], 34, 17, dict(address=0x200000000), True,
-                                  dict(synchronization=dict(warpsync=True)))
+"""), "diagnostic"), (), [], 34, 17, dict(address=0x200000000),
+                                  dict(synchronization=dict(warpsync=True)), scope="block")
     expected = reference.run_kernel(fault, arch)
     assert "thread 18:" in expected["error"] and "omits the lane" in expected["error"]
     assert run({arch: (arch, "exact", [fault])})[arch][0] == expected
