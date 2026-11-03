@@ -1,5 +1,5 @@
 """Decode IR built from a machine description: per-class bit fields, encoding rules and FORMAT."""
-import hashlib, os, pickle, re
+import hashlib, pickle, re, tempfile
 from dataclasses import dataclass, field
 from functools import cache, cached_property
 from pathlib import Path
@@ -210,6 +210,8 @@ def load(arch):
     md = parse.load_arch(arch)
     out = Arch(arch, [build_class(c, i) for i, c in enumerate(md["classes"])], md["enums"], md["tables"], md["constants"])
     path.parent.mkdir(parents=True, exist_ok=True)
-    for stale in path.parent.glob(f"{arch}-*.pickle"): stale.unlink(missing_ok=True)
-    tmp = path.with_suffix(f".{os.getpid()}.tmp"); tmp.write_bytes(pickle.dumps(out, protocol=5)); tmp.replace(path)
+    for stale in path.parent.glob(f"{arch}-*.pickle"):
+        if stale != path: stale.unlink(missing_ok=True)
+    with tempfile.TemporaryDirectory(dir=path.parent) as directory:
+        tmp = Path(directory) / "ir.pickle"; tmp.write_bytes(pickle.dumps(out, protocol=5)); tmp.replace(path)
     return out

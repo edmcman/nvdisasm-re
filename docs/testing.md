@@ -543,6 +543,12 @@ hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` 
   machine-description target `sm_110`. SM90 prints the zero bank offset as `[RZ]`.
   `launch.GRID_LAYOUT` packs these fields, and processor specs label them `gridDim_x/y/z`.
   The SM107 launch-layout limitation remains.
+- Concurrent cold decode-cache loads (2026-11-03): native compiler threads can call
+  `ir.load` for the same architecture before its in-process cache is populated.
+  PID-only temporary filenames collided between those writers. Cache writes now
+  use a unique temporary directory per writer and atomically replace the snapshot;
+  pruning retains the current key, including snapshots another writer just published.
+  `test_decode_cache.py` forces eight writers to finish writing before any rename.
 - Multidimensional scheduler validation (2026-11-03): coordinate fixtures compare
   block-major, X-fastest ordering against independently enumerated coordinates,
   with unit axes, multiple blocks and 2D/3D blocks. Cooperative fixtures cover block

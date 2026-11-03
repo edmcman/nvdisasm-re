@@ -4,7 +4,7 @@ from sass.assemble import assemble_cubin
 from sass.decode import cubin
 from sass.emulate import kernel, reference
 from tests.harness import gpu, hardware, launch_geometry
-from tests.harness.select import require_languages
+from tests.harness.select import arches, modes, require_languages
 
 
 @pytest.mark.parametrize("arch", ("SM89", "SM90"))
@@ -12,7 +12,9 @@ from tests.harness.select import require_languages
     pytest.param("native", marks=pytest.mark.native),
     pytest.param("ghidra", marks=pytest.mark.ghidra),
 ])
-def test_geometry_backend(arch, engine):
+def test_geometry_backend(arch, engine, request):
+    if arch not in arches(request.config) or "exact" not in modes(request.config):
+        pytest.skip("architecture/lowering not selected")
     fixtures = launch_geometry.fixtures(arch)
     if engine == "ghidra": require_languages([(arch, "exact")])
     run = dict(native=kernel.emulate_sharded, ghidra=ghidra_bridge.emulate_sharded)[engine]

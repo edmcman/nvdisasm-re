@@ -41,7 +41,8 @@ def test_equivalence(name, request):
 
 
 @pytest.mark.parametrize("arch", ("SM89", "SM90"))
-def test_geometry_equivalence(arch):
+def test_geometry_equivalence(arch, request):
+    if arch not in arches(request.config): pytest.skip("architecture not selected")
     f = next(f for f in launch_geometry.fixtures(arch) if f.name == "geometry_1_ctaid_z")
     image, arguments, memory, threads, block, output, cooperative, context = gpu.launch_parts(f)
     run = equivalence.Launch(arguments, tuple(memory), output, block=block, grid=f.grid, context=context)
