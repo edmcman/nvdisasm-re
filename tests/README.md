@@ -447,6 +447,20 @@ block as one (`cases/threads.py`, `kernels/threads_semantics.cu`):
 - `BAR.SYNC` holds a thread until every live thread of the block arrives. Barrier ids and thread
   counts are not modelled; blocks run one after another.
 
+`Fixture.grid` and `Fixture.block` accept integers or one-to-three-element tuples/lists
+(omitted axes are 1). Explicit geometry must match the input record count; GPU fixtures
+require complete CUDA blocks, including blocks with a partial final warp. Geometry and
+argument validation precede allocation. `launch_parts` retains its eight positional
+items; `request` forwards `grid` separately. Explicit grid geometry enters the fixture
+fingerprint, while existing default fingerprints retain their format.
+
+`kernels/launch_geometry.cu`, `harness/launch_geometry.py` and the independent
+`refs/launch.py` cover 2D/3D coordinates and dimensions, lane IDs, and four-block
+cooperative launches with block sizes 1, 17, 33 and 45. `ptxas` removes a converged
+`__syncwarp` as NOP; the fixture replaces that NOP with WARPSYNC to exercise the
+scheduler and hardware barrier. `test_launch.py` checks the Python engine and validation;
+`test_launch_backends.py` runs the same references in native/Ghidra and on the GPU.
+
 This is one legal interleaving, not the hardware scheduler: it gives the right answer for
 correctly synchronized kernels, but doesn't by itself show that a barrier is enforced (see
 `docs/open.md`). Don't create a `tests/java/` directory: on `sys.path` it shadows JPype's `java`

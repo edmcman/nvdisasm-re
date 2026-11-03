@@ -16,7 +16,7 @@ ptxas's SASS for a translation of it) over very many inputs, often without a GPU
 
 A kernel request (`sass.launch.kernel_request`) gets the same response from every engine:
 `{outputs, threads, steps, visited, exit[, trace]}` or `{error}`. `sass.emulate.schedule` is the one
-scheduler (moved unchanged from `ghidra_emulate.run_kernel`): seeding (`SR_TID.X`, `SR_CTAID.X`,
+scheduler (moved from `ghidra_emulate.run_kernel`): seeding (`SR_TID.X/Y/Z`, `SR_CTAID.X/Y/Z`, `SR_LANEID`,
 the launch's window registers), non-cooperative threads each alone with their own memory,
 cooperative blocks whose warps take turns stepping the live lanes at the warp's lowest PC, BAR.SYNC
 and WARPSYNC holds, the warp context collectives read (each lane's operand gathered before the
@@ -31,6 +31,26 @@ can use raw bytes (for example, a 12-byte struct); signed integers and floating-
 use explicitly packed bytes, such as `struct.pack("<i", -1)` or `struct.pack("<f", 1.5)`.
 Missing or extra arguments, negative or overflowing integers, wrong payload sizes and unsupported
 types are rejected. Packing preserves alignment gaps and neighboring constants (2026-11-03).
+
+Launch geometry (2026-11-03): `kernel_request(image, arguments, memory, threads=None,
+block=32, output=None, cooperative=False, context=None, *, grid=None)` accepts integers or
+one-to-three-element tuples/lists for `grid` and `block`; omitted axes are 1. For example,
+`grid=(2, 3), block=(3, 3, 5)` launches 270 threads. Explicit geometry derives the count;
+a supplied `threads` must agree. Dimensions are positive uint32 integers and the total
+count must fit uint64. Explicit requests carry normalized `kernel.grid` and `kernel.block`
+triples alongside `threads` and `block_size`.
+
+Without `grid`, the requested count is retained and an X-only grid is inferred by ceiling
+division. Scalar calls keep their legacy request shape, including callers that edit
+`kernel.threads`; a final emulator block may be incomplete. Both blocks and their threads
+are enumerated with X varying fastest, then Y, then Z. Output records, traces and error
+thread numbers use that block-major linear order. `SR_LANEID` is the block-local linear
+thread rank modulo 32.
+
+Cooperative blocks may end in a partial warp. Warp groups restart in every block;
+active/waiting masks and WARPSYNC membership include only existing lanes. BAR.SYNC
+still waits for every live thread in the block. This preserves the existing sequential
+block model and synchronization scope.
 
 ## The native machine
 
@@ -288,6 +308,8 @@ gets its bank-0 layout), and yields a `Difference` per thread whose outputs diff
 the comparison), or per launch where only one side failed or they failed differently. `equivalent`
 is whether there is none. `test_equivalence` checks a kernel against itself and against itself with
 its instruction under test replaced by a NOP.
+`equivalence.Launch` accepts the same optional `grid` and multidimensional `block`;
+`threads` may be omitted when `grid` is supplied.
 
 ## Verification
 

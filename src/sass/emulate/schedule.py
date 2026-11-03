@@ -12,6 +12,8 @@ live thread of the block arrives (barrier ids and thread counts are not modelled
 lane until every live lane its mask names waits at a WARPSYNC with the same mask (CUDA's __syncwarp
 contract; exited lanes are not waited for). Blocks run one after another."""
 from typing import Protocol
+from math import prod
+from sass.launch import coordinates, geometry
 from sass.decode import ir, pydecode
 from sass.md import expression
 from sass.semantics.family import roles
@@ -62,15 +64,20 @@ INVALID = 'invalid kernel launch or instruction text'
 def launch(kernel):
     """(code, base, threads, block, max_steps) of a kernel request, validated."""
     code = bytes.fromhex(kernel['code']); base = int(kernel.get('address', 0x100000))
-    count = int(kernel['threads']); block = int(kernel.get('block_size', 32)); max_steps = int(kernel.get('max_steps', 10000))
+    _, dims, count = geometry(kernel.get('threads'), kernel.get('block', kernel.get('block_size', 32)), kernel.get('grid'))
+    block = prod(dims); max_steps = int(kernel.get('max_steps', 10000))
+    if 'block_size' in kernel and kernel['block_size'] != block: raise ValueError("block_size does not match block")
     if count <= 0 or block <= 0 or max_steps <= 0 or not code or len(code) % 16: raise ValueError(INVALID)
     return code, base, count, block, max_steps
 
 
 def seeds(kernel, thread, block):
     """The registers a thread starts with; the rest start at zero (hardwired RZ/PT aside)."""
-    return {**kernel.get('registers', {}), 'SR_TID.X': thread % block, 'SR_TID.Y': 0, 'SR_TID.Z': 0,
-            'SR_CTAID.X': thread // block, 'SR_CTAID.Y': 0, 'SR_CTAID.Z': 0}
+    grid, dims, _ = geometry(kernel.get('threads'), kernel.get('block', block), kernel.get('grid'))
+    return {**kernel.get('registers', {}),
+            **{f'SR_{name}.{axis}': v for name, rank, shape in (('TID', thread % block, dims), ('CTAID', thread // block, grid))
+               for axis, v in zip('XYZ', coordinates(rank, shape))},
+            'SR_LANEID': thread % block % 32}
 
 
 def operand_location(arch, d, name):
@@ -94,7 +101,7 @@ def sync_form(arch, d):
     for the EXCLUSIVE, COLLECTIVE and constant-bank forms."""
     k = d.klass; labels = {ir.load(arch).rev_enums[k.operand_types[n].type][d.env[n]] for n in ('ex', 'div', 'all') if n in d.env}
     if k.name not in ('warpsync__RIR', 'warpsync__RRR', 'warpsync__RUR') or labels - {'noexclusive', 'nodiv__exclusive', 'ALL'}: return 'unmodelled',
-    if 'ALL' in labels: return 'all',
+    if 'ALL' in labels or 'all' in k.operand_types and 'all' not in d.env: return 'all',
     source = next(n for n in ('Ra', 'Rb', 'URb', 'Sb') if n in k.operand_types)
     return ('immediate', d.env[source] & 0xffffffff) if source == 'Sb' else ('operand', source)
 
@@ -103,7 +110,6 @@ def unmodelled(name, text): return f'kernel {name}: {text} is not modelled'
 def omits(name, thread, text, mask): return f'kernel {name} thread {thread}: {text} mask {mask:#x} omits the lane'
 def disagree(name, a, b): return f'kernel {name}: WARPSYNC masks {a:#x} and {b:#x} disagree'
 def stuck(name): return f'kernel {name}: no thread can proceed'
-COOPERATIVE_WARPS = 'cooperative execution requires whole 32-thread warps'
 
 
 def run_kernel(request, engine, arch):
@@ -112,6 +118,7 @@ def run_kernel(request, engine, arch):
     name = kernel.get('name'); cooperative = bool(kernel.get('cooperative'))
     trace = [] if kernel.get('trace') else None; traced = int(kernel.get('trace_threads', 1))
     decoded = {}
+    lane_id = lambda t: t.index % block % 32
 
     def decode(pc):
         if pc not in decoded: decoded[pc] = pydecode.decode(arch, code[pc - base:pc - base + 16])
@@ -137,13 +144,13 @@ def run_kernel(request, engine, arch):
             case 'all',: return 0xffffffff
             case 'immediate', mask: pass
             case 'operand', source: mask = operand(arch, t.lane, d, source) & 0xffffffff
-        if not mask >> t.index % 32 & 1: raise RuntimeError(omits(name, t.index, d.text, mask))
+        if not mask >> lane_id(t) & 1: raise RuntimeError(omits(name, t.index, d.text, mask))
         return mask
 
     def release_warpsyncs(warp):
         for t in warp:
             if t.sync is None: continue
-            members = [u for u in warp if t.sync >> u.index % 32 & 1 and u.pc != 0]
+            members = [u for u in warp if t.sync >> lane_id(u) & 1 and u.pc != 0]
             if any(u.sync is None for u in members): continue
             if any(u.sync != t.sync for u in members):
                 raise RuntimeError(disagree(name, t.sync, next(u.sync for u in members if u.sync != t.sync)))
@@ -169,16 +176,15 @@ def run_kernel(request, engine, arch):
             active = [t for t in active if t not in held]
         elif inputs := WARP_INPUTS.get(d.klass.mnemonic) if cooperative else None:
             key, source = inputs; values = [0] * 32
-            for t in taking: values[t.index % 32] = operand(arch, t.lane, d, source) if source else 0
+            for t in taking: values[lane_id(t)] = operand(arch, t.lane, d, source) if source else 0
             # waiting: lanes still alive that are not at this instruction (BRA.DIV/.CONV)
-            context['warp'] = {'active': sum(1 << t.index % 32 for t in taking), key: values,
-                               'waiting': sum(1 << t.index % 32 for t in warp if t.pc != 0 and t not in active)}
+            context['warp'] = {'active': sum(1 << lane_id(t) for t in taking), key: values,
+                               'waiting': sum(1 << lane_id(t) for t in warp if t.pc != 0 and t not in active)}
         for t in active:
-            step(t, pc, dict(context, warp=dict(context['warp'], lane=t.index % 32)) if inputs else context)
+            step(t, pc, dict(context, warp=dict(context['warp'], lane=lane_id(t))) if inputs else context)
             t.released = False
         return True
 
-    if cooperative and block % 32: raise ValueError(COOPERATIVE_WARPS)
     for group in ([range(b, min(b + block, count)) for b in range(0, count, block)] if cooperative else [[t] for t in range(count)]):
         threads = [Thread(lane, index, base) for lane, index in zip(engine.group(group, cooperative), group)]
         for t in threads:

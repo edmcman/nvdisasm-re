@@ -811,3 +811,27 @@ in each multiply/FMA position; mixed-source signs, constants and high
 lanes in HMUL2/HFMA2/HSET2/HSETP2; widened NaNs and ordinary constant-move
 NaNs; and the full half corpus with default contraction enabled.
 SM89 observations do not settle those SM75 questions.
+
+### Multidimensional launches and partial warps (2026-11-03)
+
+The 43 `launch_geometry` fixtures passed on the SM89 NVIDIA GeForce RTX 4070
+Laptop GPU (CUDA driver API 13.0). Three launch shapes check all six TID/CTAID
+coordinates, blockDim/gridDim.xyz and lane IDs against independently enumerated
+block-major, X-fastest coordinates:
+
+| Grid | Block |
+|---|---|
+| (2, 3, 1) | (3, 2, 1) |
+| (2, 1, 3) | (2, 3, 2) |
+| (1, 2, 2) | (1, 1, 3) |
+
+Four cooperative fixtures launch grid (2, 2, 1) with blocks (1, 1, 1),
+(17, 1, 1), (3, 11, 1) and (3, 3, 5). Ballots contain exactly the existing
+lanes whose input is odd; shuffles read lane 0 of each block-local warp.
+WARPSYNC with a full member mask completes for partial warps, as do block
+barriers around shared-memory exchanges. Every block's inputs differ, checking
+shared-memory isolation. The fixture patches ptxas's converged-sync NOP into
+WARPSYNC; on SM89 it uses immediate mask `0xffffffff`.
+
+The SM90 fixtures have independent reference expectations and run in the CPU
+engines; this run adds no SM90 hardware observation.

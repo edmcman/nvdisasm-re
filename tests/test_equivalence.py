@@ -4,7 +4,7 @@ threads whose outputs then change."""
 import pytest
 from sass.decode import pydecode
 from sass.emulate import equivalence, kernel
-from tests.harness import gpu, hardware
+from tests.harness import gpu, hardware, launch_geometry
 from tests.harness.select import arches
 
 pytestmark = pytest.mark.native  # opt-in: -m native
@@ -38,3 +38,12 @@ def test_equivalence(name, request):
     assert found, f"replacing {mnemonic} by NOP changed no output"
     mine, theirs = (equivalence.response(i, runs[0], "exact") for i in (image, other))
     assert {d.thread for d in found} == {t for t, (p, q) in enumerate(zip(mine["outputs"], theirs["outputs"])) if p != q}
+
+
+@pytest.mark.parametrize("arch", ("SM89", "SM90"))
+def test_geometry_equivalence(arch):
+    f = next(f for f in launch_geometry.fixtures(arch) if f.name == "geometry_1_ctaid_z")
+    image, arguments, memory, threads, block, output, cooperative, context = gpu.launch_parts(f)
+    run = equivalence.Launch(arguments, tuple(memory), output, block=block, grid=f.grid, context=context)
+    assert equivalence.equivalent(image, image, [run])
+    assert equivalence.response(image, run, "exact")["outputs"] == [v.to_bytes(4, "little").hex() for v in f.expected]

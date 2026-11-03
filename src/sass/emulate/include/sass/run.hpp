@@ -34,7 +34,7 @@ struct Launch {
   uint64_t first, last, block, max_steps, traced;   // [first, last): threads (model 1) or block-aligned threads (model 2)
   const Memory *image;
   const Seed *seeds;
-  uint32_t nseeds, tid_x, ctaid_x, cooperative;
+  uint32_t nseeds, block_dims[3], grid_dims[3], tid[3], ctaid[3], laneid, cooperative;
   const Environment *env;
   uint64_t count, out_address, out_size, out_stride;   // count: the launch's threads
   uint8_t *outputs;   // (last - first) * out_size bytes
@@ -78,6 +78,15 @@ struct Run {
   Result &r;
   uint64_t group = 0;
 
+  uint32_t lane_id(const Lane &u) const { return uint32_t(u.index % l.block % 32); }
+
+  void coordinates(Thread &t, uint64_t rank, const uint32_t *dims, const uint32_t *regs) {
+    t.sr[regs[0]] = uint32_t(rank % dims[0]);
+    rank /= dims[0];
+    t.sr[regs[1]] = uint32_t(rank % dims[1]);
+    t.sr[regs[2]] = uint32_t(rank / dims[1]);
+  }
+
   uint32_t stop(Outcome o, uint64_t thread, uint64_t pc, const char *message = "", uint64_t a = 0, uint64_t b = 0) {
     r.outcome = o, r.group = group, r.thread = thread, r.pc = pc, r.a = a, r.b = b;
     std::snprintf(r.message, sizeof r.message, "%s", message);
@@ -87,7 +96,15 @@ struct Run {
   void start(Lane &u, uint64_t thread) {
     u.index = thread, u.last = p.base, u.t.pc = p.base;
     for (uint32_t i = 0; i < l.nseeds; ++i) seed(u.t, l.seeds[i]);
-    u.t.sr[l.tid_x] = uint32_t(thread % l.block), u.t.sr[l.ctaid_x] = uint32_t(thread / l.block);
+    const uint64_t local = thread % l.block, block = thread / l.block;
+    if (l.block_dims[1] == 1 && l.block_dims[2] == 1 && l.grid_dims[1] == 1 && l.grid_dims[2] == 1) {
+      u.t.sr[l.tid[0]] = uint32_t(local), u.t.sr[l.ctaid[0]] = uint32_t(block);
+      for (int i = 1; i < 3; ++i) u.t.sr[l.tid[i]] = u.t.sr[l.ctaid[i]] = 0;
+    } else {
+      coordinates(u.t, local, l.block_dims, l.tid);
+      coordinates(u.t, block, l.grid_dims, l.ctaid);
+    }
+    u.t.sr[l.laneid] = uint32_t(local % 32);
   }
 
   // The PC check every turn begins with; returns the instruction index or the outcome (>= count).
@@ -151,7 +168,7 @@ struct Run {
     for (Lane *t : warp) {
       if (!t->has_sync) continue;
       std::vector<Lane *> members;
-      for (Lane *u : warp) if (t->sync >> (u->index % 32) & 1 && u->live()) members.push_back(u);
+      for (Lane *u : warp) if (t->sync >> lane_id(*u) & 1 && u->live()) members.push_back(u);
       if (std::any_of(members.begin(), members.end(), [](Lane *u) { return !u->has_sync; })) continue;
       for (Lane *u : members) if (u->sync != t->sync) return stop(Disagree, t->index, 0, "", t->sync, u->sync);
       for (Lane *u : members) u->waiting = false, u->released = true, u->has_sync = false;
@@ -191,7 +208,7 @@ struct Run {
           case 2: mask = info.sync_mask; break;
           default: mask = read(u->t, info.sync) & 0xffffffff;
         }
-        if (!(mask >> (u->index % 32) & 1)) return stop(Omits, u->index, pc, "", mask);
+        if (!(mask >> lane_id(*u) & 1)) return stop(Omits, u->index, pc, "", mask);
         u->waiting = true, u->has_sync = true, u->sync = uint32_t(mask);
       }
       drop(held);
@@ -199,13 +216,13 @@ struct Run {
       w.present = 1, w.has_waiting = 1;
       (info.collective == 1 ? w.has_values : w.has_predicates) = 1;
       uint64_t *values = info.collective == 1 ? w.values : w.predicates;
-      for (Lane *u : taking) values[u->index % 32] = read(u->t, info.source), w.active |= 1u << (u->index % 32);
+      for (Lane *u : taking) values[lane_id(*u)] = read(u->t, info.source), w.active |= 1u << lane_id(*u);
       for (Lane *u : warp)
-        if (u->live() && std::find(active.begin(), active.end(), u) == active.end()) w.waiting |= 1u << (u->index % 32);
+        if (u->live() && std::find(active.begin(), active.end(), u) == active.end()) w.waiting |= 1u << lane_id(*u);
     }
     for (Lane *u : active) {
       WarpContext mine = w;
-      mine.lane = uint32_t(u->index % 32);
+      mine.lane = lane_id(*u);
       if (uint32_t s = step(*u, pc, i, shared, info.collective ? mine : w)) return s;
       u->released = false;
     }
