@@ -18,9 +18,9 @@ def tensor_block(a, b, c, extra, source="F16", minimum_exponent=-133, negate=(Fa
     terms, infinities = [], set()
     for x, y in zip(a, b):
         if source == "TF32": x, y = x & 0xffffe000, y & 0xffffe000
-        width, fraction, bias = (16, 10, 15) if source == "F16" else (32, 23, 127)
-        kx, sx, vx = softfloat.unpack(x, width)
-        ky, sy, vy = softfloat.unpack(y, width)
+        width, fraction, bias = {"F16": (16, 10, 15), "BF16": (16, 7, 127), "TF32": (32, 23, 127)}[source]
+        kx, sx, vx = softfloat.unpack(x << 16 if source == "BF16" else x, 32 if source == "BF16" else width)
+        ky, sy, vy = softfloat.unpack(y << 16 if source == "BF16" else y, 32 if source == "BF16" else width)
         if negate[0]:
             sx ^= 1
             if vx is not None: vx = -vx
@@ -44,7 +44,7 @@ def tensor_block(a, b, c, extra, source="F16", minimum_exponent=-133, negate=(Fa
     if infinities: return next(iter(infinities)) << 31 | 0x7f800000
     if not terms: return 0
     exponent = max(e for _, e in terms)
-    if source == "TF32": exponent = max(exponent, minimum_exponent)
+    if source != "F16": exponent = max(exponent, minimum_exponent)
     quantum = Fraction(2) ** (exponent - 23 - extra)
     aligned = sum((-1 if v < 0 else 1) * (abs(v) // quantum) for v, _ in terms)
     if abs(aligned * quantum) >= Fraction(2) ** 128:
@@ -58,18 +58,18 @@ def hmma(groups, lane, arch, source="F16", count=16, accumulate=True, negate=(Fa
     for owner in range(32):
         row, thread = divmod(owner, 4)
         for word, value in enumerate(groups["Ra"][owner]):
-            if source == "F16":
+            if source != "TF32":
                 r, k = row + 8 * (word % 2), thread * 2 + 8 * (word // 2)
                 a[r][k:k + 2] = [value & 65535, value >> 16]
             else:
                 a[row + 8 * (word % 2)][thread + 4 * (word // 2)] = value
         for word, value in enumerate(groups["Rb"][owner]):
-            if source == "F16":
+            if source != "TF32":
                 for n in (0, 1):
                     b[thread * 2 + 8 * word + n][row] = value >> (n * 16) & 65535
             else:
                 b[thread + 4 * word][row] = value
-    block, extra = ((8 if source == "F16" else 4), 1) if int(arch[2:]) < 90 else (count, 2)
+    block, extra = ((4 if source == "TF32" else 8), 1) if int(arch[2:]) < 90 else (count, 2)
     out = []
     for j, c in enumerate(groups["Rc"][lane]):
         if not accumulate: c = 0

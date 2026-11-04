@@ -26,10 +26,11 @@ SHARED = frozenset({"fma.rn.bf16x2", "add.ftz.f16x2", "mul.ftz.f16x2", "fma.ftz.
 SCRATCH = frozenset({"atomic.add.f32.ftz.rn", "atomic.add.f64.rn", "atomic.add.f16x2.rn",
                      "fma.rn.f16", "fma.rn.bf16",
                      "narrow.rn.f16.f64", "narrow.rn.bf16.f64",
-                     "hmma16816.f16.f32.g8.e1", "hmma16816.f16.f32.g16.e2",
-                     "hmma.f16.f32.k8.e1", "hmma.f16.f32.k16.e2",
-                     "hmma.f16.product.e1", "hmma.f16.product.e2",
                      "hmma.tf32.product.e1", "hmma.tf32.product.e2"}) | frozenset(
+                         f"hmma.f32.k{k}.e{e}"
+                         for k, e in ((4, 1), (4, 2), (8, 1), (8, 2), (16, 2))) | frozenset(
+                         f"hmma.packed.product.e{e}" for e in (1, 2)) | frozenset(
+                         f"hmma16816.packed.f32.g{g}.e{e}" for g, e in ((8, 1), (16, 2))) | frozenset(
                          f"hmma.tf32.f32.k{k}.e{e}.l{floor}"
                          for k, e in ((4, 1), (4, 2), (8, 2)) for floor in (132, 133)) | frozenset(
                          f"hmma168{k}.tf32.f32.g{group}.e{e}.l{floor}"

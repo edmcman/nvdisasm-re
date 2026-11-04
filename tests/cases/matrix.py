@@ -44,7 +44,7 @@ IMAD.WIDE.U32 R20, R0, 16, R20;
 LDG.E.128 R16, {address(4)} @sched(dst_wr_sb=0);
 LDG.E.64 R24, {address(4, 16)} @sched(dst_wr_sb=1);
 LDG.E.128 R32, {address(4, 32)} @sched(dst_wr_sb=2);
-HMMA.{size}.F32{'.TF32' if source == 'TF32' else ''} R{destination}, R16, R24, R32 @sched(dst_wr_sb=0);
+HMMA.{size}.F32{'.' + source if source != 'F16' else ''} R{destination}, R16, R24, R32 @sched(dst_wr_sb=0);
 NOP;
 NOP;
 STG.E.128 {address(20)}, R{destination};
@@ -58,5 +58,5 @@ EXIT;
 
 
 def gpu_fixtures(arch="SM89"):
-    return [fixture for source, size in (("F16", "16816"), ("TF32", "1684"), ("TF32", "1688"))
+    return [fixture for source, size in (("F16", "16816"), ("BF16", "16816"), ("TF32", "1684"), ("TF32", "1688"))
             for fixture in tensor_fixtures(arch, source, size)]

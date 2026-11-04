@@ -171,8 +171,18 @@ def report(data):
         "Integrated source checks pass 54 tests, and all twenty reviewed P-code baselines pass. "
         "All twenty languages compile below the unchanged 16 MiB limit; SM107 exact is "
         "16,753,273 bytes. Full-form HMMA planning is exhaustive; input profiles remain sampled "
-        "regression domains. BF16, F16 destinations, sparse/indexed HMMA and other unresolved "
+        "regression domains. F16 destinations, sparse/indexed HMMA and other unresolved "
         "target forms still prevent completion.", "",
+        "The BF16 extension passes 5,892 SM89 shared GPU cases and twelve whole-warp GPU "
+        "fixtures. Final all-architecture exact/readable Ghidra matrix validation passes "
+        "106 tests with 99,880 shared cases in 408 seconds. The expanded source-overlap "
+        "checks pass 96 Python/native tests; cooperative fixtures separately pass all "
+        "six SM89/SM90 schedule combinations. Integrated source checks pass 575 tests, "
+        "including real numeric-definition parameter expansion. All twenty reviewed P-code baselines pass. "
+        "The shared packed-format parameter increases F16's P-code, while keeping every "
+        "language below the unchanged 16 MiB limit (SM107 exact: 16,776,587 bytes). "
+        "SM89 has 32 supported dense selector forms with exhaustive planning; F16 "
+        "destinations, sparse/indexed forms and other target gaps still prevent completion.", "",
     ]
     return "\n".join(text)
 

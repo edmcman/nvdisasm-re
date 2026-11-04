@@ -607,6 +607,20 @@ PROFILES['hmma_forms'] = dict(patterns=(
     "snan_a", "snan_b", "snan_c", "zero_times_inf", "positive_inf", "negative_inf",
     "max_half", "min_half", "half_subnormals",
     *(f"random_{seed}" for seed in range(16))))
+PROFILES['hmma_bf16_forms'] = dict(patterns=(
+    "ones", "coordinates", "identity", "accumulator", "small", "cancel", "cancel_even",
+    "nan_a", "nan_b", "nan_c", "snan_a", "snan_b", "snan_c", "negative_zero",
+    "zero_times_inf", "positive_inf", "negative_inf", "half_subnormals",
+    "quarter_products", "negative_quarters", "unnormalized_product", "normalized_product",
+    *(f"random_{n}" for n in range(16)), *(f"tiny_precision_{q}" for q in range(1, 9))) + tuple(
+    f"raw_{a:04x}_{b:04x}_{c:08x}" for a, b, c in (
+        (0x7f80, 0, 0), (0xff80, 0x3f80, 0),
+        (0xffff, 0x3f80, 0), (0x0001, 0x3f80, 0),
+        (0x007f, 0x3f80, 0), (0x0080, 0x0080, 0), (0x7f7f, 0x4000, 0),
+        (0x8001, 0x3f80, 0), (0, 0, 1), (0, 0, 0x80000001),
+        (0, 0, 0x80000000), (0x3fc0, 0x3fc0, 0x3f800000),
+        *((e << 7, e << 7, 0) for e in range(40, 65)))))
+
 PROFILES['hmma_tf32_forms'] = dict(patterns=(
     "ones", "coordinates", "identity", "accumulator",
     "tiny_join", "tiny_split", "overflow_cancel", "overflow_groups", "wide_cancel", "unnormalized",

@@ -181773,7 +181773,7 @@
     "cls": "hmma_x8_",
     "opcode": "HMMA",
     "status": "primitive",
-    "reason": "HMMA 1688.BF16.F16: fragment/numerical model unresolved; HMMA 1688.F16.F16: fragment/numerical model unresolved; HMMA 1688.INVALID3.F16: fragment/numerical model unresolved",
+    "reason": "HMMA 1688.F16: fragment/numerical model unresolved",
     "operands": [
      {
       "name": "Pg",
@@ -181918,13 +181918,7 @@
      }
     ],
     "selector_guards": {},
-    "selector_combinations": {
-     "srcfmt": [
-      [
-       0
-      ]
-     ]
-    },
+    "selector_combinations": {},
     "combinations": {
      "labels": {
       "size": [
@@ -181999,7 +181993,7 @@
        "16816",
        "F32",
        "BF16",
-       "opaque"
+       "primitive"
       ],
       [
        "1684",
@@ -182021,7 +182015,7 @@
      },
      "srcfmt": {
       "F16": "partially primitive",
-      "BF16": "opaque",
+      "BF16": "partially primitive",
       "TF32": "primitive"
      },
      "Ra@negate": {
@@ -182124,14 +182118,14 @@
     ],
     "legal_forms": 32,
     "semantics": {
-     "opaque": 20,
-     "primitive": 12
+     "opaque": 16,
+     "primitive": 16
     },
     "full_form_verification": {
-     "supported": 12,
-     "planned": 12,
+     "supported": 16,
+     "planned": 16,
      "unplanned": 0,
-     "reference": 12,
+     "reference": 16,
      "gpu": 0,
      "ptxas": 0
     },
@@ -182143,6 +182137,13 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -182158,6 +182159,13 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -182185,6 +182193,13 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -182200,6 +182215,13 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -182231,7 +182253,7 @@
       "size",
       "srcfmt"
      ],
-     "reference": 4376,
+     "reference": 5560,
      "verification_forms": {
       "reference": [
        [
@@ -182239,6 +182261,13 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -182254,6 +182283,13 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -182281,6 +182317,13 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -182296,6 +182339,13 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -328446,7 +328496,7 @@
     "cls": "hmma_x8_",
     "opcode": "HMMA",
     "status": "primitive",
-    "reason": "HMMA 1688.BF16.F16: fragment/numerical model unresolved; HMMA 1688.E6M9.F16: fragment/numerical model unresolved; HMMA 1688.F16.F16: fragment/numerical model unresolved",
+    "reason": "HMMA 1688.F16: fragment/numerical model unresolved",
     "operands": [
      {
       "name": "Pg",
@@ -328612,7 +328662,7 @@
     "selector_combinations": {
      "srcfmt": [
       [
-       0
+       true
       ]
      ]
     },
@@ -328700,7 +328750,7 @@
        "16816",
        "F32",
        "BF16",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
@@ -328728,7 +328778,7 @@
      },
      "srcfmt": {
       "F16": "partially primitive",
-      "BF16": "opaque",
+      "BF16": "partially primitive",
       "E6M9": "opaque",
       "TF32": "primitive"
      },
@@ -328844,14 +328894,14 @@
     ],
     "legal_forms": 80,
     "semantics": {
-     "opaque": 56,
-     "primitive": 24
+     "opaque": 48,
+     "primitive": 32
     },
     "full_form_verification": {
-     "supported": 24,
-     "planned": 24,
+     "supported": 32,
+     "planned": 32,
      "unplanned": 0,
-     "reference": 24,
+     "reference": 32,
      "gpu": 0,
      "ptxas": 0
     },
@@ -328864,6 +328914,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -328881,6 +328939,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -328912,6 +328978,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -328929,6 +329003,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -328960,6 +329042,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -328977,6 +329067,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -329008,6 +329106,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -329025,6 +329131,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -329060,7 +329174,7 @@
       "size",
       "srcfmt"
      ],
-     "reference": 9200,
+     "reference": 11760,
      "verification_forms": {
       "reference": [
        [
@@ -329069,6 +329183,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -329086,6 +329208,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -329117,6 +329247,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -329134,6 +329272,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -329165,6 +329311,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -329182,6 +329336,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -329213,6 +329375,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -329230,6 +329400,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -489408,7 +489586,7 @@
     "cls": "hmma_x8_",
     "opcode": "HMMA",
     "status": "primitive",
-    "reason": "HMMA 1688.BF16.F16: fragment/numerical model unresolved; HMMA 1688.E6M9.F16: fragment/numerical model unresolved; HMMA 1688.F16.F16: fragment/numerical model unresolved",
+    "reason": "HMMA 1688.F16: fragment/numerical model unresolved",
     "operands": [
      {
       "name": "Pg",
@@ -489574,7 +489752,7 @@
     "selector_combinations": {
      "srcfmt": [
       [
-       0
+       true
       ]
      ]
     },
@@ -489662,7 +489840,7 @@
        "16816",
        "F32",
        "BF16",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
@@ -489690,7 +489868,7 @@
      },
      "srcfmt": {
       "F16": "partially primitive",
-      "BF16": "opaque",
+      "BF16": "partially primitive",
       "E6M9": "opaque",
       "TF32": "primitive"
      },
@@ -489806,16 +489984,16 @@
     ],
     "legal_forms": 80,
     "semantics": {
-     "opaque": 56,
-     "primitive": 24
+     "opaque": 48,
+     "primitive": 32
     },
     "full_form_verification": {
-     "supported": 24,
-     "planned": 24,
+     "supported": 32,
+     "planned": 32,
      "unplanned": 0,
-     "reference": 24,
-     "gpu": 24,
-     "ptxas": 3
+     "reference": 32,
+     "gpu": 32,
+     "ptxas": 4
     },
     "evidence": {
      "forms": {
@@ -489826,6 +490004,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -489843,6 +490029,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -489874,6 +490068,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -489891,6 +490093,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -489922,6 +490132,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -489939,6 +490157,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -489970,6 +490196,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -489987,6 +490221,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -490020,6 +490262,14 @@
         "unset",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -490046,6 +490296,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -490063,6 +490321,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -490094,6 +490360,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -490111,6 +490385,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -490142,6 +490424,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -490159,6 +490449,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -490190,6 +490488,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -490207,6 +490513,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -490236,6 +490550,9 @@
      },
      "gpu": [
       "cases/matrix",
+      "hmma_bf16_16816_alias_16",
+      "hmma_bf16_16816_alias_24",
+      "hmma_bf16_16816_alias_32",
       "hmma_f16_16816_alias_16",
       "hmma_f16_16816_alias_24",
       "hmma_f16_16816_alias_32",
@@ -490255,11 +490572,12 @@
       "srcfmt"
      ],
      "ptxas": [
+      "hmma/bf16.ptx",
       "hmma/dense.ptx",
       "hmma/tf32_1684.ptx",
       "hmma/tf32_1688.ptx"
      ],
-     "reference": 9200,
+     "reference": 11760,
      "verification_forms": {
       "reference": [
        [
@@ -490268,6 +490586,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -490285,6 +490611,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -490316,6 +490650,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -490333,6 +490675,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -490364,6 +490714,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -490381,6 +490739,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -490412,6 +490778,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -490429,6 +490803,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -673410,7 +673792,7 @@
     "cls": "hmma_x8_",
     "opcode": "HMMA",
     "status": "primitive",
-    "reason": "HMMA 1688.BF16.F16: fragment/numerical model unresolved; HMMA 1688.E6M9.F16: fragment/numerical model unresolved; HMMA 1688.F16.F16: fragment/numerical model unresolved",
+    "reason": "HMMA 1688.F16: fragment/numerical model unresolved",
     "operands": [
      {
       "name": "Pg",
@@ -673576,7 +673958,7 @@
     "selector_combinations": {
      "srcfmt": [
       [
-       0
+       true
       ]
      ]
     },
@@ -673664,7 +674046,7 @@
        "16816",
        "F32",
        "BF16",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
@@ -673692,7 +674074,7 @@
      },
      "srcfmt": {
       "F16": "partially primitive",
-      "BF16": "opaque",
+      "BF16": "partially primitive",
       "E6M9": "opaque",
       "TF32": "primitive"
      },
@@ -673808,14 +674190,14 @@
     ],
     "legal_forms": 80,
     "semantics": {
-     "opaque": 56,
-     "primitive": 24
+     "opaque": 48,
+     "primitive": 32
     },
     "full_form_verification": {
-     "supported": 24,
-     "planned": 24,
+     "supported": 32,
+     "planned": 32,
      "unplanned": 0,
-     "reference": 24,
+     "reference": 32,
      "gpu": 0,
      "ptxas": 0
     },
@@ -673828,6 +674210,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -673845,6 +674235,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -673876,6 +674274,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -673893,6 +674299,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -673924,6 +674338,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -673941,6 +674363,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -673972,6 +674402,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -673989,6 +674427,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -674024,7 +674470,7 @@
       "size",
       "srcfmt"
      ],
-     "reference": 9200,
+     "reference": 11760,
      "verification_forms": {
       "reference": [
        [
@@ -674033,6 +674479,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -674050,6 +674504,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -674081,6 +674543,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -674098,6 +674568,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -674129,6 +674607,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -674146,6 +674632,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -674177,6 +674671,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -674194,6 +674696,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -856307,7 +856817,7 @@
     "cls": "hmma_x8_",
     "opcode": "HMMA",
     "status": "primitive",
-    "reason": "HMMA 1688.BF16.F16: fragment/numerical model unresolved; HMMA 1688.F16.F16: fragment/numerical model unresolved; HMMA 1688.INVALID3.F16: fragment/numerical model unresolved",
+    "reason": "HMMA 1688.F16: fragment/numerical model unresolved",
     "operands": [
      {
       "name": "Pg",
@@ -856470,13 +856980,7 @@
      }
     ],
     "selector_guards": {},
-    "selector_combinations": {
-     "srcfmt": [
-      [
-       0
-      ]
-     ]
-    },
+    "selector_combinations": {},
     "combinations": {
      "labels": {
       "size": [
@@ -856555,7 +857059,7 @@
        "16816",
        "F32",
        "BF16",
-       "opaque"
+       "primitive"
       ],
       [
        "1684",
@@ -856577,7 +857081,7 @@
      },
      "srcfmt": {
       "F16": "partially primitive",
-      "BF16": "opaque",
+      "BF16": "partially primitive",
       "TF32": "primitive"
      },
      "Ra@negate": {
@@ -856692,14 +857196,14 @@
     ],
     "legal_forms": 64,
     "semantics": {
-     "opaque": 40,
-     "primitive": 24
+     "opaque": 32,
+     "primitive": 32
     },
     "full_form_verification": {
-     "supported": 24,
-     "planned": 24,
+     "supported": 32,
+     "planned": 32,
      "unplanned": 0,
-     "reference": 24,
+     "reference": 32,
      "gpu": 0,
      "ptxas": 0
     },
@@ -856712,6 +857216,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -856729,6 +857241,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -856760,6 +857280,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -856777,6 +857305,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -856808,6 +857344,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -856825,6 +857369,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -856856,6 +857408,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -856873,6 +857433,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -856908,7 +857476,7 @@
       "size",
       "srcfmt"
      ],
-     "reference": 9200,
+     "reference": 11760,
      "verification_forms": {
       "reference": [
        [
@@ -856917,6 +857485,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -856934,6 +857510,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -856965,6 +857549,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -856982,6 +857574,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -857013,6 +857613,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -857030,6 +857638,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -857061,6 +857677,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -857078,6 +857702,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -1039290,7 +1039922,7 @@
     "cls": "hmma_x8_",
     "opcode": "HMMA",
     "status": "primitive",
-    "reason": "HMMA 1688.BF16.F16: fragment/numerical model unresolved; HMMA 1688.F16.F16: fragment/numerical model unresolved; HMMA 1688.INVALID3.F16: fragment/numerical model unresolved",
+    "reason": "HMMA 1688.F16: fragment/numerical model unresolved",
     "operands": [
      {
       "name": "Pg",
@@ -1039453,13 +1040085,7 @@
      }
     ],
     "selector_guards": {},
-    "selector_combinations": {
-     "srcfmt": [
-      [
-       0
-      ]
-     ]
-    },
+    "selector_combinations": {},
     "combinations": {
      "labels": {
       "size": [
@@ -1039538,7 +1040164,7 @@
        "16816",
        "F32",
        "BF16",
-       "opaque"
+       "primitive"
       ],
       [
        "1684",
@@ -1039560,7 +1040186,7 @@
      },
      "srcfmt": {
       "F16": "partially primitive",
-      "BF16": "opaque",
+      "BF16": "partially primitive",
       "TF32": "primitive"
      },
      "Ra@negate": {
@@ -1039675,14 +1040301,14 @@
     ],
     "legal_forms": 64,
     "semantics": {
-     "opaque": 40,
-     "primitive": 24
+     "opaque": 32,
+     "primitive": 32
     },
     "full_form_verification": {
-     "supported": 24,
-     "planned": 24,
+     "supported": 32,
+     "planned": 32,
      "unplanned": 0,
-     "reference": 24,
+     "reference": 32,
      "gpu": 0,
      "ptxas": 0
     },
@@ -1039695,6 +1040321,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1039712,6 +1040346,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -1039743,6 +1040385,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1039760,6 +1040410,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -1039791,6 +1040449,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1039808,6 +1040474,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -1039839,6 +1040513,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1039856,6 +1040538,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -1039891,7 +1040581,7 @@
       "size",
       "srcfmt"
      ],
-     "reference": 9200,
+     "reference": 11760,
      "verification_forms": {
       "reference": [
        [
@@ -1039900,6 +1040590,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1039917,6 +1040615,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -1039948,6 +1040654,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1039965,6 +1040679,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -1039996,6 +1040718,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1040013,6 +1040743,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -1040044,6 +1040782,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1040061,6 +1040807,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -1222273,7 +1223027,7 @@
     "cls": "hmma_x8_",
     "opcode": "HMMA",
     "status": "primitive",
-    "reason": "HMMA 1688.BF16.F16: fragment/numerical model unresolved; HMMA 1688.F16.F16: fragment/numerical model unresolved; HMMA 1688.INVALID3.F16: fragment/numerical model unresolved",
+    "reason": "HMMA 1688.F16: fragment/numerical model unresolved",
     "operands": [
      {
       "name": "Pg",
@@ -1222436,13 +1223190,7 @@
      }
     ],
     "selector_guards": {},
-    "selector_combinations": {
-     "srcfmt": [
-      [
-       0
-      ]
-     ]
-    },
+    "selector_combinations": {},
     "combinations": {
      "labels": {
       "size": [
@@ -1222521,7 +1223269,7 @@
        "16816",
        "F32",
        "BF16",
-       "opaque"
+       "primitive"
       ],
       [
        "1684",
@@ -1222543,7 +1223291,7 @@
      },
      "srcfmt": {
       "F16": "partially primitive",
-      "BF16": "opaque",
+      "BF16": "partially primitive",
       "TF32": "primitive"
      },
      "Ra@negate": {
@@ -1222658,14 +1223406,14 @@
     ],
     "legal_forms": 64,
     "semantics": {
-     "opaque": 40,
-     "primitive": 24
+     "opaque": 32,
+     "primitive": 32
     },
     "full_form_verification": {
-     "supported": 24,
-     "planned": 24,
+     "supported": 32,
+     "planned": 32,
      "unplanned": 0,
-     "reference": 24,
+     "reference": 32,
      "gpu": 0,
      "ptxas": 0
     },
@@ -1222678,6 +1223426,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1222695,6 +1223451,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -1222726,6 +1223490,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1222743,6 +1223515,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -1222774,6 +1223554,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1222791,6 +1223579,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -1222822,6 +1223618,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1222839,6 +1223643,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -1222874,7 +1223686,7 @@
       "size",
       "srcfmt"
      ],
-     "reference": 9200,
+     "reference": 11760,
      "verification_forms": {
       "reference": [
        [
@@ -1222883,6 +1223695,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1222900,6 +1223720,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -1222931,6 +1223759,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1222948,6 +1223784,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -1222979,6 +1223823,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1222996,6 +1223848,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -1223027,6 +1223887,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1223044,6 +1223912,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -1405538,7 +1406414,7 @@
     "cls": "hmma_x8_",
     "opcode": "HMMA",
     "status": "primitive",
-    "reason": "HMMA 1688.BF16.F16: fragment/numerical model unresolved; HMMA 1688.F16.F16: fragment/numerical model unresolved; HMMA 1688.INVALID3.F16: fragment/numerical model unresolved",
+    "reason": "HMMA 1688.F16: fragment/numerical model unresolved",
     "operands": [
      {
       "name": "Pg",
@@ -1405673,13 +1406549,7 @@
      }
     ],
     "selector_guards": {},
-    "selector_combinations": {
-     "srcfmt": [
-      [
-       0
-      ]
-     ]
-    },
+    "selector_combinations": {},
     "combinations": {
      "labels": {
       "size": [
@@ -1405758,7 +1406628,7 @@
        "16816",
        "F32",
        "BF16",
-       "opaque"
+       "primitive"
       ],
       [
        "1684",
@@ -1405780,7 +1406650,7 @@
      },
      "srcfmt": {
       "F16": "partially primitive",
-      "BF16": "opaque",
+      "BF16": "partially primitive",
       "TF32": "primitive"
      },
      "Ra@negate": {
@@ -1405895,14 +1406765,14 @@
     ],
     "legal_forms": 64,
     "semantics": {
-     "opaque": 40,
-     "primitive": 24
+     "opaque": 32,
+     "primitive": 32
     },
     "full_form_verification": {
-     "supported": 24,
-     "planned": 24,
+     "supported": 32,
+     "planned": 32,
      "unplanned": 0,
-     "reference": 24,
+     "reference": 32,
      "gpu": 0,
      "ptxas": 0
     },
@@ -1405915,6 +1406785,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1405932,6 +1406810,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -1405963,6 +1406849,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1405980,6 +1406874,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -1406011,6 +1406913,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1406028,6 +1406938,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -1406059,6 +1406977,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1406076,6 +1407002,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -1406111,7 +1407045,7 @@
       "size",
       "srcfmt"
      ],
-     "reference": 9200,
+     "reference": 11760,
      "verification_forms": {
       "reference": [
        [
@@ -1406120,6 +1407054,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1406137,6 +1407079,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -1406168,6 +1407118,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1406185,6 +1407143,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -1406216,6 +1407182,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1406233,6 +1407207,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -1406264,6 +1407246,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1406281,6 +1407271,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -1588887,7 +1589885,7 @@
     "cls": "hmma_x8_",
     "opcode": "HMMA",
     "status": "primitive",
-    "reason": "HMMA 1688.BF16.F16: fragment/numerical model unresolved; HMMA 1688.F16.F16: fragment/numerical model unresolved; HMMA 1688.INVALID3.F16: fragment/numerical model unresolved",
+    "reason": "HMMA 1688.F16: fragment/numerical model unresolved",
     "operands": [
      {
       "name": "Pg",
@@ -1589022,13 +1590020,7 @@
      }
     ],
     "selector_guards": {},
-    "selector_combinations": {
-     "srcfmt": [
-      [
-       0
-      ]
-     ]
-    },
+    "selector_combinations": {},
     "combinations": {
      "labels": {
       "size": [
@@ -1589107,7 +1590099,7 @@
        "16816",
        "F32",
        "BF16",
-       "opaque"
+       "primitive"
       ],
       [
        "1684",
@@ -1589129,7 +1590121,7 @@
      },
      "srcfmt": {
       "F16": "partially primitive",
-      "BF16": "opaque",
+      "BF16": "partially primitive",
       "TF32": "primitive"
      },
      "Ra@negate": {
@@ -1589244,14 +1590236,14 @@
     ],
     "legal_forms": 64,
     "semantics": {
-     "opaque": 40,
-     "primitive": 24
+     "opaque": 32,
+     "primitive": 32
     },
     "full_form_verification": {
-     "supported": 24,
-     "planned": 24,
+     "supported": 32,
+     "planned": 32,
      "unplanned": 0,
-     "reference": 24,
+     "reference": 32,
      "gpu": 0,
      "ptxas": 0
     },
@@ -1589264,6 +1590256,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1589281,6 +1590281,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -1589312,6 +1590320,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1589329,6 +1590345,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -1589360,6 +1590384,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1589377,6 +1590409,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -1589408,6 +1590448,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1589425,6 +1590473,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -1589460,7 +1590516,7 @@
       "size",
       "srcfmt"
      ],
-     "reference": 9200,
+     "reference": 11760,
      "verification_forms": {
       "reference": [
        [
@@ -1589469,6 +1590525,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1589486,6 +1590550,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -1589517,6 +1590589,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1589534,6 +1590614,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "set",
@@ -1589565,6 +1590653,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1589582,6 +1590678,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",
@@ -1589613,6 +1590717,14 @@
         "set",
         "F32",
         "16816",
+        "BF16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
         "F16"
        ],
        [
@@ -1589630,6 +1590742,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "BF16"
        ],
        [
         "unset",

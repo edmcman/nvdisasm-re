@@ -905,3 +905,28 @@ opcode counts remain unchanged across all twenty languages. SM89 verdicts
 contain 9,245 passing half scenarios and 3,939 passing conversion scenarios,
 with no recorded hardware disagreements. The final adapter, request audit,
 modifier and coverage consistency checks passed 181 tests in 29.17 seconds.
+
+### Dense BF16 HMMA validation (2026-11-04)
+
+The integrated source suite passes 575 tests in 452 seconds, including all
+architecture planning-policy checks, matrix arithmetic and cooperative
+round-robin/reverse/seeded fixtures, definition grammar and real parameter
+expansions. Definition discovery takes 303 seconds. A same-machine run against
+pushed pre-BF16 commit `524b38c` takes 237 seconds, so the dated 111-second
+discovery record is not the current baseline.
+
+The SM89 exact matrix discovery shard grows from 4,612 cases and 300 distinct
+instruction words (12.1 seconds) to 5,892 cases and 620 words (19.7 seconds).
+BF16 adds eight supported selector forms; legal source-overlap placements more
+than double the distinct matrix words. A separate same-word comparison of
+existing F16/TF32 lifting and parameter expansion finds no slowdown. The added
+coverage explains the extra discovery work; no timing regression is hidden by
+replacing an old baseline.
+
+Final exact/readable Ghidra matrix validation passes 106 tests and 99,880 shared
+cases over ten architectures in 408 seconds. All twenty reviewed P-code
+operation-count baselines pass. The retained YOLO replay passes 249 launches
+with 470 complete captured-region comparisons, leaves 65 launches blocked, and
+finds no mismatches. Hardware verification covers 5,892 SM89 shared cases and
+twelve whole-warp fixtures; other architectures' tensor arithmetic remains
+specification/paper inference.

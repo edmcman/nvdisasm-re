@@ -11,7 +11,7 @@ from tests.harness import autocases, device_cases
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--out", type=Path, required=True)
-    p.add_argument("--source", choices=("F16", "TF32"), default="F16")
+    p.add_argument("--source", choices=("F16", "BF16", "TF32"), default="F16")
     p.add_argument("--size", choices=("1684", "1688", "16816"), default="16816")
     p.add_argument("--pattern", action="append")
     p.add_argument("--predicate", choices=("true", "false"))

@@ -47,15 +47,15 @@ Reading notes:
   (`memory.py`), runtime-executed operations (`runtime.py`); UP2UR is in `integer.py`, HFMA2.MMA in `floating.py`.
 - `atomic.py` supplies integer atomic updates, floating atomic ADD, and ordinary SC fences;
   `asynchronous.py` supplies copy issue, commit, and wait effects; `matrix.py` supplies
-  unexpanded 16-bit M88/MT88 matrix loads and direct HMMA F16/16816 and
+  unexpanded 16-bit M88/MT88 matrix loads and direct HMMA F16/BF16/16816 and
   TF32/1684/1688 arithmetic with F32 accumulators, including source negation and
   accumulator predicates (2026-11-04). Matrix arithmetic is defined over values;
-  only lane access is a primitive. The SM89 TF32 alignment floor comes from
+  only lane access is a primitive. The SM89 BF16/TF32 alignment floor comes from
   local hardware; other architectures' grouping, precision and floor are inferred
   from published tensor-core models. See `docs/hardware-facts.md`.
   Unsupported selectors retain opaque fallbacks; the form inventory in
   `research/additional-opcodes/inventory-current.json` separates these from evidence.
-- Compiler traces (2026-11-04): ptxas 13.0.88 compiles the eight retained opcode
+- Compiler traces (2026-11-04): ptxas 13.0.88 compiles the nine retained opcode
   probes on SM80/86/89/90/100/103/120 with PTX 9.0. SM75 compiles four; the
   selected dense matrix shape and async-copy probes require SM80. That compiler
   does not recognize SM101 or SM107. Generated sources, commands, hashes,
@@ -142,6 +142,10 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   registers, followed by an explicit build and an immediate result copy. Each call
   has a distinct forwarding operand because SLEIGH rejects duplicate builds of
   one operand. Nested definitions use separate argument registers.
+  Packed F16/BF16 HMMA shares a format parameter and a common biased-exponent
+  product representation. The shared body adds format-selection operations to
+  F16 P-code, but avoids duplicating matrix constructors and keeps every language
+  below Ghidra's unchanged 16 MiB limit (SM107 exact: 16,776,587 bytes).
   Small predicate results share a body when their extra inputs can be elided
   without reading discarded predicates. Decode-time substitutes handle inputs
   used only by those results. Larger savings and complete-discard cases retain

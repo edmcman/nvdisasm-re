@@ -15,6 +15,7 @@ expectation, and records each emitted `sass:` class as ptxas evidence. Unannotat
 
 | Fixture | Target | PTX feature / observed SASS |
 |---|---|---|
+| `hmma/bf16.ptx` | SM89 | BF16 `mma.sync` m16n8k16 emits `HMMA.16816.F32.BF16` |
 | `hmma/tf32_1684.ptx` | SM89 | TF32 `mma.sync` m16n8k4 emits `HMMA.1684.F32.TF32` |
 | `hmma/tf32_1688.ptx` | SM89 | TF32 `mma.sync` m16n8k8 emits `HMMA.1688.F32.TF32` |
 | `arithmetic/add_f32.ptx` | SM100 | Rounded fp32 add lowering |

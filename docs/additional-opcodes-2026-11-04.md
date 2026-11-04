@@ -103,15 +103,15 @@ Partial counts require operand restrictions and remain included in Unresolved. R
 | Architecture | Legal | Supported | Partial | Unresolved | Reference | GPU | Unplanned |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | SM75 | 384 | 0 | 0 | 384 | 0/0 | 0/0 | 0 |
-| SM80 | 192 | 12 | 0 | 180 | 12/0 | 0/0 | 0 |
-| SM86 | 480 | 24 | 0 | 456 | 24/0 | 0/0 | 0 |
-| SM89 | 480 | 24 | 0 | 456 | 24/0 | 24/0 | 0 |
-| SM90 | 480 | 24 | 0 | 456 | 24/0 | 0/0 | 0 |
-| SM100 | 384 | 24 | 0 | 360 | 24/0 | 0/0 | 0 |
-| SM101 | 384 | 24 | 0 | 360 | 24/0 | 0/0 | 0 |
-| SM103 | 384 | 24 | 0 | 360 | 24/0 | 0/0 | 0 |
-| SM107 | 384 | 24 | 0 | 360 | 24/0 | 0/0 | 0 |
-| SM120 | 384 | 24 | 0 | 360 | 24/0 | 0/0 | 0 |
+| SM80 | 192 | 16 | 0 | 176 | 16/0 | 0/0 | 0 |
+| SM86 | 480 | 32 | 0 | 448 | 32/0 | 0/0 | 0 |
+| SM89 | 480 | 32 | 0 | 448 | 32/0 | 32/0 | 0 |
+| SM90 | 480 | 32 | 0 | 448 | 32/0 | 0/0 | 0 |
+| SM100 | 384 | 32 | 0 | 352 | 32/0 | 0/0 | 0 |
+| SM101 | 384 | 32 | 0 | 352 | 32/0 | 0/0 | 0 |
+| SM103 | 384 | 32 | 0 | 352 | 32/0 | 0/0 | 0 |
+| SM107 | 384 | 32 | 0 | 352 | 32/0 | 0/0 | 0 |
+| SM120 | 384 | 32 | 0 | 352 | 32/0 | 0/0 | 0 |
 
 ## LDGDEPBAR
 
@@ -214,4 +214,6 @@ The retained YOLO replay compares every captured memory region: 249 launches pas
 
 PR #119's failing logs identified a stale SM107 case plan and launch tests that still expected Ghidra to reject launch scope. The regenerated plan passes `--check`; the updated launch test compares against the reference and passes locally on SM89/SM90. After push `12ee374`, CI exposed invalid size selectors admitted by span constructors and excess P-code for discarded integer predicates. Span constraints now encode their narrowed raw domains, and predicate-sharing costs account for narrowing surviving expressions. Scalar half FMA sharing keeps all twenty languages below the unchanged 16 MiB limit. All-architecture decoder/dataflow and int_alu/fp16 numerical checks passed 2,794 tests with 209,716 selected shared cases; the twenty reviewed operation-count baselines pass separately. Carry, threads and memory checks on SM89/SM107 in both modes passed 614 tests with 23,406 shared cases. That refresh left the committed coverage/evidence files unchanged. Following `d715824`, all 58 current PR checks pass and nine are skipped. SM90's earlier generation job failed artifact upload with ECONNRESET after its generation checks passed.
 
-The dense TF32 and operand-control extension passes 4,612 SM89 shared GPU cases and nine whole-warp GPU fixtures. All-architecture exact/readable matrix Ghidra validation passes 94 tests with 78,216 shared cases; FP16 numerical/dataflow validation passes 916 tests with 155,492 shared cases. Corrected arithmetic passes 72 Python/native tests, including all eight source-negation/predicate-inversion combinations in the native engine. Integrated source checks pass 54 tests, and all twenty reviewed P-code baselines pass. All twenty languages compile below the unchanged 16 MiB limit; SM107 exact is 16,753,273 bytes. Full-form HMMA planning is exhaustive; input profiles remain sampled regression domains. BF16, F16 destinations, sparse/indexed HMMA and other unresolved target forms still prevent completion.
+The dense TF32 and operand-control extension passes 4,612 SM89 shared GPU cases and nine whole-warp GPU fixtures. All-architecture exact/readable matrix Ghidra validation passes 94 tests with 78,216 shared cases; FP16 numerical/dataflow validation passes 916 tests with 155,492 shared cases. Corrected arithmetic passes 72 Python/native tests, including all eight source-negation/predicate-inversion combinations in the native engine. Integrated source checks pass 54 tests, and all twenty reviewed P-code baselines pass. All twenty languages compile below the unchanged 16 MiB limit; SM107 exact is 16,753,273 bytes. Full-form HMMA planning is exhaustive; input profiles remain sampled regression domains. F16 destinations, sparse/indexed HMMA and other unresolved target forms still prevent completion.
+
+The BF16 extension passes 5,892 SM89 shared GPU cases and twelve whole-warp GPU fixtures. Final all-architecture exact/readable Ghidra matrix validation passes 106 tests with 99,880 shared cases in 408 seconds. The expanded source-overlap checks pass 96 Python/native tests; cooperative fixtures separately pass all six SM89/SM90 schedule combinations. Integrated source checks pass 575 tests, including real numeric-definition parameter expansion. All twenty reviewed P-code baselines pass. The shared packed-format parameter increases F16's P-code, while keeping every language below the unchanged 16 MiB limit (SM107 exact: 16,776,587 bytes). SM89 has 32 supported dense selector forms with exhaustive planning; F16 destinations, sparse/indexed forms and other target gaps still prevent completion.

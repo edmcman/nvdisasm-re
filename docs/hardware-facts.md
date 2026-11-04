@@ -1102,3 +1102,52 @@ Dense TF32 and HMMA operand controls on 2026-11-04:
 - CUDA 13.0.88 `ptxas` emits the two TF32 shapes from the retained
   `tests/ptx/hmma/tf32_1684.ptx` and `tf32_1688.ptx` `mma.sync.aligned` probes.
   Compiler emission establishes encoding, not the accumulation model.
+
+Dense BF16 and physical source aliases on 2026-11-04:
+
+- SM89 `HMMA.16816.F32.BF16` uses the packed F16 lane/register ownership
+  with BF16 operands. It performs two consecutive eight-product blocks, one
+  extra alignment bit, truncation of aligned terms and round-toward-zero
+  normalization. Products remain unnormalized through each block, permitting
+  overflowing products to cancel. Subnormal inputs and accumulators, infinities,
+  signaling/quiet NaNs, finite overflow and zero signs are included in the
+  independent rational reference and autocase profile.
+- `research/additional-opcodes/hmma-bf16-SM89.json` retains 704 autocase-derived
+  discovery observations with no harness errors. Eight precision probes
+  distinguish a minimum alignment exponent of -132: q=1..6 produce the least
+  positive F32 subnormal, while q=7..8 produce zero. Other architectures retain
+  the published -133 floor and inferred grouping/precision; local hardware
+  verification covers SM89 only. Discovery records themselves earn no credit.
+- The promoted SM89 shared suite passes 5,892 cases across F16/16816,
+  BF16/16816 and TF32/1684/1688, including all source-negation and accumulator
+  predicate-inversion combinations. Lane-distinguishing coordinate and identity
+  inputs also cover seven legal source-overlap placements, plus destination
+  overlaps, RZ sources/sinks and predication. The strict encoder rejects
+  misaligned spans: F32 C requires four-register alignment; overlapping B can
+  begin at R18 because its span requires two-register alignment.
+- Twelve whole-warp SM89 GPU fixtures pass, with each of the four shapes writing
+  separately or over either source register group. Python/native cooperative
+  fixtures additionally exercise round-robin, reverse and seeded schedules.
+- CUDA 13.0.88 `ptxas` emits `HMMA.16816.F32.BF16` for the retained
+  `tests/ptx/hmma/bf16.ptx` instruction
+  `mma.sync.aligned.m16n8k16.row.col.f32.bf16.bf16.f32`. Compiler traces pin
+  version and hashes separately from numerical hardware evidence.
+- Final exact/readable Ghidra matrix validation passes 106 tests and 99,880
+  selected shared cases over all ten architectures in 408 seconds. Architecture
+  coverage is distinct from the SM89-only numerical hardware evidence.
+
+Control discovery on 2026-11-04:
+
+- CUDA 13.0.88 ptxas inserts `YIELD` and `CCTL.IVALL` between an acquire GPU
+  load and its consumer in the bounded loop retained as
+  `research/additional-opcodes/control-acquire.ptx`. The producer uses a release
+  GPU store. Compiler lowering alone does not establish either instruction's
+  state transitions.
+- `nice uv run python -m research.control_observe --out PATH` reproduces 32 SM89 launches with
+  producer threads 0, 15, 31 or 63 and blocks of 64 or 128 threads. All consumers
+  observe one with the original YIELD, a NOP replacement, a false Pp operand,
+  or a false instruction guard. Each polling loop has a 1024-iteration cap.
+  `yield-scheduling-SM89.json` pins compiler and image hashes and retains these
+  outputs. The test is inconclusive about distinguishing scheduler behavior;
+  YIELD and CCTL remain unresolved and these observations earn no verification
+  credit.
