@@ -10,7 +10,7 @@ from sass.sleigh.modifiers import settings
 from tests.harness.case import Case, Cases, READABLE_FLOATS, put, source, cx_source
 from tests.harness import sampling
 from tests.refs import integer
-from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp, autocase_integer_extra, autocase_system, autocase_mixed_fp, autocase_remaining, autocase_partial
+from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp, autocase_integer_extra, autocase_system, autocase_mixed_fp, autocase_remaining, autocase_partial, autocase_atomic, autocase_matrix, autocase_effects
 
 PLANS = ROOT / 'tests/cases/generated'
 OPS = {'BREV', 'POPC', 'FLO', 'UFLO', 'SGXT', 'PRMT', 'UPRMT', 'IABS', 'MOV', 'UMOV', 'BMSK', 'UBREV', 'UPOPC', 'USGXT'}
@@ -20,7 +20,11 @@ INTEGER_OPS |= CARRY_OPS
 PACKED_OPS = {'VIMNMX', 'VISET', 'VIADDMNMX', 'VIMNMX3'}
 INTEGER_OPS |= PACKED_OPS
 FAMILIES = {op: 'carry' if op in CARRY_OPS else 'int_simd' if op in PACKED_OPS | {'IDP'} else 'bmsk' if op == 'BMSK' else 'int_alu' for op in OPS | INTEGER_OPS}
-OPS |= autocase_remaining.OPS | autocase_system.OPS | autocase_mixed_fp.OPS | autocase_integer_extra.OPS | INTEGER_OPS | autocase_extended.OPS | autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS
+OPS |= autocase_matrix.OPS | autocase_atomic.OPS | autocase_remaining.OPS | autocase_system.OPS | autocase_mixed_fp.OPS | autocase_integer_extra.OPS | INTEGER_OPS | autocase_extended.OPS | autocase_conversions.OPS | autocase_packed_fp.OPS | autocase_wide_fp.OPS
+OPS |= autocase_effects.OPS
+FAMILIES.update(autocase_effects.FAMILIES)
+FAMILIES.update(autocase_matrix.FAMILIES)
+FAMILIES.update(autocase_atomic.FAMILIES)
 FAMILIES.update(autocase_remaining.FAMILIES)
 FAMILIES.update(autocase_system.FAMILIES)
 FAMILIES.update(autocase_mixed_fp.FAMILIES)
@@ -118,6 +122,12 @@ def candidates(arch, cls, form, fp='exact', profiles=None, native=True, discover
     profiles = autocase_profiles.names(k.mnemonic, cls, form) if profiles is None else profiles
     if not profiles or any(name not in autocase_profiles.PROFILES for name in profiles):
         raise Unsupported('empty or unknown input profile')
+    if k.mnemonic in autocase_effects.OPS:
+        return finish(autocase_effects.generate(c,k,form,profiles),native)
+    if k.mnemonic in autocase_atomic.OPS:
+        return finish(autocase_atomic.generate(c,k,form,profiles),native)
+    if k.mnemonic in autocase_matrix.OPS:
+        return finish(autocase_matrix.generate(c,k,form,profiles),native)
     if k.mnemonic in autocase_remaining.OPS:
         return finish(autocase_remaining.generate(c,k,form,profiles),native)
     if k.mnemonic in autocase_system.OPS:
@@ -297,7 +307,7 @@ class Inputs:
         request = self.c.request(None, self.registers, expected, observe, dict(memory=self.memory, **extras))
         # These paths need the actual decoded class/environment to classify them.
         # They are small; keep their existing eager validation and alias behavior.
-        eager = (imad_alias and self.k.name == 'imad__RsIR_RIR') or (hardware or {}).get('adapter') == 'memory'
+        eager = (imad_alias and self.k.name == 'imad__RsIR_RIR') or (hardware or {}).get('adapter') in ('memory', 'async')
         if getattr(self.c, 'deferred', False) and not eager:
             self.c.append(Pending(self.k.name, dict(self.fields), request, expected, hardware, dict(form)))
         else:

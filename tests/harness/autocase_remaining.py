@@ -109,7 +109,8 @@ def environment(c,k,form):
                 if t.type in ('RSImm','F16Imm','F32Imm','F64Imm'): s.fields[n]=0
                 else: s.operand((n,), value if t.type not in ('SImm','UImm') else index*4, 2 if n!='Rd' else 8)
         if 'Pp' in k.operand_types: s.predicate(('Pp',),index%2,1)
-        active=(index%2) ^ (form.get('Pp@not')=='set') if 'Pp' in k.operand_types else True
+        reduction = k.mnemonic == 'BAR' and k.name.startswith('bar__RED')
+        active=True if reduction else (index%2) ^ (form.get('Pp@not')=='set') if 'Pp' in k.operand_types else True
         expected={};context={}
         if k.mnemonic=='MUFU': expected={'error':'MUFU approximation'}
         else:

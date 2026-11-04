@@ -12,6 +12,7 @@
 #include "sass/bits.hpp"
 #include "sass/primitives.hpp"
 #include "sass/fp.hpp"
+#include "sass/async.hpp"
 
 namespace sass {
 enum Space : int { Ram, Shared, Localmem, Cbank, SPACES };
@@ -24,6 +25,11 @@ struct Thread {
 
 // Sparse pages over an optional read-only base image (copied on first write).
 struct Memory {
+  Memory() = default;
+  Memory(const Memory &) = delete;
+  Memory &operator=(const Memory &) = delete;
+  Memory(Memory &&) = default;
+  Memory &operator=(Memory &&) = default;
   static constexpr int PAGE = 8;  // small, since each thread copies a page on its first write to it
   using Page = std::array<uint8_t, 1 << PAGE>;
   std::unordered_map<uint64_t, std::unique_ptr<Page>> pages[SPACES];
@@ -57,9 +63,18 @@ struct Memory {
   }
 };
 
+struct OperandGroups {
+  uint32_t spans[8], words[8][32][8];
+};
+
 struct WarpContext {
   uint32_t present, lane, active, has_waiting, waiting, has_values, has_predicates, pad;
   uint64_t values[32], predicates[32];
+  const OperandGroups *groups;
+  uint32_t has_bar_result, bar_result;
+  AsyncState *async;
+  uint32_t write_dependency;
+  uint32_t async_ready;
 };
 
 enum Sync { Bar, Bssy, Bsync, Break, Warpsync, Bmov };
@@ -80,6 +95,34 @@ struct Ctx {
   Thread &t; Memory &m, &local; const WarpContext &warp; const Environment &env;
   Memory &space(int s) const { return s == Localmem ? local : m; }
 };
+
+inline AsyncState &async(const Ctx &c) {
+  if (!c.warp.async) throw Fault{"async-copy state required"};
+  return *c.warp.async;
+}
+
+inline void complete_async(const Ctx &c) {
+  auto &state = async(c);
+  for (const auto &copy : state.ready) {
+    for (uint32_t byte = 0; byte < copy.size; ++byte)
+      c.m.write(Shared, copy.address + byte, uint8_t((byte < 8 ? copy.low : copy.high) >> ((byte % 8) * 8)));
+  }
+  state.ready.clear();
+}
+
+inline void async_issue(const Ctx &c, uint64_t address, uint64_t low, uint64_t high, uint32_t size, bool enabled) {
+  if (enabled) async(c).open.push_back({address, low, high, size});
+}
+inline void async_commit(const Ctx &c) {
+  uint32_t board = c.warp.write_dependency;
+  if (board >= 6) throw Fault{"async commit needs a write scoreboard"};
+  async(c).commit(board);
+}
+inline void async_wait(const Ctx &c, uint32_t board, uint32_t count, uint32_t mask) {
+  if (board < 6) async(c).wait(board, count);
+  async(c).waits(mask);
+  complete_async(c);
+}
 
 inline void check(const prim::Status &s) { if (!s) throw Fault{s.message()}; }
 
@@ -110,6 +153,10 @@ inline std::array<uint64_t, 32> lanes(const Ctx &c, bool predicates, uint64_t x)
 inline prim::Warp env_warp(const WarpContext &w) { return {w.active, w.waiting, nullptr, 0}; }
 
 namespace lane {
+inline uint64_t bar_result(const Ctx &c) {
+  if (!c.warp.has_bar_result) throw Fault{"barrier reduction result required"};
+  return c.warp.bar_result;
+}
 inline uint64_t lane(const Ctx &c) { return warp(c).lane; }
 inline uint64_t active(const Ctx &c) { return warp(c).active; }
 inline uint64_t waiting(const Ctx &c) {
@@ -122,6 +169,17 @@ inline uint64_t read_lane(const Ctx &c, uint64_t x, uint64_t src) {
   uint64_t s[32] = {};
   s[w.lane] = src;
   return one(w.lane, [&](uint32_t need, uint64_t *out) { return prim::read_lane(env_warp(w), need, v.data(), s, out); });
+}
+inline uint64_t operand_lane(const Ctx &c, uint64_t group, uint64_t source, uint64_t word) {
+  const WarpContext &w = warp(c);
+  if (!w.groups || group >= 8 || source >= 32 || word >= w.groups->spans[group])
+    throw Fault{"warp operand group required or out of range"};
+  if (!(w.active >> source & 1)) throw Fault{"warp operand source is inactive"};
+  return w.groups->words[group][source][word];
+}
+inline uint64_t operand_lane(const Ctx &c, uint64_t group, uint64_t source, uint64_t word, uint64_t current) {
+  const auto value = operand_lane(c, group, source, word);
+  return source == c.warp.lane ? current : value;
 }
 inline uint64_t ballot(const Ctx &c, uint64_t p) {
   const auto v = lanes(c, true, p);

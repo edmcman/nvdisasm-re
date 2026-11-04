@@ -170,5 +170,14 @@ def synchronization(i):
     convergence-barrier state cbu_state. Barrier results and reductions are the environment's."""
     if i.has_operand("Rd"):
         return outputs(Rd=primitive.bmov(i.encoding("cbu_state"), *synchronization_inputs(i, ("Pg", "Rd", "cbu_state"))))
-    enable = i.pred("Pp") if i.has_operand("Pp") else const(1, 1)
-    return outputs(effects=[primitive.synchronize(i.opcode.lower(), enable, *synchronization_inputs(i, ("Pg", "Pp")))])
+    reduction = i.opcode == "BAR" and i.cls.startswith("bar__RED")
+    enable = const(1, 1) if reduction else i.pred("Pp") if i.has_operand("Pp") else const(1, 1)
+    return outputs(effects=[primitive.synchronize(i.opcode.lower(), enable, *synchronization_inputs(i, ("Pg",) if reduction else ("Pg", "Pp")))])
+
+
+@family("B2R")
+def b2r(i):
+    mode = str(i.select_fork("mode"))
+    if mode != "RESULT": unmodelled(f"B2R.{mode} barrier-state encoding unresolved")
+    result = primitive.bar_result()
+    return outputs(Rd=result, Pu=result != 0)

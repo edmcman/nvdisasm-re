@@ -35,6 +35,15 @@ def read_lane(x, src):
     return primitive("read_lane", x.w, x, width(src, 32))
 
 
+OPERAND_GROUPS = ("Ra", "Rb", "Rc", "Re", "indexURc", "Ra_URb", "Ra_URc", "Rb_URc")
+
+
+def operand_lane(group, src, word, current=None):
+    return primitive("operand_lane", 32, const(OPERAND_GROUPS.index(group), 32),
+                     width(src, 32), const(word, 32) if isinstance(word, int) else width(word, 32),
+                     *([] if current is None else [width(current, 32)]))
+
+
 def ballot(p):
     """The executing lanes whose predicate p is true, as a lane mask."""
     return primitive("ballot", 32, width(p, 1))
@@ -71,4 +80,7 @@ def synchronize(op, *args):
 def bmov(*args):
     """BMOV's 32-bit read of convergence-barrier state, with its inputs (the state selector first)."""
     return primitive("bmov", 32, *args)
+
+
+def bar_result(): return primitive("bar_result", 32)
 

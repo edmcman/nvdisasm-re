@@ -65,6 +65,7 @@ class Store:
     address: Expr
     value: Expr
     cond: Expr | None = None
+    atomic: bool = False
 
 
 @dataclass(frozen=True)
@@ -75,7 +76,7 @@ class Effect:
     args: tuple
 
 
-def store(space, address, value, cond=None): return Store(space, address, value, cond)
+def store(space, address, value, cond=None, *, atomic=False): return Store(space, address, value, cond, atomic)
 def effect(name, *args): return Effect(name, tuple(args))
 
 

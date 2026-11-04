@@ -16,9 +16,44 @@ class Thread(ctypes.Structure):
                 ("p", ctypes.c_uint8 * 8), ("up", ctypes.c_uint8 * 8), ("pc", ctypes.c_uint64)]
 
 
+class OperandGroups(ctypes.Structure):
+    _fields_ = [("spans", ctypes.c_uint32 * 8), ("words", ((ctypes.c_uint32 * 8) * 32) * 8)]
+
+
 class WarpContext(ctypes.Structure):
     _fields_ = [(n, ctypes.c_uint32) for n in ("present", "lane", "active", "has_waiting", "waiting", "has_values", "has_predicates", "pad")] + \
-               [("values", ctypes.c_uint64 * 32), ("predicates", ctypes.c_uint64 * 32)]
+               [("values", ctypes.c_uint64 * 32), ("predicates", ctypes.c_uint64 * 32),
+                ("groups", ctypes.POINTER(OperandGroups)),
+                ("has_bar_result", ctypes.c_uint32), ("bar_result", ctypes.c_uint32), ("async_state", ctypes.c_void_p),
+                ("write_dependency", ctypes.c_uint32), ("async_ready", ctypes.c_uint32)]
+
+
+class AsyncCopy(ctypes.Structure):
+    _fields_ = [(name, ctypes.c_uint64) for name in ("address", "low", "high")] + [("size", ctypes.c_uint32)]
+
+
+class Async:
+    def __init__(self, library, state, lane, board):
+        self.lib, self.state, self.lane, self.board = library, state, lane, board
+
+    def issue(self, address, low, high, size, enabled):
+        if enabled: self.lib.sass_async_issue(self.state, address, low, high, size)
+
+    def commit(self):
+        if self.board not in range(6): raise UnsupportedSemantics("async commit needs a write scoreboard")
+        self.lib.sass_async_commit(self.state, self.board)
+
+    def wait(self, board, count, mask):
+        self.lib.sass_async_wait(self.state, board, count, mask)
+        self.complete()
+
+    def complete(self):
+        count = self.lib.sass_async_ready(self.state, None, 0)
+        copies = (AsyncCopy * count)()
+        self.lib.sass_async_ready(self.state, copies, count)
+        for copy in copies:
+            value = copy.low | copy.high << 64
+            self.lane.store("shared", copy.address, value.to_bytes(16, "little")[:copy.size])
 
 
 class Range(ctypes.Structure):
@@ -45,12 +80,24 @@ def registers(t):
 
 def warp(context):
     w, found = WarpContext(), context.get("warp")
+    if "barrier_result" in context: w.has_bar_result, w.bar_result = 1, int(context["barrier_result"])
     if not found: return w
     w.present, w.lane, w.active = 1, int(found.get("lane", 0)), int(found.get("active", 0xffffffff))
     if found.get("waiting") is not None: w.has_waiting, w.waiting = 1, int(found["waiting"]) & 0xffffffff
     for key, flag in (("values", "has_values"), ("predicates", "has_predicates")):
         if (values := found.get(key)) is not None and len(values) == 32:
             setattr(w, flag, 1); getattr(w, key)[:] = [int(v) & (1 << 64) - 1 for v in values]
+    if groups := found.get("operand_groups", {}):
+        w._groups = OperandGroups()
+        w.groups = ctypes.pointer(w._groups)
+    for name, lanes in groups.items():
+        if name not in primitive.OPERAND_GROUPS or len(lanes) != 32: raise ValueError("invalid warp operand group")
+        span = len(lanes[0])
+        if not 1 <= span <= 8 or any(len(row) != span for row in lanes): raise ValueError("invalid warp operand group span")
+        group = primitive.OPERAND_GROUPS.index(name)
+        w._groups.spans[group] = span
+        for lane, words in enumerate(lanes):
+            for word, value in enumerate(words): w._groups.words[group][lane][word] = int(value) & 0xffffffff
     return w
 
 
@@ -83,6 +130,11 @@ class Library:
         lib.sass_memory_free.argtypes = [ctypes.c_void_p]
         lib.sass_memory_write.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_uint64, ctypes.c_char_p, ctypes.c_size_t]
         lib.sass_memory_read.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_uint64, ctypes.c_char_p, ctypes.c_size_t]
+        lib.sass_async_issue.argtypes = [ctypes.c_void_p, ctypes.c_uint64, ctypes.c_uint64, ctypes.c_uint64, ctypes.c_uint32]
+        lib.sass_async_commit.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
+        lib.sass_async_wait.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint32, ctypes.c_uint32]
+        lib.sass_async_ready.argtypes = [ctypes.c_void_p, ctypes.POINTER(AsyncCopy), ctypes.c_size_t]
+        lib.sass_async_ready.restype = ctypes.c_size_t
 
     def memory(self, regions=(), base=None):
         """A new memory (freed with `free`) holding [(space, address, bytes)] over `base`."""

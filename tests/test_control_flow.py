@@ -14,6 +14,7 @@ def pytest_generate_tests(metafunc):
 @pytest.mark.parametrize("cls,fields,kind,target", [
     ("exit_", {}, "return", 0),
     ("bra_", dict(sImm=32), "goto", 0x1030),
+    ("brx_", dict(Ra=2, Ra_offset=-32), "goto", 0x5550),
     ("call_abs__RIR", dict(Sa=0x4560, depth="NOINC"), "call", 0x4560),
     ("ret__ABS", dict(Ra=2, Ra_offset=0, depth="NODEC"), "return", 0x4560),
 ])

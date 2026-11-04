@@ -47,7 +47,11 @@ def descriptor(i):
     # SM89 reads the selected UR pair even when noexp_desc hides it in the
     # disassembly. A range descriptor can trap with either value of bit 101.
     if i.has_operand("e_desc"): i.ignore("e_desc")
-    return [effect("sass_memory_descriptor", i.value(i.resolve("Ra_URb|Ra_URc"), modifiers=False))]
+    descriptor = i.value(i.resolve("Ra_URb|Ra_URc|Ra_URd"), modifiers=False)
+    packed_async = i.opcode == "LDGSTS" and descriptor.w == 32
+    if descriptor.w == 32: descriptor = zext(descriptor, 64) << 32
+    return [effect("sass_memory_descriptor", descriptor, const(1, 1))] if packed_async else [
+        effect("sass_memory_descriptor", descriptor)]
 
 
 def address(i):
@@ -55,7 +59,7 @@ def address(i):
     sign-extended, UImm zero-extended)."""
     if i.has_operand("Rd2") or i.has_operand("Rb2"): unmodelled("dual registers")
     # .E and the one-label input_reg_sz_* selectors name Ra's width, which its span already gives.
-    for n in ("e", "input_reg_sz_32_dist", "input_reg_sz_64_dist", "input_reg_sz_32_bit75_dist", "input_reg_sz_64_bit75_dist"):
+    for n in ("e", *(n for n in i.k.operand_types if n.startswith("input_reg_sz_"))):
         if i.has_operand(n): i.select_fork(n)
     if i.has_operand("ad"): required(i, "ad", "IA")
     # sp2 (.LTC64B/.LTC128B/.LTC256B) is an L2 prefetch-size hint; it doesn't change the value.

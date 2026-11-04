@@ -22,9 +22,9 @@ def test_geometry_backend(arch, engine, request):
     for f, result in zip(fixtures, results):
         assert not hardware.emulated_problems(f, result), (f.name, result)
     if engine == "ghidra":
-        unsupported = gpu.request(fixtures[0])
-        unsupported["kernel"]["scope"] = "launch"
-        assert "does not support launch scope" in run({arch: (arch, "exact", [unsupported])})[arch][0]["error"]
+        launched = gpu.request(fixtures[0])
+        launched["kernel"]["scope"] = "launch"
+        assert run({arch: (arch, "exact", [launched])})[arch][0] == reference.run_kernel(launched, arch)
     traced = gpu.request(fixtures[1])
     traced["kernel"].update(trace=True, trace_threads=fixtures[1].threads)
     result = run({arch: (arch, "exact", [traced])})[arch][0]

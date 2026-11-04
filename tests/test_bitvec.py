@@ -4,6 +4,13 @@ from sass.semantics import bitvec
 from sass.semantics.evaluate import evaluate
 
 
+def test_leaves_include_decode_time_choices():
+    p, q = bitvec.param("p", 1), bitvec.param("q", 1)
+    choice = bitvec.Expr("sel", (("invert",), (((False,), p), ((True,), ~p))), 1)
+    nested = bitvec.Expr("sel", (("zero",), (((False,), choice | q), ((True,), bitvec.const(1, 1)))), 1)
+    assert bitvec.leaves(nested) == [p, q]
+
+
 @pytest.mark.parametrize("width", [1, 3, 8, 16, 32, 64, 65, 127, 128])
 def test_leading_zero_count(width):
     expression = bitvec.op('lzcount', bitvec.param('x', width))

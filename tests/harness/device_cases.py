@@ -75,7 +75,7 @@ def classify(case, klass=None, arch="SM89"):
     extra = set(case.request) - {'word', 'registers', 'observe', 'inspect_pcode', 'memory', 'observe_memory', 'context', 'address'}
     if extra: raise ValueError(f'{case.id}: unclassified request fields {extra}')
     if hw.get('adapter'):
-        if hw['adapter'] == 'memory':
+        if hw['adapter'] in ('memory', 'async'):
             from tests.harness.device_setup import memory_reason
             if reason := memory_reason(case, arch): return 'emulator', reason
         return hw['adapter'], ''
@@ -248,29 +248,33 @@ def scalar_probe(scenarios, name, raw=False):
         join = None
         if s.kind == 'cx': device_setup.cx(code, case, temp, arena)
         if s.kind == 'warp': join = device_setup.warp(code, case, temp, arena)
+        if s.kind == 'matrix': shared = max(shared, device_setup.matrix(code, case, temp, arena))
         if s.kind == 'qspc':
             device_setup.qspc(code, case, temp, arena)
             shared, frame = max(shared, 256), max(frame, 256)
-        if s.kind == 'memory':
+        if s.kind in ('memory', 'async'):
             smem, local, base, start = device_setup.memory(code, case, temp, arena)
             shared, frame = max(shared, smem), max(frame, local)
         code.targets.append((len(code.words) * 16, case.request['word']))
         code.raw(int.from_bytes(bytes.fromhex(case.request['word']), 'little'))
+        if s.kind == 'async':
+            code.emit('ldgdepbar_')
+            code.emit('depbar__LE', le='LE', sbidx='SB0', cnt=0, scoreboard_list=0)
         if branches(s):
             displacement = decoded(case.request['word'], arch).env['sImm']
             if displacement != 32: raise ValueError('branch adapter currently requires the 32-byte branch scenario')
             code.mov(f'R{temp + 3}', case.request.get('address', 0x1000) + 16)
             code.emit('bra_', sImm=16)
             code.mov(f'R{temp + 3}', case.request.get('address', 0x1000) + 48)
-        if s.kind in ('warp', 'lane'): device_setup.lane_guard(code, temp, case.request['context']['warp']['lane'] if s.kind == 'warp' else case.request['registers']['SR_LANEID'])
+        if s.kind in ('warp', 'matrix', 'lane'): device_setup.lane_guard(code, temp, case.request['context']['warp']['lane'] if s.kind != 'lane' else case.request['registers']['SR_LANEID'])
         names, end = capture(code, case, temp, output, raw=raw)
-        if s.kind == 'memory' and case.request.get('observe_memory'):
+        if s.kind in ('memory', 'async') and case.request.get('observe_memory'):
             end, memory_names = device_setup.capture_memory(code, case, temp, end, base, start)
             names += memory_names
         if join: join()
         observations.append((output, names)); output = end
     code.emit('exit_')
-    return Probe(name, scenarios, code, constants(scenarios[0].case), observations, output, shared=shared, arena=bytes(arena), frame_size=frame, threads=32 if scenarios[0].kind in ('warp', 'lane') else 1,
+    return Probe(name, scenarios, code, constants(scenarios[0].case), observations, output, shared=shared, arena=bytes(arena), frame_size=frame, threads=32 if scenarios[0].kind in ('warp', 'matrix', 'lane') else 1,
                  grid=scenarios[0].case.request['registers']['SR_CTAID.X'] + 1 if scenarios[0].kind == 'ctaid' else 1, raw=raw)
 
 
@@ -327,10 +331,10 @@ def kernels(scenarios, raw=False):
                 tuple(s.case.request.get('observe', [])) if raw else ())].append(s)
     out = []
     for (_, kind, _, parallel, _), group in groups.items():
-        if kind not in ('scalar', 'cx', 'memory', 'warp', 'branch', 'qspc', 'ctaid', 'lane'): raise ValueError(f'GPU adapter {kind!r} is not implemented')
+        if kind not in ('scalar', 'cx', 'memory', 'async', 'warp', 'matrix', 'branch', 'qspc', 'ctaid', 'lane'): raise ValueError(f'GPU adapter {kind!r} is not implemented')
         if parallel:
             out.append(parallel_probe(group, f'probe_{len(out)}')); continue
-        size = 1 if kind in ('warp', 'lane', 'ctaid') else BATCH_CASES
+        size = 1 if kind in ('warp', 'matrix', 'lane', 'ctaid') else BATCH_CASES
         for start in range(0, len(group), size):
             out.append(scalar_probe(group[start:start + size], f'probe_{len(out)}', raw=raw))
     return out

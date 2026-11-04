@@ -537,6 +537,9 @@ def leaves(e, kind="param"):
     seen, out, stack = set(), [], [e]
     while stack:
         n = stack.pop()
+        if isinstance(n, (tuple, list)):
+            stack.extend(reversed(n))
+            continue
         if not isinstance(n, Expr) or n in seen: continue
         seen.add(n)
         if n.op == kind: out.append(n)

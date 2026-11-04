@@ -26,6 +26,8 @@ struct Info {
   Operand bar_id, bar_count;
   uint32_t deferred, deferred_gate, waits, read_dependency, write_dependency;
   uint32_t unsupported_scope;
+  Operand groups[8];
+  uint32_t bar_reduction;
 };
 
 struct Program { uint64_t base, count; void (*const *code)(Ctx &); const Info *info; };
@@ -77,6 +79,8 @@ struct Lane {
   uint32_t sync = 0;
   int convergence = -1, barrier = -1;
   bool bar_parked = false;
+  uint32_t has_bar_result = 0, bar_result = 0, bar_value = 0;
+  AsyncState async;
   bool live() const { return t.pc != 0; }
 };
 
@@ -87,7 +91,7 @@ struct Run {
   uint64_t group = 0;
   struct Convergence { uint32_t members = 0; uint64_t target = 0; };
   using Convergences = std::array<Convergence, 16>;
-  struct Barrier { uint32_t count = 0; bool implicit = false; std::vector<Lane *> members; };
+  struct Barrier { uint32_t count = 0, reduction = 0; bool implicit = false; std::vector<Lane *> members; };
   using Barriers = std::map<uint32_t, Barrier>;
 
   uint32_t lane_id(const Lane &u) const { return uint32_t(u.index % l.block % 32); }
@@ -128,10 +132,14 @@ struct Run {
     return true;
   }
 
-  uint32_t step(Lane &u, uint64_t pc, uint64_t i, Memory &shared, const WarpContext &w) {
+  uint32_t step(Lane &u, uint64_t pc, uint64_t i, Memory &shared, WarpContext &w) {
     if (u.steps >= l.max_steps) return stop(Limited, u.index, pc);
     u.last = pc;
     const Info &info = p.info[i];
+    u.async.waits(info.waits);
+    w.async = &u.async;
+    w.write_dependency = info.write_dependency;
+    w.async_ready = uint32_t(u.async.ready.size());
     if (l.scope >= info.unsupported_scope && info.unsupported && (!info.guard.kind || (read(u.t, info.guard) ^ info.guard_not)))
       return stop(Faulted, u.index, pc, info.unsupported);
     const bool traced = l.trace && u.index < l.traced;
@@ -142,7 +150,7 @@ struct Run {
     if (l.step_lane) {
       char message[512] = {};
       if (l.step_lane(u.index, &u.t, &w, message, sizeof message)) return stop(Faulted, u.index, pc, message);
-    } else try { p.code[i](c); } catch (const Fault &f) { return stop(Faulted, u.index, pc, f.message.c_str()); }
+    } else try { if (w.async_ready) complete_async(c); p.code[i](c); } catch (const Fault &f) { return stop(Faulted, u.index, pc, f.message.c_str()); }
     ++u.steps;
     if (traced) {
       l.trace->steps.push_back({u.index, uint32_t(i), taken, uint32_t(l.trace->values.size()), taken ? info.ndests : 0});
@@ -165,7 +173,7 @@ struct Run {
 
   // Model 1.
   uint32_t single() {
-    static const WarpContext alone{};   // no warp context: collectives fail as in a isolated thread
+    WarpContext alone{};   // no warp context: collectives fail as in a isolated thread
     for (uint64_t thread = l.first; thread < l.last; ++thread) {
       group = thread;
       Lane u;
@@ -256,8 +264,11 @@ struct Run {
           return stop(Faulted, u->index, pc, "unsupported barrier ID or participant count");
         auto &b = barriers[uint32_t(id)];
         const uint32_t expected = count ? uint32_t(count) : block_count;
-        if (b.count && (b.count != expected || b.implicit != !count)) return stop(Faulted, u->index, pc, "incompatible barrier participant counts");
+        if (b.count && (b.count != expected || b.implicit != !count || b.reduction != info.bar_reduction))
+          return stop(Faulted, u->index, pc, "incompatible barrier participant counts or reductions");
         b.count = expected, b.implicit = !count;
+        b.reduction = info.bar_reduction;
+        u->bar_value = uint32_t(read(u->t, info.pp) ^ info.pp_not);
         b.members.push_back(u);
         u->barrier = int(id), u->bar_parked = !info.deferred;
         if (!info.deferred) u->waiting = true, held.push_back(u);
@@ -280,16 +291,33 @@ struct Run {
       drop(held);
     } else if (info.collective) {
       w.present = 1, w.has_waiting = 1;
-      (info.collective == 1 ? w.has_values : w.has_predicates) = 1;
-      uint64_t *values = info.collective == 1 ? w.values : w.predicates;
-      for (Lane *u : taking) values[lane_id(*u)] = read(u->t, info.source), w.active |= 1u << lane_id(*u);
+      if (info.collective < 3) {
+        (info.collective == 1 ? w.has_values : w.has_predicates) = 1;
+        uint64_t *values = info.collective == 1 ? w.values : w.predicates;
+        for (Lane *u : taking) values[lane_id(*u)] = read(u->t, info.source);
+      }
+      for (Lane *u : taking) w.active |= 1u << lane_id(*u);
       for (Lane *u : warp)
         if (u->live() && std::find(active.begin(), active.end(), u) == active.end()) w.waiting |= 1u << lane_id(*u);
     }
+    OperandGroups groups;
+    if (info.collective == 3) {
+      std::fill(std::begin(groups.spans), std::end(groups.spans), 0);
+      w.groups = &groups;
+      for (uint32_t group = 0; group < 8; ++group) {
+        const Operand &o = info.groups[group];
+        if (!o.kind) continue;
+        if (o.span > 8) return stop(Faulted, taking.front()->index, pc, "warp operand group exceeds eight words");
+        groups.spans[group] = o.kind == 2 ? o.span : 1;
+        for (Lane *u : taking)
+          for (uint32_t word = 0; word < groups.spans[group]; ++word)
+            groups.words[group][lane_id(*u)][word] = o.kind == 2 ? element(u->t, o.file, o.index + word) : uint32_t(o.value);
+      }
+    }
     for (Lane *u : active) {
-      WarpContext mine = w;
-      mine.lane = lane_id(*u);
-      if (uint32_t s = step(*u, pc, i, shared, info.collective ? mine : w)) return s;
+      w.lane = lane_id(*u);
+      w.has_bar_result = u->has_bar_result, w.bar_result = u->bar_result;
+      if (uint32_t s = step(*u, pc, i, shared, w)) return s;
       u->released = false;
     }
     return Done;
@@ -343,6 +371,11 @@ struct Run {
             for (auto &u : b.lanes)
               if (!u.live() && std::find(barrier.members.begin(), barrier.members.end(), &u) == barrier.members.end()) --required;
           if (barrier.members.size() != required) { ++it; continue; }
+          uint32_t sum = 0;
+          for (Lane *u : barrier.members) sum += !!u->bar_value;
+          const uint32_t result = barrier.reduction == 1 ? -(sum == required) : barrier.reduction == 2 ? -(sum != 0) : sum;
+          if (barrier.reduction)
+            for (Lane *u : barrier.members) u->has_bar_result = 1, u->bar_result = result;
           for (Lane *u : barrier.members)
             u->waiting = false, u->released = u->bar_parked, u->barrier = -1, u->bar_parked = false;
           it = b.barriers.erase(it);

@@ -45,6 +45,19 @@ Reading notes:
   conversions FRND/I2F/F2F/F2I (`convert.py`), F2IP (`f2i.py`), F2FP except stochastic rounding
   (`f2fp_rs*`, opaque) (`f2fp.py`), control flow (`control.py`), memory and special registers
   (`memory.py`), runtime-executed operations (`runtime.py`); UP2UR is in `integer.py`, HFMA2.MMA in `floating.py`.
+- `atomic.py` supplies integer atomic updates, floating atomic ADD, and ordinary SC fences;
+  `asynchronous.py` supplies copy issue, commit, and wait effects; `matrix.py` supplies
+  unexpanded 16-bit M88/MT88 matrix loads and direct HMMA.16816 F16/F32 arithmetic
+  (2026-11-04). Matrix arithmetic is defined over values; only lane access is a primitive.
+  Unsupported selectors retain opaque fallbacks; the form inventory in
+  `research/additional-opcodes/inventory-current.json` separates these from evidence.
+- Compiler traces (2026-11-04): ptxas 13.0.88 compiles the six retained opcode
+  probes on SM80/86/89/90/100/103/120 with PTX 9.0. SM75 compiles four; the
+  selected dense matrix shape and async-copy probes require SM80. That compiler
+  does not recognize SM101 or SM107. Generated sources, commands, hashes,
+  emitted words and missing opcodes are retained in
+  `research/additional-opcodes/compiler-probes.json`. These traces establish
+  encodings, not numerical or synchronization behavior.
 - Static answers are Python values that SLEIGH enumerates; operand values are expressions. The
   static API:
   - `i.select_fork(name)`: a selector's label, one family body per label.
@@ -118,6 +131,18 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   - `evaluate`, at its root.
   - `cxx.Lower`, per operator: the place for a per-operation C++ fast path.
   - `primitive_names` and `cxx.Lower.lazy`, since an expansion may hold a runtime primitive.
+- SLEIGH retains selected expensive definitions as shared subtables. Their argument
+  constructors preserve class constraints and fields determining operand spans.
+  HMMA products/sums and atomic floating ADD use caller-written internal argument
+  registers, followed by an explicit build and an immediate result copy. Each call
+  has a distinct forwarding operand because SLEIGH rejects duplicate builds of
+  one operand. Nested definitions use separate argument registers.
+  Small predicate results share a body when their extra inputs can be elided
+  without reading discarded predicates. Decode-time substitutes handle inputs
+  used only by those results. Larger savings and complete-discard cases retain
+  separate bodies.
+  Constant completion predicates never need a second body (2026-11-04).
+  This preserves values while fitting Ghidra's 16 MiB packed-data limit.
 - **Printing** (`bitvec.show`): operators print as calls, a constant expression's value after it
   (`... = 0x3f800000`), and with `describe=True` the descriptions. `expand=True` prints the lowered
   expressions with each expansion pointing at its operator. A leaf result (a constant, a register)
@@ -454,7 +479,8 @@ These are backend checks; instruction-form evidence remains separate.
   when used. `sass-build-languages` rejects unused-temporary diagnostics.
 - Compact p-code: immediate/register MOV emit one operation, ordinary IMAD/IADD3 two, LOP3 XOR with a
   discarded predicate output three (regression fixtures assert these). LOP3 truth tables simplify to
-  the boolean expression for the selected table; discarded predicate results generate no calculation.
+  the boolean expression for the selected table; discarded predicate results elide their
+  predicate inputs, while small residual calculations can remain to share the generated body.
   Dataflow checks still require exact reads/writes, adjusted for unused boolean/constant-comparison
   inputs and byte-width store sources; opaque fallbacks retain full md reads.
 - Constant-bank widths come from md ISRC_<slot>_SIZE. For a `cx[][]` operand, whose md size is its

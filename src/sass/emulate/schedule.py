@@ -14,6 +14,8 @@ from sass.sleigh.registers import ENUM_FILE, REG_FILES
 WARP_INPUTS = {'SHFL': ('values', 'Ra'), 'VOTE': ('predicates', 'Pp'), 'VOTEU': ('predicates', 'Pp'), 'MATCH': ('values', 'Ra'),
                'REDUX': ('values', 'Ra'), 'ELECT': ('values', None), 'BRA': ('values', None)}
 
+WARP_GROUPS = {"LDSM": ("Ra", "Ra_URb"), "HMMA": ("Ra", "Rb", "Rc", "Re")}
+
 
 class Fault(Exception):
     """An instruction failed; the message is the runtime's."""

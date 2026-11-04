@@ -246,6 +246,8 @@ class Gen:
         self.tables = {}              # constructor text -> subtable name
         self.table_lines = []
         self.shared_calls = {}
+        self.scratch_calls = {}
+        self.scratch_serial = 0
         self.skipped = []
         self.attach_vars = {}         # field name -> register names
         self.spans = {file: {1} for file in REG_FILES}
@@ -703,8 +705,8 @@ class Gen:
 
     def dynamic_inputs(self, k):
         """Expression-sized read-only operands of opaque classes, sized by their own subtables."""
-        from sass.semantics.operations import OPERATION_FAMILIES
-        if k.mnemonic in OPERATION_FAMILIES: return set()
+        from sass.semantics.family import family_for
+        if family_for(k): return set()
         return {o["name"] for o, _, _ in self.reg_operands(k) if isinstance(o["span"], str) and o["role"] == ["read"]}
 
     def span_variants(self, k, names=None, domains=False):
@@ -833,6 +835,23 @@ class Gen:
         clauses, dead, tables = [], set(), []
         if not family_for(k): return clauses, tables
         span = self.span_fields(k)
+        if domain is not None:
+            domain = {r: set(vs) for r, vs in domain.items()}
+            partitions = [p for _, expr, _ in legal.operand_errors(self.arch.name, k)
+                          if (p := legal.legal_classes(self.arch.name, k.name, expr))
+                          and any(f.ranges in span for f in p[0])]
+            changed = True
+            while changed:
+                changed = False
+                for fields, classes, ok in partitions:
+                    fields, classes, ok = restrict(fields, classes, ok, domain)
+                    if not ok: return None, []
+                    for j, f in enumerate(fields):
+                        if f.ranges not in domain: continue
+                        values = set().union(*(classes[j][c[j]] for c in ok))
+                        if values != domain[f.ranges]:
+                            domain[f.ranges] = values
+                            changed = True
         for _, expr, _ in legal.operand_errors(self.arch.name, k):
             partition = legal.legal_classes(self.arch.name, k.name, expr)
             if partition is None: continue

@@ -3,6 +3,7 @@ import json
 from sass.decode import ir, pydecode
 from sass.emulate import schedule
 from sass.md import parse
+from sass.semantics import primitive
 
 FILE_IDS = {"R": 0, "UR": 1, "SR": 2, "P": 3, "UP": 4}
 
@@ -34,13 +35,13 @@ class Instruction:
         d = self.decoded
         if d is None: return None
         k = d.klass
-        if k.mnemonic == 'BAR' and not k.name.startswith(('bar__SYNC_', 'bar__SYNC_dfrBlk_')):
+        if k.mnemonic == 'BAR' and not k.name.startswith(('bar__SYNC_', 'bar__SYNC_dfrBlk_', 'bar__RED_')):
             return 'unsupported barrier in cooperative scope: ' + d.text
         if k.mnemonic == 'BAR' and {'Rb', 'Rc'} <= k.operand_types.keys():
             return 'unresolved packed-register barrier: ' + d.text
         if k.mnemonic in ('BREAK', 'BMOV'):
             return 'unsupported synchronization in cooperative scope: ' + d.text
-        if self.unsupported_scope(arch) == 2:
+        if self.unsupported_scope(arch) == 2 and k.mnemonic not in ('ATOMG', 'MEMBAR'):
             return 'unsupported ordering in launch scope: ' + d.text
         return None
 
@@ -60,7 +61,7 @@ class Instruction:
                 case "all",: sync = 1
                 case "immediate", mask: sync = 2
                 case "operand", name: sync, sync_operand = 3, location(name)
-        fields = [int(k.mnemonic == "EXIT"), int(k.name.startswith("bar__SYNC")), int(k.mnemonic == "WARPSYNC"),
+        fields = [int(k.mnemonic == "EXIT"), int(k.name.startswith(("bar__SYNC", "bar__RED"))), int(k.mnemonic == "WARPSYNC"),
                   {None: 0, "values": 1, "predicates": 2}[key], env.get(("Pg", "not"), 0), env.get(("Pp", "not"), 0), sync, len(dests)]
         operands = [location("Pg"), location("Pp") if "Pp" in k.operand_types else ("const", 1), location(source) if source else None, sync_operand]
         convergence = {'BSSY': 1, 'BSYNC': 2}.get(k.mnemonic, 0)
@@ -71,5 +72,10 @@ class Instruction:
                  str(int('dfrBlk' in k.name)),
                  str(int('DECOUPLED' in parse.arch_classes(arch)[k.name]['props'].get('INSTRUCTION_TYPE', ''))),
                  str(self.word >> 116 & 63), str(self.word >> 113 & 7), str(self.word >> 110 & 7),
-                 str(self.unsupported_scope(arch))]
+                 str(self.unsupported_scope(arch)),
+                 "{" + ", ".join(operand(location(name)) if name in schedule.WARP_GROUPS.get(k.mnemonic, ())
+                                and name in k.operand_types else operand(None) for name in primitive.OPERAND_GROUPS) + "}",
+                 str({"AND": 1, "OR": 2, "POPC": 3}.get(ir.load(arch).rev_enums[k.operand_types["op"].type][env["op"]], 0)
+                     if k.name.startswith("bar__RED") else 0)]
+        if k.mnemonic in schedule.WARP_GROUPS: fields[3] = 3
         return "{" + ", ".join([*map(str, fields), *map(operand, operands), f"UINT64_C({mask:#x})", "nullptr", f"D{i}" if dests else "nullptr", json.dumps(self.unsupported(arch)) if self.unsupported(arch) else "nullptr", *extra]) + "}"

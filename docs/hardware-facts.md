@@ -933,3 +933,129 @@ seeded orders, including partial warps and invalid/incompatible waits. The form 
 one physical register for both BAR ID and count is explicitly unresolved; reductions,
 arrival-only forms, BREAK and BMOV remain unsupported. This run adds no SM90
 hardware evidence and does not establish full YOLO replay.
+## Additional opcode investigation (2026-11-03, SM89)
+
+The observations and tool hashes are retained in `research/additional-opcodes/`.
+The GPU is an RTX 4070 Laptop GPU. Compiler probes use CUDA 13.0.88 ptxas;
+decoding uses CUDA 13.4.92 nvdisasm. Other architectures' implementations are
+inferences from their corrected machine descriptions, not hardware verification.
+
+- `ATOMG`: 384 integer discovery cases distinguish ADD, signed MIN, unsigned MAX,
+  INC, DEC, EXCH, and CAS, including destination aliases with the address/source
+  registers and RZ sinks. Ordinary completion clears Pu. Returned values and
+  memory updates agree with `tests/refs/atomic.py`'s integer rules.
+- Floating atomic ADD: FP32 flushes input and result subnormals, rounds RN-even,
+  and produces positive `0x7fffffff` for NaN/invalid results. Packed FP16 retains
+  subnormals and produces `0x7fff` independently per half. FP64 retains
+  subnormals; it preserves a NaN operand's bits without quieting signaling NaNs,
+  preferring the source value over old memory when both are NaNs. Opposite
+  infinities give `0xfff8000000000000`. The 136 initial observations and 56 FP64
+  follow-up observations cover signed zero, ties, overflow, cancellation, and
+  exceptional values. These rules have independent references.
+- `SAFEADD.64` is not ordinary integer ADD: 48 discovery observations include
+  changed returned bits and memory tag bits. Its encoding, update, and returned
+  predicate require further investigation; it remains opaque.
+- `LDSM.16.M88/MT88`: row-owning lanes provide shared addresses; each lane
+  receives two halfwords per matrix. Direct and uniform-address observations
+  agree with the mapping in `tests/refs/matrix.py`. The adapter snapshots the
+  address operand of every lane before destination writes. Packed/expanded
+  modes remain unresolved.
+- `BAR.RED` and `B2R.RESULT`: POPC returns the number of true input predicates.
+  AND/OR return `0xffffffff` for true and 0 for false. Pu is result != 0.
+  Every participant arrives even when its reduction predicate is false.
+  Thirteen cooperative regression fixtures cover predicate inversion, 64
+  participants, sinks, and barrier reuse. Their GPU passes are recorded.
+  B2R's BAR/WARP modes are unresolved.
+- `BRX` without a depth modifier uses next PC + a 64-bit register pair + the
+  signed immediate byte offset. Three cooperative GPU fixtures distinguish
+  positive/negative targets and Pp inversion. INC/DEC depth forms are unresolved.
+- Async copies: ptxas lowers cp.async issue/commit/wait to LDGSTS,
+  LDGDEPBAR (with an assigned write scoreboard), and DEPBAR.LE. False Pnz
+  zero-fills in both ordinary and ZFILL forms. Dependency waits and encoded
+  scoreboard waits make completed copies visible in shared memory. The
+  cooperative regressions cover 4/8/16-byte copies, two blocks, thresholds 1/0,
+  empty groups, scoreboard 3, deferred barriers, and packed uniform operands.
+  In the packed form URn is the 32-bit shared address component and URn+1 is
+  the high word of the cache policy; adding the entire UR pair as an address is
+  incorrect. The tested nonzero policy high word is `0x10000000`.
+- `HMMA.16816.F32` with F16 inputs: 60 raw autocase observations establish
+  lane ownership for coordinate/identity matrices and retention of accumulator
+  fragments. Sixteen products `1 * 2^-24` added to accumulator 1 give
+  `0x3f800008`; sixteen products split equally between +1 and -1 with accumulator
+  `2^-24` give +0. Repeated scalar FMA and an exact dot rounded only once cannot
+  both explain these results. The numerical reference was unresolved at this
+  stage; later probes below establish the direct F16/F32 model. Sparse/indexed
+  forms and other formats remain unresolved. Discovery earns no verification credit.
+
+Further autocase probes on 2026-11-03:
+
+- All 1,102 hardware-runnable atomic/matrix shared cases passed their independent
+  references. Four atomic contention fixtures also passed: 32/64-bit ADD within
+  one warp and across two blocks. Each returned old value selects an output slot,
+  so the comparison checks unique, contiguous old values without assuming a
+  hardware thread order.
+- Twenty-four LDGSTS observations explicitly capture P0 and shared bytes after
+  commit/wait. P0 retains its original value for both predicate inversions,
+  ordinary/ZFILL, and 4/8/16-byte copies. This supports an identity write to Pnz,
+  matching the md's read/write role. The dependency-aware `async` device adapter
+  now permits referenced single-instruction regression captures.
+- `hmma-grouping-SM89.json` contains 85 raw observations. Two half-ulp products
+  at K=0 and K=1, 2, or 4 increment accumulator 1 by one FP32 ulp; placing them
+  at K=0 and K=8 or 15 loses both. Products +1 at K=0 and -1 at K=1 through 7
+  retain accumulator `2^-24`; placing -1 at K=8 through 15 loses it.
+  Alternating +1/-1 also retains it. These observations distinguish the two
+  eight-term halves. They do not establish the precision or rounding of each
+  half's sum.
+- `hmma-rounding-SM89.json` adds 103 raw observations. With one product
+  `A * 2^-24`, A = 0.5, 1, or 1.5 leaves accumulator 1 unchanged; A = 2.5,
+  3, or 3.5 increments it by one FP32 ulp. The same increments occur with
+  accumulator `1 + 2^-23`. This rules out round-to-nearest-even for these
+  positive additions and agrees with truncation. NaNs in A, B, or C and
+  opposite infinities produce `0x7fffffff`; a minimum FP32 subnormal
+  accumulator survives zero products, while negative-zero products with
+  a negative-zero accumulator produce positive zero. Negative additions,
+  internal precision, overflow, and other matrix forms remain unestablished.
+- `async-packed-SM89.json` contains 32 raw LDGSTS.32 observations across
+  UR6/UR7 and UR12/UR13, ordinary/ZFILL, predicate inversion, and true/false
+  P0. Every zero packed policy traps with CUDA status 715; every policy
+  `0x10000000` completes normally. This validity check precedes Pnz's
+  zero-fill decision. Unlike ordinary 64-bit cache-policy operands, the
+  packed high-word form cannot use zero as its policy. Other packed policy
+  values and hardware beyond SM89 are unverified.
+
+HMMA model refinement on 2026-11-03:
+
+- `hmma-alignment-SM89.json` distinguishes two factorizations of product 2.25.
+  With four additional products `2^-24`, `1.5 * 1.5` gives `0x40100001`,
+  whereas `1 * 2.25` gives `0x40100000`. Products remain unnormalized during
+  alignment. Sixteen products `±0.5 * 2^-24` with accumulator 1 are all discarded.
+  This establishes individual truncation with one extra alignment bit rather
+  than an exact eight-term sum.
+- `hmma-model-SM89.json` retains 628 raw observations, including sixteen seeded
+  matrices across every lane, cancellation/rounding inputs, half subnormals and
+  maximum finite halves, signaling NaNs, zero times infinity, infinities and
+  signed zero. All 2,512 outputs match the candidate integer model. The independent
+  reference now quantizes exact rational products at the common exponent and
+  truncates the summed result; it does not use the implementation's integer formula.
+  The inputs are promoted to the `hmma_forms` autocase profile; these raw files
+  themselves still earn no verification credit.
+- The direct `HMMA.16816.F32` F16 form uses consecutive K=0..7 and K=8..15
+  blocks, each including its incoming accumulator, with one extra fractional
+  alignment bit and truncation after normalization. NaN/invalid results are
+  `0x7fffffff`; an exactly zero sum is positive zero. Other selectors are guarded.
+  The implementation also supports other architectures by inference from
+  [Khattak and Mikaitis, Accurate Models of NVIDIA Tensor Cores, v3](https://arxiv.org/html/2512.07004v3):
+  SM80/86 use the same eight-term model, while SM90 and Blackwell use one
+  sixteen-term block with two extra alignment bits. No non-SM89 hardware
+  verification is claimed. SM75's different shapes and selectors remain opaque.
+
+Whole-warp HMMA fixtures on 2026-11-04:
+
+- All three direct F16/F32 source/destination alias fixtures pass the independent
+  reference on SM89. An immediately following vector store captured unchanged
+  upper destination registers; two fifteen-cycle NOP slots before the store
+  resolve the fixture hazard. This establishes a valid probe schedule, not an
+  exact latency or scoreboard-completion model.
+- The planner now admits explicitly constrained partial-primitive operand
+  adapters. HMMA uses UPp=UPT where that operand exists; other accumulator
+  predicate values retain unresolved semantics and are not verified by these cases.

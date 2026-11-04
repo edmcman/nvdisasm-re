@@ -1,0 +1,22 @@
+// sass: LDSM
+.version 9.0
+.target sm_120
+.address_size 64
+.visible .entry matrix_load(.param .u64 in, .param .u64 out) {
+.shared .align 16 .b8 scratch[512];
+.reg .b32 %r<8>; .reg .b64 %rd<4>;
+ld.param.u64 %rd0, [in]; ld.param.u64 %rd1, [out];
+mov.u32 %r0, %tid.x;
+shl.b32 %r1, %r0, 4;
+mov.u32 %r2, scratch;
+add.u32 %r2, %r2, %r1;
+cvt.u64.u32 %rd2, %r1;
+add.u64 %rd0, %rd0, %rd2;
+add.u64 %rd1, %rd1, %rd2;
+ld.global.v4.b32 {%r3,%r4,%r5,%r6}, [%rd0];
+st.shared.v4.b32 [%r2], {%r3,%r4,%r5,%r6};
+bar.sync 0;
+ldmatrix.sync.aligned.m8n8.x4.shared.b16 {%r3,%r4,%r5,%r6}, [%r2];
+st.global.v4.b32 [%rd1], {%r3,%r4,%r5,%r6};
+ret;
+}

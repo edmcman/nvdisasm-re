@@ -1,0 +1,5149 @@
+{
+ "compiler": {
+  "path": "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+  "sha256": "daba837a68265cae38c832d13399b61dab811891de9b8914defddef143b849f2",
+  "version": "ptxas: NVIDIA (R) Ptx optimizing assembler\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:55:12_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0"
+ },
+ "kind": "compiler encoding evidence; no functional verification",
+ "probes": [
+  {
+   "architecture": "SM75",
+   "source": "research/additional-opcodes/compiler-sources/SM75/atomg/integer.ptx",
+   "source_sha256": "ac1b10e3c91c8bffbc2521fb66eeb1b8f81d57a11162465acf68dce9ad7a36a4",
+   "requested_opcodes": [
+    "ATOMG",
+    "MEMBAR"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_75",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM75/atomg/integer.ptx",
+    "-o",
+    "/tmp/tmpaa8uaj1i/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "562fbea24b26636b686ed9fd20acf292daab461b21c75e5860b914a70ad79b91",
+   "instructions": [
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_uniform__RaRZ",
+     "word": "a88906ff0700000044411f0800621100",
+     "settings": {
+      "e": "E",
+      "op": "ADD",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate"
+     },
+     "operands": {
+      "Pg": 0,
+      "Pg@not": 1,
+      "e": 1,
+      "op": 0,
+      "cop": 1,
+      "sz": 0,
+      "sem": 2,
+      "sco": 2,
+      "private": 0,
+      "Pu": 7,
+      "Rd": 6,
+      "Ra": 255,
+      "Ra_URc": 4,
+      "Ra_offset": 0,
+      "Rb": 7,
+      "req_bit_set": 1,
+      "src_rel_sb": 0,
+      "dst_wr_sb": 5,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_uniform__RaRZ",
+     "word": "a81900ff0200000044411f0800a80e00",
+     "settings": {
+      "e": "E",
+      "op": "ADD",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate"
+     },
+     "operands": {
+      "Pg": 1,
+      "Pg@not": 0,
+      "e": 1,
+      "op": 0,
+      "cop": 1,
+      "sz": 0,
+      "sem": 2,
+      "sco": 2,
+      "private": 0,
+      "Pu": 7,
+      "Rd": 0,
+      "Ra": 255,
+      "Ra_URc": 4,
+      "Ra_offset": 0,
+      "Rb": 2,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 2,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_cas__RaNonRZ",
+     "word": "a97305040600000007411f0000620302",
+     "settings": {
+      "e": "E",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cop": 1,
+      "sz": 0,
+      "sem": 2,
+      "sco": 2,
+      "private": 0,
+      "Pu": 7,
+      "Rd": 5,
+      "Ra": 4,
+      "Ra_offset": 0,
+      "Rb": 6,
+      "Rc": 7,
+      "req_bit_set": 32,
+      "src_rel_sb": 1,
+      "dst_wr_sb": 5,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "MEMBAR",
+     "cls": "membar_",
+     "word": "92790000000000000020000000ea0f00",
+     "settings": {
+      "sem": "SC",
+      "sco": "GPU",
+      "mmio": "nomembar_mmio"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "sem": 0,
+      "sco": 2,
+      "mmio": 0,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 21
+     }
+    },
+    {
+     "opcode": "ERRBAR",
+     "cls": "errbar_",
+     "word": "ab790000000000000000000000c00f00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "batch_t": 0,
+      "usched_info": 0
+     }
+    },
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
+     "word": "8f7900ff000000000000000200ce0f00",
+     "settings": {
+      "cache": "D",
+      "cop": "IVALL"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "cache": 0,
+      "cop": 4,
+      "req_bit_set": 0,
+      "batch_t": 0,
+      "usched_info": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM75",
+   "source": "research/additional-opcodes/compiler-sources/SM75/b2r/reductions.ptx",
+   "source_sha256": "c15eddf1d9f5c01ee89ee6c75d3cdf5423c58f5d33081d4a8c4cd6586b146a19",
+   "requested_opcodes": [
+    "B2R"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_75",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM75/b2r/reductions.ptx",
+    "-o",
+    "/tmp/tmpdjsx6xhm/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "5189c380752b90ca15df829ee0b3d4161077d57af0b92f35d953865ac1cb0aab",
+   "instructions": [
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c7300000000000000400e0000280e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 0,
+      "Pu": 7,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c73ff00000000000040000000680e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 255,
+      "Pu": 0,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 1,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c73ff00000000000040020000640e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 255,
+      "Pu": 1,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 1,
+      "batch_t": 0,
+      "usched_info": 18
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM75",
+   "source": "research/additional-opcodes/compiler-sources/SM75/cctl/prefetch.ptx",
+   "source_sha256": "a027e46333ce79ddc09d6e84b90b0ace413ea0267593f58b52028d5cd864980f",
+   "requested_opcodes": [
+    "CCTL"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_75",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM75/cctl/prefetch.ptx",
+    "-o",
+    "/tmp/tmp04im6z8r/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "e2e52eb68accd2fb7375ba4ec9dd623f6abc21e0d86b3b32b08f360e51fd97da",
+   "instructions": [
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__sImmOffset",
+     "word": "8f790002000000000001000000ea0f00",
+     "settings": {
+      "e": "E",
+      "cache": "D",
+      "cop": "PF1"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cache": 0,
+      "cop": 0,
+      "Ra": 2,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 21
+     }
+    },
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__sImmOffset",
+     "word": "8f790002000000000001800000ea0f00",
+     "settings": {
+      "e": "E",
+      "cache": "D",
+      "cop": "PF2"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cache": 0,
+      "cop": 1,
+      "Ra": 2,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 21
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM75",
+   "source": "research/additional-opcodes/compiler-sources/SM75/hmma/dense.ptx",
+   "source_sha256": "d5acd696717665ba700f512aa716121235efaf9ee6fc7af8ea84a6ddc44c0d9a",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_75",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM75/hmma/dense.ptx",
+    "-o",
+    "/tmp/tmpi0cjj2fg/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas research/additional-opcodes/compiler-sources/SM75/hmma/dense.ptx, line 18; error   : Feature '.m16n8k16' requires .target sm_80 or higher\nptxas fatal   : Ptx assembly aborted due to errors\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM75",
+   "source": "research/additional-opcodes/compiler-sources/SM75/ldgsts/groups.ptx",
+   "source_sha256": "4ff074a783388a3ef0709307f719ab41f2e291a20e4d9b0371235450164a2f11",
+   "requested_opcodes": [
+    "DEPBAR",
+    "LDGDEPBAR",
+    "LDGSTS"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_75",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM75/ldgsts/groups.ptx",
+    "-o",
+    "/tmp/tmp43dgxg61/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas research/additional-opcodes/compiler-sources/SM75/ldgsts/groups.ptx, line 16; error   : Feature 'cp.async' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources/SM75/ldgsts/groups.ptx, line 17; error   : Feature 'cp.async.commit_group' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources/SM75/ldgsts/groups.ptx, line 19; error   : Feature 'cp.async' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources/SM75/ldgsts/groups.ptx, line 20; error   : Feature 'cp.async.commit_group' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources/SM75/ldgsts/groups.ptx, line 21; error   : Feature 'cp.async.wait_group' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources/SM75/ldgsts/groups.ptx, line 23; error   : Feature 'cp.async.wait_group' requires .target sm_80 or higher\nptxas fatal   : Ptx assembly aborted due to errors\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM75",
+   "source": "research/additional-opcodes/compiler-sources/SM75/ldsm/m8n8.ptx",
+   "source_sha256": "8646c92edf9777c00d4d002539582f4c22f9f56315bc10614839697a249bec24",
+   "requested_opcodes": [
+    "LDSM"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_75",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM75/ldsm/m8n8.ptx",
+    "-o",
+    "/tmp/tmpx5ew6k0s/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "b9a8babfa276a6cffb46421d2d2a83523b5e0b04e527999ef3aa65b17c6ce7fb",
+   "instructions": [
+    {
+     "opcode": "LDSM",
+     "cls": "ldsm__sImmOffset",
+     "word": "3b780c00000000000002000000300e00",
+     "settings": {
+      "sz": "16",
+      "mode": "M88",
+      "num": "4"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "sz": 0,
+      "mode": 0,
+      "num": 2,
+      "Rd": 12,
+      "Ra": 0,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 24
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM80",
+   "source": "research/additional-opcodes/compiler-sources/SM80/atomg/integer.ptx",
+   "source_sha256": "4ca2a7b20e2731186bd6ed9963c214c30e95b9179933b8c1dcb47f51fcd0b8c0",
+   "requested_opcodes": [
+    "ATOMG",
+    "MEMBAR"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_80",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM80/atomg/integer.ptx",
+    "-o",
+    "/tmp/tmpa4xdsfz9/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "e4721f9730a2c279e12dd6f190365c2f361d34d93c9a2965b7e70c8bd29f84f8",
+   "instructions": [
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_uniform__memdesc",
+     "word": "a889020403000000c4e11e0800621100",
+     "settings": {
+      "e": "E",
+      "op": "ADD",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate",
+      "e_desc": "noexp_desc",
+      "input_reg_sz_64_dist": "64"
+     },
+     "operands": {
+      "e_desc": 0,
+      "Pg": 0,
+      "Pg@not": 1,
+      "e": 1,
+      "op": 0,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 2,
+      "Ra_URc": 4,
+      "Ra": 4,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Rb": 3,
+      "req_bit_set": 1,
+      "src_rel_sb": 0,
+      "dst_wr_sb": 5,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_uniform__memdesc",
+     "word": "a81900040b000000c4e11e0800a80e00",
+     "settings": {
+      "e": "E",
+      "op": "ADD",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate",
+      "e_desc": "noexp_desc",
+      "input_reg_sz_64_dist": "64"
+     },
+     "operands": {
+      "e_desc": 0,
+      "Pg": 1,
+      "Pg@not": 0,
+      "e": 1,
+      "op": 0,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 0,
+      "Ra_URc": 4,
+      "Ra": 4,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Rb": 11,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 2,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_cas__RaNonRZ",
+     "word": "a97305040200000003e11e0000621102",
+     "settings": {
+      "e": "E",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 5,
+      "Ra": 4,
+      "Ra_offset": 0,
+      "Rb": 2,
+      "Rc": 3,
+      "req_bit_set": 33,
+      "src_rel_sb": 0,
+      "dst_wr_sb": 5,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "MEMBAR",
+     "cls": "membar_",
+     "word": "92790000000000000020000000ec0f00",
+     "settings": {
+      "sem": "SC",
+      "sco": "GPU"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "sem": 0,
+      "sco": 2,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 22
+     }
+    },
+    {
+     "opcode": "ERRBAR",
+     "cls": "errbar_",
+     "word": "ab790000000000000000000000c00f00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "batch_t": 0,
+      "usched_info": 0
+     }
+    },
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
+     "word": "8f7900ff000000000000000200ca0f00",
+     "settings": {
+      "cache": "D",
+      "cop": "IVALL"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "cache": 0,
+      "cop": 4,
+      "req_bit_set": 0,
+      "batch_t": 0,
+      "usched_info": 5
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM80",
+   "source": "research/additional-opcodes/compiler-sources/SM80/b2r/reductions.ptx",
+   "source_sha256": "425d6ef5cb0373b5c7990124d172fdf06cff0dc22a8a809e5878bb4ae59590b6",
+   "requested_opcodes": [
+    "B2R"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_80",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM80/b2r/reductions.ptx",
+    "-o",
+    "/tmp/tmp9xj57x27/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "d68adde12473c0827e431b06ba1add6a344f51a9ff4b125ba242e4053b86c3e5",
+   "instructions": [
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c7300000000000000400e0000280e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 0,
+      "Pu": 7,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c73ff00000000000040000000680e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 255,
+      "Pu": 0,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 1,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c73ff00000000000040020000640e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 255,
+      "Pu": 1,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 1,
+      "batch_t": 0,
+      "usched_info": 18
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM80",
+   "source": "research/additional-opcodes/compiler-sources/SM80/cctl/prefetch.ptx",
+   "source_sha256": "17112b8598b875c1298abf81ef2ee70a5dbc720a0da7cab92bc9565df91b5148",
+   "requested_opcodes": [
+    "CCTL"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_80",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM80/cctl/prefetch.ptx",
+    "-o",
+    "/tmp/tmpa63g88u6/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "2d87a982980c00e7e2169919599ebb19f0830ff3d96231fe97a863bc04fa90af",
+   "instructions": [
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__sImmOffset",
+     "word": "8f790002000000000001000000ea0f00",
+     "settings": {
+      "e": "E",
+      "cache": "D",
+      "cop": "PF1"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cache": 0,
+      "cop": 0,
+      "Ra": 2,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 21
+     }
+    },
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__sImmOffset",
+     "word": "8f790002000000000001800000ea0f00",
+     "settings": {
+      "e": "E",
+      "cache": "D",
+      "cop": "PF2"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cache": 0,
+      "cop": 1,
+      "Ra": 2,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 21
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM80",
+   "source": "research/additional-opcodes/compiler-sources/SM80/hmma/dense.ptx",
+   "source_sha256": "26d246d34c2a5027bcb9632002d202ae668e046e9e9adccf047401dc834abb94",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_80",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM80/hmma/dense.ptx",
+    "-o",
+    "/tmp/tmpfsb6zlaj/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "0414c33da08b9d1595c150ff5cc05aaf19ed99179b48d907dc4c1ba0a48c8c13",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c0c080000000418000000ee4f00",
+     "settings": {
+      "size": "16816",
+      "dstfmt": "F32",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 1,
+      "dstfmt": 1,
+      "srcfmt": 0,
+      "Rd": 12,
+      "Ra": 12,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 4,
+      "req_bit_set": 4,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 23,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM80",
+   "source": "research/additional-opcodes/compiler-sources/SM80/ldgsts/groups.ptx",
+   "source_sha256": "58a73297f2c0d424a342d3c650c1535c70cf2fe78b3e347389be207402137f0f",
+   "requested_opcodes": [
+    "DEPBAR",
+    "LDGDEPBAR",
+    "LDGSTS"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_80",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM80/ldgsts/groups.ptx",
+    "-o",
+    "/tmp/tmpiycr4p3r/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "34d9d28bb0247c39af9b7bd52c9d23850d4d61d194034fedcc97a81b4205fa12",
+   "instructions": [
+    {
+     "opcode": "LDGSTS",
+     "cls": "ldgsts__desc_RRU",
+     "word": "ae7f0702000000004418920b00e20f00",
+     "settings": {
+      "loc": "ACCESS",
+      "cop": "EN",
+      "sp2": "nosp2",
+      "sz": "32",
+      "fc": "nofillctrl",
+      "sem": "WEAK",
+      "sco": "nosco",
+      "private": "noprivate",
+      "e_desc": "noexp_desc",
+      "input_reg_sz_64_dist": "64",
+      "Pnz@not": "unset"
+     },
+     "operands": {
+      "e_desc": 0,
+      "Pg": 7,
+      "Pg@not": 0,
+      "loc": 1,
+      "cop": 1,
+      "sp2": 0,
+      "sz": 4,
+      "fc": 0,
+      "Rb": 7,
+      "Rb_offset": 0,
+      "Ra_URc": 4,
+      "Ra": 2,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Pnz": 7,
+      "Pnz@not": 0,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "sem": 1,
+      "sco": 0,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "LDGDEPBAR",
+     "cls": "ldgdepbar_",
+     "word": "af790000000000000000000000280e00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "LDGSTS",
+     "cls": "ldgsts__desc_RRU",
+     "word": "ae7f0702000008004418920b00e80f00",
+     "settings": {
+      "loc": "ACCESS",
+      "cop": "EN",
+      "sp2": "nosp2",
+      "sz": "32",
+      "fc": "nofillctrl",
+      "sem": "WEAK",
+      "sco": "nosco",
+      "private": "noprivate",
+      "e_desc": "noexp_desc",
+      "input_reg_sz_64_dist": "64",
+      "Pnz@not": "unset"
+     },
+     "operands": {
+      "e_desc": 0,
+      "Pg": 7,
+      "Pg@not": 0,
+      "loc": 1,
+      "cop": 1,
+      "sp2": 0,
+      "sz": 4,
+      "fc": 0,
+      "Rb": 7,
+      "Rb_offset": 128,
+      "Ra_URc": 4,
+      "Ra": 2,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Pnz": 7,
+      "Pnz@not": 0,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "sem": 1,
+      "sco": 0,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "LDGDEPBAR",
+     "cls": "ldgdepbar_",
+     "word": "af790000000000000000000000220e00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "DEPBAR",
+     "cls": "depbar__LE",
+     "word": "1a790000408000000000000000c80f00",
+     "settings": {
+      "le": "LE"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "le": 1,
+      "sbidx": 0,
+      "cnt": 1,
+      "scoreboard_list": 0,
+      "req_bit_set": 0,
+      "batch_t": 0,
+      "usched_info": 4
+     }
+    },
+    {
+     "opcode": "DEPBAR",
+     "cls": "depbar__LE",
+     "word": "1a790000008000000000000000c80f00",
+     "settings": {
+      "le": "LE"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "le": 1,
+      "sbidx": 0,
+      "cnt": 0,
+      "scoreboard_list": 0,
+      "req_bit_set": 0,
+      "batch_t": 0,
+      "usched_info": 4
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM80",
+   "source": "research/additional-opcodes/compiler-sources/SM80/ldsm/m8n8.ptx",
+   "source_sha256": "4aad9d7c7746ea8e409aa42b1c7eff1c5502dfd8a61d188a273462397dc15abd",
+   "requested_opcodes": [
+    "LDSM"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_80",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM80/ldsm/m8n8.ptx",
+    "-o",
+    "/tmp/tmpstxwioek/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "bb2836419a32a4cac59a6be7e1fef50745593a153da49a4e515b515295c217f3",
+   "instructions": [
+    {
+     "opcode": "LDSM",
+     "cls": "ldsm__sImmOffset",
+     "word": "3b780c00000000000002000000280e00",
+     "settings": {
+      "sz": "16",
+      "mode": "M88",
+      "num": "4"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "sz": 0,
+      "mode": 0,
+      "num": 2,
+      "Rd": 12,
+      "Ra": 0,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM86",
+   "source": "research/additional-opcodes/compiler-sources/SM86/atomg/integer.ptx",
+   "source_sha256": "ee68a5ce45c6b2eb86d5541427ef710e3ec6ede24b8c8235694400d59208e8a4",
+   "requested_opcodes": [
+    "ATOMG",
+    "MEMBAR"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_86",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM86/atomg/integer.ptx",
+    "-o",
+    "/tmp/tmpb91uirbx/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "223b86e6073094268e05c6d6932d0f82382ec115133bec46b5f01e9f96039970",
+   "instructions": [
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_uniform__memdesc",
+     "word": "a889020403000000c4e11e0800621100",
+     "settings": {
+      "e": "E",
+      "op": "ADD",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate",
+      "e_desc": "noexp_desc",
+      "input_reg_sz_64_dist": "64"
+     },
+     "operands": {
+      "e_desc": 0,
+      "Pg": 0,
+      "Pg@not": 1,
+      "e": 1,
+      "op": 0,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 2,
+      "Ra_URc": 4,
+      "Ra": 4,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Rb": 3,
+      "req_bit_set": 1,
+      "pm_pred": 0,
+      "src_rel_sb": 0,
+      "dst_wr_sb": 5,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_uniform__memdesc",
+     "word": "a81900040b000000c4e11e0800a80e00",
+     "settings": {
+      "e": "E",
+      "op": "ADD",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate",
+      "e_desc": "noexp_desc",
+      "input_reg_sz_64_dist": "64"
+     },
+     "operands": {
+      "e_desc": 0,
+      "Pg": 1,
+      "Pg@not": 0,
+      "e": 1,
+      "op": 0,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 0,
+      "Ra_URc": 4,
+      "Ra": 4,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Rb": 11,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 2,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_cas__RaNonRZ",
+     "word": "a97305040200000003e11e0000621102",
+     "settings": {
+      "e": "E",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 5,
+      "Ra": 4,
+      "Ra_offset": 0,
+      "Rb": 2,
+      "Rc": 3,
+      "req_bit_set": 33,
+      "pm_pred": 0,
+      "src_rel_sb": 0,
+      "dst_wr_sb": 5,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "MEMBAR",
+     "cls": "membar_",
+     "word": "92790000000000000020000000ec0f00",
+     "settings": {
+      "sem": "SC",
+      "sco": "GPU"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "sem": 0,
+      "sco": 2,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 22
+     }
+    },
+    {
+     "opcode": "ERRBAR",
+     "cls": "errbar_",
+     "word": "ab790000000000000000000000c00f00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 0
+     }
+    },
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
+     "word": "8f7900ff000000000000000200ca0f00",
+     "settings": {
+      "cache": "D",
+      "cop": "IVALL"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "cache": 0,
+      "cop": 4,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 5
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM86",
+   "source": "research/additional-opcodes/compiler-sources/SM86/b2r/reductions.ptx",
+   "source_sha256": "85bd8793214b984bcdbc0ff353444f2465ef6cf410389fc481527d049a7a2c44",
+   "requested_opcodes": [
+    "B2R"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_86",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM86/b2r/reductions.ptx",
+    "-o",
+    "/tmp/tmp82dvu5ff/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "f59836cec670375bbe0d94cf061619be535230f483b8ba2bb54714c680864f15",
+   "instructions": [
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c7300000000000000400e0000280e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 0,
+      "Pu": 7,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c73ff00000000000040000000680e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 255,
+      "Pu": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 1,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c73ff00000000000040020000640e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 255,
+      "Pu": 1,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 1,
+      "batch_t": 0,
+      "usched_info": 18
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM86",
+   "source": "research/additional-opcodes/compiler-sources/SM86/cctl/prefetch.ptx",
+   "source_sha256": "993fbfa306c4f8624b033a4e9822016a40d0d849ce1f4038bf1478db8704f411",
+   "requested_opcodes": [
+    "CCTL"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_86",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM86/cctl/prefetch.ptx",
+    "-o",
+    "/tmp/tmpod4mmvtd/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "46769ee3ea738268755eaed2dba37f87d55a65aacca5462b52932b721f316676",
+   "instructions": [
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__sImmOffset",
+     "word": "8f790002000000000001000000ea0f00",
+     "settings": {
+      "e": "E",
+      "cache": "D",
+      "cop": "PF1"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cache": 0,
+      "cop": 0,
+      "Ra": 2,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 21
+     }
+    },
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__sImmOffset",
+     "word": "8f790002000000000001800000ea0f00",
+     "settings": {
+      "e": "E",
+      "cache": "D",
+      "cop": "PF2"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cache": 0,
+      "cop": 1,
+      "Ra": 2,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 21
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM86",
+   "source": "research/additional-opcodes/compiler-sources/SM86/hmma/dense.ptx",
+   "source_sha256": "7d02f7aa530bf195ba7cb3815e580765bf28dc6ef516a693c35bc4fef17a22eb",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_86",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM86/hmma/dense.ptx",
+    "-o",
+    "/tmp/tmp4myncs87/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "e4e3e2769a4c3497eec8e136442fa71c77d90fae21fffbca6a43e4318acbf248",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c0c080000000418000000ee4f00",
+     "settings": {
+      "size": "16816",
+      "dstfmt": "F32",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 1,
+      "dstfmt": 1,
+      "srcfmt": 0,
+      "Rd": 12,
+      "Ra": 12,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 4,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 23,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM86",
+   "source": "research/additional-opcodes/compiler-sources/SM86/ldgsts/groups.ptx",
+   "source_sha256": "0271a06816622695d4c1030b9f93efa2b8292694fa1e4b7b2c549574ece9dfe4",
+   "requested_opcodes": [
+    "DEPBAR",
+    "LDGDEPBAR",
+    "LDGSTS"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_86",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM86/ldgsts/groups.ptx",
+    "-o",
+    "/tmp/tmpzp22nyfr/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "1365e2966a97c88b185dc5fbd5e731e2412d8d995d4993e4ef6a37c4e34339fd",
+   "instructions": [
+    {
+     "opcode": "LDGSTS",
+     "cls": "ldgsts__desc_RRU",
+     "word": "ae7f0702000000004418920b00e20f00",
+     "settings": {
+      "loc": "ACCESS",
+      "cop": "EN",
+      "sp2": "nosp2",
+      "sz": "32",
+      "fc": "nofillctrl",
+      "sem": "WEAK",
+      "sco": "nosco",
+      "private": "noprivate",
+      "e_desc": "noexp_desc",
+      "input_reg_sz_64_dist": "64",
+      "Pnz@not": "unset"
+     },
+     "operands": {
+      "e_desc": 0,
+      "Pg": 7,
+      "Pg@not": 0,
+      "loc": 1,
+      "cop": 1,
+      "sp2": 0,
+      "sz": 4,
+      "fc": 0,
+      "Rb": 7,
+      "Rb_offset": 0,
+      "Ra_URc": 4,
+      "Ra": 2,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Pnz": 7,
+      "Pnz@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "sem": 1,
+      "sco": 0,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "LDGDEPBAR",
+     "cls": "ldgdepbar_",
+     "word": "af790000000000000000000000280e00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "LDGSTS",
+     "cls": "ldgsts__desc_RRU",
+     "word": "ae7f0702000008004418920b00e80f00",
+     "settings": {
+      "loc": "ACCESS",
+      "cop": "EN",
+      "sp2": "nosp2",
+      "sz": "32",
+      "fc": "nofillctrl",
+      "sem": "WEAK",
+      "sco": "nosco",
+      "private": "noprivate",
+      "e_desc": "noexp_desc",
+      "input_reg_sz_64_dist": "64",
+      "Pnz@not": "unset"
+     },
+     "operands": {
+      "e_desc": 0,
+      "Pg": 7,
+      "Pg@not": 0,
+      "loc": 1,
+      "cop": 1,
+      "sp2": 0,
+      "sz": 4,
+      "fc": 0,
+      "Rb": 7,
+      "Rb_offset": 128,
+      "Ra_URc": 4,
+      "Ra": 2,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Pnz": 7,
+      "Pnz@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "sem": 1,
+      "sco": 0,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "LDGDEPBAR",
+     "cls": "ldgdepbar_",
+     "word": "af790000000000000000000000220e00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "DEPBAR",
+     "cls": "depbar__LE",
+     "word": "1a790000408000000000000000c80f00",
+     "settings": {
+      "le": "LE"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "le": 1,
+      "sbidx": 0,
+      "cnt": 1,
+      "scoreboard_list": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 4
+     }
+    },
+    {
+     "opcode": "DEPBAR",
+     "cls": "depbar__LE",
+     "word": "1a790000008000000000000000c80f00",
+     "settings": {
+      "le": "LE"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "le": 1,
+      "sbidx": 0,
+      "cnt": 0,
+      "scoreboard_list": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 4
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM86",
+   "source": "research/additional-opcodes/compiler-sources/SM86/ldsm/m8n8.ptx",
+   "source_sha256": "d2cffbb999eb190bac3eff58ec515d000a189bfa6787701e56b04221d1502318",
+   "requested_opcodes": [
+    "LDSM"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_86",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM86/ldsm/m8n8.ptx",
+    "-o",
+    "/tmp/tmpkurv8tt8/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "b521f2962eeb605adc0a0bee6930a2249d61ac916fdb9e84b7863fde92942d73",
+   "instructions": [
+    {
+     "opcode": "LDSM",
+     "cls": "ldsm__sImmOffset",
+     "word": "3b780c00000000000002000000280e00",
+     "settings": {
+      "sz": "16",
+      "mode": "M88",
+      "num": "4"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "sz": 0,
+      "mode": 0,
+      "num": 2,
+      "Rd": 12,
+      "Ra": 0,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM89",
+   "source": "research/additional-opcodes/compiler-sources/SM89/atomg/integer.ptx",
+   "source_sha256": "1950ee32897e62904f26b48a9a6ee1e635da6f0ac5b6408173f80d1df793b506",
+   "requested_opcodes": [
+    "ATOMG",
+    "MEMBAR"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_89",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM89/atomg/integer.ptx",
+    "-o",
+    "/tmp/tmpoz_e4xms/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "70c79e9123e099e757b79312bfdd7dc801bef1a740e308a4b5c9c58c38852acf",
+   "instructions": [
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_uniform__memdesc",
+     "word": "a889020403000000c4e11e0800621100",
+     "settings": {
+      "e": "E",
+      "op": "ADD",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate",
+      "e_desc": "noexp_desc",
+      "input_reg_sz_64_dist": "64"
+     },
+     "operands": {
+      "e_desc": 0,
+      "Pg": 0,
+      "Pg@not": 1,
+      "e": 1,
+      "op": 0,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 2,
+      "Ra_URc": 4,
+      "Ra": 4,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Rb": 3,
+      "req_bit_set": 1,
+      "pm_pred": 0,
+      "src_rel_sb": 0,
+      "dst_wr_sb": 5,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_uniform__memdesc",
+     "word": "a81900040b000000c4e11e0800a80e00",
+     "settings": {
+      "e": "E",
+      "op": "ADD",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate",
+      "e_desc": "noexp_desc",
+      "input_reg_sz_64_dist": "64"
+     },
+     "operands": {
+      "e_desc": 0,
+      "Pg": 1,
+      "Pg@not": 0,
+      "e": 1,
+      "op": 0,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 0,
+      "Ra_URc": 4,
+      "Ra": 4,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Rb": 11,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 2,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_cas__RaNonRZ",
+     "word": "a97305040200000003e11e0000621102",
+     "settings": {
+      "e": "E",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 5,
+      "Ra": 4,
+      "Ra_offset": 0,
+      "Rb": 2,
+      "Rc": 3,
+      "req_bit_set": 33,
+      "pm_pred": 0,
+      "src_rel_sb": 0,
+      "dst_wr_sb": 5,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "MEMBAR",
+     "cls": "membar_",
+     "word": "92790000000000000020000000ec0f00",
+     "settings": {
+      "sem": "SC",
+      "sco": "GPU"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "sem": 0,
+      "sco": 2,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 22
+     }
+    },
+    {
+     "opcode": "ERRBAR",
+     "cls": "errbar_",
+     "word": "ab790000000000000000000000c00f00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 0
+     }
+    },
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
+     "word": "8f7900ff000000000000000200ca0f00",
+     "settings": {
+      "cache": "D",
+      "cop": "IVALL"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "cache": 0,
+      "cop": 4,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 5
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM89",
+   "source": "research/additional-opcodes/compiler-sources/SM89/b2r/reductions.ptx",
+   "source_sha256": "c172d55ce1d05444d0c090da5e9cf93be54865fe3dd114273c24d007f991c5e7",
+   "requested_opcodes": [
+    "B2R"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_89",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM89/b2r/reductions.ptx",
+    "-o",
+    "/tmp/tmpduwe6nye/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "b605f4907875d8744583dda40aa932b670a4425dd3c8d6d43bbb97e3a6d2983f",
+   "instructions": [
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c7300000000000000400e0000280e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 0,
+      "Pu": 7,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c73ff00000000000040000000680e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 255,
+      "Pu": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 1,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c73ff00000000000040020000640e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 255,
+      "Pu": 1,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 1,
+      "batch_t": 0,
+      "usched_info": 18
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM89",
+   "source": "research/additional-opcodes/compiler-sources/SM89/cctl/prefetch.ptx",
+   "source_sha256": "4e7189ab10968e910ee41b1b1148dc9e8ee0fedddc0c73db0869daa49b277c0c",
+   "requested_opcodes": [
+    "CCTL"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_89",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM89/cctl/prefetch.ptx",
+    "-o",
+    "/tmp/tmpozpfkbg9/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "64aa94a2e5790fe0f61285ca7f2b143ad044ca1ca201b4692ca76577faeaf269",
+   "instructions": [
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__sImmOffset",
+     "word": "8f790002000000000001000000ea0f00",
+     "settings": {
+      "e": "E",
+      "cache": "D",
+      "cop": "PF1"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cache": 0,
+      "cop": 0,
+      "Ra": 2,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 21
+     }
+    },
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__sImmOffset_pf2",
+     "word": "8f790002000000000001800000ea0f00",
+     "settings": {
+      "e": "E",
+      "cache": "D",
+      "cop": "PF2"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cache": 0,
+      "cop": 1,
+      "Ra": 2,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 21
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM89",
+   "source": "research/additional-opcodes/compiler-sources/SM89/hmma/dense.ptx",
+   "source_sha256": "f5f9d1eec9f005f13c5ec235e0f1f53a5c0b9729cc06a1e494e5a209a4f8c09c",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_89",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM89/hmma/dense.ptx",
+    "-o",
+    "/tmp/tmpuk1w7j0h/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "95824ee8fe449c9dc0fc73a5c615959c19edec16a2ef4eca6c27a6d2071efddd",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c0c080000000418000000ee4f00",
+     "settings": {
+      "size": "16816",
+      "dstfmt": "F32",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 1,
+      "dstfmt": 1,
+      "srcfmt": 0,
+      "Rd": 12,
+      "Ra": 12,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 4,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 23,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM89",
+   "source": "research/additional-opcodes/compiler-sources/SM89/ldgsts/groups.ptx",
+   "source_sha256": "561bba7027595b5fae31c2224d51778f5ccb43165283c497783f86133a10c9b2",
+   "requested_opcodes": [
+    "DEPBAR",
+    "LDGDEPBAR",
+    "LDGSTS"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_89",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM89/ldgsts/groups.ptx",
+    "-o",
+    "/tmp/tmp5rb1s3sm/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "249aa397a3ed85bb1c9858e4b4f8f1460f212bb79e379579c4034a6db7e23e0e",
+   "instructions": [
+    {
+     "opcode": "LDGSTS",
+     "cls": "ldgsts__desc_RRU",
+     "word": "ae7f0702000000004418920b00e20f00",
+     "settings": {
+      "loc": "ACCESS",
+      "cop": "EN",
+      "sp2": "nosp2",
+      "sz": "32",
+      "fc": "nofillctrl",
+      "sem": "WEAK",
+      "sco": "nosco",
+      "private": "noprivate",
+      "e_desc": "noexp_desc",
+      "input_reg_sz_64_dist": "64",
+      "Pnz@not": "unset"
+     },
+     "operands": {
+      "e_desc": 0,
+      "Pg": 7,
+      "Pg@not": 0,
+      "loc": 1,
+      "cop": 1,
+      "sp2": 0,
+      "sz": 4,
+      "fc": 0,
+      "Rb": 7,
+      "Rb_offset": 0,
+      "Ra_URc": 4,
+      "Ra": 2,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Pnz": 7,
+      "Pnz@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "sem": 1,
+      "sco": 0,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "LDGDEPBAR",
+     "cls": "ldgdepbar_",
+     "word": "af790000000000000000000000280e00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "LDGSTS",
+     "cls": "ldgsts__desc_RRU",
+     "word": "ae7f0702000008004418920b00e80f00",
+     "settings": {
+      "loc": "ACCESS",
+      "cop": "EN",
+      "sp2": "nosp2",
+      "sz": "32",
+      "fc": "nofillctrl",
+      "sem": "WEAK",
+      "sco": "nosco",
+      "private": "noprivate",
+      "e_desc": "noexp_desc",
+      "input_reg_sz_64_dist": "64",
+      "Pnz@not": "unset"
+     },
+     "operands": {
+      "e_desc": 0,
+      "Pg": 7,
+      "Pg@not": 0,
+      "loc": 1,
+      "cop": 1,
+      "sp2": 0,
+      "sz": 4,
+      "fc": 0,
+      "Rb": 7,
+      "Rb_offset": 128,
+      "Ra_URc": 4,
+      "Ra": 2,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Pnz": 7,
+      "Pnz@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "sem": 1,
+      "sco": 0,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "LDGDEPBAR",
+     "cls": "ldgdepbar_",
+     "word": "af790000000000000000000000220e00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "DEPBAR",
+     "cls": "depbar__LE",
+     "word": "1a790000408000000000000000c80f00",
+     "settings": {
+      "le": "LE"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "le": 1,
+      "sbidx": 0,
+      "cnt": 1,
+      "scoreboard_list": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 4
+     }
+    },
+    {
+     "opcode": "DEPBAR",
+     "cls": "depbar__LE",
+     "word": "1a790000008000000000000000c80f00",
+     "settings": {
+      "le": "LE"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "le": 1,
+      "sbidx": 0,
+      "cnt": 0,
+      "scoreboard_list": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 4
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM89",
+   "source": "research/additional-opcodes/compiler-sources/SM89/ldsm/m8n8.ptx",
+   "source_sha256": "80bc199cf1e751eaa7cba31c6aac68f0650937fa575b3078fdf1e4ebbeae21a5",
+   "requested_opcodes": [
+    "LDSM"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_89",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM89/ldsm/m8n8.ptx",
+    "-o",
+    "/tmp/tmpntqdll3a/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "b84a3546b83aeda9970c1f2e9d4389bd95b346f8f3ba4706eeaecc91e04e19a9",
+   "instructions": [
+    {
+     "opcode": "LDSM",
+     "cls": "ldsm__sImmOffset",
+     "word": "3b780c00000000000002000000280e00",
+     "settings": {
+      "sz": "16",
+      "mode": "M88",
+      "num": "4"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "sz": 0,
+      "mode": 0,
+      "num": 2,
+      "Rd": 12,
+      "Ra": 0,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM90",
+   "source": "research/additional-opcodes/compiler-sources/SM90/atomg/integer.ptx",
+   "source_sha256": "625b0fb0cf0f66680bef1005dc41dcd7e11aba8c5a01590bebb97244058fbaea",
+   "requested_opcodes": [
+    "ATOMG",
+    "MEMBAR"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_90",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM90/atomg/integer.ptx",
+    "-o",
+    "/tmp/tmpsdda7via/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "c790c7c35ba2b65e0ce70d029a14b92bd43436073bdc7cb45cbea9da06ae5f0e",
+   "instructions": [
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_int_uniform__memdesc",
+     "word": "a889020403000000c4e11e0800621100",
+     "settings": {
+      "e": "E",
+      "op": "ADD",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate",
+      "input_reg_sz_64_dist": "64"
+     },
+     "operands": {
+      "Pg": 0,
+      "Pg@not": 1,
+      "e": 1,
+      "op": 0,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 2,
+      "Ra_URc": 4,
+      "Ra": 4,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Rb": 3,
+      "req_bit_set": 1,
+      "pm_pred": 0,
+      "src_rel_sb": 0,
+      "dst_wr_sb": 5,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_int_uniform__memdesc",
+     "word": "a81900040b000000c4e11e0800a80e00",
+     "settings": {
+      "e": "E",
+      "op": "ADD",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate",
+      "input_reg_sz_64_dist": "64"
+     },
+     "operands": {
+      "Pg": 1,
+      "Pg@not": 0,
+      "e": 1,
+      "op": 0,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 0,
+      "Ra_URc": 4,
+      "Ra": 4,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Rb": 11,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 2,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_cas__RaNonRZ",
+     "word": "a97305040200000003e11e0000a21e02",
+     "settings": {
+      "e": "E",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 5,
+      "Ra": 4,
+      "Ra_offset": 0,
+      "Rb": 2,
+      "Rc": 3,
+      "req_bit_set": 33,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 2,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "MEMBAR",
+     "cls": "membar_",
+     "word": "92790000000000000020000000ec0f00",
+     "settings": {
+      "sem": "SC",
+      "sco": "GPU"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "sem": 0,
+      "sco": 2,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 22
+     }
+    },
+    {
+     "opcode": "ERRBAR",
+     "cls": "errbar_",
+     "word": "ab790000000000000000000000c00f00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 0
+     }
+    },
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
+     "word": "8f7900ff000000000000000200e20f00",
+     "settings": {
+      "cache": "D",
+      "cop": "IVALL"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "cache": 0,
+      "cop": 4,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM90",
+   "source": "research/additional-opcodes/compiler-sources/SM90/b2r/reductions.ptx",
+   "source_sha256": "07e5c6f010ff28f8aebd17f129df8f2cbc0cb7fdd5e9317b0b03525e9601ef06",
+   "requested_opcodes": [
+    "B2R"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_90",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM90/b2r/reductions.ptx",
+    "-o",
+    "/tmp/tmpmrltu34t/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "b5ea31e6706f513df998049d724206971c87819f92229ca2924a0935dbf99e43",
+   "instructions": [
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c7300000000000000400e0000e40f00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 0,
+      "Pu": 7,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 18
+     }
+    },
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c73ff00000000000040020000240e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 255,
+      "Pu": 1,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 18
+     }
+    },
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c73ff00000000000040000000620e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 255,
+      "Pu": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 1,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM90",
+   "source": "research/additional-opcodes/compiler-sources/SM90/cctl/prefetch.ptx",
+   "source_sha256": "dc486997d3ba448516dc9f486477e368da853e2b081baa8f9a10c3aff3bfe5e1",
+   "requested_opcodes": [
+    "CCTL"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_90",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM90/cctl/prefetch.ptx",
+    "-o",
+    "/tmp/tmp2zbdmqab/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "982c88a88785f939132307129bf7b57533102261d287eab5ba89196e1e0914ae",
+   "instructions": [
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__sImmOffset",
+     "word": "8f790002000000000001000000e80f00",
+     "settings": {
+      "e": "E",
+      "cache": "D",
+      "cop": "PF1"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cache": 0,
+      "cop": 0,
+      "Ra": 2,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__sImmOffset",
+     "word": "8f790002000000000001800000e80f00",
+     "settings": {
+      "e": "E",
+      "cache": "D",
+      "cop": "PF2"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cache": 0,
+      "cop": 1,
+      "Ra": 2,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM90",
+   "source": "research/additional-opcodes/compiler-sources/SM90/hmma/dense.ptx",
+   "source_sha256": "2e470af8a8917b4ad44d945b1708777bbca4ebe47a07e753af7ad96afb607a88",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_90",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM90/hmma/dense.ptx",
+    "-o",
+    "/tmp/tmpxmtmr9xz/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "3cae17095ebd9d5641fe42ab6b35a07137060d751652709faa5dc73604ea4a5b",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c0c080000001018000000de0f01",
+     "settings": {
+      "size": "16816",
+      "dstfmt": "F32",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 1,
+      "dstfmt": 1,
+      "srcfmt": 0,
+      "Rd": 12,
+      "Ra": 12,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 16,
+      "req_bit_set": 16,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM90",
+   "source": "research/additional-opcodes/compiler-sources/SM90/ldgsts/groups.ptx",
+   "source_sha256": "371f2b9901568ca241901759e5eb0aa37f66f361d7c5944843a20de76f567777",
+   "requested_opcodes": [
+    "DEPBAR",
+    "LDGDEPBAR",
+    "LDGSTS"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_90",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM90/ldgsts/groups.ptx",
+    "-o",
+    "/tmp/tmpgdzezrhx/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "853c43fb218efdbc8deb6ff005b4bbcf4bfe1a6e4371119169007d345ce51c85",
+   "instructions": [
+    {
+     "opcode": "LDGSTS",
+     "cls": "ldgsts__desc_RRU",
+     "word": "ae7f0702000000004618920b00e80f00",
+     "settings": {
+      "loc": "ACCESS",
+      "cop": "EN",
+      "sp2": "nosp2",
+      "sz": "32",
+      "fc": "nofillctrl",
+      "sem": "WEAK",
+      "sco": "nosco",
+      "private": "noprivate",
+      "input_reg_sz_64_dist": "64",
+      "Pnz@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "loc": 1,
+      "cop": 1,
+      "sp2": 0,
+      "sz": 4,
+      "fc": 0,
+      "Rb": 7,
+      "Rb_offset": 0,
+      "Ra_URc": 6,
+      "Ra": 2,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Pnz": 7,
+      "Pnz@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "sem": 1,
+      "sco": 0,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "LDGDEPBAR",
+     "cls": "ldgdepbar_",
+     "word": "af790000000000000000000000280e00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "LDGSTS",
+     "cls": "ldgsts__desc_RRU",
+     "word": "ae7f0702000008004618920b00e80f00",
+     "settings": {
+      "loc": "ACCESS",
+      "cop": "EN",
+      "sp2": "nosp2",
+      "sz": "32",
+      "fc": "nofillctrl",
+      "sem": "WEAK",
+      "sco": "nosco",
+      "private": "noprivate",
+      "input_reg_sz_64_dist": "64",
+      "Pnz@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "loc": 1,
+      "cop": 1,
+      "sp2": 0,
+      "sz": 4,
+      "fc": 0,
+      "Rb": 7,
+      "Rb_offset": 128,
+      "Ra_URc": 6,
+      "Ra": 2,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Pnz": 7,
+      "Pnz@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "sem": 1,
+      "sco": 0,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "LDGDEPBAR",
+     "cls": "ldgdepbar_",
+     "word": "af790000000000000000000000220e00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "DEPBAR",
+     "cls": "depbar__LE",
+     "word": "1a790000408000000000000000c80f00",
+     "settings": {
+      "le": "LE"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "le": 1,
+      "sbidx": 0,
+      "cnt": 1,
+      "scoreboard_list": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 4
+     }
+    },
+    {
+     "opcode": "DEPBAR",
+     "cls": "depbar__LE",
+     "word": "1a790000008000000000000000c80f00",
+     "settings": {
+      "le": "LE"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "le": 1,
+      "sbidx": 0,
+      "cnt": 0,
+      "scoreboard_list": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 4
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM90",
+   "source": "research/additional-opcodes/compiler-sources/SM90/ldsm/m8n8.ptx",
+   "source_sha256": "191c9720184c101045c5c709ab0c3867587985cd6f743c483118f388d7d8c373",
+   "requested_opcodes": [
+    "LDSM"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_90",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM90/ldsm/m8n8.ptx",
+    "-o",
+    "/tmp/tmpzzdvcpb6/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "3f711d409025b692d466ca1cb5d85cc764ab2c6255f4dfdaf10100b33b02e362",
+   "instructions": [
+    {
+     "opcode": "LDSM",
+     "cls": "ldsm__UR_sI_R",
+     "word": "3b780c00040000000002000800220e00",
+     "settings": {
+      "sz": "16",
+      "mode": "M88",
+      "num": "4"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "sz": 0,
+      "mode": 0,
+      "num": 2,
+      "Rd": 12,
+      "Ra": 0,
+      "Ra_URb": 4,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM100",
+   "source": "research/additional-opcodes/compiler-sources/SM100/atomg/integer.ptx",
+   "source_sha256": "d4613221592402f71ad0c34649a196b7858c999c012f808d876b7474edb90699",
+   "requested_opcodes": [
+    "ATOMG",
+    "MEMBAR"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_100",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM100/atomg/integer.ptx",
+    "-o",
+    "/tmp/tmpllxa9di5/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "51cbd3a919d4c94d4893d877a0d2fc3a10f03a4ee62ef48831e1945e7e210877",
+   "instructions": [
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_int_uniform__memdesc",
+     "word": "a88902040300008004f11e0800621100",
+     "settings": {
+      "e": "E",
+      "op": "ADD",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate",
+      "input_reg_sz_64_100_dist": "64"
+     },
+     "operands": {
+      "Pg": 0,
+      "Pg@not": 1,
+      "e": 1,
+      "op": 0,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 2,
+      "Ra_URc": 4,
+      "Ra": 4,
+      "input_reg_sz_64_100_dist": 1,
+      "Ra_offset": 0,
+      "Rb": 3,
+      "req_bit_set": 1,
+      "pm_pred": 0,
+      "src_rel_sb": 0,
+      "dst_wr_sb": 5,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_int_uniform__memdesc",
+     "word": "a81900040b00008004f11e0800a80e00",
+     "settings": {
+      "e": "E",
+      "op": "ADD",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate",
+      "input_reg_sz_64_100_dist": "64"
+     },
+     "operands": {
+      "Pg": 1,
+      "Pg@not": 0,
+      "e": 1,
+      "op": 0,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 0,
+      "Ra_URc": 4,
+      "Ra": 4,
+      "input_reg_sz_64_100_dist": 1,
+      "Ra_offset": 0,
+      "Rb": 11,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 2,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_cas__RaNonRZ",
+     "word": "a97305040200000003e11e0000a21e02",
+     "settings": {
+      "e": "E",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 5,
+      "Ra": 4,
+      "Ra_offset": 0,
+      "Rb": 2,
+      "Rc": 3,
+      "req_bit_set": 33,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 2,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "MEMBAR",
+     "cls": "membar_",
+     "word": "92790000000000000020000000ec0f00",
+     "settings": {
+      "sem": "SC",
+      "sco": "GPU"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "sem": 0,
+      "sco": 2,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 22
+     }
+    },
+    {
+     "opcode": "ERRBAR",
+     "cls": "errbar_",
+     "word": "ab790000000000000000000000c00f00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 0
+     }
+    },
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
+     "word": "8f7900ff000000000000000200e20f00",
+     "settings": {
+      "cache": "D",
+      "cop": "IVALL"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "cache": 0,
+      "cop": 4,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM100",
+   "source": "research/additional-opcodes/compiler-sources/SM100/b2r/reductions.ptx",
+   "source_sha256": "7d49d1847401a6e9aead2f1855a55cb195e4cb745d48d146881a534248092a1b",
+   "requested_opcodes": [
+    "B2R"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_100",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM100/b2r/reductions.ptx",
+    "-o",
+    "/tmp/tmp_fdycz3y/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "0b4ed7664cc7442db3f2bd2ec15c65ba63d0babcffa1a45e8cdaec45fdbb2660",
+   "instructions": [
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c7300000000000000400e0000e40f00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 0,
+      "Pu": 7,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 18
+     }
+    },
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c73ff00000000000040020000240e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 255,
+      "Pu": 1,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 18
+     }
+    },
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c73ff00000000000040000000620e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 255,
+      "Pu": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 1,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM100",
+   "source": "research/additional-opcodes/compiler-sources/SM100/cctl/prefetch.ptx",
+   "source_sha256": "a975e0a2e2f26aa7f3360c2e9ea6199f3b18309b441f35005ca477a0554574bc",
+   "requested_opcodes": [
+    "CCTL"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_100",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM100/cctl/prefetch.ptx",
+    "-o",
+    "/tmp/tmp5_6bntc9/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "5f7c9015aeeee9be01ed74580dd5bb1f34f4f41e30a309e6e2bae920a333d21b",
+   "instructions": [
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__sImmOffset",
+     "word": "8f790002000000000001000000e80f00",
+     "settings": {
+      "e": "E",
+      "cache": "D",
+      "cop": "PF1"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cache": 0,
+      "cop": 0,
+      "Ra": 2,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__sImmOffset_pf2",
+     "word": "8f790002000000000001800000e80f00",
+     "settings": {
+      "e": "E",
+      "cache": "D",
+      "cop": "PF2"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cache": 0,
+      "cop": 1,
+      "Ra": 2,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM100",
+   "source": "research/additional-opcodes/compiler-sources/SM100/hmma/dense.ptx",
+   "source_sha256": "533f0361dd2da31097da4fe225e9fc25551eeb5c73e5362ebcda01e099f33f49",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_100",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM100/hmma/dense.ptx",
+    "-o",
+    "/tmp/tmpxva7xex7/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "bfec36575160e616a5da85bfd273957539d663a974607846ee5d67fbb643a5c4",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c0c080000001018000000de4f00",
+     "settings": {
+      "size": "16816",
+      "dstfmt": "F32",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 1,
+      "dstfmt": 1,
+      "srcfmt": 0,
+      "Rd": 12,
+      "Ra": 12,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 16,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM100",
+   "source": "research/additional-opcodes/compiler-sources/SM100/ldgsts/groups.ptx",
+   "source_sha256": "9440cf8d6b34612ec9d1ba0ced2972f9434d6b4281b2ebb6e051ccb3f17f7415",
+   "requested_opcodes": [
+    "DEPBAR",
+    "LDGDEPBAR",
+    "LDGSTS"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_100",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM100/ldgsts/groups.ptx",
+    "-o",
+    "/tmp/tmppc2dge3t/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "65dcae6d7f98e0b090aedcc63ba4e5cb67dbe2bf4869f91a84a743080842e8ba",
+   "instructions": [
+    {
+     "opcode": "LDGSTS",
+     "cls": "ldgsts__desc_RRU",
+     "word": "ae7f07020000000006109a0b00e20f01",
+     "settings": {
+      "loc": "ACCESS",
+      "cop": "EN",
+      "sp2": "nosp2",
+      "sz": "32",
+      "fc": "nofillctrl",
+      "sem": "WEAK",
+      "sco": "nosco",
+      "private": "noprivate",
+      "input_reg_sz_64_dist": "64",
+      "Pnz@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "loc": 1,
+      "cop": 1,
+      "sp2": 0,
+      "sz": 0,
+      "fc": 0,
+      "Rb": 7,
+      "Rb_offset": 0,
+      "Ra_URc": 6,
+      "Ra": 2,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Pnz": 7,
+      "Pnz@not": 0,
+      "req_bit_set": 16,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "sem": 1,
+      "sco": 0,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "LDGDEPBAR",
+     "cls": "ldgdepbar_",
+     "word": "af790000000000000000000000280e00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "LDGSTS",
+     "cls": "ldgsts__desc_RRU",
+     "word": "ae7f07020000080006109a0b00e80f00",
+     "settings": {
+      "loc": "ACCESS",
+      "cop": "EN",
+      "sp2": "nosp2",
+      "sz": "32",
+      "fc": "nofillctrl",
+      "sem": "WEAK",
+      "sco": "nosco",
+      "private": "noprivate",
+      "input_reg_sz_64_dist": "64",
+      "Pnz@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "loc": 1,
+      "cop": 1,
+      "sp2": 0,
+      "sz": 0,
+      "fc": 0,
+      "Rb": 7,
+      "Rb_offset": 128,
+      "Ra_URc": 6,
+      "Ra": 2,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Pnz": 7,
+      "Pnz@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "sem": 1,
+      "sco": 0,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "LDGDEPBAR",
+     "cls": "ldgdepbar_",
+     "word": "af790000000000000000000000220e00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "DEPBAR",
+     "cls": "depbar__LE",
+     "word": "1a790000408000000000000000c80f00",
+     "settings": {
+      "le": "LE"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "le": 1,
+      "sbidx": 0,
+      "cnt": 1,
+      "scoreboard_list": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 4
+     }
+    },
+    {
+     "opcode": "DEPBAR",
+     "cls": "depbar__LE",
+     "word": "1a790000008000000000000000c80f00",
+     "settings": {
+      "le": "LE"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "le": 1,
+      "sbidx": 0,
+      "cnt": 0,
+      "scoreboard_list": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 4
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM100",
+   "source": "research/additional-opcodes/compiler-sources/SM100/ldsm/m8n8.ptx",
+   "source_sha256": "921b219a4e67c4ee3b6c4dfa4d046a6f5af703a93e2cd4bab4b7e40f20837651",
+   "requested_opcodes": [
+    "LDSM"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_100",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM100/ldsm/m8n8.ptx",
+    "-o",
+    "/tmp/tmpw4j3eq01/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "97c1a8a235c4c74af8a3f14c47e9be7e250aa0d5ada458635f72c8a90443b0ae",
+   "instructions": [
+    {
+     "opcode": "LDSM",
+     "cls": "ldsm__UR_sI_R",
+     "word": "3b780c00040000000002000800280e00",
+     "settings": {
+      "sz": "16",
+      "mode": "M88",
+      "num": "4"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "sz": 0,
+      "mode": 0,
+      "num": 2,
+      "Rd": 12,
+      "Ra": 0,
+      "Ra_URb": 4,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM101",
+   "source": "research/additional-opcodes/compiler-sources/SM101/atomg/integer.ptx",
+   "source_sha256": "ac1a508437474df1fd6f3876f5752b57cc8d2488d3e1a06b9cf80598bc05eaed",
+   "requested_opcodes": [
+    "ATOMG",
+    "MEMBAR"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_101",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM101/atomg/integer.ptx",
+    "-o",
+    "/tmp/tmp60n62l10/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas fatal   : Value 'sm_101' is not defined for option 'gpu-name'\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM101",
+   "source": "research/additional-opcodes/compiler-sources/SM101/b2r/reductions.ptx",
+   "source_sha256": "9dcf235ce611fc382ccf40028f215dd92620d3dc6c6651804cd2571287012799",
+   "requested_opcodes": [
+    "B2R"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_101",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM101/b2r/reductions.ptx",
+    "-o",
+    "/tmp/tmptv808p15/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas fatal   : Value 'sm_101' is not defined for option 'gpu-name'\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM101",
+   "source": "research/additional-opcodes/compiler-sources/SM101/cctl/prefetch.ptx",
+   "source_sha256": "25721739db67ff7d6cee3edd8f9ff066548e30c126994596ad9696df8c68e486",
+   "requested_opcodes": [
+    "CCTL"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_101",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM101/cctl/prefetch.ptx",
+    "-o",
+    "/tmp/tmpqixwi32b/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas fatal   : Value 'sm_101' is not defined for option 'gpu-name'\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM101",
+   "source": "research/additional-opcodes/compiler-sources/SM101/hmma/dense.ptx",
+   "source_sha256": "52888eaef3faa4cfb5dc124eb18f718fa699a5e958840ddc6442ae1657262356",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_101",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM101/hmma/dense.ptx",
+    "-o",
+    "/tmp/tmprnwa94qm/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas fatal   : Value 'sm_101' is not defined for option 'gpu-name'\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM101",
+   "source": "research/additional-opcodes/compiler-sources/SM101/ldgsts/groups.ptx",
+   "source_sha256": "818197ddfdbf22b05449ec897de5a88a3036d70050df1802700a74023eb214d7",
+   "requested_opcodes": [
+    "DEPBAR",
+    "LDGDEPBAR",
+    "LDGSTS"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_101",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM101/ldgsts/groups.ptx",
+    "-o",
+    "/tmp/tmpgsioncrm/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas fatal   : Value 'sm_101' is not defined for option 'gpu-name'\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM101",
+   "source": "research/additional-opcodes/compiler-sources/SM101/ldsm/m8n8.ptx",
+   "source_sha256": "b91c12cf7b7ec4054fb4835646d73e3f11fe533edcc407389ea96b8b6df2e0ab",
+   "requested_opcodes": [
+    "LDSM"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_101",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM101/ldsm/m8n8.ptx",
+    "-o",
+    "/tmp/tmpvx24ckow/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas fatal   : Value 'sm_101' is not defined for option 'gpu-name'\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM103",
+   "source": "research/additional-opcodes/compiler-sources/SM103/atomg/integer.ptx",
+   "source_sha256": "26a7d1243ee2ca58ada1772214dedafb39022e29fce252fec48d2a1375341f34",
+   "requested_opcodes": [
+    "ATOMG",
+    "MEMBAR"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_103",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM103/atomg/integer.ptx",
+    "-o",
+    "/tmp/tmp7pf_x07g/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "7564daf2fd17ade04249728b06453b01170a21558129eccaa36d45c1bce20a26",
+   "instructions": [
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_int_uniform__memdesc",
+     "word": "a88902040300008004f11e0800621100",
+     "settings": {
+      "e": "E",
+      "op": "ADD",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate",
+      "input_reg_sz_64_100_dist": "64"
+     },
+     "operands": {
+      "Pg": 0,
+      "Pg@not": 1,
+      "e": 1,
+      "op": 0,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 2,
+      "Ra_URc": 4,
+      "Ra": 4,
+      "input_reg_sz_64_100_dist": 1,
+      "Ra_offset": 0,
+      "Rb": 3,
+      "req_bit_set": 1,
+      "pm_pred": 0,
+      "src_rel_sb": 0,
+      "dst_wr_sb": 5,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_int_uniform__memdesc",
+     "word": "a81900040b00008004f11e0800a80e00",
+     "settings": {
+      "e": "E",
+      "op": "ADD",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate",
+      "input_reg_sz_64_100_dist": "64"
+     },
+     "operands": {
+      "Pg": 1,
+      "Pg@not": 0,
+      "e": 1,
+      "op": 0,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 0,
+      "Ra_URc": 4,
+      "Ra": 4,
+      "input_reg_sz_64_100_dist": 1,
+      "Ra_offset": 0,
+      "Rb": 11,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 2,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_cas__RaNonRZ",
+     "word": "a97305040200000003e11e0000a21e02",
+     "settings": {
+      "e": "E",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 5,
+      "Ra": 4,
+      "Ra_offset": 0,
+      "Rb": 2,
+      "Rc": 3,
+      "req_bit_set": 33,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 2,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "MEMBAR",
+     "cls": "membar_",
+     "word": "92790000000000000020000000ec0f00",
+     "settings": {
+      "sem": "SC",
+      "sco": "GPU"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "sem": 0,
+      "sco": 2,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 22
+     }
+    },
+    {
+     "opcode": "ERRBAR",
+     "cls": "errbar_",
+     "word": "ab790000000000000000000000c00f00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 0
+     }
+    },
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
+     "word": "8f7900ff000000000000000200e20f00",
+     "settings": {
+      "cache": "D",
+      "cop": "IVALL"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "cache": 0,
+      "cop": 4,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM103",
+   "source": "research/additional-opcodes/compiler-sources/SM103/b2r/reductions.ptx",
+   "source_sha256": "fca81e73ef1d5639b2863f5f1675adb061b0eb0cdb5362e845e4b20b2efb2183",
+   "requested_opcodes": [
+    "B2R"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_103",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM103/b2r/reductions.ptx",
+    "-o",
+    "/tmp/tmp9rozp658/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "4341f633189d841e745d52957621b5800aace97357606a4e0705b3200703cd79",
+   "instructions": [
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c7300000000000000400e0000e40f00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 0,
+      "Pu": 7,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 18
+     }
+    },
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c73ff00000000000040020000240e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 255,
+      "Pu": 1,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 18
+     }
+    },
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c73ff00000000000040000000620e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 255,
+      "Pu": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 1,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM103",
+   "source": "research/additional-opcodes/compiler-sources/SM103/cctl/prefetch.ptx",
+   "source_sha256": "124aec5e894d27bf48b740a414cf6b5437aed6f3db40de61147ef8ea01d85458",
+   "requested_opcodes": [
+    "CCTL"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_103",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM103/cctl/prefetch.ptx",
+    "-o",
+    "/tmp/tmpqhbgnirt/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "a441e7fbf40a4af77226985c831506ed98478ca700e6129f34d82a2745ff3556",
+   "instructions": [
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__sImmOffset",
+     "word": "8f790002000000000001000000e80f00",
+     "settings": {
+      "e": "E",
+      "cache": "D",
+      "cop": "PF1"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cache": 0,
+      "cop": 0,
+      "Ra": 2,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__sImmOffset_pf2",
+     "word": "8f790002000000000001800000e80f00",
+     "settings": {
+      "e": "E",
+      "cache": "D",
+      "cop": "PF2"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cache": 0,
+      "cop": 1,
+      "Ra": 2,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM103",
+   "source": "research/additional-opcodes/compiler-sources/SM103/hmma/dense.ptx",
+   "source_sha256": "88b6d2cbca11416ad28c34f2cfcd58f828ed5598a2411cf4a61f97fe4d3491df",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_103",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM103/hmma/dense.ptx",
+    "-o",
+    "/tmp/tmpgtaegkth/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "26e3ed2412c356591019044455bc779f6e3e3fb6b963a67456e93ba63bdee524",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c0c080000001018000000de4f00",
+     "settings": {
+      "size": "16816",
+      "dstfmt": "F32",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 1,
+      "dstfmt": 1,
+      "srcfmt": 0,
+      "Rd": 12,
+      "Ra": 12,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 16,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM103",
+   "source": "research/additional-opcodes/compiler-sources/SM103/ldgsts/groups.ptx",
+   "source_sha256": "3d62f405987803cb4e6f243642d98a8a5f1d5a90a5e60e72758a0eb0dbaf2cd5",
+   "requested_opcodes": [
+    "DEPBAR",
+    "LDGDEPBAR",
+    "LDGSTS"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_103",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM103/ldgsts/groups.ptx",
+    "-o",
+    "/tmp/tmpeu2pbowy/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "f303ef5efb8ea6f844c15d3fca67a16098aa74357b63d37d7bc302579c319a1e",
+   "instructions": [
+    {
+     "opcode": "LDGSTS",
+     "cls": "ldgsts__desc_RRU",
+     "word": "ae7f07020000000006109a0b00e20f01",
+     "settings": {
+      "loc": "ACCESS",
+      "cop": "EN",
+      "sp2": "nosp2",
+      "sz": "32",
+      "fc": "nofillctrl",
+      "sem": "WEAK",
+      "sco": "nosco",
+      "private": "noprivate",
+      "input_reg_sz_64_dist": "64",
+      "Pnz@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "loc": 1,
+      "cop": 1,
+      "sp2": 0,
+      "sz": 0,
+      "fc": 0,
+      "Rb": 7,
+      "Rb_offset": 0,
+      "Ra_URc": 6,
+      "Ra": 2,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Pnz": 7,
+      "Pnz@not": 0,
+      "req_bit_set": 16,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "sem": 1,
+      "sco": 0,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "LDGDEPBAR",
+     "cls": "ldgdepbar_",
+     "word": "af790000000000000000000000280e00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "LDGSTS",
+     "cls": "ldgsts__desc_RRU",
+     "word": "ae7f07020000080006109a0b00e80f00",
+     "settings": {
+      "loc": "ACCESS",
+      "cop": "EN",
+      "sp2": "nosp2",
+      "sz": "32",
+      "fc": "nofillctrl",
+      "sem": "WEAK",
+      "sco": "nosco",
+      "private": "noprivate",
+      "input_reg_sz_64_dist": "64",
+      "Pnz@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "loc": 1,
+      "cop": 1,
+      "sp2": 0,
+      "sz": 0,
+      "fc": 0,
+      "Rb": 7,
+      "Rb_offset": 128,
+      "Ra_URc": 6,
+      "Ra": 2,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Pnz": 7,
+      "Pnz@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "sem": 1,
+      "sco": 0,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "LDGDEPBAR",
+     "cls": "ldgdepbar_",
+     "word": "af790000000000000000000000220e00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "DEPBAR",
+     "cls": "depbar__LE",
+     "word": "1a790000408000000000000000c80f00",
+     "settings": {
+      "le": "LE"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "le": 1,
+      "sbidx": 0,
+      "cnt": 1,
+      "scoreboard_list": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 4
+     }
+    },
+    {
+     "opcode": "DEPBAR",
+     "cls": "depbar__LE",
+     "word": "1a790000008000000000000000c80f00",
+     "settings": {
+      "le": "LE"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "le": 1,
+      "sbidx": 0,
+      "cnt": 0,
+      "scoreboard_list": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 4
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM103",
+   "source": "research/additional-opcodes/compiler-sources/SM103/ldsm/m8n8.ptx",
+   "source_sha256": "125ce8fbdfd9c0a44e9babe01b3cb9fd1bd3d485492130284c1b0ce4687be7fa",
+   "requested_opcodes": [
+    "LDSM"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_103",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM103/ldsm/m8n8.ptx",
+    "-o",
+    "/tmp/tmp91i9s169/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "f7754255ca8e16fc6b3b009ef801fff0fd52acf229ff6b483ede24a01c1364ea",
+   "instructions": [
+    {
+     "opcode": "LDSM",
+     "cls": "ldsm__UR_sI_R",
+     "word": "3b780c00040000000002000800280e00",
+     "settings": {
+      "sz": "16",
+      "mode": "M88",
+      "num": "4"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "sz": 0,
+      "mode": 0,
+      "num": 2,
+      "Rd": 12,
+      "Ra": 0,
+      "Ra_URb": 4,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM107",
+   "source": "research/additional-opcodes/compiler-sources/SM107/atomg/integer.ptx",
+   "source_sha256": "4e9b31815cbccc4f7e09bf4457737b842b5baf684986574d6f943a6c16dc3e01",
+   "requested_opcodes": [
+    "ATOMG",
+    "MEMBAR"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_107",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM107/atomg/integer.ptx",
+    "-o",
+    "/tmp/tmpp80y8bbl/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas fatal   : Value 'sm_107' is not defined for option 'gpu-name'\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM107",
+   "source": "research/additional-opcodes/compiler-sources/SM107/b2r/reductions.ptx",
+   "source_sha256": "e875cea3c6d1a8fe4b4acdf1a96a1a94107426a0271f89ed89ed36b9e5d6c3d5",
+   "requested_opcodes": [
+    "B2R"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_107",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM107/b2r/reductions.ptx",
+    "-o",
+    "/tmp/tmp0vzv1696/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas fatal   : Value 'sm_107' is not defined for option 'gpu-name'\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM107",
+   "source": "research/additional-opcodes/compiler-sources/SM107/cctl/prefetch.ptx",
+   "source_sha256": "6211e80c15a998cbe14f3f7ed678934c2dcc90eae0acf387178f385d6aa318f0",
+   "requested_opcodes": [
+    "CCTL"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_107",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM107/cctl/prefetch.ptx",
+    "-o",
+    "/tmp/tmpnfhp1cb_/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas fatal   : Value 'sm_107' is not defined for option 'gpu-name'\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM107",
+   "source": "research/additional-opcodes/compiler-sources/SM107/hmma/dense.ptx",
+   "source_sha256": "2790d88a6d99a18baadcf819adf78455faa1bfa349ce67f014c321ff467b6bb3",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_107",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM107/hmma/dense.ptx",
+    "-o",
+    "/tmp/tmp5x60207g/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas fatal   : Value 'sm_107' is not defined for option 'gpu-name'\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM107",
+   "source": "research/additional-opcodes/compiler-sources/SM107/ldgsts/groups.ptx",
+   "source_sha256": "7683872e27d2a9e783778ca13ddf1962742ec63e33d1b87daa4e4774ff30f94d",
+   "requested_opcodes": [
+    "DEPBAR",
+    "LDGDEPBAR",
+    "LDGSTS"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_107",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM107/ldgsts/groups.ptx",
+    "-o",
+    "/tmp/tmpu6koq3_7/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas fatal   : Value 'sm_107' is not defined for option 'gpu-name'\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM107",
+   "source": "research/additional-opcodes/compiler-sources/SM107/ldsm/m8n8.ptx",
+   "source_sha256": "c3b1997dbf02ee4880e3c97c5e11ad953133bcc56f2a7d8841d55ea12b3d74c7",
+   "requested_opcodes": [
+    "LDSM"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_107",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM107/ldsm/m8n8.ptx",
+    "-o",
+    "/tmp/tmpcvletpo7/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas fatal   : Value 'sm_107' is not defined for option 'gpu-name'\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM120",
+   "source": "research/additional-opcodes/compiler-sources/SM120/atomg/integer.ptx",
+   "source_sha256": "209b31d58d76f1e47cc6c162e891c4a558249792d54b7b1ce623139d27629ae4",
+   "requested_opcodes": [
+    "ATOMG",
+    "MEMBAR"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_120",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM120/atomg/integer.ptx",
+    "-o",
+    "/tmp/tmpzt_lca57/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "2a7dc7ccad683417f6d3308328c55140da413c99796a94c66cd13a8f808f4ea5",
+   "instructions": [
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_int_uniform__memdesc",
+     "word": "a88902040300008004f11e0800621100",
+     "settings": {
+      "e": "E",
+      "op": "ADD",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate",
+      "input_reg_sz_64_100_dist": "64"
+     },
+     "operands": {
+      "Pg": 0,
+      "Pg@not": 1,
+      "e": 1,
+      "op": 0,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 2,
+      "Ra_URc": 4,
+      "Ra": 4,
+      "input_reg_sz_64_100_dist": 1,
+      "Ra_offset": 0,
+      "Rb": 3,
+      "req_bit_set": 1,
+      "pm_pred": 0,
+      "src_rel_sb": 0,
+      "dst_wr_sb": 5,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_int_uniform__memdesc",
+     "word": "a81900040b00008004f11e0800a80e00",
+     "settings": {
+      "e": "E",
+      "op": "ADD",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate",
+      "input_reg_sz_64_100_dist": "64"
+     },
+     "operands": {
+      "Pg": 1,
+      "Pg@not": 0,
+      "e": 1,
+      "op": 0,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 0,
+      "Ra_URc": 4,
+      "Ra": 4,
+      "input_reg_sz_64_100_dist": 1,
+      "Ra_offset": 0,
+      "Rb": 11,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 2,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "ATOMG",
+     "cls": "atomg_cas__RaNonRZ",
+     "word": "a97305040200000003e11e0000a21e02",
+     "settings": {
+      "e": "E",
+      "cop": "EN",
+      "sz": "32",
+      "sem": "STRONG",
+      "sco": "GPU",
+      "private": "noprivate"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cop": 1,
+      "sz": 0,
+      "Pu": 7,
+      "Rd": 5,
+      "Ra": 4,
+      "Ra_offset": 0,
+      "Rb": 2,
+      "Rc": 3,
+      "req_bit_set": 33,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 2,
+      "sem": 2,
+      "sco": 4,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "MEMBAR",
+     "cls": "membar_",
+     "word": "92790000000000000020000000ec0f00",
+     "settings": {
+      "sem": "SC",
+      "sco": "GPU"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "sem": 0,
+      "sco": 2,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 22
+     }
+    },
+    {
+     "opcode": "ERRBAR",
+     "cls": "errbar_",
+     "word": "ab790000000000000000000000c00f00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 0
+     }
+    },
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
+     "word": "8f7900ff000000000000000200e20f00",
+     "settings": {
+      "cache": "D",
+      "cop": "IVALL"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "cache": 0,
+      "cop": 4,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM120",
+   "source": "research/additional-opcodes/compiler-sources/SM120/b2r/reductions.ptx",
+   "source_sha256": "b7c64ab85708dff29e2048605706d2bdbc7ba14ebd3f0bdd925f13dc817df9e9",
+   "requested_opcodes": [
+    "B2R"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_120",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM120/b2r/reductions.ptx",
+    "-o",
+    "/tmp/tmpllgw8afz/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "dced2c3bf91083ba330a564c9739f6a303f396805926aab36be6b55050645f12",
+   "instructions": [
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c7300000000000000400e0000e40f00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 0,
+      "Pu": 7,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 18
+     }
+    },
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c73ff00000000000040020000240e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 255,
+      "Pu": 1,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 18
+     }
+    },
+    {
+     "opcode": "B2R",
+     "cls": "b2r__RESULT",
+     "word": "1c73ff00000000000040000000620e00",
+     "settings": {
+      "mode": "RESULT"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "mode": 1,
+      "Rd": 255,
+      "Pu": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 1,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM120",
+   "source": "research/additional-opcodes/compiler-sources/SM120/cctl/prefetch.ptx",
+   "source_sha256": "88d222d595d89a68218713ea47428a8cce13b5dc17a66f3528e60f30a4b2408f",
+   "requested_opcodes": [
+    "CCTL"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_120",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM120/cctl/prefetch.ptx",
+    "-o",
+    "/tmp/tmplkd35_na/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "68f77374da052ab056c00344c4cc319b951e2f1037fabf94406b040cb18f8464",
+   "instructions": [
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__sImmOffset",
+     "word": "8f790002000000000001000000e80f00",
+     "settings": {
+      "e": "E",
+      "cache": "D",
+      "cop": "PF1"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cache": 0,
+      "cop": 0,
+      "Ra": 2,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "CCTL",
+     "cls": "cctl__sImmOffset_pf2",
+     "word": "8f790002000000000001800000e80f00",
+     "settings": {
+      "e": "E",
+      "cache": "D",
+      "cop": "PF2"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "e": 1,
+      "cache": 0,
+      "cop": 1,
+      "Ra": 2,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM120",
+   "source": "research/additional-opcodes/compiler-sources/SM120/hmma/dense.ptx",
+   "source_sha256": "6d4526d6d126b9a89e168694472d34df84483fd5c3b9d57e5333ed9a9894dd07",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_120",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM120/hmma/dense.ptx",
+    "-o",
+    "/tmp/tmp7264vs64/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "122f471c3cf6a1eb8f6a05acd33451107c15145f7e0a8c3ed4b02fe5bfad4ef4",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c0c080000001018000000de4f00",
+     "settings": {
+      "size": "16816",
+      "dstfmt": "F32",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 1,
+      "dstfmt": 1,
+      "srcfmt": 0,
+      "Rd": 12,
+      "Ra": 12,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 16,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM120",
+   "source": "research/additional-opcodes/compiler-sources/SM120/ldgsts/groups.ptx",
+   "source_sha256": "6f20e4430df4aabc99b9af8b29a7ee89f8bd8d346e4ca4b54d6db6bce8a5a0fc",
+   "requested_opcodes": [
+    "DEPBAR",
+    "LDGDEPBAR",
+    "LDGSTS"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_120",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM120/ldgsts/groups.ptx",
+    "-o",
+    "/tmp/tmpmxb05rj_/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "6caca8b7397c1ef2c94557b7e915e8aa3125942309021b761fae9311322477dc",
+   "instructions": [
+    {
+     "opcode": "LDGSTS",
+     "cls": "ldgsts__desc_RRU",
+     "word": "ae7f07040000000006109a0b00e80f01",
+     "settings": {
+      "loc": "ACCESS",
+      "cop": "EN",
+      "sp2": "nosp2",
+      "sz": "32",
+      "fc": "nofillctrl",
+      "sem": "WEAK",
+      "sco": "nosco",
+      "private": "noprivate",
+      "input_reg_sz_64_dist": "64",
+      "Pnz@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "loc": 1,
+      "cop": 1,
+      "sp2": 0,
+      "sz": 0,
+      "fc": 0,
+      "Rb": 7,
+      "Rb_offset": 0,
+      "Ra_URc": 6,
+      "Ra": 4,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Pnz": 7,
+      "Pnz@not": 0,
+      "req_bit_set": 16,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "sem": 1,
+      "sco": 0,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "LDGDEPBAR",
+     "cls": "ldgdepbar_",
+     "word": "af790000000000000000000000280e00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "LDGSTS",
+     "cls": "ldgsts__desc_RRU",
+     "word": "ae7f07040000080006109a0b00e80f00",
+     "settings": {
+      "loc": "ACCESS",
+      "cop": "EN",
+      "sp2": "nosp2",
+      "sz": "32",
+      "fc": "nofillctrl",
+      "sem": "WEAK",
+      "sco": "nosco",
+      "private": "noprivate",
+      "input_reg_sz_64_dist": "64",
+      "Pnz@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "loc": 1,
+      "cop": 1,
+      "sp2": 0,
+      "sz": 0,
+      "fc": 0,
+      "Rb": 7,
+      "Rb_offset": 128,
+      "Ra_URc": 6,
+      "Ra": 4,
+      "input_reg_sz_64_dist": 1,
+      "Ra_offset": 0,
+      "Pnz": 7,
+      "Pnz@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "sem": 1,
+      "sco": 0,
+      "private": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    },
+    {
+     "opcode": "LDGDEPBAR",
+     "cls": "ldgdepbar_",
+     "word": "af790000000000000000000000220e00",
+     "settings": {},
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 17
+     }
+    },
+    {
+     "opcode": "DEPBAR",
+     "cls": "depbar__LE",
+     "word": "1a790000408000000000000000c80f00",
+     "settings": {
+      "le": "LE"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "le": 1,
+      "sbidx": 0,
+      "cnt": 1,
+      "scoreboard_list": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 4
+     }
+    },
+    {
+     "opcode": "DEPBAR",
+     "cls": "depbar__LE",
+     "word": "1a790000008000000000000000c80f00",
+     "settings": {
+      "le": "LE"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "le": 1,
+      "sbidx": 0,
+      "cnt": 0,
+      "scoreboard_list": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 4
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM120",
+   "source": "research/additional-opcodes/compiler-sources/SM120/ldsm/m8n8.ptx",
+   "source_sha256": "f620052df9729e64565d7346d2252fb121e74fb030d46028e0e4fbbdbe2fc447",
+   "requested_opcodes": [
+    "LDSM"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_120",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM120/ldsm/m8n8.ptx",
+    "-o",
+    "/tmp/tmppzodhh88/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "9978938ca1a5e1d2fcd115ce3a84c6094c49d7b1018ef0eb0cbe5aeb7280601b",
+   "instructions": [
+    {
+     "opcode": "LDSM",
+     "cls": "ldsm__UR_sI_R",
+     "word": "3b780800040000000002000800280e00",
+     "settings": {
+      "sz": "16",
+      "mode": "M88",
+      "num": "4"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "sz": 0,
+      "mode": 0,
+      "num": 2,
+      "Rd": 8,
+      "Ra": 0,
+      "Ra_URb": 4,
+      "Ra_offset": 0,
+      "req_bit_set": 0,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 0,
+      "batch_t": 0,
+      "usched_info": 20
+     }
+    }
+   ],
+   "missing_opcodes": []
+  }
+ ]
+}

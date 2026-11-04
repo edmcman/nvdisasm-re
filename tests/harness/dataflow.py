@@ -31,6 +31,7 @@ def part_selector(g,d,name):
 def discarded(g, d):
     """Every register the class writes is a predicate set to PT: the native body for discarded
     predicate destinations computes nothing (RZ destinations still compute, into a sink)."""
+    if d.klass.mnemonic == 'LDGSTS': return False
     outs = [o for o in g.roles.get(d.klass.name, {}).get('operands', []) if 'write' in (o['role'] or [])
             and ENUM_FILE.get(o['type'])]
     return (bool(outs) and all(ENUM_FILE[o['type']] in ('P', 'UP') for o in outs)

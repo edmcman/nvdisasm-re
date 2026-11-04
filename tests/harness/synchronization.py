@@ -2,6 +2,7 @@ from sass import launch
 from sass.assemble import assemble_cubin
 from sass.decode import cubin
 from tests.harness import gpu
+from tests.refs import barrier
 
 
 NESTED = '''
@@ -144,3 +145,61 @@ def fixtures(arch):
                         expected, block=len(expected), scope='launch', exit=True,
                         targets=targets, modes=('exact', 'readable'))
             for name, body, expected, targets in cases]
+
+
+def reductions(arch):
+    selected = []
+    for op in ("POPC", "AND", "OR"):
+        for pred in ("P0", "!P0", "PT", "!PT"):
+            values = [bool(i & 1) if pred == "P0" else not bool(i & 1) if pred == "!P0" else pred == "PT"
+                      for i in range(64)]
+            result = barrier.reduce(op, values)
+            body = f"""BAR.RED.{op} 0, {pred};
+B2R.RESULT R8, P2 @sched(dst_wr_sb=0);
+MOV R9, RZ;
+@P2 MOV R9, 0x10000;
+IADD3 R8, R8, R9, RZ;
+"""
+            selected.append(gpu.Fixture(f"bar_result_{op}_{pred}", image(body, arch), "synchronize",
+                                        bytes(12 * 64), [(result + (0x10000 if result else 0)) & 0xffffffff] * 64,
+                                        block=64, scope="launch", exit=True, targets=("BAR.RED", "B2R.RESULT"),
+                                        modes=("exact", "readable")))
+    body = """BAR.RED.POPC 0, P0;
+B2R.RESULT R8 @sched(dst_wr_sb=0);
+BAR.RED.OR 0, !PT;
+B2R.RESULT R9, P2 @sched(dst_wr_sb=0);
+IADD3 R8, R8, R9, RZ;
+@P2 MOV R8, 7;
+"""
+    selected.append(gpu.Fixture("bar_result_reuse", image(body, arch), "synchronize", bytes(12 * 64), [32] * 64,
+                                block=64, scope="launch", exit=True, targets=("BAR.RED", "B2R.RESULT"),
+                                modes=("exact", "readable")))
+    return selected
+
+
+def indirect_branches(arch):
+    positive = """MOV R4, 48;
+MOV R5, RZ;
+MOV R8, 7;
+BRX {predicate}, R4 -0x10;
+MOV R8, 3;
+BRA done;
+NOP;
+done:
+"""
+    selected = [gpu.Fixture(f"brx_positive_{pred}", image(positive.format(predicate=pred), arch),
+                             "synchronize", bytes(12 * 32),
+                             [7 if bool(i & 1) == (pred == "P0") else 3 for i in range(32)],
+                             block=32, scope="block", exit=True, targets=("BRX",), modes=("exact", "readable"))
+                for pred in ("P0", "!P0")]
+    negative = """MOV R8, RZ;
+again:
+IADD3 R8, R8, 1, RZ;
+ISETP.LT.U32.AND P2, PT, R8, 3, PT;
+MOV R4, 0xffffffc0;
+MOV R5, 0xffffffff;
+BRX P2, R4 -0x10;
+"""
+    selected.append(gpu.Fixture("brx_negative", image(negative, arch), "synchronize", bytes(12 * 32), [3] * 32,
+                                block=32, scope="block", exit=True, targets=("BRX",), modes=("exact", "readable")))
+    return selected

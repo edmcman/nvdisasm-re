@@ -197,7 +197,8 @@ class Driver:
                 self.call("cuMemFree_v2", a); self.call("cuMemFree_v2", b)
         finally:
             self.call("cuModuleUnload", module)
-        return list(struct.unpack("<" + ("Q" if f.output_size == 8 else "I") * f.threads, result.raw))
+        return [int.from_bytes(result.raw[i:i + f.output_size], "little")
+                for i in range(0, len(result.raw), f.output_size)]
 
 
 def section_offset(image, name):

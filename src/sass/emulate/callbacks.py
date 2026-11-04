@@ -2,6 +2,7 @@
 import ctypes, re
 from functools import cache
 from sass.emulate import kernel, machine, metadata, schedule
+from sass.semantics import primitive
 
 
 class Program(kernel.Kernel):
@@ -34,6 +35,7 @@ def run(request, engine, arch):
         lanes.extend(group)
     program = compiled(arch, bytes.fromhex(spec['code']), base)
     trace = []
+    async_states = {}
 
     @kernel.Step
     def step(index, thread, warp, message, size):
@@ -41,11 +43,21 @@ def run(request, engine, arch):
             lane = lanes[index]
             w = warp.contents
             context = dict(request.get('context', {}))
+            if index not in async_states:
+                async_states[index] = machine.Async(program.lib, w.async_state, lane, w.write_dependency)
+            pending = async_states[index]
+            pending.board = w.write_dependency
+            context['async'] = pending
+            if w.async_ready: pending.complete()
+            if w.has_bar_result: context['barrier_result'] = w.bar_result
             if scope != 'thread':
                 context['synchronization'] = dict(context.get('synchronization', {}), bssy=True, bsync=True, bar=True, warpsync=True)
             if w.present:
                 context['warp'] = dict(lane=w.lane, active=w.active, waiting=w.waiting,
-                                       values=list(w.values), predicates=list(w.predicates))
+                                       values=list(w.values), predicates=list(w.predicates),
+                                       operand_groups={name: [list(row)[:w.groups.contents.spans[j]] for row in w.groups.contents.words[j]]
+                                                       for j, name in enumerate(primitive.OPERAND_GROUPS)
+                                                       if w.groups and w.groups.contents.spans[j]})
             decoded = program.instructions[(thread.contents.pc - base) // 16].decoded
             pc = thread.contents.pc
             taken = "Pg" not in decoded.klass.operand_types or schedule.operand(arch, lane, decoded, "Pg") ^ decoded.env.get(("Pg", "not"), 0)

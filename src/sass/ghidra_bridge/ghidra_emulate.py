@@ -89,6 +89,7 @@ def session(ldefs,langid):
         def __init__(self,kernel,thread):self.kernel,self.thread,self.state=kernel,thread,thread.getState()
         def pc(self):return int(self.thread.getCounter().getOffset())
         def read(self,file,index):return read(self.state,file+str(index))
+        def store(self,space,address,data):write_memory(self.state,[dict(space=space,address=address,hex=data.hex())])
         def seed(self,name,v):seed(self.state,name,v)
         def step(self,decoded,context):
             runtime.context=context;runtime.events=[];runtime.last_error=None

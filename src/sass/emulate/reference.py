@@ -50,6 +50,9 @@ class Lane:
 
     def read(self, file, index): return self.state.read(file, index, 1)
 
+    def store(self, space, address, data):
+        self.state.store(space, address, len(data) * 8, int.from_bytes(data, "little"))
+
     def seed(self, name, value):
         m = NAME.match(name)
         file, index = (m[1], int(m[2])) if m else ("SR", ir.load(self.kernel.arch).enums["SpecialRegister"][name])

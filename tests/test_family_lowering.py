@@ -31,7 +31,10 @@ def crashes(job):
     for k in g.arch.classes[shard::shards]:
         fam = family_for(k)
         if not fam or (k.alternate and not k.aliases): continue
-        try: enumerate_rows(Builder(g, k, None, g.span_variants(k)[0][0]), fam)
+        try:
+            for spans, _, domain in g.span_variants(k, domains=True):
+                if g.conditions(k, domain)[0] is not None:
+                    enumerate_rows(Builder(g, k, None, spans, domain=domain), fam)
         except Exception as e: out.append(f"{k.name}: {type(e).__name__}: {e}")
     return arch, out
 

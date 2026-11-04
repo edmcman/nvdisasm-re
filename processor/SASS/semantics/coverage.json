@@ -2,6 +2,13 @@
   "SM100": {
     "classes": 978,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 7115,
+        "reference": 1813
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 70
       },
@@ -21,6 +28,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 2
+      },
       "BSSY": {
         "reference": 6
       },
@@ -36,6 +46,9 @@
       "DADD": {
         "none": 80,
         "reference": 64
+      },
+      "DEPBAR": {
+        "reference": 3
       },
       "DFMA": {
         "none": 757,
@@ -136,6 +149,9 @@
         "none": 59804,
         "reference": 388
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "none": 6793,
         "reference": 119
@@ -203,11 +219,21 @@
         "none": 20371,
         "reference": 1133
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "none": 5355,
+        "reference": 405
+      },
       "LDL": {
         "reference": 168
       },
       "LDS": {
         "reference": 63
+      },
+      "LDSM": {
+        "reference": 12
       },
       "LEA": {
         "reference": 78
@@ -217,6 +243,9 @@
       },
       "MATCH": {
         "reference": 4
+      },
+      "MEMBAR": {
+        "reference": 12
       },
       "MOV": {
         "none": 1,
@@ -395,13 +424,15 @@
         "opaque": 22080
       },
       "ATOMG": {
-        "opaque": 20640
+        "native": 8928,
+        "opaque": 11712
       },
       "ATOMS": {
         "opaque": 279
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -427,7 +458,8 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -470,7 +502,7 @@
         "native": 144
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 896
@@ -592,7 +624,8 @@
         "partially native": 35
       },
       "HMMA": {
-        "opaque": 384
+        "opaque": 383,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 6912,
@@ -684,13 +717,13 @@
         "opaque": 4608
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 252
       },
       "LDGSTS": {
-        "opaque": 5760
+        "native": 5760
       },
       "LDL": {
         "native": 168
@@ -699,7 +732,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 60
+        "opaque": 48,
+        "primitive": 12
       },
       "LDTM": {
         "opaque": 90
@@ -720,7 +754,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 25
+        "native": 12,
+        "opaque": 13
       },
       "MOV": {
         "native": 1,
@@ -1102,9 +1137,16 @@
     "evidence": {
       "none": 9,
       "ptxas": 15,
-      "reference": 521
+      "reference": 541
     },
     "opaque_operations": {
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -1128,6 +1170,9 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_x_xor_imm__RIR_RIR": "X not modelled; carry out",
@@ -1144,6 +1189,9 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
+      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -1167,6 +1215,12 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 7
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 26
       },
@@ -1185,6 +1239,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 2
       },
@@ -1198,6 +1255,9 @@
         "reference": 1
       },
       "DADD": {
+        "reference": 3
+      },
+      "DEPBAR": {
         "reference": 3
       },
       "DFMA": {
@@ -1279,6 +1339,9 @@
       "HFMA2": {
         "reference": 10
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "reference": 6
       },
@@ -1336,6 +1399,12 @@
       "LDG": {
         "reference": 5
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "reference": 5
+      },
       "LDL": {
         "reference": 4
       },
@@ -1350,6 +1419,9 @@
       },
       "MATCH": {
         "reference": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "none": 1,
@@ -1520,13 +1592,15 @@
         "opaque": 18
       },
       "ATOMG": {
-        "opaque": 12
+        "opaque": 5,
+        "partially native": 7
       },
       "ATOMS": {
         "opaque": 11
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -1552,7 +1626,7 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -1595,7 +1669,7 @@
         "native": 3
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 5
@@ -1711,7 +1785,8 @@
         "partially native": 10
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -1803,13 +1878,13 @@
         "opaque": 4
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 6
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -1839,7 +1914,8 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 2
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 1,
@@ -2215,6 +2291,14 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "opaque": 5,
+        "partially native": 7
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -2235,6 +2319,9 @@
       "BREV": {
         "native": 3
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -2249,6 +2336,9 @@
         "native": 1
       },
       "DADD": {
+        "native": 3
+      },
+      "DEPBAR": {
         "native": 3
       },
       "DFMA": {
@@ -2346,6 +2436,10 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 1,
         "partially native": 5
@@ -2408,11 +2502,20 @@
         "native": 5,
         "opaque": 4
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "opaque": 2
       },
       "LEA": {
         "native": 20
@@ -2422,6 +2525,10 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 1,
@@ -2629,16 +2736,23 @@
       }
     },
     "status": {
-      "native": 348,
-      "opaque": 433,
-      "partially native": 130,
-      "partially primitive": 6,
-      "primitive": 61
+      "native": 357,
+      "opaque": 413,
+      "partially native": 139,
+      "partially primitive": 7,
+      "primitive": 62
     }
   },
   "SM100_READABLE": {
     "classes": 978,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 7115,
+        "reference": 1813
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 70
       },
@@ -2658,6 +2772,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 2
+      },
       "BSSY": {
         "reference": 6
       },
@@ -2673,6 +2790,9 @@
       "DADD": {
         "none": 80,
         "reference": 64
+      },
+      "DEPBAR": {
+        "reference": 3
       },
       "DFMA": {
         "none": 757,
@@ -2773,6 +2893,9 @@
         "none": 103579,
         "reference": 389
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "none": 6793,
         "reference": 119
@@ -2840,11 +2963,21 @@
         "none": 20371,
         "reference": 1133
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "none": 5355,
+        "reference": 405
+      },
       "LDL": {
         "reference": 168
       },
       "LDS": {
         "reference": 63
+      },
+      "LDSM": {
+        "reference": 12
       },
       "LEA": {
         "reference": 78
@@ -2854,6 +2987,9 @@
       },
       "MATCH": {
         "reference": 4
+      },
+      "MEMBAR": {
+        "reference": 12
       },
       "MOV": {
         "none": 1,
@@ -3032,13 +3168,15 @@
         "opaque": 22080
       },
       "ATOMG": {
-        "opaque": 20640
+        "native": 8928,
+        "opaque": 11712
       },
       "ATOMS": {
         "opaque": 279
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -3064,7 +3202,8 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -3107,7 +3246,7 @@
         "native": 144
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 896
@@ -3229,7 +3368,8 @@
         "partially native": 140
       },
       "HMMA": {
-        "opaque": 384
+        "opaque": 383,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 6912,
@@ -3321,13 +3461,13 @@
         "opaque": 4608
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 252
       },
       "LDGSTS": {
-        "opaque": 5760
+        "native": 5760
       },
       "LDL": {
         "native": 168
@@ -3336,7 +3476,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 60
+        "opaque": 48,
+        "primitive": 12
       },
       "LDTM": {
         "opaque": 90
@@ -3357,7 +3498,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 25
+        "native": 12,
+        "opaque": 13
       },
       "MOV": {
         "native": 1,
@@ -3739,9 +3881,16 @@
     "evidence": {
       "none": 9,
       "ptxas": 15,
-      "reference": 521
+      "reference": 541
     },
     "opaque_operations": {
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -3765,6 +3914,9 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_x_xor_imm__RIR_RIR": "X not modelled; carry out",
@@ -3781,6 +3933,9 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
+      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -3804,6 +3959,12 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 7
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 26
       },
@@ -3822,6 +3983,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 2
       },
@@ -3835,6 +3999,9 @@
         "reference": 1
       },
       "DADD": {
+        "reference": 3
+      },
+      "DEPBAR": {
         "reference": 3
       },
       "DFMA": {
@@ -3916,6 +4083,9 @@
       "HFMA2": {
         "reference": 10
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "reference": 6
       },
@@ -3973,6 +4143,12 @@
       "LDG": {
         "reference": 5
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "reference": 5
+      },
       "LDL": {
         "reference": 4
       },
@@ -3987,6 +4163,9 @@
       },
       "MATCH": {
         "reference": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "none": 1,
@@ -4157,13 +4336,15 @@
         "opaque": 18
       },
       "ATOMG": {
-        "opaque": 12
+        "opaque": 5,
+        "partially native": 7
       },
       "ATOMS": {
         "opaque": 11
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -4189,7 +4370,7 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -4232,7 +4413,7 @@
         "native": 3
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 5
@@ -4348,7 +4529,8 @@
         "partially native": 10
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -4440,13 +4622,13 @@
         "opaque": 4
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 6
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -4476,7 +4658,8 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 2
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 1,
@@ -4852,6 +5035,14 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "opaque": 5,
+        "partially native": 7
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -4872,6 +5063,9 @@
       "BREV": {
         "native": 3
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -4886,6 +5080,9 @@
         "native": 1
       },
       "DADD": {
+        "native": 3
+      },
+      "DEPBAR": {
         "native": 3
       },
       "DFMA": {
@@ -4983,6 +5180,10 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 1,
         "partially native": 5
@@ -5045,11 +5246,20 @@
         "native": 5,
         "opaque": 4
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "opaque": 2
       },
       "LEA": {
         "native": 20
@@ -5059,6 +5269,10 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 1,
@@ -5266,16 +5480,23 @@
       }
     },
     "status": {
-      "native": 348,
-      "opaque": 433,
-      "partially native": 130,
-      "partially primitive": 6,
-      "primitive": 61
+      "native": 357,
+      "opaque": 413,
+      "partially native": 139,
+      "partially primitive": 7,
+      "primitive": 62
     }
   },
   "SM101": {
     "classes": 904,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 7115,
+        "reference": 1813
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 70
       },
@@ -5295,6 +5516,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 2
+      },
       "BSSY": {
         "reference": 6
       },
@@ -5310,6 +5534,9 @@
       "DADD": {
         "none": 80,
         "reference": 64
+      },
+      "DEPBAR": {
+        "reference": 3
       },
       "DFMA": {
         "none": 757,
@@ -5395,6 +5622,9 @@
         "none": 59804,
         "reference": 388
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "none": 6793,
         "reference": 119
@@ -5460,11 +5690,21 @@
         "none": 20371,
         "reference": 1133
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "none": 5355,
+        "reference": 405
+      },
       "LDL": {
         "reference": 168
       },
       "LDS": {
         "reference": 63
+      },
+      "LDSM": {
+        "reference": 12
       },
       "LEA": {
         "reference": 78
@@ -5474,6 +5714,9 @@
       },
       "MATCH": {
         "reference": 4
+      },
+      "MEMBAR": {
+        "reference": 12
       },
       "MOV": {
         "none": 1,
@@ -5634,13 +5877,15 @@
         "opaque": 22080
       },
       "ATOMG": {
-        "opaque": 20640
+        "native": 8928,
+        "opaque": 11712
       },
       "ATOMS": {
         "opaque": 279
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -5666,7 +5911,8 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -5706,7 +5952,7 @@
         "native": 144
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 896
@@ -5813,7 +6059,8 @@
         "partially native": 35
       },
       "HMMA": {
-        "opaque": 384
+        "opaque": 383,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 6912,
@@ -5898,13 +6145,13 @@
         "opaque": 4608
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 252
       },
       "LDGSTS": {
-        "opaque": 5760
+        "native": 5760
       },
       "LDL": {
         "native": 168
@@ -5913,7 +6160,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 60
+        "opaque": 48,
+        "primitive": 12
       },
       "LDTM": {
         "opaque": 342
@@ -5934,7 +6182,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 25
+        "native": 12,
+        "opaque": 13
       },
       "MOV": {
         "native": 1,
@@ -6277,9 +6526,16 @@
     },
     "evidence": {
       "none": 9,
-      "reference": 511
+      "reference": 531
     },
     "opaque_operations": {
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -6293,6 +6549,9 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldcu_const_RCxR_": "bank",
@@ -6301,6 +6560,9 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
+      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -6324,6 +6586,12 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 7
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 26
       },
@@ -6342,6 +6610,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 2
       },
@@ -6355,6 +6626,9 @@
         "reference": 1
       },
       "DADD": {
+        "reference": 3
+      },
+      "DEPBAR": {
         "reference": 3
       },
       "DFMA": {
@@ -6424,6 +6698,9 @@
       "HFMA2": {
         "reference": 10
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "reference": 6
       },
@@ -6479,6 +6756,12 @@
       "LDG": {
         "reference": 5
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "reference": 5
+      },
       "LDL": {
         "reference": 4
       },
@@ -6493,6 +6776,9 @@
       },
       "MATCH": {
         "reference": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "none": 1,
@@ -6645,13 +6931,15 @@
         "opaque": 18
       },
       "ATOMG": {
-        "opaque": 12
+        "opaque": 5,
+        "partially native": 7
       },
       "ATOMS": {
         "opaque": 11
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -6677,7 +6965,7 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -6717,7 +7005,7 @@
         "native": 3
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 5
@@ -6820,7 +7108,8 @@
         "partially native": 10
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -6905,13 +7194,13 @@
         "opaque": 4
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 6
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -6941,7 +7230,8 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 2
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 1,
@@ -7281,6 +7571,14 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "opaque": 5,
+        "partially native": 7
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -7301,6 +7599,9 @@
       "BREV": {
         "native": 3
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -7315,6 +7616,9 @@
         "native": 1
       },
       "DADD": {
+        "native": 3
+      },
+      "DEPBAR": {
         "native": 3
       },
       "DFMA": {
@@ -7411,6 +7715,10 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 1,
         "partially native": 5
@@ -7472,11 +7780,20 @@
         "native": 5,
         "opaque": 4
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "opaque": 2
       },
       "LEA": {
         "native": 20
@@ -7486,6 +7803,10 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 1,
@@ -7693,16 +8014,23 @@
       }
     },
     "status": {
-      "native": 345,
-      "opaque": 384,
-      "partially native": 108,
-      "partially primitive": 6,
-      "primitive": 61
+      "native": 354,
+      "opaque": 364,
+      "partially native": 117,
+      "partially primitive": 7,
+      "primitive": 62
     }
   },
   "SM101_READABLE": {
     "classes": 904,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 7115,
+        "reference": 1813
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 70
       },
@@ -7722,6 +8050,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 2
+      },
       "BSSY": {
         "reference": 6
       },
@@ -7737,6 +8068,9 @@
       "DADD": {
         "none": 80,
         "reference": 64
+      },
+      "DEPBAR": {
+        "reference": 3
       },
       "DFMA": {
         "none": 757,
@@ -7822,6 +8156,9 @@
         "none": 103579,
         "reference": 389
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "none": 6793,
         "reference": 119
@@ -7887,11 +8224,21 @@
         "none": 20371,
         "reference": 1133
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "none": 5355,
+        "reference": 405
+      },
       "LDL": {
         "reference": 168
       },
       "LDS": {
         "reference": 63
+      },
+      "LDSM": {
+        "reference": 12
       },
       "LEA": {
         "reference": 78
@@ -7901,6 +8248,9 @@
       },
       "MATCH": {
         "reference": 4
+      },
+      "MEMBAR": {
+        "reference": 12
       },
       "MOV": {
         "none": 1,
@@ -8061,13 +8411,15 @@
         "opaque": 22080
       },
       "ATOMG": {
-        "opaque": 20640
+        "native": 8928,
+        "opaque": 11712
       },
       "ATOMS": {
         "opaque": 279
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -8093,7 +8445,8 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -8133,7 +8486,7 @@
         "native": 144
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 896
@@ -8240,7 +8593,8 @@
         "partially native": 140
       },
       "HMMA": {
-        "opaque": 384
+        "opaque": 383,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 6912,
@@ -8325,13 +8679,13 @@
         "opaque": 4608
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 252
       },
       "LDGSTS": {
-        "opaque": 5760
+        "native": 5760
       },
       "LDL": {
         "native": 168
@@ -8340,7 +8694,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 60
+        "opaque": 48,
+        "primitive": 12
       },
       "LDTM": {
         "opaque": 342
@@ -8361,7 +8716,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 25
+        "native": 12,
+        "opaque": 13
       },
       "MOV": {
         "native": 1,
@@ -8704,9 +9060,16 @@
     },
     "evidence": {
       "none": 9,
-      "reference": 511
+      "reference": 531
     },
     "opaque_operations": {
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -8720,6 +9083,9 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
       "ldcu_const_RCxR_": "bank",
@@ -8728,6 +9094,9 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
+      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -8751,6 +9120,12 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 7
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 26
       },
@@ -8769,6 +9144,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 2
       },
@@ -8782,6 +9160,9 @@
         "reference": 1
       },
       "DADD": {
+        "reference": 3
+      },
+      "DEPBAR": {
         "reference": 3
       },
       "DFMA": {
@@ -8851,6 +9232,9 @@
       "HFMA2": {
         "reference": 10
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "reference": 6
       },
@@ -8906,6 +9290,12 @@
       "LDG": {
         "reference": 5
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "reference": 5
+      },
       "LDL": {
         "reference": 4
       },
@@ -8920,6 +9310,9 @@
       },
       "MATCH": {
         "reference": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "none": 1,
@@ -9072,13 +9465,15 @@
         "opaque": 18
       },
       "ATOMG": {
-        "opaque": 12
+        "opaque": 5,
+        "partially native": 7
       },
       "ATOMS": {
         "opaque": 11
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -9104,7 +9499,7 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -9144,7 +9539,7 @@
         "native": 3
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 5
@@ -9247,7 +9642,8 @@
         "partially native": 10
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -9332,13 +9728,13 @@
         "opaque": 4
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 6
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -9368,7 +9764,8 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 2
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 1,
@@ -9708,6 +10105,14 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "opaque": 5,
+        "partially native": 7
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -9728,6 +10133,9 @@
       "BREV": {
         "native": 3
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -9742,6 +10150,9 @@
         "native": 1
       },
       "DADD": {
+        "native": 3
+      },
+      "DEPBAR": {
         "native": 3
       },
       "DFMA": {
@@ -9838,6 +10249,10 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 1,
         "partially native": 5
@@ -9899,11 +10314,20 @@
         "native": 5,
         "opaque": 4
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "opaque": 2
       },
       "LEA": {
         "native": 20
@@ -9913,6 +10337,10 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 1,
@@ -10120,16 +10548,23 @@
       }
     },
     "status": {
-      "native": 345,
-      "opaque": 384,
-      "partially native": 108,
-      "partially primitive": 6,
-      "primitive": 61
+      "native": 354,
+      "opaque": 364,
+      "partially native": 117,
+      "partially primitive": 7,
+      "primitive": 62
     }
   },
   "SM103": {
     "classes": 974,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 7115,
+        "reference": 1813
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 70
       },
@@ -10149,6 +10584,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 2
+      },
       "BSSY": {
         "reference": 6
       },
@@ -10164,6 +10602,9 @@
       "DADD": {
         "none": 80,
         "reference": 64
+      },
+      "DEPBAR": {
+        "reference": 3
       },
       "DFMA": {
         "none": 757,
@@ -10261,6 +10702,9 @@
         "none": 59804,
         "reference": 388
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "none": 6793,
         "reference": 119
@@ -10326,11 +10770,21 @@
         "none": 20371,
         "reference": 1133
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "none": 5355,
+        "reference": 405
+      },
       "LDL": {
         "reference": 168
       },
       "LDS": {
         "reference": 63
+      },
+      "LDSM": {
+        "reference": 12
       },
       "LEA": {
         "reference": 78
@@ -10341,13 +10795,16 @@
       "MATCH": {
         "reference": 4
       },
+      "MEMBAR": {
+        "reference": 12
+      },
       "MOV": {
         "none": 1,
         "reference": 3
       },
       "MUFU": {
-        "none": 304,
-        "reference": 76
+        "none": 303,
+        "reference": 77
       },
       "NOP": {
         "reference": 1
@@ -10513,13 +10970,15 @@
         "opaque": 22080
       },
       "ATOMG": {
-        "opaque": 20640
+        "native": 8928,
+        "opaque": 11712
       },
       "ATOMS": {
         "opaque": 279
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -10545,7 +11004,8 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -10588,7 +11048,7 @@
         "native": 144
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 896
@@ -10710,7 +11170,8 @@
         "partially native": 35
       },
       "HMMA": {
-        "opaque": 384
+        "opaque": 383,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 6912,
@@ -10802,13 +11263,13 @@
         "opaque": 4608
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 252
       },
       "LDGSTS": {
-        "opaque": 5760
+        "native": 5760
       },
       "LDL": {
         "native": 168
@@ -10817,7 +11278,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 60
+        "opaque": 48,
+        "primitive": 12
       },
       "LDTM": {
         "opaque": 342
@@ -10838,7 +11300,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 25
+        "native": 12,
+        "opaque": 13
       },
       "MOV": {
         "native": 1,
@@ -11213,9 +11676,16 @@
     },
     "evidence": {
       "none": 12,
-      "reference": 536
+      "reference": 556
     },
     "opaque_operations": {
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -11239,6 +11709,9 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_x_xor_imm__RIR_RIR": "X not modelled; carry out",
@@ -11255,6 +11728,9 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
+      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -11278,6 +11754,12 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 7
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 26
       },
@@ -11296,6 +11778,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 2
       },
@@ -11309,6 +11794,9 @@
         "reference": 1
       },
       "DADD": {
+        "reference": 3
+      },
+      "DEPBAR": {
         "reference": 3
       },
       "DFMA": {
@@ -11387,6 +11875,9 @@
       "HFMA2": {
         "reference": 10
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "reference": 6
       },
@@ -11442,6 +11933,12 @@
       "LDG": {
         "reference": 5
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "reference": 5
+      },
       "LDL": {
         "reference": 4
       },
@@ -11456,6 +11953,9 @@
       },
       "MATCH": {
         "reference": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "none": 1,
@@ -11621,13 +12121,15 @@
         "opaque": 18
       },
       "ATOMG": {
-        "opaque": 12
+        "opaque": 5,
+        "partially native": 7
       },
       "ATOMS": {
         "opaque": 11
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -11653,7 +12155,7 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -11696,7 +12198,7 @@
         "native": 3
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 5
@@ -11812,7 +12314,8 @@
         "partially native": 10
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -11904,13 +12407,13 @@
         "opaque": 4
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 6
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -11940,7 +12443,8 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 2
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 1,
@@ -12310,6 +12814,14 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "opaque": 5,
+        "partially native": 7
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -12330,6 +12842,9 @@
       "BREV": {
         "native": 3
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -12344,6 +12859,9 @@
         "native": 1
       },
       "DADD": {
+        "native": 3
+      },
+      "DEPBAR": {
         "native": 3
       },
       "DFMA": {
@@ -12441,6 +12959,10 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 1,
         "partially native": 5
@@ -12503,11 +13025,20 @@
         "native": 5,
         "opaque": 4
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "opaque": 2
       },
       "LEA": {
         "native": 20
@@ -12517,6 +13048,10 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 1,
@@ -12724,16 +13259,23 @@
       }
     },
     "status": {
-      "native": 348,
-      "opaque": 426,
-      "partially native": 130,
-      "partially primitive": 6,
-      "primitive": 64
+      "native": 357,
+      "opaque": 406,
+      "partially native": 139,
+      "partially primitive": 7,
+      "primitive": 65
     }
   },
   "SM103_READABLE": {
     "classes": 974,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 7115,
+        "reference": 1813
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 70
       },
@@ -12753,6 +13295,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 2
+      },
       "BSSY": {
         "reference": 6
       },
@@ -12768,6 +13313,9 @@
       "DADD": {
         "none": 80,
         "reference": 64
+      },
+      "DEPBAR": {
+        "reference": 3
       },
       "DFMA": {
         "none": 757,
@@ -12865,6 +13413,9 @@
         "none": 103579,
         "reference": 389
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "none": 6793,
         "reference": 119
@@ -12930,11 +13481,21 @@
         "none": 20371,
         "reference": 1133
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "none": 5355,
+        "reference": 405
+      },
       "LDL": {
         "reference": 168
       },
       "LDS": {
         "reference": 63
+      },
+      "LDSM": {
+        "reference": 12
       },
       "LEA": {
         "reference": 78
@@ -12945,13 +13506,16 @@
       "MATCH": {
         "reference": 4
       },
+      "MEMBAR": {
+        "reference": 12
+      },
       "MOV": {
         "none": 1,
         "reference": 3
       },
       "MUFU": {
-        "none": 304,
-        "reference": 76
+        "none": 303,
+        "reference": 77
       },
       "NOP": {
         "reference": 1
@@ -13117,13 +13681,15 @@
         "opaque": 22080
       },
       "ATOMG": {
-        "opaque": 20640
+        "native": 8928,
+        "opaque": 11712
       },
       "ATOMS": {
         "opaque": 279
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -13149,7 +13715,8 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -13192,7 +13759,7 @@
         "native": 144
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 896
@@ -13314,7 +13881,8 @@
         "partially native": 140
       },
       "HMMA": {
-        "opaque": 384
+        "opaque": 383,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 6912,
@@ -13406,13 +13974,13 @@
         "opaque": 4608
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 252
       },
       "LDGSTS": {
-        "opaque": 5760
+        "native": 5760
       },
       "LDL": {
         "native": 168
@@ -13421,7 +13989,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 60
+        "opaque": 48,
+        "primitive": 12
       },
       "LDTM": {
         "opaque": 342
@@ -13442,7 +14011,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 25
+        "native": 12,
+        "opaque": 13
       },
       "MOV": {
         "native": 1,
@@ -13817,9 +14387,16 @@
     },
     "evidence": {
       "none": 12,
-      "reference": 536
+      "reference": 556
     },
     "opaque_operations": {
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -13843,6 +14420,9 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_x_xor_imm__RIR_RIR": "X not modelled; carry out",
@@ -13859,6 +14439,9 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
+      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -13882,6 +14465,12 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 7
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 26
       },
@@ -13900,6 +14489,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 2
       },
@@ -13913,6 +14505,9 @@
         "reference": 1
       },
       "DADD": {
+        "reference": 3
+      },
+      "DEPBAR": {
         "reference": 3
       },
       "DFMA": {
@@ -13991,6 +14586,9 @@
       "HFMA2": {
         "reference": 10
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "reference": 6
       },
@@ -14046,6 +14644,12 @@
       "LDG": {
         "reference": 5
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "reference": 5
+      },
       "LDL": {
         "reference": 4
       },
@@ -14060,6 +14664,9 @@
       },
       "MATCH": {
         "reference": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "none": 1,
@@ -14225,13 +14832,15 @@
         "opaque": 18
       },
       "ATOMG": {
-        "opaque": 12
+        "opaque": 5,
+        "partially native": 7
       },
       "ATOMS": {
         "opaque": 11
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -14257,7 +14866,7 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -14300,7 +14909,7 @@
         "native": 3
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 5
@@ -14416,7 +15025,8 @@
         "partially native": 10
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -14508,13 +15118,13 @@
         "opaque": 4
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 6
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -14544,7 +15154,8 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 2
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 1,
@@ -14914,6 +15525,14 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "opaque": 5,
+        "partially native": 7
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -14934,6 +15553,9 @@
       "BREV": {
         "native": 3
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -14948,6 +15570,9 @@
         "native": 1
       },
       "DADD": {
+        "native": 3
+      },
+      "DEPBAR": {
         "native": 3
       },
       "DFMA": {
@@ -15045,6 +15670,10 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 1,
         "partially native": 5
@@ -15107,11 +15736,20 @@
         "native": 5,
         "opaque": 4
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "opaque": 2
       },
       "LEA": {
         "native": 20
@@ -15121,6 +15759,10 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 1,
@@ -15328,16 +15970,23 @@
       }
     },
     "status": {
-      "native": 348,
-      "opaque": 426,
-      "partially native": 130,
-      "partially primitive": 6,
-      "primitive": 64
+      "native": 357,
+      "opaque": 406,
+      "partially native": 139,
+      "partially primitive": 7,
+      "primitive": 65
     }
   },
   "SM107": {
     "classes": 944,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 7115,
+        "reference": 1813
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 70
       },
@@ -15357,6 +16006,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 2
+      },
       "BSSY": {
         "reference": 6
       },
@@ -15372,6 +16024,9 @@
       "DADD": {
         "none": 80,
         "reference": 64
+      },
+      "DEPBAR": {
+        "reference": 3
       },
       "DFMA": {
         "none": 757,
@@ -15481,6 +16136,9 @@
         "none": 59804,
         "reference": 388
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "none": 6793,
         "reference": 119
@@ -15546,11 +16204,21 @@
         "none": 20371,
         "reference": 1133
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "none": 5355,
+        "reference": 405
+      },
       "LDL": {
         "reference": 168
       },
       "LDS": {
         "reference": 63
+      },
+      "LDSM": {
+        "reference": 12
       },
       "LEA": {
         "reference": 78
@@ -15561,6 +16229,9 @@
       "MATCH": {
         "reference": 4
       },
+      "MEMBAR": {
+        "reference": 12
+      },
       "MOV": {
         "none": 1,
         "reference": 6
@@ -15569,8 +16240,8 @@
         "reference": 2
       },
       "MUFU": {
-        "none": 304,
-        "reference": 76
+        "none": 303,
+        "reference": 77
       },
       "NOP": {
         "reference": 1
@@ -15720,13 +16391,15 @@
         "opaque": 21984
       },
       "ATOMG": {
-        "opaque": 20640
+        "native": 8928,
+        "opaque": 11712
       },
       "ATOMS": {
         "opaque": 275
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -15752,7 +16425,8 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -15792,7 +16466,7 @@
         "native": 144
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 896
@@ -15920,7 +16594,8 @@
         "partially native": 35
       },
       "HMMA": {
-        "opaque": 384
+        "opaque": 383,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 6912,
@@ -16005,13 +16680,13 @@
         "opaque": 4608
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 216
       },
       "LDGSTS": {
-        "opaque": 5760
+        "native": 5760
       },
       "LDL": {
         "native": 168
@@ -16020,7 +16695,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 60
+        "opaque": 48,
+        "primitive": 12
       },
       "LDTM": {
         "opaque": 414
@@ -16038,7 +16714,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 25
+        "native": 12,
+        "opaque": 13
       },
       "MOV": {
         "native": 4,
@@ -16365,9 +17042,16 @@
     },
     "evidence": {
       "none": 13,
-      "reference": 557
+      "reference": 577
     },
     "opaque_operations": {
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -16391,6 +17075,9 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_64_imm__RsIR_RIR": "width",
@@ -16431,6 +17118,9 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
+      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -16454,6 +17144,12 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 7
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 26
       },
@@ -16472,6 +17168,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 2
       },
@@ -16485,6 +17184,9 @@
         "reference": 1
       },
       "DADD": {
+        "reference": 3
+      },
+      "DEPBAR": {
         "reference": 3
       },
       "DFMA": {
@@ -16573,6 +17275,9 @@
       "HFMA2": {
         "reference": 10
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "reference": 6
       },
@@ -16628,6 +17333,12 @@
       "LDG": {
         "reference": 5
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "reference": 5
+      },
       "LDL": {
         "reference": 4
       },
@@ -16642,6 +17353,9 @@
       },
       "MATCH": {
         "reference": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "none": 1,
@@ -16795,13 +17509,15 @@
         "opaque": 16
       },
       "ATOMG": {
-        "opaque": 12
+        "opaque": 5,
+        "partially native": 7
       },
       "ATOMS": {
         "opaque": 10
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -16827,7 +17543,7 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -16867,7 +17583,7 @@
         "native": 3
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 5
@@ -16986,7 +17702,8 @@
         "partially native": 10
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -17071,13 +17788,13 @@
         "opaque": 4
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 6
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -17104,7 +17821,8 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 2
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 4,
@@ -17426,6 +18144,14 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "opaque": 5,
+        "partially native": 7
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -17446,6 +18172,9 @@
       "BREV": {
         "native": 3
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -17460,6 +18189,9 @@
         "native": 1
       },
       "DADD": {
+        "native": 3
+      },
+      "DEPBAR": {
         "native": 3
       },
       "DFMA": {
@@ -17557,6 +18289,10 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 1,
         "partially native": 5
@@ -17621,11 +18357,20 @@
         "native": 5,
         "opaque": 4
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "opaque": 2
       },
       "LEA": {
         "native": 20
@@ -17635,6 +18380,10 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 4,
@@ -17842,16 +18591,23 @@
       }
     },
     "status": {
-      "native": 343,
-      "opaque": 374,
-      "partially native": 157,
-      "partially primitive": 6,
-      "primitive": 64
+      "native": 352,
+      "opaque": 354,
+      "partially native": 166,
+      "partially primitive": 7,
+      "primitive": 65
     }
   },
   "SM107_READABLE": {
     "classes": 944,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 7115,
+        "reference": 1813
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 70
       },
@@ -17871,6 +18627,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 2
+      },
       "BSSY": {
         "reference": 6
       },
@@ -17886,6 +18645,9 @@
       "DADD": {
         "none": 80,
         "reference": 64
+      },
+      "DEPBAR": {
+        "reference": 3
       },
       "DFMA": {
         "none": 757,
@@ -17995,6 +18757,9 @@
         "none": 103579,
         "reference": 389
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "none": 6793,
         "reference": 119
@@ -18060,11 +18825,21 @@
         "none": 20371,
         "reference": 1133
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "none": 5355,
+        "reference": 405
+      },
       "LDL": {
         "reference": 168
       },
       "LDS": {
         "reference": 63
+      },
+      "LDSM": {
+        "reference": 12
       },
       "LEA": {
         "reference": 78
@@ -18075,6 +18850,9 @@
       "MATCH": {
         "reference": 4
       },
+      "MEMBAR": {
+        "reference": 12
+      },
       "MOV": {
         "none": 1,
         "reference": 6
@@ -18083,8 +18861,8 @@
         "reference": 2
       },
       "MUFU": {
-        "none": 304,
-        "reference": 76
+        "none": 303,
+        "reference": 77
       },
       "NOP": {
         "reference": 1
@@ -18234,13 +19012,15 @@
         "opaque": 21984
       },
       "ATOMG": {
-        "opaque": 20640
+        "native": 8928,
+        "opaque": 11712
       },
       "ATOMS": {
         "opaque": 275
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -18266,7 +19046,8 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -18306,7 +19087,7 @@
         "native": 144
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 896
@@ -18434,7 +19215,8 @@
         "partially native": 140
       },
       "HMMA": {
-        "opaque": 384
+        "opaque": 383,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 6912,
@@ -18519,13 +19301,13 @@
         "opaque": 4608
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 216
       },
       "LDGSTS": {
-        "opaque": 5760
+        "native": 5760
       },
       "LDL": {
         "native": 168
@@ -18534,7 +19316,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 60
+        "opaque": 48,
+        "primitive": 12
       },
       "LDTM": {
         "opaque": 414
@@ -18552,7 +19335,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 25
+        "native": 12,
+        "opaque": 13
       },
       "MOV": {
         "native": 4,
@@ -18879,9 +19663,16 @@
     },
     "evidence": {
       "none": 13,
-      "reference": 557
+      "reference": 577
     },
     "opaque_operations": {
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -18905,6 +19696,9 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "i2fp__Rbx2": "S4x2; U4x2",
       "i2fp__URbx2": "S4x2; U4x2",
       "iadd_64_imm__RsIR_RIR": "width",
@@ -18945,6 +19739,9 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
+      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -18968,6 +19765,12 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 7
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 26
       },
@@ -18986,6 +19789,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 2
       },
@@ -18999,6 +19805,9 @@
         "reference": 1
       },
       "DADD": {
+        "reference": 3
+      },
+      "DEPBAR": {
         "reference": 3
       },
       "DFMA": {
@@ -19087,6 +19896,9 @@
       "HFMA2": {
         "reference": 10
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "reference": 6
       },
@@ -19142,6 +19954,12 @@
       "LDG": {
         "reference": 5
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "reference": 5
+      },
       "LDL": {
         "reference": 4
       },
@@ -19156,6 +19974,9 @@
       },
       "MATCH": {
         "reference": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "none": 1,
@@ -19309,13 +20130,15 @@
         "opaque": 16
       },
       "ATOMG": {
-        "opaque": 12
+        "opaque": 5,
+        "partially native": 7
       },
       "ATOMS": {
         "opaque": 10
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -19341,7 +20164,7 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -19381,7 +20204,7 @@
         "native": 3
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 5
@@ -19500,7 +20323,8 @@
         "partially native": 10
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -19585,13 +20409,13 @@
         "opaque": 4
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 6
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -19618,7 +20442,8 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 2
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 4,
@@ -19940,6 +20765,14 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "opaque": 5,
+        "partially native": 7
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -19960,6 +20793,9 @@
       "BREV": {
         "native": 3
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -19974,6 +20810,9 @@
         "native": 1
       },
       "DADD": {
+        "native": 3
+      },
+      "DEPBAR": {
         "native": 3
       },
       "DFMA": {
@@ -20071,6 +20910,10 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 1,
         "partially native": 5
@@ -20135,11 +20978,20 @@
         "native": 5,
         "opaque": 4
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "opaque": 2
       },
       "LEA": {
         "native": 20
@@ -20149,6 +21001,10 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 4,
@@ -20356,16 +21212,23 @@
       }
     },
     "status": {
-      "native": 343,
-      "opaque": 374,
-      "partially native": 157,
-      "partially primitive": 6,
-      "primitive": 64
+      "native": 352,
+      "opaque": 354,
+      "partially native": 166,
+      "partially primitive": 7,
+      "primitive": 65
     }
   },
   "SM120": {
     "classes": 1015,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 7115,
+        "reference": 1813
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 70
       },
@@ -20385,6 +21248,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 2
+      },
       "BSSY": {
         "reference": 6
       },
@@ -20400,6 +21266,9 @@
       "DADD": {
         "none": 80,
         "reference": 64
+      },
+      "DEPBAR": {
+        "reference": 3
       },
       "DFMA": {
         "none": 757,
@@ -20481,6 +21350,9 @@
         "none": 59804,
         "reference": 388
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "none": 6793,
         "reference": 119
@@ -20546,11 +21418,21 @@
         "none": 20371,
         "reference": 1133
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "none": 5355,
+        "reference": 405
+      },
       "LDL": {
         "reference": 168
       },
       "LDS": {
         "reference": 63
+      },
+      "LDSM": {
+        "reference": 12
       },
       "LEA": {
         "reference": 78
@@ -20560,6 +21442,9 @@
       },
       "MATCH": {
         "reference": 4
+      },
+      "MEMBAR": {
+        "reference": 12
       },
       "MOV": {
         "none": 1,
@@ -20768,13 +21653,15 @@
         "opaque": 22080
       },
       "ATOMG": {
-        "opaque": 20640
+        "native": 8928,
+        "opaque": 11712
       },
       "ATOMS": {
         "opaque": 279
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -20800,7 +21687,8 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -20843,7 +21731,7 @@
         "native": 144
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 896
@@ -20947,7 +21835,8 @@
         "partially native": 35
       },
       "HMMA": {
-        "opaque": 384
+        "opaque": 383,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 6912,
@@ -21037,13 +21926,13 @@
         "opaque": 4992
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 252
       },
       "LDGSTS": {
-        "opaque": 5760
+        "native": 5760
       },
       "LDL": {
         "native": 168
@@ -21052,7 +21941,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 60
+        "opaque": 48,
+        "primitive": 12
       },
       "LDTRAM": {
         "opaque": 2
@@ -21070,7 +21960,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 25
+        "native": 12,
+        "opaque": 13
       },
       "MOV": {
         "native": 4,
@@ -21471,9 +22362,16 @@
     },
     "evidence": {
       "none": 13,
-      "reference": 566
+      "reference": 586
     },
     "opaque_operations": {
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -21487,6 +22385,9 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "iadd_64_imm__RsIR_RIR": "width",
       "iadd_64_noimm__RRR_RRR": "width",
       "iadd_64_noimm__RUR_RUR": "width",
@@ -21523,6 +22424,9 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
+      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -21558,6 +22462,12 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 7
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 26
       },
@@ -21576,6 +22486,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 2
       },
@@ -21589,6 +22502,9 @@
         "reference": 1
       },
       "DADD": {
+        "reference": 3
+      },
+      "DEPBAR": {
         "reference": 3
       },
       "DFMA": {
@@ -21655,6 +22571,9 @@
       "HFMA2": {
         "reference": 10
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "reference": 6
       },
@@ -21710,6 +22629,12 @@
       "LDG": {
         "reference": 5
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "reference": 5
+      },
       "LDL": {
         "reference": 4
       },
@@ -21724,6 +22649,9 @@
       },
       "MATCH": {
         "reference": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "none": 1,
@@ -21917,13 +22845,15 @@
         "opaque": 18
       },
       "ATOMG": {
-        "opaque": 12
+        "opaque": 5,
+        "partially native": 7
       },
       "ATOMS": {
         "opaque": 11
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -21949,7 +22879,7 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -21992,7 +22922,7 @@
         "native": 3
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 5
@@ -22092,7 +23022,8 @@
         "partially native": 10
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -22182,13 +23113,13 @@
         "opaque": 8
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 6
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -22215,7 +23146,8 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 2
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 4,
@@ -22613,6 +23545,14 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "opaque": 5,
+        "partially native": 7
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -22633,6 +23573,9 @@
       "BREV": {
         "native": 3
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -22647,6 +23590,9 @@
         "native": 1
       },
       "DADD": {
+        "native": 3
+      },
+      "DEPBAR": {
         "native": 3
       },
       "DFMA": {
@@ -22743,6 +23689,10 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 1,
         "partially native": 5
@@ -22806,11 +23756,20 @@
         "native": 5,
         "opaque": 8
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "opaque": 2
       },
       "LEA": {
         "native": 20
@@ -22820,6 +23779,10 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 4,
@@ -23031,16 +23994,23 @@
       }
     },
     "status": {
-      "native": 399,
-      "opaque": 436,
-      "partially native": 113,
-      "partially primitive": 6,
-      "primitive": 61
+      "native": 408,
+      "opaque": 416,
+      "partially native": 122,
+      "partially primitive": 7,
+      "primitive": 62
     }
   },
   "SM120_READABLE": {
     "classes": 1015,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 7115,
+        "reference": 1813
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 70
       },
@@ -23060,6 +24030,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 2
+      },
       "BSSY": {
         "reference": 6
       },
@@ -23075,6 +24048,9 @@
       "DADD": {
         "none": 80,
         "reference": 64
+      },
+      "DEPBAR": {
+        "reference": 3
       },
       "DFMA": {
         "none": 757,
@@ -23156,6 +24132,9 @@
         "none": 103579,
         "reference": 389
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "none": 6793,
         "reference": 119
@@ -23221,11 +24200,21 @@
         "none": 20371,
         "reference": 1133
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "none": 5355,
+        "reference": 405
+      },
       "LDL": {
         "reference": 168
       },
       "LDS": {
         "reference": 63
+      },
+      "LDSM": {
+        "reference": 12
       },
       "LEA": {
         "reference": 78
@@ -23235,6 +24224,9 @@
       },
       "MATCH": {
         "reference": 4
+      },
+      "MEMBAR": {
+        "reference": 12
       },
       "MOV": {
         "none": 1,
@@ -23443,13 +24435,15 @@
         "opaque": 22080
       },
       "ATOMG": {
-        "opaque": 20640
+        "native": 8928,
+        "opaque": 11712
       },
       "ATOMS": {
         "opaque": 279
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -23475,7 +24469,8 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -23518,7 +24513,7 @@
         "native": 144
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 896
@@ -23622,7 +24617,8 @@
         "partially native": 140
       },
       "HMMA": {
-        "opaque": 384
+        "opaque": 383,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 6912,
@@ -23712,13 +24708,13 @@
         "opaque": 4992
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 252
       },
       "LDGSTS": {
-        "opaque": 5760
+        "native": 5760
       },
       "LDL": {
         "native": 168
@@ -23727,7 +24723,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 60
+        "opaque": 48,
+        "primitive": 12
       },
       "LDTRAM": {
         "opaque": 2
@@ -23745,7 +24742,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 25
+        "native": 12,
+        "opaque": 13
       },
       "MOV": {
         "native": 4,
@@ -24146,9 +25144,16 @@
     },
     "evidence": {
       "none": 13,
-      "reference": 566
+      "reference": 586
     },
     "opaque_operations": {
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -24162,6 +25167,9 @@
       "frnd__f16_I": "F16",
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "iadd_64_imm__RsIR_RIR": "width",
       "iadd_64_noimm__RRR_RRR": "width",
       "iadd_64_noimm__RUR_RUR": "width",
@@ -24198,6 +25206,9 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
+      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
       "mov_indexedRF_Rd_": "indexed register file",
@@ -24233,6 +25244,12 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 7
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 26
       },
@@ -24251,6 +25268,9 @@
       "BREV": {
         "reference": 3
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 2
       },
@@ -24264,6 +25284,9 @@
         "reference": 1
       },
       "DADD": {
+        "reference": 3
+      },
+      "DEPBAR": {
         "reference": 3
       },
       "DFMA": {
@@ -24330,6 +25353,9 @@
       "HFMA2": {
         "reference": 10
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "reference": 6
       },
@@ -24385,6 +25411,12 @@
       "LDG": {
         "reference": 5
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "reference": 5
+      },
       "LDL": {
         "reference": 4
       },
@@ -24399,6 +25431,9 @@
       },
       "MATCH": {
         "reference": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "none": 1,
@@ -24592,13 +25627,15 @@
         "opaque": 18
       },
       "ATOMG": {
-        "opaque": 12
+        "opaque": 5,
+        "partially native": 7
       },
       "ATOMS": {
         "opaque": 11
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -24624,7 +25661,7 @@
         "native": 3
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -24667,7 +25704,7 @@
         "native": 3
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 5
@@ -24767,7 +25804,8 @@
         "partially native": 10
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -24857,13 +25895,13 @@
         "opaque": 8
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 6
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -24890,7 +25928,8 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 2
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 4,
@@ -25288,6 +26327,14 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "opaque": 5,
+        "partially native": 7
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -25308,6 +26355,9 @@
       "BREV": {
         "native": 3
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 2
       },
@@ -25322,6 +26372,9 @@
         "native": 1
       },
       "DADD": {
+        "native": 3
+      },
+      "DEPBAR": {
         "native": 3
       },
       "DFMA": {
@@ -25418,6 +26471,10 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 1,
         "partially native": 5
@@ -25481,11 +26538,20 @@
         "native": 5,
         "opaque": 8
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "opaque": 2
       },
       "LEA": {
         "native": 20
@@ -25495,6 +26561,10 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "native": 4,
@@ -25706,16 +26776,23 @@
       }
     },
     "status": {
-      "native": 399,
-      "opaque": 436,
-      "partially native": 113,
-      "partially primitive": 6,
-      "primitive": 61
+      "native": 408,
+      "opaque": 416,
+      "partially native": 122,
+      "partially primitive": 7,
+      "primitive": 62
     }
   },
   "SM75": {
     "classes": 903,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 23701,
+        "reference": 1643
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 70
       },
@@ -25734,6 +26811,9 @@
       },
       "BREV": {
         "reference": 5
+      },
+      "BRX": {
+        "reference": 2
       },
       "BSSY": {
         "reference": 2
@@ -25750,6 +26830,9 @@
       "DADD": {
         "none": 160,
         "reference": 112
+      },
+      "DEPBAR": {
+        "reference": 2
       },
       "DFMA": {
         "none": 1666,
@@ -25895,6 +26978,10 @@
       "LDS": {
         "reference": 126
       },
+      "LDSM": {
+        "none": 12,
+        "reference": 12
+      },
       "LEA": {
         "reference": 132
       },
@@ -25903,6 +26990,9 @@
       },
       "MATCH": {
         "reference": 4
+      },
+      "MEMBAR": {
+        "reference": 12
       },
       "MOV": {
         "reference": 5
@@ -26049,13 +27139,15 @@
         "opaque": 29376
       },
       "ATOMG": {
-        "opaque": 27936
+        "native": 25344,
+        "opaque": 2592
       },
       "ATOMS": {
         "opaque": 198
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -26083,7 +27175,8 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -26117,7 +27210,7 @@
         "native": 272
       },
       "DEPBAR": {
-        "opaque": 2
+        "native": 2
       },
       "DFMA": {
         "native": 1920
@@ -26282,7 +27375,8 @@
         "opaque": 126
       },
       "LDSM": {
-        "opaque": 72
+        "opaque": 48,
+        "primitive": 24
       },
       "LDTRAM": {
         "opaque": 2
@@ -26300,7 +27394,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 30
+        "native": 12,
+        "opaque": 18
       },
       "MOV": {
         "partially native": 5
@@ -26543,11 +27638,13 @@
       }
     },
     "evidence": {
-      "none": 6,
+      "none": 8,
       "ptxas": 9,
-      "reference": 585
+      "reference": 599
     },
     "opaque_operations": {
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "f2fp_rs__RCR": "outside implemented operation families",
@@ -26570,25 +27667,28 @@
       "frnd__f16_URb": "F16",
       "frnd__f64_C": "32-bit source for F64",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hmma__884_f16_f16": "outside implemented operation families",
+      "hmma__884_f32": "outside implemented operation families",
+      "hmma_x8_": "outside implemented operation families",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f_Rd64__Cb_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__Cb_64b": "32-bit source; dstfmt outside the table",
-      "ld_zd__sImmOffset": "Pu result; size; sz U.128; zd not modelled",
-      "ld_zd__uImmOffset": "Pu result; size; sz U.128; zd not modelled",
-      "ld_zd_uniform__Ra32": "Pu result; size; sz U.128; zd not modelled",
-      "ld_zd_uniform__Ra64": "Pu result; size; sz U.128; zd not modelled",
-      "ld_zd_uniform__RaRZ": "Pu result; size; sz U.128; zd not modelled",
+      "ld_zd__sImmOffset": "Pu result; zd not modelled",
+      "ld_zd__uImmOffset": "Pu result; zd not modelled",
+      "ld_zd_uniform__Ra32": "Pu result; zd not modelled",
+      "ld_zd_uniform__Ra64": "Pu result",
+      "ld_zd_uniform__RaRZ": "Pu result; zd not modelled",
       "ldc_ur__URRzI": "bank",
       "ldc_ur__URnonRzI": "bank",
-      "ldg_zd__sImmOffset": "size; sz U.128; zd not modelled",
-      "ldg_zd__uImmOffset": "size; sz U.128; zd not modelled",
-      "ldg_zd_uniform__Ra32": "size; sz U.128; zd not modelled",
-      "ldg_zd_uniform__Ra64": "size; sz U.128; zd not modelled",
-      "ldg_zd_uniform__RaRZ": "size; sz U.128; zd not modelled",
-      "lds_zd__sImmOffset": "Pu result; size; zd not modelled",
-      "lds_zd__uImmOffset": "Pu result; size; zd not modelled",
-      "lds_zd_uniform_": "Pu result; size; zd not modelled",
+      "ldg_zd__sImmOffset": "zd not modelled",
+      "ldg_zd__uImmOffset": "zd not modelled",
+      "ldg_zd_uniform__Ra32": "zd not modelled",
+      "ldg_zd_uniform__Ra64": "no modelled encodings",
+      "ldg_zd_uniform__RaRZ": "zd not modelled",
+      "lds_zd__sImmOffset": "Pu result; zd not modelled",
+      "lds_zd__uImmOffset": "Pu result; zd not modelled",
+      "lds_zd_uniform_": "Pu result; zd not modelled",
       "plop3_lut_2out_1reg__RCR": "outside implemented operation families",
       "plop3_lut_2out_1reg__RCxR": "outside implemented operation families",
       "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
@@ -26612,6 +27712,12 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 7
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 26
       },
@@ -26630,6 +27736,9 @@
       "BREV": {
         "reference": 5
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 1
       },
@@ -26644,6 +27753,9 @@
       },
       "DADD": {
         "reference": 5
+      },
+      "DEPBAR": {
+        "reference": 2
       },
       "DFMA": {
         "reference": 9
@@ -26764,6 +27876,10 @@
       "LDS": {
         "reference": 3
       },
+      "LDSM": {
+        "none": 2,
+        "reference": 2
+      },
       "LEA": {
         "reference": 32
       },
@@ -26772,6 +27888,9 @@
       },
       "MATCH": {
         "reference": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "reference": 5
@@ -26911,13 +28030,15 @@
         "opaque": 9
       },
       "ATOMG": {
-        "opaque": 7
+        "native": 2,
+        "partially native": 5
       },
       "ATOMS": {
         "opaque": 7
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -26944,7 +28065,7 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -26978,7 +28099,7 @@
         "native": 5
       },
       "DEPBAR": {
-        "opaque": 2
+        "native": 2
       },
       "DFMA": {
         "native": 9
@@ -27137,7 +28258,7 @@
         "opaque": 3
       },
       "LDSM": {
-        "opaque": 4
+        "partially primitive": 4
       },
       "LDTRAM": {
         "opaque": 1
@@ -27155,7 +28276,7 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 1
+        "partially native": 1
       },
       "MOV": {
         "partially native": 5
@@ -27395,6 +28516,14 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "native": 2,
+        "partially native": 5
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -27413,6 +28542,9 @@
       "BREV": {
         "native": 5
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 1
       },
@@ -27428,6 +28560,9 @@
       },
       "DADD": {
         "native": 5
+      },
+      "DEPBAR": {
+        "native": 2
       },
       "DFMA": {
         "native": 9
@@ -27520,6 +28655,9 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMMA": {
+        "opaque": 3
+      },
       "HMNMX2": {
         "absent": 0
       },
@@ -27581,12 +28719,21 @@
         "opaque": 5,
         "partially native": 5
       },
+      "LDGDEPBAR": {
+        "absent": 0
+      },
+      "LDGSTS": {
+        "absent": 0
+      },
       "LDL": {
         "native": 3
       },
       "LDS": {
         "native": 3,
         "opaque": 3
+      },
+      "LDSM": {
+        "partially primitive": 4
       },
       "LEA": {
         "native": 32
@@ -27596,6 +28743,9 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "partially native": 1
       },
       "MOV": {
         "partially native": 5
@@ -27799,15 +28949,23 @@
       }
     },
     "status": {
-      "native": 434,
-      "opaque": 303,
-      "partially native": 95,
-      "primitive": 71
+      "native": 438,
+      "opaque": 287,
+      "partially native": 102,
+      "partially primitive": 4,
+      "primitive": 72
     }
   },
   "SM75_READABLE": {
     "classes": 903,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 23701,
+        "reference": 1643
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 70
       },
@@ -27827,6 +28985,9 @@
       "BREV": {
         "reference": 5
       },
+      "BRX": {
+        "reference": 2
+      },
       "BSSY": {
         "reference": 2
       },
@@ -27842,6 +29003,9 @@
       "DADD": {
         "none": 160,
         "reference": 112
+      },
+      "DEPBAR": {
+        "reference": 2
       },
       "DFMA": {
         "none": 1666,
@@ -27987,6 +29151,10 @@
       "LDS": {
         "reference": 126
       },
+      "LDSM": {
+        "none": 12,
+        "reference": 12
+      },
       "LEA": {
         "reference": 132
       },
@@ -27995,6 +29163,9 @@
       },
       "MATCH": {
         "reference": 4
+      },
+      "MEMBAR": {
+        "reference": 12
       },
       "MOV": {
         "reference": 5
@@ -28141,13 +29312,15 @@
         "opaque": 29376
       },
       "ATOMG": {
-        "opaque": 27936
+        "native": 25344,
+        "opaque": 2592
       },
       "ATOMS": {
         "opaque": 198
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -28175,7 +29348,8 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -28209,7 +29383,7 @@
         "native": 272
       },
       "DEPBAR": {
-        "opaque": 2
+        "native": 2
       },
       "DFMA": {
         "native": 1920
@@ -28374,7 +29548,8 @@
         "opaque": 126
       },
       "LDSM": {
-        "opaque": 72
+        "opaque": 48,
+        "primitive": 24
       },
       "LDTRAM": {
         "opaque": 2
@@ -28392,7 +29567,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 30
+        "native": 12,
+        "opaque": 18
       },
       "MOV": {
         "partially native": 5
@@ -28635,11 +29811,13 @@
       }
     },
     "evidence": {
-      "none": 6,
+      "none": 8,
       "ptxas": 9,
-      "reference": 585
+      "reference": 599
     },
     "opaque_operations": {
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
       "f2fp_rs__RCR": "outside implemented operation families",
@@ -28662,25 +29840,28 @@
       "frnd__f16_URb": "F16",
       "frnd__f64_C": "32-bit source for F64",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hmma__884_f16_f16": "outside implemented operation families",
+      "hmma__884_f32": "outside implemented operation families",
+      "hmma_x8_": "outside implemented operation families",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f_Rd64__Cb_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__Cb_64b": "32-bit source; dstfmt outside the table",
-      "ld_zd__sImmOffset": "Pu result; size; sz U.128; zd not modelled",
-      "ld_zd__uImmOffset": "Pu result; size; sz U.128; zd not modelled",
-      "ld_zd_uniform__Ra32": "Pu result; size; sz U.128; zd not modelled",
-      "ld_zd_uniform__Ra64": "Pu result; size; sz U.128; zd not modelled",
-      "ld_zd_uniform__RaRZ": "Pu result; size; sz U.128; zd not modelled",
+      "ld_zd__sImmOffset": "Pu result; zd not modelled",
+      "ld_zd__uImmOffset": "Pu result; zd not modelled",
+      "ld_zd_uniform__Ra32": "Pu result; zd not modelled",
+      "ld_zd_uniform__Ra64": "Pu result",
+      "ld_zd_uniform__RaRZ": "Pu result; zd not modelled",
       "ldc_ur__URRzI": "bank",
       "ldc_ur__URnonRzI": "bank",
-      "ldg_zd__sImmOffset": "size; sz U.128; zd not modelled",
-      "ldg_zd__uImmOffset": "size; sz U.128; zd not modelled",
-      "ldg_zd_uniform__Ra32": "size; sz U.128; zd not modelled",
-      "ldg_zd_uniform__Ra64": "size; sz U.128; zd not modelled",
-      "ldg_zd_uniform__RaRZ": "size; sz U.128; zd not modelled",
-      "lds_zd__sImmOffset": "Pu result; size; zd not modelled",
-      "lds_zd__uImmOffset": "Pu result; size; zd not modelled",
-      "lds_zd_uniform_": "Pu result; size; zd not modelled",
+      "ldg_zd__sImmOffset": "zd not modelled",
+      "ldg_zd__uImmOffset": "zd not modelled",
+      "ldg_zd_uniform__Ra32": "zd not modelled",
+      "ldg_zd_uniform__Ra64": "no modelled encodings",
+      "ldg_zd_uniform__RaRZ": "zd not modelled",
+      "lds_zd__sImmOffset": "Pu result; zd not modelled",
+      "lds_zd__uImmOffset": "Pu result; zd not modelled",
+      "lds_zd_uniform_": "Pu result; zd not modelled",
       "plop3_lut_2out_1reg__RCR": "outside implemented operation families",
       "plop3_lut_2out_1reg__RCxR": "outside implemented operation families",
       "plop3_lut_2out_1reg__RRR": "outside implemented operation families",
@@ -28704,6 +29885,12 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 7
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 26
       },
@@ -28722,6 +29909,9 @@
       "BREV": {
         "reference": 5
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 1
       },
@@ -28736,6 +29926,9 @@
       },
       "DADD": {
         "reference": 5
+      },
+      "DEPBAR": {
+        "reference": 2
       },
       "DFMA": {
         "reference": 9
@@ -28856,6 +30049,10 @@
       "LDS": {
         "reference": 3
       },
+      "LDSM": {
+        "none": 2,
+        "reference": 2
+      },
       "LEA": {
         "reference": 32
       },
@@ -28864,6 +30061,9 @@
       },
       "MATCH": {
         "reference": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "reference": 5
@@ -29003,13 +30203,15 @@
         "opaque": 9
       },
       "ATOMG": {
-        "opaque": 7
+        "native": 2,
+        "partially native": 5
       },
       "ATOMS": {
         "opaque": 7
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -29036,7 +30238,7 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -29070,7 +30272,7 @@
         "native": 5
       },
       "DEPBAR": {
-        "opaque": 2
+        "native": 2
       },
       "DFMA": {
         "native": 9
@@ -29229,7 +30431,7 @@
         "opaque": 3
       },
       "LDSM": {
-        "opaque": 4
+        "partially primitive": 4
       },
       "LDTRAM": {
         "opaque": 1
@@ -29247,7 +30449,7 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 1
+        "partially native": 1
       },
       "MOV": {
         "partially native": 5
@@ -29487,6 +30689,14 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "native": 2,
+        "partially native": 5
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -29505,6 +30715,9 @@
       "BREV": {
         "native": 5
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 1
       },
@@ -29520,6 +30733,9 @@
       },
       "DADD": {
         "native": 5
+      },
+      "DEPBAR": {
+        "native": 2
       },
       "DFMA": {
         "native": 9
@@ -29612,6 +30828,9 @@
       "HFMA2.MMA": {
         "absent": 0
       },
+      "HMMA": {
+        "opaque": 3
+      },
       "HMNMX2": {
         "absent": 0
       },
@@ -29673,12 +30892,21 @@
         "opaque": 5,
         "partially native": 5
       },
+      "LDGDEPBAR": {
+        "absent": 0
+      },
+      "LDGSTS": {
+        "absent": 0
+      },
       "LDL": {
         "native": 3
       },
       "LDS": {
         "native": 3,
         "opaque": 3
+      },
+      "LDSM": {
+        "partially primitive": 4
       },
       "LEA": {
         "native": 32
@@ -29688,6 +30916,9 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "partially native": 1
       },
       "MOV": {
         "partially native": 5
@@ -29891,15 +31122,23 @@
       }
     },
     "status": {
-      "native": 434,
-      "opaque": 303,
-      "partially native": 95,
-      "primitive": 71
+      "native": 438,
+      "opaque": 287,
+      "partially native": 102,
+      "partially primitive": 4,
+      "primitive": 72
     }
   },
   "SM80": {
     "classes": 967,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 9586,
+        "reference": 1934
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 70
       },
@@ -29919,6 +31158,9 @@
       "BREV": {
         "reference": 5
       },
+      "BRX": {
+        "reference": 2
+      },
       "BSSY": {
         "reference": 2
       },
@@ -29934,6 +31176,9 @@
       "DADD": {
         "none": 160,
         "reference": 112
+      },
+      "DEPBAR": {
+        "reference": 2
       },
       "DFMA": {
         "none": 1666,
@@ -30014,6 +31259,9 @@
         "none": 3561,
         "reference": 279
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "none": 6873,
         "reference": 183
@@ -30073,11 +31321,21 @@
         "none": 23504,
         "reference": 1444
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "none": 7655,
+        "reference": 409
+      },
       "LDL": {
         "reference": 210
       },
       "LDS": {
         "reference": 63
+      },
+      "LDSM": {
+        "reference": 12
       },
       "LEA": {
         "reference": 132
@@ -30087,6 +31345,9 @@
       },
       "MATCH": {
         "reference": 4
+      },
+      "MEMBAR": {
+        "reference": 12
       },
       "MOV": {
         "reference": 5
@@ -30239,13 +31500,15 @@
         "opaque": 17856
       },
       "ATOMG": {
-        "opaque": 16812
+        "native": 11520,
+        "opaque": 5292
       },
       "ATOMS": {
         "opaque": 206
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -30274,7 +31537,8 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -30311,7 +31575,7 @@
         "native": 272
       },
       "DEPBAR": {
-        "opaque": 2
+        "native": 2
       },
       "DFMA": {
         "native": 1920
@@ -30402,7 +31666,8 @@
         "partially native": 3
       },
       "HMMA": {
-        "opaque": 192
+        "opaque": 191,
+        "primitive": 1
       },
       "HMNMX2": {
         "native": 7056
@@ -30479,10 +31744,10 @@
         "native": 24948
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGSTS": {
-        "opaque": 8064
+        "native": 8064
       },
       "LDL": {
         "native": 210
@@ -30491,7 +31756,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 36
+        "opaque": 24,
+        "primitive": 12
       },
       "LDTRAM": {
         "opaque": 2
@@ -30509,7 +31775,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 20
+        "native": 12,
+        "opaque": 8
       },
       "MOV": {
         "opaque": 4,
@@ -30745,9 +32012,11 @@
     "evidence": {
       "none": 6,
       "ptxas": 1,
-      "reference": 638
+      "reference": 660
     },
     "opaque_operations": {
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -30771,6 +32040,9 @@
       "frnd__f16_URb": "F16",
       "frnd__f64_C": "32-bit source for F64",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f_Rd64__Cb_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
@@ -30804,6 +32076,12 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 8
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 26
       },
@@ -30822,6 +32100,9 @@
       "BREV": {
         "reference": 5
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 1
       },
@@ -30836,6 +32117,9 @@
       },
       "DADD": {
         "reference": 5
+      },
+      "DEPBAR": {
+        "reference": 2
       },
       "DFMA": {
         "reference": 9
@@ -30899,6 +32183,9 @@
       "HFMA2.MMA": {
         "reference": 18
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "reference": 5
       },
@@ -30948,11 +32235,20 @@
       "LDG": {
         "reference": 6
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "reference": 5
+      },
       "LDL": {
         "reference": 4
       },
       "LDS": {
         "reference": 3
+      },
+      "LDSM": {
+        "reference": 2
       },
       "LEA": {
         "reference": 32
@@ -30962,6 +32258,9 @@
       },
       "MATCH": {
         "reference": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "reference": 5
@@ -31107,13 +32406,14 @@
         "opaque": 16
       },
       "ATOMG": {
-        "opaque": 8
+        "partially native": 8
       },
       "ATOMS": {
         "opaque": 9
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -31142,7 +32442,7 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -31179,7 +32479,7 @@
         "native": 5
       },
       "DEPBAR": {
-        "opaque": 2
+        "native": 2
       },
       "DFMA": {
         "native": 9
@@ -31264,7 +32564,8 @@
         "partially native": 18
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 5
@@ -31341,10 +32642,10 @@
         "native": 6
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -31353,7 +32654,7 @@
         "native": 3
       },
       "LDSM": {
-        "opaque": 2
+        "partially primitive": 2
       },
       "LDTRAM": {
         "opaque": 1
@@ -31371,7 +32672,7 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 1
+        "partially native": 1
       },
       "MOV": {
         "opaque": 4,
@@ -31604,6 +32905,13 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "partially native": 8
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -31624,6 +32932,9 @@
       "BREV": {
         "native": 5
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 1
       },
@@ -31639,6 +32950,9 @@
       },
       "DADD": {
         "native": 5
+      },
+      "DEPBAR": {
+        "native": 2
       },
       "DFMA": {
         "native": 9
@@ -31731,6 +33045,10 @@
       "HFMA2.MMA": {
         "partially native": 18
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 5
       },
@@ -31790,11 +33108,20 @@
       "LDG": {
         "native": 6
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "partially primitive": 2
       },
       "LEA": {
         "native": 32
@@ -31804,6 +33131,9 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "partially native": 1
       },
       "MOV": {
         "opaque": 4,
@@ -32009,16 +33339,23 @@
       }
     },
     "status": {
-      "native": 471,
-      "opaque": 322,
-      "partially native": 101,
-      "partially primitive": 1,
-      "primitive": 72
+      "native": 479,
+      "opaque": 300,
+      "partially native": 111,
+      "partially primitive": 4,
+      "primitive": 73
     }
   },
   "SM80_READABLE": {
     "classes": 967,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 9586,
+        "reference": 1934
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 70
       },
@@ -32038,6 +33375,9 @@
       "BREV": {
         "reference": 5
       },
+      "BRX": {
+        "reference": 2
+      },
       "BSSY": {
         "reference": 2
       },
@@ -32053,6 +33393,9 @@
       "DADD": {
         "none": 160,
         "reference": 112
+      },
+      "DEPBAR": {
+        "reference": 2
       },
       "DFMA": {
         "none": 1666,
@@ -32133,6 +33476,9 @@
         "none": 3561,
         "reference": 279
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "none": 6873,
         "reference": 183
@@ -32192,11 +33538,21 @@
         "none": 23504,
         "reference": 1444
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "none": 7655,
+        "reference": 409
+      },
       "LDL": {
         "reference": 210
       },
       "LDS": {
         "reference": 63
+      },
+      "LDSM": {
+        "reference": 12
       },
       "LEA": {
         "reference": 132
@@ -32206,6 +33562,9 @@
       },
       "MATCH": {
         "reference": 4
+      },
+      "MEMBAR": {
+        "reference": 12
       },
       "MOV": {
         "reference": 5
@@ -32358,13 +33717,15 @@
         "opaque": 17856
       },
       "ATOMG": {
-        "opaque": 16812
+        "native": 11520,
+        "opaque": 5292
       },
       "ATOMS": {
         "opaque": 206
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -32393,7 +33754,8 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -32430,7 +33792,7 @@
         "native": 272
       },
       "DEPBAR": {
-        "opaque": 2
+        "native": 2
       },
       "DFMA": {
         "native": 1920
@@ -32520,7 +33882,8 @@
         "partially native": 6
       },
       "HMMA": {
-        "opaque": 192
+        "opaque": 191,
+        "primitive": 1
       },
       "HMNMX2": {
         "native": 7056
@@ -32597,10 +33960,10 @@
         "native": 24948
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGSTS": {
-        "opaque": 8064
+        "native": 8064
       },
       "LDL": {
         "native": 210
@@ -32609,7 +33972,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 36
+        "opaque": 24,
+        "primitive": 12
       },
       "LDTRAM": {
         "opaque": 2
@@ -32627,7 +33991,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 20
+        "native": 12,
+        "opaque": 8
       },
       "MOV": {
         "opaque": 4,
@@ -32863,9 +34228,11 @@
     "evidence": {
       "none": 6,
       "ptxas": 1,
-      "reference": 638
+      "reference": 660
     },
     "opaque_operations": {
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -32889,6 +34256,9 @@
       "frnd__f16_URb": "F16",
       "frnd__f64_C": "32-bit source for F64",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f_Rd64__Cb_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
@@ -32922,6 +34292,12 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 8
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 26
       },
@@ -32940,6 +34316,9 @@
       "BREV": {
         "reference": 5
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 1
       },
@@ -32954,6 +34333,9 @@
       },
       "DADD": {
         "reference": 5
+      },
+      "DEPBAR": {
+        "reference": 2
       },
       "DFMA": {
         "reference": 9
@@ -33017,6 +34399,9 @@
       "HFMA2.MMA": {
         "reference": 18
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "reference": 5
       },
@@ -33066,11 +34451,20 @@
       "LDG": {
         "reference": 6
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "reference": 5
+      },
       "LDL": {
         "reference": 4
       },
       "LDS": {
         "reference": 3
+      },
+      "LDSM": {
+        "reference": 2
       },
       "LEA": {
         "reference": 32
@@ -33080,6 +34474,9 @@
       },
       "MATCH": {
         "reference": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "reference": 5
@@ -33225,13 +34622,14 @@
         "opaque": 16
       },
       "ATOMG": {
-        "opaque": 8
+        "partially native": 8
       },
       "ATOMS": {
         "opaque": 9
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -33260,7 +34658,7 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -33297,7 +34695,7 @@
         "native": 5
       },
       "DEPBAR": {
-        "opaque": 2
+        "native": 2
       },
       "DFMA": {
         "native": 9
@@ -33383,7 +34781,8 @@
         "partially native": 18
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 5
@@ -33460,10 +34859,10 @@
         "native": 6
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -33472,7 +34871,7 @@
         "native": 3
       },
       "LDSM": {
-        "opaque": 2
+        "partially primitive": 2
       },
       "LDTRAM": {
         "opaque": 1
@@ -33490,7 +34889,7 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 1
+        "partially native": 1
       },
       "MOV": {
         "opaque": 4,
@@ -33723,6 +35122,13 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "partially native": 8
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -33743,6 +35149,9 @@
       "BREV": {
         "native": 5
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 1
       },
@@ -33758,6 +35167,9 @@
       },
       "DADD": {
         "native": 5
+      },
+      "DEPBAR": {
+        "native": 2
       },
       "DFMA": {
         "native": 9
@@ -33851,6 +35263,10 @@
       "HFMA2.MMA": {
         "partially native": 18
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 5
       },
@@ -33910,11 +35326,20 @@
       "LDG": {
         "native": 6
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "partially primitive": 2
       },
       "LEA": {
         "native": 32
@@ -33924,6 +35349,9 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "partially native": 1
       },
       "MOV": {
         "opaque": 4,
@@ -34129,16 +35557,23 @@
       }
     },
     "status": {
-      "native": 488,
-      "opaque": 322,
-      "partially native": 84,
-      "partially primitive": 1,
-      "primitive": 72
+      "native": 496,
+      "opaque": 300,
+      "partially native": 94,
+      "partially primitive": 4,
+      "primitive": 73
     }
   },
   "SM86": {
     "classes": 1004,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 9586,
+        "reference": 1934
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 70
       },
@@ -34158,6 +35593,9 @@
       "BREV": {
         "reference": 5
       },
+      "BRX": {
+        "reference": 2
+      },
       "BSSY": {
         "reference": 2
       },
@@ -34173,6 +35611,9 @@
       "DADD": {
         "none": 160,
         "reference": 112
+      },
+      "DEPBAR": {
+        "reference": 2
       },
       "DFMA": {
         "none": 1666,
@@ -34255,6 +35696,9 @@
         "none": 3561,
         "reference": 279
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "none": 11662,
         "reference": 242
@@ -34317,11 +35761,21 @@
         "none": 28211,
         "reference": 1357
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "none": 7655,
+        "reference": 409
+      },
       "LDL": {
         "reference": 210
       },
       "LDS": {
         "reference": 63
+      },
+      "LDSM": {
+        "reference": 12
       },
       "LEA": {
         "reference": 132
@@ -34331,6 +35785,9 @@
       },
       "MATCH": {
         "reference": 4
+      },
+      "MEMBAR": {
+        "reference": 12
       },
       "MOV": {
         "reference": 5
@@ -34486,13 +35943,15 @@
         "opaque": 17856
       },
       "ATOMG": {
-        "opaque": 16812
+        "native": 11520,
+        "opaque": 5292
       },
       "ATOMS": {
         "opaque": 206
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -34521,7 +35980,8 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -34558,7 +36018,7 @@
         "native": 272
       },
       "DEPBAR": {
-        "opaque": 2
+        "native": 2
       },
       "DFMA": {
         "native": 1920
@@ -34652,7 +36112,8 @@
         "partially native": 3
       },
       "HMMA": {
-        "opaque": 480
+        "opaque": 479,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 11904,
@@ -34733,10 +36194,10 @@
         "native": 29568
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGSTS": {
-        "opaque": 8064
+        "native": 8064
       },
       "LDL": {
         "native": 210
@@ -34745,7 +36206,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 36
+        "opaque": 24,
+        "primitive": 12
       },
       "LDTRAM": {
         "opaque": 2
@@ -34763,7 +36225,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 20
+        "native": 12,
+        "opaque": 8
       },
       "MOV": {
         "opaque": 4,
@@ -35026,9 +36489,11 @@
     },
     "evidence": {
       "none": 4,
-      "reference": 670
+      "reference": 692
     },
     "opaque_operations": {
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -35049,6 +36514,9 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
@@ -35081,6 +36549,12 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 8
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 26
       },
@@ -35099,6 +36573,9 @@
       "BREV": {
         "reference": 5
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 1
       },
@@ -35113,6 +36590,9 @@
       },
       "DADD": {
         "reference": 5
+      },
+      "DEPBAR": {
+        "reference": 2
       },
       "DFMA": {
         "reference": 9
@@ -35177,6 +36657,9 @@
       "HFMA2.MMA": {
         "reference": 18
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "reference": 5
       },
@@ -35229,11 +36712,20 @@
       "LDG": {
         "reference": 6
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "reference": 5
+      },
       "LDL": {
         "reference": 4
       },
       "LDS": {
         "reference": 3
+      },
+      "LDSM": {
+        "reference": 2
       },
       "LEA": {
         "reference": 32
@@ -35243,6 +36735,9 @@
       },
       "MATCH": {
         "reference": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "reference": 5
@@ -35391,13 +36886,14 @@
         "opaque": 16
       },
       "ATOMG": {
-        "opaque": 8
+        "partially native": 8
       },
       "ATOMS": {
         "opaque": 9
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -35426,7 +36922,7 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -35463,7 +36959,7 @@
         "native": 5
       },
       "DEPBAR": {
-        "opaque": 2
+        "native": 2
       },
       "DFMA": {
         "native": 9
@@ -35551,7 +37047,8 @@
         "partially native": 18
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -35632,10 +37129,10 @@
         "native": 6
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -35644,7 +37141,7 @@
         "native": 3
       },
       "LDSM": {
-        "opaque": 2
+        "partially primitive": 2
       },
       "LDTRAM": {
         "opaque": 1
@@ -35662,7 +37159,7 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 1
+        "partially native": 1
       },
       "MOV": {
         "opaque": 4,
@@ -35923,6 +37420,13 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "partially native": 8
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -35943,6 +37447,9 @@
       "BREV": {
         "native": 5
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 1
       },
@@ -35958,6 +37465,9 @@
       },
       "DADD": {
         "native": 5
+      },
+      "DEPBAR": {
+        "native": 2
       },
       "DFMA": {
         "native": 9
@@ -36050,6 +37560,10 @@
       "HFMA2.MMA": {
         "partially native": 18
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 1,
         "partially native": 4
@@ -36110,11 +37624,20 @@
       "LDG": {
         "native": 6
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "partially primitive": 2
       },
       "LEA": {
         "native": 32
@@ -36124,6 +37647,9 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "partially native": 1
       },
       "MOV": {
         "opaque": 4,
@@ -36330,16 +37856,23 @@
       }
     },
     "status": {
-      "native": 492,
-      "opaque": 330,
-      "partially native": 109,
-      "partially primitive": 1,
-      "primitive": 72
+      "native": 500,
+      "opaque": 308,
+      "partially native": 119,
+      "partially primitive": 4,
+      "primitive": 73
     }
   },
   "SM86_READABLE": {
     "classes": 1004,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 9586,
+        "reference": 1934
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 70
       },
@@ -36359,6 +37892,9 @@
       "BREV": {
         "reference": 5
       },
+      "BRX": {
+        "reference": 2
+      },
       "BSSY": {
         "reference": 2
       },
@@ -36374,6 +37910,9 @@
       "DADD": {
         "none": 160,
         "reference": 112
+      },
+      "DEPBAR": {
+        "reference": 2
       },
       "DFMA": {
         "none": 1666,
@@ -36456,6 +37995,9 @@
         "none": 3561,
         "reference": 279
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "none": 11662,
         "reference": 242
@@ -36518,11 +38060,21 @@
         "none": 28211,
         "reference": 1357
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "none": 7655,
+        "reference": 409
+      },
       "LDL": {
         "reference": 210
       },
       "LDS": {
         "reference": 63
+      },
+      "LDSM": {
+        "reference": 12
       },
       "LEA": {
         "reference": 132
@@ -36532,6 +38084,9 @@
       },
       "MATCH": {
         "reference": 4
+      },
+      "MEMBAR": {
+        "reference": 12
       },
       "MOV": {
         "reference": 5
@@ -36687,13 +38242,15 @@
         "opaque": 17856
       },
       "ATOMG": {
-        "opaque": 16812
+        "native": 11520,
+        "opaque": 5292
       },
       "ATOMS": {
         "opaque": 206
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -36722,7 +38279,8 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -36759,7 +38317,7 @@
         "native": 272
       },
       "DEPBAR": {
-        "opaque": 2
+        "native": 2
       },
       "DFMA": {
         "native": 1920
@@ -36853,7 +38411,8 @@
         "partially native": 6
       },
       "HMMA": {
-        "opaque": 480
+        "opaque": 479,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 11904,
@@ -36934,10 +38493,10 @@
         "native": 29568
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGSTS": {
-        "opaque": 8064
+        "native": 8064
       },
       "LDL": {
         "native": 210
@@ -36946,7 +38505,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 36
+        "opaque": 24,
+        "primitive": 12
       },
       "LDTRAM": {
         "opaque": 2
@@ -36964,7 +38524,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 20
+        "native": 12,
+        "opaque": 8
       },
       "MOV": {
         "opaque": 4,
@@ -37227,9 +38788,11 @@
     },
     "evidence": {
       "none": 4,
-      "reference": 670
+      "reference": 692
     },
     "opaque_operations": {
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -37250,6 +38813,9 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
@@ -37282,6 +38848,12 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 8
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "reference": 26
       },
@@ -37300,6 +38872,9 @@
       "BREV": {
         "reference": 5
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 1
       },
@@ -37314,6 +38889,9 @@
       },
       "DADD": {
         "reference": 5
+      },
+      "DEPBAR": {
+        "reference": 2
       },
       "DFMA": {
         "reference": 9
@@ -37378,6 +38956,9 @@
       "HFMA2.MMA": {
         "reference": 18
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "reference": 5
       },
@@ -37430,11 +39011,20 @@
       "LDG": {
         "reference": 6
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "reference": 5
+      },
       "LDL": {
         "reference": 4
       },
       "LDS": {
         "reference": 3
+      },
+      "LDSM": {
+        "reference": 2
       },
       "LEA": {
         "reference": 32
@@ -37444,6 +39034,9 @@
       },
       "MATCH": {
         "reference": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "reference": 5
@@ -37592,13 +39185,14 @@
         "opaque": 16
       },
       "ATOMG": {
-        "opaque": 8
+        "partially native": 8
       },
       "ATOMS": {
         "opaque": 9
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -37627,7 +39221,7 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -37664,7 +39258,7 @@
         "native": 5
       },
       "DEPBAR": {
-        "opaque": 2
+        "native": 2
       },
       "DFMA": {
         "native": 9
@@ -37752,7 +39346,8 @@
         "partially native": 18
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -37833,10 +39428,10 @@
         "native": 6
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -37845,7 +39440,7 @@
         "native": 3
       },
       "LDSM": {
-        "opaque": 2
+        "partially primitive": 2
       },
       "LDTRAM": {
         "opaque": 1
@@ -37863,7 +39458,7 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 1
+        "partially native": 1
       },
       "MOV": {
         "opaque": 4,
@@ -38124,6 +39719,13 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "partially native": 8
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -38144,6 +39746,9 @@
       "BREV": {
         "native": 5
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 1
       },
@@ -38159,6 +39764,9 @@
       },
       "DADD": {
         "native": 5
+      },
+      "DEPBAR": {
+        "native": 2
       },
       "DFMA": {
         "native": 9
@@ -38251,6 +39859,10 @@
       "HFMA2.MMA": {
         "partially native": 18
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 1,
         "partially native": 4
@@ -38311,11 +39923,20 @@
       "LDG": {
         "native": 6
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "partially primitive": 2
       },
       "LEA": {
         "native": 32
@@ -38325,6 +39946,9 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "partially native": 1
       },
       "MOV": {
         "opaque": 4,
@@ -38531,19 +40155,29 @@
       }
     },
     "status": {
-      "native": 492,
-      "opaque": 330,
-      "partially native": 109,
-      "partially primitive": 1,
-      "primitive": 72
+      "native": 500,
+      "opaque": 308,
+      "partially native": 119,
+      "partially primitive": 4,
+      "primitive": 73
     }
   },
   "SM89": {
     "classes": 1054,
     "combination_evidence": {
+      "ATOMG": {
+        "gpu": 1092,
+        "none": 9582,
+        "ptxas": 2,
+        "reference": 844
+      },
+      "B2R": {
+        "gpu": 1
+      },
       "BAR": {
-        "gpu": 6,
-        "reference": 64
+        "gpu": 12,
+        "ptxas": 3,
+        "reference": 55
       },
       "BMOV": {
         "none": 6,
@@ -38561,6 +40195,9 @@
       },
       "BREV": {
         "gpu": 5
+      },
+      "BRX": {
+        "reference": 2
       },
       "BSSY": {
         "gpu": 1,
@@ -38580,6 +40217,10 @@
       "DADD": {
         "gpu": 112,
         "none": 160
+      },
+      "DEPBAR": {
+        "ptxas": 1,
+        "reference": 1
       },
       "DFMA": {
         "gpu": 253,
@@ -38667,6 +40308,9 @@
         "gpu": 279,
         "none": 3561
       },
+      "HMMA": {
+        "gpu": 1
+      },
       "HMNMX2": {
         "gpu": 271,
         "none": 11633
@@ -38728,9 +40372,17 @@
         "reference": 5
       },
       "LDG": {
-        "gpu": 807,
-        "none": 28208,
+        "gpu": 808,
+        "none": 28207,
         "reference": 553
+      },
+      "LDGDEPBAR": {
+        "ptxas": 1
+      },
+      "LDGSTS": {
+        "gpu": 409,
+        "none": 7654,
+        "ptxas": 1
       },
       "LDL": {
         "gpu": 168,
@@ -38740,6 +40392,9 @@
         "gpu": 50,
         "reference": 13
       },
+      "LDSM": {
+        "gpu": 12
+      },
       "LEA": {
         "gpu": 132
       },
@@ -38748,6 +40403,10 @@
       },
       "MATCH": {
         "gpu": 4
+      },
+      "MEMBAR": {
+        "ptxas": 1,
+        "reference": 11
       },
       "MOV": {
         "gpu": 5
@@ -38813,8 +40472,8 @@
         "reference": 174
       },
       "STG": {
-        "gpu": 619,
-        "none": 2639,
+        "gpu": 620,
+        "none": 2638,
         "reference": 438
       },
       "STL": {
@@ -38910,13 +40569,15 @@
         "opaque": 17856
       },
       "ATOMG": {
-        "opaque": 16812
+        "native": 11520,
+        "opaque": 5292
       },
       "ATOMS": {
         "opaque": 206
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -38945,7 +40606,8 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -38982,7 +40644,7 @@
         "native": 272
       },
       "DEPBAR": {
-        "opaque": 2
+        "native": 2
       },
       "DFMA": {
         "native": 1920
@@ -39076,7 +40738,8 @@
         "partially native": 3
       },
       "HMMA": {
-        "opaque": 480
+        "opaque": 479,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 11904,
@@ -39158,10 +40821,10 @@
         "opaque": 5760
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGSTS": {
-        "opaque": 8064
+        "native": 8064
       },
       "LDL": {
         "native": 210
@@ -39170,7 +40833,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 36
+        "opaque": 24,
+        "primitive": 12
       },
       "LDTRAM": {
         "opaque": 2
@@ -39188,7 +40852,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 20
+        "native": 12,
+        "opaque": 8
       },
       "MOV": {
         "opaque": 4,
@@ -39454,11 +41119,14 @@
       }
     },
     "evidence": {
-      "gpu": 624,
+      "gpu": 639,
       "none": 15,
-      "reference": 63
+      "ptxas": 4,
+      "reference": 66
     },
     "opaque_operations": {
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -39479,6 +41147,9 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
@@ -39519,9 +41190,17 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "gpu": 5,
+        "reference": 3
+      },
+      "B2R": {
+        "gpu": 1
+      },
       "BAR": {
-        "gpu": 6,
-        "reference": 20
+        "gpu": 7,
+        "ptxas": 1,
+        "reference": 18
       },
       "BMOV": {
         "reference": 14
@@ -39538,6 +41217,9 @@
       "BREV": {
         "gpu": 5
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "gpu": 1
       },
@@ -39552,6 +41234,10 @@
       },
       "DADD": {
         "gpu": 5
+      },
+      "DEPBAR": {
+        "ptxas": 1,
+        "reference": 1
       },
       "DFMA": {
         "gpu": 9
@@ -39617,6 +41303,9 @@
       "HFMA2.MMA": {
         "gpu": 18
       },
+      "HMMA": {
+        "gpu": 1
+      },
       "HMNMX2": {
         "gpu": 5
       },
@@ -39671,12 +41360,21 @@
         "gpu": 4,
         "reference": 2
       },
+      "LDGDEPBAR": {
+        "ptxas": 1
+      },
+      "LDGSTS": {
+        "gpu": 5
+      },
       "LDL": {
         "gpu": 3,
         "reference": 1
       },
       "LDS": {
         "gpu": 3
+      },
+      "LDSM": {
+        "gpu": 2
       },
       "LEA": {
         "gpu": 32
@@ -39686,6 +41384,9 @@
       },
       "MATCH": {
         "gpu": 2
+      },
+      "MEMBAR": {
+        "ptxas": 1
       },
       "MOV": {
         "gpu": 5
@@ -39840,13 +41541,14 @@
         "opaque": 16
       },
       "ATOMG": {
-        "opaque": 8
+        "partially native": 8
       },
       "ATOMS": {
         "opaque": 9
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -39875,7 +41577,7 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -39912,7 +41614,7 @@
         "native": 5
       },
       "DEPBAR": {
-        "opaque": 2
+        "native": 2
       },
       "DFMA": {
         "native": 9
@@ -40000,7 +41702,8 @@
         "partially native": 18
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -40082,10 +41785,10 @@
         "opaque": 4
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -40094,7 +41797,7 @@
         "native": 3
       },
       "LDSM": {
-        "opaque": 2
+        "partially primitive": 2
       },
       "LDTRAM": {
         "opaque": 1
@@ -40112,7 +41815,7 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 1
+        "partially native": 1
       },
       "MOV": {
         "opaque": 4,
@@ -40377,6 +42080,13 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "partially native": 8
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -40397,6 +42107,9 @@
       "BREV": {
         "native": 5
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 1
       },
@@ -40412,6 +42125,9 @@
       },
       "DADD": {
         "native": 5
+      },
+      "DEPBAR": {
+        "native": 2
       },
       "DFMA": {
         "native": 9
@@ -40504,6 +42220,10 @@
       "HFMA2.MMA": {
         "partially native": 18
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 1,
         "partially native": 4
@@ -40565,11 +42285,20 @@
         "native": 6,
         "opaque": 4
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "partially primitive": 2
       },
       "LEA": {
         "native": 32
@@ -40579,6 +42308,9 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "partially native": 1
       },
       "MOV": {
         "opaque": 4,
@@ -40786,19 +42518,29 @@
       }
     },
     "status": {
-      "native": 520,
-      "opaque": 352,
-      "partially native": 109,
-      "partially primitive": 1,
-      "primitive": 72
+      "native": 528,
+      "opaque": 330,
+      "partially native": 119,
+      "partially primitive": 4,
+      "primitive": 73
     }
   },
   "SM89_READABLE": {
     "classes": 1054,
     "combination_evidence": {
+      "ATOMG": {
+        "gpu": 1092,
+        "none": 9582,
+        "ptxas": 2,
+        "reference": 844
+      },
+      "B2R": {
+        "gpu": 1
+      },
       "BAR": {
-        "gpu": 6,
-        "reference": 64
+        "gpu": 12,
+        "ptxas": 3,
+        "reference": 55
       },
       "BMOV": {
         "none": 6,
@@ -40816,6 +42558,9 @@
       },
       "BREV": {
         "gpu": 5
+      },
+      "BRX": {
+        "reference": 2
       },
       "BSSY": {
         "gpu": 1,
@@ -40835,6 +42580,10 @@
       "DADD": {
         "gpu": 112,
         "none": 160
+      },
+      "DEPBAR": {
+        "ptxas": 1,
+        "reference": 1
       },
       "DFMA": {
         "gpu": 253,
@@ -40923,6 +42672,9 @@
         "gpu": 279,
         "none": 3561
       },
+      "HMMA": {
+        "gpu": 1
+      },
       "HMNMX2": {
         "gpu": 271,
         "none": 11633
@@ -40984,9 +42736,17 @@
         "reference": 5
       },
       "LDG": {
-        "gpu": 807,
-        "none": 28208,
+        "gpu": 808,
+        "none": 28207,
         "reference": 553
+      },
+      "LDGDEPBAR": {
+        "ptxas": 1
+      },
+      "LDGSTS": {
+        "gpu": 409,
+        "none": 7654,
+        "ptxas": 1
       },
       "LDL": {
         "gpu": 168,
@@ -40996,6 +42756,9 @@
         "gpu": 50,
         "reference": 13
       },
+      "LDSM": {
+        "gpu": 12
+      },
       "LEA": {
         "gpu": 132
       },
@@ -41004,6 +42767,10 @@
       },
       "MATCH": {
         "gpu": 4
+      },
+      "MEMBAR": {
+        "ptxas": 1,
+        "reference": 11
       },
       "MOV": {
         "gpu": 5
@@ -41069,8 +42836,8 @@
         "reference": 174
       },
       "STG": {
-        "gpu": 619,
-        "none": 2639,
+        "gpu": 620,
+        "none": 2638,
         "reference": 438
       },
       "STL": {
@@ -41166,13 +42933,15 @@
         "opaque": 17856
       },
       "ATOMG": {
-        "opaque": 16812
+        "native": 11520,
+        "opaque": 5292
       },
       "ATOMS": {
         "opaque": 206
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -41201,7 +42970,8 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -41238,7 +43008,7 @@
         "native": 272
       },
       "DEPBAR": {
-        "opaque": 2
+        "native": 2
       },
       "DFMA": {
         "native": 1920
@@ -41332,7 +43102,8 @@
         "partially native": 6
       },
       "HMMA": {
-        "opaque": 480
+        "opaque": 479,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 11904,
@@ -41414,10 +43185,10 @@
         "opaque": 5760
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGSTS": {
-        "opaque": 8064
+        "native": 8064
       },
       "LDL": {
         "native": 210
@@ -41426,7 +43197,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 36
+        "opaque": 24,
+        "primitive": 12
       },
       "LDTRAM": {
         "opaque": 2
@@ -41444,7 +43216,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 20
+        "native": 12,
+        "opaque": 8
       },
       "MOV": {
         "opaque": 4,
@@ -41710,11 +43483,14 @@
       }
     },
     "evidence": {
-      "gpu": 624,
+      "gpu": 639,
       "none": 15,
-      "reference": 63
+      "ptxas": 4,
+      "reference": 66
     },
     "opaque_operations": {
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -41735,6 +43511,9 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
@@ -41775,9 +43554,17 @@
       "uplop3_lut_2out_3reg__URURUR": "outside implemented operation families"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "gpu": 5,
+        "reference": 3
+      },
+      "B2R": {
+        "gpu": 1
+      },
       "BAR": {
-        "gpu": 6,
-        "reference": 20
+        "gpu": 7,
+        "ptxas": 1,
+        "reference": 18
       },
       "BMOV": {
         "reference": 14
@@ -41794,6 +43581,9 @@
       "BREV": {
         "gpu": 5
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "gpu": 1
       },
@@ -41808,6 +43598,10 @@
       },
       "DADD": {
         "gpu": 5
+      },
+      "DEPBAR": {
+        "ptxas": 1,
+        "reference": 1
       },
       "DFMA": {
         "gpu": 9
@@ -41873,6 +43667,9 @@
       "HFMA2.MMA": {
         "gpu": 18
       },
+      "HMMA": {
+        "gpu": 1
+      },
       "HMNMX2": {
         "gpu": 5
       },
@@ -41927,12 +43724,21 @@
         "gpu": 4,
         "reference": 2
       },
+      "LDGDEPBAR": {
+        "ptxas": 1
+      },
+      "LDGSTS": {
+        "gpu": 5
+      },
       "LDL": {
         "gpu": 3,
         "reference": 1
       },
       "LDS": {
         "gpu": 3
+      },
+      "LDSM": {
+        "gpu": 2
       },
       "LEA": {
         "gpu": 32
@@ -41942,6 +43748,9 @@
       },
       "MATCH": {
         "gpu": 2
+      },
+      "MEMBAR": {
+        "ptxas": 1
       },
       "MOV": {
         "gpu": 5
@@ -42096,13 +43905,14 @@
         "opaque": 16
       },
       "ATOMG": {
-        "opaque": 8
+        "partially native": 8
       },
       "ATOMS": {
         "opaque": 9
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -42131,7 +43941,7 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -42168,7 +43978,7 @@
         "native": 5
       },
       "DEPBAR": {
-        "opaque": 2
+        "native": 2
       },
       "DFMA": {
         "native": 9
@@ -42256,7 +44066,8 @@
         "partially native": 18
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -42338,10 +44149,10 @@
         "opaque": 4
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -42350,7 +44161,7 @@
         "native": 3
       },
       "LDSM": {
-        "opaque": 2
+        "partially primitive": 2
       },
       "LDTRAM": {
         "opaque": 1
@@ -42368,7 +44179,7 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 1
+        "partially native": 1
       },
       "MOV": {
         "opaque": 4,
@@ -42633,6 +44444,13 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "partially native": 8
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -42653,6 +44471,9 @@
       "BREV": {
         "native": 5
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 1
       },
@@ -42668,6 +44489,9 @@
       },
       "DADD": {
         "native": 5
+      },
+      "DEPBAR": {
+        "native": 2
       },
       "DFMA": {
         "native": 9
@@ -42760,6 +44584,10 @@
       "HFMA2.MMA": {
         "partially native": 18
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 1,
         "partially native": 4
@@ -42821,11 +44649,20 @@
         "native": 6,
         "opaque": 4
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "partially primitive": 2
       },
       "LEA": {
         "native": 32
@@ -42835,6 +44672,9 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "partially native": 1
       },
       "MOV": {
         "opaque": 4,
@@ -43042,16 +44882,23 @@
       }
     },
     "status": {
-      "native": 520,
-      "opaque": 352,
-      "partially native": 109,
-      "partially primitive": 1,
-      "primitive": 72
+      "native": 528,
+      "opaque": 330,
+      "partially native": 119,
+      "partially primitive": 4,
+      "primitive": 73
     }
   },
   "SM90": {
     "classes": 1173,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 7115,
+        "reference": 1813
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "gpu": 1,
         "reference": 69
@@ -43073,6 +44920,9 @@
       "BREV": {
         "gpu": 5
       },
+      "BRX": {
+        "reference": 2
+      },
       "BSSY": {
         "reference": 2
       },
@@ -43089,6 +44939,9 @@
       "DADD": {
         "gpu": 112,
         "none": 160
+      },
+      "DEPBAR": {
+        "reference": 3
       },
       "DFMA": {
         "gpu": 253,
@@ -43183,6 +45036,9 @@
         "none": 4956,
         "reference": 306
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "gpu": 70,
         "none": 17575,
@@ -43253,6 +45109,13 @@
         "none": 20368,
         "reference": 328
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "none": 5355,
+        "reference": 405
+      },
       "LDL": {
         "gpu": 126,
         "reference": 42
@@ -43260,6 +45123,9 @@
       "LDS": {
         "gpu": 49,
         "reference": 14
+      },
+      "LDSM": {
+        "reference": 12
       },
       "LEA": {
         "gpu": 132
@@ -43269,6 +45135,9 @@
       },
       "MATCH": {
         "gpu": 4
+      },
+      "MEMBAR": {
+        "reference": 12
       },
       "MOV": {
         "gpu": 5
@@ -43448,13 +45317,15 @@
         "opaque": 21696
       },
       "ATOMG": {
-        "opaque": 20640
+        "native": 8928,
+        "opaque": 11712
       },
       "ATOMS": {
         "opaque": 229
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -43486,7 +45357,8 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -43526,7 +45398,7 @@
         "native": 272
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 1920
@@ -43634,7 +45506,8 @@
         "opaque": 26880
       },
       "HMMA": {
-        "opaque": 480
+        "opaque": 479,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 17856,
@@ -43718,13 +45591,13 @@
         "native": 21504
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 144
       },
       "LDGSTS": {
-        "opaque": 5760
+        "native": 5760
       },
       "LDL": {
         "native": 168
@@ -43733,7 +45606,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 36
+        "opaque": 24,
+        "primitive": 12
       },
       "LDTRAM": {
         "opaque": 2
@@ -43751,7 +45625,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 25
+        "native": 12,
+        "opaque": 13
       },
       "MOV": {
         "opaque": 4,
@@ -44087,9 +45962,16 @@
     "evidence": {
       "gpu": 588,
       "none": 27,
-      "reference": 122
+      "reference": 144
     },
     "opaque_operations": {
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -44112,10 +45994,14 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
+      "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
@@ -44149,6 +46035,12 @@
       "vimnmx_pred__RUR_RUR": "Pu output"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 7
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "gpu": 1,
         "reference": 25
@@ -44169,6 +46061,9 @@
       "BREV": {
         "gpu": 5
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 1
       },
@@ -44183,6 +46078,9 @@
       },
       "DADD": {
         "gpu": 5
+      },
+      "DEPBAR": {
+        "reference": 3
       },
       "DFMA": {
         "gpu": 9
@@ -44257,6 +46155,9 @@
         "gpu": 7,
         "reference": 11
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "gpu": 9,
         "reference": 1
@@ -44315,6 +46216,12 @@
         "gpu": 4,
         "reference": 1
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "reference": 5
+      },
       "LDL": {
         "gpu": 3,
         "reference": 1
@@ -44322,6 +46229,9 @@
       "LDS": {
         "gpu": 2,
         "reference": 1
+      },
+      "LDSM": {
+        "reference": 2
       },
       "LEA": {
         "gpu": 32
@@ -44331,6 +46241,9 @@
       },
       "MATCH": {
         "gpu": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "gpu": 5
@@ -44501,13 +46414,15 @@
         "opaque": 18
       },
       "ATOMG": {
-        "opaque": 12
+        "opaque": 5,
+        "partially native": 7
       },
       "ATOMS": {
         "opaque": 9
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -44539,7 +46454,7 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -44579,7 +46494,7 @@
         "native": 5
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 9
@@ -44682,7 +46597,8 @@
         "opaque": 6
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -44766,13 +46682,13 @@
         "native": 5
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 6
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -44781,7 +46697,7 @@
         "native": 3
       },
       "LDSM": {
-        "opaque": 2
+        "partially primitive": 2
       },
       "LDTRAM": {
         "opaque": 1
@@ -44799,7 +46715,8 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 2
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "opaque": 4,
@@ -45130,6 +47047,14 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "opaque": 5,
+        "partially native": 7
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -45150,6 +47075,9 @@
       "BREV": {
         "native": 5
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 1
       },
@@ -45165,6 +47093,9 @@
       },
       "DADD": {
         "native": 5
+      },
+      "DEPBAR": {
+        "native": 3
       },
       "DFMA": {
         "native": 9
@@ -45260,6 +47191,10 @@
       "HFMA2.MMA": {
         "partially native": 18
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 1,
         "partially native": 9
@@ -45320,11 +47255,20 @@
       "LDG": {
         "native": 5
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "partially primitive": 2
       },
       "LEA": {
         "native": 32
@@ -45334,6 +47278,10 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "opaque": 4,
@@ -45541,16 +47489,23 @@
       }
     },
     "status": {
-      "native": 536,
-      "opaque": 436,
-      "partially native": 129,
-      "partially primitive": 6,
-      "primitive": 66
+      "native": 545,
+      "opaque": 414,
+      "partially native": 138,
+      "partially primitive": 9,
+      "primitive": 67
     }
   },
   "SM90_READABLE": {
     "classes": 1173,
     "combination_evidence": {
+      "ATOMG": {
+        "none": 7115,
+        "reference": 1813
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "gpu": 1,
         "reference": 69
@@ -45572,6 +47527,9 @@
       "BREV": {
         "gpu": 5
       },
+      "BRX": {
+        "reference": 2
+      },
       "BSSY": {
         "reference": 2
       },
@@ -45588,6 +47546,9 @@
       "DADD": {
         "gpu": 112,
         "none": 160
+      },
+      "DEPBAR": {
+        "reference": 3
       },
       "DFMA": {
         "gpu": 253,
@@ -45682,6 +47643,9 @@
         "none": 4956,
         "reference": 306
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "gpu": 70,
         "none": 17575,
@@ -45752,6 +47716,13 @@
         "none": 20368,
         "reference": 328
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "none": 5355,
+        "reference": 405
+      },
       "LDL": {
         "gpu": 126,
         "reference": 42
@@ -45759,6 +47730,9 @@
       "LDS": {
         "gpu": 49,
         "reference": 14
+      },
+      "LDSM": {
+        "reference": 12
       },
       "LEA": {
         "gpu": 132
@@ -45768,6 +47742,9 @@
       },
       "MATCH": {
         "gpu": 4
+      },
+      "MEMBAR": {
+        "reference": 12
       },
       "MOV": {
         "gpu": 5
@@ -45947,13 +47924,15 @@
         "opaque": 21696
       },
       "ATOMG": {
-        "opaque": 20640
+        "native": 8928,
+        "opaque": 11712
       },
       "ATOMS": {
         "opaque": 229
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 70
@@ -45985,7 +47964,8 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 6
+        "native": 2,
+        "opaque": 4
       },
       "BRXU": {
         "opaque": 24
@@ -46025,7 +48005,7 @@
         "native": 272
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 1920
@@ -46133,7 +48113,8 @@
         "opaque": 26880
       },
       "HMMA": {
-        "opaque": 480
+        "opaque": 479,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 17856,
@@ -46217,13 +48198,13 @@
         "native": 21504
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 144
       },
       "LDGSTS": {
-        "opaque": 5760
+        "native": 5760
       },
       "LDL": {
         "native": 168
@@ -46232,7 +48213,8 @@
         "native": 63
       },
       "LDSM": {
-        "opaque": 36
+        "opaque": 24,
+        "primitive": 12
       },
       "LDTRAM": {
         "opaque": 2
@@ -46250,7 +48232,8 @@
         "primitive": 4
       },
       "MEMBAR": {
-        "opaque": 25
+        "native": 12,
+        "opaque": 13
       },
       "MOV": {
         "opaque": 4,
@@ -46586,9 +48569,16 @@
     "evidence": {
       "gpu": 588,
       "none": 27,
-      "reference": 122
+      "reference": 144
     },
     "opaque_operations": {
+      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "b2r__BAR": "B2R.BAR barrier-state encoding unresolved",
+      "b2r__WARP": "B2R.WARP barrier-state encoding unresolved",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -46611,10 +48601,14 @@
       "frnd__f16_R": "F16",
       "frnd__f16_URb": "F16",
       "frnd__f64_CXb": "32-bit source for F64",
+      "hmma_sparse_": "outside implemented operation families",
+      "hmma_sparse_indexedRF_": "outside implemented operation families",
+      "hmma_x8_indexedRF_": "outside implemented operation families",
       "i2f_Rd64__CX_64b": "32-bit source; dstfmt outside the table",
       "i2f__CX_64b": "32-bit source; dstfmt outside the table",
       "ldc_ur__URRzI": "ad IL; ad IS; ad ISL; bank",
       "ldc_ur__URnonRzI": "ad IL; ad IS; ad ISL; bank",
+      "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Cb": "indexed register file",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
@@ -46648,6 +48642,12 @@
       "vimnmx_pred__RUR_RUR": "Pu output"
     },
     "opcode_evidence": {
+      "ATOMG": {
+        "reference": 7
+      },
+      "B2R": {
+        "reference": 1
+      },
       "BAR": {
         "gpu": 1,
         "reference": 25
@@ -46668,6 +48668,9 @@
       "BREV": {
         "gpu": 5
       },
+      "BRX": {
+        "reference": 1
+      },
       "BSSY": {
         "reference": 1
       },
@@ -46682,6 +48685,9 @@
       },
       "DADD": {
         "gpu": 5
+      },
+      "DEPBAR": {
+        "reference": 3
       },
       "DFMA": {
         "gpu": 9
@@ -46756,6 +48762,9 @@
         "gpu": 7,
         "reference": 11
       },
+      "HMMA": {
+        "reference": 1
+      },
       "HMNMX2": {
         "gpu": 9,
         "reference": 1
@@ -46814,6 +48823,12 @@
         "gpu": 4,
         "reference": 1
       },
+      "LDGDEPBAR": {
+        "reference": 1
+      },
+      "LDGSTS": {
+        "reference": 5
+      },
       "LDL": {
         "gpu": 3,
         "reference": 1
@@ -46821,6 +48836,9 @@
       "LDS": {
         "gpu": 2,
         "reference": 1
+      },
+      "LDSM": {
+        "reference": 2
       },
       "LEA": {
         "gpu": 32
@@ -46830,6 +48848,9 @@
       },
       "MATCH": {
         "gpu": 2
+      },
+      "MEMBAR": {
+        "reference": 1
       },
       "MOV": {
         "gpu": 5
@@ -47000,13 +49021,15 @@
         "opaque": 18
       },
       "ATOMG": {
-        "opaque": 12
+        "opaque": 5,
+        "partially native": 7
       },
       "ATOMS": {
         "opaque": 9
       },
       "B2R": {
-        "opaque": 3
+        "opaque": 2,
+        "primitive": 1
       },
       "BAR": {
         "primitive": 26
@@ -47038,7 +49061,7 @@
         "native": 5
       },
       "BRX": {
-        "opaque": 1
+        "partially native": 1
       },
       "BRXU": {
         "opaque": 1
@@ -47078,7 +49101,7 @@
         "native": 5
       },
       "DEPBAR": {
-        "opaque": 3
+        "native": 3
       },
       "DFMA": {
         "native": 9
@@ -47181,7 +49204,8 @@
         "opaque": 6
       },
       "HMMA": {
-        "opaque": 4
+        "opaque": 3,
+        "partially primitive": 1
       },
       "HMNMX2": {
         "native": 1,
@@ -47265,13 +49289,13 @@
         "native": 5
       },
       "LDGDEPBAR": {
-        "opaque": 1
+        "native": 1
       },
       "LDGMC": {
         "opaque": 6
       },
       "LDGSTS": {
-        "opaque": 5
+        "native": 5
       },
       "LDL": {
         "native": 4
@@ -47280,7 +49304,7 @@
         "native": 3
       },
       "LDSM": {
-        "opaque": 2
+        "partially primitive": 2
       },
       "LDTRAM": {
         "opaque": 1
@@ -47298,7 +49322,8 @@
         "primitive": 2
       },
       "MEMBAR": {
-        "opaque": 2
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "opaque": 4,
@@ -47629,6 +49654,14 @@
       }
     },
     "operations": {
+      "ATOMG": {
+        "opaque": 5,
+        "partially native": 7
+      },
+      "B2R": {
+        "opaque": 2,
+        "primitive": 1
+      },
       "BAR": {
         "primitive": 26
       },
@@ -47649,6 +49682,9 @@
       "BREV": {
         "native": 5
       },
+      "BRX": {
+        "partially native": 1
+      },
       "BSSY": {
         "primitive": 1
       },
@@ -47664,6 +49700,9 @@
       },
       "DADD": {
         "native": 5
+      },
+      "DEPBAR": {
+        "native": 3
       },
       "DFMA": {
         "native": 9
@@ -47759,6 +49798,10 @@
       "HFMA2.MMA": {
         "partially native": 18
       },
+      "HMMA": {
+        "opaque": 3,
+        "partially primitive": 1
+      },
       "HMNMX2": {
         "native": 1,
         "partially native": 9
@@ -47819,11 +49862,20 @@
       "LDG": {
         "native": 5
       },
+      "LDGDEPBAR": {
+        "native": 1
+      },
+      "LDGSTS": {
+        "native": 5
+      },
       "LDL": {
         "native": 4
       },
       "LDS": {
         "native": 3
+      },
+      "LDSM": {
+        "partially primitive": 2
       },
       "LEA": {
         "native": 32
@@ -47833,6 +49885,10 @@
       },
       "MATCH": {
         "primitive": 2
+      },
+      "MEMBAR": {
+        "opaque": 1,
+        "partially native": 1
       },
       "MOV": {
         "opaque": 4,
@@ -48040,11 +50096,11 @@
       }
     },
     "status": {
-      "native": 536,
-      "opaque": 436,
-      "partially native": 129,
-      "partially primitive": 6,
-      "primitive": 66
+      "native": 545,
+      "opaque": 414,
+      "partially native": 138,
+      "partially primitive": 9,
+      "primitive": 67
     }
   }
 }

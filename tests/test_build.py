@@ -57,3 +57,50 @@ def test_merge_retains_disjoint_domains_and_genuine_partial_status():
     assert merged["decides"] == ["sz"]
     assert merged["table"] == [["32", "native"], ["64", "opaque"]]
     assert modifiers.merge(narrow, {**narrow, "table": [["opaque"]]})["table"] == [["partially native"]]
+
+
+@pytest.mark.parametrize("arch", ["SM75", "SM89", "SM100"])
+def test_matrix_load_span_enumeration(arch):
+    from sass.sleigh import verification
+    g = gen.Gen(arch, coverage=True)
+    k = next(k for k in g.arch.classes if k.name == "ldsm__sImmOffset")
+    g.semantics(k, None)
+    forms = [(form, status) for form, status in verification.forms(g.coverage[k.name])
+             if form["sz"] == "16" and form["mode"] in ("M88", "MT88")]
+    assert {form["num"] for form, _ in forms} == {"1", "2", "4"}
+    assert all(status == "primitive" for _, status in forms)
+
+
+@pytest.mark.parametrize("arch", ["SM89", "SM90"])
+def test_span_conditions_reject_jointly_impossible_formats(arch, monkeypatch):
+    from sass.semantics import family
+    import sass.semantics.families
+    monkeypatch.setitem(family.FAMILIES, "HMMA", family.FAMILIES["LDSM"])
+    g = gen.Gen(arch)
+    k = next(k for k in g.arch.classes if k.name == "hmma_x8_")
+    domain = {g.source(k, name)[1].ranges: values for name, values in
+              (("dstfmt", {0}), ("srcfmt", {2, 3}), ("size", {0, 1, 2, 3}))}
+    assert g.conditions(k, domain)[0] is None
+
+
+def test_constant_atomic_predicate_does_not_duplicate_body():
+    g = gen.Gen("SM90")
+    k = next(k for k in g.arch.classes if k.name == "atomg_int__RaNonRZ")
+    g.semantics(k, None)
+    assert not any(name.startswith("live") for name in g.tables.values())
+def test_zero_argument_effect_is_retained():
+    g = gen.Gen("SM89")
+    k = next(k for k in g.arch.classes if k.name == "ldgdepbar_")
+    g.build(k)
+    assert "sass_async_commit" in g.pcodeops
+    assert any("sass_async_commit();" in row for row in g.table_lines)
+
+
+def test_class_filter_preserves_opaque_input_spans():
+    from sass.sleigh.gen import Gen
+    g = Gen("SM90")
+    sparse = next(k for k in g.arch.classes if k.name == "hmma_sparse_")
+    direct = next(k for k in g.arch.classes if k.name == "hmma_x8_")
+    assert g.dynamic_inputs(sparse) == {"Ra", "Rb", "Rc"}
+    assert len(g.span_variants(sparse)) == 2
+    assert not g.dynamic_inputs(direct)

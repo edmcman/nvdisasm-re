@@ -23,6 +23,9 @@ import sass.semantics.families  # registers the families
 
 ELEMENT = {"R": 32, "UR": 32, "P": 1, "UP": 1}   # bits per register element
 SHARED = frozenset({"fma.rn.bf16x2", "add.ftz.f16x2", "mul.ftz.f16x2", "fma.ftz.f16x2"})
+SCRATCH = frozenset({"atomic.add.f32.ftz.rn", "atomic.add.f64.rn", "atomic.add.f16x2.rn",
+                     "hmma.f16.f32.k8.e1", "hmma.f16.f32.k16.e2",
+                     "hmma.f16.product.e1", "hmma.f16.product.e2"})
 def nbytes(w): return (w + 7) // 8
 
 
@@ -104,6 +107,9 @@ def clauses(b, key, v):
     def where(name, test):
         # A value the constructor's pattern fixes (a pseudo-op's RZ) holds or not, with no clauses.
         if name in b.known: return [] if test(b.known[name]) else False
+        if (raw := b.g.raw_values(k, name)) and raw[0].ranges in b.domain:
+            from sass.sleigh.gen import member
+            return member(b.g, raw[0], {value for value in b.domain[raw[0].ranges] if test(raw[1][value])})
         return b.g.values_where(k, name, test)
     if isinstance(key, tuple) and key[0] == "in":
         c = where(key[1], (lambda x: x in key[2]) if v else (lambda x: x not in key[2]))
@@ -204,7 +210,7 @@ def without_nan_results(e, memo):
 def lowered_outputs(out):
     """out with its defined operators as their expansions (bitvec.lowered): SLEIGH has none."""
     memo = {}
-    x = lambda e: bitvec.lowered(e, memo, preserve=SHARED)
+    x = lambda e: bitvec.lowered(e, memo, preserve=SHARED | SCRATCH)
     return replace(out, writes={n: x(t) for n, t in out.writes.items()},
                    stores=tuple(replace(s, address=x(s.address), value=x(s.value), cond=x(s.cond)) for s in out.stores),
                    effects=tuple(replace(e, args=tuple(map(x, e.args))) for e in out.effects),
@@ -650,9 +656,18 @@ class Lower:
     def lower(self, e):
         a, n = e.args, nbytes(e.w)
         match e.op:
+            case name if name in SCRATCH: return self.scratch_call(e)
             case name if name in SHARED: return self.shared_call(e)
             case "const":
-                if n > 8: return self.local(e.w, Operand(f"zext({a[0]:#x}:8)", "expr"))
+                if n > 8:
+                    low = a[0] & bitvec.mask(64)
+                    if a[0] >> 64 == bitvec.mask(e.w - 64) and low >> 63:
+                        return self.local(e.w, Operand(f"sext({low:#x}:8)", "expr"))
+                    parts = [(shift, self.local(e.w, Operand(f"zext({a[0] >> shift & bitvec.mask(64):#x}:8)", "expr")))
+                             for shift in range(0, e.w, 64) if a[0] >> shift & bitvec.mask(64) or shift == 0]
+                    return parts[0][1] if len(parts) == 1 else self.local(e.w, expr(
+                        " | ".join(f"({v.text} << {shift})" if shift else v.text for shift, v in parts),
+                        *(v for _, v in parts)))
                 return Operand(f"{a[0]:#x}:{n}", "const")
             case "param": return self.param(a[0], e.w)
             case "reg" if a[0] == "SR":   # a named special register (SR_SWINLO)
@@ -722,8 +737,32 @@ class Lower:
             case op if op in SLEIGH_OP: return self.binary(SLEIGH_OP[op], self.value(a[0]), self.value(a[1]))
         raise NotImplementedError(f"lowering of {e.op}")
 
+    def scratch_call(self, e):
+        g = self.b.g
+        signature = e.op, tuple(a.w for a in e.args), e.w
+        if signature not in g.scratch_calls:
+            name = f"pure{len(g.scratch_calls)}"
+            arguments = [f"PURE{len(g.scratch_calls)}ARG{index}" for index in range(len(e.args))]
+            result = f"PURE{len(g.scratch_calls)}OUT"
+            g.scratch_calls[signature] = name, arguments, result
+            g.temporaries.update({symbol: nbytes(bits) for symbol, bits in zip(arguments, signature[1])})
+            g.temporaries[result] = nbytes(e.w)
+        name, arguments, result = g.scratch_calls[signature]
+        values = [self.value(argument) for argument in e.args]
+        for symbol, value in zip(arguments, values): self.code.add(f"{symbol} = {value.text};", value)
+        g.scratch_serial += 1
+        call = f"purecall{g.scratch_serial}"
+        g.table_lines.append(f'{call}: "" is {name} {{ build {name}; }}')
+        self.code.add(f"build {call};", Operand(call, "name", frozenset({("sub", call)})))
+        return self.local(e.w, Operand(result, "name"))
+
     def shared_call(self, e):
         g = self.b.g
+        from sass.decode import ir
+        from sass.sleigh.gen import member
+        domain = [cl for ranges, values in self.b.domain.items()
+                  if ranges in g.span_fields(self.b.k)
+                  for cl in member(g, ir.Field("", ranges), values)]
         signature = e.op, tuple(a.w for a in e.args), e.w
         if signature not in g.shared_calls:
             name = f"shared{len(g.shared_calls)}"
@@ -733,7 +772,7 @@ class Lower:
             code = Code()
             value = Lower(self.b, code, count_uses([argument]), context=self.context).value(argument)
             text = code.body(value, argument.w)
-            pat = code.pattern(g.class_constraints(self.b.k) + list(self.context))
+            pat = code.pattern(g.class_constraints(self.b.k) + domain + list(self.context))
             constructors[pat, text] = None
         self.b.refs.append(("sub", name))
         return Operand(name, "name", frozenset({("sub", name)}))
@@ -932,25 +971,36 @@ class Lower:
 
 
 def shared_tables(g):
-    """Emit one pure expression body, with operand-form tables supplying its arguments."""
-    for (label, widths, width), (name, arguments) in g.shared_calls.items():
-        symbols = [f"{name}arg{index}" for index in range(len(arguments))]
-        for symbol, constructors in zip(symbols, arguments):
-            g.table_lines.extend(f'{symbol}: "" is {pat} {{ {text} }}'
-                                 for pat, text in sorted(constructors))
+    """Emit pure definitions, with arguments supplied by subtables or caller-written temporaries."""
+    def expression_body(label, widths, symbols, subtables):
         params = [bitvec.param(symbol, bits) for symbol, bits in zip(symbols, widths)]
-        tree = bitvec.lowered(bitvec.DEFINED[label].expand(*params))
+        tree = bitvec.lowered(bitvec.DEFINED[label].expand(*params), preserve=SCRATCH)
         b = SimpleNamespace(g=g, values={}, refs=[], serial=0)
 
         class Parameters(Lower):
             def folded(self, e): return None
             def param(self, name, w):
-                return Operand(name, "name", frozenset({("sub", name)}))
+                return Operand(name, "name", frozenset({("sub", name)}) if subtables else frozenset())
 
         code = Code()
         value = Parameters(b, code, count_uses([tree])).value(tree)
+        return code, value
+    for (label, widths, width), (name, arguments) in g.shared_calls.items():
+        symbols = [f"{name}arg{index}" for index in range(len(arguments))]
+        for symbol, constructors in zip(symbols, arguments):
+            g.table_lines.extend(f'{symbol}: "" is {pat} {{ {text} }}'
+                                 for pat, text in sorted(constructors))
+        code, value = expression_body(label, widths, symbols, True)
         text = code.body(value, width)
         g.table_lines.append(f'{name}: "" is {code.pattern()} {{ {text} }}')
+    done = set()
+    while pending := [signature for signature in g.scratch_calls if signature not in done]:
+        label, widths, width = signature = pending[0]
+        name, arguments, result = g.scratch_calls[signature]
+        code, value = expression_body(label, widths, arguments, False)
+        code.add(f"{result} = {value.text};", value)
+        g.table_lines.append(f'{name}: "" is {code.pattern()} {{ {code.body()} }}')
+        done.add(signature)
 
 
 class Fold:
@@ -1150,7 +1200,9 @@ def lower_writes(b, writes, context=()):
         if cond is None: code.add(f"*[{space}]:{nbytes(w)} {address.text} = {v.text};", address, v); continue
         skip = low.label("skip")
         code.add(f"if (!({cond.text})) goto <{skip}>; *[{space}]:{nbytes(w)} {address.text} = {v.text}; <{skip}>", address, v, cond)
-    if flow: lower_flow(low, b.flow_kind, target, cond, bitvec.is_const(flow["__flow_cond"], 1))
+    if flow:
+        if target.kind != "target": target = low.named(target, flow["__flow_target"].w)
+        lower_flow(low, b.flow_kind, target, cond, bitvec.is_const(flow["__flow_cond"], 1))
     return code
 
 
@@ -1159,7 +1211,7 @@ def lower_flow(low, kind, target, cond, always):
     where = target.text if target.kind == "target" and kind != "return" else f"[{target.text}]"
     transfer = {"goto": f"goto {where};", "call": f"call {where};", "return": f"return {where};"}[kind]
     if always: low.code.add(transfer, target)
-    elif kind == "goto": low.code.add(f"if ({cond.text}) {transfer}", target, cond)
+    elif kind == "goto" and target.kind == "target": low.code.add(f"if ({cond.text}) {transfer}", target, cond)
     else:
         skip = low.label("skip")
         low.code.add(f"if (!({cond})) goto <{skip}>; {transfer} <{skip}>", target, cond)
@@ -1224,11 +1276,31 @@ def emit(b):
     # they need are dropped; otherwise everything is written (PT writes go to a sink).
     names = [n for n, _ in resolved[0][1]]
     optional = [n for n in names if n not in FIXED and not pseudo(n) and REG_TYPES.get(b.k.operand_types[n].type) in ("P", "UP")
+                and any(dict(w)[n].op != "const" for _, w in resolved)
                 and clauses(b, ("zero", n), True) not in (None, [])]
+    inputs = lambda writes: frozenset(p for _, e in writes for p in bitvec.leaves(e, "param"))
+    dead_inputs = set().union(*(inputs(writes) - inputs([(n, e) for n, e in writes if n not in optional])
+                               for _, writes in resolved))
+    if optional and all(p.args[0] in b.k.operand_types and REG_TYPES.get(b.k.operand_types[p.args[0]].type) in ("P", "UP")
+                        for p in dead_inputs) and any(n not in optional for n in names) and max(operations(Expr("tuple", tuple(e for _, e in writes), 0)) -
+                        operations(Expr("tuple", tuple(e for n, e in writes if n not in optional), 0))
+                        for _, writes in resolved) <= 4:
+        keys = tuple(("zero", n) for n in optional)
+        replacements = {p: sel(keys, [(values, bitvec.const(1, p.w) if all(values) else p)
+                                      for values in itertools.product((False, True), repeat=len(keys))], p.w)
+                        for p in dead_inputs}
+        def replace_input(e):
+            if e.op == "sel":
+                keys, cases = e.args
+                return sel(keys, [(v, bitvec.substitute(t, replace_input)) for v, t in cases], e.w)
+            return replacements.get(e)
+        resolved = [(a, [(n, bitvec.substitute(e, replace_input)) for n, e in writes])
+                    for a, writes in resolved]
+        optional = []
     assignments = [a for a, _ in resolved]
     merger = Merger(frozenset((n, LOAD_OPS[v.kind]) for n, v in b.values.items() if getattr(v, "kind", None) in LOAD_OPS))
     def body(live):
-        if not live: return Code()
+        if not live and not b.effect_shapes: return Code()
         merged = merger.bodies([Expr("tuple", tuple(dict(w)[n] for n in live), 0) for _, w in resolved], assignments)
         return lower_body(b, live, merged)
     bodies = [([], body(names))]

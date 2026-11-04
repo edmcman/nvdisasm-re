@@ -78,3 +78,9 @@ def ret_(i):
 @family("NOP")
 def nop(i):
     return outputs()
+
+
+@family("BRX")
+def brx(i):
+    required(i, "depth", "nodepth", "nodepth_bra")
+    return outputs(flow=goto(i.addr() + 16 + address(i, "Ra", "Ra_offset"), condition(i)))

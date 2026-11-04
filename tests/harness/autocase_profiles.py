@@ -119,7 +119,10 @@ SUPPLEMENTS = (
 
 
 def names(op, cls, form):
+    if op in ('B2R', 'MEMBAR', 'LDGSTS', 'LDGDEPBAR', 'DEPBAR', 'CCTL', 'ERRBAR', 'YIELD'): return ['effect_forms']
     from tests.harness import autocase_remaining
+    if op == 'ATOMG': return ['atomic_forms']
+    if op in ('HMMA', 'LDSM'): return ['matrix_forms']
     if op == 'MUFU' and not autocase_remaining.blocked_reason(op, cls, form):
         return ['mufu_sincos' if form.get('mufuop', form.get('op')) in ('SIN', 'COS') else 'mufu_reciprocal']
     if op in autocase_remaining.OPS: return ['remaining_forms']
@@ -128,7 +131,7 @@ def names(op, cls, form):
     if op in ('LDC','LDCU','ULDC'): return ['constant_load_forms']
     if op in ('S2R','CS2R','S2UR'): return ['special_register_forms']
     if op == 'QSPC': return ['address_query_forms']
-    if op in ('BRA','CALL','RET','EXIT','NOP'): return ['control_flow_forms']
+    if op in ('BRA','BRX','CALL','RET','EXIT','NOP'): return ['control_flow_forms']
     if op == 'MOV64IUR': return ['move64']
     if op == 'I2I': return ['integer_narrowing']
     if op == 'UI2IP': return ['packed_conversion_forms']
@@ -569,6 +572,44 @@ PROFILES['remaining_forms'] = {
     'words': (0, 0x89abcdef, 0xffffffff),
     'wide_words': (0, 0xfedcba98765432100123456789abcdef, (1 << 128) - 1),
 }
+PROFILES['atomic_forms'] = dict(values=(
+    (0, 0, 1), (1, 1, 7), (1, 0, 9), (0xffffffff, 1, 0),
+    (0x80000000, 0x7fffffff, 0x12345678), (0x7fffffff, 0x80000000, 0),
+    (0xffffffffffffffff, 1, 0), (1 << 63, (1 << 63) - 1, 0),
+    (0xaaaaaaaa55555555, 0x55555555aaaaaaaa, 0x123456789abcdef0),
+    (3, 2, 7), (2, 2, 7), (0, 2, 7)))
+PROFILES['atomic_float_forms'] = {
+    "F32.FTZ.RN": tuple((a, b, 0) for a, b in (
+        (0, 0), (0x80000000, 0x80000000), (0, 0x80000000), (1, 1), (0x80000001, 0),
+        (0x007fffff, 0x00800000), (0x00800000, 0x80800001), (0x3f800000, 0x33800000),
+        (0x3f800001, 0x33800000), (0x7f7fffff, 0x7f7fffff),
+        (0x7f800000, 0xff800000), (0x7fc12345, 0x3f800000), (0x3f800000, 0xff812345),
+        (0x7fc12345, 0xffc54321))),
+    "F64.RN": tuple((a, b, 0) for a, b in (
+        (0, 0), (1 << 63, 1 << 63), (0, 1 << 63), (1, 1),
+        (0x0010000000000000, 0x8010000000000001), (0x3ff0000000000000, 0x3ca0000000000000),
+        (0x7fefffffffffffff, 0x7fefffffffffffff), (0x7ff0000000000000, 0xfff0000000000000),
+        (0x7ff8123456789abc, 0x3ff0000000000000), (0x3ff0000000000000, 0xfff0123456789abc),
+        (0x7ff0123456789abc, 0x3ff0000000000000), (0x7ff8123456789abc, 0xfff8fedcba987654),
+        (0x7ff0123456789abc, 0xfff8fedcba987654), (0x7ff8123456789abc, 0xfff0fedcba987654))),
+    "F16x2.RN": tuple((a, b, 0) for a, b in (
+        (0, 0), (0x80008000, 0x80008000), (0, 0x80008000), (0x00010001, 0x00010001),
+        (0x04000400, 0x84018401), (0x3c003c00, 0x10001000), (0x7bff7bff, 0x7bff7bff),
+        (0x7c007c00, 0xfc00fc00), (0x7e157e15, 0x3c003c00), (0x3c003c00, 0xfc15fc15)))}
+PROFILES['matrix_forms'] = dict(lanes=(0, 1, 2, 3, 4, 7, 8, 15, 16, 31))
+PROFILES['hmma_forms'] = dict(patterns=(
+    "ones", "coordinates", "identity", "accumulator", "small", "cancel", "cancel_even",
+    *(f"pair_{a}_{b}" for a, b in ((0, 1), (0, 2), (0, 4), (0, 8), (0, 15), (2, 3), (7, 8), (8, 9), (14, 15))),
+    *(f"cancel_pair_{j}" for j in range(1, 16)),
+    *(f"round_{a}_{parity}" for a in (0.5, 1, 1.5, 2.5, 3, 3.5) for parity in ("even", "odd")),
+    "nan_a", "nan_b", "nan_c", "infinity_cancel", "subnormal_c", "negative_zero",
+    "quarter_products", "negative_quarters", "unnormalized_product", "normalized_product",
+    "snan_a", "snan_b", "snan_c", "zero_times_inf", "positive_inf", "negative_inf",
+    "max_half", "min_half", "half_subnormals",
+    *(f"random_{seed}" for seed in range(16))))
+PROFILES['effect_forms'] = dict(results=(0, 1, 16, 32, 64, 0xffffffff),
+                              words=(0, 0x12345678, 0xfedcba98765432100123456789abcdef),
+                              descriptors=((6, 0x10000000), (12, 0x10000000), (6, 0), (12, 0)))
 PROFILES['integer_narrowing'] = dict(values=(
     0, 1, -1, 127, 128, -128, -129, 255, 256, 32767, 32768,
     -32768, -32769, 65535, 65536, 0x7fffffff, -0x80000000,

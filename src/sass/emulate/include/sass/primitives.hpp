@@ -112,7 +112,8 @@ inline Status address_space(const Warp &w, uint32_t need, const Lanes address, L
 }
 
 // Bit 59 marks a range-form L2 policy; some of those trap on SM89 and which ones is unknown.
-inline Status memory_descriptor(uint64_t descriptor) {
+inline Status memory_descriptor(uint64_t descriptor, bool packed_async = false) {
+  if (packed_async && !descriptor) return {nullptr, "zero packed async descriptor"};
   if (!(descriptor >> 59 & 1)) return ok();
   char text[64];
   std::snprintf(text, sizeof text, "range-form memory descriptor %#llx", (unsigned long long)descriptor);

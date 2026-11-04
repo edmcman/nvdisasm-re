@@ -39,10 +39,41 @@ A launch uses one scheduler invocation regardless of host worker count; independ
 can execute concurrently. Memory resets for each request.
 
 This stronger visibility model does not validate CUDA weak-memory protocols or GPU residency
-requirements. Atomics, fences, MMIO and external/system scope accesses are rejected in launch
-scope. BREAK and BMOV remain rejected. Other unsupported instructions retain their runtime errors; synchronization context
+requirements. Supported ATOMG transactions and MEMBAR fences run in launch scope. Other atomics,
+MMIO and external/system scope accesses remain rejected. BREAK and BMOV remain rejected.
+Other unsupported instructions retain their runtime errors; synchronization context
 flags cannot enable rejected ordering operations. Polling may exhaust the per-thread instruction
 limit; when no warp can progress the scheduler reports `no thread can proceed` instead.
+
+### Operand groups, barrier results, and async copies (2026-11-03)
+
+Warp context retains the scalar `values` and `predicates` columns and adds
+`operand_groups`: named groups of 32 rows, each row holding that operand's
+register words. The scheduler captures every participating lane before any lane
+writes. LDSM uses address groups, including uniform operands; direct HMMA uses
+Ra/Rb/Rc fragment groups. Indexed HMMA operands remain unresolved.
+The large snapshot storage is referenced by the context, rather than copied
+at every instruction. The native and Python callback ABIs carry the same
+groups. A standalone instruction must supply its explicit warp context.
+
+BAR.RED generations produce a per-participant barrier result. B2R.RESULT reads
+that state, writes its integer result, and sets Pu when it is nonzero. Reading
+without an established result fails explicitly.
+
+Each lane owns an async-copy queue in the common C++ scheduler. LDGSTS snapshots
+the source value when issued; LDGDEPBAR commits the open group to its encoded
+write scoreboard, including an empty group. DEPBAR.LE completes all but the
+requested number of most recent groups on that scoreboard. Scoreboard masks
+and encoded instruction waits complete the named groups. Completion writes
+shared memory before the waiting instruction executes. Ordinary stores remain
+immediate; BAR alone does not complete an async copy. Python and Ghidra callback
+lanes use the same queue through the scheduler ABI.
+
+This is a deterministic completion policy under SC. It does not model ordinary
+instruction latency or claim a complete hardware scoreboard simulation.
+Unsupported environment controls still fail explicitly. Atomic sources, old
+memory, and returned values are captured before the instruction commits any
+register or memory writes; scheduler turns never interleave inside the transaction.
 
 Since 2026-11-03, BSSY snapshots enabled participants in a warp-local convergence ID.
 BSYNC holds arrivals until the remaining live participants arrive; exited lanes are removed.

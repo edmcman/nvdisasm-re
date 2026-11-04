@@ -11,11 +11,22 @@
   remains a possible adversarial order. Timing proper matters for racy code, fence-based ordering
   and scoreboards: instructions complete instantly in the emulator, and GPU patches retain
   controls unless the experiment explicitly changes them.
-- Replay blockers (#117, 2026-11-03): focused reconvergence/deferred-barrier fixtures and
-  reciprocal models are implemented. Full YOLO replay and the issue's other inventory remain
-  unvalidated. Physical SFU coefficient-table formats, BF16/SIMD MUFU numerical behavior,
+- Replay blockers (#117, 2026-11-04): 201 retained YOLO launches compare every captured buffer
+  exactly and 113 stop on unresolved instructions. Passing launches execute
+  none of the twelve additional target opcodes. Fifty-three blocked launches reach HMMA.
+  The remaining blockers are EX2 approximation and a system-scope load.
+  `research/additional-opcodes/yolo-replay.json` records actual memory comparisons and visited
+  instructions. Physical SFU coefficient-table formats, BF16/SIMD MUFU numerical behavior,
   packed-register BAR ID/count, BREAK and BMOV remain unresolved. SM89 observations do not
   establish SM90 numerical or synchronization behavior.
+- Additional opcode forms (#117, 2026-11-03): HMMA shapes/formats beyond direct 16816 F16/F32,
+  source negation, accumulator predicates, sparse metadata and indexed registers;
+  packed/expanded LDSM; SAFEADD, newer floating atomic types/operations and
+  MMIO; BRX depth changes; B2R BAR/WARP; CCTL, ERRBAR and YIELD remain unfinished. MEMBAR's
+  async/MMIO obligations and a complete ordinary-instruction scoreboard model are unresolved.
+  `research/additional-opcodes/inventory-current.json` and the per-architecture plan-gap reports
+  distinguish implemented forms, references, and evidence. Discovery observations are retained
+  without assigning guessed regression expectations.
 - Native emulator (2026-10-23, `docs/emulation.md`). Next:
   - Speed: structure-of-arrays registers with SIMD across inputs, flat per-thread memory instead of
     hashed pages, a converged-warp fast path (run until a sync instead of a turn per instruction;
@@ -28,14 +39,14 @@
     effects, and `sass_memory_order`'s sem/sco decoded into (semantics, scope) per access; validate
     with MP/SB/LB/IRIW litmus kernels against the PTX model's allowed outcomes. Equivalence under it
     compares sets of outcomes (refinement), not one output per input.
-  - Atomics and fences raise in every engine until those families exist.
+  - Unsupported atomic types and MMIO/async fence forms still raise in every engine.
   - Launch-wide SC global memory is implemented (2026-11-03, #114), through one C++ scheduler
     for every backend, including Ghidra launch scope.
   - Warp-greedy adversarial scheduling; reverse and seeded orders share the C++ scheduler.
   - A standalone libFuzzer harness linking both kernels of an equivalence pair.
 - Generic LD/ST (2026-10-15) model only the CTA's own shared window. On SM90+ the shared window may also hold distributed (cluster) shared memory, and ptxas builds the base from `SR_SWINHI` alone, so `SR_SWINSZ` and the rank layout there need hardware. Faults (window addresses beyond the allocation, unmapped global addresses) and 32-bit generic stores are not modelled. LD's 32-bit address sum and zero-extension were established on SM89 on 2026-10-25 (#79); SM90 hardware validation is pending.
 - LDG/LD `Pu` (2026-10-15; updated 2026-10-25): ordinary completed LDG now models Pu=0, confirmed again on SM89 with generated probes including Pu/Pnz aliases and a predicated-off instruction (which preserves it). What exceptional condition sets Pu=1 remains unknown; the earlier unmapped-address experiment trapped rather than returning a flag. LD's predicate result stays opaque. ptxas writes PT there on every path it was seen to take, so nothing it compiles uses `Pu`. Its only operand-driven encoders are in Mercury class 0xe6, whose creator is unknown (`research/ptxas/ptxas-finalizer-notes.md`, "LDG's Pu operand"). `Pnz` is modelled as zero-fill (`docs/hardware-facts.md`).
-- Memory descriptors (2026-10-15): which range-form descriptors (bit 59) trap is unknown, so the runtime rejects them all. Value neutrality and the format were established only on SM89. The SM90+ default descriptors (`c[0x0][0x208]`, `0x358`) are unknown, and the emulator leaves them 0. ATOM/RED/LDGSTS descriptor forms have no family.
+- Memory descriptors (2026-10-15; updated 2026-11-03): which range-form descriptors (bit 59) trap is unknown, so the runtime rejects them all. Value neutrality and the format were established only on SM89. The SM90+ default descriptors (`c[0x0][0x208]`, `0x358`) are unknown, and the emulator leaves them 0. ATOMG/LDGSTS descriptor forms now have families; ATOM/RED remain unresolved. Zero packed LDGSTS policy traps on SM89, independently of its zero-fill predicate.
 - Memory order inside one instruction (2026-10-16). `Outputs` computes every value, address and condition from the state before the instruction, then applies the register writes and then the stores in list order, so no load sees the same instruction's store. Instructions that would need that: a data write followed by an mbarrier read-modify-write (`STAS`, `REDAS`, `UTMALDG`), an overlapping `UBLKCP` (all reads first is memmove), and aliasing accesses of the dual-register (`Rd2`/`Rb2`) forms. If one is modelled, version memory rather than making `Outputs` an ordered statement list: `load(space, addr, w, after=k)` reads after the first `k` stores, and every existing load is `after=0`. Loads stay pure, so hash-consing, row merging, `narrow`/`specialize` and precompute stay sound, and register writes stay simultaneous; an ordered list would lose both and reorder every class's p-code.
 - Trace the `-plr` (`--print-life-ranges`) liveness code that consumes connectors (start at the "Cannot %s as flow analysis is disabled" check, Ghidra 0x10a327; `docs/nvdisasm-binary.md`).
 - Why nvdisasm prints some decodable instructions blank (GATHER, SCATTER, `__HIR*`, BPT.PAUSE, E6M9 immediates, SM75 HMMA .BF16/.TF32) and silently drops some modifier values (SM75 HMMA `altfmt=INVALID3`). Not a name table in the binary; never seen in real code.

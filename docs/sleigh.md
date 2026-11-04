@@ -21,6 +21,21 @@
   without dead temporaries. Tables are emitted after their dependencies because SLEIGH forbids
   forward references. `lzcount` replaces repeated bit-position searches in the shared integer
   rounding machinery; zero is handled by the caller's `sig | 1`.
+- Pure-definition calls (2026-11-04): HMMA products and accumulation blocks and
+  floating ATOMG updates share bodies through internal argument/result registers.
+  Callers write every argument before an explicit build and copy the result
+  immediately. Distinct forwarding operands allow repeated calls in one
+  instruction; SLEIGH rejects repeated builds of the same operand. Nested calls
+  use disjoint registers. Arithmetic remains a pure IR definition.
+  Class-filtered families no longer disable independent input-span tables in
+  unrelated opaque classes of the same opcode. Small predicate results share the
+  main body; predicate inputs used only by discarded results have decode-time
+  constant substitutes, including inside modifier choices. Complete-discard
+  pruning and larger liveness savings retain separate bodies.
+  The size tradeoff adds roughly two to five P-code operations to affected
+  discarded-result arithmetic forms. All twenty languages compile without dead
+  temporaries; SM90 exact is 16,712,366 bytes and the largest, SM107 exact, is
+  16,731,723 bytes. Sizes are checked against the limit on every build.
 - Ghidra 12.2 locks each `.sla` while loading it (`sass_<variant>.sla.lock` beside it, GP-4045), and a `sass.ldefs` entry whose `.slaspec` is missing ("Missing sleigh file(.slaspec)", only in `application.log` when headless) stops the provider reading the rest of the file: the languages after it are silently absent and `getLanguage` returns null (2026-10-23; a committed `sass_sm89.sla.lock` listed sm89 in every CI job and lost sm90, sorted after it). `gen.write_ldefs` lists only variants with a `.sla` or `.slaspec`.
 - Size compromises (the 16 MiB `.sla` limit above). Each trades run-time p-code, readability or
   generator simplicity for size; revisit them when the limit is lifted.

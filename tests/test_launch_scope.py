@@ -116,7 +116,7 @@ def test_ghidra_launch_storage(pytestconfig):
     assert all(found == expected for found in results.values())
 
 
-def test_unsupported_ordering():
+def test_launch_fence():
     image = cubin.kernel_image(assemble_cubin('''.target SM89
 .kernel ordering
 .registers 4, 0
@@ -126,7 +126,7 @@ EXIT;
 '''), 'ordering')
     r = launch.kernel_request(image, (), [], 1, 1, dict(address=0x200000))
     expected = reference.run_kernel(r, 'SM89')
-    assert 'unsupported ordering' in expected['error']
+    assert 'error' not in expected
     assert kernel.run_kernel(r, 'SM89') == expected
 
 

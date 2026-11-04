@@ -140,7 +140,7 @@ class Lower:
     def primitive(self, name, args):
         family, _, variant = name.partition("_")
         match name:
-            case "lane" | "active" | "waiting" | "read_lane" | "ballot" | "match" | "address_space":
+            case "lane" | "active" | "waiting" | "read_lane" | "operand_lane" | "bar_result" | "ballot" | "match" | "address_space":
                 return f"sass::lane::{name}({', '.join(['c', *args])})"
             case "bmov": return f"sass::lane::synchronize(c, sass::Bmov, {args[0]}, true)"
         if family == "redux" and variant in primitive.REDUCTIONS:
@@ -164,7 +164,13 @@ class Lower:
             ordinal, *controls = (x.args[0] for x in args)
             try: memory_controls(ir.load(self.arch), ordinal, controls)
             except UnsupportedSemantics as error: self.emit(f"throw sass::Fault{{{string(str(error))}}};")
-        elif name == "sass_memory_descriptor": self.emit(f"sass::check(sass::prim::memory_descriptor({self.value(args[0])}));")
+        elif name == "sass_memory_descriptor":
+            self.emit(f"sass::check(sass::prim::memory_descriptor({', '.join(self.value(a) for a in args)}));")
+        elif name == "sass_fence":
+            sem, scope = (self.value(a) for a in args)
+            self.emit(f"if ({sem} > 2 || {scope} > 3) throw sass::Fault{{\"invalid fence controls\"}};")
+        elif name in ("sass_async_issue", "sass_async_commit", "sass_async_wait"):
+            self.emit(f"sass::{name[5:]}({', '.join(['c', *(self.value(a) for a in args)])});")
         elif name in SYNC: self.emit(f"sass::lane::synchronize(c, {SYNC[name]}, {self.value(args[0])}, false);")
         else: self.emit(f"throw sass::Fault{{{string(name)}}};")
 

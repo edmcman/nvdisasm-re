@@ -40,7 +40,8 @@ def plan(arch, rows, policy=verification.POLICY):
     for row in rows:
         c = row.get('combinations')
         if c is None: raise ValueError(f"{row['cls']}: missing combination table; regenerate with --coverage")
-        statuses = verification.SUPPORTED | ({'partially native'} if row['opcode'] in autocase_partial.ROWS else set())
+        statuses = verification.SUPPORTED | ({'partially native', 'partially primitive'}
+                                             if row['opcode'] in autocase_partial.ROWS else set())
         requirements = verification.Requirements(row, policy, statuses)
         counts['legal'] += len(c['table']) * c['free']
         unresolved = sum(c['free'] for e in c['table'] if e[-1] not in verification.SUPPORTED)

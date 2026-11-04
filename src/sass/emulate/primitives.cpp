@@ -69,8 +69,8 @@ int sass_primitive(const char *name, const prim::Warp *warp, uint32_t need, cons
   return report(call(name, *warp, need, args, nargs, out), message, size);
 }
 
-int sass_memory_descriptor(uint64_t descriptor, char *message, size_t size) {
-  return report(prim::memory_descriptor(descriptor), message, size);
+int sass_memory_descriptor(uint64_t descriptor, uint32_t packed_async, char *message, size_t size) {
+  return report(prim::memory_descriptor(descriptor, packed_async), message, size);
 }
 
 // op: 0 add, 1 mul, 2 fma, 3 convert to `dst` bits, 4 lt, 5 le, 6 eq, 7 nan; mode: RN RZ RP RM.

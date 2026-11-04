@@ -101,6 +101,21 @@ def test_memory_binding_preserves_single_register_addresses(cls):
     device_cases.image([probe])
 
 
+def test_async_uniform_source_binding():
+    from sass.decode import ir
+    from tests.harness import autocases, device_setup
+    k = next(k for k in ir.load("SM89").classes if k.name == "ldgsts__RR32U")
+    form = autocases.encoded_form("SM89", k, dict(sz="32"))
+    case = autocases.generate("SM89", k.name, form, sample=100)[0]
+    case = case._replace(request=dict(case.request, registers=dict(case.request["registers"], UR6=0x40)))
+    assert device_setup.memory_binding(case) == ("ram", 0x140, 4, "Ra_URc")
+    probe = device_cases.scalar_probe([device_cases.Scenario("unit", case, "async")], "probe")
+    target, _ = probe.code.targets[0]
+    before = [pydecode.decode("SM89", w.to_bytes(16, "little")) for w in probe.code.words[:target // 16]]
+    assert {d.env["URd"] for d in before if d.klass.name == "r2ur__noOR"} >= {6, 7}
+    device_cases.image([probe])
+
+
 @pytest.mark.parametrize("matching", [True, False])
 def test_low_arena_requires_matching_device_address_and_releases_mapping(monkeypatch, matching):
     from tests.harness import gpu
@@ -247,6 +262,20 @@ def test_raw_memory_capture_reassembles_multiple_regions():
     case = s.case._replace(request=dict(s.case.request, observe_memory=[dict(space='ram', address=0x100, size=8), dict(space='shared', address=0x20, size=1)]))
     result = device_cases.observation(case, ['R8', '__memory:0:0:4', '__memory:0:4:4', '__memory:1:0:1'], [19, 0x12345678, 0x90abcdef, 0x55])
     assert result == dict(registers={'R8':19}, memory=[dict(space='ram', address=0x100, size=8, hex='78563412efcdab90'), dict(space='shared', address=0x20, size=1, hex='55')])
+
+
+def test_memory_capture_preserves_initialized_bytes():
+    from tests.harness import device_setup
+    c = Cases('SM89')
+    c.add('ldg__sImmOffset', dict(Rd=8, Ra=4, e='E'), dict(R4=0x100), dict(R8=19),
+          memory=[ram(0x100, 19)], observe_memory=[dict(space='ram', address=0x100, size=8)],
+          hardware=dict(adapter='memory'))
+    c.complete()
+    arena = bytearray()
+    code = device_cases.Code()
+    _, _, base, start = device_setup.memory(code, c[0], 16, arena)
+    offset = start + 0x100 - base
+    assert arena[offset:offset + 8] == b'\x13\0\0\0\0\0\0\0'
 
 
 def test_observations_are_judged_by_current_expectations(tmp_path, monkeypatch):
