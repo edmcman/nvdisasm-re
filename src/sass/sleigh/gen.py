@@ -836,6 +836,7 @@ class Gen:
         if not family_for(k): return clauses, tables
         span = self.span_fields(k)
         if domain is not None:
+            original = domain
             domain = {r: set(vs) for r, vs in domain.items()}
             partitions = [p for _, expr, _ in legal.operand_errors(self.arch.name, k)
                           if (p := legal.legal_classes(self.arch.name, k.name, expr))
@@ -852,6 +853,9 @@ class Gen:
                         if values != domain[f.ranges]:
                             domain[f.ranges] = values
                             changed = True
+            for ranges, values in domain.items():
+                if values != set(original[ranges]):
+                    clauses += member(self, ir.Field("", ranges), values)
         for _, expr, _ in legal.operand_errors(self.arch.name, k):
             partition = legal.legal_classes(self.arch.name, k.name, expr)
             if partition is None: continue

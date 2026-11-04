@@ -106,7 +106,7 @@ def report(data):
     text += [
         "## Reproduction", "",
         "Run from the repository root; builds and GPU validation require device/JDK access outside "
-        "the sandbox. No commits, pushes or issue updates are part of this work.", "",
+        "the sandbox.", "",
         "```bash",
         "nice uv run sass-build-languages --coverage",
         "nice uv run python -m tests.autocases SM107 --check",
@@ -145,7 +145,16 @@ def report(data):
         "PR #119's failing logs identified a stale SM107 case plan and launch tests that still "
         "expected Ghidra to reject launch scope. The regenerated plan passes `--check`; the "
         "updated launch test compares against the reference and passes locally on SM89/SM90. "
-        "Remote checks retain their earlier results until the changes are published.", "",
+        "After push `12ee374`, CI exposed invalid size selectors admitted by span constructors "
+        "and excess P-code for discarded integer predicates. Span constraints now encode their "
+        "narrowed raw domains, and predicate-sharing costs account for narrowing surviving "
+        "expressions. Scalar half FMA sharing keeps all twenty languages below the unchanged "
+        "16 MiB limit. All-architecture decoder/dataflow and int_alu/fp16 numerical checks passed "
+        "2,794 tests with 209,716 selected shared cases; the twenty reviewed operation-count "
+        "baselines pass separately. Carry, threads and memory checks on SM89/SM107 in both "
+        "modes passed 614 tests with 23,406 shared cases. Coverage refresh leaves the committed "
+        "coverage/evidence files unchanged. SM90's generation job also failed artifact upload "
+        "with ECONNRESET after its generation checks passed.", "",
     ]
     return "\n".join(text)
 

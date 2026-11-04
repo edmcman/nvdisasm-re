@@ -104,3 +104,20 @@ def test_class_filter_preserves_opaque_input_spans():
     assert g.dynamic_inputs(sparse) == {"Ra", "Rb", "Rc"}
     assert len(g.span_variants(sparse)) == 2
     assert not g.dynamic_inputs(direct)
+
+
+@pytest.mark.parametrize("arch", ["SM89", "SM100"])
+def test_span_domain_narrowing_is_encoded(arch):
+    g = gen.Gen(arch)
+    k = next(k for k in g.arch.classes if k.name == "ld__sImmOffset")
+    field = g.source(k, "sz")[1]
+    clauses, _ = g.conditions(k, {field.ranges: set(range(8))})
+    assert all(clause in clauses for clause in gen.member(g, field, set(range(7))))
+
+
+@pytest.mark.parametrize("name", ["iadd3_noimm__RRR_RRR", "uiadd3__URURUR_URURUR", "lop3_lut__RRR_RRR"])
+def test_compact_integer_forms_prune_discarded_predicates(name):
+    g = gen.Gen("SM100")
+    k = next(k for k in g.arch.classes if k.name == name)
+    g.semantics(k, None)
+    assert any(table.startswith("live") for table in g.tables.values())

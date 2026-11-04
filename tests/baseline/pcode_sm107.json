@@ -4951,7 +4951,7 @@
 "BOOL_AND": 4,
 "BOOL_NEGATE": 6,
 "CBRANCH": 9,
-"COPY": 19,
+"COPY": 35,
 "FLOAT2FLOAT": 32,
 "FLOAT_ADD": 8,
 "FLOAT_LESS": 14,
@@ -4970,7 +4970,7 @@
 "hfma2__RRI": {
 "BOOL_AND": 2,
 "CBRANCH": 1,
-"COPY": 5,
+"COPY": 13,
 "FLOAT2FLOAT": 10,
 "FLOAT_ADD": 2,
 "FLOAT_LESS": 4,
@@ -4989,7 +4989,7 @@
 "BOOL_AND": 2,
 "BOOL_NEGATE": 2,
 "CBRANCH": 5,
-"COPY": 13,
+"COPY": 21,
 "FLOAT2FLOAT": 10,
 "FLOAT_ADD": 2,
 "FLOAT_LESS": 6,
@@ -5074,7 +5074,7 @@
 "BOOL_AND": 4,
 "BOOL_NEGATE": 6,
 "CBRANCH": 9,
-"COPY": 19,
+"COPY": 35,
 "FLOAT2FLOAT": 32,
 "FLOAT_ADD": 8,
 "FLOAT_LESS": 14,
@@ -5173,7 +5173,7 @@
 "BOOL_AND": 2,
 "BOOL_NEGATE": 3,
 "CBRANCH": 5,
-"COPY": 12,
+"COPY": 20,
 "FLOAT2FLOAT": 10,
 "FLOAT_ADD": 2,
 "FLOAT_LESS": 4,
@@ -7545,12 +7545,9 @@
 "INT_ZEXT": 1
 },
 "iscadd_imm__RIR_RIR": {
-"COPY": 2,
-"INT_ADD": 2,
-"INT_LEFT": 1,
-"INT_LESSEQUAL": 1,
-"INT_NEGATE": 1,
-"INT_ZEXT": 1
+"INT_2COMP": 1,
+"INT_ADD": 1,
+"INT_LEFT": 1
 },
 "iscadd_noimm__RRR_RRR": {
 "CBRANCH": 1,
@@ -7563,13 +7560,10 @@
 },
 "iscadd_noimm__RUR_RUR": {
 "CBRANCH": 1,
-"COPY": 2,
-"INT_ADD": 2,
+"INT_2COMP": 1,
+"INT_ADD": 1,
 "INT_EQUAL": 1,
-"INT_LEFT": 1,
-"INT_LESSEQUAL": 1,
-"INT_NEGATE": 1,
-"INT_ZEXT": 2
+"INT_LEFT": 1
 },
 "isetp_64__RRR_RRR_EX": {
 "CALLOTHER": 1,
@@ -7868,7 +7862,7 @@
 "BRANCH": 2,
 "CALLOTHER": 1,
 "CBRANCH": 4,
-"COPY": 4,
+"COPY": 2,
 "INT_ADD": 2,
 "INT_LEFT": 2,
 "INT_LESS": 2,
@@ -8313,26 +8307,23 @@
 },
 "lea_hi_imm_sx32__RuIR_RIR": {
 "CBRANCH": 1,
-"COPY": 2,
-"INT_ADD": 2,
+"COPY": 1,
+"INT_2COMP": 1,
+"INT_ADD": 1,
 "INT_EQUAL": 1,
 "INT_LEFT": 1,
-"INT_LESSEQUAL": 1,
-"INT_NEGATE": 1,
 "INT_RIGHT": 1,
-"INT_SEXT": 1,
-"INT_ZEXT": 1
+"INT_SEXT": 1
 },
 "lea_hi_imm_sx32_x__RuIR_RIR": {
 "CBRANCH": 1,
-"COPY": 2,
+"COPY": 1,
 "INT_ADD": 2,
 "INT_LEFT": 1,
-"INT_LESSEQUAL": 1,
 "INT_NOTEQUAL": 1,
 "INT_RIGHT": 1,
 "INT_SEXT": 1,
-"INT_ZEXT": 2
+"INT_ZEXT": 1
 },
 "lea_hi_imm_x__RRuI_RRI": {
 "BOOL_NEGATE": 1,
@@ -8349,27 +8340,25 @@
 },
 "lea_hi_imm_x__RuIR_RIR": {
 "CBRANCH": 1,
-"COPY": 2,
+"COPY": 1,
 "INT_ADD": 2,
 "INT_LEFT": 2,
-"INT_LESSEQUAL": 1,
 "INT_NEGATE": 1,
 "INT_NOTEQUAL": 1,
 "INT_OR": 1,
 "INT_RIGHT": 1,
-"INT_ZEXT": 4
+"INT_ZEXT": 3
 },
 "lea_hi_noimm__RRR_RRR": {
 "CBRANCH": 1,
-"COPY": 2,
-"INT_ADD": 2,
+"COPY": 1,
+"INT_2COMP": 1,
+"INT_ADD": 1,
 "INT_LEFT": 2,
-"INT_LESSEQUAL": 1,
-"INT_NEGATE": 1,
 "INT_NOTEQUAL": 1,
 "INT_OR": 1,
 "INT_RIGHT": 1,
-"INT_ZEXT": 4
+"INT_ZEXT": 2
 },
 "lea_hi_noimm__RUR_RUR": {
 "CBRANCH": 1,
@@ -8385,14 +8374,12 @@
 },
 "lea_hi_noimm_sx32__RRR_RRR": {
 "CBRANCH": 1,
-"COPY": 2,
+"COPY": 1,
 "INT_ADD": 1,
 "INT_LEFT": 1,
-"INT_LESSEQUAL": 1,
 "INT_NOTEQUAL": 1,
 "INT_RIGHT": 1,
-"INT_SEXT": 1,
-"INT_ZEXT": 2
+"INT_SEXT": 1
 },
 "lea_hi_noimm_sx32__RUR_RUR": {
 "CBRANCH": 1,
@@ -8596,13 +8583,11 @@
 "INT_XOR": 1
 },
 "lop3_lut_optionalPp__RUR_RUR": {
-"BOOL_NEGATE": 1,
 "CBRANCH": 1,
-"COPY": 2,
-"INT_AND": 3,
+"COPY": 1,
+"INT_AND": 2,
 "INT_EQUAL": 1,
 "INT_NEGATE": 3,
-"INT_NOTEQUAL": 1,
 "INT_OR": 2
 },
 "lop3_lut_optionalPp__RuIR_RIR": {
@@ -8623,9 +8608,9 @@
 },
 "lop3_noimm__RUR_RUR": {
 "CBRANCH": 1,
-"COPY": 2,
-"INT_NOTEQUAL": 2,
-"INT_OR": 3
+"COPY": 1,
+"INT_NOTEQUAL": 1,
+"INT_OR": 2
 },
 "lop3_noimm_optionalPp__RRR_RRR": {
 "BOOL_NEGATE": 1,
@@ -8637,13 +8622,11 @@
 "INT_OR": 3
 },
 "lop3_noimm_optionalPp__RUR_RUR": {
-"BOOL_NEGATE": 1,
 "CBRANCH": 1,
-"COPY": 2,
+"COPY": 1,
 "INT_EQUAL": 1,
 "INT_NEGATE": 1,
-"INT_NOTEQUAL": 1,
-"INT_OR": 3
+"INT_OR": 2
 },
 "lop_imm_": {
 "CBRANCH": 1,
@@ -10412,12 +10395,10 @@
 },
 "uiadd3_x__URURUR_URURUR": {
 "CBRANCH": 1,
-"COPY": 3,
 "INT_ADD": 4,
 "INT_EQUAL": 1,
-"INT_LESSEQUAL": 2,
 "INT_NEGATE": 2,
-"INT_ZEXT": 5
+"INT_ZEXT": 2
 },
 "uiadd3_x__URsIUR_RIR": {
 "BOOL_NEGATE": 2,
@@ -10825,9 +10806,7 @@
 "INT_XOR": 1
 },
 "ulop_imm_optionalUPp_": {
-"COPY": 2,
-"INT_AND": 1,
-"INT_NOTEQUAL": 1,
+"COPY": 1,
 "INT_OR": 1
 },
 "ulop_noimm__URURUR": {

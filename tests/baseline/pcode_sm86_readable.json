@@ -7716,7 +7716,7 @@
 "BRANCH": 2,
 "CALLOTHER": 1,
 "CBRANCH": 4,
-"COPY": 4,
+"COPY": 2,
 "INT_ADD": 2,
 "INT_LEFT": 2,
 "INT_LESS": 2,
@@ -8168,14 +8168,12 @@
 },
 "lea_hi_noimm_sx32__RRR_RRR": {
 "CBRANCH": 1,
-"COPY": 2,
+"COPY": 1,
 "INT_ADD": 1,
 "INT_LEFT": 1,
-"INT_LESSEQUAL": 1,
 "INT_NOTEQUAL": 1,
 "INT_RIGHT": 1,
-"INT_SEXT": 1,
-"INT_ZEXT": 2
+"INT_SEXT": 1
 },
 "lea_hi_noimm_sx32__RUR_RUR": {
 "CBRANCH": 1,
@@ -8309,11 +8307,9 @@
 },
 "lea_lo_imm_x__RuIR_RIR": {
 "BRANCH": 1,
-"COPY": 2,
 "INT_ADD": 2,
 "INT_LEFT": 1,
-"INT_LESSEQUAL": 1,
-"INT_ZEXT": 2
+"INT_ZEXT": 1
 },
 "lea_lo_noimm__RCR_RCR": {
 "CBRANCH": 1,
@@ -8373,16 +8369,15 @@
 },
 "lea_lo_noimm_x__RCxR_RCxR": {
 "CBRANCH": 2,
-"COPY": 4,
+"COPY": 2,
 "INT_ADD": 4,
 "INT_AND": 1,
 "INT_EQUAL": 1,
 "INT_LEFT": 3,
 "INT_LESS": 1,
-"INT_LESSEQUAL": 1,
 "INT_NEGATE": 1,
 "INT_RIGHT": 1,
-"INT_ZEXT": 4,
+"INT_ZEXT": 2,
 "LOAD": 1
 },
 "lea_lo_noimm_x__RRR_RRR": {
@@ -8436,10 +8431,9 @@
 },
 "lop3_imm_optionalPp__RIR_RIR": {
 "CBRANCH": 1,
-"COPY": 2,
+"COPY": 1,
 "INT_EQUAL": 1,
-"INT_NOTEQUAL": 1,
-"INT_OR": 3
+"INT_OR": 2
 },
 "lop3_lut__RCR_RCR": {
 "CBRANCH": 1,
@@ -8521,10 +8515,10 @@
 },
 "lop3_lut_optionalPp__RUR_RUR": {
 "CBRANCH": 1,
-"COPY": 2,
-"INT_AND": 4,
+"COPY": 1,
+"INT_AND": 3,
 "INT_NEGATE": 3,
-"INT_NOTEQUAL": 2,
+"INT_NOTEQUAL": 1,
 "INT_OR": 2
 },
 "lop3_lut_optionalPp__RuIR_RIR": {
@@ -8661,10 +8655,9 @@
 },
 "lop_noimm__RUR_RUR": {
 "CBRANCH": 1,
-"COPY": 2,
-"INT_AND": 1,
+"COPY": 1,
 "INT_NEGATE": 1,
-"INT_NOTEQUAL": 2
+"INT_NOTEQUAL": 1
 },
 "lop_noimm_optionalPp__RCR_RCR": {
 "CBRANCH": 1,
@@ -11197,14 +11190,13 @@
 },
 "ulea_hi_imm_x__RRuI_RRI": {
 "CBRANCH": 1,
-"COPY": 2,
+"COPY": 1,
 "INT_ADD": 2,
 "INT_LEFT": 2,
-"INT_LESSEQUAL": 1,
 "INT_NOTEQUAL": 1,
 "INT_OR": 1,
 "INT_RIGHT": 1,
-"INT_ZEXT": 4
+"INT_ZEXT": 2
 },
 "ulea_hi_imm_x__RuIR_URIR": {
 "BOOL_NEGATE": 1,
@@ -11407,13 +11399,11 @@
 "INT_OR": 1
 },
 "ulop_noimm_optionalUPp__URURUR": {
-"BOOL_NEGATE": 1,
 "CBRANCH": 1,
-"COPY": 2,
+"COPY": 1,
 "INT_AND": 1,
 "INT_NEGATE": 1,
-"INT_NOTEQUAL": 2,
-"INT_OR": 1
+"INT_NOTEQUAL": 1
 },
 "umov__UI": {
 "CBRANCH": 1,
@@ -11784,10 +11774,10 @@
 "SUBPIECE": 2
 },
 "vote_": {
-"CALLOTHER": 2,
+"CALLOTHER": 1,
 "CBRANCH": 1,
-"COPY": 2,
-"INT_EQUAL": 2
+"COPY": 1,
+"INT_EQUAL": 1
 },
 "vote_vtg_": {
 "CALLOTHER": 1,

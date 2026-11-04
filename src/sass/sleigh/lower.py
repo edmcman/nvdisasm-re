@@ -24,6 +24,7 @@ import sass.semantics.families  # registers the families
 ELEMENT = {"R": 32, "UR": 32, "P": 1, "UP": 1}   # bits per register element
 SHARED = frozenset({"fma.rn.bf16x2", "add.ftz.f16x2", "mul.ftz.f16x2", "fma.ftz.f16x2"})
 SCRATCH = frozenset({"atomic.add.f32.ftz.rn", "atomic.add.f64.rn", "atomic.add.f16x2.rn",
+                     "fma.rn.f16",
                      "hmma.f16.f32.k8.e1", "hmma.f16.f32.k16.e2",
                      "hmma.f16.product.e1", "hmma.f16.product.e2"})
 def nbytes(w): return (w + 7) // 8
@@ -1281,10 +1282,12 @@ def emit(b):
     inputs = lambda writes: frozenset(p for _, e in writes for p in bitvec.leaves(e, "param"))
     dead_inputs = set().union(*(inputs(writes) - inputs([(n, e) for n, e in writes if n not in optional])
                                for _, writes in resolved))
+    def predicate_work(writes):
+        full = Expr("tuple", tuple(e for _, e in writes), 0)
+        kept = Expr("tuple", tuple(bitvec.narrow([e for n, e in writes if n not in optional])), 0)
+        return operations(full) - operations(kept)
     if optional and all(p.args[0] in b.k.operand_types and REG_TYPES.get(b.k.operand_types[p.args[0]].type) in ("P", "UP")
-                        for p in dead_inputs) and any(n not in optional for n in names) and max(operations(Expr("tuple", tuple(e for _, e in writes), 0)) -
-                        operations(Expr("tuple", tuple(e for n, e in writes if n not in optional), 0))
-                        for _, writes in resolved) <= 4:
+                        for p in dead_inputs) and any(n not in optional for n in names) and max(map(predicate_work, (writes for _, writes in resolved))) <= 3:
         keys = tuple(("zero", n) for n in optional)
         replacements = {p: sel(keys, [(values, bitvec.const(1, p.w) if all(values) else p)
                                       for values in itertools.product((False, True), repeat=len(keys))], p.w)
