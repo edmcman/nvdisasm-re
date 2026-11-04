@@ -177,7 +177,9 @@ def synchronization(i):
 
 @family("B2R")
 def b2r(i):
-    mode = str(i.select_fork("mode"))
-    if mode != "RESULT": unmodelled(f"B2R.{mode} barrier-state encoding unresolved")
-    result = primitive.bar_result()
-    return outputs(Rd=result, Pu=result != 0)
+    match str(i.select_fork("mode")):
+        case "BAR": return outputs(Rd=primitive.bar_state(i.value("barname")))
+        case "WARP": return outputs(Rd=primitive.bar_result() & 0x7ff)
+        case "RESULT":
+            result = primitive.bar_result()
+            return outputs(Rd=result, Pu=result != 0)

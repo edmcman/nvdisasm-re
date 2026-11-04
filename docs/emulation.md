@@ -56,9 +56,22 @@ The large snapshot storage is referenced by the context, rather than copied
 at every instruction. The native and Python callback ABIs carry the same
 groups. A standalone instruction must supply its explicit warp context.
 
-BAR.RED generations produce a per-participant barrier result. B2R.RESULT reads
-that state, writes its integer result, and sets Pu when it is nonzero. Reading
-without an established result fails explicitly.
+On 2026-11-04 the shared scheduler also models ordinary BAR.SYNC results, counted
+generation completion between warp turns, and nonblocking BAR.ARV. Barrier
+arrivals retain their predicate values independently of later register writes.
+Blocking and deferred participants receive completed results; earlier ARV
+participants retain their prior result, and the completing warp receives the
+new result. Cooperative kernels start with result zero.
+
+B2R.RESULT reads that result and sets Pu when it is nonzero. B2R.WARP reads its
+low eleven bits. B2R.BAR reads a selected packed barrier state: operation tag,
+explicit expected warp count (zero for implicit counts), accumulated predicates
+(false for AND, true otherwise), and arrived warp count. Completed states clear.
+Python, native and Ghidra callbacks receive the same sixteen state words,
+snapshotted only for instructions that read BAR state.
+Standalone instructions require explicit `barrier_result` or sixteen
+`barrier_states`; missing context fails explicitly. Packed-register BAR producers
+and overlapping arrival generations remain unresolved.
 
 Each lane owns an async-copy queue in the common C++ scheduler. LDGSTS snapshots
 the source value when issued; LDGDEPBAR commits the open group to its encoded

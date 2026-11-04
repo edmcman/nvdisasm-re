@@ -163,7 +163,8 @@ def report(data):
         "and excess P-code for discarded integer predicates. The plan is regenerated; launch "
         "tests compare against the reference on SM89/SM90; span constructors enforce their "
         "narrowed domains; predicate-sharing costs account for surviving expressions. "
-        "All 58 PR checks pass on pushed commit `4e99cda`, with nine skipped. That result "
+        "Pushed commit `292a5f0` currently has 52 passing checks, six running and nine skipped, "
+        "with no failures. That result "
         "does not establish CI status for subsequent commits.", "",
         "## Current matrix validation", "",
         "Direct dense HMMA covers every legal selector form in `hmma_x8_` on SM80 and newer: "
@@ -180,7 +181,7 @@ def report(data):
         "expansion passes for all discovered definition signatures across architectures "
         "and both floating-point modes. Every F16 accumulator encoding agrees with the independent "
         "conversion reference. Shared stages and conversions keep all twenty "
-        "languages below 16 MiB (SM107 exact: 16,774,025 bytes). The shared fraction-width "
+        "languages below 16 MiB (SM107 exact after B2R: 16,775,529 bytes). The shared fraction-width "
         "calculation reduces sampled HMMA operation counts by 13.9–15.1% against "
         "`4e99cda`. Full-form HMMA planning "
         "is exhaustive; input profiles remain sampled regression domains. F16 output "
@@ -190,19 +191,44 @@ def report(data):
         "behavior remains unresolved. Other architectures' numerical staging "
         "remains inferred; sparse/indexed forms and other target gaps remain "
         "unfinished.", "",
-        "## Barrier-state discovery", "",
+        "## Barrier-state implementation", "",
         "Cooperative B2R discovery retains actual kernels and raw outputs in "
         "`b2r-state-SM89.json`, `b2r-staggered-SM89.json`, "
-        "`b2r-reductions-SM89.json` and `b2r-result-modes-SM89.json`. Before completion, "
-        "BAR mode exposes a nonzero packed state. Completed ordinary barriers update "
-        "WARP and RESULT outputs; the current scheduler propagates reduction results "
-        "only, so ordinary-barrier result propagation is an additional runtime gap. "
-        "Arrival-order probes show pending fields count participating warps. Partial-warp "
+        "`b2r-reductions-SM89.json`, `b2r-result-modes-SM89.json`, "
+        "`b2r-exited-SM89.json`, `b2r-pending-values-SM89.json`, "
+        "`b2r-and-counts-SM89.json` and `b2r-arrival-results-SM89.json`. "
+        "BAR mode exposes a packed pending state. "
+        "Separate fields count arrived warps and accumulated predicates (false for AND, "
+        "true otherwise); implicit barriers encode an expected count of zero. Partial-warp "
         "barriers return actual thread counts, and WARP reads the low eleven RESULT bits: "
         "a true Boolean reduction returns RESULT=0xffffffff and WARP=0x7ff. "
-        "The captures earn no verification credit and the unresolved forms remain "
-        "unfinished. Reproduce using `nice uv run python -m research.barrier_state_observe "
+        "All three B2R modes are implemented. The shared scheduler propagates ordinary "
+        "and reduction results, completes counted generations between warp turns and "
+        "models nonblocking ARV. Earlier ARV participants retain their prior result; "
+        "blocking/deferred participants and the completing warp receive the new result. "
+        "SM89 hardware passes 118 new barrier fixtures and thirteen existing reductions. "
+        "Raw captures earn no verification credit. Packed-register producers and "
+        "overlapping generations remain unfinished; other architectures' state layouts "
+        "are inferred. Reproduce discovery using `nice uv run python -m research.barrier_state_observe "
         "--extended --out /tmp/b2r-state.json`.", "",
+        "All-architecture exact/readable lifted validation passes 1,414 tests and 6,236 "
+        "shared control cases. Python/native barrier, reconvergence and matrix checks pass "
+        "88 tests; forty-two fresh checks after the final snapshot optimization and six "
+        "async schedule checks also pass. Ghidra passes 2,008 tests and 6,336 shared cases. "
+        "Twenty reviewed operation-count changes add only the WARP result mask; the "
+        "coverage refresh and updated baseline checks pass. A final run after the snapshot "
+        "optimization passes both barrier Ghidra checks and refreshed coverage in 323 seconds; "
+        "the twenty operation-count checks pass without baseline updates in nine seconds. "
+        "GPU launch, reference and CUDA "
+        "protocol checks pass 148 tests, including 149 shared control scenarios. The "
+        "flat-buffer launch helpers now use their explicit geometry instead of requiring "
+        "the ordinary per-thread fixture record format.", "",
+        "On thirteen identical reduction kernels, a CPU-affinity-pinned process-time "
+        "comparison against `292a5f0` took 29.01 versus 29.53 CPU seconds for 100 Python "
+        "repetitions, and 1.68 versus 1.46 CPU seconds for 1,000 native repetitions. "
+        "The request digest is "
+        "`9d26e0f66dce4d4849dc0ddfee298c8531c3cb1674645be424c0e4e32f13ce80`. "
+        "Barrier snapshots are produced only when an instruction reads BAR state.", "",
     ]
     return "\n".join(text)
 

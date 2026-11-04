@@ -78,6 +78,11 @@ class Runtime:
                 case 'bar_result',[]:
                     if 'barrier_result' not in self.context:raise UnsupportedSemantics('barrier reduction result required')
                     return int(self.context['barrier_result'])&0xffffffff
+                case 'bar_state',[index]:
+                    states=self.context.get('barrier_states')
+                    if states is None or len(states)!=16 or index not in range(16):
+                        raise UnsupportedSemantics('sixteen barrier states required')
+                    return int(states[index])&0xffffffff
                 case 'lane',[]:return self.warp()[1]
                 case 'active',[]:return self.warp()[2]
                 case 'waiting',[]:

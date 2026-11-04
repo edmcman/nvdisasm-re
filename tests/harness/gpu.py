@@ -67,11 +67,13 @@ class Fixture:
 
 
 def fixture_geometry(f):
-    if f.input_size <= 0 or not f.data or len(f.data) % (3 * f.input_size):
-        raise ValueError("input must contain complete thread records")
-    grid, block, count = launch.geometry(f.threads, f.block, f.grid)
+    match f:
+        case Fixture() if f.input_size <= 0 or not f.data or len(f.data) % (3 * f.input_size):
+            raise ValueError("input must contain complete thread records")
+    grid, block, count = launch.geometry(f.threads, f.block, getattr(f, "grid", None))
     if count % prod(block): raise ValueError("input must contain whole CUDA blocks")
-    if f.expected is not None and len(f.expected) != count: raise ValueError("expected output count does not match threads")
+    if (expected := getattr(f, "expected", None)) is not None and len(expected) != count:
+        raise ValueError("expected output count does not match threads")
     return grid, block, count
 
 

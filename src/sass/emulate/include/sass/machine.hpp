@@ -75,6 +75,7 @@ struct WarpContext {
   AsyncState *async;
   uint32_t write_dependency;
   uint32_t async_ready;
+  uint32_t has_bar_states, bar_states[16];
 };
 
 enum Sync { Bar, Bssy, Bsync, Break, Warpsync, Bmov };
@@ -156,6 +157,10 @@ namespace lane {
 inline uint64_t bar_result(const Ctx &c) {
   if (!c.warp.has_bar_result) throw Fault{"barrier reduction result required"};
   return c.warp.bar_result;
+}
+inline uint64_t bar_state(const Ctx &c, uint32_t index) {
+  if (!c.warp.has_bar_states || index >= 16) throw Fault{"sixteen barrier states required"};
+  return c.warp.bar_states[index];
 }
 inline uint64_t lane(const Ctx &c) { return warp(c).lane; }
 inline uint64_t active(const Ctx &c) { return warp(c).active; }

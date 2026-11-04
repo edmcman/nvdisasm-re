@@ -13,7 +13,7 @@ from sass.sleigh.build import ARCHES
 from research.additional_opcodes import OPS, tool
 
 
-def trace(probe, arch, directory, version="9.0", target=None):
+def trace(probe, arch, directory, version="9.0", target=None, include_all=False):
     target = target or arch
     text = re.sub(r"(?m)^\.target\s+sm_\d+\w*", f".target sm_{target[2:]}", probe.read_text())
     text = re.sub(r"(?m)^\.version\s+[\d.]+", f".version {version}", text)
@@ -35,7 +35,7 @@ def trace(probe, arch, directory, version="9.0", target=None):
         instructions = []
         for word in cubin.text_words(image):
             decoded = pydecode.decode(arch, word)
-            if decoded.klass.mnemonic not in OPS: continue
+            if not include_all and decoded.klass.mnemonic not in OPS: continue
             operands = {"@".join(key) if isinstance(key, tuple) else key: value
                         for key, value in decoded.env.items() if not isinstance(key, str) or not key.startswith("__")}
             instructions.append(dict(opcode=decoded.klass.mnemonic, cls=decoded.klass.name, word=word.hex(),

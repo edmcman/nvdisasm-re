@@ -1,7 +1,7 @@
 from itertools import product
 
 from tests.harness import autocase_profiles
-from tests.refs import asynchronous
+from tests.refs import asynchronous, barrier
 
 OPS = {"B2R", "MEMBAR", "LDGSTS", "LDGDEPBAR", "DEPBAR", "CCTL", "ERRBAR", "YIELD"}
 FAMILIES = {op: "asynchronous" if op in ("LDGSTS", "LDGDEPBAR", "DEPBAR") else "control" for op in OPS}
@@ -12,14 +12,27 @@ def generate(c, k, form, profiles):
     if profiles != ["effect_forms"]: raise Unsupported("incompatible effect profile")
     match k.mnemonic:
         case "B2R":
-            if form.get("mode") != "RESULT": raise Unsupported("barrier/warp state encoding unresolved")
             for result in autocase_profiles.PROFILES["effect_forms"]["results"]:
-                for dest in (8, 255):
-                    s = Inputs(c, k, form)
-                    s.fields.update(Rd=dest, Pu=1)
-                    s.add({f"R{dest}": result if dest != 255 else 0, "P1": int(result != 0)}, form,
-                          context=dict(barrier_result=result),
-                          hardware={"skip": "barrier results require prior cooperative reductions; covered by fixtures"})
+                indices = range(16) if form["mode"] == "BAR" else (0,)
+                for index, dest in product(indices, (8, 255)):
+                    s, expected = Inputs(c, k, form), result
+                    s.fields["Rd"] = dest
+                    match form["mode"]:
+                        case "BAR":
+                            s.fields["barname"] = index
+                            states = [value ^ result for value in range(16)]
+                            states[index] = result
+                            context = dict(barrier_states=states)
+                        case "WARP":
+                            expected, context = barrier.warp(result), dict(barrier_result=result)
+                        case "RESULT":
+                            s.fields["Pu"] = 1
+                            context = dict(barrier_result=result)
+                        case _: raise Unsupported("unknown barrier-state mode")
+                    outputs = {f"R{dest}": expected if dest != 255 else 0}
+                    if form["mode"] == "RESULT": outputs["P1"] = int(result != 0)
+                    s.add(outputs, form, context=context,
+                          hardware={"skip": "barrier state requires prior cooperative arrivals; covered by fixtures"})
         case "MEMBAR":
             if "sem" not in k.operand_types or form.get("mmio", "nomembar_mmio") != "nomembar_mmio":
                 raise Unsupported("async/MMIO fence obligations unresolved")

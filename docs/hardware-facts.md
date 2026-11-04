@@ -965,7 +965,8 @@ inferences from their corrected machine descriptions, not hardware verification.
   Every participant arrives even when its reduction predicate is false.
   Thirteen cooperative regression fixtures cover predicate inversion, 64
   participants, sinks, and barrier reuse. Their GPU passes are recorded.
-  B2R's BAR/WARP modes are unresolved.
+  BAR/WARP were unresolved in this initial investigation; the 2026-11-04
+  cooperative discovery below establishes their state encoding.
 - `BRX` without a depth modifier uses next PC + a 64-bit register pair + the
   signed immediate byte offset. Three cooperative GPU fixtures distinguish
   positive/negative targets and Pp inversion. INC/DEC depth forms are unresolved.
@@ -1259,13 +1260,46 @@ B2R cooperative discovery on 2026-11-04:
   RESULT=0xffffffff and WARP=0x7ff; mixed AND returns zero, and mixed OR returns
   the true encoding. POPC returns the number of true lane predicates.
 - Pending BAR state is
-  `tag << 28 | expected_warps << 20 | arrived_warps << 13 | arrived_warps`.
-  Tags are 8 for SYNC/ARV, 9 for POPC, 10 for AND and 11 for OR. Staggering
-  arrivals in both orders distinguishes warp counts from warp identities.
+  `tag << 28 | expected_warps << 20 | accumulated_threads << 8 | arrived_warps`.
+  The expected field is the explicit encoded count in warps, or zero for an
+  implicit count. Tags are 8 for SYNC/ARV, 9 for POPC, 10 for AND and 11 for OR. Staggering
+  arrivals in both orders distinguishes arrival counts from warp identities.
+  `b2r-pending-values-SM89.json` distinguishes the true-thread accumulator
+  from an arrival counter: POPC counts 0, 1, 2, 15, 16, 17 and 31 increment
+  it in units of 256. SYNC, ARV, POPC and OR count true inputs; AND counts
+  false inputs.
   Completion clears the selected BAR state.
 - Retained whole-kernel sources and actual outputs are in
   `research/additional-opcodes/b2r-*-SM89.json`. Reproduce with
   `nice uv run python -m research.barrier_state_observe --extended --out /tmp/b2r.json`
   and `--partial-warps` for mixed reductions and partial CTAs. These are discovery
-  observations, earn no verification credit, and do not yet establish behavior
-  for exited participants or overlapping generations.
+  observations and earn no verification credit. `b2r-exited-SM89.json`
+  establishes that ordinary results exclude exited threads, including whole
+  exited warps and partially exited warps. Overlapping generations remain
+  unestablished.
+- `b2r-arrival-results-SM89.json` establishes result delivery. An earlier
+  nonblocking ARV retains its prior RESULT even after the BAR state clears;
+  the completing warp receives the result. Blocking and deferred barriers
+  deliver results to all waiting participants.
+
+Cache-control compiler discovery on 2026-11-04:
+
+- Pinned ptxas 13.4.92 emits CCTL.D.PF1 for global L1 prefetch and CCTL.D.PF2
+  for global L2 prefetch. On SM80 and newer, L2 evict-last prefetch emits PML2;
+  applypriority L2 evict-normal emits DML2, and discard L2 emits RML2.
+  SM75 rejects the latter PTX operations. These mappings establish compiler
+  intent, not numerical or cache-state verification.
+- Full instruction streams distinguish apparently missing CCTL operations:
+  local L1 prefetch emits CCTLL.PF1, and the PTX 9.4 32-byte valid-address
+  prefetch emits a destination-sink LDG.U8 on SM90 and newer. The uniform
+  prefetch probes emit CCTL.D.PF1; they do not establish cache-selector U.
+- Sources, compiler hashes and decoded words are retained in
+  `research/additional-opcodes/cache-controls-13.4.json` and
+  `cache-standalone-13.4.json`. Reproduce using
+  `PTXAS=/tmp/additional-cuda-13.4/ptxas nice uv run python -m research.cache_controls_trace
+  --out /tmp/cache.json --sources /tmp/cache-sources`, adding `--standalone`
+  to omit the preceding global load.
+- PTX 9.4 specifies prefetch and priority operations as cache effects, while
+  discard permits unstable indeterminate values in the selected 128-byte
+  range. RML2 therefore cannot be treated as an ordinary prefetch or an
+  unconditional no-op. These SASS forms remain unimplemented.

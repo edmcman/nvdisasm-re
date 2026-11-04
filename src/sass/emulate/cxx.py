@@ -140,7 +140,7 @@ class Lower:
     def primitive(self, name, args):
         family, _, variant = name.partition("_")
         match name:
-            case "lane" | "active" | "waiting" | "read_lane" | "operand_lane" | "bar_result" | "ballot" | "match" | "address_space":
+            case "lane" | "active" | "waiting" | "read_lane" | "operand_lane" | "bar_result" | "bar_state" | "ballot" | "match" | "address_space":
                 return f"sass::lane::{name}({', '.join(['c', *args])})"
             case "bmov": return f"sass::lane::synchronize(c, sass::Bmov, {args[0]}, true)"
         if family == "redux" and variant in primitive.REDUCTIONS:

@@ -25,6 +25,25 @@ def source(block, barrier, mode):
         case "warp": body = "WARPSYNC 0xffffffff;"
         case "arrive": body = f"BAR.ARV {barrier}, {block};"
         case "count32": body = f"BAR.SYNC {barrier}, 32;"
+        case "arrival_results" | "deferred_results":
+            operation = "ARV" if mode == "arrival_results" else "SYNC.DEFER_BLOCKING"
+            body = f"""ISETP.LT.U32.AND P0, PT, R0, 32, PT;
+@!P0 BRA observer;
+BAR.{operation} {barrier}, {block};
+complete:
+B2R.BAR R3, {barrier} @sched(dst_wr_sb=0);
+ISETP.NE.U32.AND P1, PT, R3, RZ, PT;
+@P1 BRA complete;
+BRA measured;
+observer:
+MOV R14, 2048;
+delay:
+IADD3 R14, R14, -1, RZ;
+ISETP.NE.U32.AND P1, PT, R14, RZ, PT;
+@P1 BRA delay;
+BAR.{operation} {barrier}, {block};
+measured:
+"""
         case "sync" | "reuse2" | "reuse3":
             count = {"sync": 1, "reuse2": 2, "reuse3": 3}[mode]
             body = "\n".join([f"BAR.SYNC {barrier}, {block};"] * count)
@@ -54,10 +73,23 @@ ISETP.NE.U32.AND P1, PT, R14, RZ, PT;
 arrive:
 BAR.ARV {barrier}, {block};
 """
-        case "pending_sync" | "pending_popc" | "pending_and" | "pending_or":
-            operation = (f"BAR.SYNC {barrier}, {block};" if mode == "pending_sync"
-                         else f"BAR.RED.{mode.removeprefix('pending_').upper()} {barrier}, {block}, PT;")
-            body = f"""ISETP.LT.U32.AND P0, PT, R0, 32, PT;
+        case name if name.startswith("pending_"):
+            op = name.removeprefix("pending_")
+            count = "" if op.startswith("auto_") else f", {block}"
+            op = op.removeprefix("auto_")
+            op, _, pattern = op.partition("_")
+            predicate, setup = "PT", ""
+            match pattern:
+                case "false": predicate = "!PT"
+                case "odd":
+                    predicate, setup = "P4", """LOP3.LUT R3, R0, 1, RZ, 0xc0, !PT;
+ISETP.NE.U32.AND P4, PT, R3, RZ, PT;"""
+                case name if name.startswith("n"):
+                    predicate, setup = "P4", f"ISETP.LT.U32.AND P4, PT, R0, {int(name[1:])}, PT;"
+            operation = (f"BAR.SYNC {barrier}{count};" if op == "sync"
+                         else f"BAR.RED.{op.upper()} {barrier}{count}, {predicate};")
+            body = f"""{setup}
+ISETP.LT.U32.AND P0, PT, R0, 32, PT;
 @!P0 BRA observer;
 {operation}
 {snapshot(barrier)}
@@ -72,6 +104,30 @@ ISETP.NE.U32.AND P1, PT, R14, RZ, PT;
 {operation}
 measured:
 """
+        case "exit_odd" | "exit_warp":
+            predicate = ("LOP3.LUT R3, R0, 1, RZ, 0xc0, !PT;\nISETP.NE.U32.AND P0, PT, R3, RZ, PT;"
+                         if mode == "exit_odd" else "ISETP.LT.U32.AND P0, PT, R0, 32, PT;")
+            body = f"{predicate}\n@P0 EXIT;\nBAR.SYNC {barrier};"
+        case "exit_pending" | "exit_pending_odd":
+            setup = ("ISETP.LT.U32.AND P0, PT, R0, 32, PT;\n@P0 EXIT;" if mode == "exit_pending" else
+                     "LOP3.LUT R3, R0, 1, RZ, 0xc0, !PT;\nISETP.NE.U32.AND P0, PT, R3, RZ, PT;\n@P0 EXIT;")
+            first = 64 if mode == "exit_pending" else 32
+            body = f"""{setup}
+ISETP.LT.U32.AND P0, PT, R0, {first}, PT;
+@!P0 BRA observer;
+BAR.SYNC {barrier};
+{snapshot(barrier)}
+BRA measured;
+observer:
+MOV R14, 2048;
+delay:
+IADD3 R14, R14, -1, RZ;
+ISETP.NE.U32.AND P1, PT, R14, RZ, PT;
+@P1 BRA delay;
+{snapshot(barrier)}
+BAR.SYNC {barrier};
+measured:
+"""
         case name if name.startswith("auto_"):
             operation = name.removeprefix("auto_")
             body = ("BAR.SYNC " + str(barrier) + ";" if operation == "sync" else
@@ -79,8 +135,8 @@ measured:
 ISETP.NE.U32.AND P0, PT, R3, RZ, PT;
 BAR.RED.{operation.upper()} {barrier}, P0;""")
         case _: raise ValueError(f"unknown barrier-state mode {mode}")
-    measured = "" if mode.startswith("pending_") else snapshot(barrier)
-    join = f"BAR.SYNC {other};" if mode.startswith("auto_") else f"BAR.SYNC {other}, {block};"
+    measured = "" if mode.startswith(("pending_", "exit_pending")) else snapshot(barrier)
+    join = f"BAR.SYNC {other};" if mode.startswith(("auto_", "exit_")) else f"BAR.SYNC {other}, {block};"
     return f""".target SM89
 .kernel barrier_state
 .param input, 8, 8

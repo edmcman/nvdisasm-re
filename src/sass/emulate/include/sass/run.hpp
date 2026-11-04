@@ -27,7 +27,7 @@ struct Info {
   uint32_t deferred, deferred_gate, waits, read_dependency, write_dependency;
   uint32_t unsupported_scope;
   Operand groups[8];
-  uint32_t bar_reduction;
+  uint32_t bar_reduction, arrival_only, read_bar_state;
 };
 
 struct Program { uint64_t base, count; void (*const *code)(Ctx &); const Info *info; };
@@ -79,7 +79,7 @@ struct Lane {
   uint32_t sync = 0;
   int convergence = -1, barrier = -1;
   bool bar_parked = false;
-  uint32_t has_bar_result = 0, bar_result = 0, bar_value = 0;
+  uint32_t has_bar_result = 0, bar_result = 0;
   AsyncState async;
   bool live() const { return t.pc != 0; }
 };
@@ -91,10 +91,49 @@ struct Run {
   uint64_t group = 0;
   struct Convergence { uint32_t members = 0; uint64_t target = 0; };
   using Convergences = std::array<Convergence, 16>;
-  struct Barrier { uint32_t count = 0, reduction = 0; bool implicit = false; std::vector<Lane *> members; };
+  struct Barrier {
+    uint32_t count = 0, reduction = 0;
+    bool implicit = false;
+    std::vector<Lane *> members;
+    std::vector<uint32_t> values;
+  };
   using Barriers = std::map<uint32_t, Barrier>;
 
   uint32_t lane_id(const Lane &u) const { return uint32_t(u.index % l.block % 32); }
+
+  bool complete_barriers(Barriers &barriers, const std::vector<Lane> &lanes) {
+    bool completed = false;
+    for (auto it = barriers.begin(); it != barriers.end();) {
+      auto &b = it->second;
+      uint32_t required = b.count;
+      if (b.implicit)
+        for (const auto &u : lanes)
+          if (!u.live() && std::find(b.members.begin(), b.members.end(), &u) == b.members.end()) --required;
+      if (b.members.size() != required) { ++it; continue; }
+      const uint32_t sum = std::accumulate(b.values.begin(), b.values.end(), uint32_t(0));
+      const uint32_t result = b.reduction == 1 ? -(sum == required) : b.reduction == 2 ? -(sum != 0) : sum;
+      for (Lane *u : b.members) {
+        if (u->barrier == int(it->first) || u->index % l.block / 32 == b.members.back()->index % l.block / 32)
+          u->has_bar_result = 1, u->bar_result = result;
+        if (u->barrier != int(it->first)) continue;
+        u->waiting = false, u->released = u->bar_parked, u->barrier = -1, u->bar_parked = false;
+      }
+      it = barriers.erase(it);
+      completed = true;
+    }
+    return completed;
+  }
+
+  uint32_t barrier_state(const Barrier &b) const {
+    std::vector<uint64_t> warps;
+    for (const Lane *u : b.members) warps.push_back(u->index % l.block / 32);
+    std::sort(warps.begin(), warps.end());
+    const uint32_t arrived = uint32_t(std::unique(warps.begin(), warps.end()) - warps.begin());
+    const uint32_t tag = b.reduction == 0 ? 8 : b.reduction == 3 ? 9 : b.reduction + 9;
+    const uint32_t total = std::accumulate(b.values.begin(), b.values.end(), uint32_t(0));
+    const uint32_t sum = b.reduction == 1 ? uint32_t(b.values.size()) - total : total;
+    return tag << 28 | (b.implicit ? 0 : ((b.count + 31) / 32) << 20) | sum << 8 | arrived;
+  }
 
   void coordinates(Thread &t, uint64_t rank, const uint32_t *dims, const uint32_t *regs) {
     t.sr[regs[0]] = uint32_t(rank % dims[0]);
@@ -268,10 +307,14 @@ struct Run {
           return stop(Faulted, u->index, pc, "incompatible barrier participant counts or reductions");
         b.count = expected, b.implicit = !count;
         b.reduction = info.bar_reduction;
-        u->bar_value = uint32_t(read(u->t, info.pp) ^ info.pp_not);
+        if (std::find(b.members.begin(), b.members.end(), u) != b.members.end())
+          return stop(Faulted, u->index, pc, "barrier arrival repeats before completion");
         b.members.push_back(u);
-        u->barrier = int(id), u->bar_parked = !info.deferred;
-        if (!info.deferred) u->waiting = true, held.push_back(u);
+        b.values.push_back(uint32_t(bool(read(u->t, info.pp) ^ info.pp_not)));
+        if (!info.arrival_only) {
+          u->barrier = int(id), u->bar_parked = !info.deferred;
+          if (!info.deferred) u->waiting = true, held.push_back(u);
+        }
       }
       drop(held);
     } else if (info.warpsync) {
@@ -302,7 +345,7 @@ struct Run {
     }
     OperandGroups groups;
     if (info.collective == 3) {
-      std::fill(std::begin(groups.spans), std::end(groups.spans), 0);
+      groups = {};
       w.groups = &groups;
       for (uint32_t group = 0; group < 8; ++group) {
         const Operand &o = info.groups[group];
@@ -314,6 +357,9 @@ struct Run {
             groups.words[group][lane_id(*u)][word] = o.kind == 2 ? element(u->t, o.file, o.index + word) : uint32_t(o.value);
       }
     }
+    w.has_bar_states = info.read_bar_state;
+    if (w.has_bar_states)
+      for (const auto &[id, b] : barriers) w.bar_states[id] = barrier_state(b);
     for (Lane *u : active) {
       w.lane = lane_id(*u);
       w.has_bar_result = u->has_bar_result, w.bar_result = u->bar_result;
@@ -350,6 +396,7 @@ struct Run {
       b.lanes.resize(std::min(first + l.block, l.last) - first);
       for (uint64_t k = 0; k < b.lanes.size(); ++k) {
         start(b.lanes[k], first + k);
+        b.lanes[k].has_bar_result = 1;
         b.lanes[k].local.base = l.image;
         if (k % 32 == 0) b.warps.emplace_back(), b.convergence.emplace_back();
         b.warps.back().push_back(&b.lanes[k]);
@@ -364,27 +411,12 @@ struct Run {
         for (auto &u : b.lanes) if (u.live()) live.push_back(&u);
         if (live.empty()) continue;
         alive = true;
-        for (auto it = b.barriers.begin(); it != b.barriers.end();) {
-          auto &barrier = it->second;
-          uint32_t required = barrier.count;
-          if (barrier.implicit)
-            for (auto &u : b.lanes)
-              if (!u.live() && std::find(barrier.members.begin(), barrier.members.end(), &u) == barrier.members.end()) --required;
-          if (barrier.members.size() != required) { ++it; continue; }
-          uint32_t sum = 0;
-          for (Lane *u : barrier.members) sum += !!u->bar_value;
-          const uint32_t result = barrier.reduction == 1 ? -(sum == required) : barrier.reduction == 2 ? -(sum != 0) : sum;
-          if (barrier.reduction)
-            for (Lane *u : barrier.members) u->has_bar_result = 1, u->bar_result = result;
-          for (Lane *u : barrier.members)
-            u->waiting = false, u->released = u->bar_parked, u->barrier = -1, u->bar_parked = false;
-          it = b.barriers.erase(it);
-          any = true;
-        }
+        any |= complete_barriers(b.barriers, b.lanes);
         for (size_t index : order(b.warps.size())) {
           bool moved;
           if (uint32_t s = turn(b.warps[index], b.convergence[index], b.barriers, uint32_t(b.lanes.size()), b.memory, moved)) return s;
           any |= moved;
+          any |= complete_barriers(b.barriers, b.lanes);
         }
         if (l.scope == 1) break;
       }

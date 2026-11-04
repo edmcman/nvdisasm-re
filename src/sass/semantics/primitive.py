@@ -84,3 +84,6 @@ def bmov(*args):
 
 def bar_result(): return primitive("bar_result", 32)
 
+
+def bar_state(index): return primitive("bar_state", 32, index)
+

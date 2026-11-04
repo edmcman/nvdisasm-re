@@ -18,6 +18,20 @@ def emulator_cases(c):
     c.add("bssy_", {}, {}, dict(error="synchronization context required"))
     # Missing convergence state must fail instead of silently treating BMOV as a no-op.
     c.add("bmov_clear__Rd", dict(Rd=8, cbu_state="B0"), {}, dict(error="synchronization context required"))
+    for mode in ("BAR", "WARP", "RESULT"):
+        cls = f"b2r__{mode}"
+        extra = dict(barname=15) if mode == "BAR" else dict(Pu=0) if mode == "RESULT" else {}
+        context = dict(barrier_states=[0] * 15 + [0xa0202001]) if mode == "BAR" else dict(barrier_result=0x800)
+        value = {"BAR": 0xa0202001, "WARP": 0, "RESULT": 0x800}[mode]
+        message = "sixteen barrier states required" if mode == "BAR" else "barrier reduction result required"
+        c.add(cls, dict(Rd=8, **extra), {}, dict(error=message))
+        for p0, invert, dest in itertools.product((0, 1), (0, 1), (8, 255)):
+            enabled = p0 ^ invert
+            expected = {f"R{dest}": (value if enabled else 0x12345678) if dest != 255 else 0,
+                        "P0": int(value != 0) if enabled and mode == "RESULT" else p0}
+            c.add(cls, dict(Rd=dest, Pg=0, **{"Pg@not": invert}, **extra),
+                  dict(R8=0x12345678, P0=p0), expected, context=context,
+                  hardware={"skip": "synthetic barrier state; cooperative fixtures establish production"})
     for name, cls, fields, message in [("loop_limit", "bra_", dict(sImm=-16), "kernel instruction limit"),
                                        ("zero_target", "bra_", dict(sImm=-0x100010), "terminated without EXIT"),
                                        ("fallthrough", "nop_", {}, "PC outside kernel")]:
@@ -77,4 +91,5 @@ def branch(a, b, c):
 def gpu_fixtures(arch="SM89"):
     from tests.harness import arguments, scalar, synchronization
     return [scalar.launch("branch", branch, arch=arch), arguments.fixture(arch),
-            *synchronization.reductions(arch), *synchronization.indirect_branches(arch)]
+            *synchronization.reductions(arch), *synchronization.barrier_states(arch),
+            *synchronization.indirect_branches(arch)]

@@ -25,7 +25,8 @@ class WarpContext(ctypes.Structure):
                [("values", ctypes.c_uint64 * 32), ("predicates", ctypes.c_uint64 * 32),
                 ("groups", ctypes.POINTER(OperandGroups)),
                 ("has_bar_result", ctypes.c_uint32), ("bar_result", ctypes.c_uint32), ("async_state", ctypes.c_void_p),
-                ("write_dependency", ctypes.c_uint32), ("async_ready", ctypes.c_uint32)]
+                ("write_dependency", ctypes.c_uint32), ("async_ready", ctypes.c_uint32),
+                ("has_bar_states", ctypes.c_uint32), ("bar_states", ctypes.c_uint32 * 16)]
 
 
 class AsyncCopy(ctypes.Structure):
@@ -81,6 +82,9 @@ def registers(t):
 def warp(context):
     w, found = WarpContext(), context.get("warp")
     if "barrier_result" in context: w.has_bar_result, w.bar_result = 1, int(context["barrier_result"])
+    if (states := context.get("barrier_states")) is not None:
+        if len(states) != 16: raise UnsupportedSemantics("sixteen barrier states required")
+        w.has_bar_states, w.bar_states[:] = 1, [int(value) & 0xffffffff for value in states]
     if not found: return w
     w.present, w.lane, w.active = 1, int(found.get("lane", 0)), int(found.get("active", 0xffffffff))
     if found.get("waiting") is not None: w.has_waiting, w.waiting = 1, int(found["waiting"]) & 0xffffffff

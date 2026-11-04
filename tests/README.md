@@ -320,6 +320,26 @@ in all twenty Ghidra languages took 866 seconds, including 180,000 shared cases,
 120 whole-kernel fixture tests and full dataflow checks. Plan about fifteen minutes
 for that run; its earlier 8–10 minute estimate was too low.
 
+The B2R extension (2026-11-04) passed 1,414 lifted checks and 6,236 shared control
+cases in 16 seconds. The broader Python/native barrier, reconvergence and matrix
+run took 710 seconds; six async schedule checks took 200 seconds. All-architecture
+exact/readable Ghidra control validation took 1,021 seconds, passing 2,008 tests and
+6,336 shared cases before updating twenty WARP-mask operation-count baselines.
+These runs overlapped other validation and are not isolated timing baselines.
+Plan about 2–4 minutes for the focused final barrier Ghidra checks and about
+twenty minutes for the broader control run.
+
+The final barrier Ghidra and coverage checks took 323 seconds after changing the
+ABI snapshot flag: callback libraries rebuilt, and definition discovery competed
+for CPU time. Allow 6–8 minutes with those cold libraries and concurrent discovery.
+The twenty operation-count checks passed without updates in nine seconds.
+
+Repeated reduction kernels revealed unnecessary barrier snapshots in ordinary
+instructions. Snapshots now occur only for B2R BAR readers. On identical requests,
+with CPU affinity fixed and process CPU time measured, 100 Python repetitions took
+29.01 seconds before and 29.53 afterward; 1,000 native repetitions took 1.68 and
+1.46 seconds. Competing jobs explained the larger initial wall-clock difference.
+
 ```sh
 nice uv run pytest tests/test_definition_functions.py
 CXX=g++ nice uv run pytest -m native tests/test_definition_functions.py tests/test_emulate_fp.py tests/test_fp_backends.py tests/test_emulate_ops.py

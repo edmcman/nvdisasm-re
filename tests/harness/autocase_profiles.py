@@ -660,7 +660,8 @@ PROFILES['hmma_tf32_forms'] = dict(patterns=(
         (0x7fffffff, 0x3f800000, 0), (0x3f800000, 0xff800001, 0),
         (0, 0, 0xff800001), (0x7f800000, 0x3f800000, 0xff800000))),
     *(f"random_{seed}" for seed in range(16))))
-PROFILES['effect_forms'] = dict(results=(0, 1, 16, 32, 64, 0xffffffff),
+PROFILES['effect_forms'] = dict(results=(0, 1, 16, 32, 64, 0x7ff, 0x800, 0x801,
+                                       0x80202001, 0x90202001, 0xa0202001, 0xb0202001, 0xffffffff),
                               words=(0, 0x12345678, 0xfedcba98765432100123456789abcdef),
                               descriptors=((6, 0x10000000), (12, 0x10000000), (6, 0), (12, 0)))
 PROFILES['integer_narrowing'] = dict(values=(

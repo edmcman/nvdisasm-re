@@ -50,6 +50,7 @@ def run(request, engine, arch):
             context['async'] = pending
             if w.async_ready: pending.complete()
             if w.has_bar_result: context['barrier_result'] = w.bar_result
+            if w.has_bar_states: context['barrier_states'] = list(w.bar_states)
             if scope != 'thread':
                 context['synchronization'] = dict(context.get('synchronization', {}), bssy=True, bsync=True, bar=True, warpsync=True)
             if w.present:

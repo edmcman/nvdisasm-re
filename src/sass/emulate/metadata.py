@@ -35,7 +35,7 @@ class Instruction:
         d = self.decoded
         if d is None: return None
         k = d.klass
-        if k.mnemonic == 'BAR' and not k.name.startswith(('bar__SYNC_', 'bar__SYNC_dfrBlk_', 'bar__RED_')):
+        if k.mnemonic == 'BAR' and not k.name.startswith(('bar__SYNC_', 'bar__SYNC_dfrBlk_', 'bar__RED_', 'bar__ARV_')):
             return 'unsupported barrier in cooperative scope: ' + d.text
         if k.mnemonic == 'BAR' and {'Rb', 'Rc'} <= k.operand_types.keys():
             return 'unresolved packed-register barrier: ' + d.text
@@ -61,7 +61,7 @@ class Instruction:
                 case "all",: sync = 1
                 case "immediate", mask: sync = 2
                 case "operand", name: sync, sync_operand = 3, location(name)
-        fields = [int(k.mnemonic == "EXIT"), int(k.name.startswith(("bar__SYNC", "bar__RED"))), int(k.mnemonic == "WARPSYNC"),
+        fields = [int(k.mnemonic == "EXIT"), int(k.name.startswith(("bar__SYNC", "bar__RED", "bar__ARV"))), int(k.mnemonic == "WARPSYNC"),
                   {None: 0, "values": 1, "predicates": 2}[key], env.get(("Pg", "not"), 0), env.get(("Pp", "not"), 0), sync, len(dests)]
         operands = [location("Pg"), location("Pp") if "Pp" in k.operand_types else ("const", 1), location(source) if source else None, sync_operand]
         convergence = {'BSSY': 1, 'BSYNC': 2}.get(k.mnemonic, 0)
@@ -76,6 +76,8 @@ class Instruction:
                  "{" + ", ".join(operand(location(name)) if name in schedule.WARP_GROUPS.get(k.mnemonic, ())
                                 and name in k.operand_types else operand(None) for name in primitive.OPERAND_GROUPS) + "}",
                  str({"AND": 1, "OR": 2, "POPC": 3}.get(ir.load(arch).rev_enums[k.operand_types["op"].type][env["op"]], 0)
-                     if k.name.startswith("bar__RED") else 0)]
+                     if k.name.startswith("bar__RED") else 0),
+                 str(int(k.name.startswith("bar__ARV"))),
+                 str(int(k.mnemonic == "B2R" and "barname" in k.operand_types))]
         if k.mnemonic in schedule.WARP_GROUPS: fields[3] = 3
         return "{" + ", ".join([*map(str, fields), *map(operand, operands), f"UINT64_C({mask:#x})", "nullptr", f"D{i}" if dests else "nullptr", json.dumps(self.unsupported(arch)) if self.unsupported(arch) else "nullptr", *extra]) + "}"
