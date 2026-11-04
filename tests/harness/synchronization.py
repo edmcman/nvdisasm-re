@@ -90,8 +90,10 @@ COUNTED_REGISTERS = 'MOV R14, 1;\nMOV R15, 32;\n' + COUNTED.replace(
 COUNTED_DEFERRED = COUNTED_REGISTERS.replace('BAR.SYNC ', 'BAR.SYNC.DEFER_BLOCKING ')
 
 
-def image(body, arch='SM89', name='synchronize'):
+def image(body, arch='SM89', name='synchronize', global_index=False):
     address = '[R20.64]' if arch == 'SM89' else 'desc[UR4][R20.64]'
+    index = f'''S2R R10, SR_CTAID.X @sched(dst_wr_sb=0);
+IMAD R0, R10, c[0x0][{launch.LAUNCH_LAYOUT[arch][0]}], R0;''' if global_index else ''
     return assemble_cubin(f'''.target {arch}
 .kernel {name}
 .param input, 8, 8
@@ -104,6 +106,7 @@ MOV R20, c[0x0][$output];
 MOV R21, c[0x0][$output+4];
 ULDC.64 UR4, c[0x0][{launch.GLOBAL_DESCRIPTOR[arch]}];
 S2R R0, SR_TID.X @sched(dst_wr_sb=0);
+{index}
 IMAD.WIDE.U32 R20, R0, 4, R20;
 STG.E {address}, RZ;
 LOP3.LUT R3, R0, 1, RZ, 0xc0, !PT;

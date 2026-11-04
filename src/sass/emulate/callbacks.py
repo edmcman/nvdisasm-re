@@ -60,6 +60,7 @@ def run(request, engine, arch):
                                                        for j, name in enumerate(primitive.OPERAND_GROUPS)
                                                        if w.groups and w.groups.contents.spans[j]})
             decoded = program.instructions[(thread.contents.pc - base) // 16].decoded
+            if decoded.klass.mnemonic == 'CCTL': context['cache'] = machine.Cache(program.lib, w.cache)
             pc = thread.contents.pc
             taken = "Pg" not in decoded.klass.operand_types or schedule.operand(arch, lane, decoded, "Pg") ^ decoded.env.get(("Pg", "not"), 0)
             lane.step(decoded, context)

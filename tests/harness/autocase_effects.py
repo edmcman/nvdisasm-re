@@ -1,7 +1,7 @@
 from itertools import product
 
 from tests.harness import autocase_profiles
-from tests.refs import asynchronous, barrier
+from tests.refs import asynchronous, barrier, cache
 
 OPS = {"B2R", "MEMBAR", "LDGSTS", "LDGDEPBAR", "DEPBAR", "CCTL", "ERRBAR", "YIELD"}
 FAMILIES = {op: "asynchronous" if op in ("LDGSTS", "LDGDEPBAR", "DEPBAR") else "control" for op in OPS}
@@ -42,6 +42,24 @@ def generate(c, k, form, profiles):
             event = dict(op="MEMBAR", semantics="DEFAULT" if form["sem"] == "nomembar_sem" else form["sem"], scope=form["sco"])
             s.add(dict(__events=1, __event_values=[event], __max_ops=dict(count=4, userops=["sass_fence"])), form,
                   hardware={"skip": "SC fence events are internal model state; hardware ordering requires a cooperative fixture"})
+        case "CCTL":
+            if k.name not in ("cctl__sImmOffset", "cctl__sImmOffset_pf2") or form["cache"] != "D":
+                raise Unsupported("cache descriptor, predicate result or cache selector unresolved")
+            if form["cop"] not in cache.OPERATIONS or c.arch == "SM75" and form["cop"] in ("PML2", "DML2"):
+                raise Unsupported("cache operation unresolved")
+            bits = 64 if form["e"] == "E" else 32
+            for base, offset in ((0x180, -128), (0xffffff80, 128), (0x8000000000000180, -128),
+                                 (0x180, 0x7fffff80), (0x180, -0x80000000)):
+                s = Inputs(c, k, form)
+                s.operand(("Ra",), base, 2, size=bits // 8)
+                s.fields["Ra_offset"] = offset
+                event = cache.event(form["cop"], base, offset, bits)
+                payload = bytes((index * 37 + 11) % 256 for index in range(128))
+                s.memory = [dict(space="ram", address=event["address"], hex=payload.hex())]
+                s.add(dict(__events=1, __event_values=[event], __memory=payload.hex(),
+                           __max_ops=dict(count=12, userops=["sass_cache_control"])), form,
+                      observe_memory=[dict(space="ram", address=event["address"], size=128)],
+                      hardware=dict(adapter="memory", expected=dict(__memory=payload.hex())))
         case "LDGSTS": return copies(c, k, form)
         case "LDGDEPBAR":
             s = Inputs(c, k, form)

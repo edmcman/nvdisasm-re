@@ -78,16 +78,19 @@ def session(ldefs,langid):
     thread_class=jpype.JClass('ghidra.pcode.emu.DefaultPcodeThread')
     library_field=thread_class.class_.getDeclaredField('library');library_field.setAccessible(True)
     BlockEmulator=java_class('BlockEmulator')
+    def location(space,offset):
+        offset=int(offset)&((1<<64)-1)
+        return space.getAddress(offset if offset<1<<63 else offset-(1<<64))
     def write_memory(state,memory):
         for mem in memory:
             sp=lang.getAddressFactory().getAddressSpace(mem['space']);data=bytes.fromhex(mem['hex'])
-            state.setVar(Varnode(sp.getAddress(mem['address']),len(data)),jpype.JArray(jpype.JByte)(data))
+            state.setVar(Varnode(location(sp,mem['address']),len(data)),jpype.JArray(jpype.JByte)(data))
     def value(state,r):return int.from_bytes(bytes(state.getVar(r,reason)),'little')
     named={int(r.getOffset()):(n,r) for n,r in architectural}
     class GhidraLane:
         """A thread of a Ghidra emulator, stepped by `schedule.run_kernel`."""
         def __init__(self,kernel,thread):self.kernel,self.thread,self.state=kernel,thread,thread.getState()
-        def pc(self):return int(self.thread.getCounter().getOffset())
+        def pc(self):return int(self.thread.getCounter().getOffset())&((1<<64)-1)
         def read(self,file,index):return read(self.state,file+str(index))
         def store(self,space,address,data):write_memory(self.state,[dict(space=space,address=address,hex=data.hex())])
         def seed(self,name,v):seed(self.state,name,v)
@@ -115,13 +118,13 @@ def session(ldefs,langid):
                 library_field.set(thread,thread.getUseropLibrary().compose(lib))
                 write_memory(thread.getState(),[m for m in self.memory if m['space']=='localmem' or i==0 and
                              (scope!='launch' or m['space']=='shared')])
-                thread.overrideCounter(space.getAddress(self.base));lanes.append(GhidraLane(self,thread))
+                thread.overrideCounter(location(space,self.base));lanes.append(GhidraLane(self,thread))
             return lanes
-        def output(self,lane,address,size):return bytes(lane.state.getVar(Varnode(space.getAddress(address),size),reason))
+        def output(self,lane,address,size):return bytes(lane.state.getVar(Varnode(location(space,address),size),reason))
         def destinations(self,pc):
             """The architectural registers the instruction at pc writes: its p-code's register outputs."""
             if pc not in self.written:
-                outs=[(int(v.getOffset()),int(v.getSize())) for op in parse(lang,space.getAddress(pc),self.code[pc-self.base:pc-self.base+16]).getPcode()
+                outs=[(int(v.getOffset()),int(v.getSize())) for op in parse(lang,location(space,pc),self.code[pc-self.base:pc-self.base+16]).getPcode()
                       if (v:=op.getOutput()) is not None and v.isRegister()]
                 self.written[pc]=list(dict.fromkeys(named[o+k] for o,size in outs for k in range(size) if o+k in named))
             return self.written[pc]
@@ -129,7 +132,7 @@ def session(ldefs,langid):
                     for file,name in (('P','PT'),('UP','UPT')) if file in REG_FILES]
     def instruction(request):
         emulator=PcodeEmulator(lang);thread=emulator.newThread();state=thread.getState()
-        address=int(request.get('address',0x1000));addr=space.getAddress(address)
+        address=int(request.get('address',0x1000));addr=location(space,address)
         thread.overrideCounter(addr)
         runtime.context=request.get('context',{});runtime.events=[];runtime.last_error=None
         # Architectural registers start at Ghidra's default zero value, so tests may also inspect
@@ -141,7 +144,7 @@ def session(ldefs,langid):
         ins=parse(lang,addr,bytes.fromhex(request['word']))
         program=PcodeProgram.fromInstruction(ins,False);ops=program.getCode()
         # Execute with the actual Ghidra byte arithmetic and state machinery.
-        thread.overrideCounter(space.getAddress(address+16))
+        thread.overrideCounter(location(space,address+16))
         # Composed, as in kernels: Java then runs the default methods (12.2's getSymbols), which JPype 1.5.2 proxies cannot.
         thread.getExecutor().execute(program,thread.getUseropLibrary().compose(lib))
         registers={}
@@ -150,9 +153,9 @@ def session(ldefs,langid):
         memories=[]
         for mem in request.get('observe_memory',[]):
             sp=lang.getAddressFactory().getAddressSpace(mem['space'])
-            data=bytes(state.getVar(Varnode(sp.getAddress(mem['address']),mem['size']),reason))
+            data=bytes(state.getVar(Varnode(location(sp,mem['address']),mem['size']),reason))
             memories.append(dict(mem,hex=data.hex()))
-        out=dict(text=str(ins),registers=registers,memory=memories,counter=int(thread.getCounter().getOffset()),events=runtime.events)
+        out=dict(text=str(ins),registers=registers,memory=memories,counter=int(thread.getCounter().getOffset())&((1<<64)-1),events=runtime.events)
         if request.get('inspect_pcode'):
             out['pcode_ops']=dict(Counter(str(op.getMnemonic()) for op in ops))
             out['pcode_userops']=[str(lang.getUserDefinedOpName(int(op.getInput(0).getOffset())))

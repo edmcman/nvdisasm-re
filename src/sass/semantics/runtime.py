@@ -60,6 +60,14 @@ class Runtime:
             if sem not in range(3) or scope not in range(4):raise UnsupportedSemantics('invalid fence controls')
             self.events.append(dict(op='MEMBAR',semantics=('SC','ALL','DEFAULT')[sem],scope=('CTA','SM','GPU','SYS')[scope]))
             return 0
+        if name=='sass_cache_control':
+            operation,address=args
+            try:
+                if cache:=self.context.get('cache'):cache.issue(operation,address)
+                else:native.cache_controls(operation,address)
+            except native.Failure as error:raise UnsupportedSemantics(str(error)) from error
+            self.events.append(dict(op='CCTL',operation=primitive.CACHE_OPERATIONS[operation],address=address))
+            return 0
         if name in ('sass_async_issue','sass_async_commit','sass_async_wait'):
             if self.context.get('async_record'):
                 self.events.append(dict(op=name.removeprefix('sass_'),args=args))

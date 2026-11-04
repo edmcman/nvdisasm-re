@@ -172,6 +172,7 @@ struct Run {
   }
 
   uint32_t step(Lane &u, uint64_t pc, uint64_t i, Memory &shared, WarpContext &w) {
+    w.cache = &(shared.global ? *shared.global : shared).cache;
     if (u.steps >= l.max_steps) return stop(Limited, u.index, pc);
     u.last = pc;
     const Info &info = p.info[i];

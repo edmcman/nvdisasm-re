@@ -57,16 +57,16 @@ Partial counts require operand restrictions and remain included in Unresolved. R
 
 | Architecture | Legal | Supported | Partial | Unresolved | Reference | GPU | Unplanned |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| SM75 | 96 | 0 | 0 | 96 | 0/0 | 0/0 | 0 |
-| SM80 | 144 | 0 | 0 | 144 | 0/0 | 0/0 | 0 |
-| SM86 | 144 | 0 | 0 | 144 | 0/0 | 0/0 | 0 |
-| SM89 | 160 | 0 | 0 | 160 | 0/0 | 0/0 | 0 |
-| SM90 | 144 | 0 | 0 | 144 | 0/0 | 0/0 | 0 |
-| SM100 | 172 | 0 | 0 | 172 | 0/0 | 0/0 | 0 |
-| SM101 | 172 | 0 | 0 | 172 | 0/0 | 0/0 | 0 |
-| SM103 | 172 | 0 | 0 | 172 | 0/0 | 0/0 | 0 |
-| SM107 | 172 | 0 | 0 | 172 | 0/0 | 0/0 | 0 |
-| SM120 | 172 | 0 | 0 | 172 | 0/0 | 0/0 | 0 |
+| SM75 | 96 | 4 | 0 | 92 | 4/0 | 0/0 | 0 |
+| SM80 | 144 | 8 | 0 | 136 | 8/0 | 0/0 | 0 |
+| SM86 | 144 | 8 | 0 | 136 | 8/0 | 0/0 | 0 |
+| SM89 | 160 | 8 | 0 | 152 | 8/0 | 4/0 | 0 |
+| SM90 | 144 | 8 | 0 | 136 | 8/0 | 0/0 | 0 |
+| SM100 | 172 | 8 | 0 | 164 | 8/0 | 0/0 | 0 |
+| SM101 | 172 | 8 | 0 | 164 | 8/0 | 0/0 | 0 |
+| SM103 | 172 | 8 | 0 | 164 | 8/0 | 0/0 | 0 |
+| SM107 | 172 | 8 | 0 | 164 | 8/0 | 0/0 | 0 |
+| SM120 | 172 | 8 | 0 | 164 | 8/0 | 0/0 | 0 |
 
 ## DEPBAR
 
@@ -214,11 +214,17 @@ The second trace set, `compiler-probes-13.4.json` and `compiler-sources-13.4/`, 
 
 The retained YOLO replay compares every captured memory region: 249 launches pass, 65 are blocked, 0 differ, and 0 have no memory region to compare. Passing launches compare 470 complete memory regions. Target instructions executed by passing launches: DEPBAR in 48 launches, HMMA in 48 launches, LDGDEPBAR in 48 launches, LDGSTS in 48 launches, LDSM in 48 launches. Executed counts in each launch record count distinct visited instruction locations, rather than dynamic invocations. See `research/additional-opcodes/yolo-replay.json`.
 
-PR #119's failures came from a stale SM107 case plan, launch tests still expecting Ghidra to reject launch scope, invalid size selectors admitted by span constructors, and excess P-code for discarded integer predicates. The plan is regenerated; launch tests compare against the reference on SM89/SM90; span constructors enforce their narrowed domains; predicate-sharing costs account for surviving expressions. Pushed commit `292a5f0` currently has 52 passing checks, six running and nine skipped, with no failures. That result does not establish CI status for subsequent commits.
+PR #119's failures came from a stale SM107 case plan, launch tests still expecting Ghidra to reject launch scope, invalid size selectors admitted by span constructors, and excess P-code for discarded integer predicates. The plan is regenerated; launch tests compare against the reference on SM89/SM90; span constructors enforce their narrowed domains; predicate-sharing costs account for surviving expressions. Pushed commit `0cdf0f2` has 53 passing checks, five running and nine skipped at the recorded 2026-11-04 poll, with no failures. That result does not establish CI status for subsequent commits.
 
 ## Current matrix validation
 
-Direct dense HMMA covers every legal selector form in `hmma_x8_` on SM80 and newer: F16/F32, BF16/F32, F16/F16 and TF32/F32, plus E6M9/F32 on SM86/SM89/SM90. SM75 remains unresolved. SM89 hardware regression passes 11,844 matrix shared cases across all eighty supported dense selector forms, plus thirty whole-warp fixtures. Raw discovery observations are retained separately and earn no verification credit. All-architecture exact/readable Ghidra validation passes numerical and dataflow checks for matrices: 180,000 shared cases and 200 passing tests, with eighteen reviewed HMMA-only operation-count baseline changes. The updated twenty baseline tests pass. Focused source checks pass 216 tests, reference/plan checks pass 105 tests, and native matrix checks pass 82 tests. Real parameter expansion passes for all discovered definition signatures across architectures and both floating-point modes. Every F16 accumulator encoding agrees with the independent conversion reference. Shared stages and conversions keep all twenty languages below 16 MiB (SM107 exact after B2R: 16,775,529 bytes). The shared fraction-width calculation reduces sampled HMMA operation counts by 13.9–15.1% against `4e99cda`. Full-form HMMA planning is exhaustive; input profiles remain sampled regression domains. F16 output rounds the aligned sum directly to half after each tensor stage; a distinguishing SM89 boundary rejects intermediate F32 rounding. SM75 compiler emission establishes the two F16 `1688` encodings, but its numerical behavior remains unresolved. Other architectures' numerical staging remains inferred; sparse/indexed forms and other target gaps remain unfinished.
+Direct dense HMMA covers every legal selector form in `hmma_x8_` on SM80 and newer: F16/F32, BF16/F32, F16/F16 and TF32/F32, plus E6M9/F32 on SM86/SM89/SM90. SM75 remains unresolved. SM89 hardware regression passes 11,844 matrix shared cases across all eighty supported dense selector forms, plus thirty whole-warp fixtures. Raw discovery observations are retained separately and earn no verification credit. All-architecture exact/readable Ghidra validation passes numerical and dataflow checks for matrices: 180,000 shared cases and 200 passing tests, with eighteen reviewed HMMA-only operation-count baseline changes. The updated twenty baseline tests pass. Focused source checks pass 216 tests, reference/plan checks pass 105 tests, and native matrix checks pass 82 tests. Real parameter expansion passes for all discovered definition signatures across architectures and both floating-point modes. Every F16 accumulator encoding agrees with the independent conversion reference. Shared stages and conversions keep all twenty languages below 16 MiB (SM107 exact after CCTL: 16,734,092 bytes). The shared fraction-width calculation reduces sampled HMMA operation counts by 13.9–15.1% against `4e99cda`. Full-form HMMA planning is exhaustive; input profiles remain sampled regression domains. F16 output rounds the aligned sum directly to half after each tensor stage; a distinguishing SM89 boundary rejects intermediate F32 rounding. SM75 compiler emission establishes the two F16 `1688` encodings, but its numerical behavior remains unresolved. Other architectures' numerical staging remains inferred; sparse/indexed forms and other target gaps remain unfinished.
+
+## Cache-control implementation
+
+Ordinary D-cache PF1/PF2 requests are supported on every architecture; PML2/DML2 are supported on SM80 and newer. Both E and noE address forms are planned exhaustively for this subset: four forms on SM75 and eight on each other architecture. Runtime state records each operation and address and completes requests immediately under the existing sequentially consistent model. DML2 requires 128-byte alignment. Compiler traces, source-independent references and lane-distinguishing before/after memory fixtures establish the supported requests. GPU regression checks include every profile input beyond the planner's interaction coverage and twelve two-block predication fixtures. Synthetic noE and high-bit addresses remain emulator-only; their arithmetic is inferred. Cache-selector U/C/I, descriptors, predicate outputs, whole-cache controls, WB/IV/RS/RML2 and the legal SM75 priority selectors remain unresolved. No physical cache residency or timing model is claimed.
+
+The final control/conversion Ghidra run passes 4,508 numerical, profile, kernel and dataflow tests covering 191,390 shared cases across twenty languages. All twenty reviewed operation-count baselines pass separately. The shared GPU memory, atomic and asynchronous harness passes 5,533 hardware scenarios after correcting signed pointer relocation; negative 32-bit offsets previously became positive offsets near 4 GiB. High-bit Ghidra addresses now cross the Java signed-long boundary as bit patterns. These fixes retain exact comparisons.
 
 ## Barrier-state implementation
 

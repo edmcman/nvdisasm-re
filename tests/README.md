@@ -881,6 +881,25 @@ committed baselines in `baseline/`: a class that regresses fails, and a newly pa
 reported until accepted with `--update-baseline`. Review the diff of any baseline update; op-count
 increases (`pcode_<variant>.json`) should come only from classes the change touched.
 
+The 2026-11-04 cache-control changes were checked with:
+
+```sh
+nice uv run pytest tests/test_cache_control.py tests/test_ghidra_bridge.py tests/test_pcode_semantics.py tests/test_pcode_dataflow.py --family control --family conversions --family f2fp -m ghidra --arch all --fp all -q
+nice uv run pytest tests/test_pcode_dataflow.py -k pcode_ops -m ghidra --arch all --fp all -q
+nice uv run pytest tests/test_cases_on_gpu.py tests/test_refs_on_gpu.py --family control -m gpu --require-gpu --exhaustive -q
+nice uv run pytest tests/test_cache_control.py -m gpu --require-gpu -q
+nice uv run pytest tests/test_cases_on_gpu.py tests/test_refs_on_gpu.py --family memory --family atomic --family asynchronous -m gpu --require-gpu -q
+```
+
+The first command took 681 seconds alongside coverage refresh, passing 4,508
+tests and 191,390 shared cases; only the twenty operation-count ratchets needed
+their reviewed CCTL/conversion changes. The second passed all twenty ratchets
+in six seconds. The GPU commands took 25, nine and 52 seconds respectively.
+These contended measurements are validation records, not timing baselines.
+The direct cache-profile checks cover every retained input beyond the
+planner's interaction coverage; cooperative tests exercise two blocks under
+round-robin, reverse and seeded launch schedules.
+
 ## Caches
 
 Everything below lives in `.cache/` and is safe to delete.

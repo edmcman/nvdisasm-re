@@ -25,7 +25,8 @@
   F16/BF16/E6M9/1688/16816 and TF32/1684/1688 with F32 accumulators, or F16/1688/16816 with F16 outputs;
   legacy SM75 HMMA, sparse metadata and indexed registers;
   packed/expanded LDSM; SAFEADD, newer floating atomic types/operations and
-  MMIO; BRX depth changes; CCTL, ERRBAR and YIELD remain unfinished. B2R reads
+  MMIO; BRX depth changes; CCTL operations beyond ordinary D-cache
+  prefetch/priority address forms, ERRBAR and YIELD remain unfinished. B2R reads
   all three modes; packed-register BAR producers and overlapping arrival
   generations remain unresolved. MEMBAR's
   async/MMIO obligations and a complete ordinary-instruction scoreboard model are unresolved.

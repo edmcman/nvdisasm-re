@@ -55,8 +55,8 @@ def put(k, name, value, fields, regs, memory, reg, ureg=None, bank=None, imm=IMM
     value fills a register pair. False if the type is not accepted."""
     place = lambda r: regs.update(pair(r, value) if size == 8 else {r: value})
     match k.operand_types[name].type:
-        case "Register": fields[name] = reg; place(f"R{reg}")
-        case "UniformRegister":
+        case "Register" | "NonZeroRegister": fields[name] = reg; place(f"R{reg}")
+        case "UniformRegister" | "NonZeroUniformRegister":
             ureg = reg if ureg is None else ureg
             fields[name] = ureg; place(f"UR{ureg}")
         case "C" if bank:

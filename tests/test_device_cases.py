@@ -101,6 +101,37 @@ def test_memory_binding_preserves_single_register_addresses(cls):
     device_cases.image([probe])
 
 
+@pytest.mark.parametrize("operation", ["PF1", "DML2"])
+def test_memory_probe_relocates_wrapped_address(operation):
+    c = Cases("SM89")
+    address = 0xffffffff80000180
+    c.add("cctl__sImmOffset", dict(cop=operation, cache="D", e="E", Ra=2, Ra_offset=-0x80000000),
+          dict(R2=0x180, R3=0), dict(__memory="13" * 128),
+          memory=[dict(space="ram", address=address, hex="13" * 128)],
+          observe_memory=[dict(space="ram", address=address, size=128)],
+          hardware=dict(adapter="memory"))
+    case = c.complete()[0]
+    probe = device_cases.scalar_probe([device_cases.Scenario("unit", case, "memory")], "probe")
+    assert len(probe.arena) < 1024
+    device_cases.image([probe])
+
+
+@pytest.mark.parametrize("arch", ["SM89", "SM90"])
+@pytest.mark.parametrize("offset", [-0x80000000, -128, -1, 0, 128, 0x7fffffff, 0xffffffff])
+def test_pointer_relocation_keeps_signed_offset(arch, offset):
+    from sass.assemble import elf
+    from sass.semantics import evaluate, lifter
+    from sass.semantics.runtime import Runtime
+    from tests.harness import device_setup
+    code, state = device_cases.Code(arch), evaluate.State()
+    pointer = 0x0000123400000040
+    state.store("cbank", elf.PROFILES[arch].parameter_base + 72, 64, pointer)
+    device_setup.add_pointer(code, 2, 4, offset)
+    for value in code.words:
+        state = evaluate.execute(lifter.lift(arch, value.to_bytes(16, "little")), state, runtime=Runtime(arch[2:]))
+    assert state.read("R", 2, 2) == (pointer + offset) % (1 << 64)
+
+
 def test_async_uniform_source_binding():
     from sass.decode import ir
     from tests.harness import autocases, device_setup

@@ -28,8 +28,10 @@ def cx_operand(case, arch="SM89"):
 def add_pointer(code, dest, temp, offset=0):
     code.parameter(dest, 72); code.parameter(dest + 1, 76)
     if offset:
+        if not -(1 << 31) <= offset < 1 << 32: raise ValueError("pointer relocation exceeds a 32-bit offset")
         code.mov(f'R{temp}', offset)
-        code.emit('imad_wide__RsIR_RIR', Rd=dest, Ra=temp, Sb=1, Rc=dest, fmt='U32')
+        code.emit('imad_wide__RsIR_RIR', Rd=dest, Ra=temp, Sb=1, Rc=dest,
+                  fmt='S32' if offset < 0 else 'U32')
 
 
 def cx(code, case, temp, arena):
@@ -53,7 +55,7 @@ def cx(code, case, temp, arena):
     code.emit('ulop3_lut__URuIUR_URIR', URd=ur + 1, URa=ur + 1, Sb=units << (bits - 32), URc='URZ', imm8=0xfc, UPp='UPT')
 
 
-ADDRESSED = ('LD', 'ST', 'LDG', 'STG', 'LDL', 'STL', 'LDS', 'STS', 'ATOMG', 'LDGSTS')
+ADDRESSED = ('LD', 'ST', 'LDG', 'STG', 'LDL', 'STL', 'LDS', 'STS', 'ATOMG', 'LDGSTS', 'CCTL')
 
 
 def address_span(d, name, arch):
@@ -88,7 +90,7 @@ def memory_binding(case, arch="SM89"):
         address += regs.get(f'UR{u}', 0) if u != 63 else 0
         if address_span(d, uniform, arch) == 2:
             address += regs.get(f'UR{u + 1}', 0) << 32 if u != 63 else 0
-    if d.klass.mnemonic in ('LDG', 'STG', 'ATOMG', 'LDGSTS'): space, logical = 'ram', address
+    if d.klass.mnemonic in ('LDG', 'STG', 'ATOMG', 'LDGSTS', 'CCTL'): space, logical = 'ram', address
     elif d.klass.mnemonic in ('LDL', 'STL'): space, logical = 'localmem', address
     elif d.klass.mnemonic in ('LDS', 'STS'): space, logical = 'shared', address
     elif d.klass.mnemonic in ('LD', 'ST'):
@@ -138,6 +140,8 @@ def memory(code, case, temp, arena):
     regions = [dict(m, hex='00' * m['size']) for m in case.request.get('observe_memory', [])] + case.request.get('memory', [])
     if binding and binding[0] == 'ram':
         offset = memory_offset(d)
+        space, logical, ra, uniform = binding
+        binding = space, ((logical + offset) & ((1 << 64) - 1)) - offset, ra, uniform
         if not any(m['space'] == 'ram' and m['address'] <= binding[1] + offset < m['address'] + len(bytes.fromhex(m['hex'])) for m in regions):
             regions.append(dict(space='ram', address=binding[1] + offset, hex='00' * 16))
     ram = [m for m in regions if m['space'] == 'ram']

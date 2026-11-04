@@ -29,6 +29,7 @@ def library():
     lib.sass_primitive.argtypes = [ctypes.c_char_p, ctypes.POINTER(Warp), ctypes.c_uint32, ctypes.POINTER(ctypes.c_uint64),
                                    ctypes.c_int, ctypes.POINTER(ctypes.c_uint64), ctypes.c_char_p, ctypes.c_size_t]
     lib.sass_memory_descriptor.argtypes = [ctypes.c_uint64, ctypes.c_uint32, ctypes.c_char_p, ctypes.c_size_t]
+    lib.sass_cache_controls.argtypes = [ctypes.c_uint32, ctypes.c_uint64, ctypes.c_char_p, ctypes.c_size_t]
     lib.sass_fp.argtypes = [ctypes.c_int] * 5 + [ctypes.c_uint64] * 3
     lib.sass_fp.restype = ctypes.c_uint64
     lib.sass_fp_host.argtypes, lib.sass_fp_host.restype = lib.sass_fp.argtypes, lib.sass_fp.restype
@@ -55,6 +56,9 @@ def primitive(name, args, lane=0, active=None, waiting=0, ranges=()):
 
 
 def memory_descriptor(descriptor, packed_async=False): checked(library().sass_memory_descriptor, descriptor, packed_async)
+
+
+def cache_controls(operation, address): checked(library().sass_cache_controls, operation, address)
 
 
 def fp(op, width, a, b=0, c=0, mode="RN", scale=0, dst=None):

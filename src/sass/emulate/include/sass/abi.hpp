@@ -13,6 +13,18 @@ void sass_memory_write(sass::Memory *m, int space, uint64_t address, const uint8
 void sass_memory_read(const sass::Memory *m, int space, uint64_t address, uint8_t *data, size_t n) {
   for (size_t i = 0; i < n; ++i) data[i] = m->read(space, address + i);
 }
+sass::CacheState *sass_cache_new() { return new sass::CacheState(); }
+void sass_cache_free(sass::CacheState *s) { delete s; }
+int sass_cache_issue(sass::CacheState *s, uint32_t operation, uint64_t address, char *message, size_t size) {
+  auto status = s->issue(operation, address);
+  if (status) return 0;
+  std::snprintf(message, size, "%s", status.message().c_str());
+  return 1;
+}
+size_t sass_cache_requests(const sass::CacheState *s, sass::CacheRequest *out, size_t size) {
+  if (size >= s->requests.size()) std::copy(s->requests.begin(), s->requests.end(), out);
+  return s->requests.size();
+}
 void sass_async_issue(sass::AsyncState *s, uint64_t address, uint64_t low, uint64_t high, uint32_t size) {
   s->open.push_back({address, low, high, size});
 }

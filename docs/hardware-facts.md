@@ -1302,4 +1302,26 @@ Cache-control compiler discovery on 2026-11-04:
 - PTX 9.4 specifies prefetch and priority operations as cache effects, while
   discard permits unstable indeterminate values in the selected 128-byte
   range. RML2 therefore cannot be treated as an ordinary prefetch or an
-  unconditional no-op. These SASS forms remain unimplemented.
+  unconditional no-op. RML2 remains unimplemented.
+
+Cache-control value validation on 2026-11-04:
+
+- `cache-controls-SM89.json` retains compiler-generated before/after volatile
+  global-load observations for six cache operations, three repetitions each.
+  Reproduce with `PTXAS=/tmp/additional-cuda-13.4/ptxas nice uv run python
+  -m research.cache_controls_observe --out /tmp/cache-controls.json`.
+  These discovery observations earn no verification credit.
+- Twelve independent cooperative regression kernels pass on SM89: ordinary
+  CCTL.D.PF1/PF2/PML2/DML2 with P0, inverted P0 and an always-true predicate.
+  Every kernel executes its target and compares 64 outputs across two CTAs.
+  The requests preserve memory values; this does not establish physical
+  cache residency, eviction timing or cache performance.
+- The implementation records explicit requests completed under the existing
+  SC model. Its ordinary 32-bit address behavior is inferred from the address
+  encoding; hardware probes use paired E addresses. Other architectures have
+  compiler/specification evidence, not these SM89 observations.
+- The generated numeric-definition CUDA test passes for all 1,072 discovered
+  signatures, plus wide/mixed-argument ABI regressions, across ten architectures
+  and both lowering modes. It took 652 seconds with competing cold validation
+  work. This checks generated functions against independent numeric expectations;
+  it does not grant HMMA-instruction hardware evidence.

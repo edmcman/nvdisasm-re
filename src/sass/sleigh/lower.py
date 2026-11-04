@@ -23,11 +23,13 @@ import sass.semantics.families  # registers the families
 
 ELEMENT = {"R": 32, "UR": 32, "P": 1, "UP": 1}   # bits per register element
 SHARED = frozenset({"fma.rn.bf16x2", "add.ftz.f16x2", "mul.ftz.f16x2", "fma.ftz.f16x2"})
+STATIC_ARGUMENTS = {"f2fp.cvt": frozenset({3, 4, 5, 9, 10})}  # NaN/overflow flags and directed rounding.
 SCRATCH = frozenset({"atomic.add.f32.ftz.rn", "atomic.add.f64.rn", "atomic.add.f16x2.rn",
                      "fma.rn.f16", "fma.rn.bf16",
                      "narrow.rn.f16.f64", "narrow.rn.bf16.f64",
                      "hmma.tf32.product.e1", "hmma.tf32.product.e2",
-                     "cvt.f32.f16", "hmma16816.packed.f32.g8.e1"}) | frozenset(
+                     "cvt.f32.f16", "cvt.f16.f32", "cvt.f16.f64", "cvt.f32.f64",
+                     "f2fp.cvt", "hmma16816.packed.f32.g8.e1"}) | frozenset(
                          f"hmma.align.k{k}.e{e}"
                          for k, e in ((4, 1), (4, 2), (8, 1), (8, 2), (16, 2))) | frozenset(
                          f"hmma.normalize.{fmt}.e{e}" for fmt in ("f16", "f32") for e in (1, 2)) | frozenset(
@@ -754,17 +756,21 @@ class Lower:
 
     def scratch_call(self, e):
         g = self.b.g
-        signature = e.op, tuple(a.w for a in e.args), e.w
+        fixed = {index: argument.args[0] for index, argument in enumerate(e.args)
+                 if index in STATIC_ARGUMENTS.get(e.op, ()) and bitvec.is_const(argument)}
+        signature = e.op, tuple(a.w for a in e.args), e.w, tuple(sorted(fixed.items()))
         if signature not in g.scratch_calls:
             name = f"pure{len(g.scratch_calls)}"
             arguments = [f"PURE{len(g.scratch_calls)}ARG{index}" for index in range(len(e.args))]
             result = f"PURE{len(g.scratch_calls)}OUT"
             g.scratch_calls[signature] = name, arguments, result
-            g.temporaries.update({symbol: nbytes(bits) for symbol, bits in zip(arguments, signature[1])})
+            g.temporaries.update({symbol: nbytes(bits) for index, (symbol, bits) in enumerate(zip(arguments, signature[1]))
+                                 if index not in fixed})
             g.temporaries[result] = nbytes(e.w)
         name, arguments, result = g.scratch_calls[signature]
-        values = [self.value(argument) for argument in e.args]
-        for symbol, value in zip(arguments, values): self.code.add(f"{symbol} = {value.text};", value)
+        values = [(symbol, self.value(argument)) for index, (symbol, argument) in enumerate(zip(arguments, e.args))
+                  if index not in fixed]
+        for symbol, value in values: self.code.add(f"{symbol} = {value.text};", value)
         self.code.calls[name] += 1
         key = name, self.code.calls[name]
         if key not in g.scratch_forwards:
@@ -991,8 +997,10 @@ class Lower:
 
 def shared_tables(g):
     """Emit pure definitions, with arguments supplied by subtables or caller-written temporaries."""
-    def expression_body(label, widths, symbols, subtables):
-        params = [bitvec.param(symbol, bits) for symbol, bits in zip(symbols, widths)]
+    def expression_body(label, widths, symbols, subtables, bindings=()):
+        fixed = dict(bindings)
+        params = [bitvec.const(fixed[index], bits) if index in fixed else bitvec.param(symbol, bits)
+                  for index, (symbol, bits) in enumerate(zip(symbols, widths))]
         tree = bitvec.lowered(bitvec.DEFINED[label].expand(*params), preserve=SCRATCH)
         b = SimpleNamespace(g=g, values={}, refs=[], serial=0)
 
@@ -1014,9 +1022,9 @@ def shared_tables(g):
         g.table_lines.append(f'{name}: "" is {code.pattern()} {{ {text} }}')
     done = set()
     while pending := [signature for signature in g.scratch_calls if signature not in done]:
-        label, widths, width = signature = pending[0]
+        label, widths, width, bindings = signature = pending[0]
         name, arguments, result = g.scratch_calls[signature]
-        code, value = expression_body(label, widths, arguments, False)
+        code, value = expression_body(label, widths, arguments, False, bindings)
         code.add(f"{result} = {value.text};", value)
         g.table_lines.append(f'{name}: "" is {code.pattern()} {{ {code.body()} }}')
         done.add(signature)

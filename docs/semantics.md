@@ -150,7 +150,7 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   - `primitive_names` and `cxx.Lower.lazy`, since an expansion may hold a runtime primitive.
 - SLEIGH retains selected expensive definitions as shared subtables. Their argument
   constructors preserve class constraints and fields determining operand spans.
-  HMMA products/sums/fragments, scalar half/BF16 FMA, selected F64-to-half narrowing
+  HMMA products/sums/fragments, scalar half/BF16 FMA, selected floating narrowing
   and atomic floating ADD use caller-written internal argument
   registers, followed by an explicit build and an immediate result copy. Repeated
   calls in one constructor use distinct forwarding operands because SLEIGH rejects
@@ -181,6 +181,15 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   separate bodies.
   Constant completion predicates never need a second body (2026-11-04).
   This preserves values while fitting Ghidra's 16 MiB packed-data limit.
+  On 2026-11-04 CCTL's additional constructors required further sharing:
+  `cvt.f16.f32`, `cvt.f16.f64`, `cvt.f32.f64` and the parameterized `f2fp.cvt`
+  lane. SM107 exact becomes 16,734,092 bytes. Static NaN/overflow and unused
+  rounding inputs stay bound in the shared conversion signature. Sharing
+  still reduces constant folding: sampled F2FP register forms grow from 149
+  to 174 operations, immediate forms from 123 to 174. All twenty languages
+  pass numerical and register-dataflow checks for 191,390 shared cases;
+  their reviewed operation-count baselines pass separately. Sharing FP64 FMA or the outer 16816 fragment instead
+  increased compiled size, so those experiments were discarded.
 - **Printing** (`bitvec.show`): operators print as calls, a constant expression's value after it
   (`... = 0x3f800000`), and with `describe=True` the descriptions. `expand=True` prints the lowered
   expressions with each expansion pointing at its operator. A leaf result (a constant, a register)

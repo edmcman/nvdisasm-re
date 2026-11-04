@@ -32,6 +32,15 @@ def emulator_cases(c):
             c.add(cls, dict(Rd=dest, Pg=0, **{"Pg@not": invert}, **extra),
                   dict(R8=0x12345678, P0=p0), expected, context=context,
                   hardware={"skip": "synthetic barrier state; cooperative fixtures establish production"})
+    if c.arch != "SM75":
+        message = "cache priority address must be 128-byte aligned"
+        for predicate, invert in itertools.product((0, 1), (0, 1)):
+            enabled = predicate ^ invert
+            expected = dict(error=message) if enabled else dict(__events=0)
+            c.add("cctl__sImmOffset", dict(cop="DML2", cache="D", e="E", Ra=2, Ra_offset=-1,
+                                         Pg=0, **{"Pg@not": invert}),
+                  dict(R2=0x100, R3=0x12345678, P0=predicate), expected,
+                  hardware={"skip": "misaligned priority request is undefined in PTX"})
     for name, cls, fields, message in [("loop_limit", "bra_", dict(sImm=-16), "kernel instruction limit"),
                                        ("zero_target", "bra_", dict(sImm=-0x100010), "terminated without EXIT"),
                                        ("fallthrough", "nop_", {}, "PC outside kernel")]:
@@ -89,7 +98,7 @@ def branch(a, b, c):
 
 
 def gpu_fixtures(arch="SM89"):
-    from tests.harness import arguments, scalar, synchronization
+    from tests.harness import arguments, cache_controls, scalar, synchronization
     return [scalar.launch("branch", branch, arch=arch), arguments.fixture(arch),
             *synchronization.reductions(arch), *synchronization.barrier_states(arch),
-            *synchronization.indirect_branches(arch)]
+            *synchronization.indirect_branches(arch), *cache_controls.fixtures(arch)]

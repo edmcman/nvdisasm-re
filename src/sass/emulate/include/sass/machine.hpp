@@ -13,6 +13,7 @@
 #include "sass/primitives.hpp"
 #include "sass/fp.hpp"
 #include "sass/async.hpp"
+#include "sass/cache.hpp"
 
 namespace sass {
 enum Space : int { Ram, Shared, Localmem, Cbank, SPACES };
@@ -35,6 +36,7 @@ struct Memory {
   std::unordered_map<uint64_t, std::unique_ptr<Page>> pages[SPACES];
   const Memory *base = nullptr;
   Memory *global = nullptr;
+  CacheState cache;
 
   const Page *find(int s, uint64_t n) const {
     if (s == Ram && global) return global->find(s, n);
@@ -76,6 +78,7 @@ struct WarpContext {
   uint32_t write_dependency;
   uint32_t async_ready;
   uint32_t has_bar_states, bar_states[16];
+  CacheState *cache;
 };
 
 enum Sync { Bar, Bssy, Bsync, Break, Warpsync, Bmov };

@@ -26,7 +26,29 @@ class WarpContext(ctypes.Structure):
                 ("groups", ctypes.POINTER(OperandGroups)),
                 ("has_bar_result", ctypes.c_uint32), ("bar_result", ctypes.c_uint32), ("async_state", ctypes.c_void_p),
                 ("write_dependency", ctypes.c_uint32), ("async_ready", ctypes.c_uint32),
-                ("has_bar_states", ctypes.c_uint32), ("bar_states", ctypes.c_uint32 * 16)]
+                ("has_bar_states", ctypes.c_uint32), ("bar_states", ctypes.c_uint32 * 16),
+                ("cache", ctypes.c_void_p)]
+
+
+class CacheRequest(ctypes.Structure):
+    _fields_ = [("address", ctypes.c_uint64), ("operation", ctypes.c_uint32)]
+
+
+class Cache:
+    def __init__(self, library, state):
+        self.lib, self.state = library, state
+
+    def issue(self, operation, address):
+        message = ctypes.create_string_buffer(MESSAGE)
+        if self.lib.sass_cache_issue(self.state, operation, address, message, MESSAGE):
+            raise UnsupportedSemantics(message.value.decode())
+
+    def requests(self):
+        count = self.lib.sass_cache_requests(self.state, None, 0)
+        records = (CacheRequest * count)()
+        self.lib.sass_cache_requests(self.state, records, count)
+        return [dict(op="CCTL", operation=primitive.CACHE_OPERATIONS[r.operation], address=r.address)
+                for r in records]
 
 
 class AsyncCopy(ctypes.Structure):
@@ -81,6 +103,7 @@ def registers(t):
 
 def warp(context):
     w, found = WarpContext(), context.get("warp")
+    if cache := context.get("cache"): w.cache = cache.state
     if "barrier_result" in context: w.has_bar_result, w.bar_result = 1, int(context["barrier_result"])
     if (states := context.get("barrier_states")) is not None:
         if len(states) != 16: raise UnsupportedSemantics("sixteen barrier states required")
@@ -134,6 +157,11 @@ class Library:
         lib.sass_memory_free.argtypes = [ctypes.c_void_p]
         lib.sass_memory_write.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_uint64, ctypes.c_char_p, ctypes.c_size_t]
         lib.sass_memory_read.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_uint64, ctypes.c_char_p, ctypes.c_size_t]
+        lib.sass_cache_new.restype = ctypes.c_void_p
+        lib.sass_cache_free.argtypes = [ctypes.c_void_p]
+        lib.sass_cache_issue.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint64, ctypes.c_char_p, ctypes.c_size_t]
+        lib.sass_cache_requests.argtypes = [ctypes.c_void_p, ctypes.POINTER(CacheRequest), ctypes.c_size_t]
+        lib.sass_cache_requests.restype = ctypes.c_size_t
         lib.sass_async_issue.argtypes = [ctypes.c_void_p, ctypes.c_uint64, ctypes.c_uint64, ctypes.c_uint64, ctypes.c_uint32]
         lib.sass_async_commit.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
         lib.sass_async_wait.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint32, ctypes.c_uint32]

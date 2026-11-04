@@ -84,6 +84,16 @@ lanes use the same queue through the scheduler ABI.
 
 This is a deterministic completion policy under SC. It does not model ordinary
 instruction latency or claim a complete hardware scoreboard simulation.
+
+On 2026-11-04 ordinary CCTL.D.PF1/PF2 address forms record cache requests;
+SM80 and newer also support PML2/DML2. The shared scheduler owns the request
+state, with one global state in launch scope. Python and Ghidra callbacks
+use that same state. Requests complete immediately under SC and preserve
+memory. The model does not simulate physical cache contents, residency,
+eviction timing or performance. DML2 requires 128-byte alignment.
+Descriptor operands, predicate results, other cache selectors, whole-cache
+operations and RML2 discard remain unresolved. Standalone evaluation records
+an explicit event; native callers can provide a cache state to inspect requests.
 Unsupported environment controls still fail explicitly. Atomic sources, old
 memory, and returned values are captured before the instruction commits any
 register or memory writes; scheduler turns never interleave inside the transaction.

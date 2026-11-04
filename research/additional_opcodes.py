@@ -163,7 +163,8 @@ def report(data):
         "and excess P-code for discarded integer predicates. The plan is regenerated; launch "
         "tests compare against the reference on SM89/SM90; span constructors enforce their "
         "narrowed domains; predicate-sharing costs account for surviving expressions. "
-        "Pushed commit `292a5f0` currently has 52 passing checks, six running and nine skipped, "
+        "Pushed commit `0cdf0f2` has 53 passing checks, five running and nine skipped "
+        "at the recorded 2026-11-04 poll, "
         "with no failures. That result "
         "does not establish CI status for subsequent commits.", "",
         "## Current matrix validation", "",
@@ -181,7 +182,7 @@ def report(data):
         "expansion passes for all discovered definition signatures across architectures "
         "and both floating-point modes. Every F16 accumulator encoding agrees with the independent "
         "conversion reference. Shared stages and conversions keep all twenty "
-        "languages below 16 MiB (SM107 exact after B2R: 16,775,529 bytes). The shared fraction-width "
+        "languages below 16 MiB (SM107 exact after CCTL: 16,734,092 bytes). The shared fraction-width "
         "calculation reduces sampled HMMA operation counts by 13.9–15.1% against "
         "`4e99cda`. Full-form HMMA planning "
         "is exhaustive; input profiles remain sampled regression domains. F16 output "
@@ -191,6 +192,27 @@ def report(data):
         "behavior remains unresolved. Other architectures' numerical staging "
         "remains inferred; sparse/indexed forms and other target gaps remain "
         "unfinished.", "",
+        "## Cache-control implementation", "",
+        "Ordinary D-cache PF1/PF2 requests are supported on every architecture; PML2/DML2 "
+        "are supported on SM80 and newer. Both E and noE address forms are planned "
+        "exhaustively for this subset: four forms on SM75 and eight on each other "
+        "architecture. Runtime state records each operation and address and completes "
+        "requests immediately under the existing sequentially consistent model. "
+        "DML2 requires 128-byte alignment. Compiler traces, source-independent references "
+        "and lane-distinguishing before/after memory fixtures establish the supported "
+        "requests. GPU regression checks include every profile input beyond the planner's "
+        "interaction coverage and twelve two-block predication fixtures. Synthetic noE "
+        "and high-bit addresses remain emulator-only; their arithmetic is inferred. "
+        "Cache-selector U/C/I, descriptors, predicate outputs, whole-cache controls, "
+        "WB/IV/RS/RML2 and the legal SM75 priority selectors remain unresolved. "
+        "No physical cache residency or timing model is claimed.", "",
+        "The final control/conversion Ghidra run passes 4,508 numerical, profile, kernel "
+        "and dataflow tests covering 191,390 shared cases across twenty languages. "
+        "All twenty reviewed operation-count baselines pass separately. The shared GPU "
+        "memory, atomic and asynchronous harness passes 5,533 hardware scenarios after "
+        "correcting signed pointer relocation; negative 32-bit offsets previously became "
+        "positive offsets near 4 GiB. High-bit Ghidra addresses now cross the Java "
+        "signed-long boundary as bit patterns. These fixes retain exact comparisons.", "",
         "## Barrier-state implementation", "",
         "Cooperative B2R discovery retains actual kernels and raw outputs in "
         "`b2r-state-SM89.json`, `b2r-staggered-SM89.json`, "

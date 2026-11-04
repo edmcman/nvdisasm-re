@@ -169,6 +169,8 @@ class Lower:
         elif name == "sass_fence":
             sem, scope = (self.value(a) for a in args)
             self.emit(f"if ({sem} > 2 || {scope} > 3) throw sass::Fault{{\"invalid fence controls\"}};")
+        elif name == "sass_cache_control":
+            self.emit(f"sass::check((c.warp.cache ? c.warp.cache : &c.m.cache)->issue({', '.join(self.value(a) for a in args)}));")
         elif name in ("sass_async_issue", "sass_async_commit", "sass_async_wait"):
             self.emit(f"sass::{name[5:]}({', '.join(['c', *(self.value(a) for a in args)])});")
         elif name in SYNC: self.emit(f"sass::lane::synchronize(c, {SYNC[name]}, {self.value(args[0])}, false);")

@@ -6,6 +6,7 @@ predicate results outside ordinary LDG completion and non-IA address modes are u
 a load's Pnz input zero-fills."""
 from sass.semantics.bitvec import concat, const, extract, ite, load, sext, trunc, zext
 from sass.semantics.family import effect, family, outputs, store, unmodelled
+from sass.semantics import primitive
 
 SPACES = {"LDG": "ram", "STG": "ram", "LDS": "shared", "STS": "shared", "LDL": "localmem", "STL": "localmem", "LDC": "cbank", "LDCU": "cbank",
           "LD": "generic", "ST": "generic"}
@@ -73,6 +74,18 @@ def address(i):
     if not i.has_operand("Ra_offset|Sa_offset"): return base
     offset = i.resolve("Ra_offset|Sa_offset")
     return base + (sext if i.atom(offset).type == "SImm" else zext)(i.imm(offset), 64)
+
+
+@family("CCTL", modifier_roles={"cop": "effect", "cache": "effect"})
+def cache_control(i):
+    """Record a data-cache prefetch or priority request, completed immediately under SC."""
+    if i.cls not in ("cctl__sImmOffset", "cctl__sImmOffset_pf2"):
+        unmodelled("cache descriptor, predicate result or whole-cache operation")
+    required(i, "cache", "D")
+    operations = primitive.CACHE_OPERATIONS[:2] if i.arch.name == "SM75" else primitive.CACHE_OPERATIONS
+    if not i.select_in("cop", operations): unmodelled("cache operation unresolved")
+    operation = i.select_lookup_const("cop", {name: index for index, name in enumerate(operations)})
+    return outputs(effects=[effect("sass_cache_control", operation, address(i))])
 
 
 def windows(i, space, addr):

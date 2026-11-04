@@ -9,6 +9,19 @@ from tests.cases import emulator_cases
 from tests.harness import hardware
 from tests.harness.select import arches, require_languages
 
+@pytest.mark.ghidra
+@pytest.mark.parametrize("address", [0x8000000000001000, 0xffffffffffffffe0])
+def test_unsigned_instruction_address(address, pytestconfig):
+    from sass.assemble import assemble_instruction
+    if "SM89" not in arches(pytestconfig): pytest.skip("SM89 not selected")
+    require_languages([("SM89", "exact")])
+    word = assemble_instruction("SM89", "MOV R8, 42")
+    request = dict(word=word.hex(), address=address, registers={}, observe=["R8"])
+    result, = ghidra_bridge.emulate("SM89", "exact", [request])
+    assert result["registers"] == {"R8": 42}
+    assert result["counter"] == address + 16
+
+
 PROBE = """
 import atexit, runpy, sys
 atexit.register(lambda: print("MODULES", *sys.modules, file=sys.stderr))

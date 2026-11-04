@@ -36,6 +36,7 @@ def read_lane(x, src):
 
 
 OPERAND_GROUPS = ("Ra", "Rb", "Rc", "Re", "indexURc", "Ra_URb", "Ra_URc", "Rb_URc")
+CACHE_OPERATIONS = ("PF1", "PF2", "PML2", "DML2")
 
 
 def operand_lane(group, src, word, current=None):

@@ -40,6 +40,9 @@
       "CALL": {
         "reference": 8
       },
+      "CCTL": {
+        "reference": 8
+      },
       "CS2R": {
         "reference": 2
       },
@@ -474,7 +477,8 @@
         "opaque": 16
       },
       "CCTL": {
-        "opaque": 172
+        "native": 8,
+        "opaque": 164
       },
       "CCTLL": {
         "opaque": 22
@@ -1136,7 +1140,7 @@
     "evidence": {
       "none": 9,
       "ptxas": 15,
-      "reference": 543
+      "reference": 545
     },
     "opaque_operations": {
       "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
@@ -1147,6 +1151,31 @@
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_i_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
       "elect_Pp_": "Pp form",
       "f2fp_rs_16b__RIR": "outside implemented operation families",
       "f2fp_rs_16b__RRI": "outside implemented operation families",
@@ -1247,6 +1276,9 @@
       },
       "CALL": {
         "reference": 4
+      },
+      "CCTL": {
+        "reference": 2
       },
       "CS2R": {
         "reference": 1
@@ -1638,7 +1670,8 @@
         "partially native": 4
       },
       "CCTL": {
-        "opaque": 27
+        "opaque": 25,
+        "partially native": 2
       },
       "CCTLL": {
         "opaque": 5
@@ -2327,6 +2360,10 @@
         "opaque": 2,
         "partially native": 4
       },
+      "CCTL": {
+        "opaque": 25,
+        "partially native": 2
+      },
       "CS2R": {
         "native": 1
       },
@@ -2732,8 +2769,8 @@
     },
     "status": {
       "native": 357,
-      "opaque": 411,
-      "partially native": 139,
+      "opaque": 409,
+      "partially native": 141,
       "partially primitive": 6,
       "primitive": 65
     }
@@ -2779,6 +2816,9 @@
       "CALL": {
         "reference": 8
       },
+      "CCTL": {
+        "reference": 8
+      },
       "CS2R": {
         "reference": 2
       },
@@ -3213,7 +3253,8 @@
         "opaque": 16
       },
       "CCTL": {
-        "opaque": 172
+        "native": 8,
+        "opaque": 164
       },
       "CCTLL": {
         "opaque": 22
@@ -3875,7 +3916,7 @@
     "evidence": {
       "none": 9,
       "ptxas": 15,
-      "reference": 543
+      "reference": 545
     },
     "opaque_operations": {
       "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
@@ -3886,6 +3927,31 @@
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_i_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
       "elect_Pp_": "Pp form",
       "f2fp_rs_16b__RIR": "outside implemented operation families",
       "f2fp_rs_16b__RRI": "outside implemented operation families",
@@ -3986,6 +4052,9 @@
       },
       "CALL": {
         "reference": 4
+      },
+      "CCTL": {
+        "reference": 2
       },
       "CS2R": {
         "reference": 1
@@ -4377,7 +4446,8 @@
         "partially native": 4
       },
       "CCTL": {
-        "opaque": 27
+        "opaque": 25,
+        "partially native": 2
       },
       "CCTLL": {
         "opaque": 5
@@ -5066,6 +5136,10 @@
         "opaque": 2,
         "partially native": 4
       },
+      "CCTL": {
+        "opaque": 25,
+        "partially native": 2
+      },
       "CS2R": {
         "native": 1
       },
@@ -5471,8 +5545,8 @@
     },
     "status": {
       "native": 357,
-      "opaque": 411,
-      "partially native": 139,
+      "opaque": 409,
+      "partially native": 141,
       "partially primitive": 6,
       "primitive": 65
     }
@@ -5518,6 +5592,9 @@
       "CALL": {
         "reference": 8
       },
+      "CCTL": {
+        "reference": 8
+      },
       "CS2R": {
         "reference": 2
       },
@@ -5917,7 +5994,8 @@
         "opaque": 16
       },
       "CCTL": {
-        "opaque": 172
+        "native": 8,
+        "opaque": 164
       },
       "CCTLL": {
         "opaque": 22
@@ -6515,7 +6593,7 @@
     },
     "evidence": {
       "none": 9,
-      "reference": 533
+      "reference": 535
     },
     "opaque_operations": {
       "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
@@ -6526,6 +6604,31 @@
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_i_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
       "elect_Pp_": "Pp form",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
@@ -6608,6 +6711,9 @@
       },
       "CALL": {
         "reference": 4
+      },
+      "CCTL": {
+        "reference": 2
       },
       "CS2R": {
         "reference": 1
@@ -6967,7 +7073,8 @@
         "partially native": 4
       },
       "CCTL": {
-        "opaque": 27
+        "opaque": 25,
+        "partially native": 2
       },
       "CCTLL": {
         "opaque": 5
@@ -7597,6 +7704,10 @@
         "opaque": 2,
         "partially native": 4
       },
+      "CCTL": {
+        "opaque": 25,
+        "partially native": 2
+      },
       "CS2R": {
         "native": 1
       },
@@ -8000,8 +8111,8 @@
     },
     "status": {
       "native": 354,
-      "opaque": 362,
-      "partially native": 117,
+      "opaque": 360,
+      "partially native": 119,
       "partially primitive": 6,
       "primitive": 65
     }
@@ -8047,6 +8158,9 @@
       "CALL": {
         "reference": 8
       },
+      "CCTL": {
+        "reference": 8
+      },
       "CS2R": {
         "reference": 2
       },
@@ -8446,7 +8560,8 @@
         "opaque": 16
       },
       "CCTL": {
-        "opaque": 172
+        "native": 8,
+        "opaque": 164
       },
       "CCTLL": {
         "opaque": 22
@@ -9044,7 +9159,7 @@
     },
     "evidence": {
       "none": 9,
-      "reference": 533
+      "reference": 535
     },
     "opaque_operations": {
       "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
@@ -9055,6 +9170,31 @@
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_i_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
       "elect_Pp_": "Pp form",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
@@ -9137,6 +9277,9 @@
       },
       "CALL": {
         "reference": 4
+      },
+      "CCTL": {
+        "reference": 2
       },
       "CS2R": {
         "reference": 1
@@ -9496,7 +9639,8 @@
         "partially native": 4
       },
       "CCTL": {
-        "opaque": 27
+        "opaque": 25,
+        "partially native": 2
       },
       "CCTLL": {
         "opaque": 5
@@ -10126,6 +10270,10 @@
         "opaque": 2,
         "partially native": 4
       },
+      "CCTL": {
+        "opaque": 25,
+        "partially native": 2
+      },
       "CS2R": {
         "native": 1
       },
@@ -10529,8 +10677,8 @@
     },
     "status": {
       "native": 354,
-      "opaque": 362,
-      "partially native": 117,
+      "opaque": 360,
+      "partially native": 119,
       "partially primitive": 6,
       "primitive": 65
     }
@@ -10576,6 +10724,9 @@
       "CALL": {
         "reference": 8
       },
+      "CCTL": {
+        "reference": 8
+      },
       "CS2R": {
         "reference": 2
       },
@@ -11000,7 +11151,8 @@
         "opaque": 16
       },
       "CCTL": {
-        "opaque": 172
+        "native": 8,
+        "opaque": 164
       },
       "CCTLL": {
         "opaque": 22
@@ -11655,7 +11807,7 @@
     },
     "evidence": {
       "none": 12,
-      "reference": 558
+      "reference": 560
     },
     "opaque_operations": {
       "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
@@ -11666,6 +11818,31 @@
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_i_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
       "elect_Pp_": "Pp form",
       "f2fp_rs_16b__RIR": "outside implemented operation families",
       "f2fp_rs_16b__RRI": "outside implemented operation families",
@@ -11766,6 +11943,9 @@
       },
       "CALL": {
         "reference": 4
+      },
+      "CCTL": {
+        "reference": 2
       },
       "CS2R": {
         "reference": 1
@@ -12147,7 +12327,8 @@
         "partially native": 4
       },
       "CCTL": {
-        "opaque": 27
+        "opaque": 25,
+        "partially native": 2
       },
       "CCTLL": {
         "opaque": 5
@@ -12830,6 +13011,10 @@
         "opaque": 2,
         "partially native": 4
       },
+      "CCTL": {
+        "opaque": 25,
+        "partially native": 2
+      },
       "CS2R": {
         "native": 1
       },
@@ -13235,8 +13420,8 @@
     },
     "status": {
       "native": 357,
-      "opaque": 404,
-      "partially native": 139,
+      "opaque": 402,
+      "partially native": 141,
       "partially primitive": 6,
       "primitive": 68
     }
@@ -13282,6 +13467,9 @@
       "CALL": {
         "reference": 8
       },
+      "CCTL": {
+        "reference": 8
+      },
       "CS2R": {
         "reference": 2
       },
@@ -13706,7 +13894,8 @@
         "opaque": 16
       },
       "CCTL": {
-        "opaque": 172
+        "native": 8,
+        "opaque": 164
       },
       "CCTLL": {
         "opaque": 22
@@ -14361,7 +14550,7 @@
     },
     "evidence": {
       "none": 12,
-      "reference": 558
+      "reference": 560
     },
     "opaque_operations": {
       "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
@@ -14372,6 +14561,31 @@
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_i_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
       "elect_Pp_": "Pp form",
       "f2fp_rs_16b__RIR": "outside implemented operation families",
       "f2fp_rs_16b__RRI": "outside implemented operation families",
@@ -14472,6 +14686,9 @@
       },
       "CALL": {
         "reference": 4
+      },
+      "CCTL": {
+        "reference": 2
       },
       "CS2R": {
         "reference": 1
@@ -14853,7 +15070,8 @@
         "partially native": 4
       },
       "CCTL": {
-        "opaque": 27
+        "opaque": 25,
+        "partially native": 2
       },
       "CCTLL": {
         "opaque": 5
@@ -15536,6 +15754,10 @@
         "opaque": 2,
         "partially native": 4
       },
+      "CCTL": {
+        "opaque": 25,
+        "partially native": 2
+      },
       "CS2R": {
         "native": 1
       },
@@ -15941,8 +16163,8 @@
     },
     "status": {
       "native": 357,
-      "opaque": 404,
-      "partially native": 139,
+      "opaque": 402,
+      "partially native": 141,
       "partially primitive": 6,
       "primitive": 68
     }
@@ -15986,6 +16208,9 @@
         "reference": 6
       },
       "CALL": {
+        "reference": 8
+      },
+      "CCTL": {
         "reference": 8
       },
       "CS2R": {
@@ -16411,7 +16636,8 @@
         "opaque": 16
       },
       "CCTL": {
-        "opaque": 172
+        "native": 8,
+        "opaque": 164
       },
       "CCTLL": {
         "opaque": 22
@@ -17011,7 +17237,7 @@
     },
     "evidence": {
       "none": 13,
-      "reference": 579
+      "reference": 581
     },
     "opaque_operations": {
       "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
@@ -17022,6 +17248,31 @@
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_i_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
       "elect_Pp_": "Pp form",
       "f2fp_rs_16b__RIR": "outside implemented operation families",
       "f2fp_rs_16b__RRI": "outside implemented operation families",
@@ -17146,6 +17397,9 @@
       },
       "CALL": {
         "reference": 4
+      },
+      "CCTL": {
+        "reference": 2
       },
       "CS2R": {
         "reference": 1
@@ -17525,7 +17779,8 @@
         "partially native": 4
       },
       "CCTL": {
-        "opaque": 27
+        "opaque": 25,
+        "partially native": 2
       },
       "CCTLL": {
         "opaque": 5
@@ -18150,6 +18405,10 @@
         "opaque": 2,
         "partially native": 4
       },
+      "CCTL": {
+        "opaque": 25,
+        "partially native": 2
+      },
       "CS2R": {
         "native": 1
       },
@@ -18557,8 +18816,8 @@
     },
     "status": {
       "native": 352,
-      "opaque": 352,
-      "partially native": 166,
+      "opaque": 350,
+      "partially native": 168,
       "partially primitive": 6,
       "primitive": 68
     }
@@ -18602,6 +18861,9 @@
         "reference": 6
       },
       "CALL": {
+        "reference": 8
+      },
+      "CCTL": {
         "reference": 8
       },
       "CS2R": {
@@ -19027,7 +19289,8 @@
         "opaque": 16
       },
       "CCTL": {
-        "opaque": 172
+        "native": 8,
+        "opaque": 164
       },
       "CCTLL": {
         "opaque": 22
@@ -19627,7 +19890,7 @@
     },
     "evidence": {
       "none": 13,
-      "reference": 579
+      "reference": 581
     },
     "opaque_operations": {
       "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
@@ -19638,6 +19901,31 @@
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_i_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
       "elect_Pp_": "Pp form",
       "f2fp_rs_16b__RIR": "outside implemented operation families",
       "f2fp_rs_16b__RRI": "outside implemented operation families",
@@ -19762,6 +20050,9 @@
       },
       "CALL": {
         "reference": 4
+      },
+      "CCTL": {
+        "reference": 2
       },
       "CS2R": {
         "reference": 1
@@ -20141,7 +20432,8 @@
         "partially native": 4
       },
       "CCTL": {
-        "opaque": 27
+        "opaque": 25,
+        "partially native": 2
       },
       "CCTLL": {
         "opaque": 5
@@ -20766,6 +21058,10 @@
         "opaque": 2,
         "partially native": 4
       },
+      "CCTL": {
+        "opaque": 25,
+        "partially native": 2
+      },
       "CS2R": {
         "native": 1
       },
@@ -21173,8 +21469,8 @@
     },
     "status": {
       "native": 352,
-      "opaque": 352,
-      "partially native": 166,
+      "opaque": 350,
+      "partially native": 168,
       "partially primitive": 6,
       "primitive": 68
     }
@@ -21218,6 +21514,9 @@
         "reference": 6
       },
       "CALL": {
+        "reference": 8
+      },
+      "CCTL": {
         "reference": 8
       },
       "CS2R": {
@@ -21663,7 +21962,8 @@
         "opaque": 16
       },
       "CCTL": {
-        "opaque": 172
+        "native": 8,
+        "opaque": 164
       },
       "CCTLL": {
         "opaque": 22
@@ -22321,7 +22621,7 @@
     },
     "evidence": {
       "none": 13,
-      "reference": 588
+      "reference": 590
     },
     "opaque_operations": {
       "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
@@ -22332,6 +22632,31 @@
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_i_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
       "elect_Pp_": "Pp form",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
@@ -22454,6 +22779,9 @@
       },
       "CALL": {
         "reference": 4
+      },
+      "CCTL": {
+        "reference": 2
       },
       "CS2R": {
         "reference": 1
@@ -22851,7 +23179,8 @@
         "partially native": 4
       },
       "CCTL": {
-        "opaque": 27
+        "opaque": 25,
+        "partially native": 2
       },
       "CCTLL": {
         "opaque": 5
@@ -23541,6 +23870,10 @@
         "opaque": 2,
         "partially native": 4
       },
+      "CCTL": {
+        "opaque": 25,
+        "partially native": 2
+      },
       "CS2R": {
         "native": 1
       },
@@ -23950,8 +24283,8 @@
     },
     "status": {
       "native": 408,
-      "opaque": 414,
-      "partially native": 122,
+      "opaque": 412,
+      "partially native": 124,
       "partially primitive": 6,
       "primitive": 65
     }
@@ -23995,6 +24328,9 @@
         "reference": 6
       },
       "CALL": {
+        "reference": 8
+      },
+      "CCTL": {
         "reference": 8
       },
       "CS2R": {
@@ -24440,7 +24776,8 @@
         "opaque": 16
       },
       "CCTL": {
-        "opaque": 172
+        "native": 8,
+        "opaque": 164
       },
       "CCTLL": {
         "opaque": 22
@@ -25098,7 +25435,7 @@
     },
     "evidence": {
       "none": 13,
-      "reference": 588
+      "reference": 590
     },
     "opaque_operations": {
       "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
@@ -25109,6 +25446,31 @@
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldc_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bindless_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_const_bound_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_ivall_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_c_ldcu_va_": "cache descriptor, predicate result or whole-cache operation",
+      "cctl_i_ivall_wball_nosrc_": "cache descriptor, predicate result or whole-cache operation",
       "elect_Pp_": "Pp form",
       "fmnmx_pred__RIR_RIR": "is_A not modelled",
       "fmnmx_pred__RRR_RRR": "is_A not modelled",
@@ -25231,6 +25593,9 @@
       },
       "CALL": {
         "reference": 4
+      },
+      "CCTL": {
+        "reference": 2
       },
       "CS2R": {
         "reference": 1
@@ -25628,7 +25993,8 @@
         "partially native": 4
       },
       "CCTL": {
-        "opaque": 27
+        "opaque": 25,
+        "partially native": 2
       },
       "CCTLL": {
         "opaque": 5
@@ -26318,6 +26684,10 @@
         "opaque": 2,
         "partially native": 4
       },
+      "CCTL": {
+        "opaque": 25,
+        "partially native": 2
+      },
       "CS2R": {
         "native": 1
       },
@@ -26727,8 +27097,8 @@
     },
     "status": {
       "native": 408,
-      "opaque": 414,
-      "partially native": 122,
+      "opaque": 412,
+      "partially native": 124,
       "partially primitive": 6,
       "primitive": 65
     }
@@ -26773,6 +27143,9 @@
       },
       "CALL": {
         "reference": 10
+      },
+      "CCTL": {
+        "reference": 4
       },
       "CS2R": {
         "reference": 2
@@ -27141,7 +27514,8 @@
         "opaque": 18
       },
       "CCTL": {
-        "opaque": 96
+        "native": 4,
+        "opaque": 92
       },
       "CCTLL": {
         "opaque": 22
@@ -27589,11 +27963,17 @@
     "evidence": {
       "none": 8,
       "ptxas": 9,
-      "reference": 601
+      "reference": 602
     },
     "opaque_operations": {
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_C_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_I_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
       "f2fp_rs__RCR": "outside implemented operation families",
       "f2fp_rs__RCxR": "outside implemented operation families",
       "f2fp_rs__RIR": "outside implemented operation families",
@@ -27694,6 +28074,9 @@
       },
       "CALL": {
         "reference": 5
+      },
+      "CCTL": {
+        "reference": 1
       },
       "CS2R": {
         "reference": 1
@@ -28027,7 +28410,8 @@
         "partially native": 5
       },
       "CCTL": {
-        "opaque": 7
+        "opaque": 6,
+        "partially native": 1
       },
       "CCTLL": {
         "opaque": 5
@@ -28500,6 +28884,10 @@
         "opaque": 2,
         "partially native": 5
       },
+      "CCTL": {
+        "opaque": 6,
+        "partially native": 1
+      },
       "CS2R": {
         "native": 1
       },
@@ -28895,8 +29283,8 @@
     },
     "status": {
       "native": 438,
-      "opaque": 285,
-      "partially native": 102,
+      "opaque": 284,
+      "partially native": 103,
       "partially primitive": 4,
       "primitive": 74
     }
@@ -28941,6 +29329,9 @@
       },
       "CALL": {
         "reference": 10
+      },
+      "CCTL": {
+        "reference": 4
       },
       "CS2R": {
         "reference": 2
@@ -29309,7 +29700,8 @@
         "opaque": 18
       },
       "CCTL": {
-        "opaque": 96
+        "native": 4,
+        "opaque": 92
       },
       "CCTLL": {
         "opaque": 22
@@ -29757,11 +30149,17 @@
     "evidence": {
       "none": 8,
       "ptxas": 9,
-      "reference": 601
+      "reference": 602
     },
     "opaque_operations": {
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_C_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_I_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
       "f2fp_rs__RCR": "outside implemented operation families",
       "f2fp_rs__RCxR": "outside implemented operation families",
       "f2fp_rs__RIR": "outside implemented operation families",
@@ -29862,6 +30260,9 @@
       },
       "CALL": {
         "reference": 5
+      },
+      "CCTL": {
+        "reference": 1
       },
       "CS2R": {
         "reference": 1
@@ -30195,7 +30596,8 @@
         "partially native": 5
       },
       "CCTL": {
-        "opaque": 7
+        "opaque": 6,
+        "partially native": 1
       },
       "CCTLL": {
         "opaque": 5
@@ -30668,6 +31070,10 @@
         "opaque": 2,
         "partially native": 5
       },
+      "CCTL": {
+        "opaque": 6,
+        "partially native": 1
+      },
       "CS2R": {
         "native": 1
       },
@@ -31063,8 +31469,8 @@
     },
     "status": {
       "native": 438,
-      "opaque": 285,
-      "partially native": 102,
+      "opaque": 284,
+      "partially native": 103,
       "partially primitive": 4,
       "primitive": 74
     }
@@ -31109,6 +31515,9 @@
       },
       "CALL": {
         "reference": 10
+      },
+      "CCTL": {
+        "reference": 8
       },
       "CS2R": {
         "reference": 2
@@ -31493,7 +31902,8 @@
         "opaque": 18
       },
       "CCTL": {
-        "opaque": 144
+        "native": 8,
+        "opaque": 136
       },
       "CCTLL": {
         "opaque": 22
@@ -31951,12 +32361,18 @@
     "evidence": {
       "none": 6,
       "ptxas": 1,
-      "reference": 662
+      "reference": 663
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_C_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_I_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
       "f2fp_rs__RCR": "outside implemented operation families",
       "f2fp_rs__RCxR": "outside implemented operation families",
       "f2fp_rs__RIR": "outside implemented operation families",
@@ -32048,6 +32464,9 @@
       },
       "CALL": {
         "reference": 5
+      },
+      "CCTL": {
+        "reference": 1
       },
       "CS2R": {
         "reference": 1
@@ -32394,7 +32813,8 @@
         "partially native": 5
       },
       "CCTL": {
-        "opaque": 7
+        "opaque": 6,
+        "partially native": 1
       },
       "CCTLL": {
         "opaque": 5
@@ -32880,6 +33300,10 @@
         "opaque": 2,
         "partially native": 5
       },
+      "CCTL": {
+        "opaque": 6,
+        "partially native": 1
+      },
       "CS2R": {
         "native": 1
       },
@@ -33275,8 +33699,8 @@
     },
     "status": {
       "native": 479,
-      "opaque": 298,
-      "partially native": 111,
+      "opaque": 297,
+      "partially native": 112,
       "partially primitive": 3,
       "primitive": 76
     }
@@ -33321,6 +33745,9 @@
       },
       "CALL": {
         "reference": 10
+      },
+      "CCTL": {
+        "reference": 8
       },
       "CS2R": {
         "reference": 2
@@ -33705,7 +34132,8 @@
         "opaque": 18
       },
       "CCTL": {
-        "opaque": 144
+        "native": 8,
+        "opaque": 136
       },
       "CCTLL": {
         "opaque": 22
@@ -34162,12 +34590,18 @@
     "evidence": {
       "none": 6,
       "ptxas": 1,
-      "reference": 662
+      "reference": 663
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_C_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_I_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
       "f2fp_rs__RCR": "outside implemented operation families",
       "f2fp_rs__RCxR": "outside implemented operation families",
       "f2fp_rs__RIR": "outside implemented operation families",
@@ -34259,6 +34693,9 @@
       },
       "CALL": {
         "reference": 5
+      },
+      "CCTL": {
+        "reference": 1
       },
       "CS2R": {
         "reference": 1
@@ -34605,7 +35042,8 @@
         "partially native": 5
       },
       "CCTL": {
-        "opaque": 7
+        "opaque": 6,
+        "partially native": 1
       },
       "CCTLL": {
         "opaque": 5
@@ -35092,6 +35530,10 @@
         "opaque": 2,
         "partially native": 5
       },
+      "CCTL": {
+        "opaque": 6,
+        "partially native": 1
+      },
       "CS2R": {
         "native": 1
       },
@@ -35488,8 +35930,8 @@
     },
     "status": {
       "native": 496,
-      "opaque": 298,
-      "partially native": 94,
+      "opaque": 297,
+      "partially native": 95,
       "partially primitive": 3,
       "primitive": 76
     }
@@ -35534,6 +35976,9 @@
       },
       "CALL": {
         "reference": 10
+      },
+      "CCTL": {
+        "reference": 8
       },
       "CS2R": {
         "reference": 2
@@ -35926,7 +36371,8 @@
         "opaque": 18
       },
       "CCTL": {
-        "opaque": 144
+        "native": 8,
+        "opaque": 136
       },
       "CCTLL": {
         "opaque": 22
@@ -36418,12 +36864,18 @@
     },
     "evidence": {
       "none": 4,
-      "reference": 694
+      "reference": 695
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_C_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_I_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
       "f2fp_rs__RCR": "outside implemented operation families",
       "f2fp_rs__RCxR": "outside implemented operation families",
       "f2fp_rs__RIR": "outside implemented operation families",
@@ -36511,6 +36963,9 @@
       },
       "CALL": {
         "reference": 5
+      },
+      "CCTL": {
+        "reference": 1
       },
       "CS2R": {
         "reference": 1
@@ -36864,7 +37319,8 @@
         "partially native": 5
       },
       "CCTL": {
-        "opaque": 7
+        "opaque": 6,
+        "partially native": 1
       },
       "CCTLL": {
         "opaque": 5
@@ -37385,6 +37841,10 @@
         "opaque": 2,
         "partially native": 5
       },
+      "CCTL": {
+        "opaque": 6,
+        "partially native": 1
+      },
       "CS2R": {
         "native": 1
       },
@@ -37782,8 +38242,8 @@
     },
     "status": {
       "native": 500,
-      "opaque": 306,
-      "partially native": 119,
+      "opaque": 305,
+      "partially native": 120,
       "partially primitive": 3,
       "primitive": 76
     }
@@ -37828,6 +38288,9 @@
       },
       "CALL": {
         "reference": 10
+      },
+      "CCTL": {
+        "reference": 8
       },
       "CS2R": {
         "reference": 2
@@ -38220,7 +38683,8 @@
         "opaque": 18
       },
       "CCTL": {
-        "opaque": 144
+        "native": 8,
+        "opaque": 136
       },
       "CCTLL": {
         "opaque": 22
@@ -38712,12 +39176,18 @@
     },
     "evidence": {
       "none": 4,
-      "reference": 694
+      "reference": 695
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_C_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_I_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
       "f2fp_rs__RCR": "outside implemented operation families",
       "f2fp_rs__RCxR": "outside implemented operation families",
       "f2fp_rs__RIR": "outside implemented operation families",
@@ -38805,6 +39275,9 @@
       },
       "CALL": {
         "reference": 5
+      },
+      "CCTL": {
+        "reference": 1
       },
       "CS2R": {
         "reference": 1
@@ -39158,7 +39631,8 @@
         "partially native": 5
       },
       "CCTL": {
-        "opaque": 7
+        "opaque": 6,
+        "partially native": 1
       },
       "CCTLL": {
         "opaque": 5
@@ -39679,6 +40153,10 @@
         "opaque": 2,
         "partially native": 5
       },
+      "CCTL": {
+        "opaque": 6,
+        "partially native": 1
+      },
       "CS2R": {
         "native": 1
       },
@@ -40076,8 +40554,8 @@
     },
     "status": {
       "native": 500,
-      "opaque": 306,
-      "partially native": 119,
+      "opaque": 305,
+      "partially native": 120,
       "partially primitive": 3,
       "primitive": 76
     }
@@ -40129,6 +40607,10 @@
       },
       "CALL": {
         "reference": 10
+      },
+      "CCTL": {
+        "gpu": 4,
+        "reference": 4
       },
       "CS2R": {
         "gpu": 1,
@@ -40542,7 +41024,8 @@
         "opaque": 18
       },
       "CCTL": {
-        "opaque": 160
+        "native": 8,
+        "opaque": 152
       },
       "CCTLL": {
         "opaque": 22
@@ -41038,7 +41521,7 @@
       }
     },
     "evidence": {
-      "gpu": 642,
+      "gpu": 644,
       "none": 15,
       "ptxas": 4,
       "reference": 65
@@ -41047,6 +41530,23 @@
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_C_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_I_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
       "f2fp_rs__RCR": "outside implemented operation families",
       "f2fp_rs__RCxR": "outside implemented operation families",
       "f2fp_rs__RIR": "outside implemented operation families",
@@ -41145,6 +41645,9 @@
       },
       "CALL": {
         "reference": 5
+      },
+      "CCTL": {
+        "gpu": 2
       },
       "CS2R": {
         "gpu": 1
@@ -41509,7 +42012,8 @@
         "partially native": 5
       },
       "CCTL": {
-        "opaque": 19
+        "opaque": 17,
+        "partially native": 2
       },
       "CCTLL": {
         "opaque": 5
@@ -42035,6 +42539,10 @@
         "opaque": 2,
         "partially native": 5
       },
+      "CCTL": {
+        "opaque": 17,
+        "partially native": 2
+      },
       "CS2R": {
         "native": 1
       },
@@ -42434,8 +42942,8 @@
     },
     "status": {
       "native": 528,
-      "opaque": 328,
-      "partially native": 119,
+      "opaque": 326,
+      "partially native": 121,
       "partially primitive": 3,
       "primitive": 76
     }
@@ -42487,6 +42995,10 @@
       },
       "CALL": {
         "reference": 10
+      },
+      "CCTL": {
+        "gpu": 4,
+        "reference": 4
       },
       "CS2R": {
         "gpu": 1,
@@ -42901,7 +43413,8 @@
         "opaque": 18
       },
       "CCTL": {
-        "opaque": 160
+        "native": 8,
+        "opaque": 152
       },
       "CCTLL": {
         "opaque": 22
@@ -43397,7 +43910,7 @@
       }
     },
     "evidence": {
-      "gpu": 642,
+      "gpu": 644,
       "none": 15,
       "ptxas": 4,
       "reference": 65
@@ -43406,6 +43919,23 @@
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_C_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_I_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset_rml2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_pf2_q": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset_rml2": "cache descriptor, predicate result or whole-cache operation",
       "f2fp_rs__RCR": "outside implemented operation families",
       "f2fp_rs__RCxR": "outside implemented operation families",
       "f2fp_rs__RIR": "outside implemented operation families",
@@ -43504,6 +44034,9 @@
       },
       "CALL": {
         "reference": 5
+      },
+      "CCTL": {
+        "gpu": 2
       },
       "CS2R": {
         "gpu": 1
@@ -43868,7 +44401,8 @@
         "partially native": 5
       },
       "CCTL": {
-        "opaque": 19
+        "opaque": 17,
+        "partially native": 2
       },
       "CCTLL": {
         "opaque": 5
@@ -44394,6 +44928,10 @@
         "opaque": 2,
         "partially native": 5
       },
+      "CCTL": {
+        "opaque": 17,
+        "partially native": 2
+      },
       "CS2R": {
         "native": 1
       },
@@ -44793,8 +45331,8 @@
     },
     "status": {
       "native": 528,
-      "opaque": 328,
-      "partially native": 119,
+      "opaque": 326,
+      "partially native": 121,
       "partially primitive": 3,
       "primitive": 76
     }
@@ -44841,6 +45379,9 @@
       },
       "CALL": {
         "reference": 10
+      },
+      "CCTL": {
+        "reference": 8
       },
       "CS2R": {
         "gpu": 1,
@@ -45283,7 +45824,8 @@
         "opaque": 18
       },
       "CCTL": {
-        "opaque": 144
+        "native": 8,
+        "opaque": 136
       },
       "CCTLL": {
         "opaque": 22
@@ -45871,7 +46413,7 @@
     "evidence": {
       "gpu": 588,
       "none": 27,
-      "reference": 146
+      "reference": 147
     },
     "opaque_operations": {
       "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
@@ -45882,6 +46424,12 @@
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_C_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_I_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
       "elect_Pp_": "Pp form",
       "f2i_Rd64__CXb_64b": "32-bit source for F64; dstfmt outside the table",
       "f2i__CXb_64b": "32-bit source for F64; dstfmt outside the table",
@@ -45979,6 +46527,9 @@
       },
       "CALL": {
         "reference": 5
+      },
+      "CCTL": {
+        "reference": 1
       },
       "CS2R": {
         "gpu": 1
@@ -46376,7 +46927,8 @@
         "partially native": 5
       },
       "CCTL": {
-        "opaque": 7
+        "opaque": 6,
+        "partially native": 1
       },
       "CCTLL": {
         "opaque": 5
@@ -46993,6 +47545,10 @@
         "opaque": 2,
         "partially native": 5
       },
+      "CCTL": {
+        "opaque": 6,
+        "partially native": 1
+      },
       "CS2R": {
         "native": 1
       },
@@ -47395,8 +47951,8 @@
     },
     "status": {
       "native": 545,
-      "opaque": 412,
-      "partially native": 138,
+      "opaque": 411,
+      "partially native": 139,
       "partially primitive": 8,
       "primitive": 70
     }
@@ -47443,6 +47999,9 @@
       },
       "CALL": {
         "reference": 10
+      },
+      "CCTL": {
+        "reference": 8
       },
       "CS2R": {
         "gpu": 1,
@@ -47885,7 +48444,8 @@
         "opaque": 18
       },
       "CCTL": {
-        "opaque": 144
+        "native": 8,
+        "opaque": 136
       },
       "CCTLL": {
         "opaque": 22
@@ -48473,7 +49033,7 @@
     "evidence": {
       "gpu": 588,
       "none": 27,
-      "reference": 146
+      "reference": 147
     },
     "opaque_operations": {
       "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
@@ -48484,6 +49044,12 @@
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
+      "cctl__IVALL_WBALL_C_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_D_U_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__IVALL_WBALL_I_noSrc": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__sUROffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uImmOffset": "cache descriptor, predicate result or whole-cache operation",
+      "cctl__uUROffset": "cache descriptor, predicate result or whole-cache operation",
       "elect_Pp_": "Pp form",
       "f2i_Rd64__CXb_64b": "32-bit source for F64; dstfmt outside the table",
       "f2i__CXb_64b": "32-bit source for F64; dstfmt outside the table",
@@ -48581,6 +49147,9 @@
       },
       "CALL": {
         "reference": 5
+      },
+      "CCTL": {
+        "reference": 1
       },
       "CS2R": {
         "gpu": 1
@@ -48978,7 +49547,8 @@
         "partially native": 5
       },
       "CCTL": {
-        "opaque": 7
+        "opaque": 6,
+        "partially native": 1
       },
       "CCTLL": {
         "opaque": 5
@@ -49595,6 +50165,10 @@
         "opaque": 2,
         "partially native": 5
       },
+      "CCTL": {
+        "opaque": 6,
+        "partially native": 1
+      },
       "CS2R": {
         "native": 1
       },
@@ -49997,8 +50571,8 @@
     },
     "status": {
       "native": 545,
-      "opaque": 412,
-      "partially native": 138,
+      "opaque": 411,
+      "partially native": 139,
       "partially primitive": 8,
       "primitive": 70
     }
